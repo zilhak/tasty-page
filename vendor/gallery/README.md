@@ -1,6 +1,6 @@
 # Tasty Gallery
 
-The gallery is the canon the app follows. Its source lives in this system and is copied to the site at release. This page is the brief for that move, followed by the catalog as it stands. Companions: [`coverage.md`](coverage.md) (contract and location against specimen), `site-form-mock.html` (one page in the new form), `state-grid.jsx` and `contract-audit.js` (reference code).
+The gallery is the canon the app follows. Its source lives in this folder, and the site renders it from here. This page is the brief for that move, followed by the catalog as it stands. Companions: [`coverage.md`](coverage.md) (contract and location against specimen), `site-form-mock.html` (one page in the new form), `state-grid.jsx` and `contract-audit.js` (reference code).
 
 ## The site form
 
@@ -105,7 +105,7 @@ The check walks ancestors for the ground, so a specimen paints its ground on an 
 
 **Structure: one folder per page, one file per section where a section is large.** A page imports from `parts/` and never from another page. `parts/` is for what two or more pages share. `window.*` globals and `window.__EXPLORER_KIT_ONLY` go with the move to modules.
 
-**Format: ES modules, no exceptions for "old" files.** Every `.jsx` under `gallery/`, `ui_kits/terminal/` and `components/` imports what it uses and exports what it offers. Nothing registers itself on `window`, and nothing is loaded by a script tag. `ui_kits/terminal/chrome.jsx` and `work.jsx` are modules like the rest, and `app.jsx` imports them by name: a window-global version of either breaks the page. None of these files is a local variant of something else. To change one, read the current published file and edit that. Never republish a working copy from an earlier session.
+**Format: ES modules, no exceptions for "old" files.** Every `.jsx` under `gallery/`, `ui_kits/terminal/` and `components/` imports what it uses and exports what it offers. Nothing registers itself on `window`, and nothing is loaded by a script tag. `ui_kits/terminal/chrome.jsx` and `work.jsx` are modules like the rest, and `app.jsx` imports them by name: a window-global version of either breaks the page. None of these files is a local variant of something else. To change one, edit the file in this folder.
 
 | Now | Becomes |
 |---|---|
@@ -163,11 +163,11 @@ The page `.html` files go, and `site-form-mock.*` goes once the first real page 
 
 | Item | Decision | Why |
 |---|---|---|
-| Gallery sources as `.jsx` | Stay here, published as text | They are the source the site copies |
-| `gallery/*.html` | Removed after the move | Once the sources are modules they do not render on the Artifact page. The site is where they render |
-| `components/<Name>/preview.html`, `README.md`, `.d.ts` | Stay | The Artifact's component tab reads them |
-| `components/bundle.js`, `bundle.css` | Stay | The previews load them. The site does not: it imports `components/**/*.jsx` |
-| `components/**/*.jsx` | Canon for both | `bundle.js` is a build of these and can lag them, as it does now |
+| Gallery sources as `.jsx` | Stay here | They are the source the site renders |
+| `gallery/*.html` | Removed after the move | Once the sources are modules they do not render on their own. The site is where they render |
+| `components/<group>/<Name>.d.ts` | Stay | Types for each component, next to its `.jsx` |
+| `components/bundle.js`, `bundle.css` | Not kept | The site imports `components/**/*.jsx` directly |
+| `components/**/*.jsx` | Canon | The site and the app follow these |
 
 ### Prose slots, for Codex
 

@@ -1,7 +1,7 @@
 /**
  * Renders the built site in Mocha and Latte and measures what is on screen: every gallery page against the contract, as
- * RULES.md section 14 and gallery/README.md "The check" in the Artifact say, and the site's own pages against
- * RULES.md section 15, in contrast-site.mjs.
+ * vendor/RULES.md section 14 and vendor/gallery/README.md "The check" say, and the site's own pages against
+ * vendor/RULES.md section 15, in contrast-site.mjs.
  *
  *   npm run build && npm run check-contrast [-- --json <file>] [-- --page <key>] [-- --site-only] [-- --gallery-only]
  *
