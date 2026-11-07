@@ -1,5 +1,5 @@
 //! 이 레포의 추적 파일에 로컬 경로와 로컬 작업 문서의 인용이 없는지 확인한다.
-//! 공개 레포라 실제 사용자 홈 경로, 로컬 작업 폴더, 로컬 지침 폴더를 적지 않는다.
+//! 공개 레포라 실제 사용자 홈 경로, 로컬 작업 폴더, 로컬 지침 폴더, 이 컴퓨터의 레포 묶음 폴더 이름을 적지 않는다.
 //! 가이드·갤러리의 가상 예시 경로는 이유와 함께 허용 목록에 둔다. 규칙을 설명하는 문장처럼
 //! 로컬 폴더 이름을 적어야 하는 자리는 파일·문구·횟수를 등록해 새 문구가 자동 면제되지 않게 한다.
 //! 추적 파일 목록은 git ls-files로 얻는다. UTF-8 텍스트가 아닌 파일은 건너뛴다.
@@ -13,6 +13,10 @@ const LOCAL_WORKSPACE: &str = concat!(".cla", "ude-workspace");
 
 /// 로컬 지침 폴더 경로의 시작. `~/` 아래의 Claude Code 설정 폴더는 사용자 안내라 허용한다.
 const LOCAL_GUIDE_DIR: &str = concat!(".cla", "ude/");
+
+/// 이 컴퓨터에서 Tasty 레포들을 모아 두는 폴더와 worktree 폴더의 이름. 공개 레포에는 어떤 형태로도 나오지 않는다.
+/// 2026-11-08 기준 추적 파일에 정당하게 나오는 곳이 없어 허용 목록을 두지 않는다. 이 파일 자신은 나눠 적는다.
+const LOCAL_FOLDER_NAMES: &[&str] = &[concat!("tasty-", "project"), concat!("tasty-", "worktree")];
 
 /// 사용자 홈 아래라 Claude Code 사용자 설정을 가리키는 접두사.
 const USER_CONFIG_PREFIXES: &[&str] = &["~/", "$HOME/"];
@@ -109,6 +113,11 @@ fn violations(rel: &str, text: &str, mentions: &[Mention]) -> Vec<String> {
     for (i, line) in text.lines().enumerate() {
         for p in home_paths(line) {
             out.push(format!("  {rel}:{} — 홈 경로 {p}", i + 1));
+        }
+        for name in LOCAL_FOLDER_NAMES {
+            if line.contains(name) {
+                out.push(format!("  {rel}:{} — 로컬 폴더 이름 {name}", i + 1));
+            }
         }
     }
     let found = text.matches(LOCAL_WORKSPACE).count();
@@ -250,6 +259,23 @@ fn the_finders_answer_both_yes_and_no() {
         home_paths(&format!("{}{}", "/home/", "meow")),
         vec![format!("{}{}", "/home/", "meow")],
         "예시 이름의 접두사만 같은 이름을 허용했다"
+    );
+
+    let local = format!("~/workspace/{}/x", LOCAL_FOLDER_NAMES[0]);
+    assert_eq!(
+        violations("zone/c.md", &local, &[]).len(),
+        1,
+        "레포 묶음 폴더 이름을 놓쳤다"
+    );
+    let wt = format!("../{}/page-wt-1", LOCAL_FOLDER_NAMES[1]);
+    assert_eq!(
+        violations("zone/c.md", &wt, &[]).len(),
+        1,
+        "worktree 폴더 이름을 놓쳤다"
+    );
+    assert!(
+        violations("zone/c.md", "github.com/zilhak/tasty-page", &[]).is_empty(),
+        "공개 레포 이름을 로컬 폴더 이름으로 잡았다"
     );
 
     assert_eq!(local_guide_dir_hits("~/.claude/settings.json"), 0);
