@@ -5,7 +5,9 @@ name: Pages
 #
 # The public domain is still deployed from the Tasty repository. Until the
 # domain moves here, deploy only on a manual run from the release branch.
-# After the move, deploy on every push to release instead.
+# After the move, deploy on every push to release instead: change the
+# condition in three places to a push to refs/heads/release, namely the
+# configure-pages step, the upload-pages-artifact step, and the deploy job.
 
 on:
   push:
