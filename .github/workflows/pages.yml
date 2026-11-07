@@ -19,13 +19,12 @@ permissions:
   pages: write
   id-token: write
 
-# A new run cancels the previous run on the same branch only.
-concurrency:
-  group: pages-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
   build:
+    # A new build on the same branch cancels the previous build.
+    concurrency:
+      group: pages-build-${{ github.ref }}
+      cancel-in-progress: true
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
