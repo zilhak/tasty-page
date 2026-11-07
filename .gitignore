@@ -11,3 +11,4 @@ dist/
 .astro/
 release.json
 .tasty-src
+__pycache__/
