@@ -17,9 +17,9 @@ permissions:
   pages: write
   id-token: write
 
-# A new run cancels the previous one.
+# A new run cancels the previous run on the same branch only.
 concurrency:
-  group: pages
+  group: pages-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -60,6 +60,10 @@ jobs:
   deploy:
     if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/release'
     needs: build
+    # Never cancel a deploy that has started; queue the next one instead.
+    concurrency:
+      group: pages-deploy
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     timeout-minutes: 10
     environment:
