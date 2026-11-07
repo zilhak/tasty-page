@@ -44,7 +44,7 @@ function load(siteDir: string): Manifest {
     for (const a of json.assets ?? []) if (a.name && a.url) assets.set(a.name, a.url);
     return { tag: json.tagName, assets };
   } catch (e) {
-    console.warn(`site/release.json is not valid JSON, ignoring it: ${e}`);
+    console.warn(`release.json is not valid JSON, ignoring it: ${e}`);
     return { assets: new Map() };
   }
 }
