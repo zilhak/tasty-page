@@ -9,7 +9,7 @@
 // Exits 1 and lists every problem when the copies disagree.
 
 import { readFileSync, readdirSync } from "node:fs";
-import { join } from "node:path";
+import { basename, join } from "node:path";
 
 const ICON_DIR = "vendor/icons";
 const REGISTRY = "vendor/components/core/Icon.jsx";
@@ -43,10 +43,14 @@ function normalize(body) {
   return s.replace(/[ \t\n\r\f]+/g, " ").split("> <").join("><").trim();
 }
 
-function svgSources() {
+/** Every .svg under vendor/icons, subfolders included, keyed by file name without .svg. */
+function svgSources(problems) {
   const out = new Map();
-  for (const file of readdirSync(ICON_DIR).filter((f) => f.endsWith(".svg")).sort()) {
-    out.set(file.slice(0, -4), readFileSync(join(ICON_DIR, file), "utf8"));
+  const files = readdirSync(ICON_DIR, { recursive: true }).filter((f) => f.endsWith(".svg")).sort();
+  for (const file of files) {
+    const name = basename(file, ".svg");
+    if (out.has(name)) problems.push(`two icon files are named ${name}.svg`);
+    out.set(name, readFileSync(join(ICON_DIR, file), "utf8"));
   }
   return out;
 }
@@ -156,7 +160,7 @@ function registryEnvelope(src) {
 
 const problems = [];
 const registrySrc = readFileSync(REGISTRY, "utf8");
-const sources = svgSources();
+const sources = svgSources(problems);
 const files = fileBodies(sources, problems);
 const registry = registryBodies(registrySrc);
 
