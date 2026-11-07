@@ -1,0 +1,175 @@
+/* Tasty Design System — generated from tokens.json */
+:root, [data-theme="mocha"] {
+  --tasty-color-neutral-0: #11111b;
+  --tasty-color-neutral-100: #181825;
+  --tasty-color-neutral-200: #1e1e2e;
+  --tasty-color-neutral-300: #313244;
+  --tasty-color-neutral-400: #45475a;
+  --tasty-color-neutral-500: #585b70;
+  --tasty-color-neutral-600: #6c7086;
+  --tasty-color-neutral-700: #7f849c;
+  --tasty-color-neutral-800: #9399b2;
+  --tasty-color-neutral-900: #a6adc8;
+  --tasty-color-neutral-1000: #bac2de;
+  --tasty-color-neutral-1100: #cdd6f4;
+  --tasty-color-blue: #89b4fa;
+  --tasty-color-green: #a6e3a1;
+  --tasty-color-red: #f38ba8;
+  --tasty-color-yellow: #f9e2af;
+  --tasty-color-peach: #fab387;
+  --tasty-color-mauve: #cba6f7;
+  --tasty-color-teal: #94e2d5;
+  --tasty-color-sky: #89dceb;
+  --tasty-color-lavender: #b4befe;
+  --tasty-color-flamingo: #f2cdcd;
+  --tasty-color-pink: #f5c2e7;
+  --tasty-color-maroon: #eba0ac;
+  --tasty-color-rosewater: #f5e0dc;
+  --tasty-color-black: #000000;
+  --tasty-color-white: #ffffff;
+  --tasty-alpha-white-8: rgba(255, 255, 255, 0.08);
+  --tasty-alpha-white-12: rgba(255, 255, 255, 0.12);
+  --tasty-alpha-black-8: rgba(0, 0, 0, 0.08);
+  --tasty-alpha-black-12: rgba(0, 0, 0, 0.12);
+  --tasty-alpha-black-50: rgba(0, 0, 0, 0.5);
+  --tasty-color-melon-flesh: #f25d6b;
+  --tasty-color-melon-rind: #1e7d4f;
+  --tasty-color-melon-seed: #11111b;
+  --tasty-color-os-windows-close: #c42b1c;
+  --tasty-color-os-macos-close: #ec6a5e;
+  --tasty-color-os-macos-min: #f4bf4f;
+  --tasty-color-os-macos-zoom: #61c554;
+}
+[data-theme="latte"] {
+  --tasty-color-neutral-0: #dce0e8;
+  --tasty-color-neutral-100: #e6e9ef;
+  --tasty-color-neutral-200: #eff1f5;
+  --tasty-color-neutral-300: #ccd0da;
+  --tasty-color-neutral-400: #bcc0cc;
+  --tasty-color-neutral-500: #acb0be;
+  --tasty-color-neutral-600: #9ca0b0;
+  --tasty-color-neutral-700: #8c8fa1;
+  --tasty-color-neutral-800: #7c7f93;
+  --tasty-color-neutral-900: #63667c;
+  --tasty-color-neutral-1000: #5c5f77;
+  --tasty-color-neutral-1100: #4c4f69;
+  --tasty-color-blue: #1e66f5;
+  --tasty-color-green: #40a02b;
+  --tasty-color-red: #d20f39;
+  --tasty-color-yellow: #df8e1d;
+  --tasty-color-peach: #fe640b;
+  --tasty-color-mauve: #8839ef;
+  --tasty-color-teal: #179299;
+  --tasty-color-sky: #04a5e5;
+  --tasty-color-lavender: #7287fd;
+  --tasty-color-flamingo: #dd7878;
+  --tasty-color-pink: #ea76cb;
+  --tasty-color-maroon: #e64553;
+  --tasty-color-rosewater: #dc8a78;
+}
+:root {
+  --tasty-size-0: 0;
+  --tasty-size-1: 1px;
+  --tasty-size-1-5: 1.5px;
+  --tasty-size-2: 2px;
+  --tasty-size-3: 3px;
+  --tasty-size-4: 4px;
+  --tasty-size-6: 6px;
+  --tasty-size-8: 8px;
+  --tasty-size-10: 10px;
+  --tasty-size-12: 12px;
+  --tasty-size-14: 14px;
+  --tasty-size-16: 16px;
+  --tasty-size-24: 24px;
+  --tasty-size-20: 20px;
+  --tasty-size-22: 22px;
+  --tasty-size-28: 28px;
+  --tasty-size-32: 32px;
+  --tasty-size-36: 36px;
+  --tasty-size-40: 40px;
+  --tasty-size-44: 44px;
+  --tasty-size-46: 46px;
+  --tasty-size-48: 48px;
+  --tasty-size-52: 52px;
+  --tasty-size-56: 56px;
+  --tasty-size-120: 120px;
+  --tasty-size-150: 150px;
+  --tasty-size-196: 196px;
+  --tasty-size-240: 240px;
+  --tasty-size-320: 320px;
+  --tasty-size-352: 352px;
+  --tasty-size-64: 64px;
+  --tasty-size-88: 88px;
+  --tasty-size-90: 90px;
+  --tasty-size-96: 96px;
+  --tasty-size-110: 110px;
+  --tasty-size-112: 112px;
+  --tasty-size-140: 140px;
+  --tasty-size-160: 160px;
+  --tasty-size-168: 168px;
+  --tasty-size-180: 180px;
+  --tasty-size-200: 200px;
+  --tasty-size-220: 220px;
+  --tasty-size-288: 288px;
+  --tasty-size-300: 300px;
+  --tasty-size-360: 360px;
+  --tasty-size-400: 400px;
+  --tasty-size-440: 440px;
+  --tasty-size-460: 460px;
+  --tasty-size-480: 480px;
+  --tasty-size-560: 560px;
+  --tasty-size-600: 600px;
+  --tasty-size-620: 620px;
+  --tasty-size-540: 540px;
+  --tasty-size-700: 700px;
+  --tasty-size-1100: 1100px;
+  --tasty-radius-0: 0px;
+  --tasty-radius-2: 2px;
+  --tasty-radius-4: 4px;
+  --tasty-radius-8: 8px;
+  --tasty-radius-full: 9999px;
+  --tasty-font-size-10: 10px;
+  --tasty-font-size-11: 11px;
+  --tasty-font-size-12: 12px;
+  --tasty-font-size-13: 13px;
+  --tasty-font-size-14: 14px;
+  --tasty-font-size-16: 16px;
+  --tasty-font-size-17: 17px;
+  --tasty-font-size-20: 20px;
+  --tasty-font-size-30: 30px;
+  --tasty-font-weight-400: 400;
+  --tasty-font-weight-500: 500;
+  --tasty-font-weight-600: 600;
+  --tasty-font-weight-700: 700;
+  --tasty-line-height-100: 1.0;
+  --tasty-line-height-120: 1.2;
+  --tasty-line-height-140: 1.4;
+  --tasty-line-height-160: 1.6;
+  --tasty-letter-spacing-0: 0;
+  --tasty-letter-spacing-04: 0.04em;
+  --tasty-letter-spacing-07: 0.07em;
+  --tasty-letter-spacing-n1px: -1px;
+  --tasty-opacity-disabled: 0.5;
+  --tasty-opacity-recessed: 0.4;
+  --tasty-opacity-dimmed: 0.75;
+  --tasty-opacity-tint-fill: 0.12;
+  --tasty-opacity-tint-border: 0.36;
+  --tasty-scale-80: 0.8;
+  --tasty-scale-100: 1;
+  --tasty-scale-120: 1.2;
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "D2Coding", "SF Mono", "Cascadia Code", "JetBrains Mono", ui-monospace, "Menlo", "Consolas", monospace;
+}
+.tasty-type-body { font-family: var(--font-sans); font-size: 13px; line-height: 1.4; font-weight: 400; }
+.tasty-type-heading { font-family: var(--font-sans); font-size: 13px; line-height: 1.4; font-weight: 600; }
+.tasty-type-max { font-family: var(--font-sans); font-size: 14px; line-height: 1.4; font-weight: 400; }
+.tasty-type-caption { font-family: var(--font-sans); font-size: 11px; line-height: 1.4; font-weight: 400; }
+.tasty-type-micro { font-family: var(--font-sans); font-size: 10px; font-weight: 400; }
+.tasty-type-prose-h1 { font-family: var(--font-sans); font-size: 20px; }
+.tasty-type-brand-wordmark { font-family: var(--font-mono); font-size: 17px; }
+.tasty-type-brand-display { font-family: var(--font-mono); font-size: 30px; }
+.tasty-type-term-sm { font-family: var(--font-mono); font-size: 12px; line-height: 1.2; }
+.tasty-type-term { font-family: var(--font-mono); font-size: 14px; line-height: 1.2; }
+.tasty-type-term-lg { font-family: var(--font-mono); font-size: 16px; line-height: 1.2; }
+@font-face { font-family: "D2Coding"; src: url("fonts/D2Coding-ligature-Regular.ttf") format("truetype"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: "D2Coding"; src: url("fonts/D2Coding-ligature-Bold.ttf") format("truetype"); font-weight: 700; font-style: normal; font-display: swap; }
