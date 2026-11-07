@@ -1,4 +1,4 @@
-<!-- source-hash: 41504fc39e96 -->
+<!-- source-hash: 2181560fbc29 -->
 # Settings
 
 Configure Tasty’s shell, fonts, language, and other preferences. Use the settings window or edit `~/.tasty/config.toml` directly. Keybindings and themes have their own guides.
