@@ -25,7 +25,7 @@ export default defineConfig({
   markdown: {
     processor: satteri({
       hastPlugins: [
-        createGuideLinkPlugin(fileURLToPath(new URL("content", import.meta.url)), fileURLToPath(new URL("..", import.meta.url))),
+        createGuideLinkPlugin(fileURLToPath(new URL("content", import.meta.url))),
         // The English tree is `content/en/`; everything else is the Korean source,
         // which also serves untranslated English pages.
         createTableWrapPlugin(),
