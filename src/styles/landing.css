@@ -1,4 +1,4 @@
-/* Colors come from the vendored design tokens; spacing, radii and shadows use the
+/* Colors come from the design tokens in vendor/; spacing, radii and shadows use the
    site's own variables defined in global.css.
 
    Every rule here is the site's own (docs/dev-guide/site.md), so spacing uses the

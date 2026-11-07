@@ -12,7 +12,7 @@ import { renderDiagram, isDiagram } from "./diagrams.jsx";
  *     ```
  *
  * Keep the ASCII drawing for GitHub readers. On the site, replace it with
- * a diagram made from the vendored design kit.
+ * a diagram made from the design kit in vendor/.
  *
  * The marker is a comment rather than a fence language because the highlighter
  * runs first and rewrites an unrecognised language to `plaintext`, taking the

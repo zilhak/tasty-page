@@ -37,7 +37,7 @@ export const designPath = (slug: string, lang: Lang) =>
 
 export const pick = <T>(v: { en: T; ko: T }, lang: Lang) => (lang === "ko" ? v.ko : v.en);
 
-/** The gallery uses shared routes. `key` matches the page folder in site/vendor/gallery/. */
+/** The gallery uses shared routes. `key` matches the page folder in vendor/gallery/. */
 export interface GalleryPage {
   key: string;
   /** Route under `design/gallery/`; "" is the gallery root. */

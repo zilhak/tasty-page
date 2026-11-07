@@ -1,4 +1,4 @@
-/** Static files the site derives from site/vendor/ at build time. Nothing here is written into the source tree. */
+/** Static files the site derives from vendor/ at build time. Nothing here is written into the source tree. */
 const TIERS = import.meta.glob("../../vendor/tokens/{primitives,semantic,components,base}.css", {
   query: "?raw",
   import: "default",

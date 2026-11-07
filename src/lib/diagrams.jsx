@@ -4,7 +4,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { WindowAnatomy } from "../components/diagrams/WindowAnatomy.jsx";
 import { SettingsAnatomy } from "../components/diagrams/SettingsAnatomy.jsx";
 
-/** Replace marked code blocks with diagrams from the vendored kit.
+/** Replace marked code blocks with diagrams from the vendor/ kit.
  * The ASCII drawings remain in Markdown for readers on GitHub. */
 const LABELS = {
   ko: { titlebar: "타이틀바", sidebar: "사이드바", tabstrip: "탭 스트립", work: "작업 영역", statusbar: "상태바", workspaces: "워크스페이스" },

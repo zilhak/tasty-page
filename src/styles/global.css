@@ -1,5 +1,5 @@
-/* Site layout and document typography. Colors come from the vendored design
- * tokens; spacing and radii use the site's own scale suited to web prose.
+/* Site layout and document typography. Colors come from the design tokens
+ * in vendor/; spacing and radii use the site's own scale suited to web prose.
  *
  * Every rule here is the site's own (docs/dev-guide/site.md): spacing uses --sp-*,
  * radii use --radius*, control and glyph sizes use --size-*, and the page widths

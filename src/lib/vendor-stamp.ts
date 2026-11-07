@@ -1,12 +1,12 @@
 import { execFileSync } from "node:child_process";
 
-/** Date of the latest change to the vendored design copy. README and MANIFEST describe the copy, so they do not count.
+/** Date of the latest change to the design source in vendor/. README describes the folder, not the design, so it does not count.
  *  Missing history or a failed Git command gives no stamp, and the page shows no date. */
 export const vendorStamp = (): { date: string; commit: string } | null => {
   try {
     const out = execFileSync(
       "git",
-      ["log", "-1", "--format=%cs\t%h", "--", "vendor", ":(exclude)vendor/README.md", ":(exclude)vendor/MANIFEST"],
+      ["log", "-1", "--format=%cs\t%h", "--", "vendor", ":(exclude)vendor/README.md"],
       { cwd: process.cwd(), encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] },
     ).trim();
     if (!out) return null;

@@ -9,7 +9,7 @@ import { stringsFor } from "../lib/strings";
 
 interface Props {
   pageKey: string;
-  /** The page descriptor the vendored page exports: its title, intro and sections. */
+  /** The page descriptor the vendor/ gallery page exports: its title, intro and sections. */
   page: { head: { title: string; intro?: string }; nav?: { id: string; label: string }[] };
 }
 const { pageKey, page } = Astro.props;

@@ -2,7 +2,7 @@ import React from "react";
 import { TitleBar, Sidebar } from "../../../vendor/ui_kits/terminal/chrome.jsx";
 import { TabStrip, TerminalPane, StatusBar, Prompt } from "../../../vendor/ui_kits/terminal/work.jsx";
 
-/** Label the vendored kit regions. Wrappers keep label styles separate
+/** Label the regions of the vendor/ kit. Wrappers keep label styles separate
  * from the kit components' inline styles. */
 const noop = () => {};
 

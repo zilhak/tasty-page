@@ -10,7 +10,7 @@ import { SettingsWindow } from "../../vendor/ui_kits/terminal/overlays/settings_
 import { ToolsMenu } from "../../vendor/ui_kits/terminal/overlays/tools_menu.jsx";
 import { TabStrip, TerminalPane, MarkdownSurface, StatusBar, Prompt } from "../../vendor/ui_kits/terminal/work.jsx";
 
-/** Interactive landing-page demo built from the vendored UI kit. */
+/** Interactive landing-page demo built from the UI kit in vendor/. */
 const c = {
   green: "var(--tasty-accent-success-raised)", blue: "var(--tasty-accent-primary-raised)", mauve: "var(--tasty-accent-agent-raised)",
   yellow: "var(--tasty-accent-warning-raised)", dim: "var(--tasty-text-muted)", teal: "var(--tasty-accent-info-raised)",
