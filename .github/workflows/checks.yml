@@ -1,0 +1,79 @@
+name: Checks
+
+# Compares the user guide in content/ with the Tasty source it describes.
+# The Tasty source is checked out into .tasty-src:
+#   main (and pull requests into main, scheduled runs) -> Tasty main
+#   release (and pull requests into release) -> the Tasty tag with the same name
+#     as the latest tag reachable in this repository
+# The daily run catches Tasty changes that land while this repository is quiet.
+on:
+  push:
+    branches: [main, release]
+  pull_request:
+  schedule:
+    - cron: "17 3 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: checks-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  guide-against-source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # The release side needs the tags to find its Tasty version.
+          fetch-depth: 0
+
+      - name: Choose the Tasty ref
+        id: tasty
+        env:
+          EVENT: ${{ github.event_name }}
+          BASE_REF: ${{ github.base_ref }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          if [ "$EVENT" = "pull_request" ]; then
+            branch="$BASE_REF"
+          elif [ "$EVENT" = "schedule" ]; then
+            branch=main
+          else
+            branch="$REF_NAME"
+          fi
+          if [ "$branch" = "release" ]; then
+            if ! ref=$(git describe --tags --abbrev=0 HEAD); then
+              echo "::error::No tag is reachable from release. Tag each release with the Tasty release tag."
+              exit 1
+            fi
+          else
+            ref=main
+          fi
+          echo "Tasty ref for $branch: $ref"
+          echo "ref=$ref" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/checkout@v4
+        with:
+          repository: zilhak/tasty
+          ref: ${{ steps.tasty.outputs.ref }}
+          path: .tasty-src
+          persist-credentials: false
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            checks/target
+          key: checks-${{ runner.os }}-${{ hashFiles('checks/Cargo.lock', 'checks/rust-toolchain.toml') }}-${{ steps.tasty.outputs.ref }}
+          restore-keys: |
+            checks-${{ runner.os }}-${{ hashFiles('checks/Cargo.lock', 'checks/rust-toolchain.toml') }}-
+
+      # rustup reads rust-toolchain.toml from the working directory, so run from checks/.
+      - name: cargo test
+        working-directory: checks
+        run: cargo test --manifest-path Cargo.toml --locked --no-fail-fast
