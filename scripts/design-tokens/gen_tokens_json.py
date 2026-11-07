@@ -49,7 +49,7 @@ def collect(project):
         for p in paths:
             for scope, name, value in parse(p):
                 if not name.startswith("--tasty-"):
-                    continue  # tokens.css also defines the type-class helpers --font-sans/--font-mono
+                    continue  # only --tasty-* names are tokens; other custom properties are skipped
                 key = name[len("--tasty-"):]
                 if is_latte(scope):
                     if key in latte:
