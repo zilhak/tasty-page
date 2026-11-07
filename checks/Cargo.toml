@@ -1,0 +1,19 @@
+# Checks that compare the user guide in content/ with the Tasty source tree.
+# The Tasty source is expected at ../.tasty-src: a checkout in CI, a symlink to a
+# local clone otherwise. This crate is not a member of the Tasty workspace.
+[package]
+name = "tasty-page-checks"
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+publish = false
+
+# An empty table keeps Cargo from looking for a workspace above this repository.
+[workspace]
+
+[dependencies]
+
+[dev-dependencies]
+clap = "4"
+tasty-cli = { path = "../.tasty-src/crates/tasty-cli" }
+tasty-doc-guards = { path = "../.tasty-src/crates/tasty-doc-guards" }
