@@ -5,7 +5,7 @@ usage: gen_tokens_json.py <project-dir> <prev-json> <out-json> [--pure]
   e.g. gen_tokens_json.py vendor vendor/tokens/tasty.tokens.json vendor/tokens/tasty.tokens.json
 
 Names, values, aliases and Latte values come only from the CSS:
-  tokens.css + tokens/primitives.css -> primitive
+  tokens/primitives.css              -> primitive
   tokens/semantic.css                -> semantic
   tokens/components.css              -> component
 The CSS does not hold everything the JSON holds, so <prev-json> supplies, for tokens it
@@ -37,7 +37,9 @@ def is_latte(scope):
 
 def collect(project):
     files = {
-        "primitive": [f"{project}/tokens.css", f"{project}/tokens/primitives.css"],
+        # tokens.css repeats a subset of primitives.css, so reading both would
+        # report every repeated token as a duplicate.
+        "primitive": [f"{project}/tokens/primitives.css"],
         "semantic": [f"{project}/tokens/semantic.css"],
         "component": [f"{project}/tokens/components.css"],
     }
