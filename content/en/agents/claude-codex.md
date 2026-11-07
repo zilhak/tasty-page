@@ -1,4 +1,4 @@
-<!-- source-hash: ce251fd16a8e -->
+<!-- source-hash: 2e4f897b7561 -->
 # Working with Claude and Codex
 
 Run Claude Code and Codex CLI in Tasty terminals and follow their status. Install each CLI separately. To delegate work across agents, configure both the hooks and the parent’s result delivery path.

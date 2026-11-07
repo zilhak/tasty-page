@@ -1,4 +1,4 @@
-<!-- source-hash: 6734368d217b -->
+<!-- source-hash: 357c2cdcc2a8 -->
 # CLI command reference
 
 Find commands beyond the introduction, including `read since-mark`, surface state, message queues, and shared memory, organized by purpose. Use `tasty help` for the full list of arguments and options.
