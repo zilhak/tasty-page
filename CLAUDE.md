@@ -20,6 +20,13 @@
 
 두 페이지를 레포에 담는 구조와 옮기는 절차는 아직 정하지 않았다.
 
+## 기획서
+
+홈페이지 기획서도 이 레포에 커밋한다.
+
+- 기획서는 어떤 페이지를 두고 페이지마다 무엇을 보여 줄지 정리한 문서다. 페이지 소스가 아니다.
+- 페이지를 고칠 때는 기획서를 기준으로 삼는다.
+
 ## Git 규칙
 
 - [Conventional Commits](https://www.conventionalcommits.org/)를 따른다: `type(scope): description`. type은 `feat`, `fix`, `docs`, `refactor`, `test`, `perf`, `style`, `i18n`, `chore` 중에서 고른다.
