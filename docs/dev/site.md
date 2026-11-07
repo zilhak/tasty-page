@@ -6,14 +6,22 @@
 - 콘텐츠: `content/` (한국어 정본) · `content/en/` (영어 번역)
 - 산출물: 레포 루트 아래 `dist/` — 빌드가 만들며 Git에서 제외한다(경로 인용으로 안 적는다. 갓 클론한
   트리에는 없어서 좌표를 실재로 판정하는 CI의 경로 검사가 실패할 수 있다)
-- 배포: `.github/workflows/pages.yml`. main의 `site/**`, `assets/icons/tasty-melon.svg`, 해당 워크플로 변경 시 빌드와 링크 검사를 실행한다. **배포는 릴리스를 공개할 때(`release.yml`이 실행)와 수동 실행 때만** 한다. 사이트 전체가 사용자가 받을 수 있는 버전을 설명해야 하기 때문이다. 표시 버전은 `Cargo.toml`이 아니라 공개된 최신 릴리스(`release.json`)이고, 이 파일이 없는 로컬 빌드는 버전을 표시하지 않는다. 빌드 명령은 `npm run build`다.
-  다음에 `npm run check-links` 로 산출물의 내부 링크·앵커를 전수 판정하고 나서 올린다.
-  이 단계는 `content/` 앵커의 실제 HTML 결과를 검사한다([링크와 표](https://github.com/zilhak/tasty/blob/main/docs/documentation-model.md#링크와-표))
+- 배포: `.github/workflows/pages.yml`. `main`과 `release`의 push마다 `npm run build`로 빌드하고
+  `npm run check-links`로 산출물의 내부 링크와 `content/` 앵커의 실제 HTML 결과를 전수 판정한다.
+  **배포는 `release` push와 `release`에서 수동 실행할 때만** 한다. 공개 사이트는 사용자가 받을 수 있는
+  버전을 설명해야 하기 때문이다. `main`은 최신 페이지라 빌드와 검사만 한다. 표시 버전은 공개된 최신
+  Tasty 릴리스(`release.json`)이고, 이 파일이 없는 로컬 빌드는 버전을 표시하지 않는다.
+- 승격: Tasty를 릴리스할 때 `release`를 `main`으로 fast-forward하고 Tasty 릴리스와 같은 태그를 붙여
+  `git push --atomic origin release <tag>`로 함께 push한다. 게시용 페이지에서만 고칠 내용은 `release`에
+  커밋해 배포한 뒤 `release`를 `main`에 합친다([CLAUDE.md](../../CLAUDE.md) "게시용 페이지와 최신 페이지").
+- 다른 CI: `checks.yml`은 `checks/`의 Rust 시험으로 가이드를 Tasty 소스와 대조한다. Tasty 소스는
+  `.tasty-src`에 받으며, `main`에서는 Tasty `main`, `release`에서는 가장 가까운 태그와 같은 이름의 Tasty
+  태그다. 매일 한 번도 실행한다. `design.yml`은 `vendor/` 디자인 정본을 검사한다(아래 "vendor 검사와 변경 날짜").
 
-**`docs/` 는 발행하지 않는다.** `docs/` 는 코드를 고치는 사람과 에이전트를 위한 명세·설계·ADR 이고,
-사이트는 Tasty 를 받아서 쓰는 사람을 위한 것이라 독자가 다르다. 사이트가 실을 내용은 전부
-`content/` 에 사용자 시점으로 따로 쓴다. 명세가 바뀌면 기획서를 고치고, 가이드는 릴리스할 때 기획서에 따라 손본다
-([`CLAUDE.md`](https://github.com/zilhak/tasty/blob/main/CLAUDE.md) "문서 갱신").
+**`docs/` 는 발행하지 않는다.** 이 레포의 `docs/`는 사이트를 고치는 사람과 에이전트를 위한 개발 문서(`docs/dev/`)와
+기획서(`docs/plan/`)이고, 사이트는 Tasty 를 받아서 쓰는 사람을 위한 것이라 독자가 다르다. Tasty의 명세·설계·ADR은
+[Tasty 레포](https://github.com/zilhak/tasty)의 `docs/`에 있다. 사이트가 실을 내용은 전부 `content/` 에 사용자 시점으로
+따로 쓴다. 사용자에게 보이는 동작이 바뀌면 기획서를 기준으로 최신 페이지(`main`)의 가이드를 고친다.
 
 ## 사이트 문구와 어조
 
@@ -389,7 +397,7 @@ Sätteri 의 hast 플러그인(`src/lib/satteri-*.mjs`)에서 일어난다.
 ## 랜딩의 다운로드 버튼
 
 랜딩 hero 의 기본 다운로드 버튼(`#dl-primary`)은 처음에는 릴리스 페이지(`RELEASES_URL`)로 연결된다.
-빌드 때 `src/lib/release.ts` 가 `release.json`(`pages.yml` 이 빌드 전에 사이트 디렉터리에 만드는 생성물)의 자산 이름을 파일명 접미사로 OS·아키텍처에
+빌드 때 `src/lib/release.ts` 가 `release.json`(이 레포의 `pages.yml` 이 빌드 전에 `gh release view --repo zilhak/tasty`로 레포 루트에 만드는 생성물, Git 제외)의 자산 이름을 파일명 접미사로 OS·아키텍처에
 대응시키고, 자산이 있는 조합만 `data-<os>-<arch>` 속성으로 버튼에 싣는다.
 
 | 속성 | 자산 접미사 |
