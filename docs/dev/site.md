@@ -67,25 +67,25 @@
 ./
   package.json          astro · @astrojs/react · react 18
   astro.config.mjs      정적 출력, React 아일랜드
-  vendor/               Design System Artifact의 사본. 사이트가 그대로 import한다
-  scripts/              check-links · check-contrast · vendor-manifest · stamp
+  vendor/               Tasty UI 디자인 정본. 사이트가 그대로 import한다
+  scripts/              check-links · check-contrast · check-icons · check-tokens-copy · stamp · design-tokens/
   src/pages/            라우트
   src/components/ src/layouts/ src/lib/ src/styles/
 ```
 
-사본의 컴포넌트와 표본은 ES 모듈이다. 사이트는 변환 단계 없이 `vendor/`를 Astro 프로젝트 안에서 직접 import한다. 정본은 `vendor/` 하나이고 생성 트리는 없다.
+정본의 컴포넌트와 표본은 ES 모듈이다. 사이트는 변환 단계 없이 `vendor/`를 Astro 프로젝트 안에서 직접 import한다. 정본은 `vendor/` 하나이고 생성 트리는 없다.
 
-토큰과 정적 파일은 빌드할 때 사본에서 파생한다.
+토큰과 정적 파일은 빌드할 때 `vendor/`에서 파생한다.
 
 | 산출물 | 만드는 곳 |
 |------|------|
-| 페이지 토큰 | `src/styles/tokens.css`. tier 순서로 사본을 `@import`한다 |
+| 페이지 토큰 | `src/styles/tokens.css`. tier 순서로 `vendor/` 토큰을 `@import`한다 |
 | `/design/tokens.css` · `/design/kit.css` · `/design/cards/*.html` | `src/lib/vendor-assets.ts`와 이를 읽는 엔드포인트 |
-| `/tasty-melon.svg` · `/tasty-icon.png` | `assets/icons/`의 원본을 읽는 엔드포인트 |
+| `/tasty-melon.svg` · `/tasty-icon.png` | `assets/icons/`의 `tasty-melon.svg` · `icon_256.png`(Tasty 레포의 로고·앱 아이콘과 같은 파일)를 읽는 엔드포인트 `src/pages/tasty-melon.svg.ts` · `tasty-icon.png.ts` |
 
 ### 갤러리 페이지
 
-갤러리는 앱이 따르는 정본이다. 페이지 규칙은 사본의 `vendor/gallery/README.md`에 있고 사이트 구현은 다음과 같다.
+갤러리는 앱이 따르는 정본이다. 페이지 규칙은 `vendor/gallery/README.md`에 있고 사이트 구현은 다음과 같다.
 
 - `src/layouts/GalleryPage.astro`: 공용 머리글·테마·푸터(`Base.astro`), 가이드 형식의 사이드바, 이전·다음을 그린다. 페이지 순서와 묶음은 `src/lib/design.ts`의 `GALLERY_GROUPS`가 정한다.
 - `src/pages/design/gallery/*/index.astro`: 라우트마다 `vendor/gallery/<페이지>/index.jsx`의 `page`와 기본 내보내기를 싣는다.
@@ -94,7 +94,7 @@
 
 ### 사이트 페이지의 바탕과 잉크
 
-사이트 스타일은 1단계 색을 직접 읽지 않고 앱과 같은 역할 토큰을 읽는다. 위치마다 쓸 토큰은 사본 `tokens/ground-ink-rules.json`의 `site.places`가 정한다. 1단계 색을 읽으면 Mocha에서 통과한 값이 Latte에서 미달할 수 있기 때문이다.
+사이트 스타일은 1단계 색을 직접 읽지 않고 앱과 같은 역할 토큰을 읽는다. 위치마다 쓸 토큰은 `vendor/tokens/ground-ink-rules.json`의 `site.places`가 정한다. 1단계 색을 읽으면 Mocha에서 통과한 값이 Latte에서 미달할 수 있기 때문이다.
 
 - 브랜드: 표식은 `brand-melon-*` 색을 유지한다. 브랜드 색 글자와 글리프는 `brand-ink`를 읽는다. 워드마크 점은 글자가 아니라 표식이므로 `data-audit-exempt="brand"`를 붙인다.
 - 주요 버튼: 바탕은 두 테마 모두 표식의 과육(`site-cta-bg`), 글자는 씨앗(`site-cta-fg`)이다. 포인터 올림과 누름도 과육의 색조다. 가이드 그림 라벨(`.anat::after`)도 같은 짝이다.
@@ -117,14 +117,14 @@
 
 갤러리 페이지에서는 다음을 잰다.
 
-- 고정 셀: `tokens/ground-ink-rules.json`의 행마다 부품의 잉크가 지정 토큰인지(채널당 1/255 허용), 합성 바탕에서 등급을 넘는지 본다. 행에 셀이 없거나 부품을 찾지 못해도 실패한다. 부품 위치는 `parts/part-map.js`에 있다.
-- 나머지 글자·글리프·입력: 글자는 4.5, 글리프는 3을 기준으로 잰다. `data-audit-exempt`와 `data-ink-grade`의 규칙은 사본 `RULES.md` 14절을 따르고, 쓰인 예외 id와 횟수를 출력한다. 완전히 투명한 요소만 화면에 없는 것으로 보며 그 밖의 opacity는 합성해 잰다.
+- 고정 셀: `vendor/tokens/ground-ink-rules.json`의 행마다 부품의 잉크가 지정 토큰인지(채널당 1/255 허용), 합성 바탕에서 등급을 넘는지 본다. 행에 셀이 없거나 부품을 찾지 못해도 실패한다. 부품 위치는 `vendor/gallery/parts/part-map.js`에 있다.
+- 나머지 글자·글리프·입력: 글자는 4.5, 글리프는 3을 기준으로 잰다. `data-audit-exempt`와 `data-ink-grade`의 규칙은 `vendor/RULES.md` 14절을 따르고, 쓰인 예외 id와 횟수를 출력한다. 완전히 투명한 요소만 화면에 없는 것으로 보며 그 밖의 opacity는 합성해 잰다.
 - SVG: 보이는 도형의 stroke와 fill을 각각 재고 도형 수를 출력한다. 도형 자신의 `stroke-opacity`·`fill-opacity`와 SVG 안 `<g>`를 포함한 모든 조상의 opacity를 곱한다. SVG 안 `<text>`는 fill을 글자 기준으로 잰다. 아무것도 칠하지 않는 SVG의 수도 출력한다. 바탕은 DOM 조상에서 읽으므로 같은 SVG 안에서 도형 아래 깔린 다른 도형은 바탕으로 보지 않는다. `<use>`의 대상 내부와 그라데이션·패턴 칠은 재지 않으며 그라데이션·패턴 칠의 수를 출력한다.
 - 비활성 조상(`:disabled`, `aria-disabled="true"`, `data-ink-why="disabled"`) 안: 등급 없는 비활성 토큰만 등급을 면제한다. 그 밖의 잉크는 일반 기준으로 잰다.
 - 측정 0건, 알 수 없는 예외 id, 페이지 오류도 실패다.
 - 표본 밖의 머리글·사이드바·푸터도 같은 기준으로 잰다.
 
-사이트 페이지는 갤러리 밖의 빌드된 페이지 전부(랜딩, 가이드, 디자인, privacy, 양쪽 언어, `design/cards/`의 지침 문서)다. 기준은 사본 `tokens/ground-ink-rules.json`의 `site.places`이고 사본 `RULES.md` 15절이 같은 내용을 설명한다.
+사이트 페이지는 갤러리 밖의 빌드된 페이지 전부(랜딩, 가이드, 디자인, privacy, 양쪽 언어, `design/cards/`의 지침 문서)다. 기준은 `vendor/tokens/ground-ink-rules.json`의 `site.places`이고 `vendor/RULES.md` 15절이 같은 내용을 설명한다.
 
 - 패스: 각 페이지를 넓은 화면(1440px)과 좁은 화면(390px)에서 잰다. 넓은 화면에서는 랜딩 창의 나머지 탭, 포인터 올림과 누름, 키보드 포커스, 검색 결과도 잰다.
 - 행: 선택자가 어느 페이지에서도 요소를 찾지 못하면 실패한다. 요소를 하나도 재지 못해도, 등급에 못 미쳐도, 어떤 행도 지정하지 않은 잉크를 보여도 실패한다.
@@ -136,38 +136,28 @@
 - `design/cards/`의 지침 문서는 자체 CSS를 쓰고 클래스 이름이 행과 겹칠 수 있어 행을 적용하지 않고 글자와 도형만 잰다.
 - 재지 않는 것: 데모의 오버레이(설정 창, 명령 팔레트 등)는 갤러리에서 잰다. 포인터 패스는 행마다 첫 요소 하나만 잰다.
 
-브라우저는 `CHROMIUM_PATH`, Playwright 캐시의 Chromium, `/snap/bin/chromium` 순으로 찾는다. `playwright-core`만 의존성으로 두고 브라우저는 내려받지 않는다. 그래서 이 검사는 `pages.yml`이 아니라 [릴리스 절차](https://github.com/zilhak/tasty/blob/main/docs/dev-guide/release.md#3-사이트-갱신)에서 실행한다.
+브라우저는 `CHROMIUM_PATH`, Playwright 캐시의 Chromium, `/snap/bin/chromium` 순으로 찾는다. 의존성은 `playwright-core`뿐이라 `npm ci`는 브라우저를 받지 않는다. 로컬에서는 `npx playwright-core install chromium`으로 한 번 받는다. CI에서는 `design.yml`이 빌드 뒤 `npx playwright-core install --with-deps chromium`으로 `playwright-core`와 맞는 Chromium을 받아 이 검사를 실행한다.
 
-### vendor 자신은 어디서 오는가
+### vendor 검사와 변경 날짜
 
-`vendor/` 는 원격 Design System 프로젝트의 사본이라,
-릴리스할 때 그것을 받아와야 한다. 절차는
-[`vendor/README.md`](../../vendor/README.md) 의 "vendor 갱신 절차" 에 있고,
-정합 루프에서 이 단계가 차지하는 자리는
-[design-change-workflow](https://github.com/zilhak/tasty/blob/main/docs/dev-guide/design-change-workflow.md#정합-대상--사이트-사본-필수) 에 있다. 결정 근거는
-[테마 시스템 (운영 상세)](https://github.com/zilhak/tasty/blob/main/docs/design/systems/theme.md).
+`vendor/`는 Tasty UI 디자인의 정본이다. 디자인 변경은 디자이너 Claude 세션이
+이 폴더를 고쳐 커밋한다. 절차와 규칙은 [`CLAUDE.md`](../../CLAUDE.md)의 "갤러리" 절과
+[`vendor/README.md`](../../vendor/README.md)에 있고, 변경 기록은 커밋 이력이다. Tasty 본체가 이 레포의 어느 커밋을
+따르는지는 [Tasty 레포](https://github.com/zilhak/tasty)가 기록한다.
 
-오래된 vendor 사본도 정상 빌드할 수 있다. 저장소의 두 사본을 대조하는 다음 검사는 릴리스 사이에 사본이 뒤처지는 것이 정상이라 `#[ignore]`이고 릴리스 절차에서 실행한다.
-`site_vendor_tokens_track_the_app_export.rs`(토큰 이름)와
-`site_vendor_icons_match_the_app_transcription.rs`(아이콘 기하·채움·viewBox·선 굵기·cap/join)다.
-문구·구성·컨트롤 삭제는 검사 범위 밖이므로 원격 디자인과 직접 비교한다.
+`design.yml`이 `main` push와 pull request마다 다음을 검사한다.
 
-`vendor/MANIFEST`는 사본 파일마다 마지막 갱신 때 받은 원격 원본의 sha256을 적는다.
-일부러 다르게 둔 파일은 `variant` 표시와 로컬 sha256, 이유 한 줄을 함께 적는다.
-갱신 절차에서 `scripts/vendor-manifest.mjs --remote <받은 원본 폴더>`가 이 파일을 쓰며,
-이유 없는 차이가 있으면 쓰지 않고 실패한다. `site_vendor_manifest_matches.rs`는 사본의
-파일 집합과 해시가 `MANIFEST`와 같은지 원격 조회 없이 확인한다. 옛 판 파일이나 기록 없는
-직접 수정은 검출하지만, 원격이 마지막 갱신 뒤에 바뀐 것은 알 수 없다.
+- `npm run build`와 `npm run check-contrast`(위 "렌더링 대비 검사").
+- 토큰 JSON: `scripts/design-tokens/gen_tokens_json.py`로 `vendor/tokens/tasty.tokens.json`을 다시 만들어 차이가 없는지,
+  `scripts/design-tokens/verify_tokens_json.py`로 토큰 CSS와 대조한다. JSON은 손으로 고치지 않는다.
+- `npm run check-tokens-copy`: `vendor/tokens.css`가 되풀이하는 1단계 값이 `vendor/tokens/primitives.css`와 같은지 본다.
+- `npm run check-icons`: `vendor/icons/*.svg`와 `vendor/components/core/Icon.jsx`가 같은 글리프를 그리는지 원문으로 비교한다.
 
 디자인 페이지는 `VendorStamp`로 vendor의 마지막 변경 날짜를 표시한다.
-빌드할 때 `src/lib/vendor-stamp.ts`가 `git log -1 -- vendor`에서 README와 `MANIFEST`를 제외한 최신 변경을 읽는다.
-두 파일은 사본을 설명하는 파일이며 디자인 사본 자체가 아니기 때문이다. 문구와 스타일은
-각각 `src/components/design/VendorStamp.astro`와
-`src/styles/vendor-stamp.css`에서 함께 관리한다.
-
-이 날짜는 원격 파일을 처음 받은 날짜나 모든 파일의 동기화 날짜가 아니다. 사본을
-부분 수정했을 수도 있어 "마지막 변경"이라고 표시한다. Git 이력을 읽을 수 없으면
-추측한 날짜를 표시하지 않는다.
+빌드할 때 `src/lib/vendor-stamp.ts`가 `git log -1 -- vendor`에서 `vendor/README.md`를 제외한 최신 변경을 읽는다.
+README는 폴더를 설명하는 파일이며 디자인 자체가 아니기 때문이다. `pages.yml`은 이 날짜를 읽으려고 전체 이력을 받는다.
+문구와 스타일은 각각 `src/components/design/VendorStamp.astro`와 `src/styles/vendor-stamp.css`에서 함께 관리한다.
+Git 이력을 읽을 수 없으면 추측한 날짜를 표시하지 않는다.
 
 ## 빌드
 
@@ -179,6 +169,8 @@ npm run dev          # 개발 서버
 npm run preview      # 빌드 결과 확인
 npm run check-links     # 빌드 결과의 내부 링크·앵커 검사
 npm run check-contrast  # 빌드 결과의 갤러리·사이트 페이지 렌더링 대비 검사
+npm run check-icons     # vendor 아이콘 파일과 Icon 컴포넌트의 글리프 대조
+npm run check-tokens-copy  # vendor/tokens.css의 1단계 값과 primitives.css 대조
 
 # 번역 파일에 원본 해시 스탬프 (아래 "번역 모델")
 npm run stamp content/en/index.md
@@ -336,7 +328,7 @@ Sätteri 의 hast 플러그인(`src/lib/satteri-*.mjs`)에서 일어난다.
 
 **사이트는 색을 정의하지 않는다.** 팔레트는 `vendor/tokens/` 에서 오고, 그것이
 앱 UI 킷이 렌더하는 것과 같은 원본이다 ([`vendor/README.md`](../../vendor/README.md)).
-`src/styles/tokens.css`가 tier 순서(`primitives` → `semantic` → `components` → `base`)로 사본을 import하고, 레이아웃이 사이트 스타일보다 **먼저** import 한다.
+`src/styles/tokens.css`가 tier 순서(`primitives` → `semantic` → `components` → `base`)로 `vendor/` 토큰을 import하고, 레이아웃이 사이트 스타일보다 **먼저** import 한다.
 
 - 테마 이름은 앱의 것을 그대로 쓴다 — **mocha**(다크, 기본) · **latte**(라이트).
   latte 만 `data-theme="latte"` 를 달고, mocha 는 속성 없는 `:root` 다.
@@ -358,7 +350,7 @@ Sätteri 의 hast 플러그인(`src/lib/satteri-*.mjs`)에서 일어난다.
 
 | 출처 | 대상 | 쓰는 척도 |
 |------|------|-----------|
-| Design System | `vendor/` 사본과 거기서 파생한 파일(`kit.css` · `tokens.css` · 갤러리). 사이트 스타일시트 안에서는 킷 컴포넌트가 그리는 앱 화면을 재현하거나 그 값을 그대로 옮기는 규칙 — 랜딩·가이드의 제품 창 chrome(`app-shell.css` 의 `.shell` · `.shell__*` · `.shell-overlays*`), 킷 창 크기를 옮긴 Settings 무대(`.anat-settings__stage`), 갤러리 경로의 `gallery-site.css` · `vendor-stamp.css`, 디자인 섹션에서 iframe 으로 띄우는 킷 문서 | Design System 토큰 `--tasty-*` 의 semantic 층(`--tasty-space-*`, `--tasty-radius*`, `--tasty-font-size-<역할>` …). 토큰 파일 머리말대로 primitive(`--tasty-size-N` 등)는 직접 읽지 않는다 |
+| Design System | `vendor/` 정본과 거기서 파생한 파일(`kit.css` · `tokens.css` · 갤러리). 사이트 스타일시트 안에서는 킷 컴포넌트가 그리는 앱 화면을 재현하거나 그 값을 그대로 옮기는 규칙 — 랜딩·가이드의 제품 창 chrome(`app-shell.css` 의 `.shell` · `.shell__*` · `.shell-overlays*`), 킷 창 크기를 옮긴 Settings 무대(`.anat-settings__stage`), 갤러리 경로의 `gallery-site.css` · `vendor-stamp.css`, 디자인 섹션에서 iframe 으로 띄우는 킷 문서 | Design System 토큰 `--tasty-*` 의 semantic 층(`--tasty-space-*`, `--tasty-radius*`, `--tasty-font-size-<역할>` …). 토큰 파일 머리말대로 primitive(`--tasty-size-N` 등)는 직접 읽지 않는다 |
 | 사이트 독자 | 사이트가 스스로 디자인한 것 — 페이지 레이아웃, 헤더 · 사이드바 · 목차, 본문 타이포그래피(`global.css`), 랜딩 섹션과 제품 창을 감싸는 카드(`landing.css` 의 `.window` 포함), 디자인 섹션의 머리 · 카드 · 타일 틀(`design.css`), 가이드 그림의 영역 라벨(`.anat*`)과 배치(`.workflow-diagram*`) | 사이트 척도 — 간격 `--sp-1`(4px) ~ `--sp-24`(96px), 반경 `--radius-sm` · `--radius` · `--radius-lg`, 요소 크기 `--size-control-sm` · `-md` · `-lg`(32 · 36 · 44px)와 `--size-icon-sm` · `-md` · `-lg` · `-xl`(16 · 18 · 20 · 24px), 레이아웃 변수(`--header-h`, 여러 규칙이 함께 쓰는 폭 `--page-max` 1440px · `--landing-max` 1180px 등). `global.css` 의 `:root` 가 정의한다 |
 
 - 선언 단위로 갈리는 경우 — 제품 창을 **페이지에 얼마나 크게 보일지**(`.shell` 의 높이
