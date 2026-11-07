@@ -1,6 +1,7 @@
 import React from "react";
 import { MenuItem, Input, Select, Switch, Checkbox, Button, IconButton, Tag, Kbd, Table, StatusDot, Spinner, Icon, CenterState } from "../../components/index.js";
 import { Stage } from "./specimen.jsx";
+import { AttachConnectionsSection } from "./settings-attach-section.jsx";
 
 // Tasty Gallery — Overlays SHARED frames. Loaded by every overlays-*.html page
 // (Dialogs / Windows / Popups & menus / Banners). Defines the scrim Backdrop, the
@@ -274,11 +275,11 @@ function SettingsGeneralOverlayFrame() {
   );
 }
 
-// ── Settings › General › Remote transfer — 5th L2 subtab (dir + max_mb) ──
-function SettingsRemoteTransferFrame() {
+// ── Settings › General › Remote transfer (dir + max_mb) and Remote attach (disconnect time) ──
+// The window chrome is shared by the two subtabs; the content column reads tokens only.
+function SettingsRemoteFrameShell({ active, children }) {
   const L1 = ["General", "Appearance", "Keybindings", "Plugins"];
-  const L2 = ["General", "Notifications", "Accessibility", "Overlay", "Remote transfer"];
-  const active = 4;
+  const L2 = ["General", "Notifications", "Accessibility", "Overlay", "Remote transfer", "Remote attach"];
   return (
     <div style={{ width: 620, height: 380, display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)",
       border: "1px solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", overflow: "hidden", boxShadow: "var(--tasty-shadow-modal)" }}>
@@ -303,32 +304,55 @@ function SettingsRemoteTransferFrame() {
           </div>
         </div>
         <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
-          <div style={{ flex: 1, padding: 18, display: "flex", flexDirection: "column", gap: 10 }}>
-            <div style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 10, textTransform: "uppercase", letterSpacing: ".06em", color: "var(--tasty-text-muted)" }}>Received files</div>
-            <div style={{ display: "grid", gridTemplateColumns: "150px 1fr", alignItems: "center", gap: 12, minHeight: "var(--tasty-settings-row-min-height)" }}>
-              <span style={{ fontSize: 13 }}>Save folder</span>
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <Input block mono defaultValue="~/.tasty/transfers/" style={{ flex: 1, minWidth: 0 }} />
-                <Button variant="secondary" size="sm" leadingIcon={ic.folder} style={{ flex: "none" }}>Browse…</Button>
-              </div>
-            </div>
-            <p style={{ fontSize: 12, color: "var(--tasty-text-muted)", margin: 0, lineHeight: 1.5 }}>Where files received from a remote workspace are saved.</p>
-            <div style={{ borderTop: "1px solid var(--tasty-separator)" }} />
-            <div style={{ display: "grid", gridTemplateColumns: "150px 1fr", alignItems: "center", gap: 12, minHeight: "var(--tasty-settings-row-min-height)" }}>
-              <span style={{ fontSize: 13 }}>Maximum size</span>
-              <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
-                <Input mono defaultValue="500" style={{ width: 88 }} />
-                <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 12, color: "var(--tasty-text-muted)" }}>MiB</span>
-              </span>
-            </div>
-            <p style={{ fontSize: 12, color: "var(--tasty-text-muted)", margin: 0, lineHeight: 1.5 }}>Total the folder may hold. A transfer that would push it past this limit is rejected before it starts.</p>
-          </div>
+          <div style={{ flex: 1, padding: "var(--tasty-space-lg)", display: "flex", flexDirection: "column", gap: "var(--tasty-settings-row-gap)", minHeight: 0, overflow: "hidden" }}>{children}</div>
           <div style={{ display: "flex", justifyContent: "flex-end", gap: "var(--tasty-space-sm)", padding: "var(--tasty-transfer-footer-pad-y) var(--tasty-transfer-pad-x)", borderTop: "1px solid var(--tasty-separator)" }}>
             <Button variant="ghost">Cancel</Button><Button variant="primary">Save</Button>
           </div>
         </div>
       </div>
     </div>
+  );
+}
+
+const settingsRowGrid = { display: "grid", gridTemplateColumns: "var(--tasty-settings-label-width) minmax(0, 1fr)", alignItems: "center", gap: "var(--tasty-settings-label-gap)", minHeight: "var(--tasty-settings-row-min-height)" };
+const settingsRowLabel = { fontSize: "var(--tasty-font-size-body)", lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-text-secondary)" };
+const settingsRowCaption = { margin: 0, fontSize: "var(--tasty-font-size-caption)", lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-text-muted)", maxWidth: "var(--tasty-measure-md)" };
+const settingsRowGroup = { display: "flex", flexDirection: "column", gap: "var(--tasty-settings-row-caption-gap)" };
+
+function SettingsRemoteTransferFrame() {
+  return (
+    <SettingsRemoteFrameShell active={4}>
+      <div style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", textTransform: "uppercase", letterSpacing: "var(--tasty-letter-spacing-caps)", color: "var(--tasty-text-muted)" }}>Received files</div>
+      <div style={settingsRowGroup}>
+        <div style={settingsRowGrid}>
+          <span style={settingsRowLabel}>Save folder</span>
+          <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", minWidth: 0 }}>
+            <span style={{ display: "flex", flex: 1, minWidth: 0 }}><Input block mono defaultValue="~/.tasty/transfers/" /></span>
+            <Button variant="secondary" size="sm" leadingIcon={ic.folder} style={{ flex: "none" }}>Browse…</Button>
+          </div>
+        </div>
+        <p style={settingsRowCaption}>Where files received from a remote workspace are saved.</p>
+      </div>
+      <div style={{ height: "var(--tasty-border-width)", background: "var(--tasty-separator)", flex: "none" }} />
+      <div style={settingsRowGroup}>
+        <div style={settingsRowGrid}>
+          <span style={settingsRowLabel}>Maximum size</span>
+          <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-number-field-unit-gap)" }}>
+            <span style={{ display: "inline-flex", flex: "none", width: "var(--tasty-number-field-min-width)" }}><Input block mono defaultValue="500" style={{ textAlign: "right" }} /></span>
+            <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>MiB</span>
+          </span>
+        </div>
+        <p style={settingsRowCaption}>Total the folder may hold. A transfer that would push it past this limit is rejected before it starts.</p>
+      </div>
+    </SettingsRemoteFrameShell>
+  );
+}
+
+function SettingsRemoteAttachFrame({ attachText }) {
+  return (
+    <SettingsRemoteFrameShell active={5}>
+      <AttachConnectionsSection text={attachText} />
+    </SettingsRemoteFrameShell>
   );
 }
 
@@ -3012,4 +3036,4 @@ function FilePickerFrame({ state = "loaded", remote = false, indicator = "badge"
   );
 }
 
-export { ic, Backdrop, GroundThemes, GroundCap, PaletteFrame, ApprovalFrame, RenameFrame, SettingsFrame, SettingsGeneralOverlayFrame, SettingsRemoteTransferFrame, TransferProgressFrame, TransferErrorFrame, ToastDragValue, ToolsMenuFrame, PortsFrame, PORTS_COLUMNS, PortsFavoritesG, PortStarG, RemoteFrame, LocalSshSection, SearchBarFrame, FileHandlerFrame, FhFooter, PresetFrame, MarkdownOpenFrame, HeldLabel, TabStripMock, SidebarMock, RailMock, CatSwitchSidebarMock, CatSwitchRailMock, BannerShellG, BannerScope, MouseCaptureBannerG, MouseCaptureHitZone, BlacklistEditorG, TtlBannerG, StackDemoG, BannerMoreMenuG, BannerMoreDemoG, GitViewerFrame, ClipboardFrame, RemoteFormFrame, ScriptManagerFrame, ShellMock, RemoteAttachFrame, RaNewRow, RaWsPeek, FilePickerFrame, FpCrumbMenu, ModifierHintPanelG, MH_CAT_SECTIONS, MH_MIXED_SECTIONS, MH_EMPTY_SECTIONS, catIc, CatMenu, RailCategoryFrame, CategoryEditFrame, CategoryDeleteFrame };
+export { ic, Backdrop, GroundThemes, GroundCap, PaletteFrame, ApprovalFrame, RenameFrame, SettingsFrame, SettingsGeneralOverlayFrame, SettingsRemoteTransferFrame, SettingsRemoteAttachFrame, TransferProgressFrame, TransferErrorFrame, ToastDragValue, ToolsMenuFrame, PortsFrame, PORTS_COLUMNS, PortsFavoritesG, PortStarG, RemoteFrame, LocalSshSection, SearchBarFrame, FileHandlerFrame, FhFooter, PresetFrame, MarkdownOpenFrame, HeldLabel, TabStripMock, SidebarMock, RailMock, CatSwitchSidebarMock, CatSwitchRailMock, BannerShellG, BannerScope, MouseCaptureBannerG, MouseCaptureHitZone, BlacklistEditorG, TtlBannerG, StackDemoG, BannerMoreMenuG, BannerMoreDemoG, GitViewerFrame, ClipboardFrame, RemoteFormFrame, ScriptManagerFrame, ShellMock, RemoteAttachFrame, RaNewRow, RaWsPeek, FilePickerFrame, FpCrumbMenu, ModifierHintPanelG, MH_CAT_SECTIONS, MH_MIXED_SECTIONS, MH_EMPTY_SECTIONS, catIc, CatMenu, RailCategoryFrame, CategoryEditFrame, CategoryDeleteFrame };

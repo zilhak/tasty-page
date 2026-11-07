@@ -1,11 +1,12 @@
 import React from "react";
 import { PageStates } from "../parts/specimen.jsx";
+import { AttachConnectionsSection } from "../parts/settings-attach-section.jsx";
 import { STATES } from "./states.jsx";
 import { Icon as WIcon, Checkbox as WCheckbox, Select as WSelect, Tag as WTag, Table as WTable, Input as WInput, Switch as WSwitch, CodeArea as WCodeArea, Kbd, IconButton, Input, Button } from "../../components/index.js";
 import { KbPluginsSubtab as Kit_KbPluginsSubtab, KbPluginsSubtab } from "../../ui_kits/terminal/overlays/kb_plugins_subtab.jsx";
 import { MacPermissionsPane } from "../../ui_kits/terminal/overlays/macos_permissions.jsx";
 import { Popup as GalleryNotifications_Popup } from "../parts/notifications.jsx";
-import { GroundThemes as WGroundThemes, GroundCap as WGroundCap, Backdrop, PaletteFrame, LocalSshSection, PortsFrame, PORTS_COLUMNS, PortsFavoritesG, PortStarG, RemoteFrame, SettingsFrame, SettingsGeneralOverlayFrame, SettingsRemoteTransferFrame, ToastDragValue, GitViewerFrame, ClipboardFrame, RemoteFormFrame, RemoteAttachFrame, RaNewRow, RaWsPeek, FilePickerFrame, ScriptManagerFrame, ic } from "../parts/overlay-frames.jsx";
+import { GroundThemes as WGroundThemes, GroundCap as WGroundCap, Backdrop, PaletteFrame, LocalSshSection, PortsFrame, PORTS_COLUMNS, PortsFavoritesG, PortStarG, RemoteFrame, SettingsFrame, SettingsGeneralOverlayFrame, SettingsRemoteTransferFrame, SettingsRemoteAttachFrame, ToastDragValue, GitViewerFrame, ClipboardFrame, RemoteFormFrame, RemoteAttachFrame, RaNewRow, RaWsPeek, FilePickerFrame, ScriptManagerFrame, ic } from "../parts/overlay-frames.jsx";
 import { AnomalySection as OverlaysWindowsAnomaly_AnomalySection } from "./settings-anomaly.jsx";
 import { KbPluginsRecordSpec as OverlaysWindowsB12_KbPluginsRecordSpec } from "./kb-plugin-records.jsx";
 import { SettingsNarrowSection as OverlaysWindowsB12_SettingsNarrowSection } from "./settings-narrow.jsx";
@@ -242,6 +243,18 @@ function HookSeqEditorG({ state = "normal" }) {
     </div>
   );
 }
+
+// One settings content column for the attach row: base ground, content inset space-lg, as the real page.
+const ATTACH_THEMES = [["Mocha", "mocha"], ["Latte", "latte"]];
+function AttachFrame({ theme, label, w = "var(--tasty-size-560)", children }) {
+  return (
+    <div data-theme={theme} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", minWidth: 0, maxWidth: "100%", background: "var(--tasty-bg-app)" }}>
+      <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" }}>{label}</span>
+      <div style={{ width: w, maxWidth: "100%", boxSizing: "border-box", padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)" }}>{children}</div>
+    </div>
+  );
+}
+const attachStage = (children) => <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>{children}</Stage>;
 
 const NAV = [
   { id: "palette", label: "Command palette" },
@@ -1196,12 +1209,33 @@ function Page() {
           <Note>Scope is <b>this one row only</b> — the tab name is the umbrella so future overlay settings (banner, marker…) can land here without inventing a new section. Existing General / Notifications / Accessibility content is untouched. Store the value in ms internally; only the display is in seconds.</Note>
         </Spec>
         <Spec id="settings-general-remote-transfer-5th-l2-subtab" title="Settings · General › Remote transfer — 5th L2 subtab"
-          when={<>The <b>General</b> L1 tab gains a fifth L2 section, <b>Remote transfer</b> (after Overlay) — the umbrella for the remote (mirror) file-transfer channel, following the Overlay-subtab precedent: a topical L2 with room to grow rather than rows crammed into General. Two rows edit <code>RemoteTransferSettings</code>: <b>Save folder</b> — a mono path Input + a <b>Browse…</b> secondary button (opens the native folder picker, same pairing as the Scripts file row) — and <b>Maximum size</b> — a numeric Input with a mono <b>MiB</b> unit suffix. Each row keeps the settings-row grid (150px label · control), a muted description line beneath, and a separator between rows.</>}>
+          when={<>The <b>General</b> L1 tab gains a fifth L2 section, <b>Remote transfer</b> (after Overlay) — the umbrella for the remote (mirror) file-transfer channel, following the Overlay-subtab precedent: a topical L2 with room to grow rather than rows crammed into General. Two rows edit <code>RemoteTransferSettings</code>: <b>Save folder</b> — a mono path Input + a <b>Browse…</b> secondary button (opens the native folder picker, same pairing as the Scripts file row) — and <b>Maximum size</b> — a numeric Input with a mono <b>MiB</b> unit suffix. Each row keeps the settings-row grid (label column · control), a muted description line beneath, and a separator between rows.</>}>
           <Stage variant="solo center"><Backdrop height={420}><SettingsRemoteTransferFrame /></Backdrop></Stage>
           <Meta
-            specs={[["L2 position", "5th — after Overlay"], ["rows", "Save folder · Maximum size"], ["folder row", "mono path Input + Browse… (secondary, folder icon)"], ["size row", "numeric Input · 88px + mono “MiB” suffix"], ["defaults", "~/.tasty/transfers/ · 500 MiB"], ["row grid", "150px label · control · desc below"]]}
+            specs={[["L2 position", "5th — after Overlay"], ["rows", "Save folder · Maximum size"], ["folder row", "mono path Input + Browse… (secondary, folder icon)"], ["size row", "numeric Input, right aligned · --tasty-number-field-min-width + mono “MiB” suffix"], ["defaults", "~/.tasty/transfers/ · 500 MiB"], ["row grid", "--tasty-settings-label-width · control · desc below"]]}
             tokens={[{ tok: "--tasty-settings-row-min-height", use: "row height" }, { tok: "--tasty-surface-active", use: "active L2 row", color: "var(--tasty-surface-active)" }, { tok: "--tasty-separator", use: "row separator", color: "var(--tasty-separator)" }, { tok: "--tasty-text-muted", use: "descriptions + unit", color: "var(--tasty-text-muted)" }]} />
           <Note>The unit is a static mono <b>MiB</b> suffix outside the field — not typed, not a Tag — mirroring how Toast duration carries its “s” unit. Exceeding <b>Maximum size</b> rejects new transfers before they start; the rejection surfaces as the <b>Transfer failed</b> popup (Overlays › Dialogs › Remote transfer).</Note>
+        </Spec>
+        <Spec id="settings-general-remote-attach-connections" title="Settings · General › Remote attach — 6th L2 subtab"
+          when={<>The <b>General</b> L1 tab gains a sixth L2 section, <b>Remote attach</b> (after Remote transfer, before the macOS-only subtabs), holding one row under an <b>Attach connections</b> heading. A section filter that matches L2 labels finds it by “remote” or “attach”, and “transfer” still finds Remote transfer. The row sets how long an attach connection can receive nothing before it disconnects: whole seconds, default 30, range 10 to 600. The caption carries when a saved value applies. Typing never corrects the value. While the typed number is out of range the field takes the <b>invalid</b> edge and one line under it names the range and the value to save. <span className="ic">Enter</span> or leaving the field commits and clamps, and a non-number returns to the last committed value. The first two frames are live.</>}>
+          {attachStage(<>
+            {ATTACH_THEMES.map(([l, t]) => <AttachFrame key={"rest" + l} theme={t} label={l + " · rest · 30 · live"}><AttachConnectionsSection /></AttachFrame>)}
+            {ATTACH_THEMES.map(([l, t]) => <AttachFrame key={"low" + l} theme={t} label={l + " · 5 typed · saves 10"}><AttachConnectionsSection text="5" focused /></AttachFrame>)}
+            {ATTACH_THEMES.map(([l, t]) => <AttachFrame key={"high" + l} theme={t} label={l + " · 1000 typed · saves 600"}><AttachConnectionsSection text="1000" focused /></AttachFrame>)}
+            <AttachFrame theme="mocha" label="Mocha · ko · rest"><AttachConnectionsSection lang="ko" /></AttachFrame>
+            <AttachFrame theme="latte" label="Latte · ko · 5 typed"><AttachConnectionsSection lang="ko" text="5" focused /></AttachFrame>
+            <AttachFrame theme="mocha" label="Mocha · ja · rest"><AttachConnectionsSection lang="ja" /></AttachFrame>
+            <AttachFrame theme="latte" label="Latte · ja · 1000 typed"><AttachConnectionsSection lang="ja" text="1000" focused /></AttachFrame>
+            <AttachFrame theme="mocha" label="Mocha · en · stacked · 5 typed" w="var(--tasty-size-320)"><AttachConnectionsSection text="5" stacked /></AttachFrame>
+            <AttachFrame theme="latte" label="Latte · ja · stacked" w="var(--tasty-size-320)"><AttachConnectionsSection lang="ja" stacked /></AttachFrame>
+          </>)}
+          <Stage variant="solo center"><Backdrop height={420}><SettingsRemoteAttachFrame /></Backdrop></Stage>
+          <Stage variant="solo center"><Backdrop height={420}><SettingsRemoteAttachFrame attachText="5" /></Backdrop></Stage>
+          <Meta
+            specs={[["L2 position", "6th, after Remote transfer. macOS Display and Permissions follow"], ["content inset", "--tasty-space-lg"], ["heading → row", "--tasty-settings-row-gap"], ["row → caption", "--tasty-settings-row-caption-gap"], ["row height", "--tasty-settings-row-min-height"], ["label column", "--tasty-settings-label-width"], ["label → field", "--tasty-settings-label-gap"], ["field floor", "--tasty-number-field-min-width"], ["field → unit", "--tasty-number-field-unit-gap"], ["caption and range line width", "--tasty-measure-md"], ["stacked gap", "--tasty-settings-row-stack-gap"], ["value", "mono, right aligned, grows with its length"], ["unit", "mono caption, outside the field"], ["bounds", "10 to 600 s, default 30"]]}
+            tokens={[{ tok: "--tasty-text-muted", use: "section heading, unit, caption", color: "var(--tasty-text-muted)" }, { tok: "--tasty-text-secondary", use: "row label", color: "var(--tasty-text-secondary)" }, { tok: "--tasty-accent-danger-raised", use: "range line", color: "var(--tasty-accent-danger-raised)" }, { tok: "--tasty-input-border-invalid", use: "invalid field edge", color: "var(--tasty-input-border-invalid)" }, { tok: "--tasty-font-size-micro", use: "section heading" }, { tok: "--tasty-letter-spacing-caps", use: "section heading" }, { tok: "--tasty-font-size-body", use: "row label" }, { tok: "--tasty-font-size-caption", use: "unit, caption, range line" }, { tok: "--tasty-line-height-ui", use: "label, caption, range line" }]} />
+          <Note><b>Copy.</b> The new tab label is <code>Remote attach</code>, ko <code>원격 Attach</code>, ja <code>リモートアタッチ</code>. The <code>Remote transfer</code> label stays as it is. The range line is <code>settings.number.range_between</code>, and the unit is <code>settings.number.unit_s</code> in every language. No token was added.</Note>
+          <Dont><b>Don't</b> name the 5 second signal or use the word heartbeat on screen, and don't add a stepper or slider. The caption says each Tasty uses its own value; it doesn't promise that the two sides agree.</Dont>
         </Spec>
         <Spec id="settings-misc-task-pipeline-report-limits" title="Settings · Misc › Task pipeline — Report limits"
           when={<>A new Misc L2 subtab <b>Task pipeline</b> (after Scripts, before Tastyrc on Windows). The content column is one <b>mono micro uppercase</b> heading, <b>REPORT LIMITS</b>, then two settings rows in the row grid (label column = longest label clamped 150 … 240, gap 16), each a <b>mono numeric Input</b> (90) with the static unit <b>B</b>, its description caption directly under it (gap 4, measure-md), and a 1px separator between the rows. The two values are tied (note limit &lt; attempt limit): each field's range narrows to the other's current value, so a crossed pair can't be committed. The relation stays in the description copy; the range line appears <b>only when a value is out of range</b>, like every numeric field. Values are raw bytes with no grouping (they are typed, and match the config file); the unit stays <b>B</b>.</>}>
