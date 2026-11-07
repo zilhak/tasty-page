@@ -4,7 +4,7 @@ The source for which ground sits where, which ink sits on it, and what each comp
 
 Contrast is the WCAG 2 ratio, measured in Mocha and Latte. Every number here is computed from `tokens/tasty.tokens.json`.
 
-**Measure in 8 bits, because the app paints in 8 bits.** Each resolved color rounds per channel to 8 bits, half up. A translucent layer or ink composites source-over in sRGB, and the result rounds per channel again. The ratio is taken on those rounded values, in the same form as `grounds[].values` in `tokens/ground-ink-rules.json`. A cell has to pass with the alpha as the token gives it and with the alpha itself rounded to n/255. The ratio is compared to the grade before any display rounding. One 8-bit step moves a ratio by about 0.02 to 0.04, so a cell within 0.05 above its grade is a boundary cell. The changelog lists them.
+**Measure in 8 bits, because the app paints in 8 bits.** Each resolved color rounds per channel to 8 bits, half up. A translucent layer or ink composites source-over in sRGB, and the result rounds per channel again. The ratio is taken on those rounded values, in the same form as `grounds[].values` in `tokens/ground-ink-rules.json`. A cell has to pass with the alpha as the token gives it and with the alpha itself rounded to n/255. The ratio is compared to the grade before any display rounding. One 8-bit step moves a ratio by about 0.02 to 0.04, so a cell within 0.05 above its grade is a boundary cell.
 
 ## 1. How to find a value
 
