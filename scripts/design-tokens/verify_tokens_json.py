@@ -9,6 +9,7 @@ Names, values, aliases and Latte values must match. Exits 1 on any difference.
 import json, os, sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.dont_write_bytecode = True  # keep __pycache__ out of the working tree
 import gen_tokens_json as g
 
 after,json_path=sys.argv[1],sys.argv[2]
