@@ -6,9 +6,13 @@ import { posix, relative, resolve, sep } from "node:path";
  * Keep guide links relative so untranslated bodies work under both languages.
  * Compute paths between routes: using/terminal.md becomes using/terminal/,
  * while plugins/index.md becomes plugins/.
- * A link to a Markdown file outside the content tree fails the build,
- * because the site serves no such page.
+ * A link to a Markdown file outside the content tree is recorded in
+ * outsideLinks and left unchanged, because the site serves no such page.
+ * The build checks the list when it finishes and fails if it is not empty.
  */
+
+/** Messages for links to Markdown files outside the content tree. */
+export const outsideLinks = new Set();
 
 const toPosix = (p) => (sep === "/" ? p : p.split(sep).join("/"));
 
@@ -42,10 +46,12 @@ export function createGuideLinkPlugin(contentRoot) {
         const inTree = target === contentRoot || target.startsWith(contentRoot + sep);
         if (!inTree) {
           const site = resolve(contentRoot, "..");
-          throw new Error(
+          const message =
             `Link "${href}" in ${toPosix(relative(site, self))} points to ${toPosix(relative(site, target))}, ` +
-              "a Markdown file outside content/. Link to a guide page or use a full URL.",
-          );
+            "a Markdown file outside content/. Link to a guide page or use a full URL.";
+          if (!outsideLinks.has(message)) console.warn(`[guide-md-links] ${message}`);
+          outsideLinks.add(message);
+          return;
         }
 
         const from = routeOf(self, contentRoot);

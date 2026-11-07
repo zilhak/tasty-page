@@ -3,7 +3,7 @@ import { fileURLToPath } from "node:url";
 import { defineConfig } from "astro/config";
 import react from "@astrojs/react";
 import { satteri } from "@astrojs/markdown-satteri";
-import { createGuideLinkPlugin } from "./src/lib/satteri-guide-links.mjs";
+import { createGuideLinkPlugin, outsideLinks } from "./src/lib/satteri-guide-links.mjs";
 import { createDiagramPlugin } from "./src/lib/satteri-diagrams.mjs";
 import { createTableWrapPlugin } from "./src/lib/satteri-table-wrap.mjs";
 import { BASE, SITE } from "./src/lib/base.mjs";
@@ -11,7 +11,23 @@ import { BASE, SITE } from "./src/lib/base.mjs";
 export default defineConfig({
   site: SITE,
   base: BASE,
-  integrations: [react()],
+  integrations: [
+    react(),
+    {
+      // Guide links to Markdown files outside content/ are only warnings while
+      // rendering. Fail the build once every page has rendered.
+      name: "tasty-guide-outside-links",
+      hooks: {
+        "astro:build:done": () => {
+          if (outsideLinks.size === 0) return;
+          throw new Error(
+            `${outsideLinks.size} guide link(s) point outside content/:\n` +
+              [...outsideLinks].map((m) => `  - ${m}`).join("\n"),
+          );
+        },
+      },
+    },
+  ],
   vite: {
     plugins: [{
       name: "tasty-isolate-dependency-cache",
