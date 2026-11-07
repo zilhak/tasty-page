@@ -40,7 +40,7 @@ Press the same shortcut again to close the settings window.
 - Startup corrections and the confirmed shell path are saved together. The loading screen keeps updating while the save completes. During normal use, new windows use the latest settings applied in this run even if a save is still pending.
 - Changes to **Language** take effect after you save and restart Tasty. Performance settings apply to terminals you open after saving; terminals that are already open don't change right away.
 - Numeric entries are **typed**, never dragged. Values are not adjusted while you type; they are brought into the allowed range when you leave the field or press `Enter`. Type something outside the range and the field's border takes the warning colour, with one line under it naming the range and the value that will actually be saved.
-- Whole-number fields widen to show the entire value, and grow with each character as you type. The unit sits after the field. Some entries show an oversized value from the settings file unchanged. However, when `[remote_attach] heartbeat_timeout_secs` is outside 10–600, Tasty resets it to the default of 30 when reading the file and gives a notice.
+- Whole-number fields widen to show the entire value, and grow with each character as you type. The unit sits after the field. Some entries show an oversized value from the settings file unchanged. However, when `[remote_attach] heartbeat_timeout_secs` is outside 10–600, Tasty resets it to the default of 30 when reading the file, saves the corrected value back to the settings file, and writes a warning only to the log.
 - If the settings window is so narrow that an entry's control no longer fits beside its name, that entry moves the control onto the line below the name. Widen the window and it moves back beside it.
 
 ## Entries by tab
@@ -250,7 +250,7 @@ the text that language ships with stays on screen, and you never get a blank spo
 
 General settings are stored in this file. Handler tables, theme files, and other items described above use their separate paths. Missing keys are read as defaults, so you only need to write the ones you need.
 
-`heartbeat_timeout_secs` in `[remote_attach]` sets how long a remote attach connection waits without receiving anything from the other side. The unit is seconds, the default is 30, and the range is 10–600. An out-of-range file value is reset to 30 with a notice. Direct edits to the settings file are read the next time Tasty starts. To apply a change to new connections without restarting, change it in the settings window and save.
+`heartbeat_timeout_secs` in `[remote_attach]` sets how long a remote attach connection waits without receiving anything from the other side. The unit is seconds, the default is 30, and the range is 10–600. An out-of-range file value is reset to the default of 30 and saved back to the settings file; a warning is written only to the log. Direct edits to the settings file are read the next time Tasty starts. To apply a change to new connections without restarting, change it in the settings window and save.
 
 ```toml
 [general]
