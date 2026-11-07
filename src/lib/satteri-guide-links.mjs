@@ -2,12 +2,17 @@ import { fileURLToPath } from "node:url";
 import { posix, relative, resolve, sep } from "node:path";
 
 /**
- * Rewrite Markdown links to guide routes or repository files on GitHub.
+ * Rewrite Markdown links to guide routes.
  * Keep guide links relative so untranslated bodies work under both languages.
  * Compute paths between routes: using/terminal.md becomes using/terminal/,
  * while plugins/index.md becomes plugins/.
+ * A link to a Markdown file outside the content tree is recorded in
+ * outsideLinks and left unchanged, because the site serves no such page.
+ * The build checks the list when it finishes and fails if it is not empty.
  */
-const BLOB_BASE = "https://github.com/zilhak/tasty/blob/main";
+
+/** Messages for links to Markdown files outside the content tree. */
+export const outsideLinks = new Set();
 
 const toPosix = (p) => (sep === "/" ? p : p.split(sep).join("/"));
 
@@ -19,7 +24,7 @@ function routeOf(absFile, contentRoot) {
   return rel.replace(/(^|\/)index$/, "$1").replace(/\/$/, "");
 }
 
-export function createGuideLinkPlugin(contentRoot, repoRoot) {
+export function createGuideLinkPlugin(contentRoot) {
   return {
     name: "guide-md-links",
     element: {
@@ -37,10 +42,15 @@ export function createGuideLinkPlugin(contentRoot, repoRoot) {
         const self = fileURLToPath(ctx.fileURL);
         const target = resolve(self, "..", path);
 
-        // Anything the content tree doesn't serve is a file, not a page.
+        // The content tree is the only source of pages.
         const inTree = target === contentRoot || target.startsWith(contentRoot + sep);
         if (!inTree) {
-          ctx.setProperty(node, "href", `${BLOB_BASE}/${toPosix(relative(repoRoot, target))}${hash}`);
+          const site = resolve(contentRoot, "..");
+          const message =
+            `Link "${href}" in ${toPosix(relative(site, self))} points to ${toPosix(relative(site, target))}, ` +
+            "a Markdown file outside content/. Link to a guide page or use a full URL.";
+          if (!outsideLinks.has(message)) console.warn(`[guide-md-links] ${message}`);
+          outsideLinks.add(message);
           return;
         }
 
