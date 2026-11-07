@@ -1,0 +1,54 @@
+name: Design
+
+# Guards the design source in vendor/, which the Tasty app follows.
+# Every change builds the site and checks that the design pages keep their
+# contrast, that tasty.tokens.json is exactly what the token CSS generates,
+# and that the icon files and the icon component draw the same glyphs.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: design-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  design-source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - run: npm ci
+
+      - run: npm run build
+
+      # The hosted Ubuntu runner ships Google Chrome, so no browser download is needed.
+      - name: Check contrast
+        env:
+          CHROMIUM_PATH: /usr/bin/google-chrome
+        run: npm run check-contrast
+
+      # The JSON must be regenerated from the CSS, never edited by hand.
+      - name: Check that the token JSON matches the token CSS
+        run: |
+          python3 scripts/design-tokens/gen_tokens_json.py vendor vendor/tokens/tasty.tokens.json vendor/tokens/tasty.tokens.json
+          git diff --exit-code vendor/tokens/tasty.tokens.json
+          python3 scripts/design-tokens/verify_tokens_json.py vendor vendor/tokens/tasty.tokens.json
+
+      - run: npm run check-icons
