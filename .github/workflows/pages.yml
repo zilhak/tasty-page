@@ -25,7 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      # The design page dates the vendored copy from Git history.
+      # The design page dates the design source in vendor/ from Git history.
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
