@@ -40,7 +40,7 @@ jobs:
 
       # Install the Chromium build that matches playwright-core, so the contrast
       # check renders with the same browser version everywhere it runs.
-      - run: npx playwright-core install chromium
+      - run: npx playwright-core install --with-deps chromium
 
       - run: npm run check-contrast
 
