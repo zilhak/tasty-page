@@ -2,7 +2,7 @@
 /** `/design/tokens/` — the 3-tier token document, on its own page. */
 import Design from "../../layouts/Design.astro";
 import { cards } from "../../lib/guidelines";
-import { REPO, url } from "../../lib/site";
+import { SITE_REPO, url } from "../../lib/site";
 import type { Lang } from "../../lib/guide";
 
 interface Props { lang: Lang; }
@@ -35,7 +35,7 @@ const card = cards(process.cwd()).find((x) => x.slug === "token-system")!;
       <iframe src={url(`design/cards/${card.slug}.html`)} title={card.name}
               height={card.height} style={`min-width:${card.width}px`} />
     </div>
-    <a class="ds-card__src" href={`${REPO}/blob/main/site/vendor/guidelines/${card.slug}.html`}>
+    <a class="ds-card__src" href={`${SITE_REPO}/blob/main/vendor/guidelines/${card.slug}.html`}>
       {c.source} <code>{card.slug}.html</code>
     </a>
   </div>

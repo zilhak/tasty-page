@@ -5,7 +5,7 @@ import { SECTIONS, titleIn, navLabelIn, descriptionIn, stateOf, TRANSLATION_DIR 
 import type { Page, Lang } from "../lib/guide";
 import { pathOf } from "../lib/urls";
 import { stringsFor } from "../lib/strings";
-import { REPO, url } from "../lib/site";
+import { SITE_REPO, url } from "../lib/site";
 // Link these styles only on pages with a diagram instead of bundling them everywhere.
 import shellHref from "../styles/app-shell.css?url";
 
@@ -109,7 +109,7 @@ const toc = headings.filter((h) => h.depth === 2 || h.depth === 3);
         </nav>
       )}
 
-      <a class="edit-link" href={`${REPO}/blob/main/site/content/${sourceRel}.md`}>{s.editPage}</a>
+      <a class="edit-link" href={`${SITE_REPO}/blob/main/content/${sourceRel}.md`}>{s.editPage}</a>
     </main>
 
     <nav class="toc" aria-label={s.tocTitle}>
