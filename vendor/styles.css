@@ -1,7 +1,7 @@
 /* ============================================================
    Tasty Design System — global entry point.
    Consumers link THIS file. It is @import lines only; every
-   token + @font-face in the closure ships to consumers.
+   token in the closure ships to consumers.
 
    Token architecture — a strict 3-tier system:
      1. primitives.css  — raw, context-free values (the only literals)
