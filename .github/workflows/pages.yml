@@ -1,12 +1,9 @@
 name: Pages
 
 # Build the site with Astro and publish it to GitHub Pages.
-# Every push to main or release builds the site and checks its links.
-#
-# The public domain is still deployed from the Tasty repository. Until the
-# domain moves here, deploy only on a manual run from the release branch.
-# After the move, deploy on every push to release instead: change the
-# condition in three places to a push to refs/heads/release, namely the
+# A push to main builds the site and checks its links only.
+# A push to release, or a manual run on release, also deploys the build.
+# The deploy condition appears in three places that must stay the same: the
 # configure-pages step, the upload-pages-artifact step, and the deploy job.
 
 on:
@@ -53,16 +50,16 @@ jobs:
       - run: npm run check-links
 
       # Pages setup and upload run only when the deploy job runs.
-      - if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/release'
+      - if: github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         uses: actions/configure-pages@v5
 
-      - if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/release'
+      - if: github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         uses: actions/upload-pages-artifact@v3
         with:
           path: dist
 
   deploy:
-    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/release'
+    if: github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     needs: build
     # Never cancel a deploy that has started; queue the next one instead.
     concurrency:
