@@ -18,14 +18,12 @@ struct Retired {
     why: &'static str,
 }
 
-const RETIRED: &[Retired] = &[
-    Retired {
-        needle: "패인",
-        canonical: "페인",
-        canonical_floor: 40,
-        why: "Pane의 한국어 표기는 페인이다. 2026-09-07에 번역 파일과 가이드를 합쳐 86회를 측정했고 가이드 정리를 허용하려고 약 절반의 여유를 뒀다. 2026-11-07 가이드만 128회다.",
-    },
-];
+const RETIRED: &[Retired] = &[Retired {
+    needle: "패인",
+    canonical: "페인",
+    canonical_floor: 40,
+    why: "Pane의 한국어 표기는 페인이다. 2026-09-07에 번역 파일과 가이드를 합쳐 86회를 측정했고 가이드 정리를 허용하려고 약 절반의 여유를 뒀다. 2026-11-07 가이드만 128회다.",
+}];
 
 /// 창은 문맥별 예외가 있어 권장 표기의 하한을 따로 둔다. 2026-11-07 가이드만 235회다.
 const WINDOW_CANONICAL: (&str, usize) = ("윈도우", 60);
@@ -170,7 +168,6 @@ const NOT_A_WINDOW: &[NotAWindow] = &[
     },
 ];
 
-
 const GUIDE_FLOOR: Floor = Floor {
     min: 12,
     measured: 18,
@@ -303,7 +300,6 @@ fn shared_evidence(roster: &[NotAWindow]) -> Option<(&NotAWindow, &NotAWindow)> 
     }
     None
 }
-
 
 #[test]
 fn no_retired_spelling_survives_on_the_user_facing_surface() {
@@ -571,16 +567,10 @@ fn a_roster_line_pointing_outside_the_population_is_an_error_not_a_skip() {
 
 #[test]
 fn the_guide_filter_takes_the_korean_source_and_drops_the_translation() {
-    assert!(
-        is_korean_guide("content/using/files.md"),
-        "원본을 뺐다"
-    );
+    assert!(is_korean_guide("content/using/files.md"), "원본을 뺐다");
     assert!(
         !is_korean_guide("content/en/using/files.md"),
         "영어 번역은 한국어 용어 검사 대상이 아니다"
     );
-    assert!(
-        !is_korean_guide("content/index.toml"),
-        "확장자를 안 봤다"
-    );
+    assert!(!is_korean_guide("content/index.toml"), "확장자를 안 봤다");
 }

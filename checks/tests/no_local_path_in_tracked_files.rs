@@ -26,20 +26,14 @@ const FICTIONAL_HOMES: &[(&str, &str)] = &[
         "/home/me",
         "원격 attach 가이드가 원격 호스트의 예시 경로로 쓴다",
     ),
-    (
-        "/home/tasty",
-        "갤러리와 UI 키트의 플러그인 경로 예시다",
-    ),
+    ("/home/tasty", "갤러리와 UI 키트의 플러그인 경로 예시다"),
     (
         "/home/deploy",
         "갤러리의 원격 마크다운 주소창과 오버레이 예시 경로다",
     ),
     ("/Users/me", "UI 키트의 HTML 스크립트 배너 예시 경로다"),
     ("/Users/hana", "갤러리 로딩 화면의 예시 경로다"),
-    (
-        "/Users/hyunjun",
-        "갤러리 오버레이의 긴 키 파일 경로 예시다",
-    ),
+    ("/Users/hyunjun", "갤러리 오버레이의 긴 키 파일 경로 예시다"),
     (
         "/Users/hyunjoon.kim",
         "갤러리 알림 열의 긴 경로 말줄임 예시다",
@@ -63,7 +57,11 @@ const ALLOWED_MENTIONS: &[Mention] = &[
     },
     Mention {
         path: "CLAUDE.md",
-        phrase: concat!("`.cla", "ude`와 `.cla", "ude-workspace`는 git에 넣지 않는다"),
+        phrase: concat!(
+            "`.cla",
+            "ude`와 `.cla",
+            "ude-workspace`는 git에 넣지 않는다"
+        ),
         count: 1,
         why: "로컬 폴더를 커밋하지 않는다는 레포 규칙 문장이다",
     },
@@ -185,7 +183,12 @@ fn every_allowed_mention_occurs_exactly_as_declared() {
             .iter()
             .find(|(rel, _)| rel == m.path)
             .map(|(_, t)| t)
-            .unwrap_or_else(|| panic!("등록한 파일 `{}`이 추적 파일에 없다. 등록을 지운다.", m.path));
+            .unwrap_or_else(|| {
+                panic!(
+                    "등록한 파일 `{}`이 추적 파일에 없다. 등록을 지운다.",
+                    m.path
+                )
+            });
         let n = text.matches(m.phrase).count();
         assert_eq!(
             n, m.count,
@@ -221,13 +224,28 @@ fn every_fictional_home_is_still_used() {
 #[test]
 fn the_finders_answer_both_yes_and_no() {
     let real = format!("{}{}", "/home/", "someone/workspace/tasty");
-    assert_eq!(home_paths(&real), vec![format!("{}{}", "/home/", "someone")]);
+    assert_eq!(
+        home_paths(&real),
+        vec![format!("{}{}", "/home/", "someone")]
+    );
     let mac = format!("{}{}", "/Users/", "someone.else/Library");
-    assert_eq!(home_paths(&mac), vec![format!("{}{}", "/Users/", "someone.else")]);
+    assert_eq!(
+        home_paths(&mac),
+        vec![format!("{}{}", "/Users/", "someone.else")]
+    );
     let win = format!("{}{}", "C:\\Users\\", "someone\\AppData");
-    assert_eq!(home_paths(&win), vec![format!("{}{}", "C:\\Users\\", "someone")]);
-    assert!(home_paths("ssh me@host:/home/me/notes.md").is_empty(), "예시 경로를 잡았다");
-    assert!(home_paths("홈 폴더(/home/)를 연다").is_empty(), "이름 없는 접두사를 잡았다");
+    assert_eq!(
+        home_paths(&win),
+        vec![format!("{}{}", "C:\\Users\\", "someone")]
+    );
+    assert!(
+        home_paths("ssh me@host:/home/me/notes.md").is_empty(),
+        "예시 경로를 잡았다"
+    );
+    assert!(
+        home_paths("홈 폴더(/home/)를 연다").is_empty(),
+        "이름 없는 접두사를 잡았다"
+    );
     assert_eq!(
         home_paths(&format!("{}{}", "/home/", "meow")),
         vec![format!("{}{}", "/home/", "meow")],
@@ -236,7 +254,10 @@ fn the_finders_answer_both_yes_and_no() {
 
     assert_eq!(local_guide_dir_hits("~/.claude/settings.json"), 0);
     assert_eq!(local_guide_dir_hits("$HOME/.claude/settings.json"), 0);
-    assert_eq!(local_guide_dir_hits(&format!("see {LOCAL_GUIDE_DIR}CLAUDE.md")), 1);
+    assert_eq!(
+        local_guide_dir_hits(&format!("see {LOCAL_GUIDE_DIR}CLAUDE.md")),
+        1
+    );
     assert_eq!(
         local_guide_dir_hits(&format!("tasty/{LOCAL_GUIDE_DIR}git-rules.md")),
         1
@@ -277,7 +298,11 @@ fn only_tracked_files_are_read() {
             .current_dir(dir)
             .output()
             .expect("git 실행 실패");
-        assert!(st.status.success(), "git {args:?}: {}", String::from_utf8_lossy(&st.stderr));
+        assert!(
+            st.status.success(),
+            "git {args:?}: {}",
+            String::from_utf8_lossy(&st.stderr)
+        );
     };
     git(&["init", "-q"]);
     std::fs::write(dir.join(".gitignore"), "ignored.md\n").expect("합성 .gitignore 실패");
