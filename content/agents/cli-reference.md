@@ -60,6 +60,8 @@ tasty session revoke --token <토큰>
 발급된 토큰을 자식이 `TASTY_SESSION_TOKEN`으로 사용하면 Tasty에 보내는 요청은 그 토큰의 권한으로 검사됩니다.
 세션 토큰은 요청이 어느 에이전트의 것인지 구분하고 에이전트의 실수를 막는 장치이며, 보안 경계가 아닙니다. 토큰 없이 부른 명령은 사용자의 명령으로 처리됩니다.
 
+원격 연결을 준비할 때 세션 토큰으로 `tasty remote attach --into-gui`와 `tasty remote refusals`를 별도 권한 없이 사용할 수 있습니다. 연결 결과를 목록으로 확인하는 `tasty list workspaces`에는 `surface.read` 권한이 필요합니다. 명령 형태와 JSON 결과는 [원격 작업 이어가기](../remote/attach.md)를 참고하세요.
+
 플러그인이 더한 명령(`tasty markdown recent` · `tasty codex spawn` 등)도 권한이 필요합니다.
 `tasty <명령> …` 이면 `--permission ipc.invoke:<명령>` 을 적어 주세요 — `tasty markdown …` 은
 `ipc.invoke:markdown` 이고, 명령 이름에 `-` 가 있으면 `_` 로 바꿉니다. 적지 않은 채 부르면 거부되고 사람에게 권한 승인 요청이 갑니다.

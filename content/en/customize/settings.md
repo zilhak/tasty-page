@@ -40,7 +40,7 @@ Press the same shortcut again to close the settings window.
 - Startup corrections and the confirmed shell path are saved together. The loading screen keeps updating while the save completes. During normal use, new windows use the latest settings applied in this run even if a save is still pending.
 - Changes to **Language** take effect after you save and restart Tasty. Performance settings apply to terminals you open after saving; terminals that are already open don't change right away.
 - Numeric entries are **typed**, never dragged. Values are not adjusted while you type; they are brought into the allowed range when you leave the field or press `Enter`. Type something outside the range and the field's border takes the warning colour, with one line under it naming the range and the value that will actually be saved.
-- Whole-number fields widen to show the entire value, and grow with each character as you type. The unit sits after the field. A value in the settings file that is larger than the range is shown as written; it is not changed when it is read.
+- Whole-number fields widen to show the entire value, and grow with each character as you type. The unit sits after the field. Some entries show an oversized value from the settings file unchanged. However, when `[remote_attach] heartbeat_timeout_secs` is outside 10–600, Tasty resets it to the default of 30 when reading the file and gives a notice.
 - If the settings window is so narrow that an entry's control no longer fits beside its name, that entry moves the control onto the line below the name. Widen the window and it moves back beside it.
 
 ## Entries by tab
@@ -54,12 +54,15 @@ Press the same shortcut again to close the settings window.
 | **Accessibility** | **Reduced motion** (turns off toast and overlay fades, the loading spinner's rotation, and the modal shake) · **Show modifier key hints** |
 | **Overlay** | **Toast duration** (1~10 seconds) |
 | **Remote transfer** | **Save folder** (default `~/.tasty/transfers/`) · **Maximum size** (MiB) — where files received from a remote Workspace are saved |
+| **Remote attach** | **Disconnect after**, under **Attach connections** — seconds, default 30, range 10–600. How long an established remote attach connection waits without receiving anything from the other side before disconnecting |
 | **Display** (macOS only) | **Cmd key display** · **Option key display** · **Shift key display** — choose text or symbols for keybinding notation |
 | **Permissions** (macOS only) | **Full Disk Access** · **Screen recording** status, **Request all permissions** (asks for the folders and screen recording in one go), and **Open System Settings** in the Full Disk Access row |
 
 Turn off **Restore surface content on restart** and earlier terminal content no longer comes back from the next start. Content that was already saved is not restored either, while the tab layout and working directories still are. Reopening a closed tab (`Ctrl+Shift+T`) also leaves out terminal content while the setting is off.
 
 **Browse…** beside the **Remote transfer** save folder opens the Tasty folder picker inside Settings. **Select folder** fills the field with the selected subfolder, or the current folder when nothing is selected. Press **Save** in Settings to apply it. Cancel or Esc leaves the folder value unchanged.
+
+Change **Disconnect after** under **Settings** › **General** › **Remote attach**. When you commit an entry by pressing Enter or leaving the field, values below 10 seconds become 10 and values above 600 become 600. Saved values apply to new connections without restarting; open connections keep their existing value. Each Tasty uses its own value, so the other side may disconnect first. CLI attach that does not read the settings file uses 30 seconds.
 
 ### Terminal
 
@@ -246,6 +249,8 @@ the text that language ships with stays on screen, and you never get a blank spo
 ## The settings file `~/.tasty/config.toml`
 
 General settings are stored in this file. Handler tables, theme files, and other items described above use their separate paths. Missing keys are read as defaults, so you only need to write the ones you need.
+
+`heartbeat_timeout_secs` in `[remote_attach]` sets how long a remote attach connection waits without receiving anything from the other side. The unit is seconds, the default is 30, and the range is 10–600. An out-of-range file value is reset to 30 with a notice. Direct edits to the settings file are read the next time Tasty starts. To apply a change to new connections without restarting, change it in the settings window and save.
 
 ```toml
 [general]

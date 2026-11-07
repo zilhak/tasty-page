@@ -110,6 +110,34 @@ tasty remote attach --ssh me@10.0.0.5 --workspace 3        # 프로필 없이 1�
 tasty remote new-workspace --profile gx10-attach --name build --cwd /home/me/proj   # 원격에 워크스페이스 생성
 ```
 
+### 실행 중인 Tasty 윈도우에 붙이기
+
+실행 중인 Tasty가 SSH 터널을 직접 열어 원격 워크스페이스를 이 윈도우에 mirror로 붙입니다. 포커스는 옮기지 않습니다. 기존 워크스페이스를 붙이려면 원격 ID를 `--workspace`로 지정하세요. `--profile`에는 `tasty-attach` 프로필 이름을 주며, 프로필 없이 연결하려면 대신 `--ssh <대상>`을 사용합니다.
+
+```sh
+tasty remote attach --into-gui --workspace 3 --profile gx10-attach
+tasty remote attach --into-gui --workspace 3 --ssh me@10.0.0.5
+```
+
+기존 워크스페이스에 연결하는 명령은 접수 응답을 JSON 한 줄로 출력하고, 연결 결과를 최대 90초 기다린 뒤 결과를 둘째 JSON 줄로 출력합니다. 연결에 실패하거나 90초 안에 결과를 받지 못하면 종료 코드 1로 끝납니다. 접수 응답만으로 연결 성공을 판단하지 마세요.
+
+원격에 워크스페이스를 새로 만들고 바로 mirror로 붙이려면 `--workspace` 대신 `--new-workspace`를 사용합니다. `--name`과 `--cwd`는 선택 사항이며, `--cwd`는 원격 컴퓨터의 경로입니다. 이 형태는 생성 결과를 JSON 한 줄로 출력합니다. 기존 워크스페이스 연결처럼 둘째 결과 줄을 기다리는 형태가 아니므로, mirror가 생겼는지는 `tasty list workspaces`로 확인하세요. mirror 행에는 `[mirror]`가 붙습니다.
+
+```sh
+tasty remote attach --into-gui --new-workspace --profile gx10-attach --name build --cwd /srv/project
+tasty list workspaces
+```
+
+`tasty remote new-workspace`는 원격 워크스페이스를 만드는 명령입니다. 로컬 GUI에 mirror로 붙이는 단계까지 하려면 `tasty remote attach --into-gui --new-workspace`를 사용하세요. `remote new-workspace` 도움말 끝에도 이 안내가 나옵니다.
+
+이미 열어 둔 SSH 터널의 로컬 포트로 붙이는 기존 `--target-port` 형태도 그대로 사용할 수 있습니다. 이 경우 터널은 직접 준비합니다.
+
+```sh
+tasty remote attach --into-gui --target-port 5555 --workspace 3
+```
+
+세션 토큰을 가진 에이전트도 `tasty remote attach --into-gui`와 `tasty remote refusals`를 별도 권한 없이 사용할 수 있습니다. 다만 mirror 확인에 쓰는 `tasty list workspaces`에는 `surface.read` 권한이 필요합니다.
+
 자주 쓰는 옵션:
 
 | 옵션 | 쓰는 곳 | 동작 |
@@ -140,7 +168,7 @@ tasty remote new-workspace --profile gx10-attach --name build --cwd /home/me/pro
 - `--no-reconnect` 를 주지 않으면 SSH 가 끊겼을 때 자동으로 재연결을 시도합니다.
 - 회선이 느려 원격이 보내던 화면 일부를 놓치면, 원격이 그 사실을 알려 오고 attach 가 스스로 다시 붙어 화면을 새로 받습니다. 그때 터미널에 안내가 한 줄 나옵니다. 화면을 출력하고 끝나는 attach 는 한 번 실행에 세 번까지 다시 붙고, 그래도 놓치면 결과를 출력한 뒤 화면 일부가 빠졌을 수 있다고 알립니다. `--raw` 는 횟수 제한 없이 다시 붙으며 화면을 처음부터 다시 그립니다. `--send` 로 보낸 입력은 다시 보내지 않습니다.
 
-실행 중인 Tasty 윈도우 안에 mirror 워크스페이스로 띄우려면 아래 "워크스페이스에 자동 attach 걸기" 를 씁니다.
+CLI에서 실행 중인 Tasty 윈도우에 바로 붙이려면 위의 `--into-gui`를 사용합니다. 워크스페이스로 전환할 때마다 자동으로 붙이려면 아래 ‘워크스페이스에 자동 attach 걸기’를 참고하세요.
 
 ## 5. 워크스페이스에 자동 attach 걸기
 
@@ -200,6 +228,8 @@ mirror 카드를 우클릭하면 두 항목이 함께 나옵니다. 내 쪽의 �
 
 이 두 항목은 원격 쪽 윈도우의 **강제 끊기** 와 다릅니다. 강제 끊기는 원격 컴퓨터에서 남이 붙여 둔 연결을 내보내는 동작이고, 연결 끊기는 내가 붙인 mirror 를 내 쪽에서 닫는 동작입니다.
 
+CLI에는 연결만 끊는 명령이 없습니다. mirror의 마지막 서피스를 닫으면 원격 워크스페이스도 함께 닫힙니다. 원격 작업을 남기고 연결만 끊으려면 GUI의 **워크스페이스 연결 끊기**를 사용하세요.
+
 ## 점유 풀기 (원격 쪽에서)
 
 내 Tasty 의 워크스페이스가 다른 곳에서 attach 돼 읽기 전용이 됐을 때, 서피스에 **강제 끊기** <!-- en: Force detach --> 안내가 뜹니다. 그 안내는 그 워크스페이스를 보고 있을 때만 나오므로, 사이드바에서 바로 끊을 수도 있습니다 — 점유 중인 워크스페이스 카드를 우클릭 > **강제 끊기** <!-- en: Force detach --> 를 누르면 확인 팝업이 화면 중앙에 뜨고, 확인하면 그 자리에서 풀립니다. 그 워크스페이스로 전환하지 않아도 됩니다.
@@ -219,6 +249,12 @@ tasty settings set-remote-transfer --dir ~/Downloads/tasty --max-mb 2000
 
 CLI attach의 `--raw` 출력을 다른 명령으로 넘겼을 때 그 명령이 먼저 종료하면 attach도 정상 종료합니다.
 출력 장치의 권한 문제 같은 다른 쓰기 오류는 실패로 알려 줍니다.
+
+## 무응답일 때 연결을 끊는 시간
+
+원격 attach 연결에서 상대에게서 아무것도 받지 못한 채 설정한 시간이 지나면 연결을 끊습니다. 기본 대기 시간이 이전의 고정 시간보다 늘어나 30초가 되었습니다. **설정** <!-- en: Settings --> › **일반** <!-- en: General --> › **원격 Attach** <!-- en: Remote attach -->에서 **Attach 연결** <!-- en: Attach connections --> 아래 **끊기 전 대기 시간** <!-- en: Disconnect after -->을 바꿀 수 있습니다. 단위는 초이며 10~600초 사이로 정합니다.
+
+설정을 저장하면 재시작 없이 새 연결부터 적용되고 이미 열린 연결은 그대로입니다. 양쪽 Tasty는 각자 자기 값을 쓰므로 한쪽의 시간을 늘려도 상대가 먼저 끊을 수 있습니다. 설정 파일을 읽지 않는 CLI attach는 30초를 사용합니다. 설정 파일의 키와 범위 밖 값 처리 방법은 [설정](../customize/settings.md)을 참고하세요.
 
 ## 응답을 기다리는 동안
 

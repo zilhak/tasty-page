@@ -250,6 +250,10 @@ When the children of one Codex conversation are in more than one workspace, pass
 
 ### Creating children in an attached remote workspace
 
+If you have not attached yet, use `tasty remote attach --into-gui --workspace <remote ID> --profile <name>` to add a mirror to the running Tasty. To create a remote workspace and attach it, replace `--workspace <remote ID>` with `--new-workspace`; optionally set its name and remote working directory with `--name` and `--cwd`. You can use `--ssh <target>` instead of a profile. Tasty opens the SSH tunnel itself without moving focus. Attaching an existing workspace prints two JSON lines, an acknowledgement and a result, and waits up to 90 seconds for the result. It exits with code 1 on failure or if no result arrives in time. The new-workspace form prints the creation result as one JSON line.
+
+In `tasty list workspaces`, find the local workspace ID in the row marked `[mirror]` and use that ID for `--workspace` in the spawn command below. Do not reuse the remote ID given to attach. With a session token, `tasty remote attach --into-gui` and `tasty remote refusals` need no additional permission, but `tasty list workspaces` requires `surface.read`. There is no CLI command that only disconnects the mirror; closing its last surface also closes the remote workspace. See [Working remotely](../remote/attach.md) for connection options and how to disconnect through the GUI.
+
 If you have attached a Tasty workspace on another computer, pass that workspace's number to `--workspace` to run `tasty claude spawn` or `tasty codex spawn` there. The child runs on the remote computer with that computer's Claude Code or Codex installation, settings, and sign-in, and appears on your side as a child in the attached workspace. Use `tell`, `children`, and `kill` as you would for a local child.
 
 ```sh

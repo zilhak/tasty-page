@@ -248,6 +248,10 @@ tasty claude codex-returns --retry   # 남은 결과를 모두 지금 보낼 차
 
 ### 연결한 원격 워크스페이스에 자식 만들기
 
+아직 연결하지 않았다면 `tasty remote attach --into-gui --workspace <원격 ID> --profile <이름>`으로 실행 중인 Tasty에 mirror를 붙입니다. 원격에 새 워크스페이스를 만들어 붙이려면 `--workspace <원격 ID>` 대신 `--new-workspace`를 사용하며, 이름과 원격 작업 경로는 `--name`·`--cwd`로 지정할 수 있습니다. 프로필 대신 `--ssh <대상>`도 사용할 수 있습니다. Tasty가 SSH 터널을 직접 열며 포커스를 옮기지 않습니다. 기존 워크스페이스 연결은 접수·결과의 JSON 두 줄을 출력하고 결과를 최대 90초 기다리며, 실패하거나 시간 안에 결과를 받지 못하면 종료 코드 1입니다. 새 워크스페이스 형태는 생성 결과 JSON 한 줄을 출력합니다.
+
+`tasty list workspaces`에서 `[mirror]` 행의 이쪽 워크스페이스 ID를 확인하고, 아래 spawn의 `--workspace`에 그 ID를 주세요. attach에 지정한 원격 ID를 그대로 쓰지 마세요. 세션 토큰으로 `tasty remote attach --into-gui`와 `tasty remote refusals`를 쓰는 데 별도 권한은 필요 없지만, `tasty list workspaces`에는 `surface.read` 권한이 필요합니다. CLI에는 연결만 끊는 명령이 없고 mirror의 마지막 서피스를 닫으면 원격 워크스페이스도 함께 닫힙니다. 연결 방식과 GUI에서 연결만 끊는 방법은 [원격 작업 이어가기](../remote/attach.md)를 참고하세요.
+
 다른 컴퓨터의 Tasty 워크스페이스를 연결(attach)해 두었다면, 그 워크스페이스 번호를 `--workspace` 로 주어 `tasty claude spawn`·`tasty codex spawn` 할 수 있습니다. 자식은 원격 컴퓨터에서 그 컴퓨터의 Claude Code·Codex 설치, 설정, 로그인으로 실행되고, 내 쪽에서는 연결한 워크스페이스 안의 자식으로 보입니다. `tell`·`children`·`kill` 도 내 쪽 자식처럼 씁니다.
 
 ```sh

@@ -111,6 +111,34 @@ tasty remote attach --ssh me@10.0.0.5 --workspace 3        # one-off, without a 
 tasty remote new-workspace --profile gx10-attach --name build --cwd /home/me/proj   # create a Workspace on the remote
 ```
 
+### Attach to a running Tasty window
+
+The running Tasty opens the SSH tunnel itself and adds the remote workspace to this window as a mirror, without moving focus. To attach an existing workspace, give its remote ID with `--workspace`. Use a `tasty-attach` profile name with `--profile`, or use `--ssh <target>` instead to connect without a profile.
+
+```sh
+tasty remote attach --into-gui --workspace 3 --profile gx10-attach
+tasty remote attach --into-gui --workspace 3 --ssh me@10.0.0.5
+```
+
+When attaching an existing workspace, the command prints the acknowledgement as one JSON line, waits up to 90 seconds for the connection result, then prints that result as a second JSON line. It exits with code 1 if the connection fails or no result arrives within 90 seconds. An acknowledgement alone does not mean the connection succeeded.
+
+To create a remote workspace and immediately attach it as a mirror, use `--new-workspace` instead of `--workspace`. `--name` and `--cwd` are optional; `--cwd` is a path on the remote computer. This form prints the creation result as one JSON line. It does not wait for a second result line as the existing-workspace form does. Check `tasty list workspaces` for a row marked `[mirror]` to confirm that the mirror appeared.
+
+```sh
+tasty remote attach --into-gui --new-workspace --profile gx10-attach --name build --cwd /srv/project
+tasty list workspaces
+```
+
+`tasty remote new-workspace` creates a remote workspace. To also attach it as a mirror in the local GUI, use `tasty remote attach --into-gui --new-workspace`. The end of the `remote new-workspace` help text points to this command too.
+
+The existing `--target-port` form still attaches through a local port you have already forwarded. Prepare the tunnel yourself for this form.
+
+```sh
+tasty remote attach --into-gui --target-port 5555 --workspace 3
+```
+
+An agent using a session token can run `tasty remote attach --into-gui` and `tasty remote refusals` without an additional permission. However, `tasty list workspaces`, used to check the mirror, requires `surface.read`.
+
 Common options:
 
 | Option | Used with | Effect |
@@ -141,7 +169,7 @@ Common options:
 - Unless you pass `--no-reconnect`, it automatically tries to reconnect when SSH drops.
 - If a slow link makes you miss part of the screen the remote was sending, the remote says so and the attach re-attaches on its own to fetch the screen again, printing a one-line notice in your terminal. An attach that prints the screen and exits re-attaches up to three times per run; if it still misses something, it prints the result and then warns that part of the screen may be missing. `--raw` re-attaches with no limit and redraws the screen from scratch. Input given with `--send` is not sent again.
 
-To bring it up as a mirror Workspace inside a running Tasty window, use "Set up automatic attach on a Workspace" below.
+To attach directly to a running Tasty window from the CLI, use `--into-gui` above. To attach automatically whenever you switch to a workspace, see “Set up automatic attach on a Workspace” below.
 
 ## 5. Set up automatic attach on a Workspace
 
@@ -201,6 +229,8 @@ Right-clicking a mirror card shows two items together. Your own regular Workspac
 
 These two items differ from **Force detach** in the remote window. Force detach removes someone else's connection on the remote computer; Disconnect closes the mirror you attached, from your side.
 
+There is no CLI command that only disconnects the mirror. Closing its last surface also closes the remote workspace. To leave the remote work running and only disconnect, use **Disconnect Workspace** in the GUI.
+
 ## Releasing the occupation (on the remote side)
 
 When a Workspace in your Tasty has been attached from elsewhere and become read-only, a **Force detach** notice appears on the Surface. That notice only shows while you are looking at that Workspace, so you can also detach straight from the sidebar — right-click the occupied Workspace card > **Force detach**, and a confirmation appears in the middle of the screen; confirming releases it on the spot. You do not have to switch to that Workspace.
@@ -220,6 +250,12 @@ tasty settings set-remote-transfer --dir ~/Downloads/tasty --max-mb 2000
 
 When you pass the `--raw` output of a CLI attach to another command and that command exits first, the attach also ends normally.
 Other write errors, such as a permission problem on the output device, are reported as a failure.
+
+## Disconnecting an unresponsive connection
+
+A remote attach connection disconnects after receiving nothing from the other side for the configured time. The default wait has increased from the previous fixed timeout to 30 seconds. Change **Disconnect after**, under **Attach connections**, in **Settings** › **General** › **Remote attach**. The unit is seconds, and the range is 10–600.
+
+Saving applies the value to new connections without restarting; open connections keep their existing value. Each Tasty uses its own value, so increasing yours does not prevent the other side from disconnecting first. CLI attach that does not read the settings file uses 30 seconds. See [Settings](../customize/settings.md) for the file key and how out-of-range file values are handled.
 
 ## While waiting for a response
 

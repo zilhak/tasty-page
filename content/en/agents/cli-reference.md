@@ -59,6 +59,8 @@ tasty session revoke --token <token>
 When a child uses the issued token as `TASTY_SESSION_TOKEN`, Tasty checks its requests against the permissions on that token.
 A session token tells Tasty which agent a request comes from and keeps agents from making mistakes; it is not a security boundary. A command run without a token is handled as the user's command.
 
+To prepare a remote connection, an agent with a session token can run `tasty remote attach --into-gui` and `tasty remote refusals` without an additional permission. Checking the workspace list with `tasty list workspaces` requires `surface.read`. See [Working remotely](../remote/attach.md) for command forms and JSON output.
+
 Commands that a plugin adds (`tasty markdown recent`, `tasty codex spawn` and so on) need a permission too.
 For `tasty <command> …`, add `--permission ipc.invoke:<command>` — `tasty markdown …` needs
 `ipc.invoke:markdown`, and a `-` in the command name becomes `_`. Without it the call is refused and a permission approval request goes to a person.
