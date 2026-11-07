@@ -51,4 +51,7 @@ jobs:
           git diff --exit-code vendor/tokens/tasty.tokens.json
           python3 scripts/design-tokens/verify_tokens_json.py vendor vendor/tokens/tasty.tokens.json
 
+      # tokens.css repeats tier 1 values that the token tools read from primitives.css.
+      - run: npm run check-tokens-copy
+
       - run: npm run check-icons
