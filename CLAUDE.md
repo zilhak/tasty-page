@@ -23,7 +23,7 @@
 
 - `main`: 최신 페이지다. 기획서, 문구, 갤러리 디자인 작업은 모두 `main`에서 한다. push하면 빌드와 검사만 하고 배포하지 않는다.
 - `release`: 게시용 페이지다. 배포는 `release`에 push될 때만 한다.
-- 승격: Tasty 릴리스 때 `release`를 `main`으로 fast-forward하고, 그 커밋에 Tasty 릴리스와 같은 태그를 붙인다.
+- 승격: Tasty 릴리스 때 `release`를 `main`으로 fast-forward하고, 그 커밋에 Tasty 릴리스와 같은 태그를 붙인다. 태그와 함께 `git push --atomic origin release <tag>`로 push한다.
 - 게시용 수정: 릴리스 뒤 게시용 페이지에서만 고쳐야 할 내용(오타, 잘못된 안내 등)은 `release`에 커밋해 태그 없이 배포한다. 그 직후 `release`를 `main`에 합쳐 `release`가 항상 `main`에 포함되게 한다. 그래야 다음 승격이 fast-forward로 된다.
 
 ## 갤러리
@@ -50,7 +50,7 @@
 - 갤러리 파일은 ES 모듈이다. `gallery/<페이지>/index.jsx`와 그 페이지 폴더, 공용 `gallery/parts/`에 두고 `import`로 연결한다. 형식은 [vendor/gallery/README.md](vendor/gallery/README.md)를 따른다.
 - 계약 행을 더하면 페이지의 `states.jsx`에 계약 이름을, 부품 위치가 필요하면 `parts/part-map.js`에 넣는다.
 - 숨은 상태는 클릭하지 않아도 보이도록 프레임으로 둔다. `data-audit-exempt`와 `data-ink-grade`는 `vendor/RULES.md` 14절대로 표시한다.
-- 디자인을 바꾼 뒤 `npm run build`, `npm run check-contrast`, `npm run check-icons`를 통과시킨다.
+- 디자인을 바꾼 뒤 `npm run build`, `npm run check-contrast`, `npm run check-icons`, `npm run check-tokens-copy`를 통과시킨다.
 
 ## 기획서
 
