@@ -11,7 +11,7 @@ Decided 2026-11-05. The move itself belongs to the implementing side.
 - **Use the site's header, theme, language and footer.** The gallery has no top bar, brand block, breadcrumb, theme toggle or Specs toggle of its own. Remove `Shell`'s `g-brand`, `g-top`, `ThemeToggle`, `SpecsToggle` and the `tasty-gallery-theme` and `tasty-gallery-specs` keys. The page theme is the site theme. A specimen that compares themes side by side keeps its own `data-theme` wrapper.
 - **Use the guide's grammar:** left sidebar, body, previous and next. Sidebar links are text only, so the `desc` strings go. The page's sections nest under the current page in the sidebar. There is no right-hand contents list, and "On this page" goes.
 - **Main column.** Specimens need the width: body fills the space beside the sidebar. Prose inside it stays at the guide's measure.
-- **Headings.** Page title, section and specimen are all 14px or less, set apart by weight. Drop `g-section`'s uppercase mono heading and the 26px page title. Dates leave specimen titles: `Tooltip (2026-10-08)` becomes `Tooltip`. History lives in the changelog.
+- **Headings.** Page title, section and specimen are all 14px or less, set apart by weight. Drop `g-section`'s uppercase mono heading and the 26px page title. Dates leave specimen titles: `Tooltip (2026-10-08)` becomes `Tooltip`. History lives in the git history.
 - **390px.** No horizontal page scroll. A stage, state grid or spec table wider than the column scrolls inside its own box, with the first column of a state grid sticky. At the guide's narrow width the sidebar takes the guide's narrow form. Measured on the mock: no page scroll at 1440 and 390 in both themes, and 5 of 6 state grids scroll inside their box at 390.
 
 ### Page map
@@ -217,7 +217,7 @@ exact dimensions, and the tokens it consumes — and why.
 ## How to read a specimen
 Every `<Spec>` carries three things, in this order:
 1. **When to use** — a plain statement of the role (not just "what it looks like").
-2. **The live demo** — built from the real DS components (`components/bundle.js`).
+2. **The live demo** — built from the real DS components (`components/**/*.jsx`).
 3. **Layout spec + Tokens used** — fixed dimensions and the exact tokens it
    consumes, each annotated with its job.
 

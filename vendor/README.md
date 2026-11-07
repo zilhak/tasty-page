@@ -16,7 +16,7 @@ The files are in their final form as they stand. Tier 1 values live in `tokens/p
 
 Everything here is lifted from the product's own code, not guessed. Explore these further if you have access — they will let you build with higher fidelity.
 
-- **GitHub:** [`github.com/zilhak/tasty`](https://github.com/zilhak/tasty) — Rust workspace (34 crates; winit + wgpu + egui + termwiz).
+- **GitHub:** [`github.com/zilhak/tasty`](https://github.com/zilhak/tasty) — Rust workspace (winit + wgpu + egui + termwiz).
   - `crates/tasty-themes/themes/{mocha,latte}.toml` — the exact color palettes reproduced as primitives in `tokens.css`.
   - `crates/tasty-type-appearance/src/theme.rs` — `SIZING` constants (spacing, radius, item heights, font caps) reproduced across `tokens.css` + `tokens/semantic.css`, plus `derive_overlays()` (hover/active/separator).
   - [`docs/design/systems/theme.md`](https://github.com/zilhak/tasty/blob/main/docs/design/systems/theme.md), [`CLAUDE.md`](https://github.com/zilhak/tasty/blob/main/CLAUDE.md) — the UI design rules (4px grid, 14px cap, 1px border, overlays, 0ms terminal motion).

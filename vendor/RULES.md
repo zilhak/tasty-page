@@ -167,7 +167,7 @@ Tint boxes:
 
 ## 4. Location map
 
-Each location has one ground. It may hold only the listed children, to the listed depth below its own ground. A child of a child must also be on the list. A nesting that is not on the map is forbidden. The gallery page `gallery/rules-map.html` draws this.
+Each location has one ground. It may hold only the listed children, to the listed depth below its own ground. A child of a child must also be on the list. A nesting that is not on the map is forbidden. The gallery page `gallery/rules-map/index.jsx` draws this.
 
 | Location | Ground | Depth | Children | Notes |
 |---|---|---|---|---|
@@ -2089,10 +2089,10 @@ When a new UI needs a cell that is forbidden or missing:
 
 1. Do not pick a value in the widget. Ask for the change with a design request.
 2. The designer adds the ground, role or cell. New values are new tokens. A token is never renamed or removed.
-3. The designer updates `ground-ink-rules.json` in the same publish as the tokens. Every new token gets a class.
+3. The designer updates `ground-ink-rules.json` in the same commit as the tokens. Every new token gets a class.
 4. Recompute every cell in both themes. Below grade or unclassified means it is not finished.
-5. Add the case to `gallery/rules.html` if it is a new ground, and to `gallery/rules-map.html` if it is a new nesting.
-6. Log it in `changelog/`.
+5. Add the case to `gallery/rules/index.jsx` if it is a new ground, and to `gallery/rules-map/index.jsx` if it is a new nesting.
+6. Record it in the commit message.
 
 A new exception follows the same path and needs a reason a reader can check. "It looks better" is not a reason.
 

@@ -98,7 +98,7 @@ Sizes, type, and motion are theme-invariant and never repeated.
 1. **New raw value?** Add a primitive on the right numeric scale in `primitives.css` (and its Latte counterpart if it is a color).
 2. **New role?** Add a semantic token in `semantic.css` as `var(--tasty-<primitive>)`. Never a literal.
 3. **New component part?** Add a component token in `components.css` as `var(--tasty-<semantic>)`.
-4. Run `check_design_system` and confirm the token count rises and there are no classification warnings. Non-color/size tokens (durations, easings, unitless multipliers) need a trailing `/* @kind other */`.
+4. Regenerate `tokens/tasty.tokens.json` with `scripts/design-tokens/gen_tokens_json.py`, then run `scripts/design-tokens/verify_tokens_json.py` and confirm the token count rises and it reports no errors. Non-color/size tokens (durations, easings, unitless multipliers) need a trailing `/* @kind other */`.
 
 Never skip a tier. A component token that points straight at a primitive (or a literal) breaks the contract — the next person who re-themes via the semantic layer will be surprised it didn't follow.
 
