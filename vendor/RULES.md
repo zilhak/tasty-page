@@ -2316,14 +2316,14 @@ Contrast is the lowest across the row's grounds.
 | Terminal figure text | `.term pre` | `term` | `text-body` | `surface-terminal-focused-fg` | 14.52 · 7.99 |
 | Terminal figure $ | `.term .g` | `term` | `text-success` | `accent-success-raised` | 14.12 · 7.58 |
 | Window mock path and dim line, focused | `.shell span` | `term` | `text-muted` | `text-muted` | 9.43 · 6.25 |
-| Window mock path and dim line, unfocused | `.shell span` | `base` | `text-muted` | `text-muted` | 7.37 · 5.53 |
-| Window mock prompt | `.shell span` | `term`, `base` | `text-agent` | `accent-agent-raised` | 8.07 · 6.65 |
-| Window mock success | `.shell span` | `term`, `base` | `text-success` | `accent-success-raised` | 11.03 · 6.70 |
-| Window mock command | `.shell span` | `term`, `base` | `text-primary` | `accent-primary-raised` | 7.79 · 7.34 |
-| Window mock warning word | `.shell span` | `term`, `base` | `text-warning` | `accent-warning-raised` | 12.91 · 7.15 |
-| Window mock version | `.shell span` | `term`, `base` | `text-attention` | `accent-attention-raised` | 9.27 · 6.97 |
-| Window mock document title | `.shell h2` | `mantle`, `term` | `text-body` | `text-primary` | 12.14 · 6.04 |
-| Window mock section heading | `.shell h3` | `mantle`, `term` | `text-primary` | `accent-primary-raised` | 8.34 · 6.28 |
+| Window mock path and dim line, unfocused | `.shell span` | `term-unfocused` | `text-muted` | `text-muted` | 7.37 · 4.73 |
+| Window mock prompt | `.shell span` | `term`, `term-unfocused` | `text-agent` | `accent-agent-raised` | 8.07 · 5.68 |
+| Window mock success | `.shell span` | `term`, `term-unfocused` | `text-success` | `accent-success-raised` | 11.03 · 5.73 |
+| Window mock command | `.shell span` | `term`, `term-unfocused` | `text-primary` | `accent-primary-raised` | 7.79 · 6.28 |
+| Window mock warning word | `.shell span` | `term`, `term-unfocused` | `text-warning` | `accent-warning-raised` | 12.91 · 6.11 |
+| Window mock version | `.shell span` | `term`, `term-unfocused` | `text-attention` | `accent-attention-raised` | 9.27 · 5.96 |
+| Window mock document title | `.shell h2` | `term`, `term-unfocused` | `text-body` | `text-primary` | 11.34 · 6.04 |
+| Window mock section heading | `.shell h3` | `term`, `term-unfocused` | `text-primary` | `accent-primary-raised` | 7.79 · 6.28 |
 | Design pages text | `.design-head__intro, .ds-lede, .ds-card__head p, .ds-card__src` | `base` | `text-muted` | `text-muted` | 7.37 · 5.53 |
 | Design source link, pointer over | `.ds-card__src:hover` | `base` | `text-brand` | `brand-ink` | 5.12 · 5.50 |
 | Design tile description | `.ds-tiles__desc` | `base`, `site-tile-hover` | `text-muted` | `text-muted` | 6.85 · 5.19 |
