@@ -1,0 +1,40 @@
+/* The share image: what a link preview shows for a page of the site. render.mjs turns each page into a PNG.
+   Always Mocha, because a card does not follow the page theme. Flat grounds, as in the app: the two panes read as a split.
+   Sizes are literals here. This is a bitmap read at about a third of its size, outside the 14px UI cap, and they all sit on the 4px grid.
+   The title repeats the landing hero: bold sans, its tracking, its leading and its accent ink. */
+html, body { margin: 0; }
+body {
+  display: flex;
+  width: 1200px;
+  height: 630px;
+  overflow: hidden;
+  background: var(--tasty-bg-panel);
+}
+.title-pane {
+  display: flex;
+  align-items: center;
+  width: 796px;
+  box-sizing: border-box;
+  padding-left: 64px;
+}
+h1 {
+  margin: 0;
+  font-family: "Noto Sans CJK KR"; /* Named alone: render.mjs refuses a fallback. Holds Hangul and Latin, so both images share one face. */
+  font-weight: var(--tasty-font-weight-bold);
+  font-size: 96px;
+  line-height: 112px;
+  letter-spacing: -0.022em;
+  color: var(--tasty-text-primary);
+}
+h1 span { display: block; }
+h1 .accent { display: inline; color: var(--tasty-brand-ink); }
+.mark-pane {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 404px;
+  box-sizing: border-box;
+  background: var(--tasty-bg-app);
+  border-left: var(--tasty-border-width) solid var(--tasty-border-default);
+}
+.mark-pane img { display: block; width: 272px; height: 272px; }
