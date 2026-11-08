@@ -51,6 +51,7 @@ The **only** exceptions are a handful of *role-remaps* in `semantic.css` — rol
 | `--tasty-overlay-hover` / `-active` / `--tasty-separator` | white alpha | black alpha |
 | `--tasty-surface-terminal-focused-bg` | `--tasty-color-black` | `--tasty-color-white` |
 | `--tasty-surface-bed-unfocused` | `--tasty-bg-panel` | `--tasty-bg-app` |
+| `--tasty-search-match-active-unfocused-fg` | `--tasty-search-match-active-fg` | `--tasty-color-black` |
 | `--tasty-surface-on-raised` | `--tasty-surface-hover` | `--tasty-color-neutral-200` |
 | `--tasty-text-on-active`, `--tasty-text-on-active-hover` | `--tasty-text-primary`, white | neutral-1100 70%, 60% toward black |
 | `--tasty-text-muted` | neutral-900 | neutral-1000 |
