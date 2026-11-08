@@ -23,7 +23,7 @@ const s = stringsFor(lang);
 const state = stateOf(page, lang);
 const title = titleIn(page, lang);
 // The guide home's title already names the product, so it skips the suffix.
-const documentTitle = page.rel === "index.md" ? title : `${title} · Tasty`;
+const documentTitle = page.rel === "index" ? title : `${title} · Tasty`;
 const prev = idx > 0 ? pages[idx - 1] : null;
 const next = idx + 1 < pages.length ? pages[idx + 1] : null;
 const category = SECTIONS[page.section][lang];
