@@ -391,6 +391,17 @@ Sätteri 의 hast 플러그인(`src/lib/satteri-*.mjs`)에서 일어난다.
 - 미디어 쿼리와 컨테이너 쿼리의 **조건**은 숫자로 남긴다. media feature 는 custom property 를
   읽지 못한다(`@media (max-width: var(--x))` 는 파싱되지 않는다). 블록 안의 선언은 위 규칙을 따른다.
 
+## 랜딩의 구조화 데이터
+
+`/`와 `/ko/`의 `<head>`에 `src/lib/structured-data.ts`가 만든 JSON-LD를 넣는다. 다른 페이지에는 넣지 않는다.
+
+- `SoftwareApplication`은 두 랜딩에 넣고 `WebSite`는 첫 페이지인 `/`에만 넣는다.
+- 값은 실제 제품 사실만 적고 이미 있는 곳에서 읽는다. `description`은 `src/lib/meta.json`, `downloadUrl`은 `RELEASES_URL`, `softwareVersion`은 `releaseVersion`, `sameAs`는 `REPO`, 주소는 `absolute()`다.
+- `softwareVersion`은 공개된 최신 릴리스다. 개발 중인 버전을 쓰지 않는다. `release.json`이 없는 로컬 빌드에는 이 키가 없다.
+- `inLanguage`는 앱 내장 언어(영어, 한국어, 일본어)다. 웹사이트 언어가 아니다.
+- `offers`의 `price`는 내려받는 값이 0이라는 사실이고, `USD`는 금액을 나타내려고 형식상 필요한 통화 표시다. 요금제가 아니다.
+- 평점과 리뷰(자료가 없다), `image`와 `screenshot`(공유 이미지가 없다), `featureList`(새 문구를 만들지 않는다), `SearchAction`(사이트 검색에 결과 주소가 없다)은 넣지 않는다.
+
 ## 랜딩의 다운로드 버튼
 
 랜딩 hero 의 기본 다운로드 버튼(`#dl-primary`)은 처음에는 릴리스 페이지(`RELEASES_URL`)로 연결된다.

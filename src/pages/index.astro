@@ -3,12 +3,14 @@ import Base from "../layouts/Base.astro";
 import Landing from "../components/Landing.astro";
 import meta from "../lib/meta.json";
 import { url } from "../lib/site";
+import { landingJsonLd } from "../lib/structured-data";
 
 const korean = url("ko/");
 ---
 <Base lang="en" title={meta.en.title} description={meta.en.description} enHref="" koHref="ko/">
   <Fragment slot="head">
     <link rel="stylesheet" href={url("design/kit.css")} />
+    <script is:inline type="application/ld+json" set:html={landingJsonLd("en")} />
     <script is:inline define:vars={{ korean }}>
       /* Runs before first paint. A saved choice outranks the browser language. */
       (function () {
