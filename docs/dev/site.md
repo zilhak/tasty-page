@@ -86,6 +86,7 @@
 | 페이지 토큰 | `src/styles/tokens.css`. tier 순서로 `vendor/` 토큰을 `@import`한다 |
 | `/design/tokens.css` · `/design/kit.css` · `/design/cards/*.html` | `src/lib/vendor-assets.ts`와 이를 읽는 엔드포인트 |
 | `/tasty-melon.svg` · `/tasty-icon.png` | `assets/icons/`의 `tasty-melon.svg` · `icon_256.png`(Tasty 레포의 로고·앱 아이콘과 같은 파일)를 읽는 엔드포인트 `src/pages/tasty-melon.svg.ts` · `tasty-icon.png.ts` |
+| `/tasty-share-en.png` · `/tasty-share-ko.png` | `vendor/share/`의 `tasty-share-en.png` · `tasty-share-ko.png`를 읽는 엔드포인트 `src/pages/tasty-share-en.png.ts` · `tasty-share-ko.png.ts` |
 | `/robots.txt` · `/sitemap.xml` | 엔드포인트 `src/pages/robots.txt.ts` · `sitemap.xml.ts`. 주소는 `src/lib/site.ts`의 `absolute()`로 만든다 |
 
 ### 갤러리 페이지
@@ -230,7 +231,7 @@ npm run stamp content/en/index.md
 영어 랜딩이 그대로 보인다. 페이지마다 `Base.astro`가 자기 주소를 `canonical`과 `og:url`로 알리고, 언어가 나뉜 페이지는
 두 언어 주소를 `hreflang`과 `og:locale:alternate`로 함께 알린다. `enHref`와 `koHref`가 같은 갤러리는 다른 언어판이 없어
 이 둘을 내지 않는다. 절대 주소는 `src/lib/site.ts`의 `absolute()`가 `src/lib/base.mjs`의 `SITE`로 만든다.
-공유 이미지가 없어 `twitter:card`는 `summary`로 내고 `og:image`는 내지 않는다. 공유 이미지를 넣을 때 `summary_large_image`로 바꾼다.
+`Base.astro`는 `lang`에 맞는 1200×630 공유 이미지의 절대 주소를 `og:image`로 내고 크기를 `og:image:width`와 `og:image:height`로 함께 알린다. `twitter:card`는 `summary_large_image`다. `lang`이 `ko`이면 한국어 이미지, `en`이면 영어 이미지를 쓴다. `Base.astro`를 쓰지 않는 `/design/cards/*.html`에는 이 메타가 없다.
 네이버 Search Advisor의 사이트 소유 확인 태그(`naver-site-verification`)는 `src/pages/index.astro`의 `head` 슬롯에 있어 `/`에만 나간다.
 
 ## 방문자 분석
@@ -410,7 +411,7 @@ Sätteri 의 hast 플러그인(`src/lib/satteri-*.mjs`)에서 일어난다.
 - `softwareVersion`은 공개된 최신 릴리스다. 개발 중인 버전을 쓰지 않는다. `release.json`이 없는 로컬 빌드에는 이 키가 없다.
 - `inLanguage`는 앱 내장 언어(영어, 한국어, 일본어)다. 웹사이트 언어가 아니다.
 - `offers`의 `price`는 내려받는 값이 0이라는 사실이고, `USD`는 금액을 나타내려고 형식상 필요한 통화 표시다. 요금제가 아니다.
-- 평점과 리뷰(자료가 없다), `image`와 `screenshot`(공유 이미지가 없다), `featureList`(새 문구를 만들지 않는다), `SearchAction`(사이트 검색에 결과 주소가 없다)은 넣지 않는다.
+- 평점과 리뷰(자료가 없다), `image`와 `screenshot`(요구사항이 `og:image`와 `twitter:card`까지다), `featureList`(새 문구를 만들지 않는다), `SearchAction`(사이트 검색에 결과 주소가 없다)은 넣지 않는다.
 
 ## 랜딩의 다운로드 버튼
 
