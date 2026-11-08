@@ -3,6 +3,8 @@ import { PageStates } from "../parts/specimen.jsx";
 import { STATES } from "./states.jsx";
 import { Icon as FIcon, Button, Tag, StatusDot, Input, Badge } from "../../components/index.js";
 import { Section, Spec, Stage, Cluster, Meta, Note, Do, Dont } from "../parts/specimen.jsx";
+import shareEn from "../../share/tasty-share-en.png";
+import shareKo from "../../share/tasty-share-ko.png";
 
 // Tasty Gallery — Foundations. Tokens shown ONLY in the context that
 // consumes them: each swatch/value carries a "used for" statement, and
@@ -24,7 +26,16 @@ const NAV = [
   { id: "shape", label: "Radius · border · motion" },
   { id: "uiscale", label: "UI scale" },
   { id: "rolegaps", label: "Role gaps — settled" },
+  { id: "share", label: "Share image" },
 ];
+
+// ── a share image at the width it is judged at, 400px in a link preview, up to half size ──
+function ShareImage({ image, alt, width }) {
+  return (
+    <img src={image.src ?? image} alt={alt} width={1200} height={630}
+      style={{ display: "block", width, maxWidth: "100%", height: "auto", border: "var(--tasty-border-width) solid var(--tasty-border-default)" }} />
+  );
+}
 
 // ── a labelled surface tile (token + what uses it) ──
 function Tile({ bg, name, role, dark }) {
@@ -694,6 +705,26 @@ function Foundations() {
             specs={[["A centre glyph", "22 → 24 · --tasty-center-state-glyph-size"], ["B scripts glyph", "26 → 24 · merged with A"], ["C block height", "100 / 120 → none (centres in region)"], ["D toolbar 32", "→ --tasty-toolbar-height (new semantic)"], ["D scroll max 200", "tutorial topic list · no DTCG token · hand-written Theme accessor · scales"], ["D col min 200", "withdrawn — = port Process col (D7)"], ["E popup sizes", "outside tokens · 350 → 352 · 150 → 152"], ["ui_scale", "A–D scale (incl. the tutorial cap) · E popup sizes do not"]]}
             tokens={[{ tok: "--tasty-icon-size-lg", use: "→ size-24 (new tier)" }, { tok: "--tasty-toolbar-height", use: "→ size-32 (new)" }, { tok: "--tasty-git-toolbar-height", use: "→ toolbar-height" }]} />
           <Note>Moving A · B · D onto tokens puts them on ui_scale: at 0.85 / 1.2 the pixels change (glyph 20.4 / 28.8). That is intended — they are UI chrome, not screen frames.</Note>
+        </Spec>
+      </Section>
+
+      <Section id="share" title="Share image">
+        <Spec id="share-image-one-per-language" title="One per language">
+          <Stage variant="solo column" style={{ gap: "var(--tasty-space-lg)" }}>
+            <ShareImage image={shareEn} alt="A terminal to your taste." width={600} />
+            <ShareImage image={shareKo} alt="입맛에 맞게 쓰는 터미널, Tasty." width={600} />
+            <ShareImage image={shareEn} alt="A terminal to your taste." width={400} />
+            <ShareImage image={shareKo} alt="입맛에 맞게 쓰는 터미널, Tasty." width={400} />
+          </Stage>
+          <Meta
+            specs={[["Size", "1200 × 630 PNG"], ["Theme", "Mocha, on every page"], ["Title", "96 / 112 bold, −0.022em"], ["Face", "Noto Sans CJK KR Bold"], ["Title pane", "796 wide, 64 left"], ["Mark pane", "404 wide"], ["Mark", "272 × 272, centred"], ["Source", "share/tasty-share-<lang>.html, share/render.mjs"]]}
+            tokens={[
+              { tok: "--tasty-bg-panel", use: "title pane" },
+              { tok: "--tasty-bg-app", use: "mark pane" },
+              { tok: "--tasty-border-default", use: "edge between the panes" },
+              { tok: "--tasty-text-primary", use: "title" },
+              { tok: "--tasty-brand-ink", use: "title accent, as on the landing hero" },
+            ]} />
         </Spec>
       </Section>
     </>

@@ -20,7 +20,7 @@ The 15 URLs do not change, so `/design/gallery/<key>/` keeps its current path. T
 
 | Group | Label | Key | Holds |
 |---|---|---|---|
-| Foundations | Foundations | `foundations` (`index.html`) | Elevation, floating surfaces, text, accents, ANSI, type, spacing, shape, UI scale, role gaps, tint box |
+| Foundations | Foundations | `foundations` (`index.html`) | Elevation, floating surfaces, text, accents, ANSI, type, spacing, shape, UI scale, role gaps, tint box, share image |
 | Foundations | Icons | `icons` | The icon system, modifier symbols, every glyph |
 | Foundations | Rules | `rules` | Every ground by role, all 9 groups stacked with no tabs. Site pages. Colors told apart |
 | Foundations | Location map | `rules-map` | Every location in Mocha and Latte |
