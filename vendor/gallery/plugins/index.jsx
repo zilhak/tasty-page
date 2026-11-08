@@ -5,7 +5,7 @@ import { Icon as PIcon, IconButton, Button, Input, AutoComplete, MenuItem, Switc
 import { HtmlAddressSurfaceG } from "../../ui_kits/terminal/overlays/html_address_bar.jsx";
 import { HtmlAddressContrastSpec as PluginsHtmlContrast_HtmlAddressContrastSpec } from "./html-address-ink.jsx";
 import { MdAddressBar as B, MdAddressSpecs as PluginsMdAddress_MdAddressSpecs } from "./markdown-address.jsx";
-import { Section, Spec, Stage, Meta, Note, Dont, GIcon } from "../parts/specimen.jsx";
+import { Section, Spec, Stage, Meta, Note, Dont, GIcon, Views, View } from "../parts/specimen.jsx";
 import { focusViews } from "../parts/surface-focus-views.jsx";
 import { SurfaceLeaf } from "../../ui_kits/terminal/surface_focus.jsx";
 import { ic, PathField, SegToggle, SideHead, TreeNode, FavRow, DetailHeader, DetailRow, GridCell, ExpState, CtxMenu } from "../parts/explorer-kit.jsx";
