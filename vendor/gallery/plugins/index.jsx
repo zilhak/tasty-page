@@ -915,7 +915,7 @@ function Page() {
                 </MdFocused.Provider>
               </View>
             ))}
-            {["loading", "error"].map((state) => [true, false].map((focused) => (
+            {["boundary", "placeholder", "loading", "error"].map((state) => [true, false].map((focused) => (
               <View key={state + focused} name={`markdown-tile-${state}-${focused ? "focused" : "unfocused"}`} label={`Chrome tile, ${state}, ${focused ? "focused" : "unfocused"}`}>
                 <HtmlTile state={state} bed={surfaceBed(focused)} />
               </View>
