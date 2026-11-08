@@ -358,7 +358,7 @@
   --tasty-surface-terminal-focused-bg:   var(--tasty-color-black); /* Latte → white */
   --tasty-surface-terminal-focused-fg:   var(--tasty-text-primary);
   --tasty-surface-terminal-unfocused-bg: var(--tasty-surface-bed-unfocused);
-  --tasty-surface-terminal-unfocused-fg: var(--tasty-text-muted);
+  --tasty-surface-terminal-unfocused-fg: var(--tasty-text-muted); /* Latte n1000: 4.73 on crust, where n900 is 4.26. Not subtext0 in Latte. A built-in theme file repeats this value */
   --tasty-surface-markdown-focused-bg:   var(--tasty-surface-bed-focused); /* the same bed as a focused terminal, so the rule is one rule. Body ink stays md-doc-fg (text-secondary), as it was. How long prose reads on pure black is unmeasured: check it in the app. */
   --tasty-surface-markdown-focused-fg:   var(--tasty-text-primary); /* headings and the kit title; body ink is md-doc-fg in both states */
   --tasty-surface-markdown-unfocused-bg: var(--tasty-surface-bed-unfocused);
