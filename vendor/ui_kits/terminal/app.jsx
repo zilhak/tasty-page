@@ -79,6 +79,7 @@ function App() {
   const [activeWs, setActiveWs] = React.useState("prod");
   const [activeTab, setActiveTab] = React.useState("t1");
   const [toast, setToast] = React.useState(null);
+  const [removedAttention, setRemovedAttention] = React.useState([]); // reserved-id folders removed from Plugins › Attention
   const notifs = useNotifications();
   const [notifAnchor, setNotifAnchor] = React.useState(null); // DOMRect of the LNB notification summary
   const [sidebarCollapsed, setSidebarCollapsed] = React.useState(false);
@@ -186,7 +187,7 @@ function App() {
         <Sidebar workspaces={workspaces} activeWs={activeWs} onWs={setActiveWs}
           categories={categories} workspacesHeading="Workspaces"
           collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed((v) => !v)}
-          pluginAlert={(pluginAttentionCount) || 0}
+          pluginAlert={(pluginAttentionCount - removedAttention.length) || 0}
           onSettings={() => setOverlay("settings")} onPlugins={() => setOverlay("plugins")}
           onTools={(rect) => setToolsAnchor((a) => (a ? null : rect))}
           notifications={{ counts: notifs.counts, latest: notifs.latest, open: !!notifAnchor }}
@@ -241,7 +242,8 @@ function App() {
       {overlay === "ports" && <PortsWindow onClose={() => setOverlay(null)} onFlash={flash} />}
       {overlay === "remote" && <RemoteTool onClose={() => setOverlay(null)} onFlash={flash} />}
       {overlay === "plugins" && <PluginsWindow onClose={() => setOverlay(null)} onFlash={flash}
-        onConfigure={() => setOverlay("settings")} />}
+        onConfigure={() => setOverlay("settings")}
+        removedAttention={removedAttention} onRemoveAttention={(id) => setRemovedAttention((r) => r.includes(id) ? r : [...r, id])} />}
 
       {toast && (
         <div style={{ position: "absolute", bottom: "var(--tasty-toast-stack-offset-bottom)", left: "50%", transform: "translateX(-50%)", zIndex: 60 }}>

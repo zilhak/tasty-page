@@ -75,6 +75,10 @@ const ATTN = {
     blurb: "Manifest permissions changed since you trusted it — re-approval required. Permissions limit what the plugin can ask Tasty to do; they don't isolate the plugin program." },
   "health-error":       { sev: "warning", label: "Runtime error",
     blurb: "Enabled, but failing at runtime." },
+  // 2026-11-08 (plugin-attention-unknown-official-id): a com.tasty.* id that is not on the official list.
+  // Never registered; the only action is Remove. Identity = folder name + id (no manifest text).
+  "reserved-id":        { sev: "danger",  label: "Not an official plugin", removeOnly: true,
+    blurb: "Registration was rejected because its id uses the com.tasty. prefix, which is reserved for official Tasty plugins, and this is not one of them. You can only remove it." },
 };
 const SEV_COLOR = { danger: "var(--tasty-accent-danger)", warning: "var(--tasty-accent-warning)" };
 
@@ -93,6 +97,9 @@ const ATTENTION_LIST = [
     reason: "signature-invalid", homepage: "https://example.invalid/remote-shell",
     desc: "Opens remote SSH surfaces. The bundle's signature file is missing or corrupt.",
     detail: { note: "tasty-plugin.sig is absent or does not match the manifest hash. Re-download the plugin from its source." } },
+  // name = the folder name (what the user finds on disk); the manifest's own name/author/homepage/desc are not carried
+  { id: "com.tasty.agent-stream-plus", name: "com.tasty.agent-stream-plus", reason: "reserved-id",
+    dir: "/home/tasty/.tasty/plugins/com.tasty.agent-stream-plus" },
 ];
 
 // The plugin identity mark — a square with the name's initial (plugin manifests
@@ -365,9 +372,49 @@ function RegisterAnyway({ name, onFlash }) {
     </span>
   );
 }
-function AttentionPanel({ items, onFlash, onConfigure }) {
-  const [selId, setSelId] = React.useState(items[0] ? items[0].id : null);
+// Remove (reserved id only) — secondary with danger ink at rest; the confirm replaces the bar in place
+// (Installed Uninstall recipe), Cancel holds focus, Esc / a new selection cancels. Busy → both disabled.
+function RemoveReserved({ item, confirming, onConfirm, onCancel, onRemove, onFlash }) {
+  const [busy, setBusy] = React.useState(false);
+  React.useEffect(() => setBusy(false), [item.id]);
+  if (!confirming)
+    return (
+      <>
+        <span style={{ fontSize: 12, color: "var(--tasty-accent-danger-raised)", display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-sm)" }}>
+          <span style={{ width: "var(--tasty-status-dot-size)", height: "var(--tasty-status-dot-size)", borderRadius: "50%", background: "var(--tasty-accent-danger)" }} />
+          Not registered
+        </span>
+        <div style={{ flex: 1 }} />
+        <Button variant="secondary" onClick={onConfirm} style={{ color: "var(--tasty-accent-danger-raised)" }}>Remove</Button>
+      </>
+    );
+  return (
+    <>
+      <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-accent-attention-raised)" }}><Icon name="alertTriangle" size={16} /></span>
+      <div style={{ flex: "1 1 auto", minWidth: 0, display: "flex", flexDirection: "column" }}>
+        <span style={{ fontSize: "var(--tasty-font-size-body)", color: "var(--tasty-text-primary)", overflowWrap: "anywhere" }}>Remove {item.name}?</span>
+        <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>Its folder is deleted from your plugins folder.</span>
+      </div>
+      <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", marginLeft: "auto" }}>
+        {busy && <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-sm)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}><PwSpinner size={14} label="Removing" />Removing…</span>}
+        <Button variant="ghost" autoFocus disabled={busy} onClick={onCancel}>Cancel</Button>
+        <Button variant="danger" disabled={busy} aria-busy={busy || undefined}
+          onClick={() => { setBusy(true); setTimeout(() => { setBusy(false); onRemove && onRemove(item); onFlash && onFlash("Removed '" + item.name + "'."); }, 700); }}>Remove</Button>
+      </div>
+    </>
+  );
+}
+function AttentionPanel({ items, onFlash, onConfigure, onRemove }) {
+  const [selId, setSelIdRaw] = React.useState(items[0] ? items[0].id : null);
+  const [confirmId, setConfirmId] = React.useState(null);
+  const setSelId = (id) => { setSelIdRaw(id); setConfirmId(null); };
   const sel = items.find((p) => p.id === selId) || items[0] || null;
+  React.useEffect(() => {
+    if (!confirmId) return;
+    const onKey = (e) => { if (e.key === "Escape") { e.stopPropagation(); setConfirmId(null); } };
+    window.addEventListener("keydown", onKey, true);
+    return () => window.removeEventListener("keydown", onKey, true);
+  }, [confirmId]);
 
   const Mono = ({ children }) => (
     <div style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 10, textTransform: "uppercase",
@@ -429,28 +476,42 @@ function AttentionPanel({ items, onFlash, onConfigure }) {
             <PluginAvatar plugin={sel} size="lg" />
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-max)", fontWeight: "var(--tasty-font-weight-normal)", color: "var(--tasty-text-primary)" }}>{sel.name}</span>
-                <Tag>{"v" + sel.version}</Tag>
+                <span style={{ fontSize: "var(--tasty-font-size-max)", fontWeight: "var(--tasty-font-weight-normal)", color: "var(--tasty-text-primary)", overflowWrap: "anywhere" }}>{sel.name}</span>
+                {sel.version && <Tag>{"v" + sel.version}</Tag>}
                 {sel.builtin && <Tag>built-in</Tag>}
               </div>
               <div style={{ marginTop: 4, fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: "var(--tasty-text-muted)",
                 display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
 {/* 2026-10-09 b10 — each separator travels WITH the item after it (one nowrap span), so a wrapped item never leaves a dangling · */}
-                {[sel.author, sel.id, sel.reason !== "signature-invalid" && sel.homepage && /^https?:\/\//.test(sel.homepage) && <a href={sel.homepage} target="_blank" rel="noreferrer" style={{ color: "var(--tasty-accent-primary-raised)", textDecoration: "underline", textUnderlineOffset: 2 }}>{sel.homepage.replace(/^https?:\/\//, "")}</a>].filter(Boolean).map((part, i) => (
+{/* 2026-11-08 — reserved id: the meta line is the id alone (no author, no homepage) */}
+                {meta.removeOnly ? <span style={{ overflowWrap: "anywhere" }}>{sel.id}</span> : [sel.author, sel.id, sel.reason !== "signature-invalid" && sel.homepage && /^https?:\/\//.test(sel.homepage) && <a href={sel.homepage} target="_blank" rel="noreferrer" style={{ color: "var(--tasty-accent-primary-raised)", textDecoration: "underline", textUnderlineOffset: 2 }}>{sel.homepage.replace(/^https?:\/\//, "")}</a>].filter(Boolean).map((part, i) => (
                   <span key={i} style={{ display: "inline-flex", gap: 8, whiteSpace: "nowrap" }}>{i > 0 && <span>·</span>}{part}</span>
                 ))}
               </div>
             </div>
           </div>
 
+          {/* 2026-11-08 — reserved id: the description is always hidden (an unofficial com.tasty.* manifest can word itself as Tasty) */}
           {/* 2026-10-09 b10 — an invalid signature means the manifest text is unverified: no description, no homepage (untrusted-key items still show both) */}
-          {sel.reason === "signature-invalid"
+          {meta.removeOnly
+            ? <p style={{ margin: 0, fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>Description hidden — it is not an official plugin.</p>
+            : sel.reason === "signature-invalid"
             ? <p style={{ margin: 0, fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>Description hidden — the signature is invalid.</p>
             : sel.desc && <p style={{ margin: 0, fontSize: 13, lineHeight: "var(--tasty-line-height-ui)",
             color: "var(--tasty-text-secondary)", maxWidth: "var(--tasty-measure-lg)" }}>{sel.desc}</p>}
 
           {/* reason banner — 2026-10-19: signature reasons take the shared unverified box (same risk copy as Add) */}
           {meta.unverified ? <TrustBox manifest={{ trust: meta.unverified, fingerprint: null }} /> :
+          meta.removeOnly ? (
+          <div role="alert" style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-size-14)", borderRadius: "var(--tasty-radius)",
+            background: "color-mix(in srgb, var(--tasty-accent-danger) calc(var(--tasty-tint-fill-alpha) * 100%), transparent)",
+            border: "var(--tasty-border-width) solid color-mix(in srgb, var(--tasty-accent-danger) calc(var(--tasty-tint-border-alpha) * 100%), transparent)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", color: "var(--tasty-plugin-trust-title-fg)", fontSize: 13, fontWeight: 600 }}>
+              <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-plugin-trust-glyph-danger)" }}><Icon name="alertCircle" size={16} /></span>
+              <span>{meta.label}</span>
+            </div>
+            <p style={{ margin: 0, fontSize: "var(--tasty-font-size-term-sm)", lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-plugin-trust-body-fg)", overflowWrap: "anywhere" }}>{meta.blurb}</p>
+          </div>) :
           <div style={{ display: "flex", flexDirection: "column", gap: 8, padding: "var(--tasty-space-md) var(--tasty-size-14)",
             borderRadius: "var(--tasty-radius)", color: "var(--tasty-text-secondary)",
             background: `color-mix(in srgb, ${c} 11%, transparent)`,
@@ -499,6 +560,14 @@ function AttentionPanel({ items, onFlash, onConfigure }) {
             </div>
           )}
 
+          {meta.removeOnly && (
+            <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", minWidth: 0 }}>
+              <Mono>Folder</Mono>
+              <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)",
+                wordBreak: "break-all", userSelect: "text" }}>{sel.dir}</span>
+            </div>
+          )}
+
           {sel.reason === "health-error" && sel.detail.error && (
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
               <Mono>Error</Mono>
@@ -510,8 +579,12 @@ function AttentionPanel({ items, onFlash, onConfigure }) {
         </div>
 
         {/* action bar */}
-        <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-size-14)",
+        <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-size-14)",
           borderTop: "var(--tasty-border-width) solid var(--tasty-separator)", flex: "none" }}>
+          {meta.removeOnly ? (
+            <RemoveReserved item={sel} confirming={confirmId === sel.id} onConfirm={() => setConfirmId(sel.id)}
+              onCancel={() => setConfirmId(null)} onRemove={(it) => { setConfirmId(null); onRemove && onRemove(it); }} onFlash={onFlash} />
+          ) : (<>
           <span style={{ fontSize: 12, color: c, display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-sm)" }}>
             <span style={{ width: "var(--tasty-status-dot-size)", height: "var(--tasty-status-dot-size)", borderRadius: "50%", background: c }} />
             {meta.sev === "danger" ? "Not registered" : "Needs review"}
@@ -527,13 +600,19 @@ function AttentionPanel({ items, onFlash, onConfigure }) {
           {/* unknown-key · signature-invalid (2026-10-19): explicit "Register anyway" (danger). Not focused on selection;
               not acting = stays unregistered. Busy → button disabled, Spinner + "Registering…" beside it. */}
           {meta.unverified && <RegisterAnyway name={sel.name} onFlash={onFlash} />}
+          </>)}
         </div>
       </div>
     </React.Fragment>
   );
 }
 
-function PluginsWindow({ onClose, onFlash, onConfigure }) {
+function PluginsWindow({ onClose, onFlash, onConfigure, removedAttention, onRemoveAttention }) {
+  // 2026-11-08 — removed reserved-id folders. The app keeps this (so the sidebar badge drops too); a
+  // standalone window falls back to its own state.
+  const [ownRemoved, setOwnRemoved] = React.useState([]);
+  const removed = removedAttention || ownRemoved;
+  const removeAttention = (it) => onRemoveAttention ? onRemoveAttention(it.id) : setOwnRemoved((r) => [...r, it.id]);
   const [tab, setTab] = React.useState("installed"); // installed | attention | add
   const [q, setQ] = React.useState("");
   const [installed, setInstalled] = React.useState(() =>
@@ -578,7 +657,7 @@ function PluginsWindow({ onClose, onFlash, onConfigure }) {
     .map((p) => ({ id: p.id, name: p.name, author: p.author, version: p.version, cat: p.cat,
       reason: "health-error", desc: p.desc,
       detail: { error: "Failed to reach the configured cluster at https://10.0.4.11:6443\nkubeconfig context \"prod\" — connection refused" } }));
-  const attention = [...ATTENTION_LIST, ...healthErrors];
+  const attention = [...ATTENTION_LIST.filter((p) => !removed.includes(p.id)), ...healthErrors];
   const attentionCount = attention.length;
 
   const Seg = ({ value, label, count, danger }) => {
@@ -766,7 +845,7 @@ function PluginsWindow({ onClose, onFlash, onConfigure }) {
               onAdded={(m) => { onFlash && onFlash("Added " + m.name); setTab("installed"); }}
               onCancel={() => setTab("installed")} />
           ) : tab === "attention" ? (
-            <AttentionPanel items={attention} onFlash={onFlash} onConfigure={onConfigure} />
+            <AttentionPanel items={attention} onFlash={onFlash} onConfigure={onConfigure} onRemove={removeAttention} />
           ) : (
           <React.Fragment>
           {/* list */}
