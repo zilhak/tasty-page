@@ -1108,7 +1108,7 @@ function Page() {
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>viewer · fit (100%)</div><ImgSurface mode="viewer" /></div>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>viewer · zoomed + panned (250%)</div><ImgSurface mode="viewer" panned /></div>
           </Stage>
-          {focusViews("image-viewer", <ImgSurface mode="viewer" />)}
+          {focusViews("image-viewer", <ImgSurface mode="viewer" />, { width: "fit-content" })}
           <Meta
             specs={[["focus", <>surface focus edge on top, host painted; nothing below changes</>], ["layout", "control bar (40px) + canvas"], ["viewer bar", "◀ ▶ ↻ ✎ ＋ · name (i/n) · zoom"], ["canvas", <><span className="tok">--tasty-bg-sidebar</span> · fit ≤100% · pan &gt;100%</>], ["zoom group", "Fit · ＋ · % · −  (right)"], ["buttons", <>surface-raised + <span className="tok">--tasty-border-default</span></>]]}
             tokens={[{ tok: "--tasty-bg-sidebar", use: "canvas (mantle)", color: "var(--tasty-bg-sidebar)" }, { tok: "--tasty-surface-raised", use: "control buttons", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-text-muted", use: "filename · zoom %", color: "var(--tasty-text-muted)" }]} />
