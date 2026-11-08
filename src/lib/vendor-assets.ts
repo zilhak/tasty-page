@@ -48,7 +48,11 @@ const THEME_SYNC = `<script>
 })();
 </script>`;
 
-/** Guideline documents by file name, served as they are except for two paths and the theme script. */
+/* Keeps a card out of search results on its own while the pages that embed it can still be indexed with its content.
+   It is added here because search control belongs to publishing, not to the design source in vendor/. */
+const CARD_ROBOTS = '<meta name="robots" content="noindex, indexifembedded">';
+
+/** Guideline documents by file name, served as they are except for two paths, the robots tag and the theme script. */
 export const cards = () =>
   Object.fromEntries(
     Object.entries(CARDS).map(([file, source]) => [
@@ -57,6 +61,6 @@ export const cards = () =>
         .replace(/href="(?:\.\.\/)+styles\.css"/g, 'href="../tokens.css"')
         // A card sits at design/cards/<name>.html and the icon at the site root.
         .replace(/(?:\.\.\/)+assets\/icons\/icon_256\.png/g, "../../tasty-icon.png")
-        .replace(/<\/head>/, `${THEME_SYNC}\n</head>`),
+        .replace(/<\/head>/, `${CARD_ROBOTS}\n${THEME_SYNC}\n</head>`),
     ]),
   );
