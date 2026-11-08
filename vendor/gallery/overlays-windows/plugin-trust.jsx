@@ -168,7 +168,7 @@ const RESERVED = {
     folder: "フォルダー", status: "未登録", remove: "削除", cancel: "キャンセル", removing: "削除中…",
     confirmTitle: (n) => n + " を削除しますか？", confirmNote: "プラグインフォルダーからこのフォルダーが削除されます。",
     noticeTitle: (id) => "プラグイン '" + id + "' を登録しませんでした",
-    noticeBody: "id に公式 Tasty プラグイン専用の com.tasty. 接頭辞を使っています。プラグイン › 確認が必要 から削除してください。",
+    noticeBody: "id に公式 Tasty プラグイン専用の com.tasty. 接頭辞を使っています。プラグイン › 要確認 から削除してください。",
   },
 };
 const RESERVED_SAMPLE = { folder: "com.tasty.agent-stream-plus", id: "com.tasty.agent-stream-plus", dir: "~/.tasty/plugins/com.tasty.agent-stream-plus" };
