@@ -9,7 +9,7 @@
  */
 import { existsSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
-import { installPageLib } from "./contrast-page.mjs";
+import { installPageLib, stylesSettled } from "./contrast-page.mjs";
 
 const VIEWPORTS = [{ name: "wide", width: 1440, height: 1000 }, { name: "narrow", width: 390, height: 844 }];
 const CONCURRENT_TABS = 6;
@@ -72,7 +72,7 @@ export function emptySiteTally(rules) {
   return {
     pages: 0, text: 0, glyph: 0, inputs: 0, svgs: 0, pseudo: 0, paintServer: 0, below: [], picture: [], badExempt: [], exemptUses: {}, gradeNone: {},
     rows: Object.fromEntries(rules.rows.map((r) => [r.id, { found: 0, measured: 0, inkHits: 0, below: [], mismatch: [], notes: [] }])),
-    altsFound: {}, errors: [],
+    altsFound: {}, errors: [], passes: {},
   };
 }
 
@@ -103,6 +103,7 @@ const restRows = (rules) => rules.rows.filter((r) => r.state === "rest" || r.sta
 
 // Measures the rest state of what a loaded tab shows. A gallery page comes here too, for the chrome around its specimens.
 export async function measureRest(tab, t, rules, theme, page, viewport) {
+  await stylesSettled(tab);
   await installPageLib(tab);
   // A guideline document is a page of its own markup, whose class names can collide with a row. It has no rows.
   const rows = page.startsWith(CARDS) ? [] : restRows(rules);
@@ -114,6 +115,8 @@ export async function measureRest(tab, t, rules, theme, page, viewport) {
   t.pages += 1;
   mergeScan(t, m.scan, page, viewport);
   m.rows.forEach((res) => mergeRow(t, rules, res, page, viewport));
+  // Per pass, so two runs of one build can be compared in the --json report.
+  t.passes[`${page} [${viewport}]`] = { text: m.scan.text, glyph: m.scan.glyph, inputs: m.scan.inputs, rows: m.rows.reduce((sum, res) => sum + res.measured, 0) };
 }
 
 async function settle(tab) {
@@ -157,7 +160,6 @@ async function restPass(context, origin, pages, t, rules, theme, viewport) {
         if (viewport === "wide" && LANDING_PAGES.includes(page)) {
           for (const title of LANDING_TABS) {
             await tab.getByText(title, { exact: true }).first().click();
-            await tab.waitForTimeout(100);
             await measureRest(tab, t, rules, theme, page, `${viewport}, tab ${title}`);
           }
         }
@@ -193,7 +195,7 @@ async function pointerPass(context, origin, t, rules, theme) {
       rec.found += 1;
       await tab.mouse.move(point.x, point.y);
       if (row.state === "press") await tab.mouse.down();
-      await tab.waitForTimeout(60);
+      await stylesSettled(tab);
       const r = await tab.evaluate(({ row: x, tokens, name }) => window.__contrast.measureAimed(x, tokens, name), { row, tokens: rules.tokens, name: theme });
       if (row.state === "press") { await tab.mouse.move(0, 0); await tab.mouse.up(); }
       if (!r.reached) rec.notes.push(`pointer did not reach ${alt} on ${page}`);
@@ -218,8 +220,7 @@ async function focusPass(context, origin, t, rules, theme) {
     await installPageLib(tab);
     for (let i = 0; i < TAB_STOPS; i += 1) {
       await tab.keyboard.press("Tab");
-      // Reduced motion leaves a 0.01ms transition, so the first read would see the value before focus.
-      await tab.waitForTimeout(30);
+      await stylesSettled(tab);
       const r = await tab.evaluate(({ row: x, tokens, name }) => window.__contrast.measureFocus(x, tokens, name), { row, tokens: rules.tokens, name: theme });
       if (!r) continue;
       rec.found += 1;
@@ -239,7 +240,7 @@ async function searchPass(context, origin, t, rules, theme) {
   await settle(tab);
   await installPageLib(tab);
   const measure = async (list) => {
-    await tab.waitForTimeout(30);
+    await stylesSettled(tab);
     const m = await tab.evaluate(({ rows: x, allRows, family, tokens, name, scanArgs }) => {
       const lib = window.__contrast;
       return { rows: lib.measureRows(x, allRows, family, tokens, name), scan: lib.scan(document.querySelector(".search__results"), scanArgs) };

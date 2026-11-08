@@ -19,7 +19,7 @@ import { fileURLToPath } from "node:url";
 import { chromium } from "playwright-core";
 import { BASE } from "../src/lib/base.mjs";
 import { PART_MAP } from "../vendor/gallery/parts/part-map.js";
-import { installPageLib } from "./contrast-page.mjs";
+import { installPageLib, stylesSettled } from "./contrast-page.mjs";
 import { emptySiteTally, measureRest, runSite, siteRules } from "./contrast-site.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -229,7 +229,7 @@ async function run() {
     }
     if (siteOnly) continue;
     const seen = new Set();
-    const t = { cells: 0, rows: 0, ok: 0, unlocated: [], mismatch: [], below: [], text: 0, svgs: 0, emptySvgs: 0, glyph: 0, inputs: 0, other: [], exemptUses: {}, badExempt: [], gradeNone: {}, picture: 0, paintServer: 0, hscroll: [], errors: [] };
+    const t = { cells: 0, rows: 0, ok: 0, unlocated: [], mismatch: [], below: [], text: 0, svgs: 0, emptySvgs: 0, glyph: 0, inputs: 0, other: [], exemptUses: {}, badExempt: [], gradeNone: {}, picture: 0, paintServer: 0, hscroll: [], errors: [], passes: {} };
     const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
     await context.addInitScript((name) => localStorage.setItem("tasty-theme", name), theme);
     for (const page of pages) {
@@ -245,9 +245,11 @@ async function run() {
         if (size === last && !(await tab.evaluate(() => document.querySelector("astro-island[ssr]") !== null))) break;
         last = size;
       }
+      await stylesSettled(tab);
       await installPageLib(tab);
       const m = await tab.evaluate(measure, { rows: data.components, tokens, grades, partMap: PART_MAP, exemptIds, noGradeTokens: noGrade, theme });
       m.keys.forEach((k) => seen.add(k));
+      t.passes[page.key] = { cells: m.cells, rows: m.rows.length, text: m.text, glyph: m.glyph, inputs: m.inputs };
       t.cells += m.cells;
       t.rows += m.rows.length;
       for (const r of m.rows) {
@@ -271,7 +273,7 @@ async function run() {
     if (chromeBad > 0) failed = true;
     const missing = [...new Set(data.components.map((r) => `${r.component}|${r.state}|${r.host}`))].filter((k) => !seen.has(k));
     t.missingCells = argOf("--page") ? [] : missing;
-    report.themes[theme] = t;
+    report.themes[theme] = { ...t, chromePasses: chrome.passes };
     const measured = t.rows + t.text + t.glyph + t.inputs;
     const bad = t.unlocated.length + t.mismatch.length + t.below.length + t.other.length + t.badExempt.length + t.missingCells.length + t.errors.length;
     console.log(`${theme}: cells ${t.cells}, rows ${t.rows} (ok ${t.ok}, unlocated ${t.unlocated.length}, mismatch ${t.mismatch.length}, below ${t.below.length}), text ${t.text}, svgs ${t.svgs} (${t.glyph} painted shapes, ${t.emptySvgs} svgs painting nothing, ${t.paintServer} gradient or pattern paints not measured), inputs ${t.inputs}, below on page ${t.other.length}, on a picture ${t.picture}, missing cells ${t.missingCells.length}, page errors ${t.errors.length}`);

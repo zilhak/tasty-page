@@ -292,3 +292,20 @@ export function pageLib() {
 }
 
 export const installPageLib = (tab) => tab.addScriptTag({ content: `window.__contrast = (${pageLib})();` });
+
+const SETTLE_LIMIT_MS = 30000;
+
+// A style change reaches the computed value only through the frames of its transition. The reduced motion rule leaves a
+// 0.01ms transition on every property, so this holds for all of them, and a loaded machine can take far longer than that
+// to draw the next frame. Until then a read returns the old ink, or an oklab() value when the ink comes from color-mix,
+// which parse cannot read. So wait for the condition, not for a time. An endless animation, such as a blinking cursor,
+// has no end to wait for, so it is left out. A page that never settles fails the check.
+export const stylesSettled = (tab) => tab.evaluate(async (limit) => {
+  const deadline = performance.now() + limit;
+  for (;;) {
+    const running = document.getAnimations().filter((a) => a.playState === "running" && a.effect.getComputedTiming().endTime !== Infinity);
+    if (running.length === 0) return;
+    if (performance.now() > deadline) throw new Error(`styles still moving after ${limit}ms: ${running.slice(0, 5).map((a) => a.transitionProperty || a.animationName).join(", ")}`);
+    await new Promise(requestAnimationFrame);
+  }
+}, SETTLE_LIMIT_MS);

@@ -140,6 +140,10 @@
 - `design/cards/`의 지침 문서는 자체 CSS를 쓰고 클래스 이름이 행과 겹칠 수 있어 행을 적용하지 않고 글자와 도형만 잰다.
 - 재지 않는 것: 데모의 오버레이(설정 창, 명령 팔레트 등)는 갤러리에서 잰다. 포인터 패스는 행마다 첫 요소 하나만 잰다.
 
+측정은 시간이 아니라 조건을 기다린다. 스타일 변경은 transition의 프레임을 거쳐야 계산값에 나타난다. `global.css`의 reduced motion 규칙은 `transition-duration`만 0.01ms로 바꾸므로 기본값 `transition-property: all`과 합쳐져 모든 속성의 변경이 transition을 거친다. 그래서 탭 클릭, 포인터, 포커스, 검색 뒤의 모든 측정 전에 `contrast-page.mjs`의 `stylesSettled`가 끝이 있는 애니메이션이 모두 끝나기를 기다린다. 30초 안에 끝나지 않으면 실패한다. 고정 시간을 기다리면 부하가 걸렸을 때 옛 잉크를 읽고, `color-mix` 토큰의 진행 중 값은 `oklab()`이라 `parse`가 읽지 못해 그 요소나 바탕을 건너뛴다.
+
+`--json` 보고서의 `passes`(사이트), `chromePasses`(갤러리 머리글 등), 테마별 `passes`(갤러리 페이지)에 패스별 측정 수가 있다. 같은 `dist`의 두 실행은 이 값이 같아야 한다.
+
 브라우저는 `CHROMIUM_PATH`, Playwright 캐시의 Chromium, `/snap/bin/chromium` 순으로 찾는다. 의존성은 `playwright-core`뿐이라 `npm ci`는 브라우저를 받지 않는다. 로컬에서는 `npx playwright-core install chromium`으로 한 번 받는다. CI에서는 `design.yml`이 빌드 뒤 `npx playwright-core install --with-deps chromium`으로 `playwright-core`와 맞는 Chromium을 받아 이 검사를 실행한다.
 
 ### vendor 검사와 변경 날짜
