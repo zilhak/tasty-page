@@ -1,7 +1,7 @@
-<!-- source-hash: 87d534abcfbd -->
+<!-- source-hash: 78cab28bbeda -->
 # Build and reuse a working layout
 
-Keep implementation and tests side by side. Save a layout as a preset so you can use it again for your next task.
+Tasty can arrange implementation, tests, and documents in separate panes and save the layout as a preset for reuse in later tasks. Each pane’s tabs switch independently, so test output can stay visible while you check documentation in another pane.
 
 <!-- tasty-diagram: workflow-layout -->
 ```

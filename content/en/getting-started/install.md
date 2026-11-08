@@ -1,7 +1,7 @@
-<!-- source-hash: 1f752da03c3a -->
+<!-- source-hash: 2bab4d61028a -->
 # Installation
 
-Choose the installation file for your OS and architecture. macOS support is for Apple Silicon. Installation files are available on the GitHub releases page.
+Tasty installation files for Windows, macOS, and Linux are available on GitHub Releases, organized by architecture. macOS support is for Apple Silicon.
 
 Download the installer from the [GitHub releases page](https://github.com/zilhak/tasty/releases). Install scripts and package-manager distribution (apt repositories, Homebrew, winget, and so on) are not currently available.
 

@@ -1,7 +1,7 @@
-<!-- source-hash: a0637f308534 -->
+<!-- source-hash: 97f6d0525a11 -->
 # Keybindings
 
-Use Tasty with shortcuts that feel familiar. Choose a preset or assign your preferred keys to actions you use often. Open **Settings** > **Keybindings** to get started.
+Tasty’s keybindings can be changed with a preset or by assigning preferred key combinations to frequently used actions. Keybindings are available in **Settings** > **Keybindings**.
 
 ## Notation
 

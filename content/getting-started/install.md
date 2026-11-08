@@ -1,6 +1,6 @@
 # 설치
 
-OS와 아키텍처에 맞는 설치 파일을 고르세요. macOS는 Apple Silicon을 지원합니다. 설치 파일은 GitHub 릴리스 페이지에서 받을 수 있습니다.
+Tasty의 Windows·macOS·Linux용 설치 파일은 GitHub 릴리스 페이지에서 아키텍처별로 받을 수 있습니다. macOS는 Apple Silicon을 지원합니다.
 
 설치 파일은 [GitHub 릴리스 페이지](https://github.com/zilhak/tasty/releases)에서 받으세요. 현재는 설치 스크립트나 패키지 매니저(apt 저장소, Homebrew, winget 등)를 통한 설치는 제공하지 않습니다.
 

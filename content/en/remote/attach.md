@@ -1,9 +1,9 @@
-<!-- source-hash: 68a176bd311a -->
+<!-- source-hash: 67ed53fa55ac -->
 <a id="remote-attach"></a>
 
 # Working remotely (attach)
 
-Connect over SSH to a workspace in Tasty running on another computer. The remote workspace displayed locally is called a mirror. While connected, the mirror holds the workspace; users on the remote side can view it but cannot type into it.
+Tasty’s remote attach uses SSH to display and control a workspace from Tasty running on another computer. The remote workspace displayed locally is called a mirror. While connected, the mirror holds the workspace; users on the remote side can view it but cannot type into it.
 
 ## Concepts
 

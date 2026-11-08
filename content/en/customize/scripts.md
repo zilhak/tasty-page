@@ -1,7 +1,7 @@
-<!-- source-hash: c6916cbaa1fd -->
+<!-- source-hash: da31d4f006e4 -->
 # Lua scripts
 
-Turn repeated tasks into Lua scripts. Run them with a shortcut, or set them to run when a window, workspace, or tab opens or closes.
+Lua scripts registered in Tasty can run from a keybinding or be set to run automatically when a window, workspace, or tab opens or closes.
 
 Register each script and connect it to a shortcut or event. Unregistered files do not run automatically at startup.
 

@@ -1,7 +1,7 @@
-<!-- source-hash: 658a111101c0 -->
+<!-- source-hash: ea95539b4b25 -->
 # Driving terminals with the tasty CLI
 
-Use the `tasty` CLI to create and control terminals in a running Tasty instance. Check the connection and target IDs, send a command, then use `read since-mark` to read output after a saved mark. Scripts and AI agents can use the same commands.
+The `tasty` CLI connects to a running Tasty instance to create terminals, send input, and read output. Check the connection and target IDs, send a command, then use `read since-mark` to read output after a saved mark. Scripts and AI agents can use the same commands.
 
 Follow this page in order the first time. Check the connection, find target IDs, create a working terminal, send a command, read its output, and clean up. The remaining commands, such as reading from a saved position, metadata, queues and memory, are in the [CLI command reference](cli-reference.md). Response delays, connections, and what to do for each error code are in [CLI response delays and connection diagnostics](../help/cli-diagnostics.md).
 

@@ -1,7 +1,7 @@
-<!-- source-hash: 037962907dde -->
+<!-- source-hash: 0dbca77a03e7 -->
 # Tasty guide
 
-Tasty is a GPU-accelerated terminal for Windows, macOS, and Linux. Organize projects into workspaces and arrange terminals and documents with panes and tabs.
+Tasty is a GPU-accelerated terminal for Windows, macOS, and Linux, with workspaces for projects and panes and tabs for arranging terminals and documents.
 
 If you are new to Tasty, start with [Installation](getting-started/install.md), [A first look](getting-started/first-look.md), and [Build and reuse a working layout](using/workflow-layouts.md).
 

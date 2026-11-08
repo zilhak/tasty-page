@@ -1,6 +1,6 @@
 # Tasty 가이드
 
-Tasty는 Windows, macOS, Linux에서 사용하는 GPU 가속 터미널입니다. 워크스페이스로 프로젝트를 구분하고, 페인과 탭으로 여러 터미널과 문서를 배치할 수 있습니다.
+Tasty는 Windows, macOS, Linux용 GPU 가속 터미널로, 워크스페이스로 프로젝트를 구분하고 페인과 탭으로 터미널과 문서를 배치합니다.
 
 처음이라면 [설치](getting-started/install.md) → [첫 화면 둘러보기](getting-started/first-look.md) → [작업 배치 만들기](using/workflow-layouts.md) 순서로 시작하세요.
 

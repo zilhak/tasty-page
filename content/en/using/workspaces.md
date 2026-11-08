@@ -1,7 +1,7 @@
-<!-- source-hash: e3156defd855 -->
+<!-- source-hash: f0f513d4a0fb -->
 # Workspaces
 
-A workspace keeps the terminals and layout for a project or task together. Use names and categories to organize workspaces and switch between them in the sidebar.
+Tasty’s workspaces group terminals and layouts by project or task, organized by name and category and switched from the sidebar.
 
 ## Creating
 

@@ -1,7 +1,7 @@
-<!-- source-hash: b8f9a7869da6 -->
+<!-- source-hash: 90f862335685 -->
 # Panes, tabs, and splits
 
-Panes create areas whose tabs switch independently. Surface splits divide the content you view together within one tab. Choose either level to build the layout you need.
+Tasty’s pane splits create areas with independent tab switching, while surface splits divide views that stay together within one tab. Choose either level to build the layout you need.
 
 The shortcuts below use the default **Tasty** preset. On macOS, read `Alt` as `Cmd` and `Ctrl` as `Control`.
 

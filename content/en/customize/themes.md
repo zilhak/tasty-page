@@ -1,7 +1,7 @@
-<!-- source-hash: 94f02a39246c -->
+<!-- source-hash: 375b54e92369 -->
 # Themes
 
-Choose the light Latte theme or the dark Mocha theme. Adjust a few colours, or make your own theme in a TOML file. Theme files live in `~/.tasty/themes/`.
+Tasty supports the light Latte and dark Mocha themes, with options to adjust individual colours or create a custom theme in a TOML file. Theme files live in `~/.tasty/themes/`.
 
 ## Bundled themes
 

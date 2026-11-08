@@ -1,7 +1,7 @@
-<!-- source-hash: a8a66164ab60 -->
+<!-- source-hash: cd49cf4b7b6e -->
 # A first look
 
-Choose a workspace in the sidebar and use its terminals in the work area. Each pane has a tab bar, and each tab contains surfaces for terminals or documents.
+Tasty’s first screen has a sidebar for switching workspaces and a work area for terminals or documents. Each pane has a tab bar, and each tab contains surfaces for terminals or documents.
 
 ## Learn directly on the screen
 

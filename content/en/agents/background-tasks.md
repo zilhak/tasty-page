@@ -1,7 +1,7 @@
-<!-- source-hash: e583e16227cb -->
+<!-- source-hash: 7a1a1710e55c -->
 # Bring a background task into a tab
 
-Not every task needs a visible tab from the start. Run work in a hidden PTY, inspect its output, then bring the same process and history into a tab when needed.
+Tasty can run tasks in a hidden PTY without a tab, then move the same process and history into a tab. Output can be inspected before moving the task into a tab.
 
 <!-- tasty-diagram: background-task -->
 ```

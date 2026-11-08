@@ -1,7 +1,7 @@
-<!-- source-hash: 2181560fbc29 -->
+<!-- source-hash: 783596359d46 -->
 # Settings
 
-Configure Tasty’s shell, fonts, language, and other preferences. Use the settings window or edit `~/.tasty/config.toml` directly. Keybindings and themes have their own guides.
+Tasty’s shell, fonts, language, and other preferences can be configured in the settings window or by editing `~/.tasty/config.toml` directly. Keybindings and themes have their own guides.
 
 ## Find settings by purpose
 
