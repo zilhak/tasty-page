@@ -908,7 +908,7 @@ function Page() {
             {[true, false].map((focused) => (
               <View key={String(focused)} name={`markdown-table-code-${focused ? "focused" : "unfocused"}`} label={`Table and code, ${focused ? "focused" : "unfocused"}`}>
                 <MdFocused.Provider value={focused}>
-                  <div style={{ width: "var(--tasty-size-360)", padding: "var(--tasty-space-lg)", background: surfaceBed(focused), color: "var(--tasty-md-doc-fg)" }}>
+                  <div style={{ width: "100%", boxSizing: "border-box", padding: "var(--tasty-space-md)", background: surfaceBed(focused), color: "var(--tasty-md-doc-fg)" }}>
                     <MdTable cols={[{ h: "Resource" }, { h: "Kind" }, { h: "Count", num: true, w: "80px" }]} rows={[["surface", "viewer", "12"], ["popup", "overlay", "8"], ["banner", "notice", "3"]]} />
                     <div style={{ padding: "var(--tasty-space-sm)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", background: "var(--tasty-md-code-bg)", border: "var(--tasty-border-width) solid var(--tasty-md-code-border)", borderRadius: "var(--tasty-radius)", color: "var(--tasty-text-secondary-raised)" }}>fn main() {"{}"}</div>
                   </div>
