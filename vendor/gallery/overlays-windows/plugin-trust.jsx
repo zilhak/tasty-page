@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, IconButton, Icon, Tag, Spinner } from "../../components/index.js";
+import { Button, IconButton, Icon, Tag, Spinner, NotificationItem } from "../../components/index.js";
 import { Spec, Stage, Meta, Note, Dont } from "../parts/specimen.jsx";
 
 // Tasty Gallery — Overlays · Windows › Plugins window: unverified plugin warning + explicit add / register
@@ -138,6 +138,137 @@ function AttentionDetail({ reason = "unknown-key", state = "rest" }) {
   );
 }
 
+// Needs attention › reserved id (2026-11-08). A folder in the plugins folder whose manifest id starts with
+// com.tasty. but is not on the official id list. It is never registered; the only action is Remove.
+// Identity comes from the folder (name) and the id only — no manifest name, author, homepage or description,
+// because an unofficial com.tasty.* manifest can word itself as Tasty.
+const RESERVED = {
+  en: {
+    label: "Not an official plugin",
+    blurb: "Registration was rejected because its id uses the com.tasty. prefix, which is reserved for official Tasty plugins, and this is not one of them. You can only remove it.",
+    descHidden: "Description hidden — it is not an official plugin.",
+    folder: "Folder", status: "Not registered", remove: "Remove", cancel: "Cancel", removing: "Removing…",
+    confirmTitle: (n) => "Remove " + n + "?", confirmNote: "Its folder is deleted from your plugins folder.",
+    noticeTitle: (id) => "Plugin '" + id + "' was not registered",
+    noticeBody: "Its id uses the com.tasty. prefix, which is reserved for official Tasty plugins. Remove it from Plugins › Attention.",
+  },
+  ko: {
+    label: "공식 플러그인 아님",
+    blurb: "공식 Tasty 플러그인 전용인 com.tasty. 접두를 id로 쓰지만 공식 플러그인이 아니라서 등록하지 못했습니다. 제거만 할 수 있습니다.",
+    descHidden: "공식 플러그인이 아니라서 설명을 숨겼습니다.",
+    folder: "폴더", status: "등록 안 됨", remove: "제거", cancel: "취소", removing: "제거하는 중…",
+    confirmTitle: (n) => n + "을(를) 제거할까요?", confirmNote: "플러그인 폴더에서 이 폴더가 삭제됩니다.",
+    noticeTitle: (id) => "플러그인 '" + id + "'을(를) 등록하지 않았습니다",
+    noticeBody: "id가 공식 Tasty 플러그인 전용인 com.tasty. 접두를 씁니다. 플러그인 › 확인 필요에서 제거하세요.",
+  },
+  ja: {
+    label: "公式プラグインではありません",
+    blurb: "id に公式 Tasty プラグイン専用の com.tasty. 接頭辞を使っていますが、公式プラグインではないため登録できませんでした。削除のみできます。",
+    descHidden: "公式プラグインではないため説明を非表示にしています。",
+    folder: "フォルダー", status: "未登録", remove: "削除", cancel: "キャンセル", removing: "削除中…",
+    confirmTitle: (n) => n + " を削除しますか？", confirmNote: "プラグインフォルダーからこのフォルダーが削除されます。",
+    noticeTitle: (id) => "プラグイン '" + id + "' を登録しませんでした",
+    noticeBody: "id に公式 Tasty プラグイン専用の com.tasty. 接頭辞を使っています。プラグイン › 確認が必要 から削除してください。",
+  },
+};
+const RESERVED_SAMPLE = { folder: "com.tasty.agent-stream-plus", id: "com.tasty.agent-stream-plus", dir: "~/.tasty/plugins/com.tasty.agent-stream-plus" };
+const RESERVED_LONG = { folder: "tasty-official-agent-stream-v2-preview-build", id: "com.tasty.official.agent-stream.v2-preview", dir: "~/.tasty/plugins/tasty-official-agent-stream-v2-preview-build" };
+const monoCap = { fontFamily: "var(--tasty-font-mono)", fontSize: 10, textTransform: "uppercase", letterSpacing: "var(--tasty-letter-spacing-caps)", color: "var(--tasty-text-muted)" };
+const dot = (bg) => <span style={{ flex: "none", width: "var(--tasty-status-dot-size)", height: "var(--tasty-status-dot-size)", borderRadius: "50%", background: bg }} />;
+
+function ReservedAvatar({ name, lg }) {
+  const sz = lg ? "lg" : "sm";
+  return (
+    <span style={{ width: "var(--tasty-plugin-avatar-size-" + sz + ")", height: "var(--tasty-plugin-avatar-size-" + sz + ")", flex: "none", borderRadius: "var(--tasty-plugin-avatar-radius)", display: "inline-flex", alignItems: "center", justifyContent: "center",
+      background: "var(--tasty-plugin-avatar-bg)", border: "var(--tasty-plugin-avatar-border-width) solid var(--tasty-plugin-avatar-border)", fontFamily: "var(--tasty-font-mono)", fontWeight: "var(--tasty-plugin-avatar-initial-weight)",
+      color: "var(--tasty-plugin-avatar-fg)", fontSize: "var(--tasty-plugin-avatar-initial-font-size-" + sz + ")", lineHeight: 1 }}>{name.charAt(0).toUpperCase()}</span>
+  );
+}
+
+// list row — same recipe as the other reasons: avatar sm · folder name · mono reason label in danger · danger dot
+function ReservedRow({ p = RESERVED_SAMPLE, lang = "en", selected = false }) {
+  const c = RESERVED[lang] || RESERVED.en;
+  const on = selected;
+  return (
+    <div style={{ width: "var(--tasty-plugins-list-width)", maxWidth: "100%", padding: "var(--tasty-space-sm)", background: "var(--tasty-bg-sidebar)", borderRadius: "var(--tasty-radius)" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-sm)", borderRadius: "var(--tasty-radius)",
+        background: on ? "var(--tasty-surface-active)" : "transparent", boxShadow: on ? "inset var(--tasty-selection-edge-width) 0 0 var(--tasty-accent-danger)" : "none" }}>
+        <ReservedAvatar name={p.folder} />
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: 13, color: on ? "var(--tasty-text-on-active)" : "var(--tasty-text-secondary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.folder}</div>
+          <div style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", color: on ? "var(--tasty-text-on-active)" : "var(--tasty-accent-danger)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c.label}</div>
+        </div>
+        {dot("var(--tasty-accent-danger)")}
+      </div>
+    </div>
+  );
+}
+
+// detail — identity (folder name · id) → hidden-description line → danger banner → Folder section → action bar
+// state: rest (Remove, secondary with danger ink — not focused on selection) · confirm (bar replaced in place,
+// Cancel holds focus) · removing (both disabled, Spinner + Removing…)
+function ReservedDetail({ p = RESERVED_SAMPLE, lang = "en", state = "rest", width = "var(--tasty-size-560)" }) {
+  const c = RESERVED[lang] || RESERVED.en;
+  const confirm = state === "confirm" || state === "removing";
+  const busy = state === "removing";
+  const body = { margin: 0, fontSize: "var(--tasty-font-size-term-sm)", lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-plugin-trust-body-fg)", overflowWrap: "anywhere", textWrap: "pretty" };
+  const acc = "var(--tasty-accent-danger)";
+  return (
+    <div style={{ width, maxWidth: "100%", display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
+      <div style={{ padding: "var(--tasty-space-lg)", display: "flex", flexDirection: "column", gap: "var(--tasty-space-lg)" }}>
+        <div style={{ display: "flex", gap: "var(--tasty-space-md)", alignItems: "flex-start" }}>
+          <ReservedAvatar name={p.folder} lg />
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <span style={{ fontSize: "var(--tasty-font-size-max)", color: "var(--tasty-text-primary)", overflowWrap: "anywhere" }}>{p.folder}</span>
+            <div style={{ marginTop: "var(--tasty-space-xs)", fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: "var(--tasty-text-muted)", overflowWrap: "anywhere" }}>{p.id}</div>
+          </div>
+        </div>
+        <p style={{ margin: 0, fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{c.descHidden}</p>
+        <div role="alert" style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-size-14)", borderRadius: "var(--tasty-radius)",
+          background: "color-mix(in srgb, " + acc + " calc(var(--tasty-tint-fill-alpha) * 100%), transparent)", border: "var(--tasty-border-width) solid color-mix(in srgb, " + acc + " calc(var(--tasty-tint-border-alpha) * 100%), transparent)" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", color: "var(--tasty-plugin-trust-title-fg)", fontSize: 13, fontWeight: 600 }}>
+            <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-plugin-trust-glyph-danger)" }}><Icon name="alertCircle" size={16} /></span>
+            <span>{c.label}</span>
+          </div>
+          <p style={body}>{c.blurb}</p>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", minWidth: 0 }}>
+          <div style={monoCap}>{c.folder}</div>
+          <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)", wordBreak: "break-all", userSelect: "text" }}>{p.dir}</span>
+        </div>
+      </div>
+      <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-size-14)", borderTop: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
+        {!confirm && <>
+          <span style={{ fontSize: 12, color: "var(--tasty-accent-danger-raised)", display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-sm)" }}>{dot(acc)}{c.status}</span>
+          <div style={{ flex: 1 }} />
+          <Button variant="secondary" style={{ color: "var(--tasty-accent-danger-raised)" }}>{c.remove}</Button>
+        </>}
+        {confirm && <>
+          <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-accent-attention-raised)" }}><Icon name="alertTriangle" size={16} /></span>
+          <div style={{ flex: "1 1 auto", minWidth: 0, display: "flex", flexDirection: "column" }}>
+            <span style={{ fontSize: "var(--tasty-font-size-body)", color: "var(--tasty-text-primary)", overflowWrap: "anywhere" }}>{c.confirmTitle(p.folder)}</span>
+            <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{c.confirmNote}</span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", marginLeft: "auto" }}>
+            {busy && <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-sm)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}><Spinner size={14} label={c.removing} />{c.removing}</span>}
+            <Button variant="ghost" disabled={busy} style={!busy ? { boxShadow: "0 0 0 var(--tasty-focus-ring-width) var(--tasty-border-focus)" } : undefined}>{c.cancel}</Button>
+            <Button variant="danger" disabled={busy}>{c.remove}</Button>
+          </div>
+        </>}
+      </div>
+    </div>
+  );
+}
+
+function ReservedNotice({ lang = "en", id = RESERVED_SAMPLE.id }) {
+  const c = RESERVED[lang] || RESERVED.en;
+  return (
+    <div style={{ width: "var(--tasty-size-440)", maxWidth: "100%", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
+      <NotificationItem level="warning" title={c.noticeTitle(id)} body={c.noticeBody} time="now" unread expanded />
+    </div>
+  );
+}
+
 const Themed = ({ attr, children }) => (
   <div data-theme={attr || undefined} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-md)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", minWidth: 0 }}>{children}</div>
 );
@@ -210,8 +341,43 @@ function PluginTrustSpecs() {
         <Note>English is the source copy. ko / ja above are the meaning reference for translators (keys: <code>plugins.trust.unverified_title</code> · <code>…unverified_risk</code> · <code>…cause_unknown_key / _missing_pubkey / _unsigned / _signature_error</code> · <code>…trust_key_note</code> · <code>plugins.add.add_anyway</code> · <code>…trust_add_anyway</code> · <code>…adding</code> · <code>plugins.attention.register_anyway</code> · <code>…registering</code>).</Note>
         <Dont><b>Don't</b> say the plugin was reviewed, certified or sandboxed, and don't let Enter on a freshly shown verdict install it.</Dont>
       </Spec>
+
+      <Spec id="plugin-reserved-id" title="Needs attention › reserved id — not an official plugin, remove only"
+        when={<>A folder in the plugins folder whose id starts with <code>com.tasty.</code> but is not on the official id list is never registered. It sits in <b>Needs attention</b> as a fifth reason, <b>danger</b>, counted in the Attention tab badge and the sidebar plugin badge like the other unregistered reasons. Its only action is <b>Remove</b>: no Register anyway, Re-approve or Configure. The detail shows only what Tasty itself knows — the <b>folder name</b> as the title and the <b>id</b> on the meta line. The manifest name, version, author, homepage and description are not shown (a muted line says the description is hidden), because an unofficial <code>com.tasty.*</code> manifest can word itself as Tasty. The banner states the fact without calling it malicious. Remove is a secondary button with danger ink (the Installed Uninstall recipe), never focused by selecting the row; clicking it replaces the bar with a confirm in place (Cancel holds focus, Esc cancels, changing the selection cancels). Confirming deletes the folder and the row leaves the list. The arrival notice stays, with its own copy.</>}>
+        <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
+          {THEMES.map(([label, attr]) => (
+            <Themed key={label} attr={attr}>
+              <span style={cap}>{label}</span>
+              <span style={{ ...cap, fontFamily: "var(--tasty-font-mono)" }}>list row · rest · selected</span>
+              <ReservedRow /><ReservedRow selected />
+              <span style={{ ...cap, fontFamily: "var(--tasty-font-mono)" }}>detail · rest — Remove not focused on selection</span><ReservedDetail />
+              <span style={{ ...cap, fontFamily: "var(--tasty-font-mono)" }}>detail · remove confirm — bar replaced in place, Cancel focused</span><ReservedDetail state="confirm" />
+              <span style={{ ...cap, fontFamily: "var(--tasty-font-mono)" }}>detail · removing — both disabled</span><ReservedDetail state="removing" />
+              <span style={{ ...cap, fontFamily: "var(--tasty-font-mono)" }}>notification · warning · on arrival (once per folder)</span><ReservedNotice />
+            </Themed>
+          ))}
+          <Themed>
+            <span style={cap}>Mocha · narrow 320 · long folder + id · confirm wraps</span>
+            <ReservedDetail p={RESERVED_LONG} width="var(--tasty-size-320)" />
+            <ReservedDetail p={RESERVED_LONG} state="confirm" width="var(--tasty-size-320)" />
+          </Themed>
+          <Themed>
+            <span style={cap}>Mocha · ko / ja length</span>
+            <ReservedRow lang="ko" selected /><ReservedRow lang="ja" selected />
+            <ReservedDetail lang="ko" width="var(--tasty-size-440)" /><ReservedDetail lang="ko" state="confirm" width="var(--tasty-size-440)" />
+            <ReservedDetail lang="ja" width="var(--tasty-size-440)" /><ReservedDetail lang="ja" state="confirm" width="var(--tasty-size-440)" />
+            <ReservedNotice lang="ko" /><ReservedNotice lang="ja" />
+          </Themed>
+        </Stage>
+        <Meta
+          specs={[["reason", "fifth AttentionKind · danger (dot, selection edge, list label, banner tint) · counted in the tab + sidebar badges"], ["identity", "avatar from the folder name initial · title = folder name · meta = id only (no author, homepage, version tag)"], ["description", "always hidden · caption text-muted line (same recipe as signature invalid)"], ["banner", "danger tint box (fill + border alpha tokens) · alertCircle 16 in plugin-trust-glyph-danger · title text-primary · body plugin-trust-body-fg"], ["detail", "mono header Folder · full path, caption text-muted, break-all, selectable · no Open folder"], ["bar · rest", "danger dot + Not registered (reused) · Remove secondary + accent-danger-raised ink · no auto focus"], ["bar · confirm", "alertTriangle 16 attention-raised · Remove {folder}? body text-primary · note caption muted · Cancel ghost (focus) · Remove danger · wraps on narrow"], ["bar · removing", "Cancel + Remove disabled · Spinner 14 + Removing… caption muted"], ["after remove", "row leaves the list · badges drop by one · toast Removed '{folder}'. · failure toast Remove failed: {reason}, bar back to rest"], ["notice", "warning level · once per newly seen folder (unchanged behaviour) · new title + body keys"]]}
+          tokens={[{ tok: "--tasty-accent-danger", use: "dot · selection edge · list label · banner tint", color: "var(--tasty-accent-danger)" }, { tok: "--tasty-accent-danger-raised", use: "status text · Remove ink", color: "var(--tasty-accent-danger-raised)" }, { tok: "--tasty-plugin-trust-glyph-danger", use: "banner glyph", color: "var(--tasty-plugin-trust-glyph-danger)" }, { tok: "--tasty-plugin-trust-title-fg", use: "banner title", color: "var(--tasty-plugin-trust-title-fg)" }, { tok: "--tasty-plugin-trust-body-fg", use: "banner body", color: "var(--tasty-plugin-trust-body-fg)" }, { tok: "--tasty-accent-attention-raised", use: "confirm glyph (as Installed)", color: "var(--tasty-accent-attention-raised)" }]} />
+        <Note>English is the source copy; ko / ja above are the meaning reference. Keys (all new unless marked): <code>plugins.attn_reserved_id_label</code> · <code>plugins.attn_reserved_id_blurb</code> · <code>plugins.attn_reserved_desc_hidden</code> · <code>plugins.attn_folder</code> · <code>plugins.attn_not_registered</code> (reused) · <code>plugins.attn_remove</code> · <code>plugins.attn_remove_confirm_title</code> · <code>plugins.attn_remove_note</code> · <code>plugins.attn_removing</code> · <code>plugins.attn_removed</code> (“Removed '{}'.” / “'{}'을(를) 제거했습니다.” / “'{}' を削除しました。”) · <code>plugins.attn_remove_failed</code> (“Remove failed: {}” / “제거 실패: {}” / “削除に失敗しました: {}”) · <code>plugin_notice.reserved_id_title</code> · <code>plugin_notice.reserved_id_body</code>. The notice stops reusing <code>start_failed_title</code> and the raw English reason.</Note>
+        <Note><b>Why not the Uninstall confirm.</b> The plugin was never installed or registered, so the verb is <b>Remove</b>, and the Installed note (“Settings stay until you delete them”) would promise settings that an unregistered id may not have. The confirm keeps the Installed layout and only swaps the copy.</Note>
+        <Dont><b>Don't</b> show the manifest's own name, author, homepage or description here, don't offer Register anyway, Re-approve, Configure or Open folder, and don't call the plugin malicious — the copy states what Tasty checked.</Dont>
+      </Spec>
     </>
   );
 }
 
-export { TrustBox2, PluginTrustSpecs };
+export { TrustBox2, PluginTrustSpecs, ReservedDetail, ReservedRow, RESERVED };
