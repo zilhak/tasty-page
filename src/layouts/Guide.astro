@@ -22,6 +22,8 @@ const { lang, page, pages, idx, headings, hasDiagram = false } = Astro.props;
 const s = stringsFor(lang);
 const state = stateOf(page, lang);
 const title = titleIn(page, lang);
+// The guide home's title already names the product, so it skips the suffix.
+const documentTitle = page.rel === "index.md" ? title : `${title} · Tasty`;
 const prev = idx > 0 ? pages[idx - 1] : null;
 const next = idx + 1 < pages.length ? pages[idx + 1] : null;
 const category = SECTIONS[page.section][lang];
@@ -41,7 +43,7 @@ const toc = headings.filter((h) => h.depth === 2 || h.depth === 3);
 ---
 <Base
   lang={lang}
-  title={`${title} · Tasty`}
+  title={documentTitle}
   description={descriptionIn(page, lang)}
   active="guide"
   enHref={pathOf(page, "en")}
