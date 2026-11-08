@@ -436,6 +436,7 @@ function Sw({ c }) {
   return <span style={{ display: "inline-block", width: 12, height: 12, flex: "none", borderRadius: 2, border: "1px solid var(--tasty-separator)", background: c, verticalAlign: "middle" }} />;
 }
 const MD_VAR_MAP = [
+  ["--md-bg", "document bed, follows focus", "--tasty-surface-bed-focused"],
   ["--md-fg", "body text", "--tasty-text-secondary"],
   ["--md-strong", "headings · strong · table header", "--tasty-text-primary"],
   ["--md-link", "links", "--tasty-accent-primary"],
@@ -501,7 +502,7 @@ function MdInjectionMap() {
   );
 }
 
-function HtmlTile({ state }) {
+function HtmlTile({ state, bed = "var(--tasty-bg-panel)" }) {
   const center = (glyph, glyphColor, title, titleColor, sub) => (
     <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, textAlign: "center", padding: 16 }}>
       <span style={{ display: "inline-flex", color: glyphColor, transform: "scale(1.5)" }}>{glyph}</span>
@@ -516,7 +517,7 @@ function HtmlTile({ state }) {
     error: center(ic.alert, "var(--tasty-accent-danger-raised)", "Failed to load", "var(--tasty-accent-danger-raised)", "https://offline.example"),
   }[state];
   return (
-    <div style={{ width: 220, height: 150, display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)",
+    <div style={{ width: 220, height: 150, display: "flex", flexDirection: "column", background: bed,
       border: "1px solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>{body}</div>
   );
 }
@@ -873,7 +874,7 @@ function Page() {
 
       <Section id="markdown" title="Markdown viewer">
         <Spec id="markdown-read-only-viewer-address-bar-body" title="Markdown — read-only viewer (address bar + body)"
-          when={<>The markdown surface is an <b>address-bar chrome</b> over a single vertical scroll body that fills the tile (body on <span className="tok">--tasty-md-doc-bg</span> = crust, reloads on file change). The chrome is native UI. The body is an HTML/CSS document in a <b>WebView</b>: colour, heading sizes, leading and block spacing all come from Tasty tokens through <code>theme_css()</code> (maps in <b>content colour</b> and <b>heading hierarchy</b> below). The drawing uses the same values.</>}>
+          when={<>The markdown surface is an <b>address-bar chrome</b> over a single vertical scroll body that fills the tile (on a bed that follows focus, reloads on file change). The chrome is native UI. The body is an HTML/CSS document in a <b>WebView</b>: colour, heading sizes, leading and block spacing all come from Tasty tokens through <code>theme_css()</code> (maps in <b>content colour</b> and <b>heading hierarchy</b> below). The drawing uses the same values.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)" }}>
             <MarkdownDoc />
           </Stage>
@@ -903,6 +904,23 @@ function Page() {
               ))}
             </div>
           </Stage>
+          <Views>
+            {[true, false].map((focused) => (
+              <View key={String(focused)} name={`markdown-table-code-${focused ? "focused" : "unfocused"}`} label={`Table and code, ${focused ? "focused" : "unfocused"}`}>
+                <MdFocused.Provider value={focused}>
+                  <div style={{ width: "var(--tasty-size-360)", padding: "var(--tasty-space-lg)", background: surfaceBed(focused), color: "var(--tasty-md-doc-fg)" }}>
+                    <MdTable cols={[{ h: "Resource" }, { h: "Kind" }, { h: "Count", num: true, w: "80px" }]} rows={[["surface", "viewer", "12"], ["popup", "overlay", "8"], ["banner", "notice", "3"]]} />
+                    <div style={{ padding: "var(--tasty-space-sm)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", background: "var(--tasty-md-code-bg)", border: "var(--tasty-border-width) solid var(--tasty-md-code-border)", borderRadius: "var(--tasty-radius)", color: "var(--tasty-text-secondary-raised)" }}>fn main() {"{}"}</div>
+                  </div>
+                </MdFocused.Provider>
+              </View>
+            ))}
+            {["loading", "error"].map((state) => [true, false].map((focused) => (
+              <View key={state + focused} name={`markdown-tile-${state}-${focused ? "focused" : "unfocused"}`} label={`Chrome tile, ${state}, ${focused ? "focused" : "unfocused"}`}>
+                <HtmlTile state={state} bed={surfaceBed(focused)} />
+              </View>
+            )))}
+          </Views>
           <Meta
             specs={[["focused", "Mocha #000000, Latte #ffffff"], ["unfocused", "Mocha base #1e1e2e, Latte crust #dce0e8"], ["same as the terminal", "yes, one pair of beds"], ["motion", "0ms, one frame"], ["stays", "body ink, links, code fill, table header and grid, address band"], ["unknown focus", "unfocused values"]]}
             tokens={[{ tok: "--tasty-surface-bed-focused", use: "--md-bg, focused", color: "var(--tasty-surface-bed-focused)" }, { tok: "--tasty-surface-bed-unfocused", use: "--md-bg, unfocused", color: "var(--tasty-surface-bed-unfocused)" }, { tok: "--tasty-md-table-row-bg", use: "row, focused", color: "var(--tasty-md-table-row-bg)" }, { tok: "--tasty-md-table-row-bg-unfocused", use: "row, unfocused", color: "var(--tasty-md-table-row-bg-unfocused)" }, { tok: "--tasty-md-table-row-bg-zebra", use: "zebra, focused", color: "var(--tasty-md-table-row-bg-zebra)" }, { tok: "--tasty-md-table-row-bg-zebra-unfocused", use: "zebra, unfocused", color: "var(--tasty-md-table-row-bg-zebra-unfocused)" }, { tok: "--tasty-md-code-bg", use: "code fill → --md-code-bg", color: "var(--tasty-md-code-bg)" }, { tok: "--tasty-md-table-border", use: "grid → --md-border", color: "var(--tasty-md-table-border)" }]} />

@@ -2141,6 +2141,7 @@ What carries over to a user theme is only the structure of token choice: each ce
 |---|---|---|
 | Host chrome around a plugin: tab, address bar, frame, banner, menu, surface focus edge | In the rules | The host draws it. |
 | Bundled `egui-mesh` plugin UI | In the rules, by promise | Not enforced at run time. Bundled sources have no raw color call today (`Color32::from_*`, `from_rgb`, tests excluded). A source check can hold that. |
+| Bed on a plugin surface | Offered, not promised | The host offers the two bed values to any plugin. A plugin that follows them matches the terminal. The host edge shows either way. |
 | Third-party `egui-mesh` plugin pixels | Exception | The host cannot check them. A plugin that takes its colors from the host's Theme tokens follows the table, and one that does not is content. |
 | `html` page | Exception | Webview content, like a web page. |
 | `markdown` document | In the rules, except code highlight | Rendered in a webview. The table covers its `md-*` tokens. The frame around it is host chrome. |
@@ -2321,8 +2322,8 @@ Contrast is the lowest across the row's grounds.
 | Window mock command | `.shell span` | `term`, `base` | `text-primary` | `accent-primary-raised` | 7.79 · 7.34 |
 | Window mock warning word | `.shell span` | `term`, `base` | `text-warning` | `accent-warning-raised` | 12.91 · 7.15 |
 | Window mock version | `.shell span` | `term`, `base` | `text-attention` | `accent-attention-raised` | 9.27 · 6.97 |
-| Window mock document title | `.shell h2` | `mantle`, `crust` | `text-body` | `text-primary` | 12.14 · 6.04 |
-| Window mock section heading | `.shell h3` | `mantle`, `crust` | `text-primary` | `accent-primary-raised` | 8.34 · 6.28 |
+| Window mock document title | `.shell h2` | `mantle`, `term` | `text-body` | `text-primary` | 12.14 · 6.04 |
+| Window mock section heading | `.shell h3` | `mantle`, `term` | `text-primary` | `accent-primary-raised` | 8.34 · 6.28 |
 | Design pages text | `.design-head__intro, .ds-lede, .ds-card__head p, .ds-card__src` | `base` | `text-muted` | `text-muted` | 7.37 · 5.53 |
 | Design source link, pointer over | `.ds-card__src:hover` | `base` | `text-brand` | `brand-ink` | 5.12 · 5.50 |
 | Design tile description | `.ds-tiles__desc` | `base`, `site-tile-hover` | `text-muted` | `text-muted` | 6.85 · 5.19 |
