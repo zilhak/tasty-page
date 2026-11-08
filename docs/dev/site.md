@@ -36,6 +36,7 @@
 크로스 플랫폼 소개는 워크스페이스·탭·화면 분할처럼 같은 방식으로 사용하는 기능을 설명하고,
 설치 방법과 지원 아키텍처는 설치 가이드로 연결한다.
 
+- 사이트 문구는 가이드를 포함해 Codex가 쓴다. Claude는 문구를 직접 쓰지 않고, Codex가 쓴 문구를 사실과 이 규칙에 대조한다. 어긋나면 Codex에게 다시 쓰게 한다(사용자 결정).
 - 랜딩은 `src/lib/landing.ts`, 검색·공유 소개는 `src/lib/meta.json`,
   공통 안내와 푸터는 `src/lib/strings.ts`에서 한국어와 영어를 함께 관리한다.
 - 사용자 가이드는 `content/`와 `content/en/`를 같은 의미로 수정한다.
@@ -223,6 +224,7 @@ npm run stamp content/en/index.md
 두 언어 주소를 `hreflang`과 `og:locale:alternate`로 함께 알린다. `enHref`와 `koHref`가 같은 갤러리는 다른 언어판이 없어
 이 둘을 내지 않는다. 절대 주소는 `src/lib/site.ts`의 `absolute()`가 `src/lib/base.mjs`의 `SITE`로 만든다.
 공유 이미지가 없어 `twitter:card`는 `summary`로 내고 `og:image`는 내지 않는다. 공유 이미지를 넣을 때 `summary_large_image`로 바꾼다.
+네이버 Search Advisor의 사이트 소유 확인 태그(`naver-site-verification`)는 `src/pages/index.astro`의 `head` 슬롯에 있어 `/`에만 나간다.
 
 ## 방문자 분석
 
