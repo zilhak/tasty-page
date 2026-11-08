@@ -1023,10 +1023,12 @@ Forbidden:
 | surface focus edge | latte | `surface-focus-edge-focused`, `surface-focus-edge-unfocused` | 0.442 | not needed |
 | terminal bed | mocha | `surface-terminal-focused-bg`, `surface-terminal-unfocused-bg` | 0.245 | not needed |
 | terminal bed | latte | `surface-terminal-focused-bg`, `surface-terminal-unfocused-bg` | 0.043 | The surface focus edge tells them apart. The bed swap is not what the rule relies on. |
-| surface edge marks | mocha | `surface-focus-edge-focused`, `surface-highlight-done-border` | 0.088 | not needed |
-| surface edge marks | latte | `surface-occupied-hard-border`, `surface-highlight-input-border` | 0.062 | The focus edge is one bar on the top side and the others ring all four sides. The rings keep their own priority. |
+| surface focus edge and rings | mocha | `surface-focus-edge-focused`, `surface-highlight-done-border` | 0.088 | not needed |
+| surface focus edge and rings | latte | `surface-focus-edge-focused`, `surface-highlight-input-border` | 0.135 | not needed |
 
 **Surface focus pass mark.** The pair `surface-focus-edge-focused`, `surface-focus-edge-unfocused` must hold OKLab ΔE 0.08 or more and contrast 3:1 or more in Mocha and in Latte, and `surface-focus-edge-focused` must hold 3:1 on `crust`, `mantle`, `base`, `raised` and `term`. Both values are opaque. A translucent value composites over its neighbor first, as the [measure](#2-how-strong-the-rules-are) says. The contrast is required on top of the ΔE because the two states meet in one thin bar with no word or glyph. It binds the built-in themes only. The `surface-terminal-*-bg` pair must differ, and it may stay under ΔE 0.08 because the edge carries the rule.
+
+**Rings among themselves.** The group `surface focus edge and rings` compares the lit edge with each ring and holds no ring pair. The closest ring pair is `surface-occupied-hard-border`, `surface-highlight-input-border` in Latte at ΔE 0.062. Width separates them, 1px against 2px, except on a focused webview leaf, where the top side of either one is a single 1px row. Only hue is left there. That case is unmeasured, and it goes back to design if it does not read in the app.
 
 **Tint rule.** A tint holds its own hue and neutrals. A second hue on it reads as a conflict, so it is forbidden.
 
