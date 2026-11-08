@@ -90,20 +90,41 @@ function FocusDemo() {
   );
 }
 
-// A mark rings the leaf. The unfocused edge sits under it, the lit edge sits over it.
+// A mark rings the leaf. The unfocused edge sits under it. The lit edge sits over it and takes only the lower row, so both show.
 const ring = (token, width) => ({ outline: `var(--tasty-${width}) solid var(--tasty-${token})`, outlineOffset: `calc(-1 * var(--tasty-${width}))` });
+const LOWER_ROW = { position: "absolute", top: "var(--tasty-border-width)", left: 0, right: 0, height: "var(--tasty-border-width)" };
 
 function Marked({ kind = KINDS[0], focused, bedFocused = focused, token, width, children }) {
-  const lit = focused && token;
   return (
     <div style={{ position: "relative", ...frame, flex: "none", overflow: "hidden", display: "flex", flexDirection: "column", ...(token ? ring(token, width) : null) }}>
       <SurfaceFocusEdge focused={focused} />
       {kind.body(bedFocused)}
-      {lit && <SurfaceFocusEdge focused style={{ position: "absolute", top: 0, left: 0, right: 0 }} />}
+      {focused && token && <SurfaceFocusEdge focused style={LOWER_ROW} />}
       {children}
     </div>
   );
 }
+
+// A webview leaf: the page covers the ring, so only the ring's top side shows, in the edge's own row.
+function WebviewMarked({ kind = KINDS[1], focused, token, width }) {
+  return (
+    <div style={{ ...frame, flex: "none", overflow: "hidden", display: "flex", flexDirection: "column" }}>
+      <div style={{ position: "relative", flex: "none" }}>
+        <SurfaceFocusEdge focused={focused} />
+        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: `var(--tasty-${width})`, background: `var(--tasty-${token})` }} />
+        {focused && <SurfaceFocusEdge focused style={LOWER_ROW} />}
+      </div>
+      {kind.body(focused)}
+    </div>
+  );
+}
+
+const WEBVIEW_MARKS = [
+  ["occupied-soft", "Occupied soft", "surface-occupied-soft-border", "surface-occupied-border-width", true],
+  ["occupied-hard", "Occupied hard or mirror", "surface-occupied-hard-border", "surface-occupied-border-width", true],
+  ["needs-input", "Needs input", "surface-highlight-input-border", "surface-highlight-input-width", true],
+  ["completion", "Completed", "surface-highlight-done-border", "surface-highlight-done-width", false],
+];
 
 export function GallerySurfaceFocus() {
   return (
@@ -130,7 +151,7 @@ export function GallerySurfaceFocus() {
       </Spec>
 
       <Spec id="surface-focus-edge-with-marks" title="Focus edge with rings, marks and keyboard focus"
-        when={<>The edge is a bar on one side and the attention and occupancy marks are rings on all four, so they stay apart by position as well as color. The unfocused edge sits under a ring. The lit edge sits over it, so the focused surface can always be found. The ring keeps its own priority: needs input, then occupancy, then completion. A hard-occupied surface keeps the unfocused bed and ink because it takes no input, and its edge still follows focus. A mirror follows the focus of the client that draws it.</>}>
+        when={<>The unfocused edge sits under a ring. The lit edge sits over it and takes only the lower row, so the ring keeps the upper row and both stay visible. Where the host surface shows on all four sides, a ring has four sides and the edge one, so they differ by position as well as color. <b>A webview leaf is the exception</b>: the page covers the ring, so only its top side shows, in the edge's own row, and row and hue are what is left. That reading comes from the stacking order and is unmeasured in the app. The ring keeps its own priority: needs input, then occupancy, then completion. A hard-occupied surface keeps the unfocused bed and ink because it takes no input, and its edge still follows focus. A mirror follows the focus of the client that draws it.</>}>
         <Views>
           <View name="edge-occupied-soft" label="Occupied soft, focused"><Marked focused token="surface-occupied-soft-border" width="surface-occupied-border-width" /></View>
           <View name="edge-occupied-hard-focused" label="Occupied hard or mirror, focused"><Marked focused bedFocused={false} token="surface-occupied-hard-border" width="surface-occupied-border-width" /></View>
@@ -143,9 +164,13 @@ export function GallerySurfaceFocus() {
               <span style={{ position: "absolute", top: "var(--tasty-size-4)", left: "var(--tasty-size-4)", right: "var(--tasty-size-4)", height: "var(--tasty-size-16)", outline: "var(--tasty-focus-ring-width) solid var(--tasty-input-border-focus)", borderRadius: "var(--tasty-radius-sm)" }} />
             </Marked>
           </View>
+          {WEBVIEW_MARKS.flatMap(([id, label, token, width, canFocus]) => [
+            canFocus && <View key={id + "-focused"} name={`edge-webview-${id}-focused`} label={`Webview, ${label.toLowerCase()}, focused`}><WebviewMarked focused token={token} width={width} /></View>,
+            <View key={id + "-unfocused"} name={`edge-webview-${id}-unfocused`} label={`Webview, ${label.toLowerCase()}, unfocused`}><WebviewMarked focused={false} token={token} width={width} /></View>,
+          ])}
         </Views>
         <Meta
-          specs={[["paint order", "unfocused edge, then ring, then lit edge"], ["ring priority", "needs input, occupancy, completion, as before"], ["keyboard focus", <>unchanged, blue <span className="tok">--tasty-input-border-focus</span> ring on the field</>], ["hard occupied", "unfocused bed and ink, edge follows focus"], ["mirror", "edge from the focus of the client that draws it"]]}
+          specs={[["paint order", "unfocused edge, then ring, then lit edge"], ["lit edge with a ring", <>lower row only, <span className="tok">--tasty-border-width</span> tall; the ring keeps the upper row</>], ["webview leaf", "only the ring's top side shows, in the edge's row. Unmeasured in the app"], ["ring priority", "needs input, occupancy, completion, as before"], ["keyboard focus", <>unchanged, blue <span className="tok">--tasty-input-border-focus</span> ring on the field</>], ["hard occupied", "unfocused bed and ink, edge follows focus"], ["mirror", "edge from the focus of the client that draws it"]]}
           tokens={[{ tok: "--tasty-surface-occupied-soft-border", use: "soft ring", color: "var(--tasty-surface-occupied-soft-border)" }, { tok: "--tasty-surface-occupied-hard-border", use: "hard ring", color: "var(--tasty-surface-occupied-hard-border)" }, { tok: "--tasty-surface-highlight-input-border", use: "needs input ring", color: "var(--tasty-surface-highlight-input-border)" }, { tok: "--tasty-surface-highlight-done-border", use: "completion ring", color: "var(--tasty-surface-highlight-done-border)" }]} />
         <Note>A completed highlight clears on focus, so there is no focused frame for it.</Note>
       </Spec>

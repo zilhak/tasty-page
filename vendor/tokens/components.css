@@ -725,7 +725,9 @@
      manifest color can drop it. Neutral on purpose: blue is the keyboard focus
      ring and the completion highlight. The unfocused value is the chrome tone, so
      it reads as no mark. The bar keeps its row in both states, so focus never
-     moves the content. Paint order: unfocused edge, ring, lit edge. */
+     moves the content. Paint order: unfocused edge, ring, lit edge. With a ring
+     the lit edge takes only the lower row, so a webview leaf, which shows only
+     the ring's top side, still shows both. */
   --tasty-surface-focus-edge-focused:   var(--tasty-text-secondary);
   --tasty-surface-focus-edge-unfocused: var(--tasty-bg-sidebar);
   --tasty-surface-focus-edge-width:     var(--tasty-selection-edge-width); /* 2 — hairline, zoom-exempt */

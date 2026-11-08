@@ -236,7 +236,12 @@ Every surface kind shows focus the same way, on the **surface focus edge**: a ba
 - **The row stays.** The edge holds its row on every leaf in both states. A webview starts below it. Focus never moves content or reflows a page.
 - **Motion.** None on any kind. The color changes in one frame, as the terminal bed does.
 - **Follows model focus.** An inactive OS window keeps its focused edge. With no focused surface, no edge is lit.
-- **Paint order.** Unfocused edge, then ring (needs input, occupancy, completion), then lit edge. Attention and occupancy ring all four sides, so position tells them from the edge as well as color.
+- **Paint order.** Unfocused edge, then ring (needs input, occupancy, completion), then lit edge. With a ring on the leaf, the lit edge takes only the lower row, `border-width` tall, and the ring keeps the upper row. Both stay visible, and the content does not move.
+- **Ring against edge.** Where the host surface shows on all four sides, a ring has four sides and the edge one, so position tells them apart as well as color. A native webview sits above the host surface and covers the ring, so a webview leaf shows only the ring's top side, in the edge's own row. An inset on a pane's outer side can show a little more on macOS and Windows. On a webview leaf, then:
+  - Focused: the ring's upper row over the lit lower row. They are told apart by row and by hue, ΔE 0.135 or more. Completion clears on focus, so it never meets the lit edge on one leaf.
+  - Unfocused: the ring's top side fills as many rows as it is wide. Occupancy leaves the unfocused edge in the lower row, and a 2px ring covers it.
+  - Between two leaves, a completed webview leaf and a focused one both show a bar on top, and hue tells them apart: ΔE 0.088 in Mocha, the closest pair in the group. It clears the 0.08 limit, with little to spare.
+  - This reading comes from the stacking order, not from the app. It is unmeasured. Measure it when the edge is built, and send it back to design if a 1px row does not read.
 - **Hard occupied.** A terminal keeps the unfocused bed and ink because it takes no input. The edge still follows focus.
 - **Mirror.** The host that draws the leaf paints the edge from its own focus, so nothing depends on the plugin's frame.
 - **Keyboard focus.** A field or control keeps its blue ring. The edge is never blue, so a focused field inside a focused surface shows both.
