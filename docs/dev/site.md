@@ -188,7 +188,7 @@ npm run stamp content/en/index.md
 | `/privacy/` · `/ko/privacy/` | 개인정보 안내. 본문은 `src/components/Privacy.astro` 에 두 언어로 있고 푸터에서 연결한다 |
 | `/design/` · `/ko/design/` | 디자인 가이드라인 (브랜드 · 색 · 타이포 · 간격). 크롬만 이중언어고 싣는 문서는 같다 |
 | `/design/tokens/` · `/ko/design/tokens/` | 3티어 토큰 문서 |
-| `/design/gallery/**` | 레퍼런스 갤러리 15 페이지. 사이트 머리글과 푸터를 쓰며 언어별로 나누지 않는다 |
+| `/design/gallery/**` | 레퍼런스 갤러리 15 페이지. 사이트 머리글과 푸터를 쓰며 언어별로 나누지 않는다. `noindex, follow`로 색인에서 빼고 sitemap에도 넣지 않는다 |
 | `/design/cards/*.html` | 가이드라인 원본 문서. 페이지가 iframe 으로 싣는다 |
 | `/robots.txt` | 전체 허용과 `Sitemap:` 줄. `Disallow`를 넣지 않는다. 막으면 크롤러가 카드와 갤러리의 `noindex`를 읽지 못한다 |
 | `/sitemap.xml` | 랜딩, 가이드, privacy, 디자인 페이지의 양 언어. 가이드와 디자인은 `buildPages`와 `DESIGN_NAV`에서 만들어 페이지를 추가하면 자동으로 들어간다. 랜딩과 privacy는 `src/pages/sitemap.xml.ts`에 적는다. 카드와 갤러리는 넣지 않는다. `lastmod`, `changefreq`, `priority`는 정확한 값을 얻을 근거가 없어 넣지 않는다 |
@@ -218,8 +218,10 @@ npm run stamp content/en/index.md
 랜딩 `/`는 첫 화면을 그리기 전에 언어를 판단한다(`src/pages/index.astro`).
 헤더의 EN/KO로 고른 값(`localStorage`의 `tasty-lang`)이 있으면 그 값을, 없으면 `navigator.language`를 따르며
 `ko`로 시작하면 `/ko/`로 이동한다. 다른 페이지는 이동하지 않아 공유한 링크가 그 언어로 열린다. JS가 꺼져 있으면
-영어 랜딩이 그대로 보인다. 페이지마다 `Base.astro`가 두 언어 주소를 `hreflang`으로 알리며, 절대 주소는
-`src/lib/base.mjs`의 `SITE`로 만든다.
+영어 랜딩이 그대로 보인다. 페이지마다 `Base.astro`가 자기 주소를 `canonical`과 `og:url`로 알리고, 언어가 나뉜 페이지는
+두 언어 주소를 `hreflang`과 `og:locale:alternate`로 함께 알린다. `enHref`와 `koHref`가 같은 갤러리는 다른 언어판이 없어
+이 둘을 내지 않는다. 절대 주소는 `src/lib/site.ts`의 `absolute()`가 `src/lib/base.mjs`의 `SITE`로 만든다.
+공유 이미지가 없어 `twitter:card`는 `summary`로 내고 `og:image`는 내지 않는다. 공유 이미지를 넣을 때 `summary_large_image`로 바꾼다.
 
 ## 방문자 분석
 

@@ -46,6 +46,7 @@ const toc = headings.filter((h) => h.depth === 2 || h.depth === 3);
   active="guide"
   enHref={pathOf(page, "en")}
   koHref={pathOf(page, "ko")}
+  ogType="article"
 >
   {hasDiagram && (
     <Fragment slot="head">

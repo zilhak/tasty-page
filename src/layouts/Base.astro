@@ -3,7 +3,7 @@
 import "../styles/tokens.css";
 import "../styles/global.css";
 import { stringsFor } from "../lib/strings";
-import { REPO, url } from "../lib/site";
+import { REPO, absolute, url } from "../lib/site";
 import { releaseVersion } from "../lib/release";
 import Analytics from "../components/Analytics.astro";
 import * as icon from "../components/icons";
@@ -17,14 +17,21 @@ interface Props {
   /** Where the language switch points, per language. */
   enHref: string;
   koHref: string;
+  /** Open Graph type of the page. */
+  ogType?: "website" | "article";
+  /** Value of the robots meta tag. Without it the page has no such tag. */
+  robots?: string;
 }
-const { lang, title, description, active = null, enHref, koHref } = Astro.props;
+const { lang, title, description, active = null, enHref, koHref, ogType = "website", robots } = Astro.props;
 const s = stringsFor(lang);
 const version = releaseVersion(process.cwd());
 const guidePrefix = lang === "en" ? "guide/" : "ko/guide/";
 const landing = lang === "en" ? url("") : url("ko/");
 const mark = (name: string) => (active === name ? "page" : undefined);
-const absolute = (path: string) => new URL(url(path), Astro.site).href;
+const canonical = absolute(lang === "en" ? enHref : koHref);
+// A page published once, for one language, has no other version to announce.
+const hasOtherLanguage = enHref !== koHref;
+const ogLocale = { en: "en_US", ko: "ko_KR" };
 ---
 <html lang={s.lang} data-theme-default="mocha">
   <head>
@@ -33,13 +40,25 @@ const absolute = (path: string) => new URL(url(path), Astro.site).href;
     <title>{title}</title>
     <meta name="description" content={description} />
     <meta name="color-scheme" content="dark light" />
+    {robots && <meta name="robots" content={robots} />}
+    <link rel="canonical" href={canonical} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:site_name" content="Tasty" />
+    <meta property="og:locale" content={ogLocale[lang]} />
+    {hasOtherLanguage && <meta property="og:locale:alternate" content={ogLocale[lang === "en" ? "ko" : "en"]} />}
+    {/* summary, not summary_large_image: the site has no share image yet. */}
+    <meta name="twitter:card" content="summary" />
     <link rel="icon" href={url("tasty-melon.svg")} type="image/svg+xml" />
-    <link rel="alternate" hreflang="en" href={absolute(enHref)} />
-    <link rel="alternate" hreflang="ko" href={absolute(koHref)} />
-    <link rel="alternate" hreflang="x-default" href={absolute(enHref)} />
+    {hasOtherLanguage && (
+      <>
+        <link rel="alternate" hreflang="en" href={absolute(enHref)} />
+        <link rel="alternate" hreflang="ko" href={absolute(koHref)} />
+        <link rel="alternate" hreflang="x-default" href={absolute(enHref)} />
+      </>
+    )}
     <script is:inline>
       /* Apply the saved or system theme while parsing the document head. */
       (function () {
