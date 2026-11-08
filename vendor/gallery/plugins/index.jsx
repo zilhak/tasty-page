@@ -6,6 +6,8 @@ import { HtmlAddressSurfaceG } from "../../ui_kits/terminal/overlays/html_addres
 import { HtmlAddressContrastSpec as PluginsHtmlContrast_HtmlAddressContrastSpec } from "./html-address-ink.jsx";
 import { MdAddressBar as B, MdAddressSpecs as PluginsMdAddress_MdAddressSpecs } from "./markdown-address.jsx";
 import { Section, Spec, Stage, Meta, Note, Dont, GIcon } from "../parts/specimen.jsx";
+import { focusViews } from "../parts/surface-focus-views.jsx";
+import { SurfaceLeaf } from "../../ui_kits/terminal/surface_focus.jsx";
 import { ic, PathField, SegToggle, SideHead, TreeNode, FavRow, DetailHeader, DetailRow, GridCell, ExpState, CtxMenu } from "../parts/explorer-kit.jsx";
 
 const BASE = `${import.meta.env.BASE_URL.replace(/\/$/, "")}/`;
@@ -650,8 +652,9 @@ function Page() {
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)" }}>
             <ExplorerFrame />
           </Stage>
+          {focusViews("explorer-full-layout", <ExplorerFrame />)}
           <Meta
-            specs={[["surface", "fills a work-area tile"], ["internal tabs", <>28px · per-cwd, with <span className="ic">×</span> + <span className="ic">＋</span></>], ["toolbar", "44px · nav · path field · view toggle"], ["sidebar", <>196px — Files tree + Favorites</>], ["splitter", <>1px <span className="tok">--tasty-separator</span>, drag to resize</>], ["row height", <>28 (Detail) · <span className="tok">--tasty-table-cell-height</span> — the shared Table</>], ["detail header", "shared Table header — UI font · table-header-font-size 11 · weight medium · caps"], ["min height", <>180 · <span className="tok">--tasty-explorer-min-height</span> — the split drag stops here (tabs 28 + toolbar 44 + header 28 + 2 rows + status 24)</>], ["selected row", <span className="tok">--tasty-surface-active</span>]]}
+            specs={[["focus", <>surface focus edge on top, host painted; nothing below changes</>], ["surface", "fills a work-area tile"], ["internal tabs", <>28px · per-cwd, with <span className="ic">×</span> + <span className="ic">＋</span></>], ["toolbar", "44px · nav · path field · view toggle"], ["sidebar", <>196px — Files tree + Favorites</>], ["splitter", <>1px <span className="tok">--tasty-separator</span>, drag to resize</>], ["row height", <>28 (Detail) · <span className="tok">--tasty-table-cell-height</span> — the shared Table</>], ["detail header", "shared Table header — UI font · table-header-font-size 11 · weight medium · caps"], ["min height", <>180 · <span className="tok">--tasty-explorer-min-height</span> — the split drag stops here (tabs 28 + toolbar 44 + header 28 + 2 rows + status 24)</>], ["selected row", <span className="tok">--tasty-surface-active</span>]]}
             tokens={[{ tok: "--tasty-bg-panel", use: "surface + content", color: "var(--tasty-bg-panel)" }, { tok: "--tasty-bg-sidebar", use: "tabs + sidebar + header", color: "var(--tasty-bg-sidebar)" }, { tok: "--tasty-surface-raised", use: "view toggle container", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-segtoggle-on-bg", use: "view toggle — selected segment", color: "var(--tasty-segtoggle-on-bg)" }, { tok: "--tasty-input-bg", use: "path field", color: "var(--tasty-input-bg)" }, { tok: "--tasty-surface-active", use: "selected row (rows only)", color: "var(--tasty-surface-active)" }, { tok: "--tasty-accent-warning", use: "favorite star", color: "var(--tasty-accent-warning-raised)" }, { tok: "--tasty-accent-primary", use: "active tab bar", color: "var(--tasty-accent-primary-raised)" }]} />
           <Note>Defaults chosen (briefs left these open): <b>Detail</b> is the default view; the right-hand preview panel is <b>dropped</b> in favour of a wider content area (re-add later as a toggle if needed); no in-toolbar filter search in this pass; the tree is rooted at <b>Home</b>. Favorites are global across surfaces.</Note>
         </Spec>
@@ -870,8 +873,9 @@ function Page() {
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)" }}>
             <MarkdownDoc />
           </Stage>
+          {focusViews("markdown-viewer", <MarkdownDoc />)}
           <Meta
-            specs={[["chrome", <>40px address bar + Go, on <span className="tok">--tasty-bg-sidebar</span></>], ["body", <>13px · CSS line-height 1.6</>], ["headings", "h1 20 → h6 13, 5-step CSS interpolation (20 · 18.6 · 17.2 · 15.8 · 14.4 · 13)"], ["heading style", "600 · text-primary at every level"], ["h1", "prose-h1 — the only cap-exempt content size"], ["code", <>mono on <span className="tok">--tasty-surface-raised</span></>], ["link", <span className="tok">--tasty-accent-primary</span>], ["table", <>grid + zebra, read-only — <span className="tok">--tasty-md-table-*</span></>]]}
+            specs={[["focus", <>surface focus edge on top, host painted; nothing below changes</>], ["chrome", <>40px address bar + Go, on <span className="tok">--tasty-bg-sidebar</span></>], ["body", <>13px · CSS line-height 1.6</>], ["headings", "h1 20 → h6 13, 5-step CSS interpolation (20 · 18.6 · 17.2 · 15.8 · 14.4 · 13)"], ["heading style", "600 · text-primary at every level"], ["h1", "prose-h1 — the only cap-exempt content size"], ["code", <>mono on <span className="tok">--tasty-surface-raised</span></>], ["link", <span className="tok">--tasty-accent-primary</span>], ["table", <>grid + zebra, read-only — <span className="tok">--tasty-md-table-*</span></>]]}
             tokens={[{ tok: "--tasty-bg-sidebar", use: "chrome bar", color: "var(--tasty-bg-sidebar)" }, { tok: "--tasty-md-doc-bg", use: "document bed (crust)", color: "var(--tasty-md-doc-bg)" }, { tok: "--tasty-input-bg", use: "address field", color: "var(--tasty-input-bg)" }, { tok: "--tasty-text-secondary", use: "body", color: "var(--tasty-text-secondary)" }, { tok: "--tasty-text-primary", use: "headings · strong", color: "var(--tasty-text-primary)" }, { tok: "--tasty-surface-raised", use: "code bg + inline chip", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-accent-primary", use: "links + Go", color: "var(--tasty-accent-primary-raised)" }, { tok: "--tasty-md-table-border", use: "table grid (surface1)", color: "var(--tasty-md-table-border)" }, { tok: "--tasty-md-table-header-bg", use: "table header (surface0)", color: "var(--tasty-md-table-header-bg)" }, { tok: "--tasty-md-table-row-bg-zebra", use: "zebra row (mantle)", color: "var(--tasty-md-table-row-bg-zebra)" }, { tok: "--tasty-font-size-prose-h1", use: "h1 (cap-exempt)" }]} />
           <Note>The surface leads with a browser-style <b>address bar</b> (path display/edit) + <b>Go</b> button. The body follows the WebView/CSS path (2026-10-07); the earlier egui_commonmark renderer and its library-owned sizes are retired. Removed/redefined content tokens (<span className="tok">--tasty-font-size-prose-h2</span>, <span className="tok">--tasty-line-height-prose</span> removed; <span className="tok">--tasty-font-size-prose-h1</span> → Heading anchor) are covered in the heading-hierarchy specimen.</Note>
         </Spec>
@@ -975,6 +979,25 @@ function Page() {
           <Meta
             specs={[["content", "native OS WebView (token-agnostic)"], ["tile", <><span className="tok">--tasty-bg-panel</span> + 1px <span className="tok">--tasty-border-default</span></>], ["boundary (2026-10-06)", "plain tile only (bg-panel + 1px border) — shown only while an egui overlay hides a loaded page; no glyph, label or URL / path"], ["placeholder", "GLOBE (disabled) + 'No page loaded'"], ["loading", "Spinner + 'Loading…'"], ["error", "ALERT (danger) + URL"]]}
             tokens={[{ tok: "--tasty-text-muted", use: "placeholder / loading label", color: "var(--tasty-text-muted)" }, { tok: "--tasty-text-disabled", use: "placeholder / URL", color: "var(--tasty-text-disabled)" }, { tok: "--tasty-spinner-indicator", use: "loading", color: "var(--tasty-spinner-indicator)" }, { tok: "--tasty-accent-danger", use: "error", color: "var(--tasty-accent-danger-raised)" }]} />
+        </Spec>
+        <Spec id="html-focus-edge" title="HTML — focus edge above the band"
+          when={<>The host cannot paint the page and the page may paint itself any color, so html shows focus only on the <a href={`${BASE}design/gallery/layouts/#surface-focus-edge-every-kind`}>surface focus edge</a>, above the address band. Stack from the top: <b>edge → address band → size banner → script banner → page</b>. The band, the banners and the chrome tiles look the same in both states. A focused field keeps its blue ring, on a focused surface and only there.</>}>
+          <Views>
+            {["boundary", "placeholder", "loading", "error"].map((state) => [true, false].map((focused) => (
+              <View key={state + focused} name={`html-tile-${state}-${focused ? "focused" : "unfocused"}`} label={`${state}, ${focused ? "focused" : "unfocused"}`}>
+                <SurfaceLeaf focused={focused} style={{ width: "fit-content" }}><HtmlTile state={state} /></SurfaceLeaf>
+              </View>
+            )))}
+            <View name="html-band-editing-focused" label="band, field editing, focused">
+              <SurfaceLeaf focused style={{ width: "fit-content" }}><HtmlAddressSurfaceG width="var(--tasty-size-360)" height={160} bar={{ kind: "local", address: "~/work/tasty/target/rep", state: "editing" }} page="page" /></SurfaceLeaf>
+            </View>
+            <View name="html-band-unfocused" label="band, unfocused">
+              <SurfaceLeaf focused={false} style={{ width: "fit-content" }}><HtmlAddressSurfaceG width="var(--tasty-size-360)" height={160} bar={{ kind: "local", address: "~/work/tasty/target/report.html" }} page="page" /></SurfaceLeaf>
+            </View>
+          </Views>
+          <Meta
+            specs={[["focus", "surface focus edge only"], ["band", "unchanged by focus, and the address band is not a focus mark"], ["banners", "unchanged by focus"], ["chrome tiles", "the 4 states unchanged by focus, below the edge"], ["page", "author CSS, never touched"]]}
+            tokens={[{ tok: "--tasty-surface-focus-edge-focused", use: "focused", color: "var(--tasty-surface-focus-edge-focused)" }, { tok: "--tasty-surface-focus-edge-unfocused", use: "unfocused", color: "var(--tasty-surface-focus-edge-unfocused)" }, { tok: "--tasty-input-border-focus", use: "field ring", color: "var(--tasty-input-border-focus)" }]} />
         </Spec>
         <Spec id="html-address-bar-band" title="HTML — address bar band"
           when={<>The page is a native WebView that tasty cannot paint over, so the address bar is a <b>host band above it</b> and the WebView rect starts below the band (same inset idea as the script banner). Composition = the Explorer toolbar recipe: <b>Back · Forward · Reload</b> (IconButton sm) then the <b>PathField box</b> — without the Go button (Enter opens; the band already carries three buttons). Height 40 and <span className="tok">--tasty-bg-sidebar</span> + 1px separator match the markdown address bar. Local files show as a <b>path</b> (<code>file://</code> input is accepted and shown as the path after open); web pages show the full URL. Loading swaps Reload for a Spinner in the same 24 cell. Input errors stand in a 24px row <b>inside the band</b> (danger edge on the field, glyph + message below); they clear on the next keystroke, on Esc, or on a successful open — never on a timer. Stack order under the band: <b>size banner → script banner → page</b>, banner-margin 8 above the first, banner-inset-gap 8 between and below.</>}>
@@ -1085,8 +1108,9 @@ function Page() {
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>viewer · fit (100%)</div><ImgSurface mode="viewer" /></div>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>viewer · zoomed + panned (250%)</div><ImgSurface mode="viewer" panned /></div>
           </Stage>
+          {focusViews("image-viewer", <ImgSurface mode="viewer" />)}
           <Meta
-            specs={[["layout", "control bar (40px) + canvas"], ["viewer bar", "◀ ▶ ↻ ✎ ＋ · name (i/n) · zoom"], ["canvas", <><span className="tok">--tasty-bg-sidebar</span> · fit ≤100% · pan &gt;100%</>], ["zoom group", "Fit · ＋ · % · −  (right)"], ["buttons", <>surface-raised + <span className="tok">--tasty-border-default</span></>]]}
+            specs={[["focus", <>surface focus edge on top, host painted; nothing below changes</>], ["layout", "control bar (40px) + canvas"], ["viewer bar", "◀ ▶ ↻ ✎ ＋ · name (i/n) · zoom"], ["canvas", <><span className="tok">--tasty-bg-sidebar</span> · fit ≤100% · pan &gt;100%</>], ["zoom group", "Fit · ＋ · % · −  (right)"], ["buttons", <>surface-raised + <span className="tok">--tasty-border-default</span></>]]}
             tokens={[{ tok: "--tasty-bg-sidebar", use: "canvas (mantle)", color: "var(--tasty-bg-sidebar)" }, { tok: "--tasty-surface-raised", use: "control buttons", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-text-muted", use: "filename · zoom %", color: "var(--tasty-text-muted)" }]} />
         </Spec>
         <Spec id="image-paint-bar-floating-selection-popups" title="Image — paint bar · floating selection · popups"

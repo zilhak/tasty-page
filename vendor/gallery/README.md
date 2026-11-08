@@ -30,7 +30,7 @@ The 15 URLs do not change, so `/design/gallery/<key>/` keeps its current path. T
 | Overlays | Popups and menus | `overlays-popups` | Tools menu, search bar, switch overlays, modifier hints, categories, notice column, opaque mode over a page |
 | Overlays | Banners | `overlays-banners` | Banner family and its instances |
 | Overlays | Tutorial | `overlays-tutorial` | Marker, callout, topic list, composite |
-| Shell | Layouts | `layouts` | Sidebar and rail, tab strip, list idioms, tiers, divider, surface focus, attention, move source, loading, notification summary, status bar, title bar |
+| Shell | Layouts | `layouts` | Sidebar and rail, tab strip, list idioms, tiers, divider, surface focus on every kind, attention, move source, loading, notification summary, status bar, title bar |
 | Shell | Startup | `loading` | Boot, phases, Latte, first-run shell, shutdown, boot error |
 | Surfaces | Task DAG | `dag` | Canvas, node, phases, edges, routes, chrome, runner, rows, detail, empty and cycle, hosts |
 | Surfaces | Plugin surfaces | `plugins` | Explorer, Markdown, HTML, Image |

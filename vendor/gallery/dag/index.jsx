@@ -4,6 +4,7 @@ import { STATES } from "./states.jsx";
 import { Kbd, ListCtrl } from "../../components/index.js";
 import { DAG_STATUS, DAG_STATUS_ORDER, DAG_KIND, DAG_REL, sTok, DagNode, RunnerBadge, ZoomCluster, Minimap, CycleBanner, DagEmpty, DagCanvas, DagDetail, DagSurface, DagWindow, dagRowItems, dagLayout, elbow, DAG_BUILD, DAG_INDEX, DAG_CYCLE, DAG_DENSE, DAG_LIST, DAG_PARTIAL, DAG_ROLLUP_ORDER, dagRollup, nodeTitle } from "../../ui_kits/terminal/dag.js";
 import { Section, Spec, Stage, Meta, Note, Do, Dont } from "../parts/specimen.jsx";
+import { focusViews } from "../parts/surface-focus-views.jsx";
 
 // Tasty Gallery — Surfaces · Task DAG
 // Specimens for the read-only Task DAG surface + workspace popup
@@ -353,8 +354,9 @@ function Page() {
               <DagSurface dags={[DAG_BUILD, DAG_INDEX]} narrow />
             </div>
           </Stage>
+          {focusViews("dag-tab-surface", <div style={{ height: 320, minWidth: 320 }}><DagSurface dags={[DAG_BUILD]} narrow /></div>)}
           <Meta
-            specs={[["header", "8/12 padding · wraps < 640"], ["canvas", "all remaining space"], ["detail", "288 side → 220 sheet"], ["narrow floor", "320px, nothing clipped"], ["DAG switch", "instant swap + auto-fit"]]}
+            specs={[["focus", <>surface focus edge above the header, host painted; header and canvas unchanged. The workspace popup is not a surface and has no edge</>], ["header", "8/12 padding · wraps < 640"], ["canvas", "all remaining space"], ["detail", "288 side → 220 sheet"], ["narrow floor", "320px, nothing clipped"], ["DAG switch", "instant swap + auto-fit"]]}
             tokens={[{ tok: "--tasty-bg-sidebar", use: "header band", color: "var(--tasty-bg-sidebar)" }, { tok: "--tasty-separator", use: "header hairline" }, { tok: "--tasty-dag-detail-sheet-height", use: "220 sheet" }]} />
           <Note>Switching DAG in the header <code>Select</code> replaces the canvas instantly (0ms) and re-fits — a new graph has no position to preserve, so fit is the honest default. Within one DAG the view never re-fits on its own.</Note>
         </Spec>
