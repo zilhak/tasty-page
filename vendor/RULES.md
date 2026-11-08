@@ -256,7 +256,7 @@ The bed shows focus, as the terminal's always has: **`term` focused, `term-unfoc
 - **No motion.** The color changes in one frame on every kind.
 - **Nothing moves.** A focus change never reloads a document, moves its scroll, or changes layout. Only fills change.
 - **Unknown focus.** A surface not known to be focused paints unfocused, on its first frame too. With no focused surface, every bed is unfocused.
-- **Hard occupied.** A bed kind paints its unfocused values even while it holds focus, as the terminal does. The surface takes no input, and the peach ring says so. An edge kind still lights its edge.
+- **Hard occupied.** A bed kind paints its unfocused values even while it holds focus, as the terminal does. The surface takes no input, and the peach ring says so. On `markdown` the webview covers the ring, so inside the surface a hard-occupied focused document looks like an unfocused one. An edge kind still lights its edge.
 - **Mirror.** The side that shows the leaf uses its own focus value, on the first frame and after every change.
 - **Keyboard focus.** A field or control keeps its blue ring on any bed.
 
@@ -268,7 +268,7 @@ The bed shows focus, as the terminal's always has: **`term` focused, `term-unfoc
   - Unfocused: the ring's top side fills as many rows as it is wide. Occupancy leaves the unfocused edge in the lower row, and a 2px ring covers it.
   - Between two leaves, a completed webview leaf and a focused one both show a bar on top, and hue tells them apart: ΔE 0.088 in Mocha, the closest pair in the group. It clears the 0.08 limit, with little to spare.
   - This reading comes from the stacking order, not from the app. It is unmeasured. Measure it when the edge is built, and send it back to design if a 1px row does not read.
-- **`markdown` has no reserved row,** so a native webview still covers the ring on all sides, as it does today. That is unmeasured too.
+- **`markdown` has no reserved row,** so a native webview covers the ring on all sides, and the ring does not show on a markdown leaf. That is unmeasured too. Measure it when the bed is built, and send it back to design if it does not read.
 
 ### Terminal content
 
