@@ -720,12 +720,13 @@
   --tasty-surface-highlight-input-width:  var(--tasty-focus-ring-width);  /* 2px */
   --tasty-surface-highlight-done-width:  var(--tasty-focus-ring-width);  /* 2px */
 
-  /* Surface focus edge. EVERY surface kind tells focused from unfocused here: a
-     bar across the top of the leaf, painted by the host, so no kind, plugin or
-     manifest color can drop it. Neutral on purpose: blue is the keyboard focus
-     ring and the completion highlight. The unfocused value is the chrome tone, so
-     it reads as no mark. The bar keeps its row in both states, so focus never
-     moves the content. Paint order: unfocused edge, ring, lit edge. With a ring
+  /* Surface focus edge. For the kinds whose bed belongs to someone else: html and
+     plugin surfaces. Every other kind swaps its bed
+     (surface-bed-*) and has no edge. A bar across the top of the leaf, painted by
+     the host, so a page, a plugin or a manifest color cannot drop it. Neutral on
+     purpose: blue is the keyboard focus ring and the completion highlight. The
+     unfocused value is the chrome tone, so it reads as no mark. The bar keeps its
+     row in both states. Paint order: unfocused edge, ring, lit edge. With a ring
      the lit edge takes only the lower row, so a webview leaf, which shows only
      the ring's top side, still shows both. */
   --tasty-surface-focus-edge-focused:   var(--tasty-text-secondary);
@@ -788,15 +789,21 @@
   --tasty-md-table-header-fg:       var(--tasty-text-primary);    /* brighter than body → signals header (egui has no synthetic bold weight) */
   --tasty-md-table-row-bg:          var(--tasty-bg-panel);        /* base — odd rows + the table's own opaque fill */
   --tasty-md-table-row-bg-zebra:    var(--tasty-bg-sidebar);      /* mantle — even rows, one subtle step darker */
+  --tasty-md-table-row-bg-unfocused:       var(--tasty-bg-sidebar); /* unfocused row: mantle, a fill on the base bed too */
+  --tasty-md-table-row-bg-zebra-unfocused: var(--tasty-bg-panel);   /* unfocused zebra: base. In Mocha it is the bed, and the mantle row and the grid hold the table */
   --tasty-md-table-cell-fg:         var(--tasty-text-secondary);  /* body prose tone */
   --tasty-md-table-cell-padding-x:  var(--tasty-space-sm);        /* 8px */
   --tasty-md-table-cell-padding-y:  var(--tasty-space-xs);        /* 4px — old ~6px snapped onto the 4px grid */
 
-  /* Markdown DOCUMENT (webview render path — render.rs theme_css()). The doc bed is
-     one fixed background in both focus states, so md-doc-bg is markdown's only
-     background. Focus shows on surface-focus-edge-*. Value ladder, page → lightest element:
-       crust (doc bg) < mantle (table zebra) < base (—) < surface0 (code fill) < surface1 (grid). */
-  --tasty-md-doc-bg:                var(--tasty-surface-markdown-focused-bg); /* → --md-bg */
+  /* Markdown DOCUMENT (webview render path, render.rs theme_css()). The bed follows
+     focus like the terminal's. Focus changes three values only, pushed to the page
+     without a reload: md-doc-bg, the table row fill and the zebra fill. Ladders:
+       focused,   Mocha: black (doc) < mantle (zebra) < base (row) < surface0 (code) < surface1 (grid)
+       focused,   Latte: white (doc) > base (row) > mantle (zebra) > surface0 (code) > surface1 (grid)
+       unfocused, Mocha: mantle (row) < base (doc, zebra) < surface0 (code) < surface1 (grid)
+       unfocused, Latte: crust (doc) < mantle (row) < base (zebra), surface0 (code), surface1 (grid) darker
+     Unfocused swaps row and zebra, so in Mocha the row never melts into the base bed. */
+  --tasty-md-doc-bg:                var(--tasty-surface-markdown-focused-bg); /* → --md-bg, focused */
   --tasty-md-doc-fg:                var(--tasty-text-secondary);
   --tasty-md-code-bg:               var(--tasty-surface-raised);   /* → --md-code-bg (block + inline code) */
   --tasty-md-code-border:           var(--tasty-separator);
@@ -1378,7 +1385,7 @@
   --tasty-explorer-min-height:         var(--tasty-size-180);      /* split-drag stops here (2026-10-08, was 160): internal tabs 28 + toolbar 44 + Detail header 28 + 2 rows 56 + status line 24 */
   --tasty-explorer-favorites-hide-below: var(--tasty-size-240);    /* body height under which Favorites hides (Files only): fav floor 120 + Files 120 */
   --tasty-explorer-error-fg:           var(--tasty-accent-danger-raised); /* folder read error glyph */
-  --tasty-dag-edge-binding:            var(--tasty-accent-data);   /* input binding — data handed downstream */
+  --tasty-dag-edge-binding:            var(--tasty-accent-data-strong);   /* input binding — data handed downstream */
   --tasty-dag-edge-dash-binding:       8 2 2 2;                    /* @kind other */ /* dash-dot — apart from reduce 2 3 / fallback 6 3 */
   --tasty-dag-edge-transition:         var(--tasty-accent-route-raised); /* 2026-11-05 ground-ink rules */
   --tasty-dag-edge-dash-transition:    10 4;                       /* @kind other */ /* long dash */

@@ -9,8 +9,8 @@ How this was checked: specimens were matched by reading the sources for each con
 | Measure | Count | Missing before this change | Missing now |
 |---|---|---|---|
 | Contracts | 84 | 4 | 0 |
-| Locations | 37 | 5 | 0 |
-| Frozen cells (component, state, host) with `data-contract` | 422 | 414 | 0 |
+| Locations | 41 | 5 | 0 |
+| Frozen cells (component, state, host) with `data-contract` | 425 | 414 | 0 |
 
 The 4 contracts and 5 locations had no gallery specimen and now have one. Each page's `states.jsx` names the contracts it owns, and `parts/contract-cells.jsx` draws their cells.
 
@@ -96,11 +96,11 @@ The 4 contracts and 5 locations had no gallery specimen and now have one. Each p
 | Tint box.danger | `foundations#rolegaps` | gallery part | 3 | rest | `mantle`, `base`, `raised` | demo and states |
 | Tint box.info | `foundations#rolegaps` | gallery part | 3 | rest | `mantle`, `base`, `raised` | demo and states |
 | Terminal | `layouts#surfaces` | gallery part | 1 | rest | `term` | demo and states |
-| Terminal (unfocused) | `layouts#surfaces` | gallery part | 1 | rest | `base` | demo and states |
+| Terminal (unfocused) | `layouts#surfaces` | gallery part | 1 | rest | `term-unfocused` | demo and states |
 | Surface focus edge | `layouts#surfaces` | gallery part | 8 | rest, focus | `crust`, `mantle`, `base`, `term` | demo and states |
-| Markdown document | `plugins#markdown` | gallery part | 1 | rest | `crust` | demo and states |
-| Markdown table | `plugins#markdown` | gallery part | 1 | rest | `crust` | demo and states |
-| Markdown table header | `plugins#markdown` | gallery part | 1 | rest | `crust` | demo and states |
+| Markdown document | `plugins#markdown` | gallery part | 2 | rest | `term`, `term-unfocused` | demo and states |
+| Markdown table | `plugins#markdown` | gallery part | 2 | rest | `term`, `term-unfocused` | demo and states |
+| Markdown table header | `plugins#markdown` | gallery part | 2 | rest | `term`, `term-unfocused` | demo and states |
 | Scrollbar | `components#scrollbar` | components-scrollbar.jsx | 5 | rest | `crust`, `mantle`, `base`, `raised`, `term` | demo and states |
 
 ## Locations
@@ -115,12 +115,15 @@ The 4 contracts and 5 locations had no gallery specimen and now have one. Each p
 | Pane body | `base` | `layouts#multitab` | exists |
 | Surface head and split line | `mantle` | `layouts#surfaces` | exists |
 | Terminal surface, focused | `term` | `layouts#surfaces` | exists; overlay layers only in foundations#terminal |
-| Terminal surface, unfocused | `base` | `layouts#surfaces` | exists |
-| Markdown surface | `crust` | `plugins#markdown` | exists |
+| Terminal surface, unfocused | `term-unfocused` | `layouts#surfaces` | exists |
+| Markdown surface, focused | `term` | `plugins#markdown` | exists |
+| Markdown surface, unfocused | `term-unfocused` | `plugins#markdown` | view |
 | HTML surface | `mantle` | `plugins#html` | exists |
 | Image surface | `base` | `plugins#image` | exists |
-| Empty surface | `crust` | `layouts#surfaces` | exists |
-| Explorer | `base` | `plugins#explorer` | exists |
+| Empty surface, focused | `term` | `layouts#surfaces` | view |
+| Empty surface, unfocused | `term-unfocused` | `layouts#surfaces` | view |
+| Explorer, focused | `term` | `plugins#explorer` | view |
+| Explorer, unfocused | `term-unfocused` | `plugins#explorer` | view |
 | Modal dialog | `base` | `overlays-dialogs#scrim` | exists |
 | Scrim | `scrim@base` | `overlays-dialogs#scrim` | exists |
 | Popup | `base` | `overlays-windows#ports` | exists |
@@ -134,7 +137,8 @@ The 4 contracts and 5 locations had no gallery specimen and now have one. Each p
 | File picker | `base` | `overlays-windows#filepicker` | exists |
 | Remote connections | `base` | `overlays-windows#remote` | exists |
 | Preset editor | `base` | `overlays-windows#preseteditor` | exists |
-| Task DAG | `base` | `dag#surfaces` | exists |
+| Task DAG, focused | `term` | `dag#surfaces` | view |
+| Task DAG, unfocused | `term-unfocused` | `dag#surfaces` | view |
 | Plugin surface chrome | `base` | `plugins#explorer` | exists |
 | Plugin UI through host widgets | `base` | `plugins#explorer` | exists, through the bundled surfaces |
 | Startup and boot error | `crust` | `loading#default` | exists |

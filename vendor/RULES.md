@@ -34,15 +34,16 @@ Exceptions exist only in the `exceptions` list of the file and in [section 12](#
 
 | ID | Token | Mocha | Latte | Used for |
 |---|---|---|---|---|
-| `crust` | `bg-app` | #11111b | #dce0e8 | Window chrome, title bar, sidebar category band, markdown page, recessed progress track, DAG log. |
+| `crust` | `bg-app` | #11111b | #dce0e8 | Window chrome, title bar, sidebar category band, recessed progress track, DAG log. |
 | `mantle` | `bg-sidebar` | #181825 | #e6e9ef | Sidebar, tab strip, address bars, table header, DAG chrome and detail, code gutter, notice path box. |
-| `base` | `bg-panel` | #1e1e2e | #eff1f5 | Panels, active tab, dialogs, popups, windows, DAG canvas, modifier hint, unfocused terminal. |
+| `base` | `bg-panel` | #1e1e2e | #eff1f5 | Panels, active tab, dialogs, popups, windows, modifier hint. |
 | `raised` | `surface-raised` | #313244 | #ccd0da | Menus, tooltips, toasts, banners, cards, keycaps, Tags, DAG nodes, code blocks. |
 | `on-raised` | `surface-on-raised` | #45475a | #eff1f5 | A control fill on a raised shell (banner Secondary). |
 | `field` | `surface-field` | #313244 | #eff1f5 | Fill of an enterable control: Input, Select, Checkbox box. |
 | `solid-hover` | `surface-hover` | #45475a | #bcc0cc | Opaque step above raised. Read only by on-raised in Mocha. |
 | `active` | `surface-active` | #585b70 | #acb0be | Selected and keyboard-active rows, special-role row in the modifier hint, neutral Badge. |
-| `term` | `surface-terminal-focused-bg` | #000000 | #ffffff | Focused terminal. |
+| `term` | `surface-terminal-focused-bg` | #000000 | #ffffff | Focused bed: terminal, markdown, empty, explorer file area, DAG canvas, image canvas. |
+| `term-unfocused` | `surface-bed-unfocused` | #1e1e2e | #dce0e8 | Unfocused bed of the same surfaces. |
 | `tab-hover` | `tab-bg-hover` | #1c1c2a | #ebeef3 | Pointer over an inactive tab. |
 
 ### Filled grounds
@@ -93,8 +94,8 @@ Translucent layers are measured over each parent they can sit on. Each result is
 | Drag select | `marquee@<parent>` | |
 | Preset split zone | `split-zone@<parent>` | |
 | Tint box | `tint-<hue>@<parent>` | Parent is `mantle`, `base` or `raised`. |
-| Unfocused terminal | `base` | Default ink `surface-terminal-unfocused-fg`. |
-| Surface focus | no change | The host paints the surface focus edge above the surface, see [section 4](#4-location-map). Only the terminal also swaps its bed. |
+| Surface focus | `term`, unfocused `term-unfocused` | See [section 4](#4-location-map). Html and plugin surfaces keep their ground and show the focus edge. |
+| Unfocused terminal | `term-unfocused` | Default ink `surface-terminal-unfocused-fg`. |
 | Dimmed item | the parent | `state-dim-opacity` over an item that is inert and comes back. No target, see section 12. An item the user still reads or selects is not dimmed: a pending cut reads `cut-pending-fg`, a disabled plugin row reads `text-muted`, a route not taken reads `dag-edge-dim`. |
 | Under a scrim | `scrim@<parent>` | Inert. Every cell is forbidden. Only the modal frame sits on it. |
 
@@ -102,6 +103,17 @@ Composited values:
 
 | Ground | Mocha | Latte |
 |---|---|---|
+| `term+hover` | #141414 | #ebebeb |
+| `term+press` | #1f1f1f | #e0e0e0 |
+| `drop-target@term` | #10161e | #e4edfe |
+| `marquee@term` | #10161e | #e4edfe |
+| `term-unfocused+hover` | #30303f | #caced5 |
+| `term-unfocused+press` | #393947 | #c2c5cc |
+| `drop-target@term-unfocused` | #2b3046 | #c5d1ea |
+| `marquee@term-unfocused` | #2b3046 | #c5d1ea |
+| `match@term-unfocused` | #605955 | #ddc7ab |
+| `match-active@term-unfocused` | #b7a788 | #deb783 |
+| `file-drop@term-unfocused` | #2b3046 | #c5d1ea |
 | `crust+hover` | #24242d | #caced5 |
 | `crust+press` | #2e2e36 | #c2c5cc |
 | `mantle+hover` | #2a2a36 | #d4d6dc |
@@ -177,15 +189,18 @@ Each location has one ground. It may hold only the listed children, to the liste
 | Sidebar | `mantle` | 2 | `crust`, `mantle+hover`, `mantle+press`, `active`, `active+hover`, `active+press`, `raised`, `field`, `track`, filled controls, tint boxes over `mantle` | Category band is crust. Selected workspace row is active. |
 | Workspace status bar | `crust` | 1 | `crust+hover`, `crust+press` | Glyphs and text only. |
 | Tab bar | `mantle` | 1 | `tab-hover`, `base`, `mantle+hover`, `mantle+press`, `raised` | Active tab is base. Scroll arrow cell is raised. |
-| Pane body | `base` | 1 | `term`, `crust`, `mantle`, `raised` | Holds one surface. Every surface starts with the focus edge. |
+| Pane body | `base` | 1 | `term`, `term-unfocused`, `crust`, `mantle`, `raised` | Holds one surface. See Surface focus for what shows focus on each kind. |
 | Surface head and split line | `mantle` | 2 | `field`, `mantle+hover`, `mantle+press`, `raised`, filled controls, tint boxes over `mantle` | Address bar band: mantle. Split lines take border-frame. |
 | Terminal surface, focused | `term` | 1 | `term-selection`, `term-cursor`, `match@term`, `match-active@term`, `file-drop@term`, `raised` | Banner, toast and search bar float on raised. |
-| Terminal surface, unfocused | `base` | 1 | `match@base`, `match-active@base`, `raised` | Default ink takes surface-terminal-unfocused-fg. |
-| Markdown surface | `crust` | 2 | `base`, `mantle`, `raised`, `file-drop@crust` | Content typography is library-driven. Colors follow this table. One document bed in both focus states. |
-| HTML surface | `mantle` | 2 | `field`, `raised` | The page is web content, outside these rules. Focus shows on the edge above the address band. |
-| Image surface | `base` | 1 | `mantle`, `raised` |  |
-| Empty surface | `crust` | 1 | `raised` | Nothing but the ground, under the focus edge. Banner and toast float on raised. |
-| Explorer | `base` | 2 | `mantle`, `base+hover`, `base+press`, `mantle+hover`, `mantle+press`, `active`, `active+hover`, `active+press`, `raised`, `field`, `drop-target@base`, `drop-target@mantle`, `marquee@base`, `marquee@mantle`, `file-drop@base`, `file-drop@mantle`, `drop-target@raised`, `track`, `track-raised`, filled controls, tint boxes over `mantle` | Selected row is active. Drag chip is raised. |
+| Terminal surface, unfocused | `term-unfocused` | 1 | `match@term-unfocused`, `match-active@term-unfocused`, `raised` | Default ink takes surface-terminal-unfocused-fg. |
+| Markdown surface, focused | `term` | 2 | `base`, `mantle`, `raised`, `file-drop@term` | Content typography is library-driven. Colors follow this table. Address band stays mantle. |
+| Markdown surface, unfocused | `term-unfocused` | 2 | `base`, `mantle`, `raised`, `file-drop@term-unfocused` | Table row and zebra swap fills, so neither is the bed in both themes at once. Address band stays mantle. |
+| HTML surface | `mantle` | 2 | `field`, `raised` | The page is web content, outside these rules. Focus shows on the focus edge above the address band. |
+| Image surface | `base` | 1 | `mantle`, `raised`, `term`, `term-unfocused` | The control bar is base. The canvas takes the bed for the focus state. |
+| Empty surface, focused | `term` | 1 | `raised` | Nothing but the bed. Banner and toast float on raised. |
+| Empty surface, unfocused | `term-unfocused` | 1 | `raised` | Nothing but the bed. Banner and toast float on raised. |
+| Explorer, focused | `term` | 2 | `mantle`, `term+hover`, `term+press`, `mantle+hover`, `mantle+press`, `active`, `active+hover`, `active+press`, `raised`, `field`, `drop-target@term`, `drop-target@mantle`, `marquee@term`, `marquee@mantle`, `file-drop@term`, `file-drop@mantle`, `drop-target@raised`, `track`, `track-raised`, filled controls, tint boxes over `mantle` | The file area takes the bed. Tabs, toolbar, sidebar, header and status line stay as they are. Selected row is active. Drag chip is raised. |
+| Explorer, unfocused | `term-unfocused` | 2 | `mantle`, `term-unfocused+hover`, `term-unfocused+press`, `mantle+hover`, `mantle+press`, `active`, `active+hover`, `active+press`, `raised`, `field`, `drop-target@term-unfocused`, `drop-target@mantle`, `marquee@term-unfocused`, `marquee@mantle`, `file-drop@term-unfocused`, `file-drop@mantle`, `drop-target@raised`, `track`, `track-raised`, filled controls, tint boxes over `mantle` | The file area takes the bed. Selected row is active. Drag chip is raised. |
 | Modal dialog | `base` | 2 | `raised`, `field`, `mantle`, `crust`, `active`, `approval`, `base+hover`, `base+press`, `track`, `track-raised`, filled controls, tint boxes over `base`, `raised` | Sits on scrim. Depth counts from the dialog. |
 | Scrim | `scrim@base` | 1 | `base` | Only a modal frame sits on it. |
 | Popup | `base` | 2 | `raised`, `field`, `mantle`, `crust`, `active`, `base+hover`, `base+press`, `track`, `track-raised`, filled controls, tint boxes over `raised` | Port popup, file picker and DAG popup share this. |
@@ -199,8 +214,9 @@ Each location has one ground. It may hold only the listed children, to the liste
 | File picker | `base` | 2 | `mantle`, `base+hover`, `base+press`, `active`, `active+hover`, `active+press`, `raised`, `field`, filled controls |  |
 | Remote connections | `base` | 2 | `mantle`, `base+hover`, `base+press`, `active`, `active+hover`, `active+press`, `raised`, `field`, filled controls, tint boxes over `base`, `raised` |  |
 | Preset editor | `base` | 2 | `mantle`, `crust`, `raised`, `field`, `active`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`, `track`, filled controls |  |
-| Task DAG | `base` | 2 | `raised`, `raised+hover`, `raised+press`, `mantle`, `crust`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, filled controls | Canvas is base. Chrome and detail are mantle. Log is crust. |
-| Plugin surface chrome | `base` | 2 | `mantle`, `raised`, `field`, `active`, `active+hover`, `active+press`, `base+hover`, `base+press`, `tint-avatar`, `track`, filled controls, tint boxes over `raised` | What the host draws, the focus edge included. |
+| Task DAG, focused | `term` | 2 | `raised`, `raised+hover`, `raised+press`, `mantle`, `crust`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `base`, filled controls | Canvas takes the bed. Chrome and detail are mantle. Log is crust. In a workspace popup the canvas stays base. |
+| Task DAG, unfocused | `term-unfocused` | 2 | `raised`, `raised+hover`, `raised+press`, `mantle`, `crust`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `base`, filled controls | Canvas takes the bed. Chrome and detail are mantle. Log is crust. |
+| Plugin surface chrome | `base` | 2 | `mantle`, `raised`, `field`, `active`, `active+hover`, `active+press`, `base+hover`, `base+press`, `tint-avatar`, `tint-primary@raised`, `tint-info@raised`, `tint-success@raised`, `tint-warning@raised`, `tint-danger@raised`, `tint-agent@raised`, `track`, filled controls | What the host draws, the focus edge included. |
 | Plugin UI through host widgets | `base` | 2 | `mantle`, `raised`, `field`, `active`, `base+hover`, `base+press`, `track`, filled controls, tint boxes over `raised` | Same as any panel. Widgets read by role. |
 | Startup and boot error | `crust` | 1 | `base`, `raised` |  |
 | Code area | `field` | 1 | `mantle` | Gutter is mantle. |
@@ -214,38 +230,45 @@ Filled controls means the `fill-*` grounds with their hover and press states. Th
 
 ### Surface focus
 
-Every surface kind shows focus the same way, on the **surface focus edge**: a bar across the top of the leaf, above any head or address band. The host paints it from its own model focus. No plugin, manifest or page can change or hide it, and it needs nothing from them.
+The bed shows focus, as the terminal's always has: **`term` focused, `term-unfocused` unfocused**, on every surface whose bed belongs to Tasty. Where the bed belongs to someone else, the host paints the **surface focus edge** instead. Focus means host model focus. An inactive OS window keeps its focused look, and with no focused surface nothing looks focused.
 
-| Part | Focused | Unfocused | Lowest against a neighbor, Mocha · Latte |
+| Kind | Bed that follows focus | What stays | Edge |
 |---|---|---|---|
-| Edge | `surface-focus-edge-focused` | `surface-focus-edge-unfocused` | 7.10 · 4.05 on `raised` |
-| Height | `surface-focus-edge-width` 2px | The same | Zoom-exempt |
+| `terminal` | Cell bed, and default ink | Cell content. Motion stays 0ms | No |
+| `markdown` | Document bed, table row and zebra | Address band, code fill, table header and grid, body and link ink | No |
+| `empty` | The whole surface | - | No |
+| `explorer` | File area | Inner tab bar, toolbar, sidebar, header, status line, preview panel | No |
+| `dag_graph` | Canvas | Header, nodes, detail panel | No |
+| `image` | Canvas | Control bar, popups, the image | No |
+| `html` | None. The page paints itself | Address band, banners, chrome tiles | Yes |
+| Plugin, webview | None the host can promise | The plugin's page | Yes |
+| Plugin, `egui-mesh` | None the host can promise | The plugin's frame | Yes |
 
-| Kind | What changes with focus | What stays |
-|---|---|---|
-| `terminal` | Edge, bed, default ink | Cell content. Motion stays 0ms |
-| `markdown` | Edge | Document bed, address band, table and code fills. All in the webview |
-| `html` | Edge | Address band, banners, the page, webview chrome tiles |
-| `image` | Edge | Panel, canvas, popups |
-| `explorer` | Edge | Inner tab bar, toolbar, body, status line, preview panel |
-| `empty` | Edge | Ground |
-| `dag_graph` | Edge | Head, canvas |
-| Plugin, webview | Edge | The plugin's page |
-| Plugin, `egui-mesh` | Edge | The plugin's frame |
+**Why some kinds cannot swap.**
 
-- **The row stays.** The edge holds its row on every leaf in both states. A webview starts below it. Focus never moves content or reflows a page.
-- **Motion.** None on any kind. The color changes in one frame, as the terminal bed does.
-- **Follows model focus.** An inactive OS window keeps its focused edge. With no focused surface, no edge is lit.
+- `html`: author CSS paints the document, and a sandboxed page has scripts off, so a pushed value may not arrive and may not be read.
+- Plugin surfaces: the plugin paints them and may ignore the value or declare one color twice. A plugin may follow `term` and `term-unfocused` itself, and the edge still shows.
+
+**Webview chrome tiles.** Loading, failed, no page and boundary tiles stand in for the page. On `markdown` the tile takes the bed for the focus state, so nothing jumps when the document appears. On `html` and plugin webviews the tile stays `base` under the edge, because the page that follows it will not swap.
+
+**Rules for the bed.**
+
+- **No motion.** The color changes in one frame on every kind.
+- **Nothing moves.** A focus change never reloads a document, moves its scroll, or changes layout. Only fills change.
+- **Unknown focus.** A surface not known to be focused paints unfocused, on its first frame too. With no focused surface, every bed is unfocused.
+- **Hard occupied.** A bed kind paints its unfocused values even while it holds focus, as the terminal does. The surface takes no input, and the peach ring says so. An edge kind still lights its edge.
+- **Mirror.** The side that shows the leaf uses its own focus value, on the first frame and after every change.
+- **Keyboard focus.** A field or control keeps its blue ring on any bed.
+
+**Rules for the edge.** `surface-focus-edge-focused` and `surface-focus-edge-unfocused`, `surface-focus-edge-width` 2px, zoom-exempt, across the top of the leaf above any address band. The row stays reserved in both states, and a webview starts below it.
+
 - **Paint order.** Unfocused edge, then ring (needs input, occupancy, completion), then lit edge. With a ring on the leaf, the lit edge takes only the lower row, `border-width` tall, and the ring keeps the upper row. Both stay visible, and the content does not move.
-- **Ring against edge.** Where the host surface shows on all four sides, a ring has four sides and the edge one, so position tells them apart as well as color. A native webview sits above the host surface and covers the ring, so a webview leaf shows only the ring's top side, in the edge's own row. An inset on a pane's outer side can show a little more on macOS and Windows. On a webview leaf, then:
+- **Ring against edge.** Where the host surface shows on all four sides, a ring has four sides and the edge one, so position tells them apart as well as color. A native webview sits above the host surface and covers the ring, so an `html` or plugin webview leaf shows only the ring's top side, in the edge's own row. An inset on a pane's outer side can show a little more on macOS and Windows. On such a leaf:
   - Focused: the ring's upper row over the lit lower row. They are told apart by row and by hue, ΔE 0.135 or more. Completion clears on focus, so it never meets the lit edge on one leaf.
   - Unfocused: the ring's top side fills as many rows as it is wide. Occupancy leaves the unfocused edge in the lower row, and a 2px ring covers it.
   - Between two leaves, a completed webview leaf and a focused one both show a bar on top, and hue tells them apart: ΔE 0.088 in Mocha, the closest pair in the group. It clears the 0.08 limit, with little to spare.
   - This reading comes from the stacking order, not from the app. It is unmeasured. Measure it when the edge is built, and send it back to design if a 1px row does not read.
-- **Hard occupied.** A terminal keeps the unfocused bed and ink because it takes no input. The edge still follows focus.
-- **Mirror.** The host that draws the leaf paints the edge from its own focus, so nothing depends on the plugin's frame.
-- **Keyboard focus.** A field or control keeps its blue ring. The edge is never blue, so a focused field inside a focused surface shows both.
-- **Only leaves in a pane.** A DAG in a workspace popup is not a surface and has no edge.
+- **`markdown` has no reserved row,** so a native webview still covers the ring on all sides, as it does today. That is unmeasured too.
 
 ### Terminal content
 
@@ -254,7 +277,7 @@ Three layers, three answers:
 | Layer | In the rules? | What holds |
 |---|---|---|
 | ANSI colors, reverse video, bold, cell backgrounds | No | The running program picks them. The `ansi-*` tokens are the palette. No pair is promised. |
-| Default cell ink and the surface fill | Yes | `surface-terminal-focused-fg` on `term`, `surface-terminal-unfocused-fg` on `base`. |
+| Default cell ink and the surface fill | Yes | `surface-terminal-focused-fg` on `term`, `surface-terminal-unfocused-fg` on `term-unfocused`. |
 | What the app draws over cells | Yes | Below. |
 
 | Overlay | Ground | Ink | Mocha · Latte |
@@ -263,8 +286,8 @@ Three layers, three answers:
 | Vi cursor cell | `term-cursor` | `vi-cursor-fg` | 10.48 · 6.60 |
 | Search match | `match@term` | `text-primary` | 6.67 · 6.06 |
 | Active search match | `match-active@term` | `search-match-active-fg` | 6.23 · 5.03 |
-| Search match, unfocused | `match@base` | `text-primary` | 4.75 · 5.50 |
-| Active match, unfocused | `match-active@base` | `search-match-active-fg` | 6.95 · 4.68 |
+| Search match, unfocused | `match@term-unfocused` | `text-primary` | 4.75 · 4.88 |
+| Active match, unfocused | `match-active@term-unfocused` | `search-match-active-unfocused-fg` | 6.95 · 11.21 |
 
 The overlay ink applies to default cell ink. A cell with its own ANSI color keeps it inside a selection or match, and that pair is content. A terminal link takes an underline in the cell's own ink, so it needs no color. Terminal content never animates.
 
@@ -325,13 +348,13 @@ Grades:
 
 ## 6. Ground by role
 
-Read as: this role, on these grounds, is this token. The lowest ratio is across those grounds, Mocha · Latte. Every ground × role cell is in the file, 88 × 39 = 3432. Forbidden cells list their reason here.
+Read as: this role, on these grounds, is this token. The lowest ratio is across those grounds, Mocha · Latte. Every ground × role cell is in the file, 100 × 39 = 3900. Forbidden cells list their reason here.
 
 ### `text-body`
 
 | Token | Grounds | Lowest, Mocha · Latte |
 |---|---|---|
-| `text-primary` | `crust`, `mantle`, `base`, `raised`, `on-raised`, `field`, `term`, `tab-hover`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-cycle`, `approval`, `crust+hover`, `crust+press`, `mantle+hover`, `mantle+press`, `base+hover`, `base+press`, `on-raised+hover`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-agent@mantle`, `tint-agent@base`, `drop-target@mantle`, `drop-target@base`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`, `match@term`, `match@base` | 4.75 · 4.51 |
+| `text-primary` | `crust`, `mantle`, `base`, `term-unfocused`, `raised`, `on-raised`, `field`, `term`, `tab-hover`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-cycle`, `approval`, `crust+hover`, `crust+press`, `mantle+hover`, `mantle+press`, `base+hover`, `term-unfocused+hover`, `term+hover`, `base+press`, `term-unfocused+press`, `term+press`, `on-raised+hover`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-agent@mantle`, `tint-agent@base`, `drop-target@mantle`, `drop-target@base`, `drop-target@term-unfocused`, `drop-target@term`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term-unfocused`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `marquee@term-unfocused`, `marquee@term`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`, `match@term`, `match@base`, `match@term-unfocused` | 4.75 · 4.51 |
 | `text-on-active` | `solid-hover`, `active`, `tint-avatar`, `dag-running`, `dag-failed`, `dag-crashed`, `term-selection`, `raised+hover`, `raised+press`, `tint-danger@raised`, `tint-agent@raised` | 4.62 · 5.40 |
 | `text-on-accent` | `fill-primary`, `fill-agent`, `fill-danger`, `fill-success`, `fill-primary+hover`, `fill-primary+press`, `fill-agent+hover`, `fill-agent+press`, `fill-danger+hover`, `fill-danger+press` | 8.10 · 4.91 |
 | `notify-warning-fg` | `fill-warning` | 14.76 · 5.03 |
@@ -339,6 +362,7 @@ Read as: this role, on these grounds, is this token. The lowest ratio is across 
 | `vi-cursor-fg` | `term-cursor` | 10.48 · 6.60 |
 | `text-on-active-hover` | `on-raised+press`, `active+hover`, `active+press` | 4.97 · 4.74 |
 | `search-match-active-fg` | `match-active@term`, `match-active@base` | 6.23 · 4.68 |
+| `search-match-active-unfocused-fg` | `match-active@term-unfocused` | 6.95 · 11.21 |
 
 Forbidden:
 
@@ -349,8 +373,8 @@ Forbidden:
 
 | Token | Grounds | Lowest, Mocha · Latte |
 |---|---|---|
-| `text-secondary` | `crust`, `mantle`, `base`, `on-raised`, `field`, `term`, `tab-hover`, `dag-cycle`, `approval`, `tint-primary@base`, `tint-info@mantle`, `tint-info@base`, `tint-success@mantle`, `tint-success@base`, `tint-warning@mantle`, `tint-warning@base`, `tint-danger@base`, `tint-agent@base`, `drop-target@base`, `file-drop@base`, `file-drop@term`, `marquee@base` | 5.15 · 4.54 |
-| `text-secondary-raised` | `raised`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `crust+hover`, `crust+press`, `mantle+hover`, `mantle+press`, `base+hover`, `base+press`, `tint-primary@mantle`, `tint-primary@raised`, `tint-info@raised`, `tint-success@raised`, `tint-warning@raised`, `tint-danger@mantle`, `tint-agent@mantle`, `drop-target@mantle`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `marquee@mantle`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base` | 5.15 · 4.51 |
+| `text-secondary` | `crust`, `mantle`, `base`, `term-unfocused`, `on-raised`, `field`, `term`, `tab-hover`, `dag-cycle`, `approval`, `tint-primary@base`, `tint-info@mantle`, `tint-info@base`, `tint-success@mantle`, `tint-success@base`, `tint-warning@mantle`, `tint-warning@base`, `tint-danger@base`, `tint-agent@base`, `drop-target@base`, `drop-target@term`, `file-drop@base`, `file-drop@term`, `marquee@base`, `marquee@term` | 5.15 · 4.54 |
+| `text-secondary-raised` | `raised`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `crust+hover`, `crust+press`, `mantle+hover`, `mantle+press`, `base+hover`, `term-unfocused+hover`, `term+hover`, `base+press`, `term-unfocused+press`, `term+press`, `tint-primary@mantle`, `tint-primary@raised`, `tint-info@raised`, `tint-success@raised`, `tint-warning@raised`, `tint-danger@mantle`, `tint-agent@mantle`, `drop-target@mantle`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `marquee@mantle`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`, `drop-target@term-unfocused`, `marquee@term-unfocused`, `file-drop@term-unfocused` | 5.15 · 4.51 |
 | `text-on-active` | `solid-hover`, `active`, `tint-avatar`, `dag-running`, `dag-failed`, `dag-crashed`, `raised+hover`, `raised+press`, `tint-danger@raised`, `tint-agent@raised` | 4.62 · 5.40 |
 | `text-on-accent` | `fill-primary`, `fill-agent`, `fill-danger`, `fill-success`, `fill-primary+hover`, `fill-primary+press`, `fill-agent+hover`, `fill-agent+press`, `fill-danger+hover`, `fill-danger+press` | 8.10 · 4.91 |
 | `notify-warning-fg` | `fill-warning` | 14.76 · 5.03 |
@@ -362,15 +386,15 @@ Forbidden:
 
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
-- `match@term`, `match@base`, `match-active@term`, `match-active@base`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `text-muted`
 
 | Token | Grounds | Lowest, Mocha · Latte |
 |---|---|---|
-| `text-muted` | `crust`, `mantle`, `base`, `field`, `term`, `tab-hover`, `dag-cycle`, `approval`, `base+hover`, `tint-primary@base`, `tint-info@mantle`, `tint-info@base`, `tint-success@mantle`, `tint-success@base`, `tint-warning@mantle`, `tint-warning@base`, `tint-danger@base`, `tint-agent@base`, `drop-target@base`, `file-drop@base`, `file-drop@term`, `marquee@base` | 5.08 · 4.54 |
-| `text-muted-raised` | `raised`, `crust+hover`, `crust+press`, `mantle+hover`, `mantle+press`, `base+press`, `tint-primary@mantle`, `tint-danger@mantle`, `tint-agent@mantle`, `drop-target@mantle`, `file-drop@crust`, `file-drop@mantle`, `marquee@mantle`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base` | 4.67 · 4.59 |
+| `text-muted` | `crust`, `mantle`, `base`, `term-unfocused`, `field`, `term`, `tab-hover`, `dag-cycle`, `approval`, `base+hover`, `term+hover`, `tint-primary@base`, `tint-info@mantle`, `tint-info@base`, `tint-success@mantle`, `tint-success@base`, `tint-warning@mantle`, `tint-warning@base`, `tint-danger@base`, `tint-agent@base`, `drop-target@base`, `drop-target@term`, `file-drop@base`, `file-drop@term`, `marquee@base`, `marquee@term` | 5.08 · 4.54 |
+| `text-muted-raised` | `raised`, `crust+hover`, `crust+press`, `mantle+hover`, `mantle+press`, `base+press`, `term-unfocused+press`, `term+press`, `tint-primary@mantle`, `tint-danger@mantle`, `tint-agent@mantle`, `drop-target@mantle`, `file-drop@crust`, `file-drop@mantle`, `marquee@mantle`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`, `term-unfocused+hover`, `drop-target@term-unfocused`, `marquee@term-unfocused`, `file-drop@term-unfocused` | 4.67 · 4.59 |
 | `text-secondary` | `on-raised` | 5.15 · 5.53 |
 | `text-on-active` | `solid-hover`, `active`, `tint-avatar`, `dag-running`, `dag-failed`, `dag-crashed`, `raised+hover`, `raised+press`, `tint-danger@raised`, `tint-agent@raised` | 4.62 · 5.40 |
 | `text-on-accent` | `fill-primary`, `fill-agent`, `fill-danger`, `fill-success`, `fill-primary+hover`, `fill-primary+press`, `fill-agent+hover`, `fill-agent+press`, `fill-danger+hover`, `fill-danger+press` | 8.10 · 4.91 |
@@ -383,45 +407,47 @@ Forbidden:
 
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
-- `match@term`, `match@base`, `match-active@term`, `match-active@base`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `text-placeholder`
 
 | Token | Grounds | Lowest, Mocha · Latte |
 |---|---|---|
-| `text-placeholder` | `base`, `field` | 5.65 · 5.53 |
+| `text-placeholder` | `base`, `term-unfocused`, `field` | 5.65 · 4.73 |
 
 Forbidden:
 
-- `crust`, `mantle`, `raised`, `on-raised`, `solid-hover`, `active`, `term`, `tab-hover`, `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `crust+hover`, `crust+press`, `mantle+hover`, `mantle+press`, `base+hover`, `base+press`, `raised+hover`, `raised+press`, `on-raised+hover`, `on-raised+press`, `active+hover`, `active+press`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. A placeholder sits only in a field.
+- `crust`, `mantle`, `raised`, `on-raised`, `solid-hover`, `active`, `term`, `tab-hover`, `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `crust+hover`, `crust+press`, `mantle+hover`, `mantle+press`, `base+hover`, `term-unfocused+hover`, `term+hover`, `base+press`, `term-unfocused+press`, `term+press`, `raised+hover`, `raised+press`, `on-raised+hover`, `on-raised+press`, `active+hover`, `active+press`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@term-unfocused`, `drop-target@term`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term-unfocused`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `marquee@term-unfocused`, `marquee@term`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. A placeholder sits only in a field.
 - `fill-primary`, `fill-agent`, `fill-danger`, `fill-success`, `fill-warning`, `fill-close`, `fill-primary+hover`, `fill-primary+press`, `fill-agent+hover`, `fill-agent+press`, `fill-danger+hover`, `fill-danger+press`. A filled control carries one ink pair. Hue or neutral steps on it would read as a second state.
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
-- `match@term`, `match@base`, `match-active@term`, `match-active@base`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `text-disabled`
 
 | Token | Grounds | Lowest, Mocha · Latte |
 |---|---|---|
-| `text-disabled` | `crust`, `mantle`, `base`, `raised`, `on-raised`, `field`, `solid-hover`, `active`, `term`, `tab-hover` | no target |
+| `text-disabled` | `crust`, `mantle`, `base`, `term-unfocused`, `raised`, `on-raised`, `field`, `solid-hover`, `active`, `term`, `tab-hover` | no target |
 
 Forbidden:
 
-- `fill-primary`, `fill-agent`, `fill-danger`, `fill-success`, `fill-warning`, `fill-close`, `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `fill-primary+hover`, `fill-primary+press`, `fill-agent+hover`, `fill-agent+press`, `fill-danger+hover`, `fill-danger+press`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. Disabled drops the fill first, then the ink. Disabled ink never sits on an accent or a tint.
+- `fill-primary`, `fill-agent`, `fill-danger`, `fill-success`, `fill-warning`, `fill-close`, `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `fill-primary+hover`, `fill-primary+press`, `fill-agent+hover`, `fill-agent+press`, `fill-danger+hover`, `fill-danger+press`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@term-unfocused`, `drop-target@term`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term-unfocused`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `marquee@term-unfocused`, `marquee@term`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. Disabled drops the fill first, then the ink. Disabled ink never sits on an accent or a tint.
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
-- `crust+hover`, `crust+press`, `mantle+hover`, `mantle+press`, `base+hover`, `base+press`, `raised+hover`, `raised+press`, `on-raised+hover`, `on-raised+press`, `active+hover`, `active+press`. A disabled item takes no hover or press.
-- `match@term`, `match@base`, `match-active@term`, `match-active@base`. Only the terminal cell ink sits in a search match.
+- `crust+hover`, `crust+press`, `mantle+hover`, `mantle+press`, `base+hover`, `term-unfocused+hover`, `term+hover`, `base+press`, `term-unfocused+press`, `term+press`, `raised+hover`, `raised+press`, `on-raised+hover`, `on-raised+press`, `active+hover`, `active+press`. A disabled item takes no hover or press.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `text-match`
 
 | Token | Grounds | Lowest, Mocha · Latte |
 |---|---|---|
-| `accent-primary-raised` | `crust`, `mantle`, `base`, `raised`, `field`, `term`, `tab-hover`, `dag-unknown`, `dag-partial`, `dag-stalled`, `dag-cycle`, `approval`, `crust+hover`, `crust+press`, `mantle+hover`, `mantle+press`, `base+hover`, `base+press`, `raised+hover`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-success@mantle`, `tint-success@base`, `tint-warning@mantle`, `tint-warning@base`, `tint-danger@mantle`, `tint-danger@base`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base` | 4.55 · 4.52 |
+| `accent-primary-raised` | `crust`, `mantle`, `base`, `term-unfocused`, `raised`, `field`, `term`, `tab-hover`, `dag-unknown`, `dag-partial`, `dag-stalled`, `dag-cycle`, `approval`, `crust+hover`, `crust+press`, `mantle+hover`, `mantle+press`, `base+hover`, `term-unfocused+hover`, `term+hover`, `base+press`, `term-unfocused+press`, `term+press`, `raised+hover`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-success@mantle`, `tint-success@base`, `tint-warning@mantle`, `tint-warning@base`, `tint-danger@mantle`, `tint-danger@base`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@term-unfocused`, `drop-target@term`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term-unfocused`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `marquee@term-unfocused`, `marquee@term`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base` | 4.55 · 4.52 |
 | `accent-primary-strong` | `on-raised`, `solid-hover`, `tint-avatar`, `dag-running`, `dag-failed`, `dag-awaiting`, `dag-crashed`, `raised+press`, `tint-info@raised`, `tint-success@raised`, `tint-warning@raised`, `tint-danger@raised` | 4.60 · 4.54 |
+| `text-on-active` | `active` | 4.62 · 5.40 |
+| `text-on-active-hover` | `active+hover`, `active+press` | 4.97 · 4.74 |
 | `text-on-active` + underline | `active` | 4.62 · 5.40 |
 | `text-on-active-hover` + underline | `active+hover`, `active+press` | 4.97 · 4.74 |
 
@@ -431,14 +457,14 @@ Forbidden:
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
 - `on-raised+hover`, `on-raised+press`. No token holds the grade here in both themes, and no component needs this pair.
-- `match@term`, `match@base`, `match-active@term`, `match-active@base`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `text-primary`
 
 | Token | Grounds | Lowest, Mocha · Latte |
 |---|---|---|
-| `accent-primary-raised` | `crust`, `mantle`, `base`, `raised`, `field`, `term`, `tab-hover`, `crust+hover`, `crust+press`, `mantle+hover`, `mantle+press`, `base+hover`, `base+press`, `raised+hover`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base` | 4.68 · 4.52 |
+| `accent-primary-raised` | `crust`, `mantle`, `base`, `term-unfocused`, `raised`, `field`, `term`, `tab-hover`, `crust+hover`, `crust+press`, `mantle+hover`, `mantle+press`, `base+hover`, `term-unfocused+hover`, `term+hover`, `base+press`, `term-unfocused+press`, `term+press`, `raised+hover`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@term-unfocused`, `drop-target@term`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term-unfocused`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `marquee@term-unfocused`, `marquee@term`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base` | 4.68 · 4.52 |
 | `accent-primary-strong` | `on-raised`, `solid-hover`, `tint-avatar`, `dag-running`, `raised+press` | 4.60 · 4.54 |
 
 Forbidden:
@@ -449,157 +475,157 @@ Forbidden:
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
 - `on-raised+hover`, `on-raised+press`. No token holds the grade here in both themes, and no component needs this pair.
-- `match@term`, `match@base`, `match-active@term`, `match-active@base`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `text-info`
 
 | Token | Grounds | Lowest, Mocha · Latte |
 |---|---|---|
-| `accent-info-raised` | `crust`, `mantle`, `base`, `raised`, `on-raised`, `field`, `term`, `tab-hover`, `crust+hover`, `mantle+hover`, `mantle+press`, `base+hover`, `base+press`, `on-raised+hover`, `tint-info@mantle`, `tint-info@base` | 4.65 · 4.70 |
-| `accent-info-strong` | `solid-hover`, `crust+press`, `raised+hover`, `raised+press`, `tint-info@raised` | 5.52 · 4.81 |
+| `accent-info-raised` | `crust`, `mantle`, `base`, `term-unfocused`, `raised`, `on-raised`, `field`, `term`, `tab-hover`, `crust+hover`, `mantle+hover`, `mantle+press`, `base+hover`, `term-unfocused+hover`, `term+hover`, `base+press`, `term+press`, `on-raised+hover`, `tint-info@mantle`, `tint-info@base` | 4.65 · 4.70 |
+| `accent-info-strong` | `solid-hover`, `crust+press`, `raised+hover`, `raised+press`, `tint-info@raised`, `term-unfocused+press` | 5.52 · 4.81 |
 
 Forbidden:
 
 - `active`, `active+hover`, `active+press`. No hue reaches 4.5:1 on this fill and still differs from the row ink. Use the row ink, with a hue glyph beside it.
 - `fill-primary`, `fill-agent`, `fill-danger`, `fill-success`, `fill-warning`, `fill-close`, `fill-primary+hover`, `fill-primary+press`, `fill-agent+hover`, `fill-agent+press`, `fill-danger+hover`, `fill-danger+press`. A filled control carries one ink pair. Hue or neutral steps on it would read as a second state.
-- `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. A tint carries its own hue and neutrals. A second hue reads as a conflict.
+- `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@term-unfocused`, `drop-target@term`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term-unfocused`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `marquee@term-unfocused`, `marquee@term`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. A tint carries its own hue and neutrals. A second hue reads as a conflict.
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
 - `on-raised+press`. No token holds the grade here in both themes, and no component needs this pair.
-- `match@term`, `match@base`, `match-active@term`, `match-active@base`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `text-success`
 
 | Token | Grounds | Lowest, Mocha · Latte |
 |---|---|---|
-| `accent-success-raised` | `crust`, `mantle`, `base`, `raised`, `on-raised`, `field`, `term`, `tab-hover`, `crust+hover`, `mantle+hover`, `mantle+press`, `base+hover`, `base+press`, `on-raised+hover`, `tint-success@mantle`, `tint-success@base` | 4.86 · 4.76 |
-| `accent-success-strong` | `solid-hover`, `crust+press`, `raised+hover`, `raised+press`, `tint-success@raised` | 5.78 · 4.72 |
+| `accent-success-raised` | `crust`, `mantle`, `base`, `term-unfocused`, `raised`, `on-raised`, `field`, `term`, `tab-hover`, `crust+hover`, `mantle+hover`, `mantle+press`, `base+hover`, `term-unfocused+hover`, `term+hover`, `base+press`, `term+press`, `on-raised+hover`, `tint-success@mantle`, `tint-success@base` | 4.86 · 4.76 |
+| `accent-success-strong` | `solid-hover`, `crust+press`, `raised+hover`, `raised+press`, `tint-success@raised`, `term-unfocused+press` | 5.78 · 4.72 |
 
 Forbidden:
 
 - `active`, `active+hover`, `active+press`. No hue reaches 4.5:1 on this fill and still differs from the row ink. Use the row ink, with a hue glyph beside it.
 - `fill-primary`, `fill-agent`, `fill-danger`, `fill-success`, `fill-warning`, `fill-close`, `fill-primary+hover`, `fill-primary+press`, `fill-agent+hover`, `fill-agent+press`, `fill-danger+hover`, `fill-danger+press`. A filled control carries one ink pair. Hue or neutral steps on it would read as a second state.
-- `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. A tint carries its own hue and neutrals. A second hue reads as a conflict.
+- `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@term-unfocused`, `drop-target@term`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term-unfocused`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `marquee@term-unfocused`, `marquee@term`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. A tint carries its own hue and neutrals. A second hue reads as a conflict.
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
 - `on-raised+press`. No token holds the grade here in both themes, and no component needs this pair.
-- `match@term`, `match@base`, `match-active@term`, `match-active@base`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `text-warning`
 
 | Token | Grounds | Lowest, Mocha · Latte |
 |---|---|---|
-| `accent-warning-raised` | `crust`, `mantle`, `base`, `raised`, `on-raised`, `field`, `term`, `tab-hover`, `dag-unknown`, `dag-awaiting`, `dag-stalled`, `dag-cycle`, `crust+hover`, `crust+press`, `mantle+hover`, `mantle+press`, `base+hover`, `base+press`, `on-raised+hover`, `on-raised+press`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised` | 5.11 · 4.68 |
+| `accent-warning-raised` | `crust`, `mantle`, `base`, `term-unfocused`, `raised`, `on-raised`, `field`, `term`, `tab-hover`, `dag-unknown`, `dag-awaiting`, `dag-stalled`, `dag-cycle`, `crust+hover`, `crust+press`, `mantle+hover`, `mantle+press`, `base+hover`, `term-unfocused+hover`, `term+hover`, `base+press`, `term-unfocused+press`, `term+press`, `on-raised+hover`, `on-raised+press`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised` | 5.11 · 4.68 |
 | `accent-warning-strong` | `solid-hover`, `raised+hover`, `raised+press` | 6.76 · 4.59 |
 
 Forbidden:
 
 - `active`, `active+hover`, `active+press`. No hue reaches 4.5:1 on this fill and still differs from the row ink. Use the row ink, with a hue glyph beside it.
 - `fill-primary`, `fill-agent`, `fill-danger`, `fill-success`, `fill-warning`, `fill-close`, `fill-primary+hover`, `fill-primary+press`, `fill-agent+hover`, `fill-agent+press`, `fill-danger+hover`, `fill-danger+press`. A filled control carries one ink pair. Hue or neutral steps on it would read as a second state.
-- `tint-avatar`, `dag-running`, `dag-failed`, `dag-partial`, `dag-crashed`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. A tint carries its own hue and neutrals. A second hue reads as a conflict.
+- `tint-avatar`, `dag-running`, `dag-failed`, `dag-partial`, `dag-crashed`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@term-unfocused`, `drop-target@term`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term-unfocused`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `marquee@term-unfocused`, `marquee@term`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. A tint carries its own hue and neutrals. A second hue reads as a conflict.
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
-- `match@term`, `match@base`, `match-active@term`, `match-active@base`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `text-attention`
 
 | Token | Grounds | Lowest, Mocha · Latte |
 |---|---|---|
-| `accent-attention-raised` | `crust`, `mantle`, `base`, `raised`, `on-raised`, `field`, `term`, `tab-hover`, `dag-partial`, `crust+hover`, `crust+press`, `mantle+hover`, `mantle+press`, `base+hover`, `base+press` | 5.15 · 4.56 |
+| `accent-attention-raised` | `crust`, `mantle`, `base`, `term-unfocused`, `raised`, `on-raised`, `field`, `term`, `tab-hover`, `dag-partial`, `crust+hover`, `crust+press`, `mantle+hover`, `mantle+press`, `base+hover`, `term-unfocused+hover`, `term+hover`, `base+press`, `term-unfocused+press`, `term+press` | 5.15 · 4.56 |
 | `accent-attention-strong` | `solid-hover`, `raised+hover`, `raised+press` | 4.85 · 5.00 |
 
 Forbidden:
 
 - `active`, `active+hover`, `active+press`. No hue reaches 4.5:1 on this fill and still differs from the row ink. Use the row ink, with a hue glyph beside it.
 - `fill-primary`, `fill-agent`, `fill-danger`, `fill-success`, `fill-warning`, `fill-close`, `fill-primary+hover`, `fill-primary+press`, `fill-agent+hover`, `fill-agent+press`, `fill-danger+hover`, `fill-danger+press`. A filled control carries one ink pair. Hue or neutral steps on it would read as a second state.
-- `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. A tint carries its own hue and neutrals. A second hue reads as a conflict.
+- `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@term-unfocused`, `drop-target@term`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term-unfocused`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `marquee@term-unfocused`, `marquee@term`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. A tint carries its own hue and neutrals. A second hue reads as a conflict.
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
 - `on-raised+hover`, `on-raised+press`. No token holds the grade here in both themes, and no component needs this pair.
-- `match@term`, `match@base`, `match-active@term`, `match-active@base`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `text-danger`
 
 | Token | Grounds | Lowest, Mocha · Latte |
 |---|---|---|
-| `accent-danger-raised` | `crust`, `mantle`, `base`, `raised`, `field`, `term`, `tab-hover`, `approval`, `crust+hover`, `mantle+hover`, `mantle+press`, `base+hover`, `base+press`, `tint-danger@mantle`, `tint-danger@base` | 4.90 · 4.65 |
-| `accent-danger-strong` | `on-raised`, `solid-hover`, `dag-failed`, `dag-crashed`, `crust+press`, `raised+hover`, `raised+press`, `tint-danger@raised` | 4.61 · 4.52 |
+| `accent-danger-raised` | `crust`, `mantle`, `base`, `term-unfocused`, `raised`, `field`, `term`, `tab-hover`, `approval`, `crust+hover`, `mantle+hover`, `mantle+press`, `base+hover`, `term-unfocused+hover`, `term+hover`, `base+press`, `term+press`, `tint-danger@mantle`, `tint-danger@base` | 4.90 · 4.65 |
+| `accent-danger-strong` | `on-raised`, `solid-hover`, `dag-failed`, `dag-crashed`, `crust+press`, `raised+hover`, `raised+press`, `tint-danger@raised`, `term-unfocused+press` | 4.61 · 4.52 |
 
 Forbidden:
 
 - `active`, `active+hover`, `active+press`. No hue reaches 4.5:1 on this fill and still differs from the row ink. Use the row ink, with a hue glyph beside it.
 - `fill-primary`, `fill-agent`, `fill-danger`, `fill-success`, `fill-warning`, `fill-close`, `fill-primary+hover`, `fill-primary+press`, `fill-agent+hover`, `fill-agent+press`, `fill-danger+hover`, `fill-danger+press`. A filled control carries one ink pair. Hue or neutral steps on it would read as a second state.
-- `tint-avatar`, `dag-running`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-cycle`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. A tint carries its own hue and neutrals. A second hue reads as a conflict.
+- `tint-avatar`, `dag-running`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-cycle`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@term-unfocused`, `drop-target@term`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term-unfocused`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `marquee@term-unfocused`, `marquee@term`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. A tint carries its own hue and neutrals. A second hue reads as a conflict.
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
 - `on-raised+hover`, `on-raised+press`. No token holds the grade here in both themes, and no component needs this pair.
-- `match@term`, `match@base`, `match-active@term`, `match-active@base`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `text-agent`
 
 | Token | Grounds | Lowest, Mocha · Latte |
 |---|---|---|
-| `accent-agent-raised` | `crust`, `mantle`, `base`, `raised`, `field`, `term`, `tab-hover`, `crust+hover`, `mantle+hover`, `mantle+press`, `base+hover`, `base+press`, `tint-agent@mantle`, `tint-agent@base` | 5.59 · 4.72 |
-| `accent-agent-strong` | `on-raised`, `solid-hover`, `crust+press`, `raised+hover`, `raised+press`, `tint-agent@raised` | 4.57 · 4.87 |
+| `accent-agent-raised` | `crust`, `mantle`, `base`, `term-unfocused`, `raised`, `field`, `term`, `tab-hover`, `crust+hover`, `mantle+hover`, `mantle+press`, `base+hover`, `term-unfocused+hover`, `term+hover`, `base+press`, `term+press`, `tint-agent@mantle`, `tint-agent@base` | 5.59 · 4.72 |
+| `accent-agent-strong` | `on-raised`, `solid-hover`, `crust+press`, `raised+hover`, `raised+press`, `tint-agent@raised`, `term-unfocused+press` | 4.57 · 4.87 |
 
 Forbidden:
 
 - `active`, `active+hover`, `active+press`. No hue reaches 4.5:1 on this fill and still differs from the row ink. Use the row ink, with a hue glyph beside it.
 - `fill-primary`, `fill-agent`, `fill-danger`, `fill-success`, `fill-warning`, `fill-close`, `fill-primary+hover`, `fill-primary+press`, `fill-agent+hover`, `fill-agent+press`, `fill-danger+hover`, `fill-danger+press`. A filled control carries one ink pair. Hue or neutral steps on it would read as a second state.
-- `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. A tint carries its own hue and neutrals. A second hue reads as a conflict.
+- `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@term-unfocused`, `drop-target@term`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term-unfocused`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `marquee@term-unfocused`, `marquee@term`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. A tint carries its own hue and neutrals. A second hue reads as a conflict.
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
 - `on-raised+hover`, `on-raised+press`. No token holds the grade here in both themes, and no component needs this pair.
-- `match@term`, `match@base`, `match-active@term`, `match-active@base`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `text-remote`
 
 | Token | Grounds | Lowest, Mocha · Latte |
 |---|---|---|
-| `accent-remote-raised` | `crust`, `mantle`, `base`, `raised`, `on-raised`, `field`, `term`, `tab-hover`, `crust+hover`, `mantle+hover`, `mantle+press`, `base+hover`, `base+press`, `on-raised+hover`, `tint-info@mantle`, `tint-info@base` | 4.65 · 4.70 |
-| `accent-remote-strong` | `solid-hover`, `crust+press`, `raised+hover`, `raised+press`, `tint-info@raised` | 5.52 · 4.81 |
+| `accent-remote-raised` | `crust`, `mantle`, `base`, `term-unfocused`, `raised`, `on-raised`, `field`, `term`, `tab-hover`, `crust+hover`, `mantle+hover`, `mantle+press`, `base+hover`, `term-unfocused+hover`, `term+hover`, `base+press`, `term+press`, `on-raised+hover`, `tint-info@mantle`, `tint-info@base` | 4.65 · 4.70 |
+| `accent-remote-strong` | `solid-hover`, `crust+press`, `raised+hover`, `raised+press`, `tint-info@raised`, `term-unfocused+press` | 5.52 · 4.81 |
 
 Forbidden:
 
 - `active`, `active+hover`, `active+press`. No hue reaches 4.5:1 on this fill and still differs from the row ink. Use the row ink, with a hue glyph beside it.
 - `fill-primary`, `fill-agent`, `fill-danger`, `fill-success`, `fill-warning`, `fill-close`, `fill-primary+hover`, `fill-primary+press`, `fill-agent+hover`, `fill-agent+press`, `fill-danger+hover`, `fill-danger+press`. A filled control carries one ink pair. Hue or neutral steps on it would read as a second state.
-- `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. A tint carries its own hue and neutrals. A second hue reads as a conflict.
+- `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@term-unfocused`, `drop-target@term`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term-unfocused`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `marquee@term-unfocused`, `marquee@term`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. A tint carries its own hue and neutrals. A second hue reads as a conflict.
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
 - `on-raised+press`. No token holds the grade here in both themes, and no component needs this pair.
-- `match@term`, `match@base`, `match-active@term`, `match-active@base`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `text-attached`
 
 | Token | Grounds | Lowest, Mocha · Latte |
 |---|---|---|
-| `accent-attached-raised` | `crust`, `mantle`, `base`, `raised`, `on-raised`, `field`, `solid-hover`, `term`, `tab-hover`, `crust+hover`, `crust+press`, `mantle+hover`, `mantle+press`, `base+hover`, `base+press` | 5.10 · 4.51 |
+| `accent-attached-raised` | `crust`, `mantle`, `base`, `term-unfocused`, `raised`, `on-raised`, `field`, `solid-hover`, `term`, `tab-hover`, `crust+hover`, `crust+press`, `mantle+hover`, `mantle+press`, `base+hover`, `term-unfocused+hover`, `term+hover`, `base+press`, `term-unfocused+press`, `term+press` | 5.10 · 4.51 |
 | `accent-attached-strong` | `raised+hover`, `raised+press` | 4.80 · 4.54 |
 
 Forbidden:
 
 - `active`, `active+hover`, `active+press`. No hue reaches 4.5:1 on this fill and still differs from the row ink. Use the row ink, with a hue glyph beside it.
 - `fill-primary`, `fill-agent`, `fill-danger`, `fill-success`, `fill-warning`, `fill-close`, `fill-primary+hover`, `fill-primary+press`, `fill-agent+hover`, `fill-agent+press`, `fill-danger+hover`, `fill-danger+press`. A filled control carries one ink pair. Hue or neutral steps on it would read as a second state.
-- `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. A tint carries its own hue and neutrals. A second hue reads as a conflict.
+- `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@term-unfocused`, `drop-target@term`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term-unfocused`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `marquee@term-unfocused`, `marquee@term`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. A tint carries its own hue and neutrals. A second hue reads as a conflict.
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
 - `on-raised+hover`, `on-raised+press`. No token holds the grade here in both themes, and no component needs this pair.
-- `match@term`, `match@base`, `match-active@term`, `match-active@base`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `glyph`
 
 | Token | Grounds | Lowest, Mocha · Latte |
 |---|---|---|
-| `text-secondary` | `crust`, `mantle`, `base`, `raised`, `on-raised`, `field`, `solid-hover`, `term`, `tab-hover`, `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `crust+hover`, `crust+press`, `mantle+hover`, `mantle+press`, `base+hover`, `base+press`, `raised+hover`, `raised+press`, `on-raised+hover`, `on-raised+press`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base` | 3.67 · 3.12 |
+| `text-secondary` | `crust`, `mantle`, `base`, `term-unfocused`, `raised`, `on-raised`, `field`, `solid-hover`, `term`, `tab-hover`, `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `crust+hover`, `crust+press`, `mantle+hover`, `mantle+press`, `base+hover`, `term-unfocused+hover`, `term+hover`, `base+press`, `term-unfocused+press`, `term+press`, `raised+hover`, `raised+press`, `on-raised+hover`, `on-raised+press`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@term-unfocused`, `drop-target@term`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term-unfocused`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `marquee@term-unfocused`, `marquee@term`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base` | 3.67 · 3.12 |
 | `text-on-active` | `active`, `active+hover`, `active+press` | 3.43 · 4.21 |
 | `text-on-accent` | `fill-primary`, `fill-agent`, `fill-danger`, `fill-success`, `fill-close`, `fill-primary+hover`, `fill-primary+press`, `fill-agent+hover`, `fill-agent+press`, `fill-danger+hover`, `fill-danger+press` | 3.31 · 4.91 |
 | `notify-warning-fg` | `fill-warning` | 14.76 · 5.03 |
@@ -609,15 +635,15 @@ Forbidden:
 Forbidden:
 
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
-- `match@term`, `match@base`, `match-active@term`, `match-active@base`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `glyph-dim`
 
 | Token | Grounds | Lowest, Mocha · Latte |
 |---|---|---|
-| `glyph-dim` | `crust`, `mantle`, `base`, `term`, `tab-hover`, `crust+hover`, `file-drop@crust`, `file-drop@term` | 3.12 · 3.57 |
-| `glyph-dim-raised` | `raised`, `field`, `dag-cycle`, `approval`, `crust+press`, `mantle+hover`, `mantle+press`, `base+hover`, `base+press`, `tint-primary@mantle`, `tint-primary@base`, `tint-info@mantle`, `tint-info@base`, `tint-success@mantle`, `tint-success@base`, `tint-warning@mantle`, `tint-warning@base`, `tint-danger@mantle`, `tint-danger@base`, `tint-agent@mantle`, `tint-agent@base`, `drop-target@mantle`, `drop-target@base`, `file-drop@mantle`, `file-drop@base`, `marquee@mantle`, `marquee@base`, `split-zone@crust`, `split-zone@mantle` | 3.05 · 3.25 |
+| `glyph-dim` | `crust`, `mantle`, `base`, `term-unfocused`, `term`, `tab-hover`, `crust+hover`, `file-drop@crust`, `file-drop@term` | 3.12 · 3.57 |
+| `glyph-dim-raised` | `raised`, `field`, `dag-cycle`, `approval`, `crust+press`, `mantle+hover`, `mantle+press`, `base+hover`, `term-unfocused+hover`, `term+hover`, `base+press`, `term-unfocused+press`, `term+press`, `tint-primary@mantle`, `tint-primary@base`, `tint-info@mantle`, `tint-info@base`, `tint-success@mantle`, `tint-success@base`, `tint-warning@mantle`, `tint-warning@base`, `tint-danger@mantle`, `tint-danger@base`, `tint-agent@mantle`, `tint-agent@base`, `drop-target@mantle`, `drop-target@base`, `drop-target@term-unfocused`, `drop-target@term`, `file-drop@mantle`, `file-drop@base`, `file-drop@term-unfocused`, `marquee@mantle`, `marquee@base`, `marquee@term-unfocused`, `marquee@term`, `split-zone@crust`, `split-zone@mantle` | 3.05 · 3.25 |
 | `text-muted-raised` | `on-raised`, `solid-hover`, `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `raised+hover`, `raised+press`, `on-raised+hover`, `tint-primary@raised`, `tint-info@raised`, `tint-success@raised`, `tint-warning@raised`, `tint-danger@raised`, `tint-agent@raised`, `drop-target@raised`, `split-zone@base` | 3.25 · 3.98 |
 | `text-on-active` | `active`, `on-raised+press`, `active+hover`, `active+press` | 3.43 · 4.21 |
 
@@ -626,30 +652,30 @@ Forbidden:
 - `fill-primary`, `fill-agent`, `fill-danger`, `fill-success`, `fill-warning`, `fill-close`, `fill-primary+hover`, `fill-primary+press`, `fill-agent+hover`, `fill-agent+press`, `fill-danger+hover`, `fill-danger+press`. A filled control carries one ink pair. Hue or neutral steps on it would read as a second state.
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
-- `match@term`, `match@base`, `match-active@term`, `match-active@base`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `glyph-decorative`
 
 | Token | Grounds | Lowest, Mocha · Latte |
 |---|---|---|
-| `accent-decorative` | `crust`, `mantle`, `base`, `raised`, `on-raised`, `field`, `solid-hover`, `term`, `tab-hover` | no target |
+| `accent-decorative` | `crust`, `mantle`, `base`, `term-unfocused`, `raised`, `on-raised`, `field`, `solid-hover`, `term`, `tab-hover` | no target |
 
 Forbidden:
 
-- `active`, `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `crust+hover`, `crust+press`, `mantle+hover`, `mantle+press`, `base+hover`, `base+press`, `raised+hover`, `raised+press`, `on-raised+hover`, `on-raised+press`, `active+hover`, `active+press`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. An ornament stays on a resting neutral ground.
+- `active`, `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `crust+hover`, `crust+press`, `mantle+hover`, `mantle+press`, `base+hover`, `term-unfocused+hover`, `term+hover`, `base+press`, `term-unfocused+press`, `term+press`, `raised+hover`, `raised+press`, `on-raised+hover`, `on-raised+press`, `active+hover`, `active+press`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@term-unfocused`, `drop-target@term`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term-unfocused`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `marquee@term-unfocused`, `marquee@term`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. An ornament stays on a resting neutral ground.
 - `fill-primary`, `fill-agent`, `fill-danger`, `fill-success`, `fill-warning`, `fill-close`, `fill-primary+hover`, `fill-primary+press`, `fill-agent+hover`, `fill-agent+press`, `fill-danger+hover`, `fill-danger+press`. A filled control carries one ink pair. Hue or neutral steps on it would read as a second state.
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
-- `match@term`, `match@base`, `match-active@term`, `match-active@base`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `glyph-primary`
 
 | Token | Grounds | Lowest, Mocha · Latte |
 |---|---|---|
-| `accent-primary` | `crust`, `mantle`, `base`, `raised`, `on-raised`, `field`, `term`, `tab-hover`, `crust+hover`, `mantle+hover`, `mantle+press`, `base+hover`, `base+press`, `on-raised+hover`, `on-raised+press`, `tint-primary@mantle`, `tint-primary@base`, `drop-target@mantle`, `drop-target@base`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `split-zone@mantle`, `split-zone@base` | 3.08 · 3.04 |
-| `accent-primary-raised` | `solid-hover`, `tint-avatar`, `dag-running`, `crust+press`, `raised+hover`, `raised+press`, `tint-primary@raised`, `drop-target@raised`, `split-zone@crust` | 4.08 · 4.14 |
+| `accent-primary` | `crust`, `mantle`, `base`, `term-unfocused`, `raised`, `on-raised`, `field`, `term`, `tab-hover`, `crust+hover`, `mantle+hover`, `mantle+press`, `base+hover`, `term-unfocused+hover`, `term+hover`, `base+press`, `term+press`, `on-raised+hover`, `on-raised+press`, `tint-primary@mantle`, `tint-primary@base`, `drop-target@mantle`, `drop-target@base`, `drop-target@term-unfocused`, `drop-target@term`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term-unfocused`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `marquee@term-unfocused`, `marquee@term`, `split-zone@mantle`, `split-zone@base` | 3.08 · 3.04 |
+| `accent-primary-raised` | `solid-hover`, `tint-avatar`, `dag-running`, `crust+press`, `raised+hover`, `raised+press`, `tint-primary@raised`, `drop-target@raised`, `split-zone@crust`, `term-unfocused+press` | 4.08 · 4.14 |
 | `accent-primary-on-active` | `active`, `active+hover`, `active+press` | 3.10 · 3.27 |
 
 Forbidden:
@@ -658,80 +684,80 @@ Forbidden:
 - `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`. A tint carries its own hue and neutrals. A second hue reads as a conflict.
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
-- `match@term`, `match@base`, `match-active@term`, `match-active@base`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `glyph-info`
 
 | Token | Grounds | Lowest, Mocha · Latte |
 |---|---|---|
-| `accent-info-raised` | `crust`, `mantle`, `base`, `raised`, `on-raised`, `field`, `solid-hover`, `term`, `tab-hover`, `crust+hover`, `crust+press`, `mantle+hover`, `mantle+press`, `base+hover`, `base+press`, `raised+hover`, `raised+press`, `on-raised+hover`, `on-raised+press`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised` | 4.17 · 3.74 |
+| `accent-info-raised` | `crust`, `mantle`, `base`, `term-unfocused`, `raised`, `on-raised`, `field`, `solid-hover`, `term`, `tab-hover`, `crust+hover`, `crust+press`, `mantle+hover`, `mantle+press`, `base+hover`, `term-unfocused+hover`, `term+hover`, `base+press`, `term-unfocused+press`, `term+press`, `raised+hover`, `raised+press`, `on-raised+hover`, `on-raised+press`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised` | 4.17 · 3.74 |
 | `accent-info-on-active` | `active`, `active+hover`, `active+press` | 3.19 · 3.04 |
 
 Forbidden:
 
 - `fill-primary`, `fill-agent`, `fill-danger`, `fill-success`, `fill-warning`, `fill-close`, `fill-primary+hover`, `fill-primary+press`, `fill-agent+hover`, `fill-agent+press`, `fill-danger+hover`, `fill-danger+press`. A filled control carries one ink pair. Hue or neutral steps on it would read as a second state.
-- `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. A tint carries its own hue and neutrals. A second hue reads as a conflict.
+- `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@term-unfocused`, `drop-target@term`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term-unfocused`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `marquee@term-unfocused`, `marquee@term`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. A tint carries its own hue and neutrals. A second hue reads as a conflict.
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
-- `match@term`, `match@base`, `match-active@term`, `match-active@base`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `glyph-success`
 
 | Token | Grounds | Lowest, Mocha · Latte |
 |---|---|---|
-| `accent-success-raised` | `crust`, `mantle`, `base`, `raised`, `on-raised`, `field`, `solid-hover`, `tab-hover`, `crust+hover`, `crust+press`, `mantle+hover`, `mantle+press`, `base+hover`, `base+press`, `raised+hover`, `raised+press`, `on-raised+hover`, `on-raised+press`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised` | 4.36 · 3.78 |
+| `accent-success-raised` | `crust`, `mantle`, `base`, `term-unfocused`, `raised`, `on-raised`, `field`, `solid-hover`, `tab-hover`, `crust+hover`, `crust+press`, `mantle+hover`, `mantle+press`, `base+hover`, `term-unfocused+hover`, `term+hover`, `base+press`, `term-unfocused+press`, `term+press`, `raised+hover`, `raised+press`, `on-raised+hover`, `on-raised+press`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised` | 4.36 · 3.78 |
 | `accent-success-on-active` | `active`, `active+hover`, `active+press` | 3.34 · 3.05 |
 | `accent-success` | `term` | 14.12 · 3.34 |
 
 Forbidden:
 
 - `fill-primary`, `fill-agent`, `fill-danger`, `fill-success`, `fill-warning`, `fill-close`, `fill-primary+hover`, `fill-primary+press`, `fill-agent+hover`, `fill-agent+press`, `fill-danger+hover`, `fill-danger+press`. A filled control carries one ink pair. Hue or neutral steps on it would read as a second state.
-- `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. A tint carries its own hue and neutrals. A second hue reads as a conflict.
+- `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@term-unfocused`, `drop-target@term`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term-unfocused`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `marquee@term-unfocused`, `marquee@term`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. A tint carries its own hue and neutrals. A second hue reads as a conflict.
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
-- `match@term`, `match@base`, `match-active@term`, `match-active@base`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `glyph-warning`
 
 | Token | Grounds | Lowest, Mocha · Latte |
 |---|---|---|
-| `accent-warning-glyph` | `crust`, `mantle`, `base`, `on-raised`, `field`, `term`, `tab-hover`, `dag-cycle`, `mantle+hover`, `base+hover`, `base+press`, `on-raised+hover`, `on-raised+press`, `tint-warning@mantle`, `tint-warning@base` | 5.11 · 3.04 |
-| `accent-warning-raised` | `raised`, `solid-hover`, `dag-unknown`, `dag-awaiting`, `dag-stalled`, `crust+hover`, `crust+press`, `mantle+press`, `raised+hover`, `raised+press`, `tint-warning@raised` | 6.76 · 4.03 |
+| `accent-warning-glyph` | `crust`, `mantle`, `base`, `term-unfocused`, `on-raised`, `field`, `term`, `tab-hover`, `dag-cycle`, `mantle+hover`, `base+hover`, `term+hover`, `base+press`, `term+press`, `on-raised+hover`, `on-raised+press`, `tint-warning@mantle`, `tint-warning@base` | 5.11 · 3.04 |
+| `accent-warning-raised` | `raised`, `solid-hover`, `dag-unknown`, `dag-awaiting`, `dag-stalled`, `crust+hover`, `crust+press`, `mantle+press`, `raised+hover`, `raised+press`, `tint-warning@raised`, `term-unfocused+hover`, `term-unfocused+press` | 6.76 · 4.03 |
 | `accent-warning-on-active` | `active`, `active+hover`, `active+press` | 3.91 · 3.32 |
 
 Forbidden:
 
 - `fill-primary`, `fill-agent`, `fill-danger`, `fill-success`, `fill-warning`, `fill-close`, `fill-primary+hover`, `fill-primary+press`, `fill-agent+hover`, `fill-agent+press`, `fill-danger+hover`, `fill-danger+press`. A filled control carries one ink pair. Hue or neutral steps on it would read as a second state.
-- `tint-avatar`, `dag-running`, `dag-failed`, `dag-partial`, `dag-crashed`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. A tint carries its own hue and neutrals. A second hue reads as a conflict.
+- `tint-avatar`, `dag-running`, `dag-failed`, `dag-partial`, `dag-crashed`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@term-unfocused`, `drop-target@term`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term-unfocused`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `marquee@term-unfocused`, `marquee@term`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. A tint carries its own hue and neutrals. A second hue reads as a conflict.
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
-- `match@term`, `match@base`, `match-active@term`, `match-active@base`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `glyph-attention`
 
 | Token | Grounds | Lowest, Mocha · Latte |
 |---|---|---|
-| `accent-attention-raised` | `crust`, `mantle`, `base`, `raised`, `on-raised`, `field`, `solid-hover`, `term`, `tab-hover`, `dag-partial`, `crust+hover`, `crust+press`, `mantle+hover`, `mantle+press`, `base+hover`, `base+press`, `raised+hover`, `raised+press`, `on-raised+hover`, `on-raised+press` | 3.67 · 3.93 |
+| `accent-attention-raised` | `crust`, `mantle`, `base`, `term-unfocused`, `raised`, `on-raised`, `field`, `solid-hover`, `term`, `tab-hover`, `dag-partial`, `crust+hover`, `crust+press`, `mantle+hover`, `mantle+press`, `base+hover`, `term-unfocused+hover`, `term+hover`, `base+press`, `term-unfocused+press`, `term+press`, `raised+hover`, `raised+press`, `on-raised+hover`, `on-raised+press` | 3.67 · 3.93 |
 | `accent-attention-on-active` | `active`, `active+hover`, `active+press` | 3.06 · 3.20 |
 
 Forbidden:
 
 - `fill-primary`, `fill-agent`, `fill-danger`, `fill-success`, `fill-warning`, `fill-close`, `fill-primary+hover`, `fill-primary+press`, `fill-agent+hover`, `fill-agent+press`, `fill-danger+hover`, `fill-danger+press`. A filled control carries one ink pair. Hue or neutral steps on it would read as a second state.
-- `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. A tint carries its own hue and neutrals. A second hue reads as a conflict.
+- `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@term-unfocused`, `drop-target@term`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term-unfocused`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `marquee@term-unfocused`, `marquee@term`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. A tint carries its own hue and neutrals. A second hue reads as a conflict.
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
-- `match@term`, `match@base`, `match-active@term`, `match-active@base`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `glyph-danger`
 
 | Token | Grounds | Lowest, Mocha · Latte |
 |---|---|---|
-| `accent-danger` | `crust`, `mantle`, `base`, `raised`, `on-raised`, `field`, `term`, `tab-hover`, `approval`, `crust+hover`, `crust+press`, `mantle+hover`, `mantle+press`, `base+hover`, `base+press`, `on-raised+hover`, `tint-danger@mantle`, `tint-danger@base` | 3.12 · 3.14 |
+| `accent-danger` | `crust`, `mantle`, `base`, `term-unfocused`, `raised`, `on-raised`, `field`, `term`, `tab-hover`, `approval`, `crust+hover`, `crust+press`, `mantle+hover`, `mantle+press`, `base+hover`, `term-unfocused+hover`, `term+hover`, `base+press`, `term-unfocused+press`, `term+press`, `on-raised+hover`, `tint-danger@mantle`, `tint-danger@base` | 3.12 · 3.14 |
 | `accent-danger-raised` | `solid-hover`, `dag-failed`, `dag-crashed`, `raised+hover`, `raised+press`, `tint-danger@raised` | 3.71 · 3.69 |
 | `accent-danger-on-active` | `active`, `active+hover`, `active+press` | 3.03 · 3.26 |
 | `accent-danger-strong` | `on-raised+press` | 3.48 · 6.10 |
@@ -739,117 +765,117 @@ Forbidden:
 Forbidden:
 
 - `fill-primary`, `fill-agent`, `fill-danger`, `fill-success`, `fill-warning`, `fill-close`, `fill-primary+hover`, `fill-primary+press`, `fill-agent+hover`, `fill-agent+press`, `fill-danger+hover`, `fill-danger+press`. A filled control carries one ink pair. Hue or neutral steps on it would read as a second state.
-- `tint-avatar`, `dag-running`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-cycle`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. A tint carries its own hue and neutrals. A second hue reads as a conflict.
+- `tint-avatar`, `dag-running`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-cycle`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@term-unfocused`, `drop-target@term`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term-unfocused`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `marquee@term-unfocused`, `marquee@term`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. A tint carries its own hue and neutrals. A second hue reads as a conflict.
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
-- `match@term`, `match@base`, `match-active@term`, `match-active@base`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `glyph-agent`
 
 | Token | Grounds | Lowest, Mocha · Latte |
 |---|---|---|
-| `accent-agent` | `crust`, `mantle`, `base`, `raised`, `on-raised`, `field`, `term`, `tab-hover`, `crust+hover`, `crust+press`, `mantle+hover`, `mantle+press`, `base+hover`, `base+press`, `on-raised+hover`, `on-raised+press`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised` | 3.19 · 3.03 |
+| `accent-agent` | `crust`, `mantle`, `base`, `term-unfocused`, `raised`, `on-raised`, `field`, `term`, `tab-hover`, `crust+hover`, `crust+press`, `mantle+hover`, `mantle+press`, `base+hover`, `term-unfocused+hover`, `term+hover`, `base+press`, `term-unfocused+press`, `term+press`, `on-raised+hover`, `on-raised+press`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised` | 3.19 · 3.03 |
 | `accent-agent-raised` | `solid-hover`, `raised+hover`, `raised+press` | 4.23 · 3.75 |
 | `accent-agent-on-active` | `active`, `active+hover`, `active+press` | 3.08 · 3.22 |
 
 Forbidden:
 
 - `fill-primary`, `fill-agent`, `fill-danger`, `fill-success`, `fill-warning`, `fill-close`, `fill-primary+hover`, `fill-primary+press`, `fill-agent+hover`, `fill-agent+press`, `fill-danger+hover`, `fill-danger+press`. A filled control carries one ink pair. Hue or neutral steps on it would read as a second state.
-- `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. A tint carries its own hue and neutrals. A second hue reads as a conflict.
+- `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@term-unfocused`, `drop-target@term`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term-unfocused`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `marquee@term-unfocused`, `marquee@term`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. A tint carries its own hue and neutrals. A second hue reads as a conflict.
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
-- `match@term`, `match@base`, `match-active@term`, `match-active@base`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `glyph-remote`
 
 | Token | Grounds | Lowest, Mocha · Latte |
 |---|---|---|
-| `accent-remote-raised` | `crust`, `mantle`, `base`, `raised`, `on-raised`, `field`, `solid-hover`, `term`, `tab-hover`, `crust+hover`, `crust+press`, `mantle+hover`, `mantle+press`, `base+hover`, `base+press`, `raised+hover`, `raised+press`, `on-raised+hover`, `on-raised+press`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised` | 4.17 · 3.74 |
+| `accent-remote-raised` | `crust`, `mantle`, `base`, `term-unfocused`, `raised`, `on-raised`, `field`, `solid-hover`, `term`, `tab-hover`, `crust+hover`, `crust+press`, `mantle+hover`, `mantle+press`, `base+hover`, `term-unfocused+hover`, `term+hover`, `base+press`, `term-unfocused+press`, `term+press`, `raised+hover`, `raised+press`, `on-raised+hover`, `on-raised+press`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised` | 4.17 · 3.74 |
 | `accent-remote-on-active` | `active`, `active+hover`, `active+press` | 3.19 · 3.04 |
 
 Forbidden:
 
 - `fill-primary`, `fill-agent`, `fill-danger`, `fill-success`, `fill-warning`, `fill-close`, `fill-primary+hover`, `fill-primary+press`, `fill-agent+hover`, `fill-agent+press`, `fill-danger+hover`, `fill-danger+press`. A filled control carries one ink pair. Hue or neutral steps on it would read as a second state.
-- `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. A tint carries its own hue and neutrals. A second hue reads as a conflict.
+- `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@term-unfocused`, `drop-target@term`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term-unfocused`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `marquee@term-unfocused`, `marquee@term`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. A tint carries its own hue and neutrals. A second hue reads as a conflict.
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
-- `match@term`, `match@base`, `match-active@term`, `match-active@base`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `glyph-attached`
 
 | Token | Grounds | Lowest, Mocha · Latte |
 |---|---|---|
-| `accent-attached-raised` | `crust`, `mantle`, `base`, `raised`, `on-raised`, `field`, `solid-hover`, `tab-hover`, `crust+hover`, `crust+press`, `mantle+hover`, `mantle+press`, `base+hover`, `base+press`, `raised+hover`, `raised+press`, `on-raised+hover`, `on-raised+press` | 3.63 · 4.09 |
+| `accent-attached-raised` | `crust`, `mantle`, `base`, `term-unfocused`, `raised`, `on-raised`, `field`, `solid-hover`, `tab-hover`, `crust+hover`, `crust+press`, `mantle+hover`, `mantle+press`, `base+hover`, `term-unfocused+hover`, `term+hover`, `base+press`, `term-unfocused+press`, `term+press`, `raised+hover`, `raised+press`, `on-raised+hover`, `on-raised+press` | 3.63 · 4.09 |
 | `accent-attached-on-active` | `active`, `active+hover`, `active+press` | 3.05 · 3.28 |
 | `accent-attached` | `term` | 11.74 · 3.18 |
 
 Forbidden:
 
 - `fill-primary`, `fill-agent`, `fill-danger`, `fill-success`, `fill-warning`, `fill-close`, `fill-primary+hover`, `fill-primary+press`, `fill-agent+hover`, `fill-agent+press`, `fill-danger+hover`, `fill-danger+press`. A filled control carries one ink pair. Hue or neutral steps on it would read as a second state.
-- `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. A tint carries its own hue and neutrals. A second hue reads as a conflict.
+- `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@term-unfocused`, `drop-target@term`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term-unfocused`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `marquee@term-unfocused`, `marquee@term`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. A tint carries its own hue and neutrals. A second hue reads as a conflict.
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
-- `match@term`, `match@base`, `match-active@term`, `match-active@base`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `glyph-move`
 
 | Token | Grounds | Lowest, Mocha · Latte |
 |---|---|---|
-| `accent-move-raised` | `crust`, `mantle`, `base`, `raised`, `on-raised`, `field`, `solid-hover`, `term`, `tab-hover`, `crust+hover`, `crust+press`, `mantle+hover`, `mantle+press`, `base+hover`, `base+press`, `raised+hover`, `raised+press`, `on-raised+hover`, `on-raised+press` | 4.25 · 3.58 |
+| `accent-move-raised` | `crust`, `mantle`, `base`, `term-unfocused`, `raised`, `on-raised`, `field`, `solid-hover`, `term`, `tab-hover`, `crust+hover`, `crust+press`, `mantle+hover`, `mantle+press`, `base+hover`, `term-unfocused+hover`, `term+hover`, `base+press`, `term-unfocused+press`, `term+press`, `raised+hover`, `raised+press`, `on-raised+hover`, `on-raised+press` | 4.25 · 3.58 |
 | `accent-move-on-active` | `active`, `active+hover`, `active+press` | 3.25 · 3.34 |
 
 Forbidden:
 
 - `fill-primary`, `fill-agent`, `fill-danger`, `fill-success`, `fill-warning`, `fill-close`, `fill-primary+hover`, `fill-primary+press`, `fill-agent+hover`, `fill-agent+press`, `fill-danger+hover`, `fill-danger+press`. A filled control carries one ink pair. Hue or neutral steps on it would read as a second state.
-- `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. A tint carries its own hue and neutrals. A second hue reads as a conflict.
+- `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@term-unfocused`, `drop-target@term`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term-unfocused`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `marquee@term-unfocused`, `marquee@term`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. A tint carries its own hue and neutrals. A second hue reads as a conflict.
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
-- `match@term`, `match@base`, `match-active@term`, `match-active@base`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `glyph-data`
 
 | Token | Grounds | Lowest, Mocha · Latte |
 |---|---|---|
-| `accent-data` | `base` | 11.01 · 3.31 |
+| `accent-data-strong` | `base`, `term`, `term-unfocused` | 11.01 · 3.75 |
 
 Forbidden:
 
-- `crust`, `mantle`, `raised`, `on-raised`, `field`, `solid-hover`, `active`, `term`, `tab-hover`, `crust+hover`, `crust+press`, `mantle+hover`, `mantle+press`, `base+hover`, `base+press`, `raised+hover`, `raised+press`, `on-raised+hover`, `on-raised+press`, `active+hover`, `active+press`. A data edge lives on the DAG canvas only.
+- `crust`, `mantle`, `raised`, `on-raised`, `field`, `solid-hover`, `active`, `tab-hover`, `crust+hover`, `crust+press`, `mantle+hover`, `mantle+press`, `base+hover`, `term-unfocused+hover`, `term+hover`, `base+press`, `term-unfocused+press`, `term+press`, `raised+hover`, `raised+press`, `on-raised+hover`, `on-raised+press`, `active+hover`, `active+press`. A data edge lives on the DAG canvas only.
 - `fill-primary`, `fill-agent`, `fill-danger`, `fill-success`, `fill-warning`, `fill-close`, `fill-primary+hover`, `fill-primary+press`, `fill-agent+hover`, `fill-agent+press`, `fill-danger+hover`, `fill-danger+press`. A filled control carries one ink pair. Hue or neutral steps on it would read as a second state.
-- `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. A tint carries its own hue and neutrals. A second hue reads as a conflict.
+- `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@term-unfocused`, `drop-target@term`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term-unfocused`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `marquee@term-unfocused`, `marquee@term`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. A tint carries its own hue and neutrals. A second hue reads as a conflict.
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
-- `match@term`, `match@base`, `match-active@term`, `match-active@base`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `glyph-route`
 
 | Token | Grounds | Lowest, Mocha · Latte |
 |---|---|---|
-| `accent-route-raised` | `crust`, `mantle`, `base`, `raised`, `on-raised`, `field`, `solid-hover`, `tab-hover`, `crust+hover`, `crust+press`, `mantle+hover`, `mantle+press`, `base+hover`, `base+press`, `raised+hover`, `raised+press`, `on-raised+hover`, `on-raised+press` | 3.63 · 4.09 |
+| `accent-route-raised` | `crust`, `mantle`, `base`, `term-unfocused`, `raised`, `on-raised`, `field`, `solid-hover`, `tab-hover`, `crust+hover`, `crust+press`, `mantle+hover`, `mantle+press`, `base+hover`, `term-unfocused+hover`, `term+hover`, `base+press`, `term-unfocused+press`, `term+press`, `raised+hover`, `raised+press`, `on-raised+hover`, `on-raised+press` | 3.63 · 4.09 |
 | `accent-route-on-active` | `active`, `active+hover`, `active+press` | 3.05 · 3.28 |
 | `accent-route` | `term` | 11.74 · 3.18 |
 
 Forbidden:
 
 - `fill-primary`, `fill-agent`, `fill-danger`, `fill-success`, `fill-warning`, `fill-close`, `fill-primary+hover`, `fill-primary+press`, `fill-agent+hover`, `fill-agent+press`, `fill-danger+hover`, `fill-danger+press`. A filled control carries one ink pair. Hue or neutral steps on it would read as a second state.
-- `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. A tint carries its own hue and neutrals. A second hue reads as a conflict.
+- `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@term-unfocused`, `drop-target@term`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term-unfocused`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `marquee@term-unfocused`, `marquee@term`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. A tint carries its own hue and neutrals. A second hue reads as a conflict.
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
-- `match@term`, `match@base`, `match-active@term`, `match-active@base`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `dot-idle`
 
 | Token | Grounds | Lowest, Mocha · Latte |
 |---|---|---|
-| `status-idle` | `crust`, `mantle`, `base`, `term`, `tab-hover`, `crust+hover`, `file-drop@crust`, `file-drop@term` | 3.12 · 3.57 |
-| `glyph-dim-raised` | `raised`, `field`, `dag-cycle`, `approval`, `crust+press`, `mantle+hover`, `mantle+press`, `base+hover`, `base+press`, `tint-primary@mantle`, `tint-primary@base`, `tint-info@mantle`, `tint-info@base`, `tint-success@mantle`, `tint-success@base`, `tint-warning@mantle`, `tint-warning@base`, `tint-danger@mantle`, `tint-danger@base`, `tint-agent@mantle`, `tint-agent@base`, `drop-target@mantle`, `drop-target@base`, `file-drop@mantle`, `file-drop@base`, `marquee@mantle`, `marquee@base`, `split-zone@crust`, `split-zone@mantle` | 3.05 · 3.25 |
+| `status-idle` | `crust`, `mantle`, `base`, `term-unfocused`, `term`, `tab-hover`, `crust+hover`, `file-drop@crust`, `file-drop@term` | 3.12 · 3.57 |
+| `glyph-dim-raised` | `raised`, `field`, `dag-cycle`, `approval`, `crust+press`, `mantle+hover`, `mantle+press`, `base+hover`, `term-unfocused+hover`, `term+hover`, `base+press`, `term-unfocused+press`, `term+press`, `tint-primary@mantle`, `tint-primary@base`, `tint-info@mantle`, `tint-info@base`, `tint-success@mantle`, `tint-success@base`, `tint-warning@mantle`, `tint-warning@base`, `tint-danger@mantle`, `tint-danger@base`, `tint-agent@mantle`, `tint-agent@base`, `drop-target@mantle`, `drop-target@base`, `drop-target@term-unfocused`, `drop-target@term`, `file-drop@mantle`, `file-drop@base`, `file-drop@term-unfocused`, `marquee@mantle`, `marquee@base`, `marquee@term-unfocused`, `marquee@term`, `split-zone@crust`, `split-zone@mantle` | 3.05 · 3.25 |
 | `text-muted-raised` | `on-raised`, `solid-hover`, `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `raised+hover`, `raised+press`, `on-raised+hover`, `tint-primary@raised`, `tint-info@raised`, `tint-success@raised`, `tint-warning@raised`, `tint-danger@raised`, `tint-agent@raised`, `drop-target@raised`, `split-zone@base` | 3.25 · 3.98 |
 | `text-on-active` | `active`, `on-raised+press`, `active+hover`, `active+press` | 3.43 · 4.21 |
 
@@ -858,144 +884,144 @@ Forbidden:
 - `fill-primary`, `fill-agent`, `fill-danger`, `fill-success`, `fill-warning`, `fill-close`, `fill-primary+hover`, `fill-primary+press`, `fill-agent+hover`, `fill-agent+press`, `fill-danger+hover`, `fill-danger+press`. A filled control carries one ink pair. Hue or neutral steps on it would read as a second state.
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
-- `match@term`, `match@base`, `match-active@term`, `match-active@base`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `border-control`
 
 | Token | Grounds | Lowest, Mocha · Latte |
 |---|---|---|
-| `border-control` | `crust`, `mantle`, `base`, `term`, `tab-hover` | 3.36 · 3.29 |
-| `border-control-raised` | `raised`, `field`, `crust+hover`, `crust+press`, `mantle+hover`, `mantle+press`, `base+hover`, `base+press` | 3.07 · 3.26 |
+| `border-control` | `crust`, `mantle`, `base`, `term-unfocused`, `term`, `tab-hover` | 3.36 · 3.29 |
+| `border-control-raised` | `raised`, `field`, `crust+hover`, `crust+press`, `mantle+hover`, `mantle+press`, `base+hover`, `term-unfocused+hover`, `term+hover`, `base+press`, `term-unfocused+press`, `term+press` | 3.07 · 3.26 |
 | `text-muted-raised` | `on-raised`, `solid-hover`, `raised+hover`, `raised+press`, `on-raised+hover` | 3.25 · 3.98 |
 | `text-on-active` | `active`, `on-raised+press`, `active+hover`, `active+press` | 3.43 · 4.21 |
 
 Forbidden:
 
 - `fill-primary`, `fill-agent`, `fill-danger`, `fill-success`, `fill-warning`, `fill-close`, `fill-primary+hover`, `fill-primary+press`, `fill-agent+hover`, `fill-agent+press`, `fill-danger+hover`, `fill-danger+press`. A filled control carries one ink pair. Hue or neutral steps on it would read as a second state.
-- `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. Controls do not sit on a tint. Put them on a neutral ground beside it.
+- `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@term-unfocused`, `drop-target@term`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term-unfocused`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `marquee@term-unfocused`, `marquee@term`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. Controls do not sit on a tint. Put them on a neutral ground beside it.
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
-- `match@term`, `match@base`, `match-active@term`, `match-active@base`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `border-partition`
 
 | Token | Grounds | Lowest, Mocha · Latte |
 |---|---|---|
-| `border-default` | `crust`, `mantle`, `base`, `field`, `term`, `tab-hover`, `crust+hover`, `crust+press`, `mantle+hover`, `mantle+press`, `base+hover`, `base+press` | no target |
+| `border-default` | `crust`, `mantle`, `base`, `term-unfocused`, `field`, `term`, `tab-hover`, `crust+hover`, `crust+press`, `mantle+hover`, `mantle+press`, `base+hover`, `term-unfocused+hover`, `term+hover`, `base+press`, `term-unfocused+press`, `term+press` | no target |
 | `border-strong` | `raised`, `raised+hover`, `raised+press` | no target |
 | `border-frame` | `on-raised`, `solid-hover`, `active`, `on-raised+hover`, `on-raised+press`, `active+hover`, `active+press` | no target |
 
 Forbidden:
 
 - `fill-primary`, `fill-agent`, `fill-danger`, `fill-success`, `fill-warning`, `fill-close`, `fill-primary+hover`, `fill-primary+press`, `fill-agent+hover`, `fill-agent+press`, `fill-danger+hover`, `fill-danger+press`. A filled control carries one ink pair. Hue or neutral steps on it would read as a second state.
-- `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. Controls do not sit on a tint. Put them on a neutral ground beside it.
+- `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@term-unfocused`, `drop-target@term`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term-unfocused`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `marquee@term-unfocused`, `marquee@term`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. Controls do not sit on a tint. Put them on a neutral ground beside it.
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
-- `match@term`, `match@base`, `match-active@term`, `match-active@base`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `border-frame`
 
 | Token | Grounds | Lowest, Mocha · Latte |
 |---|---|---|
-| `border-frame` | `crust`, `mantle`, `base`, `raised`, `on-raised`, `field`, `solid-hover`, `active`, `term`, `tab-hover` | no target |
+| `border-frame` | `crust`, `mantle`, `base`, `term-unfocused`, `raised`, `on-raised`, `field`, `solid-hover`, `active`, `term`, `tab-hover` | no target |
 
 Forbidden:
 
 - `fill-primary`, `fill-agent`, `fill-danger`, `fill-success`, `fill-warning`, `fill-close`, `fill-primary+hover`, `fill-primary+press`, `fill-agent+hover`, `fill-agent+press`, `fill-danger+hover`, `fill-danger+press`. A filled control carries one ink pair. Hue or neutral steps on it would read as a second state.
-- `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. Controls do not sit on a tint. Put them on a neutral ground beside it.
+- `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@term-unfocused`, `drop-target@term`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term-unfocused`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `marquee@term-unfocused`, `marquee@term`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. Controls do not sit on a tint. Put them on a neutral ground beside it.
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
-- `crust+hover`, `crust+press`, `mantle+hover`, `mantle+press`, `base+hover`, `base+press`, `raised+hover`, `raised+press`, `on-raised+hover`, `on-raised+press`, `active+hover`, `active+press`. A frame edge is drawn between resting neutral grounds only.
-- `match@term`, `match@base`, `match-active@term`, `match-active@base`. Only the terminal cell ink sits in a search match.
+- `crust+hover`, `crust+press`, `mantle+hover`, `mantle+press`, `base+hover`, `term-unfocused+hover`, `term+hover`, `base+press`, `term-unfocused+press`, `term+press`, `raised+hover`, `raised+press`, `on-raised+hover`, `on-raised+press`, `active+hover`, `active+press`. A frame edge is drawn between resting neutral grounds only.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `separator`
 
 | Token | Grounds | Lowest, Mocha · Latte |
 |---|---|---|
-| `separator` | `crust`, `mantle`, `base`, `on-raised`, `field`, `solid-hover`, `active`, `term`, `tab-hover`, `crust+hover`, `crust+press`, `mantle+hover`, `mantle+press`, `base+hover`, `base+press`, `on-raised+hover`, `on-raised+press`, `active+hover`, `active+press` | no target |
+| `separator` | `crust`, `mantle`, `base`, `term-unfocused`, `on-raised`, `field`, `solid-hover`, `active`, `term`, `tab-hover`, `crust+hover`, `crust+press`, `mantle+hover`, `mantle+press`, `base+hover`, `term-unfocused+hover`, `term+hover`, `base+press`, `term-unfocused+press`, `term+press`, `on-raised+hover`, `on-raised+press`, `active+hover`, `active+press` | no target |
 | `border-strong` | `raised`, `raised+hover`, `raised+press` | no target |
 
 Forbidden:
 
 - `fill-primary`, `fill-agent`, `fill-danger`, `fill-success`, `fill-warning`, `fill-close`, `fill-primary+hover`, `fill-primary+press`, `fill-agent+hover`, `fill-agent+press`, `fill-danger+hover`, `fill-danger+press`. A filled control carries one ink pair. Hue or neutral steps on it would read as a second state.
-- `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. Controls do not sit on a tint. Put them on a neutral ground beside it.
+- `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@term-unfocused`, `drop-target@term`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term-unfocused`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `marquee@term-unfocused`, `marquee@term`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. Controls do not sit on a tint. Put them on a neutral ground beside it.
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
-- `match@term`, `match@base`, `match-active@term`, `match-active@base`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `focus-ring`
 
 | Token | Grounds | Lowest, Mocha · Latte |
 |---|---|---|
-| `border-focus` | `crust`, `mantle`, `base`, `raised`, `on-raised`, `field`, `term`, `tab-hover`, `crust+hover`, `mantle+hover`, `mantle+press`, `base+hover`, `base+press`, `on-raised+hover`, `on-raised+press` | 3.08 · 3.08 |
-| `accent-primary-raised` | `solid-hover`, `active`, `crust+press`, `raised+hover`, `raised+press` | 3.17 · 3.84 |
+| `border-focus` | `crust`, `mantle`, `base`, `term-unfocused`, `raised`, `on-raised`, `field`, `term`, `tab-hover`, `crust+hover`, `mantle+hover`, `mantle+press`, `base+hover`, `term-unfocused+hover`, `term+hover`, `base+press`, `term+press`, `on-raised+hover`, `on-raised+press` | 3.08 · 3.08 |
+| `accent-primary-raised` | `solid-hover`, `active`, `crust+press`, `raised+hover`, `raised+press`, `term-unfocused+press` | 3.17 · 3.84 |
 | `accent-primary-on-active` | `active+hover`, `active+press` | 3.10 · 3.27 |
 
 Forbidden:
 
 - `fill-primary`, `fill-agent`, `fill-danger`, `fill-success`, `fill-warning`, `fill-close`, `fill-primary+hover`, `fill-primary+press`, `fill-agent+hover`, `fill-agent+press`, `fill-danger+hover`, `fill-danger+press`. A filled control carries one ink pair. Hue or neutral steps on it would read as a second state.
-- `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. Controls do not sit on a tint. Put them on a neutral ground beside it.
+- `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@term-unfocused`, `drop-target@term`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term-unfocused`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `marquee@term-unfocused`, `marquee@term`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. Controls do not sit on a tint. Put them on a neutral ground beside it.
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
-- `match@term`, `match@base`, `match-active@term`, `match-active@base`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `selection-bar`
 
 | Token | Grounds | Lowest, Mocha · Latte |
 |---|---|---|
-| `accent-primary` | `crust`, `mantle`, `base`, `raised`, `on-raised`, `field`, `term`, `tab-hover` | 4.33 · 3.18 |
+| `accent-primary` | `crust`, `mantle`, `base`, `term-unfocused`, `raised`, `on-raised`, `field`, `term`, `tab-hover` | 4.33 · 3.18 |
 | `accent-primary-raised` | `solid-hover` | 4.33 · 4.57 |
 | `accent-primary-on-active` | `active`, `active+hover`, `active+press` | 3.10 · 3.27 |
 
 Forbidden:
 
 - `fill-primary`, `fill-agent`, `fill-danger`, `fill-success`, `fill-warning`, `fill-close`, `fill-primary+hover`, `fill-primary+press`, `fill-agent+hover`, `fill-agent+press`, `fill-danger+hover`, `fill-danger+press`. A filled control carries one ink pair. Hue or neutral steps on it would read as a second state.
-- `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. Controls do not sit on a tint. Put them on a neutral ground beside it.
+- `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@term-unfocused`, `drop-target@term`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term-unfocused`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `marquee@term-unfocused`, `marquee@term`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. Controls do not sit on a tint. Put them on a neutral ground beside it.
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
-- `crust+hover`, `crust+press`, `mantle+hover`, `mantle+press`, `base+hover`, `base+press`, `raised+hover`, `raised+press`, `on-raised+hover`, `on-raised+press`. A progress or selection mark takes no hover state of its own.
-- `match@term`, `match@base`, `match-active@term`, `match-active@base`. Only the terminal cell ink sits in a search match.
+- `crust+hover`, `crust+press`, `mantle+hover`, `mantle+press`, `base+hover`, `term-unfocused+hover`, `term+hover`, `base+press`, `term-unfocused+press`, `term+press`, `raised+hover`, `raised+press`, `on-raised+hover`, `on-raised+press`. A progress or selection mark takes no hover state of its own.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `scrollbar-thumb`
 
 | Token | Grounds | Lowest, Mocha · Latte |
 |---|---|---|
-| `scrollbar-thumb` | `crust`, `mantle`, `base`, `term`, `tab-hover` | 3.36 · 3.29 |
+| `scrollbar-thumb` | `crust`, `mantle`, `base`, `term-unfocused`, `term`, `tab-hover` | 3.36 · 3.29 |
 | `scrollbar-thumb-raised` | `raised`, `field` | 3.40 · 3.65 |
 | `scrollbar-thumb-hover` | `on-raised`, `solid-hover` | 4.10 · 4.39 |
 
 Forbidden:
 
-- `active`, `crust+hover`, `crust+press`, `mantle+hover`, `mantle+press`, `base+hover`, `base+press`, `raised+hover`, `raised+press`, `on-raised+hover`, `on-raised+press`, `active+hover`, `active+press`. A row does not own a scrollbar.
+- `active`, `crust+hover`, `crust+press`, `mantle+hover`, `mantle+press`, `base+hover`, `term-unfocused+hover`, `term+hover`, `base+press`, `term-unfocused+press`, `term+press`, `raised+hover`, `raised+press`, `on-raised+hover`, `on-raised+press`, `active+hover`, `active+press`. A row does not own a scrollbar.
 - `fill-primary`, `fill-agent`, `fill-danger`, `fill-success`, `fill-warning`, `fill-close`, `fill-primary+hover`, `fill-primary+press`, `fill-agent+hover`, `fill-agent+press`, `fill-danger+hover`, `fill-danger+press`. A filled control carries one ink pair. Hue or neutral steps on it would read as a second state.
-- `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. Controls do not sit on a tint. Put them on a neutral ground beside it.
+- `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@term-unfocused`, `drop-target@term`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term-unfocused`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `marquee@term-unfocused`, `marquee@term`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. Controls do not sit on a tint. Put them on a neutral ground beside it.
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
-- `match@term`, `match@base`, `match-active@term`, `match-active@base`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `progress-fill`
 
 | Token | Grounds | Lowest, Mocha · Latte |
 |---|---|---|
-| `accent-primary` | `crust`, `mantle`, `base`, `raised`, `on-raised`, `field`, `term`, `tab-hover` | 4.33 · 3.18 |
+| `accent-primary` | `crust`, `mantle`, `base`, `term-unfocused`, `raised`, `on-raised`, `field`, `term`, `tab-hover` | 4.33 · 3.18 |
 | `accent-primary-raised` | `solid-hover`, `active` | 3.17 · 3.84 |
 
 Forbidden:
 
 - `fill-primary`, `fill-agent`, `fill-danger`, `fill-success`, `fill-warning`, `fill-close`, `fill-primary+hover`, `fill-primary+press`, `fill-agent+hover`, `fill-agent+press`, `fill-danger+hover`, `fill-danger+press`. A filled control carries one ink pair. Hue or neutral steps on it would read as a second state.
-- `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. Controls do not sit on a tint. Put them on a neutral ground beside it.
+- `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@term-unfocused`, `drop-target@term`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term-unfocused`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `marquee@term-unfocused`, `marquee@term`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. Controls do not sit on a tint. Put them on a neutral ground beside it.
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
-- `crust+hover`, `crust+press`, `mantle+hover`, `mantle+press`, `base+hover`, `base+press`, `raised+hover`, `raised+press`, `on-raised+hover`, `on-raised+press`, `active+hover`, `active+press`. A progress or selection mark takes no hover state of its own.
-- `match@term`, `match@base`, `match-active@term`, `match-active@base`. Only the terminal cell ink sits in a search match.
+- `crust+hover`, `crust+press`, `mantle+hover`, `mantle+press`, `base+hover`, `term-unfocused+hover`, `term+hover`, `base+press`, `term-unfocused+press`, `term+press`, `raised+hover`, `raised+press`, `on-raised+hover`, `on-raised+press`, `active+hover`, `active+press`. A progress or selection mark takes no hover state of its own.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ## 7. Meaning
@@ -1024,16 +1050,20 @@ Forbidden:
 | DAG states | latte | `dag-status-unknown`, `dag-status-partially-failed` | 0.063 | Every state carries a glyph and a word. |
 | DAG edges | mocha | `dag-edge-reduce`, `dag-edge-binding` | 0.041 | Every relation has its own dash pattern (dag-edge-dash-*). |
 | DAG edges | latte | `dag-edge-reduce`, `dag-edge-transition` | 0.070 | Every relation has its own dash pattern (dag-edge-dash-*). |
+| surface bed | mocha | `surface-bed-focused`, `surface-bed-unfocused` | 0.245 | not needed |
+| surface bed | latte | `surface-bed-focused`, `surface-bed-unfocused` | 0.095 | not needed |
 | surface focus edge | mocha | `surface-focus-edge-focused`, `surface-focus-edge-unfocused` | 0.602 | not needed |
 | surface focus edge | latte | `surface-focus-edge-focused`, `surface-focus-edge-unfocused` | 0.442 | not needed |
-| terminal bed | mocha | `surface-terminal-focused-bg`, `surface-terminal-unfocused-bg` | 0.245 | not needed |
-| terminal bed | latte | `surface-terminal-focused-bg`, `surface-terminal-unfocused-bg` | 0.043 | The surface focus edge tells them apart. The bed swap is not what the rule relies on. |
 | surface focus edge and rings | mocha | `surface-focus-edge-focused`, `surface-highlight-done-border` | 0.088 | not needed |
 | surface focus edge and rings | latte | `surface-focus-edge-focused`, `surface-highlight-input-border` | 0.135 | not needed |
 
-**Surface focus pass mark.** The pair `surface-focus-edge-focused`, `surface-focus-edge-unfocused` must hold OKLab ΔE 0.08 or more and contrast 3:1 or more in Mocha and in Latte, and `surface-focus-edge-focused` must hold 3:1 on `crust`, `mantle`, `base`, `raised` and `term`. Both values are opaque. A translucent value composites over its neighbor first, as the [measure](#2-how-strong-the-rules-are) says. The contrast is required on top of the ΔE because the two states meet in one thin bar with no word or glyph. It binds the built-in themes only. The `surface-terminal-*-bg` pair must differ, and it may stay under ΔE 0.08 because the edge carries the rule.
+**Surface focus pass mark.** Binds the built-in themes only, Mocha and Latte.
 
-**Rings among themselves.** The group `surface focus edge and rings` compares the lit edge with each ring and holds no ring pair. The closest ring pair is `surface-occupied-hard-border`, `surface-highlight-input-border` in Latte at ΔE 0.062. Width separates them, 1px against 2px, except on a focused webview leaf, where the top side of either one is a single 1px row. Only hue is left there. That case is unmeasured, and it goes back to design if it does not read in the app.
+- The pair `surface-bed-focused`, `surface-bed-unfocused` must hold OKLab ΔE 0.08 or more. Two grounds are not held to a contrast ratio, as text and a border are. `surface-terminal-focused-bg`, `surface-terminal-unfocused-bg` and `surface-markdown-focused-bg`, `surface-markdown-unfocused-bg` must equal that pair.
+- The pair `surface-focus-edge-focused`, `surface-focus-edge-unfocused` must hold ΔE 0.08 or more and contrast 3:1 or more, and `surface-focus-edge-focused` must hold 3:1 on `crust`, `mantle`, `base`, `raised` and `term`. The contrast is on top of the ΔE because the two states meet in one thin bar with no word or glyph.
+- All these values are opaque. A translucent value composites over its neighbor first, in 8 bits.
+
+**Rings among themselves.** The group `surface focus edge and rings` compares the lit edge with each ring and holds no ring pair. The closest ring pair is `surface-occupied-hard-border`, `surface-highlight-input-border` in Latte at ΔE 0.062. Width separates them, 1px against 2px, except on a focused `html` or plugin webview leaf, where the top side of either one is a single 1px row. Only hue is left there. That case is unmeasured, and it goes back to design if it does not read in the app.
 
 **Tint rule.** A tint holds its own hue and neutrals. A second hue on it reads as a conflict, so it is forbidden.
 
@@ -1991,11 +2021,11 @@ Sits on: `term`
 
 ### Terminal (unfocused)
 
-Sits on: `base`
+Sits on: `term-unfocused`
 
 | Part | Token | States | Ground | Lowest, Mocha · Latte |
 |---|---|---|---|---|
-| default ink | `surface-terminal-unfocused-fg` | rest | `base` | 7.37 · 5.53 |
+| default ink | `surface-terminal-unfocused-fg` | rest | `term-unfocused` | 7.37 · 4.73 |
 
 ### Surface focus edge
 
@@ -2006,28 +2036,28 @@ Sits on: `crust`, `mantle`, `base`, `term`
 | edge | `surface-focus-edge-unfocused` | rest | `crust`, `mantle`, `base`, `term` | no target |
 | edge | `surface-focus-edge-focused` | focus | `crust`, `mantle`, `base`, `term` | 9.26 · 4.73 |
 
-In this contract `rest` is unfocused and `focus` is focused.
+In this contract `rest` is unfocused and `focus` is focused. Html and plugin surfaces take it.
 
 ### Markdown document
 
-Sits on: `crust`
+Sits on: `term`, `term-unfocused`
 
 | Part | Token | States | Ground | Lowest, Mocha · Latte |
 |---|---|---|---|---|
-| body | `md-doc-fg` | rest | `crust` | 10.59 · 4.73 |
-| quote | `md-quote-fg` | rest | `crust` | 8.42 · 4.73 |
+| body | `md-doc-fg` | rest | `term`, `term-unfocused` | 9.26 · 4.73 |
+| quote | `md-quote-fg` | rest | `term`, `term-unfocused` | 7.37 · 4.73 |
 
 ### Markdown table
 
-Sits on: `crust`
+Sits on: `term`, `term-unfocused`
 
 | Part | Token | States | Ground | Lowest, Mocha · Latte |
 |---|---|---|---|---|
-| cell | `md-table-cell-fg` | rest | `base` | 9.26 · 5.53 |
+| cell | `md-table-cell-fg` | rest | `base`, `mantle` | 9.26 · 5.14 |
 
 ### Markdown table header
 
-Sits on: `crust`
+Sits on: `term`, `term-unfocused`
 
 | Part | Token | States | Ground | Lowest, Mocha · Latte |
 |---|---|---|---|---|

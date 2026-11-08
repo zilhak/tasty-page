@@ -100,6 +100,7 @@
   --tasty-accent-attached: var(--tasty-color-lavender); /* workspace claimed by ANOTHER client (multi-client attach) — deliberately NOT danger-red, which means error */
   --tasty-accent-remote:   var(--tasty-color-sky); /* MIRROR: this workspace is a local mirror of a REMOTE tasty instance (an origin/identity, NOT an execution state) — an axis of its own, kept off the status dot */
   --tasty-accent-data:     var(--tasty-color-teal); /* DATA FLOW: a value handed from one task to another (DAG input binding edge). An origin-of-data mark, not a state (2026-10-07) */
+  --tasty-accent-data-strong: var(--tasty-accent-data); /* holds 3:1 on every DAG canvas bed. Latte → teal 85%: 2.83 on the crust bed otherwise */
   --tasty-accent-route:    var(--tasty-color-lavender); /* ROUTE: a result-chosen path between tasks (DAG transition edge). Same primitive as accent-attached, a different role — never shown on the same surface (2026-10-07) */
   --tasty-accent-move:     var(--tasty-color-pink); /* MOVE SOURCE: the one surface / tab / pane armed by "Move Surface / Tab / Pane" and waiting for "… Here". A pending-action marker, not a state or an attention kind — its own hue so it never reads as notice (yellow/blue), occupancy (green/peach), agent (mauve) or attach (lavender) */
 
@@ -348,20 +349,27 @@
   --tasty-ui-scale:    var(--tasty-ui-scale-md); /* active value — the only one consumed */
 
   /* ── Surface KINDS (terminal / markdown · focused / unfocused) ── */
+  /* The two beds of every surface whose bed follows focus: terminal, markdown,
+     empty, explorer file area, DAG canvas, image canvas. Focused is the extreme of
+     the ramp, unfocused sits one clear step in. Latte's unfocused bed is crust,
+     because white against base is OKLab 0.043, under the 0.08 the rules ask. */
+  --tasty-surface-bed-focused:           var(--tasty-surface-terminal-focused-bg);
+  --tasty-surface-bed-unfocused:         var(--tasty-bg-panel); /* Latte → bg-app */
   --tasty-surface-terminal-focused-bg:   var(--tasty-color-black); /* Latte → white */
   --tasty-surface-terminal-focused-fg:   var(--tasty-text-primary);
-  --tasty-surface-terminal-unfocused-bg: var(--tasty-bg-panel);
+  --tasty-surface-terminal-unfocused-bg: var(--tasty-surface-bed-unfocused);
   --tasty-surface-terminal-unfocused-fg: var(--tasty-text-muted);
-  --tasty-surface-markdown-focused-bg:   var(--tasty-bg-app); /* crust — the DOCUMENT bed. NOT pure black: black is a terminal convention (raw TTY) and sits outside the Catppuccin palette; prose at 14px on #000 halates. crust also keeps the whole markdown content ladder discriminable above it: crust(page) < mantle(zebra) < base(row) < surface0(header/code) < surface1(grid). Latte flips with bg-app (crust #dce0e8) — no per-theme branch. The document keeps this one bed in both focus states, and focus shows on surface-focus-edge-*. */
-  --tasty-surface-markdown-focused-fg:   var(--tasty-text-primary);
-  --tasty-surface-markdown-unfocused-bg: var(--tasty-bg-sidebar); /* the webview renderer does not read it: the bed does not swap. Kept, tokens are only added */
-  --tasty-surface-markdown-unfocused-fg: var(--tasty-text-muted);
+  --tasty-surface-markdown-focused-bg:   var(--tasty-surface-bed-focused); /* the same bed as a focused terminal, so the rule is one rule. Body ink stays md-doc-fg (text-secondary), a step under the terminal's text-primary, which keeps prose from halating on black. */
+  --tasty-surface-markdown-focused-fg:   var(--tasty-text-primary); /* the document does not read it: md-doc-fg is the same in both states */
+  --tasty-surface-markdown-unfocused-bg: var(--tasty-surface-bed-unfocused);
+  --tasty-surface-markdown-unfocused-fg: var(--tasty-text-muted); /* the document does not read it: an unfocused document is still being read */
 
   /* ── Terminal specifics ───────────────────────────────────── */
   --tasty-selection-bg:           var(--tasty-color-neutral-500);
   --tasty-vi-cursor-bg:           var(--tasty-color-lavender);
   --tasty-search-match-bg:        color-mix(in srgb, var(--tasty-color-yellow) 30%, transparent);
   --tasty-search-match-active-bg: color-mix(in srgb, var(--tasty-color-yellow) 70%, transparent);
+  --tasty-search-match-active-unfocused-fg: var(--tasty-search-match-active-fg); /* Latte → black: 4.26 on the crust bed otherwise */
   --tasty-search-match-active-fg: var(--tasty-color-neutral-200); /* 2026-10-10: cell ink inside the ACTIVE match — dark on yellow (Mocha 6.95:1) */
 
   /* ── ANSI 16 (derived from the palette) ───────────────────── */
@@ -483,6 +491,10 @@
   /* muted (2026-11-05) — n900 on bg-app is 4.26. n1000 = 4.73 on crust · 5.14 mantle · 5.53 base. A mix that only just clears 4.5 would sit 3 levels from n1000, a step nobody can see, so muted joins the existing step.
      In Latte muted and secondary share one ink: size and weight carry the order. On surface-raised use text-muted-raised. */
   --tasty-text-muted: var(--tasty-color-neutral-1000);
+
+  --tasty-surface-bed-unfocused: var(--tasty-bg-app);
+  --tasty-search-match-active-unfocused-fg: var(--tasty-color-black);
+  --tasty-accent-data-strong: color-mix(in srgb, var(--tasty-color-teal) 85%, var(--tasty-color-black));
 
   /* disabled ink — Latte's light end of the ramp is compressed (neutral-600..800
      sit within 1.2:1 of each other), so the same ramp step reads fainter than in
