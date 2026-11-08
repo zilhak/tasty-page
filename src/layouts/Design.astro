@@ -14,15 +14,18 @@ interface Props {
   /** Slug of the page being rendered, so the sidebar can mark it current. */
   current: string;
   title: string;
+  /** Lead paragraph on the page. May hold inline HTML. */
   intro: string;
+  /** Plain-text search and share summary, kept apart from the longer intro. */
+  description: string;
 }
-const { lang, current, title, intro } = Astro.props;
+const { lang, current, title, intro, description } = Astro.props;
 const s = stringsFor(lang);
 ---
 <Base
   lang={lang}
   title={`${title} · Tasty Design System`}
-  description={intro}
+  description={description}
   active="design"
   enHref={designPath(current, "en")}
   koHref={designPath(current, "ko")}

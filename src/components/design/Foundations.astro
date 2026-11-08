@@ -50,7 +50,7 @@ const COPY = {
 const c = COPY[lang];
 const all = cards(process.cwd()).filter((x) => x.group !== "Tokens");
 ---
-<Design lang={lang} current="" title={c.title} intro={c.intro}>
+<Design lang={lang} current="" title={c.title} intro={c.intro} description={c.intro}>
   <section class="ds-group">
     <h2>{c.galleryTitle}</h2>
     <p class="ds-lede">{c.galleryBody}</p>

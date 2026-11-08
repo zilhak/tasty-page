@@ -29,7 +29,7 @@ const COPY = {
 const c = COPY[lang];
 const card = cards(process.cwd()).find((x) => x.slug === "token-system")!;
 ---
-<Design lang={lang} current="tokens/" title={c.title} intro={c.intro}>
+<Design lang={lang} current="tokens/" title={c.title} intro={c.intro} description={c.intro}>
   <div class="ds-card ds-card--solo">
     <div class="ds-card__frame">
       <iframe src={url(`design/cards/${card.slug}.html`)} title={card.name}
