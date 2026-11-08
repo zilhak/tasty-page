@@ -1,4 +1,4 @@
-<!-- source-hash: cd2a042b1e48 -->
+<!-- source-hash: 931d3753b399 -->
 # Plugins
 
 Plugins provide Markdown, image, and HTML viewers, along with Claude Code and Codex integrations. Manage bundled plugins or install new ones and review the permissions they need.
@@ -62,7 +62,7 @@ The **Installed** tab. Pick one from the list on the left and the details appear
 
 ### Attention
 
-The **Attention** tab. Plugins whose registration was rejected or that failed to run are collected here with the reason. As for installed plugins, the top of the details shows the name, authors and id, plus the homepage link when it is an `http://` or `https://` address, with the description below. For a plugin whose signature is invalid, the manifest can't be trusted, so its description and homepage are not shown; **Description hidden — the signature is invalid.** appears in place of the description.
+The **Attention** tab. Plugins whose registration was rejected or that failed to run are collected here with the reason. Except for **Not an official plugin** entries below, the details follow the installed-plugin layout: the top shows the name, authors and id, plus the homepage link when it is an `http://` or `https://` address, with the description below. For a plugin whose signature is invalid, the manifest can't be trusted, so its description and homepage are not shown; **Description hidden — the signature is invalid.** appears in place of the description.
 
 | Shown | Meaning | What to do |
 |------|----|------|
@@ -70,12 +70,24 @@ The **Attention** tab. Plugins whose registration was rejected or that failed to
 | **Signature invalid** | No signature, or verification failed. The detail shows the cause (such as a missing signature file) on one line | Getting a correct package from the distributor is safest. If you trust the source, you can use it with **Register anyway** |
 | **Permissions changed** | An update changed the required permissions | Read the **newly requested** list and **Re-approve** |
 | **Runtime error** | Enabled but failed while running | Check the **Log** |
+| **Not an official plugin** | Registration was rejected because its id uses the `com.tasty.` prefix, which is reserved for official Tasty plugins, and this is not one of them. You can only remove it. | Select the folder in **Plugins › Attention** and press **Remove** |
+
+A **Not an official plugin** entry is a folder directly under the plugins folder (`~/.tasty/plugins/`) whose manifest can be read and whose id starts with `com.tasty.` but is absent from the official list. Folders whose manifests cannot be read do not appear as these entries. They are not registered, do not run, and do not appear in `tasty plugin list`; Tasty does not delete them automatically. The folder name can differ from the id. Several folders with the same id appear as separate rows that you can select individually. Each row counts toward both the tab badge and the sidebar badge.
+
+The details for these entries show only the folder name and id, hiding the manifest's display name, authors, description, homepage, and version, because an unofficial manifest could present itself as Tasty. **Description hidden — it is not an official plugin.** appears in place of the description. The **Folder** section shows the path, and the bottom bar reads **Not registered**. **Remove** is the only action; **Register anyway**, **Re-approve**, **Configure**, and **Open folder** are not available.
+
+- In **Plugins › Attention**, select the row for the folder you want to delete and press **Remove**. Selecting a row alone does not move keyboard focus to the Remove button. The bottom bar turns into a confirmation in place, titled **Remove {folder name}?**, with the note **Its folder is deleted from your plugins folder.** Focus is on **Cancel**, so Enter cancels. Esc, **Cancel**, or selecting another row also cancels the confirmation.
+- Press **Remove** in the confirmation to delete only the selected folder; other folders with the same id remain. While **Removing…** is shown, both buttons are disabled, and Esc and row clicks are ignored. Tasty checks again just before deletion. If the manifest's id has changed to an allowed id or the manifest can no longer be read, removal fails without deleting the folder.
+- On success, the row disappears, both badge counts decrease, and a **Removed '{folder}'.** toast appears. A folder already deleted outside Tasty also counts as success. On failure, a **Remove failed: {reason}** toast appears, the bar returns to normal, and the row remains so you can retry. The reason is the original file-operation error and can appear in English even with the Korean interface.
+- A linked folder fails removal without changing the target or the link. Delete the link yourself to clear that row. If deletion fails partway through and the manifest has already been deleted, you can retry while the row remains. After the next scan, leftover files may remain without a row; delete the remaining folder yourself in that case.
+
+When one of these folders is newly found, one warning per folder is left in the notification list. The body explains that the `com.tasty.` prefix is reserved for official Tasty plugins and directs you to remove it from **Plugins › Attention**. If the same folder remains, the warning is left again when you restart Tasty.
 
 ### Add plugin
 
 The **Add plugin** tab.
 
-Plugin ids starting with `com.tasty.` are reserved for official Tasty plugins. A `com.tasty.*` id absent from Tasty’s official list is rejected in every build before signature verification and cannot be installed with **Add anyway** or `--allow-unverified`. This check examines only the id; ids on the official list still undergo signature verification. A plugin with a `com.tasty.*` id absent from the official list is not registered even if placed directly in the plugins folder.
+Plugin ids starting with `com.tasty.` are reserved for official Tasty plugins. A `com.tasty.*` id absent from Tasty’s official list is rejected in every build before signature verification and cannot be installed with **Add anyway** or `--allow-unverified`. This check examines only the id; ids on the official list still undergo signature verification. A folder with a `com.tasty.*` id absent from the official list is not registered even if placed directly under the plugins folder; if its manifest can be read, it appears in **Attention**, where you can remove it.
 
 1. In the **Plugin folder** field, enter a folder containing `tasty-plugin.toml`, or pick one with **Find folder…**. The Tasty folder picker confirms the selected subfolder, or the current folder when no row is selected. Double-click enters a folder; Enter confirms it. Cancelling keeps the field unchanged.
 2. Choosing a folder validates it immediately. If you typed a path, press **Verify**. The manifest card appears right under the field: name · version · id · authors · description · **required permissions** · surface kinds · source path, plus the homepage when the plugin has one. An `http://` or `https://` address is an underlined link that opens in your browser (if the browser can't be started, a notice says it couldn't be opened); any other value is shown as plain text. With several authors, the first one is followed by `+N`; hover to see them all. Editing the path clears the card, so press **Verify** again. If the folder has no `tasty-plugin.toml` or the file can't be parsed, a **Can't read tasty-plugin.toml** box takes the card's place with the reader's error on the line below. If the file reads but breaks a manifest rule (for example, the listed binary is not in the folder), a **tasty-plugin.toml is not valid** box appears in the same place with what is wrong on the line below. A `com.tasty.*` id absent from the official list is also rejected with this box. The line below shows the original English reason, `plugin id '<id>' uses the reserved com.tasty. prefix but is not an official Tasty plugin`, and no preview or add button appears. Fix the path and press **Verify** again.
@@ -134,7 +146,7 @@ A `com.tasty.*` id absent from the official list cannot be installed even with `
 | `tasty plugin list` | The id · version · enabled · running state of installed plugins, whether one was turned off automatically, and its last start failure |
 | `tasty plugin show <id>` | The full manifest · permissions · commands · running state |
 | `tasty plugin install <folder> [--allow-unverified]` | Installs from a folder containing `tasty-plugin.toml`. Grants the manifest permissions as they are. An unverified plugin is installed only with `--allow-unverified` |
-| `tasty plugin remove <id>` | Removes it |
+| `tasty plugin remove <id>` | Removes an installed plugin. For a **Not an official plugin** folder, fails with an error directing you to **Attention** without deleting the folder |
 | `tasty plugin enable <id> [--no-wait]` · `disable <id>` | Enables · disables it. `enable` waits until the plugin connects (up to 15 seconds) and fails with the cause if it does not start. If it is still starting after 3 seconds, it shows a progress line once |
 | `tasty plugin logs <id> [--follow]` | Prints the log. `--follow` keeps showing new lines (stop with `Ctrl+C`) |
 | `tasty plugin permissions <id>` | The permissions the manifest requires and those actually granted |
@@ -151,7 +163,13 @@ For a plugin that passes the id check, `install` checks the signature before cop
 
 When a plugin does not start, a warning is left in the notification list. If it fails several times in a short time and Tasty turns it off automatically, a separate error notification is left and the plugin is not started until you turn it on again. Repeated failures of the same plugin that you did not turn on again are grouped into one. Each time you turn it on yourself, that result gets its own notification. The notification body and `tasty plugin logs <id>` show the cause.
 
-`enable` and `disable` require an installed plugin ID. An ID that is not installed returns an error and leaves settings unchanged. Use `tasty plugin list` to find installed IDs.
+Running `tasty plugin remove <id>` with the id of a **Not an official plugin** folder fails with the following error without deleting the folder. `enable` and `disable` fail with the same guidance.
+
+`plugin '<id>' was not registered because its id uses the reserved com.tasty. prefix; remove its folder from Plugins > Attention`
+
+Several folders can share the same id, so the id alone cannot identify which folder to delete. Select and remove the folder in **Plugins › Attention**.
+
+`enable` and `disable` require an installed plugin ID. An id that is not installed and has no such folder returns an error with `plugin '<id>' not installed` as the reason and leaves settings unchanged. Use `tasty plugin list` to find installed IDs.
 
 `disable` starts shutdown, normally in the background. If the plugin has not exited after a 2-second grace period, Tasty attempts to force-stop it. Those 2 seconds are not a limit on the entire operation; waiting for the OS to finish the process can take longer. An `enable` during shutdown waits for the previous process to finish before starting a new one. `tasty plugin enable` then waits (up to 15 seconds) for the new plugin to connect and reports the result. Pass `--no-wait` to return right away. In that case, and when an agent calls IPC directly, the reply only says the start was accepted, so check the result with `tasty plugin show <id>`. If startup or connection fails, check the notification and the logs.
 
@@ -182,7 +200,8 @@ Example output of `tasty plugin permissions com.tasty.git-viewer`:
 | **Clipboard Viewer** · **Git** are missing from the Tools menu | The two plugins are disabled or have landed in **Attention** |
 | A plugin's status is red | The **Log** button or `tasty plugin logs <id>` |
 | I want to bring back a bundled plugin I removed | `tasty plugin upgrade-builtins --restore-removed <id>` |
-| A plugin landed in **Attention** after an update | Its required permissions changed. Read the list and **Re-approve** |
+| A plugin landed in **Attention** after an update | If marked **Permissions changed**, its required permissions changed. Read the list and **Re-approve** |
+| A **Plugin '&lt;id&gt;' was not registered** notification appears, or the **Attention** tab shows a **Not an official plugin** entry | The folder uses the prefix reserved for official plugins but is absent from the official list. It is not registered and does not run. Select the folder in **Plugins › Attention** and press **Remove** |
 
 <a id="what-to-read-next"></a>
 
