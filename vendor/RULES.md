@@ -196,7 +196,7 @@ Each location has one ground. It may hold only the listed children, to the liste
 | Markdown surface, focused | `term` | 2 | `base`, `mantle`, `raised`, `fill-warning`, `fill-primary`, `file-drop@term` | Content typography is library-driven. Colors follow this table. Address band stays mantle. A callout is its hue at tint-fill-alpha over the bed: title accent-<hue>-raised, body text-primary. A find hit is opaque. |
 | Markdown surface, unfocused | `term-unfocused` | 2 | `base`, `mantle`, `raised`, `fill-warning`, `fill-primary`, `file-drop@term-unfocused` | Table row and zebra swap fills, so neither is the bed in both themes at once. Address band stays mantle. A callout is its hue at tint-fill-alpha over the bed: title accent-<hue>-raised, body text-primary. A find hit is opaque. |
 | HTML surface | `mantle` | 2 | `field`, `raised` | The page is web content, outside these rules. Focus shows on the focus edge above the address band. |
-| Image surface | `base` | 1 | `mantle`, `raised`, `term`, `term-unfocused` | The control bar is base. The canvas takes the bed for the focus state. |
+| Image surface | `base` | 1 | `raised`, `term`, `term-unfocused` | The control bar is base. The canvas takes the bed for the focus state, and its empty and load-failed state screens sit on that bed. |
 | Empty surface, focused | `term` | 1 | `raised` | Nothing but the bed. Banner and toast float on raised. |
 | Empty surface, unfocused | `term-unfocused` | 1 | `raised` | Nothing but the bed. Banner and toast float on raised. |
 | Explorer, focused | `term` | 2 | `mantle`, `term+hover`, `term+press`, `mantle+hover`, `mantle+press`, `active`, `active+hover`, `active+press`, `raised`, `field`, `drop-target@term`, `drop-target@mantle`, `marquee@term`, `marquee@mantle`, `file-drop@term`, `file-drop@mantle`, `drop-target@raised`, `track`, `track-raised`, filled controls, tint boxes over `mantle` | The file area takes the bed. Tabs, toolbar, sidebar, header and status line stay as they are. Selected row is active. Drag chip is raised. |
@@ -239,7 +239,7 @@ The bed shows focus, as the terminal's always has: **`term` focused, `term-unfoc
 | `empty` | The whole surface | - | No |
 | `explorer` | File area | Inner tab bar, toolbar, sidebar, header, status line, preview panel | No |
 | `dag_graph` | Canvas | Header, nodes, detail panel | No |
-| `image` | Canvas | Control bar, popups, the image | No |
+| `image` | Canvas, with its empty and load-failed state screens | Control bar, popups, the image, state screen ink | No |
 | `html` | None. The page paints itself | Address band, banners, chrome tiles | Yes |
 | Plugin, webview | None the host can promise | The plugin's page | Yes |
 | Plugin, `egui-mesh` | None the host can promise | The plugin's frame | Yes |
@@ -250,6 +250,8 @@ The bed shows focus, as the terminal's always has: **`term` focused, `term-unfoc
 - Plugin surfaces: the plugin paints them and may ignore the value or declare one color twice. A plugin may follow `term` and `term-unfocused` itself, and the edge still shows.
 
 **Webview chrome tiles.** Loading, failed, no page and boundary tiles stand in for the page. On `markdown` the tile takes the bed for the focus state, so nothing jumps when the document appears. Its no page glyph is `glyph-dim`, because `text-disabled` is 2.99 on the Latte unfocused bed. On `html` and plugin webviews the tile stays `base` under the edge, because the page that follows it will not swap.
+
+**Image state screens.** Empty and load-failed are the canvas with no picture on it, so they take the same bed and no mark of their own. Sub and reason are `text-muted`. Empty has a `text-muted` glyph and a `text-secondary` title. Missing and decode use `image-error-fg` for glyph and title, and permission uses `accent-warning-raised` for both. Too large has an `image-too-large-fg` glyph and a `text-primary` title. Each ink holds on both beds in both themes.
 
 **Rules for the bed.**
 
