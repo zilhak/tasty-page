@@ -502,7 +502,7 @@ function MdInjectionMap() {
   );
 }
 
-function HtmlTile({ state, bed = "var(--tasty-bg-panel)" }) {
+function HtmlTile({ state, bed = "var(--tasty-bg-panel)", idleGlyph = "var(--tasty-text-disabled)" }) {
   const center = (glyph, glyphColor, title, titleColor, sub) => (
     <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, textAlign: "center", padding: 16 }}>
       <span style={{ display: "inline-flex", color: glyphColor, transform: "scale(1.5)" }}>{glyph}</span>
@@ -512,7 +512,7 @@ function HtmlTile({ state, bed = "var(--tasty-bg-panel)" }) {
   );
   const body = {
     boundary: <div style={{ flex: 1 }} />, /* 2026-10-06: plain tile while an egui overlay hides the loaded WebView — no glyph, no text */
-    placeholder: center(ic.globe, "var(--tasty-text-disabled)", "No page loaded", "var(--tasty-text-muted)"),
+    placeholder: center(ic.globe, idleGlyph, "No page loaded", "var(--tasty-text-muted)"),
     loading: center(<Spinner />, "var(--tasty-spinner-indicator)", "Loading…", "var(--tasty-text-muted)"),
     error: center(ic.alert, "var(--tasty-accent-danger-raised)", "Failed to load", "var(--tasty-accent-danger-raised)", "https://offline.example"),
   }[state];
@@ -917,12 +917,12 @@ function Page() {
             ))}
             {["boundary", "placeholder", "loading", "error"].map((state) => [true, false].map((focused) => (
               <View key={state + focused} name={`markdown-tile-${state}-${focused ? "focused" : "unfocused"}`} label={`Chrome tile, ${state}, ${focused ? "focused" : "unfocused"}`}>
-                <HtmlTile state={state} bed={surfaceBed(focused)} />
+                <HtmlTile state={state} bed={surfaceBed(focused)} idleGlyph="var(--tasty-glyph-dim)" />
               </View>
             )))}
           </Views>
           <Meta
-            specs={[["focused", "Mocha #000000, Latte #ffffff"], ["unfocused", "Mocha base #1e1e2e, Latte crust #dce0e8"], ["same as the terminal", "yes, one pair of beds"], ["motion", "0ms, one frame"], ["stays", "body ink, links, code fill, table header and grid, address band"], ["unknown focus", "unfocused values"]]}
+            specs={[["focused", "Mocha #000000, Latte #ffffff"], ["unfocused", "Mocha base #1e1e2e, Latte crust #dce0e8"], ["same as the terminal", "yes, one pair of beds"], ["motion", "0ms, one frame"], ["stays", "body ink, links, code fill, table header and grid, address band"], ["unknown focus", "unfocused values"], ["no page glyph", <><span className="tok">--tasty-glyph-dim</span> on these beds</>]]}
             tokens={[{ tok: "--tasty-surface-bed-focused", use: "--md-bg, focused", color: "var(--tasty-surface-bed-focused)" }, { tok: "--tasty-surface-bed-unfocused", use: "--md-bg, unfocused", color: "var(--tasty-surface-bed-unfocused)" }, { tok: "--tasty-md-table-row-bg", use: "row, focused", color: "var(--tasty-md-table-row-bg)" }, { tok: "--tasty-md-table-row-bg-unfocused", use: "row, unfocused", color: "var(--tasty-md-table-row-bg-unfocused)" }, { tok: "--tasty-md-table-row-bg-zebra", use: "zebra, focused", color: "var(--tasty-md-table-row-bg-zebra)" }, { tok: "--tasty-md-table-row-bg-zebra-unfocused", use: "zebra, unfocused", color: "var(--tasty-md-table-row-bg-zebra-unfocused)" }, { tok: "--tasty-md-code-bg", use: "code fill → --md-code-bg", color: "var(--tasty-md-code-bg)" }, { tok: "--tasty-md-table-border", use: "grid → --md-border", color: "var(--tasty-md-table-border)" }]} />
           <Note>Implementing side: <code>[surfaces.markdown]</code> gets <code>focused_bg</code> and <code>unfocused_bg</code> from these two beds in Mocha and Latte, and the renderer stops reading a single bed. <code>focused_fg</code> and <code>unfocused_fg</code> stay in the file, and the document reads neither: its body ink is the same in both states.</Note>
           <Dont><b>Don't</b> reload the document or rewrite its HTML to change the bed. Scroll, selection and find state must survive a focus change.</Dont>
