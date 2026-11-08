@@ -373,10 +373,9 @@ function RegisterAnyway({ name, onFlash }) {
   );
 }
 // Remove (reserved id only) — secondary with danger ink at rest; the confirm replaces the bar in place
-// (Installed Uninstall recipe), Cancel holds focus, Esc / a new selection cancels. Busy → both disabled.
-function RemoveReserved({ item, confirming, onConfirm, onCancel, onRemove, onFlash }) {
-  const [busy, setBusy] = React.useState(false);
-  React.useEffect(() => setBusy(false), [item.id]);
+// (Installed Uninstall recipe), Cancel holds focus, Esc / a new selection cancels. Busy → both disabled, and
+// Esc / a new selection are ignored (no cancel path once removing has started). busy lives in AttentionPanel.
+function RemoveReserved({ item, confirming, busy, onBusy, onConfirm, onCancel, onRemove, onFlash }) {
   if (!confirming)
     return (
       <>
@@ -399,7 +398,7 @@ function RemoveReserved({ item, confirming, onConfirm, onCancel, onRemove, onFla
         {busy && <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-sm)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}><PwSpinner size={14} label="Removing" />Removing…</span>}
         <Button variant="ghost" autoFocus disabled={busy} onClick={onCancel}>Cancel</Button>
         <Button variant="danger" disabled={busy} aria-busy={busy || undefined}
-          onClick={() => { setBusy(true); setTimeout(() => { setBusy(false); onRemove && onRemove(item); onFlash && onFlash("Removed '" + item.name + "'."); }, 700); }}>Remove</Button>
+          onClick={() => { onBusy(true); setTimeout(() => { onBusy(false); onRemove && onRemove(item); onFlash && onFlash("Removed '" + item.name + "'."); }, 700); }}>Remove</Button>
       </div>
     </>
   );
@@ -407,14 +406,15 @@ function RemoveReserved({ item, confirming, onConfirm, onCancel, onRemove, onFla
 function AttentionPanel({ items, onFlash, onConfigure, onRemove }) {
   const [selId, setSelIdRaw] = React.useState(items[0] ? items[0].id : null);
   const [confirmId, setConfirmId] = React.useState(null);
-  const setSelId = (id) => { setSelIdRaw(id); setConfirmId(null); };
+  const [removing, setRemoving] = React.useState(false); // reserved-id removal in progress: no cancel path
+  const setSelId = (id) => { if (removing) return; setSelIdRaw(id); setConfirmId(null); };
   const sel = items.find((p) => p.id === selId) || items[0] || null;
   React.useEffect(() => {
     if (!confirmId) return;
-    const onKey = (e) => { if (e.key === "Escape") { e.stopPropagation(); setConfirmId(null); } };
+    const onKey = (e) => { if (e.key === "Escape" && !removing) { e.stopPropagation(); setConfirmId(null); } };
     window.addEventListener("keydown", onKey, true);
     return () => window.removeEventListener("keydown", onKey, true);
-  }, [confirmId]);
+  }, [confirmId, removing]);
 
   const Mono = ({ children }) => (
     <div style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 10, textTransform: "uppercase",
@@ -582,7 +582,7 @@ function AttentionPanel({ items, onFlash, onConfigure, onRemove }) {
         <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-size-14)",
           borderTop: "var(--tasty-border-width) solid var(--tasty-separator)", flex: "none" }}>
           {meta.removeOnly ? (
-            <RemoveReserved item={sel} confirming={confirmId === sel.id} onConfirm={() => setConfirmId(sel.id)}
+            <RemoveReserved item={sel} confirming={confirmId === sel.id} busy={removing} onBusy={setRemoving} onConfirm={() => setConfirmId(sel.id)}
               onCancel={() => setConfirmId(null)} onRemove={(it) => { setConfirmId(null); onRemove && onRemove(it); }} onFlash={onFlash} />
           ) : (<>
           <span style={{ fontSize: 12, color: c, display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-sm)" }}>
