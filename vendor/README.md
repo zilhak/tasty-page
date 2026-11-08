@@ -125,6 +125,8 @@ How Tasty writes. Match this voice in any copy you produce.
 
 **Screens** (`screens/`) — Mocha screenshots of the app UI. There are no Latte counterparts.
 
+**Share images** (`share/`) — the 1200×630 link preview image for each language, with the HTML and render script they come from. `gallery/foundations/` shows them.
+
 ---
 
 ## Caveats
