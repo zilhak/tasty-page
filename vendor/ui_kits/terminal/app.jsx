@@ -212,7 +212,7 @@ function App() {
                   <ul style={{ fontSize: "var(--tasty-font-size-body)", color: "var(--tasty-text-secondary)", margin: 0, paddingLeft: "var(--tasty-space-lg)" }}>
                     <li>The status bar reports the focused surface, not the tab.</li>
                     <li>Search (Cmd+F) is scoped to the focused surface.</li>
-                    <li>A focused terminal or document sits on the darkest bed, and the others step back. Html and plugin surfaces show focus on an edge across the top.</li>
+                    <li>A focused terminal or document takes the focused bed, black or white by theme, and the others step back. Html and plugin surfaces show focus on an edge across the top.</li>
                   </ul>
                 </MarkdownSurface>
               </>
