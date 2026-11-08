@@ -12,8 +12,9 @@
   버전을 설명해야 하기 때문이다. `main`은 최신 페이지라 빌드와 검사만 한다. 표시 버전은 공개된 최신
   Tasty 릴리스(`release.json`)이고, 이 파일이 없는 로컬 빌드는 버전을 표시하지 않는다.
 - 승격: Tasty를 릴리스할 때 `release`를 `main`으로 fast-forward하고 Tasty 릴리스와 같은 태그를 붙여
-  `git push --atomic origin release <tag>`로 함께 push한다. 게시용 페이지에서만 고칠 내용은 `release`에
-  커밋해 배포한 뒤 `release`를 `main`에 합친다([CLAUDE.md](../../CLAUDE.md) "게시용 페이지와 최신 페이지").
+  `git push --atomic origin release <tag>`로 함께 push한다. 기능 설명이나 버전이 바뀌는 변경은 이때 함께 공개한다.
+- 게시용 수정: 공개된 Tasty 버전의 기능 설명이나 버전이 바뀌지 않는 변경(문구, 메타데이터 등)은 묻지 않고
+  `release`에 커밋해 태그 없이 배포한 뒤 곧바로 `release`를 `main`에 합친다([CLAUDE.md](../../CLAUDE.md) "게시용 페이지와 최신 페이지").
 - 다른 CI: `checks.yml`은 `checks/`의 Rust 시험으로 가이드를 Tasty 소스와 대조한다. Tasty 소스는
   `.tasty-src`에 받으며, `main`에서는 Tasty `main`, `release`에서는 가장 가까운 태그와 같은 이름의 Tasty
   태그다. 매일 한 번도 실행한다. `design.yml`은 `vendor/` 디자인 정본을 검사한다(아래 "vendor 검사와 변경 날짜").
