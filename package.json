@@ -8,6 +8,7 @@
     "preview": "astro preview",
     "stamp": "node --experimental-strip-types scripts/stamp.mjs",
     "check-links": "node scripts/check-links.mjs",
+    "check-sitemap": "node scripts/check-sitemap.mjs",
     "check-contrast": "node scripts/check-contrast.mjs",
     "check-icons": "node scripts/check-icons.mjs",
     "check-tokens-copy": "node scripts/check-tokens-copy.mjs"

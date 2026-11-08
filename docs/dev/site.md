@@ -7,7 +7,8 @@
 - 산출물: 레포 루트 아래 `dist/` — 빌드가 만들며 Git에서 제외한다(경로 인용으로 안 적는다. 갓 클론한
   트리에는 없어서 좌표를 실재로 판정하는 CI의 경로 검사가 실패할 수 있다)
 - 배포: `.github/workflows/pages.yml`. `main`과 `release`의 push마다 `npm run build`로 빌드하고
-  `npm run check-links`로 산출물의 내부 링크와 `content/` 앵커의 실제 HTML 결과를 전수 판정한다.
+  `npm run check-links`로 산출물의 내부 링크와 `content/` 앵커의 실제 HTML 결과를 전수 판정하고, `npm run check-sitemap`으로
+  공개 페이지와 sitemap을 대조한다.
   **배포는 `release` push와 `release`에서 수동 실행할 때만** 한다. 공개 사이트는 사용자가 받을 수 있는
   버전을 설명해야 하기 때문이다. `main`은 최신 페이지라 빌드와 검사만 한다. 표시 버전은 공개된 최신
   Tasty 릴리스(`release.json`)이고, 이 파일이 없는 로컬 빌드는 버전을 표시하지 않는다.
@@ -71,7 +72,7 @@
   package.json          astro · @astrojs/react · react 18
   astro.config.mjs      정적 출력, React 아일랜드
   vendor/               Tasty UI 디자인 정본. 사이트가 그대로 import한다
-  scripts/              check-links · check-contrast · check-icons · check-tokens-copy · stamp · design-tokens/
+  scripts/              check-links · check-sitemap · check-contrast · check-icons · check-tokens-copy · stamp · design-tokens/
   src/pages/            라우트
   src/components/ src/layouts/ src/lib/ src/styles/
 ```
@@ -176,6 +177,7 @@ npm run build        # astro build --force -> dist/
 npm run dev          # 개발 서버
 npm run preview      # 빌드 결과 확인
 npm run check-links     # 빌드 결과의 내부 링크·앵커 검사
+npm run check-sitemap   # 빌드 결과의 공개 페이지와 sitemap.xml 대조
 npm run check-contrast  # 빌드 결과의 갤러리·사이트 페이지 렌더링 대비 검사
 npm run check-icons     # vendor 아이콘 파일과 Icon 컴포넌트의 글리프 대조
 npm run check-tokens-copy  # vendor/tokens.css의 1단계 값과 primitives.css 대조
@@ -198,7 +200,7 @@ npm run stamp content/en/index.md
 | `/design/gallery/**` | 레퍼런스 갤러리 15 페이지. 사이트 머리글과 푸터를 쓰며 언어별로 나누지 않는다. `noindex, follow`로 색인에서 빼고 sitemap에도 넣지 않는다 |
 | `/design/cards/*.html` | 가이드라인 원본 문서. 페이지가 iframe 으로 싣는다. 단독으로 검색에 나오지 않고 싣는 페이지의 내용으로는 남도록 `src/lib/vendor-assets.ts`가 발행할 때 `noindex, indexifembedded`를 넣는다. `vendor/` 원본에는 넣지 않고 sitemap에도 넣지 않는다 |
 | `/robots.txt` | 전체 허용과 `Sitemap:` 줄. `Disallow`를 넣지 않는다. 막으면 크롤러가 카드와 갤러리의 `noindex`를 읽지 못한다 |
-| `/sitemap.xml` | 랜딩, 가이드, privacy, 디자인 페이지의 양 언어. 가이드와 디자인은 `buildPages`와 `DESIGN_NAV`에서 만들어 페이지를 추가하면 자동으로 들어간다. 랜딩과 privacy는 `src/pages/sitemap.xml.ts`에 적는다. 카드와 갤러리는 넣지 않는다. `lastmod`, `changefreq`, `priority`는 정확한 값을 얻을 근거가 없어 넣지 않는다 |
+| `/sitemap.xml` | 랜딩, 가이드, privacy, 디자인 페이지의 양 언어. 가이드와 디자인은 `buildPages`와 `DESIGN_NAV`에서 만들어 페이지를 추가하면 자동으로 들어간다. 랜딩과 privacy는 `src/pages/sitemap.xml.ts`에 적는다. 카드와 갤러리는 넣지 않는다. `lastmod`, `changefreq`, `priority`는 정확한 값을 얻을 근거가 없어 넣지 않는다. `npm run check-sitemap`이 빌드된 HTML 중 `<head>`에 `noindex`가 없는 페이지(`404.html` 제외)를 공개 페이지로 보고 `<loc>`와 대조한다. 빠진 공개 페이지, 없는 페이지나 `noindex` 페이지를 가리키는 `<loc>`, 중복, 비어 있거나 없는 sitemap은 실패다 |
 | `/search-index.json` (en) · `/search-index.ko.json` | 검색 인덱스. 페이지마다 제목·섹션과 본문 앞 600자를 싣는다(`src/lib/search.ts`). 코드 블록과 HTML 태그는 빼고, 인라인 코드는 글자로 남기며, 단어 안의 하이픈은 지워지지 않아 `task-await` 같은 명령 이름이 입력한 그대로 맞는다. 명령 이름으로 찾게 하려면 그 이름을 제목이나 첫 문단에 쓴다 |
 
 ### 배포 경로 (base)
