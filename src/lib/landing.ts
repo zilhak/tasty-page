@@ -42,7 +42,7 @@ export interface Copy {
   moreLinks: GuideLink[];
 
   agentsTitle: string;
-  /** Holds inline `<code>`. */
+  /** Rendered as HTML, so it may hold inline `<code>`. */
   agentsBody: string;
   agentsIntegration: string;
   agentsNote: string;
@@ -64,11 +64,11 @@ export interface Copy {
 
 export const KO: Copy = {
   badge: "Windows · macOS · Linux",
-  tagline: "내 입맛에 맞는 터미널",
+  tagline: "AI 에이전트와 쓰기에도 편한 터미널",
   titleLead: "입맛에 맞게 쓰는",
   titleAccent: "터미널,",
   titleTail: "Tasty.",
-  body: "Tasty는 프로젝트별로 워크스페이스를 나누고, 여러 터미널과 문서를 한 화면에 배치합니다. Windows, macOS, Linux에서 사용할 수 있습니다.",
+  body: "Tasty는 프로젝트별 워크스페이스와 화면 분할을 제공하는 터미널입니다. 작업용 터미널과 테스트 로그를 나란히 두고, 여러 AI 에이전트도 각각의 터미널에서 동시에 실행할 수 있습니다.",
   ctaPrimary: "다운로드",
   ctaSecondary: "설치 가이드",
   ctaOther: "모든 설치 파일",
@@ -97,9 +97,9 @@ export const KO: Copy = {
     { label: "필요한 플러그인 관리하기", href: "plugins/" },
   ],
 
-  agentsTitle: "CLI로 터미널을 조작하고 에이전트를 연결합니다",
-  agentsBody: "스크립트와 AI 에이전트는 <code>tasty</code> CLI로 대상 ID를 지정해 터미널을 만들고, 명령을 보내고, 출력을 읽습니다. CLI로 새 탭을 열어도 사용자가 보던 탭과 포커스·선택·스크롤 위치는 바뀌지 않습니다.",
-  agentsIntegration: "Claude Code와 Codex CLI는 별도로 설치합니다. Tasty 플러그인과 훅을 설정하면 에이전트의 상태를 확인할 수 있습니다. 자식 에이전트의 응답을 부모에게 전달하는 절차는 연동 가이드에서 설명합니다.",
+  agentsTitle: "AI 에이전트도 직접 다루는 터미널",
+  agentsBody: "AI 에이전트는 다른 에이전트를 실행해 여러 작업을 동시에 맡길 수 있습니다. tasty CLI로 각 에이전트에게 추가 지시를 보내거나, 작업용 터미널에 명령을 보내고 출력을 읽을 수 있습니다.",
+  agentsIntegration: "Claude Code와 Codex CLI는 별도로 설치해 Tasty 터미널에서 실행합니다. 해당 Tasty 플러그인이 켜져 있고 훅이 정상 동작하면 작업 중인지, 입력을 기다리는지 확인할 수 있습니다. 여러 에이전트에게 작업을 나누는 방법과 응답이 끝났을 때 알림을 받는 조건은 연동 가이드에서 설명합니다.",
   agentsNote: "응답이 끝났다는 알림은 작업이 성공했다는 판정과 다릅니다.",
   agentsLinks: [
     { label: "CLI 시작하기", href: "agents/cli/" },
@@ -122,11 +122,11 @@ export const KO: Copy = {
 
 export const EN: Copy = {
   badge: "Windows · macOS · Linux",
-  tagline: "A terminal to your taste.",
+  tagline: "A terminal for everyday work and AI agents.",
   titleLead: "A terminal",
   titleAccent: "to your taste.",
   titleTail: "",
-  body: "Tasty organizes projects into workspaces and arranges terminals and documents side by side. Available on Windows, macOS, and Linux.",
+  body: "Tasty is a terminal with project workspaces and split layouts. Working terminals and test logs can sit side by side, with multiple AI agents running at the same time in their own terminals.",
   ctaPrimary: "Download",
   ctaSecondary: "Installation guide",
   ctaOther: "All installation files",
@@ -155,9 +155,9 @@ export const EN: Copy = {
     { label: "Manage plugins", href: "plugins/" },
   ],
 
-  agentsTitle: "Control terminals through the CLI and connect your agents",
-  agentsBody: "Scripts and AI agents use the <code>tasty</code> CLI to address terminals by ID, create them, send commands, and read output. Opening a tab through the CLI keeps your current tab, focus, selection, and scroll position.",
-  agentsIntegration: "Install Claude Code and Codex CLI separately. Configure the Tasty plugins and hooks to follow agent status. The integration guide explains how to deliver a child agent’s response to its parent.",
+  agentsTitle: "A terminal AI agents can operate.",
+  agentsBody: "An AI agent can start other agents and assign them tasks to run at the same time. Through the tasty CLI, it can send follow-up instructions to individual agents, send commands to working terminals, and read output.",
+  agentsIntegration: "Claude Code and Codex CLI are installed separately and run in Tasty terminals. With the corresponding Tasty plugins enabled and hooks working, Tasty shows whether an agent is working or waiting for input. The integration guide covers dividing work among agents and the conditions for receiving notifications when a response ends.",
   agentsNote: "A notification that a response ended does not mean the task succeeded.",
   agentsLinks: [
     { label: "Start with the CLI", href: "agents/cli/" },
