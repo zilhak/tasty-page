@@ -457,6 +457,14 @@ Plugins · Ports · Remote · 커맨드 팔레트를 연다. 페이지이기 때
 랜딩의 AppShell과 갤러리처럼 상호작용이 필요한 곳은 React를 실행한다.
 일반 가이드는 React 앱을 띄우지 않지만 테마·내비게이션을 위한 공용 사이트 스크립트는 사용한다.
 
+### React 섬의 SSR
+
+`astro.config.mjs`는 `react({ experimentalDisableStreaming: true })`로 섬을 `renderToString`으로 그린다. react-dom 18.3.1의 Node 스트림 렌더러(`renderToPipeableStream`)는 다음 글자가 멀티바이트라 2048바이트 버퍼의 남은 자리에 들어가지 않으면 안 쓴 자리까지 버퍼 전체를 내보내, HTML에 NUL 바이트가 들어간다. 18.3.1은 18.x의 마지막 버전이고 어느 페이지에 생기는지는 문구에 달려 있어, 스트림을 쓰지 않는 쪽을 고른다. 페이지가 Suspense로 스트리밍할 일은 없으므로 잃는 것이 없다.
+
+- `useId`를 쓰지 않는다. 이 경로는 `identifierPrefix`를 넘기지 않아 한 페이지의 섬끼리 id가 겹칠 수 있다. 쓰게 되면 이 선택부터 다시 정한다.
+- `Suspense`와 `lazy`도 지금 쓰지 않는다. `renderToString`은 Suspense 경계를 기다리지 않는다.
+- 가이드 그림은 이 경로를 쓰지 않는다. `src/lib/diagrams.jsx`가 `renderToStaticMarkup`으로 그린다.
+
 ## 디자인 섹션
 
 디자인 시스템 자체를 발행하는 구역이다. 둘 다 `vendor/` 가 정본이고 사이트는 소비자다.

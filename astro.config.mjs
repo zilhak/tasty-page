@@ -12,7 +12,9 @@ export default defineConfig({
   site: SITE,
   base: BASE,
   integrations: [
-    react(),
+    // React 18's Node stream renderer flushes its whole 2048-byte buffer when the
+    // next multibyte character does not fit, leaving NUL bytes in the HTML.
+    react({ experimentalDisableStreaming: true }),
     {
       // Guide links to Markdown files outside content/ are only warnings while
       // rendering. Fail the build once every page has rendered.
