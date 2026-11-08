@@ -8,6 +8,7 @@ import { GalleryMoveSource } from "./move-source.jsx";
 import { GalleryTabStrip } from "./tab-strip.jsx";
 import { GalleryTitleBar } from "./title-bar.jsx";
 import { GallerySurfaceFocus } from "./surface-focus.jsx";
+import { SurfaceFocusEdge } from "../../ui_kits/terminal/surface_focus.jsx";
 import { Lnb as GalleryNotifications_Lnb } from "../parts/notifications.jsx";
 import { Section, Spec, Stage, Meta, Note, Do, Dont, GIcon } from "../parts/specimen.jsx";
 
@@ -319,30 +320,32 @@ function CategoryRail({ held }) {
 function fakePane(label, focused, agent) {
   return (
     <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column",
-      background: focused ? "#000" : "var(--tasty-surface-terminal-unfocused-bg)",
+      background: focused ? "var(--tasty-surface-terminal-focused-bg)" : "var(--tasty-surface-terminal-unfocused-bg)",
       border: "1px solid var(--tasty-separator)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
+      <SurfaceFocusEdge focused={focused} />
       <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 10px", borderBottom: "1px solid var(--tasty-separator)", background: "var(--tasty-bg-panel)" }}>
         {agent ? <StatusDot status="agent" pulse label={label} /> : <StatusDot status={focused ? "running" : "idle"} label={label} />}
         <span style={{ marginLeft: "auto" }}><Tag>{focused ? "s_01HX" : "s_02KQ"}</Tag></span>
       </div>
       <div style={{ padding: "10px 12px", fontFamily: "var(--tasty-font-mono)", fontSize: 12.5,
-        color: focused ? "var(--tasty-color-neutral-1100)" : "var(--tasty-surface-terminal-unfocused-fg)", lineHeight: 1.5 }}>
+        color: focused ? "var(--tasty-surface-terminal-focused-fg)" : "var(--tasty-surface-terminal-unfocused-fg)", lineHeight: 1.5 }}>
         <div><span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-color-green)" }}>~/tasty</span> <span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-color-blue)" }}>main</span></div>
         <div style={{ display: "flex", alignItems: "center", marginTop: 2 }}>
           <span style={{ color: agent ? "var(--tasty-accent-agent-raised)" : "var(--tasty-color-mauve)" }} data-audit-exempt="ansi-content">❯&nbsp;</span>
-          {focused && <span style={{ width: 8, height: 15, background: "var(--tasty-color-neutral-1100)", display: "inline-block", animation: "tasty-blink 1.1s step-end infinite" }} />}
+          {focused && <span style={{ width: 8, height: 15, background: "var(--tasty-surface-terminal-focused-fg)", display: "inline-block", animation: "tasty-blink 1.1s step-end infinite" }} />}
         </div>
       </div>
     </div>
   );
 }
 
-// Markdown surface stand-in — address bar + prose, for the mixed-split specimen.
-function fakeDocPane() {
+// Markdown surface stand-in — address bar + prose, for the mixed-split specimen. One bed in both focus states.
+function fakeDocPane(focused) {
   return (
     <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column",
-      background: "var(--tasty-surface-markdown-unfocused-bg)", border: "1px solid var(--tasty-separator)",
+      background: "var(--tasty-md-doc-bg)", border: "1px solid var(--tasty-separator)",
       borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
+      <SurfaceFocusEdge focused={focused} />
       <div style={{ display: "flex", alignItems: "center", gap: 8, height: 36, flex: "none", padding: "0 8px",
         background: "var(--tasty-bg-sidebar)", borderBottom: "1px solid var(--tasty-separator)" }}>
         <div style={{ flex: 1, minWidth: 0, display: "flex", alignItems: "center", gap: 4, height: 28, padding: "0 8px",
@@ -867,7 +870,7 @@ function Layouts() {
       <Section id="surfaces" title="Surface focus states">
         <GallerySurfaceFocus />
         <Spec id="focused-unfocused-agent" title="Focused · unfocused · agent"
-          when={<>Split panes make focus explicit through color. The <b>focused</b> terminal surface goes <b>true black (#000)</b> with full-strength text; <b>unfocused</b> surfaces dim to <code>--surface-terminal-unfocused</code> at 92% opacity. An <b>agent</b> surface carries the mauve pulsing dot — you always know who's driving.</>}>
+          when={<>The terminal is the one kind that also changes its bed. The <b>focused</b> terminal reads <span className="tok">--tasty-surface-terminal-focused-bg</span> (true black in Mocha, white in Latte) with full-strength text; an <b>unfocused</b> one drops to <span className="tok">--tasty-surface-terminal-unfocused-bg</span> and muted text. The focus edge on top says the same on every kind. An <b>agent</b> surface carries the mauve pulsing dot — you always know who's driving.</>}>
           <Stage variant="tight" grid>
             <div style={{ display: "flex", gap: 8, padding: 12, height: 220, background: "var(--tasty-bg-panel)" }}>
               {fakePane("agent · ai-review", false, true)}
@@ -875,22 +878,30 @@ function Layouts() {
             </div>
           </Stage>
           <Meta
-            specs={[["focused bg", <>#000 <span className="tok">--tasty-surface-terminal-focused-bg</span></>], ["unfocused bg", <span className="tok">--tasty-surface-terminal-unfocused-bg</span>], ["unfocused opacity", "0.92"], ["agent marker", <>pulsing <span className="tok">--tasty-accent-agent</span></>]]}
-            tokens={[{ tok: "--tasty-surface-terminal-focused-bg", use: "#000 focused", color: "#000" }, { tok: "--tasty-surface-terminal-unfocused-bg", use: "dimmed", color: "var(--tasty-surface-terminal-unfocused-bg)" }, { tok: "--tasty-accent-agent", use: "agent dot", color: "var(--tasty-accent-agent-raised)" }, { tok: "--tasty-accent-success", use: "your running dot", color: "var(--tasty-accent-success-raised)" }]} />
+            specs={[["focused bg", <span className="tok">--tasty-surface-terminal-focused-bg</span>], ["unfocused bg", <span className="tok">--tasty-surface-terminal-unfocused-bg</span>], ["focus edge", <span className="tok">--tasty-surface-focus-edge-focused</span>], ["agent marker", <>pulsing <span className="tok">--tasty-accent-agent</span></>]]}
+            tokens={[{ tok: "--tasty-surface-terminal-focused-bg", use: "focused bed", color: "var(--tasty-surface-terminal-focused-bg)" }, { tok: "--tasty-surface-terminal-unfocused-bg", use: "unfocused bed", color: "var(--tasty-surface-terminal-unfocused-bg)" }, { tok: "--tasty-surface-focus-edge-focused", use: "focus edge", color: "var(--tasty-surface-focus-edge-focused)" }, { tok: "--tasty-accent-agent", use: "agent dot", color: "var(--tasty-accent-agent-raised)" }, { tok: "--tasty-accent-success", use: "your running dot", color: "var(--tasty-accent-success-raised)" }]} />
           <Note>This is the soul of the product made visual: <b>user vs. agent</b> and <b>focused vs. not</b> are never ambiguous. Carry these colors into any surface mock.</Note>
         </Spec>
 
         <Spec id="mixed-split-terminal-markdown-in-one-pane-group" title="Mixed split — terminal + markdown in one pane group"
-          when={<>A pane group is <b>kind-agnostic</b>: a <b>terminal</b> and a <b>markdown</b> surface can sit side by side in the same tab — the common "run it left, read the doc right" layout. Each surface keeps its <b>own</b> focus bed: the terminal goes <b>#000</b> when focused, the markdown surface uses the <b>document bed</b> (<span className="tok">--tasty-surface-markdown-focused-bg</span>) focused and the <b>sidebar bed</b> unfocused — never black. The markdown surface keeps its 36px <b>address bar</b> inside the split, and the status bar reports the <b>focused surface</b>, not the tab.</>}>
+          when={<>A pane group is <b>kind-agnostic</b>: a <b>terminal</b> and a <b>markdown</b> surface can sit side by side in the same tab — the common "run it left, read the doc right" layout. Each surface shows focus on its <b>own</b> edge. The terminal also swaps its bed; the markdown surface stays on the <b>document bed</b> (<span className="tok">--tasty-md-doc-bg</span>) in both states — never black. The markdown surface keeps its 36px <b>address bar</b> inside the split, and the status bar reports the <b>focused surface</b>, not the tab.</>}>
           <Stage variant="tight" grid>
             <div style={{ display: "flex", gap: 8, padding: 12, height: 240, background: "var(--tasty-bg-panel)" }}>
               {fakePane("you · zsh", true, false)}
-              {fakeDocPane()}
+              {fakeDocPane(false)}
             </div>
           </Stage>
+          <Views>
+            <View name="mixed-split-markdown-focused" label="Markdown focused">
+              <div style={{ display: "flex", gap: 8, height: 240, minWidth: 460 }}>
+                {fakePane("you · zsh", false, false)}
+                {fakeDocPane(true)}
+              </div>
+            </View>
+          </Views>
           <Meta
-            specs={[["group", "one tab, surfaces of different kinds"], ["terminal focused", "#000 · opacity 1"], ["markdown unfocused", <span className="tok">--tasty-surface-markdown-unfocused-bg</span>], ["markdown chrome", "36px address bar, kept in split"], ["prose measure", "max 620px"], ["status bar", "focused surface id"]]}
-            tokens={[{ tok: "--tasty-surface-markdown-focused-bg", use: "document bed (focused)", color: "var(--tasty-surface-markdown-focused-bg)" }, { tok: "--tasty-surface-markdown-unfocused-bg", use: "doc surface, unfocused", color: "var(--tasty-surface-markdown-unfocused-bg)" }, { tok: "--tasty-surface-terminal-focused-bg", use: "#000 terminal, focused", color: "#000" }, { tok: "--tasty-separator", use: "surface border" }]} />
+            specs={[["group", "one tab, surfaces of different kinds"], ["focus", "the edge on each surface"], ["terminal", "swaps its bed"], ["markdown", <>one bed, <span className="tok">--tasty-md-doc-bg</span></>], ["markdown chrome", "36px address bar, kept in split"], ["prose measure", "max 620px"], ["status bar", "focused surface id"]]}
+            tokens={[{ tok: "--tasty-surface-focus-edge-focused", use: "focus edge", color: "var(--tasty-surface-focus-edge-focused)" }, { tok: "--tasty-md-doc-bg", use: "document bed", color: "var(--tasty-md-doc-bg)" }, { tok: "--tasty-surface-terminal-focused-bg", use: "terminal, focused", color: "var(--tasty-surface-terminal-focused-bg)" }, { tok: "--tasty-separator", use: "surface border" }]} />
           <Dont><b>Don't</b> paint the markdown pane black to "match" its terminal neighbour — black is a raw-TTY convention. Prose stays on the Catppuccin document bed, which is how the two kinds stay tellable apart at a glance.</Dont>
         </Spec>
 
