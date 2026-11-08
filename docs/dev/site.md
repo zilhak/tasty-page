@@ -82,6 +82,7 @@
 | 페이지 토큰 | `src/styles/tokens.css`. tier 순서로 `vendor/` 토큰을 `@import`한다 |
 | `/design/tokens.css` · `/design/kit.css` · `/design/cards/*.html` | `src/lib/vendor-assets.ts`와 이를 읽는 엔드포인트 |
 | `/tasty-melon.svg` · `/tasty-icon.png` | `assets/icons/`의 `tasty-melon.svg` · `icon_256.png`(Tasty 레포의 로고·앱 아이콘과 같은 파일)를 읽는 엔드포인트 `src/pages/tasty-melon.svg.ts` · `tasty-icon.png.ts` |
+| `/robots.txt` · `/sitemap.xml` | 엔드포인트 `src/pages/robots.txt.ts` · `sitemap.xml.ts`. 주소는 `src/lib/site.ts`의 `absolute()`로 만든다 |
 
 ### 갤러리 페이지
 
@@ -189,6 +190,8 @@ npm run stamp content/en/index.md
 | `/design/tokens/` · `/ko/design/tokens/` | 3티어 토큰 문서 |
 | `/design/gallery/**` | 레퍼런스 갤러리 15 페이지. 사이트 머리글과 푸터를 쓰며 언어별로 나누지 않는다 |
 | `/design/cards/*.html` | 가이드라인 원본 문서. 페이지가 iframe 으로 싣는다 |
+| `/robots.txt` | 전체 허용과 `Sitemap:` 줄. `Disallow`를 넣지 않는다. 막으면 크롤러가 카드와 갤러리의 `noindex`를 읽지 못한다 |
+| `/sitemap.xml` | 랜딩, 가이드, privacy, 디자인 페이지의 양 언어. 가이드와 디자인은 `buildPages`와 `DESIGN_NAV`에서 만들어 페이지를 추가하면 자동으로 들어간다. 랜딩과 privacy는 `src/pages/sitemap.xml.ts`에 적는다. 카드와 갤러리는 넣지 않는다. `lastmod`, `changefreq`, `priority`는 정확한 값을 얻을 근거가 없어 넣지 않는다 |
 | `/search-index.json` (en) · `/search-index.ko.json` | 검색 인덱스. 페이지마다 제목·섹션과 본문 앞 600자를 싣는다(`src/lib/search.ts`). 코드 블록과 HTML 태그는 빼고, 인라인 코드는 글자로 남기며, 단어 안의 하이픈은 지워지지 않아 `task-await` 같은 명령 이름이 입력한 그대로 맞는다. 명령 이름으로 찾게 하려면 그 이름을 제목이나 첫 문단에 쓴다 |
 
 ### 배포 경로 (base)
