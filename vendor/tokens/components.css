@@ -808,9 +808,14 @@
   --tasty-md-code-bg:               var(--tasty-surface-raised);   /* → --md-code-bg (block + inline code) */
   --tasty-md-code-border:           var(--tasty-separator);
   --tasty-md-quote-bar:             var(--tasty-border-strong);
-  --tasty-md-quote-fg:              var(--tasty-text-muted);
+  --tasty-md-quote-fg:              var(--tasty-text-muted); /* → --md-quote-fg. Opaque: no opacity on the quote, which would stack in a nested one. Mocha 9.43 black, 7.37 base; Latte 6.25 white, 4.73 crust */
   --tasty-md-quote-bar-width:       var(--tasty-selection-edge-width); /* 2 — blockquote left bar; hairline, zoom-exempt. Plugin's 3px (border-w × 3) is retired (2026-10-06) */
   --tasty-md-rule:                  var(--tasty-separator);
+  /* Find in the document. Both fills are opaque, because a hit can land on the bed, a table row, a table header, code or a callout: one ink pair holds on all of them, in both focus states. */
+  --tasty-md-find-hit-bg:           var(--tasty-notify-warning-fill); /* every hit but the current one */
+  --tasty-md-find-hit-fg:           var(--tasty-notify-warning-fg);   /* 14.76 · 5.03. Replaces the ink under it, link and highlight hues too, so a hit has one ink */
+  --tasty-md-find-current-bg:       var(--tasty-accent-primary);      /* the current hit */
+  --tasty-md-find-current-fg:       var(--tasty-text-on-accent);      /* 8.91 · 4.91 */
 
   /* Explorer surface — sidebar 2-region split. The sidebar is NOT one scroll
      column: "Files" owns the top region (flex, own scroll) and "Favorites" is

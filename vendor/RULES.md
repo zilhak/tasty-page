@@ -193,8 +193,8 @@ Each location has one ground. It may hold only the listed children, to the liste
 | Surface head and split line | `mantle` | 2 | `field`, `mantle+hover`, `mantle+press`, `raised`, filled controls, tint boxes over `mantle` | Address bar band: mantle. Split lines take border-frame. |
 | Terminal surface, focused | `term` | 1 | `term-selection`, `term-cursor`, `match@term`, `match-active@term`, `file-drop@term`, `raised` | Banner, toast and search bar float on raised. |
 | Terminal surface, unfocused | `term-unfocused` | 1 | `match@term-unfocused`, `match-active@term-unfocused`, `raised` | Default ink takes surface-terminal-unfocused-fg. |
-| Markdown surface, focused | `term` | 2 | `base`, `mantle`, `raised`, `file-drop@term` | Content typography is library-driven. Colors follow this table. Address band stays mantle. |
-| Markdown surface, unfocused | `term-unfocused` | 2 | `base`, `mantle`, `raised`, `file-drop@term-unfocused` | Table row and zebra swap fills, so neither is the bed in both themes at once. Address band stays mantle. |
+| Markdown surface, focused | `term` | 2 | `base`, `mantle`, `raised`, `fill-warning`, `fill-primary`, `file-drop@term` | Content typography is library-driven. Colors follow this table. Address band stays mantle. A callout is its hue at tint-fill-alpha over the bed: title accent-<hue>-raised, body text-primary. A find hit is opaque. |
+| Markdown surface, unfocused | `term-unfocused` | 2 | `base`, `mantle`, `raised`, `fill-warning`, `fill-primary`, `file-drop@term-unfocused` | Table row and zebra swap fills, so neither is the bed in both themes at once. Address band stays mantle. A callout is its hue at tint-fill-alpha over the bed: title accent-<hue>-raised, body text-primary. A find hit is opaque. |
 | HTML surface | `mantle` | 2 | `field`, `raised` | The page is web content, outside these rules. Focus shows on the focus edge above the address band. |
 | Image surface | `base` | 1 | `mantle`, `raised`, `term`, `term-unfocused` | The control bar is base. The canvas takes the bed for the focus state. |
 | Empty surface, focused | `term` | 1 | `raised` | Nothing but the bed. Banner and toast float on raised. |
@@ -2048,6 +2048,12 @@ Sits on: `term`, `term-unfocused`
 |---|---|---|---|---|
 | body | `md-doc-fg` | rest | `term`, `term-unfocused` | 9.26 · 4.73 |
 | quote | `md-quote-fg` | rest | `term`, `term-unfocused` | 7.37 · 4.73 |
+| find hit | `md-find-hit-fg` | rest | `fill-warning` | 14.76 · 5.03 |
+| find current | `md-find-current-fg` | rest | `fill-primary` | 8.91 · 4.91 |
+
+A quote reads `md-quote-fg` and takes no opacity, at any nesting. In Latte that is the body ink, and the bar and the indent mark the quote (see [Hierarchy](#8-hierarchy)).
+
+A find hit fills with `md-find-hit-bg` and the current hit with `md-find-current-bg`. Both are opaque, because a hit can land on the bed, a table row, a table header, code or a callout. Each takes its own ink over whatever ink was under it, link and highlight hues included. A focus change touches neither.
 
 ### Markdown table
 

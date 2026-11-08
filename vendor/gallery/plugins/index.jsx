@@ -371,6 +371,29 @@ function MdLargeFilePopup() {
   );
 }
 
+// A find hit in the document. Opaque, so one ink pair holds on every ground it can land on.
+function MdHit({ current = false, children }) {
+  return <span style={{ background: `var(--tasty-md-find-${current ? "current" : "hit"}-bg)`, color: `var(--tasty-md-find-${current ? "current" : "hit"}-fg)`, borderRadius: "var(--tasty-radius-sm)" }}>{children}</span>;
+}
+function MdQuoteFind({ focused }) {
+  const bar = { borderLeft: "var(--tasty-md-quote-bar-width) solid var(--tasty-md-quote-bar)", paddingLeft: "var(--tasty-space-md)" };
+  return (
+    <MdFocused.Provider value={focused}>
+      <div style={{ width: "100%", boxSizing: "border-box", padding: "var(--tasty-space-md)", display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", background: surfaceBed(focused), color: "var(--tasty-md-doc-fg)", fontSize: "var(--tasty-font-size-body)", lineHeight: 1.6 }}>
+        <div>Body text with a <MdHit>theme</MdHit> hit and the <MdHit current>theme</MdHit> current hit.</div>
+        <div style={{ ...bar, color: "var(--tasty-md-quote-fg)" }}>
+          A quote with a <MdHit>theme</MdHit> hit.
+          <div style={{ ...bar, marginTop: "var(--tasty-space-xs)" }}>A nested quote keeps the same ink.</div>
+        </div>
+        <MdTable cols={[{ h: <MdHit>Theme</MdHit> }, { h: "Bed" }]} rows={[[<MdHit>theme</MdHit>, "row"], [<MdHit current>theme</MdHit>, "zebra"]]} />
+        <div style={{ padding: "var(--tasty-space-sm)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", background: "var(--tasty-md-code-bg)", color: "var(--tasty-text-secondary-raised)", border: "var(--tasty-border-width) solid var(--tasty-md-code-border)", borderRadius: "var(--tasty-radius)" }}>
+          set <MdHit>theme</MdHit> = <MdHit current>theme</MdHit>
+        </div>
+      </div>
+    </MdFocused.Provider>
+  );
+}
+
 function MarkdownDoc({ editing = false, focused = true }) {
   return (
     <MdFocused.Provider value={focused}>
@@ -443,6 +466,11 @@ const MD_VAR_MAP = [
   ["--md-code-bg", "inline code · code-block fill", "--tasty-surface-raised"],
   ["--md-code-border", "code-block border", "--tasty-separator"],
   ["--md-quote-bar", "blockquote bar", "--tasty-border-strong"],
+  ["--md-quote-fg", "blockquote text, no opacity", "--tasty-md-quote-fg"],
+  ["--md-find-hit-bg", "find hit fill", "--tasty-md-find-hit-bg"],
+  ["--md-find-hit-fg", "find hit text", "--tasty-md-find-hit-fg"],
+  ["--md-find-current-bg", "current find hit fill", "--tasty-md-find-current-bg"],
+  ["--md-find-current-fg", "current find hit text", "--tasty-md-find-current-fg"],
   ["--md-rule", "horizontal rule", "--tasty-separator"],
 ];
 const HLJS_MAP = [
@@ -926,6 +954,24 @@ function Page() {
             tokens={[{ tok: "--tasty-surface-bed-focused", use: "--md-bg, focused", color: "var(--tasty-surface-bed-focused)" }, { tok: "--tasty-surface-bed-unfocused", use: "--md-bg, unfocused", color: "var(--tasty-surface-bed-unfocused)" }, { tok: "--tasty-md-table-row-bg", use: "row, focused", color: "var(--tasty-md-table-row-bg)" }, { tok: "--tasty-md-table-row-bg-unfocused", use: "row, unfocused", color: "var(--tasty-md-table-row-bg-unfocused)" }, { tok: "--tasty-md-table-row-bg-zebra", use: "zebra, focused", color: "var(--tasty-md-table-row-bg-zebra)" }, { tok: "--tasty-md-table-row-bg-zebra-unfocused", use: "zebra, unfocused", color: "var(--tasty-md-table-row-bg-zebra-unfocused)" }, { tok: "--tasty-md-code-bg", use: "code fill → --md-code-bg", color: "var(--tasty-md-code-bg)" }, { tok: "--tasty-md-table-border", use: "grid → --md-border", color: "var(--tasty-md-table-border)" }]} />
           <Note>Implementing side: <code>[surfaces.markdown]</code> gets <code>focused_bg</code> and <code>unfocused_bg</code> from these two beds in Mocha and Latte, and the renderer stops reading a single bed. <code>focused_fg</code> and <code>unfocused_fg</code> stay in the file, and the document reads neither: its body ink is the same in both states.</Note>
           <Dont><b>Don't</b> reload the document or rewrite its HTML to change the bed. Scroll, selection and find state must survive a focus change.</Dont>
+        </Spec>
+        <Spec id="markdown-quote-and-find-ink" title="Markdown — quote and find ink on both beds"
+          when={<>A quote and a find hit are the two inks in the document that once depended on what sat under them. A quote took <code>opacity</code> on the body ink, and a hit was a translucent yellow under inherited ink. Both fell under 4.5 on the Latte unfocused bed. Both are now fixed values.</>}>
+          <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", flexDirection: "column", gap: 12 }}>
+            <div style={{ width: "100%", maxWidth: 480 }}><MdQuoteFind focused={true} /></div>
+          </Stage>
+          <Views>
+            {[true, false].map((focused) => (
+              <View key={String(focused)} name={`markdown-quote-find-${focused ? "focused" : "unfocused"}`} label={`Quote and find, ${focused ? "focused" : "unfocused"}`}>
+                <MdQuoteFind focused={focused} />
+              </View>
+            ))}
+          </Views>
+          <Meta
+            specs={[["quote", "Mocha 9.43 focused, 7.37 unfocused · Latte 6.25, 4.73"], ["find hit", "14.76 · 5.03 on any ground"], ["find current", "8.91 · 4.91 on any ground"], ["focus change", "neither hit fill changes"], ["motion", "0ms, one frame"]]}
+            tokens={[{ tok: "--tasty-md-quote-fg", use: "quote text", color: "var(--tasty-md-quote-fg)" }, { tok: "--tasty-md-quote-bar", use: "quote bar", color: "var(--tasty-md-quote-bar)" }, { tok: "--tasty-md-find-hit-bg", use: "find hit fill", color: "var(--tasty-md-find-hit-bg)" }, { tok: "--tasty-md-find-hit-fg", use: "find hit text", color: "var(--tasty-md-find-hit-fg)" }, { tok: "--tasty-md-find-current-bg", use: "current hit fill", color: "var(--tasty-md-find-current-bg)" }, { tok: "--tasty-md-find-current-fg", use: "current hit text", color: "var(--tasty-md-find-current-fg)" }]} />
+          <Note>Implementing side: a hit's ink replaces the ink under it, including a link or a highlight hue, so inherit nothing. A hit keeps the tiny radius. Hits and the current hit do not change on a focus change, so they need no pushed value.</Note>
+          <Dont><b>Don't</b> put <code>opacity</code> on a quote. It lowers the contrast on one bed more than the other, and it stacks in a nested quote: Latte unfocused was 3.90, nested 3.30.</Dont>
         </Spec>
         <Spec id="markdown-content-colour-webview-css-2026-10-07" title="Markdown — content colour (WebView + CSS, 2026-10-07)"
           when={<>Markdown renders in a <b>WebView</b>. <code>render.rs theme_css()</code> writes Tasty tokens into CSS variables, and the stylesheet reads only those variables, so the page follows Mocha/Latte 1:1. Code highlighting is <b>highlight.js</b> (offline bundle): <code>hljs_css()</code> maps each <code>hljs-*</code> class to a palette role. Sizes, leading and block spacing are CSS too and belong to the next spec. The tables below are the source of truth (the old egui_commonmark / syntect path is retired).</>}>
