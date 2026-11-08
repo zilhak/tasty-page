@@ -212,7 +212,7 @@ function App() {
                   <ul style={{ fontSize: "var(--tasty-font-size-body)", color: "var(--tasty-text-secondary)", margin: 0, paddingLeft: "var(--tasty-space-lg)" }}>
                     <li>The status bar reports the focused surface, not the tab.</li>
                     <li>Search (Cmd+F) is scoped to the focused surface.</li>
-                    <li>An unfocused markdown surface keeps the sidebar bed, not the document bed.</li>
+                    <li>Every surface shows focus on the edge across its top. A markdown surface keeps the document bed either way.</li>
                   </ul>
                 </MarkdownSurface>
               </>

@@ -8,6 +8,7 @@ import { Input } from "../../components/forms/Input.jsx";
 import { Tab } from "../../components/navigation/Tab.jsx";
 import { ic, Icon as KIcon } from "./chrome.jsx";
 import { SearchBar } from "./overlays/search_bar.jsx";
+import { SurfaceFocusEdge } from "./surface_focus.jsx";
 
 // Tasty UI kit — work area (tab strip, terminal/markdown surfaces, status bar).
 
@@ -82,6 +83,7 @@ function TerminalPane({ session, focused, searchOpen, onSearchClose }) {
       fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-body)", lineHeight: 1.6,
       border: "var(--tasty-border-width) solid var(--tasty-separator)", borderRadius: "var(--tasty-radius)", overflow: "hidden",
     }}>
+      <SurfaceFocusEdge focused={focused} />
       {focused && searchOpen && (
         <SearchBar lines={session.plainLines || []} onClose={onSearchClose} />
       )}
@@ -103,9 +105,9 @@ function MarkdownSurface({ focused, path = "~/work/tasty/README.md", remote = fa
 
   return (
     <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column",
-      background: focused ? "var(--tasty-surface-markdown-focused-bg)" : "var(--tasty-surface-markdown-unfocused-bg)",
-      color: focused ? "var(--tasty-surface-markdown-focused-fg)" : "var(--tasty-text-primary)",
+      background: "var(--tasty-md-doc-bg)", color: "var(--tasty-surface-markdown-focused-fg)",
       border: "var(--tasty-border-width) solid var(--tasty-separator)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
+      <SurfaceFocusEdge focused={focused} />
       <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-md-address-bar-gap)", height: "var(--tasty-md-address-bar-height)", flex: "none",
         padding: "0 var(--tasty-md-address-bar-padding-x)", background: "var(--tasty-md-address-bar-bg)", borderBottom: "var(--tasty-border-width) solid var(--tasty-md-address-bar-border)" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-md-address-bar-nav-gap)", flex: "none" }}>
