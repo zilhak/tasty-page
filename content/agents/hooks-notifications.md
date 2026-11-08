@@ -33,7 +33,7 @@ tasty unset hook --hook <HOOK_ID>
 | `claude-idle` / `needs-input` / `codex-idle` | Claude Code / Codex 플러그인이 보내는 이벤트 ([Claude · Codex](claude-codex.md)) |
 | `claude-stop-failure` | Claude Code 의 턴이 API 에러(서버 과부하·요청 한도·인증 실패 등)로 끝났을 때. 보통 `claude-idle` 과 함께 오고, 백그라운드 작업이 남아 있으면 이것만 옵니다 |
 | `claude-error` | Claude Code 화면 출력에 알려진 에러 문구가 나타났을 때 |
-| `claude-error-stalled` | 턴이 끝나지 않았는데 Claude Code 출력이 한동안 바뀌지 않아 멈춘 것으로 보일 때(앞선 에러가 없어도 옵니다) |
+| `claude-error-stalled` | Claude Code 출력이 기본 10분(설정 가능) 동안 바뀌지 않을 때. 턴 중 마지막 출력에 오류가 있으면 30초 고정이며, Monitor만 남은 대기는 제외합니다([대기별 기준과 수신 조건](claude-codex.md#4-완료-알림-받기)) |
 
 - `--once` 를 붙이면 한 번 실행 후 자동으로 지워집니다. 기본은 계속 유지.
 - 훅 명령은 백그라운드에서 실행되며 터미널 입력을 막지 않습니다.

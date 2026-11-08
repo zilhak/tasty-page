@@ -32,7 +32,7 @@
 
 - **외관** <!-- en: Appearance --> > **Markdown** — 마크다운 서피스에만 적용할 폰트 설정 · **원격 콘텐츠 허용** <!-- en: Allow remote content --> (기본 꺼짐 — 문서가 불러오는 외부 http/https 리소스 차단).
 - **외관** > **HTML** — **기본 확대** <!-- en: Default zoom --> (%) · **색 구성표** <!-- en: Color scheme --> (테마 따름 / 라이트 / 다크) · **원격 콘텐츠 허용** <!-- en: Allow remote content --> (기본 꺼짐 — 외부 http/https 리소스 차단) · **스크립트 샌드박스** <!-- en: Sandbox scripts --> (기본 켜짐).
-- **플러그인** <!-- en: Plugins --> > **Claude Code** — **Spawn child 경고 임계치** <!-- en: Spawn child warning threshold --> 등.
+- **플러그인** <!-- en: Plugins --> > **Claude Code** — **Spawn child 경고 임계치** <!-- en: Spawn child warning threshold --> · **자식 출력이 없을 때 부모에게 알리기 전 대기 시간(초)** <!-- en: Seconds without child output before notifying the parent --> (`no_output_notice_secs`, 기본 600초, 범위 60~86400초). 자세한 동작은 [Claude·Codex와 함께 쓰기 4절](../agents/claude-codex.md#4-완료-알림-받기)에 있습니다.
 - **플러그인** > **Codex** — **Spawn child 경고 임계치** · **기본 승인 정책** <!-- en: Default approval policy --> · **기본 샌드박스 모드** <!-- en: Default sandbox mode -->.
 
 웹 페이지로 그리는 서피스를 추가하는 플러그인은 직접 설치한 것이라도 HTML 과 같은 방식으로 자기 설정 페이지의 확대 · 색 구성표 · 원격 콘텐츠 허용 · 스크립트 샌드박스 값을 그 서피스에 적용합니다. 바꾸지 않은 값은 플러그인이 정한 기본값을 따르고, 확대 단축키를 지원하는 서피스에서는 단축키가 그 플러그인의 확대 값을 바꿉니다.

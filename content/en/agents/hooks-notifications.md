@@ -1,4 +1,4 @@
-<!-- source-hash: 81c53eca203a -->
+<!-- source-hash: 92f6a783624e -->
 # Hooks, notifications, and webhooks
 
 Hooks run actions in response to Tasty events, notifications show items to check in the app, and webhooks receive HTTP requests from external services. Choose the path that fits your task.
@@ -34,7 +34,7 @@ tasty unset hook --hook <HOOK_ID>
 | `claude-idle` / `needs-input` / `codex-idle` | Events emitted by the Claude Code / Codex plugins ([Claude and Codex](claude-codex.md)) |
 | `claude-stop-failure` | When a Claude Code turn ends on an API error (server overload, rate limit, authentication failure, and so on). It usually comes with `claude-idle`; when background work is still running, only this one comes |
 | `claude-error` | When a known error message appears in Claude Code's screen output |
-| `claude-error-stalled` | When the turn hasn't ended but Claude Code's output hasn't changed for a while, so it looks stuck (comes even without an earlier error) |
+| `claude-error-stalled` | When Claude Code output remains unchanged for 10 minutes by default (configurable). The threshold is fixed at 30 seconds for an error in the latest output during a turn; waits with only Monitor remaining are excluded ([wait-specific thresholds and receiving requirements](claude-codex.md#4-receiving-completion-notifications)) |
 
 - Add `--once` and the hook is removed automatically after firing once. By default it stays.
 - Hook commands run in the background and do not block terminal input.
