@@ -1,7 +1,7 @@
-<!-- source-hash: c98a458a1e4e -->
+<!-- source-hash: e7d1ef7df6c7 -->
 # Working with the terminal
 
-Copy the output you need, search terminal history, and open file paths as you work. You can also select text without a mouse and receive notifications when work finishes.
+You can copy the output you need, search terminal history, and open file paths as you work. You can also select text without a mouse and receive notifications when work finishes.
 
 The shortcuts below use the default **Tasty** preset. On macOS, read `Alt` as `Cmd`.
 
