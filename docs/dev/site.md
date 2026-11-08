@@ -42,7 +42,8 @@
 - 사용자 가이드는 `content/`와 `content/en/`를 같은 의미로 수정한다.
   명령어, 설정 키, 실제 메뉴 이름과 주의사항은 의미를 유지한다. 번역을 수정한 뒤 스탬프를 갱신한다.
 - 제목을 바꿀 때 기존 앵커를 별칭으로 남겨 저장된 링크도 계속 열리게 한다.
-- 디자인 소개는 `src/components/design/`, 갤러리 도입부는 `src/lib/design.ts`의
+- 디자인 소개와 메타 설명은 `src/components/design/`의 `COPY`에서 `intro`와 `description`으로 나누어 관리한다.
+  두 값은 뜻을 같게 쓰고, `description`은 평문으로 쓴다. 갤러리 도입부는 `src/lib/design.ts`의
   `GALLERY_INTROS`에서 관리한다. 갤러리 본문 소개와 메타 설명은 같은 값을 사용한다.
   디자인 킷의 예시와 명세는 vendor 원본을 사용한다.
 
