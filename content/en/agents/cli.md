@@ -1,4 +1,4 @@
-<!-- source-hash: c3bcf52a4676 -->
+<!-- source-hash: 658a111101c0 -->
 # Driving terminals with the tasty CLI
 
 Use the `tasty` CLI to create and control terminals in a running Tasty instance. Check the connection and target IDs, send a command, then use `read since-mark` to read output after a saved mark. Scripts and AI agents can use the same commands.
@@ -199,7 +199,9 @@ get `"sent": false` with the reason.
 - **`read since-mark` is empty** — either the output finished before you set the mark, or the command has not finished yet. Check the current state with `read screen`.
 - **Not sure which window `screenshot` captures** — automatic selection counts **main (terminal) windows only**. With one main window open, omitting `--window` captures it; with several, `--window` is required (it never picks whichever window happens to be focused). Windows that `list windows` does not show, such as the settings window, are not counted: `--window` stays optional while the settings window is up, and capturing the settings window itself means naming its ID with `--window`.
 
-If replies are slow or a command ends with an `Error (…)` line, see [CLI response delays and connection diagnostics](../help/cli-diagnostics.md) for what to do for each error code.
+If there is no reply, do not stop `tasty` with a shell `timeout` and repeat the same request. Closing the connection does not cancel a request already sent. Requests that build up while Tasty is busy may run together later; if the commands send input, that input is repeated.
+
+For commands that finish with a single request, `--response-timeout-ms` sets a limit on waiting for a reply. Place the flag before the command. A request that does not start processing within the limit ends with `Error (-32067)` and will not run later. If the limit expires after processing starts, the command ends with `Error (-32061)`: the outcome is unknown and the work may continue. Commands that repeatedly ask for updates or keep a connection open reject this flag with exit code 2 without sending a request. [Bounding how long to wait for a reply](../help/cli-diagnostics.md#bounding-how-long-to-wait-for-a-reply) explains when a request can be sent again and when to check the state first. [CLI response delays and connection diagnostics](../help/cli-diagnostics.md) covers what to do for other error codes.
 
 ## Finding other commands
 
