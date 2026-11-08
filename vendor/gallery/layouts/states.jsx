@@ -24,7 +24,7 @@ export const STATES = {
   "what-the-24px-bar-carries-and-what-goes-first-when-it-can-t": [
     "Status bar"
   ],
-  "surface-focus-edge-every-kind": [
+  "surface-focus-every-kind": [
     "Surface focus edge"
   ],
   "focused-unfocused-agent": [

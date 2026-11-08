@@ -7,7 +7,7 @@ import { HtmlAddressContrastSpec as PluginsHtmlContrast_HtmlAddressContrastSpec 
 import { MdAddressBar as B, MdAddressSpecs as PluginsMdAddress_MdAddressSpecs } from "./markdown-address.jsx";
 import { Section, Spec, Stage, Meta, Note, Dont, GIcon, Views, View } from "../parts/specimen.jsx";
 import { focusViews } from "../parts/surface-focus-views.jsx";
-import { SurfaceLeaf } from "../../ui_kits/terminal/surface_focus.jsx";
+import { SurfaceLeaf, surfaceBed } from "../../ui_kits/terminal/surface_focus.jsx";
 import { ic, PathField, SegToggle, SideHead, TreeNode, FavRow, DetailHeader, DetailRow, GridCell, ExpState, CtxMenu } from "../parts/explorer-kit.jsx";
 
 const BASE = `${import.meta.env.BASE_URL.replace(/\/$/, "")}/`;
@@ -187,9 +187,9 @@ function ExpSidebar({ favorites = FAVS_DEFAULT, tree = "short", height }) {
   );
 }
 
-function ExpDetail() {
+function ExpDetail({ focused = true }) {
   return (
-    <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)" }}>
+    <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", background: surfaceBed(focused) }}>
       <DetailHeader />
       <div style={{ flex: 1, overflow: "hidden" }}>
         <DetailRow glyph={ic.folder} name="mockup-exports" size="—" date="2026-06-20 14:30" type="Folder" />
@@ -202,7 +202,7 @@ function ExpDetail() {
   );
 }
 
-function ExplorerFrame() {
+function ExplorerFrame({ focused = true }) {
   return (
     <div style={{ width: "100%", maxWidth: 760, display: "flex", flexDirection: "column", height: 420,
       background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
@@ -210,7 +210,7 @@ function ExplorerFrame() {
       <ExpToolbar />
       <div style={{ flex: 1, minHeight: 0, display: "flex" }}>
         <ExpSidebar height={348} />
-        <ExpDetail />
+        <ExpDetail focused={focused} />
       </div>
     </div>
   );
@@ -282,13 +282,15 @@ function MdLink({ children }) { return <span style={{ color: "var(--tasty-accent
 // SEPARATE from the shared Table widget). Every color/size reads a --tasty-md-table-*
 // token so gallery + real render.rs table() transcribe 1:1. Grid line (surface1) is
 // the lightest element → always visible; header (surface0) is the distinct band;
-// zebra (mantle) is one subtle step below the base row (base).
+// Focus swaps the bed, the row and the zebra. The ladders are on the md-doc tokens in components.css.
 const MDT_B = "var(--tasty-border-width) solid var(--tasty-md-table-border)";
+const MdFocused = React.createContext(true);
 function MdTable({ cols, rows }) {
+  const focused = React.useContext(MdFocused);
   const pad = "var(--tasty-md-table-cell-padding-y) var(--tasty-md-table-cell-padding-x)";
   return (
     <div style={{ border: MDT_B, borderRadius: "var(--tasty-radius)", overflow: "hidden", marginBottom: 12 }}>
-      <table style={{ borderCollapse: "collapse", width: "100%", background: "var(--tasty-md-table-row-bg)",
+      <table style={{ borderCollapse: "collapse", width: "100%", background: focused ? "var(--tasty-md-table-row-bg)" : "var(--tasty-md-table-row-bg-unfocused)",
         fontSize: "var(--tasty-font-size-body)", color: "var(--tasty-md-table-cell-fg)", lineHeight: 1.6 }}>
         <thead>
           <tr>
@@ -306,7 +308,7 @@ function MdTable({ cols, rows }) {
               {r.map((cell, j) => (
                 <td key={j} style={{ padding: pad, textAlign: cols[j].num ? "right" : "left", verticalAlign: "top",
                   fontFamily: cols[j].num ? "var(--tasty-font-mono)" : "inherit",
-                  background: i % 2 === 1 ? "var(--tasty-md-table-row-bg-zebra)" : "transparent",
+                  background: i % 2 === 1 ? (focused ? "var(--tasty-md-table-row-bg-zebra)" : "var(--tasty-md-table-row-bg-zebra-unfocused)") : "transparent",
                   borderRight: j < r.length - 1 ? MDT_B : "none",
                   borderBottom: i < rows.length - 1 ? MDT_B : "none" }}>{cell}</td>
               ))}
@@ -369,9 +371,10 @@ function MdLargeFilePopup() {
   );
 }
 
-function MarkdownDoc({ editing = false }) {
+function MarkdownDoc({ editing = false, focused = true }) {
   return (
-    <div style={{ width: "100%", maxWidth: 640, height: 460, display: "flex", flexDirection: "column", background: "var(--tasty-md-doc-bg)",
+    <MdFocused.Provider value={focused}>
+    <div style={{ width: "100%", maxWidth: 640, height: 460, display: "flex", flexDirection: "column", background: surfaceBed(focused),
       border: "1px solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
       <MdAddressBar editing={editing} />
       <div style={{ flex: 1, minHeight: 0, overflow: "auto", padding: "20px 24px" }}>
@@ -422,6 +425,7 @@ function MarkdownDoc({ editing = false }) {
       <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>Horizontal rule above · trailing space below.</div>
       </div>
     </div>
+    </MdFocused.Provider>
   );
 }
 
@@ -553,9 +557,9 @@ function ZoomGroup({ pct = "100%" }) {
     </div>
   );
 }
-function ImgCanvas({ children, panned }) {
+function ImgCanvas({ children, panned, focused = true }) {
   return (
-    <div style={{ flex: 1, minHeight: 0, position: "relative", background: "var(--tasty-bg-sidebar)", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
+    <div style={{ flex: 1, minHeight: 0, position: "relative", background: surfaceBed(focused), display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
       <div style={{ position: "relative", width: panned ? 280 : 200, height: panned ? 200 : 132, transform: panned ? "translate(24px,-12px)" : "none",
         background: "linear-gradient(135deg, var(--tasty-surface-raised), var(--tasty-bg-panel))",
         border: "1px solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius-sm)", display: "flex", alignItems: "center", justifyContent: "center",
@@ -582,7 +586,7 @@ function FloatingSelection() {
 function ImgBar({ children }) {
   return <div style={{ display: "flex", alignItems: "center", gap: 8, flex: "none", height: 40, padding: "0 8px", background: "var(--tasty-bg-panel)", borderBottom: "1px solid var(--tasty-separator)" }}>{children}</div>;
 }
-function ImgSurface({ mode, panned, floating }) {
+function ImgSurface({ mode, panned, floating, focused = true }) {
   return (
     <div style={{ width: "100%", maxWidth: 460, height: 320, display: "flex", flexDirection: "column",
       background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
@@ -608,7 +612,7 @@ function ImgSurface({ mode, panned, floating }) {
           <ZoomGroup />
         </ImgBar>
       )}
-      <ImgCanvas panned={panned}>{floating && <FloatingSelection />}</ImgCanvas>
+      <ImgCanvas panned={panned} focused={focused}>{floating && <FloatingSelection />}</ImgCanvas>
     </div>
   );
 }
@@ -652,10 +656,10 @@ function Page() {
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)" }}>
             <ExplorerFrame />
           </Stage>
-          {focusViews("explorer-full-layout", <ExplorerFrame />)}
+          {focusViews("explorer-full-layout", (focused) => <ExplorerFrame focused={focused} />)}
           <Meta
-            specs={[["focus", <>surface focus edge on top, host painted; nothing below changes</>], ["surface", "fills a work-area tile"], ["internal tabs", <>28px · per-cwd, with <span className="ic">×</span> + <span className="ic">＋</span></>], ["toolbar", "44px · nav · path field · view toggle"], ["sidebar", <>196px — Files tree + Favorites</>], ["splitter", <>1px <span className="tok">--tasty-separator</span>, drag to resize</>], ["row height", <>28 (Detail) · <span className="tok">--tasty-table-cell-height</span> — the shared Table</>], ["detail header", "shared Table header — UI font · table-header-font-size 11 · weight medium · caps"], ["min height", <>180 · <span className="tok">--tasty-explorer-min-height</span> — the split drag stops here (tabs 28 + toolbar 44 + header 28 + 2 rows + status 24)</>], ["selected row", <span className="tok">--tasty-surface-active</span>]]}
-            tokens={[{ tok: "--tasty-bg-panel", use: "surface + content", color: "var(--tasty-bg-panel)" }, { tok: "--tasty-bg-sidebar", use: "tabs + sidebar + header", color: "var(--tasty-bg-sidebar)" }, { tok: "--tasty-surface-raised", use: "view toggle container", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-segtoggle-on-bg", use: "view toggle — selected segment", color: "var(--tasty-segtoggle-on-bg)" }, { tok: "--tasty-input-bg", use: "path field", color: "var(--tasty-input-bg)" }, { tok: "--tasty-surface-active", use: "selected row (rows only)", color: "var(--tasty-surface-active)" }, { tok: "--tasty-accent-warning", use: "favorite star", color: "var(--tasty-accent-warning-raised)" }, { tok: "--tasty-accent-primary", use: "active tab bar", color: "var(--tasty-accent-primary-raised)" }]} />
+            specs={[["focus", <>the file area takes the bed, <span className="tok">--tasty-surface-bed-focused</span> or <span className="tok">--tasty-surface-bed-unfocused</span>; tabs, toolbar, sidebar, header and status line stay</>], ["surface", "fills a work-area tile"], ["internal tabs", <>28px · per-cwd, with <span className="ic">×</span> + <span className="ic">＋</span></>], ["toolbar", "44px · nav · path field · view toggle"], ["sidebar", <>196px — Files tree + Favorites</>], ["splitter", <>1px <span className="tok">--tasty-separator</span>, drag to resize</>], ["row height", <>28 (Detail) · <span className="tok">--tasty-table-cell-height</span> — the shared Table</>], ["detail header", "shared Table header — UI font · table-header-font-size 11 · weight medium · caps"], ["min height", <>180 · <span className="tok">--tasty-explorer-min-height</span> — the split drag stops here (tabs 28 + toolbar 44 + header 28 + 2 rows + status 24)</>], ["selected row", <span className="tok">--tasty-surface-active</span>]]}
+            tokens={[{ tok: "--tasty-bg-panel", use: "toolbar + active tab", color: "var(--tasty-bg-panel)" }, { tok: "--tasty-surface-bed-focused", use: "file area, focused", color: "var(--tasty-surface-bed-focused)" }, { tok: "--tasty-surface-bed-unfocused", use: "file area, unfocused", color: "var(--tasty-surface-bed-unfocused)" }, { tok: "--tasty-bg-sidebar", use: "tabs + sidebar + header", color: "var(--tasty-bg-sidebar)" }, { tok: "--tasty-surface-raised", use: "view toggle container", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-segtoggle-on-bg", use: "view toggle — selected segment", color: "var(--tasty-segtoggle-on-bg)" }, { tok: "--tasty-input-bg", use: "path field", color: "var(--tasty-input-bg)" }, { tok: "--tasty-surface-active", use: "selected row (rows only)", color: "var(--tasty-surface-active)" }, { tok: "--tasty-accent-warning", use: "favorite star", color: "var(--tasty-accent-warning-raised)" }, { tok: "--tasty-accent-primary", use: "active tab bar", color: "var(--tasty-accent-primary-raised)" }]} />
           <Note>Defaults chosen (briefs left these open): <b>Detail</b> is the default view; the right-hand preview panel is <b>dropped</b> in favour of a wider content area (re-add later as a toggle if needed); no in-toolbar filter search in this pass; the tree is rooted at <b>Home</b>. Favorites are global across surfaces.</Note>
         </Spec>
 
@@ -873,31 +877,37 @@ function Page() {
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)" }}>
             <MarkdownDoc />
           </Stage>
-          {focusViews("markdown-viewer", <MarkdownDoc />)}
+          {focusViews("markdown-viewer", (focused) => <MarkdownDoc focused={focused} />)}
           <Meta
-            specs={[["focus", <>surface focus edge on top, host painted; nothing below changes</>], ["chrome", <>40px address bar + Go, on <span className="tok">--tasty-bg-sidebar</span></>], ["body", <>13px · CSS line-height 1.6</>], ["headings", "h1 20 → h6 13, 5-step CSS interpolation (20 · 18.6 · 17.2 · 15.8 · 14.4 · 13)"], ["heading style", "600 · text-primary at every level"], ["h1", "prose-h1 — the only cap-exempt content size"], ["code", <>mono on <span className="tok">--tasty-surface-raised</span></>], ["link", <span className="tok">--tasty-accent-primary</span>], ["table", <>grid + zebra, read-only — <span className="tok">--tasty-md-table-*</span></>]]}
-            tokens={[{ tok: "--tasty-bg-sidebar", use: "chrome bar", color: "var(--tasty-bg-sidebar)" }, { tok: "--tasty-md-doc-bg", use: "document bed (crust)", color: "var(--tasty-md-doc-bg)" }, { tok: "--tasty-input-bg", use: "address field", color: "var(--tasty-input-bg)" }, { tok: "--tasty-text-secondary", use: "body", color: "var(--tasty-text-secondary)" }, { tok: "--tasty-text-primary", use: "headings · strong", color: "var(--tasty-text-primary)" }, { tok: "--tasty-surface-raised", use: "code bg + inline chip", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-accent-primary", use: "links + Go", color: "var(--tasty-accent-primary-raised)" }, { tok: "--tasty-md-table-border", use: "table grid (surface1)", color: "var(--tasty-md-table-border)" }, { tok: "--tasty-md-table-header-bg", use: "table header (surface0)", color: "var(--tasty-md-table-header-bg)" }, { tok: "--tasty-md-table-row-bg-zebra", use: "zebra row (mantle)", color: "var(--tasty-md-table-row-bg-zebra)" }, { tok: "--tasty-font-size-prose-h1", use: "h1 (cap-exempt)" }]} />
+            specs={[["focus", <>bed, table row and zebra swap, in one frame with no reload; the address band stays</>], ["chrome", <>40px address bar + Go, on <span className="tok">--tasty-bg-sidebar</span></>], ["body", <>13px · CSS line-height 1.6</>], ["headings", "h1 20 → h6 13, 5-step CSS interpolation (20 · 18.6 · 17.2 · 15.8 · 14.4 · 13)"], ["heading style", "600 · text-primary at every level"], ["h1", "prose-h1 — the only cap-exempt content size"], ["code", <>mono on <span className="tok">--tasty-surface-raised</span></>], ["link", <span className="tok">--tasty-accent-primary</span>], ["table", <>grid + zebra, read-only — <span className="tok">--tasty-md-table-*</span></>]]}
+            tokens={[{ tok: "--tasty-bg-sidebar", use: "chrome bar", color: "var(--tasty-bg-sidebar)" }, { tok: "--tasty-surface-bed-focused", use: "document bed, focused", color: "var(--tasty-surface-bed-focused)" }, { tok: "--tasty-surface-bed-unfocused", use: "document bed, unfocused", color: "var(--tasty-surface-bed-unfocused)" }, { tok: "--tasty-input-bg", use: "address field", color: "var(--tasty-input-bg)" }, { tok: "--tasty-text-secondary", use: "body", color: "var(--tasty-text-secondary)" }, { tok: "--tasty-text-primary", use: "headings · strong", color: "var(--tasty-text-primary)" }, { tok: "--tasty-surface-raised", use: "code bg + inline chip", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-accent-primary", use: "links + Go", color: "var(--tasty-accent-primary-raised)" }, { tok: "--tasty-md-table-border", use: "table grid (surface1)", color: "var(--tasty-md-table-border)" }, { tok: "--tasty-md-table-header-bg", use: "table header (surface0)", color: "var(--tasty-md-table-header-bg)" }, { tok: "--tasty-md-table-row-bg-zebra", use: "zebra row (mantle)", color: "var(--tasty-md-table-row-bg-zebra)" }, { tok: "--tasty-font-size-prose-h1", use: "h1 (cap-exempt)" }]} />
           <Note>The surface leads with a browser-style <b>address bar</b> (path display/edit) + <b>Go</b> button. The body follows the WebView/CSS path (2026-10-07); the earlier egui_commonmark renderer and its library-owned sizes are retired. Removed/redefined content tokens (<span className="tok">--tasty-font-size-prose-h2</span>, <span className="tok">--tasty-line-height-prose</span> removed; <span className="tok">--tasty-font-size-prose-h1</span> → Heading anchor) are covered in the heading-hierarchy specimen.</Note>
         </Spec>
-        <Spec id="markdown-document-background-single-bed-webview-render-path" title="Markdown — document background (one bed, focus on the edge)"
-          when={<>The markdown body is an HTML/CSS document in a native WebView, and it keeps <b>one</b> background in both focus states. Focus shows on the <a href={`${BASE}design/gallery/layouts/#surface-focus-edge-every-kind`}>surface focus edge</a> above it. That bed is <span className="tok">--tasty-md-doc-bg</span> → <span className="tok">--tasty-surface-markdown-focused-bg</span> = <b>crust</b>. Pure black is a <i>terminal</i> convention (raw TTY) and sits outside the Catppuccin ramp; prose at the 14px cap on #000 halates. crust is the palette's deepest tone, so every content fill still steps up and stays discriminable: <b>crust</b> (page) &lt; <b>mantle</b> (table zebra) &lt; <b>base</b> &lt; <b>surface0</b> (code + table header) &lt; <b>surface1</b> (table grid). mantle would have swallowed the zebra stripe; base would have flattened the table's own fill against the page, so neither is a bed for the unfocused state either.</>}>
+        <Spec id="markdown-document-background-follows-focus" title="Markdown — document background follows focus"
+          when={<>The markdown body is an HTML/CSS document in a native WebView, and its bed follows focus the way a terminal's does: <span className="tok">--tasty-surface-bed-focused</span> or <span className="tok">--tasty-surface-bed-unfocused</span>. The host pushes the values to the page, in one frame, with no reload, no scroll change and no reflow. Three values change: bed, table row, zebra. Everything else stays: body ink, links, code fill, table header, table grid, address band. Row and zebra change because <b>mantle</b> and <b>base</b> each match one bed: on an unfocused Mocha bed (base) the row becomes mantle, so the table still stands off the page, and the zebra becomes base. Body ink stays <span className="tok">--tasty-md-doc-fg</span>, a step under the terminal's <span className="tok">--tasty-text-primary</span>, so prose does not halate on black. A chrome tile stands in for the document on the same bed, so nothing jumps when the document appears.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", flexDirection: "column", gap: 12 }}>
             <div style={{ display: "flex", gap: 10, flexWrap: "wrap", justifyContent: "center" }}>
-              {[["crust — chosen", "var(--tasty-color-neutral-0)", true], ["mantle — collides with zebra", "var(--tasty-color-neutral-100)", false], ["base — flattens table fill", "var(--tasty-color-neutral-200)", false], ["#000 — terminal only", "var(--tasty-color-black)", false]].map(([label, c, on]) => (
-                <div key={label} style={{ width: 148, display: "flex", flexDirection: "column", gap: 6 }}>
-                  <div style={{ height: 60, background: c, border: on ? "1px solid var(--tasty-accent-primary)" : "1px solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", display: "flex", flexDirection: "column", justifyContent: "flex-end", padding: 6, gap: 3 }}>
-                    <div style={{ height: 10, background: "var(--tasty-md-table-row-bg-zebra)" }} />
-                    <div style={{ height: 10, background: "var(--tasty-md-code-bg)" }} />
+              {[["Focused", "var(--tasty-surface-bed-focused)", "var(--tasty-md-table-row-bg)", "var(--tasty-md-table-row-bg-zebra)"], ["Unfocused", "var(--tasty-surface-bed-unfocused)", "var(--tasty-md-table-row-bg-unfocused)", "var(--tasty-md-table-row-bg-zebra-unfocused)"]].map(([label, bed, row, zebra]) => (
+                <div key={label} style={{ width: 200, display: "flex", flexDirection: "column", gap: 6 }}>
+                  <div style={{ background: bed, padding: 12, border: "1px solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", display: "flex", flexDirection: "column", gap: 8 }}>
+                    <div style={{ border: "1px solid var(--tasty-md-table-border)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
+                      <div style={{ height: 12, background: "var(--tasty-md-table-header-bg)" }} />
+                      <div style={{ height: 12, background: row }} />
+                      <div style={{ height: 12, background: zebra }} />
+                      <div style={{ height: 12, background: row }} />
+                    </div>
+                    <div style={{ height: 16, background: "var(--tasty-md-code-bg)", border: "1px solid var(--tasty-md-code-border)", borderRadius: "var(--tasty-radius)" }} />
                   </div>
-                  <div style={{ fontSize: 11, color: on ? "var(--tasty-text-primary)" : "var(--tasty-text-muted)" }}>{label}</div>
+                  <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
                 </div>
               ))}
             </div>
           </Stage>
           <Meta
-            specs={[["backgrounds", "one, in both focus states"], ["focus", <><span className="tok">--tasty-surface-focus-edge-focused</span>, host painted above the document</>], ["mocha", "crust #11111b"], ["latte", "crust #dce0e8 (tracks bg-app, no branch)"], ["terminal", "unchanged — pure black stays terminal-only"], ["unfocused_bg", "not read by the webview renderer"]]}
-            tokens={[{ tok: "--tasty-md-doc-bg", use: "document bed → --md-bg", color: "var(--tasty-md-doc-bg)" }, { tok: "--tasty-md-code-bg", use: "code fill → --md-code-bg", color: "var(--tasty-md-code-bg)" }, { tok: "--tasty-md-table-row-bg-zebra", use: "zebra → --md-zebra", color: "var(--tasty-md-table-row-bg-zebra)" }, { tok: "--tasty-md-table-border", use: "grid → --md-border", color: "var(--tasty-md-table-border)" }, { tok: "--tasty-md-quote-bar", use: "blockquote bar", color: "var(--tasty-md-quote-bar)" }, { tok: "--tasty-md-rule", use: "horizontal rule", color: "var(--tasty-md-rule)" }]} />
-          <Note>Resolves the copy-paste value in <code>[surfaces.markdown].focused_bg</code> (was <code>#000000</code>, identical to terminal). Implementing side: set mocha <code>focused_bg = crust</code>, drop the Latte white override, and keep <code>unfocused_bg</code> in the file. The document does not read it, and focus does not reach the document: no reload, no script, no <code>surface.focused</code> subscription for this.</Note>
+            specs={[["focused", "Mocha #000000, Latte #ffffff"], ["unfocused", "Mocha base #1e1e2e, Latte crust #dce0e8"], ["same as the terminal", "yes, one pair of beds"], ["motion", "0ms, one frame"], ["stays", "body ink, links, code fill, table header and grid, address band"], ["unknown focus", "unfocused values"]]}
+            tokens={[{ tok: "--tasty-surface-bed-focused", use: "--md-bg, focused", color: "var(--tasty-surface-bed-focused)" }, { tok: "--tasty-surface-bed-unfocused", use: "--md-bg, unfocused", color: "var(--tasty-surface-bed-unfocused)" }, { tok: "--tasty-md-table-row-bg", use: "row, focused", color: "var(--tasty-md-table-row-bg)" }, { tok: "--tasty-md-table-row-bg-unfocused", use: "row, unfocused", color: "var(--tasty-md-table-row-bg-unfocused)" }, { tok: "--tasty-md-table-row-bg-zebra", use: "zebra, focused", color: "var(--tasty-md-table-row-bg-zebra)" }, { tok: "--tasty-md-table-row-bg-zebra-unfocused", use: "zebra, unfocused", color: "var(--tasty-md-table-row-bg-zebra-unfocused)" }, { tok: "--tasty-md-code-bg", use: "code fill → --md-code-bg", color: "var(--tasty-md-code-bg)" }, { tok: "--tasty-md-table-border", use: "grid → --md-border", color: "var(--tasty-md-table-border)" }]} />
+          <Note>Implementing side: <code>[surfaces.markdown]</code> gets <code>focused_bg</code> and <code>unfocused_bg</code> from these two beds in Mocha and Latte, and the renderer stops reading a single bed. <code>focused_fg</code> and <code>unfocused_fg</code> stay in the file, and the document reads neither: its body ink is the same in both states.</Note>
+          <Dont><b>Don't</b> reload the document or rewrite its HTML to change the bed. Scroll, selection and find state must survive a focus change.</Dont>
         </Spec>
         <Spec id="markdown-content-colour-webview-css-2026-10-07" title="Markdown — content colour (WebView + CSS, 2026-10-07)"
           when={<>Markdown renders in a <b>WebView</b>. <code>render.rs theme_css()</code> writes Tasty tokens into CSS variables, and the stylesheet reads only those variables, so the page follows Mocha/Latte 1:1. Code highlighting is <b>highlight.js</b> (offline bundle): <code>hljs_css()</code> maps each <code>hljs-*</code> class to a palette role. Sizes, leading and block spacing are CSS too and belong to the next spec. The tables below are the source of truth (the old egui_commonmark / syntect path is retired).</>}>
@@ -981,7 +991,7 @@ function Page() {
             tokens={[{ tok: "--tasty-text-muted", use: "placeholder / loading label", color: "var(--tasty-text-muted)" }, { tok: "--tasty-text-disabled", use: "placeholder / URL", color: "var(--tasty-text-disabled)" }, { tok: "--tasty-spinner-indicator", use: "loading", color: "var(--tasty-spinner-indicator)" }, { tok: "--tasty-accent-danger", use: "error", color: "var(--tasty-accent-danger-raised)" }]} />
         </Spec>
         <Spec id="html-focus-edge" title="HTML — focus edge above the band"
-          when={<>The host cannot paint the page and the page may paint itself any color, so html shows focus only on the <a href={`${BASE}design/gallery/layouts/#surface-focus-edge-every-kind`}>surface focus edge</a>, above the address band. Stack from the top: <b>edge → address band → size banner → script banner → page</b>. The band, the banners and the chrome tiles look the same in both states. A focused field keeps its blue ring, on a focused surface and only there.</>}>
+          when={<>The host cannot paint the page, so html shows focus only on the <a href={`${BASE}design/gallery/layouts/#surface-focus-every-kind`}>surface focus edge</a>, above the address band. Its bed cannot follow focus the way a terminal's does: author CSS owns it, and a sandboxed page may run no script. Stack from the top: <b>edge → address band → size banner → script banner → page</b>. The band, the banners and the chrome tiles look the same in both states. A focused field keeps its blue ring, on a focused surface and only there.</>}>
           <Views>
             {["boundary", "placeholder", "loading", "error"].map((state) => [true, false].map((focused) => (
               <View key={state + focused} name={`html-tile-${state}-${focused ? "focused" : "unfocused"}`} label={`${state}, ${focused ? "focused" : "unfocused"}`}>
@@ -1108,10 +1118,10 @@ function Page() {
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>viewer · fit (100%)</div><ImgSurface mode="viewer" /></div>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>viewer · zoomed + panned (250%)</div><ImgSurface mode="viewer" panned /></div>
           </Stage>
-          {focusViews("image-viewer", <ImgSurface mode="viewer" />, { width: "fit-content" })}
+          {focusViews("image-viewer", (focused) => <ImgSurface mode="viewer" focused={focused} />, { width: "fit-content" })}
           <Meta
-            specs={[["focus", <>surface focus edge on top, host painted; nothing below changes</>], ["layout", "control bar (40px) + canvas"], ["viewer bar", "◀ ▶ ↻ ✎ ＋ · name (i/n) · zoom"], ["canvas", <><span className="tok">--tasty-bg-sidebar</span> · fit ≤100% · pan &gt;100%</>], ["zoom group", "Fit · ＋ · % · −  (right)"], ["buttons", <>surface-raised + <span className="tok">--tasty-border-default</span></>]]}
-            tokens={[{ tok: "--tasty-bg-sidebar", use: "canvas (mantle)", color: "var(--tasty-bg-sidebar)" }, { tok: "--tasty-surface-raised", use: "control buttons", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-text-muted", use: "filename · zoom %", color: "var(--tasty-text-muted)" }]} />
+            specs={[["focus", <>the canvas takes the bed; control bar and image stay</>], ["layout", "control bar (40px) + canvas"], ["viewer bar", "◀ ▶ ↻ ✎ ＋ · name (i/n) · zoom"], ["canvas", <><span className="tok">--tasty-surface-bed-focused</span> · fit ≤100% · pan &gt;100%</>], ["zoom group", "Fit · ＋ · % · −  (right)"], ["buttons", <>surface-raised + <span className="tok">--tasty-border-default</span></>]]}
+            tokens={[{ tok: "--tasty-surface-bed-focused", use: "canvas, focused", color: "var(--tasty-surface-bed-focused)" }, { tok: "--tasty-surface-bed-unfocused", use: "canvas, unfocused", color: "var(--tasty-surface-bed-unfocused)" }, { tok: "--tasty-surface-raised", use: "control buttons", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-text-muted", use: "filename · zoom %", color: "var(--tasty-text-muted)" }]} />
         </Spec>
         <Spec id="image-paint-bar-floating-selection-popups" title="Image — paint bar · floating selection · popups"
           when={<>Edit mode swaps in the paint bar (undo/redo with disabled state, brush-size slider, color swatch defaulting to <span className="tok">--tasty-accent-danger</span>). A pasted image becomes a <b>floating selection</b> — accent border + 8 resize handles — that you move/resize before committing. <b>New Image</b> and <b>Save As</b> are small popups.</>}>

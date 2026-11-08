@@ -312,7 +312,9 @@ function dagHeaderCount(dag) {
 }
 
 // ── Full-tab surface ────────────────────────────────────────────────
-function DagSurface({ dags = [DAG_BUILD], initialId, narrow: forceNarrow, style }) {
+function DagSurface({ dags = [DAG_BUILD], initialId, narrow: forceNarrow, focused, style }) {
+  // A tab surface passes focused, and the canvas takes the bed. A workspace popup does not, and keeps the canvas tone.
+  const bed = focused === undefined ? "var(--tasty-dag-canvas-bg)" : focused ? "var(--tasty-surface-bed-focused)" : "var(--tasty-surface-bed-unfocused)";
   const [dagId, setDagId] = React.useState(initialId || dags[0].id);
   const [dir, setDir] = React.useState("td");
   const [z, setZ] = React.useState(1); // detail-view zoom — lives in the back bar (S2)
@@ -338,7 +340,7 @@ function DagSurface({ dags = [DAG_BUILD], initialId, narrow: forceNarrow, style 
 
   if (dags.length === 0) {
     return (
-      <div style={{ display: "flex", flexDirection: "column", height: "100%", background: "var(--tasty-dag-canvas-bg)", ...style }}>
+      <div style={{ display: "flex", flexDirection: "column", height: "100%", background: bed, ...style }}>
         <DagEmpty variant="surface" />
       </div>
     );
@@ -370,7 +372,7 @@ function DagSurface({ dags = [DAG_BUILD], initialId, narrow: forceNarrow, style 
       background: "var(--tasty-bg-panel)", ...style }}>
       {header}
       <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: narrow ? "column" : "row" }}>
-        <DagCanvas dag={dag} dir={dir} onDirChange={setDir} selected={sel} onSelect={setSel} />
+        <DagCanvas dag={dag} dir={dir} onDirChange={setDir} selected={sel} onSelect={setSel} style={{ backgroundColor: bed }} />
         {sel && <DagDetail dag={dag} id={sel} sheet={narrow} onClose={() => setSel(null)} onSelect={setSel} />}
       </div>
     </div>

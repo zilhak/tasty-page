@@ -354,9 +354,9 @@ function Page() {
               <DagSurface dags={[DAG_BUILD, DAG_INDEX]} narrow />
             </div>
           </Stage>
-          {focusViews("dag-tab-surface", <div style={{ height: 320, minWidth: 320 }}><DagSurface dags={[DAG_BUILD]} narrow /></div>)}
+          {focusViews("dag-tab-surface", (focused) => <div style={{ height: 320, minWidth: 320 }}><DagSurface dags={[DAG_BUILD]} narrow focused={focused} /></div>)}
           <Meta
-            specs={[["focus", <>surface focus edge above the header, host painted; header and canvas unchanged. The workspace popup is not a surface and has no edge</>], ["header", "8/12 padding · wraps < 640"], ["canvas", "all remaining space"], ["detail", "288 side → 220 sheet"], ["narrow floor", "320px, nothing clipped"], ["DAG switch", "instant swap + auto-fit"]]}
+            specs={[["focus", <>the canvas takes the bed, <span className="tok">--tasty-surface-bed-focused</span> or <span className="tok">--tasty-surface-bed-unfocused</span>. Header, nodes and detail stay. The workspace popup is not a surface, and its canvas stays <span className="tok">--tasty-dag-canvas-bg</span></>], ["header", "8/12 padding · wraps < 640"], ["canvas", "all remaining space"], ["detail", "288 side → 220 sheet"], ["narrow floor", "320px, nothing clipped"], ["DAG switch", "instant swap + auto-fit"]]}
             tokens={[{ tok: "--tasty-bg-sidebar", use: "header band", color: "var(--tasty-bg-sidebar)" }, { tok: "--tasty-separator", use: "header hairline" }, { tok: "--tasty-dag-detail-sheet-height", use: "220 sheet" }]} />
           <Note>Switching DAG in the header <code>Select</code> replaces the canvas instantly (0ms) and re-fits — a new graph has no position to preserve, so fit is the honest default. Within one DAG the view never re-fits on its own.</Note>
         </Spec>

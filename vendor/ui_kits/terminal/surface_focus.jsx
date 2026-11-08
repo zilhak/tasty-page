@@ -1,5 +1,7 @@
-// The surface focus edge. The host paints it at the top of every surface leaf, whatever the kind. See RULES.md section 4.
+// Surface focus. A surface whose bed belongs to Tasty swaps its bed. A surface whose bed belongs to someone else, html or a plugin, gets the edge. See RULES.md section 4.
 import React from "react";
+
+export const surfaceBed = (focused) => (focused ? "var(--tasty-surface-bed-focused)" : "var(--tasty-surface-bed-unfocused)");
 
 export function SurfaceFocusEdge({ focused, style, ...rest }) {
   return (
@@ -8,7 +10,7 @@ export function SurfaceFocusEdge({ focused, style, ...rest }) {
   );
 }
 
-// A surface leaf: the edge on top, then whatever the kind draws. The edge keeps its row in both states, so focus never moves the content.
+// An html or plugin leaf: the edge on top, then whatever the kind draws. The edge keeps its row in both states, so focus never moves the content.
 export function SurfaceLeaf({ focused, style, children, ...rest }) {
   return (
     <div {...rest} style={{ display: "flex", flexDirection: "column", minWidth: 0, minHeight: 0, overflow: "hidden", ...style }}>
