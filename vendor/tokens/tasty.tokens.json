@@ -3891,6 +3891,18 @@
       "$type": "dimension",
       "$value": "{semantic.focus-ring-width}"
     },
+    "surface-focus-edge-focused": {
+      "$type": "color",
+      "$value": "{semantic.text-secondary}"
+    },
+    "surface-focus-edge-unfocused": {
+      "$type": "color",
+      "$value": "{semantic.bg-sidebar}"
+    },
+    "surface-focus-edge-width": {
+      "$type": "dimension",
+      "$value": "{semantic.selection-edge-width}"
+    },
     "table-cell-height": {
       "$type": "dimension",
       "$value": "{semantic.control-height}"

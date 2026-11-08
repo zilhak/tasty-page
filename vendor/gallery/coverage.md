@@ -8,9 +8,9 @@ How this was checked: specimens were matched by reading the sources for each con
 
 | Measure | Count | Missing before this change | Missing now |
 |---|---|---|---|
-| Contracts | 83 | 4 | 0 |
-| Locations | 36 | 5 | 0 |
-| Frozen cells (component, state, host) with `data-contract` | 414 | 414 | 0 |
+| Contracts | 84 | 4 | 0 |
+| Locations | 37 | 5 | 0 |
+| Frozen cells (component, state, host) with `data-contract` | 422 | 414 | 0 |
 
 The 4 contracts and 5 locations had no gallery specimen and now have one. Each page's `states.jsx` names the contracts it owns, and `parts/contract-cells.jsx` draws their cells.
 
@@ -97,6 +97,7 @@ The 4 contracts and 5 locations had no gallery specimen and now have one. Each p
 | Tint box.info | `foundations#rolegaps` | gallery part | 3 | rest | `mantle`, `base`, `raised` | demo and states |
 | Terminal | `layouts#surfaces` | gallery part | 1 | rest | `term` | demo and states |
 | Terminal (unfocused) | `layouts#surfaces` | gallery part | 1 | rest | `base` | demo and states |
+| Surface focus edge | `layouts#surfaces` | gallery part | 8 | rest, focus | `crust`, `mantle`, `base`, `term` | demo and states |
 | Markdown document | `plugins#markdown` | gallery part | 1 | rest | `crust` | demo and states |
 | Markdown table | `plugins#markdown` | gallery part | 1 | rest | `crust` | demo and states |
 | Markdown table header | `plugins#markdown` | gallery part | 1 | rest | `crust` | demo and states |
@@ -118,6 +119,7 @@ The 4 contracts and 5 locations had no gallery specimen and now have one. Each p
 | Markdown surface | `crust` | `plugins#markdown` | exists |
 | HTML surface | `mantle` | `plugins#html` | exists |
 | Image surface | `base` | `plugins#image` | exists |
+| Empty surface | `crust` | `layouts#surfaces` | exists |
 | Explorer | `base` | `plugins#explorer` | exists |
 | Modal dialog | `base` | `overlays-dialogs#scrim` | exists |
 | Scrim | `scrim@base` | `overlays-dialogs#scrim` | exists |

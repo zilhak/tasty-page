@@ -4,6 +4,7 @@
 import React from "react";
 import { Button, IconButton, Icon, Badge, Tag, Kbd, Input, Select, MenuItem, AutoComplete, MultiSelect, SearchableSelect, Checkbox, Switch, Tab, TreeRow, ListCtrl, Table, Toast, Tooltip, HelpHint, StatusDot, Spinner, NotificationBadge, NotificationItem, PendingIndicator, CenterState, CodeArea, DrillDown } from "../../components/index.js";
 import { NotificationSummary } from "../../ui_kits/terminal/notification_summary.jsx";
+import { SurfaceFocusEdge } from "../../ui_kits/terminal/surface_focus.jsx";
 import { tokenCell } from "./contract-parts.jsx";
 
 const groundOf = (host) => (host === "raised" ? "raised" : host === "active" ? "active" : "panel");
@@ -135,6 +136,7 @@ const CELLS = {
     <Table columns={[{ key: "a", header: "Name" }]} rows={[{ a: "Cell" }, { a: "Second" }]} rowKey="a" selectedKey={selected(state) ? "Cell" : null} onRowClick={noop} />
   ),
   "Table header": () => <Table columns={[{ key: "a", header: "Name" }]} rows={[]} empty="" />,
+  "Surface focus edge": (state) => <SurfaceFocusEdge focused={state === "focus"} data-part="edge" style={{ width: "var(--tasty-size-64)" }} />,
   Toast: toasts,
   Tooltip: () => <Tooltip open content="Tooltip"><span /></Tooltip>,
   HelpHint: () => <HelpHint />,

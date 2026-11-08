@@ -94,6 +94,7 @@ Translucent layers are measured over each parent they can sit on. Each result is
 | Preset split zone | `split-zone@<parent>` | |
 | Tint box | `tint-<hue>@<parent>` | Parent is `mantle`, `base` or `raised`. |
 | Unfocused terminal | `base` | Default ink `surface-terminal-unfocused-fg`. |
+| Surface focus | no change | The host paints the surface focus edge above the surface, see [section 4](#4-location-map). Only the terminal also swaps its bed. |
 | Dimmed item | the parent | `state-dim-opacity` over an item that is inert and comes back. No target, see section 12. An item the user still reads or selects is not dimmed: a pending cut reads `cut-pending-fg`, a disabled plugin row reads `text-muted`, a route not taken reads `dag-edge-dim`. |
 | Under a scrim | `scrim@<parent>` | Inert. Every cell is forbidden. Only the modal frame sits on it. |
 
@@ -176,13 +177,14 @@ Each location has one ground. It may hold only the listed children, to the liste
 | Sidebar | `mantle` | 2 | `crust`, `mantle+hover`, `mantle+press`, `active`, `active+hover`, `active+press`, `raised`, `field`, `track`, filled controls, tint boxes over `mantle` | Category band is crust. Selected workspace row is active. |
 | Workspace status bar | `crust` | 1 | `crust+hover`, `crust+press` | Glyphs and text only. |
 | Tab bar | `mantle` | 1 | `tab-hover`, `base`, `mantle+hover`, `mantle+press`, `raised` | Active tab is base. Scroll arrow cell is raised. |
-| Pane body | `base` | 1 | `term`, `crust`, `mantle`, `raised` | Holds one surface. |
+| Pane body | `base` | 1 | `term`, `crust`, `mantle`, `raised` | Holds one surface. Every surface starts with the focus edge. |
 | Surface head and split line | `mantle` | 2 | `field`, `mantle+hover`, `mantle+press`, `raised`, filled controls, tint boxes over `mantle` | Address bar band: mantle. Split lines take border-frame. |
 | Terminal surface, focused | `term` | 1 | `term-selection`, `term-cursor`, `match@term`, `match-active@term`, `file-drop@term`, `raised` | Banner, toast and search bar float on raised. |
 | Terminal surface, unfocused | `base` | 1 | `match@base`, `match-active@base`, `raised` | Default ink takes surface-terminal-unfocused-fg. |
-| Markdown surface | `crust` | 2 | `base`, `mantle`, `raised`, `file-drop@crust` | Content typography is library-driven. Colors follow this table. |
-| HTML surface | `mantle` | 2 | `field`, `raised` | The page is web content, outside these rules. |
+| Markdown surface | `crust` | 2 | `base`, `mantle`, `raised`, `file-drop@crust` | Content typography is library-driven. Colors follow this table. One document bed in both focus states. |
+| HTML surface | `mantle` | 2 | `field`, `raised` | The page is web content, outside these rules. Focus shows on the edge above the address band. |
 | Image surface | `base` | 1 | `mantle`, `raised` |  |
+| Empty surface | `crust` | 1 | `raised` | Nothing but the ground, under the focus edge. Banner and toast float on raised. |
 | Explorer | `base` | 2 | `mantle`, `base+hover`, `base+press`, `mantle+hover`, `mantle+press`, `active`, `active+hover`, `active+press`, `raised`, `field`, `drop-target@base`, `drop-target@mantle`, `marquee@base`, `marquee@mantle`, `file-drop@base`, `file-drop@mantle`, `drop-target@raised`, `track`, `track-raised`, filled controls, tint boxes over `mantle` | Selected row is active. Drag chip is raised. |
 | Modal dialog | `base` | 2 | `raised`, `field`, `mantle`, `crust`, `active`, `approval`, `base+hover`, `base+press`, `track`, `track-raised`, filled controls, tint boxes over `base`, `raised` | Sits on scrim. Depth counts from the dialog. |
 | Scrim | `scrim@base` | 1 | `base` | Only a modal frame sits on it. |
@@ -198,7 +200,7 @@ Each location has one ground. It may hold only the listed children, to the liste
 | Remote connections | `base` | 2 | `mantle`, `base+hover`, `base+press`, `active`, `active+hover`, `active+press`, `raised`, `field`, filled controls, tint boxes over `base`, `raised` |  |
 | Preset editor | `base` | 2 | `mantle`, `crust`, `raised`, `field`, `active`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`, `track`, filled controls |  |
 | Task DAG | `base` | 2 | `raised`, `raised+hover`, `raised+press`, `mantle`, `crust`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, filled controls | Canvas is base. Chrome and detail are mantle. Log is crust. |
-| Plugin surface chrome | `base` | 2 | `mantle`, `raised`, `field`, `active`, `active+hover`, `active+press`, `base+hover`, `base+press`, `tint-avatar`, `track`, filled controls, tint boxes over `raised` | What the host draws. |
+| Plugin surface chrome | `base` | 2 | `mantle`, `raised`, `field`, `active`, `active+hover`, `active+press`, `base+hover`, `base+press`, `tint-avatar`, `track`, filled controls, tint boxes over `raised` | What the host draws, the focus edge included. |
 | Plugin UI through host widgets | `base` | 2 | `mantle`, `raised`, `field`, `active`, `base+hover`, `base+press`, `track`, filled controls, tint boxes over `raised` | Same as any panel. Widgets read by role. |
 | Startup and boot error | `crust` | 1 | `base`, `raised` |  |
 | Code area | `field` | 1 | `mantle` | Gutter is mantle. |
@@ -209,6 +211,36 @@ Each location has one ground. It may hold only the listed children, to the liste
 | Scrim over term | `scrim@term` | 1 | `base` | Only a modal or popup frame sits on it. |
 
 Filled controls means the `fill-*` grounds with their hover and press states. The full lists are in the file.
+
+### Surface focus
+
+Every surface kind shows focus the same way, on the **surface focus edge**: a bar across the top of the leaf, above any head or address band. The host paints it from its own model focus. No plugin, manifest or page can change or hide it, and it needs nothing from them.
+
+| Part | Focused | Unfocused | Lowest against a neighbor, Mocha · Latte |
+|---|---|---|---|
+| Edge | `surface-focus-edge-focused` | `surface-focus-edge-unfocused` | 7.10 · 4.05 on `raised` |
+| Height | `surface-focus-edge-width` 2px | The same | Zoom-exempt |
+
+| Kind | What changes with focus | What stays |
+|---|---|---|
+| `terminal` | Edge, bed, default ink | Cell content. Motion stays 0ms |
+| `markdown` | Edge | Document bed, address band, table and code fills. All in the webview |
+| `html` | Edge | Address band, banners, the page, webview chrome tiles |
+| `image` | Edge | Panel, canvas, popups |
+| `explorer` | Edge | Inner tab bar, toolbar, body, status line, preview panel |
+| `empty` | Edge | Ground |
+| `dag_graph` | Edge | Head, canvas |
+| Plugin, webview | Edge | The plugin's page |
+| Plugin, `egui-mesh` | Edge | The plugin's frame |
+
+- **The row stays.** The edge holds its row on every leaf in both states. A webview starts below it. Focus never moves content or reflows a page.
+- **Motion.** None on any kind. The color changes in one frame, as the terminal bed does.
+- **Follows model focus.** An inactive OS window keeps its focused edge. With no focused surface, no edge is lit.
+- **Paint order.** Unfocused edge, then ring (needs input, occupancy, completion), then lit edge. Attention and occupancy ring all four sides, so position tells them from the edge as well as color.
+- **Hard occupied.** A terminal keeps the unfocused bed and ink because it takes no input. The edge still follows focus.
+- **Mirror.** The host that draws the leaf paints the edge from its own focus, so nothing depends on the plugin's frame.
+- **Keyboard focus.** A field or control keeps its blue ring. The edge is never blue, so a focused field inside a focused surface shows both.
+- **Only leaves in a pane.** A DAG in a workspace popup is not a surface and has no edge.
 
 ### Terminal content
 
@@ -987,6 +1019,14 @@ Forbidden:
 | DAG states | latte | `dag-status-unknown`, `dag-status-partially-failed` | 0.063 | Every state carries a glyph and a word. |
 | DAG edges | mocha | `dag-edge-reduce`, `dag-edge-binding` | 0.041 | Every relation has its own dash pattern (dag-edge-dash-*). |
 | DAG edges | latte | `dag-edge-reduce`, `dag-edge-transition` | 0.070 | Every relation has its own dash pattern (dag-edge-dash-*). |
+| surface focus edge | mocha | `surface-focus-edge-focused`, `surface-focus-edge-unfocused` | 0.602 | not needed |
+| surface focus edge | latte | `surface-focus-edge-focused`, `surface-focus-edge-unfocused` | 0.442 | not needed |
+| terminal bed | mocha | `surface-terminal-focused-bg`, `surface-terminal-unfocused-bg` | 0.245 | not needed |
+| terminal bed | latte | `surface-terminal-focused-bg`, `surface-terminal-unfocused-bg` | 0.043 | The surface focus edge tells them apart. The bed swap is not what the rule relies on. |
+| surface edge marks | mocha | `surface-focus-edge-focused`, `surface-highlight-done-border` | 0.088 | not needed |
+| surface edge marks | latte | `surface-occupied-hard-border`, `surface-highlight-input-border` | 0.062 | The focus edge is one bar on the top side and the others ring all four sides. The rings keep their own priority. |
+
+**Surface focus pass mark.** The pair `surface-focus-edge-focused`, `surface-focus-edge-unfocused` must hold OKLab ΔE 0.08 or more and contrast 3:1 or more in Mocha and in Latte, and `surface-focus-edge-focused` must hold 3:1 on `crust`, `mantle`, `base`, `raised` and `term`. Both values are opaque. A translucent value composites over its neighbor first, as the [measure](#2-how-strong-the-rules-are) says. The contrast is required on top of the ΔE because the two states meet in one thin bar with no word or glyph. It binds the built-in themes only. The `surface-terminal-*-bg` pair must differ, and it may stay under ΔE 0.08 because the edge carries the rule.
 
 **Tint rule.** A tint holds its own hue and neutrals. A second hue on it reads as a conflict, so it is forbidden.
 
@@ -1950,6 +1990,17 @@ Sits on: `base`
 |---|---|---|---|---|
 | default ink | `surface-terminal-unfocused-fg` | rest | `base` | 7.37 · 5.53 |
 
+### Surface focus edge
+
+Sits on: `crust`, `mantle`, `base`, `term`
+
+| Part | Token | States | Ground | Lowest, Mocha · Latte |
+|---|---|---|---|---|
+| edge | `surface-focus-edge-unfocused` | rest | `crust`, `mantle`, `base`, `term` | no target |
+| edge | `surface-focus-edge-focused` | focus | `crust`, `mantle`, `base`, `term` | 9.26 · 4.73 |
+
+In this contract `rest` is unfocused and `focus` is focused.
+
 ### Markdown document
 
 Sits on: `crust`
@@ -1995,6 +2046,7 @@ Inside the fixed limits: 4px grid, UI type 14px or less, borders 1px, radius 4px
 | Sidebar tree row | `tree-row-height` 22px | `workspace-row-padding-x` 8px | `icon-size-sm` 14px | Body | Left | Ellipsis |
 | Sidebar category band | `tree-row-height` 22px | `sidebar-category-header-pad-x` 8px | `icon-size-xs` 12px | Caption, 600 | Left, count right | Ellipsis |
 | Status bar | `status-bar-height` 24px | `space-sm` 8px | `statusbar-glyph-size` 12px | Caption | Left and right groups | Items drop by the collapse order |
+| Surface focus edge | `surface-focus-edge-width` 2px | - | - | - | Full leaf width, top of the leaf | - |
 | Address bar | `html-address-bar-height` 40px | `html-address-bar-padding-x` 8px | `icon-size-sm` 14px | Body in a 28 field | Center | Middle of path, then Forward drops |
 | In-surface toolbar | `toolbar-height` 32px | `space-sm` 8px | `icon-size-md` 16px | Body | Center | Items fold into More |
 | Menu row | `menu-item-height` 28px | `menu-item-padding-x` 12px | `icon-size-sm` 14px | Body, shortcut micro | Left, shortcut right | Wraps only for fixed copy over max width |
@@ -2038,7 +2090,7 @@ Inside the fixed limits: 4px grid, UI type 14px or less, borders 1px, radius 4px
 | `accent` | `blue`, `green`, `red`, `yellow`, `peach`, `mauve`, `teal`, `sky`, `lavender`, `flamingo`, `pink`, `maroon`, `rosewater` |
 | `terminal` | `selection_bg`, `vi_cursor_bg`, `search_match_bg`, `search_match_active_bg`, `search_match_active_fg` |
 | `ansi` | The terminal colors. |
-| `surfaces` | A color per surface kind. |
+| `surfaces` | A color per surface kind. The surface focus edge has no key here: it follows `subtext1` and `mantle`, and no manifest color reaches it. |
 
 No section sets a semantic or component token directly.
 
@@ -2050,7 +2102,7 @@ What carries over to a user theme is only the structure of token choice: each ce
 
 | What is drawn | Status | How it holds |
 |---|---|---|
-| Host chrome around a plugin: tab, address bar, frame, banner, menu | In the rules | The host draws it. |
+| Host chrome around a plugin: tab, address bar, frame, banner, menu, surface focus edge | In the rules | The host draws it. |
 | Bundled `egui-mesh` plugin UI | In the rules, by promise | Not enforced at run time. Bundled sources have no raw color call today (`Color32::from_*`, `from_rgb`, tests excluded). A source check can hold that. |
 | Third-party `egui-mesh` plugin pixels | Exception | The host cannot check them. A plugin that takes its colors from the host's Theme tokens follows the table, and one that does not is content. |
 | `html` page | Exception | Webview content, like a web page. |

@@ -720,6 +720,16 @@
   --tasty-surface-highlight-input-width:  var(--tasty-focus-ring-width);  /* 2px */
   --tasty-surface-highlight-done-width:  var(--tasty-focus-ring-width);  /* 2px */
 
+  /* Surface focus edge. EVERY surface kind tells focused from unfocused here: a
+     bar across the top of the leaf, painted by the host, so no kind, plugin or
+     manifest color can drop it. Neutral on purpose: blue is the keyboard focus
+     ring and the completion highlight. The unfocused value is the chrome tone, so
+     it reads as no mark. The bar keeps its row in both states, so focus never
+     moves the content. Paint order: unfocused edge, ring, lit edge. */
+  --tasty-surface-focus-edge-focused:   var(--tasty-text-secondary);
+  --tasty-surface-focus-edge-unfocused: var(--tasty-bg-sidebar);
+  --tasty-surface-focus-edge-width:     var(--tasty-selection-edge-width); /* 2 — hairline, zoom-exempt */
+
   /* ─────────────────  DATA  ───────────────── */
 
   /* Table */
@@ -781,8 +791,8 @@
   --tasty-md-table-cell-padding-y:  var(--tasty-space-xs);        /* 4px — old ~6px snapped onto the 4px grid */
 
   /* Markdown DOCUMENT (webview render path — render.rs theme_css()). The doc bed is
-     one fixed background: the webview has no focused/unfocused signal, so md-doc-bg
-     is markdown's only background. Value ladder, page → lightest element:
+     one fixed background in both focus states, so md-doc-bg is markdown's only
+     background. Focus shows on surface-focus-edge-*. Value ladder, page → lightest element:
        crust (doc bg) < mantle (table zebra) < base (—) < surface0 (code fill) < surface1 (grid). */
   --tasty-md-doc-bg:                var(--tasty-surface-markdown-focused-bg); /* → --md-bg */
   --tasty-md-doc-fg:                var(--tasty-text-secondary);

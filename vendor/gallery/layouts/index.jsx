@@ -7,6 +7,7 @@ import { GalleryLoadingOverlay } from "./loading-overlay.jsx";
 import { GalleryMoveSource } from "./move-source.jsx";
 import { GalleryTabStrip } from "./tab-strip.jsx";
 import { GalleryTitleBar } from "./title-bar.jsx";
+import { GallerySurfaceFocus } from "./surface-focus.jsx";
 import { Lnb as GalleryNotifications_Lnb } from "../parts/notifications.jsx";
 import { Section, Spec, Stage, Meta, Note, Do, Dont, GIcon } from "../parts/specimen.jsx";
 
@@ -864,6 +865,7 @@ function Layouts() {
 
       {/* SURFACES */}
       <Section id="surfaces" title="Surface focus states">
+        <GallerySurfaceFocus />
         <Spec id="focused-unfocused-agent" title="Focused · unfocused · agent"
           when={<>Split panes make focus explicit through color. The <b>focused</b> terminal surface goes <b>true black (#000)</b> with full-strength text; <b>unfocused</b> surfaces dim to <code>--surface-terminal-unfocused</code> at 92% opacity. An <b>agent</b> surface carries the mauve pulsing dot — you always know who's driving.</>}>
           <Stage variant="tight" grid>

@@ -39,6 +39,7 @@ export const PART_MAP = {
   "Title bar": { button: { prop: "svg", sel: '[data-part="button"]' } }, "Title bar (inactive)": { button: { prop: "svg", sel: '[data-part="button"]' } },
   "Window close button": { glyph: { prop: "svg", sel: '[data-part="glyph"]' } },
   Tag: { edge: { sel: '[data-part="label"]' } },
+  "Surface focus edge": { edge: { sel: '[data-part="edge"]', prop: "backgroundColor" } },
   Kbd: { cap: { sel: "kbd" }, edge: { sel: "kbd" }, plus: { sel: ".tasty-kbd__plus" } },
   Input: input, "Input (on raised)": input,
   "Select trigger": select, "Select trigger (on raised)": select,

@@ -352,9 +352,9 @@
   --tasty-surface-terminal-focused-fg:   var(--tasty-text-primary);
   --tasty-surface-terminal-unfocused-bg: var(--tasty-bg-panel);
   --tasty-surface-terminal-unfocused-fg: var(--tasty-text-muted);
-  --tasty-surface-markdown-focused-bg:   var(--tasty-bg-app); /* crust — the DOCUMENT bed. NOT pure black: black is a terminal convention (raw TTY) and sits outside the Catppuccin palette; prose at 14px on #000 halates. crust also keeps the whole markdown content ladder discriminable above it: crust(page) < mantle(zebra) < base(row) < surface0(header/code) < surface1(grid). Latte flips with bg-app (crust #dce0e8) — no per-theme branch. In the webview render path there is no focus signal, so this is markdown's ONLY background. */
+  --tasty-surface-markdown-focused-bg:   var(--tasty-bg-app); /* crust — the DOCUMENT bed. NOT pure black: black is a terminal convention (raw TTY) and sits outside the Catppuccin palette; prose at 14px on #000 halates. crust also keeps the whole markdown content ladder discriminable above it: crust(page) < mantle(zebra) < base(row) < surface0(header/code) < surface1(grid). Latte flips with bg-app (crust #dce0e8) — no per-theme branch. The document keeps this one bed in both focus states, and focus shows on surface-focus-edge-*. */
   --tasty-surface-markdown-focused-fg:   var(--tasty-text-primary);
-  --tasty-surface-markdown-unfocused-bg: var(--tasty-bg-sidebar);
+  --tasty-surface-markdown-unfocused-bg: var(--tasty-bg-sidebar); /* the webview renderer does not read it: the bed does not swap. Kept, tokens are only added */
   --tasty-surface-markdown-unfocused-fg: var(--tasty-text-muted);
 
   /* ── Terminal specifics ───────────────────────────────────── */
