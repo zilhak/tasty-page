@@ -41,7 +41,7 @@ const CSS = `
 .tasty-toast--danger  .tasty-toast__icon { color: var(--tasty-toast-accent-danger); }
 .tasty-toast--agent   .tasty-toast__icon { color: var(--tasty-toast-accent-agent); }
 .tasty-toast--info    .tasty-toast__icon { color: var(--tasty-toast-accent-info); }
-.tasty-toast__msg { flex: 1; min-width: 0; line-height: var(--tasty-line-height-ui); }
+.tasty-toast__msg { flex: 1; min-width: 0; line-height: var(--tasty-line-height-ui); overflow-wrap: anywhere; }
 /* hint (2026-10-06): display-only, never truncates — the body wraps first. Pinned to the FIRST line
    of the body (align-self start + one body line box), so a two-line notice keeps the key beside its verb. */
 .tasty-toast__hint { flex: none; align-self: flex-start; display: inline-flex; align-items: center; white-space: nowrap;

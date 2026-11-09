@@ -1,5 +1,5 @@
 import React from "react";
-import { Icon, Checkbox, Input, Tooltip } from "../../components/index.js";
+import { Icon, Checkbox, Input, Toast, Tooltip } from "../../components/index.js";
 import { Spec, Stage, Meta, Note, Dont } from "../parts/specimen.jsx";
 
 // Tasty Gallery — Settings › Appearance font rows and the rejected font states.
@@ -133,6 +133,49 @@ function FontOverrideG({ long = false, file = null }) {
   );
 }
 
+// toast.font_rejected. {} is the path or the family name.
+const TOAST_COPY = {
+  en: (v) => "Could not load the font: " + v + ". Using another font.",
+  ko: (v) => "폰트를 불러오지 못했습니다: " + v + ". 다른 폰트로 표시합니다.",
+  ja: (v) => "フォントを読み込めませんでした: " + v + "。別のフォントで表示します。",
+};
+const TOAST_PATH = "~/fonts/notes.txt";
+const TOAST_LONG = "/home/me/…/JetBrainsMono/JetBrainsMonoNerdFont-Regular.ttf";
+
+// The bottom-right corner of the main window: the toast stack over a surface, above the status bar.
+function MainCorner({ theme, label, view, children }) {
+  return (
+    <div data-theme={theme} data-view={view} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", maxWidth: "100%", background: "var(--tasty-bg-app)" }}>
+      <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" }}>{label}</span>
+      <div style={{ position: "relative", display: "flex", flexDirection: "column", justifyContent: "flex-end", alignItems: "flex-end", gap: "var(--tasty-space-sm)", width: "var(--tasty-size-400)", maxWidth: "100%", minHeight: "var(--tasty-size-180)", boxSizing: "border-box", padding: "var(--tasty-space-md)", paddingBottom: "var(--tasty-toast-stack-offset-bottom)", background: "var(--tasty-bg-app)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)" }}>
+        {children}
+        <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, height: "var(--tasty-status-bar-height)", background: "var(--tasty-bg-panel)", borderTop: "var(--tasty-border-width) solid var(--tasty-separator)" }} />
+      </div>
+    </div>
+  );
+}
+
+function FontToastSpec() {
+  return (
+    <Spec id="font-rejected-toast" title="Font rejected toast"
+      when={<>A <b>saved</b> font value that can't be used raises one toast in the main window: after the first check at startup, or right after saving. It never comes from the preview, so typing a path raises nothing. It is the <b>warning</b> card, like the language pack font notice, because Tasty keeps running on another font and the setting is kept. The body names the value, since at startup nothing else says which one failed. A value rejected on several surfaces raises one card, so the card names no surface. Two different values raise two cards. There is no action button.</>}>
+      {stage(<>
+        {THEMES.map(([l, t]) => <MainCorner key={l} theme={t} label={l + " · once, path"} view={"font-toast-path-" + t}><Toast variant="warning">{TOAST_COPY.en(TOAST_PATH)}</Toast></MainCorner>)}
+        {THEMES.map(([l, t]) => <MainCorner key={l} theme={t} label={l + " · long path, already shortened · no such file reads the same"} view={"font-toast-long-" + t}><Toast variant="warning">{TOAST_COPY.en(TOAST_LONG)}</Toast></MainCorner>)}
+        <MainCorner theme="mocha" label="Mocha · ko" view="font-toast-ko"><Toast variant="warning">{TOAST_COPY.ko(TOAST_PATH)}</Toast></MainCorner>
+        <MainCorner theme="latte" label="Latte · ja" view="font-toast-ja"><Toast variant="warning">{TOAST_COPY.ja(TOAST_PATH)}</Toast></MainCorner>
+        <MainCorner theme="mocha" label="Mocha · two different values, newest at the bottom" view="font-toast-two"><Toast variant="warning">{TOAST_COPY.en(TOAST_PATH)}</Toast><Toast variant="warning">{TOAST_COPY.en("~/fonts/Removed.ttf")}</Toast></MainCorner>
+        <MainCorner theme="latte" label="Latte · beside the language pack font notice" view="font-toast-sibling"><Toast variant="warning">Could not load the language pack font: Noto Sans KR. Some characters may appear as □.</Toast><Toast variant="warning">{TOAST_COPY.en(TOAST_PATH)}</Toast></MainCorner>
+      </>)}
+      <Meta
+        specs={[["card", "Toast variant warning, which is ToastKind::Warning in the app"], ["boxes", "rail and body, no icon, no hint, no button"], ["value", "in the body, same font as the body. Long paths shorten as the language pack notice does"], ["long text", "wraps inside toast-max-width, breaking anywhere in a path"], ["once", "per value. Several surfaces, one card"], ["lifetime", "overlay.toast_duration_ms, unchanged"], ["position", "main window stack, toast-stack-offset-bottom"]]}
+        tokens={[{ tok: "--tasty-accent-warning", use: "rail", color: "var(--tasty-toast-accent-warning)" }, { tok: "--tasty-toast-max-width", use: "card cap" }, { tok: "--tasty-toast-stack-offset-bottom", use: "main window offset" }]} />
+      <Note><b>Copy.</b> <code>toast.font_rejected</code>: en “{TOAST_COPY.en("{}")}” · ko “{TOAST_COPY.ko("{}")}” · ja “{TOAST_COPY.ja("{}")}” The same key takes a path or a family name. It doesn't ask for a new value: a file replaced with a good font works after a restart with the same value. Its danger sibling, ToastKind::Error, is for an action that failed, which this isn't. No token was added.</Note>
+      <Dont><b>Don't</b> raise this toast from the preview's check, or add a button: the row in Settings is where the value is changed.</Dont>
+    </Spec>
+  );
+}
+
 function FontFileRejectedSpec() {
   return (
     <Spec id="appearance-font-file-rejected" title="Appearance › Custom font file rejected"
@@ -195,4 +238,4 @@ function FontFileRejectedSpec() {
   );
 }
 
-export { FontOverrideG, FontFileRejectedSpec };
+export { FontOverrideG, FontFileRejectedSpec, FontToastSpec };

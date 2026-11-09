@@ -712,11 +712,13 @@ function Components() {
             <Toast variant="success" hint={<Kbd keys="⌘C" />}>Copied 3 lines from the selection to the clipboard</Toast>
             <Toast variant="info">Copied (OSC 52)</Toast>
             <Toast variant="warning">Held by another client (readonly)</Toast>
+            <Toast variant="warning">Could not load the font: ~/fonts/notes.txt. Using another font.</Toast>
             <Toast variant="danger">Force detach — connection dropped</Toast>
           </Stage>
           <Meta
             specs={[["rail", "3px accent left edge"], ["radius", <span className="tok">--tasty-radius</span>], ["fill", <span className="tok">--tasty-surface-raised</span>], ["boxes", "rail · body (flex 1) · hint (flex none) · gap space-sm · pad space-sm / space-md"], ["hint", "Kbd of the action's binding · menu / mouse origin only · none when unbound"], ["hint position", "right end, first line · never truncated — body wraps first"], ["platform", "Kbd rule: ⌘ ⇧ ⌥ on macOS, Ctrl+Shift+ on Windows / Linux"], ["agent", "catalog only — host does not emit"], ["icon", "catalog only — host card has no icon"]]}
             tokens={[{ tok: "--tasty-accent-success", use: "ok rail", color: "var(--tasty-accent-success-raised)" }, { tok: "--tasty-toast-hint-font-size", use: "hint · micro mono" }, { tok: "--tasty-surface-raised", use: "card", color: "var(--tasty-surface-raised)" }]} />
+          <Note>A long unbroken value such as a path wraps inside the card. The font rejected toast is on Overlays › Windows, under Settings.</Note>
         </Spec>
 
         <Spec id="toast-stack" title="Toast stack"
