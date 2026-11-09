@@ -492,7 +492,7 @@ function HookRow({ h, onToggle, onCmd, onDelete }) {
         <span style={{ flex: "0 1 auto", fontFamily: "var(--tasty-font-mono)", fontSize: 13, fontWeight: 600, color: h.on ? "var(--tasty-text-primary)" : "var(--tasty-text-muted)",
           overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{h.id}</span>
         <Tag variant={o.variant}>{o.label}</Tag>
-        <span style={{ flex: "none", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" }}>prio {h.prio}</span>
+        <span style={{ flex: "none", fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" }}>prio {h.prio}</span>
         <span style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", flex: "none" }}>
           <Switch checked={h.on} onChange={onToggle} />
           <IconButton size="sm" aria-label={"Remove " + h.id} title="Remove" onClick={onDelete}><Icon name="trash" size={16} /></IconButton>

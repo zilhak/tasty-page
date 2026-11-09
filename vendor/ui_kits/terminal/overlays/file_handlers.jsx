@@ -227,7 +227,7 @@ function FhRow({ L, id, origins, prio, pendingLabel, strikeId, on, switchOn, swi
         <span ref={idRef} title={id} style={{ flex: "0 1 auto", minWidth: dropped ? "min(var(--tasty-file-handler-id-min-width), " + idFull + "px)" : 0, ...fhEll, fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-body)", fontWeight: "var(--tasty-font-weight-semibold)",
           color: dim ? "var(--tasty-text-secondary)" : "var(--tasty-text-primary)", textDecoration: strikeId ? "line-through" : undefined }}>{id}</span>
         {tags}
-        {prio != null && <span style={{ flex: "none", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-file-handler-prio-fg)" }}>prio {prio}</span>}
+        {prio != null && <span style={{ flex: "none", fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-file-handler-prio-fg)" }}>prio {prio}</span>}
         {pendingLabel && !dropped && <span style={{ flex: "none", display: "inline-flex" }}><Tag>{pendingLabel}</Tag></span>}
         <span style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", flex: "none" }}>
           <Switch checked={switchOn} disabled={switchDisabled} onChange={onToggle} aria-label={"Enable " + id} />
