@@ -1,7 +1,8 @@
 // Foundations: color specimens that sit inside the elevation, accent and terminal sections.
 import React from "react";
 import { Spec, Stage, Meta, Note } from "../parts/specimen.jsx";
-import { Swatch, SwatchGrid, ThemePair } from "./swatch.jsx";
+import { ThemePair } from "../parts/theme-frame.jsx";
+import { Swatch, SwatchGrid } from "./swatch.jsx";
 
 const MONO = "var(--tasty-font-mono)";
 const SMALL = "var(--tasty-font-size-caption)";

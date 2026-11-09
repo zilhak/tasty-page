@@ -2,7 +2,8 @@
 // because they are its subject. A role reads them; UI does not (RULES.md section 14).
 import React from "react";
 import { Section, Spec, Stage, Meta, Note } from "../parts/specimen.jsx";
-import { Swatch, SwatchGrid, ThemePair } from "./swatch.jsx";
+import { ThemePair } from "../parts/theme-frame.jsx";
+import { Swatch, SwatchGrid } from "./swatch.jsx";
 
 const NEUTRALS = [
   ["crust", 0], ["mantle", 100], ["base", 200], ["surface0", 300], ["surface1", 400], ["surface2", 500],
