@@ -458,6 +458,37 @@ Sätteri 의 hast 플러그인(`src/lib/satteri-*.mjs`)에서 일어난다.
 - 미디어 쿼리와 컨테이너 쿼리의 **조건**은 숫자로 남긴다. media feature 는 custom property 를
   읽지 못한다(`@media (max-width: var(--x))` 는 파싱되지 않는다). 블록 안의 선언은 위 규칙을 따른다.
 
+## 언어별 글꼴과 줄바꿈
+
+페이지 언어(`<html lang>`)가 일본어나 중국어일 때만 값이 달라진다. 영어와 한국어 경로의 계산값은 언어를 더하기 전과 같다. 규칙은 `src/styles/global.css`에 있다.
+
+### 줄바꿈
+
+`body`의 `word-break: keep-all`은 한국어를 위한 값이다. 일본어와 중국어에서는 문장 부호까지 줄을 바꾸지 않아 줄 길이가 들쭉날쭉해지고 줄 수가 늘어난다. 그래서 `:root:lang(ja)`, `:root:lang(zh)`의 `body`는 `normal`이다.
+
+`:root`를 함께 쓰는 이유는 기준이 요소가 아니라 페이지 언어이기 때문이다. `:lang(ko)`로 옮기거나 `:lang(ja)`만 쓰면 영어 경로 표본 안의 `lang="ko"`, `lang="ja"` 요소의 줄바꿈이 달라진다.
+
+### 영어 구역의 경계
+
+`word-break`와 `font-family`는 상속된다. 일본어·중국어 경로의 메뉴, 이전·다음, 토큰과 갤러리의 `main`은 `lang="en"`이지만 그대로 두면 `body`의 값을 물려받아, 같은 소스여야 할 표본이 언어 경로마다 달라진다. 그래서 가장 바깥의 `[lang="en"]`에서 다른 경로와 같은 값으로 되돌린다. 이 선택자는 명시도가 0이라 값을 직접 정한 규칙이 항상 이긴다. 되돌리는 값은 `--font-sans`, `--font-mono`, `font-family`, `word-break`다. `--font-*-default`가 그 값을 담는다.
+
+### 글꼴 대체
+
+같은 한자도 언어마다 모양이 다르다. 글꼴 이름이 없으면 시스템 기본으로 떨어져 다른 언어의 글꼴로 그려질 수 있다. Windows에서는 `Malgun Gothic`이 먼저 잡힐 수 있다. 그래서 `:root:lang(ja)`, `:root:lang(zh)`가 `--font-cjk`에 그 언어의 시스템 글꼴 이름과 Linux 배포판의 Noto 이름을 적고, `--font-sans`와 `--font-mono`가 이를 읽는다.
+
+- 순서는 토큰, `--font-cjk`, 한국어 이름, 일반 글꼴이다. 토큰이 앞이라 라틴 글자의 모양이 언어마다 달라지지 않고, 한국어 이름이 뒤라 한국어 글꼴이 일본어·중국어를 그리지 않는다.
+- 글꼴 파일을 배포하거나 외부 글꼴을 요청하지 않는다. 이름만 더한다.
+- `--tasty-font-ui`는 루트에서 덮지 않는다. 커스텀 속성은 상속되어 표본까지 내려간다.
+- `--tasty-font-family-mono`는 일반 글꼴 `monospace`로 끝나 `--font-cjk`가 그 뒤에 온다. `monospace`가 CJK 글자를 가진 글꼴로 풀리는 환경(이 규칙을 잰 Linux는 `Noto Sans Mono CJK JP`)에서는 `--font-cjk`까지 가지 않아, 코드 안의 한자가 중국어 경로에서도 일본어 모양으로 나온다.
+
+### 번역 문구를 그리는 고정폭 규칙
+
+번역 문구를 그리는 고정폭 규칙은 일본어와 중국어에서 `--font-sans`를 읽는다. 앱의 `--tasty-font-label`([RULES](../../vendor/RULES.md) 8절)과 같은 규칙이다. 고정폭 글꼴에 없는 글자가 많아 한 낱말 안에서 글꼴이 섞이기 때문이다. 대상은 `.breadcrumb`, `.page-nav .dir`, `.search__results .r-crumb`다. 디자인 머리 부분인 `.design-head`, `.ds-group`도 `--tasty-font-ui`에 CJK 이름이 없어 같은 페이지의 본문과 글꼴 체인을 맞추려고 `--font-sans`를 읽는다.
+
+선택자가 요소의 `:lang`이라 `lang="en"`인 곳에는 걸리지 않는다. 디자인 구역의 이전·다음과 토큰·갤러리의 머리 부분은 영어 고정이라 그대로다.
+
+값을 담는 고정폭 규칙은 모든 언어에서 유지한다. `.brand__version`은 버전, `.code-block__lang`은 코드 언어 이름이다. `.lang-switch a`는 지금 언어 코드를 담고 있어 유지한다. 언어 행의 `label`을 `日本語`처럼 쓰면 이 규칙의 대상이 되므로 코드 형식(`JA`)을 쓴다. `.copy-btn`은 영어 고정이면 유지하고 번역하면 대상이 된다.
+
 ## 랜딩의 구조화 데이터
 
 `/`와 `/ko/`의 `<head>`에 `src/lib/structured-data.ts`가 만든 JSON-LD를 넣는다. 다른 페이지에는 넣지 않는다.

@@ -38,6 +38,8 @@
   font-size: var(--tasty-font-size-body);
   line-height: var(--tasty-line-height-ui);
 }
+.design-head:lang(ja), .design-head:lang(zh),
+.ds-group:lang(ja), .ds-group:lang(zh) { font-family: var(--font-sans); }
 .ds-group > h2 {
   margin: 0 0 var(--sp-5);
   padding-bottom: var(--tasty-space-sm);
