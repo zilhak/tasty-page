@@ -753,6 +753,15 @@ pre.astro-code span[style*="#6A737D"] { color: var(--tasty-site-code-comment) !i
   gap: var(--sp-4);
   align-items: center;
 }
+/* Its own line under the MIT line, so neither license reads as covering the other's subject.
+   The links sit in a sentence, so they are underlined. */
+.site-footer__font {
+  max-width: var(--landing-max);
+  margin: var(--sp-2) auto 0;
+  color: var(--tasty-text-muted);
+  font-size: 13px;
+}
+.site-footer__font a { text-decoration: underline; }
 
 
 

@@ -39,6 +39,7 @@ const canonical = absolute(hrefs[current.code]);
 const listed = LANGS.filter((row) => hrefs[row.code] !== undefined);
 const hasOtherLanguage = announceLanguages && listed.length > 1;
 const defaultHref = hrefs[DEFAULT_LANG];
+const D2CODING_SOURCE = "https://github.com/naver/d2-coding-font";
 ---
 <html lang={s.lang} data-theme-default="mocha">
   <head>
@@ -162,6 +163,10 @@ const defaultHref = hrefs[DEFAULT_LANG];
         </div>
       </div>
       <p class="site-footer__legal">{s.footerNote}</p>
+      <p class="site-footer__font">
+        {s.footerFontNote} <a href={url("fonts/D2Coding-OFL.txt")}>{s.footerFontLicense}</a>
+        {s.footerFontSource} <a href={D2CODING_SOURCE}>{D2CODING_SOURCE}</a>
+      </p>
     </footer>
 
     <script src="../scripts/site.js"></script>
