@@ -1,4 +1,4 @@
-<!-- source-hash: e996d582b2a3 -->
+<!-- source-hash: 1c02c58e407e -->
 <a id="任务-dag"></a>
 
 # 任务顺序管理（DAG）
@@ -329,7 +329,11 @@ tasty agent task-get --workspace 2 --id "$BUILD"
 tasty agent task-graph --workspace 2 --format dot   # 用 Graphviz 绘制
 ```
 
-`--format dot` 只向标准输出写入可直接传给 Graphviz 的图（如 `... --format dot | dot -Tsvg > graph.svg`）。存在环的提示和运行器状态会输出到标准错误。`dag-get --format dot` 也相同。
+`tasty agent task-graph` 和 `tasty agent dag-get` 默认输出父 ID 表。通过 `--format table|json|dot` 选择格式，默认值为 `table`。要在脚本中按 JSON 读取输出，添加 `--format json`。在旧版本中将默认输出解析为 JSON 的脚本也必须添加此选项。
+
+表格使用 Markdown 风格的管道符（`|`）分隔列，列顺序为 `id`、`parents`、`name`、`state`。存在多个父任务时，`parents` 用逗号连接；没有父任务时显示 `-`。值中的 `|` 转义为 `\|`。表格的 `parents` 列列出每条边的起点，不区分边的类型。要查看边的类型，使用 `--format json` 或 `--format dot`。没有任务时，仅输出两行表头，退出码为 0。
+
+`--format dot` 只向标准输出写入可直接传给 Graphviz 的图（如 `... --format dot | dot -Tsvg > graph.svg`）。使用 `--format dot` 或表格输出时，存在环的提示和运行器状态行均输出到标准错误。`dag-get` 也相同。
 
 `task-list` 和 `task-get` 输出供人阅读的文本行。要在脚本中使用，或查看任务接收的输入（`input_snapshot`）和原始结果（`typed_result.raw`），添加 `--json`。Tasty 返回的响应会原样以 JSON 输出。
 

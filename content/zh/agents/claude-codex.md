@@ -1,4 +1,4 @@
-<!-- source-hash: ee2d235f18db -->
+<!-- source-hash: 5dae801cb067 -->
 # 配合 Claude 和 Codex 使用
 
 在 Tasty 终端中运行 Claude Code 和 Codex CLI 并查看状态。两个 CLI 需要单独安装。要将任务分配给多个智能体，请同时配置钩子和父智能体的结果接收路径。
@@ -111,7 +111,7 @@ tasty codex spawn --workspace workers --cwd ~/proj --sandbox read-only \
 
 ```sh
 tasty claude tell "这次也运行 clippy" --surface 57     # 支持多行，自动提交
-tasty claude children                                       # 子智能体列表（index · surface · 状态）
+tasty claude children                                       # 子智能体表：id · parents · nickname · state · cwd · last_report_at · index · confidence · evidence
 tasty claude state --surface 57                             # idle / needs_input / active / exited
 tasty claude broadcast "报告进度\r" --role tester   # 按角色批量发送（用 \r 提交）
 tasty claude kill --child 0                                 # 按 index 终止
@@ -122,6 +122,8 @@ tasty claude parent --surface 57                            # 此子智能体的
 未带提示词启动的 Claude 子智能体在显示等待输入画面时为 `idle`。此时不会发送完成通知。只有结束响应时才会发送完成通知。通过 `--prompt` 启动的子智能体在处理该提示词期间为 `active`。
 
 `tasty codex …` 也有相同的子命令（`tell` / `children` / `state` / `broadcast` / `kill` / `respawn` / `parent`）。在 Codex 对话中执行时，结果接收方式不同（[自动传递给父 Codex](#自动传递给父-codex)）。
+
+`tasty claude children` 和 `tasty codex children` 默认输出父 ID 表。两个命令都接受 `--format table|json`，默认值为 `table`。其他值会报错。要在脚本中按 JSON 读取输出，添加 `--format json`。在旧版本中将默认输出解析为 JSON 的脚本也必须添加此选项。
 
 子智能体过多时，spawn 响应会附带警告。可在**设置** <!-- en: Settings --> › **插件** <!-- en: Plugins --> › **Claude Code** / **Codex** 的 **Spawn 子实例警告阈值** <!-- en: Spawn child warning threshold --> 中更改阈值（Claude Code、Codex 均默认为 6）。
 

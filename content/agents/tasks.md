@@ -328,7 +328,11 @@ tasty agent task-get --workspace 2 --id "$BUILD"
 tasty agent task-graph --workspace 2 --format dot   # Graphviz 로 그리기
 ```
 
-`--format dot` 은 Graphviz 에 바로 넘길 수 있는 그래프만 표준 출력에 씁니다(예: `... --format dot | dot -Tsvg > graph.svg`). 순환이 있다는 안내와 러너 상태는 표준 오류에 나옵니다. `dag-get --format dot` 도 같습니다.
+`tasty agent task-graph`와 `tasty agent dag-get`의 기본 출력은 부모 ID 표입니다. `--format table|json|dot`으로 형식을 고르며 기본값은 `table`입니다. 스크립트에서 JSON으로 읽으려면 `--format json`을 붙이세요. 이전 버전처럼 기본 출력을 JSON으로 읽던 스크립트도 이 옵션을 붙여야 합니다.
+
+표는 Markdown처럼 파이프(`|`)로 열을 나누며, 열 순서는 `id`, `parents`, `name`, `state`입니다. 부모가 여럿이면 `parents`에 쉼표로 이어서 표시하고, 부모가 없으면 `-`로 표시합니다. 값 안의 `|`는 `\|`로 이스케이프합니다. 표의 `parents`에는 간선 종류와 관계없이 모든 간선의 출발점이 나옵니다. 간선 종류를 보려면 `--format json`이나 `--format dot`을 사용하세요. 작업이 없으면 머리글 두 줄만 출력하고 종료 코드는 0입니다.
+
+`--format dot`은 Graphviz에 바로 넘길 수 있는 그래프만 표준 출력에 씁니다(예: `... --format dot | dot -Tsvg > graph.svg`). 순환이 있다는 안내와 러너 상태 줄은 `--format dot`과 표 출력 모두 표준 오류에 나옵니다. `dag-get`도 같습니다.
 
 `task-list` 와 `task-get` 은 사람이 읽는 줄을 냅니다. 스크립트에서 쓰거나 작업이 받은 입력(`input_snapshot`)과 결과 원본(`typed_result.raw`)까지 보려면 `--json` 을 붙입니다. Tasty 가 돌려준 응답이 그대로 JSON 으로 나옵니다.
 

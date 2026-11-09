@@ -1,4 +1,4 @@
-<!-- source-hash: 357c2cdcc2a8 -->
+<!-- source-hash: d8b3021d6371 -->
 # CLI 命令参考
 
 按用途说明入门内容之外的命令，包括指定读取位置的 `read since-mark`、Surface 状态、消息队列和共享记忆。完整参数和选项可通过 `tasty help` 查看。
@@ -117,6 +117,10 @@ tasty terminal tell "y" --surface 57           # 向子终端发送输入 (保�
 tasty terminal broadcast $'git pull\r' --role worker # 发给所有相同角色的子终端 (末尾必须有实际 CR 才会提交)
 tasty terminal kill --child 1                   # 按索引终止子终端
 ```
+
+`tasty terminal children` 默认输出父 ID 表。接受 `--format table|json`，默认值为 `table`。其他值会报错。要在脚本中按 JSON 读取输出，添加 `--format json`。在旧版本中将默认输出解析为 JSON 的脚本也必须添加此选项。
+
+表格使用 Markdown 风格的管道符（`|`）分隔列，列顺序为 `id`、`parents`、`nickname`、`state`、`cwd`、`last_report_at`、`index`、`confidence`、`evidence`。`id` 是子 Surface ID，`index` 是传给 `kill --child` 和 `respawn --child` 的编号。存在多个父方时，`parents` 用逗号连接。如下方示例所示，通过 `--parent-external` 指定的外部父方会在 `parents` 中显示其键。`last_report_at` 的显示格式如 `2026-11-09T12:19:12Z`。没有子项时，仅输出两行表头，退出码为 0。`tasty claude children` 和 `tasty codex children` 输出相同的列。
 
 `spawn` 在终端准备完成后响应，不等待智能体任务结束。智能体状态传递和父方接收准备遵循 [Claude·Codex 集成](claude-codex.md)中的说明。仅创建普通程序不保证智能体结果传递。
 无需单独运行等待命令。使用 `--role` 指定角色后，可通过 `broadcast` 批量发送。

@@ -1,4 +1,4 @@
-<!-- source-hash: ee2d235f18db -->
+<!-- source-hash: 5dae801cb067 -->
 # Working with Claude and Codex
 
 Run Claude Code and Codex CLI in Tasty terminals and follow their status. Install each CLI separately. To delegate work across agents, configure both the hooks and the parent’s result delivery path.
@@ -111,7 +111,7 @@ Afterwards, send further instructions to the child or inspect its state.
 
 ```sh
 tasty claude tell "Run clippy this time too" --surface 57       # multi-line allowed, submits automatically
-tasty claude children                                       # child list (index, surface, state)
+tasty claude children                                       # child table: id · parents · nickname · state · cwd · last_report_at · index · confidence · evidence
 tasty claude state --surface 57                             # idle / needs_input / active / exited
 tasty claude broadcast "Report your progress\r" --role tester   # send to all of a role at once (\r submits)
 tasty claude kill --child 0                                 # terminate by index
@@ -122,6 +122,8 @@ tasty claude parent --surface 57                            # the parent of this
 A Claude child started without a prompt is `idle` once its input screen appears. No completion notice is sent then; a completion notice comes only when a response ends. A child started with `--prompt` is `active` while it works on that prompt.
 
 `tasty codex …` has the same subcommands (`tell` / `children` / `state` / `broadcast` / `kill` / `respawn` / `parent`). Run from a Codex conversation, results come back differently ([Automatic delivery to a Codex parent](#automatic-delivery-to-a-codex-parent)).
+
+`tasty claude children` and `tasty codex children` print a parent ID table by default. Both accept `--format table|json`, with `table` as the default. Other values cause an error. To read JSON in scripts, add `--format json`. Scripts that parsed the default output as JSON in earlier versions also need this option.
 
 When there are too many children, a warning is attached to the spawn response. Change the threshold at **Settings** › **Plugins** › **Claude Code** / **Codex** › **Spawn child warning threshold** (default 6 for both Claude Code and Codex).
 

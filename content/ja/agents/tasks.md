@@ -1,4 +1,4 @@
-<!-- source-hash: e996d582b2a3 -->
+<!-- source-hash: 1c02c58e407e -->
 <a id="タスク-dag"></a>
 
 # タスクの順序管理（DAG）
@@ -329,7 +329,11 @@ tasty agent task-get --workspace 2 --id "$BUILD"
 tasty agent task-graph --workspace 2 --format dot   # Graphviz で描画
 ```
 
-`--format dot` は、Graphviz にそのまま渡せるグラフだけを標準出力に書き込みます（例: `... --format dot | dot -Tsvg > graph.svg`）。循環があるという案内とランナーの状態は、標準エラーに出力されます。`dag-get --format dot` も同じです。
+`tasty agent task-graph` と `tasty agent dag-get` のデフォルト出力は、親 ID の表です。`--format table|json|dot` で形式を選び、デフォルトは `table` です。スクリプトで JSON として読み取るには、`--format json` を追加してください。以前のバージョンでデフォルト出力を JSON として読み取っていたスクリプトにも、このオプションが必要です。
+
+表は Markdown と同じようにパイプ（`|`）で列を区切り、列の順序は `id`、`parents`、`name`、`state` です。親が複数ある場合は `parents` にカンマでつないで表示し、親がないタスクは `-` と表示します。値に含まれる `|` は `\|` としてエスケープします。表の `parents` には、辺の種類に関係なく、すべての辺の始点が表示されます。辺の種類を確認するには `--format json` または `--format dot` を使ってください。タスクがない場合はヘッダーの 2 行だけを出力し、終了コードは 0 です。
+
+`--format dot` は、Graphviz にそのまま渡せるグラフだけを標準出力に書き込みます（例: `... --format dot | dot -Tsvg > graph.svg`）。循環があるという案内とランナーの状態行は、`--format dot` でも表出力でも標準エラーに出力されます。`dag-get` も同じです。
 
 `task-list` と `task-get` は、人が読むための行を出力します。スクリプトで使う場合や、タスクが受け取った入力（`input_snapshot`）と元の結果（`typed_result.raw`）まで確認するには、`--json` を追加してください。Tasty が返した応答が、そのまま JSON として出力されます。
 

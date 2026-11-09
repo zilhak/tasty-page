@@ -110,7 +110,7 @@ tasty codex spawn --workspace workers --cwd ~/proj --sandbox read-only \
 
 ```sh
 tasty claude tell "이번엔 clippy 도 돌려" --surface 57     # 여러 줄 가능, 자동 제출
-tasty claude children                                       # 자식 목록 (index · surface · 상태)
+tasty claude children                                       # 자식 표: id · parents · nickname · state · cwd · last_report_at · index · confidence · evidence
 tasty claude state --surface 57                             # idle / needs_input / active / exited
 tasty claude broadcast "진행 상황 보고해\r" --role tester   # 역할별로 일괄 전송 (\r 로 제출)
 tasty claude kill --child 0                                 # index 로 종료
@@ -121,6 +121,8 @@ tasty claude parent --surface 57                            # 이 자식의 부�
 프롬프트 없이 띄운 Claude 자식은 입력 대기 화면이 뜨면 `idle` 입니다. 이때는 완료 알림이 오지 않습니다. 완료 알림은 응답을 마쳤을 때만 옵니다. `--prompt` 로 띄운 자식은 그 프롬프트를 처리하는 동안 `active` 입니다.
 
 `tasty codex …` 도 같은 서브커맨드(`tell` / `children` / `state` / `broadcast` / `kill` / `respawn` / `parent`)를 가집니다. Codex 대화에서 실행하면 결과를 받는 방법이 다릅니다([Codex 부모에게 자동으로 전달하기](#codex-부모에게-자동으로-전달하기)).
+
+`tasty claude children`과 `tasty codex children`의 기본 출력은 부모 ID 표입니다. 두 명령은 `--format table|json`을 받으며 기본값은 `table`입니다. 다른 값을 주면 오류로 끝납니다. 스크립트에서 JSON으로 읽으려면 `--format json`을 붙이세요. 이전 버전처럼 기본 출력을 JSON으로 읽던 스크립트도 이 옵션을 붙여야 합니다.
 
 자식이 너무 많아지면 spawn 응답에 경고가 붙습니다. 임계치는 **설정** <!-- en: Settings --> › **플러그인** <!-- en: Plugins --> › **Claude Code** / **Codex** 의 **Spawn child 경고 임계치** <!-- en: Spawn child warning threshold --> 에서 바꿉니다 (Claude Code·Codex 모두 기본 6).
 

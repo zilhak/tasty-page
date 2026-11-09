@@ -1,4 +1,4 @@
-<!-- source-hash: e996d582b2a3 -->
+<!-- source-hash: 1c02c58e407e -->
 <a id="task-dag"></a>
 
 # Task workflows (DAG)
@@ -329,7 +329,11 @@ tasty agent task-get --workspace 2 --id "$BUILD"
 tasty agent task-graph --workspace 2 --format dot   # draw it with Graphviz
 ```
 
-`--format dot` writes only the graph to standard output, so you can hand it straight to Graphviz (for example `... --format dot | dot -Tsvg > graph.svg`). A cycle warning and the runner status go to standard error. `dag-get --format dot` works the same way.
+`tasty agent task-graph` and `tasty agent dag-get` print a parent ID table by default. Choose the format with `--format table|json|dot`; the default is `table`. To read JSON in scripts, add `--format json`. Scripts that parsed the default output as JSON in earlier versions also need this option.
+
+The table uses Markdown-style pipe (`|`) rows. Its columns, in order, are `id`, `parents`, `name`, `state`. Multiple parents are joined with commas in `parents`; a task without parents shows `-`. A `|` inside a value is escaped as `\|`. The table's `parents` column lists the source of every edge regardless of edge kind. To see edge kinds, use `--format json` or `--format dot`. With no tasks, only the two header lines are printed and the exit code is 0.
+
+`--format dot` writes only the graph to standard output, so you can hand it straight to Graphviz (for example `... --format dot | dot -Tsvg > graph.svg`). The cycle notice and runner status line go to standard error with both `--format dot` and table output. The same applies to `dag-get`.
 
 `task-list` and `task-get` print lines for people to read. To use them from a script, or to see the input a task received (`input_snapshot`) and its raw result (`typed_result.raw`), add `--json`. The response from Tasty is printed as JSON as it is.
 

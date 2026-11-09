@@ -1,4 +1,4 @@
-<!-- source-hash: ee2d235f18db -->
+<!-- source-hash: 5dae801cb067 -->
 # Claude・Codex と一緒に使う
 
 Claude Code と Codex CLI を Tasty のターミナルで実行し、状態を確認します。両方の CLI は別途インストールする必要があります。複数のエージェントにタスクを分担させるには、フックと親の結果受信経路をあわせて設定してください。
@@ -111,7 +111,7 @@ tasty codex spawn --workspace workers --cwd ~/proj --sandbox read-only \
 
 ```sh
 tasty claude tell "今度は clippy も実行して" --surface 57     # 複数行可、自動送信
-tasty claude children                                       # 子の一覧 (index · surface · 状態)
+tasty claude children                                       # 子の表: id · parents · nickname · state · cwd · last_report_at · index · confidence · evidence
 tasty claude state --surface 57                             # idle / needs_input / active / exited
 tasty claude broadcast "進捗を報告して\r" --role tester   # 役割ごとに一括送信 (\r で送信)
 tasty claude kill --child 0                                 # index で終了
@@ -122,6 +122,8 @@ tasty claude parent --surface 57                            # この子の親
 プロンプトなしで起動した Claude の子は、入力待ち画面が表示されると `idle` になります。この時点では完了通知は届きません。完了通知は応答を終えたときだけ届きます。`--prompt` で起動した子は、そのプロンプトを処理している間は `active` です。
 
 `tasty codex …` にも同じサブコマンド（`tell` / `children` / `state` / `broadcast` / `kill` / `respawn` / `parent`）があります。Codex の会話で実行すると、結果を受け取る方法が異なります（[Codex の親に自動的に届ける](#codex-の親に自動的に届ける)）。
+
+`tasty claude children` と `tasty codex children` のデフォルト出力は、親 ID の表です。両コマンドは `--format table|json` を受け付け、デフォルトは `table` です。それ以外の値を指定するとエラーになります。スクリプトで JSON として読み取るには、`--format json` を追加してください。以前のバージョンでデフォルト出力を JSON として読み取っていたスクリプトにも、このオプションが必要です。
 
 子が多くなりすぎると、spawn の応答に警告が付きます。しきい値は**設定** <!-- en: Settings --> › **プラグイン** <!-- en: Plugins --> › **Claude Code** / **Codex** の **Spawn child 警告しきい値** <!-- en: Spawn child warning threshold --> で変更します（Claude Code・Codex ともにデフォルトは 6）。
 

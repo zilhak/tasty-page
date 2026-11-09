@@ -1,4 +1,4 @@
-<!-- source-hash: 357c2cdcc2a8 -->
+<!-- source-hash: d8b3021d6371 -->
 # CLI コマンドリファレンス
 
 読み取り位置を指定する `read since-mark`、サーフェスの状態、メッセージキュー、共有メモリなど、入門で扱わないコマンドを目的別に説明します。すべての引数とオプションは `tasty help` で確認できます。
@@ -117,6 +117,10 @@ tasty terminal tell "y" --surface 57           # 子に入力を送る (改行�
 tasty terminal broadcast $'git pull\r' --role worker # 同じ役割の子すべてに送る (末尾に実際の CR が必要)
 tasty terminal kill --child 1                   # 子をインデックスで終了
 ```
+
+`tasty terminal children` のデフォルト出力は、親 ID の表です。`--format table|json` を受け付け、デフォルトは `table` です。それ以外の値を指定するとエラーになります。スクリプトで JSON として読み取るには、`--format json` を追加してください。以前のバージョンでデフォルト出力を JSON として読み取っていたスクリプトにも、このオプションが必要です。
+
+表は Markdown と同じようにパイプ（`|`）で列を区切り、列の順序は `id`、`parents`、`nickname`、`state`、`cwd`、`last_report_at`、`index`、`confidence`、`evidence` です。`id` は子サーフェスの ID、`index` は `kill --child` と `respawn --child` に渡す番号です。親が複数ある場合は、`parents` にカンマでつないで表示します。下の例のように `--parent-external` で指定した外部の親は、そのキーが `parents` に表示されます。`last_report_at` は `2026-11-09T12:19:12Z` のような形式で表示します。子がいない場合はヘッダーの 2 行だけを出力し、終了コードは 0 です。`tasty claude children` と `tasty codex children` も同じ列を出力します。
 
 `spawn` はターミナルの準備が終わると応答し、エージェントのタスク終了は待ちません。エージェントの状態の伝達と親の受信準備は、[Claude・Codex 連携](claude-codex.md)に従います。通常のプログラムを作成しただけで、エージェントの結果の伝達が保証されるわけではありません。
 待機するコマンドを別に動かす必要はありません。`--role` で役割を指定すると、`broadcast` でまとめて送れます。

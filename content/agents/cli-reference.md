@@ -117,6 +117,10 @@ tasty terminal broadcast $'git pull\r' --role worker # 역할이 같은 자식 �
 tasty terminal kill --child 1                   # 자식을 인덱스로 종료
 ```
 
+`tasty terminal children`의 기본 출력은 부모 ID 표입니다. `--format table|json`을 받으며 기본값은 `table`입니다. 다른 값을 주면 오류로 끝납니다. 스크립트에서 JSON으로 읽으려면 `--format json`을 붙이세요. 이전 버전처럼 기본 출력을 JSON으로 읽던 스크립트도 이 옵션을 붙여야 합니다.
+
+표는 Markdown처럼 파이프(`|`)로 열을 나누며, 열 순서는 `id`, `parents`, `nickname`, `state`, `cwd`, `last_report_at`, `index`, `confidence`, `evidence`입니다. `id`는 자식 서피스 ID이고, `index`는 `kill --child`와 `respawn --child`에 넘기는 번호입니다. 부모가 여럿이면 `parents`에 쉼표로 이어서 표시합니다. 아래 예시처럼 `--parent-external`로 지정한 외부 부모는 그 키가 `parents`에 나옵니다. `last_report_at`은 `2026-11-09T12:19:12Z` 같은 형식으로 표시합니다. 자식이 없으면 머리글 두 줄만 출력하고 종료 코드는 0입니다. `tasty claude children`과 `tasty codex children`도 같은 열을 출력합니다.
+
 `spawn`은 터미널 준비가 끝나면 응답하며 에이전트 작업 종료는 기다리지 않습니다. 에이전트의 상태 전달과 부모의 수신 준비는 [Claude·Codex 연동](claude-codex.md)을 따릅니다. 일반 프로그램의 생성만으로 에이전트 결과 전달을 보장하지 않습니다.
 기다리는 명령을 따로 돌릴 필요가 없습니다. `--role` 로 역할을 지정하면 `broadcast` 로 묶어 보냅니다.
 
