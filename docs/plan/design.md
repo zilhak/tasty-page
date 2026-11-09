@@ -11,7 +11,7 @@
 
 ## 디자인 안내 페이지
 
-- 사이트 소스: [영어 진입점](../../src/pages/design/index.astro) · [한국어 진입점](../../src/pages/ko/design/index.astro) · [기초 요소](../../src/components/design/Foundations.astro) · [카드](../../src/components/design/Cards.astro) · [페이지 구성](../../src/lib/design.ts)
+- 사이트 소스: [영어 진입점](../../src/pages/design/index.astro) · [한국어 진입점](../../src/pages/ko/design/index.astro) · [디자인 안내](../../src/components/design/Foundations.astro) · [페이지 구성](../../src/lib/design.ts)
 - 역할: 디자인 페이지에 들어온 사람을 위한 안내.
 - 보여 줄 항목: 선택한 언어로 번역된 제목·소개, 디자인 가이드는 영어로만 제공한다는 눈에 띄는 안내, 토큰·갤러리·사용자 가이드 연결. 카드 19장(브랜드 3, 색 9, 간격 4, 글꼴 3)의 내용은 갤러리 Foundations로 합치고 첫 페이지에서는 카드를 없앤다.
 - 색인: 모든 언어의 첫 페이지를 색인하고 사이트맵에 넣는다. 제목·소개·메타 설명은 언어별로 제공한다. robots 제한 없이 자기 주소를 canonical로 두고, 언어별 hreflang과 `og:locale:alternate`를 제공한다. `x-default`는 기본 언어를 가리킨다. 화면의 언어 전환은 유지한다.
@@ -19,7 +19,7 @@
 
 ## 토큰 안내 페이지
 
-- 사이트 소스: [영어 진입점](../../src/pages/design/tokens/index.astro) · [한국어 진입점](../../src/pages/ko/design/tokens/index.astro) · [페이지 구성](../../src/components/design/TokenSystem.astro) · [토큰 카드](../../vendor/guidelines/token-system.html)
+- 사이트 소스: [영어 진입점](../../src/pages/design/tokens/index.astro) · [한국어 진입점](../../src/pages/ko/design/tokens/index.astro) · [페이지 구성](../../src/components/design/TokenSystem.astro) · [토큰 예시](../../vendor/gallery/tokens/index.jsx)
 - 역할: 디자인 기여자가 값과 역할, 컴포넌트 적용의 관계를 이해하는 참조 페이지.
 - 보여 줄 항목: 원시·의미·컴포넌트의 세 단계와 참조 관계를 영어로 보여 준다.
 - 색인: 기본 언어 경로는 robots 제한 없이 색인하고 사이트맵에 넣는다. 다른 언어 경로는 `noindex, follow`로 색인에서 빼고 사이트맵에서도 뺀다. 모든 언어 경로는 자기 주소를 canonical로 두고, hreflang과 `og:locale:alternate`는 내지 않는다. 화면의 언어 전환은 유지한다.

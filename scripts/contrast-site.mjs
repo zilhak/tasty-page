@@ -29,7 +29,6 @@ const FIXTURES = [
 export const FIXTURE_ROWS = FIXTURES.flatMap((f) => f.rows);
 const injectFixtures = (tab, page) => Promise.all(FIXTURES.filter((f) => f.page === page).map((f) => tab.evaluate(
   ({ at, html }) => document.querySelector(at).insertAdjacentHTML("beforeend", html), { at: f.at, html: f.html })));
-const CARDS = "design/cards/";
 // The landing window starts on its third tab. The other two hold the rest of the drawn lines.
 const LANDING_PAGES = ["", "ko/"];
 const LANDING_TABS = ["claude · release", "README.md"];
@@ -46,7 +45,6 @@ export function sitePages(dist) {
       if (statSync(path).isDirectory()) {
         if (next !== "design/gallery" && next !== "_astro") walk(path, next);
       } else if (name === "index.html") pages.push(rel ? `${rel}/` : "");
-      else if (rel === "design/cards" && name.endsWith(".html")) pages.push(next);
     }
   };
   if (existsSync(dist)) walk(dist, "");
@@ -105,8 +103,7 @@ const restRows = (rules) => rules.rows.filter((r) => r.state === "rest" || r.sta
 export async function measureRest(tab, t, rules, theme, page, viewport) {
   await stylesSettled(tab);
   await installPageLib(tab);
-  // A guideline document is a page of its own markup, whose class names can collide with a row. It has no rows.
-  const rows = page.startsWith(CARDS) ? [] : restRows(rules);
+  const rows = restRows(rules);
   const args = { rows, allRows: rules.rows, family: [...rules.family], tokens: rules.tokens, theme, scanArgs: needsScanArgs(rules, theme) };
   const m = await tab.evaluate(({ rows: list, allRows, family, tokens, theme: name, scanArgs }) => {
     const lib = window.__contrast;
@@ -156,7 +153,7 @@ async function restPass(context, origin, pages, t, rules, theme, viewport) {
         await settle(tab);
         await injectFixtures(tab, page);
         await measureRest(tab, t, rules, theme, page, viewport);
-        if (viewport === "wide" && !page.startsWith(CARDS)) await recordAlts(tab, t, rules, page);
+        if (viewport === "wide") await recordAlts(tab, t, rules, page);
         if (viewport === "wide" && LANDING_PAGES.includes(page)) {
           for (const title of LANDING_TABS) {
             await tab.getByText(title, { exact: true }).first().click();

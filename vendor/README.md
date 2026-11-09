@@ -2,7 +2,7 @@
 
 This folder is the source of truth for the Tasty UI design. The Tasty app and its gallery (`crates/tasty-gallery` in the [Tasty repository](https://github.com/zilhak/tasty)) follow it, and this site renders its gallery and component demos straight from these files. The design is not kept anywhere else: a design change is made here first, then carried into the Tasty gallery and the app.
 
-A design system for **Tasty** — a cross-platform, GPU-accelerated terminal emulator purpose-built for AI coding agents. It mirrors Tasty's real theme system (Catppuccin Mocha/Latte, 4px grid, 14px UI cap) as web tokens, a React component library, foundation specimen cards, an interactive UI-kit recreation of the product, and the component gallery.
+A design system for **Tasty** — a cross-platform, GPU-accelerated terminal emulator purpose-built for AI coding agents. It mirrors Tasty's real theme system (Catppuccin Mocha/Latte, 4px grid, 14px UI cap) as web tokens, a React component library, an interactive UI-kit recreation of the product, and the component gallery.
 
 > **Use this to** build well-branded Tasty interfaces and assets — marketing pages, docs, settings mockups, plugin UIs, slides, or throwaway prototypes — without re-deriving the palette or spacing.
 
@@ -101,7 +101,7 @@ How Tasty writes. Match this voice in any copy you produce.
   - `base.css` — element defaults, scrollbars, focus.
   - `ground-ink-rules.json` — the rules as data: grounds, roles, every ground × role cell, locations, component contracts, the class of every token, exceptions.
   - `tasty.tokens.json` — W3C DTCG export of all three tiers (alias chain + Latte mode) for Style Dictionary / Tokens Studio. The app takes its tokens from this file.
-- The 3-tier chain is documented visually in `guidelines/token-system.html` (live primitive→semantic→component tables, theme-toggleable).
+- The 3-tier chain is shown in `gallery/tokens/index.jsx`, with primitive → semantic → component rows read from `tokens/tasty.tokens.json`. Mocha and Latte appear together, with no theme toggle.
 - `icons/` + `icons.json` — the canonical UI glyph set (source of truth) and its manifest; rendered via `<Icon name>`. The app icons are transcribed from `icons.json`.
 - `i18n/zh-Hans/glossary.json` — Simplified Chinese terms, style rules, display name and language order, read by the app and site translation. Codex writes its values; send changes back to Codex rather than editing them by hand.
 
@@ -121,8 +121,6 @@ How Tasty writes. Match this voice in any copy you produce.
 **Gallery** (`gallery/`)
 
 - The catalog of the system, rendered by the site's gallery pages: foundations, icons, rules, location map, components, overlays (dialogs · windows · popups · banners · tutorial), layouts, the Task DAG surface, startup chrome, and plugin surfaces. One folder per page with `index.jsx`; shared parts in `parts/`. See [`gallery/README.md`](gallery/README.md), [`gallery/coverage.md`](gallery/coverage.md) and `gallery/contract-audit.js`.
-
-**Foundation cards** (`guidelines/*.html`) — small standalone specimens: color ramps (Mocha/Latte/ANSI/semantic/states), type (mono/sans/weights), spacing (grid/radius/heights/motion), brand (palette/terminal/logo). The first line of each holds an `@dsCard` comment with group, name and viewport.
 
 **Screens** (`screens/`) — Mocha screenshots of the app UI. There are no Latte counterparts.
 

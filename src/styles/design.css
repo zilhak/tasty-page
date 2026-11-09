@@ -1,8 +1,7 @@
 /* Fixed-width design examples use a wider content column without a table of contents.
 
-   The heads and cards here are the site's own frame around the design
-   documents (docs/dev-guide/site.md), so spacing uses the site scale; the documents
-   inside the iframes are vendor copies and are not styled here. Literal values
+   The heads here are the site's own frame around the design documents
+   (docs/dev/site.md), so spacing uses the site scale. Literal values
    left without a line comment are font sizes and element sizes, which the site
    scale has no axis for. Widths in ch follow the reader's font size and stay
    relative. Media query conditions stay literal because a query
@@ -56,40 +55,6 @@
   border-bottom: var(--border);
   font-size: 20px;
 }
-
-.ds-card { margin: 0 0 var(--sp-8); }
-.ds-card__head { margin-bottom: var(--sp-3); }
-.ds-card__head h3 { margin: 0; font-size: 15px; }
-.ds-card__head p {
-  margin: 2px 0 0; /* no site step: --sp-* has no 2 */
-  font-size: 13px;
-  color: var(--tasty-text-muted);
-}
-.ds-card__src {
-  display: inline-block;
-  margin-top: var(--sp-2);
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--tasty-text-muted);
-}
-.ds-card__src:hover { color: var(--tasty-brand-ink); }
-
-/* Preserve each document's declared width and scroll narrow containers horizontally. */
-.ds-card__frame {
-  border: var(--border);
-  border-radius: var(--radius);
-  overflow: auto;
-  background: var(--tasty-bg-panel);
-}
-.ds-card__frame iframe {
-  display: block;
-  border: 0;
-  width: 100%;
-  max-width: none;
-}
-
-.ds-card--solo .ds-card__frame { overflow: auto; max-height: 80vh; }
-.ds-card--solo .ds-card__src { margin-top: var(--sp-3); }
 
 @media (max-width: 1000px) {
   .layout--design { grid-template-columns: minmax(0, 1fr); }

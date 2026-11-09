@@ -2242,8 +2242,6 @@ The site's landing, guide and design pages use the same grounds, roles and table
 
 **Tables.** Every table in a guide page sits in `.table-wrap`: the 1px frame, the `mantle` head and the sideways scroll on a narrow screen.
 
-**Guideline documents.** A card at `guidelines/*.html` is a document of its own markup, so it has no row here and reads the table by its grounds. A level or a button in a card takes the ink of that ground, not the ink of the page. A terminal in a card reads `surface-terminal-focused-bg`, black in Mocha and white in Latte, and the `term` cells. A word in `text-disabled` carries `data-ink-grade="none" data-ink-why="disabled"`.
-
 ### Site grounds
 
 | ID | Token | Mocha | Latte | Used for |

@@ -9,7 +9,7 @@ const LANGS: Lang[] = ["en", "ko"];
 /** The landings and the privacy notice have no shared list to read from. */
 const SINGLE_PAGES = ["", "ko/", "privacy/", "ko/privacy/"];
 
-/** Pages meant for search. The cards and the gallery are noindex, so they stay out. */
+/** Pages meant for search. The gallery is noindex, so it stays out. */
 const paths = () => [
   ...SINGLE_PAGES,
   ...buildPages(process.cwd()).flatMap((page) => LANGS.map((lang) => pathOf(page, lang))),
