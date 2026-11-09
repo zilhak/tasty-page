@@ -1,11 +1,13 @@
 /**
- * Checks every internal link and `#anchor` in the built site.
+ * Checks every internal link and `#anchor` in the built site, and that a link from a design page to a design page stays in
+ * the language of the page it is on.
  *
  *   node scripts/check-links.mjs [dist]
  */
 import { readdirSync, statSync, readFileSync, existsSync } from "node:fs";
 import { join, resolve, dirname, relative } from "node:path";
 import { BASE } from "../src/lib/base.mjs";
+import { LANGS } from "../src/lib/langs.mjs";
 
 const base = BASE.replace(/\/$/, "");
 
@@ -41,11 +43,35 @@ const targetOf = (path) => {
   return null;
 };
 
+// A site path's language and the rest of the path. Only the language without a prefix matches every path, so it comes last.
+const languageRows = [...LANGS].sort((a, b) => b.prefix.length - a.prefix.length);
+const languageOf = (path) => {
+  const row = languageRows.find((candidate) => path.startsWith(candidate.prefix));
+  return { code: row.code, rest: path.slice(row.prefix.length) };
+};
+const isDesignPage = (path) => /^design\/(?:tokens\/|gallery\/.*)?$/.test(path);
+
 let broken = 0;
 let checked = 0;
+let leaks = 0;
 for (const file of htmlFiles) {
   const html = readFileSync(file, "utf8");
   const here = relative(dist, file);
+  const page = languageOf(here.replace(/index\.html$/, ""));
+  // The language switch is the way out of a language. Head links are not anchors, so hreflang is not looked at.
+  if (isDesignPage(page.rest)) {
+    for (const m of html.matchAll(/<a\b[^>]*>/g)) {
+      if (/\sdata-lang=/.test(m[0])) continue;
+      const raw = /\shref="([^"]+)"/.exec(m[0])?.[1];
+      if (!raw || /^(https?:|mailto:|#|\/\/)/.test(raw)) continue;
+      const path = (raw.startsWith("/") ? raw.slice(base.length + 1) : relative(dist, resolve(dirname(file), raw))).replace(/[?#].*$/, "");
+      const target = languageOf(path.endsWith("/") || path === "" ? path : `${path}/`);
+      if (isDesignPage(target.rest) && target.code !== page.code) {
+        leaks++;
+        console.error(`  ${here}: ${raw} leaves the ${page.code} path for ${target.code}. A link between specimen pages is a relative path`);
+      }
+    }
+  }
   for (const m of html.matchAll(/(?:href|src)="([^"]+)"/g)) {
     const raw = m[1];
     if (/^(https?:|mailto:|data:|#|\/\/)/.test(raw)) {
@@ -77,5 +103,5 @@ for (const file of htmlFiles) {
   }
 }
 
-console.log(`${htmlFiles.length} pages, ${checked} links checked, ${broken} broken`);
-process.exit(broken > 0 ? 1 : 0);
+console.log(`${htmlFiles.length} pages, ${checked} links checked, ${broken} broken, ${leaks} design links leaving their language`);
+process.exit(broken + leaks > 0 ? 1 : 0);

@@ -8,7 +8,6 @@ import { HtmlScriptBanner, HtmlSurfaceG, TermSurfaceG } from "../../ui_kits/term
 import { BannerScope, MouseCaptureBannerG, MouseCaptureHitZone, BlacklistEditorG, BannerShellG, TtlBannerG, StackDemoG, BannerMoreMenuG, BannerMoreDemoG, ic } from "../parts/overlay-frames.jsx";
 import { Section, Spec, Stage, Meta, Note, Do, Dont } from "../parts/specimen.jsx";
 
-const BASE = `${import.meta.env.BASE_URL.replace(/\/$/, "")}/`;
 
 // Tasty Gallery — Overlays · Banners (the 4th overlay family)
 // One of the five Overlays sub-pages (dialogs · windows · popups · banners · tutorial). Frame components are shared from
@@ -693,7 +692,7 @@ function Page() {
       </Section>
       <Section id="htmlremotesize" title="HTML mirror — large-file and limit notices">
         <Spec id="two-inset-banners-mocha-latte-wide-narrow" title="Two inset banners · Mocha / Latte · wide / narrow"
-          when={<>The two remote-size questions of a mirrored HTML surface, as banners. Same inset shell and button boxes as the script notice; <b>no ×</b> (each is a decision) and no keyboard focus. When both a size notice and the script notice show, the size notice sits <b>first</b>. Full surface placement (address bar band, receiving state, stacking) lives in <a href={`${BASE}design/gallery/plugins/#html`}>Plugins › HTML viewer</a>.</>}>
+          when={<>The two remote-size questions of a mirrored HTML surface, as banners. Same inset shell and button boxes as the script notice; <b>no ×</b> (each is a decision) and no keyboard focus. When both a size notice and the script notice show, the size notice sits <b>first</b>. Full surface placement (address bar band, receiving state, stacking) lives in <a href={"../plugins/#html"}>Plugins › HTML viewer</a>.</>}>
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
             {[["Mocha", "mocha"], ["Latte", "latte"]].map(([th, dt]) => (
               <div key={th} data-theme={dt || undefined} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-panel)", borderRadius: "var(--tasty-radius)", width: "var(--tasty-size-560)" }}>

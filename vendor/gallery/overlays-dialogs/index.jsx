@@ -9,7 +9,6 @@ import { GalleryScrimGrounds } from "./scrim-grounds.jsx";
 import { Backdrop, ApprovalFrame, FileHandlerFrame, FhFooter, PresetFrame, MarkdownOpenFrame, RenameFrame, CategoryEditFrame, CategoryDeleteFrame, TransferProgressFrame, TransferErrorFrame, ShellMock } from "../parts/overlay-frames.jsx";
 import { Section, Spec, Stage, Meta, Note, Do, Dont } from "../parts/specimen.jsx";
 
-const BASE = `${import.meta.env.BASE_URL.replace(/\/$/, "")}/`;
 
 // Tasty Gallery — Overlays · Dialogs (modal confirm/edit surfaces)
 // One of the five Overlays sub-pages (dialogs · windows · popups · banners · tutorial). Frame components are shared from
@@ -571,7 +570,7 @@ function Page() {
 
       <Section id="permdelete" title="Explorer — Delete permanently">
         <Spec id="destructive-confirm-with-a-target-list" title="Destructive confirm with a target list"
-          when={<>Window-scope centred confirm on the shared scrim, opened by the Explorer's <b>Delete permanently…</b>. Reuses the info-modal frame size (440, max 360) because it carries a scrolling target list. Default focus <b>Cancel</b>; Esc, close and scrim click cancel. The full state set (file, folder, link, many, focus, ko/ja, progress, results) is on <a href={`${BASE}design/gallery/explorer-ops/#permdelete`}>Explorer — file operations › Delete permanently</a>.</>}>
+          when={<>Window-scope centred confirm on the shared scrim, opened by the Explorer's <b>Delete permanently…</b>. Reuses the info-modal frame size (440, max 360) because it carries a scrolling target list. Default focus <b>Cancel</b>; Esc, close and scrim click cancel. The full state set (file, folder, link, many, focus, ko/ja, progress, results) is on <a href={"../explorer-ops/#permdelete"}>Explorer — file operations › Delete permanently</a>.</>}>
           <Stage variant="solo center"><Backdrop height={380}><div align="center">{<ExplorerDeleteFrame_ExplorerDeleteFrame items={ExplorerDeleteFrame_XD_ITEMS.many.slice(0, 4)} />}</div></Backdrop></Stage>
           <Meta
             specs={[["width", "info-modal-width 440"], ["max height", "info-modal-max-height 360 · list scrolls past explorer-delete-list-max-height 160"], ["buttons", "Cancel ghost (default focus) · Delete permanently danger"], ["dismiss", "Esc · close · scrim click = cancel"]]}
