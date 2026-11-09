@@ -33,7 +33,7 @@ export function MonospaceSpec() {
           { tok: "--tasty-accent-info-raised", use: "ligature", color: "var(--tasty-accent-info-raised)" },
           { tok: "--tasty-text-muted", use: "comment, glyph row", color: "var(--tasty-text-muted)" },
         ]} />
-      <Note>This specimen shows the first family of <span className="tok">--tasty-font-mono</span> your computer has. This site does not ship D2Coding, so without it installed the name above and the ligature row appear in the next family of the stack, with no ligatures.</Note>
+      <Note>Gallery pages load D2Coding font files from this site and render the specimen’s name line and ligature row in D2Coding, the first family in <span className="tok">--tasty-font-mono</span>. Until the font file arrives, another available family in the stack renders the name line and ligature row, showing how that family draws the character pairs.</Note>
     </Spec>
   );
 }

@@ -8,7 +8,7 @@ A design system for **Tasty** — a cross-platform, GPU-accelerated terminal emu
 
 ## The form kept here
 
-The files are in their final form as they stand. Tier 1 values live in `tokens/primitives.css` itself, which does not import `tokens.css`; `tokens.css` holds the same values. The D2Coding web font (`tokens/fonts.css` and the font files) is not kept, so `styles.css` falls back to the system sans and the mono fallback stack. Icons carry no provenance metadata (C2PA). Token comments do not cite working notes. There is no prebuilt component bundle or per-component preview page: the site imports `components/**/*.jsx` directly, so every `.jsx` here is an ES module.
+The files are in their final form as they stand. Tier 1 values live in `tokens/primitives.css` itself, which does not import `tokens.css`; `tokens.css` holds the same values. The D2Coding font files are not kept in this folder, so `styles.css` alone falls back to the system sans and the mono fallback stack. The site keeps them with their license at `/fonts/` and draws gallery specimens in them. Icons carry no provenance metadata (C2PA). Token comments do not cite working notes. There is no prebuilt component bundle or per-component preview page: the site imports `components/**/*.jsx` directly, so every `.jsx` here is an ES module.
 
 ---
 
@@ -131,4 +131,4 @@ How Tasty writes. Match this voice in any copy you produce.
 ## Caveats
 
 - **Icons are a flagged substitution** — the `icons/` set is designed here (Lucide-like 2px line style) and stands in for Tasty's egui-drawn affordances. The product side should adopt it as-is or map each name to its own asset.
-- **UI sans is a system stack** — Tasty's UI font is whatever egui renders natively; this system uses the platform sans rather than a bundled webfont. D2Coding (the mono) is the brand font, but its files are not kept in this folder.
+- **UI sans is a system stack** — Tasty's UI font is whatever egui renders natively; this system uses the platform sans rather than a bundled webfont. D2Coding (the mono) is the brand font. Its files are not kept in this folder, and on the site only gallery specimens draw in them.

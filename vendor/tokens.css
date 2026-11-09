@@ -173,5 +173,5 @@
 .tasty-type-term-sm { font-family: var(--font-mono); font-size: 12px; line-height: 1.2; }
 .tasty-type-term { font-family: var(--font-mono); font-size: 14px; line-height: 1.2; }
 .tasty-type-term-lg { font-family: var(--font-mono); font-size: 16px; line-height: 1.2; }
-@font-face { font-family: "D2Coding"; src: url("fonts/D2Coding-ligature-Regular.ttf") format("truetype"); font-weight: 400; font-style: normal; font-display: swap; }
-@font-face { font-family: "D2Coding"; src: url("fonts/D2Coding-ligature-Bold.ttf") format("truetype"); font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: "D2Coding"; src: url("/fonts/D2Coding-ligature-Regular.ttf") format("truetype"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: "D2Coding"; src: url("/fonts/D2Coding-ligature-Bold.ttf") format("truetype"); font-weight: 700; font-style: normal; font-display: swap; }
