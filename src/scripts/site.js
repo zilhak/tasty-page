@@ -82,8 +82,10 @@
     scrim.className = "nav-scrim";
     body.appendChild(scrim);
 
+    var narrow = window.matchMedia("(max-width: 900px)");
     var isOpen = function () { return body.hasAttribute("data-nav-open"); };
     var openNav = function () {
+      drawer.inert = false;
       body.setAttribute("data-nav-open", "");
       menuBtn.setAttribute("aria-expanded", "true");
       siteMenu.querySelector("a").focus({ preventScroll: true });
@@ -93,6 +95,8 @@
       body.removeAttribute("data-nav-open");
       menuBtn.setAttribute("aria-expanded", "false");
       if (restoreFocus) menuBtn.focus({ preventScroll: true });
+      /* The drawer stays visible while it slides out, and Tab would land in it. */
+      if (narrow.matches) drawer.inert = true;
     };
 
     menuBtn.addEventListener("click", function () {
@@ -117,10 +121,11 @@
     });
     /* The back button restores the page as it was left. */
     window.addEventListener("pageshow", function () { closeNav(false); });
-    var narrow = window.matchMedia("(max-width: 900px)");
     if (narrow.addEventListener) {
       narrow.addEventListener("change", function (e) {
-        if (!e.matches) closeNav(false);
+        if (e.matches) return;
+        closeNav(false);
+        drawer.inert = false; /* above 900px this element is the page's sidebar */
       });
     }
   }
