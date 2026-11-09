@@ -107,8 +107,8 @@ function TreeNode({ label, depth = 0, open, leaf, active }) {
       borderRadius: "var(--tasty-radius-sm)", fontSize: 13, cursor: "default",
       color: active ? "var(--tasty-text-on-active)" : "var(--tasty-text-secondary)",
       background: active ? "var(--tasty-surface-active)" : "transparent" }}>
-      <span style={{ width: 12, display: "inline-flex", color: active ? "var(--tasty-text-on-active)" : "var(--tasty-text-muted)", flex: "none" }}>{leaf ? null : (open ? ic.chevD : ic.chevRsm)}</span>
-      <span style={{ display: "inline-flex", color: active ? "var(--tasty-text-on-active)" : "var(--tasty-text-muted)", flex: "none" }}>{ic.folder}</span>
+      <span style={{ width: 12, display: "inline-flex", color: active ? "var(--tasty-text-on-active)" : "var(--tasty-text-secondary)", flex: "none" }}>{leaf ? null : (open ? ic.chevD : ic.chevRsm)}</span>
+      <span style={{ display: "inline-flex", color: active ? "var(--tasty-text-on-active)" : "var(--tasty-text-secondary)", flex: "none" }}>{ic.folder}</span>
       <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{label}</span>
     </div>
   );
@@ -131,7 +131,7 @@ function DetailRow({ glyph, name, size, date, type, state, glyphColor }) {
       fontSize: 13, background: bg, cursor: "default",
       color: state === "selected" ? "var(--tasty-text-on-active)" : state === "cut" ? "var(--tasty-cut-pending-fg)" : "var(--tasty-text-secondary)" }}>
       <span style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
-        <span style={{ display: "inline-flex", flex: "none", color: state === "selected" ? "var(--tasty-text-on-active)" : glyphColor || "var(--tasty-text-muted)" }}>{glyph}</span>
+        <span style={{ display: "inline-flex", flex: "none", color: state === "selected" ? "var(--tasty-text-on-active)" : glyphColor || "var(--tasty-text-secondary)" }}>{glyph}</span>
         <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontStyle: state === "cut" ? "var(--tasty-cut-pending-font-style)" : undefined }}>{name}</span>
       </span>
       <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: state === "selected" ? "var(--tasty-text-on-active)" : "var(--tasty-text-muted)", textAlign: "right", paddingRight: 8 }}>{size}</span>
@@ -174,7 +174,7 @@ function GridCell({ glyph, name, state, glyphColor }) {
   return (
     <div style={{ width: GRID_CELL_W, display: "flex", flexDirection: "column", alignItems: "center", gap: 4, padding: "8px 4px",
       borderRadius: "var(--tasty-radius)", background: bg, cursor: "default" }}>
-      <span style={{ display: "inline-flex", color: state === "selected" ? "var(--tasty-text-on-active)" : glyphColor || "var(--tasty-text-muted)", height: 16, alignItems: "center" }}>{glyph}</span>
+      <span style={{ display: "inline-flex", color: state === "selected" ? "var(--tasty-text-on-active)" : glyphColor || "var(--tasty-text-secondary)", height: 16, alignItems: "center" }}>{glyph}</span>
       <span style={{ fontSize: 11, textAlign: "center", lineHeight: `${GRID_LABEL_LINE_H}px`, height: GRID_LABEL_LINES * GRID_LABEL_LINE_H,
         color: state === "selected" ? "var(--tasty-text-on-active)" : state === "cut" ? "var(--tasty-cut-pending-fg)" : "var(--tasty-text-secondary)", fontStyle: state === "cut" ? "var(--tasty-cut-pending-font-style)" : undefined, wordBreak: "break-word",
         display: "-webkit-box", WebkitLineClamp: GRID_LABEL_LINES, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{name}</span>

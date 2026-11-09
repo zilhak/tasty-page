@@ -34,7 +34,7 @@ function PendingDetailRow({ glyph = K.ic.folder, value }) {
   return (
     <div style={{ display: "grid", gridTemplateColumns: "1fr 80px 132px 92px", alignItems: "center", height: "var(--tasty-table-cell-height)", padding: "0 10px", background: "var(--tasty-surface-active)" }}>
       <span style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
-        <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-text-muted)" }}>{glyph}</span>
+        <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-text-secondary)" }}>{glyph}</span>
         <span style={{ flex: 1, minWidth: 0 }}><Input block readOnly defaultValue={value} /></span>
         <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-text-muted)" }} title="Waiting for build-eu"><Spinner size="var(--tasty-icon-size-sm)" /></span>
       </span>

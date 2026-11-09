@@ -57,7 +57,7 @@ function QHiddenRow({ glyph, name, size, date, type }) {
 function QCreateRow({ value }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", height: "var(--tasty-table-cell-height)", padding: "0 10px", paddingLeft: "calc(10px + var(--tasty-explorer-create-indent))", background: "var(--tasty-surface-active)" }}>
-      <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-text-muted)" }}>{QK.ic.file}</span>
+      <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-text-secondary)" }}>{QK.ic.file}</span>
       <span style={{ flex: "1 1 auto", minWidth: 0, maxWidth: "var(--tasty-explorer-create-field-max-width)" }}><QInput block defaultValue={value} /></span>
       <span style={{ flex: "none", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)", whiteSpace: "nowrap" }}>in mockup-exports</span>
     </div>

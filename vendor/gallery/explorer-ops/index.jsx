@@ -262,7 +262,7 @@ function YPreview({ kind }) {
 function YThumbCell({ name, kind, state }) {
   const slot = kind === "thumb"
     ? <span style={{ width: "var(--tasty-explorer-grid-thumb-size)", height: "var(--tasty-explorer-grid-thumb-size)", boxSizing: "border-box", border: "var(--tasty-border-width) solid var(--tasty-separator)", borderRadius: "var(--tasty-radius-sm)", background: "var(--tasty-surface-hover)", display: "flex", alignItems: "flex-end", justifyContent: "center", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" }}>img</span>
-    : <span style={{ display: "inline-flex", color: kind === "loading" ? "var(--tasty-accent-info-raised)" : "var(--tasty-text-muted)" }}>{kind === "folder" ? YK.ic.folder : kind === "loading" ? YK.ic.image : YK.ic.file}</span>;
+    : <span style={{ display: "inline-flex", color: kind === "loading" ? "var(--tasty-accent-info-raised)" : "var(--tasty-text-secondary)" }}>{kind === "folder" ? YK.ic.folder : kind === "loading" ? YK.ic.image : YK.ic.file}</span>;
   return (
     <div style={{ width: 80, display: "flex", flexDirection: "column", alignItems: "center", gap: 4, padding: "8px 4px", borderRadius: "var(--tasty-radius)", background: state === "selected" ? "var(--tasty-surface-active)" : "transparent" }}>
       <span style={{ height: "var(--tasty-explorer-grid-thumb-size)", display: "flex", alignItems: "center", justifyContent: "center" }}>{slot}</span>
@@ -371,7 +371,7 @@ function PropertiesSection() {
 function YGridHit({ name, q, glyph = YK.ic.file }) {
   return (
     <div style={{ width: 80, display: "flex", flexDirection: "column", alignItems: "center", gap: 4, padding: "8px 4px", borderRadius: "var(--tasty-radius)" }}>
-      <span style={{ height: "var(--tasty-explorer-grid-thumb-size)", display: "flex", alignItems: "center", color: "var(--tasty-text-muted)" }}>{glyph}</span>
+      <span style={{ height: "var(--tasty-explorer-grid-thumb-size)", display: "flex", alignItems: "center", color: "var(--tasty-text-secondary)" }}>{glyph}</span>
       <span style={{ fontSize: 11, textAlign: "center", lineHeight: "14px", color: "var(--tasty-text-secondary)", wordBreak: "break-word" }}><XHi text={name} q={q} /></span>
     </div>
   );

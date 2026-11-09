@@ -101,7 +101,7 @@ function XDetailEdit({ glyph = XK.ic.folder, value = "New folder", error }) {
     <div style={{ position: "relative" }}>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 80px 132px 92px", alignItems: "center", height: "var(--tasty-table-cell-height)", padding: "0 10px", background: "var(--tasty-surface-active)" }}>
         <span style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
-          <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-text-muted)" }}>{glyph}</span>
+          <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-text-secondary)" }}>{glyph}</span>
           <span style={{ flex: 1, minWidth: 0 }}><XInput block defaultValue={value} invalid={!!error} /></span>
         </span>
         <span /><span /><span />
@@ -113,7 +113,7 @@ function XDetailEdit({ glyph = XK.ic.folder, value = "New folder", error }) {
 function XListEdit({ glyph = XK.ic.folder, value = "New folder", error }) {
   return (
     <div style={{ position: "relative", display: "flex", alignItems: "center", gap: 8, height: "var(--tasty-table-cell-height)", padding: "0 8px", borderRadius: "var(--tasty-radius-sm)", background: "var(--tasty-surface-active)" }}>
-      <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-text-muted)" }}>{glyph}</span>
+      <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-text-secondary)" }}>{glyph}</span>
       <span style={{ flex: 1, minWidth: 0 }}><XInput block defaultValue={value} invalid={!!error} /></span>
       {error && <XNameError text={error} left={32} />}
     </div>
@@ -122,14 +122,14 @@ function XListEdit({ glyph = XK.ic.folder, value = "New folder", error }) {
 function XListRow({ glyph, name, state }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 8, height: "var(--tasty-tree-row-height)", padding: "0 8px", borderRadius: "var(--tasty-radius-sm)", fontSize: 13, color: state === "selected" ? "var(--tasty-text-primary)" : "var(--tasty-text-secondary)", background: state === "selected" ? "var(--tasty-surface-active)" : "transparent" }}>
-      <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-text-muted)" }}>{glyph}</span>{name}
+      <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-text-secondary)" }}>{glyph}</span>{name}
     </div>
   );
 }
 function XGridEdit({ glyph = XK.ic.file, value = "untitled.txt", error }) {
   return (
     <div style={{ position: "relative", width: 80, display: "flex", flexDirection: "column", alignItems: "center", gap: 4, padding: "8px 4px", borderRadius: "var(--tasty-radius)", background: "var(--tasty-surface-active)" }}>
-      <span style={{ display: "inline-flex", height: "var(--tasty-explorer-grid-thumb-size)", alignItems: "center", color: "var(--tasty-text-muted)" }}>{glyph}</span>
+      <span style={{ display: "inline-flex", height: "var(--tasty-explorer-grid-thumb-size)", alignItems: "center", color: "var(--tasty-text-secondary)" }}>{glyph}</span>
       <span style={{ width: "var(--tasty-size-160)", alignSelf: "center", zIndex: 1 }}><XInput block defaultValue={value} invalid={!!error} /></span>
       <span style={{ height: 14 }} />
       {error && <XNameError text={error} left={-36} />}
@@ -394,7 +394,7 @@ const XHITS = [
 function XHitRow({ name, folder, size, date, q, state }) {
   return (
     <div style={{ display: "grid", gridTemplateColumns: "1fr var(--tasty-explorer-search-folder-col-width) 72px 92px", alignItems: "center", height: "var(--tasty-table-cell-height)", padding: "0 10px", fontSize: 13, background: state === "selected" ? "var(--tasty-surface-active)" : "transparent", color: state === "selected" ? "var(--tasty-text-primary)" : "var(--tasty-text-secondary)" }}>
-      <span style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}><span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-text-muted)" }}>{XK.ic.file}</span><span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}><XHi text={name} q={q} /></span></span>
+      <span style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}><span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-text-secondary)" }}>{XK.ic.file}</span><span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}><XHi text={name} q={q} /></span></span>
       <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: "var(--tasty-text-muted)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", paddingRight: 8 }}>{folder || "."}</span>
       <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: "var(--tasty-text-muted)", textAlign: "right", paddingRight: 8 }}>{size}</span>
       <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: "var(--tasty-text-muted)" }}>{date}</span>

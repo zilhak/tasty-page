@@ -15,7 +15,7 @@ function ZMarquee() {
 function ZEditRow({ value }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 8, height: "var(--tasty-table-cell-height)", padding: "0 10px", paddingLeft: "calc(10px + var(--tasty-explorer-create-indent))", background: "var(--tasty-surface-active)" }}>
-      <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-text-muted)" }}>{ZK.ic.file}</span>
+      <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-text-secondary)" }}>{ZK.ic.file}</span>
       <span style={{ flex: 1, minWidth: 0, maxWidth: 260 }}><ZInput block defaultValue={value} /></span>
       <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)", whiteSpace: "nowrap" }}>in mockup-exports</span>
     </div>
