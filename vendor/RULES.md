@@ -288,7 +288,7 @@ Three layers, three answers:
 
 | Layer | In the rules? | What holds |
 |---|---|---|
-| ANSI colors, reverse video, reverse screen, bold, dim, underline, strikethrough, overline, underline color (SGR 58), cell backgrounds | No | The running program picks them. The `ansi-*` tokens are the palette. No pair is promised. |
+| ANSI colors, reverse video, reverse screen, bold, dim, hidden (SGR 8), underline, strikethrough, overline, underline color (SGR 58), cell backgrounds | No | The running program picks them. The `ansi-*` tokens are the palette. No pair is promised. |
 | Default cell ink and the surface fill | Yes | `surface-terminal-focused-fg` on `term`, `surface-terminal-unfocused-fg` on `term-unfocused`. |
 | What the app draws over cells | Yes | Below. |
 
@@ -327,6 +327,13 @@ The overlay ink applies to default cell ink: any cell with no color of its own, 
 - **Vi cursor.** The cell keeps `vi-cursor-fg`: 10.48 · 6.60 on `term-cursor`, and 11.59 · 6.53 if an ordinary match fill lies over it. It holds either way. An active match replaces that ink with `search-match-selected-fg`, with or without a selection and on either bed: 13.26 · 6.76. `search-match-active-fg` would be 11.59 · 2.57 focused. A selection does not change a cursor cell, so the same token keeps the cell the same when a selection starts.
 - **Link under the pointer.** The cell reads as a selection with a blue underline, in an ordinary match, in the active match and outside any match, on either bed. Neither match fill paints on it, because `text-on-active` would be 2.56 in Mocha over the ordinary fill, and on the active fill it would be 1.82 · 7.36 focused and 1.63 · 6.24 unfocused, with the underline at 1.25 · 5.23 and 1.12 · 4.43. The rest of the match keeps its fill, and the cell returns to the match in one frame when the pointer or the modifier leaves. A cursor cell inside the link stays a cursor cell. `accent-primary` on the words would be 3.17 · 2.27, under the text grade. The underline is the one hue a terminal layer holds, and the shape and fill tell the state.
 
+**Hidden cells (SGR 8).** A hidden cell draws no glyph under any overlay: the block cursor, the vi cursor, a selection, an ordinary or active match, a selected match and a link under the pointer. Each overlay paints its fill as in the table above, on either bed and in both themes, so the cell still shows where the cursor, the selection or the match is, and it keeps its background and width. The program hid the text, and a cursor, a selection or a match passing over it does not show it on screen. A password a program echoes hidden stays hidden while a user drags across it. Search still finds the text and a copy still holds it, so the fill is how a user sees what was found or selected. No ink is drawn, so a hidden cell adds no pair, and the fill values are those of the same cell without the attribute.
+
+- **Link under the pointer.** The cell keeps the selection fill and the blue underline, `accent-primary-raised`, 3.17 · 3.84. A cursor cell inside the link draws the underline in the cursor's ink, as on any cell. The underline marks what a click opens, and that holds whether or not the words show.
+- **Other lines.** A hidden cell draws no program underline, strikethrough or overline, inside a link too.
+- **Cursor that is not a block.** A bar or underline cursor draws over a hidden cell as over any other.
+- **SGR 28.** The glyph shows again in one frame, with the ink the overlay gives it.
+
 ### Lines a cell draws
 
 A cell can draw a link underline, a program underline of five kinds, a strikethrough and an overline. They share one thickness, and the color and geometry come from the cell, so they need no token. Only the link underline is in the rules. A program line is in the program layer above, and it holds no grade of its own.
@@ -346,7 +353,7 @@ All lengths are device pixels, and every line except the curly one lands on whol
 | Strikethrough | `T` | `B - round(A / 3) - floor(T / 2)` | Solid | Cell ink | Does not apply | 5 |
 | Overline | `T` | Cell top | Solid | Cell ink | Does not apply | 6 |
 
-`U = min(B + T, cell bottom - h)`. A line stays inside its cell, because the next row's fill would cover it. A short cell has no room for three rows under the baseline, so a double or curly underline rises: at line height 1.0 its top edge is one row above `B` at 14px and 28px, and two rows above it at 10px. Its top row then lies under the glyph's bottom row, because the underline paints under the glyph. Neither kind has been painted yet, so send it back to design if it does not read. The phase of the dotted, dashed and curly lines runs from the left edge of the grid, so neighbor cells meet with no seam. A line belongs to each cell that has the attribute: a wide glyph draws it across both of its cells and a blank cell draws it too. Bold and italic do not change a line. Hidden cells (SGR 8) draw no program line. No line moves, fades or animates, and each appears in one frame.
+`U = min(B + T, cell bottom - h)`. A line stays inside its cell, because the next row's fill would cover it. A short cell has no room for three rows under the baseline, so a double or curly underline rises: at line height 1.0 its top edge is one row above `B` at 14px and 28px, and two rows above it at 10px. Its top row then lies under the glyph's bottom row, because the underline paints under the glyph. Neither kind has been painted yet, so send it back to design if it does not read. The phase of the dotted, dashed and curly lines runs from the left edge of the grid, so neighbor cells meet with no seam. A line belongs to each cell that has the attribute: a wide glyph draws it across both of its cells and a blank cell draws it too. Bold and italic do not change a line. Hidden cells (SGR 8) draw no program line. A link under the pointer still draws its underline on them, as **Hidden cells** above says. No line moves, fades or animates, and each appears in one frame.
 
 **Cell ink** is the ink the cell draws after every rule above, including dim and reverse. So a line with no SGR 58 needs no pair of its own: it has the value of its glyph. SGR 58 draws through the same palette as cell color, and no pair is promised. It is not blended by dim.
 
@@ -365,7 +372,7 @@ All lengths are device pixels, and every line except the curly one lands on whol
 | Block cursor | The swapped ink, `search-match-selected-fg` in the active match | 14.52 · 7.99, in an ordinary match 15.08 · 5.73, in the active match 14.12 · 4.65 | Does not occur | Gives way |
 | Link under the pointer | `accent-primary-raised` | 3.17 · 3.84 | 3.17 · 3.84 | Gives way |
 
-**A link under the pointer replaces the program underline** in each of its cells, whatever the kind or color, so one row of the cell never holds two underlines. The cell's strikethrough and overline stay, in `text-on-active`. A cursor cell inside the link draws the underline in the cursor's ink, because the blue would be 1.18 · 2.61 on `term-cursor` and 1.46 · 1.04 on a swapped fill. When the pointer leaves, the program underline comes back in one frame.
+**A link under the pointer replaces the program underline** in each of its cells, whatever the kind or color, so one row of the cell never holds two underlines. The cell's strikethrough and overline stay, in `text-on-active`, except on a hidden cell, which draws neither. A cursor cell inside the link draws the underline in the cursor's ink, because the blue would be 1.18 · 2.61 on `term-cursor` and 1.46 · 1.04 on a swapped fill. When the pointer leaves, the program underline comes back in one frame.
 
 **Lost attributes.** A row restored from disk scrollback or a replica can lose the kind or SGR 58. It draws what it still has: an unknown kind is single, and no color is cell ink. Nothing marks the change, because nothing in it is for a user to act on.
 
@@ -374,7 +381,7 @@ All lengths are device pixels, and every line except the curly one lands on whol
 1. Bed and cell background
 2. Overlay fill: selection, match or cursor. A cursor fill replaces a selection on the same cell. A match fill lies over a selection or a cursor on the same cell
 3. Underline, program or link
-4. Glyph
+4. Glyph, none on a hidden cell
 5. Strikethrough
 6. Overline
 7. A cursor that is not a block: bar or underline

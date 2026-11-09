@@ -207,7 +207,9 @@ function AnsiCol({ heading, rows }) {
 function CellLine({ kind = "solid", line = "underline", color, style, children }) {
   return <span style={{ textDecorationLine: line, textDecorationStyle: kind, textDecorationThickness: "var(--tasty-border-width)", textUnderlineOffset: "var(--tasty-border-width)", textDecorationColor: color, ...style }}>{children}</span>;
 }
-function CellLinesFrame({ label, th, focused, kinds, sgr, overlap }) {
+// A hidden (SGR 8) run: the cells keep their width and the overlay fill, and draw no glyph.
+const HIDDEN_RUN = "\u00a0".repeat(6);
+function CellLinesFrame({ label, th, focused, kinds, sgr, overlap, hidden }) {
   const bed = focused ? "var(--tasty-surface-bed-focused)" : "var(--tasty-surface-bed-unfocused)";
   const ink = focused ? "var(--tasty-surface-terminal-focused-fg)" : "var(--tasty-surface-terminal-unfocused-fg)";
   const cap = { fontFamily: "var(--tasty-font-ui)", fontSize: 11, color: "var(--tasty-text-muted)", marginTop: 6 };
@@ -246,6 +248,17 @@ function CellLinesFrame({ label, th, focused, kinds, sgr, overlap }) {
         {focused && <CellLine style={{ background: ink, color: bed }}>block</CellLine>}
         {focused && <span style={{ background: ink }}><CellLine style={{ background: "var(--tasty-search-match-active-bg)", color: "var(--tasty-search-match-selected-fg)" }}>active block</CellLine></span>}
         <CellLine color="var(--tasty-accent-primary-raised)" style={{ background: "var(--tasty-selection-bg)", color: "var(--tasty-text-on-active)" }}>link</CellLine>
+      </div>
+      <div style={cap}>{hidden}</div>
+      <div style={row}>
+        <span>selected <span style={{ background: "var(--tasty-selection-bg)" }}>{HIDDEN_RUN}</span></span>
+        <span>match <span style={{ background: "var(--tasty-search-match-bg)" }}>{HIDDEN_RUN}</span></span>
+        <span>active <span style={{ background: "var(--tasty-search-match-active-bg)" }}>{HIDDEN_RUN}</span></span>
+        <span>selected match <span style={{ background: "var(--tasty-selection-bg)" }}><span style={{ background: "var(--tasty-search-match-bg)" }}>{HIDDEN_RUN}</span></span></span>
+        <span>selected active <span style={{ background: "var(--tasty-selection-bg)" }}><span style={{ background: "var(--tasty-search-match-active-selected-bg)" }}>{HIDDEN_RUN}</span></span></span>
+        <span>vi <span style={{ background: "var(--tasty-vi-cursor-bg)" }}>{"\u00a0"}</span></span>
+        {focused && <span>block <span style={{ background: ink }}>{"\u00a0"}</span></span>}
+        <span>link <CellLine color="var(--tasty-accent-primary-raised)" style={{ background: "var(--tasty-selection-bg)" }}>{HIDDEN_RUN}</CellLine></span>
       </div>
     </div>
   );
@@ -459,7 +472,7 @@ function Foundations() {
           <Stage variant="solo column" style={{ gap: 12, padding: "10px 26px" }}>
             <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
               {[["Mocha, focused", "mocha", true], ["Latte, focused", "latte", true], ["Mocha, unfocused", "mocha", false], ["Latte, unfocused", "latte", false]].map(([lab, th, focused]) => (
-                <CellLinesFrame key={lab} label={lab} th={th} focused={focused} kinds="Five underlines and two other lines" sgr="SGR 58 underline color" overlap="Lines on selection, match, cursor, link" />
+                <CellLinesFrame key={lab} label={lab} th={th} focused={focused} kinds="Five underlines and two other lines" sgr="SGR 58 underline color" overlap="Lines on selection, match, cursor, link" hidden="Hidden cells (SGR 8): fill and link underline, no glyph" />
               ))}
             </div>
           </Stage>
@@ -472,7 +485,7 @@ function Foundations() {
               { tok: "--tasty-search-match-selected-fg", use: "selected match ink", color: "var(--tasty-search-match-selected-fg)" },
               { tok: "--tasty-search-match-active-selected-bg", use: "selected active match fill", color: "var(--tasty-search-match-active-selected-bg)" },
             ]} />
-          <Note>SGR 58 colors only the underline and stays on selections, ordinary matches, reverse cells and dim cells with no pair promised, but gives way on active matches, cursor cells and links under the pointer; on a link under the pointer, the blue underline replaces the program underline while strikethrough and overline stay. A row restored from disk scrollback or a replica can lose its underline kind or SGR 58 color, then draws a single underline in cell ink with nothing marking the change. The specimen uses browser text decoration, so exact double, curly, dotted and dashed patterns follow the browser; the app follows the table in RULES section 4. SGR 58 stays on a selected ordinary match and gives way on a selected active match.</Note>
+          <Note>SGR 58 colors only the underline and stays on selections, ordinary matches, reverse cells and dim cells with no pair promised, but gives way on active matches, cursor cells and links under the pointer; on a link under the pointer, the blue underline replaces the program underline while strikethrough and overline stay. A row restored from disk scrollback or a replica can lose its underline kind or SGR 58 color, then draws a single underline in cell ink with nothing marking the change. The specimen uses browser text decoration, so exact double, curly, dotted and dashed patterns follow the browser; the app follows the table in RULES section 4. SGR 58 stays on a selected ordinary match and gives way on a selected active match. A hidden cell (SGR 8) draws no glyph under any overlay, so the cursor, selection and match fills still show its place; a link under the pointer keeps its blue underline there, and the cell draws no program underline, strikethrough or overline.</Note>
           <Dont><b>Don't</b> draw a line outside its cell or give each kind its own thickness.</Dont>
         </Spec>
         <AnsiSixteenSpec />
