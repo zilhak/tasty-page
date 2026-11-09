@@ -253,7 +253,7 @@ The bed shows focus, as the terminal's always has: **`term` focused, `term-unfoc
 
 **Image state screens.** Empty and load-failed are the canvas with no picture on it, so they take the same bed and no mark of their own. Sub and reason are `text-muted`. Empty has a `text-muted` glyph and a `text-secondary` title. Missing and decode use `image-error-fg` for glyph and title, and permission uses `accent-warning-raised` for both. Too large has an `image-too-large-fg` glyph and a `text-primary` title. Each ink holds on both beds in both themes.
 
-**Explorer rows.** A kind glyph on the file area reads the role `glyph`, so `text-secondary` on the bed and on its hover and press grounds. The name beside it reads the same token at rest, and the kind is told by shape, as [section 7](#7-meaning) says. An image row reads `glyph-info`, as `accent-info-raised`.
+**Explorer rows.** A kind glyph on the file area reads the role `glyph`, so `text-secondary` on the bed and on its hover and press grounds. The name beside it reads the same token at rest, and the kind is told by shape, as [section 7](#7-meaning) says. An image row reads `glyph-info`, as `accent-info-raised`. A match run reads the `text-match` cell, as `accent-primary-raised` on these grounds, because its hue is all that tells it from the name at rest. `explorer-match-fg` is not listed on a bed ground. In Mocha it sits ΔE 0.058 from `text-secondary`, under the 0.08 of [section 7](#7-meaning), and `accent-primary-raised` sits 0.088 from it.
 
 **Rules for the bed.**
 

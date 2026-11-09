@@ -40,7 +40,7 @@ const SEL_CASES = [
   ["File handlers · plugin glyph", (a) => <><SelGlyph name="plug" color={a ? "var(--tasty-accent-agent-on-active)" : "var(--tasty-accent-agent)"} /><span>Open with image viewer</span></>],
   ["Sidebar · dot, mirror glyph, Remote Tag", (a) => <><StatusDot status="running" /><SelGlyph name="remote" color={a ? "var(--tasty-workspace-mirror-fg-active)" : "var(--tasty-workspace-mirror-fg)"} /><span>Project A</span><SelTag variant="info">remote</SelTag></>],
   ["Remote attach · chips", () => <><StatusDot status="idle" attached /><span>build</span><SelTag variant="attached">in use</SelTag><SelTag variant="warning">inactive</SelTag></>],
-  ["Explorer, file picker · kind glyph, match run", (a) => <><SelGlyph name="folder" color={a ? "var(--tasty-text-on-active)" : "var(--tasty-text-secondary)"} /><SelGlyph name="image" color={a ? "var(--tasty-text-on-active)" : "var(--tasty-accent-info-raised)"} /><span>dia<span data-match-run="" style={a ? { color: "var(--tasty-explorer-match-fg-active)", textDecoration: "underline", textDecorationThickness: "var(--tasty-autocomplete-match-underline-width)", textUnderlineOffset: "var(--tasty-autocomplete-match-underline-offset)" } : { color: "var(--tasty-explorer-match-fg)" }}>gram</span>.png</span></>],
+  ["Explorer, file picker · kind glyph, match run", (a) => <><SelGlyph name="folder" color={a ? "var(--tasty-text-on-active)" : "var(--tasty-text-secondary)"} /><SelGlyph name="image" color={a ? "var(--tasty-text-on-active)" : "var(--tasty-accent-info-raised)"} /><span>dia<span data-match-run="" style={a ? { color: "var(--tasty-explorer-match-fg-active)", textDecoration: "underline", textDecorationThickness: "var(--tasty-autocomplete-match-underline-width)", textUnderlineOffset: "var(--tasty-autocomplete-match-underline-offset)" } : { color: "var(--tasty-accent-primary-raised)" }}>gram</span>.png</span></>],
   ["Shortcut · Kbd +", (a) => <><span style={{ flex: 1 }}>Split pane right</span><Kbd keys="Ctrl" /><span style={{ color: a ? "var(--tasty-kbd-plus-fg-active)" : "var(--tasty-kbd-plus-fg)", fontSize: "var(--tasty-font-size-micro)", fontFamily: "var(--tasty-font-mono)" }}>+</span><Kbd keys="D" /></>],
   ["Status dots", () => <><StatusDot status="running" /><StatusDot status="waiting" /><StatusDot status="error" /><StatusDot status="agent" /><StatusDot status="needs-input" /><StatusDot status="completion" /><StatusDot status="idle" /></>],
 ];
@@ -75,6 +75,9 @@ const SEL_INK = [
   ["Match run at rest, menu", "surface-raised", null, "autocomplete-match-fg", "gram", "5.97", "5.37"],
   ["Match run, pointer hover", "surface-raised", "overlay-hover", "autocomplete-match-fg", "gram", "4.66", "4.52"],
   ["Match run at rest, panel", "bg-panel", null, "explorer-match-fg", "gram", "7.79", "7.32"],
+  ["Match run at rest, focused bed", "surface-bed-focused", null, "accent-primary-raised", "gram", "9.97", "8.30"],
+  ["Match run at rest, unfocused bed", "surface-bed-unfocused", null, "accent-primary-raised", "gram", "7.79", "6.28"],
+  ["Match run under press, unfocused bed", "surface-bed-unfocused", "overlay-active", "accent-primary-raised", "gram", "5.39", "4.81"],
   ["Tag attached", "tag-bg", null, "tag-attached-fg", "in use", "7.03", "5.29"],
   ["Muted on bg-app", "bg-app", null, "text-muted", "muted", "8.42", "4.73"],
   ["Muted on bg-sidebar", "bg-sidebar", null, "text-muted", "muted", "7.89", "5.14"],

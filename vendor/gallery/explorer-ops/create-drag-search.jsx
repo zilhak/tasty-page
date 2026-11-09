@@ -370,10 +370,10 @@ function DragSection() {
 }
 
 // ── Search & filter ───────────────────────────────────────
-function XHi({ text, q }) {
+function XHi({ text, q, selected }) {
   const i = text.toLowerCase().indexOf(q.toLowerCase());
   if (!q || i < 0) return text;
-  return <>{text.slice(0, i)}<span style={{ color: "var(--tasty-explorer-match-fg)" }}>{text.slice(i, i + q.length)}</span>{text.slice(i + q.length)}</>;
+  return <>{text.slice(0, i)}<span style={{ color: selected ? "var(--tasty-explorer-match-fg-active)" : "var(--tasty-accent-primary-raised)" }}>{text.slice(i, i + q.length)}</span>{text.slice(i + q.length)}</>;
 }
 function XFindBar({ value = "", deep = false, right, remote }) {
   return (
@@ -394,7 +394,7 @@ const XHITS = [
 function XHitRow({ name, folder, size, date, q, state }) {
   return (
     <div style={{ display: "grid", gridTemplateColumns: "1fr var(--tasty-explorer-search-folder-col-width) 72px 92px", alignItems: "center", height: "var(--tasty-table-cell-height)", padding: "0 10px", fontSize: 13, background: state === "selected" ? "var(--tasty-surface-active)" : "transparent", color: state === "selected" ? "var(--tasty-text-primary)" : "var(--tasty-text-secondary)" }}>
-      <span style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}><span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-text-secondary)" }}>{XK.ic.file}</span><span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}><XHi text={name} q={q} /></span></span>
+      <span style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}><span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-text-secondary)" }}>{XK.ic.file}</span><span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}><XHi text={name} q={q} selected={state === "selected"} /></span></span>
       <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: "var(--tasty-text-muted)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", paddingRight: 8 }}>{folder || "."}</span>
       <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: "var(--tasty-text-muted)", textAlign: "right", paddingRight: 8 }}>{size}</span>
       <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: "var(--tasty-text-muted)" }}>{date}</span>
@@ -419,7 +419,7 @@ function SearchSection() {
             <XCell w={520} h={210} toolbar={<XToolbar search />} bar={<XFindBar value="re" right="2 of 5" />} status="2 of 5 items">
               <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
                 <XK.DetailHeader />
-                <XK.DetailRow glyph={XK.ic.file} name={<XHi text="report.pdf" q="re" />} size="2.4 MB" date="2026-06-24 09:12" type="PDF" state="selected" />
+                <XK.DetailRow glyph={XK.ic.file} name={<XHi text="report.pdf" q="re" selected />} size="2.4 MB" date="2026-06-24 09:12" type="PDF" state="selected" />
                 <XK.DetailRow glyph={XK.ic.folder} name={<XHi text="mockup-exports" q="re" />} size="—" date="2026-06-20 14:30" type="Folder" />
               </div>
             </XCell>
@@ -427,7 +427,7 @@ function SearchSection() {
         </Stage>
         <Meta
           specs={[["placement", "bar under the toolbar · full cell width · explorer-search-bar-height 36"], ["field", "Input + search icon · placeholder “Filter this folder”"], ["match", "substring, case-insensitive · matched part in explorer-match-fg"], ["count", "mono caption · “{shown} of {total}”"], ["type-ahead", "off in the field · on the list it cycles visible rows"], ["Esc", "clear → close"], ["closes on", "× · Back · Up · address bar · folder change"], ["remote", "filter yes"]]}
-          tokens={[{ tok: "--tasty-explorer-search-bar-height", use: "→ size-36" }, { tok: "--tasty-explorer-match-fg", use: "→ autocomplete-match-fg (accent-primary)", color: "var(--tasty-explorer-match-fg)" }, { tok: "--tasty-input-bg", use: "field", color: "var(--tasty-input-bg)" }]} />
+          tokens={[{ tok: "--tasty-explorer-search-bar-height", use: "→ size-36" }, { tok: "--tasty-accent-primary-raised", use: "match run on the bed", color: "var(--tasty-accent-primary-raised)" }, { tok: "--tasty-input-bg", use: "field", color: "var(--tasty-input-bg)" }]} />
       </Spec>
 
       <Spec id="subfolders-recursive-search-searching-no-results-errors-stopped" title="Subfolders — recursive search · searching · no results · errors · stopped"
