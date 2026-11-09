@@ -14,8 +14,8 @@
 
 - 사이트 소스: [한국어](../../content/getting-started/install.md) · [영어](../../content/en/getting-started/install.md)
 - 역할: 설치 파일 선택부터 첫 실행까지.
-- 보여 줄 항목: OS·아키텍처, 지원 조건, 파일 종류, 첫 실행, 업데이트·제거, headless의 별도 목적.
-- 넣지 않을 항목: 패키지 매니저 저장소 제공 약속, Intel Mac 지원 약속, 기본 사용자에게 빌드 지시.
+- 보여 줄 항목: OS·아키텍처, 지원 조건, 파일 종류, 첫 실행, Windows에서 Tasty가 지원하는 셸 범위(Git for Windows의 Git Bash만)와 셸 선택 화면이 뜨는 경우, 업데이트·제거, headless의 별도 목적.
+- 넣지 않을 항목: 패키지 매니저 저장소 제공 약속, Intel Mac 지원 약속, 기본 사용자에게 빌드 지시, Windows 셸 범위를 OS 제약으로 설명, Git Bash가 아닌 셸의 우회·설정 예시.
 - 구성: 설치 파일 표, GPU 요구사항, OS별 첫 실행, Windows ARM 지원, headless의 용도를 보여 준다.
 
 ## 첫 화면 둘러보기
