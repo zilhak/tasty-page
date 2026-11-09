@@ -5,11 +5,13 @@ import { COPY } from "./copy.js";
 import { LayoutSection } from "./layout.jsx";
 import { TokensSection } from "./tokens.jsx";
 import { TouchSection } from "./touch.jsx";
+import { WidthsSection } from "./widths.jsx";
 
 const NAV = [
   { id: "tokens", label: "Tokens" },
   { id: "layout", label: "Layout rules" },
   { id: "touch", label: "Touch" },
+  { id: "widths", label: "Phone and tablet widths" },
 ];
 
 function AndroidGallery() {
@@ -18,6 +20,7 @@ function AndroidGallery() {
       <TokensSection />
       <LayoutSection />
       <TouchSection />
+      <WidthsSection />
     </>
   );
 }
