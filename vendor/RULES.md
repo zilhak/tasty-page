@@ -193,8 +193,8 @@ Each location has one ground. It may hold only the listed children, to the liste
 | Tab bar | `mantle` | 1 | `tab-hover`, `base`, `mantle+hover`, `mantle+press`, `raised` | Active tab is base. Scroll arrow cell is raised. |
 | Pane body | `base` | 1 | `term`, `term-unfocused`, `crust`, `mantle`, `raised` | Holds one surface. See Surface focus for what shows focus on each kind. |
 | Surface head and split line | `mantle` | 2 | `field`, `mantle+hover`, `mantle+press`, `raised`, filled controls, tint boxes over `mantle` | Address bar band: mantle. Split lines take border-frame. |
-| Terminal surface, focused | `term` | 1 | `term-selection`, `term-cursor`, `match@term`, `match-active@term`, `file-drop@term`, `raised` | Banner, toast and search bar float on raised. A default cell, bold or dim, takes text-primary in an ordinary search match. |
-| Terminal surface, unfocused | `term-unfocused` | 1 | `term-selection`, `term-cursor`, `match@term-unfocused`, `match-active@term-unfocused`, `raised` | Default ink takes surface-terminal-unfocused-fg. A default cell, bold or dim, takes text-primary in an ordinary search match. Selection, vi cursor and a link under the pointer read as on a focused surface. |
+| Terminal surface, focused | `term` | 1 | `term-selection`, `term-cursor`, `match@term`, `match-active@term`, `file-drop@term`, `raised` | Banner, toast and search bar float on raised. A default cell, bold or dim, takes text-primary in an ordinary search match. It takes text-on-active in a selection. |
+| Terminal surface, unfocused | `term-unfocused` | 1 | `term-selection`, `term-cursor`, `match@term-unfocused`, `match-active@term-unfocused`, `raised` | Default ink takes surface-terminal-unfocused-fg. A default cell, bold or dim, takes text-primary in an ordinary search match. It takes text-on-active in a selection. Selection, vi cursor and a link under the pointer read as on a focused surface. |
 | Markdown surface, focused | `term` | 2 | `base`, `mantle`, `raised`, `fill-warning`, `fill-primary`, `file-drop@term` | Content typography is library-driven. Colors follow this table. Address band stays mantle. A callout is its hue at tint-fill-alpha over the bed: title accent-<hue>-raised, body text-primary. A find hit is opaque. |
 | Markdown surface, unfocused | `term-unfocused` | 2 | `base`, `mantle`, `raised`, `fill-warning`, `fill-primary`, `file-drop@term-unfocused` | Table row and zebra swap fills, so neither is the bed in both themes at once. Address band stays mantle. A callout is its hue at tint-fill-alpha over the bed: title accent-<hue>-raised, body text-primary. A find hit is opaque. |
 | HTML surface | `mantle` | 2 | `field`, `raised` | The page is web content, outside these rules. Focus shows on the focus edge above the address band. |
@@ -302,7 +302,7 @@ Three layers, three answers:
 
 The selection, vi cursor and link rows hold on both beds. `term-selection` and `term-cursor` are opaque, so the bed under them does not reach the ink. Selection can stay on a surface after focus moves away, and the vi cursor shows there when it moves by keyboard.
 
-The overlay ink applies to default cell ink: any cell with no color of its own, bold or dim included. On `match@term-unfocused` a default cell changes from `surface-terminal-unfocused-fg`, which would be 3.09 · 3.82 there, to `text-primary`. In the file that ink is the role `text-body`, and it is the cell ink that the forbidden cells of a match name. A dim cell is a blend of its ink and its ground, which is 1.81 in both themes on `match@term`, so an ordinary match draws it in `text-primary` on either bed. The match costs the dim step, and the ink does not change on a focus change. Outside a match a dim cell stays the program's blend, and no pair is promised. A cell with its own ANSI color keeps it inside a selection or an ordinary match, dim or not, and that pair is content. Only an active match replaces that color, so its ink holds on the stronger fill. A link away from the pointer reads as any other cell. Terminal content never animates.
+The overlay ink applies to default cell ink: any cell with no color of its own, bold or dim included. On `match@term-unfocused` a default cell changes from `surface-terminal-unfocused-fg`, which would be 3.09 · 3.82 there, to `text-primary`. In the file that ink is the role `text-body`, and it is the cell ink that the forbidden cells of a match name. A dim cell is a blend of its ink and its ground, which is 1.81 in both themes on `match@term`, so an ordinary match draws it in `text-primary` on either bed. The match costs the dim step, and the ink does not change on a focus change. Outside a match a dim cell stays the program's blend, and no pair is promised. In a selection a default cell, bold or dim, reads `text-on-active` on either bed. The cell's own ink would be 4.62 · 3.69 focused and 3.00 · 2.89 unfocused, and a dim blend would be 1.26 · 1.10 focused and 1.18 · 1.20 unfocused. A selection is read and copied, so section 12 does not excuse it. Selection ink does not change on a focus change. A cell with its own ANSI color keeps it inside a selection or an ordinary match, dim or not, and that pair is content. A reverse-video cell and a reverse screen keep their ink inside a selection too, and no pair is promised. Only an active match replaces that color, so its ink holds on the stronger fill. A link away from the pointer reads as any other cell. Terminal content never animates.
 
 **Cells a match leaves alone.** The overlay ink stops at these cells, because something else has already set their ink.
 
@@ -2067,6 +2067,8 @@ Sits on: `term`
 | default ink | `surface-terminal-focused-fg` | rest | `term` | 14.52 · 7.99 |
 | search match | `text-primary` | rest | `match@term` | 6.67 · 6.06 |
 | search match, dim cell | `text-primary` | rest | `match@term` | 6.67 · 6.06 |
+| selection | `text-on-active` | rest | `term-selection` | 4.62 · 5.40 |
+| selection, dim cell | `text-on-active` | rest | `term-selection` | 4.62 · 5.40 |
 | vi cursor cell | `vi-cursor-fg` | rest | `term-cursor` | 10.48 · 6.60 |
 | link under the pointer | `text-on-active` | rest | `term-selection` | 4.62 · 5.40 |
 | link underline | `accent-primary-raised` | rest | `term-selection` | 3.17 · 3.84 |
@@ -2080,6 +2082,8 @@ Sits on: `term-unfocused`
 | default ink | `surface-terminal-unfocused-fg` | rest | `term-unfocused` | 7.37 · 4.73 |
 | search match | `text-primary` | rest | `match@term-unfocused` | 4.75 · 4.88 |
 | search match, dim cell | `text-primary` | rest | `match@term-unfocused` | 4.75 · 4.88 |
+| selection | `text-on-active` | rest | `term-selection` | 4.62 · 5.40 |
+| selection, dim cell | `text-on-active` | rest | `term-selection` | 4.62 · 5.40 |
 | vi cursor cell | `vi-cursor-fg` | rest | `term-cursor` | 10.48 · 6.60 |
 | link under the pointer | `text-on-active` | rest | `term-selection` | 4.62 · 5.40 |
 | link underline | `accent-primary-raised` | rest | `term-selection` | 3.17 · 3.84 |
