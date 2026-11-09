@@ -1900,6 +1900,10 @@ Sits on: `mantle`
 | label | `text-secondary` | rest | `mantle` | 9.91 · 5.14 |
 | mirror | `workspace-mirror-fg` | rest | `mantle` | 11.29 · 6.17 |
 | dot | `status-idle` | rest | `mantle` | 3.59 · 4.64 |
+| count | `text-muted` | rest | `mantle` | 7.89 · 5.14 |
+| count | `text-muted-raised` | hover, press | `mantle+hover`, `mantle+press` | 5.52 · 5.01 |
+| count | `text-on-active` | selected | `active` | 4.62 · 5.40 |
+| count | `text-on-active-hover` | selected+hover, selected+press | `active+hover`, `active+press` | 4.97 · 4.74 |
 | label | `text-secondary-raised` | hover, press | `mantle+hover`, `mantle+press` | 6.94 · 5.01 |
 | mirror | `accent-remote-raised` | hover, press | `mantle+hover`, `mantle+press` | 7.90 · 4.70 |
 | dot | `glyph-dim-raised` | hover, press | `mantle+hover`, `mantle+press` | 3.33 · 3.54 |

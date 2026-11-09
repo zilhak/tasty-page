@@ -594,11 +594,17 @@
   /* Workspace row (expanded sidebar) — the status dot sits in a RESERVED slot the
      size of the attached mark's full bbox: 8 + 2×(2+2) = 16. Reserved on every
      row (attached or not) so title x never shifts. Ring clearances at scale 1:
-     card edge 8 · active accent bar (0..2) 6 · label 4. Body x = 8 + 16 + 4 = 28. */
+     card edge 8 · active accent bar (0..2) 6 · label 4 before the running count took the space after the slot. Body x: see the running count below. */
   --tasty-workspace-row-padding-x: var(--tasty-space-sm);   /* 8 — row left inset */
   --tasty-workspace-dot-slot:      var(--tasty-size-16);    /* 16 at scale 1 — DERIVED in Theme: round(dot) + 2 × (round(ring-width) + round(ring-offset)); never rounded on its own (0.85 → 15, 1.2 → 18). Square; height does not grow the row. */
   --tasty-workspace-row-active-bar-width: var(--tasty-selection-edge-width); /* 2 — hairline, zoom-exempt */
   --tasty-workspace-dot-gap:       var(--tasty-space-xs);   /* 4 — slot → title / subtitle / pill */
+  /* Running count (2026-11-09) — plain mono numeral between the dot slot and the body, on every row, 0 included.
+     Row x at scale 1: 8 + slot 16 + gap 2 + column 10 + dot-gap 4 = body 40. Ink: the text-muted role, no token of its own. */
+  --tasty-workspace-running-count-gap:       var(--tasty-size-2);  /* 2 — slot → numeral; clears the attached ring and the keycap */
+  --tasty-workspace-running-count-min-width: var(--tasty-size-10); /* 10 — two D2Coding digits at micro, so 0 to 99 never move the name. Another mono font: the wider of this and its two digits */
+  --tasty-workspace-running-count-font-size: var(--tasty-font-size-micro); /* 10 — mono, weight medium */
+  --tasty-workspace-running-count-max:       99; /* @kind other */ /* above → "99+", the one row whose column grows */
 
   /* Move source — the pending "Move Surface / Tab / Pane" target (app-wide, max one).
      IS the target  → dashed ring drawn INSIDE the target rect (surface rect · tab cell

@@ -1,5 +1,6 @@
 import React from "react";
 import { Icon, StatusDot, Badge, Tag, LoadingOverlay as TastyDesignSystem_41fd3f_LoadingOverlay } from "../../components/index.js";
+import { WorkspaceRunningCount } from "../../ui_kits/terminal/chrome.jsx";
 import { Spec, Stage, Meta, Dont } from "../parts/specimen.jsx";
 
 // Tasty Gallery — Layouts › Loading overlay (2026-10-16, request loading-spinner-overlay).
@@ -94,6 +95,7 @@ function LRow({ name = "build-farm", status = "running", active, hover, attached
         <LoadingOverlay kind="lnb" visible={!!loading} bed={bed} reducedMotion={rm} style={boxes ? BOX : undefined} />
         {keycap && <span style={{ position: "absolute", top: "50%", left: 0, width: "var(--tasty-switch-overlay-size)", height: "var(--tasty-switch-overlay-size)", transform: "translateY(-50%)" }}><SwitchCap n={keycap} active={active} /></span>}
       </span>
+      <WorkspaceRunningCount count={status === "idle" ? 0 : 1} state={active ? "selected" : hover ? "hover" : "rest"} />
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontSize: "var(--tasty-font-size-body)", fontWeight: "var(--tasty-font-weight-medium)", lineHeight: "var(--tasty-line-height-ui)", color: active ? "var(--tasty-text-primary)" : "var(--tasty-text-secondary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{name}</div>
         {mirror && (

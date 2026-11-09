@@ -71,9 +71,31 @@ function TitleBar({ workspace }) {
   );
 }
 
+// Running count: how many terminal surfaces in this workspace the dot counts as running. Same value as the dot,
+// so 0 means an idle dot. Sits right after the dot slot on every row. A row's flex gap is dot-gap, so the margin
+// turns slot → numeral into running-count-gap. Ink follows the text-muted role on the row's ground.
+const RUNNING_COUNT_INK = {
+  rest: "var(--tasty-text-muted)",
+  hover: "var(--tasty-text-muted-raised)",
+  press: "var(--tasty-text-muted-raised)",
+  selected: "var(--tasty-text-on-active)",
+  "selected+hover": "var(--tasty-text-on-active-hover)",
+  "selected+press": "var(--tasty-text-on-active-hover)",
+};
+function WorkspaceRunningCount({ count = 0, state = "rest", ...rest }) {
+  return (
+    <span {...rest} style={{ flex: "none", boxSizing: "border-box", display: "inline-flex", alignItems: "center",
+      minWidth: "max(var(--tasty-workspace-running-count-min-width), 2ch)", height: "calc(var(--tasty-font-size-body) * var(--tasty-line-height-ui))",
+      marginLeft: "calc(var(--tasty-workspace-running-count-gap) - var(--tasty-workspace-dot-gap))",
+      fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-workspace-running-count-font-size)", fontWeight: "var(--tasty-font-weight-medium)",
+      color: RUNNING_COUNT_INK[state], whiteSpace: "nowrap" }}>{count > 99 ? "99+" : count}</span>
+  );
+}
+
 function WorkspaceRow({ ws, active, onClick, onContextMenu }) {
-  
+
   const [hover, setHover] = React.useState(false);
+  const running = ws.running ?? (ws.status === "idle" ? 0 : 1);
   return (
     <div onClick={onClick} onContextMenu={onContextMenu} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
       style={{ display: "flex", alignItems: "flex-start", gap: "var(--tasty-workspace-dot-gap)",
@@ -88,13 +110,15 @@ function WorkspaceRow({ ws, active, onClick, onContextMenu }) {
           "--tasty-status-dot-completion": "var(--tasty-status-dot-completion-active)", "--tasty-status-dot-attached-ring": "var(--tasty-status-dot-attached-ring-active)",
         } : null) }}>
       {/* dot slot = the attached mark's full bbox (16), reserved on EVERY row so the
-          title x (8 + 16 + 4 = 28) never shifts; the ring can't reach the card edge,
+          title x (8 + 16 + 2 + 10 + 4 = 40) never shifts; the ring can't reach the card edge,
           the 2px active accent bar, or the label. See --tasty-workspace-dot-slot. */}
       <span style={{ flex: "none", width: "var(--tasty-workspace-dot-slot)", height: "calc(var(--tasty-font-size-body) * var(--tasty-line-height-ui))", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
         <StatusDot status={ws.status} attached={ws.attached}
           pulse={ws.status === "agent" || ws.status === "running"}
           title={ws.attached ? "Attached on another client" : undefined} />
       </span>
+      {/* A fixture that names no count still agrees with its dot: running 1, idle 0. */}
+      <WorkspaceRunningCount count={running} state={active ? (hover ? "selected+hover" : "selected") : hover ? "hover" : "rest"} title={`Running surfaces: ${running}`} />
       <div style={{ flex: 1, minWidth: 0 }}>
         {/* title = workspace name only (full width — the remote pill sits on its
             own line below, so the title never loses room) */}
@@ -406,4 +430,4 @@ function Sidebar({ workspaces, activeWs, onWs, onSettings, onPlugins, onTools, c
   );
 }
 
-export { Icon, ic, TitleBar, Sidebar };
+export { Icon, ic, TitleBar, Sidebar, WorkspaceRunningCount };
