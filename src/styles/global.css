@@ -895,6 +895,11 @@ pre.astro-code span[style*="#6A737D"] { color: var(--tasty-site-code-comment) !i
   .search input { padding: 0 var(--sp-2); }
   .search input::placeholder { color: transparent; }
   .search__icon { display: flex; }
+  /* The glyph sits above the input, so it gives way to the text being typed. Once the
+     field collapses again, a kept query would run under the glyph, so only the glyph shows. */
+  .search:focus-within .search__icon { display: none; }
+  .search:not(:focus-within) input { color: transparent; }
+  .search:not(:focus-within) input::-webkit-search-cancel-button { display: none; }
   .brand__version { display: none; }
   .site-footer__inner { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   /* The button stays the size of its neighbors and its name stays in the accessible name. */
@@ -929,6 +934,37 @@ pre.astro-code span[style*="#6A737D"] { color: var(--tasty-site-code-comment) !i
     right: var(--sp-5);
     width: auto;
   }
+  /* The fixed parts leave the focused field too little room for a query, so it covers the
+     header's content from edge to edge, in line with the panel under it. The collapsed box
+     keeps its place, so nothing moves behind the field. Focus leaving the search uncovers
+     the header in the same step, so Tab never lands on a covered control. An input does not
+     stretch between left and right, so the width is worked out; 100% is the header's width.
+     The controls sit on half pixels here, so a cover keeps their edges from showing past it. */
+  .search:focus-within { position: static; flex-basis: var(--size-control-sm); }
+  .search:focus-within::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: var(--tasty-bg-sidebar);
+  }
+  .search:focus-within input {
+    position: absolute;
+    z-index: 2;
+    top: 0;
+    bottom: 0;
+    left: var(--sp-5);
+    width: calc(100% - 2 * var(--sp-5));
+    margin-block: auto;
+  }
+  .search:focus-within input::placeholder { color: var(--tasty-text-placeholder); }
+}
+
+/* iOS Safari zooms the page when an input under 16px takes focus, which would slide the
+   header and the panel out of place. 16px is above the 14px cap of the app's chrome, and this
+   field on a phone is the one place on the site that pays that. */
+@media (max-width: 640px) and (pointer: coarse) {
+  .search input { font-size: 16px; }
 }
 
 @media print {
