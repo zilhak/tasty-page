@@ -19,9 +19,36 @@ Desktop changes arrive by `git merge main`, never by rebase. A conflict means th
 git diff main...android-gallery --name-only
 ```
 
+## Order of work
+
+A design reaches Android in this order.
+
+1. This gallery. A designer session sets the design here.
+2. The Android implementation, in the Android repository, built to match this gallery.
+
+The desktop gets its second step for free: `crates/tasty-gallery` and the app share one component source, so a change in shape reaches the app with the gallery. Android cannot do that. It is built in Compose and shares no component source with this page or with the Rust gallery, so the gallery cannot make the change for it and nothing fails when the two drift. So the Android side does not set a design of its own. A design it needs goes to this gallery first, and the implementation follows.
+
+What crosses over is values, not components. The Android theme takes them from `vendor/tokens/tasty.tokens.json`. How it does that belongs to the Android repository.
+
+## What this system takes from the canon
+
+| Item | Rule |
+|---|---|
+| Color tokens | The same as Tasty, read from the canon |
+| Layout rules | The same as Tasty, `vendor/RULES.md` section 10 |
+| Parts | The desktop components, imported unchanged |
+| A value touch does not fit | Stays as it is. The touch section measures it, and the owner decides |
+| Width classes | The canon has none. Android's own, declared in `gallery/widths.jsx` |
+
+Screens wait for the decision on how the app is used. Nothing here decides product behaviour.
+
+Token lengths read as dp and type sizes as sp, one to one. The baselines in `gallery/touch.jsx` are comparison points with their sources. They are not Tasty values.
+
 ## Page
 
-- `gallery/index.jsx` exports `page` and a default route, the form of `vendor/gallery/<page>/index.jsx`. Put specimens in its content and list their sections in `nav`. `?audit=1` mounts every stage, as on the desktop gallery.
+- `gallery/index.jsx` exports `page` and a default route, the form of `vendor/gallery/<page>/index.jsx`. Each section has its own file, listed in `NAV`. `?audit=1` mounts every stage, as on the desktop gallery.
+- Prose is in `gallery/copy.js`. A slot with no text draws nothing. Labels and spec tables stay in the section files.
+- `gallery/states.jsx` names the desktop contracts each specimen draws.
 - Specimens stay inside the route's one `[data-gallery-page]`, because `specimen.css` and the shared rules scope to it.
 - Tokens arrive through `Base.astro`. `design/kit.css` and `specimen.css` arrive through the route.
 - Keep Android components out of `vendor/components` and `vendor/ui_kits/terminal`. `src/lib/vendor-assets.ts` gathers the CSS of those two folders into the desktop `kit.css`.
