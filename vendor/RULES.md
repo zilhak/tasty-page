@@ -303,6 +303,7 @@ Three layers, three answers:
 | Active match, unfocused | `match-active@term-unfocused` | `search-match-active-unfocused-fg` | 6.95 · 11.21 |
 | Selected search match | `match@term-selection` | `search-match-selected-fg` | 5.07 · 8.96 |
 | Selected active match | `match-active@term-selection` | `search-match-selected-fg` | 9.81 · 8.20 |
+| Block cursor, with or without a selection | The swapped fill | The swapped ink | 14.52 · 7.99, focused only |
 
 The selection, vi cursor and link rows hold on both beds. `term-selection` and `term-cursor` are opaque, so the bed under them does not reach the ink. Selection can stay on a surface after focus moves away, and the vi cursor shows there when it moves by keyboard.
 
@@ -314,6 +315,8 @@ The overlay ink applies to default cell ink: any cell with no color of its own, 
 - **Active match.** Every cell reads `search-match-selected-fg`, as an active match replaces every ink. The fill is `search-match-active-selected-bg`, which is 80% in Latte where `search-match-active-bg` is 50%. At 50% the two selected fills sit ΔE 0.040 apart and the active match is lost among the others. At 80% they sit 0.089, and in Mocha 70% gives 0.182. The dark ink is what allows the stronger fill.
 - **Vi cursor.** `term-cursor` covers the selection, so the match fill lies over `term-cursor` as usual: 11.59 · 6.53 in an ordinary match, with `vi-cursor-fg`. In a selected active match the fill is `search-match-active-bg` and the ink `search-match-selected-fg`: 13.26 · 6.76.
 - **Block cursor.** The cell stays a cursor cell and takes no selection fill. In an ordinary match it keeps the swapped ink over the swapped fill, 15.08 · 5.73. On a selection fill the swapped ink would be 5.68 · 2.34. In a selected active match the fill is `search-match-active-bg` over the swapped fill and the ink `search-match-selected-fg`: 14.12 · 4.65.
+
+**A block cursor in a selection.** Outside a match the cell also stays a cursor cell and takes no selection fill, so a selection never hides where the cursor is. The vi cursor covers a selection in the same way. A default or bold cell keeps the swapped ink over the swapped fill, 14.52 · 7.99, with or without a selection. On a selection fill the swapped ink would be 3.15 · 2.16. A dim or colored cell swaps its own colors, and no pair is promised. An unfocused terminal draws no block cursor, so there the cell reads as any other selected cell.
 
 **Cells a match leaves alone.** The overlay ink stops at these cells, because something else has already set their ink.
 
@@ -367,7 +370,7 @@ All lengths are device pixels, and every line except the curly one lands on whol
 **Paint order,** bottom to top:
 
 1. Bed and cell background
-2. Overlay fill: selection, match or cursor. A match fill lies over a selection or a cursor on the same cell
+2. Overlay fill: selection, match or cursor. A cursor fill replaces a selection on the same cell. A match fill lies over a selection or a cursor on the same cell
 3. Underline, program or link
 4. Glyph
 5. Strikethrough
