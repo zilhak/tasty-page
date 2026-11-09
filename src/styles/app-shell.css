@@ -40,6 +40,13 @@
   scrollbar-width: none;
 }
 .window .shell__tabs > div > div:first-child::-webkit-scrollbar { display: none; }
+/* The scrolling row would clip a ring drawn outside the tab, so the ring sits inside it, and
+   the tab keeps its square corners. The close button's ring stays inside the tab's 24px. */
+.shell__tabs .tasty-tab:focus-visible {
+  outline-offset: -2px; /* the ring's own width: the site's focus ring is 2px */
+  border-radius: var(--tasty-radius-none);
+}
+.shell__tabs .tasty-tab__close:focus-visible { outline-offset: 0; }
 .shell__pane { flex: 1; min-width: 0; display: flex; }
 .shell__side { display: flex; flex: none; }
 .shell__status { flex: none; }
