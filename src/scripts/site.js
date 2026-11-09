@@ -92,9 +92,10 @@
     document.addEventListener("keydown", function (e) {
       if (e.key === "Escape") closeNav(true);
     });
-    drawer.addEventListener("focusout", function (e) {
-      var to = e.relatedTarget;
-      if (to && !drawer.contains(to) && to !== menuBtn) closeNav(false);
+    /* The page under the scrim takes no focus. On a page whose drawer ends the
+       document, Tab leaves the page first, so this watches where focus lands. */
+    document.addEventListener("focusin", function (e) {
+      if (!drawer.contains(e.target) && e.target !== menuBtn) closeNav(false);
     });
     /* The back button restores the page as it was left. */
     window.addEventListener("pageshow", function () { closeNav(false); });
