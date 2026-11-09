@@ -2211,7 +2211,6 @@ Contrast is the lowest across the row's grounds.
 | Focus ring | `a, button, input` | `base`, `mantle`, `raised` | `focus-ring` | `border-focus` | 5.97 · 3.18 |
 | Footer text | `.site-footer h4, .site-footer a, .site-footer__blurb, .site-footer__legal` | `mantle` | `text-muted` | `text-muted` | 7.89 · 5.14 |
 | Footer link, pointer over | `.site-footer a:hover` | `mantle` | `text-body` | `text-primary` | 12.14 · 6.57 |
-| Wordmark dot | `.wordmark b` | `base`, `mantle` | `mark` | `site-wordmark-dot` | no target · no target |
 | Hero release word | `.hero__eyebrow` | `base` | `text-muted` | `text-muted` | 7.37 · 5.53 |
 | Hero release dot | `.hero__eyebrow .dot` | `base` | `mark` | `site-eyebrow-dot` | no target · no target |
 | Hero accent | `.hero h1 .accent` | `base` | `text-brand` | `brand-ink` | 5.12 · 5.50 |

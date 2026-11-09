@@ -18,7 +18,6 @@ export interface GuideLink {
 }
 export interface Copy {
   badge: string;
-  tagline: string;
   titleLead: string;
   titleAccent: string;
   titleTail: string;
@@ -64,7 +63,6 @@ export interface Copy {
 
 export const KO: Copy = {
   badge: "Windows · macOS · Linux",
-  tagline: "AI 에이전트와 쓰기에도 편한 터미널",
   titleLead: "입맛에 맞게 쓰는",
   titleAccent: "터미널,",
   titleTail: "Tasty.",
@@ -122,7 +120,6 @@ export const KO: Copy = {
 
 export const EN: Copy = {
   badge: "Windows · macOS · Linux",
-  tagline: "A terminal for everyday work and AI agents.",
   titleLead: "A terminal",
   titleAccent: "to your taste.",
   titleTail: "",
