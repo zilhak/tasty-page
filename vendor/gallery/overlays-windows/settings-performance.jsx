@@ -31,7 +31,7 @@ const PF = {
 // value length + 1ch caret room + 2 × input-padding-x + 2 × border), capped at the row's available width. Widths are in ch of
 // the field's own mono font, so any user font fits. The longest value the config can hold (i64, 20 chars with sign) needs ≈ 151
 // with D2Coding 11px, so the cap is reached only in a page narrower than any settings page.
-function PfNumField({ value, unit, unlimited, disabled, note, invalid }) {
+function PfNumField({ lang, value, unit, unlimited, disabled, note, invalid }) {
   const n = Math.max(String(value).length, 1) + 1;
   const ink = disabled ? "var(--tasty-state-disabled-fg)" : "var(--tasty-number-field-unit-fg)";
   return (
@@ -40,7 +40,7 @@ function PfNumField({ value, unit, unlimited, disabled, note, invalid }) {
         <span data-number-field style={{ display: "inline-flex", flex: "none", maxWidth: "100%", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", width: "max(var(--tasty-number-field-min-width), calc(" + n + "ch + 2 * var(--tasty-input-padding-x) + 2 * var(--tasty-border-width)))" }}>
           <PfInput block mono value={value} onChange={() => {}} disabled={disabled} invalid={invalid} />
         </span>
-        <span data-ink-grade={disabled ? "none" : undefined} data-ink-why={disabled ? "disabled" : undefined} style={{ fontFamily: value === "-1" ? "var(--tasty-font-ui)" : "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: ink, whiteSpace: "nowrap" }}>{value === "-1" ? unlimited : unit}</span>
+        <span lang={lang} data-ink-grade={disabled ? "none" : undefined} data-ink-why={disabled ? "disabled" : undefined} style={{ fontFamily: value === "-1" ? "var(--tasty-font-ui)" : "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-caption)", color: ink, whiteSpace: "nowrap" }}>{value === "-1" ? unlimited : unit}</span>
       </span>
       {note && <span style={{ fontSize: "var(--tasty-font-size-caption)", lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-number-field-note-fg)", maxWidth: "var(--tasty-measure-md)" }}>{note}</span>}
     </span>
@@ -76,7 +76,7 @@ function PfPage({ lang = "en", poll = true, swap = true, lines = "10000", w, ran
         <PfRow label={L.swap} hint={L.swapHint}><PfSwitch checked={swap} onChange={() => {}} /></PfRow>
         <PfRow label={L.lines} hint={L.linesHint}>
           {legacy ? <span style={{ display: "inline-flex", width: "var(--tasty-field-width-color)" }}><PfInput block mono value={lines} onChange={() => {}} disabled={!swap} addon={L.unit} /></span>
-            : <PfNumField value={lines} unit={L.unit} unlimited={L.unlimited} disabled={!swap} note={range ? L.range : null} invalid={!!range} />}
+            : <PfNumField lang={lang} value={lines} unit={L.unit} unlimited={L.unlimited} disabled={!swap} note={range ? L.range : null} invalid={!!range} />}
         </PfRow>
       </div>
     </div>

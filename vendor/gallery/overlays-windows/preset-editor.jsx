@@ -427,7 +427,7 @@ import { Section, Spec, Stage, Meta, Note, Do, Dont } from "../parts/specimen.js
   function Field({ label, children }) {
     return (
       <label style={{ display: "flex", flexDirection: "column", gap: 3 }}>
-        <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 10, textTransform: "uppercase", letterSpacing: ".06em", color: "var(--tasty-text-muted)" }}>{label}</span>
+        <span style={{ fontFamily: "var(--tasty-font-label)", fontSize: 10, textTransform: "uppercase", letterSpacing: ".06em", color: "var(--tasty-text-muted)" }}>{label}</span>
         {children}
       </label>
     );
@@ -678,7 +678,7 @@ import { Section, Spec, Stage, Meta, Note, Do, Dont } from "../parts/specimen.js
           {/* left list */}
           <div aria-disabled={cfgOpen || undefined} style={{ width: 196, flex: "none", display: "flex", flexDirection: "column", background: "var(--tasty-bg-sidebar)", borderRight: "1px solid var(--tasty-separator)", ...dim }}>
             <div style={{ display: "flex", alignItems: "center", padding: "8px 10px 4px" }}>
-              <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 10, textTransform: "uppercase", letterSpacing: ".06em", color: "var(--tasty-text-muted)" }}>{list.length} preset{list.length === 1 ? "" : "s"}</span>
+              <span style={{ fontFamily: "var(--tasty-font-label)", fontSize: 10, textTransform: "uppercase", letterSpacing: ".06em", color: "var(--tasty-text-muted)" }}>{list.length} preset{list.length === 1 ? "" : "s"}</span>
               <div style={{ flex: 1 }} />
               <IconButton size="sm" aria-label="New preset">{I.plus}</IconButton>
             </div>

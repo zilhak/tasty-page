@@ -47,7 +47,7 @@ function GBadge({ tone, dot, width, title, children }) {
   const c = GV_TONE[tone];
   const base = { display: "inline-flex", alignItems: "center", justifyContent: width ? "center" : "flex-start",
     gap: 4, height: 16, padding: width ? 0 : "0 var(--tasty-space-sm)", width, flex: "none",
-    borderRadius: "var(--tasty-radius-sm)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)",
+    borderRadius: "var(--tasty-radius-sm)", fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-micro)",
     fontWeight: 500, lineHeight: 1, whiteSpace: "nowrap", borderStyle: "solid", borderWidth: "var(--tasty-border-width)" };
   if (!c) return <span title={title} style={{ ...base, color: "var(--tasty-tag-fg)",
     borderColor: "var(--tasty-border-default)", background: "var(--tasty-tag-bg)" }}>{children}</span>;
@@ -63,7 +63,7 @@ function GBadge({ tone, dot, width, title, children }) {
 const gvHeadStrip = { display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", height: 28, flex: "none",
   padding: "0 var(--tasty-space-md)", background: "var(--tasty-bg-sidebar)",
   borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)",
-  fontFamily: "var(--tasty-font-mono)", fontSize: 10, textTransform: "uppercase",
+  fontFamily: "var(--tasty-font-label)", fontSize: 10, textTransform: "uppercase",
   letterSpacing: "var(--tasty-letter-spacing-caps)", color: "var(--tasty-text-muted)" };
 const gvMono = { fontFamily: "var(--tasty-font-mono)", fontSize: 12 };
 

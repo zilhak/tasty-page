@@ -232,7 +232,7 @@ function BannerHost() {
       <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", flexWrap: "wrap",
         padding: "var(--tasty-space-sm)", border: "var(--tasty-border-width) solid var(--tasty-separator)",
         borderRadius: "var(--tasty-radius)", background: "var(--tasty-bg-sidebar)" }}>
-        <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", textTransform: "uppercase",
+        <span style={{ fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-micro)", textTransform: "uppercase",
           letterSpacing: "var(--tasty-letter-spacing-caps)", color: "var(--tasty-text-muted)" }}>spawn</span>
         <Ctrl onClick={() => spawn("mouse")}>Mouse capture</Ctrl>
         <Ctrl onClick={() => spawn("mouseUnknown")}>Mouse capture (name unknown)</Ctrl>

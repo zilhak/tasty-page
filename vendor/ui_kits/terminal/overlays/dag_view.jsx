@@ -375,7 +375,7 @@ function RunnerBadge({ runner, hint = true }) {
         borderRadius: "var(--tasty-dag-runner-radius)", boxSizing: "border-box",
         border: `var(--tasty-border-width) solid ${tone ? `var(--tasty-dag-runner-${tone}-border)` : "var(--tasty-dag-runner-border)"}`,
         background: tone ? `var(--tasty-dag-runner-${tone}-bg)` : "var(--tasty-dag-runner-bg)",
-        fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: fg }}>
+        fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-caption)", color: fg }}>
         <StatusDot status={crashed ? "error" : stalled ? "waiting" : running ? "running" : "idle"}
           pulse={running && !crashed && active > 0} />
         <span style={{ whiteSpace: "nowrap" }}>{text}</span>

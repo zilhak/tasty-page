@@ -113,7 +113,7 @@ function AnNumField({ text, unit, invalid, note, focused, onChange, onCommit }) 
             onChange={(e) => onChange && onChange(e.target.value)} onBlur={() => onCommit && onCommit()}
             onKeyDown={(e) => { if (e.key === "Enter" && onCommit) onCommit(); }} style={{ textAlign: "right" }} />
         </span>
-        <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-number-field-unit-fg)", whiteSpace: "nowrap" }}>{unit}</span>
+        <span style={{ fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-number-field-unit-fg)", whiteSpace: "nowrap" }}>{unit}</span>
       </span>
       {note && <span role="status" style={{ fontSize: "var(--tasty-font-size-caption)", lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-number-field-note-fg)", maxWidth: "var(--tasty-measure-md)", overflowWrap: "anywhere" }}>{note}</span>}
     </>
@@ -137,14 +137,14 @@ function AnomalySubtab({ lang = "en", values, texts, focusKey, stacked = false, 
     setTxt((s) => { const n = Object.assign({}, s); delete n[r.key]; return n; });
   };
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xl)", width: width || "100%", maxWidth: "var(--tasty-settings-content-max-width)", minWidth: 0 }}>
+    <div lang={lang} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xl)", width: width || "100%", maxWidth: "var(--tasty-settings-content-max-width)", minWidth: 0 }}>
       <div style={{ display: "flex", alignItems: "flex-start", gap: "var(--tasty-settings-apply-note-gap)", maxWidth: "var(--tasty-measure-md)" }}>
         <span style={{ display: "inline-flex", flex: "none", height: "calc(var(--tasty-font-size-caption) * var(--tasty-line-height-ui))", alignItems: "center", color: "var(--tasty-settings-apply-note-glyph)" }}><Icon name="info" size="var(--tasty-icon-size-sm)" /></span>
         <p style={{ margin: 0, fontSize: "var(--tasty-font-size-caption)", lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-settings-apply-note-fg)", textWrap: "pretty" }}>{L.notice}</p>
       </div>
       {ANOMALY_FIELDS.map((s) => (
         <section key={s.id} aria-label={L.sec[s.id].h} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-settings-row-gap)", minWidth: 0 }}>
-          <div style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", textTransform: "uppercase", letterSpacing: "var(--tasty-letter-spacing-caps)", color: "var(--tasty-text-muted)" }}>{L.sec[s.id].h}</div>
+          <div style={{ fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-micro)", textTransform: "uppercase", letterSpacing: "var(--tasty-letter-spacing-caps)", color: "var(--tasty-text-muted)" }}>{L.sec[s.id].h}</div>
           {s.rows.map((r, i) => {
             const sep = i > 0 && <div style={{ height: "var(--tasty-border-width)", background: "var(--tasty-separator)" }} />;
             if (r.kind === "switch") return (

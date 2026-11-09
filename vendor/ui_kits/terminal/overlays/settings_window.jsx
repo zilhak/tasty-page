@@ -92,7 +92,7 @@ function ColorOverridePicker() {
   const resetGroup = (g) => setOverrides((o) => {
     const n = { ...o }; g.colors.forEach(([f]) => delete n[f]); return n;
   });
-  const headStyle = { fontFamily: "var(--tasty-font-mono)", fontSize: 10, textTransform: "uppercase",
+  const headStyle = { fontFamily: "var(--tasty-font-label)", fontSize: 10, textTransform: "uppercase",
     letterSpacing: "var(--tasty-letter-spacing-caps)", color: "var(--tasty-text-muted)" };
 
   return (
@@ -113,7 +113,7 @@ function ColorOverridePicker() {
               <Icon name={open ? "chevronDown" : "chevronRight"} size={14} />
               <span style={headStyle}>{g.name}</span>
               {g.note && <span style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>· {g.note}</span>}
-              {ovN > 0 && <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 10, color: "var(--tasty-accent-primary-raised)" }}>{ovN} changed</span>}
+              {ovN > 0 && <span style={{ fontFamily: "var(--tasty-font-label)", fontSize: 10, color: "var(--tasty-accent-primary-raised)" }}>{ovN} changed</span>}
               <span style={{ marginLeft: "auto" }}>
                 {ovN > 0 && <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); resetGroup(g); }}>Reset</Button>}
               </span>
@@ -189,7 +189,7 @@ function ScriptChangedBadge() {
   return (
     <span title="File changed since registration — you'll be asked to confirm on next run."
       style={{ display: "inline-flex", alignItems: "center", gap: 4, height: 16, padding: "0 var(--tasty-space-sm)",
-        borderRadius: "var(--tasty-radius-sm)", whiteSpace: "nowrap", fontFamily: "var(--tasty-font-mono)",
+        borderRadius: "var(--tasty-radius-sm)", whiteSpace: "nowrap", fontFamily: "var(--tasty-font-label)",
         fontSize: "var(--tasty-font-size-micro)", fontWeight: 500, lineHeight: 1, color: "var(--tasty-accent-warning-raised)",
         border: "var(--tasty-border-width) solid color-mix(in srgb, var(--tasty-accent-warning) 40%, transparent)",
         background: "color-mix(in srgb, var(--tasty-accent-warning) 12%, transparent)" }}>
@@ -244,7 +244,7 @@ function TriggerRow({ triggers, onAdd, onRemove }) {
             height: 16, padding: "0 var(--tasty-space-xs)", borderRadius: "var(--tasty-radius-sm)",
             borderStyle: "dashed", borderWidth: "var(--tasty-border-width)", borderColor: "var(--tasty-border-default)",
             background: open ? "var(--tasty-overlay-active)" : "transparent", whiteSpace: "nowrap",
-            fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", lineHeight: 1, color: none ? "var(--tasty-state-disabled-fg)" : "var(--tasty-text-muted)" }}>
+            fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-micro)", lineHeight: 1, color: none ? "var(--tasty-state-disabled-fg)" : "var(--tasty-text-muted)" }}>
           <span>Add trigger…</span><span style={{ display: "inline-flex" }}><Icon name={SD.caret} size={12} /></span>
         </button>
         {open && !none && (
@@ -356,7 +356,7 @@ function ScriptManager() {
   const addTrigger = (id, ev) => setScripts((xs) => xs.map((x) => (x.id === id ? { ...x, triggers: [...(x.triggers || []), ev] } : x)));
   const removeTrigger = (id, ev) => setScripts((xs) => xs.map((x) => (x.id === id ? { ...x, triggers: (x.triggers || []).filter((t) => t !== ev) } : x)));
 
-  const headStyle = { fontFamily: "var(--tasty-font-mono)", fontSize: 10, textTransform: "uppercase",
+  const headStyle = { fontFamily: "var(--tasty-font-label)", fontSize: 10, textTransform: "uppercase",
     letterSpacing: "var(--tasty-letter-spacing-caps)", color: "var(--tasty-text-muted)" };
 
   return (
@@ -522,7 +522,7 @@ function HookHandlers() {
     setHooks((xs) => [...xs, { id, origin: "user", prio: maxPrio + 10, cmd: draftCmd.trim(), on: true }]);
     setAdding(false);
   };
-  const headStyle = { fontFamily: "var(--tasty-font-mono)", fontSize: 10, textTransform: "uppercase",
+  const headStyle = { fontFamily: "var(--tasty-font-label)", fontSize: 10, textTransform: "uppercase",
     letterSpacing: "var(--tasty-letter-spacing-caps)", color: "var(--tasty-text-muted)" };
 
   return (
@@ -616,7 +616,7 @@ const KB_PRESETS = [
 ];
 
 function PresetDiffTable({ preset, presetName }) {
-  const head = { fontFamily: "var(--tasty-font-mono)", fontSize: 10, textTransform: "uppercase",
+  const head = { fontFamily: "var(--tasty-font-label)", fontSize: 10, textTransform: "uppercase",
     letterSpacing: "var(--tasty-letter-spacing-caps)", color: "var(--tasty-text-muted)",
     padding: "0 var(--tasty-space-md) var(--tasty-space-sm)", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" };
   const cell = { padding: "var(--tasty-space-sm) var(--tasty-space-md)", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)",
@@ -850,7 +850,7 @@ function SettingsWindow({ theme, onTheme, uiScale, onUiScale, onClose }) {
     </div>
   );
   const Mono = ({ children }) => (
-    <div style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 10, textTransform: "uppercase",
+    <div style={{ fontFamily: "var(--tasty-font-label)", fontSize: 10, textTransform: "uppercase",
       letterSpacing: "var(--tasty-letter-spacing-caps)", color: "var(--tasty-text-muted)" }}>{children}</div>
   );
   const Note = ({ children }) => (
@@ -1109,7 +1109,7 @@ function SettingsWindow({ theme, onTheme, uiScale, onUiScale, onClose }) {
           <Row label="Enabled:"><Switch defaultChecked /></Row>
           <Mono>Permissions</Mono>
           <div style={{ display: "flex", gap: "var(--tasty-space-sm)", flexWrap: "wrap" }}>
-            <Tag>clipboard</Tag><Tag>fs:read</Tag><Tag>{"ipc:" + l2 + ".*"}</Tag>
+            <Tag mono>clipboard</Tag><Tag mono>fs:read</Tag><Tag mono>{"ipc:" + l2 + ".*"}</Tag>
           </div>
           <Mono>Keybindings</Mono>
           <KeyRow action={l2 + ": run"} keys="Ctrl+Alt+G" />

@@ -1377,6 +1377,10 @@
       "$type": "fontFamily",
       "$value": "{primitive.font-family-mono}"
     },
+    "font-label": {
+      "$type": "fontFamily",
+      "$value": "{semantic.font-mono}"
+    },
     "font-size-caption": {
       "$type": "dimension",
       "$value": "{primitive.font-size-11}"

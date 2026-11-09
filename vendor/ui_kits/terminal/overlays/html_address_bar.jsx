@@ -145,7 +145,7 @@ function HtmlSizeBanner({ kind = "file", name = "assets/hero-video.mp4", size = 
           {file ? (
             <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", minWidth: 0 }}>
               <span style={{ flex: "0 1 auto", minWidth: 0, fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-banner-body-font-size)", color: "var(--tasty-banner-body-fg)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", direction: "rtl", textAlign: "left" }}><bdi>{name}</bdi></span>
-              <span style={{ display: "inline-flex", flex: "none" }}><Tag variant="warning">{size}</Tag></span>
+              <span style={{ display: "inline-flex", flex: "none" }}><Tag variant="warning" mono>{size}</Tag></span>
               {more > 0 && <span style={{ flex: "none", fontSize: "var(--tasty-banner-body-font-size)", color: "var(--tasty-banner-body-fg)", whiteSpace: "nowrap" }}>+{more} more waiting</span>}
             </div>
           ) : (

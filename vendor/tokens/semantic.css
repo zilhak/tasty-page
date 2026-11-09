@@ -307,6 +307,7 @@
   /* ── Typography roles ─────────────────────────────────────── */
   --tasty-font-ui:   var(--tasty-font-family-sans);
   --tasty-font-mono: var(--tasty-font-family-mono);
+  --tasty-font-label: var(--tasty-font-mono); /* words from the translation catalog drawn as a small label. Mono in en and ko, UI sans in ja and zh-Hans: tokens/base.css, RULES section 8 */
 
   --tasty-font-size-caption: var(--tasty-font-size-11); /* meta, badges, hints */
   --tasty-font-size-micro:   var(--tasty-font-size-10); /* sub-caption micro-labels: kbd, badge, tag, tree/menu meta */

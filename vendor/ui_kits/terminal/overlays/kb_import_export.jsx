@@ -56,7 +56,7 @@ const MODIFIER_COMBOS = ["Ctrl", "Alt", "Shift", "Ctrl+Alt", "Ctrl+Shift", "Alt+
 const IE_DISCARDED = ["k8s-lens", "s3-browser"];
 
 const mono = { fontFamily: "var(--tasty-font-mono)", fontSize: 12 };
-const microCaps = { fontFamily: "var(--tasty-font-mono)", fontSize: 10, textTransform: "uppercase",
+const microCaps = { fontFamily: "var(--tasty-font-label)", fontSize: 10, textTransform: "uppercase",
   letterSpacing: "var(--tasty-letter-spacing-caps)" };
 
 // ── Diff grid — 4 columns (select · action · current · imported) ─────────

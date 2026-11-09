@@ -83,7 +83,7 @@ const RA_ERRORS = {
 
 // shared text styles (uniquely named — concatenated into the app bundle alongside
 // remote_tool.jsx, so NO generic identifiers here)
-const raCaptionCaps = { fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", textTransform: "uppercase",
+const raCaptionCaps = { fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-micro)", textTransform: "uppercase",
   letterSpacing: "var(--tasty-letter-spacing-caps)", color: "var(--tasty-text-muted)" };
 const raMono = { fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: "var(--tasty-text-muted)" };
 const raCaption = { fontSize: 11, color: "var(--tasty-text-muted)" };

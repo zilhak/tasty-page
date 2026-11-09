@@ -106,12 +106,12 @@ function FavoritesSection({ favs, onToggle }) {
       {/* caption — persists at zero favorites so the feature stays discoverable */}
       <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)",
         height: "var(--tasty-control-height-tree)", padding: "0 var(--tasty-size-14)" }}>
-        <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)",
+        <span style={{ fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-micro)",
           textTransform: "uppercase", letterSpacing: "var(--tasty-letter-spacing-caps)", color: "var(--tasty-text-muted)" }}>
           Favorites{favs.length > 0 && ` · ${favs.length}`}
         </span>
         <div style={{ flex: 1 }} />
-        <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-placeholder)" }}>
+        <span style={{ fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-placeholder)" }}>
           system-wide
         </span>
       </div>
@@ -213,7 +213,7 @@ function PortsWindow({ onClose, onFlash, favorites = FAVS_DEFAULT }) {
       render: (v, row) => (
         <span style={{ display: "inline-flex", alignItems: "center", gap: 8, minWidth: 0 }}>
           <span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>{v}</span>
-          <Tag>{row.pid}</Tag>
+          <Tag mono>{row.pid}</Tag>
         </span>
       ) },
     { key: "ws", header: "Workspace", sortable: true, width: 120,
@@ -276,7 +276,7 @@ function PortsWindow({ onClose, onFlash, favorites = FAVS_DEFAULT }) {
         {/* footer */}
         <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "var(--tasty-space-sm) var(--tasty-size-14)", flex: "none",
           borderTop: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
-          <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: "var(--tasty-text-muted)" }}>
+          <span style={{ fontFamily: "var(--tasty-font-label)", fontSize: 11, color: "var(--tasty-text-muted)" }}>
             {loading ? "—" : `${rows.length} of ${scoped.length} ports`}
           </span>
           <div style={{ flex: 1 }} />

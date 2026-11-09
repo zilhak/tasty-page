@@ -25,6 +25,13 @@ body {
   background: var(--tasty-bg-app);
 }
 
+/* The label family by language, RULES section 8. It sits here, not in semantic.css,
+   because a token has one baseline value. :lang matches every element, so the value
+   holds inside a [data-theme] wrapper, and lang="en" inside a translated page returns
+   to mono. */
+:lang(en), :lang(ko) { --tasty-font-label: var(--tasty-font-mono); }
+:lang(ja), :lang(zh) { --tasty-font-label: var(--tasty-font-ui); }
+
 /* monospace / terminal contexts */
 .tasty-mono,
 code,

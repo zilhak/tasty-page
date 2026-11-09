@@ -67,6 +67,42 @@ export function UiSansSpec() {
   );
 }
 
+// The heading and one settings section from the app's language files.
+const LABEL_FAMILY = [
+  ["en", "font-mono", "Workspaces", "Attach connections"],
+  ["ko", "font-mono", "워크스페이스", "Attach 연결"],
+  ["ja", "font-ui", "ワークスペース", "アタッチ接続"],
+  ["zh-Hans", "font-ui", "工作区", "附加连接"],
+];
+
+export function LabelFamilySpec() {
+  const label = { fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-sidebar-section-heading-font-size)", textTransform: "uppercase", letterSpacing: "var(--tasty-sidebar-section-heading-tracking)", color: "var(--tasty-text-muted)" };
+  const cap = { fontFamily: MONO, fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" };
+  return (
+    <Spec id="label-family" title="Label family"
+      when={<>Use for small translated labels: section and column headings, tags and status words. English and Korean use mono; Japanese and Simplified Chinese use UI sans because mono lacks some of their Han glyphs; paths, IDs and other values stay mono in every language.</>}>
+      <Stage variant="solo column" style={{ gap: "var(--tasty-space-sm)", alignItems: "stretch" }}>
+        {LABEL_FAMILY.map(([lang, family, heading, section]) => (
+          <div key={lang} style={{ display: "grid", gridTemplateColumns: "var(--tasty-size-64) var(--tasty-size-140) 1fr 1fr", alignItems: "baseline", gap: "var(--tasty-space-sm)" }}>
+            <span style={cap}>{lang}</span>
+            <span style={cap}>{"--tasty-" + family}</span>
+            <span lang={lang} style={label}>{heading}</span>
+            <span lang={lang} style={label}>{section}</span>
+          </div>
+        ))}
+      </Stage>
+      <Meta specs={[["family", <span className="tok">--tasty-font-label</span>], ["language rule", "tokens/base.css · RULES section 8"], ["size, ink, tracking, uppercase", "the label's own, in every language"]]}
+        tokens={[
+          { tok: "--tasty-font-label", use: "words in a small label" },
+          { tok: "--tasty-font-mono", use: "en, ko; values in every language" },
+          { tok: "--tasty-font-ui", use: "ja, zh-Hans" },
+          { tok: "--tasty-sidebar-section-heading-font-size", use: "10px in this specimen" },
+          { tok: "--tasty-sidebar-section-heading-tracking", use: "0.07em in this specimen" },
+        ]} />
+    </Spec>
+  );
+}
+
 const WEIGHTS = [["normal", 400], ["medium", 500], ["semibold", 600], ["bold", 700]];
 
 export function WeightsSpec() {

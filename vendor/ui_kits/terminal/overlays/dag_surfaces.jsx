@@ -176,7 +176,7 @@ function DagCanvas({ dag, dir = "td", onDirChange, selected, onSelect, minimap =
         <div style={{ position: "absolute", left: "var(--tasty-dag-chrome-inset)", bottom: "var(--tasty-dag-chrome-inset)",
           padding: "0 var(--tasty-space-sm)", height: "var(--tasty-dag-runner-height)", display: "inline-flex", alignItems: "center",
           borderRadius: "var(--tasty-radius-sm)", border: "var(--tasty-border-width) solid var(--tasty-dag-chrome-border)",
-          background: "var(--tasty-dag-chrome-bg)", fontFamily: "var(--tasty-font-mono)",
+          background: "var(--tasty-dag-chrome-bg)", fontFamily: "var(--tasty-font-label)",
           fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" }}>
           {lod === "compact" ? "names only — zoom in for status" : "status blocks — zoom in for names"}
         </div>
@@ -236,7 +236,7 @@ function DagDetail({ dag, id, onClose, onSelect, sheet = false }) {
       </div>
       <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-xs)" }}>
         <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-xs)",
-          fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: st.lbl }}>
+          fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-caption)", color: st.lbl }}>
           <span aria-hidden="true">{st.glyph}</span>{st.label}
         </span>
         <Tag>{kind.label}</Tag>
@@ -288,7 +288,7 @@ function DagDetail({ dag, id, onClose, onSelect, sheet = false }) {
             <span aria-hidden="true" style={{ flex: "none", width: "var(--tasty-size-12)", fontFamily: "var(--tasty-font-mono)",
               color: sLabel(d.node.status) }}>{DAG_STATUS[d.node.status].glyph}</span>
             <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{d.node.name}</span>
-            <span style={{ flex: "none", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)",
+            <span style={{ flex: "none", fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-micro)",
               color: "var(--tasty-text-muted)" }}>{DAG_REL[d.rel].label}</span>
           </button>
         ))}
@@ -354,7 +354,7 @@ function DagSurface({ dags = [DAG_BUILD], initialId, narrow: forceNarrow, focuse
       <span style={{ flex: narrow ? "1 0 auto" : "none", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
         fontFamily: "var(--tasty-font-ui)", fontSize: "var(--tasty-font-size-body)", fontWeight: "var(--tasty-font-weight-semibold)",
         color: "var(--tasty-text-primary)" }}>{dag.name}</span>
-      <span style={{ flex: "none", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)",
+      <span style={{ flex: "none", fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-caption)",
         color: "var(--tasty-dag-header-count-fg)" }}>{dagHeaderCount(dag)}</span>
       {narrow && <span style={{ flexBasis: "100%", height: 0 }} />}
       <span style={{ flex: narrow ? "1 1 auto" : "none", minWidth: 0, width: narrow ? "auto" : "var(--tasty-field-width-lg)", display: "flex" }}>
@@ -399,15 +399,15 @@ function dagRowItems(entries) {
         {/* 2026-10-07 — a running DAG stopped on a person says so at DAG level; rollup stays "running" */}
         {e.awaiting > 0 && (
           <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-xs)",
-            fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-dag-phase-awaiting-label)" }}>
+            fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-dag-phase-awaiting-label)" }}>
             <span aria-hidden="true">!</span>{e.awaiting} needs input
           </span>
         )}
         <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-xs)",
-          fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: sLabel(e.rollup) }}>
+          fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-caption)", color: sLabel(e.rollup) }}>
           <span aria-hidden="true">{DAG_STATUS[e.rollup].glyph}</span>{DAG_STATUS[e.rollup].label}
         </span>
-        <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-dag-row-count-font-size)",
+        <span style={{ fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-dag-row-count-font-size)",
           color: "var(--tasty-dag-row-count-fg)" }}>{e.done}/{e.total}{dagSkipText(e)}</span>
       </span>
     ),
@@ -497,7 +497,7 @@ function DagWindow({ onClose, entries = DAG_LIST, scope = "tasty" }) {
             <div style={{ flex: "none", display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)",
               padding: "var(--tasty-space-sm) var(--tasty-space-md)",
               borderTop: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
-              <span style={{ flex: 1, fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)",
+              <span style={{ flex: 1, fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-caption)",
                 color: "var(--tasty-text-muted)" }}>{rows.length} of {entries.length} DAGs</span>
               <Button variant="secondary" onClick={onClose}>Close</Button>
             </div>

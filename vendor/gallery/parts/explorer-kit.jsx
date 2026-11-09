@@ -95,7 +95,7 @@ function SegToggle({ value = "detail", hover = null }) {
 function SideHead({ children, trailing }) {
   return (
     <div style={{ display: "flex", alignItems: "center", padding: "10px 10px 4px" }}>
-      <span style={{ flex: 1, fontFamily: "var(--tasty-font-mono)", fontSize: 10, textTransform: "uppercase", letterSpacing: ".07em", color: "var(--tasty-text-muted)" }}>{children}</span>
+      <span style={{ flex: 1, fontFamily: "var(--tasty-font-label)", fontSize: 10, textTransform: "uppercase", letterSpacing: ".07em", color: "var(--tasty-text-muted)" }}>{children}</span>
       {trailing}
     </div>
   );

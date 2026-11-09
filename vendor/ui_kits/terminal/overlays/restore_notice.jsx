@@ -57,7 +57,7 @@ function RestoreNotice({ variant = "restore", cause = "denied", path = "~/.local
           <span style={{ flex: 1, minWidth: 0, fontSize: "var(--tasty-font-size-body)", lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-text-primary)", textWrap: "pretty" }}>{c.cause[cause]}</span>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
-          <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", textTransform: "uppercase", letterSpacing: "var(--tasty-letter-spacing-caps)", color: "var(--tasty-restore-notice-label-fg)" }}>{c.label}</span>
+          <span lang={lang} style={{ fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-micro)", textTransform: "uppercase", letterSpacing: "var(--tasty-letter-spacing-caps)", color: "var(--tasty-restore-notice-label-fg)" }}>{c.label}</span>
           <div style={{ display: "flex", alignItems: "flex-start", gap: "var(--tasty-space-xs)", padding: "var(--tasty-space-xs) var(--tasty-space-xs) var(--tasty-space-xs) var(--tasty-space-sm)",
             background: "var(--tasty-restore-notice-path-bg)", border: "var(--tasty-border-width) solid var(--tasty-restore-notice-path-border)", borderRadius: "var(--tasty-radius)" }}>
             <span style={{ flex: 1, minWidth: 0, alignSelf: "center", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", lineHeight: "var(--tasty-line-height-ui)",

@@ -63,7 +63,7 @@ function Dim({ children, style }) {
 }
 
 const railHead = (txt) => (
-  <div style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 10, textTransform: "uppercase", letterSpacing: "var(--tasty-sidebar-section-heading-tracking)",
+  <div style={{ fontFamily: "var(--tasty-font-label)", fontSize: 10, textTransform: "uppercase", letterSpacing: "var(--tasty-sidebar-section-heading-tracking)",
     color: "var(--tasty-text-muted)", padding: "12px 10px 6px" }}>{txt}</div>
 );
 
@@ -234,7 +234,7 @@ function catHeader(label, collapsed, cap, count) {
       borderBottom: "1px solid var(--tasty-sidebar-category-header-border)" }}>
       <span style={{ display: "inline-flex", width: 12, justifyContent: "center", color: "var(--tasty-sidebar-category-header-fg)",
         transform: collapsed ? "none" : "rotate(90deg)" }}>{ic.chevR}</span>
-      <span style={{ flex: 1, fontFamily: "var(--tasty-font-mono)", fontSize: 10, textTransform: "uppercase", letterSpacing: "var(--tasty-sidebar-section-heading-tracking)",
+      <span style={{ flex: 1, fontFamily: "var(--tasty-font-label)", fontSize: 10, textTransform: "uppercase", letterSpacing: "var(--tasty-sidebar-section-heading-tracking)",
         fontWeight: "var(--tasty-sidebar-category-header-weight)", color: "var(--tasty-sidebar-category-header-fg)" }}>{label}</span>
       {cap && <SwitchCap n={cap.n} active={cap.active} />}
       {!cap && typeof count === "number" && (
@@ -350,7 +350,7 @@ function fakeDocPane(focused) {
           background: "var(--tasty-input-bg)", border: "1px solid var(--tasty-input-border)", borderRadius: "var(--tasty-radius)",
           fontFamily: "var(--tasty-font-mono)", fontSize: 11.5, color: "var(--tasty-text-secondary)",
           overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>~/tasty/notes/split-layout.md</div>
-        <Tag>s_05MD</Tag>
+        <Tag mono>s_05MD</Tag>
       </div>
       <div style={{ padding: "14px 18px", lineHeight: 1.6 }}>
         <div style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 17, color: "var(--tasty-text-primary)", marginBottom: 4 }}>Split layout</div>
@@ -562,7 +562,7 @@ function DrillDownDemo({ initial = null }) {
   const isActiveSel = sel && sel.id === active;
   const items = DD_PRESETS.map((p) => ({ id: p.id, label: p.name, description: p.desc,
     trailing: p.id === active ? <Tag variant="success" dot>Active</Tag> : null }));
-  const head = { fontFamily: "var(--tasty-font-mono)", fontSize: 10, textTransform: "uppercase",
+  const head = { fontFamily: "var(--tasty-font-label)", fontSize: 10, textTransform: "uppercase",
     letterSpacing: "var(--tasty-sidebar-section-heading-tracking)", color: "var(--tasty-text-muted)", padding: "0 12px 6px", borderBottom: "1px solid var(--tasty-separator)" };
   const cell = { padding: "6px 12px", borderBottom: "1px solid var(--tasty-separator)", fontSize: 13, display: "flex", alignItems: "center" };
   return (
@@ -721,8 +721,8 @@ function Layouts() {
                 <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
                   <span style={{ width: 130, fontSize: 13, color: "var(--tasty-text-secondary)" }}>Enabled</span><Switch defaultChecked />
                 </div>
-                <div style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 10, textTransform: "uppercase", letterSpacing: ".06em", color: "var(--tasty-text-muted)" }}>Permissions</div>
-                <div style={{ display: "flex", gap: 6 }}><Tag>clipboard</Tag><Tag>fs:read</Tag><Tag>ipc:git.*</Tag></div>
+                <div style={{ fontFamily: "var(--tasty-font-label)", fontSize: 10, textTransform: "uppercase", letterSpacing: ".06em", color: "var(--tasty-text-muted)" }}>Permissions</div>
+                <div style={{ display: "flex", gap: 6 }}><Tag mono>clipboard</Tag><Tag mono>fs:read</Tag><Tag mono>ipc:git.*</Tag></div>
               </div>
             </div>
           </Stage>
@@ -776,7 +776,7 @@ function Layouts() {
                   ))}
                 </div>
                 <div style={{ flex: 1, padding: 18, minWidth: 0 }}>
-                  <div style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 10, textTransform: "uppercase", letterSpacing: ".06em", color: "var(--tasty-text-muted)", marginBottom: 10 }}>Theme preset</div>
+                  <div style={{ fontFamily: "var(--tasty-font-label)", fontSize: 10, textTransform: "uppercase", letterSpacing: ".06em", color: "var(--tasty-text-muted)", marginBottom: 10 }}>Theme preset</div>
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, maxWidth: 320 }}>
                     {[["Mocha", true], ["Latte", false]].map(([n, on]) => (
                       <div key={n} style={{ border: on ? "1px solid var(--tasty-accent-primary)" : "1px solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>

@@ -116,7 +116,7 @@ function WarnBadge({ children, title }) {
   return (
     <span title={title} style={{ display: "inline-flex", alignItems: "center", gap: 4, height: 16,
       padding: "0 var(--tasty-space-sm)", borderRadius: "var(--tasty-radius-sm)", whiteSpace: "nowrap",
-      fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", fontWeight: 500, lineHeight: 1,
+      fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-micro)", fontWeight: 500, lineHeight: 1,
       color: "var(--tasty-tag-warning-fg)",
       border: "var(--tasty-border-width) solid color-mix(in srgb, var(--tasty-accent-warning) 40%, transparent)",
       background: "var(--tasty-tag-bg)" }}>
@@ -155,10 +155,10 @@ function ProfileRow({ p, passkeyNames, onRedetect, onEdit, onDelete }) {
           {p.passkeyRef
             ? (dangling
                 ? <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-sm)" }}>
-                    <span style={{ ...rtCaption, fontFamily: "var(--tasty-font-mono)" }}>passkey: {p.passkeyRef}</span>
+                    <span style={{ ...rtCaption, fontFamily: "var(--tasty-font-label)" }}>passkey: <span style={{ fontFamily: "var(--tasty-font-mono)" }}>{p.passkeyRef}</span></span>
                     <WarnBadge title="Referenced passkey not found.">passkey missing</WarnBadge>
                   </span>
-                : <span style={{ ...rtCaption, fontFamily: "var(--tasty-font-mono)" }}>passkey: {p.passkeyRef}</span>)
+                : <span style={{ ...rtCaption, fontFamily: "var(--tasty-font-label)" }}>passkey: <span style={{ fontFamily: "var(--tasty-font-mono)" }}>{p.passkeyRef}</span></span>)
             : <span style={rtCaption}>passkey: <span style={{ fontFamily: "var(--tasty-font-mono)" }}>—</span></span>}
           {ssh && (
             <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-sm)" }}>
@@ -269,7 +269,7 @@ function ProfileForm({ draft, isNew, error, passkeys, onField, onFields, onSave,
               <PasskeySelect value={draft.passkeyRef} passkeys={passkeys} onChange={(e) => onField("passkeyRef", e.target.value)} />
             </div>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", margin: "var(--tasty-size-14) 0 var(--tasty-space-sm)" }}>
-              <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 10, textTransform: "uppercase",
+              <span style={{ fontFamily: "var(--tasty-font-label)", fontSize: 10, textTransform: "uppercase",
                 letterSpacing: "var(--tasty-letter-spacing-caps)", color: "var(--tasty-text-muted)" }}>Fields</span>
               <Button variant="ghost" size="sm" leadingIcon={ic.plus} onClick={addField}>Add field</Button>
             </div>
@@ -511,7 +511,7 @@ function AttachForm({ draft, isNew, error, sshProfiles, passkeys, onField, onSav
         )}
 
         <div style={{ display: "flex", alignItems: "center", margin: "var(--tasty-size-14) 0 var(--tasty-space-sm)" }}>
-          <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 10, textTransform: "uppercase",
+          <span style={{ fontFamily: "var(--tasty-font-label)", fontSize: 10, textTransform: "uppercase",
             letterSpacing: "var(--tasty-letter-spacing-caps)", color: "var(--tasty-text-muted)" }}>Remote tasty</span>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "var(--tasty-remote-label-col) 1fr", columnGap: 12, rowGap: 8, alignItems: "center" }}>
@@ -590,7 +590,7 @@ function ProtocolFilter({ protocols, hidden, onApply }) {
             width: "var(--tasty-remote-filter-dropdown-width)", boxSizing: "border-box", background: "var(--tasty-menu-bg)", border: "var(--tasty-border-width) solid var(--tasty-menu-border)", /* 2026-10-06: every anchored popover = menu container tokens */
             borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-popover)", display: "flex", flexDirection: "column", overflow: "hidden" }}>
             <div style={{ padding: "var(--tasty-space-sm) var(--tasty-space-md)", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)",
-              fontFamily: "var(--tasty-font-mono)", fontSize: 10, textTransform: "uppercase",
+              fontFamily: "var(--tasty-font-label)", fontSize: 10, textTransform: "uppercase",
               letterSpacing: "var(--tasty-letter-spacing-caps)", color: "var(--tasty-text-muted)" }}>Filter by protocol</div>
             <div className="tasty-scroll" style={{ maxHeight: 168, overflow: "auto", padding: "var(--tasty-space-sm) var(--tasty-space-md)",
               display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>

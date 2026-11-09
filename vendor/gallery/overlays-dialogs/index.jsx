@@ -31,7 +31,7 @@ function ScriptConfirmG({ lang = "en" }) {
         <div style={{ fontSize: "var(--tasty-font-size-body)", fontWeight: "var(--tasty-font-weight-semibold)", color: "var(--tasty-text-primary)" }}>{title}</div>
         <div style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>~/.config/tasty/scripts/deploy-preview-with-long-name.sh</div>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "var(--tasty-space-xs)" }}>
-          <DTag variant="warning">{tag}</DTag>
+          <DTag variant="warning" lang={lang}>{tag}</DTag>
           <p style={{ margin: 0, fontSize: "var(--tasty-font-size-caption)", lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-text-secondary)" }}>{body}</p>
         </div>
         <div style={{ display: "flex", justifyContent: "flex-end", gap: "var(--tasty-space-sm)", marginTop: "var(--tasty-space-xs)" }}>

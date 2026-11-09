@@ -1085,11 +1085,26 @@ Contrast sets the floor, so the ink steps can merge. In Latte `text-secondary` a
 
 1. **Size.** Body 13, caption 11, micro 10. A supporting line is one step smaller than the line it supports.
 2. **Weight.** A title is 13 at 600. An unread item is semibold.
-3. **Family.** Paths, IDs, times and process names are mono.
+3. **Family.** Paths, IDs, times and process names are mono. Words from the translation catalog drawn as a small label read `font-label`.
 4. **Position.** The line under a label is its detail, `label-detail-gap` away.
 5. **Ink step,** where one exists.
 
 Do not add a fainter ink to get order back. An ink under grade is a failure, whatever it does for the order.
+
+**Label family.** A small label that draws words from the translation catalog reads `font-label`: section headings, column headings, Tags, status words and counters with a word in them. Its value depends on the UI language, not on the string.
+
+| UI language | `font-label` | Catalog strings with a letter the mono face lacks |
+|---|---|---|
+| en | `font-mono` | 0 of 3797 |
+| ko | `font-mono` | 0 of 3736 |
+| ja | `font-ui` | 1762 of 3736 |
+| zh-Hans | `font-ui` | 3334 of 3736 |
+
+- **Why.** D2Coding cannot hold Han. In ja and zh-Hans a label would change face inside a word, with a different weight and baseline, and the Han it does hold is not promised in the language's own forms. The mono face has to come first in its stack, or Latin stops being fixed width, so the stack cannot fix this.
+- **By language, not by string.** Choosing per string would set neighbouring labels in different faces, and having the letter says nothing about its form.
+- **What stays.** Size, weight, ink, tracking and uppercase stay as the label has them. Uppercase does not touch Han or kana. The label keeps its row height and its truncation.
+- **One run, one family.** A value inside a translated string takes the label family with the words. Where the value has to be mono, it is its own run.
+- **Stays mono in every language.** Terminal cells, code and commands, paths, IDs, permissions, surface kinds, versions, ports, sizes, times, counts with no word, keycaps, the wordmark, and Tags that hold one of these (`Tag mono`).
 
 ## 9. Component contracts
 
@@ -2196,7 +2211,7 @@ What carries over to a user theme is only the structure of token choice: each ce
 | `font-size-brand-*, font-size-prose-h1, font-size-term*` | not contrast | Brand, rendered content and terminal cell are outside the 14px UI cap. |
 | `control-height-tree 22` | not contrast | The tree row is the one off-grid height. It is the system constant. |
 
-Token classes in the file: 180 grounds, 378 foregrounds, 97 borders, 86 exceptions, 740 non-color. Exceptions include the primitive color values, which UI never reads.
+Token classes in the file: 180 grounds, 378 foregrounds, 97 borders, 86 exceptions, 741 non-color. Exceptions include the primitive color values, which UI never reads.
 
 Disabled ink and ornaments are not exceptions. Their grade is none.
 

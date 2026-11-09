@@ -200,7 +200,7 @@ exact dimensions, and the tokens it consumes — and why.
 ## Pages
 | File | Catalog | Covers |
 |------|---------|--------|
-| `index.html` | **Foundations** | **Brand** (logo and wordmark, watermelon palette, terminal specimen), **raw palette** in Mocha and Latte, Color (elevation ramp, overlays, text, accent roles), **Elevation — floating surfaces (the two shadows + the scope rule)**, Type (mono, UI sans, weights), Spacing, Radius/border, heights, motion — each token shown inside the thing it builds, plus **Role gaps — settled** (borrowed color roles, half-pixel type snapping, the one tinted-box opacity pair). |
+| `index.html` | **Foundations** | **Brand** (logo and wordmark, watermelon palette, terminal specimen), **raw palette** in Mocha and Latte, Color (elevation ramp, overlays, text, accent roles), **Elevation — floating surfaces (the two shadows + the scope rule)**, Type (mono, UI sans, weights, label family), Spacing, Radius/border, heights, motion — each token shown inside the thing it builds, plus **Role gaps — settled** (borrowed color roles, half-pixel type snapping, the one tinted-box opacity pair). |
 | `icons.html` | **Icons** | The canonical glyph set (`icons/<name>.svg`, mirrored in `icons.json` + `Icon.jsx`), rendered by name through `<Icon>`. |
 | `rules.html` | **Rules** | Every ground × role cell of `tokens/ground-ink-rules.json`, painted with the real tokens, with the measured contrast of the current theme. |
 | `rules-map.html` | **Location map** | Each window location with its ground and the child grounds it may hold, in Mocha and Latte side by side. |

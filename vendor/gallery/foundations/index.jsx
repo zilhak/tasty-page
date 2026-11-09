@@ -8,7 +8,7 @@ import shareKo from "../../share/tasty-share-ko.png";
 import { BrandSection } from "./brand.jsx";
 import { PaletteSection } from "./palette.jsx";
 import { SemanticElevationSpec, OverlayStatesSpec, AccentMapSpec, AnsiSixteenSpec } from "./color-specs.jsx";
-import { MonospaceSpec, UiSansSpec, WeightsSpec } from "./type-specs.jsx";
+import { LabelFamilySpec, MonospaceSpec, UiSansSpec, WeightsSpec } from "./type-specs.jsx";
 import { GridSpec, HeightsSpec, MotionSpec } from "./shape-specs.jsx";
 
 // Tasty Gallery — Foundations. The single reference for brand, color, type and spacing.
@@ -438,6 +438,7 @@ function Foundations() {
         <MonospaceSpec />
         <UiSansSpec />
         <WeightsSpec />
+        <LabelFamilySpec />
       </Section>
 
       {/* SPACING — the one that mattered */}

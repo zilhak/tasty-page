@@ -112,7 +112,7 @@ const hasUser = (d) => userRules(d).length > 0 || !!d.userMeta;
 const otherSrcs = (d) => [...new Set(d.rules.map((r) => r.src).filter((s) => s !== "user"))];
 const strip = (x) => { const { pending, prev, ...rest } = x; return rest; };
 
-const fhHead = { fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", textTransform: "uppercase",
+const fhHead = { fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-micro)", textTransform: "uppercase",
   letterSpacing: "var(--tasty-letter-spacing-caps)", color: "var(--tasty-text-muted)" };
 const fhCardHead = { ...fhHead, color: "var(--tasty-file-handler-form-label-fg)" };
 const fhEll = { overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" };

@@ -272,7 +272,7 @@ function PluginRowG({ name, meta, state = "rest", disabled }) {
 
 // ── Keybindings › Import / Export — specimen parts ────────────────
 const ieMono = { fontFamily: "var(--tasty-font-mono)", fontSize: 12 };
-const ieCaps = { fontFamily: "var(--tasty-font-mono)", fontSize: 10, textTransform: "uppercase",
+const ieCaps = { fontFamily: "var(--tasty-font-label)", fontSize: 10, textTransform: "uppercase",
   letterSpacing: "var(--tasty-letter-spacing-caps)" };
 
 // L2 tail with the SEPARATED row (new axis on the settings L2 row model).
@@ -1201,7 +1201,7 @@ function Page() {
             {[["Mocha", "mocha", false], ["Latte · out of range", "latte", true]].map(([label, th, bad]) => (
               <div key={label} data-theme={th || undefined} style={{ width: 460, display: "flex", flexDirection: "column", gap: "var(--tasty-settings-row-gap)", padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
                 <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
-                <div style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", textTransform: "uppercase", letterSpacing: "var(--tasty-letter-spacing-caps)", color: "var(--tasty-text-muted)" }}>Report limits</div>
+                <div style={{ fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-micro)", textTransform: "uppercase", letterSpacing: "var(--tasty-letter-spacing-caps)", color: "var(--tasty-text-muted)" }}>Report limits</div>
                 {[["Note size limit", bad ? "70000" : "1024", "One note longer than this is cut at a UTF-8 boundary and marked as truncated. Must be smaller than the attempt limit.", bad ? "Between 64 and 16383. Commits as 16383." : null],
                   ["Attempt report limit", "16384", "Total note text kept for one task attempt. Notes past it are not stored, only counted.", null]].map(([lab, val, desc, err], i) => (
                   <React.Fragment key={lab}>
@@ -1221,7 +1221,7 @@ function Page() {
             ))}
           </Stage>
           <Meta
-            specs={[["L2 position", "Misc · after Scripts · before Tastyrc (Windows)"], ["heading", "REPORT LIMITS · mono micro uppercase · muted"], ["row grid", "label [150 … 240] · gap 16 (settings-label-gap — the request's 12 is superseded)"], ["field", "mono Input · field-width-xs 90 · right-aligned · unit B (static, muted, 8 after the field)"], ["caption", "under its row · gap 4 · caption 11 · muted · measure-md"], ["between rows", "1px separator · settings-row-gap 12"], ["ranges", "note 64 … min(65536, attempt − 1) · attempt max(128, note + 1) … 131072"], ["range line", "only when out of range (danger) · clamp on commit · directly UNDER THE INPUT, in the control column (label width + label gap) — b10, every numeric field"], ["numbers", "raw bytes, no grouping, no KiB"]]}
+            specs={[["L2 position", "Misc · after Scripts · before Tastyrc (Windows)"], ["heading", "REPORT LIMITS · label micro uppercase · muted"], ["row grid", "label [150 … 240] · gap 16 (settings-label-gap — the request's 12 is superseded)"], ["field", "mono Input · field-width-xs 90 · right-aligned · unit B (static, muted, 8 after the field)"], ["caption", "under its row · gap 4 · caption 11 · muted · measure-md"], ["between rows", "1px separator · settings-row-gap 12"], ["ranges", "note 64 … min(65536, attempt − 1) · attempt max(128, note + 1) … 131072"], ["range line", "only when out of range (danger) · clamp on commit · directly UNDER THE INPUT, in the control column (label width + label gap) — b10, every numeric field"], ["numbers", "raw bytes, no grouping, no KiB"]]}
             tokens={[{ tok: "--tasty-settings-row-gap", use: "→ space-md 12 (2026-10-09)" }, { tok: "--tasty-settings-row-caption-gap", use: "row → caption 4" }, { tok: "--tasty-field-width-xs", use: "90" }, { tok: "--tasty-accent-danger", use: "out of range", color: "var(--tasty-accent-danger-raised)" }]} />
           <Note>i18n (given): en “Note size limit” / “Attempt report limit” · ko “기록 한 건 상한” / “회차 report 상한” · ja “記録 1 件の上限” / “試行 report 上限” · heading “Report limits”. Gallery spec id: <code>settings-task-pipeline</code>.</Note>
         </Spec>
@@ -1543,7 +1543,7 @@ function Page() {
             <div style={{ width: 380, boxSizing: "border-box", padding: 16, display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)",
                 border: "var(--tasty-border-width) solid var(--tasty-border-default)", background: "var(--tasty-bg-panel)" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)" }}>
-                  <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 10, textTransform: "uppercase", letterSpacing: "var(--tasty-letter-spacing-caps)", color: "var(--tasty-text-muted)" }}>Install path</span>
+                  <span style={{ fontFamily: "var(--tasty-font-label)", fontSize: 10, textTransform: "uppercase", letterSpacing: "var(--tasty-letter-spacing-caps)", color: "var(--tasty-text-muted)" }}>Install path</span>
                   <div style={{ flex: 1 }} />
                   <Button variant="secondary" size="sm" leadingIcon={<WIcon name="folder" />}>Open folder</Button>
                 </div>
@@ -1553,7 +1553,7 @@ function Page() {
             <div style={{ width: 540, boxSizing: "border-box", padding: 16, display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)",
                 border: "var(--tasty-border-width) solid var(--tasty-border-default)", background: "var(--tasty-bg-panel)" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)" }}>
-                  <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 10, textTransform: "uppercase", letterSpacing: "var(--tasty-letter-spacing-caps)", color: "var(--tasty-text-muted)" }}>Install path</span>
+                  <span style={{ fontFamily: "var(--tasty-font-label)", fontSize: 10, textTransform: "uppercase", letterSpacing: "var(--tasty-letter-spacing-caps)", color: "var(--tasty-text-muted)" }}>Install path</span>
                   <div style={{ flex: 1 }} />
                   <Button variant="secondary" size="sm" leadingIcon={<WIcon name="folder" />}>Open folder</Button>
                 </div>
@@ -1562,7 +1562,7 @@ function Page() {
               </div>
           </Stage>
           <Meta
-            specs={[["order", "… Permissions · Command · Install path"], ["caption row", "INSTALL PATH (mono 10 caps) · flex · Open folder"], ["Open folder", "Button secondary sm · folder icon · opens the OS file manager"], ["path", "mono caption 11 · text-muted · break-all · selectable"], ["log", "same style, “Log: ” prefix, own line"], ["widths", "left 380 ≈ 720 window · right 540 ≈ 880 window"], ["shown", "installed plugins only"]]}
+            specs={[["order", "… Permissions · Command · Install path"], ["caption row", "INSTALL PATH (label 10 caps) · flex · Open folder"], ["Open folder", "Button secondary sm · folder icon · opens the OS file manager"], ["path", "mono caption 11 · text-muted · break-all · selectable"], ["log", "same style, “Log: ” prefix, own line"], ["widths", "left 380 ≈ 720 window · right 540 ≈ 880 window"], ["shown", "installed plugins only"]]}
             tokens={[{ tok: "--tasty-text-muted", use: "path text", color: "var(--tasty-text-muted)" }, { tok: "--tasty-font-size-caption", use: "11 path" }, { tok: "--tasty-space-sm", use: "8 row gap" }]} />
         </Spec>
         <Spec id="installed-detail-command-keycaps-per-platform" title="Installed detail — command keycaps per platform"
@@ -1607,7 +1607,7 @@ function Page() {
             </div>
           </Stage>
           <Meta
-            specs={[["columns", "32px select · 1.6fr action · 1fr current · 1fr imported"], ["group header", "spans all columns, on surface-raised"], ["group content", "select-all · name (mono 10 caps) · counts · chevron"], ["groups", "general · quick switch · scripts · plugin overrides"], ["default view", "changed only"], ["toggle", "“Show all {n}” in the back bar"], ["quick switch", "1 row per axis (3), slot count as sub-line"], ["plugin row", "command name + agent-dot plugin name, two lines"], ["changed cell", "accent-primary, colour only (no bold)"]]}
+            specs={[["columns", "32px select · 1.6fr action · 1fr current · 1fr imported"], ["group header", "spans all columns, on surface-raised"], ["group content", "select-all · name (label 10 caps) · counts · chevron"], ["groups", "general · quick switch · scripts · plugin overrides"], ["default view", "changed only"], ["toggle", "“Show all {n}” in the back bar"], ["quick switch", "1 row per axis (3), slot count as sub-line"], ["plugin row", "command name + agent-dot plugin name, two lines"], ["changed cell", "accent-primary, colour only (no bold)"]]}
             tokens={[{ tok: "--tasty-surface-raised", use: "group header bed", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-accent-primary", use: "changed imported value", color: "var(--tasty-accent-primary-raised)" }, { tok: "--tasty-accent-agent", use: "plugin dot", color: "var(--tasty-accent-agent-raised)" }, { tok: "--tasty-separator", use: "cell rules" }, { tok: "--tasty-letter-spacing-caps", use: "header + group name tracking" }]} />
           <Note><b>Apply writes the draft, Save commits it</b> — the same two-stage contract as Preset, and the intro line says so. The two never share a row: Apply sits in the back bar, Save in the window footer.</Note>
         </Spec>

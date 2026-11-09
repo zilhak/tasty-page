@@ -131,7 +131,7 @@ function ApprovalFrame() {
           padding: "10px 12px", fontFamily: "var(--tasty-font-mono)", fontSize: 12.5, color: "var(--tasty-text-primary)", overflow: "auto" }}>
 git push --force origin main</pre>
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-          <Tag variant="danger" dot>destructive</Tag><Tag>fs:write</Tag><Tag>net</Tag>
+          <Tag variant="danger" dot>destructive</Tag><Tag mono>fs:write</Tag><Tag mono>net</Tag>
         </div>
       </div>
       <div style={{ display: "flex", justifyContent: "flex-end", gap: "var(--tasty-space-sm)", padding: "var(--tasty-transfer-footer-pad-y) var(--tasty-transfer-pad-x)", borderTop: "1px solid var(--tasty-separator)" }}>
@@ -191,7 +191,7 @@ function SettingsFrame() {
         {/* content */}
         <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
           <div style={{ flex: 1, padding: 18, display: "flex", flexDirection: "column", gap: 12 }}>
-            <div style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 10, textTransform: "uppercase", letterSpacing: ".06em", color: "var(--tasty-text-muted)" }}>Theme preset</div>
+            <div style={{ fontFamily: "var(--tasty-font-label)", fontSize: 10, textTransform: "uppercase", letterSpacing: ".06em", color: "var(--tasty-text-muted)" }}>Theme preset</div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
               {[["Catppuccin Mocha", ["#11111b", "#1e1e2e", "#89b4fa", "#cba6f7", "#a6e3a1"], true],
                 ["Catppuccin Latte", ["#dce0e8", "#eff1f5", "#1e66f5", "#8839ef", "#40a02b"], false]].map(([label, cols, on]) => (
@@ -259,7 +259,7 @@ function SettingsGeneralOverlayFrame() {
         </div>
         <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
           <div style={{ flex: 1, padding: 18, display: "flex", flexDirection: "column", gap: 12 }}>
-            <div style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 10, textTransform: "uppercase", letterSpacing: ".06em", color: "var(--tasty-text-muted)" }}>Toast</div>
+            <div style={{ fontFamily: "var(--tasty-font-label)", fontSize: 10, textTransform: "uppercase", letterSpacing: ".06em", color: "var(--tasty-text-muted)" }}>Toast</div>
             <div style={{ display: "grid", gridTemplateColumns: "180px 1fr", alignItems: "center" }}>
               <span style={{ fontSize: 13 }}>Toast duration</span>
               <span><ToastDragValue /></span>
@@ -322,7 +322,7 @@ const settingsRowGroup = { display: "flex", flexDirection: "column", gap: "var(-
 function SettingsRemoteTransferFrame() {
   return (
     <SettingsRemoteFrameShell active={4}>
-      <div style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", textTransform: "uppercase", letterSpacing: "var(--tasty-letter-spacing-caps)", color: "var(--tasty-text-muted)" }}>Received files</div>
+      <div style={{ fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-micro)", textTransform: "uppercase", letterSpacing: "var(--tasty-letter-spacing-caps)", color: "var(--tasty-text-muted)" }}>Received files</div>
       <div style={settingsRowGroup}>
         <div style={settingsRowGrid}>
           <span style={settingsRowLabel}>Save folder</span>
@@ -1304,7 +1304,7 @@ function SidebarMock({ held }) {
   return (
     <div style={{ width: 188, flex: "none", background: "var(--tasty-bg-sidebar)", border: "1px solid var(--tasty-separator)",
       borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
-      <div style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 10, textTransform: "uppercase", letterSpacing: ".06em",
+      <div style={{ fontFamily: "var(--tasty-font-label)", fontSize: 10, textTransform: "uppercase", letterSpacing: ".06em",
         color: "var(--tasty-text-muted)", padding: "10px 8px 4px" }}>Workspaces</div>
       {rows.map((r, i) => (
         <React.Fragment key={r.n}>
@@ -1362,7 +1362,7 @@ function CatSwitchSidebarMock({ held }) {
   const Head = ({ n, label, collapsed, active }) => (
     <div style={{ display: "flex", alignItems: "center", gap: 4, padding: "4px 8px", marginTop: 8 }}>
       {chev(collapsed)}
-      <span style={{ flex: 1, fontFamily: "var(--tasty-font-mono)", fontSize: 10, textTransform: "uppercase", letterSpacing: ".07em", color: "var(--tasty-text-muted)" }}>{label}</span>
+      <span style={{ flex: 1, fontFamily: "var(--tasty-font-label)", fontSize: 10, textTransform: "uppercase", letterSpacing: ".07em", color: "var(--tasty-text-muted)" }}>{label}</span>
       {held && <NumCap n={n} active={active} />}
     </div>
   );
@@ -1685,7 +1685,7 @@ function BlacklistEditorG({ empty }) {
   return (
     <div style={{ width: 320, display: "flex", flexDirection: "column", gap: 10, padding: 14,
       background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
-      <div style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 10, textTransform: "uppercase", letterSpacing: ".06em", color: "var(--tasty-text-muted)" }}>Mouse capture</div>
+      <div style={{ fontFamily: "var(--tasty-font-label)", fontSize: 10, textTransform: "uppercase", letterSpacing: ".06em", color: "var(--tasty-text-muted)" }}>Mouse capture</div>
       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
         <span style={{ flex: 1, fontSize: 13, color: "var(--tasty-text-secondary)" }}>Show mouse-capture hint</span>
         <Switch defaultChecked />
@@ -1812,7 +1812,7 @@ function gvPill(txt, tone, dot, width) {
 }
 const gvStrip = { display: "flex", alignItems: "center", gap: 8, height: 26, flex: "none", padding: "0 12px",
   background: "var(--tasty-bg-sidebar)", borderBottom: "1px solid var(--tasty-separator)",
-  fontFamily: "var(--tasty-font-mono)", fontSize: 10, textTransform: "uppercase", letterSpacing: ".06em", color: "var(--tasty-text-muted)" };
+  fontFamily: "var(--tasty-font-label)", fontSize: 10, textTransform: "uppercase", letterSpacing: ".06em", color: "var(--tasty-text-muted)" };
 
 // ── Git worktree viewer — 960×640 read-only popup (rail · status/log · diff) ──
 function GitViewerFrame({ diff }) {
@@ -2128,7 +2128,7 @@ function RemoteFormFrame({ variant = "ssh", error }) {
               </>
             ) : (
               <>
-                <div style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 10, textTransform: "uppercase", letterSpacing: ".06em", color: "var(--tasty-text-muted)", marginTop: 4 }}>Fields</div>
+                <div style={{ fontFamily: "var(--tasty-font-label)", fontSize: 10, textTransform: "uppercase", letterSpacing: ".06em", color: "var(--tasty-text-muted)", marginTop: 4 }}>Fields</div>
                 {[["host", "fs.local"], ["share", "team"]].map(([k, v]) => (
                   <div key={k} style={{ display: "grid", gridTemplateColumns: "var(--tasty-remote-label-col) 1fr 28px", columnGap: 12, alignItems: "center" }}>
                     <Input defaultValue={k} style={{ width: "100%" }} /><Input defaultValue={v} block /><IconButton size="sm" aria-label="Remove field">{ic.x}</IconButton>
@@ -2156,7 +2156,7 @@ function RemoteFormFrame({ variant = "ssh", error }) {
             ) : (
               <FRow label="SSH profile"><Select options={["(select a profile)", "prod-web (us-east)", "db-primary", "legacy-box"]} block /></FRow>
             )}
-            <div style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 10, textTransform: "uppercase", letterSpacing: ".06em", color: "var(--tasty-text-muted)", marginTop: 4 }}>Remote tasty</div>
+            <div style={{ fontFamily: "var(--tasty-font-label)", fontSize: 10, textTransform: "uppercase", letterSpacing: ".06em", color: "var(--tasty-text-muted)", marginTop: 4 }}>Remote tasty</div>
             <FRow label="Executable"><Input block defaultValue={attachInline ? "/opt/tasty/bin/tasty" : "tasty"} /></FRow>
             <FRow label="Port mode"><Select options={["auto", "subcommand", "file-unix", "file-windows"]} block /></FRow>
             <FRow label="Port file" hint="Optional — an explicit path takes precedence over the port mode."><Input block placeholder="optional path" defaultValue={attachInline ? "/run/user/1000/tasty/port" : ""} /></FRow>
@@ -2300,7 +2300,7 @@ function CategorySidebarFrame({ collapsedRail }) {
     <div style={{ display: "flex", alignItems: "center", gap: 4, padding: "4px 8px", marginTop: 8, cursor: "pointer" }}>
       <span style={{ display: "inline-flex", width: 12, justifyContent: "center", color: "var(--tasty-text-muted)",
         transform: collapsed ? "none" : "rotate(0deg)" }}>{collapsed ? catIc.chevR : catIc.chevD}</span>
-      <span style={{ flex: 1, fontFamily: "var(--tasty-font-mono)", fontSize: 10, textTransform: "uppercase", letterSpacing: ".07em", color: "var(--tasty-text-muted)" }}>{label}</span>
+      <span style={{ flex: 1, fontFamily: "var(--tasty-font-label)", fontSize: 10, textTransform: "uppercase", letterSpacing: ".07em", color: "var(--tasty-text-muted)" }}>{label}</span>
     </div>
   );
   const Row = ({ name, sub, status, active }) => (
@@ -2669,7 +2669,7 @@ function RaWsPeek({ muted }) {
   return <RaWs name="agents-prod" panes={3} busy muted={muted} />;
 }
 function RemoteAttachFrame({ state = "loaded", newPhase = "rest", newSelected, emptyPlan = "B" }) {
-  const caps = { fontFamily: "var(--tasty-font-mono)", fontSize: 10, textTransform: "uppercase", letterSpacing: ".06em", color: "var(--tasty-text-muted)" };
+  const caps = { fontFamily: "var(--tasty-font-label)", fontSize: 10, textTransform: "uppercase", letterSpacing: ".06em", color: "var(--tasty-text-muted)" };
   const center = (kids) => (
     <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
       textAlign: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-xl) var(--tasty-space-lg)" }}>{kids}</div>
@@ -2938,7 +2938,7 @@ function FilePickerFrame({ state = "loaded", remote = false, indicator = "badge"
       {/* list header */}
       {state === "loaded" && (
         <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-fp-list-head-pad-y) var(--tasty-fp-inset-start)", flex: "none", borderBottom: "1px solid var(--tasty-separator)",
-          fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", textTransform: "uppercase", letterSpacing: ".06em", color: "var(--tasty-text-muted)" }}>
+          fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-micro)", textTransform: "uppercase", letterSpacing: ".06em", color: "var(--tasty-text-muted)" }}>
           {multi && <span style={{ width: 16, flex: "none" }} />}
           <span style={{ width: 16, flex: "none" }} /><span style={{ flex: 1 }}>Name</span>
           <span style={{ width: 68, textAlign: "right", flex: "none" }}>Size</span>

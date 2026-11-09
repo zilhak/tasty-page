@@ -50,7 +50,7 @@ function AttachConnectionsSection({ lang = "en", text: initial = String(DEFAULT)
   const chars = Math.max(text.length, 1) + 1;
   return (
     <section aria-label={L.section} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-settings-row-gap)", minWidth: 0 }}>
-      <div style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", textTransform: "uppercase", letterSpacing: "var(--tasty-letter-spacing-caps)", color: "var(--tasty-text-muted)" }}>{L.section}</div>
+      <div lang={lang} style={{ fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-micro)", textTransform: "uppercase", letterSpacing: "var(--tasty-letter-spacing-caps)", color: "var(--tasty-text-muted)" }}>{L.section}</div>
       <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-settings-row-caption-gap)", minWidth: 0 }}>
         <div style={{ display: "flex", flexDirection: stacked ? "column" : "row", alignItems: stacked ? "stretch" : "flex-start", gap: stacked ? "var(--tasty-settings-row-stack-gap)" : "var(--tasty-settings-label-gap)", minWidth: 0 }}>
           <span style={{ flex: "none", width: stacked ? "auto" : "var(--tasty-settings-label-width)", minHeight: stacked ? 0 : "var(--tasty-settings-row-min-height)", display: "flex", alignItems: "center", fontSize: "var(--tasty-font-size-body)", lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-text-secondary)", overflowWrap: "anywhere" }}>{L.label}</span>

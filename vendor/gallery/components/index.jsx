@@ -297,16 +297,19 @@ function Components() {
         </Spec>
 
         <Spec id="tag" title="Tag"
-          when={<>Small monospace label for <b>surface kinds</b> (<code>terminal</code>, <code>markdown</code>), permissions (<code>fs:read</code>), plugin origins, and IDs. Outlined by default; the <b>agent</b> variant marks agent-owned things.</>}>
+          when={<>Words, including plugin origins, use the label family and follow the UI language; values such as <b>surface kinds</b> (<code>terminal</code>, <code>markdown</code>), permissions (<code>fs:read</code>), versions, sizes, and IDs stay mono with <code>mono</code>. Outlined by default; the <b>agent</b> variant marks agent-owned things.</>}>
           <Stage>
             <Cluster label="variants">
               <Tag>terminal</Tag><Tag variant="accent">markdown</Tag><Tag variant="agent">plugin</Tag>
               <Tag variant="success" dot>running</Tag><Tag variant="warning" dot>readonly</Tag><Tag variant="danger" dot>error</Tag>
               <Tag variant="info" dot>info</Tag>
             </Cluster>
+            <Cluster label="mono">
+              <Tag mono>fs:read</Tag><Tag mono>v1.2.0</Tag><Tag mono>s_05MD</Tag>
+            </Cluster>
           </Stage>
-          <Meta specs={[["font", <span className="tok">--tasty-font-mono</span>], ["radius", <span className="tok">--tasty-radius-sm</span>], ["dot", "leading state dot"]]}
-            tokens={[{ tok: "--tasty-font-mono", use: "label" }, { tok: "--tasty-border-default", use: "outline" }, { tok: "--tasty-accent-agent", use: "agent", color: "var(--tasty-accent-agent-raised)" }]} />
+          <Meta specs={[["font", <span className="tok">--tasty-font-label</span>], ["font, mono", <span className="tok">--tasty-font-mono</span>], ["radius", <span className="tok">--tasty-radius-sm</span>], ["dot", "leading state dot"]]}
+            tokens={[{ tok: "--tasty-font-label", use: "label" }, { tok: "--tasty-font-mono", use: "label, mono" }, { tok: "--tasty-border-default", use: "outline" }, { tok: "--tasty-accent-agent", use: "agent", color: "var(--tasty-accent-agent-raised)" }]} />
         </Spec>
 
         <Spec id="kbd" title="Kbd"

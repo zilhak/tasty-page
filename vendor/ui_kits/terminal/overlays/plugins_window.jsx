@@ -264,7 +264,7 @@ function AddPluginForm({ onAdded, onCancel }) {
   const pick = () => setPathReset("~/dev/tasty-logwatch"); // stands in for the native rfd folder picker
 
   const Mono = ({ children }) => (
-    <div style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 10, textTransform: "uppercase",
+    <div style={{ fontFamily: "var(--tasty-font-label)", fontSize: 10, textTransform: "uppercase",
       letterSpacing: "var(--tasty-letter-spacing-caps)", color: "var(--tasty-text-muted)" }}>{children}</div>
   );
   const code = { fontFamily: "var(--tasty-font-mono)", color: "var(--tasty-text-secondary)" };
@@ -307,7 +307,7 @@ function AddPluginForm({ onAdded, onCancel }) {
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
                     <span style={{ fontSize: "var(--tasty-font-size-max)", fontWeight: "var(--tasty-font-weight-semibold)", color: "var(--tasty-text-primary)" }}>{manifest.name}</span>
-                    <Tag>{"v" + manifest.version}</Tag>
+                    <Tag mono>{"v" + manifest.version}</Tag>
                   </div>
                   <div style={{ marginTop: 3, fontFamily: "var(--tasty-font-mono)", fontSize: 11,
                     color: "var(--tasty-text-muted)" }}>{manifest.id} · {manifest.author}</div>
@@ -417,7 +417,7 @@ function AttentionPanel({ items, onFlash, onConfigure, onRemove }) {
   }, [confirmId, removing]);
 
   const Mono = ({ children }) => (
-    <div style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 10, textTransform: "uppercase",
+    <div style={{ fontFamily: "var(--tasty-font-label)", fontSize: 10, textTransform: "uppercase",
       letterSpacing: "var(--tasty-letter-spacing-caps)", color: "var(--tasty-text-muted)" }}>{children}</div>
   );
 
@@ -458,7 +458,7 @@ function AttentionPanel({ items, onFlash, onConfigure, onRemove }) {
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: 13, color: on ? "var(--tasty-text-on-active)" : "var(--tasty-text-secondary)",
                   overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.name}</div>
-                <div style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", color: on ? "var(--tasty-text-on-active)" : ATTN[p.reason].removeOnly ? "var(--tasty-accent-danger-raised)" : pc,
+                <div style={{ fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-micro)", color: on ? "var(--tasty-text-on-active)" : ATTN[p.reason].removeOnly ? "var(--tasty-accent-danger-raised)" : pc,
                   overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{ATTN[p.reason].label}</div>
               </div>
               <span style={{ flex: "none", width: "var(--tasty-status-dot-size)", height: "var(--tasty-status-dot-size)", borderRadius: "50%", background: pc }} />
@@ -477,7 +477,7 @@ function AttentionPanel({ items, onFlash, onConfigure, onRemove }) {
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
                 <span style={{ fontSize: "var(--tasty-font-size-max)", fontWeight: "var(--tasty-font-weight-normal)", color: "var(--tasty-text-primary)", overflowWrap: "anywhere" }}>{sel.name}</span>
-                {sel.version && <Tag>{"v" + sel.version}</Tag>}
+                {sel.version && <Tag mono>{"v" + sel.version}</Tag>}
                 {sel.builtin && <Tag>built-in</Tag>}
               </div>
               <div style={{ marginTop: 4, fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: "var(--tasty-text-muted)",
@@ -533,7 +533,7 @@ function AttentionPanel({ items, onFlash, onConfigure, onRemove }) {
                     fontFamily: "var(--tasty-font-mono)", fontSize: 12 }}>
                     <span style={{ color: "var(--tasty-accent-success-raised)", fontWeight: 700, width: 10 }}>+</span>
                     <span style={{ color: "var(--tasty-text-secondary)" }}>{p}</span>
-                    <span style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>newly requested</span>
+                    <span style={{ fontFamily: "var(--tasty-font-label)", fontSize: 11, color: "var(--tasty-text-muted)" }}>newly requested</span>
                   </div>
                 ))}
                 {(sel.detail.removed || []).map((p) => (
@@ -541,7 +541,7 @@ function AttentionPanel({ items, onFlash, onConfigure, onRemove }) {
                     fontFamily: "var(--tasty-font-mono)", fontSize: 12 }}>
                     <span style={{ color: "var(--tasty-text-muted)", fontWeight: 700, width: 10 }}>−</span>
                     <span style={{ color: "var(--tasty-text-muted)", textDecoration: "line-through" }}>{p}</span>
-                    <span style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>no longer used</span>
+                    <span style={{ fontFamily: "var(--tasty-font-label)", fontSize: 11, color: "var(--tasty-text-muted)" }}>no longer used</span>
                   </div>
                 ))}
               </div>
@@ -678,7 +678,7 @@ function PluginsWindow({ onClose, onFlash, onConfigure, removedAttention, onRemo
   };
 
   const Mono = ({ children }) => (
-    <div style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 10, textTransform: "uppercase",
+    <div style={{ fontFamily: "var(--tasty-font-label)", fontSize: 10, textTransform: "uppercase",
       letterSpacing: "var(--tasty-letter-spacing-caps)", color: "var(--tasty-text-muted)" }}>{children}</div>
   );
 
@@ -702,7 +702,7 @@ function PluginsWindow({ onClose, onFlash, onConfigure, removedAttention, onRemo
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
                 <span style={{ fontSize: "var(--tasty-font-size-max)", fontWeight: "var(--tasty-font-weight-normal)", color: "var(--tasty-text-primary)" }}>{sel.name}</span>
-                <Tag>{"v" + sel.version}</Tag>
+                <Tag mono>{"v" + sel.version}</Tag>
                 {sel.builtin && <Tag>built-in</Tag>}
                 {sel.agent && <Tag variant="agent">agent</Tag>}
               </div>
@@ -733,7 +733,7 @@ function PluginsWindow({ onClose, onFlash, onConfigure, removedAttention, onRemo
           <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
             <Mono>Permissions</Mono>
             <div style={{ display: "flex", gap: "var(--tasty-space-sm)", flexWrap: "wrap" }}>
-              {sel.perms.map((p) => <Tag key={p}>{p}</Tag>)}
+              {sel.perms.map((p) => <Tag key={p} mono>{p}</Tag>)}
             </div>
           </div>
 
@@ -752,7 +752,7 @@ function PluginsWindow({ onClose, onFlash, onConfigure, removedAttention, onRemo
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
               <Mono>Surface kinds</Mono>
               <div style={{ display: "flex", gap: "var(--tasty-space-sm)", flexWrap: "wrap" }}>
-                {sel.kinds.map((k) => <Tag key={k}>{k}</Tag>)}
+                {sel.kinds.map((k) => <Tag key={k} mono>{k}</Tag>)}
               </div>
             </div>
           )}
@@ -866,16 +866,16 @@ function PluginsWindow({ onClose, onFlash, onConfigure, removedAttention, onRemo
                       <span style={{ fontSize: 13, color: on ? "var(--tasty-text-on-active)" : "var(--tasty-text-secondary)",
                         overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.name}</span>
                     </div>
-                    <div style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", color: on ? "var(--tasty-text-on-active)" : "var(--tasty-text-muted)",
+                    <div style={{ fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-micro)", color: on ? "var(--tasty-text-on-active)" : "var(--tasty-text-muted)",
                       overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                       {p.author} · v{p.version}
                     </div>
                   </div>
                   {installed[p.id] ? (
-                    !isOn && <span style={{ flex: "none", fontFamily: "var(--tasty-font-mono)", fontSize: 10,
+                    !isOn && <span style={{ flex: "none", fontFamily: "var(--tasty-font-label)", fontSize: 10,
                       color: on ? "var(--tasty-text-on-active)" : "var(--tasty-text-muted)" }}>off</span>
                   ) : (
-                    <span style={{ flex: "none", fontFamily: "var(--tasty-font-mono)", fontSize: 10,
+                    <span style={{ flex: "none", fontFamily: "var(--tasty-font-label)", fontSize: 10,
                       color: "var(--tasty-text-muted)" }}>{p.cat}</span>
                   )}
                 </div>

@@ -60,7 +60,7 @@ function CommandPalette({ onClose, onRun }) {
           ))}
         </div>
         <div style={{ display: "flex", gap: 14, padding: "var(--tasty-space-sm) var(--tasty-space-md)", borderTop: "var(--tasty-border-width) solid var(--tasty-separator)",
-          fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted-raised)" }}>
+          fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted-raised)" }}>
           <span>↑↓ navigate</span><span>↵ run</span><span>esc close</span>
         </div>
       </div>

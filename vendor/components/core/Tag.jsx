@@ -1,8 +1,10 @@
 import React from "react";
 
 /**
- * Tasty Tag — a small monospace label for surface kinds, permissions,
- * plugin origins ("built-in"), and detector rule types.
+ * Tasty Tag — a small label for surface kinds, permissions, plugin origins
+ * ("built-in"), and detector rule types. It reads the label family, so its
+ * words follow the UI language. Pass `mono` when it holds an ID, a version or a
+ * size, which stay mono in every language.
  *
  * disabled (own prop, or any Tag inside a disabled ListCtrl row) follows the ink
  * rule: every variant draws the neutral box (tag-disabled-bg / -border) with the
@@ -19,7 +21,7 @@ const CSS = `
   border-radius: var(--tasty-radius-sm);
   border: var(--tasty-border-width) solid var(--tasty-border-default);
   background: var(--tasty-surface-raised);
-  font-family: var(--tasty-font-mono);
+  font-family: var(--tasty-font-label);
   font-size: var(--tasty-tag-font-size);
   font-weight: var(--tasty-font-weight-medium);
   line-height: var(--tasty-line-height-tight);
@@ -34,6 +36,7 @@ const CSS = `
 .tasty-tag--danger { color: var(--tasty-tag-danger-fg);  border-color: color-mix(in srgb, var(--tasty-accent-danger) 40%, transparent); }
 .tasty-tag--info   { color: var(--tasty-tag-info-fg);    border-color: color-mix(in srgb, var(--tasty-accent-info) 40%, transparent); }
 .tasty-tag--attached { color: var(--tasty-tag-attached-fg); border-color: color-mix(in srgb, var(--tasty-accent-attached) 40%, transparent); }
+.tasty-tag--mono { font-family: var(--tasty-font-mono); }
 .tasty-tag--caps { text-transform: uppercase; letter-spacing: var(--tasty-letter-spacing-caps); }
 .tasty-tag--disabled { background: var(--tasty-tag-disabled-bg); border-color: var(--tasty-tag-disabled-border); color: var(--tasty-tag-disabled-fg); }
 .tasty-tag--disabled[data-ground="raised"] { border-color: var(--tasty-border-strong); }
@@ -51,13 +54,14 @@ function ensureCss() {
   injected = true;
 }
 
-export function Tag({ variant = "default", dot = false, disabled = false, caps = false, ground, className = "", children, ...rest }) {
+export function Tag({ variant = "default", dot = false, disabled = false, caps = false, mono = false, ground, className = "", children, ...rest }) {
   ensureCss();
   const cls = [
     "tasty-tag",
     variant !== "default" ? `tasty-tag--${variant}` : "",
     disabled ? "tasty-tag--disabled" : "",
     caps ? "tasty-tag--caps" : "",
+    mono ? "tasty-tag--mono" : "",
     className,
   ].filter(Boolean).join(" ");
   return (

@@ -142,7 +142,7 @@ function TypeBody({ t, pretty }) {
                 {f.size && <span style={cbMetaMono}>{f.size}</span>}
               </div>
               <pre style={{ ...cbMono, margin: 0, whiteSpace: "pre-wrap", wordBreak: "break-all" }}>{f.content}</pre>
-              {f.moreLines ? <span style={{ ...cbMetaMono, fontStyle: "italic" }}>+{f.moreLines} more lines</span> : null}
+              {f.moreLines ? <span style={{ ...cbMetaMono, fontFamily: "var(--tasty-font-label)", fontStyle: "italic" }}>+{f.moreLines} more lines</span> : null}
             </div>
           ))}
         </div>

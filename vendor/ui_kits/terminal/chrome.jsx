@@ -179,7 +179,7 @@ function CategoryHeader({ label, collapsed, count, onToggle, onAdd, onContextMen
         transform: collapsed ? "none" : "rotate(90deg)", transition: "transform var(--tasty-motion-ui-fast) var(--tasty-ease-ui)" }}>
         <Icon d={<path d="m9 6 6 6-6 6" />} size={12} sw={2.4} />
       </span>
-      <span style={{ flex: 1, minWidth: 0, fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-sidebar-section-heading-font-size)", textTransform: "uppercase",
+      <span style={{ flex: 1, minWidth: 0, fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-sidebar-section-heading-font-size)", textTransform: "uppercase",
         letterSpacing: "var(--tasty-sidebar-section-heading-tracking)", color: "var(--tasty-sidebar-category-header-fg)",
         fontWeight: "var(--tasty-sidebar-category-header-weight)",
         overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{label}</span>
@@ -325,7 +325,7 @@ function CollapsedSidebar({ workspaces, activeWs, onWs, onSettings, onPlugins, o
 function Sidebar({ workspaces, activeWs, onWs, onSettings, onPlugins, onTools, collapsed, onToggle, pluginAlert = 0, categories = null, workspacesHeading = "Workspaces", notifications = NO_NOTIFS, onNotifications }) {
   const NotifSummary = NotificationSummary;
   const Heading = ({ children }) => (
-    <div style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", textTransform: "uppercase",
+    <div style={{ fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-micro)", textTransform: "uppercase",
       letterSpacing: "var(--tasty-sidebar-section-heading-tracking)", color: "var(--tasty-text-muted)", padding: "var(--tasty-space-md) var(--tasty-space-sm) var(--tasty-space-xs)" }}>{children}</div>
   );
   const { isCollapsed, toggle } = useCategoryCollapse(categories);
