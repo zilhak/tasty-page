@@ -234,34 +234,6 @@ async function focusPass(context, origin, t, rules, theme) {
   }
 }
 
-async function searchPass(context, origin, t, rules, theme) {
-  const rows = rules.rows.filter((r) => r.selector.includes(".search__results"));
-  const tab = await context.newPage();
-  await tab.goto(urlOf(origin, SEARCH_PAGE), { waitUntil: "load", timeout: 120000 });
-  await settle(tab);
-  await installPageLib(tab);
-  const measure = async (list) => {
-    await stylesSettled(tab);
-    const m = await tab.evaluate(({ rows: x, allRows, family, tokens, name, scanArgs }) => {
-      const lib = window.__contrast;
-      return { rows: lib.measureRows(x, allRows, family, tokens, name), scan: lib.scan(document.querySelector(".search__results"), scanArgs) };
-    }, { rows: list, allRows: rules.rows, family: [...rules.family], tokens: rules.tokens, name: theme, scanArgs: needsScanArgs(rules, theme) });
-    mergeScan(t, m.scan, SEARCH_PAGE, "search");
-    m.rows.forEach((res) => mergeRow(t, rules, res, SEARCH_PAGE, "search"));
-  };
-  await tab.click(".search input");
-  await tab.fill(".search input", "tasty");
-  await tab.waitForSelector(".search__results[data-open] a", { timeout: 20000 });
-  await measure(rows.filter((r) => !r.selector.includes("[data-active]")));
-  await tab.keyboard.press("ArrowDown");
-  await tab.waitForSelector(".search__results a[data-active]", { timeout: 5000 });
-  await measure(rows.filter((r) => r.selector.includes("[data-active]")));
-  await tab.fill(".search input", "zzzzqqqq");
-  await tab.waitForSelector(".search__empty", { timeout: 5000 });
-  await measure([]);
-  await tab.close();
-}
-
 // The narrow drawer is hidden until the menu button opens it, so its rows and its mantle ground are measured open.
 async function drawerPass(context, origin, t, rules, theme) {
   const held = (r) => r.selector.includes(".site-menu") || r.selector.includes(".menu-btn[aria-expanded");
@@ -301,19 +273,46 @@ async function drawerPass(context, origin, t, rules, theme) {
   }
 }
 
+async function searchPass(context, origin, t, rules, theme) {
+  const rows = rules.rows.filter((r) => r.selector.includes(".search__results"));
+  const tab = await context.newPage();
+  await tab.goto(urlOf(origin, SEARCH_PAGE), { waitUntil: "load", timeout: 120000 });
+  await settle(tab);
+  await installPageLib(tab);
+  const measure = async (list) => {
+    await stylesSettled(tab);
+    const m = await tab.evaluate(({ rows: x, allRows, family, tokens, name, scanArgs }) => {
+      const lib = window.__contrast;
+      return { rows: lib.measureRows(x, allRows, family, tokens, name), scan: lib.scan(document.querySelector(".search__results"), scanArgs) };
+    }, { rows: list, allRows: rules.rows, family: [...rules.family], tokens: rules.tokens, name: theme, scanArgs: needsScanArgs(rules, theme) });
+    mergeScan(t, m.scan, SEARCH_PAGE, "search");
+    m.rows.forEach((res) => mergeRow(t, rules, res, SEARCH_PAGE, "search"));
+  };
+  await tab.click(".search input");
+  await tab.fill(".search input", "tasty");
+  await tab.waitForSelector(".search__results[data-open] a", { timeout: 20000 });
+  await measure(rows.filter((r) => !r.selector.includes("[data-active]")));
+  await tab.keyboard.press("ArrowDown");
+  await tab.waitForSelector(".search__results a[data-active]", { timeout: 5000 });
+  await measure(rows.filter((r) => r.selector.includes("[data-active]")));
+  await tab.fill(".search input", "zzzzqqqq");
+  await tab.waitForSelector(".search__empty", { timeout: 5000 });
+  await measure([]);
+  await tab.close();
+}
+
 export async function runSite({ browser, origin, dist, rules, theme, report }) {
   const pages = sitePages(dist);
   const t = emptySiteTally(rules);
   for (const vp of VIEWPORTS) {
     const context = await browser.newContext({ viewport: { width: vp.width, height: vp.height }, reducedMotion: "reduce" });
     await context.addInitScript((name) => localStorage.setItem("tasty-theme", name), theme);
+    if (vp.name === "narrow") await drawerPass(context, origin, t, rules, theme);
     await restPass(context, origin, pages, t, rules, theme, vp.name);
     if (vp.name === "wide") {
       await pointerPass(context, origin, t, rules, theme);
       await focusPass(context, origin, t, rules, theme);
       await searchPass(context, origin, t, rules, theme);
-    } else {
-      await drawerPass(context, origin, t, rules, theme);
     }
     await context.close();
   }

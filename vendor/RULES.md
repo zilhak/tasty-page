@@ -2163,10 +2163,6 @@ Contrast is the lowest across the row's grounds.
 | Header link, pointer over | `.site-nav a:hover` | `raised` | `text-body` | `text-primary` | 8.69 · 5.17 |
 | Header icon button | `.icon-btn` | `mantle` | `glyph` | `text-secondary` | 9.91 · 5.14 |
 | Header icon button, pointer over | `.icon-btn:hover` | `raised` | `glyph` | `text-secondary-raised` | 7.10 · 5.17 |
-| Menu button, drawer open | `.menu-btn[aria-expanded="true"]` | `raised` | `glyph` | `text-secondary-raised` | 7.10 · 5.17 |
-| Drawer site link | `.site-menu a` | `mantle` | `text-muted` | `text-muted` | 7.89 · 5.14 |
-| Drawer site link, pointer over | `.site-menu a:hover` | `raised` | `text-body` | `text-primary` | 8.69 · 5.17 |
-| Drawer site link, current | `.site-menu a[aria-current]` | `tint-primary@mantle` | `text-primary` | `accent-primary-raised` | 6.65 · 5.86 |
 | Language switch | `.lang-switch a` | `mantle` | `text-muted` | `text-muted` | 7.89 · 5.14 |
 | Language switch, pointer over | `.lang-switch a:hover` | `raised` | `text-body` | `text-primary` | 8.69 · 5.17 |
 | Language switch, current | `.lang-switch a[aria-current]` | `solid-hover` | `text-body` | `text-on-active` | 6.31 · 6.43 |
@@ -2186,6 +2182,10 @@ Contrast is the lowest across the row's grounds.
 | Sidebar description | `.nav-desc` | `base`, `mantle` | `text-muted` | `text-muted` | 7.37 · 5.14 |
 | Sidebar description, pointer over | `.nav-list a:hover .nav-desc` | `raised` | `text-muted` | `text-muted-raised` | 5.65 · 5.17 |
 | Sidebar description, current | `.nav-list a[aria-current="page"] .nav-desc` | `tint-primary@base`, `tint-primary@mantle` | `text-muted` | `text-muted-raised` | 5.84 · 5.63 |
+| Menu button, drawer open | `.menu-btn[aria-expanded="true"]` | `raised` | `glyph` | `text-secondary-raised` | 7.10 · 5.17 |
+| Drawer site link | `.site-menu a` | `mantle` | `text-muted` | `text-muted` | 7.89 · 5.14 |
+| Drawer site link, pointer over | `.site-menu a:hover` | `raised` | `text-body` | `text-primary` | 8.69 · 5.17 |
+| Drawer site link, current | `.site-menu a[aria-current]` | `tint-primary@mantle` | `text-primary` | `accent-primary-raised` | 6.65 · 5.86 |
 | Breadcrumb | `.breadcrumb, .breadcrumb a` | `base` | `text-muted` | `text-muted` | 7.37 · 5.53 |
 | Breadcrumb separator | `.breadcrumb .sep` | `base` | `ornament` | `glyph-dim` | no target · no target |
 | Page text | `.prose` | `base` | `text-body` | `text-primary` | 11.34 · 7.06 |
