@@ -760,6 +760,9 @@ pre.astro-code span[style*="#6A737D"] { color: var(--tasty-site-code-comment) !i
   margin: var(--sp-2) auto 0;
   color: var(--tasty-text-muted);
   font-size: 13px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--sp-4);
 }
 .site-footer__font a { text-decoration: underline; }
 
