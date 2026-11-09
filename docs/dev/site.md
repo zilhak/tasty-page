@@ -78,6 +78,7 @@
   package.json          astro · @astrojs/react · react 18
   astro.config.mjs      정적 출력, React 아일랜드
   vendor/               Tasty UI 디자인 정본. 사이트가 그대로 import한다
+  public/fonts/         D2Coding 원본 글꼴과 OFL 전문. 빌드가 그대로 복사한다 (아래 "D2Coding 글꼴 파일")
   scripts/              check-links · check-sitemap · check-translations · check-contrast · check-icons · check-tokens-copy · stamp · design-tokens/
   src/pages/            라우트
   src/components/ src/layouts/ src/lib/ src/styles/
@@ -203,6 +204,7 @@ npm run stamp content/en/index.md
 | `/design/` · `/ko/design/` | 디자인 구역 안내. 제목·소개·안내는 경로의 언어로 나오고, 디자인 가이드가 영어 전용이라는 안내(`.note--untranslated`)를 제목 아래에 둔다. 왼쪽 메뉴는 영어다 |
 | `/design/tokens/` · `/ko/design/tokens/` | 3티어 토큰 표본(`vendor/gallery/tokens/`). `client:load` 없이 정적으로 그려 토큰 JSON을 브라우저로 보내지 않는다. 내용은 영어 고정이다. 기본 언어 경로만 색인하고 sitemap에 넣는다. 다른 언어 경로는 `noindex, follow`다 |
 | `/design/gallery/**` · `/ko/design/gallery/**` | 레퍼런스 갤러리 15 페이지. 머리글, 푸터, 검색, 언어 전환은 경로의 언어이고 내용은 영어 고정이며 표본은 같은 소스다. 모든 언어 경로를 `noindex, follow`로 색인에서 빼고 sitemap에도 넣지 않는다 |
+| `/fonts/D2Coding-ligature-Regular.ttf` · `/fonts/D2Coding-ligature-Bold.ttf` · `/fonts/D2Coding-OFL.txt` | D2Coding 원본 글꼴과 OFL 전문(`public/fonts/`). 페이지가 아니므로 sitemap에 넣지 않는다. 아래 "D2Coding 글꼴 파일" 참고 |
 | `/robots.txt` | 전체 허용과 `Sitemap:` 줄. `Disallow`를 넣지 않는다. 막으면 크롤러가 갤러리의 `noindex`를 읽지 못한다 |
 | `/sitemap.xml` | 랜딩, 가이드, privacy의 양 언어와 색인 대상인 디자인 페이지. 가이드와 디자인은 `buildPages`와 `DESIGN_PAGES`에서 만들어 페이지를 추가하면 자동으로 들어간다. 디자인 페이지는 `indexed` 값과 언어 목록으로 정해진다. 랜딩과 privacy는 `src/pages/sitemap.xml.ts`에 적는다. 갤러리는 넣지 않는다. `lastmod`, `changefreq`, `priority`는 정확한 값을 얻을 근거가 없어 넣지 않는다. `npm run check-sitemap`이 빌드된 HTML 중 `<head>`에 `noindex`가 없는 페이지(`404.html` 제외)를 공개 페이지로 보고 `<loc>`와 대조한다. 빠진 공개 페이지, 없는 페이지나 `noindex` 페이지를 가리키는 `<loc>`, 중복, 비어 있거나 없는 sitemap은 실패다 |
 | `/search-index.json` (en) · `/search-index.ko.json` | 검색 인덱스. 페이지마다 제목·섹션과 본문 앞 600자를 싣는다(`src/lib/search.ts`). 코드 블록과 HTML 태그는 빼고, 인라인 코드는 글자로 남기며, 단어 안의 하이픈은 지워지지 않아 `task-await` 같은 명령 이름이 입력한 그대로 맞는다. 명령 이름으로 찾게 하려면 그 이름을 제목이나 첫 문단에 쓴다 |
@@ -458,6 +460,28 @@ Sätteri 의 hast 플러그인(`src/lib/satteri-*.mjs`)에서 일어난다.
 - 미디어 쿼리와 컨테이너 쿼리의 **조건**은 숫자로 남긴다. media feature 는 custom property 를
   읽지 못한다(`@media (max-width: var(--x))` 는 파싱되지 않는다). 블록 안의 선언은 위 규칙을 따른다.
 
+## D2Coding 글꼴 파일
+
+`public/fonts/`에 Tasty 앱이 쓰는 D2Coding ligature 원본 TTF 두 개와 SIL Open Font License 1.1 전문을 둔다. 빌드는 이 폴더를 같은 이름으로 복사하므로 글꼴과 라이선스가 사이트의 `/fonts/`에 나란히 나간다. 아직 어떤 CSS도 이 파일을 가리키지 않아 렌더링에는 영향이 없다.
+
+| 파일 | sha256 | 크기(byte) |
+|---|---|---|
+| `D2Coding-ligature-Regular.ttf` | `0890bd19cc222951f99fc4f29b46141c828c613719a8b16189eae3e21788c142` | 4224160 |
+| `D2Coding-ligature-Bold.ttf` | `2d7d153b6bc29a7216e62070348e1240305c95263a78da2b5ef836cf5ce59343` | 4398252 |
+| `D2Coding-OFL.txt` | `1807e8dec4d65f474cbf9be39f5e2254ecb81702babc320749e272ea66ffcc69` | 4511 |
+
+- 글꼴의 출처와 판: [Tasty 레포](https://github.com/zilhak/tasty)의 `crates/tasty-font/assets/`에 있는 파일과 같다. upstream 릴리스 [VER1.3.2](https://github.com/naver/d2-coding-font/releases/tag/VER1.3.2)의 ZIP에 있는 `D2CodingLigature/` 파일과도 해시가 같다. 판은 글꼴의 name 5(`Version 1.3.2; Build 20180524`)와 해시로 대조한다. `head.fontRevision`은 1.002라 판 번호와 다르다.
+- 라이선스의 출처: Tasty 레포의 `LICENSES/D2Coding-OFL.txt`와 같고, upstream 태그 `VER1.3.3`의 `OFL.txt`와도 같다. 태그 `VER1.3.2`와 그 릴리스 ZIP에는 라이선스 파일이 없다.
+- 폴더: Vite가 처리하는 import는 이름에 해시가 붙어 라이선스 파일과 떨어진다. 엔드포인트는 파일마다 코드가 필요한데 바이트를 그대로 내보내는 일만 한다. `public/`은 처리 없이 복사하므로 이름과 바이트가 그대로 유지된다.
+- 대조: 이 레포에서 `sha256sum public/fonts/*`를 실행하고, 빌드한 뒤 산출물의 `fonts` 폴더에도 실행해 위 표와 비교한다. 글꼴을 올릴 때는 Tasty 레포의 파일과도 비교한다.
+
+**세 파일을 고치지 않는다.** OFL은 형식 변환과 구성 요소의 추가, 삭제, 교체를 Modified Version으로 정의하고, Modified Version은 Reserved Font Name인 `D2Coding`, `D2Coding-Bold`를 쓸 수 없다. 글꼴을 고치면 이름과 CSS 패밀리까지 바꿔야 한다.
+
+- 서브셋을 만들지 않는다. [OFL FAQ](https://openfontlicense.org/ofl-faq/) 2.6은 글리프와 스마트 글꼴 코드를 빼는 것을 수정으로 본다.
+- WOFF, WOFF2로 변환하지 않는다. FAQ 2.2.1의 조건을 맞추면 수정이 아니지만 바이트 해시로 대조할 수 없다. 필요해지면 사용자에게 올린다.
+- 글꼴 메타데이터의 저작권 표기와 OFL 파일 머리의 저작권 줄이 달라도 어느 쪽도 맞춰 고치지 않고 함께 배포한다. 글꼴을 고치면 수정본이 되고, OFL 파일은 upstream 원문이다.
+- 글꼴의 메타데이터에는 라이선스가 한 문장뿐이고 Reserved Font Name 문구가 없다. 그래서 OFL 파일을 빼면 안 된다.
+
 ## 언어별 글꼴과 줄바꿈
 
 페이지 언어(`<html lang>`)가 일본어나 중국어일 때만 값이 달라진다. 영어와 한국어 경로의 계산값은 언어를 더하기 전과 같다. 규칙은 `src/styles/global.css`에 있다.
@@ -477,7 +501,7 @@ Sätteri 의 hast 플러그인(`src/lib/satteri-*.mjs`)에서 일어난다.
 같은 한자도 언어마다 모양이 다르다. 글꼴 이름이 없으면 시스템 기본으로 떨어져 다른 언어의 글꼴로 그려질 수 있다. Windows에서는 `Malgun Gothic`이 먼저 잡힐 수 있다. 그래서 `:root:lang(ja)`, `:root:lang(zh)`가 `--font-cjk`에 그 언어의 시스템 글꼴 이름과 Linux 배포판의 Noto 이름을 적고, `--font-sans`와 `--font-mono`가 이를 읽는다.
 
 - 순서는 토큰, `--font-cjk`, 한국어 이름, 일반 글꼴이다. 토큰이 앞이라 라틴 글자의 모양이 언어마다 달라지지 않고, 한국어 이름이 뒤라 한국어 글꼴이 일본어·중국어를 그리지 않는다.
-- 글꼴 파일을 배포하거나 외부 글꼴을 요청하지 않는다. 이름만 더한다.
+- 이 대체를 위해 글꼴 파일을 배포하거나 외부 글꼴을 요청하지 않는다. 이름만 더한다.
 - `--tasty-font-ui`는 루트에서 덮지 않는다. 커스텀 속성은 상속되어 표본까지 내려간다.
 - `--tasty-font-family-mono`는 일반 글꼴 `monospace`로 끝나 `--font-cjk`가 그 뒤에 온다. `monospace`가 CJK 글자를 가진 글꼴로 풀리는 환경(이 규칙을 잰 Linux는 `Noto Sans Mono CJK JP`)에서는 `--font-cjk`까지 가지 않아, 코드 안의 한자가 중국어 경로에서도 일본어 모양으로 나온다.
 
