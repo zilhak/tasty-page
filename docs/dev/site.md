@@ -7,7 +7,7 @@
 - 산출물: 레포 루트 아래 `dist/` — 빌드가 만들며 Git에서 제외한다(경로 인용으로 안 적는다. 갓 클론한
   트리에는 없어서 좌표를 실재로 판정하는 CI의 경로 검사가 실패할 수 있다)
 - 배포: `.github/workflows/pages.yml`. `main`과 `release`의 push마다 `npm run build`로 빌드하고
-  `npm run check-links`로 산출물의 내부 링크와 `content/` 앵커의 실제 HTML 결과를 전수 판정하고, `npm run check-sitemap`으로
+  `npm run check-links`로 산출물의 내부 링크와 `content/` 앵커의 실제 HTML 결과, 디자인 페이지 사이 링크의 언어 유지를 전수 판정하고, `npm run check-sitemap`으로
   공개 페이지와 sitemap을 대조한다.
   **배포는 `release` push와 `release`에서 수동 실행할 때만** 한다. 공개 사이트는 사용자가 받을 수 있는
   버전을 설명해야 하기 때문이다. `main`은 최신 페이지라 빌드와 검사만 한다. 표시 버전은 공개된 최신
@@ -94,8 +94,12 @@
 
 갤러리는 앱이 따르는 정본이다. 페이지 규칙은 `vendor/gallery/README.md`에 있고 사이트 구현은 다음과 같다.
 
-- `src/layouts/GalleryPage.astro`: 공용 머리글·테마·푸터(`Base.astro`), 가이드 형식의 사이드바, 이전·다음을 그린다. 페이지 순서와 묶음은 `src/lib/design.ts`의 `GALLERY_GROUPS`가 정한다.
-- `src/pages/design/gallery/*/index.astro`: 라우트마다 `vendor/gallery/<페이지>/index.jsx`의 `page`와 기본 내보내기를 싣는다.
+- `src/layouts/Design.astro`: 안내·토큰·갤러리가 함께 쓰는 레이아웃이다. 공용 머리글·테마·푸터(`Base.astro`), 메뉴, 머리 부분(제목과 소개), 이전·다음을 그린다. 페이지 순서와 묶음은 `src/lib/design.ts`의 `DESIGN_GROUPS`가 정한다.
+- `src/components/design/SpecimenPage.astro`: 토큰과 갤러리 페이지의 래퍼다. `[data-gallery-page]`를 두르고 `specimen.css`와 `design/kit.css`를 싣는다. 레이아웃에 두지 않는 이유는 `specimen.css`의 전역 `.note`가 안내 페이지의 영어 전용 안내 색을 바꾸기 때문이다.
+- `src/pages/[...locale]/design/gallery/*/index.astro`: 라우트마다 `vendor/gallery/<페이지>/index.jsx`의 `page`와 기본 내보내기를 싣는다. `client:load`는 컴파일할 때 import를 찾아야 하므로 15개를 파일 하나로 합치지 않는다.
+- 언어 경로: `getStaticPaths`는 `src/lib/design.ts`의 `localePaths`이고 `src/lib/langs.mjs`의 목록에서 만든다. 언어별 파일을 복제하지 않으며 표본은 같은 소스를 쓴다.
+- `lang`: 헤더와 푸터는 페이지 언어다. 메뉴와 이전·다음은 `lang="en"`이다. `main`은 안내 페이지에서는 표시하지 않고 토큰과 갤러리에서는 `lang="en"`이다. 레이아웃은 언어 코드를 비교하지 않고 페이지 자료의 `translated`를 읽는다. `<title>`과 메타 설명은 머리에 있어 `lang`을 표시할 수 없다.
+- 표본 안의 페이지 사이 링크는 상대 경로(`../plugins/#html`)로 쓴다. 어느 언어 경로에서든 같은 언어의 페이지로 가고 표본에 언어 개념이 들어가지 않는다. `npm run check-links`가 디자인 페이지에서 다른 언어의 디자인 페이지로 나가는 링크를 실패로 처리한다. 예외는 언어 전환(`a[data-lang]`)이다.
 - 표본의 범위는 `[data-gallery-page]`다. 사이트 전역 규칙 중 표본과 부딪히는 것(`img`, `:focus-visible`)은 이 범위를 뺀다.
 - `parts/specimen.jsx`의 `Spec`이 제목, 데모, 상태 격자, 숨은 상태의 프레임, 명세 표 순서로 그린다. `?audit=1`을 붙이면 지연 마운트 없이 모든 데모를 그린다.
 
@@ -122,7 +126,7 @@
 
 `npm run check-contrast`는 빌드 결과를 띄워 갤러리 페이지와 사이트 페이지를 Mocha와 Latte로 렌더링한다. `--site-only`와 `--gallery-only`로 한쪽만 실행하고, `--page <키>`는 갤러리 한 페이지만 잰다. 코드는 `scripts/check-contrast.mjs`(갤러리), `contrast-site.mjs`(사이트), `contrast-page.mjs`(페이지 안에서 실행하는 측정)에 있다.
 
-갤러리 페이지와 토큰 페이지(`design/tokens/`)에서는 다음을 잰다. 토큰 페이지는 갤러리 수에 넣지 않고 `SPECIMEN_ROUTES`로 더한다. 기본 언어 경로에서 한 번만 잰다.
+갤러리 페이지와 토큰 페이지(`design/tokens/`)에서는 다음을 잰다. 토큰 페이지는 갤러리 수에 넣지 않고 `SPECIMEN_ROUTES`로 더한다. 기본 언어 경로에서 한 번만 잰다. 다른 언어 경로의 표본은 같은 소스라 다시 재지 않는다.
 
 - 고정 셀: `vendor/tokens/ground-ink-rules.json`의 행마다 부품의 잉크가 지정 토큰인지(채널당 1/255 허용), 합성 바탕에서 등급을 넘는지 본다. 행에 셀이 없거나 부품을 찾지 못해도 실패한다. 부품 위치는 `vendor/gallery/parts/part-map.js`에 있다.
 - 나머지 글자·글리프·입력: 글자는 4.5, 글리프는 3을 기준으로 잰다. `data-audit-exempt`와 `data-ink-grade`의 규칙은 `vendor/RULES.md` 14절을 따르고, 쓰인 예외 id와 횟수를 출력한다. 완전히 투명한 요소만 화면에 없는 것으로 보며 그 밖의 opacity는 합성해 잰다.
@@ -131,7 +135,7 @@
 - 측정 0건, 알 수 없는 예외 id, 페이지 오류도 실패다.
 - 표본 밖의 머리글·사이드바·푸터도 같은 기준으로 잰다.
 
-사이트 페이지는 갤러리 밖의 빌드된 페이지 전부(랜딩, 가이드, 디자인, privacy, 양쪽 언어)다. 기준은 `vendor/tokens/ground-ink-rules.json`의 `site.places`이고 `vendor/RULES.md` 15절이 같은 내용을 설명한다.
+사이트 페이지는 기본 언어의 갤러리 밖에 있는 빌드된 페이지 전부(랜딩, 가이드, 디자인, privacy, 모든 언어)다. 다른 언어의 `design/gallery/*`도 여기에 들어가며, 사이트 패스는 `[data-gallery-page]` 안을 재지 않으므로 그 페이지에서는 표본을 뺀 공통 부분만 잰다. 기본 언어가 아닌 언어마다 갤러리 페이지 수가 맞지 않거나, 표본 페이지에 `[data-gallery-page]`가 정확히 1개가 아니면 실패한다. 언어 하나당 15페이지 × 2폭 × 2테마가 는다. 기준은 `vendor/tokens/ground-ink-rules.json`의 `site.places`이고 `vendor/RULES.md` 15절이 같은 내용을 설명한다.
 
 - 패스: 각 페이지를 넓은 화면(1440px)과 좁은 화면(390px)에서 잰다. 넓은 화면에서는 랜딩 창의 나머지 탭, 포인터 올림과 누름, 키보드 포커스, 검색 결과도 잰다.
 - 행: 선택자가 어느 페이지에서도 요소를 찾지 못하면 실패한다. 요소를 하나도 재지 못해도, 등급에 못 미쳐도, 어떤 행도 지정하지 않은 잉크를 보여도 실패한다.
@@ -191,10 +195,10 @@ npm run stamp content/en/index.md
 | `/ko/guide/**` | 한국어 가이드 (`content/**.md`, canonical) |
 | `/privacy/` · `/ko/privacy/` | 개인정보 안내. 본문은 `src/components/Privacy.astro` 에 두 언어로 있고 푸터에서 연결한다 |
 | `/design/` · `/ko/design/` | 디자인 구역 안내. 제목·소개·안내는 경로의 언어로 나오고, 디자인 가이드가 영어 전용이라는 안내(`.note--untranslated`)를 제목 아래에 둔다. 왼쪽 메뉴는 영어다 |
-| `/design/tokens/` · `/ko/design/tokens/` | 3티어 토큰 표본(`vendor/gallery/tokens/`). `client:load` 없이 정적으로 그려 토큰 JSON을 브라우저로 보내지 않는다 |
-| `/design/gallery/**` | 레퍼런스 갤러리 15 페이지. 사이트 머리글과 푸터를 쓰며 언어별로 나누지 않는다. `noindex, follow`로 색인에서 빼고 sitemap에도 넣지 않는다 |
+| `/design/tokens/` · `/ko/design/tokens/` | 3티어 토큰 표본(`vendor/gallery/tokens/`). `client:load` 없이 정적으로 그려 토큰 JSON을 브라우저로 보내지 않는다. 내용은 영어 고정이다. 기본 언어 경로만 색인하고 sitemap에 넣는다. 다른 언어 경로는 `noindex, follow`다 |
+| `/design/gallery/**` · `/ko/design/gallery/**` | 레퍼런스 갤러리 15 페이지. 머리글, 푸터, 검색, 언어 전환은 경로의 언어이고 내용은 영어 고정이며 표본은 같은 소스다. 모든 언어 경로를 `noindex, follow`로 색인에서 빼고 sitemap에도 넣지 않는다 |
 | `/robots.txt` | 전체 허용과 `Sitemap:` 줄. `Disallow`를 넣지 않는다. 막으면 크롤러가 갤러리의 `noindex`를 읽지 못한다 |
-| `/sitemap.xml` | 랜딩, 가이드, privacy, 디자인 페이지의 양 언어. 가이드와 디자인은 `buildPages`와 `DESIGN_NAV`에서 만들어 페이지를 추가하면 자동으로 들어간다. 랜딩과 privacy는 `src/pages/sitemap.xml.ts`에 적는다. 갤러리는 넣지 않는다. `lastmod`, `changefreq`, `priority`는 정확한 값을 얻을 근거가 없어 넣지 않는다. `npm run check-sitemap`이 빌드된 HTML 중 `<head>`에 `noindex`가 없는 페이지(`404.html` 제외)를 공개 페이지로 보고 `<loc>`와 대조한다. 빠진 공개 페이지, 없는 페이지나 `noindex` 페이지를 가리키는 `<loc>`, 중복, 비어 있거나 없는 sitemap은 실패다 |
+| `/sitemap.xml` | 랜딩, 가이드, privacy의 양 언어와 색인 대상인 디자인 페이지. 가이드와 디자인은 `buildPages`와 `DESIGN_PAGES`에서 만들어 페이지를 추가하면 자동으로 들어간다. 디자인 페이지는 `indexed` 값과 언어 목록으로 정해진다. 랜딩과 privacy는 `src/pages/sitemap.xml.ts`에 적는다. 갤러리는 넣지 않는다. `lastmod`, `changefreq`, `priority`는 정확한 값을 얻을 근거가 없어 넣지 않는다. `npm run check-sitemap`이 빌드된 HTML 중 `<head>`에 `noindex`가 없는 페이지(`404.html` 제외)를 공개 페이지로 보고 `<loc>`와 대조한다. 빠진 공개 페이지, 없는 페이지나 `noindex` 페이지를 가리키는 `<loc>`, 중복, 비어 있거나 없는 sitemap은 실패다 |
 | `/search-index.json` (en) · `/search-index.ko.json` | 검색 인덱스. 페이지마다 제목·섹션과 본문 앞 600자를 싣는다(`src/lib/search.ts`). 코드 블록과 HTML 태그는 빼고, 인라인 코드는 글자로 남기며, 단어 안의 하이픈은 지워지지 않아 `task-await` 같은 명령 이름이 입력한 그대로 맞는다. 명령 이름으로 찾게 하려면 그 이름을 제목이나 첫 문단에 쓴다 |
 
 ### 배포 경로 (base)
@@ -221,8 +225,8 @@ npm run stamp content/en/index.md
 헤더의 EN/KO로 고른 값(`localStorage`의 `tasty-lang`)이 있으면 그 값을, 없으면 `navigator.language`를 따르며
 `ko`로 시작하면 `/ko/`로 이동한다. 다른 페이지는 이동하지 않아 공유한 링크가 그 언어로 열린다. JS가 꺼져 있으면
 영어 랜딩이 그대로 보인다. 페이지마다 `Base.astro`가 자기 주소를 `canonical`과 `og:url`로 알리고, 언어가 나뉜 페이지는
-언어별 주소를 `hreflang`과 `og:locale:alternate`로 함께 알린다. 호출하는 쪽은 언어 코드별 경로 맵 `hrefs`를 넘기고, 언어 전환은 언어 목록 순서대로 맵에 있는 언어를 보여 준다. 맵의 경로가 모두 같은 갤러리는 다른 언어판이 없어
-`hreflang`과 `og:locale:alternate`를 내지 않는다. `x-default`는 기본 언어의 경로다. 절대 주소는 `src/lib/site.ts`의 `absolute()`가 `src/lib/base.mjs`의 `SITE`로 만든다.
+언어별 주소를 `hreflang`과 `og:locale:alternate`로 함께 알린다. 호출하는 쪽은 언어 코드별 경로 맵 `hrefs`를 넘기고, 언어 전환은 언어 목록 순서대로 맵에 있는 언어를 보여 준다. 번역되지 않은 디자인 페이지(토큰, 갤러리)는 내용이 같은 영어라 다른 언어판이 없으므로
+`announceLanguages={false}`로 `hreflang`과 `og:locale:alternate`를 내지 않고, 언어 전환은 그대로 보여 준다. `x-default`는 기본 언어의 경로다. 절대 주소는 `src/lib/site.ts`의 `absolute()`가 `src/lib/base.mjs`의 `SITE`로 만든다.
 언어 목록은 `src/lib/langs.mjs`에 있다. 언어마다 코드, 경로 접두어, 언어 전환 표시 글자, `og:locale` 값, 랜딩·가이드·개인정보 경로, 검색 색인 파일, 공유 이미지 경로를 한 행에 적고, 기본 언어를 `DEFAULT_LANG`으로 내보낸다. `Base.astro`는 언어 코드를 비교하지 않고 행의 값을 읽는다. `langRow`와 `src/lib/strings.ts`의 `stringsFor`는 없는 언어를 받으면 영어로 대체하지 않고 예외를 던진다.
 `Base.astro`는 언어 행의 `shareImage`로 1200×630 공유 이미지의 절대 주소를 `og:image`로 내고 크기를 `og:image:width`와 `og:image:height`로 함께 알린다. `twitter:card`는 `summary_large_image`다. 새 언어의 이미지가 생기기 전에는 행에 있는 이미지를 가리키게 한다.
 네이버 Search Advisor의 사이트 소유 확인 태그(`naver-site-verification`)는 `src/pages/index.astro`의 `head` 슬롯에 있어 `/`에만 나간다.
@@ -234,7 +238,7 @@ npm run stamp content/en/index.md
 
 - 스크립트와 사이트 토큰은 `src/components/Analytics.astro` 한 곳에 둔다. 토큰은 발행된 모든
   페이지에 노출되는 공개 값이다.
-- `<head>`를 가진 `Base.astro`가 이 컴포넌트를 싣는다. `Design.astro`, `Guide.astro`, `GalleryPage.astro`는 `Base.astro`를 통해 함께 포함된다.
+- `<head>`를 가진 `Base.astro`가 이 컴포넌트를 싣는다. `Design.astro`, `Guide.astro`는 `Base.astro`를 통해 함께 포함된다.
 - production 빌드에만 포함되어 `astro dev` 방문은 집계되지 않는다.
 - 수집 항목이나 처리 주체가 바뀌면 개인정보 안내(`src/components/Privacy.astro`)의 두 언어 본문과 최종 수정일을 함께 고친다. 앱에 외부 전송 기능을 추가할 때도 안내의 앱 항목을 확인한다.
 - 통계는 Cloudflare 대시보드의 Web Analytics에서 본다. 저장소 Insights의 Traffic은 Pages 방문을 집계하지 않는다.
@@ -359,8 +363,8 @@ Sätteri 의 hast 플러그인(`src/lib/satteri-*.mjs`)에서 일어난다.
 
 | 출처 | 대상 | 쓰는 척도 |
 |------|------|-----------|
-| Design System | `vendor/` 정본과 거기서 파생한 파일(`kit.css` · `tokens.css` · 갤러리). 사이트 스타일시트 안에서는 킷 컴포넌트가 그리는 앱 화면을 재현하거나 그 값을 그대로 옮기는 규칙 — 랜딩·가이드의 제품 창 chrome(`app-shell.css` 의 `.shell` · `.shell__*` · `.shell-overlays*`), 킷 창 크기를 옮긴 Settings 무대(`.anat-settings__stage`), 갤러리 경로의 `gallery-site.css` | Design System 토큰 `--tasty-*` 의 semantic 층(`--tasty-space-*`, `--tasty-radius*`, `--tasty-font-size-<역할>` …). 토큰 파일 머리말대로 primitive(`--tasty-size-N` 등)는 직접 읽지 않는다 |
-| 사이트 독자 | 사이트가 스스로 디자인한 것 — 페이지 레이아웃, 헤더 · 사이드바 · 목차, 본문 타이포그래피(`global.css`), 랜딩 섹션과 제품 창을 감싸는 카드(`landing.css` 의 `.window` 포함), 디자인 섹션의 머리(`design.css`), 가이드 그림의 영역 라벨(`.anat*`)과 배치(`.workflow-diagram*`) | 사이트 척도 — 간격 `--sp-1`(4px) ~ `--sp-24`(96px), 반경 `--radius-sm` · `--radius` · `--radius-lg`, 요소 크기 `--size-control-sm` · `-md` · `-lg`(32 · 36 · 44px)와 `--size-icon-sm` · `-md` · `-lg` · `-xl`(16 · 18 · 20 · 24px), 레이아웃 변수(`--header-h`, 여러 규칙이 함께 쓰는 폭 `--page-max` 1440px · `--landing-max` 1180px 등). `global.css` 의 `:root` 가 정의한다 |
+| Design System | `vendor/` 정본과 거기서 파생한 파일(`kit.css` · `tokens.css` · 갤러리). 사이트 스타일시트 안에서는 킷 컴포넌트가 그리는 앱 화면을 재현하거나 그 값을 그대로 옮기는 규칙 — 랜딩·가이드의 제품 창 chrome(`app-shell.css` 의 `.shell` · `.shell__*` · `.shell-overlays*`), 킷 창 크기를 옮긴 Settings 무대(`.anat-settings__stage`), 디자인 구역의 머리 부분(`design.css`의 `.design-head`, `.ds-group`의 글꼴과 제목) | Design System 토큰 `--tasty-*` 의 semantic 층(`--tasty-space-*`, `--tasty-radius*`, `--tasty-font-size-<역할>` …). 토큰 파일 머리말대로 primitive(`--tasty-size-N` 등)는 직접 읽지 않는다 |
+| 사이트 독자 | 사이트가 스스로 디자인한 것 — 페이지 레이아웃, 헤더 · 사이드바 · 목차, 본문 타이포그래피(`global.css`), 랜딩 섹션과 제품 창을 감싸는 카드(`landing.css` 의 `.window` 포함), 디자인 구역의 페이지 배치(`design.css`), 가이드 그림의 영역 라벨(`.anat*`)과 배치(`.workflow-diagram*`) | 사이트 척도 — 간격 `--sp-1`(4px) ~ `--sp-24`(96px), 반경 `--radius-sm` · `--radius` · `--radius-lg`, 요소 크기 `--size-control-sm` · `-md` · `-lg`(32 · 36 · 44px)와 `--size-icon-sm` · `-md` · `-lg` · `-xl`(16 · 18 · 20 · 24px), 레이아웃 변수(`--header-h`, 여러 규칙이 함께 쓰는 폭 `--page-max` 1440px · `--landing-max` 1180px 등). `global.css` 의 `:root` 가 정의한다 |
 
 - 선언 단위로 갈리는 경우 — 제품 창을 **페이지에 얼마나 크게 보일지**(`.shell` 의 높이
   `clamp(…, vw, …)`, 가이드 그림의 높이 · 너비)는 킷이 정하지 않는 페이지 배치라 Design System
@@ -368,7 +372,7 @@ Sätteri 의 hast 플러그인(`src/lib/satteri-*.mjs`)에서 일어난다.
   820px, 작업 흐름 패인 최소 높이 190px). 반대로 킷이 정한 창 크기를 옮긴 값은 Design System 출처다 —
   Settings 무대는 `--tasty-settings-window-width` · `-height`, 제품 창 토스트의 하단 거리는
   `--tasty-toast-stack-offset-bottom` 을 읽는다.
-- 갤러리 표본의 스타일시트(`vendor/gallery/parts/specimen.css`)는 `--tasty-*`만 쓴다. 갤러리의 페이지 배치(`src/styles/gallery-site.css`)는 사이트 독자 규칙이다.
+- 갤러리 표본의 스타일시트(`vendor/gallery/parts/specimen.css`)는 `--tasty-*`만 쓴다. 디자인 구역의 페이지 배치(`src/styles/design.css`)는 사이트 독자 규칙이다.
 - primitive 직접 참조 금지는 Design System 출처 규칙의 **치수**에만 적용한다. 색 토큰을 어느 층에서
   읽는지는 이 절이 다루지 않는다.
 - 요소 크기 척도는 용도로 나눈다. `--size-control-*` 는 컨트롤의 높이 · 너비다 — `sm` 은 헤더의
@@ -467,15 +471,15 @@ Plugins · Ports · Remote · 커맨드 팔레트를 연다. 페이지이기 때
 
 ## 디자인 섹션
 
-디자인 시스템 자체를 발행하는 구역이다. `vendor/` 가 정본이고 사이트는 소비자다.
+디자인 시스템 자체를 발행하는 구역이다. `vendor/` 가 정본이고 사이트는 소비자다. 세 종류의 페이지가 레이아웃 하나(`src/layouts/Design.astro`)를 쓰므로 페이지를 오갈 때 폭, 메뉴, 머리 부분이 바뀌지 않는다. 선택한 언어는 구역 안에서 유지되고, 안내 페이지 밖의 내용은 모든 언어에서 영어다. 메뉴 순서와 이전·다음은 `src/lib/design.ts`의 `DESIGN_GROUPS` 한 목록에서 나온다. 머리 부분은 `vendor/gallery/README.md`의 "Headings"를 따른다.
 
 - **안내** (`/design/`) — 디자인 구역에서 유일하게 번역하는 페이지다. 문구는 `src/components/design/Foundations.astro`의
   `COPY`에 언어마다 한 행씩 두고, 없는 언어는 영어로 대체하지 않고 예외를 던진다.
 - **토큰** (`/design/tokens/`) — `vendor/gallery/tokens/`의 표본을 `tokens/tasty.tokens.json`에서 읽어 정적으로 그린다.
-  `specimen.css`와 `design/kit.css`는 이 페이지에만 싣는다. `specimen.css`의 전역 `.note`가 안내 페이지의 영어 전용 안내 색을 바꾸기 때문이다.
+  갤러리와 같이 `SpecimenPage.astro`를 쓴다.
 - **갤러리** (`/design/gallery/**`) — `vendor/gallery/<페이지>/` 15 페이지. 살아 있는 표본이라
   호버 · 포커스 · 열고 닫기가 실제로 동작하고, 각 표본이 레이아웃 스펙과 소비하는 토큰을
-  함께 적는다. 사이트 공용 머리글과 푸터를 쓰며 구현은 위 [갤러리 페이지](#갤러리-페이지) 절에 있다.
+  함께 적는다. 구현은 위 [갤러리 페이지](#갤러리-페이지) 절에 있다.
 
 ## 작업 흐름 가이드의 그림
 

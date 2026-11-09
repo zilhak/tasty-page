@@ -16,7 +16,7 @@ Decided 2026-11-05. The move itself belongs to the implementing side.
 
 ### Page map
 
-The 15 URLs do not change, so `/design/gallery/<key>/` keeps its current path. The groups do: seven groups held four single-page groups, so they fold to five. New sections go inside existing pages, and no page is split. Previous and next follow this order.
+The 15 URLs do not change, so `/design/gallery/<key>/` keeps its current path. Each site language also has the same pages under its prefix, from the same source. The content is English in every language. A link from one gallery page to another is a relative path (`../plugins/#html`, or `plugins/#html` from `foundations`), so it stays in the reader's language. The groups do: seven groups held four single-page groups, so they fold to five. New sections go inside existing pages, and no page is split. Previous and next follow this order.
 
 | Group | Label | Key | Holds |
 |---|---|---|---|
