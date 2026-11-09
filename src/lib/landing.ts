@@ -20,7 +20,6 @@ export interface GuideLink {
 }
 export interface Copy {
   badge: string;
-  tagline: string;
   /** The three title parts join as written, so each language carries its own spaces. */
   titleLead: string;
   titleAccent: string;

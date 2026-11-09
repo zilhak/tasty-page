@@ -53,7 +53,6 @@ export default {
   },
   landing: {
     badge: "Windows · macOS · Linux",
-    tagline: "便于配合 AI 智能体使用的终端",
     titleLead: "按偏好使用的",
     titleAccent: "终端，",
     titleTail: "Tasty。",

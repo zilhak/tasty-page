@@ -53,7 +53,6 @@ export default {
   },
   landing: {
     badge: "Windows · macOS · Linux",
-    tagline: "A terminal for everyday work and AI agents.",
     titleLead: "A terminal ",
     titleAccent: "to your taste.",
     titleTail: "",

@@ -53,7 +53,6 @@ export default {
   },
   landing: {
     badge: "Windows · macOS · Linux",
-    tagline: "AI 에이전트와 쓰기에도 편한 터미널",
     titleLead: "입맛에 맞게 쓰는 ",
     titleAccent: "터미널,",
     titleTail: " Tasty.",

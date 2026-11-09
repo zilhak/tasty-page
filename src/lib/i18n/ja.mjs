@@ -53,7 +53,6 @@ export default {
   },
   landing: {
     badge: "Windows · macOS · Linux",
-    tagline: "AI エージェントと使うときも便利なターミナル",
     titleLead: "好みに合わせて使える",
     titleAccent: "ターミナル、",
     titleTail: "Tasty。",
