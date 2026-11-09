@@ -18,7 +18,7 @@
   `release`에 커밋해 태그 없이 배포한 뒤 곧바로 `release`를 `main`에 합친다([CLAUDE.md](../../CLAUDE.md) "게시용 페이지와 최신 페이지").
 - 다른 CI: `checks.yml`은 `checks/`의 Rust 시험으로 가이드를 Tasty 소스와 대조한다. Tasty 소스는
   `.tasty-src`에 받으며, `main`에서는 Tasty `main`, `release`에서는 가장 가까운 태그와 같은 이름의 Tasty
-  태그다. 매일 한 번도 실행한다. `design.yml`은 `vendor/` 디자인 정본을 검사한다(아래 "vendor 검사와 변경 날짜").
+  태그다. 매일 한 번도 실행한다. `design.yml`은 `vendor/` 디자인 정본을 검사한다(아래 "vendor 검사").
 
 **`docs/` 는 발행하지 않는다.** 이 레포의 `docs/`는 사이트를 고치는 사람과 에이전트를 위한 개발 문서(`docs/dev/`)와
 기획서(`docs/plan/`)이고, 사이트는 Tasty 를 받아서 쓰는 사람을 위한 것이라 독자가 다르다. Tasty의 명세·설계·ADR은
@@ -148,7 +148,7 @@
 
 브라우저는 `CHROMIUM_PATH`, Playwright 캐시의 Chromium, `/snap/bin/chromium` 순으로 찾는다. 의존성은 `playwright-core`뿐이라 `npm ci`는 브라우저를 받지 않는다. 로컬에서는 `npx playwright-core install chromium`으로 한 번 받는다. CI에서는 `design.yml`이 빌드 뒤 `npx playwright-core install --with-deps chromium`으로 `playwright-core`와 맞는 Chromium을 받아 이 검사를 실행한다.
 
-### vendor 검사와 변경 날짜
+### vendor 검사
 
 `vendor/`는 Tasty UI 디자인의 정본이다. 디자인 변경은 디자이너 Claude 세션이
 이 폴더를 고쳐 커밋한다. 절차와 규칙은 [`CLAUDE.md`](../../CLAUDE.md)의 "갤러리" 절과
@@ -162,12 +162,6 @@
   `scripts/design-tokens/verify_tokens_json.py`로 토큰 CSS와 대조한다. JSON은 손으로 고치지 않는다.
 - `npm run check-tokens-copy`: `vendor/tokens.css`가 되풀이하는 1단계 값이 `vendor/tokens/primitives.css`와 같은지 본다.
 - `npm run check-icons`: `vendor/icons/*.svg`와 `vendor/components/core/Icon.jsx`가 같은 글리프를 그리는지 원문으로 비교한다.
-
-디자인 페이지는 `VendorStamp`로 vendor의 마지막 변경 날짜를 표시한다.
-빌드할 때 `src/lib/vendor-stamp.ts`가 `git log -1 -- vendor`에서 `vendor/README.md`를 제외한 최신 변경을 읽는다.
-README는 폴더를 설명하는 파일이며 디자인 자체가 아니기 때문이다. `pages.yml`은 이 날짜를 읽으려고 전체 이력을 받는다.
-문구와 스타일은 각각 `src/components/design/VendorStamp.astro`와 `src/styles/vendor-stamp.css`에서 함께 관리한다.
-Git 이력을 읽을 수 없으면 추측한 날짜를 표시하지 않는다.
 
 ## 빌드
 
@@ -367,7 +361,7 @@ Sätteri 의 hast 플러그인(`src/lib/satteri-*.mjs`)에서 일어난다.
 
 | 출처 | 대상 | 쓰는 척도 |
 |------|------|-----------|
-| Design System | `vendor/` 정본과 거기서 파생한 파일(`kit.css` · `tokens.css` · 갤러리). 사이트 스타일시트 안에서는 킷 컴포넌트가 그리는 앱 화면을 재현하거나 그 값을 그대로 옮기는 규칙 — 랜딩·가이드의 제품 창 chrome(`app-shell.css` 의 `.shell` · `.shell__*` · `.shell-overlays*`), 킷 창 크기를 옮긴 Settings 무대(`.anat-settings__stage`), 갤러리 경로의 `gallery-site.css` · `vendor-stamp.css`, 디자인 섹션에서 iframe 으로 띄우는 킷 문서 | Design System 토큰 `--tasty-*` 의 semantic 층(`--tasty-space-*`, `--tasty-radius*`, `--tasty-font-size-<역할>` …). 토큰 파일 머리말대로 primitive(`--tasty-size-N` 등)는 직접 읽지 않는다 |
+| Design System | `vendor/` 정본과 거기서 파생한 파일(`kit.css` · `tokens.css` · 갤러리). 사이트 스타일시트 안에서는 킷 컴포넌트가 그리는 앱 화면을 재현하거나 그 값을 그대로 옮기는 규칙 — 랜딩·가이드의 제품 창 chrome(`app-shell.css` 의 `.shell` · `.shell__*` · `.shell-overlays*`), 킷 창 크기를 옮긴 Settings 무대(`.anat-settings__stage`), 갤러리 경로의 `gallery-site.css`, 디자인 섹션에서 iframe 으로 띄우는 킷 문서 | Design System 토큰 `--tasty-*` 의 semantic 층(`--tasty-space-*`, `--tasty-radius*`, `--tasty-font-size-<역할>` …). 토큰 파일 머리말대로 primitive(`--tasty-size-N` 등)는 직접 읽지 않는다 |
 | 사이트 독자 | 사이트가 스스로 디자인한 것 — 페이지 레이아웃, 헤더 · 사이드바 · 목차, 본문 타이포그래피(`global.css`), 랜딩 섹션과 제품 창을 감싸는 카드(`landing.css` 의 `.window` 포함), 디자인 섹션의 머리 · 카드 · 타일 틀(`design.css`), 가이드 그림의 영역 라벨(`.anat*`)과 배치(`.workflow-diagram*`) | 사이트 척도 — 간격 `--sp-1`(4px) ~ `--sp-24`(96px), 반경 `--radius-sm` · `--radius` · `--radius-lg`, 요소 크기 `--size-control-sm` · `-md` · `-lg`(32 · 36 · 44px)와 `--size-icon-sm` · `-md` · `-lg` · `-xl`(16 · 18 · 20 · 24px), 레이아웃 변수(`--header-h`, 여러 규칙이 함께 쓰는 폭 `--page-max` 1440px · `--landing-max` 1180px 등). `global.css` 의 `:root` 가 정의한다 |
 
 - 선언 단위로 갈리는 경우 — 제품 창을 **페이지에 얼마나 크게 보일지**(`.shell` 의 높이

@@ -6,8 +6,6 @@ import { stringsFor } from "../lib/strings";
 import { url } from "../lib/site";
 import type { Lang } from "../lib/guide";
 import "../styles/design.css";
-import "../styles/vendor-stamp.css";
-import VendorStamp from "../components/design/VendorStamp.astro";
 
 interface Props {
   lang: Lang;
@@ -71,7 +69,6 @@ const s = stringsFor(lang);
         <p class="design-head__kicker">Tasty Design System</p>
         <h1>{title}</h1>
         <p class="design-head__intro" set:html={intro} />
-        <VendorStamp lang={lang} />
       </header>
       <slot />
     </main>
