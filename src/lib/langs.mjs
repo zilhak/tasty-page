@@ -60,3 +60,10 @@ export const langRow = (code) => {
 
 /** A page's path per language code, for pages that exist in every listed language. */
 export const hrefsFor = (pathOfRow) => Object.fromEntries(LANGS.map((row) => [row.code, pathOfRow(row)]));
+
+/** One static path per language for a route under `[...locale]`. The language without a prefix has no locale segment. */
+export const localePaths = () =>
+  LANGS.map((row) => ({
+    params: { locale: row.prefix.replace(/\/$/, "") || undefined },
+    props: { lang: row.code },
+  }));

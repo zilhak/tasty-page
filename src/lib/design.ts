@@ -1,4 +1,4 @@
-import { DEFAULT_LANG, LANGS, langRow } from "./langs.mjs";
+import { DEFAULT_LANG, langRow } from "./langs.mjs";
 
 /** The design zone apart from its home is English in every language. */
 export const DESIGN_LANG = "en";
@@ -96,12 +96,7 @@ export const designPath = (slug: string, lang: string) => `${langRow(lang).prefi
 /** Route of a gallery page in one language. */
 export const galleryPath = (slug: string, lang: string) => designPath(`gallery/${slug}`, lang);
 
-/** One static path per language for a route under `[...locale]`. The language without a prefix has no locale segment. */
-export const localePaths = () =>
-  LANGS.map((row) => ({
-    params: { locale: row.prefix.replace(/\/$/, "") || undefined },
-    props: { lang: row.code },
-  }));
+export { localePaths } from "./langs.mjs";
 
 /** Introductory copy for the site; specimen content comes from the design kit. */
 export const GALLERY_INTROS: Record<string, string> = {

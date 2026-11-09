@@ -1,0 +1,13 @@
+---
+import Base from "../../../layouts/Base.astro";
+import Privacy from "../../../components/Privacy.astro";
+import { hrefsFor, localePaths } from "../../../lib/langs.mjs";
+import { stringsFor } from "../../../lib/strings";
+
+export const getStaticPaths = localePaths;
+const { lang } = Astro.props;
+const s = stringsFor(lang);
+---
+<Base lang={lang} title={`${s.privacyTitle} · Tasty`} description={s.privacyDescription} hrefs={hrefsFor((row) => row.privacy)}>
+  <Privacy lang={lang} />
+</Base>
