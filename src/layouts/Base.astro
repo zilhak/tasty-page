@@ -70,7 +70,7 @@ const defaultHref = hrefs[DEFAULT_LANG];
       </>
     )}
     <script is:inline>
-      /* Apply the saved or system theme while parsing the document head. */
+      /* Apply the saved theme while parsing the document head. Without one the page stays Mocha, whatever the system prefers. */
       (function () {
         try {
           var saved = localStorage.getItem("tasty-theme");
@@ -80,9 +80,6 @@ const defaultHref = hrefs[DEFAULT_LANG];
           }
           if (saved === "mocha" || saved === "dark") return;
         } catch (e) {}
-        if (window.matchMedia("(prefers-color-scheme: light)").matches) {
-          document.documentElement.setAttribute("data-theme", "latte");
-        }
       })();
     </script>
     <slot name="head" />

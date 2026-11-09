@@ -1,4 +1,4 @@
-<!-- source-hash: 1d7a625dbda7 -->
+<!-- source-hash: ee2d235f18db -->
 # Working with Claude and Codex
 
 Run Claude Code and Codex CLI in Tasty terminals and follow their status. Install each CLI separately. To delegate work across agents, configure both the hooks and the parent’s result delivery path.
@@ -377,15 +377,12 @@ tasty claude spawn --workspace w --profile continue-checklist
 
 ## Troubleshooting
 
-Fixed an issue on Windows and macOS where Codex sessions in Tasty terminals disconnected immediately after connecting.
-
 - **No completion notification arrives** — check the child CLI’s hook installation and execution, then [receiving setup](#4-receiving-completion-notifications). For a Claude Code parent, check the notification mod marker and delivery; check Monitor only when the mod is unavailable. Hook delivery failures are recorded in `~/.tasty/hook-failures.log`. Plugin logs: `tasty plugin logs com.tasty.claude --follow`.
 - **`reboot` fails with "claude-session-id meta not set"** — the session-start hook failed to record the session ID. Set it directly with `tasty surface-meta set --key claude-session-id --value <session ID>`.
 - **The child is not spawned and you get an "occupied" error** — the target Workspace is being attached from a remote, or is a mirror. Use another Workspace.
 - **`kill` is refused with a "hard-occupied" error** — a remote user is attached to the Workspace that holds that child. The child relationship and its Tab stay as they are. Run `kill` again after the remote side disconnects or you release the hold with Force detach.
 - **Codex does not start and says "app-server could not start"** — Tasty could not start the dedicated Codex server for that terminal. Check that `codex app-server --help` runs in the same terminal. This feature was checked against Codex CLI 0.154.0.
 - **Results do not reach a Codex parent** — check that the Tasty hooks are approved in Codex's `/hooks` and that you spawned the child inside the Codex conversation. If you started the parent by typing `codex` yourself, that conversation must be open in your shared Codex server.
-- **No notifications when launched from the app icon on macOS** — Tasty calls `tasty` again when it writes notifications, but Tasty adds its own executable path to PATH automatically, so this is normally not a problem. If it still fails, look at `hook-failures.log`.
 
 <a id="what-to-read-next"></a>
 

@@ -1,4 +1,4 @@
-<!-- source-hash: 67ed53fa55ac -->
+<!-- source-hash: e40dc708d2aa -->
 <a id="remote-attach"></a>
 
 # Working remotely (attach)
@@ -42,7 +42,7 @@ CLI profile and Passkey mutations apply their changes to the latest list under a
 
 An inline Passkey file, the credential list and a profile reference are saved in that order, without a transaction across files. If an error reports that an earlier stage was saved, check the list and reference state. Removing a list entry may succeed even if cleanup of its managed file fails. User files registered as `path` are never deleted. Windows inline storage requires PowerShell ACL setup and verification; failure prevents the secret payload from being written.
 
-Fixed an issue where passkeys could not be saved in Windows PowerShell 7. If setting file access permissions (ACLs) fails, the error message now includes the cause.
+If setting file access permissions (ACLs) fails, the error message includes the cause.
 
 
 ```sh
