@@ -1,5 +1,6 @@
 import { fileURLToPath } from "node:url";
 import { posix, relative, resolve, sep } from "node:path";
+import { rowOfContentPath } from "./langs.mjs";
 
 /**
  * Rewrite Markdown links to guide routes.
@@ -16,11 +17,15 @@ export const outsideLinks = new Set();
 
 const toPosix = (p) => (sep === "/" ? p : p.split(sep).join("/"));
 
-/** Route of a content file, relative to the guide root and without the `en/` tree prefix. */
+/**
+ * Route of a content file, relative to the guide root and without the prefix of its
+ * language's translation tree. A folder with no language row keeps its name in the
+ * route. Links inside that folder still come out right, because both ends share it.
+ */
 function routeOf(absFile, contentRoot) {
   let rel = toPosix(relative(contentRoot, absFile)).replace(/\.md$/, "");
-  if (rel.startsWith("en/")) rel = rel.slice(3);
-  else if (rel === "en") rel = "";
+  const { contentDir } = rowOfContentPath(rel);
+  if (contentDir) rel = rel === contentDir ? "" : rel.slice(contentDir.length + 1);
   return rel.replace(/(^|\/)index$/, "$1").replace(/\/$/, "");
 }
 

@@ -40,6 +40,17 @@ export const DEFAULT_LANG = "en";
 /** The language the guide is written in. Translations are stamped against it. */
 export const CANONICAL_LANG = "ko";
 
+/** The translation trees under content/, by the language rows. */
+export const TRANSLATION_DIRS = LANGS.flatMap((row) => row.contentDir ?? []);
+
+/** The row of a path relative to content/. Everything outside a row's tree is the
+ * canonical language, including a translation folder whose language has no row yet.
+ * Such a folder publishes nothing: buildPages reads only the rows. */
+export const rowOfContentPath = (rel) => {
+  const top = rel.split(/[\\/]/)[0];
+  return LANGS.find((row) => row.contentDir === top) ?? langRow(CANONICAL_LANG);
+};
+
 /** The row of a language code. An unknown code is an error, not a fallback. */
 export const langRow = (code) => {
   const row = LANGS.find((candidate) => candidate.code === code);

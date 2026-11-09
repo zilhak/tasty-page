@@ -1,4 +1,5 @@
 // @ts-check
+import { relative } from "node:path";
 import { fileURLToPath } from "node:url";
 import { defineConfig } from "astro/config";
 import react from "@astrojs/react";
@@ -7,6 +8,9 @@ import { createGuideLinkPlugin, outsideLinks } from "./src/lib/satteri-guide-lin
 import { createDiagramPlugin } from "./src/lib/satteri-diagrams.mjs";
 import { createTableWrapPlugin } from "./src/lib/satteri-table-wrap.mjs";
 import { BASE, SITE } from "./src/lib/base.mjs";
+import { rowOfContentPath } from "./src/lib/langs.mjs";
+
+const CONTENT_ROOT = fileURLToPath(new URL("content", import.meta.url));
 
 export default defineConfig({
   site: SITE,
@@ -43,10 +47,10 @@ export default defineConfig({
   markdown: {
     processor: satteri({
       hastPlugins: [
-        createGuideLinkPlugin(fileURLToPath(new URL("content", import.meta.url))),
-        // The English tree is `content/en/`; everything else is the Korean source.
+        createGuideLinkPlugin(CONTENT_ROOT),
         createTableWrapPlugin(),
-        createDiagramPlugin((url) => (url && fileURLToPath(url).includes("/content/en/") ? "en" : "ko"), BASE),
+        // A diagram's labels are in the language of the tree its file sits in.
+        createDiagramPlugin((url) => rowOfContentPath(url ? relative(CONTENT_ROOT, fileURLToPath(url)) : "").code, BASE),
       ],
     }),
   },
