@@ -44,6 +44,9 @@ export const ORDER: string[] = [
   "help/cli-diagnostics",
 ];
 
+/** Whether a name can be a translation folder under content/. A section holds canonical pages. */
+export const canBeTranslationDir = (name: string) => /^[a-z][a-z0-9-]*$/.test(name) && !SECTIONS.includes(name);
+
 const STAMP_PREFIX = "<!-- source-hash:";
 const CONTENT_DIR = "content";
 
