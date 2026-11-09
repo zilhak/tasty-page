@@ -92,16 +92,17 @@ export function descriptionOf(source: string, fallback: string): string {
     .replace(/[`*]/g, "")
     .replace(/\s+/g, " ")
     .trim();
-  const sentence = text.match(/^.+?[.!?](?=\s|$)/);
+  // Japanese and Chinese sentences end in a full-width mark with no space after it.
+  const sentence = text.match(/^.+?(?:[.!?](?=\s|$)|[。！？])/);
   return (sentence ? sentence[0] : text) || fallback;
 }
 
-/** Sidebar label: the title without a trailing parenthetical or dash clause. */
+/** Sidebar label: the title without a trailing parenthetical or dash clause, half-width or full-width. */
 export function navLabel(title: string, rel: string): string {
   let label = title;
-  const paren = label.indexOf(" (");
+  const paren = label.search(/ \(|（/);
   if (paren >= 2) label = label.slice(0, paren);
-  const dash = label.indexOf(" — ");
+  const dash = label.search(/ — |——|[―－]|(?<=[\p{sc=Han}\p{sc=Hira}\p{sc=Kana}])—/u);
   if (dash >= 0) label = label.slice(0, dash);
   label = label.trim();
   return label || rel;
