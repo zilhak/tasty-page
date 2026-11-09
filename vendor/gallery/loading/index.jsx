@@ -82,17 +82,23 @@ function BootFrame({ w, h, z = 1, phase, showPhase = true, theme }) {
 // Same boot surface + lockup, then a form: title · sub · [Windows: Git Bash notice] · path Input ·
 // validation line (height ALWAYS reserved = one caption line) · Quit / Use this shell.
 // check: "empty" | "missing" | "notShell" | "valid"  — one line per host verdict (path empty / no file /
-// file exists but name has no bash|zsh / valid).
+// exists but is not Git Bash, Windows only / valid). "valid" says Git Bash on Windows, shell elsewhere.
+// notice: Windows only. "missing" = no Git Bash in a default location, "required" = a saved value failed
+// while a default location has Git Bash. It follows that search, not the verdict, so it stays while typing.
 const SHELL_CHECK = {
   empty:    null,
   missing:  { glyph: "alertCircle", fg: "var(--tasty-accent-danger-raised)",  text: "No file at this path" },
-  notShell: { glyph: "alertCircle", fg: "var(--tasty-accent-danger-raised)",  text: "Not a bash or zsh executable" },
-  valid:    { glyph: "check",       fg: "var(--tasty-accent-success-raised)", text: "Shell found" },
+  notShell: { glyph: "alertCircle", fg: "var(--tasty-accent-danger-raised)",  text: "Not Git Bash. Use bash.exe from Git for Windows" },
+  valid:    { glyph: "check",       fg: "var(--tasty-accent-success-raised)", text: "Shell found", textWin: "Git Bash found" },
 };
-function ShellSetupFrame({ check = "valid", os = "mac", theme }) {
+const SHELL_NOTICE = {
+  missing:  "Git Bash was not found in the default install locations. Install Git for Windows, or enter the path to bash.exe if it is elsewhere.",
+  required: "On Windows, Tasty runs only Git Bash. Enter the path to its bash.exe.",
+};
+function ShellSetupFrame({ check = "valid", os = "mac", notice = "missing", value: valueProp, theme }) {
   const c = SHELL_CHECK[check];
   const win = os === "win";
-  const value = { empty: "", missing: win ? "C:/Program Files/Git/bin/bash.exe" : "/usr/local/bin/zsh", notShell: win ? "C:/Windows/System32/cmd.exe" : "/usr/bin/fish", valid: win ? "D:/Tools/Git/bin/bash.exe" : "/bin/zsh" }[check];
+  const value = valueProp ?? { empty: "", missing: win ? "C:/Program Files/Git/bin/bash.exe" : "/usr/local/bin/zsh", notShell: "C:/Windows/System32/cmd.exe", valid: win ? "D:/Tools/Git/bin/bash.exe" : "/bin/zsh" }[check];
   return (
     <div style={{ display: "inline-block", border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius-8)", overflow: "hidden" }}>
       <div {...(theme ? { "data-theme": theme } : {})} style={{ width: 640, height: 480, background: "var(--tasty-bg-app)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
@@ -103,12 +109,12 @@ function ShellSetupFrame({ check = "valid", os = "mac", theme }) {
           {win && (
             <div style={{ display: "flex", alignItems: "flex-start", gap: "var(--tasty-space-xs)", fontSize: "var(--tasty-font-size-caption)", lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-accent-warning-raised)" }}>
               <span style={{ display: "inline-flex", flex: "none", marginTop: "var(--tasty-size-1)" }}><LIcon name="alertTriangle" size="var(--tasty-icon-size-sm)" /></span>
-              <span>Git Bash was not found. Install Git for Windows, or enter the path to bash.exe.</span>
+              <span>{SHELL_NOTICE[notice]}</span>
             </div>
           )}
           <LInput block mono defaultValue={value} placeholder={win ? "C:/Program Files/Git/bin/bash.exe" : "/bin/zsh"} />
           <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-xs)", minHeight: "calc(var(--tasty-font-size-caption) * var(--tasty-line-height-ui))", fontSize: "var(--tasty-font-size-caption)", color: c ? c.fg : undefined }}>
-            {c && <><LIcon name={c.glyph} size="var(--tasty-icon-size-sm)" />{c.text}</>}
+            {c && <><LIcon name={c.glyph} size="var(--tasty-icon-size-sm)" />{(win && c.textWin) || c.text}</>}
           </div>
           <div style={{ display: "flex", justifyContent: "flex-end", gap: "var(--tasty-space-sm)", marginTop: "var(--tasty-space-sm)" }}>
             <LButton variant="secondary">Quit</LButton>
@@ -246,20 +252,32 @@ function Page() {
       </Section>
       <Section id="shellsetup" title="First-run shell setup">
         <Spec id="shell-path-form-quit-use-this-shell" title="Shell path form — Quit / Use this shell"
-          when={<>Shown on the boot surface when no usable shell is configured (<code>render_shell_setup</code>). Same fill and lockup as the loading screen, then a 360-wide form: title, a sub that may wrap to two lines (body, line-height-ui; never truncated), mono path <b>Input</b>, a validation line (glyph + word), and a right-aligned button row. The confirm moves to the shared <b>Button primary</b> (md) — the hand-painted accent-success fill goes, there is no success variant — and is labelled by what it does, <b>Use this shell</b> (the untranslated "OK" goes; i18n key). <b>Quit</b> (was Cancel — it exits the app) is Button secondary. The validation line has one message per host verdict, and on <b>Windows</b> a warning caption names the missing Git Bash (2026-10-06). While the path is not an executable, the primary is <b>disabled</b> with the shared ink rule; the validation line says why.</>}>
+          when={<>Shown on the boot surface when no usable shell is configured (<code>render_shell_setup</code>). Same fill and lockup as the loading screen, then a 360-wide form: title, a sub that may wrap to two lines (body, line-height-ui; never truncated), mono path <b>Input</b>, a validation line (glyph + word), and a right-aligned button row. The confirm moves to the shared <b>Button primary</b> (md) — the hand-painted accent-success fill goes, there is no success variant — and is labelled by what it does, <b>Use this shell</b> (the untranslated "OK" goes; i18n key). <b>Quit</b> (was Cancel — it exits the app) is Button secondary. The validation line has one message per host verdict. On <b>Windows</b> only Git Bash passes, and a warning caption says what is missing. Git Bash can sit in any folder, so a valid path can sit under the caption that says none is in the default locations. While the path does not pass, the primary is <b>disabled</b> with the shared ink rule; the validation line says why.</>}>
           <Stage variant="solo" style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-lg)", padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)" }} eager>
             <ShellSetupFrame os="win" check="empty" />
             <ShellSetupFrame os="win" check="missing" />
             <ShellSetupFrame os="win" check="notShell" />
             <ShellSetupFrame os="win" check="valid" />
-            <ShellSetupFrame os="mac" check="notShell" />
+            <ShellSetupFrame os="mac" check="missing" />
             <ShellSetupFrame os="mac" check="valid" />
             <ShellSetupFrame os="win" check="missing" theme="latte" />
             <ShellSetupFrame os="mac" check="valid" theme="latte" />
           </Stage>
           <Meta
-            specs={[["form width", "360 · --tasty-size-360"], ["stack", "lockup → (space-xl) → title · sub · input · validation · buttons (space-sm)"], ["title", "14 / 600 · text-primary"], ["validation (2026-10-06)", "empty → blank line, height reserved · No file at this path · Not a bash or zsh executable (danger) · Shell found (success)"], ["Git Bash notice", "Windows only · caption line alertTriangle + warning ink · between sub and Input · no box"], ["confirm", "Button primary md · Use this shell · disabled unless valid · Enter = confirm when valid"], ["cancel → Quit", "Button secondary md · labelled Quit because it exits the app"], ["no card", "the host's 440 card, 12px literal and 32 input go: control-height Input, caption type, size-360 form"]]}
+            specs={[["form width", "360 · --tasty-size-360"], ["stack", "lockup → (space-xl) → title · sub · input · validation · buttons (space-sm)"], ["title", "14 / 600 · text-primary"], ["validation", "empty → blank line, height reserved · one line, never wraps · No file at this path (danger, every OS) · Not Git Bash. Use bash.exe from Git for Windows (danger, Windows only) · Shell found (success, macOS and Linux) · Git Bash found (success, Windows only)"], ["Git Bash notice", "Windows only · caption alertTriangle + warning ink · between sub and Input · no box · wraps, up to 3 lines in en · this case: no Git Bash in a default location"], ["confirm","Button primary md · Use this shell · disabled unless valid · Enter = confirm when valid"], ["cancel → Quit", "Button secondary md · labelled Quit because it exits the app"], ["no card", "the host's 440 card, 12px literal and 32 input go: control-height Input, caption type, size-360 form"]]}
             tokens={[{ tok: "--tasty-accent-success", use: "valid line", color: "var(--tasty-accent-success-raised)" }, { tok: "--tasty-accent-danger", use: "invalid line", color: "var(--tasty-accent-danger-raised)" }, { tok: "--tasty-state-disabled-fg", use: "disabled confirm ink", color: "var(--tasty-state-disabled-fg)" }]} />
+        </Spec>
+        <Spec id="windows-saved-shell-refused-git-bash-in-default-location" title="Windows — saved shell refused, Git Bash in a default location"
+          when={<>The saved value is refused or has no file, while a default location has Git Bash. The screen keeps the saved value, so the validation line alone would not say that only Git Bash runs on Windows. Someone whose zsh or PowerShell worked before reads it here. The caption is the same shape with another sentence, chosen by the same search: Git Bash found in a default location takes this one, none found takes the one above.</>}>
+          <Stage variant="solo" style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-lg)", padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)" }} eager>
+            <ShellSetupFrame os="win" check="missing" notice="required" value="D:/Old/Git/bin/bash.exe" />
+            <ShellSetupFrame os="win" check="notShell" notice="required" value="C:/msys64/usr/bin/bash.exe" />
+            <ShellSetupFrame os="win" check="valid" notice="required" value="C:/Program Files/Git/bin/bash.exe" />
+            <ShellSetupFrame os="win" check="notShell" notice="required" value="C:/msys64/usr/bin/bash.exe" theme="latte" />
+          </Stage>
+          <Meta
+            specs={[["notice, no Git Bash in a default location", "boot.shell_setup.git_bash_missing"], ["notice, Git Bash in a default location", "boot.shell_setup.git_bash_required"], ["valid on Windows", "boot.shell_setup.check_valid_git_bash · check_valid stays for macOS and Linux"], ["input", "keeps the saved value until the user confirms a new one"]]}
+            tokens={[{ tok: "--tasty-accent-warning", use: "notice", color: "var(--tasty-accent-warning-raised)" }, { tok: "--tasty-accent-danger", use: "invalid line", color: "var(--tasty-accent-danger-raised)" }, { tok: "--tasty-accent-success", use: "valid line", color: "var(--tasty-accent-success-raised)" }]} />
         </Spec>
       </Section>
       <Section id="shutdown" title="Shutdown screen">
