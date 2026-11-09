@@ -262,6 +262,9 @@
     searchInput.addEventListener("focus", loadIndex);
     searchInput.addEventListener("input", run);
     searchInput.addEventListener("keydown", function (e) {
+      /* An input method uses these keys to pick a candidate while it composes. Safari
+         reports the Enter that ends a composition only by its key code. */
+      if (e.isComposing || e.keyCode === 229) return;
       if (e.key === "ArrowDown") { e.preventDefault(); move(1); }
       else if (e.key === "ArrowUp") { e.preventDefault(); move(-1); }
       else if (e.key === "Enter") {
