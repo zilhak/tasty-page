@@ -49,6 +49,11 @@ jobs:
       # Every public page in the build must be in the sitemap, and nothing else.
       - run: npm run check-sitemap
 
+      # Compare the translated guides with the Korean source. The English tree predates
+      # this check and is only counted locally. --skip-missing goes away when the ja and
+      # zh language rows are added.
+      - run: npm run check-translations -- --skip-missing ja zh
+
       # Pages setup and upload run only when the deploy job runs.
       - if: github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         uses: actions/configure-pages@v5

@@ -11,7 +11,8 @@
     "check-sitemap": "node scripts/check-sitemap.mjs",
     "check-contrast": "node scripts/check-contrast.mjs",
     "check-icons": "node scripts/check-icons.mjs",
-    "check-tokens-copy": "node scripts/check-tokens-copy.mjs"
+    "check-tokens-copy": "node scripts/check-tokens-copy.mjs",
+    "check-translations": "node --experimental-strip-types scripts/check-translations.mjs"
   },
   "dependencies": {
     "@astrojs/react": "6.0.5",
