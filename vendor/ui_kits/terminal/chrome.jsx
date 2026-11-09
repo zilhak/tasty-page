@@ -72,8 +72,9 @@ function TitleBar({ workspace }) {
 }
 
 // Running count: how many terminal surfaces in this workspace the dot counts as running. Same value as the dot,
-// so 0 means an idle dot. Sits right after the dot slot on every row. A row's flex gap is dot-gap, so the margin
-// turns slot → numeral into running-count-gap. Ink follows the text-muted role on the row's ground.
+// so 0 means an idle dot. The numeral and its title show from 1. The column sits right after the dot slot on every
+// row and stays, empty, at 0, so the name holds its x when a value changes between 0 and 1. A row's flex gap is
+// dot-gap, so the margin turns slot → numeral into running-count-gap. Ink follows the text-muted role on the row's ground.
 const RUNNING_COUNT_INK = {
   rest: "var(--tasty-text-muted)",
   hover: "var(--tasty-text-muted-raised)",
@@ -82,13 +83,14 @@ const RUNNING_COUNT_INK = {
   "selected+hover": "var(--tasty-text-on-active-hover)",
   "selected+press": "var(--tasty-text-on-active-hover)",
 };
-function WorkspaceRunningCount({ count = 0, state = "rest", ...rest }) {
+function WorkspaceRunningCount({ count = 0, state = "rest", title, ...rest }) {
+  const shown = count > 0;
   return (
-    <span {...rest} style={{ flex: "none", boxSizing: "border-box", display: "inline-flex", alignItems: "center",
+    <span {...rest} title={shown ? title : undefined} style={{ flex: "none", boxSizing: "border-box", display: "inline-flex", alignItems: "center",
       minWidth: "max(var(--tasty-workspace-running-count-min-width), 2ch)", height: "calc(var(--tasty-font-size-body) * var(--tasty-line-height-ui))",
       marginLeft: "calc(var(--tasty-workspace-running-count-gap) - var(--tasty-workspace-dot-gap))",
       fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-workspace-running-count-font-size)", fontWeight: "var(--tasty-font-weight-medium)",
-      color: RUNNING_COUNT_INK[state], whiteSpace: "nowrap" }}>{count > 99 ? "99+" : count}</span>
+      color: RUNNING_COUNT_INK[state], whiteSpace: "nowrap" }}>{shown ? (count > 99 ? "99+" : count) : null}</span>
   );
 }
 

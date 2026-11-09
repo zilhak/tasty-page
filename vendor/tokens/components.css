@@ -599,7 +599,8 @@
   --tasty-workspace-dot-slot:      var(--tasty-size-16);    /* 16 at scale 1 — DERIVED in Theme: round(dot) + 2 × (round(ring-width) + round(ring-offset)); never rounded on its own (0.85 → 15, 1.2 → 18). Square; height does not grow the row. */
   --tasty-workspace-row-active-bar-width: var(--tasty-selection-edge-width); /* 2 — hairline, zoom-exempt */
   --tasty-workspace-dot-gap:       var(--tasty-space-xs);   /* 4 — slot → title / subtitle / pill */
-  /* Running count (2026-11-09) — plain mono numeral between the dot slot and the body, on every row, 0 included.
+  /* Running count (2026-11-09) — plain mono numeral between the dot slot and the body, shown from 1. At 0 no numeral:
+     the column stays, empty, on every row, so body x is the same at 0 to 99.
      Row x at scale 1: 8 + slot 16 + gap 2 + column 10 + dot-gap 4 = body 40. Ink: the text-muted role, no token of its own. */
   --tasty-workspace-running-count-gap:       var(--tasty-size-2);  /* 2 — slot → numeral; clears the attached ring and the keycap */
   --tasty-workspace-running-count-min-width: var(--tasty-size-10); /* 10 — two D2Coding digits at micro, so 0 to 99 never move the name. Another mono font: the wider of this and its two digits */

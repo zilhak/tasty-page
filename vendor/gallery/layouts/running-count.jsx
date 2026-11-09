@@ -119,7 +119,7 @@ const LONG = "very-long-workspace-name-for-the-narrow-sidebar";
 export function RunningCountSpec() {
   return (
     <Spec id="workspace-row-running-count" title="Workspace row — running count"
-      when={<>Use in expanded workspace rows to show running terminal surfaces, including hidden tabs and excluding plugin surfaces. Place the bare numeral between the status dot and name. The dot uses the same test: 0 is idle, 1 or more is running. Filled NeedsInput and Completion pills stay at the far right; a surface can count toward both activity and attention.</>}>
+      when={<>Use in expanded workspace rows to show running terminal surfaces, including hidden tabs and excluding plugin surfaces. Place the bare monospace numeral between the status dot and name. Show it from 1, cap it at 99+, and show no numeral or tooltip at 0. The dot uses the same test: 0 is idle, 1 or more is running. Filled NeedsInput and Completion pills stay at the far right; a surface can count toward both activity and attention. Show no count in the collapsed rail.</>}>
       <Stage variant="tight" grid>
         <ThreeWidths>
           <CountRow name="tasty-core" count={2} state="selected" />
@@ -130,10 +130,22 @@ export function RunningCountSpec() {
         </ThreeWidths>
       </Stage>
       <Views>
-        <View name="running-count-values" label="Values: every row shows the number, and 0 to 99 keep the name in place">
-          <Rows rows={[["0 — idle dot", { name: "scratch", count: 0 }], ["1", { name: "docs-site", count: 1 }], ["9", { name: "data-etl", count: 9 }], ["12 — two digits fill the column", { name: "monorepo", count: 12 }], ["99", { name: "farm", count: 99 }], ["128 → 99+, this row's column grows", { name: "farm-large", count: 128 }]]} />
+        <View name="running-count-values" label="Values: the number shows from 1, and 0 to 99 keep the name in place">
+          <Rows rows={[["value 0 — no number, empty column, idle dot", { name: "scratch", count: 0 }], ["value 1", { name: "docs-site", count: 1 }], ["value 9", { name: "data-etl", count: 9 }], ["value 12 — two digits fill the column", { name: "monorepo", count: 12 }], ["value 99", { name: "farm", count: 99 }], ["value 128 → 99+, this row's column grows", { name: "farm-large", count: 128 }]]} />
         </View>
-        <View name="running-count-row-states" label="Row states: hover, press and selected, at 0 and at 3">
+        <View name="running-count-zero-column" label="0 and 1 back to back: the same row keeps its name x and its truncation, and only the number and the dot change">
+          <ThreeWidths>
+            <CountRow name="docs-site" count={0} />
+            <CountRow name="docs-site" count={1} />
+            <CountRow name={LONG} count={0} />
+            <CountRow name={LONG} count={1} />
+            <CountRow name="tasty-core" count={0} state="selected" />
+            <CountRow name="tasty-core" count={1} state="selected" />
+            <CountRow name={LONG} count={0} ni={2} done={5} />
+            <CountRow name={LONG} count={1} ni={2} done={5} />
+          </ThreeWidths>
+        </View>
+        <View name="running-count-row-states" label="Row states: hover, press and selected. Ink shows at 3, and at 0 the same ground holds an empty column">
           <Rows rows={["rest", "hover", "press", "selected", "selected+hover", "selected+press"].flatMap((state) => [[`${state} · 3`, { name: "docs-site", count: 3, state }], [`${state} · 0`, { name: "scratch", count: 0, state }]])} />
         </View>
         <View name="running-count-attention" label="Beside attention: the left number is activity, the filled pills at the far end are attention">
@@ -157,10 +169,10 @@ export function RunningCountSpec() {
             <CountRow name="data-pipeline" count={4} done={1} />
           </ThreeWidths>
         </View>
-        <View name="running-count-marks" label="With the row's other marks: the column does not move, and lines below start at the name">
-          <Rows rows={[["switch keycap over the dot", { name: "docs-site", count: 3, keycap: "2" }], ["switch keycap · selected", { name: "tasty-core", count: 12, keycap: "1", state: "selected" }], ["attached ring", { name: "api-gateway", count: 1, attached: true }], ["attach wait spinner", { name: "build-farm", count: 0, loading: true }], ["mirror · subtitle · description", { name: "data-pipeline", count: 3, mirror: true, subtitle: "mirror → gb10", description: "nightly ETL across the warehouse, last run 18m ago" }]]} />
+        <View name="running-count-marks" label="With the row's other marks: the column does not move at any value, and lines below start at the name">
+          <Rows rows={[["switch keycap over the dot", { name: "docs-site", count: 3, keycap: "2" }], ["switch keycap · value 0", { name: "scratch", count: 0, keycap: "3" }], ["switch keycap · selected", { name: "tasty-core", count: 12, keycap: "1", state: "selected" }], ["switch keycap · selected · value 0", { name: "scratch", count: 0, keycap: "4", state: "selected" }], ["attached ring", { name: "api-gateway", count: 1, attached: true }], ["attached ring · value 0", { name: "api-gateway", count: 0, attached: true }], ["attach wait spinner · value 0", { name: "build-farm", count: 0, loading: true }], ["attach wait spinner · value 2", { name: "build-farm", count: 2, loading: true }], ["mirror · subtitle · description", { name: "data-pipeline", count: 3, mirror: true, subtitle: "mirror → gb10", description: "nightly ETL across the warehouse, last run 18m ago" }], ["mirror · subtitle · description · value 0", { name: "data-pipeline", count: 0, mirror: true, subtitle: "mirror → gb10", description: "nightly ETL across the warehouse, last run 18m ago" }]]} />
         </View>
-        <View name="running-count-tooltip" label="Tooltip: over the number only, with the exact value">
+        <View name="running-count-tooltip" label="Tooltip: over the number only, with the exact value. A row at 0 has no number and no tooltip">
           <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-size-40)", padding: "var(--tasty-size-40) var(--tasty-size-64) var(--tasty-space-md)", background: "var(--tasty-bg-sidebar)" }}>
             <Tooltip open placement="top" content="Running surfaces: 3"><WorkspaceRunningCount count={3} /></Tooltip>
             <Tooltip open placement="top" content="Running surfaces: 128"><WorkspaceRunningCount count={128} /></Tooltip>
@@ -168,11 +180,11 @@ export function RunningCountSpec() {
         </View>
       </Views>
       <Meta
-        specs={[["position", "between the dot slot and the name, on every expanded row"], ["slot → numeral", <span className="tok">--tasty-workspace-running-count-gap</span>], ["column", <><span className="tok">--tasty-workspace-running-count-min-width</span>, numeral left-aligned</>], ["numeral → name", <span className="tok">--tasty-workspace-dot-gap</span>], ["body x", "8 + 16 + 2 + 10 + 4 = 40"], ["type", <><span className="tok">--tasty-workspace-running-count-font-size</span>, mono, medium</>], ["overflow", <>above <span className="tok">--tasty-workspace-running-count-max</span>: 99+</>], ["motion", "none, the value swaps"], ["width taken from the name", "small 14 · medium 16 · large 19"], ["narrowest name room", "small 21 · medium 32 · large 41"]]}
+        specs={[["position", "between the dot slot and the name, on expanded rows"], ["value 0", "no numeral, no tooltip, the column stays empty"], ["value 1 or more", "numeral and tooltip"], ["slot → numeral", <span className="tok">--tasty-workspace-running-count-gap</span>], ["column", <><span className="tok">--tasty-workspace-running-count-min-width</span>, numeral left-aligned</>], ["numeral → name", <span className="tok">--tasty-workspace-dot-gap</span>], ["body x", "8 + 16 + 2 + 10 + 4 = 40"], ["type", <><span className="tok">--tasty-workspace-running-count-font-size</span>, mono, medium</>], ["overflow", <>above <span className="tok">--tasty-workspace-running-count-max</span>: 99+</>], ["motion", "none, the value swaps"], ["width taken from the name", "small 14 · medium 16 · large 19"], ["narrowest name room", "small 21 · medium 32 · large 41"]]}
         tokens={[{ tok: "--tasty-text-muted", use: "rest", color: "var(--tasty-text-muted)" }, { tok: "--tasty-text-muted-raised", use: "hover, press", color: "var(--tasty-text-muted-raised)" }, { tok: "--tasty-text-on-active", use: "selected", color: "var(--tasty-text-on-active)" }, { tok: "--tasty-text-on-active-hover", use: "selected+hover, selected+press", color: "var(--tasty-text-on-active-hover)" }]} />
-      <Do><b>Do</b> show 0 on quiet rows and reserve the numeral column so the name stays in place when the value changes between 0 and 1.</Do>
+      <Do><b>Do</b> show the numeral from 1 and keep its column empty at 0 so the name stays in place when the value changes between 0 and 1.</Do>
       <Dont><b>Don't</b> use a filled pill, an accent colour or the trailing group for the count; these treatments make it read as attention.</Dont>
-      <Note>Use one muted text tone in both themes: Latte's muted and secondary inks are identical, and the dot already distinguishes idle from running. Swap numerals without motion because updates about once a second would keep drawing attention. The column always holds a number, so it does not violate the attention pills' rule against reserving empty slots.</Note>
+      <Note>Use one muted text tone in both themes because Latte's muted and secondary inks are identical, and the dot already distinguishes idle from running. Swap numerals without motion because updates about every two seconds would keep drawing attention. Reserving the empty column prevents name movement and changes in visible characters for truncated names, at a cost of 11, 12, or 14 px in small, medium, or large rows. The idle dot preserves the meaning at 0. The attention pills' rule concerns a trailing group that collapses inline; the numeral column instead stabilizes the name within the leading indent beside the reserved dot slot.</Note>
     </Spec>
   );
 }
