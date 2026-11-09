@@ -9,7 +9,7 @@
   트리에는 없어서 좌표를 실재로 판정하는 CI의 경로 검사가 실패할 수 있다)
 - 배포: `.github/workflows/pages.yml`. `main`과 `release`의 push마다 `npm run build`로 빌드하고
   `npm run check-links`로 산출물의 내부 링크와 `content/` 앵커의 실제 HTML 결과, 디자인 페이지 사이 링크의 언어 유지를 전수 판정하고, `npm run check-sitemap`으로
-  공개 페이지와 sitemap을 대조한다.
+  공개 페이지와 sitemap을 대조하고, `npm run check-translations`로 일본어·중국어 가이드를 한국어 원본과 대조한다.
   **배포는 `release` push와 `release`에서 수동 실행할 때만** 한다. 공개 사이트는 사용자가 받을 수 있는
   버전을 설명해야 하기 때문이다. `main`은 최신 페이지라 빌드와 검사만 한다. 표시 버전은 공개된 최신
   Tasty 릴리스(`release.json`)이고, 이 파일이 없는 로컬 빌드는 버전을 표시하지 않는다.
@@ -39,10 +39,12 @@
 보장하는 범위를 명시하고, 연동 설정이 필요한 알림은 그 조건을 함께 설명한다.
 크로스 플랫폼 소개는 워크스페이스·탭·화면 분할처럼 같은 방식으로 사용하는 기능을 설명하고,
 설치 방법과 지원 아키텍처는 설치 가이드로 연결한다.
+일본어는 설명에 です・ます체, 안내에 〜してください를 쓴다. 한국어의 "합니다", "하세요"에 대응한다.
+중국어 간체는 `vendor/i18n/zh-Hans/glossary.json`의 `style.common`을 따른다.
 
 - 사이트 문구는 가이드를 포함해 Codex가 쓴다. Claude는 문구를 직접 쓰지 않고, Codex가 쓴 문구를 사실과 이 규칙에 대조한다. 어긋나면 Codex에게 다시 쓰게 한다(사용자 결정).
 - 사이트 화면의 문구는 `src/lib/i18n/<언어>.mjs`의 사전에서 관리한다. 랜딩과 앱 예시는 `landing`, 검색·공유 소개는 `meta`, 공통 안내와 푸터는 `chrome`, 사이드바 묶음은 `sections`, 개인정보 안내는 `privacy`, 그림 라벨은 `diagrams`다. 모든 언어의 값을 함께 고친다.
-- 사용자 가이드는 `content/`와 `content/en/`를 같은 의미로 수정한다.
+- 사용자 가이드는 `content/`와 모든 번역 폴더를 같은 의미로 수정한다.
   명령어, 설정 키, 실제 메뉴 이름과 주의사항은 의미를 유지한다. 번역을 수정한 뒤 스탬프를 갱신한다.
 - 제목을 바꿀 때 기존 앵커를 별칭으로 남겨 저장된 링크도 계속 열리게 한다.
 - 디자인 소개와 메타 설명은 사전의 `designHome`에서 `intro`와 `description`으로 나누어 관리한다.
@@ -61,7 +63,7 @@
 - 배치 복원, 닫은 항목 복원, 프리셋 적용, 에이전트 세션 재개를 구분한다. 재시작 뒤 실행 중이던 모든 프로세스가 그대로 살아난다고 쓰지 않는다.
 - 알림 패널, 서피스 강조, 부모 대화로 결과 전달을 구분한다. 응답 종료·idle·작업 성공을 같은 뜻으로 쓰지 않는다.
 - 제품명은 Tasty, 명령은 `tasty`, 연동 대상은 Claude Code·Codex CLI로 쓴다. 웹사이트 언어는 한국어·영어, 앱 내장 언어는 영어·한국어·일본어로 구분한다.
-- 메뉴 이름은 앱의 실제 메뉴 이름을 기준으로 쓴다. 한국어 가이드의 첫 등장에는 영어 라벨을 HTML 주석으로 붙인다. 한국어·영어 문구는 각 언어의 페이지에 나누어 싣는다.
+- 메뉴 이름은 앱의 실제 메뉴 이름을 기준으로 쓴다. 한국어 가이드의 첫 등장에는 영어 라벨을 HTML 주석으로 붙인다. 언어별 문구는 각 언어의 페이지에 나누어 싣는다.
 - 원칙의 지향점이나 향후 구상을 현재 구현의 보장으로 옮기지 않는다. 플러그인 인증처럼 아직 제공하지 않는 제도를 현재 기능으로 홍보하지 않는다.
 
 ## FE 골격
@@ -75,7 +77,7 @@
   package.json          astro · @astrojs/react · react 18
   astro.config.mjs      정적 출력, React 아일랜드
   vendor/               Tasty UI 디자인 정본. 사이트가 그대로 import한다
-  scripts/              check-links · check-sitemap · check-contrast · check-icons · check-tokens-copy · stamp · design-tokens/
+  scripts/              check-links · check-sitemap · check-translations · check-contrast · check-icons · check-tokens-copy · stamp · design-tokens/
   src/pages/            라우트
   src/components/ src/layouts/ src/lib/ src/styles/
 ```
@@ -182,6 +184,7 @@ npm run check-sitemap   # 빌드 결과의 공개 페이지와 sitemap.xml 대�
 npm run check-contrast  # 빌드 결과의 갤러리·사이트 페이지 렌더링 대비 검사
 npm run check-icons     # vendor 아이콘 파일과 Icon 컴포넌트의 글리프 대조
 npm run check-tokens-copy  # vendor/tokens.css의 1단계 값과 primitives.css 대조
+npm run check-translations -- ja zh  # 번역 가이드와 한국어 원본의 구조 대조 (아래 "번역 구조 검사")
 
 # 번역 파일에 원본 해시 스탬프 (아래 "번역 모델")
 npm run stamp content/en/index.md
@@ -276,15 +279,15 @@ content/
   remote/           attach
   plugins/          index
   help/             troubleshooting
-  en/               위 트리의 1:1 미러 (번역)
+  en/               위 트리의 1:1 미러 (번역). 번역 폴더마다 같다
 ```
 
 - 새 페이지를 추가하면 `ORDER` 에도 넣는다. 빠뜨리면 발행되지 않는다.
-- CLI 입문(`agents/cli.md`)·명령 참조(`agents/cli-reference.md`)·진단(`help/cli-diagnostics.md`) 페이지의 `sh` 코드 블록에 있는 `tasty …` 예시는 이 레포의 `checks/tests/guide_examples_parse.rs`가 Tasty 소스(`.tasty-src`)의 실제 명령 트리로 파싱한다(ko·en, `checks.yml`). 명령 경로·필수 인자·옵션 이름만 확인하며 plugin 명령, 자리 표시(`<ID>`·`…`), 셸 치환·파이프가 있는 줄은 판정하지 않는다. 문장의 정확성과 실행 결과는 이 검사가 보장하지 않는다.
+- CLI 입문(`agents/cli.md`)·명령 참조(`agents/cli-reference.md`)·진단(`help/cli-diagnostics.md`) 페이지의 `sh` 코드 블록에 있는 `tasty …` 예시는 이 레포의 `checks/tests/guide_examples_parse.rs`가 Tasty 소스(`.tasty-src`)의 실제 명령 트리로 파싱한다(한국어 원본과 `TRANSLATION_DIRS`의 번역 폴더, `checks.yml`). 명령 경로·필수 인자·옵션 이름만 확인하며 plugin 명령, 자리 표시(`<ID>`·`…`), 셸 치환·파이프가 있는 줄은 판정하지 않는다. 문장의 정확성과 실행 결과는 이 검사가 보장하지 않는다.
 - 새 디렉토리(섹션)를 만들면 `SECTIONS` 에 디렉토리를, 모든 사전의 `sections` 에 라벨을 추가한다.
   등록되지 않은 디렉토리에 페이지를 두면 빌드가 실패한다.
-- 페이지 첫 줄 `# 제목` 이 사이드바 라벨이다 (괄호 · 대시 이후는 잘린다).
-- `# 제목` 바로 아래 문단의 첫 문장이 그 페이지의 검색 · 공유 설명(`description`, `og:description`)이다(`src/lib/guide.ts`의 `descriptionOf`). 첫 문장은 페이지를 혼자서 설명하게 쓴다.
+- 페이지 첫 줄 `# 제목` 이 사이드바 라벨이다 (괄호 · 대시 이후는 잘린다. 전각 괄호 `（`와 전각 대시 `——`, `―`, `－`도 같다).
+- `# 제목` 바로 아래 문단의 첫 문장이 그 페이지의 검색 · 공유 설명(`description`, `og:description`)이다(`src/lib/guide.ts`의 `descriptionOf`). 문장 끝은 `.`, `!`, `?` 뒤의 공백이나 전각 `。`, `！`, `？`다. 첫 문장은 페이지를 혼자서 설명하게 쓴다.
 
 ### 집필 규칙
 
@@ -303,9 +306,9 @@ content/
 
 ## 번역 모델
 
-한국어(`content/`)가 canonical 이고 영어(`content/en/`)가 번역이다.
+한국어(`content/`)가 canonical 이고 나머지 언어는 번역이다. 번역 폴더는 언어 행의 `contentDir`이 정한다(`content/en/`).
 
-- **경로 1:1** — `content/en/<rel>` 이 `content/<rel>` 을 그대로 미러한다.
+- **경로 1:1** — `content/<번역 폴더>/<rel>` 이 `content/<rel>` 을 그대로 미러한다.
 - **빠진 번역** — 언어 행의 `contentDir` 폴더에 번역 파일이 없으면 빌드가 언어와 파일 경로를 담아 실패한다.
   한국어 본문으로 대체하지 않는다. 오래된 번역(아래 스탬프)은 실패가 아니라 안내만 낸다. 실패로 만들면 한국어 가이드를 고칠 때마다 빌드가 막히기 때문이다.
 - **스탬프** — 번역 파일 첫 줄에 원본의 내용 해시를 박는다:
@@ -317,12 +320,13 @@ content/
 
   원본이 바뀌어 해시가 달라지면 그 페이지에 "원문보다 오래됐습니다" 배너가 뜬다.
   스탬프가 없는 번역은 stale 로 본다.
-- **링크 경로는 원본과 동일하게, 앵커는 영어 제목의 slug 로 쓴다.** 영어 페이지의 상대 링크는
-  *한국어 위치 기준*으로 해석되므로 파일 경로는 그대로 둔다. 반면 `#앵커` 는 제목 텍스트에서
-  만들어지므로 번역된 페이지의 앵커는 영어 slug 다(`install.md#설치-위치` → `install.md#install-locations`).
+- **링크 경로는 원본과 동일하게, 앵커는 그 언어 제목의 slug 로 쓴다.** 번역 페이지의 상대 링크는
+  같은 트리 안에서 원본과 같은 모양으로 해석되므로 파일 경로는 그대로 둔다. 반면 `#앵커` 는 제목 텍스트에서
+  만들어지므로 번역된 페이지의 앵커는 그 언어의 slug 다(`install.md#설치-위치` → `install.md#install-locations`).
   `npm run check-links` 가 언어별 산출 트리에서 모든 `#앵커` 의 존재를 검사해 없으면 깨진
   링크로 집계한다.
-- **고아 번역** — 대응하는 한국어 원본이 없는 `en/` 파일은 발행되지 않는다(경고 없이 빠진다 — 빌드는 `ORDER` 만 돈다).
+- **고아 번역** — 대응하는 한국어 원본이 없는 번역 파일은 발행되지 않는다(빌드는 경고 없이 뺀다 — 빌드는 `ORDER` 만 돈다). `npm run check-translations` 는 이를 실패로 낸다.
+- **행이 없는 번역 폴더** — 번역 파일은 언어 행보다 먼저 들어온다. 행이 없는 폴더는 발행되지 않는다(`buildPages`와 경로는 행만 읽는다). 글로브 로더는 이 파일도 렌더링하지만 결과를 쓰는 페이지가 없다. 폴더 안 상대 링크는 행이 없어도 같은 값이고, 그림 라벨은 행이 생기기 전까지 정본 언어로 그려진다. 언어 목록은 `langs.mjs` 하나뿐이고, 행이 없는 폴더는 도구의 명령줄에서 이름을 댄다.
 
 ### 번역 절차
 
@@ -332,10 +336,46 @@ $EDITOR content/en/using/terminal.md
 
 # 2. 스탬프를 찍는다 (첫 줄에 삽입하거나, 이미 있으면 갱신)
 npm run stamp content/en/using/terminal.md
+
+# 언어 행이 아직 없는 폴더는 이름을 댄다. 이름을 대지 않은 폴더는 실패한다
+npm run stamp -- --tree ja content/ja/using/terminal.md
+
+# 3. 구조를 대조한다
+npm run check-translations -- ja
 ```
 
 `npm run stamp` 는 **번역을 실제로 손본 직후에만** 실행한다. 갱신 없이 스탬프만 찍으면 stale 표시만
 사라지고 내용은 어긋난 채 남는다.
+
+### 번역 구조 검사
+
+`npm run check-translations`(`scripts/check-translations.mjs`)는 번역 폴더를 한국어 원본과 페이지별로 대조한다. 폴더를 인자로 받고 인자가 없으면 언어 행에서 읽는다. 문장의 뜻은 재지 못한다.
+
+| 규칙 | 실패 조건 |
+|---|---|
+| `files` | 파일 집합이 `ORDER`와 다르다 |
+| `headings` | 제목 수나 깊이의 순서가 다르다 |
+| `fences` | 코드 펜스 수나 언어의 순서가 다르다 |
+| `commands` | 코드 펜스 안의 `tasty ...` 줄이 다르다. `#` 뒤 주석은 뺀다. 원본에서 한글이 든 따옴표 값, `<자리 표시>`, 낱말은 예시 글이라 번역할 수 있다 |
+| `links` | 링크 대상 경로(앵커 제외)의 묶음이 다르다. 순서는 보지 않는다 |
+| `diagrams` | `tasty-diagram` 표식의 이름이나 순서가 다르다 |
+| `labels` | `<!-- en: ... -->` 값의 집합이 다르다 |
+| `stamp` | 스탬프가 없거나 원본 해시와 다르다 |
+| `hangul` | 한글이 남아 있다. 앱 언어 이름 `한국어`와 앱의 한국어 표시 예시는 스크립트의 `ALLOWED_HANGUL`에 적어 뺀다 |
+| `kana` | `zh` 폴더에 가나가 있다 |
+
+`zh` 폴더에서 GB2312 밖의 한자는 번체 후보로 출력하며 실패가 아니다. 근사이므로 사람이 본다.
+
+`--counts`는 규칙별 수만 내고 항상 0으로 끝난다. 영어 번역은 이 검사보다 먼저 쓰였고 범위 밖이라 `labels`가 어긋난다(라벨 주석을 싣지 않는다). 그래서 CI는 영어를 판정하지 않고 `ja`, `zh`만 판정한다. `--skip-missing`은 없는 폴더를 건너뛴다.
+
+### 언어를 더할 때 고칠 곳
+
+- `src/lib/i18n/`: 사전을 쓰고 `index.mjs`에 등록한다.
+- `content/<폴더>/`: 번역 파일을 넣고 스탬프를 찍는다.
+- `checks/src/lib.rs`의 `TRANSLATION_DIRS`: Rust는 `langs.mjs`를 실행하지 못해 폴더 이름을 여기 적는다. 새 폴더를 빠뜨리면 번역이 한국어 원본으로 읽혀 "이름이 가이드에 있는가" 검사가 약해진다. 언어 행의 `contentDir`이 여기 없으면 시험이 실패한다. 행 없이 들어온 폴더는 이 시험이 잡지 못하므로 파일을 넣기 전에 먼저 고친다.
+- `checks/tests/guide_examples_parse.rs`의 `MAY_BE_ABSENT`: 번역이 들어오는 동안만 쓴다. 행을 더할 때 비운다.
+- `.github/workflows/pages.yml`의 `check-translations` 줄: 폴더 이름과 `--skip-missing`.
+- `src/lib/langs.mjs`: 번역 파일과 경로가 준비된 뒤 마지막에 행을 더한다.
 
 **콘텐츠의 내부 링크는 상대경로로 쓴다.** hast 플러그인이 그것을 라우트로 바꾸고, 그 라우트는
 `src/lib/site.ts` 의 `url()` 을 통해 설정된 base 를 반영한다.
