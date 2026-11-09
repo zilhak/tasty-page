@@ -194,7 +194,7 @@ Each location has one ground. It may hold only the listed children, to the liste
 | Pane body | `base` | 1 | `term`, `term-unfocused`, `crust`, `mantle`, `raised` | Holds one surface. See Surface focus for what shows focus on each kind. |
 | Surface head and split line | `mantle` | 2 | `field`, `mantle+hover`, `mantle+press`, `raised`, filled controls, tint boxes over `mantle` | Address bar band: mantle. Split lines take border-frame. |
 | Terminal surface, focused | `term` | 1 | `term-selection`, `term-cursor`, `match@term`, `match-active@term`, `file-drop@term`, `raised` | Banner, toast and search bar float on raised. |
-| Terminal surface, unfocused | `term-unfocused` | 1 | `match@term-unfocused`, `match-active@term-unfocused`, `raised` | Default ink takes surface-terminal-unfocused-fg. |
+| Terminal surface, unfocused | `term-unfocused` | 1 | `match@term-unfocused`, `match-active@term-unfocused`, `raised` | Default ink takes surface-terminal-unfocused-fg, and text-primary in an ordinary search match. |
 | Markdown surface, focused | `term` | 2 | `base`, `mantle`, `raised`, `fill-warning`, `fill-primary`, `file-drop@term` | Content typography is library-driven. Colors follow this table. Address band stays mantle. A callout is its hue at tint-fill-alpha over the bed: title accent-<hue>-raised, body text-primary. A find hit is opaque. |
 | Markdown surface, unfocused | `term-unfocused` | 2 | `base`, `mantle`, `raised`, `fill-warning`, `fill-primary`, `file-drop@term-unfocused` | Table row and zebra swap fills, so neither is the bed in both themes at once. Address band stays mantle. A callout is its hue at tint-fill-alpha over the bed: title accent-<hue>-raised, body text-primary. A find hit is opaque. |
 | HTML surface | `mantle` | 2 | `field`, `raised` | The page is web content, outside these rules. Focus shows on the focus edge above the address band. |
@@ -299,7 +299,7 @@ Three layers, three answers:
 | Search match, unfocused | `match@term-unfocused` | `text-primary` | 4.75 · 4.88 |
 | Active match, unfocused | `match-active@term-unfocused` | `search-match-active-unfocused-fg` | 6.95 · 11.21 |
 
-The overlay ink applies to default cell ink. A cell with its own ANSI color keeps it inside a selection or match, and that pair is content. A terminal link takes an underline in the cell's own ink, so it needs no color. Terminal content never animates.
+The overlay ink applies to default cell ink. On `match@term-unfocused` a default cell changes from `surface-terminal-unfocused-fg`, which would be 3.09 · 3.82 there, to `text-primary`. In the file that ink is the role `text-body`, and it is the cell ink that the forbidden cells of a match name. A cell with its own ANSI color keeps it inside a selection or an ordinary match, and that pair is content. Only an active match replaces that color, so its ink holds on the stronger fill. A terminal link takes an underline in the cell's own ink, so it needs no color. Terminal content never animates.
 
 ## 5. Roles and grades
 
@@ -2048,6 +2048,7 @@ Sits on: `term-unfocused`
 | Part | Token | States | Ground | Lowest, Mocha · Latte |
 |---|---|---|---|---|
 | default ink | `surface-terminal-unfocused-fg` | rest | `term-unfocused` | 7.37 · 4.73 |
+| search match | `text-primary` | rest | `match@term-unfocused` | 4.75 · 4.88 |
 
 ### Surface focus edge
 

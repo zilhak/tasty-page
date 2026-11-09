@@ -382,7 +382,7 @@ function Foundations() {
             </div>
           </Stage>
           <Meta
-            specs={[["set", "16 ANSI (8 normal + 8 bright)"], ["source", "derived from the Catppuccin palette"], ["scope", "terminal cells — not UI chrome"], ["state fills", "selection · vi cursor · search"]]}
+            specs={[["set", "16 ANSI (8 normal + 8 bright)"], ["source", "derived from the Catppuccin palette"], ["scope", "terminal cells — not UI chrome"], ["state fills", "selection · vi cursor · search"], ["match ink, unfocused", "default cell text-primary · ANSI cell keeps its color"]]}
             tokens={[
               { tok: "--tasty-ansi-red", use: "SGR 31 red", color: "var(--tasty-ansi-red)" },
               { tok: "--tasty-ansi-green", use: "SGR 32 green", color: "var(--tasty-ansi-green)" },
@@ -390,11 +390,16 @@ function Foundations() {
               { tok: "--tasty-selection-bg", use: "selection fill", color: "var(--tasty-selection-bg)" },
               { tok: "--tasty-search-match-active-bg", use: "active match", color: "var(--tasty-search-match-active-bg)" },
             ]} />
-          <Note><b>Active match ink (2026-10-10 b12).</b> Glyphs inside the <b>active</b> match are drawn in <span className="tok">--tasty-search-match-active-fg</span>, not the cell's own foreground: Mocha's light text on yellow 70% was 1.61 : 1. Mocha ink → neutral-200 (base) <b>6.95 : 1</b>. Latte keeps text-primary ink and drops the active fill to <b>50%</b> → <b>4.68 : 1</b> (70% was 3.94). Ordinary matches (30%) keep the cell's own colours: Mocha 4.75 · Latte 5.50. Cell colours set by the app (SGR) are overridden only inside the active match.</Note>
+          <Note><b>Active match ink (2026-10-10 b12).</b> Glyphs inside the <b>active</b> match are drawn in <span className="tok">--tasty-search-match-active-fg</span>, not the cell's own foreground: Mocha's light text on yellow 70% was 1.61 : 1. Mocha ink → neutral-200 (base) <b>6.95 : 1</b>. Latte keeps text-primary ink and drops the active fill to <b>50%</b> → <b>4.68 : 1</b> (70% was 3.94). Ordinary matches (30% fill, not the current match) draw cells with default ink in <span className="tok">--tasty-text-primary</span>; on the unfocused bed, this pair measures Mocha 4.75 · Latte 4.88. Cells with their own ANSI color keep that color inside ordinary matches. Cell colours set by the app (SGR) are overridden only inside the active match.</Note>
           <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
             {[["Mocha", "mocha"], ["Latte", "latte"]].map(([lab, th]) => (
               <div key={lab} {...(th ? { "data-theme": th } : {})} style={{ padding: "8px 12px", background: "var(--tasty-surface-terminal-focused-bg)", borderRadius: "var(--tasty-radius)", fontFamily: "var(--tasty-font-mono)", fontSize: 13, color: "var(--tasty-surface-terminal-focused-fg)" }}>
-                {lab}: a <span style={{ background: "var(--tasty-search-match-bg)" }}>match</span> and the <span style={{ background: "var(--tasty-search-match-active-bg)", color: "var(--tasty-search-match-active-fg)" }}>match</span> under the cursor
+                {lab}, focused: a <span style={{ background: "var(--tasty-search-match-bg)" }}>match</span> and the <span style={{ background: "var(--tasty-search-match-active-bg)", color: "var(--tasty-search-match-active-fg)" }}>match</span> under the cursor
+              </div>
+            ))}
+            {[["Mocha", "mocha"], ["Latte", "latte"]].map(([lab, th]) => (
+              <div key={lab} data-theme={th} style={{ padding: "8px 12px", background: "var(--tasty-surface-bed-unfocused)", borderRadius: "var(--tasty-radius)", fontFamily: "var(--tasty-font-mono)", fontSize: 13, color: "var(--tasty-surface-terminal-unfocused-fg)" }}>
+                {lab}, unfocused: a <span style={{ background: "var(--tasty-search-match-bg)", color: "var(--tasty-text-primary)" }}>match</span>, an <span style={{ background: "var(--tasty-search-match-bg)" }}><span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-ansi-red)" }}>ANSI match</span></span> and the <span style={{ background: "var(--tasty-search-match-active-bg)", color: "var(--tasty-search-match-active-unfocused-fg)" }}>match</span> under the cursor
               </div>
             ))}
           </div>
