@@ -210,7 +210,7 @@ export function AppShell({ heading = "Workspaces", task = "run tests", doc }) {
                 </div>
                 <div className="shell__pane">
                   <MarkdownSurface path="~/work/tasty/notes/split-layout.md">
-                    <h2 style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-prose-h1)", margin: "0 0 var(--tasty-space-sm)" }}>
+                    <h2 className="shell__doc-title" style={{ fontSize: "var(--tasty-font-size-prose-h1)", margin: "0 0 var(--tasty-space-sm)" }}>
                       {doc.splitTitle}
                     </h2>
                     <p style={{ fontSize: "var(--tasty-font-size-body)", color: "var(--tasty-text-secondary)" }}>

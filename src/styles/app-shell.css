@@ -33,6 +33,8 @@
 .shell__pane { flex: 1; min-width: 0; display: flex; }
 .shell__side { display: flex; flex: none; }
 .shell__status { flex: none; }
+.shell__doc-title { font-family: var(--tasty-font-mono); }
+.shell__doc-title:lang(ja), .shell__doc-title:lang(zh) { font-family: var(--font-sans); }
 
 
 
