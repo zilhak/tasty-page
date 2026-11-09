@@ -300,7 +300,7 @@ function Components() {
           when={<>Words, including plugin origins, use the label family and follow the UI language; values such as <b>surface kinds</b> (<code>terminal</code>, <code>markdown</code>), permissions (<code>fs:read</code>), versions, sizes, and IDs stay mono with <code>mono</code>. Outlined by default; the <b>agent</b> variant marks agent-owned things.</>}>
           <Stage>
             <Cluster label="variants">
-              <Tag>terminal</Tag><Tag variant="accent">markdown</Tag><Tag variant="agent">plugin</Tag>
+              <Tag mono>terminal</Tag><Tag variant="accent" mono>markdown</Tag><Tag variant="agent">plugin</Tag>
               <Tag variant="success" dot>running</Tag><Tag variant="warning" dot>readonly</Tag><Tag variant="danger" dot>error</Tag>
               <Tag variant="info" dot>info</Tag>
             </Cluster>

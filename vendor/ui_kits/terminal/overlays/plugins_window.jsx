@@ -316,11 +316,11 @@ function AddPluginForm({ onAdded, onCancel }) {
               <p style={{ margin: 0, fontSize: 13, lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-text-secondary)" }}>{manifest.desc}</p>
               <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
                 <Mono>Permissions</Mono>
-                <div style={{ display: "flex", gap: "var(--tasty-space-sm)", flexWrap: "wrap" }}>{manifest.perms.map((p) => <Tag key={p}>{p}</Tag>)}</div>
+                <div style={{ display: "flex", gap: "var(--tasty-space-sm)", flexWrap: "wrap" }}>{manifest.perms.map((p) => <Tag key={p} mono>{p}</Tag>)}</div>
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
                 <Mono>Surface kinds</Mono>
-                <div style={{ display: "flex", gap: "var(--tasty-space-sm)", flexWrap: "wrap" }}>{manifest.surfaces.map((s) => <Tag key={s}>{s}</Tag>)}</div>
+                <div style={{ display: "flex", gap: "var(--tasty-space-sm)", flexWrap: "wrap" }}>{manifest.surfaces.map((s) => <Tag key={s} mono>{s}</Tag>)}</div>
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
                 <Mono>Source</Mono>
