@@ -18,9 +18,10 @@ import { dirname, extname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright-core";
 import { BASE } from "../src/lib/base.mjs";
+import { DEFAULT_LANG, LANGS } from "../src/lib/langs.mjs";
 import { PART_MAP } from "../vendor/gallery/parts/part-map.js";
 import { installPageLib, stylesSettled } from "./contrast-page.mjs";
-import { emptySiteTally, measureRest, runSite, siteRules } from "./contrast-site.mjs";
+import { emptySiteTally, measureRest, runSite, sitePages, siteRules } from "./contrast-site.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const dist = join(root, "dist");
@@ -67,6 +68,19 @@ function galleryPages() {
     if (statSync(join(dir, name)).isDirectory()) pages.push({ key: name, path: `design/gallery/${name}/` });
   }
   return [...pages, ...SPECIMEN_ROUTES];
+}
+
+// Specimens are measured once, on the default language path. Each other language path repeats the same source, so the site
+// pass measures only what differs: the shared parts around the specimen. This fails if one of those paths goes missing.
+function languageGalleries() {
+  const built = sitePages(dist);
+  const counts = LANGS.filter((row) => row.code !== DEFAULT_LANG).map((row) => ({
+    code: row.code,
+    pages: built.filter((path) => path.startsWith(`${row.prefix}design/gallery/`)).length,
+  }));
+  const short = counts.filter((c) => c.pages !== EXPECTED_PAGES);
+  if (short.length > 0) fail(`Expected ${EXPECTED_PAGES} gallery pages per language, found ${short.map((c) => `${c.code} ${c.pages}`).join(", ")}.`);
+  return counts;
 }
 
 async function launch() {
@@ -215,10 +229,12 @@ async function run() {
   const galleryOnly = args.includes("--gallery-only") || argOf("--page") !== null;
   const pages = siteOnly ? [] : galleryPages().filter((p) => !argOf("--page") || p.key === argOf("--page"));
   if (!siteOnly && !argOf("--page") && pages.length !== EXPECTED_PAGES + SPECIMEN_ROUTES.length) fail(`Expected ${EXPECTED_PAGES} gallery pages and ${SPECIMEN_ROUTES.length} specimen routes, found ${pages.length} in all.`);
+  const galleries = galleryOnly ? [] : languageGalleries();
+  if (!galleryOnly) console.log(`gallery pages per language path, shared parts only: ${galleries.map((c) => `${c.code} ${c.pages}`).join(", ") || "no other language"}`);
   const server = await serve();
   const port = server.address().port;
   const browser = await launch();
-  const report = { themes: {} };
+  const report = { themes: {}, languageGalleries: galleries };
   let failed = false;
   const prefix = BASE.replace(/\/$/, "");
   const noGrade = [...noGradeTokens];
@@ -268,7 +284,7 @@ async function run() {
       await tab.close();
     }
     await context.close();
-    // The chrome around the specimens is the same layout, measured here on the pages the site pass leaves out.
+    // The shared parts around the specimens, measured here on the default language paths the site pass leaves out.
     const chromeBad = chrome.below.length + chrome.badExempt.length + chrome.picture.length;
     console.log(`${theme} gallery chrome: pages ${chrome.pages}, text ${chrome.text}, shapes ${chrome.glyph}, below ${chrome.below.length}`);
     chrome.below.slice(0, 100).forEach((b) => console.log(`  chrome ${b.page} ${b.at}: ${b.kind} "${b.text}" ${b.got} on ${b.ground} ${b.ratio} < ${b.grade}`));

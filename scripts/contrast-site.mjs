@@ -13,6 +13,9 @@ import { installPageLib, stylesSettled } from "./contrast-page.mjs";
 
 const VIEWPORTS = [{ name: "wide", width: 1440, height: 1000 }, { name: "narrow", width: 390, height: 844 }];
 const CONCURRENT_TABS = 6;
+// A design page in any language that holds a specimen. The site rules skip inside [data-gallery-page], so without exactly one
+// of those the specimen would be judged by site rules, or the whole page would stop counting as one.
+const SPECIMEN_PAGE = /(?:^|\/)design\/(?:gallery|tokens)\//;
 
 // Rows whose markup no built page has today: it depends on the release, on translation state or on what the guide text
 // happens to use. The fixture is the markup those rules style, so a broken rule shows as a wrong ink. Everything else needs
@@ -151,6 +154,10 @@ async function restPass(context, origin, pages, t, rules, theme, viewport) {
       try {
         await tab.goto(urlOf(origin, page), { waitUntil: "load", timeout: 120000 });
         await settle(tab);
+        if (SPECIMEN_PAGE.test(page)) {
+          const found = await tab.locator("[data-gallery-page]").count();
+          if (found !== 1) t.errors.push(`${page}: expected one [data-gallery-page], found ${found}`);
+        }
         await injectFixtures(tab, page);
         await measureRest(tab, t, rules, theme, page, viewport);
         if (viewport === "wide") await recordAlts(tab, t, rules, page);
