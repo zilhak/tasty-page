@@ -1150,7 +1150,7 @@ function SettingsWindow({ theme, onTheme, uiScale, onUiScale, onClose }) {
         <Row label="Wheel scroll distance:" caption={<RowCaption>Lines scrolled per wheel notch in the terminal. Trackpads scroll by distance and ignore this.</RowCaption>}>
           <Input mono defaultValue="3" style={{ width: "var(--tasty-field-width-xs)" }} /><span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>lines</span>
         </Row>
-        <Row label="Language:" caption={<RowCaption>Changing the language takes effect after Tasty restarts.</RowCaption>}><Select options={["English", "한국어", "日本語"]} style={{ width: "var(--tasty-field-width-md)" }} /></Row>
+        <Row label="Language:" caption={<RowCaption>Changing the language takes effect after Tasty restarts.</RowCaption>}><Select options={["English", "한국어", "日本語", "简体中文"]} style={{ width: "var(--tasty-field-width-md)" }} /></Row>
         {/* 2026-10-21 — explorer Properties time format. Applies on Save. */}
         <Row label="Time format in Properties:" caption={<RowCaption>Used for Modified, Created and Target modified in Explorer Properties, in this computer's time zone. Example: <span style={{ fontFamily: "var(--tasty-font-mono)", color: "var(--tasty-text-secondary)" }}>2026-10-21 12:12</span></RowCaption>}>
           <Select options={[{ value: "minutes", label: "Minutes" }, { value: "seconds", label: "Seconds" }, { value: "seconds_offset", label: "Seconds and UTC offset" }]} defaultValue="minutes" style={{ width: "var(--tasty-field-width-lg)" }} />

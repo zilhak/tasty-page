@@ -134,7 +134,7 @@ import { Spec, Stage, Meta, Note } from "../parts/specimen.jsx";
                   </SettingsRow>
                   <SettingsRow label="Font size:"><span style={{ ...mono, fontSize: "var(--tasty-font-size-body)", color: "var(--tasty-text-primary)" }}>14</span></SettingsRow>
                   <SettingsRow label="On close:"><Select options={["Ask", "Keep running", "Quit"]} style={W} /></SettingsRow>
-                  <SettingsRow label="Language:"><Select options={["English", "한국어", "日本語", "Deutsch"]} style={W} /></SettingsRow>
+                  <SettingsRow label="Language:"><Select options={["English", "한국어", "日本語", "简体中文", "Deutsch"]} style={W} /></SettingsRow>
                 </div>
               </Themed>
             )))}

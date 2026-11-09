@@ -1101,7 +1101,7 @@ function Page() {
             <div style={{ display: "flex", flexDirection: "column", gap: 14, width: 620 }}>
               {[["Restore layout:", <WSwitch key="s" defaultChecked />], ["Close behavior:", <WSelect key="c" options={["Ask", "Minimize to background", "Quit"]} style={{ width: "var(--tasty-field-width-lg)" }} />],
                 ["Wheel scroll distance:", <><WInput key="w" mono defaultValue="3" style={{ width: "var(--tasty-field-width-xs)" }} /><span style={{ fontSize: 12, color: "var(--tasty-text-muted)" }}>lines</span></>, "Lines scrolled per wheel notch in the terminal. Trackpads scroll by distance and ignore this."],
-                ["Language:", <WSelect key="l" options={["English", "한국어", "日本語"]} style={{ width: "var(--tasty-field-width-md)" }} />, "Changing the language takes effect after Tasty restarts."],
+                ["Language:", <WSelect key="l" options={["English", "한국어", "日本語", "简体中文"]} style={{ width: "var(--tasty-field-width-md)" }} />, "Changing the language takes effect after Tasty restarts."],
                 ["Accept webhook calls from other computers:", <WSwitch key="h" />, null, true]].map(([label, ctl, cap, warn]) => (
                 <div key={label} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-settings-row-caption-gap)" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-settings-label-gap)", minHeight: "var(--tasty-settings-row-min-height)" }}>
