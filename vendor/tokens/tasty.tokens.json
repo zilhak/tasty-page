@@ -1607,6 +1607,24 @@
       },
       "$description": "cell ink inside the active search match"
     },
+    "search-match-selected-fg": {
+      "$type": "color",
+      "$value": "{primitive.color-neutral-0}",
+      "$extensions": {
+        "com.tasty.mode": {
+          "latte": "{primitive.color-black}"
+        }
+      }
+    },
+    "search-match-active-selected-bg": {
+      "$type": "color",
+      "$value": "{semantic.search-match-active-bg}",
+      "$extensions": {
+        "com.tasty.mode": {
+          "latte": "color-mix(in srgb, var(--tasty-color-yellow) 80%, transparent)"
+        }
+      }
+    },
     "ansi-black": {
       "$type": "color",
       "$value": "{primitive.color-neutral-400}"

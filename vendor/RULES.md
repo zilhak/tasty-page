@@ -115,6 +115,8 @@ Composited values:
 | `marquee@term-unfocused` | #2b3046 | #c5d1ea |
 | `match@term-unfocused` | #605955 | #ddc7ab |
 | `match-active@term-unfocused` | #b7a788 | #deb783 |
+| `match@term-selection` | #888483 | #bba68e |
+| `match-active@term-selection` | #c9ba9c | #d5953d |
 | `file-drop@term-unfocused` | #2b3046 | #c5d1ea |
 | `crust+hover` | #24242d | #caced5 |
 | `crust+press` | #2e2e36 | #c2c5cc |
@@ -193,8 +195,8 @@ Each location has one ground. It may hold only the listed children, to the liste
 | Tab bar | `mantle` | 1 | `tab-hover`, `base`, `mantle+hover`, `mantle+press`, `raised` | Active tab is base. Scroll arrow cell is raised. |
 | Pane body | `base` | 1 | `term`, `term-unfocused`, `crust`, `mantle`, `raised` | Holds one surface. See Surface focus for what shows focus on each kind. |
 | Surface head and split line | `mantle` | 2 | `field`, `mantle+hover`, `mantle+press`, `raised`, filled controls, tint boxes over `mantle` | Address bar band: mantle. Split lines take border-frame. |
-| Terminal surface, focused | `term` | 1 | `term-selection`, `term-cursor`, `match@term`, `match-active@term`, `file-drop@term`, `raised` | Banner, toast and search bar float on raised. A default cell, bold or dim, takes text-primary in an ordinary search match. It takes text-on-active in a selection. |
-| Terminal surface, unfocused | `term-unfocused` | 1 | `term-selection`, `term-cursor`, `match@term-unfocused`, `match-active@term-unfocused`, `raised` | Default ink takes surface-terminal-unfocused-fg. A default cell, bold or dim, takes text-primary in an ordinary search match. It takes text-on-active in a selection. Selection, vi cursor and a link under the pointer read as on a focused surface. |
+| Terminal surface, focused | `term` | 2 | `term-selection`, `term-cursor`, `match@term-selection`, `match-active@term-selection`, `match@term`, `match-active@term`, `file-drop@term`, `raised` | Banner, toast and search bar float on raised. A default cell, bold or dim, takes text-primary in an ordinary search match. It takes text-on-active in a selection. A selected match cell takes search-match-selected-fg. |
+| Terminal surface, unfocused | `term-unfocused` | 2 | `term-selection`, `term-cursor`, `match@term-selection`, `match-active@term-selection`, `match@term-unfocused`, `match-active@term-unfocused`, `raised` | Default ink takes surface-terminal-unfocused-fg. A default cell, bold or dim, takes text-primary in an ordinary search match. It takes text-on-active in a selection. Selection, vi cursor and a link under the pointer read as on a focused surface. A selected match cell takes search-match-selected-fg. |
 | Markdown surface, focused | `term` | 2 | `base`, `mantle`, `raised`, `fill-warning`, `fill-primary`, `file-drop@term` | Content typography is library-driven. Colors follow this table. Address band stays mantle. A callout is its hue at tint-fill-alpha over the bed: title accent-<hue>-raised, body text-primary. A find hit is opaque. |
 | Markdown surface, unfocused | `term-unfocused` | 2 | `base`, `mantle`, `raised`, `fill-warning`, `fill-primary`, `file-drop@term-unfocused` | Table row and zebra swap fills, so neither is the bed in both themes at once. Address band stays mantle. A callout is its hue at tint-fill-alpha over the bed: title accent-<hue>-raised, body text-primary. A find hit is opaque. |
 | HTML surface | `mantle` | 2 | `field`, `raised` | The page is web content, outside these rules. Focus shows on the focus edge above the address band. |
@@ -299,10 +301,19 @@ Three layers, three answers:
 | Active search match | `match-active@term` | `search-match-active-fg` | 6.23 · 5.03 |
 | Search match, unfocused | `match@term-unfocused` | `text-primary` | 4.75 · 4.88 |
 | Active match, unfocused | `match-active@term-unfocused` | `search-match-active-unfocused-fg` | 6.95 · 11.21 |
+| Selected search match | `match@term-selection` | `search-match-selected-fg` | 5.07 · 8.96 |
+| Selected active match | `match-active@term-selection` | `search-match-selected-fg` | 9.81 · 8.20 |
 
 The selection, vi cursor and link rows hold on both beds. `term-selection` and `term-cursor` are opaque, so the bed under them does not reach the ink. Selection can stay on a surface after focus moves away, and the vi cursor shows there when it moves by keyboard.
 
-The overlay ink applies to default cell ink: any cell with no color of its own, bold or dim included. On `match@term-unfocused` a default cell changes from `surface-terminal-unfocused-fg`, which would be 3.09 · 3.82 there, to `text-primary`. In the file that ink is the role `text-body`, and it is the cell ink that the forbidden cells of a match name. A dim cell is a blend of its ink and its ground, which is 1.81 in both themes on `match@term`, so an ordinary match draws it in `text-primary` on either bed. The match costs the dim step, and the ink does not change on a focus change. Outside a match a dim cell stays the program's blend, and no pair is promised. In a selection a default cell, bold or dim, reads `text-on-active` on either bed. The cell's own ink would be 4.62 · 3.69 focused and 3.00 · 2.89 unfocused, and a dim blend would be 1.26 · 1.10 focused and 1.18 · 1.20 unfocused. A selection is read and copied, so section 12 does not excuse it. Selection ink does not change on a focus change. A cell with its own ANSI color keeps it inside a selection or an ordinary match, dim or not, and that pair is content. A reverse-video cell and a reverse screen keep their ink inside a selection too, and no pair is promised. Only an active match replaces that color, so its ink holds on the stronger fill. A link away from the pointer reads as any other cell. Terminal content never animates.
+The overlay ink applies to default cell ink: any cell with no color of its own, bold or dim included. On `match@term-unfocused` a default cell changes from `surface-terminal-unfocused-fg`, which would be 3.09 · 3.82 there, to `text-primary`. In the file that ink is the role `text-body`, and it is the cell ink that the forbidden cells of a match name. A dim cell is a blend of its ink and its ground, which is 1.81 in both themes on `match@term`, so an ordinary match draws it in `text-primary` on either bed. The match costs the dim step, and the ink does not change on a focus change. Outside a match a dim cell stays the program's blend, and no pair is promised. In a selection a default cell, bold or dim, reads `text-on-active` on either bed. The cell's own ink would be 4.62 · 3.69 focused and 3.00 · 2.89 unfocused, and a dim blend would be 1.26 · 1.10 focused and 1.18 · 1.20 unfocused. A selection is read and copied, so section 12 does not excuse it. Selection ink does not change on a focus change. A selected match has its own ink, in the next paragraph. A cell with its own ANSI color keeps it inside a selection or an ordinary match, dim or not, and that pair is content. A reverse-video cell and a reverse screen keep their ink inside a selection too, and no pair is promised. Only an active match replaces that color, so its ink holds on the stronger fill. A link away from the pointer reads as any other cell. Terminal content never animates.
+
+**A selected cell in a match.** Both layers stay, with the match fill over `term-selection`, so a user still sees what is selected and which words matched. Showing only one of them would hide a selection that lands exactly on a match, or the match a user just moved to. `term-selection` is opaque, so these cells hold on both beds, and neither fill nor ink changes on a focus change.
+
+- **Ordinary match.** A default cell, bold or dim, reads `search-match-selected-fg`. `text-on-active` would be 2.56 · 4.99 on this fill, and `text-primary` 2.56 · 3.41. A cell with its own ANSI color, a reverse-video cell and a reverse screen keep their ink, and no pair is promised, as in either layer alone.
+- **Active match.** Every cell reads `search-match-selected-fg`, as an active match replaces every ink. The fill is `search-match-active-selected-bg`, which is 80% in Latte where `search-match-active-bg` is 50%. At 50% the two selected fills sit ΔE 0.040 apart and the active match is lost among the others. At 80% they sit 0.089, and in Mocha 70% gives 0.182. The dark ink is what allows the stronger fill.
+- **Vi cursor.** `term-cursor` covers the selection, so the match fill lies over `term-cursor` as usual: 11.59 · 6.53 in an ordinary match, with `vi-cursor-fg`. In a selected active match the fill is `search-match-active-bg` and the ink `search-match-selected-fg`: 13.26 · 6.76.
+- **Block cursor.** The cell stays a cursor cell and takes no selection fill. In an ordinary match it keeps the swapped ink over the swapped fill, 15.08 · 5.73. On a selection fill the swapped ink would be 5.68 · 2.34. In a selected active match the fill is `search-match-active-bg` over the swapped fill and the ink `search-match-selected-fg`: 14.12 · 4.65.
 
 **Cells a match leaves alone.** The overlay ink stops at these cells, because something else has already set their ink.
 
@@ -317,7 +328,7 @@ A cell can draw a link underline, a program underline of five kinds, a strikethr
 
 All lengths are device pixels, and every line except the curly one lands on whole rows. `H` is the cell height. `B` is the first row under the baseline the grid uses. `A` is `B` minus the cell top. The font's own line metrics are not read, so a fallback or CJK glyph in a run does not move the line.
 
-`T = max(1, round(H / 16))`, rounding half up. `H` already holds the font size and every zoom, so a line scales with its cell. It is not a zoom-exempt hairline. At the default 14px cell, `H` 17 gives `T` 1, 200% gives `H` 34 and `T` 2, and 300% gives `H` 51 and `T` 3.
+`T = max(1, round(H / 16))`, rounding half up. `H` already holds the font size and every zoom, so a line scales with its cell. It is not a zoom-exempt hairline. At the default 14px font and line height 1.0, `H` 14 gives `T` 1, and 200% gives `H` 28 and `T` 2. At line height 1.2, `H` 17 gives `T` 1, 200% gives `H` 34 and `T` 2, and 300% gives `H` 51 and `T` 3.
 
 | Line | Thickness | Top edge | Shape | Color | SGR 58 | Paint step |
 |---|---|---|---|---|---|---|
@@ -330,7 +341,7 @@ All lengths are device pixels, and every line except the curly one lands on whol
 | Strikethrough | `T` | `B - round(A / 3) - floor(T / 2)` | Solid | Cell ink | Does not apply | 5 |
 | Overline | `T` | Cell top | Solid | Cell ink | Does not apply | 6 |
 
-`U = min(B + T, cell bottom - h)`. A line stays inside its cell, because the next row's fill would cover it. The phase of the dotted, dashed and curly lines runs from the left edge of the grid, so neighbor cells meet with no seam. A line belongs to each cell that has the attribute: a wide glyph draws it across both of its cells and a blank cell draws it too. Bold and italic do not change a line. Hidden cells (SGR 8) draw no program line. No line moves, fades or animates, and each appears in one frame.
+`U = min(B + T, cell bottom - h)`. A line stays inside its cell, because the next row's fill would cover it. A short cell has no room for three rows under the baseline, so a double or curly underline rises: at line height 1.0 its top edge is one row above `B` at 14px and 28px, and two rows above it at 10px. Its top row then lies under the glyph's bottom row, because the underline paints under the glyph. Neither kind has been painted yet, so send it back to design if it does not read. The phase of the dotted, dashed and curly lines runs from the left edge of the grid, so neighbor cells meet with no seam. A line belongs to each cell that has the attribute: a wide glyph draws it across both of its cells and a blank cell draws it too. Bold and italic do not change a line. Hidden cells (SGR 8) draw no program line. No line moves, fades or animates, and each appears in one frame.
 
 **Cell ink** is the ink the cell draws after every rule above, including dim and reverse. So a line with no SGR 58 needs no pair of its own: it has the value of its glyph. SGR 58 draws through the same palette as cell color, and no pair is promised. It is not blended by dim.
 
@@ -343,6 +354,8 @@ All lengths are device pixels, and every line except the curly one lands on whol
 | Selection | `text-on-active` | 4.62 · 5.40 | 4.62 · 5.40 | Stays |
 | Ordinary match | `text-primary` | 6.67 · 6.06 | 4.75 · 4.88 | Stays |
 | Active match | `search-match-active-fg`, `search-match-active-unfocused-fg` | 6.23 · 5.03 | 6.95 · 11.21 | Gives way |
+| Selected search match | `search-match-selected-fg` | 5.07 · 8.96 | 5.07 · 8.96 | Stays |
+| Selected active match | `search-match-selected-fg` | 9.81 · 8.20 | 9.81 · 8.20 | Gives way |
 | Vi cursor | `vi-cursor-fg` | 10.48 · 6.60 | 10.48 · 6.60 | Gives way |
 | Block cursor | The swapped ink | 14.52 · 7.99, in a match 15.08 · 5.73 | Does not occur | Gives way |
 | Link under the pointer | `accent-primary-raised` | 3.17 · 3.84 | 3.17 · 3.84 | Gives way |
@@ -354,7 +367,7 @@ All lengths are device pixels, and every line except the curly one lands on whol
 **Paint order,** bottom to top:
 
 1. Bed and cell background
-2. Overlay fill: selection, match or cursor
+2. Overlay fill: selection, match or cursor. A match fill lies over a selection or a cursor on the same cell
 3. Underline, program or link
 4. Glyph
 5. Strikethrough
@@ -420,7 +433,7 @@ Grades:
 
 ## 6. Ground by role
 
-Read as: this role, on these grounds, is this token. The lowest ratio is across those grounds, Mocha · Latte. Every ground × role cell is in the file, 100 × 39 = 3900. Forbidden cells list their reason here.
+Read as: this role, on these grounds, is this token. The lowest ratio is across those grounds, Mocha · Latte. Every ground × role cell is in the file, 102 × 39 = 3978. Forbidden cells list their reason here.
 
 ### `text-body`
 
@@ -435,6 +448,7 @@ Read as: this role, on these grounds, is this token. The lowest ratio is across 
 | `text-on-active-hover` | `on-raised+press`, `active+hover`, `active+press` | 4.97 · 4.74 |
 | `search-match-active-fg` | `match-active@term`, `match-active@base` | 6.23 · 4.68 |
 | `search-match-active-unfocused-fg` | `match-active@term-unfocused` | 6.95 · 11.21 |
+| `search-match-selected-fg` | `match@term-selection`, `match-active@term-selection` | 5.07 · 8.20 |
 
 Forbidden:
 
@@ -458,7 +472,7 @@ Forbidden:
 
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
-- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`, `match@term-selection`, `match-active@term-selection`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `text-muted`
@@ -479,7 +493,7 @@ Forbidden:
 
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
-- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`, `match@term-selection`, `match-active@term-selection`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `text-placeholder`
@@ -494,7 +508,7 @@ Forbidden:
 - `fill-primary`, `fill-agent`, `fill-danger`, `fill-success`, `fill-warning`, `fill-close`, `fill-primary+hover`, `fill-primary+press`, `fill-agent+hover`, `fill-agent+press`, `fill-danger+hover`, `fill-danger+press`. A filled control carries one ink pair. Hue or neutral steps on it would read as a second state.
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
-- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`, `match@term-selection`, `match-active@term-selection`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `text-disabled`
@@ -509,7 +523,7 @@ Forbidden:
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
 - `crust+hover`, `crust+press`, `mantle+hover`, `mantle+press`, `base+hover`, `term-unfocused+hover`, `term+hover`, `base+press`, `term-unfocused+press`, `term+press`, `raised+hover`, `raised+press`, `on-raised+hover`, `on-raised+press`, `active+hover`, `active+press`. A disabled item takes no hover or press.
-- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`, `match@term-selection`, `match-active@term-selection`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `text-match`
@@ -529,7 +543,7 @@ Forbidden:
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
 - `on-raised+hover`, `on-raised+press`. No token holds the grade here in both themes, and no component needs this pair.
-- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`, `match@term-selection`, `match-active@term-selection`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `text-primary`
@@ -547,7 +561,7 @@ Forbidden:
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
 - `on-raised+hover`, `on-raised+press`. No token holds the grade here in both themes, and no component needs this pair.
-- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`, `match@term-selection`, `match-active@term-selection`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `text-info`
@@ -565,7 +579,7 @@ Forbidden:
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
 - `on-raised+press`. No token holds the grade here in both themes, and no component needs this pair.
-- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`, `match@term-selection`, `match-active@term-selection`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `text-success`
@@ -583,7 +597,7 @@ Forbidden:
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
 - `on-raised+press`. No token holds the grade here in both themes, and no component needs this pair.
-- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`, `match@term-selection`, `match-active@term-selection`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `text-warning`
@@ -600,7 +614,7 @@ Forbidden:
 - `tint-avatar`, `dag-running`, `dag-failed`, `dag-partial`, `dag-crashed`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@term-unfocused`, `drop-target@term`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term-unfocused`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `marquee@term-unfocused`, `marquee@term`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. A tint carries its own hue and neutrals. A second hue reads as a conflict.
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
-- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`, `match@term-selection`, `match-active@term-selection`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `text-attention`
@@ -618,7 +632,7 @@ Forbidden:
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
 - `on-raised+hover`, `on-raised+press`. No token holds the grade here in both themes, and no component needs this pair.
-- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`, `match@term-selection`, `match-active@term-selection`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `text-danger`
@@ -636,7 +650,7 @@ Forbidden:
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
 - `on-raised+hover`, `on-raised+press`. No token holds the grade here in both themes, and no component needs this pair.
-- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`, `match@term-selection`, `match-active@term-selection`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `text-agent`
@@ -654,7 +668,7 @@ Forbidden:
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
 - `on-raised+hover`, `on-raised+press`. No token holds the grade here in both themes, and no component needs this pair.
-- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`, `match@term-selection`, `match-active@term-selection`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `text-remote`
@@ -672,7 +686,7 @@ Forbidden:
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
 - `on-raised+press`. No token holds the grade here in both themes, and no component needs this pair.
-- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`, `match@term-selection`, `match-active@term-selection`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `text-attached`
@@ -690,7 +704,7 @@ Forbidden:
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
 - `on-raised+hover`, `on-raised+press`. No token holds the grade here in both themes, and no component needs this pair.
-- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`, `match@term-selection`, `match-active@term-selection`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `glyph`
@@ -707,7 +721,7 @@ Forbidden:
 Forbidden:
 
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
-- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`, `match@term-selection`, `match-active@term-selection`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `glyph-dim`
@@ -724,7 +738,7 @@ Forbidden:
 - `fill-primary`, `fill-agent`, `fill-danger`, `fill-success`, `fill-warning`, `fill-close`, `fill-primary+hover`, `fill-primary+press`, `fill-agent+hover`, `fill-agent+press`, `fill-danger+hover`, `fill-danger+press`. A filled control carries one ink pair. Hue or neutral steps on it would read as a second state.
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
-- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`, `match@term-selection`, `match-active@term-selection`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `glyph-decorative`
@@ -739,7 +753,7 @@ Forbidden:
 - `fill-primary`, `fill-agent`, `fill-danger`, `fill-success`, `fill-warning`, `fill-close`, `fill-primary+hover`, `fill-primary+press`, `fill-agent+hover`, `fill-agent+press`, `fill-danger+hover`, `fill-danger+press`. A filled control carries one ink pair. Hue or neutral steps on it would read as a second state.
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
-- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`, `match@term-selection`, `match-active@term-selection`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `glyph-primary`
@@ -756,7 +770,7 @@ Forbidden:
 - `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`. A tint carries its own hue and neutrals. A second hue reads as a conflict.
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-cursor`. A terminal layer holds the cell ink only.
-- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`, `match@term-selection`, `match-active@term-selection`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `glyph-info`
@@ -772,7 +786,7 @@ Forbidden:
 - `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@term-unfocused`, `drop-target@term`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term-unfocused`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `marquee@term-unfocused`, `marquee@term`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. A tint carries its own hue and neutrals. A second hue reads as a conflict.
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
-- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`, `match@term-selection`, `match-active@term-selection`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `glyph-success`
@@ -789,7 +803,7 @@ Forbidden:
 - `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@term-unfocused`, `drop-target@term`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term-unfocused`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `marquee@term-unfocused`, `marquee@term`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. A tint carries its own hue and neutrals. A second hue reads as a conflict.
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
-- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`, `match@term-selection`, `match-active@term-selection`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `glyph-warning`
@@ -806,7 +820,7 @@ Forbidden:
 - `tint-avatar`, `dag-running`, `dag-failed`, `dag-partial`, `dag-crashed`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@term-unfocused`, `drop-target@term`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term-unfocused`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `marquee@term-unfocused`, `marquee@term`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. A tint carries its own hue and neutrals. A second hue reads as a conflict.
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
-- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`, `match@term-selection`, `match-active@term-selection`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `glyph-attention`
@@ -822,7 +836,7 @@ Forbidden:
 - `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@term-unfocused`, `drop-target@term`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term-unfocused`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `marquee@term-unfocused`, `marquee@term`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. A tint carries its own hue and neutrals. A second hue reads as a conflict.
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
-- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`, `match@term-selection`, `match-active@term-selection`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `glyph-danger`
@@ -840,7 +854,7 @@ Forbidden:
 - `tint-avatar`, `dag-running`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-cycle`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@term-unfocused`, `drop-target@term`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term-unfocused`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `marquee@term-unfocused`, `marquee@term`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. A tint carries its own hue and neutrals. A second hue reads as a conflict.
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
-- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`, `match@term-selection`, `match-active@term-selection`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `glyph-agent`
@@ -857,7 +871,7 @@ Forbidden:
 - `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@term-unfocused`, `drop-target@term`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term-unfocused`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `marquee@term-unfocused`, `marquee@term`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. A tint carries its own hue and neutrals. A second hue reads as a conflict.
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
-- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`, `match@term-selection`, `match-active@term-selection`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `glyph-remote`
@@ -873,7 +887,7 @@ Forbidden:
 - `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@term-unfocused`, `drop-target@term`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term-unfocused`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `marquee@term-unfocused`, `marquee@term`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. A tint carries its own hue and neutrals. A second hue reads as a conflict.
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
-- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`, `match@term-selection`, `match-active@term-selection`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `glyph-attached`
@@ -890,7 +904,7 @@ Forbidden:
 - `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@term-unfocused`, `drop-target@term`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term-unfocused`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `marquee@term-unfocused`, `marquee@term`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. A tint carries its own hue and neutrals. A second hue reads as a conflict.
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
-- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`, `match@term-selection`, `match-active@term-selection`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `glyph-move`
@@ -906,7 +920,7 @@ Forbidden:
 - `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@term-unfocused`, `drop-target@term`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term-unfocused`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `marquee@term-unfocused`, `marquee@term`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. A tint carries its own hue and neutrals. A second hue reads as a conflict.
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
-- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`, `match@term-selection`, `match-active@term-selection`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `glyph-data`
@@ -922,7 +936,7 @@ Forbidden:
 - `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@term-unfocused`, `drop-target@term`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term-unfocused`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `marquee@term-unfocused`, `marquee@term`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. A tint carries its own hue and neutrals. A second hue reads as a conflict.
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
-- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`, `match@term-selection`, `match-active@term-selection`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `glyph-route`
@@ -939,7 +953,7 @@ Forbidden:
 - `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@term-unfocused`, `drop-target@term`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term-unfocused`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `marquee@term-unfocused`, `marquee@term`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. A tint carries its own hue and neutrals. A second hue reads as a conflict.
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
-- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`, `match@term-selection`, `match-active@term-selection`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `dot-idle`
@@ -956,7 +970,7 @@ Forbidden:
 - `fill-primary`, `fill-agent`, `fill-danger`, `fill-success`, `fill-warning`, `fill-close`, `fill-primary+hover`, `fill-primary+press`, `fill-agent+hover`, `fill-agent+press`, `fill-danger+hover`, `fill-danger+press`. A filled control carries one ink pair. Hue or neutral steps on it would read as a second state.
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
-- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`, `match@term-selection`, `match-active@term-selection`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `border-control`
@@ -974,7 +988,7 @@ Forbidden:
 - `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@term-unfocused`, `drop-target@term`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term-unfocused`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `marquee@term-unfocused`, `marquee@term`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. Controls do not sit on a tint. Put them on a neutral ground beside it.
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
-- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`, `match@term-selection`, `match-active@term-selection`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `border-partition`
@@ -991,7 +1005,7 @@ Forbidden:
 - `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@term-unfocused`, `drop-target@term`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term-unfocused`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `marquee@term-unfocused`, `marquee@term`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. Controls do not sit on a tint. Put them on a neutral ground beside it.
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
-- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`, `match@term-selection`, `match-active@term-selection`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `border-frame`
@@ -1007,7 +1021,7 @@ Forbidden:
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
 - `crust+hover`, `crust+press`, `mantle+hover`, `mantle+press`, `base+hover`, `term-unfocused+hover`, `term+hover`, `base+press`, `term-unfocused+press`, `term+press`, `raised+hover`, `raised+press`, `on-raised+hover`, `on-raised+press`, `active+hover`, `active+press`. A frame edge is drawn between resting neutral grounds only.
-- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`, `match@term-selection`, `match-active@term-selection`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `separator`
@@ -1023,7 +1037,7 @@ Forbidden:
 - `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@term-unfocused`, `drop-target@term`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term-unfocused`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `marquee@term-unfocused`, `marquee@term`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. Controls do not sit on a tint. Put them on a neutral ground beside it.
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
-- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`, `match@term-selection`, `match-active@term-selection`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `focus-ring`
@@ -1040,7 +1054,7 @@ Forbidden:
 - `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@term-unfocused`, `drop-target@term`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term-unfocused`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `marquee@term-unfocused`, `marquee@term`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. Controls do not sit on a tint. Put them on a neutral ground beside it.
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
-- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`, `match@term-selection`, `match-active@term-selection`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `selection-bar`
@@ -1058,7 +1072,7 @@ Forbidden:
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
 - `crust+hover`, `crust+press`, `mantle+hover`, `mantle+press`, `base+hover`, `term-unfocused+hover`, `term+hover`, `base+press`, `term-unfocused+press`, `term+press`, `raised+hover`, `raised+press`, `on-raised+hover`, `on-raised+press`. A progress or selection mark takes no hover state of its own.
-- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`, `match@term-selection`, `match-active@term-selection`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `scrollbar-thumb`
@@ -1076,7 +1090,7 @@ Forbidden:
 - `tint-avatar`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `tint-primary@mantle`, `tint-primary@base`, `tint-primary@raised`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`, `drop-target@mantle`, `drop-target@base`, `drop-target@term-unfocused`, `drop-target@term`, `drop-target@raised`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term-unfocused`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `marquee@term-unfocused`, `marquee@term`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`. Controls do not sit on a tint. Put them on a neutral ground beside it.
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
-- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`, `match@term-selection`, `match-active@term-selection`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ### `progress-fill`
@@ -1093,7 +1107,7 @@ Forbidden:
 - `track`, `track-raised`. A track holds its thumb and nothing else.
 - `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
 - `crust+hover`, `crust+press`, `mantle+hover`, `mantle+press`, `base+hover`, `term-unfocused+hover`, `term+hover`, `base+press`, `term-unfocused+press`, `term+press`, `raised+hover`, `raised+press`, `on-raised+hover`, `on-raised+press`, `active+hover`, `active+press`. A progress or selection mark takes no hover state of its own.
-- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
+- `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`, `match@term-selection`, `match-active@term-selection`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
 ## 7. Meaning
@@ -2128,6 +2142,9 @@ Sits on: `term`
 | search match, dim cell | `text-primary` | rest | `match@term` | 6.67 · 6.06 |
 | selection | `text-on-active` | rest | `term-selection` | 4.62 · 5.40 |
 | selection, dim cell | `text-on-active` | rest | `term-selection` | 4.62 · 5.40 |
+| selection and search match | `search-match-selected-fg` | rest | `match@term-selection` | 5.07 · 8.96 |
+| selection and search match, dim cell | `search-match-selected-fg` | rest | `match@term-selection` | 5.07 · 8.96 |
+| selection and active match | `search-match-selected-fg` | rest | `match-active@term-selection` | 9.81 · 8.20 |
 | vi cursor cell | `vi-cursor-fg` | rest | `term-cursor` | 10.48 · 6.60 |
 | link under the pointer | `text-on-active` | rest | `term-selection` | 4.62 · 5.40 |
 | link underline | `accent-primary-raised` | rest | `term-selection` | 3.17 · 3.84 |
@@ -2143,6 +2160,9 @@ Sits on: `term-unfocused`
 | search match, dim cell | `text-primary` | rest | `match@term-unfocused` | 4.75 · 4.88 |
 | selection | `text-on-active` | rest | `term-selection` | 4.62 · 5.40 |
 | selection, dim cell | `text-on-active` | rest | `term-selection` | 4.62 · 5.40 |
+| selection and search match | `search-match-selected-fg` | rest | `match@term-selection` | 5.07 · 8.96 |
+| selection and search match, dim cell | `search-match-selected-fg` | rest | `match@term-selection` | 5.07 · 8.96 |
+| selection and active match | `search-match-selected-fg` | rest | `match-active@term-selection` | 9.81 · 8.20 |
 | vi cursor cell | `vi-cursor-fg` | rest | `term-cursor` | 10.48 · 6.60 |
 | link under the pointer | `text-on-active` | rest | `term-selection` | 4.62 · 5.40 |
 | link underline | `accent-primary-raised` | rest | `term-selection` | 3.17 · 3.84 |
@@ -2329,7 +2349,7 @@ The site's landing, guide and design pages use the same grounds, roles and table
 
 **Grades.** Text 4.5. Display text, at 24px and over or 18.66px bold and over, may use 3, because the site is not capped at 14px. No place relies on it. Non-text 3.
 
-**How to read a ground.** Page: `base`. Header, footer, table head: `mantle`. Sidebar: `base`, `mantle` in the drawer below 900px. These are the app's grounds, with the app's cells. Translucency that lets page content under an ink is not used: the header is opaque.
+**How to read a ground.** Page: `base`. Header, footer, table head: `mantle`. Sidebar: `base`, `mantle` in the drawer below 900px. The drawer opens from the menu button and starts with the site links, on pages with no sidebar too. These are the app's grounds, with the app's cells. Translucency that lets page content under an ink is not used: the header is opaque.
 
 **The brand on a page.**
 
@@ -2393,6 +2413,10 @@ Contrast is the lowest across the row's grounds.
 | Sidebar group caret, pointer over | `.nav-section > summary:hover::before` | `raised` | `glyph-dim` | `glyph-dim-raised` | 3.40 · 3.65 |
 | Sidebar link | `.nav-list a` | `base`, `mantle` | `text-muted` | `text-muted` | 7.37 · 5.14 |
 | Sidebar link, pointer over | `.nav-list a:hover` | `raised` | `text-body` | `text-primary` | 8.69 · 5.17 |
+| Menu button, drawer open | `.menu-btn[aria-expanded="true"]` | `raised` | `glyph` | `text-secondary-raised` | 7.10 · 5.17 |
+| Drawer site link | `.site-menu a` | `mantle` | `text-muted` | `text-muted` | 7.89 · 5.14 |
+| Drawer site link, pointer over | `.site-menu a:hover` | `raised` | `text-body` | `text-primary` | 8.69 · 5.17 |
+| Drawer site link, current | `.site-menu a[aria-current]` | `tint-primary@mantle` | `text-primary` | `accent-primary-raised` | 6.65 · 5.86 |
 | Sidebar current item | `.nav-list a[aria-current="page"]` | `tint-primary@base`, `tint-primary@mantle` | `text-primary` | `accent-primary-raised` | 6.18 · 5.86 |
 | Breadcrumb | `.breadcrumb, .breadcrumb a` | `base` | `text-muted` | `text-muted` | 7.37 · 5.53 |
 | Breadcrumb separator | `.breadcrumb .sep` | `base` | `ornament` | `glyph-dim` | no target · no target |

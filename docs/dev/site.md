@@ -413,8 +413,8 @@ Sätteri 의 hast 플러그인(`src/lib/satteri-*.mjs`)에서 일어난다.
   vendor 스케일은 앱 chrome 용이라(14px UI 상한, 조밀한 4/8/12 간격) 웹 본문에 그대로 쓰면
   읽히지 않기 때문이다.
 
-선택은 `localStorage` 에 남고(`tasty-theme`), 저장값이 없으면 `prefers-color-scheme` 을
-따른다. 첫 페인트 전에 인라인 스크립트가 적용해 깜빡임이 없다. 옛 빌드가 저장한
+선택은 `localStorage` 에 남고(`tasty-theme`), 저장값이 없으면 OS나 브라우저 설정과 상관없이
+mocha 로 시작한다. 첫 페인트 전에 인라인 스크립트가 적용해 깜빡임이 없다. 옛 빌드가 저장한
 `"light"` · `"dark"` 도 그대로 해석된다.
 
 ### 치수 척도의 두 출처

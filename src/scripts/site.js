@@ -19,8 +19,7 @@
   }
 
   function currentTheme() {
-    if (root.getAttribute("data-theme") === "latte") return "latte";
-    return window.matchMedia("(prefers-color-scheme: light)").matches ? "latte" : "mocha";
+    return root.getAttribute("data-theme") === "latte" ? "latte" : "mocha";
   }
 
   /* A language picked here outranks the browser language on the next visit to
@@ -43,19 +42,69 @@
 
 
   var menuBtn = document.querySelector(".menu-btn");
-  if (menuBtn) {
-    menuBtn.addEventListener("click", function () {
-      var open = body.hasAttribute("data-nav-open");
-      if (open) body.removeAttribute("data-nav-open");
-      else body.setAttribute("data-nav-open", "");
-      menuBtn.setAttribute("aria-expanded", String(!open));
-    });
-    document.addEventListener("click", function (e) {
-      if (!body.hasAttribute("data-nav-open")) return;
-      if (e.target.closest(".sidebar") || e.target.closest(".menu-btn")) return;
+  var siteNav = document.querySelector(".site-nav");
+  if (menuBtn && siteNav) {
+    /* Below 901px the header links are hidden and the drawer carries a copy of
+       them. A page with no sidebar gets a drawer that holds only the copy. */
+    var drawer = document.querySelector(".sidebar");
+    if (!drawer) {
+      drawer = document.createElement("div");
+      drawer.className = "sidebar sidebar--site";
+      body.appendChild(drawer);
+    }
+    var siteMenu = siteNav.cloneNode(true);
+    siteMenu.className = "site-menu";
+    drawer.insertBefore(siteMenu, drawer.firstChild);
+    drawer.id = "site-drawer";
+    menuBtn.setAttribute("aria-controls", drawer.id);
+
+    /* An element of its own, not a pseudo-element of body: iOS Safari sends no
+       click for a tap on body unless the tapped element has its own listener. */
+    var scrim = document.createElement("div");
+    scrim.className = "nav-scrim";
+    body.appendChild(scrim);
+
+    var isOpen = function () { return body.hasAttribute("data-nav-open"); };
+    var openNav = function () {
+      body.setAttribute("data-nav-open", "");
+      menuBtn.setAttribute("aria-expanded", "true");
+      siteMenu.querySelector("a").focus({ preventScroll: true });
+    };
+    var closeNav = function (restoreFocus) {
+      if (!isOpen()) return;
       body.removeAttribute("data-nav-open");
       menuBtn.setAttribute("aria-expanded", "false");
+      if (restoreFocus) menuBtn.focus({ preventScroll: true });
+    };
+
+    menuBtn.addEventListener("click", function () {
+      if (isOpen()) closeNav(true);
+      else openNav();
     });
+    scrim.addEventListener("click", function () { closeNav(true); });
+    drawer.addEventListener("click", function (e) {
+      if (e.target.closest("a")) closeNav(false);
+    });
+    document.addEventListener("click", function (e) {
+      if (e.target.closest("#site-drawer") || e.target.closest(".menu-btn")) return;
+      closeNav(false);
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") closeNav(true);
+    });
+    /* The page under the scrim takes no focus. On a page whose drawer ends the
+       document, Tab leaves the page first, so this watches where focus lands. */
+    document.addEventListener("focusin", function (e) {
+      if (!drawer.contains(e.target) && e.target !== menuBtn) closeNav(false);
+    });
+    /* The back button restores the page as it was left. */
+    window.addEventListener("pageshow", function () { closeNav(false); });
+    var narrow = window.matchMedia("(max-width: 900px)");
+    if (narrow.addEventListener) {
+      narrow.addEventListener("change", function (e) {
+        if (!e.matches) closeNav(false);
+      });
+    }
   }
 
 

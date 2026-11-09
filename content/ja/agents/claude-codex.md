@@ -1,4 +1,4 @@
-<!-- source-hash: 1d7a625dbda7 -->
+<!-- source-hash: ee2d235f18db -->
 # Claude・Codex と一緒に使う
 
 Claude Code と Codex CLI を Tasty のターミナルで実行し、状態を確認します。両方の CLI は別途インストールする必要があります。複数のエージェントにタスクを分担させるには、フックと親の結果受信経路をあわせて設定してください。
@@ -376,15 +376,12 @@ tasty claude spawn --workspace w --profile continue-checklist
 
 ## トラブルシューティング
 
-Windows と macOS で、Tasty ターミナルの Codex セッションが接続直後に切断される問題を修正しました。
-
 - **完了通知が届きません** — 子の CLI のフックのインストール・実行と、[受信設定](#4-完了通知を受け取る)を確認してください。親が Claude Code の場合は、完了通知 mod が有効になっているか確認してください。mod がない場合は、Monitor の購読を確認してください。フックの通知失敗は `~/.tasty/hook-failures.log` に記録されます。プラグインログは `tasty plugin logs com.tasty.claude --follow` です。
 - **`reboot` が「claude-session-id meta not set」で失敗します** — セッション開始フックがセッション ID を記録できなかった状態です。`tasty surface-meta set --key claude-session-id --value <セッション ID>` で直接設定します。
 - **子が spawn されず「occupied」エラーになります** — 対象のワークスペースがリモートからアタッチされているか、ミラーです。別のワークスペースを使用します。
 - **`kill` が「hard-occupied」エラーで拒否されます** — その子がいるワークスペースを、リモートユーザーがアタッチして使用中です。子との関係とタブはそのまま残ります。リモート側が接続を切断するか、強制切断で占有を解除した後、再度 `kill` を実行します。
 - **Codex が「app-server could not start」で起動しません** — Tasty が、そのターミナル専用の Codex サーバーを起動できなかった状態です。同じターミナルで `codex app-server --help` が実行できるか確認してください。この機能は Codex CLI 0.154.0 を基準に確認しました。
 - **Codex の親に結果が届きません** — Codex の `/hooks` で Tasty のフックが承認されているか、子を Codex の会話内で spawn したか確認してください。親の Codex を直接入力した `codex` で起動した場合は、共有 Codex サーバーにその会話が開かれている必要があります。
-- **macOS でアプリアイコンから起動すると通知が届きません** — Tasty は通知を書き込むときに `tasty` を再度呼び出しますが、自分の実行ファイルのパスを自動で PATH に追加するため、通常は問題ありません。それでも届かない場合は、`hook-failures.log` を確認します。
 
 <a id="次に読むもの"></a>
 
