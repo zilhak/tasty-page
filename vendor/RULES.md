@@ -2112,7 +2112,7 @@ The site's landing, guide and design pages use the same grounds, roles and table
 
 **Grades.** Text 4.5. Display text, at 24px and over or 18.66px bold and over, may use 3, because the site is not capped at 14px. No place relies on it. Non-text 3.
 
-**How to read a ground.** Page: `base`. Header, footer, table head: `mantle`. Sidebar: `base`, `mantle` in the drawer below 900px. These are the app's grounds, with the app's cells. Translucency that lets page content under an ink is not used: the header is opaque.
+**How to read a ground.** Page: `base`. Header, footer, table head: `mantle`. Sidebar: `base`, `mantle` in the drawer below 900px. The drawer opens from the menu button and starts with the site links, on pages with no sidebar too. These are the app's grounds, with the app's cells. Translucency that lets page content under an ink is not used: the header is opaque.
 
 **The brand on a page.**
 
@@ -2163,6 +2163,10 @@ Contrast is the lowest across the row's grounds.
 | Header link, pointer over | `.site-nav a:hover` | `raised` | `text-body` | `text-primary` | 8.69 · 5.17 |
 | Header icon button | `.icon-btn` | `mantle` | `glyph` | `text-secondary` | 9.91 · 5.14 |
 | Header icon button, pointer over | `.icon-btn:hover` | `raised` | `glyph` | `text-secondary-raised` | 7.10 · 5.17 |
+| Menu button, drawer open | `.menu-btn[aria-expanded="true"]` | `raised` | `glyph` | `text-secondary-raised` | 7.10 · 5.17 |
+| Drawer site link | `.site-menu a` | `mantle` | `text-muted` | `text-muted` | 7.89 · 5.14 |
+| Drawer site link, pointer over | `.site-menu a:hover` | `raised` | `text-body` | `text-primary` | 8.69 · 5.17 |
+| Drawer site link, current | `.site-menu a[aria-current]` | `tint-primary@mantle` | `text-primary` | `accent-primary-raised` | 6.65 · 5.86 |
 | Language switch | `.lang-switch a` | `mantle` | `text-muted` | `text-muted` | 7.89 · 5.14 |
 | Language switch, pointer over | `.lang-switch a:hover` | `raised` | `text-body` | `text-primary` | 8.69 · 5.17 |
 | Language switch, current | `.lang-switch a[aria-current]` | `solid-hover` | `text-body` | `text-on-active` | 6.31 · 6.43 |
