@@ -77,13 +77,17 @@
    page can land on another language's font. The names sit after the token so Latin
    letters look the same in every language, and ahead of the Korean names so Korean
    fonts do not draw Japanese or Chinese text. */
-:root:lang(ja) { --font-cjk: var(--font-cjk-ja); }
-:root:lang(zh) { --font-cjk: var(--font-cjk-zh); }
+:root:lang(ja) { --font-cjk: var(--font-cjk-ja); --font-cjk-mono: "Noto Sans Mono CJK JP"; }
+:root:lang(zh) { --font-cjk: var(--font-cjk-zh); --font-cjk-mono: "Noto Sans Mono CJK SC"; }
 :root:lang(ja), :root:lang(zh) {
   --font-sans: var(--tasty-font-family-sans), var(--font-cjk), var(--font-sans-tail);
   /* Without D2Coding and ahead of the generic family, so Han in code takes this language's
-     forms. On Linux the generic family has Han of its own, in Japanese forms. */
-  --font-mono: var(--tasty-font-family-mono-system), var(--font-cjk), monospace;
+     forms. On Linux the generic family has Han of its own, in Japanese forms. --font-cjk has
+     Latin letters of its own and they are proportional, so every name ahead of it is a
+     fixed-width font, and the ones after --font-cjk-mono have no Han to take over. */
+  --font-mono: var(--tasty-font-family-mono-system), var(--font-cjk-mono),
+               "Noto Sans Mono", "DejaVu Sans Mono", "Liberation Mono", "Droid Sans Mono",
+               var(--font-cjk), monospace;
 }
 
 @media (prefers-reduced-motion: reduce) {

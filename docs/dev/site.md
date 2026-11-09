@@ -542,7 +542,8 @@ mocha 로 시작한다. 첫 페인트 전에 인라인 스크립트가 적용해
 - 순서는 토큰, `--font-cjk`, 한국어 이름, 일반 글꼴이다. 토큰이 앞이라 라틴 글자의 모양이 언어마다 달라지지 않고, 한국어 이름이 뒤라 한국어 글꼴이 일본어·중국어를 그리지 않는다.
 - 이 대체를 위해 글꼴 파일을 배포하거나 외부 글꼴을 요청하지 않는다. 이름만 더한다.
 - `--tasty-font-ui`는 루트에서 덮지 않는다. 커스텀 속성은 상속되어 표본까지 내려간다.
-- 일본어와 중국어의 `--font-mono`는 `--tasty-font-family-mono-system`, `--font-cjk`, `monospace` 순서다. `--tasty-font-family-mono`를 그대로 쓰면 일반 글꼴 `monospace`가 `--font-cjk`보다 앞에 온다. `monospace`가 CJK 글자를 가진 글꼴로 풀리는 환경(Linux의 `Noto Sans Mono CJK JP`)에서는 코드 안의 한자가 중국어 경로에서도 일본어 모양으로 나온다.
+- 일본어와 중국어의 `--font-mono`는 `--tasty-font-family-mono-system`, `--font-cjk-mono`, Linux와 Android의 고정폭 글꼴 이름(`Noto Sans Mono`, `DejaVu Sans Mono`, `Liberation Mono`, `Droid Sans Mono`), `--font-cjk`, `monospace` 순서다. `--tasty-font-family-mono`를 그대로 쓰면 일반 글꼴 `monospace`가 `--font-cjk`보다 앞에 온다. `monospace`가 CJK 글자를 가진 글꼴로 풀리는 환경(Linux의 `Noto Sans Mono CJK JP`)에서는 코드 안의 한자가 중국어 경로에서도 일본어 모양으로 나온다.
+- `--font-cjk-mono`는 그 언어의 CJK 고정폭 이름이다(`Noto Sans Mono CJK JP`, `Noto Sans Mono CJK SC`). `--font-cjk`의 글꼴은 라틴 글자를 비례폭으로 그리므로 그 앞에 있는 이름은 모두 고정폭이어야 한다. 그래야 파일 이름 같은 라틴 코드가 비례폭으로 떨어지지 않는다. `--font-cjk-mono` 뒤의 이름에는 한자가 없어, 한자는 `--font-cjk`로 넘어가 그 언어의 모양으로 나온다.
 - 이 값에는 D2Coding이 없다. 글꼴이 설치된 컴퓨터에서도 번역 문장 옆 코드의 가나와 한자가 D2Coding과 다른 글꼴로 섞이지 않게 하기 위해서다. 표본과 메뉴처럼 `lang="en"`인 구역은 경계에서 `--font-mono-default`로 돌아간다.
 
 ### 번역 문구를 그리는 고정폭 규칙
