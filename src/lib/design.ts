@@ -1,30 +1,96 @@
 import { LANGS, langRow } from "./langs.mjs";
 
-/** Navigation for the design zone. Its menu is English in every language. */
+/** The design zone apart from its home is English in every language. */
+export const DESIGN_LANG = "en";
+export const DESIGN_MENU_LABEL = "Design";
+export const PAGE_NAV_LABELS = { prev: "Previous page", next: "Next page" };
+
+/** One page of the design zone. The groups give the menu, and their order gives previous and next. */
 export interface DesignPage {
-  /** Route under the section, with its trailing slash. "" is the section root. */
+  /** Names the page in code. A gallery page's key matches its folder in vendor/gallery/. */
+  key: string;
+  /** Route under `design/`, with its trailing slash. "" is the section root. */
   slug: string;
   label: string;
-  desc: string;
+  /** Whether the page's own content follows the page's language. Otherwise it is DESIGN_LANG. */
+  translated: boolean;
+  /** Which language paths search engines should index. */
+  indexed: "every-language" | "none";
+  /** Follows the page title in the document title. */
+  titleSuffix: string;
 }
 
-export interface DesignGroup {
-  group: string;
-  pages: DesignPage[];
-}
+const galleryPage = (key: string, slug: string, label: string): DesignPage => ({
+  key,
+  slug: `gallery/${slug}`,
+  label,
+  translated: false,
+  indexed: "none",
+  titleSuffix: "Tasty Gallery",
+});
 
-export const DESIGN_NAV: DesignGroup[] = [
+export const DESIGN_GROUPS: { group: string; pages: DesignPage[] }[] = [
   {
     group: "Guidelines",
     pages: [
-      { slug: "", label: "Design overview", desc: "about the design guide" },
-      { slug: "tokens/", label: "Design tokens", desc: "primitive → semantic → component" },
+      { key: "overview", slug: "", label: "Design overview", translated: true, indexed: "every-language", titleSuffix: "Tasty Design System" },
+      { key: "tokens", slug: "tokens/", label: "Design tokens", translated: false, indexed: "every-language", titleSuffix: "Tasty Design System" },
+    ],
+  },
+  {
+    group: "Foundations",
+    pages: [
+      galleryPage("foundations", "", "Foundations"),
+      galleryPage("icons", "icons/", "Icons"),
+      galleryPage("rules", "rules/", "Rules"),
+      galleryPage("rules-map", "rules-map/", "Location map"),
+    ],
+  },
+  {
+    group: "Components",
+    pages: [galleryPage("components", "components/", "Components")],
+  },
+  {
+    group: "Overlays",
+    pages: [
+      galleryPage("overlays-dialogs", "overlays-dialogs/", "Dialogs"),
+      galleryPage("overlays-windows", "overlays-windows/", "Windows"),
+      galleryPage("overlays-popups", "overlays-popups/", "Popups and menus"),
+      galleryPage("overlays-banners", "overlays-banners/", "Banners"),
+      galleryPage("overlays-tutorial", "overlays-tutorial/", "Tutorial"),
+    ],
+  },
+  {
+    group: "Shell",
+    pages: [
+      galleryPage("layouts", "layouts/", "Layouts"),
+      galleryPage("loading", "loading/", "Startup"),
+    ],
+  },
+  {
+    group: "Surfaces",
+    pages: [
+      galleryPage("dag", "dag/", "Task DAG"),
+      galleryPage("plugins", "plugins/", "Plugin surfaces"),
+      galleryPage("explorer-ops", "explorer-ops/", "Explorer file ops"),
     ],
   },
 ];
 
+export const DESIGN_PAGES: DesignPage[] = DESIGN_GROUPS.flatMap((g) => g.pages);
+
+/** The page of a key. An unknown key is an error. */
+export const designPage = (key: string): DesignPage => {
+  const page = DESIGN_PAGES.find((candidate) => candidate.key === key);
+  if (!page) throw new Error(`Unknown design page: ${key}`);
+  return page;
+};
+
 /** Route of a design page in one language. */
 export const designPath = (slug: string, lang: string) => `${langRow(lang).prefix}design/${slug}`;
+
+/** Route of a gallery page in one language. */
+export const galleryPath = (slug: string, lang: string) => designPath(`gallery/${slug}`, lang);
 
 /** One static path per language for a route under `[...locale]`. The language without a prefix has no locale segment. */
 export const localePaths = () =>
@@ -32,62 +98,6 @@ export const localePaths = () =>
     params: { locale: row.prefix.replace(/\/$/, "") || undefined },
     props: { lang: row.code },
   }));
-
-/** `key` matches the page folder in vendor/gallery/. */
-export interface GalleryPage {
-  key: string;
-  /** Route under `design/gallery/`; "" is the gallery root. */
-  slug: string;
-  label: string;
-  /** A short note in the design menu. The gallery sidebar is text only and does not show it. */
-  desc: string;
-}
-
-export const GALLERY_GROUPS: { group: string; pages: GalleryPage[] }[] = [
-  {
-    group: "Foundations",
-    pages: [
-      { key: "foundations", slug: "", label: "Foundations", desc: "tokens" },
-      { key: "icons", slug: "icons/", label: "Icons", desc: "glyphs" },
-      { key: "rules", slug: "rules/", label: "Rules", desc: "ground × ink" },
-      { key: "rules-map", slug: "rules-map/", label: "Location map", desc: "what nests where" },
-    ],
-  },
-  {
-    group: "Components",
-    pages: [{ key: "components", slug: "components/", label: "Components", desc: "primitives" }],
-  },
-  {
-    group: "Overlays",
-    pages: [
-      { key: "overlays-dialogs", slug: "overlays-dialogs/", label: "Dialogs", desc: "modal confirms" },
-      { key: "overlays-windows", slug: "overlays-windows/", label: "Windows", desc: "big surfaces" },
-      { key: "overlays-popups", slug: "overlays-popups/", label: "Popups and menus", desc: "anchored" },
-      { key: "overlays-banners", slug: "overlays-banners/", label: "Banners", desc: "floating" },
-      { key: "overlays-tutorial", slug: "overlays-tutorial/", label: "Tutorial", desc: "marker · guide" },
-    ],
-  },
-  {
-    group: "Shell",
-    pages: [
-      { key: "layouts", slug: "layouts/", label: "Layouts", desc: "shells" },
-      { key: "loading", slug: "loading/", label: "Startup", desc: "boot screen" },
-    ],
-  },
-  {
-    group: "Surfaces",
-    pages: [
-      { key: "dag", slug: "dag/", label: "Task DAG", desc: "graph surface" },
-      { key: "plugins", slug: "plugins/", label: "Plugin surfaces", desc: "surfaces" },
-      { key: "explorer-ops", slug: "explorer-ops/", label: "Explorer file ops", desc: "create · drag · progress · props · search" },
-    ],
-  },
-];
-
-export const GALLERY_PAGES: GalleryPage[] = GALLERY_GROUPS.flatMap((g) => g.pages);
-
-/** Route of a gallery page in one language. */
-export const galleryPath = (slug: string, lang: string) => designPath(`gallery/${slug}`, lang);
 
 /** Introductory copy for the site; specimen content comes from the design kit. */
 export const GALLERY_INTROS: Record<string, string> = {

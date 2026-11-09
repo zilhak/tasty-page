@@ -2284,9 +2284,6 @@ Contrast is the lowest across the row's grounds.
 | Sidebar link | `.nav-list a` | `base`, `mantle` | `text-muted` | `text-muted` | 7.37 · 5.14 |
 | Sidebar link, pointer over | `.nav-list a:hover` | `raised` | `text-body` | `text-primary` | 8.69 · 5.17 |
 | Sidebar current item | `.nav-list a[aria-current="page"]` | `tint-primary@base`, `tint-primary@mantle` | `text-primary` | `accent-primary-raised` | 6.18 · 5.86 |
-| Sidebar description | `.nav-desc` | `base`, `mantle` | `text-muted` | `text-muted` | 7.37 · 5.14 |
-| Sidebar description, pointer over | `.nav-list a:hover .nav-desc` | `raised` | `text-muted` | `text-muted-raised` | 5.65 · 5.17 |
-| Sidebar description, current | `.nav-list a[aria-current="page"] .nav-desc` | `tint-primary@base`, `tint-primary@mantle` | `text-muted` | `text-muted-raised` | 5.84 · 5.63 |
 | Breadcrumb | `.breadcrumb, .breadcrumb a` | `base` | `text-muted` | `text-muted` | 7.37 · 5.53 |
 | Breadcrumb separator | `.breadcrumb .sep` | `base` | `ornament` | `glyph-dim` | no target · no target |
 | Page text | `.prose` | `base` | `text-body` | `text-primary` | 11.34 · 7.06 |
@@ -2316,7 +2313,6 @@ Contrast is the lowest across the row's grounds.
 | Hero release word | `.hero__eyebrow` | `base` | `text-muted` | `text-muted` | 7.37 · 5.53 |
 | Hero release dot | `.hero__eyebrow .dot` | `base` | `mark` | `site-eyebrow-dot` | no target · no target |
 | Hero accent | `.hero h1 .accent` | `base` | `text-brand` | `brand-ink` | 5.12 · 5.50 |
-| Design kicker | `.design-head__kicker` | `base` | `text-brand` | `brand-ink` | 5.12 · 5.50 |
 | Primary call to action | `.btn--primary` | `site-cta` | `text-body` | `site-cta-fg` | 5.85 · 5.85 |
 | Primary call to action, pointer over | `.btn--primary:hover` | `site-cta+hover` | `text-body` | `site-cta-fg` | 6.37 · 6.37 |
 | Primary call to action, press | `.btn--primary:active` | `site-cta+press` | `text-body` | `site-cta-fg` | 6.66 · 6.66 |
@@ -2339,5 +2335,5 @@ Contrast is the lowest across the row's grounds.
 | Window mock version | `.shell span` | `term`, `term-unfocused` | `text-attention` | `accent-attention-raised` | 9.27 · 5.96 |
 | Window mock document title | `.shell h2` | `term`, `term-unfocused` | `text-body` | `text-primary` | 11.34 · 6.04 |
 | Window mock section heading | `.shell h3` | `term`, `term-unfocused` | `text-primary` | `accent-primary-raised` | 7.79 · 6.28 |
-| Design pages text | `.design-head__intro, .ds-lede` | `base` | `text-muted` | `text-muted` | 7.37 · 5.53 |
+| Design pages text | `.ds-lede` | `base` | `text-muted` | `text-muted` | 7.37 · 5.53 |
 | Page navigation edge, pointer over | `.page-nav a:hover` | `base` | `border-partition` | `brand-ink` | no target · no target |

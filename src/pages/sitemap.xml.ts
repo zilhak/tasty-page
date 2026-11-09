@@ -1,5 +1,5 @@
 import type { APIRoute } from "astro";
-import { DESIGN_NAV, designPath } from "../lib/design";
+import { DESIGN_PAGES, designPath } from "../lib/design";
 import { buildPages, type Lang } from "../lib/guide";
 import { absolute } from "../lib/site";
 import { pathOf } from "../lib/urls";
@@ -13,7 +13,7 @@ const SINGLE_PAGES = ["", "ko/", "privacy/", "ko/privacy/"];
 const paths = () => [
   ...SINGLE_PAGES,
   ...buildPages(process.cwd()).flatMap((page) => LANGS.map((lang) => pathOf(page, lang))),
-  ...DESIGN_NAV.flatMap((group) => group.pages).flatMap((page) =>
+  ...DESIGN_PAGES.filter((page) => page.indexed !== "none").flatMap((page) =>
     LANGS.map((lang) => designPath(page.slug, lang)),
   ),
 ];

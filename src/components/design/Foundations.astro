@@ -36,7 +36,7 @@ const COPY: Record<string, Record<string, string>> = {
 const c = COPY[lang];
 if (!c) throw new Error(`No design home copy for language: ${lang}`);
 ---
-<Design lang={lang} current="" title={c.title} intro={c.intro} description={c.description}>
+<Design lang={lang} pageKey="overview" title={c.title} intro={c.intro} description={c.description}>
   <div class="note note--untranslated"><p>{c.notice}</p></div>
   <section class="ds-group">
     <h2>{c.galleryTitle}</h2>

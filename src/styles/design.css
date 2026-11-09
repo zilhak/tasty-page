@@ -1,70 +1,58 @@
-/* Fixed-width design examples use a wider content column without a table of contents.
+/* The design zone's one layout. Specimens need the width, so the body fills the space beside the menu.
 
-   The heads here are the site's own frame around the design documents
-   (docs/dev/site.md), so spacing uses the site scale. Literal values
-   left without a line comment are font sizes and element sizes, which the site
-   scale has no axis for. Widths in ch follow the reader's font size and stay
-   relative. Media query conditions stay literal because a query
-   condition cannot read a custom property. */
+   The page head takes the gallery's form (vendor/gallery/README.md, "Headings"), so its values are the same
+   design tokens specimen.css uses for headings. Spacing outside it uses the site scale. Literal values left
+   without a line comment are element sizes, which the site scale has no axis for. Widths in ch follow the
+   reader's font size and stay relative. Media query conditions stay literal because a query condition cannot
+   read a custom property. */
 
 .layout--design {
   grid-template-columns: var(--sidebar-w) minmax(0, 1fr);
+  max-width: none;
 }
-.content--design { max-width: none; }
+.layout--design .content { max-width: none; }
 
-.nav-desc {
-  display: block;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--tasty-text-muted);
-  line-height: 1.4;
+.nav-list--sections { margin: var(--sp-1) 0 var(--sp-2) var(--sp-3); }
+.nav-list--sections a { font-size: var(--tasty-font-size-12); }
+
+.design-head {
+  color: var(--tasty-text-primary);
+  font-family: var(--tasty-font-ui);
+  font-size: var(--tasty-font-size-body);
+  line-height: var(--tasty-line-height-ui);
 }
-.nav-list a:hover .nav-desc { color: var(--tasty-text-muted-raised); }
-.nav-list a[aria-current="page"] .nav-desc { color: var(--tasty-text-muted-raised); }
-
-
-
-.design-head { margin-bottom: var(--sp-10); }
-.design-head__kicker {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--tasty-brand-ink);
-  margin: 0 0 var(--sp-2);
+.design-head h1 {
+  margin: 0 0 var(--tasty-space-sm);
+  font-size: var(--tasty-font-size-max);
+  font-weight: var(--tasty-font-weight-semibold);
 }
-.design-head h1 { margin: 0 0 var(--sp-3); }
 .design-head__intro {
   margin: 0;
-  max-width: 62ch;
-  color: var(--tasty-text-muted);
-  font-size: 16px;
-  line-height: 1.65;
-}
-.design-head__intro code {
-  font-family: var(--font-mono);
-  font-size: 0.9em;
+  max-width: var(--tasty-size-700);
+  color: var(--tasty-text-secondary);
 }
 
-
-
-.ds-group { margin-bottom: var(--sp-12); }
+.ds-group {
+  margin-bottom: var(--sp-12);
+  font-family: var(--tasty-font-ui);
+  font-size: var(--tasty-font-size-body);
+  line-height: var(--tasty-line-height-ui);
+}
 .ds-group > h2 {
   margin: 0 0 var(--sp-5);
-  padding-bottom: var(--sp-2);
-  border-bottom: var(--border);
-  font-size: 20px;
+  padding-bottom: var(--tasty-space-sm);
+  border-bottom: var(--tasty-border-width) solid var(--tasty-separator);
+  font-size: var(--tasty-font-size-max);
+  font-weight: var(--tasty-font-weight-semibold);
 }
-
-@media (max-width: 1000px) {
-  .layout--design { grid-template-columns: minmax(0, 1fr); }
-}
-
-
 
 .ds-links { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-5); margin: 0 0 var(--sp-4); }
 .ds-lede {
   margin: 0 0 var(--sp-5);
   max-width: 62ch;
   color: var(--tasty-text-muted);
+}
+
+@media (max-width: 900px) {
+  .layout--design { grid-template-columns: minmax(0, 1fr); }
 }

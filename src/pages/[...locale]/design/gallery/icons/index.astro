@@ -1,11 +1,11 @@
 ---
-import GalleryPage from "../../../../../layouts/GalleryPage.astro";
+import SpecimenPage from "../../../../../components/design/SpecimenPage.astro";
 import Route, { page } from "../../../../../../vendor/gallery/icons/index.jsx";
 import { localePaths } from "../../../../../lib/design";
 
 export const getStaticPaths = localePaths;
 const { lang } = Astro.props;
 ---
-<GalleryPage lang={lang} pageKey="icons" page={page}>
+<SpecimenPage lang={lang} pageKey="icons" page={page}>
   <Route client:load />
-</GalleryPage>
+</SpecimenPage>

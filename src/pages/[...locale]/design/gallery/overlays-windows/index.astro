@@ -1,11 +1,11 @@
 ---
-import GalleryPage from "../../../../../layouts/GalleryPage.astro";
+import SpecimenPage from "../../../../../components/design/SpecimenPage.astro";
 import Route, { page } from "../../../../../../vendor/gallery/overlays-windows/index.jsx";
 import { localePaths } from "../../../../../lib/design";
 
 export const getStaticPaths = localePaths;
 const { lang } = Astro.props;
 ---
-<GalleryPage lang={lang} pageKey="overlays-windows" page={page}>
+<SpecimenPage lang={lang} pageKey="overlays-windows" page={page}>
   <Route client:load />
-</GalleryPage>
+</SpecimenPage>

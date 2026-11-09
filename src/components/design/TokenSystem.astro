@@ -1,19 +1,13 @@
 ---
 /** `/design/tokens/`: the token specimen. It renders without client:load, so the token JSON stays out of the browser. */
-import Design from "../../layouts/Design.astro";
+import SpecimenPage from "./SpecimenPage.astro";
 import Route, { page } from "../../../vendor/gallery/tokens/index.jsx";
-import "../../../vendor/gallery/parts/specimen.css";
-import "../../styles/gallery-site.css";
-import { url } from "../../lib/site";
 
 interface Props { lang: string; }
 const { lang } = Astro.props;
 
 const DESCRIPTION = "Tasty’s design tokens link primitive values, semantic roles and component parts. Rows show names, references and values for Mocha and Latte.";
 ---
-<Design lang={lang} current="tokens/" title={page.head.title} intro={page.head.intro} description={DESCRIPTION} sections={page.nav}>
-  <Fragment slot="head"><link rel="stylesheet" href={url("design/kit.css")} /></Fragment>
-  <div data-gallery-page="tokens">
-    <Route />
-  </div>
-</Design>
+<SpecimenPage lang={lang} pageKey="tokens" page={page} description={DESCRIPTION}>
+  <Route />
+</SpecimenPage>

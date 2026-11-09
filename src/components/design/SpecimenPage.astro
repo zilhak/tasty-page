@@ -1,0 +1,25 @@
+---
+/** A design page that shows specimens. specimen.css and kit.css load here and not in the layout, because specimen.css has a global .note rule that would recolour the notice on the design home. */
+import Design from "../../layouts/Design.astro";
+import "../../../vendor/gallery/parts/specimen.css";
+import { GALLERY_INTROS } from "../../lib/design";
+import { url } from "../../lib/site";
+
+interface Props {
+  /** A language code from lib/langs.mjs. */
+  lang: string;
+  pageKey: string;
+  /** The page descriptor a vendor/ gallery page exports: its title, intro and sections. */
+  page: { head: { title: string; intro?: string }; nav?: { id: string; label: string }[] };
+  /** Search and share summary. Without it the intro serves. */
+  description?: string;
+}
+const { lang, pageKey, page, description } = Astro.props;
+const intro = GALLERY_INTROS[pageKey] ?? page.head.intro ?? "";
+---
+<Design lang={lang} pageKey={pageKey} title={page.head.title} intro={intro} description={description ?? intro} sections={page.nav}>
+  <Fragment slot="head"><link rel="stylesheet" href={url("design/kit.css")} /></Fragment>
+  <div data-gallery-page={pageKey}>
+    <slot />
+  </div>
+</Design>

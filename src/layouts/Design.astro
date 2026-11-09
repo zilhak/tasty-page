@@ -1,51 +1,49 @@
 ---
-/** Keep design examples at their intended widths in a wider content column. */
+/** The design zone's one layout: the home, the tokens and the gallery. The site header and footer follow the page's language. The menu and previous/next are English in every language. */
 import Base from "./Base.astro";
-import { DESIGN_NAV, GALLERY_GROUPS, designPath, galleryPath } from "../lib/design";
+import { DESIGN_GROUPS, DESIGN_LANG, DESIGN_MENU_LABEL, DESIGN_PAGES, PAGE_NAV_LABELS, designPage, designPath } from "../lib/design";
 import { LANGS } from "../lib/langs.mjs";
-import { stringsFor } from "../lib/strings";
 import { url } from "../lib/site";
 import "../styles/design.css";
 
 interface Props {
   /** A language code from lib/langs.mjs. */
   lang: string;
-  /** Slug of the page being rendered, so the sidebar can mark it current. */
-  current: string;
+  /** Key of the page being rendered, from lib/design.ts. */
+  pageKey: string;
   title: string;
-  /** Lead paragraph on the page. May hold inline HTML. */
+  /** Lead paragraph on the page. */
   intro: string;
   /** Plain-text search and share summary, kept apart from the longer intro. */
   description: string;
-  /** Sections of the current page, listed under it in the sidebar. */
+  /** Sections of the current page, listed under it in the menu. */
   sections?: { id: string; label: string }[];
 }
-const { lang, current, title, intro, description, sections = [] } = Astro.props;
-const s = stringsFor(lang);
+const { lang, pageKey, title, intro, description, sections = [] } = Astro.props;
+const current = designPage(pageKey);
+const idx = DESIGN_PAGES.indexOf(current);
+const prev = DESIGN_PAGES[idx - 1];
+const next = DESIGN_PAGES[idx + 1];
 ---
 <Base
   lang={lang}
-  title={`${title} · Tasty Design System`}
+  title={`${title} · ${current.titleSuffix}`}
   description={description}
   active="design"
-  hrefs={Object.fromEntries(LANGS.map((row) => [row.code, designPath(current, row.code)]))}
+  hrefs={Object.fromEntries(LANGS.map((row) => [row.code, designPath(current.slug, row.code)]))}
+  robots={current.indexed === "none" ? "noindex, follow" : undefined}
 >
   <slot name="head" slot="head" />
   <div class="layout layout--design">
-    <aside class="sidebar" aria-label={s.navDesign}>
-      {DESIGN_NAV.map((group) => (
-        <details class="nav-section" open>
+    <aside class="sidebar" aria-label={DESIGN_MENU_LABEL} lang={DESIGN_LANG} data-site-chrome>
+      {DESIGN_GROUPS.map((group) => (
+        <details class="nav-section" open data-current={group.pages.includes(current) ? "" : undefined}>
           <summary>{group.group}</summary>
           <ul class="nav-list">
-            {group.pages.map((page) => (
+            {group.pages.map((item) => (
               <li>
-                <a href={url(designPath(page.slug, lang))}
-                   aria-current={page.slug === current ? "page" : undefined}
-                   style="--indent:0">
-                  {page.label}
-                  <span class="nav-desc">{page.desc}</span>
-                </a>
-                {page.slug === current && sections.length > 0 && (
+                <a href={url(designPath(item.slug, lang))} aria-current={item === current ? "page" : undefined} style="--indent:0">{item.label}</a>
+                {item === current && sections.length > 0 && (
                   <ul class="nav-list nav-list--sections">
                     {sections.map((n) => <li><a href={`#${n.id}`} style="--indent:1">{n.label}</a></li>)}
                   </ul>
@@ -55,29 +53,17 @@ const s = stringsFor(lang);
           </ul>
         </details>
       ))}
-
-      <details class="nav-section" open>
-        <summary>Gallery</summary>
-        <ul class="nav-list">
-          {GALLERY_GROUPS.flatMap((g) => g.pages).map((page) => (
-            <li>
-              <a href={url(galleryPath(page.slug, lang))} style="--indent:0">
-                {page.label}
-                <span class="nav-desc">{page.desc}</span>
-              </a>
-            </li>
-          ))}
-        </ul>
-      </details>
     </aside>
-
-    <main class="content content--design" id="content">
+    <main class="content" id="content" lang={current.translated ? undefined : DESIGN_LANG}>
       <header class="design-head">
-        <p class="design-head__kicker">Tasty Design System</p>
         <h1>{title}</h1>
-        <p class="design-head__intro" set:html={intro} />
+        <p class="design-head__intro">{intro}</p>
       </header>
       <slot />
+      <nav class="page-nav" lang={DESIGN_LANG} data-site-chrome>
+        {prev && <a class="prev" href={url(designPath(prev.slug, lang))}><span class="dir">← {PAGE_NAV_LABELS.prev}</span>{prev.label}</a>}
+        {next && <a class="next" href={url(designPath(next.slug, lang))}><span class="dir">{PAGE_NAV_LABELS.next} →</span>{next.label}</a>}
+      </nav>
     </main>
   </div>
 </Base>
