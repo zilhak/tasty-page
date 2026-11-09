@@ -140,6 +140,7 @@ import { Spec, Stage, Meta, Note } from "../parts/specimen.jsx";
             )))}
           </Stage>
           <Meta specs={[["row", "settings label · settings-label-gap · trigger field-width-lg 200 · row min settings-row-min-height"], ["height check", "font trigger 28 = Select 28 (select-height) · chevron ⌄ icon chevronDown 14"], ["override rows", "same control, same width, per-font override in the Appearance list"]]} />
+          <Note>A family whose file can't be loaded keeps this trigger and gets a line under it. See Overlays › Windows, under Settings.</Note>
         </Spec>
       </>
     );

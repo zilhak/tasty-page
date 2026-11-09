@@ -1,5 +1,5 @@
 import React from "react";
-import { Icon, Checkbox, Input, Toast, Tooltip } from "../../components/index.js";
+import { Icon, Checkbox, Input, SearchableSelect, Toast, Tooltip } from "../../components/index.js";
 import { Spec, Stage, Meta, Note, Dont } from "../parts/specimen.jsx";
 
 // Tasty Gallery — Settings › Appearance font rows and the rejected font states.
@@ -176,6 +176,50 @@ function FontToastSpec() {
   );
 }
 
+// settings.appearance.font.family_rejected
+const FAMILY_COPY = {
+  en: { line: "Could not load this font's file. Using another font.", base: "Font family:", row: "Font family", ud: "Use default" },
+  ko: { line: "이 폰트의 파일을 불러오지 못했습니다. 다른 폰트로 표시합니다.", base: "폰트:", row: "폰트", ud: "기본값 사용" },
+  ja: { line: "このフォントのファイルを読み込めませんでした。別のフォントで表示します。", base: "フォント:", row: "フォント", ud: "デフォルトを使用" },
+};
+const FAMILIES = ["D2Coding", "Fira Code", "JetBrains Mono", "Noto Sans Mono", "Sarasa Term K"];
+const PINNED = [{ value: "", label: "Default (monospace)" }];
+
+// state: rest | rejected | open
+function FamilyRow({ lang = "en", base = false, value = "Noto Sans Mono", state = "rest" }) {
+  const C = FAMILY_COPY[lang];
+  const W = { width: "var(--tasty-field-width-lg)" };
+  const control = state === "open"
+    ? <SearchableSelect open focusSearch query="" activeIndex={4} options={FAMILIES} pinned={PINNED} value={value} searchPlaceholder="Search fonts" style={W} />
+    : <SearchableSelect options={FAMILIES} pinned={PINNED} value={value} style={W} />;
+  return <FontRow label={base ? C.base : C.row} control={control} ud={base ? null : C.ud} udChecked={false} line={state === "rest" ? null : C.line} hold={state === "open"} />;
+}
+
+function FontFamilyRejectedSpec() {
+  return (
+    <Spec id="appearance-font-family-rejected" title="Appearance › Font family rejected"
+      when={<>A family from the list can be rejected when its file is damaged. The row gets the <b>same line</b> as the file field, with its own words, and <b>no invalid edge</b>: the name is a real entry and nothing was mistyped, so the fault is in a file the field doesn't show. While the list is open the line's ink goes and its box stays. Picking another family judges again when the list closes. A saved family raises the same toast as a file, with the name in it. The Terminal override row shows the line only when the terminal can't use the font.</>}>
+      {stage(THEMES.map(([l, t]) => (
+        <Frame key={l} theme={t} label={l + " · family rows"} view={"font-family-" + t}>
+          <St name="default grid · rest"><FamilyRow base value="JetBrains Mono" /></St>
+          <St name="default grid · rejected"><FamilyRow base state="rejected" /></St>
+          <St name="override row · rejected"><FamilyRow state="rejected" /></St>
+          <St name="Terminal override row · the terminal can use the font, the preview can't — no line"><FamilyRow /></St>
+          <div style={{ minHeight: "var(--tasty-size-300)" }}><St name="override row · rejected, list open — line box kept"><FamilyRow state="open" /></St></div>
+        </Frame>
+      )))}
+      {stage(<>
+        <Frame theme="mocha" label="Mocha · ko" view="font-family-ko"><FamilyRow lang="ko" state="rejected" /></Frame>
+        <Frame theme="latte" label="Latte · ja" view="font-family-ja"><FamilyRow lang="ja" state="rejected" /></Frame>
+      </>)}
+      <Meta
+        specs={[["trigger", "unchanged in every state. SearchableSelect has no invalid state"], ["line", "same form and position as the file field's line"], ["list open", "line box kept, no ink"], ["Save", "enabled in every state"], ["toast", "font-rejected-toast, with the family name"]]}
+        tokens={[{ tok: "--tasty-accent-danger-raised", use: "line", color: "var(--tasty-accent-danger-raised)" }, { tok: "--tasty-settings-row-caption-gap", use: "control → line" }]} />
+      <Note><b>Copy.</b> <code>settings.appearance.font.family_rejected</code>: en “{FAMILY_COPY.en.line}” · ko “{FAMILY_COPY.ko.line}” · ja “{FAMILY_COPY.ja.line}” It names the file as the fault, which is what the user can act on. No token and no contract row was added.</Note>
+    </Spec>
+  );
+}
+
 function FontFileRejectedSpec() {
   return (
     <Spec id="appearance-font-file-rejected" title="Appearance › Custom font file rejected"
@@ -238,4 +282,4 @@ function FontFileRejectedSpec() {
   );
 }
 
-export { FontOverrideG, FontFileRejectedSpec, FontToastSpec };
+export { FontOverrideG, FontFileRejectedSpec, FontToastSpec, FontFamilyRejectedSpec };
