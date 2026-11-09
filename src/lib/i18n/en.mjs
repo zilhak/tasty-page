@@ -30,7 +30,6 @@ export default {
     privacyTitle: "Privacy notice",
     privacyDescription: "What this site collects for its visitor statistics and who handles it.",
     footerNote: "MIT licensed",
-    untranslated: "This page is not available in English yet. The Korean original is shown below.",
     stale: "The Korean original has changed. This English translation may be missing recent updates. Read the Korean original for the latest content.",
     translateCta: "Read the Korean original",
   },

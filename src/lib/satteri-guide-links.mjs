@@ -3,7 +3,7 @@ import { posix, relative, resolve, sep } from "node:path";
 
 /**
  * Rewrite Markdown links to guide routes.
- * Keep guide links relative so untranslated bodies work under both languages.
+ * Keep guide links relative so a body means the same under every language path.
  * Compute paths between routes: using/terminal.md becomes using/terminal/,
  * while plugins/index.md becomes plugins/.
  * A link to a Markdown file outside the content tree is recorded in

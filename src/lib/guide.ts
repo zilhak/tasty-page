@@ -1,11 +1,11 @@
 /**
  * Guide model: reading order, sections, and the translation rules.
  *
- * Korean is canonical and English is a translation of it. A page with no
- * translation is still published in the English tree with the Korean body and a
- * banner, so that tree is always complete. Each translation carries a
+ * Korean is canonical and every other language is a translation of it, in the tree
+ * its language row names. A missing translation fails the build: a reader never gets
+ * the Korean body in place of their language. Each translation carries a
  * `<!-- source-hash: … -->` stamp of the Korean source it was made from; when the
- * source moves on, the page says so. (docs/dev-guide/site.md "번역 모델")
+ * source moves on, the page says so. (docs/dev/site.md "번역 모델")
  */
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
@@ -141,10 +141,10 @@ export function buildPages(root: string): Page[] {
 
     const title = titleOf(source, rel);
     const translations: Record<string, Translation> = {};
-    for (const { contentDir } of LANGS) {
+    for (const { code, contentDir } of LANGS) {
       if (!contentDir) continue;
       const translated = read(root, `${contentDir}/${rel}`);
-      if (!translated) continue;
+      if (!translated) throw new Error(`Missing translation for site language ${code}: content/${contentDir}/${rel}.md`);
       const tTitle = titleOf(translated, title);
       translations[contentDir] = {
         title: tTitle,
@@ -166,30 +166,29 @@ export function buildPages(root: string): Page[] {
   });
 }
 
-/** The translation a language shows for a page. Null for the canonical language and for a page with no translation. */
+/** The translation a language shows for a page. Null for the canonical language, which shows the page itself. */
 const translationIn = (page: Page, lang: Lang): Translation | null => {
   const { contentDir } = langRow(lang);
-  return contentDir ? (page.translations[contentDir] ?? null) : null;
+  return contentDir ? page.translations[contentDir] : null;
 };
 
 /** How a page stands in one language. */
-export type PageState = "canonical" | "translated" | "stale" | "untranslated";
+export type PageState = "canonical" | "translated" | "stale";
 
 export function stateOf(page: Page, lang: Lang): PageState {
-  if (!langRow(lang).contentDir) return "canonical";
   const translation = translationIn(page, lang);
-  if (!translation) return "untranslated";
+  if (!translation) return "canonical";
   return translation.stamp === page.sourceHash ? "translated" : "stale";
 }
 
 /** The file a language shows for a page, relative to content/ and without extension. */
 export function sourceRelIn(page: Page, lang: Lang): string {
-  return translationIn(page, lang) ? `${langRow(lang).contentDir}/${page.rel}` : page.rel;
+  const { contentDir } = langRow(lang);
+  return contentDir ? `${contentDir}/${page.rel}` : page.rel;
 }
 
 /**
- * The collection entry id that holds the body to render. Falls back to the Korean
- * source so the English tree is complete even without a translation.
+ * The collection entry id that holds the body to render.
  *
  * The glob loader folds `<dir>/index.md` into `<dir>`; only the tree root keeps
  * the name `index`.

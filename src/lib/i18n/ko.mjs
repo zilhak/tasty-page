@@ -30,7 +30,6 @@ export default {
     privacyTitle: "개인정보 안내",
     privacyDescription: "이 사이트가 방문 통계를 위해 수집하는 정보와 처리 주체를 안내합니다.",
     footerNote: "MIT 라이선스",
-    untranslated: "아직 영어 번역이 없습니다. 아래에 한국어 원문을 표시합니다.",
     stale: "한국어 원문이 바뀌어 영어 번역에 최신 내용이 빠져 있을 수 있습니다. 최신 내용은 한국어 원문에서 확인하세요.",
     translateCta: "한국어 원문 보기",
   },

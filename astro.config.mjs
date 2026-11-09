@@ -44,8 +44,7 @@ export default defineConfig({
     processor: satteri({
       hastPlugins: [
         createGuideLinkPlugin(fileURLToPath(new URL("content", import.meta.url))),
-        // The English tree is `content/en/`; everything else is the Korean source,
-        // which also serves untranslated English pages.
+        // The English tree is `content/en/`; everything else is the Korean source.
         createTableWrapPlugin(),
         createDiagramPlugin((url) => (url && fileURLToPath(url).includes("/content/en/") ? "en" : "ko"), BASE),
       ],

@@ -82,11 +82,6 @@ const toc = headings.filter((h) => h.depth === 2 || h.depth === 3);
         <span>{category}</span>
       </nav>
 
-      {state === "untranslated" && (
-        <div class="note note--untranslated">
-          <p>{s.untranslated}</p>
-        </div>
-      )}
       {state === "stale" && (
         <div class="note">
           <p>{s.stale}</p>
