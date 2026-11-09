@@ -2236,7 +2236,7 @@ The site's landing, guide and design pages use the same grounds, roles and table
 
 **Links.** A link reads `accent-primary-raised`. In running text it also takes an underline at rest, because in Latte that ink is too close to body text to tell apart by lightness. In a note it takes body ink and the underline, because a second hue on a tint is forbidden.
 
-**Notes.** The guide's translation notice is a `.note`: warning tint when a translation is stale, primary tint with `.note--untranslated` when there is none. It has no lead word and no hue edge. A link in it takes body ink and an underline.
+**Notes.** The guide's translation notice is a `.note`: warning tint when a translation is stale, primary tint with `.note--untranslated` when there is none. It has no lead word and no hue edge. A link in it takes body ink and an underline. The design home's English-only notice uses the same primary tint.
 
 **Skip link.** Hidden until keyboard focus. Then it sits at the top left over the header, on its own `base` fill with a 1px edge and the link ink, and the focus ring goes around that.
 
@@ -2341,6 +2341,5 @@ Contrast is the lowest across the row's grounds.
 | Window mock version | `.shell span` | `term`, `term-unfocused` | `text-attention` | `accent-attention-raised` | 9.27 · 5.96 |
 | Window mock document title | `.shell h2` | `term`, `term-unfocused` | `text-body` | `text-primary` | 11.34 · 6.04 |
 | Window mock section heading | `.shell h3` | `term`, `term-unfocused` | `text-primary` | `accent-primary-raised` | 7.79 · 6.28 |
-| Design pages text | `.design-head__intro, .ds-lede, .ds-card__head p, .ds-card__src` | `base` | `text-muted` | `text-muted` | 7.37 · 5.53 |
-| Design source link, pointer over | `.ds-card__src:hover` | `base` | `text-brand` | `brand-ink` | 5.12 · 5.50 |
+| Design pages text | `.design-head__intro, .ds-lede` | `base` | `text-muted` | `text-muted` | 7.37 · 5.53 |
 | Page navigation edge, pointer over | `.page-nav a:hover` | `base` | `border-partition` | `brand-ink` | no target · no target |
