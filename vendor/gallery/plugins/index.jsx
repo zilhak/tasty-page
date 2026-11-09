@@ -907,6 +907,7 @@ function Page() {
               </div>
             </div>
           </Stage>
+          {focusViews("explorer-read-error", (focused) => <ExpState glyph={<PIcon name="alertTriangle" size="var(--tasty-icon-size-md)" />} glyphColor="var(--tasty-explorer-error-fg)" title="Can't read this folder" reason="No such file or directory (os error 2)" bg={surfaceBed(focused)} />, { display: "flex", width: "100%", maxWidth: 420 })}
           <Meta
             specs={[["empty", "centered glyph + line"], ["permission", "warning (peach) tone"], ["loading", <>Spinner — busy-indicator policy</>], ["popups", "Popup language · ghost + primary footer"]]}
             tokens={[{ tok: "--tasty-accent-warning", use: "permission tone", color: "var(--tasty-accent-warning-raised)" }, { tok: "--tasty-spinner-indicator", use: "loading", color: "var(--tasty-spinner-indicator)" }, { tok: "--tasty-shadow-modal", use: "popup lift" }]} />
