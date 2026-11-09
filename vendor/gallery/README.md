@@ -1,6 +1,6 @@
 # Tasty Gallery
 
-The gallery is the canon the app follows. Its source lives in this folder, and the site renders it from here. This page is the brief for that move, followed by the catalog as it stands. Companions: [`coverage.md`](coverage.md) (contract and location against specimen), `site-form-mock.html` (one page in the new form), `state-grid.jsx` and `contract-audit.js` (reference code).
+The gallery is the canon the app follows. Its source lives in this folder, and the site renders it from here. This page is the brief for that move, followed by the catalog as it stands. Companions: [`coverage.md`](coverage.md) (contract and location against specimen), `parts/state-grid.jsx` and `contract-audit.js` (reference code).
 
 ## The site form
 
@@ -12,7 +12,7 @@ Decided 2026-11-05. The move itself belongs to the implementing side.
 - **Use the guide's grammar:** left sidebar, body, previous and next. Sidebar links are text only, so the `desc` strings go. The page's sections nest under the current page in the sidebar. There is no right-hand contents list, and "On this page" goes.
 - **Main column.** Specimens need the width: body fills the space beside the sidebar. Prose inside it stays at the guide's measure.
 - **Headings.** Page title, section and specimen are all 14px or less, set apart by weight. Drop `g-section`'s uppercase mono heading and the 26px page title. Dates leave specimen titles: `Tooltip (2026-10-08)` becomes `Tooltip`. History lives in the git history.
-- **390px.** No horizontal page scroll. A stage, state grid or spec table wider than the column scrolls inside its own box, with the first column of a state grid sticky. At the guide's narrow width the sidebar takes the guide's narrow form. Measured on the mock: no page scroll at 1440 and 390 in both themes, and 5 of 6 state grids scroll inside their box at 390.
+- **390px.** No horizontal page scroll. A stage, state grid or spec table wider than the column scrolls inside its own box, with the first column of a state grid sticky. At the guide's narrow width the sidebar takes the guide's narrow form. When this was decided, a one-page mock measured no page scroll at 1440 and 390 in both themes, with 5 of 6 state grids scrolling inside their box at 390. That mock never entered this repository, so these figures are a record.
 
 ### Page map
 
@@ -79,14 +79,14 @@ Rows below a scroll fold stay in the DOM and are measured, so a list needs no fr
 
 The toggle goes. Specs are always on, because they are what the app is built from.
 
-- **Layout table:** property, token, resolved value. Read the value from the token at render, as the mock's `Resolved` does, so it cannot drift. A value with no token needs a design request.
+- **Layout table:** property, token, resolved value. Read the value from the token at render, as `ResolvedLength` in `parts/specimen.jsx` does, so it cannot drift. A value with no token needs a design request.
 - **Contract table:** part, token, states, Mocha, Latte, for specimens with a contract, generated from the file.
 - **Tokens table** for the rest: the same columns as chips carry today, as a table so it holds at 390.
 - **The grid and rail overlay** becomes opt-in per stage: a small control on the stages that have `grid` or `anno` parts, rendered only while on, so it never sits in the DOM for the check. Layouts is the only page using `anno`.
 
 ### The check
 
-The rules are in `RULES.md` section 14. `contract-audit.js` is a reference for the frozen-cell part and covers the Button family's parts. It runs on the mock at 113 cells and 241 rows, with no mismatch in either theme against the sources. The ratios it computes match the file's to 0.03.
+The rules are in `RULES.md` section 14. `contract-audit.js` is a reference for the frozen-cell part and covers the Button family's parts. When this was decided, it ran on the same mock at 113 cells and 241 rows, with no mismatch in either theme against the sources, and the ratios it computed matched the file's to 0.03. Those figures are a record.
 
 | What | Rule |
 |---|---|
@@ -159,7 +159,7 @@ The check walks ancestors for the ground, so a specimen paints its ground on an 
 | `explorer-ops-staging.jsx` | `explorer-ops/staging-left.jsx` |
 | `explorer-ops-props-actions.jsx` | `explorer-ops/properties-actions.jsx` |
 
-The page `.html` files go, and `site-form-mock.*` goes once the first real page exists. `ui_kits/terminal/` keeps its paths: gallery pages import what they use from it.
+The page `.html` files go. `ui_kits/terminal/` keeps its paths: gallery pages import what they use from it.
 
 ### What stays in this system
 
