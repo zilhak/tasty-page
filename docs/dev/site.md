@@ -97,7 +97,7 @@
 갤러리는 앱이 따르는 정본이다. 페이지 규칙은 `vendor/gallery/README.md`에 있고 사이트 구현은 다음과 같다.
 
 - `src/layouts/Design.astro`: 안내·토큰·갤러리가 함께 쓰는 레이아웃이다. 공용 머리글·테마·푸터(`Base.astro`), 메뉴, 머리 부분(제목과 소개), 이전·다음을 그린다. 페이지 순서와 묶음은 `src/lib/design.ts`의 `DESIGN_GROUPS`가 정한다.
-- `src/components/design/SpecimenPage.astro`: 토큰과 갤러리 페이지의 래퍼다. `[data-gallery-page]`를 두르고 `specimen.css`와 `design/kit.css`를 싣는다. 레이아웃에 두지 않는 이유는 `specimen.css`의 전역 `.note`가 안내 페이지의 영어 전용 안내 색을 바꾸기 때문이다.
+- `src/components/design/SpecimenPage.astro`: 토큰과 갤러리 페이지의 래퍼다. `[data-gallery-page]`를 두르고 `specimen.css`와 `design/kit.css`를 싣는다. 레이아웃에 두지 않는 이유는 표본을 보여 주는 페이지만 이 스타일시트를 쓰기 때문이다.
 - `src/pages/[...locale]/design/gallery/*/index.astro`: 라우트마다 `vendor/gallery/<페이지>/index.jsx`의 `page`와 기본 내보내기를 싣는다. `client:load`는 컴파일할 때 import를 찾아야 하므로 15개를 파일 하나로 합치지 않는다.
 - 언어 경로: `getStaticPaths`는 `src/lib/design.ts`의 `localePaths`이고 `src/lib/langs.mjs`의 목록에서 만든다. 언어별 파일을 복제하지 않으며 표본은 같은 소스를 쓴다.
 - `lang`: 헤더와 푸터는 페이지 언어다. 메뉴와 이전·다음은 `lang="en"`이다. `main`은 안내 페이지에서는 표시하지 않고 토큰과 갤러리에서는 `lang="en"`이다. 레이아웃은 언어 코드를 비교하지 않고 페이지 자료의 `translated`를 읽는다. `<title>`과 메타 설명은 머리에 있어 `lang`을 표시할 수 없다.
