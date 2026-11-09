@@ -77,7 +77,7 @@ function St({ name, view, children }) {
 }
 const stage = (children) => <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>{children}</Stage>;
 const THEMES = [["Mocha", "mocha"], ["Latte", "latte"]];
-const LONG_PATH = "/home/me/.local/share/fonts/NerdFonts/JetBrainsMono/JetBrainsMonoNerdFont-Regular.ttf";
+const LONG_PATH = "/usr/local/share/fonts/NerdFonts/JetBrainsMono/JetBrainsMonoNerdFont-Regular.ttf";
 
 // Live row. The demo judges by extension only so it needs no file. The app reads the file.
 function LiveFileRow() {
@@ -140,7 +140,7 @@ const TOAST_COPY = {
   ja: (v) => "フォントを読み込めませんでした: " + v + "。別のフォントで表示します。",
 };
 const TOAST_PATH = "~/fonts/notes.txt";
-const TOAST_LONG = "/home/me/…/JetBrainsMono/JetBrainsMonoNerdFont-Regular.ttf";
+const TOAST_LONG = "/usr/local/…/JetBrainsMono/JetBrainsMonoNerdFont-Regular.ttf";
 
 // The bottom-right corner of the main window: the toast stack over a surface, above the status bar.
 function MainCorner({ theme, label, view, children }) {
