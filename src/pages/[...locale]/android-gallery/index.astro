@@ -5,7 +5,7 @@ import Base from "../../../layouts/Base.astro";
 import "../../../styles/design.css";
 import "../../../../vendor/gallery/parts/specimen.css";
 import Route, { page } from "../../../../vendor/android/gallery/index.jsx";
-import { DESIGN_LANG, localePaths } from "../../../lib/design";
+import { DESIGN_LANG, designPage, localePaths } from "../../../lib/design";
 import { hrefsFor } from "../../../lib/langs.mjs";
 import { url } from "../../../lib/site";
 
@@ -15,7 +15,7 @@ const hrefs = hrefsFor((row) => `${row.prefix}android-gallery/`);
 ---
 <Base
   lang={lang}
-  title={`${page.head.title} · Tasty Gallery`}
+  title={`${page.head.title} · ${designPage("foundations").titleSuffix}`}
   description={page.head.description}
   hrefs={hrefs}
   robots="noindex, follow"
