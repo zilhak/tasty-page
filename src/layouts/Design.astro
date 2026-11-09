@@ -16,8 +16,10 @@ interface Props {
   intro: string;
   /** Plain-text search and share summary, kept apart from the longer intro. */
   description: string;
+  /** Sections of the current page, listed under it in the sidebar. */
+  sections?: { id: string; label: string }[];
 }
-const { lang, current, title, intro, description } = Astro.props;
+const { lang, current, title, intro, description, sections = [] } = Astro.props;
 const s = stringsFor(lang);
 ---
 <Base
@@ -27,6 +29,7 @@ const s = stringsFor(lang);
   active="design"
   hrefs={{ en: designPath(current, "en"), ko: designPath(current, "ko") }}
 >
+  <slot name="head" slot="head" />
   <div class="layout layout--design">
     <aside class="sidebar" aria-label={s.navDesign}>
       {DESIGN_NAV.map((group) => (
@@ -41,6 +44,11 @@ const s = stringsFor(lang);
                   {pick(page.label, lang)}
                   <span class="nav-desc">{pick(page.desc, lang)}</span>
                 </a>
+                {page.slug === current && sections.length > 0 && (
+                  <ul class="nav-list nav-list--sections">
+                    {sections.map((n) => <li><a href={`#${n.id}`} style="--indent:1">{n.label}</a></li>)}
+                  </ul>
+                )}
               </li>
             ))}
           </ul>

@@ -1,53 +1,19 @@
 ---
-/** `/design/tokens/` — the 3-tier token document, on its own page. */
+/** `/design/tokens/`: the token specimen. It renders without client:load, so the token JSON stays out of the browser. */
 import Design from "../../layouts/Design.astro";
-import { cards } from "../../lib/guidelines";
-import { SITE_REPO, url } from "../../lib/site";
-import type { Lang } from "../../lib/guide";
+import Route, { page } from "../../../vendor/gallery/tokens/index.jsx";
+import "../../../vendor/gallery/parts/specimen.css";
+import "../../styles/gallery-site.css";
+import { url } from "../../lib/site";
 
-interface Props { lang: Lang; }
+interface Props { lang: string; }
 const { lang } = Astro.props;
 
-const COPY = {
-  en: {
-    title: "Design tokens",
-    description:
-      "Tasty’s design tokens link values and roles to component parts through primitive, " +
-      "semantic, and component tiers.",
-    intro:
-      "Tasty’s design tokens connect raw values to component parts through three tiers. " +
-      "Primitive tokens define values such as colours and sizes. References run in one direction only: " +
-      "semantic tokens reference primitive tokens to assign roles, and component tokens reference " +
-      "semantic tokens to style individual parts. " +
-      "The English card shows these reference chains for colours, dimensions, typography, and motion. " +
-      "The source link opens the original card.",
-    source: "View source:",
-  },
-  ko: {
-    title: "디자인 토큰",
-    description:
-      "Tasty의 디자인 토큰은 원시·의미·컴포넌트의 세 단계를 거쳐 실제 값과 역할을 " +
-      "컴포넌트의 각 부분에 연결합니다.",
-    intro:
-      "Tasty의 디자인 토큰은 원시·의미·컴포넌트의 세 단계로 실제 값과 컴포넌트의 각 부분을 연결합니다. " +
-      "원시 토큰은 색과 크기 등의 값을 정합니다. 참조는 한 방향으로만 이어집니다. " +
-      "의미 토큰은 원시 토큰을 참조해 역할을 붙이고, 컴포넌트 토큰은 의미 토큰을 참조해 " +
-      "컴포넌트의 각 부분에 적용합니다. 영어 원본 카드는 색·치수·글꼴·움직임의 참조 관계를 " +
-      "보여 줍니다. 원본 보기 링크로 카드의 원본을 열 수 있습니다.",
-    source: "원본 보기:",
-  },
-};
-const c = COPY[lang];
-const card = cards(process.cwd()).find((x) => x.slug === "token-system")!;
+const DESCRIPTION = "Tasty’s design tokens link primitive values, semantic roles and component parts. Rows show names, references and values for Mocha and Latte.";
 ---
-<Design lang={lang} current="tokens/" title={c.title} intro={c.intro} description={c.description}>
-  <div class="ds-card ds-card--solo">
-    <div class="ds-card__frame">
-      <iframe src={url(`design/cards/${card.slug}.html`)} title={card.name}
-              height={card.height} style={`min-width:${card.width}px`} />
-    </div>
-    <a class="ds-card__src" href={`${SITE_REPO}/blob/release/vendor/guidelines/${card.slug}.html`}>
-      {c.source} <code>{card.slug}.html</code>
-    </a>
+<Design lang={lang} current="tokens/" title={page.head.title} intro={page.head.intro} description={DESCRIPTION} sections={page.nav}>
+  <Fragment slot="head"><link rel="stylesheet" href={url("design/kit.css")} /></Fragment>
+  <div data-gallery-page="tokens">
+    <Route />
   </div>
 </Design>

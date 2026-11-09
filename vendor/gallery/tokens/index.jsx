@@ -267,8 +267,8 @@ export const page = {
     { id: "naming", label: "Naming" },
   ],
   head: {
-    title: "Token system",
-    intro: "Three tiers, one direction of reference. Follow a value from a primitive through a semantic role to one part of one component.",
+    title: "Design tokens",
+    intro: "Tasty’s design tokens connect primitive values to semantic roles and component parts. References run in one direction: semantic tokens reference primitives, and component tokens reference semantic tokens. Specimen rows show names, references and values for colours, spacing, sizing, radius, typography and motion, with Mocha and Latte shown together.",
   },
   content: <TokenSystem />,
 };

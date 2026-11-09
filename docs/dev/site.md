@@ -46,6 +46,7 @@
 - 디자인 소개와 메타 설명은 `src/components/design/`의 `COPY`에서 `intro`와 `description`으로 나누어 관리한다.
   두 값은 뜻을 같게 쓰고, `description`은 평문으로 쓴다. 갤러리 도입부는 `src/lib/design.ts`의
   `GALLERY_INTROS`에서 관리한다. 갤러리 본문 소개와 메타 설명은 같은 값을 사용한다.
+  토큰 페이지의 제목과 소개는 `vendor/gallery/tokens/index.jsx`의 `page.head`, 메타 설명은 `TokenSystem.astro`의 `DESCRIPTION`이다.
   디자인 킷의 예시와 명세는 vendor 원본을 사용한다.
 
 ## 용어와 문체
@@ -121,7 +122,7 @@
 
 `npm run check-contrast`는 빌드 결과를 띄워 갤러리 페이지와 사이트 페이지를 Mocha와 Latte로 렌더링한다. `--site-only`와 `--gallery-only`로 한쪽만 실행하고, `--page <키>`는 갤러리 한 페이지만 잰다. 코드는 `scripts/check-contrast.mjs`(갤러리), `contrast-site.mjs`(사이트), `contrast-page.mjs`(페이지 안에서 실행하는 측정)에 있다.
 
-갤러리 페이지에서는 다음을 잰다.
+갤러리 페이지와 토큰 페이지(`design/tokens/`)에서는 다음을 잰다. 토큰 페이지는 갤러리 수에 넣지 않고 `SPECIMEN_ROUTES`로 더한다. 기본 언어 경로에서 한 번만 잰다.
 
 - 고정 셀: `vendor/tokens/ground-ink-rules.json`의 행마다 부품의 잉크가 지정 토큰인지(채널당 1/255 허용), 합성 바탕에서 등급을 넘는지 본다. 행에 셀이 없거나 부품을 찾지 못해도 실패한다. 부품 위치는 `vendor/gallery/parts/part-map.js`에 있다.
 - 나머지 글자·글리프·입력: 글자는 4.5, 글리프는 3을 기준으로 잰다. `data-audit-exempt`와 `data-ink-grade`의 규칙은 `vendor/RULES.md` 14절을 따르고, 쓰인 예외 id와 횟수를 출력한다. 완전히 투명한 요소만 화면에 없는 것으로 보며 그 밖의 opacity는 합성해 잰다.
@@ -191,7 +192,7 @@ npm run stamp content/en/index.md
 | `/ko/guide/**` | 한국어 가이드 (`content/**.md`, canonical) |
 | `/privacy/` · `/ko/privacy/` | 개인정보 안내. 본문은 `src/components/Privacy.astro` 에 두 언어로 있고 푸터에서 연결한다 |
 | `/design/` · `/ko/design/` | 디자인 가이드라인 (브랜드 · 색 · 타이포 · 간격). 크롬만 이중언어고 싣는 문서는 같다 |
-| `/design/tokens/` · `/ko/design/tokens/` | 3티어 토큰 문서 |
+| `/design/tokens/` · `/ko/design/tokens/` | 3티어 토큰 표본(`vendor/gallery/tokens/`). `client:load` 없이 정적으로 그려 토큰 JSON을 브라우저로 보내지 않는다 |
 | `/design/gallery/**` | 레퍼런스 갤러리 15 페이지. 사이트 머리글과 푸터를 쓰며 언어별로 나누지 않는다. `noindex, follow`로 색인에서 빼고 sitemap에도 넣지 않는다 |
 | `/design/cards/*.html` | 가이드라인 원본 문서. 페이지가 iframe 으로 싣는다. 단독으로 검색에 나오지 않고 싣는 페이지의 내용으로는 남도록 `src/lib/vendor-assets.ts`가 발행할 때 `noindex, indexifembedded`를 넣는다. `vendor/` 원본에는 넣지 않고 sitemap에도 넣지 않는다 |
 | `/robots.txt` | 전체 허용과 `Sitemap:` 줄. `Disallow`를 넣지 않는다. 막으면 크롤러가 카드와 갤러리의 `noindex`를 읽지 못한다 |

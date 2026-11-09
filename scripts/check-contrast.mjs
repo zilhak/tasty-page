@@ -28,6 +28,8 @@ const args = process.argv.slice(2);
 const argOf = (name) => (args.includes(name) ? args[args.indexOf(name) + 1] : null);
 const THEMES = ["mocha", "latte"];
 const EXPECTED_PAGES = 15;
+// Specimen pages outside design/gallery. They are measured like a gallery page and do not count as one.
+const SPECIMEN_ROUTES = [{ key: "tokens", path: "design/tokens/" }];
 
 const data = JSON.parse(readFileSync(join(root, "vendor/tokens/ground-ink-rules.json"), "utf8"));
 const tokens = Object.fromEntries(data.tokens.map((t) => [t.name, t.values]));
@@ -64,7 +66,7 @@ function galleryPages() {
   for (const name of readdirSync(dir).sort()) {
     if (statSync(join(dir, name)).isDirectory()) pages.push({ key: name, path: `design/gallery/${name}/` });
   }
-  return pages;
+  return [...pages, ...SPECIMEN_ROUTES];
 }
 
 async function launch() {
@@ -212,7 +214,7 @@ async function run() {
   const siteOnly = args.includes("--site-only");
   const galleryOnly = args.includes("--gallery-only") || argOf("--page") !== null;
   const pages = siteOnly ? [] : galleryPages().filter((p) => !argOf("--page") || p.key === argOf("--page"));
-  if (!siteOnly && !argOf("--page") && pages.length !== EXPECTED_PAGES) fail(`Expected ${EXPECTED_PAGES} gallery pages, found ${pages.length}.`);
+  if (!siteOnly && !argOf("--page") && pages.length !== EXPECTED_PAGES + SPECIMEN_ROUTES.length) fail(`Expected ${EXPECTED_PAGES} gallery pages and ${SPECIMEN_ROUTES.length} specimen routes, found ${pages.length} in all.`);
   const server = await serve();
   const port = server.address().port;
   const browser = await launch();
