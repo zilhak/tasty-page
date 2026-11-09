@@ -11,7 +11,7 @@ function C({ ink, children }) {
 export function MonospaceSpec() {
   return (
     <Spec id="monospace-d2coding" title="Monospace — D2Coding"
-      when={<>The brand typeface: terminal, code, and metadata. It sits on the terminal ground, where it does its work, and terminal cells are outside the 14px UI cap.</>}>
+      when={<>The brand typeface for terminal content, code and metadata, shown on the terminal ground where it is used. Terminal cells are outside the 14px UI cap.</>}>
       <Stage variant="solo column" style={{ gap: "var(--tasty-space-sm)", background: "var(--tasty-surface-terminal-focused-bg)", color: "var(--tasty-surface-terminal-focused-fg)", fontFamily: MONO }}>
         <div style={{ fontSize: "var(--tasty-font-size-brand-display)", fontWeight: "var(--tasty-font-weight-bold)" }}>D2Coding ligature</div>
         <div style={{ fontSize: "var(--tasty-font-size-term)", color: "var(--tasty-text-muted)" }}>ABCDEFG abcdefg 0123456789 &amp;@#$%&lt;&gt;=*  가나다 ライ</div>
@@ -47,7 +47,7 @@ const SANS = [
 export function UiSansSpec() {
   return (
     <Spec id="ui-sans-chrome" title="UI sans — chrome"
-      when={<>Native system sans for app chrome — capped at 14px. Four lines cover the scale.</>}>
+      when={<>Native system sans for app chrome, capped at 14px. Compare the scale across four lines.</>}>
       <Stage variant="solo column" style={{ gap: "var(--tasty-space-md)" }}>
         {SANS.map(([tok, size, name, weight, sample]) => (
           <div key={tok} style={{ display: "flex", flexWrap: "wrap", alignItems: "baseline", gap: "var(--tasty-space-xs) var(--tasty-space-lg)" }}>
@@ -72,7 +72,7 @@ const WEIGHTS = [["normal", 400], ["medium", 500], ["semibold", 600], ["bold", 7
 export function WeightsSpec() {
   return (
     <Spec id="weights-and-casing" title="Weights & casing"
-      when={<>Four weights of hierarchy, shown in the UI sans at a size above the cap so the steps can be judged. Small caps are for micro-labels only.</>}>
+      when={<>Compare four weights in the UI sans. The specimen exceeds the size cap so you can judge the weight steps. Use small caps for micro-labels only.</>}>
       <Stage variant="solo" style={{ alignItems: "flex-end", gap: "var(--tasty-space-xl)" }}>
         {WEIGHTS.map(([name, weight]) => (
           <div key={name}>

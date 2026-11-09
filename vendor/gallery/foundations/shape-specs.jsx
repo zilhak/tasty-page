@@ -12,7 +12,7 @@ const STEPS = [
 export function GridSpec() {
   return (
     <Spec id="four-px-grid" title="4px grid"
-      when={<>Every gap is a multiple of 4 — xs/sm/md/lg/xl only. The five steps side by side, each with its job. The next specimen shows each one at work.</>}>
+      when={<>Every gap is a multiple of 4. Use only xs, sm, md, lg and xl. Compare the five steps and their jobs side by side. The next specimen shows each one in use.</>}>
       <Stage variant="solo" style={{ alignItems: "flex-end", gap: "var(--tasty-space-xl)" }}>
         {STEPS.map(([step, px, job]) => (
           <div key={step} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
@@ -35,7 +35,7 @@ const HEIGHTS = [
 export function HeightsSpec() {
   return (
     <Spec id="interactive-heights" title="Interactive heights"
-      when={<>Fixed row heights for tree / control / tab, drawn at their real size. A tab also has a fixed width. The tree row, at 22px, is the one off-grid height.</>}>
+      when={<>Fixed tree, control and tab row heights, drawn at actual size. Tabs also have a fixed width. The 22px tree row is the only off-grid height.</>}>
       <Stage variant="solo column" style={{ gap: "var(--tasty-space-md)" }}>
         {HEIGHTS.map(([name, tok, label, width]) => (
           <div key={tok} style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "var(--tasty-space-sm) var(--tasty-space-md)" }}>
@@ -58,7 +58,7 @@ const MOTION = [
 export function MotionSpec() {
   return (
     <Spec id="motion" title="Motion"
-      when={<>Terminal = 0ms. UI feedback = 90–120ms. Resting states canonical; transitions decorative. Reveals are slower and are not feedback: they answer a pause, not an input.</>}>
+      when={<>Terminal content is 0ms. UI feedback is 90 to 120ms. Resting states are canonical. Transitions are decorative. Reveals are slower and answer a pause, not an input.</>}>
       <Stage variant="solo" style={{ gap: "var(--tasty-space-md)", alignItems: "stretch" }}>
         {MOTION.map(([key, ink, title, body]) => (
           <div key={key} style={{ flex: "1 1 var(--tasty-size-200)", minWidth: 0, padding: "var(--tasty-space-md) var(--tasty-space-lg)", background: "var(--tasty-surface-raised)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
@@ -76,7 +76,7 @@ export function MotionSpec() {
         { tok: "--tasty-motion-ui-fade", use: "200ms, discoverability fade-in and show delays" },
         { tok: "--tasty-ease-ui", use: "the one UI easing" },
       ]} />
-      <Note>Spinner rotation is a period and not feedback: <span className="tok">--tasty-spinner-duration</span> is 900ms.</Note>
+      <Note>Spinner rotation has a period, not a feedback duration. <span className="tok">--tasty-spinner-duration</span> is 900ms.</Note>
     </Spec>
   );
 }

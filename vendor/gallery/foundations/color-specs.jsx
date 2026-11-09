@@ -17,7 +17,7 @@ const GROUNDS = [
 export function SemanticElevationSpec() {
   return (
     <Spec id="semantic-elevation-and-text" title="Semantic — elevation & text"
-      when={<>What UI code references, not raw ramp names. Side by side, the step from one ground to the next is what you are judging.</>}>
+      when={<>Semantic roles are what UI code references. Compare the grounds side by side to judge the step between them.</>}>
       <Stage variant="tight" style={{ gap: 0, flexWrap: "wrap" }}>
         {GROUNDS.map(([tok, name]) => (
           <div key={tok} style={{ background: `var(--tasty-${tok})`, flex: "1 1 var(--tasty-size-120)", minWidth: 0, padding: "var(--tasty-space-lg) var(--tasty-space-md)" }}>
@@ -45,7 +45,7 @@ function OverlayCell({ wash, name, label }) {
 export function OverlayStatesSpec() {
   return (
     <Spec id="states-overlays" title="States — overlays"
-      when={<>Hover and active are a wash over the ground, not a new surface. The theme's lightness picks the wash: white in Mocha, black in Latte. Terminal selection is in the terminal palette below.</>}>
+      when={<>Hover and active states apply a wash over the ground. They do not create a new surface. The theme's lightness determines the wash: white in Mocha, black in Latte. See the terminal palette below for terminal selection.</>}>
       <Stage variant="solo">
         <ThemePair render={() => (
           <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-sm)" }}>
@@ -72,7 +72,7 @@ const ROLES = [
 export function AccentMapSpec() {
   return (
     <Spec id="semantic-accent-roles" title="Semantic — accent roles"
-      when={<>Status + agent accent mapping. A band is the role's base accent. Text and glyph rows above use its <span className="ic">-raised</span> ink, which in Latte is a mix and not the raw hue.</>}>
+      when={<>Status and agent accent mapping. Each band shows the role's base accent. Text and glyph rows above use its <span className="ic">-raised</span> ink. In Latte, that ink is a mix, not the raw hue.</>}>
       <Stage variant="solo" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(var(--tasty-size-120), 1fr))", gap: "var(--tasty-space-sm)" }}>
         {ROLES.map(([role, tok, hue]) => (
           <div key={tok} style={{ minWidth: 0, background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
@@ -102,7 +102,7 @@ const ANSI = [
 export function AnsiSixteenSpec() {
   return (
     <Spec id="ansi-16" title="ANSI 16"
-      when={<>Terminal palette, normal + bright, with the value of each color in each theme. The running program picks which one a cell gets.</>}>
+      when={<>Normal and bright terminal colors, with each color's value in both themes. The running program chooses the color for each cell.</>}>
       <Stage variant="solo">
         <ThemePair render={(theme) => (
           <SwatchGrid>

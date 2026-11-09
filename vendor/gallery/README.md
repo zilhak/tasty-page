@@ -173,7 +173,7 @@ The page `.html` files go, and `site-form-mock.*` goes once the first real page 
 
 ### Prose slots, for Codex
 
-The gallery's prose is not design's. Each slot carries `data-prose-slot` in the mock. The existing English stays as the draft until Codex replaces it.
+The gallery's prose is not design's. No attribute marks a slot in the sources, so the Where column below is how to find one. The existing English stays as the draft until Codex replaces it.
 
 | Slot | Where | Count today |
 |---|---|---|

@@ -15,7 +15,7 @@ export function PaletteSection() {
   return (
     <Section id="palette" title="Color — raw palette">
       <Spec id="neutral-ramp" title="Surfaces, overlays and text: the neutral ramp"
-        when={<>The dark elevation ramp runs crust → surface2, then the overlay grays and the text ramp. Latte is the light-theme ramp: <span className="ic">data-theme=latte</span> re-points the same names, so a step keeps its role and its place here in both frames. Tier 1 is what roles point at: UI code reads the role, never these names.</>}>
+        when={<>The dark elevation ramp runs from crust to surface2, followed by the overlay grays and text ramp. Latte supplies the light-theme ramp. <span className="ic">data-theme=latte</span> remaps the same names, so each step keeps its role and position in both frames. Roles reference these Tier 1 values. UI code reads the role, never these names.</>}>
         <Stage variant="solo">
           <ThemePair render={(theme) => (
             <SwatchGrid>
@@ -36,7 +36,7 @@ export function PaletteSection() {
       </Spec>
 
       <Spec id="catppuccin-accents" title="13 Catppuccin accents"
-        when={<>The light-theme accent ramp is the same 13 names with Latte values. Seven of them carry a role (Color — accent roles). teal, lavender, flamingo, pink, maroon and rosewater have no status role.</>}>
+        when={<>The light-theme accent ramp uses the same 13 names with Latte values. Seven carry a role (Color — accent roles). The remaining six, teal, lavender, flamingo, pink, maroon and rosewater, have no status role.</>}>
         <Stage variant="solo">
           <ThemePair render={(theme) => (
             <SwatchGrid>

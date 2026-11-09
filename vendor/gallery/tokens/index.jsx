@@ -204,7 +204,7 @@ function TokenSystem() {
     <>
       <Section id="model" title="Three tiers">
         <Spec id="three-tiers-one-direction" title="Three tiers, one direction of reference"
-          when={<>A <b>primitive</b> holds a raw value; a <b>semantic</b> token gives it a role; a <b>component</b> token wires that role to one part of one component. Implementers read the <span className="ic">--tasty-*</span> name — the value resolves down the chain.</>}>
+          when={<>A <b>primitive</b> holds a raw value. A <b>semantic</b> token gives it a role. A <b>component</b> token connects that role to one part of one component. Use the <span className="ic">--tasty-*</span> name. Its value resolves down the chain.</>}>
           <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-md)" }}>
             {TIERS.map((t) => <TierCard key={t.n} tier={t} />)}
           </div>
@@ -213,7 +213,7 @@ function TokenSystem() {
 
       <Section id="reading" title="Reading a chain">
         <Spec id="reading-a-chain" title="Follow one value through the tiers"
-          when={<>The blue primitive becomes the primary accent, which the Button's primary background reads. Change <span className="ic">--tasty-color-blue</span> once and every consumer downstream follows. Latte re-points the primitive, so the same names resolve to another value.</>}>
+          when={<>The blue primitive supplies the primary accent, which supplies the Button's primary background. Change <span className="ic">--tasty-color-blue</span> once to update every downstream consumer. Latte remaps the primitive, so the same names resolve to a different value.</>}>
           <Stage variant="solo" eager>
             <ThemePair render={(theme) => (
               <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "var(--tasty-space-md)" }}>
@@ -225,32 +225,32 @@ function TokenSystem() {
               </div>
             )} />
           </Stage>
-          <Note>Same primary accent also reaches: <span className="ic">tab-indicator</span> <span className="ic">checkbox-bg-checked</span> <span className="ic">switch-track-bg-on</span> <span className="ic">progress-fill-bg</span>. A longer path is still one direction: <span className="ic">{path("spinner-indicator", "mocha").join(" → ")}</span>.</Note>
+          <Note>The same primary accent also supplies <span className="ic">tab-indicator</span>, <span className="ic">checkbox-bg-checked</span>, <span className="ic">switch-track-bg-on</span> and <span className="ic">progress-fill-bg</span>. Longer paths follow the same direction: <span className="ic">{path("spinner-indicator", "mocha").join(" → ")}</span>.</Note>
         </Spec>
       </Section>
 
       <Section id="color-chains" title="Color chains">
         <Spec id="color-chain-table" title="Color"
-          when={<>Each theme's value is shown in the same row. A role can point at another primitive in Latte, and a consumer can reach its role through another token, or leave it in Latte: the row says so.</>}>
+          when={<>Compare both themes' values in each row. A role can reference a different primitive in Latte. A consumer can reach its role through another token or stop using that role in Latte. Each row records these differences.</>}>
           <ChainTable rows={COLOR} />
         </Spec>
       </Section>
 
       <Section id="dimension-chains" title="Spacing · sizing · radius chains">
-        <Spec id="dimension-chain-table" title="Spacing, sizing and radius" when={<>These have one value for both themes.</>}>
+        <Spec id="dimension-chain-table" title="Spacing, sizing and radius" when={<>Each dimension token has the same value in both themes.</>}>
           <ChainTable rows={DIM} />
         </Spec>
       </Section>
 
       <Section id="type-chains" title="Type & motion chains">
-        <Spec id="type-chain-table" title="Type and motion" when={<>These have one value for both themes. A long value, such as a font stack, shows how it starts.</>}>
+        <Spec id="type-chain-table" title="Type and motion" when={<>Each type and motion token has the same value in both themes. Long values, such as font stacks, show only the beginning.</>}>
           <ChainTable rows={TYPE} />
         </Spec>
       </Section>
 
       <Section id="naming" title="Naming">
         <Spec id="token-naming" title="How a name is built"
-          when={<>Primitive: <span className="ic">{"--tasty-<category>-<scale>"}</span>. Semantic: <span className="ic">{"--tasty-<role>"}</span>. Component: <span className="ic">{"--tasty-<component>-<part>[-<state>]"}</span>. See <span className="ic">TOKENS.md</span> for the full do and don't.</>} />
+          when={<>Primitive: <span className="ic">{"--tasty-<category>-<scale>"}</span>. Semantic: <span className="ic">{"--tasty-<role>"}</span>. Component: <span className="ic">{"--tasty-<component>-<part>[-<state>]"}</span>. See <span className="ic">TOKENS.md</span> for the full naming rules.</>} />
       </Section>
     </>
   );

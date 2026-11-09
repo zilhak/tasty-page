@@ -57,7 +57,7 @@ export function BrandSection() {
   return (
     <Section id="brand" title="Brand">
       <Spec id="logo-and-wordmark" title="Logo & wordmark"
-        when={<>Watermelon-slice mark + monospace wordmark. The lockup sits on a dark plate and a light plate, and only the word changes ink: the mark and the dot keep their colors on both.</>}>
+        when={<>Watermelon-slice mark and monospace wordmark on dark and light plates. Only the word changes ink. The mark and dot keep their colors on both.</>}>
         <Stage variant="tight" style={{ flexWrap: "wrap", gap: 0 }}>
           <LogoPlate theme="mocha" />
           <LogoPlate theme="latte" />
@@ -76,7 +76,7 @@ export function BrandSection() {
       </Spec>
 
       <Spec id="watermelon-palette" title="Watermelon palette"
-        when={<>The three mark colors + their token names. They are the same in both themes. They paint the mark: the brand as text or a glyph is <span className="tok">--tasty-brand-ink</span> (Share image).</>}>
+        when={<>The three mark colors and their token names stay the same in both themes. Use them for the mark. For the brand as text or a glyph, use <span className="tok">--tasty-brand-ink</span> (Share image).</>}>
         <Stage variant="solo" style={{ alignItems: "center", gap: "var(--tasty-space-lg)" }}>
           <Mark size="var(--tasty-size-56)" />
           {MELON.map((name) => (
@@ -94,7 +94,7 @@ export function BrandSection() {
       </Spec>
 
       <Spec id="terminal-specimen" title="Terminal specimen"
-        when={<>The product surface on its own ground, set in a frame on the page ground. It follows the theme, as the app's focused terminal does. A prompt is the <span className="ic">❯</span> an OSC-133 shell reports; the sequence paints nothing, so no mark of it shows here.</>}>
+        when={<>The terminal surface sits in a frame on the page ground. It follows the theme, as the app's focused terminal does. The page draws this figure. Its lines use the measured terminal cells in the rules. The <span className="ic">❯</span> marks a prompt reported by an OSC-133 shell. The sequence itself paints nothing, so it has no visible mark here.</>}>
         <Stage variant="solo" style={{ background: "var(--tasty-bg-app)" }}>
           <TerminalSample />
         </Stage>
@@ -110,7 +110,7 @@ export function BrandSection() {
             { tok: "--tasty-accent-warning-raised", use: "keyword, id", color: "var(--tasty-accent-warning-raised)" },
             { tok: "--tasty-accent-attention-raised", use: "tool version, time", color: "var(--tasty-accent-attention-raised)" },
           ]} />
-        <Note>This is a figure, drawn by this page and not by a program, so its lines read the <span className="ic">term</span> cells of the rules and are measured. Real output is <span className="ic">ansi-*</span>, as the terminal palette below says. The commands and versions are sample text, not a statement about a release.</Note>
+        <Note>The page draws this figure, so its lines use the <span className="ic">term</span> cells in the rules and are measured. Real program output uses <span className="ic">ansi-*</span> inks, as the terminal palette below states. Every line is sample text, including the commands, version numbers and last output line. They make no claim about a release or what a command prints.</Note>
       </Spec>
     </Section>
   );

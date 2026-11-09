@@ -229,7 +229,7 @@ function Foundations() {
       {/* ELEVATION */}
       <Section id="elevation" title="Color — elevation (surface ramp)">
         <Spec id="depth-reads-through-surface-tint-never-shadow" title="Depth reads through surface tint, never shadow"
-          when={<>Inside the page, Tasty has <b>no shadow</b>: only floating surfaces carry one (next section). Pick the next step up the ramp whenever you nest a container. A card on a panel is <b>--tasty-surface-raised</b> on <b>--tasty-bg-panel</b> — one step, not a drop shadow.</>}>
+          when={<>Nothing inside the page casts a shadow. Only floating surfaces use shadows and shadow tokens (next section). Move one step up the ramp for each nested container. A card on a panel uses <b>--tasty-surface-raised</b> on <b>--tasty-bg-panel</b>.</>}>
           <Stage variant="solo center">
             <ElevationStack />
           </Stage>
@@ -428,7 +428,7 @@ function Foundations() {
               { tok: "--tasty-font-size-caption", use: "11px meta" },
               { tok: "--tasty-font-weight-semibold", use: "600 = heading" },
             ]} />
-          <Note><b>Sanctioned exceptions</b> to the 14px cap, all flagged in the tokens: <span className="tok">--tasty-font-size-prose-h1</span> (20px — rendered markdown <i>content</i>, not chrome; since the egui_commonmark adoption this is the <b>Heading anchor</b> at the top of the library's interpolated heading ladder, not a per-level size) and two <i>branding</i> sizes, <span className="tok">--tasty-font-size-brand-wordmark</span> (17px — the mono <b>“tasty.”</b> sidebar wordmark) and <span className="tok">--tasty-font-size-brand-display</span> (30px — the first-run title). The 38px boot lockup (Brand, Startup) is branding too. Nothing else in UI chrome exceeds 14px. Markdown <b>content</b> typography is otherwise <b>library-driven</b> (size ladder + leading fixed by egui_commonmark) — see the Markdown viewer specimen.</Note>
+          <Note>The tokens flag three branding sizes above the 14px cap: <span className="tok">--tasty-font-size-brand-wordmark</span> at 17px for the monospace <b>“tasty.”</b> sidebar wordmark, <span className="tok">--tasty-font-size-brand-display</span> at 30px for the first-run title, and <span className="tok">--tasty-font-size-brand-lockup</span> at 38px for the boot lockup shown in Brand and Startup. Nothing else in UI chrome exceeds 14px. <span className="tok">--tasty-font-size-prose-h1</span> is 20px for rendered markdown content, outside chrome. Since the egui_commonmark adoption, it anchors the top of the library's interpolated heading ladder rather than setting a per-level size. Markdown content typography otherwise follows egui_commonmark, which sets the size ladder and line spacing. See the Markdown viewer specimen for details.</Note>
         </Spec>
         <MonospaceSpec />
         <UiSansSpec />
@@ -439,7 +439,7 @@ function Foundations() {
       <Section id="spacing" title="Spacing — the 4px grid, in use">
         <GridSpec />
         <Spec id="five-steps-each-with-a-job" title="Five steps, each with a job"
-          when={<>The whole system snaps to a <b>4px grid</b> — there are only five spacing tokens. Below, each one is shown <b>doing its job</b>, with the 4px rhythm drawn under each example.</>}>
+          when={<>The spacing system uses a <b>4px grid</b> and five tokens. Compare each token in use below, with the 4px rhythm drawn under each example.</>}>
           <Stage variant="solo column" style={{ gap: 0, padding: "4px 26px 14px" }}>
             <SpaceUse token="--tasty-space-xs" px="4px" usedFor="icon↔label gaps, chip insets, tight inner padding">
               <div style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-xs)", background: "var(--tasty-surface-raised)",
@@ -489,7 +489,7 @@ function Foundations() {
       {/* RADIUS / BORDER / MOTION */}
       <Section id="shape" title="Radius · border · motion">
         <Spec id="crisp-and-rectilinear-it-s-a-terminal" title="Crisp and rectilinear — it's a terminal"
-          when={<>One radius (4px), one border (1px). Radius is <b>always 4px</b> (2px for tiny inner chips). Borders are <b>always 1px</b>. Motion is short UI feedback only — and <b>terminal content never animates (0ms, always)</b>.</>}>
+          when={<>Radius is <b>always 4px</b>, with 2px for tiny inner chips. Borders are <b>always 1px</b>. Motion is short UI feedback only. <b>Terminal content never animates (0ms, always).</b></>}>
           <Stage variant="solo" style={{ gap: 26 }}>
             <Cluster label="--tasty-radius · 4px (default)">
               <div style={{ width: 88, height: 48, background: "var(--tasty-surface-raised)", border: "1px solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }} />
@@ -519,7 +519,7 @@ function Foundations() {
               { tok: "--tasty-motion-term", use: "0ms — terminal" },
               { tok: "--tasty-focus-ring-width", use: "2px ring" },
             ]} />
-          <Note>Elevation is communicated by surface tint, never drop shadow, on anything inside the page. The shadow tokens belong to floating surfaces only (Elevation — floating surfaces).</Note>
+          <Note>Inside the page, surface tint communicates elevation. Nothing casts a shadow. Shadow tokens belong only to floating surfaces (Elevation — floating surfaces).</Note>
         </Spec>
         <HeightsSpec />
         <MotionSpec />
@@ -685,7 +685,7 @@ function Foundations() {
           <Note>Opacity coefficients are <b>primitives</b> (<span className="tok">--tasty-opacity-tint-fill</span> / <span className="tok">-border</span>) with semantic aliases, so a per-role override stays possible later without re-scattering literals.</Note>
         </Spec>
         <Spec id="disabled-ink-no-contrast-target-latte-one-step-up" title="Disabled ink — no contrast target, Latte one step up"
-          when={<>WCAG 1.4.3 and 1.4.11 exempt disabled controls, and a 4.5:1 target would collapse the hierarchy: in Latte the first ramp step that clears 4.5:1 on the panel is neutral-900, one step under <span className="tok">--tasty-text-muted</span> (neutral-1000). So disabled gets <b>no contrast target</b>. Two rules replace it. <b>Order:</b> disabled sits strictly below <span className="tok">--tasty-text-muted</span> on the ramp, with <span className="tok">--tasty-text-placeholder</span> on the muted step, and the ink step is the only thing that marks disabled (no extra opacity on the label). <b>Parity:</b> the Latte ramp is compressed at its light end, so <span className="tok">--tasty-text-disabled</span> remaps to <b>neutral-800</b> in Latte (Mocha stays neutral-700). Labels and glyphs still share the one ink. The <b>enabled</b> tab-strip arrow is an active control glyph and moves to <span className="tok">--tasty-text-muted</span>, which clears 3:1 in both themes. Ratios below are flat colour on the control's own ground, and flat colour is the basis of the 3:1 (2026-09-29); rendered AA glyphs measure lower and are not part of the target. Disabled controls take this ink with <b>no opacity</b> (Components › Buttons › Disabled). Arrow shape: Layouts › Pane tab strip.</>}>
+          when={<>WCAG 1.4.3 and 1.4.11 exempt disabled controls, and a 4.5:1 target would collapse the hierarchy: in Latte the first ramp step that clears 4.5:1 on the panel is neutral-900, one step under <span className="tok">--tasty-text-muted</span> (neutral-1000). So disabled gets <b>no contrast target</b>. Two rules replace it. <b>Order:</b> disabled sits strictly below <span className="tok">--tasty-text-muted</span> on the ramp, <span className="tok">--tasty-text-placeholder</span> shares the muted step, and only the ink step marks disabled, with no extra opacity on the label. <b>Parity:</b> the Latte ramp is compressed at its light end, so <span className="tok">--tasty-text-disabled</span> remaps to <b>neutral-800</b> in Latte (Mocha stays neutral-700). Labels and glyphs still share the one ink. The <b>enabled</b> tab-strip arrow is an active control glyph and moves to <span className="tok">--tasty-text-muted</span>, which clears 3:1 in both themes. Ratios below are flat colour on the control's own ground, and flat colour is the basis of the 3:1 (2026-09-29); rendered AA glyphs measure lower and are not part of the target. Disabled controls take this ink with <b>no opacity</b> (Components › Buttons › Disabled). Arrow shape: Layouts › Pane tab strip.</>}>
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
             {[["Mocha", "mocha", { c3: "3.40", c4: "3.40", en: "5.65" }, { c3: "3.40 (n700, unchanged)", c4: "3.40", en: "4.45 (n800)" }], ["Latte", "latte", { c3: "2.56", c4: "2.56", en: "4.05" }, { c3: "2.07 (n700)", c4: "2.07", en: "2.56 (n800)" }]].map(([label, attr, now, was]) => (
               <div key={label} {...(attr ? { "data-theme": attr } : {})} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-md)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
