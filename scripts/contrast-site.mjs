@@ -9,6 +9,7 @@
  */
 import { existsSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
+import { LANGS } from "../src/lib/langs.mjs";
 import { installPageLib, stylesSettled } from "./contrast-page.mjs";
 
 const VIEWPORTS = [{ name: "wide", width: 1440, height: 1000 }, { name: "narrow", width: 390, height: 844 }];
@@ -33,7 +34,7 @@ export const FIXTURE_ROWS = FIXTURES.flatMap((f) => f.rows);
 const injectFixtures = (tab, page) => Promise.all(FIXTURES.filter((f) => f.page === page).map((f) => tab.evaluate(
   ({ at, html }) => document.querySelector(at).insertAdjacentHTML("beforeend", html), { at: f.at, html: f.html })));
 // The landing window starts on its third tab. The other two hold the rest of the drawn lines.
-const LANDING_PAGES = ["", "ko/"];
+const LANDING_PAGES = LANGS.map((row) => row.landing);
 const LANDING_TABS = ["claude · release", "README.md"];
 const FOCUS_PAGES = ["", "guide/getting-started/first-look/"];
 const SEARCH_PAGE = "guide/";
