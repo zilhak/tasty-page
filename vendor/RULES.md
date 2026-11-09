@@ -193,8 +193,8 @@ Each location has one ground. It may hold only the listed children, to the liste
 | Tab bar | `mantle` | 1 | `tab-hover`, `base`, `mantle+hover`, `mantle+press`, `raised` | Active tab is base. Scroll arrow cell is raised. |
 | Pane body | `base` | 1 | `term`, `term-unfocused`, `crust`, `mantle`, `raised` | Holds one surface. See Surface focus for what shows focus on each kind. |
 | Surface head and split line | `mantle` | 2 | `field`, `mantle+hover`, `mantle+press`, `raised`, filled controls, tint boxes over `mantle` | Address bar band: mantle. Split lines take border-frame. |
-| Terminal surface, focused | `term` | 1 | `term-selection`, `term-cursor`, `match@term`, `match-active@term`, `file-drop@term`, `raised` | Banner, toast and search bar float on raised. |
-| Terminal surface, unfocused | `term-unfocused` | 1 | `match@term-unfocused`, `match-active@term-unfocused`, `raised` | Default ink takes surface-terminal-unfocused-fg, and text-primary in an ordinary search match. |
+| Terminal surface, focused | `term` | 1 | `term-selection`, `term-cursor`, `match@term`, `match-active@term`, `file-drop@term`, `raised` | Banner, toast and search bar float on raised. A default cell, bold or dim, takes text-primary in an ordinary search match. |
+| Terminal surface, unfocused | `term-unfocused` | 1 | `match@term-unfocused`, `match-active@term-unfocused`, `raised` | Default ink takes surface-terminal-unfocused-fg. A default cell, bold or dim, takes text-primary in an ordinary search match. |
 | Markdown surface, focused | `term` | 2 | `base`, `mantle`, `raised`, `fill-warning`, `fill-primary`, `file-drop@term` | Content typography is library-driven. Colors follow this table. Address band stays mantle. A callout is its hue at tint-fill-alpha over the bed: title accent-<hue>-raised, body text-primary. A find hit is opaque. |
 | Markdown surface, unfocused | `term-unfocused` | 2 | `base`, `mantle`, `raised`, `fill-warning`, `fill-primary`, `file-drop@term-unfocused` | Table row and zebra swap fills, so neither is the bed in both themes at once. Address band stays mantle. A callout is its hue at tint-fill-alpha over the bed: title accent-<hue>-raised, body text-primary. A find hit is opaque. |
 | HTML surface | `mantle` | 2 | `field`, `raised` | The page is web content, outside these rules. Focus shows on the focus edge above the address band. |
@@ -286,7 +286,7 @@ Three layers, three answers:
 
 | Layer | In the rules? | What holds |
 |---|---|---|
-| ANSI colors, reverse video, bold, cell backgrounds | No | The running program picks them. The `ansi-*` tokens are the palette. No pair is promised. |
+| ANSI colors, reverse video, bold, dim, cell backgrounds | No | The running program picks them. The `ansi-*` tokens are the palette. No pair is promised. |
 | Default cell ink and the surface fill | Yes | `surface-terminal-focused-fg` on `term`, `surface-terminal-unfocused-fg` on `term-unfocused`. |
 | What the app draws over cells | Yes | Below. |
 
@@ -299,7 +299,7 @@ Three layers, three answers:
 | Search match, unfocused | `match@term-unfocused` | `text-primary` | 4.75 · 4.88 |
 | Active match, unfocused | `match-active@term-unfocused` | `search-match-active-unfocused-fg` | 6.95 · 11.21 |
 
-The overlay ink applies to default cell ink. On `match@term-unfocused` a default cell changes from `surface-terminal-unfocused-fg`, which would be 3.09 · 3.82 there, to `text-primary`. In the file that ink is the role `text-body`, and it is the cell ink that the forbidden cells of a match name. A cell with its own ANSI color keeps it inside a selection or an ordinary match, and that pair is content. Only an active match replaces that color, so its ink holds on the stronger fill. A terminal link takes an underline in the cell's own ink, so it needs no color. Terminal content never animates.
+The overlay ink applies to default cell ink: any cell with no color of its own, bold or dim included. On `match@term-unfocused` a default cell changes from `surface-terminal-unfocused-fg`, which would be 3.09 · 3.82 there, to `text-primary`. In the file that ink is the role `text-body`, and it is the cell ink that the forbidden cells of a match name. A dim cell is a blend of its ink and its ground, which is 1.81 in both themes on `match@term`, so an ordinary match draws it in `text-primary` on either bed. The match costs the dim step, and the ink does not change on a focus change. Outside a match a dim cell stays the program's blend, and no pair is promised. A cell with its own ANSI color keeps it inside a selection or an ordinary match, dim or not, and that pair is content. Only an active match replaces that color, so its ink holds on the stronger fill. A terminal link takes an underline in the cell's own ink, so it needs no color. Terminal content never animates.
 
 ## 5. Roles and grades
 
@@ -2055,6 +2055,8 @@ Sits on: `term`
 | Part | Token | States | Ground | Lowest, Mocha · Latte |
 |---|---|---|---|---|
 | default ink | `surface-terminal-focused-fg` | rest | `term` | 14.52 · 7.99 |
+| search match | `text-primary` | rest | `match@term` | 6.67 · 6.06 |
+| search match, dim cell | `text-primary` | rest | `match@term` | 6.67 · 6.06 |
 
 ### Terminal (unfocused)
 
@@ -2064,6 +2066,7 @@ Sits on: `term-unfocused`
 |---|---|---|---|---|
 | default ink | `surface-terminal-unfocused-fg` | rest | `term-unfocused` | 7.37 · 4.73 |
 | search match | `text-primary` | rest | `match@term-unfocused` | 4.75 · 4.88 |
+| search match, dim cell | `text-primary` | rest | `match@term-unfocused` | 4.75 · 4.88 |
 
 ### Surface focus edge
 
@@ -2196,7 +2199,7 @@ What carries over to a user theme is only the structure of token choice: each ce
 | Target | Gallery id | Why |
 |---|---|---|
 | `ansi-*` | `ansi-content` | Terminal content. The running program picks the color. |
-| `terminal cell attributes` | `terminal-attributes` | Reverse video, bold and SGR colors come from the program. |
+| `terminal cell attributes` | `terminal-attributes` | Reverse video, bold, dim and SGR colors come from the program. |
 | `html page content` | `html-page` | A web page paints itself. |
 | `plugin webview content` | `plugin-webview` | Same as a web page. Host chrome around it stays in the rules. |
 | `third-party egui-mesh plugin pixels` | `third-party-plugin` | The plugin tessellates in its own process, so the host cannot check its colors. Using the host Theme tokens is a documented promise. Bundled plugins stay in the rules. |
