@@ -1,4 +1,4 @@
-<!-- source-hash: 5662d7916a3a -->
+<!-- source-hash: 5b61af467604 -->
 # インストール
 
 Tasty の Windows・macOS・Linux 用インストールファイルは、GitHub リリースページからアーキテクチャ別にダウンロードできます。macOS は Apple Silicon をサポートしています。
@@ -87,7 +87,7 @@ Expand-Archive tasty-{ver}-windows-x64.zip -DestinationPath tasty
 
 初回起動時に「Windows によって PC が保護されました」という警告が表示されます（コード署名がないためです）。**詳細情報 → 実行** を押してください。
 
-Windows では Tasty は **Git Bash** をシェルとして使います。Git for Windows がない状態で初めて起動すると、ターミナルの代わりに **シェルを選択** <!-- en: Choose a shell --> 画面が表示されます。bash.exe のパスを入力して **このシェルを使用** <!-- en: Use this shell --> を押すとそのシェルで起動し、**終了** <!-- en: Quit --> を押すと Tasty が閉じます。パスが有効な bash または zsh の実行ファイルである場合に限り、**このシェルを使用** を押せます。起動後も設定されたシェルのパスが正しくない場合は、設定ウィンドウの **ターミナル** <!-- en: Terminal --> タブに「Git Bash が見つかりません」という案内が表示されます。その場合は Git for Windows をインストールするか、**設定** <!-- en: Settings --> > **ターミナル** <!-- en: Terminal --> > **シェル** <!-- en: Shell --> で bash のパスを直接指定してください。
+Windows では Tasty は Git for Windows の **Git Bash**（`bash.exe`）のみをシェルとして実行します。Git for Windows をインストールしてください。シェル設定が空の場合は、既定のインストール先から Git Bash を探して使用します。別の場所にインストールした場合は、**設定** <!-- en: Settings --> > **ターミナル** <!-- en: Terminal --> > **シェル** <!-- en: Shell --> にその `bash.exe` のパスを入力してください。設定が空で既定のインストール先にも見つからない場合、保存された値が Git Bash ではない場合、または保存されたパスにファイルがない場合は、起動時にターミナルの代わりに **シェルを選択** <!-- en: Choose a shell --> 画面が表示されます。Git Bash の `bash.exe` のパスを入力して **このシェルを使用** <!-- en: Use this shell --> を押すと、パスを保存して Tasty を起動します。このボタンは、判定行で Git Bash が見つかったと表示される場合にのみ有効になります。**終了** <!-- en: Quit --> を押すと、保存された値を変更せずに Tasty を閉じます。実行中にシェル設定を Git Bash ではない値やファイルのないパスに変更すると、新しいターミナルを開けなくなり、設定ウィンドウの **ターミナル** タブに原因が表示されます。
 
 ## 初回起動
 

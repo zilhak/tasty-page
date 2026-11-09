@@ -86,7 +86,7 @@ Expand-Archive tasty-{ver}-windows-x64.zip -DestinationPath tasty
 
 첫 실행 시 "Windows 의 PC 보호" 경고가 뜹니다(코드 서명이 없어서입니다). **추가 정보 → 실행** 을 누르면 됩니다.
 
-Windows 에서 Tasty 는 **Git Bash** 를 셸로 씁니다. Git for Windows 가 없는 채로 처음 실행하면 터미널 대신 **셸 선택** <!-- en: Choose a shell --> 화면이 뜹니다. bash.exe 경로를 입력하고 **이 셸 사용** <!-- en: Use this shell --> 을 누르면 그 셸로 시작하고, **종료** <!-- en: Quit --> 를 누르면 Tasty 가 닫힙니다. 경로가 올바른 bash 나 zsh 실행 파일일 때만 **이 셸 사용** 을 누를 수 있습니다. 실행한 뒤에도 설정된 셸 경로가 올바르지 않으면 설정 윈도우의 **터미널** <!-- en: Terminal --> 탭에 "Git Bash를 찾을 수 없습니다" 안내가 뜹니다. 이때는 Git for Windows 를 설치하거나 **설정** <!-- en: Settings --> > **터미널** <!-- en: Terminal --> > **셸** <!-- en: Shell --> 에서 bash 경로를 직접 지정하세요.
+Windows 에서 Tasty 는 Git for Windows 의 **Git Bash** (`bash.exe`)만 셸로 실행합니다. Git for Windows 를 설치하세요. 셸 설정이 비어 있으면 기본 설치 위치에서 Git Bash 를 찾아 사용합니다. 다른 위치에 설치했다면 **설정** <!-- en: Settings --> > **터미널** <!-- en: Terminal --> > **셸** <!-- en: Shell --> 에 해당 `bash.exe` 경로를 입력하세요. 설정이 비어 있고 기본 설치 위치에서도 찾지 못하거나, 저장된 값이 Git Bash 가 아니거나 해당 경로에 파일이 없으면 시작할 때 터미널 대신 **셸 선택** <!-- en: Choose a shell --> 화면이 뜹니다. Git Bash 의 `bash.exe` 경로를 입력하고 **이 셸 사용** <!-- en: Use this shell --> 을 누르면 경로를 저장하고 Tasty 를 시작합니다. 이 버튼은 판정 줄에서 Git Bash 를 찾았다고 표시할 때만 활성화됩니다. **종료** <!-- en: Quit --> 를 누르면 저장된 값을 바꾸지 않고 Tasty 를 닫습니다. 실행 중 셸 설정을 Git Bash 가 아닌 값이나 파일이 없는 경로로 바꾸면 새 터미널이 열리지 않으며, 원인은 설정 윈도우의 **터미널** 탭에 표시됩니다.
 
 ## 첫 실행
 

@@ -1,4 +1,4 @@
-<!-- source-hash: 2e4e2cb1fd73 -->
+<!-- source-hash: 7b0e6279d00f -->
 # Working with the terminal
 
 You can copy the output you need, search terminal history, and open file paths as you work. You can also select text without a mouse and receive notifications when work finishes.
@@ -9,7 +9,7 @@ The shortcuts below use the default **Tasty** preset. On macOS, read `Alt` as `C
 
 Set under **Settings** > **Terminal**.
 
-- **Shell** — the shell to run. On Windows, Tasty looks for the bash from Git for Windows and, if it is missing, tells you to specify the path yourself.
+- **Shell** — the shell to run. On Windows, Tasty runs only Git Bash (`bash.exe` from Git for Windows). An empty value uses Git Bash found in the default install locations. If it is installed elsewhere, enter its `bash.exe` path.
 - **Startup command** — one line entered at the start of every new terminal.
 - **Inherit working directory** — starts a new terminal in the current terminal's directory (on by default).
 - **Confirm close running process** — asks for confirmation when closing a terminal in which a program is running.

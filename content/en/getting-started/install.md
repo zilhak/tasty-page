@@ -1,4 +1,4 @@
-<!-- source-hash: 5662d7916a3a -->
+<!-- source-hash: 5b61af467604 -->
 # Installation
 
 Tasty installation files for Windows, macOS, and Linux are available on GitHub Releases, organized by architecture. macOS support is for Apple Silicon.
@@ -87,7 +87,7 @@ Expand-Archive tasty-{ver}-windows-x64.zip -DestinationPath tasty
 
 On first launch a "Windows protected your PC" warning appears (the binary is not code-signed). Click **More info → Run anyway**.
 
-On Windows, Tasty uses **Git Bash** as its shell. If you start Tasty for the first time without Git for Windows, a **Choose a shell** screen appears instead of a terminal. Enter the path to bash.exe and press **Use this shell** to start with that shell, or press **Quit** to close Tasty. **Use this shell** is available only when the path is a bash or zsh executable. Once Tasty is running, if the configured shell path is not valid, the **Terminal** tab of the settings window shows a "Git Bash not found" notice. In that case install Git for Windows, or set the bash path yourself under **Settings** > **Terminal** > **Shell**.
+On Windows, Tasty runs only **Git Bash** (`bash.exe` from Git for Windows) as its shell. Install Git for Windows. When the shell setting is empty, Tasty finds and uses Git Bash in the default install locations. If it is installed elsewhere, enter its `bash.exe` path under **Settings** > **Terminal** > **Shell**. If the setting is empty and Git Bash is not found in the default install locations, the saved value is not Git Bash, or there is no file at the saved path, the **Choose a shell** screen appears at start instead of a terminal. Enter the path to Git Bash's `bash.exe` and press **Use this shell** to save the path and start Tasty. This button is enabled only when the check line reports that Git Bash was found. Pressing **Quit** closes Tasty without changing the saved value. If you change the shell setting to a value that is not Git Bash or a path with no file while Tasty is running, new terminals cannot open; the cause appears in the **Terminal** tab of the settings window.
 
 ## First launch
 

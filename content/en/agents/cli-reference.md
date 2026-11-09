@@ -1,4 +1,4 @@
-<!-- source-hash: d8b3021d6371 -->
+<!-- source-hash: c5535ad51fa9 -->
 # CLI command reference
 
 Find commands beyond the introduction, including `read since-mark`, surface state, message queues, and shared memory, organized by purpose. Use `tasty help` for the full list of arguments and options.
@@ -46,7 +46,7 @@ tasty surface fire-hook --surface 42 --event idle-timeout:300 # some events carr
 If that exit is not confirmed within 5 seconds, the new shell stays usable but the reply is a recovery-required error (`-32068`).
 After that error, sending the request again with the same idempotency key (`idempotency_key` on the IPC request) returns the success result, because the shell replacement already finished.
 When a command that creates a terminal, workspace, or tab fails while starting the shell and it is unknown what actually ran, it replies with a recovery-required error (`-32068`) instead of waiting. Sending it again with the same idempotency key (`idempotency_key` on the IPC request) does not run it again and returns the same error.
-When the shell fails before its process is created, for example because the configured shell file is not executable, or the path has no file and no other shell was found to use instead, the command replies with an ordinary error. Sending it again with the same idempotency key returns the same failure; after fixing the shell setting, a new idempotency key runs it again.
+On macOS and Linux, when the shell fails before its process is created, for example because the configured shell file is not executable, or the path has no file and no other shell was found to use instead, the command replies with an ordinary error. On Windows, if the configured shell is not Git Bash, the path has no file, or the setting is empty and Git Bash was not found in the default install locations, a command that creates a terminal fails with an ordinary error before any shell process is created, without substituting another shell. Sending it again with the same idempotency key returns the same failure; after fixing the shell setting, a new idempotency key runs it again.
 
 ## Granting permissions to a child agent
 

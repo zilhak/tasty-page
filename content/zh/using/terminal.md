@@ -1,4 +1,4 @@
-<!-- source-hash: 2e4e2cb1fd73 -->
+<!-- source-hash: 7b0e6279d00f -->
 # 使用终端
 
 介绍在终端运行命令时复制输出、搜索和打开文件路径的方法。还可使用无需鼠标的复制模式，以及任务完成通知。
@@ -9,7 +9,7 @@
 
 在 **设置** > **终端** <!-- en: Terminal --> 中设置。
 
-- **Shell** <!-- en: Shell --> — 要运行的 Shell。Windows 会查找 Git for Windows 的 bash，找不到时会提示手动指定路径。
+- **Shell** <!-- en: Shell --> — 要运行的 Shell。在 Windows 上，Tasty 仅运行 Git Bash（Git for Windows 的 `bash.exe`）。值为空时，使用在默认安装位置找到的 Git Bash。如果安装在其他位置，输入对应的 `bash.exe` 路径。
 - **启动命令** <!-- en: Startup command --> — 每个新终端启动时输入的一行命令。
 - **继承工作目录** <!-- en: Inherit working directory --> — 在当前终端的目录中启动新终端（默认开启）。
 - **关闭运行中进程前确认** <!-- en: Confirm close running process --> — 关闭仍有程序运行的终端时要求确认。

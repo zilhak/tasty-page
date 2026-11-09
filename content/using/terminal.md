@@ -8,7 +8,7 @@
 
 **설정** > **터미널** <!-- en: Terminal --> 에서 정합니다.
 
-- **셸** <!-- en: Shell --> — 실행할 셸. Windows 는 Git for Windows 의 bash 를 찾고, 없으면 경로를 직접 지정하라고 알립니다.
+- **셸** <!-- en: Shell --> — 실행할 셸입니다. Windows 에서 Tasty 는 Git Bash (Git for Windows 의 `bash.exe`)만 실행합니다. 값이 비어 있으면 기본 설치 위치에서 찾은 Git Bash 를 사용합니다. 다른 위치에 설치했다면 해당 `bash.exe` 경로를 입력하세요.
 - **시작 명령어** <!-- en: Startup command --> — 새 터미널마다 처음에 입력할 한 줄.
 - **작업 디렉토리 상속** <!-- en: Inherit working directory --> — 새 터미널을 현재 터미널의 디렉터리에서 시작합니다(기본 켜짐).
 - **실행 중 프로세스 닫기 확인** <!-- en: Confirm close running process --> — 프로그램이 돌고 있는 터미널을 닫을 때 확인합니다.

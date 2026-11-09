@@ -1,4 +1,4 @@
-<!-- source-hash: 5662d7916a3a -->
+<!-- source-hash: 5b61af467604 -->
 # 安装
 
 Tasty 的 Windows、macOS 和 Linux 安装文件可在 GitHub 发布页面按架构下载。macOS 支持 Apple Silicon。
@@ -87,7 +87,7 @@ Expand-Archive tasty-{ver}-windows-x64.zip -DestinationPath tasty
 
 首次启动时会出现“Windows 已保护你的电脑”警告（因为没有代码签名）。点击**更多信息 → 仍要运行**即可。
 
-在 Windows 上，Tasty 使用 **Git Bash** 作为 Shell。未安装 Git for Windows 时首次启动，会显示**选择 Shell** <!-- en: Choose a shell --> 界面，而非终端。输入 bash.exe 路径并点击**使用此 Shell** <!-- en: Use this shell -->，即可使用该 Shell 启动；点击**退出** <!-- en: Quit --> 则关闭 Tasty。仅当路径指向有效的 bash 或 zsh 可执行文件时，才能点击**使用此 Shell**。启动后，如果配置的 Shell 路径无效，设置窗口的**终端** <!-- en: Terminal --> 标签页中会显示“找不到 Git Bash”提示。此时安装 Git for Windows，或在**设置** <!-- en: Settings --> > **终端** <!-- en: Terminal --> > **Shell** <!-- en: Shell --> 中手动指定 bash 路径。
+在 Windows 上，Tasty 仅运行 Git for Windows 的 **Git Bash**（`bash.exe`）作为 Shell。安装 Git for Windows。Shell 设置为空时，会在默认安装位置查找并使用 Git Bash。如果安装在其他位置，在**设置** <!-- en: Settings --> > **终端** <!-- en: Terminal --> > **Shell** <!-- en: Shell --> 中输入对应的 `bash.exe` 路径。如果设置为空且默认安装位置也未找到 Git Bash、保存的值不是 Git Bash，或保存的路径下没有文件，启动时会显示**选择 Shell** <!-- en: Choose a shell --> 界面，而非终端。输入 Git Bash 的 `bash.exe` 路径并点击**使用此 Shell** <!-- en: Use this shell -->，即可保存路径并启动 Tasty。仅当检查结果行显示已找到 Git Bash 时，此按钮才会启用。点击**退出** <!-- en: Quit --> 会关闭 Tasty，不更改保存的值。运行期间，如果将 Shell 设置改为非 Git Bash 的值或没有文件的路径，将无法打开新终端，原因会显示在设置窗口的**终端**标签页中。
 
 ## 首次启动
 
