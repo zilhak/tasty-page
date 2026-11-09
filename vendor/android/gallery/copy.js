@@ -1,6 +1,6 @@
 // Page prose, written by Codex. Labels and spec tables live in the section files.
 export const COPY = {
-  intro: "Tokens, layout rules, touch measurements, widths, and shared desktop parts define the design system for a possible Android version of Tasty. The branch is unpublished, and no Android app or screens exist.",
+  intro: "Tokens, layout rules, touch measurements, widths, and shared desktop parts define the design system for a possible Android version of Tasty. This branch's page is not deployed to the public site, and no Android app or screens exist.",
   description: "Design system for a possible Android version of Tasty, with desktop tokens, layout rules, touch measurements, width comparisons, and shared parts, without screens.",
   tokenColorWhen: "The desktop color tokens apply unchanged in Mocha and Latte.",
   tokenColorNote: "The table reads each value directly from the desktop tokens when the page renders.",
