@@ -47,7 +47,7 @@ function TerminalSample() {
       <div><S ink="dim">   Compiling</S> tasty-themes <S ink="dim">v0.7.0</S></div>
       <div><S ink="dim">   Compiling</S> tasty-type-appearance <S ink="dim">v0.7.0</S></div>
       <div><S ink="path">    Finished</S> <S ink="word">release</S> [optimized] target(s) in <S ink="tool">42.18s</S></div>
-      <div><S ink="prompt">❯</S> tasty --headless <S ink="dim"># agent-driven surface, no GUI</S></div>
+      <div><S ink="prompt">❯</S> tasty --headless <S ink="dim"># agent-driven surface</S></div>
       <div><S ink="branch">surface</S> <S ink="path">created</S> id=<S ink="word">s_01HX</S> kind=terminal <span style={{ background: "var(--tasty-surface-terminal-focused-fg)" }}>{" "}</span></div>
     </div>
   );
