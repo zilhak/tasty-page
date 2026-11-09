@@ -13,7 +13,7 @@ import { SettingsNarrowSection as OverlaysWindowsB12_SettingsNarrowSection } fro
 import { OptionKeySection as OverlaysWindowsB12_OptionKeySection } from "./option-key.jsx";
 import { FileHandlerSection as OverlaysWindowsFileHandlers_FileHandlerSection } from "./file-handlers.jsx";
 import { PerfSection as OverlaysWindowsPerf_PerfSection } from "./settings-performance.jsx";
-import { FontOverrideG } from "./settings-font.jsx";
+import { FontOverrideG, FontFileRejectedSpec } from "./settings-font.jsx";
 import { TrustBox2 as OverlaysWindowsPluginTrust_TrustBox2, PluginTrustSpecs as OverlaysWindowsPluginTrust_PluginTrustSpecs } from "./plugin-trust.jsx";
 import { Section as PresetEditor_Section } from "./preset-editor.jsx";
 import { Section, Spec, Stage, Meta, Note, Do, Dont } from "../parts/specimen.jsx";
@@ -1400,7 +1400,9 @@ function Page() {
           <Meta
             specs={[["row", "label 150 · control · Use default — gap space-lg, min-h settings-row 32 (same as Settings Row)"], ["on default", "control is a read-only box with the value in effect, no opacity · empty when no value is in effect, no placeholder"], ["Font family", "searchable combo · field-width-lg 200"], ["Custom font file", "path Input mono · field-width-lg 200"], ["Font size · Line height", "number Input · field-width-xs 90"], ["DPI scaling", "Select · field-width-md 160"], ["Use default", "Checkbox + label, trailing, never truncated"], ["narrow", "row wraps: the checkbox drops under the control (row-gap space-xs)"], ["preview", "below the grid · space-lg above · Focused / Unfocused flex 1 each"], ["preview box (b2)", "the surface's effective bg (runtime colour, not a token) + effective font & size · 4 lines: latin · hangul · digits · kana · ink = surface focused fg · edge Focused border-strong / Unfocused separator · radius"], ["padding", "font-preview-padding-y space-sm · -x space-md"], ["line height", "font-preview-line-height → line-height-ui 1.4 × effective size; box height follows (no height token)"], ["stack", "a box narrower than font-preview-min-width (→ field-width-lg 200) wraps under the other — content width < 2 × 200 + space-md"], ["summary", "mono caption · text-muted"]]}
             tokens={[{ tok: "--tasty-settings-label-width", use: "150 label column (new name)" }, { tok: "--tasty-field-width-lg", use: "family · file" }, { tok: "--tasty-field-width-md", use: "DPI" }, { tok: "--tasty-field-width-xs", use: "numbers" }, { tok: "--tasty-settings-row-min-height", use: "row" }]} />
+          <Note>A file that can't be used is in the next specimen.</Note>
         </Spec>
+        <FontFileRejectedSpec />
         <Spec id="filehandler-file-extension-mapping-order-add" title="FileHandler › File Extension Mapping — order + Add"
           when={<>The product's structure is the design (it replaces the earlier per-extension Select). An extension <b>Input + Add</b> (Button secondary sm, the same pair as the capture blacklist), then per extension an <b>ordered detector list</b> — first match wins. Reorder with <b>IconButton sm</b> <code>chevronUp</code> / <code>chevronDown</code> (the ▲ ▼ text glyphs go). Arrows are <b>disabled, not hidden</b>: ▲ on the top row, ▼ on the last candidate, both on a row whose detector is off (muted name + disabled Tag), so rows keep one slot layout. Add is disabled while the input is empty or no detector is installed.</>}>
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
