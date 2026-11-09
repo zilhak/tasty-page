@@ -286,7 +286,7 @@ Three layers, three answers:
 
 | Layer | In the rules? | What holds |
 |---|---|---|
-| ANSI colors, reverse video, bold, dim, cell backgrounds | No | The running program picks them. The `ansi-*` tokens are the palette. No pair is promised. |
+| ANSI colors, reverse video, reverse screen, bold, dim, cell backgrounds | No | The running program picks them. The `ansi-*` tokens are the palette. No pair is promised. |
 | Default cell ink and the surface fill | Yes | `surface-terminal-focused-fg` on `term`, `surface-terminal-unfocused-fg` on `term-unfocused`. |
 | What the app draws over cells | Yes | Below. |
 
@@ -300,6 +300,12 @@ Three layers, three answers:
 | Active match, unfocused | `match-active@term-unfocused` | `search-match-active-unfocused-fg` | 6.95 · 11.21 |
 
 The overlay ink applies to default cell ink: any cell with no color of its own, bold or dim included. On `match@term-unfocused` a default cell changes from `surface-terminal-unfocused-fg`, which would be 3.09 · 3.82 there, to `text-primary`. In the file that ink is the role `text-body`, and it is the cell ink that the forbidden cells of a match name. A dim cell is a blend of its ink and its ground, which is 1.81 in both themes on `match@term`, so an ordinary match draws it in `text-primary` on either bed. The match costs the dim step, and the ink does not change on a focus change. Outside a match a dim cell stays the program's blend, and no pair is promised. A cell with its own ANSI color keeps it inside a selection or an ordinary match, dim or not, and that pair is content. Only an active match replaces that color, so its ink holds on the stronger fill. A terminal link takes an underline in the cell's own ink, so it needs no color. Terminal content never animates.
+
+**Cells a match leaves alone.** The overlay ink stops at these cells, because something else has already set their ink.
+
+- **Reverse screen (DECSCNM).** The program inverts the whole screen, so the match fill lies over the cell's ink color and the glyph takes the bed color. The cell keeps that ink: 15.08 · 5.73 focused, 8.79 · 3.67 unfocused, the values of an SGR 7 cell. It is reverse video, so no pair is promised. `text-primary` would be 1.04 · 1.39 on the focused fill.
+- **Block cursor.** The cell swaps its ink and fill, and the match fill lies over the swapped fill: 15.08 · 5.73 focused. The unfocused cell is unmeasured. By calculation it would be 8.79 · 3.67. Send it back to design if an unfocused terminal draws this cell.
+- **Vi cursor.** The cell keeps `vi-cursor-fg`: 10.48 · 6.60 on `term-cursor`, and 11.59 · 6.53 if the match fill lies over it. It holds either way.
 
 ## 5. Roles and grades
 
