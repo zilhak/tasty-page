@@ -152,7 +152,11 @@ fn guide_scan(
         for entry in entries.flatten() {
             let path = entry.path();
             if path.is_dir() {
-                if path.file_name().map(|n| n == "en").unwrap_or(false) {
+                if path
+                    .file_name()
+                    .and_then(|n| n.to_str())
+                    .is_some_and(tasty_page_checks::is_translation_dir)
+                {
                     continue; // 번역은 별도 절차다.
                 }
                 let name = path
@@ -431,6 +435,11 @@ fn the_three_readers_answer_on_a_substituted_tree() {
     .expect("합성 하위 원본 실패");
     std::fs::write(content.join("en").join("settings.md"), "translated-omega\n")
         .expect("합성 번역 실패");
+    for tree in ["ja", "zh"] {
+        std::fs::create_dir_all(content.join(tree)).expect("합성 번역 트리를 만들지 못했다");
+        std::fs::write(content.join(tree).join("settings.md"), "translated-omega\n")
+            .expect("합성 번역 실패");
+    }
     std::fs::write(content.join("notes.txt"), "md 가 아니다 sigma-decoy\n").expect("잡파일 실패");
 
     let guide = guide_text(dir);
@@ -438,7 +447,7 @@ fn the_three_readers_answer_on_a_substituted_tree() {
     assert!(guide.contains("deep-marker"), "하위 디렉토리로 안 내려갔다");
     assert!(
         !guide.contains("translated-omega"),
-        "영어 번역이 한국어 가이드 본문에 섞였다"
+        "번역이 한국어 가이드 본문에 섞였다"
     );
     assert!(
         !guide.contains("sigma-decoy"),

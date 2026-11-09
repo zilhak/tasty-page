@@ -189,9 +189,12 @@ fn user_facing_files() -> Vec<Surface> {
     )
 }
 
-/// 한국어 원본만 검사한다. 같은 문장의 영어 번역은 이 용어 검사 대상이 아니다.
+/// 한국어 원본만 검사한다. 같은 문장의 번역은 이 용어 검사 대상이 아니다.
 fn is_korean_guide(rel: &str) -> bool {
-    rel.ends_with(".md") && !rel.starts_with("content/en/")
+    rel.ends_with(".md")
+        && !rel
+            .strip_prefix("content/")
+            .is_some_and(tasty_page_checks::is_translated_page)
 }
 
 /// 같은 순회를 합성 트리에서도 검사할 수 있도록 루트·하한·필터를 받는다.
@@ -568,9 +571,11 @@ fn a_roster_line_pointing_outside_the_population_is_an_error_not_a_skip() {
 #[test]
 fn the_guide_filter_takes_the_korean_source_and_drops_the_translation() {
     assert!(is_korean_guide("content/using/files.md"), "원본을 뺐다");
-    assert!(
-        !is_korean_guide("content/en/using/files.md"),
-        "영어 번역은 한국어 용어 검사 대상이 아니다"
-    );
+    for tree in ["en", "ja", "zh"] {
+        assert!(
+            !is_korean_guide(&format!("content/{tree}/using/files.md")),
+            "{tree} 번역은 한국어 용어 검사 대상이 아니다"
+        );
+    }
     assert!(!is_korean_guide("content/index.toml"), "확장자를 안 봤다");
 }

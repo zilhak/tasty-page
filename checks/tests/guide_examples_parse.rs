@@ -6,12 +6,16 @@
 use clap::Parser;
 use std::path::PathBuf;
 use tasty_cli::Cli;
+use tasty_page_checks::TRANSLATION_DIRS;
 
 const PAGES: &[&str] = &[
     "agents/cli.md",
     "agents/cli-reference.md",
     "help/cli-diagnostics.md",
 ];
+
+/// 번역이 들어오는 중이라 폴더가 아직 없을 수 있는 언어. 언어 행을 더할 때 비운다.
+const MAY_BE_ABSENT: &[&str] = &["ja", "zh"];
 
 /// plugin이 더하는 최상위 명령. 코어 parser에 없으므로 건너뛴다.
 const PLUGIN_TOP: &[&str] = &[
@@ -87,7 +91,14 @@ fn examples(rel: &str) -> Vec<String> {
 fn guide_examples_parse_with_the_real_command_tree() {
     let mut checked = 0;
     let mut failures = Vec::new();
-    for lang in ["", "en/"] {
+    let mut trees = vec![String::new()];
+    for dir in TRANSLATION_DIRS {
+        if MAY_BE_ABSENT.contains(dir) && !site_content().join(dir).is_dir() {
+            continue;
+        }
+        trees.push(format!("{dir}/"));
+    }
+    for lang in &trees {
         for page in PAGES {
             let rel = format!("{lang}{page}");
             for line in examples(&rel) {

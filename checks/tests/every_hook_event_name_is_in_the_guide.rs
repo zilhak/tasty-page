@@ -62,7 +62,7 @@ const GUIDE_FLOOR: Floor = Floor {
     measured: 18,
     measured_on: "2026-09-07",
     counted_on: tasty_doc_guards::floored_walk::CountedOn::NEVER_COUNTED,
-    why_this_gap: "content의 한국어 Markdown만 세고 en 번역은 제외한다. 문서 분할·통합에 여유를 주되 하한 12 미달이면 실제 감소와 순회 오류를 확인한다.",
+    why_this_gap: "content의 한국어 Markdown만 세고 번역 폴더는 제외한다. 문서 분할·통합에 여유를 주되 하한 12 미달이면 실제 감소와 순회 오류를 확인한다.",
 };
 
 fn guide_text(root: &Path) -> String {
@@ -72,7 +72,7 @@ fn guide_text(root: &Path) -> String {
 /// 작은 합성 트리도 같은 순회로 검증하도록 경로·하한을 인자로 받는다.
 fn guide_text_under(dir: &Path, floor: &Floor) -> String {
     let walked = walk_with_floor(dir, dir, floor, Descend::Everything, &|w| {
-        w.rel.ends_with(".md") && !w.rel.starts_with("en/")
+        w.rel.ends_with(".md") && !tasty_page_checks::is_translated_page(&w.rel)
     })
     .unwrap_or_else(|why| panic!("{why}"));
 
@@ -224,6 +224,14 @@ fn both_readers_answer_on_a_substituted_tree() {
         "translated omega-probe\n",
     )
     .expect("합성 번역을 쓰지 못했다");
+    for tree in ["ja", "zh"] {
+        std::fs::create_dir_all(content.join(tree)).expect("합성 번역 트리를 만들지 못했다");
+        std::fs::write(
+            content.join(tree).join("hooks.md"),
+            "translated omega-probe\n",
+        )
+        .expect("합성 번역을 쓰지 못했다");
+    }
     std::fs::write(content.join("notes.txt"), "md 가 아니다 sigma-decoy\n").expect("잡파일 실패");
 
     let fixture_floor = Floor {
@@ -241,7 +249,7 @@ fn both_readers_answer_on_a_substituted_tree() {
     );
     assert!(
         !text.contains("translated"),
-        "영어 번역이 한국어 가이드 수집에 섞였다"
+        "번역이 한국어 가이드 수집에 섞였다"
     );
     assert!(
         !text.contains("sigma-decoy"),
