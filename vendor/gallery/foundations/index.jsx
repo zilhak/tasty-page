@@ -457,7 +457,7 @@ function Foundations() {
             </div>
           </Stage>
           <Meta
-            specs={[["thickness", "Shared T = max(1, round(H / 16)) device pixels"], ["position", "Underlines just below baseline; strikethrough through glyph middles; overline atop cell"], ["color", "Drawn cell ink; SGR 58 overrides underline where retained"], ["paint order", "Fill, underline, glyph, strikethrough, overline"]]}
+            specs={[["thickness", "Shared T = max(1, round(H / 16)) device pixels"], ["position", "Single, dotted, dashed and link underlines: T rows below B. Double and curly underlines rise above baseline if space is insufficient. Strikethrough top: B−round(A/3)−floor(T/2). Overline: cell top."], ["color", "Drawn cell ink; SGR 58 overrides underline where retained"], ["paint order", "Fill, underline, glyph, strikethrough, overline"]]}
             tokens={[
               { tok: "--tasty-accent-primary-raised", use: "link underline", color: "var(--tasty-accent-primary-raised)" },
               { tok: "--tasty-selection-bg", use: "selection and link fill", color: "var(--tasty-selection-bg)" },
