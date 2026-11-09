@@ -41,7 +41,6 @@ const THEME_SYNC = `<script>
   function apply(v) {
     if (v === "latte" || v === "light") r.setAttribute("data-theme", "latte");
     else if (v) r.removeAttribute("data-theme");
-    else if (matchMedia("(prefers-color-scheme: light)").matches) r.setAttribute("data-theme", "latte");
   }
   try { apply(localStorage.getItem("tasty-theme")); } catch (e) {}
   addEventListener("storage", function (e) { if (e.key === "tasty-theme") apply(e.newValue); });

@@ -19,8 +19,7 @@
   }
 
   function currentTheme() {
-    if (root.getAttribute("data-theme") === "latte") return "latte";
-    return window.matchMedia("(prefers-color-scheme: light)").matches ? "latte" : "mocha";
+    return root.getAttribute("data-theme") === "latte" ? "latte" : "mocha";
   }
 
   /* A language picked here outranks the browser language on the next visit to
