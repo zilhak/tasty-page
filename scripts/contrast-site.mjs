@@ -38,6 +38,7 @@ const LANDING_PAGES = LANGS.map((row) => row.landing);
 const LANDING_TABS = ["claude · release", "README.md"];
 const FOCUS_PAGES = ["", "guide/getting-started/first-look/"];
 const SEARCH_PAGE = "guide/";
+const DRAWER_PAGES = ["", "guide/", "design/"];
 const TAB_STOPS = 14;
 
 export function sitePages(dist) {
@@ -238,6 +239,45 @@ async function focusPass(context, origin, t, rules, theme) {
   }
 }
 
+// The narrow drawer is hidden until the menu button opens it, so its rows and its mantle ground are measured open.
+async function drawerPass(context, origin, t, rules, theme) {
+  const held = (r) => r.selector.includes(".site-menu") || r.selector.includes(".menu-btn[aria-expanded");
+  const rows = rules.rows.filter(held);
+  const sidebarRows = restRows(rules).filter((r) => !held(r) && /\.nav-(section|list|desc)/.test(r.selector));
+  for (const page of DRAWER_PAGES) {
+    const tab = await context.newPage();
+    await tab.goto(urlOf(origin, page), { waitUntil: "load", timeout: 120000 });
+    await settle(tab);
+    await installPageLib(tab);
+    await tab.click(".menu-btn");
+    await tab.mouse.move(0, 0);
+    await tab.waitForFunction(() => getComputedStyle(document.querySelector("#site-drawer")).visibility === "visible");
+    await stylesSettled(tab);
+    const m = await tab.evaluate(({ rows: x, allRows, family, tokens, name, scanArgs }) => {
+      const lib = window.__contrast;
+      return { rows: lib.measureRows(x, allRows, family, tokens, name), scan: lib.scan(document.querySelector("#site-drawer"), scanArgs) };
+    }, { rows: [...rows.filter((r) => r.state === "rest" || r.state === "selected"), ...sidebarRows], allRows: rules.rows, family: [...rules.family], tokens: rules.tokens, name: theme, scanArgs: needsScanArgs(rules, theme) });
+    mergeScan(t, m.scan, page, "drawer");
+    m.rows.forEach((res) => mergeRow(t, rules, res, page, "drawer"));
+    for (const row of rows.filter((r) => r.state === "hover")) {
+      const rec = t.rows[row.id];
+      const point = await tab.evaluate((a) => window.__contrast.aim(a), row.selector);
+      if (!point) continue;
+      rec.found += 1;
+      await tab.mouse.move(point.x, point.y);
+      await stylesSettled(tab);
+      const r = await tab.evaluate(({ row: x, tokens, name }) => window.__contrast.measureAimed(x, tokens, name), { row, tokens: rules.tokens, name: theme });
+      if (!r.reached) rec.notes.push(`pointer did not reach ${row.selector}`);
+      if (!r.measured) continue;
+      rec.measured += 1;
+      if (r.inkOk) rec.inkHits += 1;
+      if (r.below) rec.below.push({ ...r, page, viewport: "drawer, pointer over" });
+      if (!r.inkOk) rec.mismatch.push({ ...r, page, viewport: "drawer, pointer over" });
+    }
+    await tab.close();
+  }
+}
+
 async function searchPass(context, origin, t, rules, theme) {
   const rows = rules.rows.filter((r) => r.selector.includes(".search__results"));
   const tab = await context.newPage();
@@ -272,6 +312,7 @@ export async function runSite({ browser, origin, dist, rules, theme, report }) {
   for (const vp of VIEWPORTS) {
     const context = await browser.newContext({ viewport: { width: vp.width, height: vp.height }, reducedMotion: "reduce" });
     await context.addInitScript((name) => localStorage.setItem("tasty-theme", name), theme);
+    if (vp.name === "narrow") await drawerPass(context, origin, t, rules, theme);
     await restPass(context, origin, pages, t, rules, theme, vp.name);
     if (vp.name === "wide") {
       await pointerPass(context, origin, t, rules, theme);

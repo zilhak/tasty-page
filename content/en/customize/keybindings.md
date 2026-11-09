@@ -1,4 +1,4 @@
-<!-- source-hash: 97f6d0525a11 -->
+<!-- source-hash: 4cfb1cca44ae -->
 # Keybindings
 
 Tasty’s keybindings can be changed with a preset or by assigning preferred key combinations to frequently used actions. Keybindings are available in **Settings** > **Keybindings**.
@@ -93,9 +93,7 @@ Category keybindings work only when **Settings** > **General** > **Workspace cat
 
 `Ctrl+C` copies when there is selected text; otherwise it interrupts the running program as usual.
 
-The copy, cut, paste and select-all keys also work in the body of Markdown and HTML views, in their input fields, and in the HTML address bar. They act only where the focus is. In an input field, select all picks just that field's text; in the body it picks the whole document. Read-only fields and the body do not change on cut or paste. On Windows and Linux, editing keys that web views and input fields already know, such as `Ctrl+C` and `Ctrl+V`, keep working even if you remove them here. A key you add here, such as `Alt+C`, runs the same edit once. Copy or cut with nothing selected leaves the clipboard as it was. Undo and redo in web pages can be changed separately from the explorer; on Mac, removing them also turns off `Cmd+Z` in web pages. If a plugin command uses the same key, the edit comes first in web pages. Word movement uses the default keys of the web view and the input field. On Linux, if too many edit requests pile up while a page is not responding, the edit keys can stop working in that view. Typing still works; close the view and open it again to get the edit keys back.
-
-On Windows, while a Markdown or HTML view has keyboard focus, a shortcut assigned to a letter, digit or symbol key pressed without `Ctrl` or `Alt` (with or without `Shift`) is not received, and the key is typed into the view. For shortcuts that should also work in web views, use a combination with `Ctrl` or `Alt`, or a non-character key such as `F5`.
+The copy, cut, paste and select-all keys also work in the body of Markdown and HTML views, in their input fields, and in the HTML address bar. They act only where the focus is. In an input field, select all picks just that field's text; in the body it picks the whole document. Read-only fields and the body do not change on cut or paste. On Windows and Linux, editing keys that web views and input fields already know, such as `Ctrl+C` and `Ctrl+V`, keep working even if you remove them here. A key you add here, such as `Alt+C`, runs the same edit once. Copy or cut with nothing selected leaves the clipboard as it was. Undo and redo in web pages can be changed separately from the explorer; on Mac, removing them also turns off `Cmd+Z` in web pages. If a plugin command uses the same key, the edit comes first in web pages. Word movement uses the default keys of the web view and the input field.
 
 **Copy link** has no default key. Once you assign one, hover a terminal link and press it to copy the link text right away. It does not appear in the command palette.
 
