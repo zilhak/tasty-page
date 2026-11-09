@@ -1,4 +1,4 @@
-<!-- source-hash: 2bab4d61028a -->
+<!-- source-hash: 5662d7916a3a -->
 # 安装
 
 Tasty 的 Windows、macOS 和 Linux 安装文件可在 GitHub 发布页面按架构下载。macOS 支持 Apple Silicon。
@@ -73,9 +73,9 @@ xattr -dr com.apple.quarantine /Applications/Tasty.app
 
 ## Windows
 
-在 Windows ARM 设备上，下载名称中包含 `windows-arm64` 的文件。ARM64 文件从 0.12.2 之后的版本开始提供，尚未验证在 Windows ARM 设备上的安装和运行情况。对于不提供 ARM64 文件的 0.12.2 及更早版本，也未验证其 x64 文件能否在 Windows ARM 设备上运行。
+在 Windows ARM 设备上，下载名称中包含 `windows-arm64` 的文件。ARM64 文件从 0.12.2 之后的版本开始提供。
 
-Windows ARM 也在支持范围内。开发者可直接验证运行情况的环境有限。支持范围与各版本已验证的范围分开说明。
+Windows ARM 也在支持范围内。
 
 - **`.msi`（推荐）** — 双击并按安装向导操作。会注册开始菜单快捷方式和“应用和功能”中的卸载项。
 - **`.zip`** — 解压到所需文件夹并运行 `tasty.exe`。
