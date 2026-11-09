@@ -218,6 +218,7 @@ Each location has one ground. It may hold only the listed children, to the liste
 | File picker | `base` | 2 | `mantle`, `base+hover`, `base+press`, `active`, `active+hover`, `active+press`, `raised`, `field`, filled controls |  |
 | Remote connections | `base` | 2 | `mantle`, `base+hover`, `base+press`, `active`, `active+hover`, `active+press`, `raised`, `field`, filled controls, tint boxes over `base`, `raised` |  |
 | Preset editor | `base` | 2 | `mantle`, `crust`, `raised`, `field`, `active`, `split-zone@crust`, `split-zone@mantle`, `split-zone@base`, `track`, filled controls |  |
+| Capture region select | `crust` | 2 | `mantle`, `raised` | The bed is crust. The band is mantle and its keycap is raised. The picture is not a ground: no ink sits on it, only the dim and the edge. See below. |
 | Task DAG, focused | `term` | 2 | `raised`, `raised+hover`, `raised+press`, `mantle`, `crust`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `base`, filled controls | Canvas takes the bed. Chrome and detail are mantle. Log is crust. In a workspace popup the canvas stays base. |
 | Task DAG, unfocused | `term-unfocused` | 2 | `raised`, `raised+hover`, `raised+press`, `mantle`, `crust`, `dag-running`, `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `base`, filled controls | Canvas takes the bed. Chrome and detail are mantle. Log is crust. |
 | Plugin surface chrome | `base` | 2 | `mantle`, `raised`, `field`, `active`, `active+hover`, `active+press`, `base+hover`, `base+press`, `tint-avatar`, `tint-primary@raised`, `tint-info@raised`, `tint-success@raised`, `tint-warning@raised`, `tint-danger@raised`, `tint-agent@raised`, `track`, filled controls | What the host draws, the focus edge included. |
@@ -231,6 +232,41 @@ Each location has one ground. It may hold only the listed children, to the liste
 | Scrim over term | `scrim@term` | 1 | `base` | Only a modal or popup frame sits on it. |
 
 Filled controls means the `fill-*` grounds with their hover and press states. The full lists are in the file.
+
+### Capture region select
+
+Where a capture that has no operating system tool picks its area. It fills the window below the title bar, with no popup frame, popup title, scrim or shadow. The gallery has it at `gallery/overlays-windows/capture-region.jsx`.
+
+The picture is a copy of the user's screen, so any color can be under anything drawn on it. Two things follow. All text stays off the picture, on the band, where it has a ground and a grade. What does paint on the picture holds one value in both themes, because the picture does not change with the theme.
+
+The paint order is bed, picture, picture frame, dim, edge.
+
+| Part | Reads | Notes |
+|---|---|---|
+| Band | `mantle`, `capture-band-height` | Above the picture, never over it. `separator` at its bottom. |
+| Hint | `text-primary` on `mantle` | Left. The only band part that gives way: it ellipsizes at its end. |
+| Size | `text-primary` on `mantle`, mono | Right, while there is a selection. Picture pixels, `{width} × {height}`. It is the size of the crop. |
+| Esc and Cancel | `Kbd` on `mantle`, `text-secondary` | Far right, in every state. A label, not a button. |
+| Bed | `crust` | `capture-stage-inset` on every side, so the frame and the edge always have room. |
+| Picture frame | `border-frame` on `crust` | 1px, outside the picture. It reads against the bed and has no promise against the picture. |
+| Dim | `capture-dim-bg` | Over the picture outside the selection. Over all of it when there is no selection. |
+| Edge | `capture-edge-dark` inside, `capture-edge-light` outside | Two strokes of `capture-edge-width`, outside the selection, so the pixels inside are untouched and are what the crop holds. No radius, no motion. |
+
+**The dim is not the scrim.** It has the scrim's value and none of its meaning. A scrim says the content under it is inert. The user reads this picture to choose an area, so `capture-dim-bg` is its own token and can move on its own. Do not read `scrim-bg` here, and do not read `capture-dim-bg` behind a modal.
+
+**Why the edge reads on any picture.** The dim caps every pixel outside the selection at #808080, so `capture-edge-light` holds at least 3.95 against the dim, which is 4.00 with the alpha rounded to n/255. That meets the 3 grade of an edge whatever the picture is. The strokes hold 21 to each other. `capture-edge-dark` has no promise against the selected pixels: on a black picture it is 1.0. It is there so the edge has a dark line on a light picture, where the selected pixels are close to the light stroke. These are computed. How the edge looks to a person on a fine pattern is not a ratio, and the gallery shows that case to be looked at.
+
+**The dim alone does not separate the selection.** On a black picture it changes nothing, at 1.0. The edge is what shows the selection there.
+
+| State | Dim | Edge | Band |
+|---|---|---|---|
+| Before a drag | The whole picture | None | Idle hint |
+| Dragging, both axes at `capture-min-drag` or more | Outside the selection | Yes | Release hint, size |
+| Dragging, either axis under `capture-min-drag` | The whole picture | None | Idle hint |
+
+Release with no selection leaves the view as it was, with no toast. `capture-min-drag` is in display pixels, because it tells a click from a drag and says nothing about the crop.
+
+The picture keeps its ratio and scales down to fit the bed. It is never scaled above one to one, and a smaller picture is centered. The crop comes from the source picture at its own resolution, however it is displayed.
 
 ### Surface focus
 
@@ -2258,6 +2294,7 @@ Inside the fixed limits: 4px grid, UI type 14px or less, borders 1px, radius 4px
 | Surface focus edge | `surface-focus-edge-width` 2px | - | - | - | Full leaf width, top of the leaf | - |
 | Address bar | `html-address-bar-height` 40px | `html-address-bar-padding-x` 8px | `icon-size-sm` 14px | Body in a 28 field | Center | Middle of path, then Forward drops |
 | In-surface toolbar | `toolbar-height` 32px | `space-sm` 8px | `icon-size-md` 16px | Body | Center | Items fold into More |
+| Capture band | `capture-band-height` 32px | `space-sm` 8px | - | Body, size mono | Hint left, size and Esc right | Hint ellipsis, right end |
 | Menu row | `menu-item-height` 28px | `menu-item-padding-x` 12px | `icon-size-sm` 14px | Body, shortcut micro | Left, shortcut right | Wraps only for fixed copy over max width |
 | Control | `control-height` 28px | `button-padding-x` 12px | `icon-size-md` 16px | Body, 500 on Button | Center | Ellipsis |
 | Small control | `button-height-sm` 24px | `space-sm` 8px | `icon-size-xs` 12px | Body | Center | Ellipsis |
@@ -2329,6 +2366,7 @@ What carries over to a user theme is only the structure of token choice: each ce
 | `plugin webview content` | `plugin-webview` | Same as a web page. Host chrome around it stays in the rules. |
 | `third-party egui-mesh plugin pixels` | `third-party-plugin` | The plugin tessellates in its own process, so the host cannot check its colors. Using the host Theme tokens is a documented promise. Bundled plugins stay in the rules. |
 | `image surface content` | `image-content` | The file is the content. |
+| `capture picture, capture-dim-bg, capture-edge-*` | `capture-picture` | A copy of the user's screen. Tasty picks none of its colors and draws no text on it. The dim and the edge read on any picture, as section 4 computes. |
 | `markdown code highlight` | `code-highlight` | Content colors from the highlighter. The block fill stays in the rules. |
 | `brand-melon-*` | `brand` | Logo artwork. |
 | `titlebar-traffic-*, accent-macos-*` | `os-window-controls` | OS window controls keep OS colors. |

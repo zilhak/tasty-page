@@ -67,9 +67,10 @@ export function Views({ children }) {
   );
 }
 
-export function View({ name, label, children }) {
+// wide: the frame takes a whole row, for a view too wide to read in a grid cell.
+export function View({ name, label, wide, children }) {
   return (
-    <figure className="fixed-view" data-view={name}>
+    <figure className="fixed-view" data-view={name} style={wide ? { gridColumn: "1 / -1" } : undefined}>
       <figcaption>{label || name}</figcaption>
       <div>{children}</div>
     </figure>

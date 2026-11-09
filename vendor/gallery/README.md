@@ -26,7 +26,7 @@ The 15 URLs do not change, so `/design/gallery/<key>/` keeps its current path. E
 | Foundations | Location map | `rules-map` | Every location in Mocha and Latte |
 | Components | Components | `components` | Buttons, Badge, Tag, Kbd, form controls, Tab, TreeRow, MenuItem, feedback, CenterState, HelpHint, Tooltip, hint text, Table, ListCtrl, Scrollbar |
 | Overlays | Dialogs | `overlays-dialogs` | Scrim and frame, scrim over each ground, approval, convert, file handler, preset, markdown open, rename, category, transfer, info modal, script confirm, delete permanently |
-| Overlays | Windows | `overlays-windows` | Palette, ports, remote, remote attach, file picker, settings, permissions, plugins window, keybinding import, scripts, git viewer, clipboard, notifications, move and resize, preset editor |
+| Overlays | Windows | `overlays-windows` | Palette, ports, remote, remote attach, file picker, settings, permissions, plugins window, keybinding import, scripts, git viewer, clipboard, notifications, capture region select, move and resize, preset editor |
 | Overlays | Popups and menus | `overlays-popups` | Tools menu, fallback context menu, search bar, switch overlays, modifier hints, categories, notice column, opaque mode over a page |
 | Overlays | Banners | `overlays-banners` | Banner family and its instances |
 | Overlays | Tutorial | `overlays-tutorial` | Marker, callout, topic list, composite |
@@ -99,7 +99,7 @@ The rules are in `RULES.md` section 14. `contract-audit.js` is a reference for t
 | `data-ink-grade="none" data-ink-why="disabled\|ornament"` | Outside a cell, marks an ink with no grade. It is not an exception, as `RULES.md` section 12 says |
 | Scope | `[data-gallery-page]`. Site header, sidebar and footer carry `data-site-chrome` and are not part of these rules |
 
-Exempt ids: `ansi-content`, `terminal-attributes`, `html-page`, `plugin-webview`, `third-party-plugin`, `image-content`, `code-highlight`, `brand`, `os-window-controls`, `dimmed`, `under-scrim`, `decorative-grid`. Opacity alone never exempts anything.
+Exempt ids: `ansi-content`, `terminal-attributes`, `html-page`, `plugin-webview`, `third-party-plugin`, `image-content`, `capture-picture`, `code-highlight`, `brand`, `os-window-controls`, `dimmed`, `under-scrim`, `decorative-grid`. Opacity alone never exempts anything.
 
 The check walks ancestors for the ground, so a specimen paints its ground on an ancestor. A sibling laid over ink, as with a scrim, is not seen: mark what is under it `under-scrim`.
 

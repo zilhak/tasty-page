@@ -17,6 +17,7 @@ import { PerfSection as OverlaysWindowsPerf_PerfSection } from "./settings-perfo
 import { FontOverrideG, FontFileRejectedSpec, FontToastSpec, FontFamilyRejectedSpec } from "./settings-font.jsx";
 import { TrustBox2 as OverlaysWindowsPluginTrust_TrustBox2, PluginTrustSpecs as OverlaysWindowsPluginTrust_PluginTrustSpecs } from "./plugin-trust.jsx";
 import { Section as PresetEditor_Section } from "./preset-editor.jsx";
+import { CaptureRegionSection } from "./capture-region.jsx";
 import { Section, Spec, Stage, Meta, Note, Do, Dont } from "../parts/specimen.jsx";
 
 // Tasty Gallery — Overlays · Windows (large modal surfaces)
@@ -214,6 +215,7 @@ const NAV = [
   { id: "gitviewer", label: "Git viewer" },
   { id: "clipboard", label: "Clipboard viewer" },
   { id: "notifications", label: "Notifications" },
+  { id: "captureregion", label: "Capture region select" },
   { id: "moveresize", label: "Move & resize" },
 ];
 
@@ -1714,6 +1716,7 @@ function Page() {
         {true ? <GalleryNotifications_Popup /> : null}
       </Section>
 
+      <CaptureRegionSection />
       <Section id="moveresize" title="Move & resize — popup interaction spec">
         <Spec id="drag-handles-titlebar-region-none" title="Drag handles — TitleBar · Region · None"
           when={<>How a popup moves. A <b>titlebar</b> popup drags from the <b>whole bar</b> (the close button is excluded). A <b>headless</b> popup can declare a <b>Region</b> handle — a header band (currently the left half: icon + title) — while the header's own widgets (search, close) keep priority. <b>None</b> means the popup can't be moved. Affordance is the <b>cursor</b> only (grab → grabbing); no painted grip. Hover the bars below to feel the cursors.</>}>

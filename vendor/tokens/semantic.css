@@ -229,6 +229,11 @@
   --tasty-scrim-bg:          var(--tasty-alpha-black-50);
   --tasty-overlay-top-offset: var(--tasty-size-88); /* top-aligned spawn gap (command palette) */
 
+  /* ── Capture region select — paints on a picture of arbitrary color, so all three hold one value in both themes. RULES section 4 ── */
+  --tasty-capture-dim-bg:      var(--tasty-alpha-black-50); /* the picture outside the selection. Not the scrim: this picture stays active */
+  --tasty-capture-edge-light:  var(--tasty-color-white);    /* outer stroke of the selection edge, against the dimmed picture */
+  --tasty-capture-edge-dark:   var(--tasty-color-black);    /* inner stroke, against the selected picture */
+
   /* ── Spacing (4px grid) ───────────────────────────────────── */
   --tasty-space-xs: var(--tasty-size-4);
   --tasty-space-sm: var(--tasty-size-8);

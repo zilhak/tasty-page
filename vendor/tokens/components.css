@@ -1662,6 +1662,12 @@
   --tasty-site-code-fg:        var(--tasty-code-fixed-fg);
   --tasty-site-code-comment:   var(--tasty-code-fixed-comment);
   --tasty-site-inline-code-bg: var(--tasty-code-inline-bg);
+
+  /* Capture region select. RULES section 4 */
+  --tasty-capture-band-height: var(--tasty-toolbar-height); /* the band above the picture */
+  --tasty-capture-stage-inset: var(--tasty-space-sm);       /* around the picture, so the picture frame and the selection edge always have room */
+  --tasty-capture-edge-width:  var(--tasty-border-width);   /* each of the two edge strokes */
+  --tasty-capture-min-drag:    var(--tasty-space-xs);       /* below this on either axis, in display px, there is no selection */
 }
 
 
