@@ -304,6 +304,8 @@ Three layers, three answers:
 | Selected search match | `match@term-selection` | `search-match-selected-fg` | 5.07 · 8.96 |
 | Selected active match | `match-active@term-selection` | `search-match-selected-fg` | 9.81 · 8.20 |
 | Block cursor, with or without a selection | The swapped fill | The swapped ink | 14.52 · 7.99, focused only |
+| Vi cursor in the active match | `search-match-active-bg` over `term-cursor` | `search-match-selected-fg` | 13.26 · 6.76 |
+| Block cursor in the active match | `search-match-active-bg` over the swapped fill | `search-match-selected-fg` | 14.12 · 4.65, focused only |
 
 The selection, vi cursor and link rows hold on both beds. `term-selection` and `term-cursor` are opaque, so the bed under them does not reach the ink. Selection can stay on a surface after focus moves away, and the vi cursor shows there when it moves by keyboard.
 
@@ -321,8 +323,8 @@ The overlay ink applies to default cell ink: any cell with no color of its own, 
 **Cells a match leaves alone.** The overlay ink stops at these cells, because something else has already set their ink.
 
 - **Reverse screen (DECSCNM).** The program inverts the whole screen, so the match fill lies over the cell's ink color and the glyph takes the bed color. The cell keeps that ink: 15.08 · 5.73 focused, 8.79 · 3.67 unfocused, the values of an SGR 7 cell. It is reverse video, so no pair is promised. `text-primary` would be 1.04 · 1.39 on the focused fill.
-- **Block cursor.** The cell swaps its ink and fill, and the match fill lies over the swapped fill: 15.08 · 5.73 focused. An unfocused terminal draws no block cursor, so this cell does not occur there. A cursor shape a program paints with SGR 7 is a cell value, not this cell.
-- **Vi cursor.** The cell keeps `vi-cursor-fg`: 10.48 · 6.60 on `term-cursor`, and 11.59 · 6.53 if the match fill lies over it. It holds either way.
+- **Block cursor.** The cell swaps its ink and fill, and the match fill lies over the swapped fill. An ordinary match leaves the swapped ink: 15.08 · 5.73 focused. An active match replaces every ink, so the cell reads `search-match-selected-fg` with or without a selection: 14.12 · 4.65. `search-match-active-fg` would be 12.35 · 1.77. An unfocused terminal draws no block cursor, so this cell does not occur there. A cursor shape a program paints with SGR 7 is a cell value, not this cell.
+- **Vi cursor.** The cell keeps `vi-cursor-fg`: 10.48 · 6.60 on `term-cursor`, and 11.59 · 6.53 if an ordinary match fill lies over it. It holds either way. An active match replaces that ink with `search-match-selected-fg`, with or without a selection and on either bed: 13.26 · 6.76. `search-match-active-fg` would be 11.59 · 2.57 focused. A selection does not change a cursor cell, so the same token keeps the cell the same when a selection starts.
 - **Link under the pointer.** The cell reads as a selection with a blue underline, in an ordinary match, in the active match and outside any match, on either bed. Neither match fill paints on it, because `text-on-active` would be 2.56 in Mocha over the ordinary fill, and on the active fill it would be 1.82 · 7.36 focused and 1.63 · 6.24 unfocused, with the underline at 1.25 · 5.23 and 1.12 · 4.43. The rest of the match keeps its fill, and the cell returns to the match in one frame when the pointer or the modifier leaves. A cursor cell inside the link stays a cursor cell. `accent-primary` on the words would be 3.17 · 2.27, under the text grade. The underline is the one hue a terminal layer holds, and the shape and fill tell the state.
 
 ### Lines a cell draws
@@ -359,8 +361,8 @@ All lengths are device pixels, and every line except the curly one lands on whol
 | Active match | `search-match-active-fg`, `search-match-active-unfocused-fg` | 6.23 · 5.03 | 6.95 · 11.21 | Gives way |
 | Selected search match | `search-match-selected-fg` | 5.07 · 8.96 | 5.07 · 8.96 | Stays |
 | Selected active match | `search-match-selected-fg` | 9.81 · 8.20 | 9.81 · 8.20 | Gives way |
-| Vi cursor | `vi-cursor-fg` | 10.48 · 6.60 | 10.48 · 6.60 | Gives way |
-| Block cursor | The swapped ink | 14.52 · 7.99, in a match 15.08 · 5.73 | Does not occur | Gives way |
+| Vi cursor | `vi-cursor-fg`, `search-match-selected-fg` in the active match | 10.48 · 6.60, in the active match 13.26 · 6.76 | 10.48 · 6.60, in the active match 13.26 · 6.76 | Gives way |
+| Block cursor | The swapped ink, `search-match-selected-fg` in the active match | 14.52 · 7.99, in an ordinary match 15.08 · 5.73, in the active match 14.12 · 4.65 | Does not occur | Gives way |
 | Link under the pointer | `accent-primary-raised` | 3.17 · 3.84 | 3.17 · 3.84 | Gives way |
 
 **A link under the pointer replaces the program underline** in each of its cells, whatever the kind or color, so one row of the cell never holds two underlines. The cell's strikethrough and overline stay, in `text-on-active`. A cursor cell inside the link draws the underline in the cursor's ink, because the blue would be 1.18 · 2.61 on `term-cursor` and 1.46 · 1.04 on a swapped fill. When the pointer leaves, the program underline comes back in one frame.
