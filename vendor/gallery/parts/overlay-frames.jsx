@@ -1481,10 +1481,12 @@ function MoreLabel({ text, app, after, wrap = false }) {
 
 // the menu itself — 2 rows, no scrim, anchored under the ⋯ trigger.
 // 2026-11-02 (mouse-capture-menu-wording) — rows are [prefix, suffix] around {app}; en = prefix only, ko/ja = suffix only.
+// 2026-11-10 (R-48 zh-Hans row order) — zh-Hans = prefix AND suffix: the name sits inside the verb frame, values = catalog verbatim.
 const MORE_COPY = {
   en: [["Don't show again for ", ""], ["Let Tasty handle clicks in ", ""]],
   ko: [["", "에서 다시 보지 않기"], ["", "에서 클릭은 Tasty가 처리"]],
   ja: [["", " では今後表示しない"], ["", " ではクリックを Tasty で処理"]],
+  "zh-Hans": [["不再为 ", " 显示横幅"], ["让 Tasty 处理 ", " 中的点击"]],
 };
 // 2026-11-03 (mouse-capture-menu-unknown-name) — program name unknown → same two rows, DISABLED, worded
 // without a name ("this program"), under a non-interactive reason line. No "(unknown)" placeholder.
@@ -1492,6 +1494,7 @@ const MORE_COPY_UNKNOWN = {
   en: { reason: "Can't tell which program is running, so nothing can be saved.", rows: ["Don't show again for this program", "Let Tasty handle clicks in this program"] },
   ko: { reason: "실행 중인 프로그램을 확인할 수 없어 저장할 수 없습니다.", rows: ["이 프로그램에서 다시 보지 않기", "이 프로그램에서 클릭은 Tasty가 처리"] },
   ja: { reason: "実行中のプログラムを特定できないため、保存できません。", rows: ["このプログラムでは今後表示しない", "このプログラムではクリックを Tasty で処理"] },
+  "zh-Hans": { reason: "无法识别正在运行的程序，因此无法保存。", rows: ["不再为此程序显示横幅", "让 Tasty 处理此程序中的点击"] },
 };
 function BannerMoreMenuUnknownG({ lang = "en", style }) {
   const c = MORE_COPY_UNKNOWN[lang];
