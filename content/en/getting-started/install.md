@@ -1,4 +1,4 @@
-<!-- source-hash: 2bab4d61028a -->
+<!-- source-hash: 5662d7916a3a -->
 # Installation
 
 Tasty installation files for Windows, macOS, and Linux are available on GitHub Releases, organized by architecture. macOS support is for Apple Silicon.
@@ -73,9 +73,9 @@ After the first launch, macOS may show permission prompts for the Downloads, Doc
 
 ## Windows
 
-On a Windows ARM device, download the files with `windows-arm64` in the name. ARM64 files ship in releases newer than 0.12.2, and installing and running them on a Windows ARM device has not been checked yet. Running the x64 files of releases up to 0.12.2, which have no ARM64 files, on a Windows ARM device has not been checked either.
+On a Windows ARM device, download the files with `windows-arm64` in the name. ARM64 files ship in releases newer than 0.12.2.
 
-Windows ARM is supported. The developer’s access to hardware for direct testing is limited. Platform support and the scope verified for an individual release are separate.
+Windows ARM is supported.
 
 - **`.msi` (recommended)** — Double-click and follow the setup wizard. A Start menu shortcut and an "Apps & features" uninstall entry are registered.
 - **`.zip`** — Extract to any folder and run `tasty.exe`.
