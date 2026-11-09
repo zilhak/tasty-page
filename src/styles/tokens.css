@@ -1,4 +1,4 @@
-/* The token tiers, in order: each reads the one above. fonts.css stays out because the site ships no webfont. */
+/* The token tiers, in order: each reads the one above. The D2Coding files load from d2coding.css, on design pages only. */
 @import "../../vendor/tokens/primitives.css";
 @import "../../vendor/tokens/semantic.css";
 @import "../../vendor/tokens/components.css";

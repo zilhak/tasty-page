@@ -6,6 +6,8 @@
    reader's font size and stay relative. Media query conditions stay literal because a query condition cannot
    read a custom property. */
 
+@import "./d2coding.css";
+
 .layout--design {
   grid-template-columns: var(--sidebar-w) minmax(0, 1fr);
   max-width: none;
