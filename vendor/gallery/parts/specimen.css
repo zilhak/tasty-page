@@ -5,6 +5,8 @@
   font-size: var(--tasty-font-size-body);
   line-height: var(--tasty-line-height-ui);
   min-width: 0;
+  /* A specimen's popups keep their real z-index, and it only ranks them against each other. The page's menu, header and skip link stay above the whole gallery. */
+  isolation: isolate;
 }
 [data-gallery-page] [data-theme] { color: var(--tasty-text-primary); }
 [data-gallery-page] a { color: inherit; }
