@@ -2178,14 +2178,14 @@ Contrast is the lowest across the row's grounds.
 | Sidebar group caret, pointer over | `.nav-section > summary:hover::before` | `raised` | `glyph-dim` | `glyph-dim-raised` | 3.40 · 3.65 |
 | Sidebar link | `.nav-list a` | `base`, `mantle` | `text-muted` | `text-muted` | 7.37 · 5.14 |
 | Sidebar link, pointer over | `.nav-list a:hover` | `raised` | `text-body` | `text-primary` | 8.69 · 5.17 |
-| Sidebar current item | `.nav-list a[aria-current="page"]` | `tint-primary@base`, `tint-primary@mantle` | `text-primary` | `accent-primary-raised` | 6.18 · 5.86 |
-| Sidebar description | `.nav-desc` | `base`, `mantle` | `text-muted` | `text-muted` | 7.37 · 5.14 |
-| Sidebar description, pointer over | `.nav-list a:hover .nav-desc` | `raised` | `text-muted` | `text-muted-raised` | 5.65 · 5.17 |
-| Sidebar description, current | `.nav-list a[aria-current="page"] .nav-desc` | `tint-primary@base`, `tint-primary@mantle` | `text-muted` | `text-muted-raised` | 5.84 · 5.63 |
 | Menu button, drawer open | `.menu-btn[aria-expanded="true"]` | `raised` | `glyph` | `text-secondary-raised` | 7.10 · 5.17 |
 | Drawer site link | `.site-menu a` | `mantle` | `text-muted` | `text-muted` | 7.89 · 5.14 |
 | Drawer site link, pointer over | `.site-menu a:hover` | `raised` | `text-body` | `text-primary` | 8.69 · 5.17 |
 | Drawer site link, current | `.site-menu a[aria-current]` | `tint-primary@mantle` | `text-primary` | `accent-primary-raised` | 6.65 · 5.86 |
+| Sidebar current item | `.nav-list a[aria-current="page"]` | `tint-primary@base`, `tint-primary@mantle` | `text-primary` | `accent-primary-raised` | 6.18 · 5.86 |
+| Sidebar description | `.nav-desc` | `base`, `mantle` | `text-muted` | `text-muted` | 7.37 · 5.14 |
+| Sidebar description, pointer over | `.nav-list a:hover .nav-desc` | `raised` | `text-muted` | `text-muted-raised` | 5.65 · 5.17 |
+| Sidebar description, current | `.nav-list a[aria-current="page"] .nav-desc` | `tint-primary@base`, `tint-primary@mantle` | `text-muted` | `text-muted-raised` | 5.84 · 5.63 |
 | Breadcrumb | `.breadcrumb, .breadcrumb a` | `base` | `text-muted` | `text-muted` | 7.37 · 5.53 |
 | Breadcrumb separator | `.breadcrumb .sep` | `base` | `ornament` | `glyph-dim` | no target · no target |
 | Page text | `.prose` | `base` | `text-body` | `text-primary` | 11.34 · 7.06 |
