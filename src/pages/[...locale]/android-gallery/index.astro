@@ -1,0 +1,49 @@
+---
+/** The Android gallery. It takes the design zone's page form from shared files without being one of its pages: lib/design.ts
+ * stays untouched, so the desktop menu, previous and next, and sitemap do not list it. */
+import Base from "../../../layouts/Base.astro";
+import "../../../styles/design.css";
+import "../../../../vendor/gallery/parts/specimen.css";
+import Route, { page } from "../../../../vendor/android/gallery/index.jsx";
+import { DESIGN_LANG, localePaths } from "../../../lib/design";
+import { hrefsFor } from "../../../lib/langs.mjs";
+import { url } from "../../../lib/site";
+
+export const getStaticPaths = localePaths;
+const { lang } = Astro.props;
+const hrefs = hrefsFor((row) => `${row.prefix}android-gallery/`);
+---
+<Base
+  lang={lang}
+  title={`${page.head.title} · Tasty Gallery`}
+  description={page.head.description}
+  hrefs={hrefs}
+  robots="noindex, follow"
+  announceLanguages={false}
+>
+  <Fragment slot="head"><link rel="stylesheet" href={url("design/kit.css")} /></Fragment>
+  <div class="layout layout--design">
+    <aside class="sidebar" aria-label={page.menuGroup} lang={DESIGN_LANG} data-site-chrome>
+      <details class="nav-section" open data-current="">
+        <summary>{page.menuGroup}</summary>
+        <ul class="nav-list">
+          <li>
+            <a href={url(hrefs[lang])} aria-current="page" style="--indent:0">{page.head.title}</a>
+            <ul class="nav-list nav-list--sections">
+              {page.nav.map((n) => <li><a href={`#${n.id}`} style="--indent:1">{n.label}</a></li>)}
+            </ul>
+          </li>
+        </ul>
+      </details>
+    </aside>
+    <main class="content" id="content" lang={DESIGN_LANG}>
+      <header class="design-head">
+        <h1>{page.head.title}</h1>
+        <p class="design-head__intro">{page.head.intro}</p>
+      </header>
+      <div data-gallery-page="android">
+        <Route client:load />
+      </div>
+    </main>
+  </div>
+</Base>
