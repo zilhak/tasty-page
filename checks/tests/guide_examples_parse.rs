@@ -15,7 +15,7 @@ const PAGES: &[&str] = &[
 ];
 
 /// 번역이 들어오는 중이라 폴더가 아직 없을 수 있는 언어. 언어 행을 더할 때 비운다.
-const MAY_BE_ABSENT: &[&str] = &["ja", "zh"];
+const MAY_BE_ABSENT: &[&str] = &[];
 
 /// plugin이 더하는 최상위 명령. 코어 parser에 없으므로 건너뛴다.
 const PLUGIN_TOP: &[&str] = &[
