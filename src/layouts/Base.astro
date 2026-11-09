@@ -82,6 +82,15 @@ const defaultHref = hrefs[DEFAULT_LANG];
         } catch (e) {}
       })();
     </script>
+    <noscript>
+      <style is:inline>
+        /* The drawer needs a script. Without one the header keeps its links in a second row. */
+        @media (max-width: 900px) {
+          html .site-header { position: static; flex-wrap: wrap; height: auto; min-height: var(--header-h); padding-block: var(--sp-2); }
+          html .site-nav { display: flex; order: 3; flex-basis: 100%; margin-left: 0; overflow-x: auto; }
+        }
+      </style>
+    </noscript>
     <slot name="head" />
     <Analytics />
   </head>
@@ -89,7 +98,7 @@ const defaultHref = hrefs[DEFAULT_LANG];
     <a class="visually-hidden" href="#content">{s.skipToContent}</a>
 
     <header class="site-header" data-site-chrome>
-      <button class="icon-btn menu-btn" type="button" aria-label={s.toggleNav} aria-expanded="false">
+      <button class="icon-btn menu-btn" type="button" aria-label={s.siteNav} aria-expanded="false">
         <Fragment set:html={icon.MENU} />
       </button>
       <a class="brand" href={landing}>
