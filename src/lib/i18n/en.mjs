@@ -54,7 +54,7 @@ export default {
   landing: {
     badge: "Windows · macOS · Linux",
     tagline: "A terminal for everyday work and AI agents.",
-    titleLead: "A terminal",
+    titleLead: "A terminal ",
     titleAccent: "to your taste.",
     titleTail: "",
     body: "Tasty is a terminal with project workspaces and split layouts. Working terminals and test logs can sit side by side, with multiple AI agents running at the same time in their own terminals.",

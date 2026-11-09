@@ -54,9 +54,9 @@ export default {
   landing: {
     badge: "Windows · macOS · Linux",
     tagline: "AI 에이전트와 쓰기에도 편한 터미널",
-    titleLead: "입맛에 맞게 쓰는",
+    titleLead: "입맛에 맞게 쓰는 ",
     titleAccent: "터미널,",
-    titleTail: "Tasty.",
+    titleTail: " Tasty.",
     body: "Tasty는 프로젝트별 워크스페이스와 화면 분할을 제공하는 터미널입니다. 작업용 터미널과 테스트 로그를 나란히 두고, 여러 AI 에이전트도 각각의 터미널에서 동시에 실행할 수 있습니다.",
     ctaPrimary: "다운로드",
     ctaSecondary: "설치 가이드",
