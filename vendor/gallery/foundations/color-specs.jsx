@@ -73,9 +73,9 @@ export function AccentMapSpec() {
   return (
     <Spec id="semantic-accent-roles" title="Semantic — accent roles"
       when={<>Status + agent accent mapping. A band is the role's base accent. Text and glyph rows above use its <span className="ic">-raised</span> ink, which in Latte is a mix and not the raw hue.</>}>
-      <Stage variant="solo" style={{ gap: "var(--tasty-space-sm)" }}>
+      <Stage variant="solo" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(var(--tasty-size-120), 1fr))", gap: "var(--tasty-space-sm)" }}>
         {ROLES.map(([role, tok, hue]) => (
-          <div key={tok} style={{ flex: "1 1 var(--tasty-size-120)", minWidth: 0, background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
+          <div key={tok} style={{ minWidth: 0, background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
             <div style={{ height: "var(--tasty-size-8)", background: `var(${tok})` }} />
             <div style={{ padding: "var(--tasty-space-sm)" }}>
               <div style={{ fontSize: SMALL, fontWeight: "var(--tasty-font-weight-semibold)", color: "var(--tasty-text-primary)" }}>{role}</div>
