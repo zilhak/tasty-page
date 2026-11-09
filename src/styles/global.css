@@ -915,6 +915,18 @@ pre.astro-code span[style*="#6A737D"] { color: var(--tasty-site-code-comment) !i
   .page-nav { flex-direction: column; }
 }
 
+/* The collapsed search box leaves 460px beside it only above this width. Below it the
+   panel would start off screen, so it takes the edges of the header's own content. */
+@media (max-width: 640px) {
+  .search__results {
+    position: fixed;
+    top: calc(var(--header-h) + var(--sp-2));
+    left: var(--sp-5);
+    right: var(--sp-5);
+    width: auto;
+  }
+}
+
 @media print {
   .site-header, .sidebar, .nav-scrim, .toc, .page-nav, .site-footer, .copy-btn { display: none !important; }
   .layout { grid-template-columns: 1fr; }
