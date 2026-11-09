@@ -203,6 +203,48 @@ function AnsiCol({ heading, rows }) {
   );
 }
 // state fill rendered onto a faux terminal line
+// A word with the line a terminal cell draws. One thickness for every kind; the browser draws the pattern.
+function CellLine({ kind = "solid", line = "underline", color, style, children }) {
+  return <span style={{ textDecorationLine: line, textDecorationStyle: kind, textDecorationThickness: "var(--tasty-border-width)", textUnderlineOffset: "var(--tasty-border-width)", textDecorationColor: color, ...style }}>{children}</span>;
+}
+function CellLinesFrame({ label, th, focused, kinds, sgr, overlap }) {
+  const bed = focused ? "var(--tasty-surface-bed-focused)" : "var(--tasty-surface-bed-unfocused)";
+  const ink = focused ? "var(--tasty-surface-terminal-focused-fg)" : "var(--tasty-surface-terminal-unfocused-fg)";
+  const cap = { fontFamily: "var(--tasty-font-ui)", fontSize: 11, color: "var(--tasty-text-muted)", marginTop: 6 };
+  const row = { display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-md)" };
+  return (
+    <div data-theme={th} style={{ flex: "1 1 40%", minWidth: 0, padding: "8px 12px", background: bed, borderRadius: "var(--tasty-radius)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-term)", lineHeight: "var(--tasty-line-height-term)", color: ink }}>
+      <div style={{ ...cap, marginTop: 0 }}>{label}</div>
+      <div style={cap}>{kinds}</div>
+      <div style={row}>
+        <CellLine>single</CellLine>
+        <CellLine kind="double">double</CellLine>
+        <CellLine kind="wavy">curly</CellLine>
+        <CellLine kind="dotted">dotted</CellLine>
+        <CellLine kind="dashed">dashed</CellLine>
+        <CellLine line="line-through">strike</CellLine>
+        <CellLine line="overline">over</CellLine>
+      </div>
+      <div style={cap}>{sgr}</div>
+      <div style={row} data-audit-exempt="terminal-attributes">
+        <CellLine color="var(--tasty-ansi-red)">default</CellLine>
+        <CellLine color="var(--tasty-ansi-red)" style={{ background: "var(--tasty-selection-bg)", color: "var(--tasty-text-on-active)" }}>selected</CellLine>
+        <CellLine color="var(--tasty-ansi-red)" style={{ background: "var(--tasty-search-match-bg)", color: "var(--tasty-text-primary)" }}>match</CellLine>
+        <CellLine color="var(--tasty-ansi-red)" style={{ color: `color-mix(in srgb, ${ink} 50%, ${bed})` }}>dim</CellLine>
+        <CellLine color="var(--tasty-ansi-red)" style={{ background: ink, color: bed }}>reverse</CellLine>
+      </div>
+      <div style={cap}>{overlap}</div>
+      <div style={row}>
+        <CellLine style={{ background: "var(--tasty-selection-bg)", color: "var(--tasty-text-on-active)" }}>selected</CellLine>
+        <CellLine style={{ background: "var(--tasty-search-match-bg)", color: "var(--tasty-text-primary)" }}>match</CellLine>
+        <CellLine style={{ background: "var(--tasty-search-match-active-bg)", color: focused ? "var(--tasty-search-match-active-fg)" : "var(--tasty-search-match-active-unfocused-fg)" }}>active</CellLine>
+        <CellLine style={{ background: "var(--tasty-vi-cursor-bg)", color: "var(--tasty-vi-cursor-fg)" }}>vi</CellLine>
+        {focused && <CellLine style={{ background: ink, color: bed }}>block</CellLine>}
+        <CellLine color="var(--tasty-accent-primary-raised)" style={{ background: "var(--tasty-selection-bg)", color: "var(--tasty-text-on-active)" }}>link</CellLine>
+      </div>
+    </div>
+  );
+}
 function Hi({ tok, children }) {
   return <span style={{ background: `var(${tok})`, color: tok.includes("match-active") ? "var(--tasty-search-match-active-fg)" : tok.includes("selection") ? "var(--tasty-text-on-active)" : "var(--tasty-text-primary)", borderRadius: 2, padding: "0 1px" }}>{children}</span>;
 }
@@ -404,6 +446,25 @@ function Foundations() {
             ))}
           </div>
           <Dont><b>Don't</b> use an ANSI color for UI chrome or an accent for terminal output — <span className="ic">ansi-green</span> and <span className="ic">accent-success</span> are different roles that only happen to share a hue.</Dont>
+        </Spec>
+        <Spec id="cell-lines-and-color" title="Cell lines and color"
+          when={<>A terminal cell can draw a link underline, five program underline kinds (single, double, curly, dotted, dashed), a strikethrough and an overline. All share thickness T = max(1, round(H / 16)) device pixels, where H is cell height in device pixels, so T follows font size and zoom. Lines stay inside their cells and do not animate; program lines without an underline color use the ink the cell draws, following selection, match and cursor ink.</>}>
+          <Stage variant="solo column" style={{ gap: 12, padding: "10px 26px" }}>
+            <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+              {[["Mocha, focused", "mocha", true], ["Latte, focused", "latte", true], ["Mocha, unfocused", "mocha", false], ["Latte, unfocused", "latte", false]].map(([lab, th, focused]) => (
+                <CellLinesFrame key={lab} label={lab} th={th} focused={focused} kinds="Five underlines and two other lines" sgr="SGR 58 underline color" overlap="Lines on selection, match, cursor, link" />
+              ))}
+            </div>
+          </Stage>
+          <Meta
+            specs={[["thickness", "Shared T = max(1, round(H / 16)) device pixels"], ["position", "Underlines just below baseline; strikethrough through glyph middles; overline atop cell"], ["color", "Drawn cell ink; SGR 58 overrides underline where retained"], ["paint order", "Fill, underline, glyph, strikethrough, overline"]]}
+            tokens={[
+              { tok: "--tasty-accent-primary-raised", use: "link underline", color: "var(--tasty-accent-primary-raised)" },
+              { tok: "--tasty-selection-bg", use: "selection and link fill", color: "var(--tasty-selection-bg)" },
+              { tok: "--tasty-text-on-active", use: "selection and link ink", color: "var(--tasty-text-on-active)" },
+            ]} />
+          <Note>SGR 58 colors only the underline and stays on selections, ordinary matches, reverse cells and dim cells with no pair promised, but gives way on active matches, cursor cells and links under the pointer; on a link under the pointer, the blue underline replaces the program underline while strikethrough and overline stay. A row restored from disk scrollback or a replica can lose its underline kind or SGR 58 color, then draws a single underline in cell ink with nothing marking the change. The specimen uses browser text decoration, so exact double, curly, dotted and dashed patterns follow the browser; the app follows the table in RULES section 4.</Note>
+          <Dont><b>Don't</b> draw a line outside its cell or give each kind its own thickness.</Dont>
         </Spec>
         <AnsiSixteenSpec />
       </Section>

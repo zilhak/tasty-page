@@ -286,7 +286,7 @@ Three layers, three answers:
 
 | Layer | In the rules? | What holds |
 |---|---|---|
-| ANSI colors, reverse video, reverse screen, bold, dim, cell backgrounds | No | The running program picks them. The `ansi-*` tokens are the palette. No pair is promised. |
+| ANSI colors, reverse video, reverse screen, bold, dim, underline, strikethrough, overline, underline color (SGR 58), cell backgrounds | No | The running program picks them. The `ansi-*` tokens are the palette. No pair is promised. |
 | Default cell ink and the surface fill | Yes | `surface-terminal-focused-fg` on `term`, `surface-terminal-unfocused-fg` on `term-unfocused`. |
 | What the app draws over cells | Yes | Below. |
 
@@ -310,6 +310,58 @@ The overlay ink applies to default cell ink: any cell with no color of its own, 
 - **Block cursor.** The cell swaps its ink and fill, and the match fill lies over the swapped fill: 15.08 · 5.73 focused. An unfocused terminal draws no block cursor, so this cell does not occur there. A cursor shape a program paints with SGR 7 is a cell value, not this cell.
 - **Vi cursor.** The cell keeps `vi-cursor-fg`: 10.48 · 6.60 on `term-cursor`, and 11.59 · 6.53 if the match fill lies over it. It holds either way.
 - **Link under the pointer.** The cell reads as a selection with a blue underline, in an ordinary match, in the active match and outside any match, on either bed. Neither match fill paints on it, because `text-on-active` would be 2.56 in Mocha over the ordinary fill, and on the active fill it would be 1.82 · 7.36 focused and 1.63 · 6.24 unfocused, with the underline at 1.25 · 5.23 and 1.12 · 4.43. The rest of the match keeps its fill, and the cell returns to the match in one frame when the pointer or the modifier leaves. A cursor cell inside the link stays a cursor cell. `accent-primary` on the words would be 3.17 · 2.27, under the text grade. The underline is the one hue a terminal layer holds, and the shape and fill tell the state.
+
+### Lines a cell draws
+
+A cell can draw a link underline, a program underline of five kinds, a strikethrough and an overline. They share one thickness, and the color and geometry come from the cell, so they need no token. Only the link underline is in the rules. A program line is in the program layer above, and it holds no grade of its own.
+
+All lengths are device pixels, and every line except the curly one lands on whole rows. `H` is the cell height. `B` is the first row under the baseline the grid uses. `A` is `B` minus the cell top. The font's own line metrics are not read, so a fallback or CJK glyph in a run does not move the line.
+
+`T = max(1, round(H / 16))`, rounding half up. `H` already holds the font size and every zoom, so a line scales with its cell. It is not a zoom-exempt hairline. At the default 14px cell, `H` 17 gives `T` 1, 200% gives `H` 34 and `T` 2, and 300% gives `H` 51 and `T` 3.
+
+| Line | Thickness | Top edge | Shape | Color | SGR 58 | Paint step |
+|---|---|---|---|---|---|---|
+| Link underline | `T` | as single | Solid | `accent-primary-raised` | Ignored | 3 |
+| Underline, single | `T` | `U` with `h = T` | Solid | Cell ink | Replaces the color | 3 |
+| Underline, double | `T` each | `U` with `h = 3T` | Two solid lines, a gap of `T` | Cell ink | Replaces the color | 3 |
+| Underline, curly | `T` | `U` with `h = 3T` | Center at top + `1.5T`, swing `T` each way, period `8T` | Cell ink | Replaces the color | 3 |
+| Underline, dotted | `T` | `U` with `h = T` | On `T`, off `T` | Cell ink | Replaces the color | 3 |
+| Underline, dashed | `T` | `U` with `h = T` | On `3T`, off `2T` | Cell ink | Replaces the color | 3 |
+| Strikethrough | `T` | `B - round(A / 3) - floor(T / 2)` | Solid | Cell ink | Does not apply | 5 |
+| Overline | `T` | Cell top | Solid | Cell ink | Does not apply | 6 |
+
+`U = min(B + T, cell bottom - h)`. A line stays inside its cell, because the next row's fill would cover it. The phase of the dotted, dashed and curly lines runs from the left edge of the grid, so neighbor cells meet with no seam. A line belongs to each cell that has the attribute: a wide glyph draws it across both of its cells and a blank cell draws it too. Bold and italic do not change a line. Hidden cells (SGR 8) draw no program line. No line moves, fades or animates, and each appears in one frame.
+
+**Cell ink** is the ink the cell draws after every rule above, including dim and reverse. So a line with no SGR 58 needs no pair of its own: it has the value of its glyph. SGR 58 draws through the same palette as cell color, and no pair is promised. It is not blended by dim.
+
+| Cell | Line with no SGR 58 | Focused, Mocha · Latte | Unfocused, Mocha · Latte | Underline with SGR 58 |
+|---|---|---|---|---|
+| Default cell | `surface-terminal-focused-fg`, `surface-terminal-unfocused-fg` | 14.52 · 7.99 | 7.37 · 4.73 | Stays |
+| ANSI color cell | Its color | No pair | No pair | Stays |
+| Dim, outside a match | The blend | 3.95 · 2.39, no pair | 2.89 · 1.97, no pair | Stays |
+| Reverse cell or reverse screen | The ink the cell draws | No pair | No pair | Stays |
+| Selection | `text-on-active` | 4.62 · 5.40 | 4.62 · 5.40 | Stays |
+| Ordinary match | `text-primary` | 6.67 · 6.06 | 4.75 · 4.88 | Stays |
+| Active match | `search-match-active-fg`, `search-match-active-unfocused-fg` | 6.23 · 5.03 | 6.95 · 11.21 | Gives way |
+| Vi cursor | `vi-cursor-fg` | 10.48 · 6.60 | 10.48 · 6.60 | Gives way |
+| Block cursor | The swapped ink | 14.52 · 7.99, in a match 15.08 · 5.73 | Does not occur | Gives way |
+| Link under the pointer | `accent-primary-raised` | 3.17 · 3.84 | 3.17 · 3.84 | Gives way |
+
+**A link under the pointer replaces the program underline** in each of its cells, whatever the kind or color, so one row of the cell never holds two underlines. The cell's strikethrough and overline stay, in `text-on-active`. A cursor cell inside the link draws the underline in the cursor's ink, because the blue would be 1.18 · 2.61 on `term-cursor` and 1.46 · 1.04 on a swapped fill. When the pointer leaves, the program underline comes back in one frame.
+
+**Lost attributes.** A row restored from disk scrollback or a replica can lose the kind or SGR 58. It draws what it still has: an unknown kind is single, and no color is cell ink. Nothing marks the change, because nothing in it is for a user to act on.
+
+**Paint order,** bottom to top:
+
+1. Bed and cell background
+2. Overlay fill: selection, match or cursor
+3. Underline, program or link
+4. Glyph
+5. Strikethrough
+6. Overline
+7. A cursor that is not a block: bar or underline
+
+The glyph sits over the underline so a descender stays readable on a line of another color. With cell ink the two steps look the same, so the order shows only for SGR 58 and the link. Send it back to design if the order cannot hold.
 
 ## 5. Roles and grades
 
@@ -2219,7 +2271,7 @@ What carries over to a user theme is only the structure of token choice: each ce
 | Target | Gallery id | Why |
 |---|---|---|
 | `ansi-*` | `ansi-content` | Terminal content. The running program picks the color. |
-| `terminal cell attributes` | `terminal-attributes` | Reverse video, bold, dim and SGR colors come from the program. |
+| `terminal cell attributes` | `terminal-attributes` | Reverse video, bold, dim, underline, strikethrough, overline and SGR colors come from the program. |
 | `html page content` | `html-page` | A web page paints itself. |
 | `plugin webview content` | `plugin-webview` | Same as a web page. Host chrome around it stays in the rules. |
 | `third-party egui-mesh plugin pixels` | `third-party-plugin` | The plugin tessellates in its own process, so the host cannot check its colors. Using the host Theme tokens is a documented promise. Bundled plugins stay in the rules. |
