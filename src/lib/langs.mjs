@@ -6,7 +6,9 @@
  * contentDir is the language's translation tree under content/, and null for the
  * canonical language, whose pages sit directly in content/. code goes to hreflang
  * and <html lang>; never build a path from it, because a path may differ from the
- * code. */
+ * code. browserMatch is the pattern of lower-case language tags and saved codes that
+ * the first page sends to this language. The default language has none: it stays
+ * where it is. */
 export const LANGS = [
   {
     code: "en",
@@ -28,6 +30,7 @@ export const LANGS = [
     landing: "ko/",
     guide: "ko/guide/",
     contentDir: null,
+    browserMatch: "^ko(-|$)",
     privacy: "ko/privacy/",
     searchIndex: "search-index.ko.json",
     shareImage: "tasty-share-ko.png",

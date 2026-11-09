@@ -23,7 +23,7 @@
   }
 
   /* A language picked here outranks the browser language on the next visit to
-     the landing page. See the redirect in pages/index.astro. */
+     the landing page. See the redirect in pages/[...locale]/index.astro. */
   document.querySelectorAll(".lang-switch a[data-lang]").forEach(function (link) {
     link.addEventListener("click", function () {
       try { localStorage.setItem("tasty-lang", link.getAttribute("data-lang")); } catch (e) { /* private mode */ }
