@@ -1,5 +1,6 @@
 import type { Lang } from "./guide";
 import { dictionaryFor } from "./i18n/index.mjs";
+import { DEFAULT_LANG, langRow } from "./langs.mjs";
 import { RELEASES_URL, releaseVersion } from "./release";
 import { REPO, absolute } from "./site";
 
@@ -11,7 +12,7 @@ const softwareApplication = (lang: Lang) => {
     name: "Tasty",
     applicationCategory: "DeveloperApplication",
     operatingSystem: "Windows, macOS, Linux",
-    url: absolute(lang === "en" ? "" : "ko/"),
+    url: absolute(langRow(lang).landing),
     description: dictionaryFor(lang).meta.description,
     downloadUrl: RELEASES_URL,
     // Only the published release: it is the version visitors can download.
@@ -29,5 +30,5 @@ const webSite = () => ({ "@type": "WebSite", name: "Tasty", url: absolute("") })
 export const landingJsonLd = (lang: Lang) =>
   JSON.stringify({
     "@context": "https://schema.org",
-    "@graph": lang === "en" ? [softwareApplication(lang), webSite()] : [softwareApplication(lang)],
+    "@graph": langRow(lang).code === DEFAULT_LANG ? [softwareApplication(lang), webSite()] : [softwareApplication(lang)],
   }).replace(/</g, "\\u003c");

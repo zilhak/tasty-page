@@ -1,8 +1,9 @@
 ---
 /** Guide page: sidebar, article, table of contents. */
 import Base from "./Base.astro";
-import { SECTIONS, titleIn, navLabelIn, descriptionIn, stateOf, TRANSLATION_DIR } from "../lib/guide";
+import { SECTIONS, titleIn, navLabelIn, descriptionIn, stateOf, sourceRelIn } from "../lib/guide";
 import type { Page, Lang } from "../lib/guide";
+import { CANONICAL_LANG, hrefsFor, langRow } from "../lib/langs.mjs";
 import { pathOf } from "../lib/urls";
 import { sectionLabel, stringsFor } from "../lib/strings";
 import { SITE_REPO, url } from "../lib/site";
@@ -36,8 +37,7 @@ const groups = SECTIONS.map((_, i) => ({
 })).filter((g) => g.items.length > 0);
 
 // "View on GitHub" points at whichever file the reader is actually looking at.
-const sourceRel =
-  lang === "en" && page.translation ? `${TRANSLATION_DIR}/${page.rel}` : page.rel;
+const sourceRel = sourceRelIn(page, lang);
 
 const toc = headings.filter((h) => h.depth === 2 || h.depth === 3);
 ---
@@ -46,7 +46,7 @@ const toc = headings.filter((h) => h.depth === 2 || h.depth === 3);
   title={documentTitle}
   description={descriptionIn(page, lang)}
   active="guide"
-  hrefs={{ en: pathOf(page, "en"), ko: pathOf(page, "ko") }}
+  hrefs={hrefsFor((row) => pathOf(page, row.code))}
   ogType="article"
 >
   {hasDiagram && (
@@ -77,7 +77,7 @@ const toc = headings.filter((h) => h.depth === 2 || h.depth === 3);
 
     <main class="content" id="content">
       <nav class="breadcrumb" aria-label={s.breadcrumb}>
-        <a href={url(`${lang === "en" ? "guide" : "ko/guide"}/`)}>{s.dirDocs}</a>
+        <a href={url(langRow(lang).guide)}>{s.dirDocs}</a>
         <span class="sep" aria-hidden="true" data-ink-grade="none" data-ink-why="ornament">/</span>
         <span>{category}</span>
       </nav>
@@ -90,7 +90,7 @@ const toc = headings.filter((h) => h.depth === 2 || h.depth === 3);
       {state === "stale" && (
         <div class="note">
           <p>{s.stale}</p>
-          <a href={url(pathOf(page, "ko"))}>{s.translateCta} →</a>
+          <a href={url(pathOf(page, CANONICAL_LANG))}>{s.translateCta} →</a>
         </div>
       )}
 

@@ -10,8 +10,10 @@
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { LANGS, langRow } from "./langs.mjs";
 
-export type Lang = "ko" | "en";
+/** A language code from langs.mjs. */
+export type Lang = string;
 
 /** Sidebar sections in reading order, by directory. The empty one is the guide home. Labels live in the language dictionaries. */
 export const SECTIONS: string[] = ["", "getting-started", "using", "customize", "agents", "remote", "plugins", "help"];
@@ -42,7 +44,6 @@ export const ORDER: string[] = [
   "help/cli-diagnostics",
 ];
 
-export const TRANSLATION_DIR = "en";
 const STAMP_PREFIX = "<!-- source-hash:";
 const CONTENT_DIR = "content";
 
@@ -106,6 +107,8 @@ export function navLabel(title: string, rel: string): string {
   return label || rel;
 }
 
+type Translation = { title: string; navLabel: string; description: string; stamp: string | null };
+
 export type Page = {
   /** Path under content/, without extension: `using/terminal`. */
   rel: string;
@@ -115,7 +118,8 @@ export type Page = {
   description: string;
   /** Hash of the Korean source; a translation is stamped with it. */
   sourceHash: string;
-  translation: { title: string; navLabel: string; description: string; stamp: string | null } | null;
+  /** The page's translations, by the contentDir of their language row. */
+  translations: Record<string, Translation>;
 };
 
 const read = (root: string, rel: string): string | null => {
@@ -136,8 +140,19 @@ export function buildPages(root: string): Page[] {
     if (section < 0) throw new Error(`content/${rel}.md sits in a directory with no sidebar section`);
 
     const title = titleOf(source, rel);
-    const translated = read(root, `${TRANSLATION_DIR}/${rel}`);
-    const tTitle = translated ? titleOf(translated, title) : null;
+    const translations: Record<string, Translation> = {};
+    for (const { contentDir } of LANGS) {
+      if (!contentDir) continue;
+      const translated = read(root, `${contentDir}/${rel}`);
+      if (!translated) continue;
+      const tTitle = titleOf(translated, title);
+      translations[contentDir] = {
+        title: tTitle,
+        navLabel: navLabel(tTitle, rel),
+        description: descriptionOf(translated, tTitle),
+        stamp: readStamp(translated),
+      };
+    }
 
     return {
       rel,
@@ -146,25 +161,30 @@ export function buildPages(root: string): Page[] {
       navLabel: navLabel(title, rel),
       description: descriptionOf(source, title),
       sourceHash: contentHash(source),
-      translation: translated
-        ? {
-            title: tTitle!,
-            navLabel: navLabel(tTitle!, rel),
-            description: descriptionOf(translated, tTitle!),
-            stamp: readStamp(translated),
-          }
-        : null,
+      translations,
     };
   });
 }
+
+/** The translation a language shows for a page. Null for the canonical language and for a page with no translation. */
+const translationIn = (page: Page, lang: Lang): Translation | null => {
+  const { contentDir } = langRow(lang);
+  return contentDir ? (page.translations[contentDir] ?? null) : null;
+};
 
 /** How a page stands in one language. */
 export type PageState = "canonical" | "translated" | "stale" | "untranslated";
 
 export function stateOf(page: Page, lang: Lang): PageState {
-  if (lang === "ko") return "canonical";
-  if (!page.translation) return "untranslated";
-  return page.translation.stamp === page.sourceHash ? "translated" : "stale";
+  if (!langRow(lang).contentDir) return "canonical";
+  const translation = translationIn(page, lang);
+  if (!translation) return "untranslated";
+  return translation.stamp === page.sourceHash ? "translated" : "stale";
+}
+
+/** The file a language shows for a page, relative to content/ and without extension. */
+export function sourceRelIn(page: Page, lang: Lang): string {
+  return translationIn(page, lang) ? `${langRow(lang).contentDir}/${page.rel}` : page.rel;
 }
 
 /**
@@ -175,17 +195,13 @@ export function stateOf(page: Page, lang: Lang): PageState {
  * the name `index`.
  */
 export function entryIdFor(page: Page, lang: Lang): string {
-  const path =
-    lang === "en" && page.translation ? `${TRANSLATION_DIR}/${page.rel}` : page.rel;
+  const path = sourceRelIn(page, lang);
   return path === "index" ? path : path.replace(/\/index$/, "");
 }
 
-export const titleIn = (p: Page, lang: Lang) =>
-  lang === "en" && p.translation ? p.translation.title : p.title;
-export const descriptionIn = (p: Page, lang: Lang) =>
-  lang === "en" && p.translation ? p.translation.description : p.description;
-export const navLabelIn = (p: Page, lang: Lang) =>
-  lang === "en" && p.translation ? p.translation.navLabel : p.navLabel;
+export const titleIn = (p: Page, lang: Lang) => (translationIn(p, lang) ?? p).title;
+export const descriptionIn = (p: Page, lang: Lang) => (translationIn(p, lang) ?? p).description;
+export const navLabelIn = (p: Page, lang: Lang) => (translationIn(p, lang) ?? p).navLabel;
 
-/** URL prefix of a language tree. English is the default (`/guide/`). */
-export const prefixOf = (lang: Lang) => (lang === "en" ? "guide" : "ko/guide");
+/** Route prefix of a language's guide, without a trailing slash: `guide`, `ko/guide`. */
+export const prefixOf = (lang: Lang) => langRow(lang).guide.replace(/\/$/, "");

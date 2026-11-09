@@ -1,9 +1,10 @@
 ---
 import Base from "../../layouts/Base.astro";
 import Privacy from "../../components/Privacy.astro";
+import { hrefsFor } from "../../lib/langs.mjs";
 import { stringsFor } from "../../lib/strings";
 const s = stringsFor("en");
 ---
-<Base lang="en" title={`${s.privacyTitle} · Tasty`} description={s.privacyDescription} hrefs={{ en: "privacy/", ko: "ko/privacy/" }}>
+<Base lang="en" title={`${s.privacyTitle} · Tasty`} description={s.privacyDescription} hrefs={hrefsFor((row) => row.privacy)}>
   <Privacy lang="en" />
 </Base>

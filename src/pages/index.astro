@@ -2,13 +2,14 @@
 import Base from "../layouts/Base.astro";
 import Landing from "../components/Landing.astro";
 import { dictionaryFor } from "../lib/i18n/index.mjs";
+import { hrefsFor } from "../lib/langs.mjs";
 import { url } from "../lib/site";
 import { landingJsonLd } from "../lib/structured-data";
 
 const meta = dictionaryFor("en").meta;
 const korean = url("ko/");
 ---
-<Base lang="en" title={meta.title} description={meta.description} hrefs={{ en: "", ko: "ko/" }}>
+<Base lang="en" title={meta.title} description={meta.description} hrefs={hrefsFor((row) => row.landing)}>
   <Fragment slot="head">
     <meta name="naver-site-verification" content="5da8d0987466907d092c6f94e26364e785acf65b" />
     <link rel="stylesheet" href={url("design/kit.css")} />

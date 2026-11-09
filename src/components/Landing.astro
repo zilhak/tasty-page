@@ -1,6 +1,7 @@
 ---
 
 import { dictionaryFor } from "../lib/i18n/index.mjs";
+import { langRow } from "../lib/langs.mjs";
 import { copyFor } from "../lib/landing";
 import { downloads, RELEASES_URL } from "../lib/release";
 import { REPO, url } from "../lib/site";
@@ -12,11 +13,11 @@ import * as icon from "./icons";
 import "../styles/app-shell.css";
 import "../styles/landing.css";
 
-interface Props { lang: "ko" | "en" }
+interface Props { lang: string }
 const { lang } = Astro.props;
 const c = copyFor(lang);
 const version = releaseVersion(process.cwd());
-const guide = lang === "en" ? "guide/" : "ko/guide/";
+const guide = langRow(lang).guide;
 const install = `${guide}getting-started/install/`;
 const { items } = downloads(process.cwd());
 
