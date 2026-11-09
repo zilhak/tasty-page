@@ -4,6 +4,8 @@ Every component contract and location of `tokens/ground-ink-rules.json` against 
 
 How this was checked: specimens were matched by reading the sources for each contract's tokens and component names, on 2026-11-05. It is not a rendered inventory. The rendered check in `gallery/README.md` replaces this table's last column once frozen cells exist.
 
+Foundations and the token page own no contract beyond the tint box rows below. Their specimens are measured as ordinary page text.
+
 ## Summary
 
 | Measure | Count | Missing before this change | Missing now |

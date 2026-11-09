@@ -20,7 +20,7 @@ The 15 URLs do not change, so `/design/gallery/<key>/` keeps its current path. T
 
 | Group | Label | Key | Holds |
 |---|---|---|---|
-| Foundations | Foundations | `foundations` (`index.html`) | Elevation, floating surfaces, text, accents, ANSI, type, spacing, shape, UI scale, role gaps, tint box, share image |
+| Foundations | Foundations | `foundations` (`index.html`) | Brand, raw palette in both themes, elevation, overlays, floating surfaces, text, accents, ANSI, type, weights, spacing, shape, heights, motion, UI scale, role gaps, tint box, share image |
 | Foundations | Icons | `icons` | The icon system, modifier symbols, every glyph |
 | Foundations | Rules | `rules` | Every ground by role, all 9 groups stacked with no tabs. Site pages. Colors told apart |
 | Foundations | Location map | `rules-map` | Every location in Mocha and Latte |
@@ -35,6 +35,8 @@ The 15 URLs do not change, so `/design/gallery/<key>/` keeps its current path. T
 | Surfaces | Task DAG | `dag` | Canvas, node, phases, edges, routes, chrome, runner, rows, detail, empty and cycle, hosts |
 | Surfaces | Plugin surfaces | `plugins` | Explorer, Markdown, HTML, Image |
 | Surfaces | Explorer file ops | `explorer-ops` | Create, drag, search, remote writes, delete, staging, properties, results |
+
+The token page at `/design/tokens/` is outside these 15. Its source is `tokens/index.jsx`, in the specimen form. It reads names, references and values from `tokens/tasty.tokens.json` at render, shows both themes in the HTML, and needs no client script, so render it without hydration.
 
 ### One specimen
 
@@ -198,7 +200,7 @@ exact dimensions, and the tokens it consumes — and why.
 ## Pages
 | File | Catalog | Covers |
 |------|---------|--------|
-| `index.html` | **Foundations** | Color (elevation ramp, text, accent roles), **Elevation — floating surfaces (the two shadows + the scope rule)**, Type, Spacing, Radius/border/motion — each token shown inside the thing it builds, plus **Role gaps — settled** (borrowed color roles, half-pixel type snapping, the one tinted-box opacity pair). |
+| `index.html` | **Foundations** | **Brand** (logo and wordmark, watermelon palette, terminal specimen), **raw palette** in Mocha and Latte, Color (elevation ramp, overlays, text, accent roles), **Elevation — floating surfaces (the two shadows + the scope rule)**, Type (mono, UI sans, weights), Spacing, Radius/border, heights, motion — each token shown inside the thing it builds, plus **Role gaps — settled** (borrowed color roles, half-pixel type snapping, the one tinted-box opacity pair). |
 | `icons.html` | **Icons** | The canonical glyph set (`icons/<name>.svg`, mirrored in `icons.json` + `Icon.jsx`), rendered by name through `<Icon>`. |
 | `rules.html` | **Rules** | Every ground × role cell of `tokens/ground-ink-rules.json`, painted with the real tokens, with the measured contrast of the current theme. |
 | `rules-map.html` | **Location map** | Each window location with its ground and the child grounds it may hold, in Mocha and Latte side by side. |
