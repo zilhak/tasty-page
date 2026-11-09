@@ -472,7 +472,7 @@ function DagEmpty({ variant = "surface", query = "" }) {
   return (
     <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
       gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-xl)", textAlign: "center", fontFamily: "var(--tasty-font-ui)" }}>
-      <span style={{ display: "inline-flex", color: "var(--tasty-text-disabled)" }}><Icon name={copy.icon} size="var(--tasty-size-24)" /></span>
+      <span style={{ display: "inline-flex", color: "var(--tasty-glyph-dim)" }}><Icon name={copy.icon} size="var(--tasty-size-24)" /></span>
       <span style={{ fontSize: "var(--tasty-font-size-body)", fontWeight: "var(--tasty-font-weight-semibold)", color: "var(--tasty-text-secondary)" }}>{copy.title}</span>
       <span style={{ maxWidth: "var(--tasty-measure-sm)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)", textWrap: "pretty" }}>{copy.body}</span>
     </div>

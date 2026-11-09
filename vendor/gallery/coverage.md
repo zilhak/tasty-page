@@ -10,9 +10,9 @@ Foundations and the token page own no contract beyond the tint box rows below. T
 
 | Measure | Count | Missing before this change | Missing now |
 |---|---|---|---|
-| Contracts | 84 | 4 | 0 |
+| Contracts | 85 | 4 | 0 |
 | Locations | 41 | 5 | 0 |
-| Frozen cells (component, state, host) with `data-contract` | 425 | 414 | 0 |
+| Frozen cells (component, state, host) with `data-contract` | 428 | 414 | 0 |
 
 The 4 contracts and 5 locations had no gallery specimen and now have one. Each page's `states.jsx` names the contracts it owns, and `parts/contract-cells.jsx` draws their cells.
 
@@ -91,6 +91,7 @@ The 4 contracts and 5 locations had no gallery specimen and now have one. Each p
 | DAG runner badge.stalled | `dag#runner` | dag part | 1 | rest | `base` | demo and states |
 | DAG runner badge.crashed | `dag#runner` | dag part | 1 | rest | `base` | demo and states |
 | DAG cycle notice | `dag#states` | dag part | 1 | rest | `base` | demo and states |
+| DAG empty state | `dag#states` | gallery part | 3 | rest | `term`, `term-unfocused`, `base` | demo and states |
 | Approval danger box | `overlays-dialogs#approval` | overlays-shared | 1 | rest | `base` | demo and states |
 | Plugin avatar | `overlays-windows#pluginswindow` | gallery part | 2 | rest | `base`, `mantle` | demo and states |
 | Tint box.success | `foundations#rolegaps` | gallery part | 3 | rest | `mantle`, `base`, `raised` | demo and states |

@@ -315,7 +315,7 @@ function dagHeaderCount(dag) {
 function DagSurface({ dags = [DAG_BUILD], initialId, narrow: forceNarrow, focused, style }) {
   // A tab surface passes focused, and the canvas takes the bed. A workspace popup does not, and keeps the canvas tone.
   const bed = focused === undefined ? "var(--tasty-dag-canvas-bg)" : focused ? "var(--tasty-surface-bed-focused)" : "var(--tasty-surface-bed-unfocused)";
-  const [dagId, setDagId] = React.useState(initialId || dags[0].id);
+  const [dagId, setDagId] = React.useState(initialId || dags[0]?.id);
   const [dir, setDir] = React.useState("td");
   const [z, setZ] = React.useState(1); // detail-view zoom — lives in the back bar (S2)
   const [sel, setSel] = React.useState(null);

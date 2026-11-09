@@ -255,6 +255,8 @@ The bed shows focus, as the terminal's always has: **`term` focused, `term-unfoc
 
 **Image state screens.** Empty and load-failed are the canvas with no picture on it, so they take the same bed and no mark of their own. Sub and reason are `text-muted`. Empty has a `text-muted` glyph and a `text-secondary` title. Missing and decode use `image-error-fg` for glyph and title, and permission uses `accent-warning-raised` for both. Too large has an `image-too-large-fg` glyph and a `text-primary` title. Each ink holds on both beds in both themes.
 
+**Task DAG empty state.** A tab with no DAG is the canvas with nothing on it, so it takes the bed. The workspace popup draws the same widget on `base`. The glyph is `glyph-dim` on all three grounds, because `text-disabled` is 2.99 on the Latte unfocused bed and the glyph has a job: its shape tells a filter from a search from no DAG at all. The widget takes one ink, so nothing changes but the bed on a focus change, and a caller passes no value. Title is `text-secondary` and hint is `text-muted`.
+
 **Explorer rows.** A kind glyph on the file area reads the role `glyph`, so `text-secondary` on the bed and on its hover and press grounds. The name beside it reads the same token at rest, and the kind is told by shape, as [section 7](#7-meaning) says. An image row reads `glyph-info`, as `accent-info-raised`, and under a drop target tint it reads `glyph`, because `glyph-info` is forbidden on `drop-target@*`. The shape still tells the kind. A match run reads the `text-match` cell, as `accent-primary-raised` on these grounds, because its hue is all that tells it from the name at rest. `explorer-match-fg` is not listed on a bed ground. In Mocha it sits ΔE 0.058 from `text-secondary`, under the 0.08 of [section 7](#7-meaning), and `accent-primary-raised` sits 0.088 from it.
 
 **Explorer state screens.** An error screen reads `explorer-error-fg` for its glyph and title, on `term` and `term-unfocused`, as the image state screens read `image-error-fg`. A state screen has no hover or press, so the token is not listed on those grounds. The table keeps those cells, because every ground and role has one. If a state screen ever gains a press, it reads the cell: `accent-danger-strong` on `term-unfocused+press`, where `explorer-error-fg` is 4.29 in Latte.
@@ -1958,6 +1960,16 @@ Sits on: `base`
 | Part | Token | States | Ground | Lowest, Mocha · Latte |
 |---|---|---|---|---|
 | label | `dag-cycle-fg` | rest | `dag-cycle` | 8.90 · 7.26 |
+
+### DAG empty state
+
+Sits on: `term`, `term-unfocused`, `base`
+
+| Part | Token | States | Ground | Lowest, Mocha · Latte |
+|---|---|---|---|---|
+| glyph | `glyph-dim` | rest | `term`, `term-unfocused`, `base` | 3.36 · 4.26 |
+| title | `text-secondary` | rest | `term`, `term-unfocused`, `base` | 9.26 · 4.73 |
+| hint | `text-muted` | rest | `term`, `term-unfocused`, `base` | 7.37 · 4.73 |
 
 ### Approval danger box
 

@@ -15,6 +15,7 @@ export const STATES = {
     "DAG runner badge.crashed"
   ],
   "empty-states-and-the-cycle-warning": [
-    "DAG cycle notice"
+    "DAG cycle notice",
+    "DAG empty state"
   ]
 };

@@ -294,10 +294,6 @@ function Page() {
           <Stage variant="grid" style={{ flexDirection: "column", gap: 16, padding: 20, alignItems: "stretch" }}>
             <div style={{ display: "flex", minHeight: 160, border: "var(--tasty-border-width) solid var(--tasty-border-default)",
               borderRadius: "var(--tasty-radius)", background: "var(--tasty-bg-panel)" }}>
-              <DagEmpty variant="surface" />
-            </div>
-            <div style={{ display: "flex", minHeight: 160, border: "var(--tasty-border-width) solid var(--tasty-border-default)",
-              borderRadius: "var(--tasty-radius)", background: "var(--tasty-bg-panel)" }}>
               <DagEmpty variant="search" query="deploy" />
             </div>
             <CycleBanner ids={DAG_CYCLE.cycle} />
@@ -305,9 +301,10 @@ function Page() {
           <Stage style={{ padding: 0, height: 320, display: "block" }}>
             <div style={{ height: 320, display: "flex" }}><DagCanvas dag={DAG_CYCLE} dir="td" /></div>
           </Stage>
+          {focusViews("dag-empty-surface", (focused) => <div style={{ height: 200, minWidth: 320 }}><DagSurface dags={[]} focused={focused} /></div>)}
           <Meta
-            specs={[["banner", "28px · pinned to canvas top"], ["banner copy", "names the cycle path"], ["empty A", "surface — how a DAG appears"], ["empty B", "search — echoes the query"]]}
-            tokens={[{ tok: "--tasty-dag-cycle-bg", use: "banner wash", color: "var(--tasty-dag-cycle-bg)" }, { tok: "--tasty-dag-cycle-fg", use: "banner text", color: "var(--tasty-dag-cycle-fg)" }, { tok: "--tasty-text-disabled", use: "empty glyph" }]} />
+            specs={[["banner", "28px · pinned to canvas top"], ["banner copy", "names the cycle path"], ["empty A", <>surface — how a DAG appears, on <span className="tok">--tasty-surface-bed-focused</span> or <span className="tok">--tasty-surface-bed-unfocused</span></>], ["empty B", <>search — echoes the query, on <span className="tok">--tasty-dag-canvas-bg</span></>], ["empty glyph", "glyph-dim, one ink on every ground"]]}
+            tokens={[{ tok: "--tasty-dag-cycle-bg", use: "banner wash", color: "var(--tasty-dag-cycle-bg)" }, { tok: "--tasty-dag-cycle-fg", use: "banner text", color: "var(--tasty-dag-cycle-fg)" }, { tok: "--tasty-glyph-dim", use: "empty glyph", color: "var(--tasty-glyph-dim)" }]} />
         </Spec>
         <Spec id="dag-list-popup-empty-and-no-match" title="DAG list popup — empty and no match"
           when={<>The popup list uses the <b>same DagEmpty</b> as the surface (one shared function): glyph, title, hint, stacked in the <b>vertical centre</b> of the list area (not the 1/3 point). <b>No match</b> is the <code>search</code> variant and echoes the query. <b>No DAG at all</b> is its own <code>popup</code> variant: the popup spans every workspace, so the surface hint with a workspace-scoped command does not fit; it keeps the app's two strings.</>}>
@@ -320,8 +317,8 @@ function Page() {
             ))}
           </Stage>
           <Meta
-            specs={[["shared", "DagEmpty — surface · search · popup"], ["position", "centred in the list area, both axes"], ["no match", "search glyph · “No DAGs match “{q}”” · “Clear the filter or widen the scope to all workspaces.”"], ["no DAGs", "gitTree glyph · “No DAGs yet” · “Tasks grouped by dependency appear here.” (existing keys)"], ["glyph", "24 · text-disabled"]]}
-            tokens={[{ tok: "--tasty-text-disabled", use: "glyph", color: "var(--tasty-text-disabled)" }, { tok: "--tasty-text-secondary", use: "title", color: "var(--tasty-text-secondary)" }, { tok: "--tasty-text-muted", use: "hint", color: "var(--tasty-text-muted)" }]} />
+            specs={[["shared", "DagEmpty — surface · search · popup"], ["position", "centred in the list area, both axes"], ["no match", "search glyph · “No DAGs match “{q}”” · “Clear the filter or widen the scope to all workspaces.”"], ["no DAGs", "gitTree glyph · “No DAGs yet” · “Tasks grouped by dependency appear here.” (existing keys)"], ["glyph", "24 · glyph-dim"]]}
+            tokens={[{ tok: "--tasty-glyph-dim", use: "glyph", color: "var(--tasty-glyph-dim)" }, { tok: "--tasty-text-secondary", use: "title", color: "var(--tasty-text-secondary)" }, { tok: "--tasty-text-muted", use: "hint", color: "var(--tasty-text-muted)" }]} />
           <Note>i18n: the search title is new — <code>dag.popup.no_match</code> “No DAGs match “{"{q}"}”” / ““{"{q}"}”와 일치하는 DAG 없음” / ““{"{q}"}” に一致する DAG はありません” · hint <code>dag.popup.no_match_hint</code> “Clear the filter or widen the scope to all workspaces.” / “필터를 지우거나 범위를 모든 워크스페이스로 넓히세요.” / “フィルターを消すか、範囲をすべてのワークスペースに広げてください。”. The old “No matching DAGs” / “Try a different filter.” go.</Note>
         </Spec>
         <Spec id="dag-list-popup-no-match-without-a-query" title="DAG list popup — no match without a query"
@@ -335,8 +332,8 @@ function Page() {
             ))}
           </Stage>
           <Meta
-            specs={[["variant", "DagEmpty filtered"], ["when", "query.trim() empty · status filter ≠ all OR workspace-only on · 0 rows"], ["glyph", "filter · 24 · text-disabled"], ["title", "“No DAGs match the current filters”"], ["hint", "same key as search: dag.popup.no_match_hint"], ["query + filters", "search variant, echoes the query only"]]}
-            tokens={[{ tok: "--tasty-text-disabled", use: "glyph", color: "var(--tasty-text-disabled)" }, { tok: "--tasty-text-secondary", use: "title", color: "var(--tasty-text-secondary)" }, { tok: "--tasty-text-muted", use: "hint", color: "var(--tasty-text-muted)" }]} />
+            specs={[["variant", "DagEmpty filtered"], ["when", "query.trim() empty · status filter ≠ all OR workspace-only on · 0 rows"], ["glyph", "filter · 24 · glyph-dim"], ["title", "“No DAGs match the current filters”"], ["hint", "same key as search: dag.popup.no_match_hint"], ["query + filters", "search variant, echoes the query only"]]}
+            tokens={[{ tok: "--tasty-glyph-dim", use: "glyph", color: "var(--tasty-glyph-dim)" }, { tok: "--tasty-text-secondary", use: "title", color: "var(--tasty-text-secondary)" }, { tok: "--tasty-text-muted", use: "hint", color: "var(--tasty-text-muted)" }]} />
           <Note>i18n (new): <code>dag.popup.no_match_filtered</code> “No DAGs match the current filters” / “현재 필터와 일치하는 DAG 없음” / “現在のフィルターに一致する DAG はありません”. Hint reuses <code>dag.popup.no_match_hint</code>. The temporary <code>dag_list.empty_filtered*</code> (“No matching DAGs” / “Try a different filter.”) can now be removed.</Note>
         </Spec>
       </Section>
