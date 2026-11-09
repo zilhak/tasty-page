@@ -122,7 +122,7 @@
 - 인라인 코드: 칩 바탕은 `site-inline-code-bg`, 테두리는 1px `border-default`다. Latte에서 `raised`는 본문에서 지나치게 튀어 `mantle`로 내린다.
 - 글꼴 고지: 푸터의 `.site-footer__font`다. 문장 안의 링크라 밑줄을 긋는다.
 - 번역 안내: `.note`는 경고 틴트(번역이 뒤처졌을 때), `.note--untranslated`는 주 색 틴트(디자인 첫 페이지의 영어 전용 안내)다. 앞머리 낱말과 색 테두리는 없다.
-- 표: 가이드의 Markdown 표는 렌더링 단계(`src/lib/satteri-table-wrap.mjs`)에서 `.table-wrap`으로 감싼다. 1px 테두리와 `mantle` 머리 행을 그리고 좁은 화면에서는 안쪽에서 가로 스크롤한다. `.table-wrap`은 `tabindex="0"`이라 넘치지 않는 표도 Tab 정지점이 되고, 포커스하면 방향키로 밀 수 있다.
+- 표: 가이드의 Markdown 표는 렌더링 단계(`src/lib/satteri-table-wrap.mjs`)에서 `.table-wrap`으로 감싼다. 1px 테두리와 `mantle` 머리 행을 그리고 좁은 화면에서는 안쪽에서 가로 스크롤한다. `.table-wrap`은 `tabindex="0"`이라 넘치지 않는 표도 Tab 정지점이 되고, 포커스하면 방향키로 밀 수 있다. 표 안의 인라인 코드는 모든 폭에서 공백과 하이픈 같은 원래 나눔 지점에서만 줄을 바꾸고, 칸보다 긴 코드는 끊지 않고 표를 넓혀 가로 스크롤로 보낸다. 파일 이름, 플러그인 ID, 환경 변수를 나누지 않고 같은 규칙으로 다룬다. 일본어와 중국어는 글자마다 줄을 바꿀 수 있어 칸이 한 글자 폭까지 줄어들므로, 이 두 언어의 칸에만 `min-width: 10em`을 둔다. 표 밖 본문의 인라인 코드는 `.prose`의 `word-break: break-word`를 그대로 써서, 줄보다 긴 코드만 글자 단위로 끊어 페이지 폭을 넘지 않는다.
 - 구분자: 이동 경로의 `/`는 장식이다. `aria-hidden`과 `data-ink-grade="none" data-ink-why="ornament"`를 붙이고 `glyph-dim`을 쓴다.
 - 코드 블록: 두 테마에서 같은 어두운 팔레트(`site-code-*`)다. 하이라이터가 색을 인라인으로 쓰므로 `global.css`의 `pre.astro-code` 규칙이 `!important`로 바탕, 기본 잉크, 주석 색을 덮는다. 주석은 `style` 속성의 `#6A737D`로 찾으므로 하이라이터 테마를 바꾸면 이 선택자도 함께 고친다. 다른 하이라이터 잉크는 예외 없이 일반 기준으로 잰다.
 - 앱 그림: 페이지가 직접 그리는 터미널과 창 그림은 프로그램 출력이 아니므로 `ansi-content` 예외를 쓰지 않는다. 선은 `term`과 `base` 바탕의 글자 셀을 읽는다. `AppShell.jsx`와 `WindowAnatomy.jsx`는 킷 `work.jsx`의 `C`와 같은 잉크를 쓴다.

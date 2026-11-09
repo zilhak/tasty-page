@@ -2372,7 +2372,7 @@ The site's landing, guide and design pages use the same grounds, roles and table
 
 **Language switch.** One button and one list of links at every width, opened by a `details` element so it works without the site script. Each language is named in its own language and script, in that language's font on every page, because the reader who needs the switch may not read the page. Simplified Chinese is written `简体中文`, not `中文`, so the name says which script exists. The button shows the globe, the current name and a chevron above 900px, and the globe alone at or below it, where it is the size of the other header buttons. The current row takes the tint, the weight and the check mark. The ring on a row sits outside the row, on the panel. A row is 36px tall, and 44px at or below 900px or on a coarse pointer.
 
-**Tables.** Every table in a guide page sits in `.table-wrap`: the 1px frame, the `mantle` head and the sideways scroll on a narrow screen.
+**Tables.** Every table in a guide page sits in `.table-wrap`: the 1px frame, the `mantle` head and the sideways scroll on a narrow screen. Inline code in a table wraps only where its own text allows, such as at a space or a hyphen, and a token wider than the room scrolls the table instead of splitting. File names, plugin IDs and environment variables follow the same rule. Japanese and Chinese cells keep a `10em` floor, because their prose can break after any character and the column would otherwise collapse. Inline code outside a table may still split inside a token, so a long one cannot push the page wider.
 
 ### Site grounds
 

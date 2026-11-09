@@ -610,6 +610,14 @@ pre.astro-code span[style*="#6A737D"] { color: var(--tasty-site-code-comment) !i
   color: var(--tasty-text-secondary);
   white-space: nowrap;
 }
+/* break-word lets a cell shrink to one character, so an auto-layout table narrows its code
+   first. Cells keep the page's own word-break: code wraps at its spaces and hyphens, and a
+   token wider than the room scrolls the table instead of splitting. */
+.prose .table-wrap code { word-break: inherit; }
+/* Japanese and Chinese prose can break after any character, so without a floor the prose
+   column collapses once the code stops giving way. 10em leaves about 8 characters of text;
+   8em left tables a few pixels too wide to read as scrollable. */
+:root:lang(ja) .table-wrap td, :root:lang(zh) .table-wrap td { min-width: 10em; }
 .table-wrap tbody tr:last-child td { border-bottom: 0; }
 .table-wrap tbody tr:hover { background: var(--tasty-overlay-hover); }
 
