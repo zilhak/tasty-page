@@ -137,8 +137,9 @@
 .icontile .irole { font-size: var(--tasty-font-size-micro); color: var(--tasty-text-muted); }
 
 /* Prose helpers. Prose keeps the guide's measure while specimens take the full column. */
-.note { max-width: var(--tasty-size-700); margin: var(--tasty-space-md) 0 0; color: var(--tasty-text-muted); }
-.note code, .ic { padding: 0 var(--tasty-space-xs); border: var(--tasty-border-width) solid var(--tasty-border-default); border-radius: var(--tasty-radius-sm); background: var(--tasty-surface-raised); color: var(--tasty-text-secondary-raised); font-family: var(--tasty-font-mono); font-size: var(--tasty-font-size-caption); }
+.spec-note { max-width: var(--tasty-size-700); margin: var(--tasty-space-md) 0 0; color: var(--tasty-text-muted); }
+.spec-note a { color: var(--tasty-accent-primary-raised); text-decoration: underline; }
+.spec-note code, .ic { padding: 0 var(--tasty-space-xs); border: var(--tasty-border-width) solid var(--tasty-border-default); border-radius: var(--tasty-radius-sm); background: var(--tasty-surface-raised); color: var(--tasty-text-secondary-raised); font-family: var(--tasty-font-mono); font-size: var(--tasty-font-size-caption); }
 .do, .dont { margin: var(--tasty-space-sm) 0 0; padding: var(--tasty-space-sm) var(--tasty-space-md); border-radius: var(--tasty-radius-sm); }
 .do { background: color-mix(in srgb, var(--tasty-accent-success) calc(var(--tasty-tint-fill-alpha) * 100%), transparent); color: var(--tasty-text-primary); border-left: var(--tasty-tint-edge-width) solid var(--tasty-accent-success); }
 .dont { background: color-mix(in srgb, var(--tasty-accent-danger) calc(var(--tasty-tint-fill-alpha) * 100%), transparent); color: var(--tasty-text-primary); border-left: var(--tasty-tint-edge-width) solid var(--tasty-accent-danger); }

@@ -220,7 +220,7 @@ export function Meta({ specs, tokens }) {
   );
 }
 
-export function Note({ children }) { return <p className="note">{children}</p>; }
+export function Note({ children }) { return <p className="spec-note">{children}</p>; }
 export function Do({ children }) { return <p className="do">{children}</p>; }
 export function Dont({ children }) { return <p className="dont">{children}</p>; }
 
