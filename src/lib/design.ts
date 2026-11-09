@@ -1,4 +1,4 @@
-import { LANGS, langRow } from "./langs.mjs";
+import { DEFAULT_LANG, LANGS, langRow } from "./langs.mjs";
 
 /** The design zone apart from its home is English in every language. */
 export const DESIGN_LANG = "en";
@@ -14,8 +14,8 @@ export interface DesignPage {
   label: string;
   /** Whether the page's own content follows the page's language. Otherwise it is DESIGN_LANG. */
   translated: boolean;
-  /** Which language paths search engines should index. */
-  indexed: "every-language" | "none";
+  /** Which language paths search engines should index. Only a translated page has language versions to announce. */
+  indexed: "every-language" | "default-language" | "none";
   /** Follows the page title in the document title. */
   titleSuffix: string;
 }
@@ -34,7 +34,7 @@ export const DESIGN_GROUPS: { group: string; pages: DesignPage[] }[] = [
     group: "Guidelines",
     pages: [
       { key: "overview", slug: "", label: "Design overview", translated: true, indexed: "every-language", titleSuffix: "Tasty Design System" },
-      { key: "tokens", slug: "tokens/", label: "Design tokens", translated: false, indexed: "every-language", titleSuffix: "Tasty Design System" },
+      { key: "tokens", slug: "tokens/", label: "Design tokens", translated: false, indexed: "default-language", titleSuffix: "Tasty Design System" },
     ],
   },
   {
@@ -85,6 +85,10 @@ export const designPage = (key: string): DesignPage => {
   if (!page) throw new Error(`Unknown design page: ${key}`);
   return page;
 };
+
+/** Whether search engines should index a design page on one language path. */
+export const isIndexed = (page: DesignPage, code: string) =>
+  page.indexed === "every-language" || (page.indexed === "default-language" && code === DEFAULT_LANG);
 
 /** Route of a design page in one language. */
 export const designPath = (slug: string, lang: string) => `${langRow(lang).prefix}design/${slug}`;

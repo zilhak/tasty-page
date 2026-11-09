@@ -22,8 +22,10 @@ interface Props {
   ogType?: "website" | "article";
   /** Value of the robots meta tag. Without it the page has no such tag. */
   robots?: string;
+  /** Whether to tell search engines about the other language paths. The language switch lists them either way. */
+  announceLanguages?: boolean;
 }
-const { lang, title, description, active = null, hrefs, ogType = "website", robots } = Astro.props;
+const { lang, title, description, active = null, hrefs, ogType = "website", robots, announceLanguages = true } = Astro.props;
 const s = stringsFor(lang);
 const current = langRow(lang);
 const version = releaseVersion(process.cwd());
@@ -32,8 +34,7 @@ const landing = url(current.landing);
 const mark = (name: string) => (active === name ? "page" : undefined);
 const canonical = absolute(hrefs[current.code]);
 const listed = LANGS.filter((row) => hrefs[row.code] !== undefined);
-// A page published once, at one path, has no other version to announce.
-const hasOtherLanguage = listed.some((row) => hrefs[row.code] !== hrefs[current.code]);
+const hasOtherLanguage = announceLanguages && listed.length > 1;
 const defaultHref = hrefs[DEFAULT_LANG];
 ---
 <html lang={s.lang} data-theme-default="mocha">

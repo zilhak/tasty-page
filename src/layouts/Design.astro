@@ -1,7 +1,7 @@
 ---
 /** The design zone's one layout: the home, the tokens and the gallery. The site header and footer follow the page's language. The menu and previous/next are English in every language. */
 import Base from "./Base.astro";
-import { DESIGN_GROUPS, DESIGN_LANG, DESIGN_MENU_LABEL, DESIGN_PAGES, PAGE_NAV_LABELS, designPage, designPath } from "../lib/design";
+import { DESIGN_GROUPS, DESIGN_LANG, DESIGN_MENU_LABEL, DESIGN_PAGES, PAGE_NAV_LABELS, designPage, designPath, isIndexed } from "../lib/design";
 import { LANGS } from "../lib/langs.mjs";
 import { url } from "../lib/site";
 import "../styles/design.css";
@@ -31,7 +31,8 @@ const next = DESIGN_PAGES[idx + 1];
   description={description}
   active="design"
   hrefs={Object.fromEntries(LANGS.map((row) => [row.code, designPath(current.slug, row.code)]))}
-  robots={current.indexed === "none" ? "noindex, follow" : undefined}
+  robots={isIndexed(current, lang) ? undefined : "noindex, follow"}
+  announceLanguages={current.translated}
 >
   <slot name="head" slot="head" />
   <div class="layout layout--design">

@@ -1,5 +1,6 @@
 import type { APIRoute } from "astro";
-import { DESIGN_PAGES, designPath } from "../lib/design";
+import { DESIGN_PAGES, designPath, isIndexed } from "../lib/design";
+import { LANGS as SITE_LANGS } from "../lib/langs.mjs";
 import { buildPages, type Lang } from "../lib/guide";
 import { absolute } from "../lib/site";
 import { pathOf } from "../lib/urls";
@@ -9,12 +10,12 @@ const LANGS: Lang[] = ["en", "ko"];
 /** The landings and the privacy notice have no shared list to read from. */
 const SINGLE_PAGES = ["", "ko/", "privacy/", "ko/privacy/"];
 
-/** Pages meant for search. The gallery is noindex, so it stays out. */
+/** Pages meant for search. A design page says which of its language paths those are. */
 const paths = () => [
   ...SINGLE_PAGES,
   ...buildPages(process.cwd()).flatMap((page) => LANGS.map((lang) => pathOf(page, lang))),
-  ...DESIGN_PAGES.filter((page) => page.indexed !== "none").flatMap((page) =>
-    LANGS.map((lang) => designPath(page.slug, lang)),
+  ...DESIGN_PAGES.flatMap((page) =>
+    SITE_LANGS.filter((row) => isIndexed(page, row.code)).map((row) => designPath(page.slug, row.code)),
   ),
 ];
 
