@@ -74,9 +74,9 @@ const XROWS = [
   { glyph: XK.ic.image, name: "diagram.png", size: "488 KB", date: "2026-06-26 18:05", type: "PNG", glyphColor: "var(--tasty-accent-info-raised)" },
   { glyph: XK.ic.file, name: "notes.md", size: "12 KB", date: "2026-06-27 11:40", type: "Markdown" },
 ];
-function XDetail({ rows = XROWS, states = {}, before, ring = {} }) {
+function XDetail({ rows = XROWS, states = {}, before, ring = {}, bg = "var(--tasty-bg-panel)" }) {
   return (
-    <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)" }}>
+    <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", background: bg }}>
       <XK.DetailHeader />
       <div style={{ flex: 1, overflow: "hidden" }}>
         {before}
@@ -88,6 +88,19 @@ function XDetail({ rows = XROWS, states = {}, before, ring = {} }) {
 // Drop target — 1px inset accent ring + tint fill. Never moves layout.
 function XRing({ children, radius = "var(--tasty-radius-sm)", style }) {
   return <div style={{ background: "var(--tasty-explorer-drop-target-bg)", boxShadow: "inset 0 0 0 var(--tasty-border-width) var(--tasty-explorer-drop-target-border)", borderRadius: radius, ...style }}>{children}</div>;
+}
+
+// Rows under a body tint: a kind glyph reads the neutral glyph cell, because glyph-info is forbidden on the tint.
+const xUnderTint = (rows) => rows.map(({ glyphColor, ...r }) => r);
+function XBedDrop({ focused, body }) {
+  const rows = xUnderTint(XROWS).map((r) => (r.name === "report.pdf" ? { ...r, name: <XHi text={r.name} q="re" /> } : r));
+  return (
+    <div style={{ background: focused ? "var(--tasty-surface-bed-focused)" : "var(--tasty-surface-bed-unfocused)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
+      {body
+        ? <XRing radius="0">{rows.map((r, i) => <XK.DetailRow key={i} {...r} />)}</XRing>
+        : XROWS.map((r, i) => (i === 0 ? <XRing key={i}><XK.DetailRow {...r} /></XRing> : <XK.DetailRow key={i} {...r} />))}
+    </div>
+  );
 }
 
 // ── Create ────────────────────────────────────────────────
@@ -332,13 +345,29 @@ function DragSection() {
           tokens={[{ tok: "--tasty-explorer-drop-target-border", use: "→ accent-primary", color: "var(--tasty-explorer-drop-target-border)" }, { tok: "--tasty-explorer-drop-target-bg", use: "accent-primary × tint-fill-alpha", color: "var(--tasty-explorer-drop-target-bg)" }, { tok: "--tasty-tint-fill-alpha", use: "0.12" }]} />
       </Spec>
 
+      <Spec id="drop-target-on-the-bed" title="Drop target on the bed">
+        <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)" }}>
+          <XThemes render={() => (
+            <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-md)" }}>
+              <XCol label="Focused bed · folder row" w={420}><XBedDrop focused /></XCol>
+              <XCol label="Focused bed · list body" w={420}><XBedDrop focused body /></XCol>
+              <XCol label="Unfocused bed · folder row" w={420}><XBedDrop /></XCol>
+              <XCol label="Unfocused bed · list body" w={420}><XBedDrop body /></XCol>
+            </div>
+          )} />
+        </Stage>
+        <Meta
+          specs={[["paint order", "bed · tint · row fill · ink · ring"], ["ink", "the drop-target@* cell, with no tint over it"], ["image row, list body", "glyph → text-secondary · glyph-info is forbidden on the tint"], ["image row, outside a tint", "glyph-info → accent-info-raised"], ["match run", "accent-primary-raised"], ["opaque row fill", "hides the tint on that row · the ring still shows"]]}
+          tokens={[{ tok: "--tasty-explorer-drop-target-bg", use: "tint, under the row", color: "var(--tasty-explorer-drop-target-bg)" }, { tok: "--tasty-explorer-drop-target-border", use: "ring, last", color: "var(--tasty-explorer-drop-target-border)" }, { tok: "--tasty-surface-bed-focused", use: "focused bed", color: "var(--tasty-surface-bed-focused)" }, { tok: "--tasty-surface-bed-unfocused", use: "unfocused bed", color: "var(--tasty-surface-bed-unfocused)" }]} />
+      </Spec>
+
       <Spec id="files-from-the-os-copy-into-the-explorer-not-open" title="Files from the OS — copy into the explorer, not open"
         when={<>Files dragged in from the OS and dropped <b>on an explorer cell</b> are now <b>copied into</b> the target folder (folder row, or the folder being shown). Over an explorer cell the window drop overlay is <b>not drawn</b>; the explorer shows its own ring and a chip that always reads <b>Copy to</b> (an OS drag is never a move). Everywhere else in the window the existing overlay and “open with handler” stay as they are. A remote explorer refuses the OS drop and says so in the chip. Dragging items <b>out</b> of the explorer (for example into a terminal to paste a path) is left for a later pass.</>}>
         <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 18, flexWrap: "wrap", alignItems: "flex-start" }}>
           <XCol label="OS files over a local explorer" w={420}>
             <div style={{ position: "relative" }}>
               <XCell w={420} h={240} status="5 items">
-                <XRing radius="0" style={{ flex: 1, display: "flex" }}><XDetail /></XRing>
+                <XRing radius="0" style={{ flex: 1, display: "flex" }}><XDetail bg="transparent" rows={xUnderTint(XROWS)} /></XRing>
               </XCell>
               <XDragChip glyph={<XIcon name="layers" />} label="2 items" op="copy" target="Downloads" style={{ position: "absolute", left: 140, top: 150 }} />
             </div>
