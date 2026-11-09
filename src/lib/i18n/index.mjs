@@ -13,8 +13,9 @@ import { dictionaryProblems } from "./check.mjs";
 import en from "./en.mjs";
 import ja from "./ja.mjs";
 import ko from "./ko.mjs";
+import zhHans from "./zh-Hans.mjs";
 
-const DICTIONARIES = { en, ko, ja };
+const DICTIONARIES = { en, ko, ja, "zh-Hans": zhHans };
 
 const problems = dictionaryProblems(DICTIONARIES, DEFAULT_LANG, LANGS.map((row) => row.code));
 if (problems.length > 0) {
