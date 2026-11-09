@@ -1,14 +1,15 @@
 ---
 /** Keep design examples at their intended widths in a wider content column. */
 import Base from "./Base.astro";
-import { DESIGN_NAV, GALLERY_GROUPS, designPath, galleryPath, pick } from "../lib/design";
+import { DESIGN_NAV, GALLERY_GROUPS, designPath, galleryPath } from "../lib/design";
+import { LANGS } from "../lib/langs.mjs";
 import { stringsFor } from "../lib/strings";
 import { url } from "../lib/site";
-import type { Lang } from "../lib/guide";
 import "../styles/design.css";
 
 interface Props {
-  lang: Lang;
+  /** A language code from lib/langs.mjs. */
+  lang: string;
   /** Slug of the page being rendered, so the sidebar can mark it current. */
   current: string;
   title: string;
@@ -27,22 +28,22 @@ const s = stringsFor(lang);
   title={`${title} · Tasty Design System`}
   description={description}
   active="design"
-  hrefs={{ en: designPath(current, "en"), ko: designPath(current, "ko") }}
+  hrefs={Object.fromEntries(LANGS.map((row) => [row.code, designPath(current, row.code)]))}
 >
   <slot name="head" slot="head" />
   <div class="layout layout--design">
     <aside class="sidebar" aria-label={s.navDesign}>
       {DESIGN_NAV.map((group) => (
         <details class="nav-section" open>
-          <summary>{pick(group.group, lang)}</summary>
+          <summary>{group.group}</summary>
           <ul class="nav-list">
             {group.pages.map((page) => (
               <li>
                 <a href={url(designPath(page.slug, lang))}
                    aria-current={page.slug === current ? "page" : undefined}
                    style="--indent:0">
-                  {pick(page.label, lang)}
-                  <span class="nav-desc">{pick(page.desc, lang)}</span>
+                  {page.label}
+                  <span class="nav-desc">{page.desc}</span>
                 </a>
                 {page.slug === current && sections.length > 0 && (
                   <ul class="nav-list nav-list--sections">
@@ -58,7 +59,7 @@ const s = stringsFor(lang);
       {/* The gallery is one application published once, not per language, so
           its links are the same on both sides of the site. */}
       <details class="nav-section" open>
-        <summary>{lang === "ko" ? "갤러리" : "Gallery"}</summary>
+        <summary>Gallery</summary>
         <ul class="nav-list">
           {GALLERY_GROUPS.flatMap((g) => g.pages).map((page) => (
             <li>

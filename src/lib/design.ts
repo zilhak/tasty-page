@@ -1,41 +1,30 @@
-import type { Lang } from "./guide";
+import { langRow } from "./langs.mjs";
 
-/** Bilingual navigation and introductions for the shared English design examples. */
+/** Navigation for the design zone. Its menu is English in every language. */
 export interface DesignPage {
   /** Route under the section, with its trailing slash. "" is the section root. */
   slug: string;
-  label: { en: string; ko: string };
-  desc: { en: string; ko: string };
+  label: string;
+  desc: string;
 }
 
 export interface DesignGroup {
-  group: { en: string; ko: string };
+  group: string;
   pages: DesignPage[];
 }
 
 export const DESIGN_NAV: DesignGroup[] = [
   {
-    group: { en: "Guidelines", ko: "가이드라인" },
+    group: "Guidelines",
     pages: [
-      {
-        slug: "",
-        label: { en: "Design foundations", ko: "디자인 살펴보기" },
-        desc: { en: "brand · color · type · spacing", ko: "브랜드 · 색 · 글꼴 · 간격" },
-      },
-      {
-        slug: "tokens/",
-        label: { en: "Design tokens", ko: "디자인 토큰" },
-        desc: { en: "primitive → semantic → component", ko: "원시 → 의미 → 컴포넌트" },
-      },
+      { slug: "", label: "Design overview", desc: "about the design guide" },
+      { slug: "tokens/", label: "Design tokens", desc: "primitive → semantic → component" },
     ],
   },
 ];
 
 /** Route of a design page in one language. */
-export const designPath = (slug: string, lang: Lang) =>
-  `${lang === "ko" ? "ko/design/" : "design/"}${slug}`;
-
-export const pick = <T>(v: { en: T; ko: T }, lang: Lang) => (lang === "ko" ? v.ko : v.en);
+export const designPath = (slug: string, lang: string) => `${langRow(lang).prefix}design/${slug}`;
 
 /** The gallery uses shared routes. `key` matches the page folder in vendor/gallery/. */
 export interface GalleryPage {
