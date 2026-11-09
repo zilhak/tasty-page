@@ -1,4 +1,4 @@
-<!-- source-hash: 783596359d46 -->
+<!-- source-hash: d8383ee3faf0 -->
 # Settings
 
 Tasty’s shell, fonts, language, and other preferences can be configured in the settings window or by editing `~/.tasty/config.toml` directly. Keybindings and themes have their own guides.
@@ -91,7 +91,9 @@ Set **Link click modifier** to **Disable left-click opening** to prevent left-cl
 
 For fonts, the defaults under **General** apply to terminal · Markdown · explorer all at once, and turning off **Use default** in a section lets only that type use different values. With **Font DPI scaling** set to **Auto**, the physical size of the text stays the same across monitors; with **Fixed**, the pixel size stays the same, so text gets smaller on high-resolution monitors.
 
-Open the **Font family** list and type part of a name in the search field at the top to filter it; the search text clears when the list closes. **monospace (default)** always stays at the top whatever you type, so you can return to the default font at any time. If the settings file names a font that isn't installed on this computer, that name is shown as is and left unchanged.
+Open the **Font family** list and type part of a name in the search field at the top to filter it; the search text clears when the list closes. **monospace (default)** always stays at the top whatever you type, so you can return to the default font at any time.
+
+If a **Font family** or **Custom font file** value cannot be used, an error appears below that input. Font names that are not installed on this computer also show an error. The error text and red indicator are hidden while the input has focus, while the font list is open, or while the entered value is being checked. You can **Save** values that cannot be used; the values are saved unchanged, and another font is used for display. Immediately after you press **Save**, one warning notification appears in the main window for each unusable value, with that value shown in the notification body. Saving the same value again does not create another notification, and no notifications appear while you are entering values in the settings window. If there are multiple main windows, notifications appear in the focused main window. Their duration follows the **Toast duration** setting under **Overlay** on the **General** tab.
 
 ### Keybindings
 
@@ -251,6 +253,8 @@ the text that language ships with stays on screen, and you never get a blank spo
 General settings are stored in this file. Handler tables, theme files, and other items described above use their separate paths. Missing keys are read as defaults, so you only need to write the ones you need.
 
 `heartbeat_timeout_secs` in `[remote_attach]` sets how long a remote attach connection waits without receiving anything from the other side. The unit is seconds, the default is 30, and the range is 10–600. An out-of-range file value is reset to the default of 30 and saved back to the settings file; a warning is written only to the log. Direct edits to the settings file are read the next time Tasty starts. To apply a change to new connections without restarting, change it in the settings window and save.
+
+If font values in the settings file (such as `font_family` in `[appearance.default_font]`) cannot be used, one warning notification appears in the main window for each value after Tasty starts. The notification body shows the value, and another font is used for display. The window where notifications appear and their duration follow the appearance description above. Unusable font values applied by an agent through commands are recorded only in the log, without warning notifications.
 
 ```toml
 [general]
