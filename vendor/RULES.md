@@ -2254,7 +2254,7 @@ The site's landing, guide and design pages use the same grounds, roles and table
 | `site-code` | `site-code-bg` | #24292e | #24292e | Code block. One dark palette in both themes. |
 | `site-inline-code` | `site-inline-code-bg` | #313244 | #e6e9ef | Inline code chip. Raised in Mocha, mantle in Latte. |
 | `site-quote` | `site-quote-bg` | #2b2232 | #efe8ed | Block quote. |
-| `site-tile-hover` | `site-tile-hover-bg` | #2b2232 | #efe8ed | Pointer over a design home tile. |
+| `site-tile-hover` | `site-tile-hover-bg` | #2b2232 | #efe8ed | Former design home tile hover ground. No page uses it. |
 | `site-card-icon` | `site-card-icon-bg` | #3c2737 | #efdce2 | Icon box on a landing card. |
 | `site-band` | `site-band-glow` | #372635 | #efdfe4 | Closing band. A radial glow over base, so it has two ends. values is the strong end. |
 
@@ -2343,6 +2343,4 @@ Contrast is the lowest across the row's grounds.
 | Window mock section heading | `.shell h3` | `term`, `term-unfocused` | `text-primary` | `accent-primary-raised` | 7.79 · 6.28 |
 | Design pages text | `.design-head__intro, .ds-lede, .ds-card__head p, .ds-card__src` | `base` | `text-muted` | `text-muted` | 7.37 · 5.53 |
 | Design source link, pointer over | `.ds-card__src:hover` | `base` | `text-brand` | `brand-ink` | 5.12 · 5.50 |
-| Design tile description | `.ds-tiles__desc` | `base`, `site-tile-hover` | `text-muted` | `text-muted` | 6.85 · 5.19 |
-| Design tile label | `.ds-tiles__label` | `base`, `site-tile-hover` | `text-body` | `text-primary` | 10.54 · 6.63 |
-| Design tile edge and page navigation edge, pointer over | `.ds-tiles a:hover, .page-nav a:hover` | `base` | `border-partition` | `brand-ink` | no target · no target |
+| Page navigation edge, pointer over | `.page-nav a:hover` | `base` | `border-partition` | `brand-ink` | no target · no target |

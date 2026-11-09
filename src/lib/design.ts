@@ -43,7 +43,7 @@ export interface GalleryPage {
   /** Route under `design/gallery/`; "" is the gallery root. */
   slug: string;
   label: string;
-  /** A short note on the /design/ tiles. The gallery sidebar is text only and does not show it. */
+  /** A short note in the design menu. The gallery sidebar is text only and does not show it. */
   desc: string;
 }
 

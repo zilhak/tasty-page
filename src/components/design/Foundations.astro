@@ -3,7 +3,7 @@
 import Design from "../../layouts/Design.astro";
 import Cards from "./Cards.astro";
 import { cards } from "../../lib/guidelines";
-import { GALLERY_GROUPS, designPath, galleryPath } from "../../lib/design";
+import { designPath, galleryPath } from "../../lib/design";
 import { url } from "../../lib/site";
 import type { Lang } from "../../lib/guide";
 
@@ -65,16 +65,6 @@ const all = cards(process.cwd()).filter((x) => x.group !== "Tokens");
       <a href={url(designPath("tokens/", lang))}>{c.tokens}</a>
       <a href={url(galleryPath(""))}>{c.openGallery}</a>
     </p>
-    <ul class="ds-tiles">
-      {GALLERY_GROUPS.flatMap((g) => g.pages).map((page) => (
-        <li>
-          <a href={url(galleryPath(page.slug))}>
-            <span class="ds-tiles__label">{page.label}</span>
-            <span class="ds-tiles__desc">{page.desc}</span>
-          </a>
-        </li>
-      ))}
-    </ul>
   </section>
 
   <Cards cards={all} sourceLabel={c.source} groupLabels={c.groups} />

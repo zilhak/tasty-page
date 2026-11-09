@@ -1,6 +1,6 @@
 /* Fixed-width design examples use a wider content column without a table of contents.
 
-   The heads, cards and tiles here are the site's own frame around the design
+   The heads and cards here are the site's own frame around the design
    documents (docs/dev-guide/site.md), so spacing uses the site scale; the documents
    inside the iframes are vendor copies and are not styled here. Literal values
    left without a line comment are font sizes and element sizes, which the site
@@ -101,35 +101,5 @@
 .ds-lede {
   margin: 0 0 var(--sp-5);
   max-width: 62ch;
-  color: var(--tasty-text-muted);
-}
-.ds-tiles {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: var(--sp-3);
-}
-.ds-tiles a {
-  display: block;
-  padding: var(--sp-3) var(--sp-4);
-  border: var(--border);
-  border-radius: var(--radius);
-  background: var(--tasty-bg-panel);
-  color: inherit;
-  transition: border-color 120ms ease, background 120ms ease;
-}
-.ds-tiles a:hover {
-  text-decoration: none;
-  border-color: var(--tasty-brand-ink);
-  background: var(--tasty-site-tile-hover-bg);
-}
-.ds-tiles__label { display: block; font-weight: 600; }
-.ds-tiles__desc {
-  display: block;
-  margin-top: 2px; /* no site step: --sp-* has no 2 */
-  font-family: var(--font-mono);
-  font-size: 11px;
   color: var(--tasty-text-muted);
 }
