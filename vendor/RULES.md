@@ -294,18 +294,20 @@ Three layers, three answers:
 |---|---|---|---|
 | Selection | `term-selection` | `text-on-active` | 4.62 · 5.40 |
 | Vi cursor cell | `term-cursor` | `vi-cursor-fg` | 10.48 · 6.60 |
+| Link under the pointer | `term-selection` | `text-on-active`, underline `accent-primary-raised` | 4.62 · 5.40, underline 3.17 · 3.84 |
 | Search match | `match@term` | `text-primary` | 6.67 · 6.06 |
 | Active search match | `match-active@term` | `search-match-active-fg` | 6.23 · 5.03 |
 | Search match, unfocused | `match@term-unfocused` | `text-primary` | 4.75 · 4.88 |
 | Active match, unfocused | `match-active@term-unfocused` | `search-match-active-unfocused-fg` | 6.95 · 11.21 |
 
-The overlay ink applies to default cell ink: any cell with no color of its own, bold or dim included. On `match@term-unfocused` a default cell changes from `surface-terminal-unfocused-fg`, which would be 3.09 · 3.82 there, to `text-primary`. In the file that ink is the role `text-body`, and it is the cell ink that the forbidden cells of a match name. A dim cell is a blend of its ink and its ground, which is 1.81 in both themes on `match@term`, so an ordinary match draws it in `text-primary` on either bed. The match costs the dim step, and the ink does not change on a focus change. Outside a match a dim cell stays the program's blend, and no pair is promised. A cell with its own ANSI color keeps it inside a selection or an ordinary match, dim or not, and that pair is content. Only an active match replaces that color, so its ink holds on the stronger fill. A terminal link takes an underline in the cell's own ink, so it needs no color. Terminal content never animates.
+The overlay ink applies to default cell ink: any cell with no color of its own, bold or dim included. On `match@term-unfocused` a default cell changes from `surface-terminal-unfocused-fg`, which would be 3.09 · 3.82 there, to `text-primary`. In the file that ink is the role `text-body`, and it is the cell ink that the forbidden cells of a match name. A dim cell is a blend of its ink and its ground, which is 1.81 in both themes on `match@term`, so an ordinary match draws it in `text-primary` on either bed. The match costs the dim step, and the ink does not change on a focus change. Outside a match a dim cell stays the program's blend, and no pair is promised. A cell with its own ANSI color keeps it inside a selection or an ordinary match, dim or not, and that pair is content. Only an active match replaces that color, so its ink holds on the stronger fill. A link away from the pointer reads as any other cell. Terminal content never animates.
 
 **Cells a match leaves alone.** The overlay ink stops at these cells, because something else has already set their ink.
 
 - **Reverse screen (DECSCNM).** The program inverts the whole screen, so the match fill lies over the cell's ink color and the glyph takes the bed color. The cell keeps that ink: 15.08 · 5.73 focused, 8.79 · 3.67 unfocused, the values of an SGR 7 cell. It is reverse video, so no pair is promised. `text-primary` would be 1.04 · 1.39 on the focused fill.
 - **Block cursor.** The cell swaps its ink and fill, and the match fill lies over the swapped fill: 15.08 · 5.73 focused. The unfocused cell is unmeasured. By calculation it would be 8.79 · 3.67. Send it back to design if an unfocused terminal draws this cell.
 - **Vi cursor.** The cell keeps `vi-cursor-fg`: 10.48 · 6.60 on `term-cursor`, and 11.59 · 6.53 if the match fill lies over it. It holds either way.
+- **Link under the pointer.** The cell reads as a selection with a blue underline, inside a match and outside one. The match fill does not paint on it, because `text-on-active` would be 2.56 in Mocha over that fill. `accent-primary` on the words would be 3.17 · 2.27, under the text grade. The underline is the one hue a terminal layer holds, and the shape and fill tell the state.
 
 ## 5. Roles and grades
 
@@ -691,7 +693,7 @@ Forbidden:
 | Token | Grounds | Lowest, Mocha · Latte |
 |---|---|---|
 | `accent-primary` | `crust`, `mantle`, `base`, `term-unfocused`, `raised`, `on-raised`, `field`, `term`, `tab-hover`, `crust+hover`, `mantle+hover`, `mantle+press`, `base+hover`, `term-unfocused+hover`, `term+hover`, `base+press`, `term+press`, `on-raised+hover`, `on-raised+press`, `tint-primary@mantle`, `tint-primary@base`, `drop-target@mantle`, `drop-target@base`, `drop-target@term-unfocused`, `drop-target@term`, `file-drop@crust`, `file-drop@mantle`, `file-drop@base`, `file-drop@term-unfocused`, `file-drop@term`, `marquee@mantle`, `marquee@base`, `marquee@term-unfocused`, `marquee@term`, `split-zone@mantle`, `split-zone@base` | 3.08 · 3.04 |
-| `accent-primary-raised` | `solid-hover`, `tint-avatar`, `dag-running`, `crust+press`, `raised+hover`, `raised+press`, `tint-primary@raised`, `drop-target@raised`, `split-zone@crust`, `term-unfocused+press` | 4.08 · 4.14 |
+| `accent-primary-raised` | `solid-hover`, `tint-avatar`, `dag-running`, `crust+press`, `raised+hover`, `raised+press`, `tint-primary@raised`, `drop-target@raised`, `split-zone@crust`, `term-unfocused+press`, `term-selection` | 3.17 · 3.84 |
 | `accent-primary-on-active` | `active`, `active+hover`, `active+press` | 3.10 · 3.27 |
 
 Forbidden:
@@ -699,7 +701,7 @@ Forbidden:
 - `fill-primary`, `fill-agent`, `fill-danger`, `fill-success`, `fill-warning`, `fill-close`, `fill-primary+hover`, `fill-primary+press`, `fill-agent+hover`, `fill-agent+press`, `fill-danger+hover`, `fill-danger+press`. A filled control carries one ink pair. Hue or neutral steps on it would read as a second state.
 - `dag-failed`, `dag-unknown`, `dag-partial`, `dag-awaiting`, `dag-stalled`, `dag-crashed`, `dag-cycle`, `approval`, `tint-info@mantle`, `tint-info@base`, `tint-info@raised`, `tint-success@mantle`, `tint-success@base`, `tint-success@raised`, `tint-warning@mantle`, `tint-warning@base`, `tint-warning@raised`, `tint-danger@mantle`, `tint-danger@base`, `tint-danger@raised`, `tint-agent@mantle`, `tint-agent@base`, `tint-agent@raised`. A tint carries its own hue and neutrals. A second hue reads as a conflict.
 - `track`, `track-raised`. A track holds its thumb and nothing else.
-- `term-selection`, `term-cursor`. A terminal layer holds the cell ink only.
+- `term-cursor`. A terminal layer holds the cell ink only.
 - `match@term`, `match@base`, `match@term-unfocused`, `match-active@term`, `match-active@base`, `match-active@term-unfocused`. Only the terminal cell ink sits in a search match.
 - Every `scrim@*` ground. Inert layer. Content under a scrim has no target, and nothing new is drawn on it.
 
@@ -2063,6 +2065,8 @@ Sits on: `term`
 | default ink | `surface-terminal-focused-fg` | rest | `term` | 14.52 · 7.99 |
 | search match | `text-primary` | rest | `match@term` | 6.67 · 6.06 |
 | search match, dim cell | `text-primary` | rest | `match@term` | 6.67 · 6.06 |
+| link under the pointer | `text-on-active` | rest | `term-selection` | 4.62 · 5.40 |
+| link underline | `accent-primary-raised` | rest | `term-selection` | 3.17 · 3.84 |
 
 ### Terminal (unfocused)
 
