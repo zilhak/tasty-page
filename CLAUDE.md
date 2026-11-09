@@ -43,7 +43,7 @@
 
 - 토큰은 3계층이다(primitive → semantic → component, 모두 `--tasty-*`). UI에 literal이나 primitive를 직접 쓰지 않는다. 토큰은 추가만 하고 이름을 바꾸거나 지우지 않는다.
 - 토큰 CSS를 바꾸면 같은 커밋에서 `vendor/tokens/tasty.tokens.json`을 `scripts/design-tokens/gen_tokens_json.py`로 다시 만들고 `scripts/design-tokens/verify_tokens_json.py`로 대조한다. 값을 손으로 옮겨 적지 않는다.
-- Catppuccin Mocha(기본)와 Latte, 4px 그리드, 1px 보더, 4px radius, 14px UI 폰트 상한, 터미널 콘텐츠 0ms를 지킨다. shadow 체계는 없다.
+- Catppuccin Mocha(기본)와 Latte, 4px 그리드, 1px 보더, 4px radius, 14px UI 폰트 상한, 터미널 콘텐츠 0ms를 지킨다. 페이지 안의 표면에는 shadow를 쓰지 않는다. 떠 있는 표면만 `--tasty-shadow-popover`, `--tasty-shadow-modal` 중 하나를 쓴다.
 - 이모지는 쓰지 않는다. 아이콘은 `vendor/icons/<name>.svg`와 `Icon` 컴포넌트로만 쓴다.
 - 문구는 번역 키마다 en, ko, ja, zh-Hans를 모두 정한다. 영어는 sentence case로 쓴다. 앱 문구의 zh-Hans 값은 디자이너가 Codex로 쓰고, 용어는 `vendor/i18n/zh-Hans/glossary.json`을 따른다. Tasty에 zh-Hans를 등록하기 전에는 요청이 언어를 정했으면 요청을 따른다.
 - 대비는 텍스트 4.5:1, 테두리·포커스·아이콘 3:1을 Mocha와 Latte 양쪽에서 지킨다.
