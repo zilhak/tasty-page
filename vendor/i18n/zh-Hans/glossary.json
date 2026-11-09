@@ -1,0 +1,1700 @@
+{
+  "language": "zh-Hans",
+  "display_name": "简体中文",
+  "language_order": [
+    "en",
+    "ko",
+    "ja",
+    "zh-Hans"
+  ],
+  "based_on": {
+    "tasty": "0801838a8",
+    "tasty_page": "8dbf4c8"
+  },
+  "style": {
+    "common": [
+      "Use terse, technical, developer-to-developer language without marketing claims, exclamation marks or emoji, for example `连接失败。`.",
+      "Omit the subject wherever Chinese allows it; when a personal pronoun is unavoidable, use `你` and never `您`, for example `选择工作区。`.",
+      "Use full-width punctuation in Chinese sentences and half-width punctuation inside commands, paths, code and backtick spans, for example ``运行 `tasty list`。``.",
+      "Insert one half-width space between Han characters and adjacent Latin letters, digits, placeholders or backtick spans, with no spaces next to full-width punctuation, for example `Surface 的 ID：{id}。`.",
+      "Let explicit cell-width and table-header constraints override spacing, for example `工作区ID` in a constrained table header.",
+      "Use Simplified Chinese and mainland Chinese software terminology, for example `软件、文件夹、剪贴板。`.",
+      "Never translate commands, flags, argument IDs, allowed-value tokens, paths or placeholders; glossary translations apply only to running prose, so write `附加工作区` but preserve `tasty remote attach`.",
+      "Keep operating system names Windows, macOS and Linux in Latin letters, for example `在 Windows 上运行。`; translate lowercase windows referring to operating system windows as `窗口`."
+    ],
+    "ui": [
+      "Write buttons and menu items as bare verb phrases, for example `打开终端` and `添加插件`.",
+      "Write labels and column headers as noun phrases, for example `工作区名称` and `连接状态`.",
+      "End complete sentences with 。 and leave fragments without a period, for example `连接已断开。` versus `连接失败`.",
+      "Use 请 only for an action that recovers from a problem, for example `请重新连接后重试。`; omit it from routine instructions such as `选择工作区。`."
+    ],
+    "cli_help": [
+      "Use the same terse technical voice as UI text, compressed further into subjectless verb-object phrases, for example `列出工作区`.",
+      "Avoid 请 and omit 你 wherever possible, for example `指定目标 Surface ID`.",
+      "Preserve the source distinction between fragments and sentences, for example `工作区 ID` versus `未找到工作区。`.",
+      "Do not add explanations, examples or inferred behavior, for example translate List hooks as `列出钩子`."
+    ],
+    "agent_plugin": [
+      "Prefer literal precision over fluency and preserve every condition, operation order and limit, for example `仅在连接失败时重试，最多 3 次。`.",
+      "Translate must as 必须, must not as 不得, should as 应 and may as 可以, for example `必须指定工作区 ID。`.",
+      "Do not use 请, soften requirements or add explanations, for example `不得关闭父 Surface。`."
+    ],
+    "macos_menu": [
+      "Use native Simplified Chinese macOS menu wording rather than general UI paraphrases, for example `最小化`.",
+      "Translate About {} as `关于 {}` and Hide {} as `隐藏 {}`; macOS inserts a space before a Latin application name such as Tasty, so these forms follow the common spacing rule.",
+      "Translate Hide Others as `隐藏其他` and Show All as `全部显示`.",
+      "Translate Quit {} as `退出 {}`, File as `文件` and New Window as `新建窗口`.",
+      "Translate Window as `窗口`, Minimize as `最小化`, Zoom as `缩放` and Close Window as `关闭窗口`."
+    ]
+  },
+  "terms": [
+    {
+      "id": "agent",
+      "en": "Agent",
+      "ko": "에이전트",
+      "ja": "エージェント",
+      "zh_hans": "智能体",
+      "kind": "agent",
+      "translate": true,
+      "avoid": [
+        "代理"
+      ],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": "An AI coding agent."
+    },
+    {
+      "id": "alias",
+      "en": "Alias",
+      "ko": "별칭",
+      "ja": "別名",
+      "zh_hans": "别名",
+      "kind": "system",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": ""
+    },
+    {
+      "id": "approval",
+      "en": "Approval",
+      "ko": "승인",
+      "ja": "承認",
+      "zh_hans": "批准",
+      "kind": "agent",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": ""
+    },
+    {
+      "id": "attach",
+      "en": "Attach",
+      "ko": "Attach",
+      "ja": "アタッチ",
+      "zh_hans": "附加",
+      "kind": "remote",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": "附加 follows familiar debugger terminology for holding and mirroring an already running target without starting a shell, paired with 分离 for Detach."
+    },
+    {
+      "id": "banner",
+      "en": "Banner",
+      "ko": "배너",
+      "ja": "バナー",
+      "zh_hans": "横幅",
+      "kind": "ui_element",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": "A notice at the top of an area that can include action buttons."
+    },
+    {
+      "id": "blackboard",
+      "en": "Blackboard",
+      "ko": "블랙보드",
+      "ja": "ブラックボード",
+      "zh_hans": "黑板",
+      "kind": "feature",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app"
+      ],
+      "note": "The named memory blackboard feature."
+    },
+    {
+      "id": "child",
+      "en": "Child",
+      "ko": "자식",
+      "ja": "子",
+      "zh_hans": "子",
+      "kind": "agent",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": "Use as a relational prefix, as in 子 Surface or 子进程."
+    },
+    {
+      "id": "claude",
+      "en": "Claude",
+      "ko": "Claude",
+      "ja": "Claude",
+      "zh_hans": "Claude",
+      "kind": "product_name",
+      "translate": false,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": ""
+    },
+    {
+      "id": "claude-code",
+      "en": "Claude Code",
+      "ko": "Claude Code",
+      "ja": "Claude Code",
+      "zh_hans": "Claude Code",
+      "kind": "product_name",
+      "translate": false,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": ""
+    },
+    {
+      "id": "cli",
+      "en": "CLI",
+      "ko": "CLI",
+      "ja": "CLI",
+      "zh_hans": "CLI",
+      "kind": "system",
+      "translate": false,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": ""
+    },
+    {
+      "id": "clipboard",
+      "en": "Clipboard",
+      "ko": "클립보드",
+      "ja": "クリップボード",
+      "zh_hans": "剪贴板",
+      "kind": "system",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": ""
+    },
+    {
+      "id": "codex",
+      "en": "Codex",
+      "ko": "Codex",
+      "ja": "Codex",
+      "zh_hans": "Codex",
+      "kind": "product_name",
+      "translate": false,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": ""
+    },
+    {
+      "id": "command-palette",
+      "en": "Command palette",
+      "ko": "명령 팔레트",
+      "ja": "コマンドパレット",
+      "zh_hans": "命令面板",
+      "kind": "ui_element",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": ""
+    },
+    {
+      "id": "config",
+      "en": "Config",
+      "ko": "설정",
+      "ja": "設定",
+      "zh_hans": "配置",
+      "kind": "system",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": "Use 配置文件 only when the source means a configuration file."
+    },
+    {
+      "id": "conversation",
+      "en": "Conversation",
+      "ko": "대화",
+      "ja": "会話",
+      "zh_hans": "对话",
+      "kind": "agent",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": ""
+    },
+    {
+      "id": "credential",
+      "en": "Credential",
+      "ko": "인증 정보",
+      "ja": "認証情報",
+      "zh_hans": "凭据",
+      "kind": "remote",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": ""
+    },
+    {
+      "id": "cursor",
+      "en": "Cursor",
+      "ko": "커서",
+      "ja": "カーソル",
+      "zh_hans": "光标",
+      "kind": "system",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": "For an event-stream position rather than a text cursor, use 游标."
+    },
+    {
+      "id": "dag",
+      "en": "DAG",
+      "ko": "DAG",
+      "ja": "DAG",
+      "zh_hans": "DAG",
+      "kind": "feature",
+      "translate": false,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": "A directed acyclic graph of task dependencies."
+    },
+    {
+      "id": "debug-build",
+      "en": "Debug build",
+      "ko": "debug 빌드",
+      "ja": "debug ビルド",
+      "zh_hans": "调试构建",
+      "kind": "system",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app"
+      ],
+      "note": "A build that enables debug-only commands, not a debugging session."
+    },
+    {
+      "id": "design-system",
+      "en": "Design system",
+      "ko": "",
+      "ja": "",
+      "zh_hans": "设计系统",
+      "kind": "site",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "site"
+      ],
+      "note": ""
+    },
+    {
+      "id": "design-token",
+      "en": "Design token",
+      "ko": "",
+      "ja": "",
+      "zh_hans": "设计令牌",
+      "kind": "site",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "site"
+      ],
+      "note": "A design-system value rather than an authorization token."
+    },
+    {
+      "id": "detach",
+      "en": "Detach",
+      "ko": "끊기",
+      "ja": "切断",
+      "zh_hans": "分离",
+      "kind": "remote",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": "The inverse of Attach; it does not mean terminating the running target."
+    },
+    {
+      "id": "directory",
+      "en": "Directory",
+      "ko": "디렉터리",
+      "ja": "ディレクトリ",
+      "zh_hans": "目录",
+      "kind": "system",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": ""
+    },
+    {
+      "id": "exit-code",
+      "en": "Exit code",
+      "ko": "종료 코드",
+      "ja": "終了コード",
+      "zh_hans": "退出码",
+      "kind": "system",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": ""
+    },
+    {
+      "id": "explorer",
+      "en": "Explorer",
+      "ko": "탐색기",
+      "ja": "エクスプローラー",
+      "zh_hans": "文件浏览器",
+      "kind": "feature",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": "Tasty's file-browsing surface."
+    },
+    {
+      "id": "file-picker",
+      "en": "File picker",
+      "ko": "파일 피커",
+      "ja": "ファイルピッカ",
+      "zh_hans": "文件选择器",
+      "kind": "ui_element",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": ""
+    },
+    {
+      "id": "focus",
+      "en": "Focus",
+      "ko": "포커스",
+      "ja": "フォーカス",
+      "zh_hans": "焦点",
+      "kind": "ui_element",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": "For the verb, use 将焦点移至."
+    },
+    {
+      "id": "folder",
+      "en": "Folder",
+      "ko": "폴더",
+      "ja": "フォルダー",
+      "zh_hans": "文件夹",
+      "kind": "system",
+      "translate": true,
+      "avoid": [
+        "资料夹"
+      ],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": "Keep the everyday folder term distinct from Directory."
+    },
+    {
+      "id": "force-detach",
+      "en": "Force detach",
+      "ko": "강제 끊기",
+      "ja": "強制切断",
+      "zh_hans": "强制分离",
+      "kind": "remote",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": "Forcibly releases an existing attachment."
+    },
+    {
+      "id": "fullscreen",
+      "en": "Fullscreen",
+      "ko": "전체화면",
+      "ja": "全画面",
+      "zh_hans": "全屏",
+      "kind": "ui_element",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": ""
+    },
+    {
+      "id": "gallery",
+      "en": "Gallery",
+      "ko": "",
+      "ja": "",
+      "zh_hans": "展示集",
+      "kind": "site",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "site"
+      ],
+      "note": ""
+    },
+    {
+      "id": "gate",
+      "en": "Gate",
+      "ko": "게이트",
+      "ja": "ゲート",
+      "zh_hans": "Gate",
+      "kind": "feature",
+      "translate": false,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": "Keep the named Stop-hook feature recognizable; a generic timing gate is a condition rather than this feature."
+    },
+    {
+      "id": "git",
+      "en": "Git",
+      "ko": "Git",
+      "ja": "Git",
+      "zh_hans": "Git",
+      "kind": "product_name",
+      "translate": false,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": ""
+    },
+    {
+      "id": "gpu-accelerated",
+      "en": "GPU-accelerated",
+      "ko": "GPU 가속",
+      "ja": "GPU アクセラレーテッド",
+      "zh_hans": "GPU 加速",
+      "kind": "system",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": ""
+    },
+    {
+      "id": "guide",
+      "en": "Guide",
+      "ko": "가이드",
+      "ja": "",
+      "zh_hans": "指南",
+      "kind": "site",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "site"
+      ],
+      "note": ""
+    },
+    {
+      "id": "handler",
+      "en": "Handler",
+      "ko": "핸들러",
+      "ja": "ハンドラ",
+      "zh_hans": "处理器",
+      "kind": "feature",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": "A registered file or hook handler."
+    },
+    {
+      "id": "headless",
+      "en": "Headless",
+      "ko": "헤드리스",
+      "ja": "ヘッドレス",
+      "zh_hans": "无界面",
+      "kind": "system",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": "A mode without a graphical surface, including standalone PTYs."
+    },
+    {
+      "id": "hook",
+      "en": "Hook",
+      "ko": "훅",
+      "ja": "フック",
+      "zh_hans": "钩子",
+      "kind": "feature",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": ""
+    },
+    {
+      "id": "host",
+      "en": "Host",
+      "ko": "호스트",
+      "ja": "ホスト",
+      "zh_hans": "主机",
+      "kind": "system",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": "For Tasty hosting a popup or handling an integration request, use 宿主."
+    },
+    {
+      "id": "html",
+      "en": "HTML",
+      "ko": "HTML",
+      "ja": "HTML",
+      "zh_hans": "HTML",
+      "kind": "format",
+      "translate": false,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": ""
+    },
+    {
+      "id": "ipc",
+      "en": "IPC",
+      "ko": "IPC",
+      "ja": "IPC",
+      "zh_hans": "IPC",
+      "kind": "system",
+      "translate": false,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": ""
+    },
+    {
+      "id": "json",
+      "en": "JSON",
+      "ko": "JSON",
+      "ja": "JSON",
+      "zh_hans": "JSON",
+      "kind": "format",
+      "translate": false,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": ""
+    },
+    {
+      "id": "keybinding",
+      "en": "Keybinding",
+      "ko": "단축키",
+      "ja": "キーバインド",
+      "zh_hans": "按键绑定",
+      "kind": "feature",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": "The mapping between a key combination and an action."
+    },
+    {
+      "id": "kind",
+      "en": "Kind",
+      "ko": "종류",
+      "ja": "種類",
+      "zh_hans": "种类",
+      "kind": "system",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": "Use 种类 for container and preset classifications, keeping 类型 available for Type."
+    },
+    {
+      "id": "layout",
+      "en": "Layout",
+      "ko": "레이아웃",
+      "ja": "レイアウト",
+      "zh_hans": "布局",
+      "kind": "feature",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": ""
+    },
+    {
+      "id": "linux",
+      "en": "Linux",
+      "ko": "Linux",
+      "ja": "Linux",
+      "zh_hans": "Linux",
+      "kind": "product_name",
+      "translate": false,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": ""
+    },
+    {
+      "id": "lua",
+      "en": "Lua",
+      "ko": "Lua",
+      "ja": "Lua",
+      "zh_hans": "Lua",
+      "kind": "product_name",
+      "translate": false,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": ""
+    },
+    {
+      "id": "macos",
+      "en": "macOS",
+      "ko": "macOS",
+      "ja": "macOS",
+      "zh_hans": "macOS",
+      "kind": "product_name",
+      "translate": false,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": ""
+    },
+    {
+      "id": "markdown",
+      "en": "Markdown",
+      "ko": "Markdown",
+      "ja": "Markdown",
+      "zh_hans": "Markdown",
+      "kind": "format",
+      "translate": false,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": ""
+    },
+    {
+      "id": "mirror",
+      "en": "Mirror",
+      "ko": "미러",
+      "ja": "ミラー",
+      "zh_hans": "镜像",
+      "kind": "remote",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": "The replicated view displayed on the attaching side."
+    },
+    {
+      "id": "modal",
+      "en": "Modal",
+      "ko": "모달",
+      "ja": "モーダル",
+      "zh_hans": "模态框",
+      "kind": "ui_element",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": "Blocks input to the underlying interface."
+    },
+    {
+      "id": "notification",
+      "en": "Notification",
+      "ko": "알림",
+      "ja": "通知",
+      "zh_hans": "通知",
+      "kind": "feature",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": ""
+    },
+    {
+      "id": "notification-panel",
+      "en": "Notification panel",
+      "ko": "",
+      "ja": "",
+      "zh_hans": "通知面板",
+      "kind": "ui_element",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "site"
+      ],
+      "note": ""
+    },
+    {
+      "id": "overlay",
+      "en": "Overlay",
+      "ko": "오버레이",
+      "ja": "オーバーレイ",
+      "zh_hans": "叠加层",
+      "kind": "ui_element",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": ""
+    },
+    {
+      "id": "pane",
+      "en": "Pane",
+      "ko": "페인",
+      "ja": "ペイン",
+      "zh_hans": "窗格",
+      "kind": "structure",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": "An area within a workspace with its own independent tab bar."
+    },
+    {
+      "id": "parent",
+      "en": "Parent",
+      "ko": "부모",
+      "ja": "親",
+      "zh_hans": "父",
+      "kind": "agent",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": "Use as a relational prefix, as in 父 Surface or 父进程."
+    },
+    {
+      "id": "passkey",
+      "en": "Passkey",
+      "ko": "Passkey",
+      "ja": "Passkey",
+      "zh_hans": "Passkey",
+      "kind": "remote",
+      "translate": false,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": "A named file-reference or stored-secret credential; 通行密钥 would misleadingly suggest WebAuthn."
+    },
+    {
+      "id": "permission",
+      "en": "Permission",
+      "ko": "권한",
+      "ja": "権限",
+      "zh_hans": "权限",
+      "kind": "system",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": ""
+    },
+    {
+      "id": "plugin",
+      "en": "Plugin",
+      "ko": "플러그인",
+      "ja": "プラグイン",
+      "zh_hans": "插件",
+      "kind": "feature",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": ""
+    },
+    {
+      "id": "popup",
+      "en": "Popup",
+      "ko": "팝업",
+      "ja": "ポップアップ",
+      "zh_hans": "弹窗",
+      "kind": "ui_element",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": "弹窗 is familiar Chinese software terminology for this draggable, titled container inside a view and keeps 窗口 exclusive to operating system windows."
+    },
+    {
+      "id": "preset",
+      "en": "Preset",
+      "ko": "프리셋",
+      "ja": "プリセット",
+      "zh_hans": "预设",
+      "kind": "feature",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": ""
+    },
+    {
+      "id": "profile",
+      "en": "Profile",
+      "ko": "프로필",
+      "ja": "プロファイル",
+      "zh_hans": "配置档",
+      "kind": "feature",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": "A remote connection or Claude session profile, distinct from a configuration file."
+    },
+    {
+      "id": "prompt",
+      "en": "Prompt",
+      "ko": "프롬프트",
+      "ja": "プロンプト",
+      "zh_hans": "提示",
+      "kind": "agent",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": "Use 提示词 for agent instructions, 提示 for approval requests and 提示符 for shell prompts, with 提示 as their shared head form."
+    },
+    {
+      "id": "pty",
+      "en": "PTY",
+      "ko": "PTY",
+      "ja": "PTY",
+      "zh_hans": "PTY",
+      "kind": "system",
+      "translate": false,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": ""
+    },
+    {
+      "id": "queue",
+      "en": "Queue",
+      "ko": "큐",
+      "ja": "キュー",
+      "zh_hans": "队列",
+      "kind": "system",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": ""
+    },
+    {
+      "id": "rate-limit",
+      "en": "Rate limit",
+      "ko": "rate limit",
+      "ja": "rate limit",
+      "zh_hans": "速率限制",
+      "kind": "system",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": ""
+    },
+    {
+      "id": "read-only",
+      "en": "Read-only",
+      "ko": "읽기 전용",
+      "ja": "読み取り専用",
+      "zh_hans": "只读",
+      "kind": "system",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": "Do not apply this adjective to a phrase meaning only the read operation."
+    },
+    {
+      "id": "reboot",
+      "en": "Reboot",
+      "ko": "재시작",
+      "ja": "再起動",
+      "zh_hans": "Reboot",
+      "kind": "feature",
+      "translate": false,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": "Keep the named agent operation recognizable and distinct from Respawn."
+    },
+    {
+      "id": "reconnect",
+      "en": "Reconnect",
+      "ko": "재연결",
+      "ja": "再接続",
+      "zh_hans": "重新连接",
+      "kind": "remote",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": ""
+    },
+    {
+      "id": "remote",
+      "en": "Remote",
+      "ko": "원격",
+      "ja": "リモート",
+      "zh_hans": "远程",
+      "kind": "remote",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": ""
+    },
+    {
+      "id": "remote-profile",
+      "en": "Remote profile",
+      "ko": "원격 프로필",
+      "ja": "リモートプロファイル",
+      "zh_hans": "远程配置档",
+      "kind": "remote",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": ""
+    },
+    {
+      "id": "respawn",
+      "en": "Respawn",
+      "ko": "재생성",
+      "ja": "再生成",
+      "zh_hans": "Respawn",
+      "kind": "feature",
+      "translate": false,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": "Keep the named process-recreation operation recognizable and distinct from Reboot."
+    },
+    {
+      "id": "role",
+      "en": "Role",
+      "ko": "역할",
+      "ja": "役割",
+      "zh_hans": "角色",
+      "kind": "agent",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": ""
+    },
+    {
+      "id": "sandbox",
+      "en": "Sandbox",
+      "ko": "샌드박스",
+      "ja": "サンドボックス",
+      "zh_hans": "沙箱",
+      "kind": "system",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": ""
+    },
+    {
+      "id": "scope",
+      "en": "Scope",
+      "ko": "스코프",
+      "ja": "範囲",
+      "zh_hans": "范围",
+      "kind": "system",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": ""
+    },
+    {
+      "id": "script",
+      "en": "Script",
+      "ko": "스크립트",
+      "ja": "スクリプト",
+      "zh_hans": "脚本",
+      "kind": "system",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": ""
+    },
+    {
+      "id": "scrollback",
+      "en": "Scrollback",
+      "ko": "스크롤백",
+      "ja": "スクロールバック",
+      "zh_hans": "回滚缓冲区",
+      "kind": "system",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": "Retained terminal output available by scrolling back."
+    },
+    {
+      "id": "secret",
+      "en": "Secret",
+      "ko": "secret",
+      "ja": "secret",
+      "zh_hans": "机密",
+      "kind": "system",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": "Stored sensitive data; use 机密值 when explicitly referring to its value."
+    },
+    {
+      "id": "session",
+      "en": "Session",
+      "ko": "세션",
+      "ja": "セッション",
+      "zh_hans": "会话",
+      "kind": "agent",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": "Distinct from the conversation content."
+    },
+    {
+      "id": "settings",
+      "en": "Settings",
+      "ko": "설정",
+      "ja": "設定",
+      "zh_hans": "设置",
+      "kind": "ui_element",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": ""
+    },
+    {
+      "id": "shell",
+      "en": "Shell",
+      "ko": "셸",
+      "ja": "シェル",
+      "zh_hans": "Shell",
+      "kind": "system",
+      "translate": false,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": "The command interpreter running in a terminal."
+    },
+    {
+      "id": "shortcut",
+      "en": "Shortcut",
+      "ko": "단축키",
+      "ja": "ショートカット",
+      "zh_hans": "快捷键",
+      "kind": "ui_element",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": "A keyboard shortcut rather than a filesystem link."
+    },
+    {
+      "id": "sidebar",
+      "en": "Sidebar",
+      "ko": "사이드바",
+      "ja": "サイドバー",
+      "zh_hans": "侧边栏",
+      "kind": "ui_element",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": ""
+    },
+    {
+      "id": "spawn",
+      "en": "Spawn",
+      "ko": "spawn",
+      "ja": "spawn",
+      "zh_hans": "Spawn",
+      "kind": "feature",
+      "translate": false,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": "Keep the named creation operation recognizable beside Respawn and Reboot."
+    },
+    {
+      "id": "split",
+      "en": "Split",
+      "ko": "분할",
+      "ja": "分割",
+      "zh_hans": "拆分",
+      "kind": "feature",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": ""
+    },
+    {
+      "id": "ssh",
+      "en": "SSH",
+      "ko": "SSH",
+      "ja": "SSH",
+      "zh_hans": "SSH",
+      "kind": "system",
+      "translate": false,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": ""
+    },
+    {
+      "id": "status-bar",
+      "en": "Status bar",
+      "ko": "",
+      "ja": "",
+      "zh_hans": "状态栏",
+      "kind": "ui_element",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "site"
+      ],
+      "note": ""
+    },
+    {
+      "id": "stdin",
+      "en": "stdin",
+      "ko": "stdin",
+      "ja": "stdin",
+      "zh_hans": "stdin",
+      "kind": "system",
+      "translate": false,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": ""
+    },
+    {
+      "id": "surface",
+      "en": "Surface",
+      "ko": "서피스",
+      "ja": "サーフェス",
+      "zh_hans": "Surface",
+      "kind": "structure",
+      "translate": false,
+      "avoid": [
+        "表面"
+      ],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": "Keeping English clearly identifies the lowest typed container without confusing it with a panel, view or interface; color surfaces mean backgrounds."
+    },
+    {
+      "id": "tab",
+      "en": "Tab",
+      "ko": "탭",
+      "ja": "タブ",
+      "zh_hans": "标签页",
+      "kind": "structure",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": "One tab within a pane whose surfaces switch together."
+    },
+    {
+      "id": "tab-bar",
+      "en": "Tab bar",
+      "ko": "탭 바",
+      "ja": "タブバー",
+      "zh_hans": "标签栏",
+      "kind": "ui_element",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": ""
+    },
+    {
+      "id": "task",
+      "en": "Task",
+      "ko": "작업",
+      "ja": "タスク",
+      "zh_hans": "任务",
+      "kind": "agent",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": ""
+    },
+    {
+      "id": "tasty",
+      "en": "Tasty",
+      "ko": "Tasty",
+      "ja": "Tasty",
+      "zh_hans": "Tasty",
+      "kind": "product_name",
+      "translate": false,
+      "avoid": [
+        "软体"
+      ],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": ""
+    },
+    {
+      "id": "terminal",
+      "en": "Terminal",
+      "ko": "터미널",
+      "ja": "ターミナル",
+      "zh_hans": "终端",
+      "kind": "feature",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": "A terminal is one surface kind rather than a synonym for Surface."
+    },
+    {
+      "id": "theme",
+      "en": "Theme",
+      "ko": "테마",
+      "ja": "テーマ",
+      "zh_hans": "主题",
+      "kind": "feature",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": ""
+    },
+    {
+      "id": "title-bar",
+      "en": "Title bar",
+      "ko": "",
+      "ja": "",
+      "zh_hans": "标题栏",
+      "kind": "ui_element",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "site"
+      ],
+      "note": ""
+    },
+    {
+      "id": "toast",
+      "en": "Toast",
+      "ko": "토스트",
+      "ja": "トースト",
+      "zh_hans": "短暂提示",
+      "kind": "ui_element",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": "A brief notice that does not take focus."
+    },
+    {
+      "id": "token",
+      "en": "Token",
+      "ko": "토큰",
+      "ja": "トークン",
+      "zh_hans": "令牌",
+      "kind": "system",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": "Primarily a scope or permission token; Design token has a separate entry."
+    },
+    {
+      "id": "tooltip",
+      "en": "Tooltip",
+      "ko": "",
+      "ja": "",
+      "zh_hans": "工具提示",
+      "kind": "ui_element",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "site"
+      ],
+      "note": ""
+    },
+    {
+      "id": "troubleshooting",
+      "en": "Troubleshooting",
+      "ko": "문제 해결",
+      "ja": "",
+      "zh_hans": "故障排除",
+      "kind": "site",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "site"
+      ],
+      "note": ""
+    },
+    {
+      "id": "tunnel",
+      "en": "Tunnel",
+      "ko": "터널",
+      "ja": "トンネル",
+      "zh_hans": "隧道",
+      "kind": "remote",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": ""
+    },
+    {
+      "id": "ui",
+      "en": "UI",
+      "ko": "UI",
+      "ja": "UI",
+      "zh_hans": "界面",
+      "kind": "ui_element",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": ""
+    },
+    {
+      "id": "url",
+      "en": "URL",
+      "ko": "URL",
+      "ja": "URL",
+      "zh_hans": "URL",
+      "kind": "system",
+      "translate": false,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": ""
+    },
+    {
+      "id": "viewer",
+      "en": "Viewer",
+      "ko": "뷰어",
+      "ja": "ビューア",
+      "zh_hans": "查看器",
+      "kind": "feature",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": ""
+    },
+    {
+      "id": "webview",
+      "en": "WebView",
+      "ko": "webview",
+      "ja": "webview",
+      "zh_hans": "WebView",
+      "kind": "system",
+      "translate": false,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": ""
+    },
+    {
+      "id": "window",
+      "en": "Window",
+      "ko": "윈도우",
+      "ja": "ウィンドウ",
+      "zh_hans": "窗口",
+      "kind": "structure",
+      "translate": true,
+      "avoid": [
+        "视窗"
+      ],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": "Reserve 窗口 for operating system windows; a temporal measurement window is a time interval."
+    },
+    {
+      "id": "windows",
+      "en": "Windows",
+      "ko": "Windows",
+      "ja": "Windows",
+      "zh_hans": "Windows",
+      "kind": "product_name",
+      "translate": false,
+      "avoid": [],
+      "scope": [
+        "site"
+      ],
+      "note": "The operating system name only; lowercase plural windows referring to app containers translates as 窗口."
+    },
+    {
+      "id": "working-directory",
+      "en": "Working directory",
+      "ko": "작업 디렉터리",
+      "ja": "作業ディレクトリ",
+      "zh_hans": "工作目录",
+      "kind": "system",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": ""
+    },
+    {
+      "id": "workspace",
+      "en": "Workspace",
+      "ko": "워크스페이스",
+      "ja": "ワークスペース",
+      "zh_hans": "工作区",
+      "kind": "structure",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": "The sidebar-switched container in the hierarchy Window > Workspace > Pane > Tab > Surface."
+    },
+    {
+      "id": "zoom",
+      "en": "Zoom",
+      "ko": "확대/축소",
+      "ja": "拡大/縮小",
+      "zh_hans": "缩放",
+      "kind": "ui_element",
+      "translate": true,
+      "avoid": [],
+      "scope": [
+        "app",
+        "site"
+      ],
+      "note": "Tasty uses UI magnification, with 放大 and 缩小 for directional actions; the macOS Zoom menu changes window size."
+    }
+  ]
+}

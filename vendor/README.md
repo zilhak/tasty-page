@@ -103,6 +103,7 @@ How Tasty writes. Match this voice in any copy you produce.
   - `tasty.tokens.json` — W3C DTCG export of all three tiers (alias chain + Latte mode) for Style Dictionary / Tokens Studio. The app takes its tokens from this file.
 - The 3-tier chain is documented visually in `guidelines/token-system.html` (live primitive→semantic→component tables, theme-toggleable).
 - `icons/` + `icons.json` — the canonical UI glyph set (source of truth) and its manifest; rendered via `<Icon name>`. The app icons are transcribed from `icons.json`.
+- `i18n/zh-Hans/glossary.json` — Simplified Chinese terms, style rules, display name and language order, read by the app and site translation. Codex writes its values; send changes back to Codex rather than editing them by hand.
 
 **Components** (sources and types in `components/<group>/<Comp>.jsx` and `<Comp>.d.ts`; `components/index.js` re-exports them)
 
