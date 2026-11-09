@@ -71,4 +71,11 @@ export const KO: Strings = {
   translateCta: "한국어 원문 보기",
 };
 
-export const stringsFor = (lang: "ko" | "en") => (lang === "ko" ? KO : EN);
+const TABLES = new Map([EN, KO].map((table) => [table.lang, table]));
+
+/** The strings of a language code. An unknown code is an error, not a fallback. */
+export const stringsFor = (lang: string): Strings => {
+  const table = TABLES.get(lang);
+  if (!table) throw new Error(`No strings for site language: ${lang}`);
+  return table;
+};

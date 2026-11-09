@@ -46,8 +46,7 @@ const toc = headings.filter((h) => h.depth === 2 || h.depth === 3);
   title={documentTitle}
   description={descriptionIn(page, lang)}
   active="guide"
-  enHref={pathOf(page, "en")}
-  koHref={pathOf(page, "ko")}
+  hrefs={{ en: pathOf(page, "en"), ko: pathOf(page, "ko") }}
   ogType="article"
 >
   {hasDiagram && (

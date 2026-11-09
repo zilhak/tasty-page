@@ -21,7 +21,7 @@ const next = idx + 1 < GALLERY_PAGES.length ? GALLERY_PAGES[idx + 1] : null;
 const intro = GALLERY_INTROS[pageKey] ?? page.head.intro ?? "";
 const path = galleryPath(current.slug);
 ---
-<Base lang="en" title={`${page.head.title} · Tasty Gallery`} description={intro} active="design" enHref={path} koHref={path} robots="noindex, follow">
+<Base lang="en" title={`${page.head.title} · Tasty Gallery`} description={intro} active="design" hrefs={{ en: path, ko: path }} robots="noindex, follow">
   <Fragment slot="head"><link rel="stylesheet" href={url("design/kit.css")} /></Fragment>
   <div class="layout layout--gallery">
     <aside class="sidebar" aria-label="Gallery" data-site-chrome>

@@ -5,7 +5,7 @@ import meta from "../../lib/meta.json";
 import { url } from "../../lib/site";
 import { landingJsonLd } from "../../lib/structured-data";
 ---
-<Base lang="ko" title={meta.ko.title} description={meta.ko.description} enHref="" koHref="ko/">
+<Base lang="ko" title={meta.ko.title} description={meta.ko.description} hrefs={{ en: "", ko: "ko/" }}>
   <Fragment slot="head">
     <link rel="stylesheet" href={url("design/kit.css")} />
     <script is:inline type="application/ld+json" set:html={landingJsonLd("ko")} />

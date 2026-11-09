@@ -27,8 +27,7 @@ const s = stringsFor(lang);
   title={`${title} · Tasty Design System`}
   description={description}
   active="design"
-  enHref={designPath(current, "en")}
-  koHref={designPath(current, "ko")}
+  hrefs={{ en: designPath(current, "en"), ko: designPath(current, "ko") }}
 >
   <div class="layout layout--design">
     <aside class="sidebar" aria-label={s.navDesign}>

@@ -229,9 +229,10 @@ npm run stamp content/en/index.md
 헤더의 EN/KO로 고른 값(`localStorage`의 `tasty-lang`)이 있으면 그 값을, 없으면 `navigator.language`를 따르며
 `ko`로 시작하면 `/ko/`로 이동한다. 다른 페이지는 이동하지 않아 공유한 링크가 그 언어로 열린다. JS가 꺼져 있으면
 영어 랜딩이 그대로 보인다. 페이지마다 `Base.astro`가 자기 주소를 `canonical`과 `og:url`로 알리고, 언어가 나뉜 페이지는
-두 언어 주소를 `hreflang`과 `og:locale:alternate`로 함께 알린다. `enHref`와 `koHref`가 같은 갤러리는 다른 언어판이 없어
-이 둘을 내지 않는다. 절대 주소는 `src/lib/site.ts`의 `absolute()`가 `src/lib/base.mjs`의 `SITE`로 만든다.
-`Base.astro`는 `lang`에 맞는 1200×630 공유 이미지의 절대 주소를 `og:image`로 내고 크기를 `og:image:width`와 `og:image:height`로 함께 알린다. `twitter:card`는 `summary_large_image`다. `lang`이 `ko`이면 한국어 이미지, `en`이면 영어 이미지를 쓴다. `Base.astro`를 쓰지 않는 `/design/cards/*.html`에는 이 메타가 없다.
+언어별 주소를 `hreflang`과 `og:locale:alternate`로 함께 알린다. 호출하는 쪽은 언어 코드별 경로 맵 `hrefs`를 넘기고, 언어 전환은 언어 목록 순서대로 맵에 있는 언어를 보여 준다. 맵의 경로가 모두 같은 갤러리는 다른 언어판이 없어
+`hreflang`과 `og:locale:alternate`를 내지 않는다. `x-default`는 기본 언어의 경로다. 절대 주소는 `src/lib/site.ts`의 `absolute()`가 `src/lib/base.mjs`의 `SITE`로 만든다.
+언어 목록은 `src/lib/langs.mjs`에 있다. 언어마다 코드, 경로 접두어, 언어 전환 표시 글자, `og:locale` 값, 랜딩·가이드·개인정보 경로, 검색 색인 파일, 공유 이미지 경로를 한 행에 적고, 기본 언어를 `DEFAULT_LANG`으로 내보낸다. `Base.astro`는 언어 코드를 비교하지 않고 행의 값을 읽는다. `langRow`와 `src/lib/strings.ts`의 `stringsFor`는 없는 언어를 받으면 영어로 대체하지 않고 예외를 던진다.
+`Base.astro`는 언어 행의 `shareImage`로 1200×630 공유 이미지의 절대 주소를 `og:image`로 내고 크기를 `og:image:width`와 `og:image:height`로 함께 알린다. `twitter:card`는 `summary_large_image`다. 새 언어의 이미지가 생기기 전에는 행에 있는 이미지를 가리키게 한다. `Base.astro`를 쓰지 않는 `/design/cards/*.html`에는 이 메타가 없다.
 네이버 Search Advisor의 사이트 소유 확인 태그(`naver-site-verification`)는 `src/pages/index.astro`의 `head` 슬롯에 있어 `/`에만 나간다.
 
 ## 방문자 분석

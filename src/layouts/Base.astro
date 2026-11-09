@@ -2,6 +2,7 @@
 /** Document shell: head, header bar, footer — shared by the guide and the landings. */
 import "../styles/tokens.css";
 import "../styles/global.css";
+import { DEFAULT_LANG, LANGS, langRow } from "../lib/langs.mjs";
 import { stringsFor } from "../lib/strings";
 import { REPO, absolute, url } from "../lib/site";
 import { releaseVersion } from "../lib/release";
@@ -9,29 +10,31 @@ import Analytics from "../components/Analytics.astro";
 import * as icon from "../components/icons";
 
 interface Props {
-  lang: "ko" | "en";
+  /** A language code from lib/langs.mjs. */
+  lang: string;
   title: string;
   description: string;
   /** Which top-nav item to mark as current. */
   active?: "guide" | "install" | "design" | null;
-  /** Where the language switch points, per language. */
-  enHref: string;
-  koHref: string;
+  /** This page's path per language code. The language switch lists the languages present here. */
+  hrefs: Record<string, string>;
   /** Open Graph type of the page. */
   ogType?: "website" | "article";
   /** Value of the robots meta tag. Without it the page has no such tag. */
   robots?: string;
 }
-const { lang, title, description, active = null, enHref, koHref, ogType = "website", robots } = Astro.props;
+const { lang, title, description, active = null, hrefs, ogType = "website", robots } = Astro.props;
 const s = stringsFor(lang);
+const current = langRow(lang);
 const version = releaseVersion(process.cwd());
-const guidePrefix = lang === "en" ? "guide/" : "ko/guide/";
-const landing = lang === "en" ? url("") : url("ko/");
+const guidePrefix = current.guide;
+const landing = url(current.landing);
 const mark = (name: string) => (active === name ? "page" : undefined);
-const canonical = absolute(lang === "en" ? enHref : koHref);
-// A page published once, for one language, has no other version to announce.
-const hasOtherLanguage = enHref !== koHref;
-const ogLocale = { en: "en_US", ko: "ko_KR" };
+const canonical = absolute(hrefs[current.code]);
+const listed = LANGS.filter((row) => hrefs[row.code] !== undefined);
+// A page published once, at one path, has no other version to announce.
+const hasOtherLanguage = listed.some((row) => hrefs[row.code] !== hrefs[current.code]);
+const defaultHref = hrefs[DEFAULT_LANG];
 ---
 <html lang={s.lang} data-theme-default="mocha">
   <head>
@@ -47,18 +50,19 @@ const ogLocale = { en: "en_US", ko: "ko_KR" };
     <meta property="og:type" content={ogType} />
     <meta property="og:url" content={canonical} />
     <meta property="og:site_name" content="Tasty" />
-    <meta property="og:locale" content={ogLocale[lang]} />
-    {hasOtherLanguage && <meta property="og:locale:alternate" content={ogLocale[lang === "en" ? "ko" : "en"]} />}
-    <meta property="og:image" content={absolute(`tasty-share-${lang}.png`)} />
+    <meta property="og:locale" content={current.ogLocale} />
+    {hasOtherLanguage && listed.filter((row) => row !== current).map((row) => (
+      <meta property="og:locale:alternate" content={row.ogLocale} />
+    ))}
+    <meta property="og:image" content={absolute(current.shareImage)} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta name="twitter:card" content="summary_large_image" />
     <link rel="icon" href={url("tasty-melon.svg")} type="image/svg+xml" />
     {hasOtherLanguage && (
       <>
-        <link rel="alternate" hreflang="en" href={absolute(enHref)} />
-        <link rel="alternate" hreflang="ko" href={absolute(koHref)} />
-        <link rel="alternate" hreflang="x-default" href={absolute(enHref)} />
+        {listed.map((row) => <link rel="alternate" hreflang={row.code} href={absolute(hrefs[row.code])} />)}
+        {defaultHref !== undefined && <link rel="alternate" hreflang="x-default" href={absolute(defaultHref)} />}
       </>
     )}
     <script is:inline>
@@ -96,7 +100,7 @@ const ogLocale = { en: "en_US", ko: "ko_KR" };
         <a href={url(guidePrefix)} aria-current={mark("guide")}>{s.navGuide}</a>
         <a href={url(`${guidePrefix}getting-started/install/`)} aria-current={mark("install")}>{s.navInstall}</a>
         <a href={`${REPO}/releases/latest`}>{s.navDownload}</a>
-        <a href={url(lang === "en" ? "design/" : "ko/design/")} aria-current={mark("design")}>{s.navDesign}</a>
+        <a href={url(`${current.prefix}design/`)} aria-current={mark("design")}>{s.navDesign}</a>
         <a href={`${REPO}/blob/main/CHANGELOG.md`}>{s.navChangelog}</a>
       </nav>
       <div class="header-tools">
@@ -105,14 +109,15 @@ const ogLocale = { en: "en_US", ko: "ko_KR" };
           <span class="search__icon" aria-hidden="true"><Fragment set:html={icon.SEARCH} /></span>
           <input id="site-search" type="search" autocomplete="off" spellcheck="false"
                  placeholder={s.searchPlaceholder}
-                 data-index={url(lang === "en" ? "search-index.json" : "search-index.ko.json")}
+                 data-index={url(current.searchIndex)}
                  data-base={import.meta.env.BASE_URL}
                  data-empty-label={s.searchEmpty} />
           <div class="search__results" role="listbox"></div>
         </div>
         <div class="lang-switch">
-          <a href={url(enHref)} data-lang="en" aria-current={lang === "en" ? "true" : undefined}>EN</a>
-          <a href={url(koHref)} data-lang="ko" aria-current={lang === "ko" ? "true" : undefined}>KO</a>
+          {listed.map((row) => (
+            <a href={url(hrefs[row.code])} data-lang={row.code} aria-current={row === current ? "true" : undefined}>{row.label}</a>
+          ))}
         </div>
         <button class="icon-btn theme-toggle" type="button" aria-label={s.toggleTheme}>
           <Fragment set:html={icon.MOON} /><Fragment set:html={icon.SUN} />
@@ -148,7 +153,7 @@ const ogLocale = { en: "en_US", ko: "ko_KR" };
             <li><a href={`${REPO}/releases/latest`}>{s.footerReleases}</a></li>
             <li><a href={`${REPO}/issues`}>{s.footerIssues}</a></li>
             <li><a href={`${REPO}/blob/main/CHANGELOG.md`}>{s.navChangelog}</a></li>
-            <li><a href={url(lang === "en" ? "privacy/" : "ko/privacy/")}>{s.footerPrivacy}</a></li>
+            <li><a href={url(current.privacy)}>{s.footerPrivacy}</a></li>
           </ul>
         </div>
       </div>

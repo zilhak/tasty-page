@@ -7,7 +7,7 @@ import { landingJsonLd } from "../lib/structured-data";
 
 const korean = url("ko/");
 ---
-<Base lang="en" title={meta.en.title} description={meta.en.description} enHref="" koHref="ko/">
+<Base lang="en" title={meta.en.title} description={meta.en.description} hrefs={{ en: "", ko: "ko/" }}>
   <Fragment slot="head">
     <meta name="naver-site-verification" content="5da8d0987466907d092c6f94e26364e785acf65b" />
     <link rel="stylesheet" href={url("design/kit.css")} />
