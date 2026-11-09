@@ -314,8 +314,9 @@
   --tasty-font-size-heading: var(--tasty-font-size-13); /* same size, weight 600 */
   --tasty-font-size-max:     var(--tasty-font-size-14); /* hard ceiling for UI chrome */
   --tasty-font-size-prose-h1: var(--tasty-font-size-20); /* markdown Heading ANCHOR — rendered CONTENT, exempt from the UI cap. REDEFINED for the egui_commonmark adoption: no longer a per-level pixel size but the top of the library's interpolated heading ladder (the egui `Heading` text-style; H2–H6 are interpolated between this and Body by the library, not individually set). */
-  --tasty-font-size-brand-display: var(--tasty-font-size-30); /* first-run shell-setup brand title — BRANDING exception to the 14px UI cap, the second and last one after the wordmark */
-  --tasty-font-size-brand-wordmark: var(--tasty-font-size-17); /* "tasty." sidebar wordmark (mono) — sanctioned BRANDING exception to the 14px UI cap, the same way prose-h1 is content-exempt. The ONLY UI-chrome type over 14. */
+  --tasty-font-size-brand-display: var(--tasty-font-size-30); /* first-run shell-setup brand title — BRANDING exception to the 14px UI cap */
+  --tasty-font-size-brand-lockup: var(--tasty-font-size-38); /* "tasty." boot lockup beside the 64px mark (mono) — BRANDING exception to the 14px UI cap. The brand specimen and the boot screen read it through loading-lockup-font-size */
+  --tasty-font-size-brand-wordmark: var(--tasty-font-size-17); /* "tasty." sidebar wordmark (mono) — sanctioned BRANDING exception to the 14px UI cap, the same way prose-h1 is content-exempt. The only UI-chrome type over 14 are the three brand sizes: wordmark, display and lockup. */
   --tasty-font-size-term-sm: var(--tasty-font-size-12);
   --tasty-font-size-term:    var(--tasty-font-size-14); /* default terminal cell */
   --tasty-font-size-term-lg: var(--tasty-font-size-16);

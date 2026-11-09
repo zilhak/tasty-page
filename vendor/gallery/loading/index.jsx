@@ -28,14 +28,14 @@ const NAV = [
 ];
 
 // Brand lockup — components/BrandLogo/preview.html (branding exception to the 14px UI cap,
-// like --tasty-font-size-brand-wordmark). Mark → text gap = space-sm (8), the same gap
+// --tasty-font-size-brand-lockup, read through --tasty-loading-lockup-font-size). Mark → text gap = space-sm (8), the same gap
 // as the sidebar wordmark; the old −10px overlap is retired (2026-10-07).
 function Lockup() {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)" }}>
       <img src={`${BASE}tasty-icon.png`} alt="tasty"
         style={{ width: 64, height: 64, imageRendering: "-webkit-optimize-contrast" }} />
-      <span style={{ fontFamily: "var(--tasty-font-mono)", fontWeight: 700, fontSize: 38, letterSpacing: "var(--tasty-loading-lockup-tracking)", color: "var(--tasty-text-primary)" }}>
+      <span style={{ fontFamily: "var(--tasty-font-mono)", fontWeight: 700, fontSize: "var(--tasty-loading-lockup-font-size)", letterSpacing: "var(--tasty-loading-lockup-tracking)", color: "var(--tasty-text-primary)" }}>
         tasty<span data-audit-exempt="brand" style={{ color: "var(--tasty-brand-melon-flesh)" }}>.</span>
       </span>
     </div>
@@ -172,6 +172,7 @@ function Page() {
               { tok: "--tasty-bg-app", use: "full surface", color: "var(--tasty-bg-app)" },
               { tok: "--tasty-accent-primary", use: "spinner arc", color: "var(--tasty-accent-primary-raised)" },
               { tok: "--tasty-brand-melon-flesh", use: "wordmark dot", color: "var(--tasty-brand-melon-flesh)" },
+              { tok: "--tasty-loading-lockup-font-size", use: "the word: 38px, a branding size over the 14px cap" },
               { tok: "--tasty-spinner-duration", use: "900ms rotation" },
               { tok: "--tasty-space-xl / -lg", use: "stack gaps" },
             ]} />

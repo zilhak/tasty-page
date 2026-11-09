@@ -25,7 +25,7 @@ function LogoPlate({ theme }) {
     <div data-theme={theme} style={{ flex: "1 1 var(--tasty-size-288)", display: "flex", alignItems: "center", justifyContent: "center", gap: "var(--tasty-space-sm)",
       padding: "var(--tasty-space-xl)", background: "var(--tasty-surface-terminal-focused-bg)" }}>
       <Mark size="var(--tasty-size-64)" />
-      <span style={{ fontFamily: MONO, fontWeight: "var(--tasty-font-weight-bold)", fontSize: 38, letterSpacing: "var(--tasty-loading-lockup-tracking)", color: "var(--tasty-surface-terminal-focused-fg)" }}>
+      <span style={{ fontFamily: MONO, fontWeight: "var(--tasty-font-weight-bold)", fontSize: "var(--tasty-loading-lockup-font-size)", letterSpacing: "var(--tasty-loading-lockup-tracking)", color: "var(--tasty-surface-terminal-focused-fg)" }}>
         tasty<span data-audit-exempt="brand" style={{ color: "var(--tasty-brand-melon-flesh)" }}>.</span>
       </span>
     </div>
@@ -63,12 +63,13 @@ export function BrandSection() {
           <LogoPlate theme="latte" />
         </Stage>
         <Meta
-          specs={[["mark", <>64 × 64 <span className="tok">--tasty-size-64</span></>], ["mark to word", <span className="tok">--tasty-space-sm</span>], ["word", "mono 38px, weight 700"], ["tracking", <span className="tok">--tasty-loading-lockup-tracking</span>], ["dark plate", "#000000, the terminal ground in Mocha"], ["light plate", "#ffffff, the terminal ground in Latte"]]}
+          specs={[["mark", <>64 × 64 <span className="tok">--tasty-size-64</span></>], ["mark to word", <span className="tok">--tasty-space-sm</span>], ["word", <>mono 38px <span className="tok">--tasty-loading-lockup-font-size</span>, weight 700</>], ["tracking", <span className="tok">--tasty-loading-lockup-tracking</span>], ["dark plate", "#000000, the terminal ground in Mocha"], ["light plate", "#ffffff, the terminal ground in Latte"]]}
           tokens={[
             { tok: "--tasty-surface-terminal-focused-bg", use: "the plates: Mocha for dark, Latte for light" },
             { tok: "--tasty-surface-terminal-focused-fg", use: "word: #cdd6f4 on the dark plate, #4c4f69 on the light plate" },
             { tok: "--tasty-brand-melon-flesh", use: "wordmark dot, the mark and not text", color: "var(--tasty-brand-melon-flesh)" },
             { tok: "--tasty-font-mono", use: "the word" },
+            { tok: "--tasty-loading-lockup-font-size", use: "the word: 38px, a branding size over the 14px cap" },
             { tok: "--tasty-font-weight-bold", use: "the word" },
           ]} />
         <Note>The mark-to-word gap is the same as the sidebar's. The same lockup opens the boot screen (Startup).</Note>

@@ -1349,6 +1349,7 @@
   --tasty-settings-window-height:      var(--tasty-size-700);
   --tasty-toast-stack-offset-bottom:   var(--tasty-size-36);   /* MAIN window-scope stack: status bar 24 + 12. OFF-SCALE — the status bar and the toast structural dims are outside the UI zoom (2026-10-07) */
   --tasty-loading-lockup-tracking:     var(--tasty-letter-spacing-n1px); /* "tasty." 38px loading lockup */
+  --tasty-loading-lockup-font-size:    var(--tasty-font-size-brand-lockup); /* 38 — "tasty." loading lockup; BRANDING exception to the 14px UI cap */
   --tasty-font-preview-min-width:      var(--tasty-field-width-lg); /* one preview box narrower than this → Focused / Unfocused stack */
   --tasty-font-preview-padding-y:      var(--tasty-space-sm);
   --tasty-font-preview-padding-x:      var(--tasty-space-md);
