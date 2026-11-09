@@ -3,7 +3,8 @@
 랜딩 페이지와 **사용자 가이드**를 정적 HTML 로 발행하는 경로. 산출물은 GitHub Pages 로 배포된다.
 
 - 앱: 레포 루트 (Astro + React, Node 22)
-- 콘텐츠: `content/` (한국어 정본) · `content/en/` (영어 번역)
+- 콘텐츠: `content/` (한국어 정본) · `content/en/` (영어 번역). 번역 폴더는 언어 목록의 `contentDir`이 정한다
+- 문구: `src/lib/i18n/` (언어당 사전 하나. "언어 목록과 사전" 참고)
 - 산출물: 레포 루트 아래 `dist/` — 빌드가 만들며 Git에서 제외한다(경로 인용으로 안 적는다. 갓 클론한
   트리에는 없어서 좌표를 실재로 판정하는 CI의 경로 검사가 실패할 수 있다)
 - 배포: `.github/workflows/pages.yml`. `main`과 `release`의 push마다 `npm run build`로 빌드하고
@@ -40,12 +41,11 @@
 설치 방법과 지원 아키텍처는 설치 가이드로 연결한다.
 
 - 사이트 문구는 가이드를 포함해 Codex가 쓴다. Claude는 문구를 직접 쓰지 않고, Codex가 쓴 문구를 사실과 이 규칙에 대조한다. 어긋나면 Codex에게 다시 쓰게 한다(사용자 결정).
-- 랜딩은 `src/lib/landing.ts`, 검색·공유 소개는 `src/lib/meta.json`,
-  공통 안내와 푸터는 `src/lib/strings.ts`에서 한국어와 영어를 함께 관리한다.
+- 사이트 화면의 문구는 `src/lib/i18n/<언어>.mjs`의 사전에서 관리한다. 랜딩과 앱 예시는 `landing`, 검색·공유 소개는 `meta`, 공통 안내와 푸터는 `chrome`, 사이드바 묶음은 `sections`, 개인정보 안내는 `privacy`, 그림 라벨은 `diagrams`다. 모든 언어의 값을 함께 고친다.
 - 사용자 가이드는 `content/`와 `content/en/`를 같은 의미로 수정한다.
   명령어, 설정 키, 실제 메뉴 이름과 주의사항은 의미를 유지한다. 번역을 수정한 뒤 스탬프를 갱신한다.
 - 제목을 바꿀 때 기존 앵커를 별칭으로 남겨 저장된 링크도 계속 열리게 한다.
-- 디자인 소개와 메타 설명은 `src/components/design/`의 `COPY`에서 `intro`와 `description`으로 나누어 관리한다.
+- 디자인 소개와 메타 설명은 사전의 `designHome`에서 `intro`와 `description`으로 나누어 관리한다.
   두 값은 뜻을 같게 쓰고, `description`은 평문으로 쓴다. 갤러리 도입부는 `src/lib/design.ts`의
   `GALLERY_INTROS`에서 관리한다. 갤러리 본문 소개와 메타 설명은 같은 값을 사용한다.
   토큰 페이지의 제목과 소개는 `vendor/gallery/tokens/index.jsx`의 `page.head`, 메타 설명은 `TokenSystem.astro`의 `DESCRIPTION`이다.
@@ -116,7 +116,7 @@
 - 포커스 링: 앱과 같은 `border-focus`다.
 - 건너뛰기 링크: 키보드 포커스를 받을 때만 머리글 위 왼쪽 위에 나타난다. 자기 `bg-panel` 칠과 1px 테두리에 링크 잉크를 쓰고 포커스 링이 그 둘레를 두른다.
 - 인라인 코드: 칩 바탕은 `site-inline-code-bg`, 테두리는 1px `border-default`다. Latte에서 `raised`는 본문에서 지나치게 튀어 `mantle`로 내린다.
-- 번역 안내: `.note`는 경고 틴트(번역이 뒤처졌을 때), `.note--untranslated`는 주 색 틴트(번역이 없을 때)다. 앞머리 낱말과 색 테두리는 없다.
+- 번역 안내: `.note`는 경고 틴트(번역이 뒤처졌을 때), `.note--untranslated`는 주 색 틴트(디자인 첫 페이지의 영어 전용 안내)다. 앞머리 낱말과 색 테두리는 없다.
 - 표: 가이드의 Markdown 표는 렌더링 단계(`src/lib/satteri-table-wrap.mjs`)에서 `.table-wrap`으로 감싼다. 1px 테두리와 `mantle` 머리 행을 그리고 좁은 화면에서는 안쪽에서 가로 스크롤한다.
 - 구분자: 이동 경로의 `/`는 장식이다. `aria-hidden`과 `data-ink-grade="none" data-ink-why="ornament"`를 붙이고 `glyph-dim`을 쓴다.
 - 코드 블록: 두 테마에서 같은 어두운 팔레트(`site-code-*`)다. 하이라이터가 색을 인라인으로 쓰므로 `global.css`의 `pre.astro-code` 규칙이 `!important`로 바탕, 기본 잉크, 주석 색을 덮는다. 주석은 `style` 속성의 `#6A737D`로 찾으므로 하이라이터 테마를 바꾸면 이 선택자도 함께 고친다. 다른 하이라이터 잉크는 예외 없이 일반 기준으로 잰다.
@@ -193,7 +193,7 @@ npm run stamp content/en/index.md
 |------|------|
 | `/` | 영어 랜딩 |
 | `/ko/` | 한국어 랜딩 |
-| `/guide/**` | 영어 가이드. `content/en/**.md` 가 있으면 번역, 없으면 한국어 본문 + 배너 |
+| `/guide/**` | 영어 가이드. `content/en/**.md` 를 발행한다. 파일이 없으면 빌드가 실패한다 |
 | `/ko/guide/**` | 한국어 가이드 (`content/**.md`, canonical) |
 | `/privacy/` · `/ko/privacy/` | 개인정보 안내. 본문은 `src/components/Privacy.astro` 에 두 언어로 있고 푸터에서 연결한다 |
 | `/design/` · `/ko/design/` | 디자인 구역 안내. 제목·소개·안내는 경로의 언어로 나오고, 디자인 가이드가 영어 전용이라는 안내(`.note--untranslated`)를 제목 아래에 둔다. 왼쪽 메뉴는 영어다 |
@@ -229,7 +229,23 @@ npm run stamp content/en/index.md
 영어 랜딩이 그대로 보인다. 페이지마다 `Base.astro`가 자기 주소를 `canonical`과 `og:url`로 알리고, 언어가 나뉜 페이지는
 언어별 주소를 `hreflang`과 `og:locale:alternate`로 함께 알린다. 호출하는 쪽은 언어 코드별 경로 맵 `hrefs`를 넘기고, 언어 전환은 언어 목록 순서대로 맵에 있는 언어를 보여 준다. 번역되지 않은 디자인 페이지(토큰, 갤러리)는 내용이 같은 영어라 다른 언어판이 없으므로
 `announceLanguages={false}`로 `hreflang`과 `og:locale:alternate`를 내지 않고, 언어 전환은 그대로 보여 준다. `x-default`는 기본 언어의 경로다. 절대 주소는 `src/lib/site.ts`의 `absolute()`가 `src/lib/base.mjs`의 `SITE`로 만든다.
-언어 목록은 `src/lib/langs.mjs`에 있다. 언어마다 코드, 경로 접두어, 언어 전환 표시 글자, `og:locale` 값, 랜딩·가이드·개인정보 경로, 검색 색인 파일, 공유 이미지 경로를 한 행에 적고, 기본 언어를 `DEFAULT_LANG`으로 내보낸다. `Base.astro`는 언어 코드를 비교하지 않고 행의 값을 읽는다. `langRow`와 `src/lib/strings.ts`의 `stringsFor`는 없는 언어를 받으면 영어로 대체하지 않고 예외를 던진다.
+언어 목록은 `src/lib/langs.mjs`에 있다. 언어마다 코드, 경로 접두어, 언어 전환 표시 글자, `og:locale` 값, 랜딩·가이드·개인정보 경로, 검색 색인 파일, 공유 이미지 경로를 한 행에 적고, 기본 언어를 `DEFAULT_LANG`으로 내보낸다. 행에는 번역 폴더 `contentDir`도 있다. 한국어 정본은 `null`이다. 코드에서 언어 코드를 비교하지 않고 행의 값을 읽으며, 주소와 언어 코드가 다를 수 있으므로 `code`로 경로를 만들지 않는다(`code`는 `hreflang`과 `<html lang>`에 나간다). `CANONICAL_LANG`은 정본 언어이고, 모든 언어에 있는 페이지의 `hrefs`는 `hrefsFor`로 목록에서 만든다. `hrefs`에 페이지 언어가 없으면 `Base.astro`가 언어 코드를 담아 실패한다.
+
+### 언어 목록과 사전
+
+문구는 `src/lib/i18n/<언어>.mjs`에 언어당 파일 하나로 둔다. `src/lib/i18n/index.mjs`에 사전을 등록하고, `dictionaryFor`로 읽는다. `stringsFor`와 `copyFor`도 이 사전을 읽는다. 외부 번역 라이브러리는 쓰지 않는다. 사전은 Markdown 처리기(Vite 밖)와 스크립트에서도 읽도록 `.mjs`로 둔다.
+
+`index.mjs`를 import하면 `src/lib/i18n/check.mjs`가 사전을 영어와 대조한다. `npm run build`는 타입을 검사하지 않으므로 타입이 아니라 실행 시 검사로 실패시킨다. 메시지에는 언어 코드와 키 경로가 들어간다.
+
+- 빌드 실패: 빠진 키, 남는 키, 값의 종류 차이, 배열 길이 차이, 자리 표시(`{os}`, `{issues}`) 차이, 빈 값, `chrome.lang`과 언어 코드의 차이, 사전이 없는 언어 행.
+- 빈 값 예외: 어순 때문에 빌 수 있는 `landing.titleLead`, `landing.titleAccent`, `landing.titleTail`.
+- 언어 행이 아직 없는 사전도 등록하면 대조한다. 번역을 끝낸 뒤 행을 더할 수 있다.
+- 없는 언어를 다른 언어로 대체하지 않는다. `langRow`, `dictionaryFor`는 예외를 던진다.
+- 사전에 넣지 않는 곳: 영어로 고정한 `src/lib/design.ts`의 `GALLERY_INTROS`, `DESIGN_GROUPS`, `TokenSystem.astro`, `vendor/gallery/`.
+- `AppShell`은 `client:visible` 섬이다. 섬에서 사전을 import하면 모든 언어 문구가 브라우저로 가므로 현재 언어의 값(`landing.shellDoc`)만 props로 넘긴다.
+- `privacy`의 본문 값은 HTML로 출력한다.
+
+Astro 내장 i18n은 쓰지 않는다. 7.3.1에서 확인한 결과 `i18n` 설정은 페이지를 만들어 주지 않고(경로는 어차피 `getStaticPaths`가 만든다), `Astro.preferredLocale`은 정적 빌드에서 `undefined`이며, `astro:i18n`은 `scripts/`와 Markdown 처리기에서 읽지 못해 언어 목록이 둘이 된다. `fallback`은 번역이 빠져도 빌드를 통과시켜 위 규칙과 반대다.
 `Base.astro`는 언어 행의 `shareImage`로 1200×630 공유 이미지의 절대 주소를 `og:image`로 내고 크기를 `og:image:width`와 `og:image:height`로 함께 알린다. `twitter:card`는 `summary_large_image`다. 새 언어의 이미지가 생기기 전에는 행에 있는 이미지를 가리키게 한다.
 네이버 Search Advisor의 사이트 소유 확인 태그(`naver-site-verification`)는 `src/pages/index.astro`의 `head` 슬롯에 있어 `/`에만 나간다.
 
@@ -265,7 +281,7 @@ content/
 
 - 새 페이지를 추가하면 `ORDER` 에도 넣는다. 빠뜨리면 발행되지 않는다.
 - CLI 입문(`agents/cli.md`)·명령 참조(`agents/cli-reference.md`)·진단(`help/cli-diagnostics.md`) 페이지의 `sh` 코드 블록에 있는 `tasty …` 예시는 이 레포의 `checks/tests/guide_examples_parse.rs`가 Tasty 소스(`.tasty-src`)의 실제 명령 트리로 파싱한다(ko·en, `checks.yml`). 명령 경로·필수 인자·옵션 이름만 확인하며 plugin 명령, 자리 표시(`<ID>`·`…`), 셸 치환·파이프가 있는 줄은 판정하지 않는다. 문장의 정확성과 실행 결과는 이 검사가 보장하지 않는다.
-- 새 디렉토리(섹션)를 만들면 `SECTIONS` 에 (디렉토리, 한국어 라벨, 영어 라벨) 을 추가한다.
+- 새 디렉토리(섹션)를 만들면 `SECTIONS` 에 디렉토리를, 모든 사전의 `sections` 에 라벨을 추가한다.
   등록되지 않은 디렉토리에 페이지를 두면 빌드가 실패한다.
 - 페이지 첫 줄 `# 제목` 이 사이드바 라벨이다 (괄호 · 대시 이후는 잘린다).
 - `# 제목` 바로 아래 문단의 첫 문장이 그 페이지의 검색 · 공유 설명(`description`, `og:description`)이다(`src/lib/guide.ts`의 `descriptionOf`). 첫 문장은 페이지를 혼자서 설명하게 쓴다.
@@ -290,8 +306,8 @@ content/
 한국어(`content/`)가 canonical 이고 영어(`content/en/`)가 번역이다.
 
 - **경로 1:1** — `content/en/<rel>` 이 `content/<rel>` 을 그대로 미러한다.
-- **폴백** — 번역이 없는 페이지도 `/guide/` 에 발행된다. 한국어 본문 위에
-  "아직 번역되지 않았습니다" 배너가 붙는다. 영어 트리는 **항상 완전**하다.
+- **빠진 번역** — 언어 행의 `contentDir` 폴더에 번역 파일이 없으면 빌드가 언어와 파일 경로를 담아 실패한다.
+  한국어 본문으로 대체하지 않는다. 오래된 번역(아래 스탬프)은 실패가 아니라 안내만 낸다. 실패로 만들면 한국어 가이드를 고칠 때마다 빌드가 막히기 때문이다.
 - **스탬프** — 번역 파일 첫 줄에 원본의 내용 해시를 박는다:
 
   ```
@@ -475,8 +491,7 @@ Plugins · Ports · Remote · 커맨드 팔레트를 연다. 페이지이기 때
 
 디자인 시스템 자체를 발행하는 구역이다. `vendor/` 가 정본이고 사이트는 소비자다. 세 종류의 페이지가 레이아웃 하나(`src/layouts/Design.astro`)를 쓰므로 페이지를 오갈 때 폭, 메뉴, 머리 부분이 바뀌지 않는다. 선택한 언어는 구역 안에서 유지되고, 안내 페이지 밖의 내용은 모든 언어에서 영어다. 메뉴 순서와 이전·다음은 `src/lib/design.ts`의 `DESIGN_GROUPS` 한 목록에서 나온다. 머리 부분은 `vendor/gallery/README.md`의 "Headings"를 따른다.
 
-- **안내** (`/design/`) — 디자인 구역에서 유일하게 번역하는 페이지다. 문구는 `src/components/design/Foundations.astro`의
-  `COPY`에 언어마다 한 행씩 두고, 없는 언어는 영어로 대체하지 않고 예외를 던진다.
+- **안내** (`/design/`) — 디자인 구역에서 유일하게 번역하는 페이지다. 문구는 사전의 `designHome`에 두고, 없는 언어는 영어로 대체하지 않고 예외를 던진다.
 - **토큰** (`/design/tokens/`) — `vendor/gallery/tokens/`의 표본을 `tokens/tasty.tokens.json`에서 읽어 정적으로 그린다.
   갤러리와 같이 `SpecimenPage.astro`를 쓴다.
 - **갤러리** (`/design/gallery/**`) — `vendor/gallery/<페이지>/` 15 페이지. 살아 있는 표본이라
