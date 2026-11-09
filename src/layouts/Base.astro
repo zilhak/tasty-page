@@ -28,6 +28,9 @@ interface Props {
 const { lang, title, description, active = null, hrefs, ogType = "website", robots, announceLanguages = true } = Astro.props;
 const s = stringsFor(lang);
 const current = langRow(lang);
+if (hrefs[current.code] === undefined) {
+  throw new Error(`hrefs has no path for this page's language ${current.code}: ${title}`);
+}
 const version = releaseVersion(process.cwd());
 const guidePrefix = current.guide;
 const landing = url(current.landing);
