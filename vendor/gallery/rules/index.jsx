@@ -63,6 +63,8 @@ function SiteSample({ p, gid, map }) {
 }
 
 const cellW = "var(--tasty-size-88)";
+// A table wider than the column scrolls inside this box, never the page.
+const scrollBox = { overflow: "auto", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", background: "var(--tasty-bg-panel)" };
 const th = { position: "sticky", top: 0, background: "var(--tasty-bg-sidebar)", color: "var(--tasty-text-secondary)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", fontWeight: "var(--tasty-font-weight-normal)", padding: "var(--tasty-space-xs)", textAlign: "left", minWidth: cellW, width: cellW, borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)", zIndex: 1, wordBreak: "break-all", verticalAlign: "bottom" };
 const rowh = { position: "sticky", left: 0, background: "var(--tasty-bg-sidebar)", color: "var(--tasty-text-primary)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", padding: "var(--tasty-space-xs) var(--tasty-space-sm)", whiteSpace: "nowrap", zIndex: 1, textAlign: "left", fontWeight: "var(--tasty-font-weight-normal)" };
 
@@ -107,7 +109,7 @@ function Rules() {
             return (
           <figure className="fixed-view" data-view={label} key={label}>
           <figcaption>{label}</figcaption>
-          <div className="tasty-scroll" style={{ marginTop: "var(--tasty-space-md)", overflow: "auto", maxHeight: "var(--tasty-size-1100)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", background: "var(--tasty-bg-panel)" }}>
+          <div className="tasty-scroll" tabIndex={0} style={{ ...scrollBox, marginTop: "var(--tasty-space-md)", maxHeight: "var(--tasty-size-1100)" }}>
             <table style={{ borderCollapse: "collapse" }}>
               <thead>
                 <tr>
@@ -132,42 +134,46 @@ function Rules() {
       </Section>
       <Section id="site" title="Site pages">
         <Spec id="site-places" title="One ink per place, on each ground it stands on" when="The site's own header, sidebar, pages and footer, in the current theme. RULES.md section 15 says which values are new and why. The number is the lowest across the row's grounds.">
-          <table style={{ borderCollapse: "collapse", fontSize: "var(--tasty-font-size-caption)" }}>
-            <tbody>
-              {data.site.places.map((p) => (
-                <tr key={p.id}>
-                  <td style={{ padding: "var(--tasty-space-xs) var(--tasty-space-sm)", color: "var(--tasty-text-primary)" }}>{p.name}</td>
-                  <td style={{ padding: "var(--tasty-space-xs) var(--tasty-space-sm)" }}>
-                    <span style={{ display: "inline-flex", gap: "var(--tasty-space-xs)" }}>
-                      {p.grounds.map((gid) => <SiteSample key={gid} p={p} gid={gid} map={siteMap} />)}
-                    </span>
-                  </td>
-                  <td style={{ padding: "var(--tasty-space-xs) var(--tasty-space-sm)", fontFamily: "var(--tasty-font-mono)", color: "var(--tasty-text-secondary)" }}>{p.token}</td>
-                  <td style={{ padding: "var(--tasty-space-xs) var(--tasty-space-sm)", fontFamily: "var(--tasty-font-mono)", color: "var(--tasty-text-secondary)" }}>{p.grade ? p.contrast[theme].toFixed(2) : "no target"}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="tasty-scroll" tabIndex={0} style={scrollBox}>
+            <table style={{ borderCollapse: "collapse", fontSize: "var(--tasty-font-size-caption)" }}>
+              <tbody>
+                {data.site.places.map((p) => (
+                  <tr key={p.id}>
+                    <td style={{ padding: "var(--tasty-space-xs) var(--tasty-space-sm)", color: "var(--tasty-text-primary)" }}>{p.name}</td>
+                    <td style={{ padding: "var(--tasty-space-xs) var(--tasty-space-sm)" }}>
+                      <span style={{ display: "inline-flex", gap: "var(--tasty-space-xs)" }}>
+                        {p.grounds.map((gid) => <SiteSample key={gid} p={p} gid={gid} map={siteMap} />)}
+                      </span>
+                    </td>
+                    <td style={{ padding: "var(--tasty-space-xs) var(--tasty-space-sm)", fontFamily: "var(--tasty-font-mono)", color: "var(--tasty-text-secondary)" }}>{p.token}</td>
+                    <td style={{ padding: "var(--tasty-space-xs) var(--tasty-space-sm)", fontFamily: "var(--tasty-font-mono)", color: "var(--tasty-text-secondary)" }}>{p.grade ? p.contrast[theme].toFixed(2) : "no target"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </Spec>
       </Section>
       <Section id="groups" title="Colors told apart">
         <Spec id="distinct" title="Closest pair in each group" when="A pair under OKLab ΔE 0.08 must have a second channel.">
-          <table style={{ borderCollapse: "collapse", fontSize: "var(--tasty-font-size-caption)" }}>
-            <tbody>
-              {data.distinct.filter((d) => d.theme === theme).map((d) => (
-                <tr key={d.group}>
-                  <td style={{ padding: "var(--tasty-space-xs) var(--tasty-space-sm)", color: "var(--tasty-text-primary)" }}>{d.group}</td>
-                  <td style={{ padding: "var(--tasty-space-xs) var(--tasty-space-sm)" }}>
-                    <span style={{ display: "inline-flex", gap: "var(--tasty-space-xs)" }}>
-                      {d.pair.map((p) => <span key={p} title={p} style={{ width: "var(--tasty-size-12)", height: "var(--tasty-size-12)", borderRadius: "var(--tasty-radius-pill)", background: `var(--tasty-${p})` }} />)}
-                    </span>
-                  </td>
-                  <td style={{ padding: "var(--tasty-space-xs) var(--tasty-space-sm)", fontFamily: "var(--tasty-font-mono)", color: "var(--tasty-text-secondary)" }}>{d.minDeltaE.toFixed(3)}</td>
-                  <td style={{ padding: "var(--tasty-space-xs) var(--tasty-space-sm)", color: "var(--tasty-text-secondary)" }}>{d.secondChannel || "Hue is enough."}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="tasty-scroll" tabIndex={0} style={scrollBox}>
+            <table style={{ borderCollapse: "collapse", fontSize: "var(--tasty-font-size-caption)" }}>
+              <tbody>
+                {data.distinct.filter((d) => d.theme === theme).map((d) => (
+                  <tr key={d.group}>
+                    <td style={{ padding: "var(--tasty-space-xs) var(--tasty-space-sm)", color: "var(--tasty-text-primary)" }}>{d.group}</td>
+                    <td style={{ padding: "var(--tasty-space-xs) var(--tasty-space-sm)" }}>
+                      <span style={{ display: "inline-flex", gap: "var(--tasty-space-xs)" }}>
+                        {d.pair.map((p) => <span key={p} title={p} style={{ width: "var(--tasty-size-12)", height: "var(--tasty-size-12)", borderRadius: "var(--tasty-radius-pill)", background: `var(--tasty-${p})` }} />)}
+                      </span>
+                    </td>
+                    <td style={{ padding: "var(--tasty-space-xs) var(--tasty-space-sm)", fontFamily: "var(--tasty-font-mono)", color: "var(--tasty-text-secondary)" }}>{d.minDeltaE.toFixed(3)}</td>
+                    <td style={{ padding: "var(--tasty-space-xs) var(--tasty-space-sm)", color: "var(--tasty-text-secondary)" }}>{d.secondChannel || "Hue is enough."}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </Spec>
       </Section>
     </>
