@@ -46,7 +46,7 @@ const card = cards(process.cwd()).find((x) => x.slug === "token-system")!;
       <iframe src={url(`design/cards/${card.slug}.html`)} title={card.name}
               height={card.height} style={`min-width:${card.width}px`} />
     </div>
-    <a class="ds-card__src" href={`${SITE_REPO}/blob/main/vendor/guidelines/${card.slug}.html`}>
+    <a class="ds-card__src" href={`${SITE_REPO}/blob/release/vendor/guidelines/${card.slug}.html`}>
       {c.source} <code>{card.slug}.html</code>
     </a>
   </div>
