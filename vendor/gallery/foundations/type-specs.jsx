@@ -1,5 +1,6 @@
 // Foundations: the type specimens. The large samples are specimens above the 14px UI cap, and they say so.
 import React from "react";
+import { Icon } from "../../components/index.js";
 import { Spec, Stage, Meta, Note } from "../parts/specimen.jsx";
 
 const MONO = "var(--tasty-font-mono)";
@@ -75,6 +76,29 @@ const LABEL_FAMILY = [
   ["zh-Hans", "font-ui", "工作区", "附加连接"],
 ];
 
+// A category heading beside its count. "Projects" is a name the user typed, so Latin reaches these languages.
+const LABEL_FAMILY_ROWS = [
+  ["ja", "ワークスペース", 1],
+  ["ja", "Projects", 0],
+  ["zh-Hans", "工作区", 1],
+  ["zh-Hans", "Projects", 0],
+];
+
+function LabelFamilyRow({ lang, name, count }) {
+  return (
+    <div lang={lang} style={{ display: "flex", alignItems: "baseline", gap: "var(--tasty-space-xs)",
+      padding: "var(--tasty-sidebar-category-header-pad-y) var(--tasty-sidebar-category-header-pad-x)",
+      background: "var(--tasty-sidebar-category-header-bg)",
+      borderTop: "var(--tasty-border-width) solid var(--tasty-sidebar-category-header-border)",
+      borderBottom: "var(--tasty-border-width) solid var(--tasty-sidebar-category-header-border)" }}>
+      <span style={{ display: "inline-flex", alignSelf: "center", color: "var(--tasty-sidebar-category-header-fg)" }}><Icon name="chevronDown" size="var(--tasty-icon-size-xs)" /></span>
+      <span style={{ flex: 1, minWidth: 0, fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-sidebar-section-heading-font-size)", textTransform: "uppercase",
+        letterSpacing: "var(--tasty-sidebar-section-heading-tracking)", color: "var(--tasty-sidebar-category-header-fg)" }}>{name}</span>
+      <span style={{ fontFamily: MONO, fontSize: "var(--tasty-sidebar-category-header-count-font-size)", color: "var(--tasty-sidebar-category-header-count-fg)" }}>{count}</span>
+    </div>
+  );
+}
+
 export function LabelFamilySpec() {
   const label = { fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-sidebar-section-heading-font-size)", textTransform: "uppercase", letterSpacing: "var(--tasty-sidebar-section-heading-tracking)", color: "var(--tasty-text-muted)" };
   const cap = { fontFamily: MONO, fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" };
@@ -90,9 +114,17 @@ export function LabelFamilySpec() {
             <span lang={lang} style={label}>{section}</span>
           </div>
         ))}
+        {LABEL_FAMILY_ROWS.map(([lang, name, count]) => (
+          <div key={lang + name} style={{ display: "grid", gridTemplateColumns: "var(--tasty-size-64) 1fr", alignItems: "center", gap: "var(--tasty-space-sm)" }}>
+            <span style={cap}>{lang}</span>
+            <LabelFamilyRow lang={lang} name={name} count={count} />
+          </div>
+        ))}
       </Stage>
-      <Meta specs={[["family", <span className="tok">--tasty-font-label</span>], ["language rule", "tokens/base.css · RULES section 8"], ["size, ink, tracking, uppercase", "the label's own, in every language"]]}
+      <Meta specs={[["family", <span className="tok">--tasty-font-label</span>], ["language rule", "tokens/base.css · RULES section 8"], ["size, ink, tracking, uppercase", "the label's own, in every language"], ["line height, baseline in ja, zh-Hans", "font-mono's at the same size, measured in the app"], ["count", "same baseline as the label"], ["icon", "centred in the row"], ["Latin in ja, zh-Hans", "UI sans, no second face"]]}
         tokens={[
+          { tok: "--tasty-sidebar-category-header-fg", use: "heading and icon ink", color: "var(--tasty-sidebar-category-header-fg)" },
+          { tok: "--tasty-sidebar-category-header-count-fg", use: "count ink", color: "var(--tasty-sidebar-category-header-count-fg)" },
           { tok: "--tasty-font-label", use: "words in a small label" },
           { tok: "--tasty-font-mono", use: "en, ko; values in every language" },
           { tok: "--tasty-font-ui", use: "ja, zh-Hans" },

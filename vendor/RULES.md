@@ -1164,7 +1164,10 @@ Do not add a fainter ink to get order back. An ink under grade is a failure, wha
 
 - **Why.** D2Coding cannot hold Han. In ja and zh-Hans a label would change face inside a word, with a different weight and baseline, and the Han it does hold is not promised in the language's own forms. The mono face has to come first in its stack, or Latin stops being fixed width, so the stack cannot fix this.
 - **By language, not by string.** Choosing per string would set neighbouring labels in different faces, and having the letter says nothing about its form.
-- **What stays.** Size, weight, ink, tracking and uppercase stay as the label has them. Uppercase does not touch Han or kana. The label keeps its row height and its truncation.
+- **What stays.** Size, weight, ink, tracking and uppercase stay as the label has them. Uppercase does not touch Han or kana. The label keeps its truncation.
+- **Row height and baseline.** The row height is exact, down to a fraction of a pixel. Where `font-label` reads `font-ui`, the label takes the line height and the baseline that `font-mono` has at the same size, so changing the language moves no layout and a label shares one baseline with a mono count in its row. Both follow the mono metrics. They are not a stored offset. An icon stays centred in its row. Body text in `font-ui` does not move.
+- **Latin in a `font-ui` label.** Latin draws in the UI sans, and in the app that is thinner than the mono face. That is accepted. No second face, synthetic bold or brighter ink makes up for it.
+- **Where this is judged.** The browser gallery does not draw the app's faces, so these two rules are measured in the app. The specimen shows the arrangement.
 - **One run, one family.** A value inside a translated string takes the label family with the words. Where the value has to be mono, it is its own run.
 - **Stays mono in every language.** Terminal cells, code and commands, paths, IDs, permissions, surface kinds, versions, ports, sizes, times, counts with no word, keycaps, the wordmark, and Tags that hold one of these (`Tag mono`).
 
