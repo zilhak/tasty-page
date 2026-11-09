@@ -5,17 +5,23 @@ import { Icon as FIcon, Button, Tag, StatusDot, Input, Badge } from "../../compo
 import { Section, Spec, Stage, Cluster, Meta, Note, Do, Dont } from "../parts/specimen.jsx";
 import shareEn from "../../share/tasty-share-en.png";
 import shareKo from "../../share/tasty-share-ko.png";
+import { BrandSection } from "./brand.jsx";
+import { PaletteSection } from "./palette.jsx";
+import { SemanticElevationSpec, OverlayStatesSpec, AccentMapSpec, AnsiSixteenSpec } from "./color-specs.jsx";
+import { MonospaceSpec, UiSansSpec, WeightsSpec } from "./type-specs.jsx";
+import { GridSpec, HeightsSpec, MotionSpec } from "./shape-specs.jsx";
 
-// Tasty Gallery — Foundations. Tokens shown ONLY in the context that
-// consumes them: each swatch/value carries a "used for" statement, and
-// the spacing section shows real gaps/padding on the 4px grid, never
-// abstract bars.
+// Tasty Gallery — Foundations. The single reference for brand, color, type and spacing.
+// A token is shown in the context that consumes it, and every swatch or step carries
+// what it is for. The raw palette is the exception: tier 1 is the subject there.
 
 
 
 
 
 const NAV = [
+  { id: "brand", label: "Brand" },
+  { id: "palette", label: "Color — raw palette" },
   { id: "elevation", label: "Color — elevation" },
   { id: "floating", label: "Elevation — floating surfaces" },
   { id: "text", label: "Color — text" },
@@ -217,15 +223,18 @@ function SemRow({ tok, role }) {
 function Foundations() {
   return (
     <>
+      <BrandSection />
+      <PaletteSection />
+
       {/* ELEVATION */}
       <Section id="elevation" title="Color — elevation (surface ramp)">
         <Spec id="depth-reads-through-surface-tint-never-shadow" title="Depth reads through surface tint, never shadow"
-          when={<>Tasty has <b>no shadow system</b> (modals aside). Pick the next step up the ramp whenever you nest a container. A card on a panel is <b>--tasty-surface-raised</b> on <b>--tasty-bg-panel</b> — one step, not a drop shadow.</>}>
+          when={<>Inside the page, Tasty has <b>no shadow</b>: only floating surfaces carry one (next section). Pick the next step up the ramp whenever you nest a container. A card on a panel is <b>--tasty-surface-raised</b> on <b>--tasty-bg-panel</b> — one step, not a drop shadow.</>}>
           <Stage variant="solo center">
             <ElevationStack />
           </Stage>
           <Meta
-            specs={[["ramp order", <>crust→mantle→base→surface0→1→2</>], ["border", <>1px <span className="tok">--tasty-border-default</span></>], ["shadow", "none (UI); modals only"]]}
+            specs={[["ramp order", <>crust→mantle→base→surface0→1→2</>], ["border", <>1px <span className="tok">--tasty-border-default</span></>], ["shadow", "none in the page; floating surfaces only"]]}
             tokens={[
               { tok: "--tasty-bg-app", use: "window", color: "var(--tasty-bg-app)" },
               { tok: "--tasty-bg-sidebar", use: "rails", color: "var(--tasty-bg-sidebar)" },
@@ -237,6 +246,8 @@ function Foundations() {
           <Do><b>Do</b> tint up exactly one ramp step each time you nest a container.</Do>
           <Dont><b>Don't</b> add a <code>box-shadow</code> to cards or panels — only floating surfaces use shadow (next section).</Dont>
         </Spec>
+        <SemanticElevationSpec />
+        <OverlayStatesSpec />
       </Section>
 
       {/* FLOATING SURFACES — the two-shadow exception */}
@@ -287,6 +298,7 @@ function Foundations() {
             { tok: "--tasty-text-disabled", use: "disabled", color: "var(--tasty-text-disabled)" },
             { tok: "--tasty-text-placeholder", use: "empty inputs", color: "var(--tasty-text-placeholder)" },
           ]} />
+          <Note>A placeholder is text someone reads to act, so it reads the same step as <span className="tok">--tasty-text-muted</span> in both themes. Disabled alone sits below it.</Note>
         </Spec>
       </Section>
 
@@ -303,12 +315,16 @@ function Foundations() {
               demo={<StatusDot status="running" pulse label="running" />} />
             <AccentRow tok="--tasty-accent-warning" color="var(--tasty-accent-warning-raised)" role="warnings, validation"
               demo={<Tag variant="warning" dot>warning</Tag>} />
-            <AccentRow tok="--tasty-accent-attention" color="var(--tasty-accent-attention-raised)" role="needs-attention notice (plugins, occupied) — peach, NOT yellow"
+            <AccentRow tok="--tasty-accent-attention" color="var(--tasty-accent-attention-raised)" role="needs-attention notice (plugins) — peach, NOT yellow"
               demo={<Tag variant="attention" dot>attention</Tag>} />
             <AccentRow tok="--tasty-accent-danger" color="var(--tasty-accent-danger-raised)" role="destructive, errors"
               demo={<Button variant="danger" size="sm">Force detach</Button>} />
             <AccentRow tok="--tasty-accent-agent" color="var(--tasty-accent-agent-raised)" role="AI-agent surfaces & actions"
               demo={<><StatusDot status="agent" pulse /><Tag variant="agent">agent</Tag></>} />
+            <AccentRow tok="--tasty-accent-occupied-soft" color="var(--tasty-accent-occupied-soft)" role="occupied, cooperative — green, no write restriction"
+              demo={null} />
+            <AccentRow tok="--tasty-accent-occupied-hard" color="var(--tasty-accent-occupied-hard)" role="occupied surface notice — peach, its own axis"
+              demo={null} />
           </Stage>
           <Meta
             specs={[["fill text", <span className="tok">--tasty-text-on-accent</span>], ["focus ring", <>2px <span className="tok">--tasty-accent-primary</span></>], ["agent rule", "mauve = always agent"]]}
@@ -320,8 +336,11 @@ function Foundations() {
               { tok: "--tasty-accent-attention", use: "peach", color: "var(--tasty-accent-attention-raised)" },
               { tok: "--tasty-accent-danger", use: "red", color: "var(--tasty-accent-danger-raised)" },
               { tok: "--tasty-accent-agent", use: "mauve", color: "var(--tasty-accent-agent-raised)" },
+              { tok: "--tasty-accent-occupied-soft", use: "green", color: "var(--tasty-accent-occupied-soft)" },
+              { tok: "--tasty-accent-occupied-hard", use: "peach", color: "var(--tasty-accent-occupied-hard)" },
             ]} />
         </Spec>
+        <AccentMapSpec />
       </Section>
 
       {/* TERMINAL / ANSI */}
@@ -341,17 +360,21 @@ function Foundations() {
                 letterSpacing: ".06em", color: "var(--tasty-text-muted)", marginBottom: 8 }}>terminal state fills — painted onto cells</div>
               <div style={{ background: "var(--tasty-surface-terminal-focused-bg)", border: "1px solid var(--tasty-separator)", borderRadius: "var(--tasty-radius)",
                 padding: "12px 14px", fontFamily: "var(--tasty-font-mono)", fontSize: 13, lineHeight: 1.8,
-                color: "var(--tasty-color-neutral-1100, #cdd6f4)" }}>
+                color: "var(--tasty-surface-terminal-focused-fg)" }}>
                 <div><span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-ansi-green)" }}>~/tasty</span> $ vi notes.md</div>
                 <div>
                   The <Hi tok="--tasty-selection-bg">selected words</Hi> wrap the <Hi tok="--tasty-search-match-bg">match</Hi> and
                   the <Hi tok="--tasty-search-match-active-bg">active match</Hi> sit&nbsp;
-                  <span style={{ background: "var(--tasty-vi-cursor-bg)", color: "#000", borderRadius: 1 }}>h</span>ere
+                  <span style={{ background: "var(--tasty-vi-cursor-bg)", color: "var(--tasty-vi-cursor-fg)", borderRadius: 1 }}>h</span>ere
+                </div>
+                <div>
+                  grep <Hi tok="--tasty-selection-bg">selection_bg</Hi> · vi cursor <span style={{ background: "var(--tasty-vi-cursor-bg)", color: "var(--tasty-vi-cursor-fg)", borderRadius: 1 }}>{"\u00a0"}cell{"\u00a0"}</span> · search <Hi tok="--tasty-search-match-bg">match</Hi> <Hi tok="--tasty-search-match-active-bg">active</Hi>
                 </div>
               </div>
               <div style={{ marginTop: 10 }}>
                 <SemRow tok="--tasty-selection-bg" role="mouse / keyboard selection region" />
                 <SemRow tok="--tasty-vi-cursor-bg" role="vi-mode block cursor" />
+                <SemRow tok="--tasty-vi-cursor-fg" role="cell ink under the vi cursor" />
                 <SemRow tok="--tasty-search-match-bg" role="search matches in scrollback" />
                 <SemRow tok="--tasty-search-match-active-bg" role="the current / active match" />
                 <SemRow tok="--tasty-search-match-active-fg" role="cell ink inside the active match (2026-10-10)" />
@@ -377,6 +400,7 @@ function Foundations() {
           </div>
           <Dont><b>Don't</b> use an ANSI color for UI chrome or an accent for terminal output — <span className="ic">ansi-green</span> and <span className="ic">accent-success</span> are different roles that only happen to share a hue.</Dont>
         </Spec>
+        <AnsiSixteenSpec />
       </Section>
 
       {/* TYPE */}
@@ -404,14 +428,18 @@ function Foundations() {
               { tok: "--tasty-font-size-caption", use: "11px meta" },
               { tok: "--tasty-font-weight-semibold", use: "600 = heading" },
             ]} />
-          <Note>Two <b>sanctioned exceptions</b> to the 14px cap, both flagged in the tokens: <span className="tok">--tasty-font-size-prose-h1</span> (20px — rendered markdown <i>content</i>, not chrome; since the egui_commonmark adoption this is the <b>Heading anchor</b> at the top of the library's interpolated heading ladder, not a per-level size) and <span className="tok">--tasty-font-size-brand-wordmark</span> (17px — the mono <b>“tasty.”</b> sidebar wordmark, a <i>branding</i> mark). Nothing else in UI chrome exceeds 14px. Markdown <b>content</b> typography is otherwise <b>library-driven</b> (size ladder + leading fixed by egui_commonmark) — see the Markdown viewer specimen.</Note>
+          <Note><b>Sanctioned exceptions</b> to the 14px cap, all flagged in the tokens: <span className="tok">--tasty-font-size-prose-h1</span> (20px — rendered markdown <i>content</i>, not chrome; since the egui_commonmark adoption this is the <b>Heading anchor</b> at the top of the library's interpolated heading ladder, not a per-level size) and two <i>branding</i> sizes, <span className="tok">--tasty-font-size-brand-wordmark</span> (17px — the mono <b>“tasty.”</b> sidebar wordmark) and <span className="tok">--tasty-font-size-brand-display</span> (30px — the first-run title). The 38px boot lockup (Brand, Startup) is branding too. Nothing else in UI chrome exceeds 14px. Markdown <b>content</b> typography is otherwise <b>library-driven</b> (size ladder + leading fixed by egui_commonmark) — see the Markdown viewer specimen.</Note>
         </Spec>
+        <MonospaceSpec />
+        <UiSansSpec />
+        <WeightsSpec />
       </Section>
 
       {/* SPACING — the one that mattered */}
       <Section id="spacing" title="Spacing — the 4px grid, in use">
+        <GridSpec />
         <Spec id="five-steps-each-with-a-job" title="Five steps, each with a job"
-          when={<>The whole system snaps to a <b>4px grid</b> — there are only five spacing tokens. Below, each one is shown <b>doing its job</b>, not as an abstract bar. Turn on <b>Specs</b> to see the 4px rhythm under each example.</>}>
+          when={<>The whole system snaps to a <b>4px grid</b> — there are only five spacing tokens. Below, each one is shown <b>doing its job</b>, with the 4px rhythm drawn under each example.</>}>
           <Stage variant="solo column" style={{ gap: 0, padding: "4px 26px 14px" }}>
             <SpaceUse token="--tasty-space-xs" px="4px" usedFor="icon↔label gaps, chip insets, tight inner padding">
               <div style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-xs)", background: "var(--tasty-surface-raised)",
@@ -446,7 +474,7 @@ function Foundations() {
             </SpaceUse>
           </Stage>
           <Meta
-            specs={[["grid", "4 / 8 / 12 / 16 / 24"], ["rule", "multiples of 4px only"], ["heights", "snap to grid too"]]}
+            specs={[["grid", "4 / 8 / 12 / 16 / 24"], ["rule", "multiples of 4px only"], ["heights", "fixed tokens, on the grid except the 22px tree row"]]}
             tokens={[
               { tok: "--tasty-space-xs", use: "4 · icon gaps" },
               { tok: "--tasty-space-sm", use: "8 · control gaps" },
@@ -461,13 +489,16 @@ function Foundations() {
       {/* RADIUS / BORDER / MOTION */}
       <Section id="shape" title="Radius · border · motion">
         <Spec id="crisp-and-rectilinear-it-s-a-terminal" title="Crisp and rectilinear — it's a terminal"
-          when={<>Radius is <b>always 4px</b> (2px for tiny inner chips). Borders are <b>always 1px</b>. Motion is short UI feedback only — and <b>terminal content never animates (0ms, always)</b>.</>}>
+          when={<>One radius (4px), one border (1px). Radius is <b>always 4px</b> (2px for tiny inner chips). Borders are <b>always 1px</b>. Motion is short UI feedback only — and <b>terminal content never animates (0ms, always)</b>.</>}>
           <Stage variant="solo" style={{ gap: 26 }}>
             <Cluster label="--tasty-radius · 4px (default)">
               <div style={{ width: 88, height: 48, background: "var(--tasty-surface-raised)", border: "1px solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }} />
             </Cluster>
             <Cluster label="--tasty-radius-sm · 2px (inner)">
               <div style={{ width: 88, height: 48, background: "var(--tasty-surface-raised)", border: "1px solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius-sm)" }} />
+            </Cluster>
+            <Cluster label="--tasty-border-strong · 1px">
+              <div style={{ width: 88, height: 48, background: "var(--tasty-surface-raised)", border: "1px solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)" }} />
             </Cluster>
             <Cluster label="--tasty-radius-pill · chips/dots">
               <Badge variant="danger">99+</Badge>
@@ -483,11 +514,15 @@ function Foundations() {
             tokens={[
               { tok: "--tasty-radius", use: "4px everywhere" },
               { tok: "--tasty-radius-sm", use: "2px inner" },
+              { tok: "--tasty-border-strong", use: "1px, dividers inside a surface", color: "var(--tasty-border-strong)" },
               { tok: "--tasty-motion-ui", use: "120ms feedback" },
               { tok: "--tasty-motion-term", use: "0ms — terminal" },
               { tok: "--tasty-focus-ring-width", use: "2px ring" },
             ]} />
+          <Note>Elevation is communicated by surface tint, never drop shadow, on anything inside the page. The shadow tokens belong to floating surfaces only (Elevation — floating surfaces).</Note>
         </Spec>
+        <HeightsSpec />
+        <MotionSpec />
       </Section>
 
       {/* UI SCALE */}
@@ -650,7 +685,7 @@ function Foundations() {
           <Note>Opacity coefficients are <b>primitives</b> (<span className="tok">--tasty-opacity-tint-fill</span> / <span className="tok">-border</span>) with semantic aliases, so a per-role override stays possible later without re-scattering literals.</Note>
         </Spec>
         <Spec id="disabled-ink-no-contrast-target-latte-one-step-up" title="Disabled ink — no contrast target, Latte one step up"
-          when={<>WCAG 1.4.3 and 1.4.11 exempt disabled controls, and a 4.5:1 target would collapse the hierarchy: in Latte the first ramp step that clears 4.5:1 on the panel is neutral-900, one step under <span className="tok">--tasty-text-muted</span> (neutral-1000). So disabled gets <b>no contrast target</b>. Two rules replace it. <b>Order:</b> disabled sits strictly below <span className="tok">--tasty-text-muted</span> and above <span className="tok">--tasty-text-placeholder</span> on the ramp, and the ink step is the only thing that marks disabled (no extra opacity on the label). <b>Parity:</b> the Latte ramp is compressed at its light end, so <span className="tok">--tasty-text-disabled</span> remaps to <b>neutral-800</b> in Latte (Mocha stays neutral-700). Labels and glyphs still share the one ink. The <b>enabled</b> tab-strip arrow is an active control glyph and moves to <span className="tok">--tasty-text-muted</span>, which clears 3:1 in both themes. Ratios below are flat colour on the control's own ground, and flat colour is the basis of the 3:1 (2026-09-29); rendered AA glyphs measure lower and are not part of the target. Disabled controls take this ink with <b>no opacity</b> (Components › Buttons › Disabled). Arrow shape: Layouts › Pane tab strip.</>}>
+          when={<>WCAG 1.4.3 and 1.4.11 exempt disabled controls, and a 4.5:1 target would collapse the hierarchy: in Latte the first ramp step that clears 4.5:1 on the panel is neutral-900, one step under <span className="tok">--tasty-text-muted</span> (neutral-1000). So disabled gets <b>no contrast target</b>. Two rules replace it. <b>Order:</b> disabled sits strictly below <span className="tok">--tasty-text-muted</span> on the ramp, with <span className="tok">--tasty-text-placeholder</span> on the muted step, and the ink step is the only thing that marks disabled (no extra opacity on the label). <b>Parity:</b> the Latte ramp is compressed at its light end, so <span className="tok">--tasty-text-disabled</span> remaps to <b>neutral-800</b> in Latte (Mocha stays neutral-700). Labels and glyphs still share the one ink. The <b>enabled</b> tab-strip arrow is an active control glyph and moves to <span className="tok">--tasty-text-muted</span>, which clears 3:1 in both themes. Ratios below are flat colour on the control's own ground, and flat colour is the basis of the 3:1 (2026-09-29); rendered AA glyphs measure lower and are not part of the target. Disabled controls take this ink with <b>no opacity</b> (Components › Buttons › Disabled). Arrow shape: Layouts › Pane tab strip.</>}>
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
             {[["Mocha", "mocha", { c3: "3.40", c4: "3.40", en: "5.65" }, { c3: "3.40 (n700, unchanged)", c4: "3.40", en: "4.45 (n800)" }], ["Latte", "latte", { c3: "2.56", c4: "2.56", en: "4.05" }, { c3: "2.07 (n700)", c4: "2.07", en: "2.56 (n800)" }]].map(([label, attr, now, was]) => (
               <div key={label} {...(attr ? { "data-theme": attr } : {})} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-md)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
@@ -672,7 +707,7 @@ function Foundations() {
                   </div>
                 </div>
                 <div style={{ display: "flex", gap: "var(--tasty-space-xs)", alignItems: "center" }}>
-                  {[["placeholder", "var(--tasty-text-placeholder)"], ["disabled", "var(--tasty-text-disabled)"], ["muted", "var(--tasty-text-muted)"], ["secondary", "var(--tasty-text-secondary)"], ["primary", "var(--tasty-text-primary)"]].map(([n, v]) => (
+                  {[["disabled", "var(--tasty-text-disabled)"], ["muted", "var(--tasty-text-muted)"], ["placeholder", "var(--tasty-text-placeholder)"], ["secondary", "var(--tasty-text-secondary)"], ["primary", "var(--tasty-text-primary)"]].map(([n, v]) => (
                     <span key={n} data-ink-grade={n === "disabled" ? "none" : undefined} data-ink-why={n === "disabled" ? "disabled" : undefined} style={{ padding: "var(--tasty-space-xs) var(--tasty-space-sm)", background: "var(--tasty-bg-panel)", borderRadius: "var(--tasty-radius-sm)", fontSize: "var(--tasty-font-size-caption)", color: v }}>{n}</span>
                   ))}
                 </div>
@@ -680,7 +715,7 @@ function Foundations() {
             ))}
           </Stage>
           <Meta
-            specs={[["A · target", "none — WCAG exempts disabled"], ["rule 1 · order", "placeholder < disabled < muted"], ["rule 2 · parity", "Latte remap n700 → n800"], ["B · ground", "n/a (no target) — report on the control's own ground"], ["C · enabled arrow", "in scope → text-muted (3:1 non-text)"], ["one ink", "labels + glyphs, unchanged principle"], ["pixels", "Latte disabled everywhere · both themes' enabled arrow"]]}
+            specs={[["A · target", "none — WCAG exempts disabled"], ["rule 1 · order", "disabled < muted = placeholder"], ["rule 2 · parity", "Latte remap n700 → n800"], ["B · ground", "n/a (no target) — report on the control's own ground"], ["C · enabled arrow", "in scope → text-muted (3:1 non-text)"], ["one ink", "labels + glyphs, unchanged principle"], ["pixels", "Latte disabled everywhere · both themes' enabled arrow"]]}
             tokens={[{ tok: "--tasty-text-disabled", use: "Mocha n700 · Latte n800", color: "var(--tasty-text-disabled)" }, { tok: "--tasty-tab-scroll-arrow-fg", use: "→ text-muted", color: "var(--tasty-tab-scroll-arrow-fg)" }, { tok: "--tasty-tab-scroll-arrow-fg-disabled", use: "→ text-disabled", color: "var(--tasty-tab-scroll-arrow-fg-disabled)" }]} />
           <Dont><b>Don't</b> lift disabled to 4.5:1. In Latte that lands one step under text-muted and disabled stops reading as disabled. The hierarchy is the requirement; contrast is reported, not targeted.</Dont>
         </Spec>
