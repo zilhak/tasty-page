@@ -373,6 +373,8 @@
   --tasty-search-match-active-bg: color-mix(in srgb, var(--tasty-color-yellow) 70%, transparent);
   --tasty-search-match-active-unfocused-fg: var(--tasty-search-match-active-fg); /* Latte → black: 4.26 on the crust bed otherwise */
   --tasty-search-match-active-fg: var(--tasty-color-neutral-200); /* 2026-10-10: cell ink inside the ACTIVE match — dark on yellow (Mocha 6.95:1) */
+  --tasty-search-match-selected-fg: var(--tasty-color-neutral-0); /* cell ink where a match lies over a selection. The light selection ink is 2.56 on that fill */
+  --tasty-search-match-active-selected-bg: var(--tasty-search-match-active-bg); /* active match fill over a selection. Latte raises it, see below */
 
   /* ── ANSI 16 (derived from the palette) ───────────────────── */
   --tasty-ansi-black:          var(--tasty-color-neutral-400);
@@ -474,6 +476,8 @@
      Normal match stays 30% (5.50:1). */
   --tasty-search-match-active-bg: color-mix(in srgb, var(--tasty-color-yellow) 50%, transparent);
   --tasty-search-match-active-fg: var(--tasty-color-neutral-1100);
+  --tasty-search-match-selected-fg: var(--tasty-color-black);
+  --tasty-search-match-active-selected-bg: color-mix(in srgb, var(--tasty-color-yellow) 80%, transparent); /* at 50% it sits dE 0.040 from a selected ordinary match; 80% gives 0.089 */
   --tasty-text-on-accent: var(--tasty-color-white);
 
   /* notification warning badge (2026-10-19): Latte yellow #df8e1d under white = 2.62:1 and under
