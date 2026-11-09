@@ -590,6 +590,8 @@ pre.astro-code span[style*="#6A737D"] { color: var(--tasty-site-code-comment) !i
   border: var(--border);
   border-radius: var(--radius);
 }
+/* The ring follows the table's own corners instead of the focus rule's smaller radius. */
+.table-wrap:focus-visible { border-radius: var(--radius); }
 .table-wrap table {
   border-collapse: collapse;
   width: 100%;
