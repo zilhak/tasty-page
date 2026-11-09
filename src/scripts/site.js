@@ -30,6 +30,24 @@
     });
   });
 
+  /* <details> opens and closes by itself. These close the language list the way a popup closes. */
+  var langSwitch = document.querySelector(".lang-switch");
+  if (langSwitch) {
+    document.addEventListener("click", function (e) {
+      if (langSwitch.open && !langSwitch.contains(e.target)) langSwitch.open = false;
+    });
+    langSwitch.addEventListener("keydown", function (e) {
+      if (e.key !== "Escape" || !langSwitch.open) return;
+      langSwitch.open = false;
+      langSwitch.querySelector("summary").focus();
+    });
+    langSwitch.addEventListener("focusout", function (e) {
+      if (e.relatedTarget && !langSwitch.contains(e.relatedTarget)) langSwitch.open = false;
+    });
+    /* The back button restores the page as it was left, with the list open. */
+    window.addEventListener("pageshow", function () { langSwitch.open = false; });
+  }
+
   /* Let the React demo read and update the shared page theme. */
   window.tastyTheme = { get: currentTheme, set: applyTheme };
 

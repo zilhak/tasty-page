@@ -23,6 +23,10 @@
 
   --font-sans-tail: "Apple SD Gothic Neo", "Pretendard", "Noto Sans KR", "Malgun Gothic", sans-serif;
   --font-sans-default: var(--tasty-font-family-sans), var(--font-sans-tail);
+  --font-cjk-ja: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Yu Gothic",
+                 "Meiryo", "Noto Sans CJK JP", "Noto Sans JP";
+  --font-cjk-zh: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei UI", "Microsoft YaHei",
+                 "Noto Sans CJK SC", "Noto Sans SC";
   --font-mono-default: var(--tasty-font-family-mono), monospace;
   --font-sans: var(--font-sans-default);
   --font-mono: var(--font-mono-default);
@@ -73,14 +77,8 @@
    page can land on another language's font. The names sit after the token so Latin
    letters look the same in every language, and ahead of the Korean names so Korean
    fonts do not draw Japanese or Chinese text. */
-:root:lang(ja) {
-  --font-cjk: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Yu Gothic",
-              "Meiryo", "Noto Sans CJK JP", "Noto Sans JP";
-}
-:root:lang(zh) {
-  --font-cjk: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei UI", "Microsoft YaHei",
-              "Noto Sans CJK SC", "Noto Sans SC";
-}
+:root:lang(ja) { --font-cjk: var(--font-cjk-ja); }
+:root:lang(zh) { --font-cjk: var(--font-cjk-zh); }
 :root:lang(ja), :root:lang(zh) {
   --font-sans: var(--tasty-font-family-sans), var(--font-cjk), var(--font-sans-tail);
   /* Without D2Coding and ahead of the generic family, so Han in code takes this language's
@@ -249,30 +247,75 @@ a.visually-hidden:focus-visible {
 .icon-btn:hover { background: var(--tasty-surface-raised); color: var(--tasty-text-secondary-raised); }
 .icon-btn svg { width: var(--size-icon-sm); height: var(--size-icon-sm); }
 
-/* Match adjacent controls in height. surface1 keeps the active fill distinct
-   from the surface0 border. */
+/* The language switch is a disclosure: a header button and a list of links, in every
+   width. Each language name is written in its own language, so a reader finds theirs
+   without reading the page. <details> keeps it working without the site script. */
 .lang-switch {
-  display: inline-flex;
+  position: relative;
   flex: none;
-  height: var(--size-control-sm);
-  border: var(--border);
-  border-radius: var(--radius-sm);
-  overflow: hidden;
 }
-.lang-switch a {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  padding: 0 var(--sp-3);
-  color: var(--tasty-text-muted);
+.lang-switch__toggle {
+  width: auto;
+  gap: var(--sp-1);
+  padding: 0 var(--sp-2);
+  list-style: none;
+  font-size: 13px;
+  font-weight: 500;
   line-height: 1;
-  display: inline-flex;
-  align-items: center;
+  white-space: nowrap;
+  user-select: none;
 }
-.lang-switch a + a { border-left: var(--border); }
-.lang-switch a:hover { background: var(--tasty-surface-raised); color: var(--tasty-text-primary); text-decoration: none; }
-.lang-switch a[aria-current] { background: var(--tasty-surface-hover); color: var(--tasty-text-on-active); }
+.lang-switch__toggle::-webkit-details-marker { display: none; }
+.lang-switch[open] > .lang-switch__toggle { background: var(--tasty-surface-raised); color: var(--tasty-text-primary); }
+.lang-switch > .lang-switch__toggle:active { background: var(--tasty-surface-hover); color: var(--tasty-text-on-active); }
+.lang-switch__icon { display: inline-flex; flex: none; }
+.lang-switch__icon svg { width: var(--size-icon-sm); height: var(--size-icon-sm); }
+.lang-switch__chevron svg { width: 12px; height: 12px; } /* no site step: --size-icon-* starts at 16 */
+.lang-switch[open] .lang-switch__chevron { transform: rotate(180deg); }
+
+.lang-switch__menu {
+  position: absolute;
+  top: calc(100% + var(--sp-2));
+  right: 0;
+  display: grid;
+  gap: var(--sp-1);
+  min-width: 160px;
+  margin: 0;
+  padding: var(--sp-1);
+  list-style: none;
+  background: var(--tasty-bg-sidebar);
+  border: var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--tasty-shadow-popover);
+}
+.lang-switch__menu a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  min-height: var(--size-control-md);
+  padding: 0 var(--sp-3);
+  border-radius: var(--radius-sm);
+  color: var(--tasty-text-primary);
+  font-size: 14px;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+.lang-switch__menu a:hover { background: var(--tasty-surface-raised); text-decoration: none; }
+.lang-switch__menu a:active { background: var(--tasty-surface-hover); color: var(--tasty-text-on-active); }
+.lang-switch__menu a[aria-current] {
+  background: var(--tasty-tint-primary-bg);
+  color: var(--tasty-accent-primary-raised);
+  font-weight: 600;
+}
+/* The ring sits outside the row, on the panel, and fits in the gap between rows. */
+.lang-switch__menu a:focus-visible { outline-offset: 0; }
+
+/* Every name in the switch takes the font of its own language, on every page. The page
+   language sets --font-sans for running text only, so it cannot reach these. */
+.lang-switch [lang="en"], .lang-switch [lang="ko"] { font-family: var(--font-sans-default); }
+.lang-switch [lang="ja"] { font-family: var(--tasty-font-family-sans), var(--font-cjk-ja), var(--font-sans-tail); }
+.lang-switch [lang="zh-Hans"] { font-family: var(--tasty-font-family-sans), var(--font-cjk-zh), var(--font-sans-tail); }
 
 
 .theme-toggle .icon-sun { display: none; }
@@ -850,6 +893,22 @@ pre.astro-code span[style*="#6A737D"] { color: var(--tasty-site-code-comment) !i
   .search__icon { display: flex; }
   .brand__version { display: none; }
   .site-footer__inner { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  /* The button stays the size of its neighbors and its name stays in the accessible name. */
+  .lang-switch__toggle { width: var(--size-control-sm); padding: 0; }
+  .lang-switch__chevron { display: none; }
+  .lang-switch__current {
+    position: absolute; width: 1px; height: 1px;
+    overflow: hidden; clip: rect(0 0 0 0);
+  }
+}
+
+@media (max-width: 900px), (pointer: coarse) {
+  .lang-switch__menu a { min-height: var(--size-control-lg); }
+}
+
+/* At 320px the header's fixed parts are 6px wider than the page. */
+@media (max-width: 340px) {
+  .site-header { gap: var(--sp-2); }
 }
 
 @media (max-width: 560px) {

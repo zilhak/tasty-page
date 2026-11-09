@@ -2370,6 +2370,8 @@ The site's landing, guide and design pages use the same grounds, roles and table
 
 **Skip link.** Hidden until keyboard focus. Then it sits at the top left over the header, on its own `base` fill with a 1px edge and the link ink, and the focus ring goes around that.
 
+**Language switch.** One button and one list of links at every width, opened by a `details` element so it works without the site script. Each language is named in its own language and script, in that language's font on every page, because the reader who needs the switch may not read the page. Simplified Chinese is written `简体中文`, not `中文`, so the name says which script exists. The button shows the globe, the current name and a chevron above 900px, and the globe alone at or below it, where it is the size of the other header buttons. The current row takes the tint, the weight and the check mark. The ring on a row sits outside the row, on the panel. A row is 36px tall, and 44px at or below 900px or on a coarse pointer.
+
 **Tables.** Every table in a guide page sits in `.table-wrap`: the 1px frame, the `mantle` head and the sideways scroll on a narrow screen.
 
 ### Site grounds
@@ -2398,9 +2400,14 @@ Contrast is the lowest across the row's grounds.
 | Header link, pointer over | `.site-nav a:hover` | `raised` | `text-body` | `text-primary` | 8.69 · 5.17 |
 | Header icon button | `.icon-btn` | `mantle` | `glyph` | `text-secondary` | 9.91 · 5.14 |
 | Header icon button, pointer over | `.icon-btn:hover` | `raised` | `glyph` | `text-secondary-raised` | 7.10 · 5.17 |
-| Language switch | `.lang-switch a` | `mantle` | `text-muted` | `text-muted` | 7.89 · 5.14 |
-| Language switch, pointer over | `.lang-switch a:hover` | `raised` | `text-body` | `text-primary` | 8.69 · 5.17 |
-| Language switch, current | `.lang-switch a[aria-current]` | `solid-hover` | `text-body` | `text-on-active` | 6.31 · 6.43 |
+| Language button | `.lang-switch__toggle` | `mantle` | `text-secondary` | `text-secondary` | 9.91 · 5.14 |
+| Language button, pointer over | `.lang-switch__toggle:hover` | `raised` | `text-secondary` | `text-secondary-raised` | 7.10 · 5.17 |
+| Language button, press | `.lang-switch > .lang-switch__toggle:active` | `solid-hover` | `text-body` | `text-on-active` | 6.31 · 6.43 |
+| Language button, list open | `.lang-switch[open] > .lang-switch__toggle` | `raised` | `text-body` | `text-primary` | 8.69 · 5.17 |
+| Language list row | `.lang-switch__menu a` | `mantle` | `text-body` | `text-primary` | 12.14 · 6.57 |
+| Language list row, pointer over | `.lang-switch__menu a:hover` | `raised` | `text-body` | `text-primary` | 8.69 · 5.17 |
+| Language list row, press | `.lang-switch__menu a:active` | `solid-hover` | `text-body` | `text-on-active` | 6.31 · 6.43 |
+| Language list row, current | `.lang-switch__menu a[aria-current]` | `tint-primary@mantle` | `text-primary` | `accent-primary-raised` | 6.65 · 5.86 |
 | Search value | `.search input` | `base` | `text-body` | `text-primary` | 11.34 · 7.06 |
 | Search placeholder | `.search input::placeholder` | `base` | `text-placeholder` | `text-placeholder` | 7.37 · 5.53 |
 | Search field edge | `.search input` | `mantle` | `border-control` | `border-control` | 3.59 · 3.58 |
@@ -2440,7 +2447,7 @@ Contrast is the lowest across the row's grounds.
 | Contents list | `.toc__title, .toc a` | `base` | `text-muted` | `text-muted` | 7.37 · 5.53 |
 | Contents list, current | `.toc a[data-active]` | `base` | `text-primary` | `accent-primary-raised` | 7.79 · 7.34 |
 | Contents list bar, current | `.toc a[data-active]` | `base` | `selection-bar` | `accent-primary` | 7.79 · 4.34 |
-| Focus ring | `a, button, input` | `base`, `mantle`, `raised` | `focus-ring` | `border-focus` | 5.97 · 3.18 |
+| Focus ring | `a, button, input, summary` | `base`, `mantle`, `raised` | `focus-ring` | `border-focus` | 5.97 · 3.18 |
 | Footer text | `.site-footer h4, .site-footer a, .site-footer__blurb, .site-footer__legal` | `mantle` | `text-muted` | `text-muted` | 7.89 · 5.14 |
 | Footer link, pointer over | `.site-footer a:hover` | `mantle` | `text-body` | `text-primary` | 12.14 · 6.57 |
 | Wordmark dot | `.wordmark b` | `base`, `mantle` | `mark` | `site-wordmark-dot` | no target · no target |

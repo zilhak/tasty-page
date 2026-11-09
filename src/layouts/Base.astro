@@ -125,11 +125,24 @@ const D2CODING_SOURCE = "https://github.com/naver/d2-coding-font";
                  data-empty-label={s.searchEmpty} />
           <div class="search__results" role="listbox"></div>
         </div>
-        <div class="lang-switch">
-          {listed.map((row) => (
-            <a href={url(hrefs[row.code])} data-lang={row.code} aria-current={row === current ? "true" : undefined}>{row.label}</a>
-          ))}
-        </div>
+        <details class="lang-switch">
+          <summary class="icon-btn lang-switch__toggle">
+            <span class="lang-switch__icon" aria-hidden="true"><Fragment set:html={icon.GLOBE} /></span>
+            <span class="visually-hidden">{s.language}{" "}</span>
+            <span class="lang-switch__current" lang={current.code}>{current.label}</span>
+            <span class="lang-switch__icon lang-switch__chevron" aria-hidden="true"><Fragment set:html={icon.CHEVRON_DOWN} /></span>
+          </summary>
+          <ul class="lang-switch__menu">
+            {listed.map((row) => (
+              <li>
+                <a href={url(hrefs[row.code])} hreflang={row.code} lang={row.code} data-lang={row.code} aria-current={row === current ? "true" : undefined}>
+                  {row.label}
+                  {row === current && <span class="lang-switch__icon" aria-hidden="true"><Fragment set:html={icon.CHECK} /></span>}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </details>
         <button class="icon-btn theme-toggle" type="button" aria-label={s.toggleTheme}>
           <Fragment set:html={icon.MOON} /><Fragment set:html={icon.SUN} />
         </button>

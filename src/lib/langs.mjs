@@ -13,7 +13,7 @@ export const LANGS = [
   {
     code: "en",
     prefix: "",
-    label: "EN",
+    label: "English",
     ogLocale: "en_US",
     landing: "",
     guide: "guide/",
@@ -25,7 +25,7 @@ export const LANGS = [
   {
     code: "ko",
     prefix: "ko/",
-    label: "KO",
+    label: "한국어",
     ogLocale: "ko_KR",
     landing: "ko/",
     guide: "ko/guide/",
@@ -34,6 +34,33 @@ export const LANGS = [
     privacy: "ko/privacy/",
     searchIndex: "search-index.ko.json",
     shareImage: "tasty-share-ko.png",
+  },
+  {
+    code: "ja",
+    prefix: "ja/",
+    label: "日本語",
+    ogLocale: "ja_JP",
+    landing: "ja/",
+    guide: "ja/guide/",
+    contentDir: "ja",
+    browserMatch: "^ja(-|$)",
+    privacy: "ja/privacy/",
+    searchIndex: "search-index.ja.json",
+    shareImage: "tasty-share-en.png",
+  },
+  {
+    code: "zh-Hans",
+    prefix: "zh/",
+    label: "简体中文",
+    ogLocale: "zh_CN",
+    landing: "zh/",
+    guide: "zh/guide/",
+    contentDir: "zh",
+    // Simplified only. Traditional tags (zh-TW, zh-HK, zh-MO, zh-Hant) stay on the default language.
+    browserMatch: "^zh(-(cn|sg|hans)(-|$)|$)",
+    privacy: "zh/privacy/",
+    searchIndex: "search-index.zh.json",
+    shareImage: "tasty-share-en.png",
   },
 ];
 

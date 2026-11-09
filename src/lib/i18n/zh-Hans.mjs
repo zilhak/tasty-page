@@ -15,6 +15,7 @@ export default {
     next: "下一页",
     editPage: "在 GitHub 查看原文",
     skipToContent: "跳转到正文",
+    language: "语言",
     toggleTheme: "切换主题",
     toggleNav: "打开菜单",
     siteNav: "站点菜单",

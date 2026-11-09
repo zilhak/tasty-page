@@ -15,6 +15,7 @@ export default {
     next: "다음 페이지",
     editPage: "GitHub에서 원문 보기",
     skipToContent: "본문으로 건너뛰기",
+    language: "언어",
     toggleTheme: "테마 전환",
     toggleNav: "메뉴 열기",
     siteNav: "사이트 메뉴",

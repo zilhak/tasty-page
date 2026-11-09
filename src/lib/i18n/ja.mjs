@@ -15,6 +15,7 @@ export default {
     next: "次のページ",
     editPage: "GitHub で原文を見る",
     skipToContent: "本文へスキップ",
+    language: "言語",
     toggleTheme: "テーマの切り替え",
     toggleNav: "メニューを開く",
     siteNav: "サイトメニュー",
