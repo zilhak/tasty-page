@@ -97,6 +97,13 @@ body {
   overflow-wrap: break-word;
 }
 
+/* keep-all is for Korean. In Japanese and Chinese it holds a line until the next
+   punctuation mark, so those pages break between characters. An English region inside
+   such a page (menu, specimens) returns to the value every other path gives it. The
+   selector carries no specificity so any rule that sets the value still wins. */
+:root:lang(ja) body, :root:lang(zh) body { word-break: normal; }
+:where(:root:lang(ja), :root:lang(zh)) :where([lang="en"]:not([lang="en"] *)) { word-break: keep-all; }
+
 /* Gallery specimens size their own media, as the app does. */
 :where(img, svg, video):not([data-gallery-page] *) { max-width: 100%; height: auto; display: block; }
 
