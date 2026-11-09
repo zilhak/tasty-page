@@ -30,6 +30,16 @@
   min-height: 0;
   background: var(--tasty-bg-panel);
 }
+/* The app clips a tab row that does not fit. On a page narrower than the row that would
+   hide the active tab with no way to reach it, so the landing's row scrolls. The kit sets
+   overflow inline, and only !important beats that. */
+.shell__tabs { flex: none; }
+.window .shell__tabs > div > div:first-child {
+  overflow-x: auto !important;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+.window .shell__tabs > div > div:first-child::-webkit-scrollbar { display: none; }
 .shell__pane { flex: 1; min-width: 0; display: flex; }
 .shell__side { display: flex; flex: none; }
 .shell__status { flex: none; }

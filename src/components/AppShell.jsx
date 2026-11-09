@@ -143,6 +143,24 @@ export function AppShell({ heading = "Workspaces", task = "run tests", doc }) {
   // Search is scoped to the focused surface — close it when the tab changes.
   React.useEffect(() => { setSearchOpen(false); }, [activeTab]);
 
+  // A narrow window shows only part of the tab row: keep the active tab inside it.
+  const tabsRef = React.useRef(null);
+  const tabCount = tabs.length;
+  React.useEffect(() => {
+    const row = tabsRef.current.firstElementChild.firstElementChild;
+    const reveal = () => {
+      const tab = row.querySelector(".tasty-tab--active");
+      if (!tab) return;
+      const t = tab.getBoundingClientRect();
+      const r = row.getBoundingClientRect();
+      if (t.right > r.right) row.scrollLeft += t.right - r.right;
+      else if (t.left < r.left) row.scrollLeft -= r.left - t.left;
+    };
+    const watcher = new ResizeObserver(reveal);
+    watcher.observe(row);
+    return () => watcher.disconnect();
+  }, [activeTab, tabCount]);
+
   const flash = (msg) => {
     setToast(msg);
     clearTimeout(toastTimer.current);
@@ -197,8 +215,11 @@ export function AppShell({ heading = "Workspaces", task = "run tests", doc }) {
             onTools={(rect) => setToolsAnchor((a) => (a ? null : rect))} />
         </div>
         <div className="shell__work">
-          <TabStrip tabs={tabs} active={activeTab} onSelect={setActiveTab} onClose={closeTab}
-            onNew={newTab} onSearch={() => setSearchOpen((v) => !v)} />
+          {/* Wrapped so the page can reach the kit's tab row, which it styles inline. */}
+          <div className="shell__tabs" ref={tabsRef}>
+            <TabStrip tabs={tabs} active={activeTab} onSelect={setActiveTab} onClose={closeTab}
+              onNew={newTab} onSearch={() => setSearchOpen((v) => !v)} />
+          </div>
           <div className={`shell__panes${tab?.kind === "split" ? " shell__panes--mixed" : ""}`}>
             {tab && tab.kind === "markdown" ? (
               <div className="shell__pane"><MarkdownSurface focused /></div>
