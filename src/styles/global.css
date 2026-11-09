@@ -21,9 +21,11 @@
   --link: var(--tasty-accent-primary-raised);
 
 
-  --font-sans: var(--tasty-font-family-sans), "Apple SD Gothic Neo",
-               "Pretendard", "Noto Sans KR", "Malgun Gothic", sans-serif;
-  --font-mono: var(--tasty-font-family-mono), monospace;
+  --font-sans-tail: "Apple SD Gothic Neo", "Pretendard", "Noto Sans KR", "Malgun Gothic", sans-serif;
+  --font-sans-default: var(--tasty-font-family-sans), var(--font-sans-tail);
+  --font-mono-default: var(--tasty-font-family-mono), monospace;
+  --font-sans: var(--font-sans-default);
+  --font-mono: var(--font-mono-default);
 
 
   /* The site's own variables (scale, radii, layout, borders, shadows) are defined
@@ -67,6 +69,23 @@
   color-scheme: light;
 }
 
+/* A Han character takes a different form per language, and without a name of its own a
+   page can land on another language's font. The names sit after the token so Latin
+   letters look the same in every language, and ahead of the Korean names so Korean
+   fonts do not draw Japanese or Chinese text. */
+:root:lang(ja) {
+  --font-cjk: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Yu Gothic",
+              "Meiryo", "Noto Sans CJK JP", "Noto Sans JP";
+}
+:root:lang(zh) {
+  --font-cjk: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei UI", "Microsoft YaHei",
+              "Noto Sans CJK SC", "Noto Sans SC";
+}
+:root:lang(ja), :root:lang(zh) {
+  --font-sans: var(--tasty-font-family-sans), var(--font-cjk), var(--font-sans-tail);
+  --font-mono: var(--tasty-font-family-mono), var(--font-cjk), monospace;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
@@ -99,10 +118,15 @@ body {
 
 /* keep-all is for Korean. In Japanese and Chinese it holds a line until the next
    punctuation mark, so those pages break between characters. An English region inside
-   such a page (menu, specimens) returns to the value every other path gives it. The
-   selector carries no specificity so any rule that sets the value still wins. */
+   such a page (menu, specimens) returns to the values every other path gives it. The
+   selector carries no specificity so any rule that sets a value still wins. */
 :root:lang(ja) body, :root:lang(zh) body { word-break: normal; }
-:where(:root:lang(ja), :root:lang(zh)) :where([lang="en"]:not([lang="en"] *)) { word-break: keep-all; }
+:where(:root:lang(ja), :root:lang(zh)) :where([lang="en"]:not([lang="en"] *)) {
+  --font-sans: var(--font-sans-default);
+  --font-mono: var(--font-mono-default);
+  font-family: var(--font-sans);
+  word-break: keep-all;
+}
 
 /* Gallery specimens size their own media, as the app does. */
 :where(img, svg, video):not([data-gallery-page] *) { max-width: 100%; height: auto; display: block; }
