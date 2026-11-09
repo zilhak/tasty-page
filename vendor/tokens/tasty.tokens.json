@@ -3604,6 +3604,22 @@
       "$type": "dimension",
       "$value": "{semantic.space-xs}"
     },
+    "workspace-running-count-gap": {
+      "$type": "dimension",
+      "$value": "{primitive.size-2}"
+    },
+    "workspace-running-count-min-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-10}"
+    },
+    "workspace-running-count-font-size": {
+      "$type": "dimension",
+      "$value": "{semantic.font-size-micro}"
+    },
+    "workspace-running-count-max": {
+      "$type": "number",
+      "$value": "99"
+    },
     "move-source-ring": {
       "$type": "color",
       "$value": "{semantic.accent-move-raised}"

@@ -1,6 +1,7 @@
 import React from "react";
 import { MenuItem, Input, Select, Switch, Checkbox, Button, IconButton, Tag, Kbd, Table, StatusDot, Spinner, Icon, CenterState } from "../../components/index.js";
 import { Stage } from "./specimen.jsx";
+import { WorkspaceRunningCount } from "../../ui_kits/terminal/chrome.jsx";
 import { AttachConnectionsSection } from "./settings-attach-section.jsx";
 
 // Tasty Gallery — Overlays SHARED frames. Loaded by every overlays-*.html page
@@ -1279,12 +1280,13 @@ function TabStripMock({ held }) {
 
 function WsRowMock({ n, name, sub, status, active, held }) {
   return (
-    <div style={{ display: "flex", alignItems: "flex-start", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-sm)",
+    <div style={{ display: "flex", alignItems: "flex-start", gap: "var(--tasty-workspace-dot-gap)", padding: "var(--tasty-space-sm)",
       background: active ? "var(--tasty-surface-active)" : "transparent",
       boxShadow: active ? "inset var(--tasty-selection-edge-width) 0 0 var(--tasty-accent-primary)" : "none" }}>
-      <span style={{ flex: "none", height: 18, display: "inline-flex", alignItems: "center" }}>
+      <span style={{ flex: "none", height: 18, width: "var(--tasty-workspace-dot-slot)", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
         {held ? <NumCap n={n} active={active} /> : <StatusDot status={status} pulse={status === "running" || status === "agent"} />}
       </span>
+      <WorkspaceRunningCount count={status === "idle" ? 0 : 1} state={active ? "selected" : "rest"} />
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontSize: 13, fontWeight: 500, color: active ? "var(--tasty-text-on-active)" : "var(--tasty-text-secondary)",
           overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{name}</div>
@@ -1367,9 +1369,10 @@ function CatSwitchSidebarMock({ held }) {
     </div>
   );
   const Row = ({ name, status, active }) => (
-    <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "7px 9px",
+    <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-workspace-dot-gap)", padding: "7px 9px",
       background: active ? "var(--tasty-surface-active)" : "transparent", boxShadow: active ? "inset var(--tasty-selection-edge-width) 0 0 var(--tasty-accent-primary)" : "none" }}>
-      <span style={{ flex: "none", height: 18, display: "inline-flex", alignItems: "center" }}><StatusDot status={status} pulse={status === "running" || status === "agent"} /></span>
+      <span style={{ flex: "none", height: 18, width: "var(--tasty-workspace-dot-slot)", display: "inline-flex", alignItems: "center", justifyContent: "center" }}><StatusDot status={status} pulse={status === "running" || status === "agent"} /></span>
+      <WorkspaceRunningCount count={status === "idle" ? 0 : 1} state={active ? "selected" : "rest"} />
       <span style={{ flex: 1, minWidth: 0, fontSize: 13, color: active ? "var(--tasty-text-on-active)" : "var(--tasty-text-secondary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{name}</span>
     </div>
   );
@@ -2304,10 +2307,11 @@ function CategorySidebarFrame({ collapsedRail }) {
     </div>
   );
   const Row = ({ name, sub, status, active }) => (
-    <div style={{ display: "flex", alignItems: "flex-start", gap: 8, padding: "8px", cursor: "pointer",
+    <div style={{ display: "flex", alignItems: "flex-start", gap: "var(--tasty-workspace-dot-gap)", padding: "8px", cursor: "pointer",
       background: active ? "var(--tasty-surface-active)" : "transparent", boxShadow: active ? "inset var(--tasty-selection-edge-width) 0 0 var(--tasty-accent-primary)" : "none" }}>
-      <span style={{ height: 18, display: "inline-flex", alignItems: "center", flex: "none" }}>
+      <span style={{ height: 18, width: "var(--tasty-workspace-dot-slot)", display: "inline-flex", alignItems: "center", justifyContent: "center", flex: "none" }}>
         <StatusDot status={status} pulse={status === "running" || status === "agent"} /></span>
+      <WorkspaceRunningCount count={status === "idle" ? 0 : 1} state={active ? "selected" : "rest"} />
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontSize: 13, fontWeight: 500, color: active ? "var(--tasty-text-on-active)" : "var(--tasty-text-secondary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{name}</div>
         {sub && <div style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginTop: 1 }}>{sub}</div>}

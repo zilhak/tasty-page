@@ -112,7 +112,7 @@ function App() {
   // All four field combinations shown here on purpose (see chrome.jsx WorkspaceRow).
   const workspaces = [
     // title only
-    { id: "prod", name: "agents-prod", status: "running", notif: 0 },
+    { id: "prod", name: "agents-prod", status: "running", running: 2, notif: 0 },
     // title + subtitle — MIRROR of a remote instance (sky glyph + subtitle shows origin), idle dot
     { id: "infra", name: "infra", subtitle: "mirror → prod-web", status: "idle", notif: 0,
       mirror: true, mirrorTarget: "prod-web" },
@@ -121,7 +121,7 @@ function App() {
       status: "agent", notif: 2, attached: true },
     // title + subtitle + description — MIRROR + running dot + notif (all three axes at once)
     { id: "data", name: "data-pipeline", subtitle: "mirror → gb10",
-      description: "nightly ETL across the warehouse, last run 18m ago", status: "running", notif: 1,
+      description: "nightly ETL across the warehouse, last run 18m ago", status: "running", running: 3, notif: 1,
       mirror: true, mirrorTarget: "gb10" },
     // title only
     { id: "scratch", name: "scratch", status: "idle", notif: 0 },

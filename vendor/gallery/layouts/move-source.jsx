@@ -1,5 +1,6 @@
 import React from "react";
 import { Icon, StatusDot } from "../../components/index.js";
+import { WorkspaceRunningCount } from "../../ui_kits/terminal/chrome.jsx";
 import { Spec, Stage, Meta, Note, Dont } from "../parts/specimen.jsx";
 
 // Tasty Gallery — Layouts › Move source highlight.
@@ -82,6 +83,7 @@ function WsRow({ name, active, cue, status = "idle" }) {
       boxShadow: active ? "inset var(--tasty-workspace-row-active-bar-width) 0 0 var(--tasty-accent-primary)" : "none",
       color: active ? "var(--tasty-text-on-active)" : "var(--tasty-text-secondary)" }}>
       <span style={{ width: "var(--tasty-workspace-dot-slot)", flex: "none", display: "inline-flex", justifyContent: "center" }}><StatusDot status={status} /></span>
+      <WorkspaceRunningCount count={status === "idle" ? 0 : 1} state={active ? "selected" : "rest"} />
       <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{name}</span>
       {cue && <MoveGlyph />}
     </div>

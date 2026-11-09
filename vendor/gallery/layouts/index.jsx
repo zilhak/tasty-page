@@ -7,6 +7,8 @@ import { GalleryLoadingOverlay } from "./loading-overlay.jsx";
 import { GalleryMoveSource } from "./move-source.jsx";
 import { GalleryTabStrip } from "./tab-strip.jsx";
 import { GalleryTitleBar } from "./title-bar.jsx";
+import { RunningCountSpec } from "./running-count.jsx";
+import { WorkspaceRunningCount } from "../../ui_kits/terminal/chrome.jsx";
 import { GallerySurfaceFocus } from "./surface-focus.jsx";
 import { surfaceBed } from "../../ui_kits/terminal/surface_focus.jsx";
 import { Lnb as GalleryNotifications_Lnb } from "../parts/notifications.jsx";
@@ -91,13 +93,14 @@ function FullSidebar() {
       </div>
       {railHead("Workspaces")}
       <div style={{ padding: "0 6px", display: "flex", flexDirection: "column", gap: 1 }}>
-        {[["tasty-core", "agent", true, 0, false], ["docs-site", "running", false, 3, false], ["data-etl", "running", false, 1, true], ["scratch", "idle", false, 0, false]].map(([n, st, a, notif, mir]) => (
-          <div key={n} style={{ display: "flex", alignItems: "flex-start", gap: 9, padding: "6px 9px", borderRadius: "var(--tasty-radius-sm)",
+        {[["tasty-core", "agent", true, 0, false, 2], ["docs-site", "running", false, 3, false, 3], ["data-etl", "running", false, 1, true, 1], ["scratch", "idle", false, 0, false, 0]].map(([n, st, a, notif, mir, running]) => (
+          <div key={n} style={{ display: "flex", alignItems: "flex-start", gap: "var(--tasty-workspace-dot-gap)", padding: "6px 9px", borderRadius: "var(--tasty-radius-sm)",
             background: a ? "var(--tasty-surface-active)" : "transparent",
             boxShadow: a ? "inset var(--tasty-selection-edge-width) 0 0 var(--tasty-accent-primary)" : "none" }}>
-            <span style={{ flex: "none", display: "inline-flex", alignItems: "center", height: "calc(13px * var(--tasty-line-height-ui))" }}>
+            <span style={{ flex: "none", display: "inline-flex", alignItems: "center", justifyContent: "center", width: "var(--tasty-workspace-dot-slot)", height: "calc(13px * var(--tasty-line-height-ui))" }}>
               <StatusDot status={st === "agent" ? "running" : st} />
             </span>
+            <WorkspaceRunningCount count={running} state={a ? "selected" : "rest"} />
             <span style={{ flex: 1, minWidth: 0 }}>
               <span style={{ display: "block", minWidth: 0, fontSize: 13, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: a ? "var(--tasty-text-on-active)" : "var(--tasty-text-secondary)" }}>{n}</span>
               {mir && <span style={{ display: "block", marginTop: "var(--tasty-size-2)" }}><MirrorMark /></span>}
@@ -248,12 +251,13 @@ function catHeader(label, collapsed, cap, count) {
 function catRows(rows) {
   return (
     <div>
-      {rows.map(([n, st, sub, a, notif], i) => (
+      {rows.map(([n, st, sub, a, notif, running = st === "idle" ? 0 : 1], i) => (
         <React.Fragment key={n}>
           {i > 0 && <div style={{ height: 1, background: "var(--tasty-separator)", margin: "0 0 0 32px" }} />}
-          <div style={{ display: "flex", alignItems: "flex-start", gap: 9, padding: "7px 9px",
+          <div style={{ display: "flex", alignItems: "flex-start", gap: "var(--tasty-workspace-dot-gap)", padding: "7px 9px",
             background: a ? "var(--tasty-surface-active)" : "transparent", boxShadow: a ? "inset var(--tasty-selection-edge-width) 0 0 var(--tasty-accent-primary)" : "none" }}>
-            <span style={{ height: 18, display: "inline-flex", alignItems: "center", flex: "none" }}><StatusDot status={st === "agent" ? "running" : st} /></span>
+            <span style={{ height: 18, display: "inline-flex", alignItems: "center", justifyContent: "center", width: "var(--tasty-workspace-dot-slot)", flex: "none" }}><StatusDot status={st === "agent" ? "running" : st} /></span>
+            <WorkspaceRunningCount count={running} state={a ? "selected" : "rest"} />
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: 13, color: a ? "var(--tasty-text-on-active)" : "var(--tasty-text-secondary)" }}>{n}</div>
               {sub && <div style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginTop: 1 }}>{sub}</div>}
@@ -428,11 +432,12 @@ function AttentionScale() {
   );
 }
 
-function AttRow({ name, status, ni, done, active }) {
+function AttRow({ name, status, ni, done, active, running = status === "idle" ? 0 : 1 }) {
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 9, padding: "6px 9px", borderRadius: "var(--tasty-radius-sm)",
+    <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-workspace-dot-gap)", padding: "6px 9px", borderRadius: "var(--tasty-radius-sm)",
       background: active ? "var(--tasty-surface-active)" : "transparent", boxShadow: active ? "inset var(--tasty-selection-edge-width) 0 0 var(--tasty-accent-primary)" : "none" }}>
-      <StatusDot status={status} />
+      <span style={{ flex: "none", display: "inline-flex", justifyContent: "center", width: "var(--tasty-workspace-dot-slot)" }}><StatusDot status={status} /></span>
+      <WorkspaceRunningCount count={running} state={active ? "selected" : "rest"} />
       <span style={{ flex: 1, minWidth: 0, fontSize: 13, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
         color: active ? "var(--tasty-text-on-active)" : "var(--tasty-text-secondary)" }}>{name}</span>
       <BadgeGroup>
@@ -613,7 +618,7 @@ function Layouts() {
       {/* SIDEBAR */}
       <Section id="sidebar" title="Sidebar & rail">
         <Spec id="full-sidebar-collapsed-rail" title="Full sidebar ↔ collapsed rail"
-          when={<>The window's left navigation has two states. <b>Full (212px)</b> shows the wordmark, workspace list, and a footer of Tools / Plugins / Settings. <b>Collapsed (52px)</b> drops to an icon rail — workspaces become single-letter IconButtons, footer actions stack at the bottom. Same actions, same order, both states. Each workspace row is just <b>status dot + name + notification</b>: every row is a workspace, so a per-row folder icon carried no information, and a tab count is low-signal noise — the dot (idle / running / agent) and an unread badge are what actually vary. A workspace that is a <b>local mirror of a remote instance</b> gets a small <b>sky remote-link glyph before its name</b> (a corner chip on the rail) — a separate axis from the dot, so the dot stays execution-only.</>}>
+          when={<>The window's left navigation has two states. <b>Full (212px)</b> shows the wordmark, workspace list, and a footer of Tools / Plugins / Settings. <b>Collapsed (52px)</b> drops to an icon rail: workspaces become single-letter IconButtons, footer actions stack at the bottom. Same actions, same order, both states. Each expanded workspace row is <b>status dot + running count + name + notification</b>: every row is a workspace, so a per-row folder icon carries no information. A tab count is low-signal noise; the running count shows activity beside the dot (idle / running / agent), while an unread badge stays at the far right. The collapsed rail shows no count. A workspace that is a <b>local mirror of a remote instance</b> gets a small <b>sky remote-link glyph before its name</b> (a corner chip on the rail), a separate axis from the dot, so the dot stays execution-only.</>}>
           <Stage variant="tight" grid>
             <div style={{ display: "flex" }}>
               <FullSidebar />
@@ -622,11 +627,13 @@ function Layouts() {
             </div>
           </Stage>
           <Meta
-            specs={[["full width", "212px"], ["rail width", "52px"], ["row anatomy", "dot · name / [remote pill] · notification"], ["row height", <>~30px, <span className="tok">--tasty-radius-sm</span></>], ["active row", <><span className="tok">--tasty-surface-active</span> + 2px accent bar</>], ["mirror", "sky remote glyph before name / rail corner chip"]]}
+            specs={[["full width", "212px"], ["rail width", "52px"], ["row anatomy", "dot · running count · name / [remote pill] · notification"], ["row height", <>~30px, <span className="tok">--tasty-radius-sm</span></>], ["active row", <><span className="tok">--tasty-surface-active</span> + 2px accent bar</>], ["mirror", "sky remote glyph before name / rail corner chip"]]}
             tokens={[{ tok: "--tasty-accent-success", use: "running dot", color: "var(--tasty-accent-success-raised)" }, { tok: "--tasty-accent-agent", use: "agent dot", color: "var(--tasty-accent-agent-raised)" }, { tok: "--tasty-accent-danger", use: "notification badge", color: "var(--tasty-accent-danger-raised)" }, { tok: "--tasty-workspace-mirror-fg", use: "mirror glyph (→ accent-remote / sky)", color: "var(--tasty-accent-remote)" }, { tok: "--tasty-surface-active", use: "active row", color: "var(--tasty-surface-active)" }, { tok: "--tasty-accent-primary", use: "active left bar", color: "var(--tasty-accent-primary-raised)" }]} />
-          <Dont><b>Don't</b> give every row the same leading icon — when one kind fills the list, the icon is decoration, not information. Lead with the <b>status dot</b>, which varies per row, and let an unread <b>badge</b> earn the trailing slot instead of a static count.</Dont>
+          <Dont><b>Don't</b> give every row the same leading icon: when one kind fills the list, the icon is decoration, not information. Lead with the <b>status dot</b> and <b>running count</b>, which reflect activity, and let an unread <b>badge</b> earn the trailing slot.</Dont>
           <Note>Active selection now reads through <b>surface fill + a 2px accent left bar</b> (the folder icon used to carry that accent). Footer order is fixed: <b>Tools → Plugins → Settings</b>, bottom-aligned; in the rail they become 28px IconButtons in the same order. <b>Mirror</b> (remote-linked) moved <b>off the status dot</b> onto its own leading glyph — the dot no longer carries a sky "remote" color, only execution (running / idle / agent); the glyph never collides with the attached <b>lavender ring</b> or the notification badge.</Note>
         </Spec>
+
+        <RunningCountSpec />
 
         <Spec id="workspace-categories-sidebar-folders" title="Workspace categories (sidebar folders)"
           when={<>An opt-in grouping (<b>Settings › General › Workspace categories (folders)</b>, default off). The flat list splits into <b>collapsible category sections</b>: a disclosure header (chevron) over that category's workspace rows. The reserved <b>normal</b> category is always first and keeps the plain <b>"Workspaces"</b> label — it can't be renamed, deleted, or reordered. <b>Empty categories</b> (e.g. Archived) show the header only. In the <b>rail</b>, categories aren't labelled: each boundary becomes a clickable <b>horizontal <code>---</code> button</b>, with that category's avatars below it. Collapse state is per-category and shared across both. All category management is via <b>right-click</b> (no dedicated buttons) — see Overlays › Popups.</>}>
