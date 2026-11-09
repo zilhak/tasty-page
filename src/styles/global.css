@@ -83,7 +83,9 @@
 }
 :root:lang(ja), :root:lang(zh) {
   --font-sans: var(--tasty-font-family-sans), var(--font-cjk), var(--font-sans-tail);
-  --font-mono: var(--tasty-font-family-mono), var(--font-cjk), monospace;
+  /* Without D2Coding and ahead of the generic family, so Han in code takes this language's
+     forms. On Linux the generic family has Han of its own, in Japanese forms. */
+  --font-mono: var(--tasty-font-family-mono-system), var(--font-cjk), monospace;
 }
 
 @media (prefers-reduced-motion: reduce) {

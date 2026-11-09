@@ -505,6 +505,10 @@
       "$type": "fontFamily",
       "$value": "\"D2Coding\", \"SF Mono\", \"Cascadia Code\", \"JetBrains Mono\", ui-monospace, \"Menlo\", \"Consolas\", monospace"
     },
+    "font-family-mono-system": {
+      "$type": "fontFamily",
+      "$value": "\"SF Mono\", \"Cascadia Code\", \"JetBrains Mono\", ui-monospace, \"Menlo\", \"Consolas\""
+    },
     "font-size-10": {
       "$type": "dimension",
       "$value": "10px"
