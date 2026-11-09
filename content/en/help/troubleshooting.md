@@ -1,4 +1,4 @@
-<!-- source-hash: 0ba3fd0b8571 -->
+<!-- source-hash: 742a2121335d -->
 # Troubleshooting
 
 Causes and remedies for Tasty installation, input, display, restoration, and notification issues are organized by symptom. For CLI connection failures or slow responses, also see connection diagnostics. If the problem remains, report it with your environment details and logs.
@@ -168,8 +168,6 @@ tasty codex install     # ~/.codex/config.toml
 ```
 
 If that still does not help, look at `~/.tasty/hook-failures.log` and `tasty plugin logs com.tasty.claude --follow`. Details are in [Working with Claude and Codex](../agents/claude-codex.md#troubleshooting).
-
-Fixed an issue on Windows and macOS where Codex sessions in Tasty terminals disconnected immediately after connecting.
 
 ### The parent agent does not receive a child result
 
