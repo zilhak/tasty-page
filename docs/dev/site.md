@@ -19,6 +19,8 @@
 - 다른 CI: `checks.yml`은 `checks/`의 Rust 시험으로 가이드를 Tasty 소스와 대조한다. Tasty 소스는
   `.tasty-src`에 받으며, `main`에서는 Tasty `main`, `release`에서는 가장 가까운 태그와 같은 이름의 Tasty
   태그다. 매일 한 번도 실행한다. `design.yml`은 `vendor/` 디자인 정본을 검사한다(아래 "vendor 검사").
+  `checks/Cargo.lock`은 추적하지 않는다. `checks/`의 의존성은 받은 Tasty 소스를 따라 움직이므로, CI는 실행할 때
+  `.tasty-src/Cargo.lock`을 복사해 쓴다. 로컬에서 돌릴 때도 `cargo test` 전에 같은 복사를 한다.
 
 **`docs/` 는 발행하지 않는다.** 이 레포의 `docs/`는 사이트를 고치는 사람과 에이전트를 위한 개발 문서(`docs/dev/`)와
 기획서(`docs/plan/`)이고, 사이트는 Tasty 를 받아서 쓰는 사람을 위한 것이라 독자가 다르다. Tasty의 명세·설계·ADR은

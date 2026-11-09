@@ -63,17 +63,23 @@ jobs:
           path: .tasty-src
           persist-credentials: false
 
+      # The crate depends on the Tasty source by path, so its dependencies move with
+      # the ref above. Take the versions from that ref instead of a lock file here.
+      - name: Use the Tasty lock file
+        run: cp .tasty-src/Cargo.lock checks/Cargo.lock
+
       - uses: actions/cache@v4
         with:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
             checks/target
-          key: checks-${{ runner.os }}-${{ hashFiles('checks/Cargo.lock', 'checks/rust-toolchain.toml') }}-${{ steps.tasty.outputs.ref }}
+          key: checks-${{ runner.os }}-${{ hashFiles('.tasty-src/Cargo.lock', 'checks/rust-toolchain.toml') }}-${{ steps.tasty.outputs.ref }}
           restore-keys: |
-            checks-${{ runner.os }}-${{ hashFiles('checks/Cargo.lock', 'checks/rust-toolchain.toml') }}-
+            checks-${{ runner.os }}-${{ hashFiles('.tasty-src/Cargo.lock', 'checks/rust-toolchain.toml') }}-
 
       # rustup reads rust-toolchain.toml from the working directory, so run from checks/.
+      # No --locked: Cargo has to drop the Tasty workspace members from the copied lock file.
       - name: cargo test
         working-directory: checks
-        run: cargo test --manifest-path Cargo.toml --locked --no-fail-fast
+        run: cargo test --manifest-path Cargo.toml --no-fail-fast

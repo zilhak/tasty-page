@@ -1,6 +1,7 @@
 # Checks that compare the user guide in content/ with the Tasty source tree.
 # The Tasty source is expected at ../.tasty-src: a checkout in CI, a symlink to a
 # local clone otherwise. This crate is not a member of the Tasty workspace.
+# Cargo.lock is not tracked. Copy .tasty-src/Cargo.lock to checks/Cargo.lock before a run.
 [package]
 name = "tasty-page-checks"
 version = "0.1.0"

@@ -11,4 +11,5 @@ dist/
 .astro/
 release.json
 .tasty-src
+checks/Cargo.lock
 __pycache__/
