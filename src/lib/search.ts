@@ -5,8 +5,9 @@
  */
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { SECTIONS, entryIdFor, titleIn } from "./guide";
+import { entryIdFor, titleIn } from "./guide";
 import type { Page, Lang } from "./guide";
+import { sectionLabel } from "./strings";
 import { pathOf } from "./urls";
 
 /** Markdown stripped down to searchable words. Inline code keeps its text and
@@ -45,7 +46,7 @@ export function searchIndex(root: string, pages: Page[], lang: Lang) {
     return {
       t: titleIn(page, lang),
       u: pathOf(page, lang),
-      c: SECTIONS[page.section][lang],
+      c: sectionLabel(page.section, lang),
       h: text.slice(0, 600),
     };
   });

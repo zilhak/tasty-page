@@ -2,39 +2,14 @@
 /** `/design/` and its language versions: the one translated page of the design zone. Everything else in the zone is English. */
 import Design from "../../layouts/Design.astro";
 import { designPath, galleryPath } from "../../lib/design";
+import { dictionaryFor } from "../../lib/i18n/index.mjs";
 import { langRow } from "../../lib/langs.mjs";
 import { url } from "../../lib/site";
 
 interface Props { lang: string; }
 const { lang } = Astro.props;
 
-/** One row per language. A new language adds a row. A missing row is an error, not a fallback to English. */
-const COPY: Record<string, Record<string, string>> = {
-  en: {
-    title: "Design overview",
-    description: "Tasty’s design reference covers brand, colours, type, spacing, tokens and components for contributors and anyone curious about the design. App usage is covered in the user guide.",
-    intro: "Tasty’s design reference covers brand, colours, type, spacing, tokens and components for contributors and anyone curious about the design. App usage is covered in the user guide.",
-    notice: "The design guide, including tokens, the gallery and their navigation, is available in English only. The site header, footer and search use your chosen language.",
-    galleryTitle: "Design gallery",
-    galleryBody: "The gallery has five groups: Foundations, Components, Overlays, Shell and Surfaces. Brand, colours, type and spacing are on the Foundations gallery page. Each specimen starts with its purpose, followed by Demo, States, Views and Specs where content exists. Demos are interactive, and Specs are always visible.",
-    guide: "User guide",
-    tokens: "Design tokens",
-    openGallery: "Open gallery",
-  },
-  ko: {
-    title: "디자인 안내",
-    description: "Tasty 디자인 참고 자료는 디자인에 기여하거나 관심이 있는 분을 위해 브랜드, 색, 글꼴, 간격, 토큰, 컴포넌트를 다룹니다. 앱 사용법은 사용자 가이드에서 설명합니다.",
-    intro: "Tasty 디자인 참고 자료는 디자인에 기여하거나 관심이 있는 분을 위해 브랜드, 색, 글꼴, 간격, 토큰, 컴포넌트를 다룹니다. 앱 사용법은 사용자 가이드에서 설명합니다.",
-    notice: "디자인 가이드는 영어버전만 사용합니다. 토큰·갤러리·왼쪽 메뉴·이전 및 다음 링크도 영어로 표시하며, 사이트 헤더·푸터·검색은 선택한 언어를 따릅니다.",
-    galleryTitle: "디자인 갤러리",
-    galleryBody: "갤러리는 Foundations, Components, Overlays, Shell, Surfaces의 다섯 그룹으로 나뉩니다. 브랜드, 색, 글꼴, 간격은 Foundations 갤러리 페이지에서 다룹니다. 각 예시는 사용 목적으로 시작하고, 내용이 있는 항목을 Demo, States, Views, Specs 순서로 표시합니다. 데모는 직접 조작할 수 있으며, Specs는 항상 표시합니다.",
-    guide: "사용자 가이드",
-    tokens: "디자인 토큰",
-    openGallery: "갤러리 보기",
-  },
-};
-const c = COPY[lang];
-if (!c) throw new Error(`No design home copy for language: ${lang}`);
+const c = dictionaryFor(lang).designHome;
 ---
 <Design lang={lang} pageKey="overview" title={c.title} intro={c.intro} description={c.description}>
   <div class="note note--untranslated"><p>{c.notice}</p></div>

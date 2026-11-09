@@ -13,17 +13,8 @@ import { join } from "node:path";
 
 export type Lang = "ko" | "en";
 
-/** Sidebar sections in reading order. The empty key is the guide home. */
-export const SECTIONS: { dir: string; ko: string; en: string }[] = [
-  { dir: "", ko: "가이드", en: "Guide" },
-  { dir: "getting-started", ko: "시작하기", en: "Getting started" },
-  { dir: "using", ko: "사용하기", en: "Using Tasty" },
-  { dir: "customize", ko: "맞춤 설정", en: "Customize" },
-  { dir: "agents", ko: "CLI와 에이전트", en: "CLI and agents" },
-  { dir: "remote", ko: "원격", en: "Remote" },
-  { dir: "plugins", ko: "플러그인", en: "Plugins" },
-  { dir: "help", ko: "도움말", en: "Help" },
-];
+/** Sidebar sections in reading order, by directory. The empty one is the guide home. Labels live in the language dictionaries. */
+export const SECTIONS: string[] = ["", "getting-started", "using", "customize", "agents", "remote", "plugins", "help"];
 
 /** Explicit reading order for the sidebar and previous/next links. */
 export const ORDER: string[] = [
@@ -141,7 +132,7 @@ export function buildPages(root: string): Page[] {
     const source = read(root, rel);
     if (source === null) throw new Error(`ORDER lists ${rel}, but content/${rel}.md is missing`);
     const dir = rel.includes("/") ? rel.slice(0, rel.lastIndexOf("/")) : "";
-    const section = SECTIONS.findIndex((s) => s.dir === dir);
+    const section = SECTIONS.indexOf(dir);
     if (section < 0) throw new Error(`content/${rel}.md sits in a directory with no sidebar section`);
 
     const title = titleOf(source, rel);

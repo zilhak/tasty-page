@@ -4,7 +4,7 @@ import Base from "./Base.astro";
 import { SECTIONS, titleIn, navLabelIn, descriptionIn, stateOf, TRANSLATION_DIR } from "../lib/guide";
 import type { Page, Lang } from "../lib/guide";
 import { pathOf } from "../lib/urls";
-import { stringsFor } from "../lib/strings";
+import { sectionLabel, stringsFor } from "../lib/strings";
 import { SITE_REPO, url } from "../lib/site";
 // Link these styles only on pages with a diagram instead of bundling them everywhere.
 import shellHref from "../styles/app-shell.css?url";
@@ -26,12 +26,12 @@ const title = titleIn(page, lang);
 const documentTitle = page.rel === "index" ? title : `${title} · Tasty`;
 const prev = idx > 0 ? pages[idx - 1] : null;
 const next = idx + 1 < pages.length ? pages[idx + 1] : null;
-const category = SECTIONS[page.section][lang];
+const category = sectionLabel(page.section, lang);
 
 // Grouped exactly as ORDER runs, so the sidebar mirrors the reading order.
-const groups = SECTIONS.map((section, i) => ({
+const groups = SECTIONS.map((_, i) => ({
   index: i,
-  label: section[lang],
+  label: sectionLabel(i, lang),
   items: pages.filter((p) => p.section === i),
 })).filter((g) => g.items.length > 0);
 

@@ -2,7 +2,7 @@
 
 ## 제품 소개 페이지
 
-- 사이트 소스: [영어 진입점](../../src/pages/index.astro) · [한국어 진입점](../../src/pages/ko/index.astro) · [페이지 구성](../../src/components/Landing.astro) · [콘텐츠](../../src/lib/landing.ts) · [제품 예시](../../src/components/AppShell.jsx)
+- 사이트 소스: [영어 진입점](../../src/pages/index.astro) · [한국어 진입점](../../src/pages/ko/index.astro) · [페이지 구성](../../src/components/Landing.astro) · [콘텐츠](../../src/lib/i18n/index.mjs) · [제품 예시](../../src/components/AppShell.jsx)
 - 역할: 처음 방문한 사용자가 터미널의 쓰임을 이해하고 설치하거나 관련 가이드로 이동하는 진입점.
 - 보여 줄 항목: 제작자의 취향을 드러내는 첫 제목, 일상 작업과 AI 에이전트에 함께 쓰는 터미널임을 밝히는 표어, 터미널의 용도와 여러 에이전트의 동시 실행, 지원 플랫폼, 설치 파일 선택, 프로젝트별 워크스페이스, 두 단계 분할, 문서 보기, 맞춤 설정, CLI와 에이전트 연동. GPU 가속 설명은 첫 화면이 아니라 공통 푸터와 검색·공유 소개에 둔다.
 - 구성 순서: 제품 소개와 조작 가능한 화면 예시 → 두 단계 배치 → 일상 기능 → CLI·에이전트 → 플랫폼·설치 → 설치 진입.

@@ -114,8 +114,8 @@ function OverlayLayer({ open, lock, scale, children }) {
   );
 }
 
-export function AppShell({ heading = "Workspaces", task = "run tests", lang = "en" }) {
-  const ko = lang === "ko";
+/** A client island, so `doc` holds only the current language's copy. Do not import the dictionaries here. */
+export function AppShell({ heading = "Workspaces", task = "run tests", doc }) {
   const [theme, setTheme] = usePageTheme();
   const [overlay, setOverlay] = React.useState(null);
   const [toolsAnchor, setToolsAnchor] = React.useState(null);
@@ -211,16 +211,16 @@ export function AppShell({ heading = "Workspaces", task = "run tests", lang = "e
                 <div className="shell__pane">
                   <MarkdownSurface path="~/work/tasty/notes/split-layout.md">
                     <h2 style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-prose-h1)", margin: "0 0 var(--tasty-space-sm)" }}>
-                      {ko ? "실행은 왼쪽, 문서는 오른쪽" : "Run it left, read it right"}
+                      {doc.splitTitle}
                     </h2>
                     <p style={{ fontSize: "var(--tasty-font-size-body)", color: "var(--tasty-text-secondary)" }}>
-                      {ko ? "한 탭 안에 터미널과 문서를 나란히 두세요. 명령을 실행하면서 필요한 설명을 바로 확인할 수 있습니다." : "Keep a terminal and a document side by side in one tab. Run a command while keeping its instructions in view."}
+                      {doc.splitBody}
                     </p>
                     <h3 style={{ fontSize: "var(--tasty-font-size-body)", color: "var(--tasty-accent-primary-raised)" }}>
-                      {ko ? "같이 두고, 함께 전환하세요" : "Keep them together"}
+                      {doc.togetherTitle}
                     </h3>
                     <p style={{ fontSize: "var(--tasty-font-size-body)", color: "var(--tasty-text-secondary)" }}>
-                      {ko ? "다른 탭을 선택하면 이 배치가 함께 전환됩니다. 터미널을 선택한 상태에서는 검색과 상태바도 그 터미널을 기준으로 표시합니다." : "Switch tabs to change the whole layout. With the terminal focused, search and the status bar refer to that terminal."}
+                      {doc.togetherBody}
                     </p>
                   </MarkdownSurface>
                 </div>

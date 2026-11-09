@@ -1,5 +1,5 @@
 import type { Lang } from "./guide";
-import meta from "./meta.json";
+import { dictionaryFor } from "./i18n/index.mjs";
 import { RELEASES_URL, releaseVersion } from "./release";
 import { REPO, absolute } from "./site";
 
@@ -12,7 +12,7 @@ const softwareApplication = (lang: Lang) => {
     applicationCategory: "DeveloperApplication",
     operatingSystem: "Windows, macOS, Linux",
     url: absolute(lang === "en" ? "" : "ko/"),
-    description: meta[lang].description,
+    description: dictionaryFor(lang).meta.description,
     downloadUrl: RELEASES_URL,
     // Only the published release: it is the version visitors can download.
     ...(version ? { softwareVersion: version } : {}),
