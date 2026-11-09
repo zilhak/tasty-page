@@ -1,4 +1,4 @@
-<!-- source-hash: 1d7a625dbda7 -->
+<!-- source-hash: ee2d235f18db -->
 # 配合 Claude 和 Codex 使用
 
 在 Tasty 终端中运行 Claude Code 和 Codex CLI 并查看状态。两个 CLI 需要单独安装。要将任务分配给多个智能体，请同时配置钩子和父智能体的结果接收路径。
@@ -376,15 +376,12 @@ tasty claude spawn --workspace w --profile continue-checklist
 
 ## 故障排除
 
-已修复 Windows 和 macOS 上 Tasty 终端中的 Codex 会话在连接后立即断开的问题。
-
 - **未收到完成通知** — 检查子 CLI 的钩子安装、运行情况及[接收配置](#4-接收完成通知)。如果父智能体是 Claude Code，请检查完成通知 mod 是否启用。没有 mod 时，请检查 Monitor 订阅。钩子传递失败会记录在 `~/.tasty/hook-failures.log` 中。插件日志使用 `tasty plugin logs com.tasty.claude --follow`。
 - **`reboot` 因“claude-session-id meta not set”失败** — 会话启动钩子未能记录会话 ID。用 `tasty surface-meta set --key claude-session-id --value <会话ID>` 手动设置。
 - **子智能体未能 spawn，出现“occupied”错误** — 目标工作区正被远程附加，或是镜像。请使用其他工作区。
 - **`kill` 因“hard-occupied”错误被拒绝** — 远程用户正附加并使用该子智能体所在的工作区。子智能体关系和标签页会保留。远程端分离，或通过强制分离解除占用后，再执行 `kill`。
 - **Codex 无法启动，显示“app-server could not start”** — Tasty 未能启动该终端的专用 Codex 服务器。请检查在同一终端中能否运行 `codex app-server --help`。此功能基于 Codex CLI 0.154.0 验证。
 - **父 Codex 未收到结果** — 检查 Codex 的 `/hooks` 中是否已批准 Tasty 钩子，以及是否从 Codex 对话中 spawn 子智能体。如果通过手动输入 `codex` 启动父 Codex，该对话必须已在共享 Codex 服务器中打开。
-- **在 macOS 上通过应用图标启动时收不到通知** — Tasty 写入通知时会再次调用 `tasty`，但 Tasty 会自动将自身可执行文件路径加入 PATH，因此通常没有问题。如果仍失败，请查看 `hook-failures.log`。
 
 <a id="接下来阅读"></a>
 
