@@ -63,7 +63,7 @@
 - ‘전체화면 무대’와 UI 배율 Zoom을 구분한다. 전체화면을 터미널 페인 확대 기능으로 소개하지 않는다.
 - 배치 복원, 닫은 항목 복원, 프리셋 적용, 에이전트 세션 재개를 구분한다. 재시작 뒤 실행 중이던 모든 프로세스가 그대로 살아난다고 쓰지 않는다.
 - 알림 패널, 서피스 강조, 부모 대화로 결과 전달을 구분한다. 응답 종료·idle·작업 성공을 같은 뜻으로 쓰지 않는다.
-- 제품명은 Tasty, 명령은 `tasty`, 연동 대상은 Claude Code·Codex CLI로 쓴다. 웹사이트 언어는 한국어·영어, 앱 내장 언어는 영어·한국어·일본어로 구분한다.
+- 제품명은 Tasty, 명령은 `tasty`, 연동 대상은 Claude Code·Codex CLI로 쓴다. 웹사이트 언어는 영어·한국어·일본어·중국어 간체, 앱 내장 언어는 영어·한국어·일본어로 구분한다.
 - 메뉴 이름은 앱의 실제 메뉴 이름을 기준으로 쓴다. 한국어 가이드의 첫 등장에는 영어 라벨을 HTML 주석으로 붙인다. 언어별 문구는 각 언어의 페이지에 나누어 싣는다.
 - 원칙의 지향점이나 향후 구상을 현재 구현의 보장으로 옮기지 않는다. 플러그인 인증처럼 아직 제공하지 않는 제도를 현재 기능으로 홍보하지 않는다.
 
@@ -103,7 +103,7 @@
 - `src/layouts/Design.astro`: 안내·토큰·갤러리가 함께 쓰는 레이아웃이다. 공용 머리글·테마·푸터(`Base.astro`), 메뉴, 머리 부분(제목과 소개), 이전·다음을 그린다. 페이지 순서와 묶음은 `src/lib/design.ts`의 `DESIGN_GROUPS`가 정한다.
 - `src/components/design/SpecimenPage.astro`: 토큰과 갤러리 페이지의 래퍼다. `[data-gallery-page]`를 두르고 `specimen.css`와 `design/kit.css`를 싣는다. 레이아웃에 두지 않는 이유는 표본을 보여 주는 페이지만 이 스타일시트를 쓰기 때문이다.
 - `src/pages/[...locale]/design/gallery/*/index.astro`: 라우트마다 `vendor/gallery/<페이지>/index.jsx`의 `page`와 기본 내보내기를 싣는다. `client:load`는 컴파일할 때 import를 찾아야 하므로 15개를 파일 하나로 합치지 않는다.
-- 언어 경로: `getStaticPaths`는 `src/lib/design.ts`의 `localePaths`이고 `src/lib/langs.mjs`의 목록에서 만든다. 언어별 파일을 복제하지 않으며 표본은 같은 소스를 쓴다.
+- 언어 경로: `getStaticPaths`는 `src/lib/langs.mjs`의 `localePaths`이고 언어 목록에서 만든다. 언어별 파일을 복제하지 않으며 표본은 같은 소스를 쓴다.
 - `lang`: 헤더와 푸터는 페이지 언어다. 메뉴와 이전·다음은 `lang="en"`이다. `main`은 안내 페이지에서는 표시하지 않고 토큰과 갤러리에서는 `lang="en"`이다. 레이아웃은 언어 코드를 비교하지 않고 페이지 자료의 `translated`를 읽는다. `<title>`과 메타 설명은 머리에 있어 `lang`을 표시할 수 없다.
 - 표본 안의 페이지 사이 링크는 상대 경로(`../plugins/#html`)로 쓴다. 어느 언어 경로에서든 같은 언어의 페이지로 가고 표본에 언어 개념이 들어가지 않는다. `npm run check-links`가 디자인 페이지에서 다른 언어의 디자인 페이지로 나가는 링크를 실패로 처리한다. 예외는 언어 전환(`a[data-lang]`)이다.
 - 표본의 범위는 `[data-gallery-page]`다. 사이트 전역 규칙 중 표본과 부딪히는 것(`img`, `:focus-visible`)은 이 범위를 뺀다.
@@ -197,18 +197,18 @@ npm run stamp content/en/index.md
 
 | 경로 | 내용 |
 |------|------|
-| `/` | 영어 랜딩 |
-| `/ko/` | 한국어 랜딩 |
+| `/` · `/ko/` · `/ja/` · `/zh/` | 영어, 한국어, 일본어, 중국어 간체 랜딩. 라우트는 `src/pages/[...locale]/index.astro` 하나다 |
 | `/guide/**` | 영어 가이드. `content/en/**.md` 를 발행한다. 파일이 없으면 빌드가 실패한다 |
 | `/ko/guide/**` | 한국어 가이드 (`content/**.md`, canonical) |
-| `/privacy/` · `/ko/privacy/` | 개인정보 안내. 본문은 `src/components/Privacy.astro` 에 두 언어로 있고 푸터에서 연결한다 |
-| `/design/` · `/ko/design/` | 디자인 구역 안내. 제목·소개·안내는 경로의 언어로 나오고, 디자인 가이드가 영어 전용이라는 안내(`.note--untranslated`)를 제목 아래에 둔다. 왼쪽 메뉴는 영어다 |
-| `/design/tokens/` · `/ko/design/tokens/` | 3티어 토큰 표본(`vendor/gallery/tokens/`). `client:load` 없이 정적으로 그려 토큰 JSON을 브라우저로 보내지 않는다. 내용은 영어 고정이다. 기본 언어 경로만 색인하고 sitemap에 넣는다. 다른 언어 경로는 `noindex, follow`다 |
-| `/design/gallery/**` · `/ko/design/gallery/**` | 레퍼런스 갤러리 15 페이지. 머리글, 푸터, 검색, 언어 전환은 경로의 언어이고 내용은 영어 고정이며 표본은 같은 소스다. 모든 언어 경로를 `noindex, follow`로 색인에서 빼고 sitemap에도 넣지 않는다 |
+| `/ja/guide/**` · `/zh/guide/**` | 일본어, 중국어 간체 가이드. `content/ja/**.md`, `content/zh/**.md` 를 발행한다. 파일이 없으면 빌드가 실패한다 |
+| `/privacy/` · `/ko/privacy/` · `/ja/privacy/` · `/zh/privacy/` | 개인정보 안내. 구성은 `src/components/Privacy.astro`, 문구는 사전의 `privacy`에 있고 푸터에서 연결한다 |
+| `/design/` · `/<언어>/design/` | 디자인 구역 안내. 제목·소개·안내는 경로의 언어로 나오고, 디자인 가이드가 영어 전용이라는 안내(`.note--untranslated`)를 제목 아래에 둔다. 왼쪽 메뉴는 영어다 |
+| `/design/tokens/` · `/<언어>/design/tokens/` | 3티어 토큰 표본(`vendor/gallery/tokens/`). `client:load` 없이 정적으로 그려 토큰 JSON을 브라우저로 보내지 않는다. 내용은 영어 고정이다. 기본 언어 경로만 색인하고 sitemap에 넣는다. 다른 언어 경로는 `noindex, follow`다 |
+| `/design/gallery/**` · `/<언어>/design/gallery/**` | 레퍼런스 갤러리 15 페이지. 머리글, 푸터, 검색, 언어 전환은 경로의 언어이고 내용은 영어 고정이며 표본은 같은 소스다. 모든 언어 경로를 `noindex, follow`로 색인에서 빼고 sitemap에도 넣지 않는다 |
 | `/fonts/D2Coding-ligature-Regular.ttf` · `/fonts/D2Coding-ligature-Bold.ttf` · `/fonts/D2Coding-OFL.txt` | D2Coding 원본 글꼴과 OFL 전문(`public/fonts/`). 페이지가 아니므로 sitemap에 넣지 않는다. 푸터의 고지가 OFL 전문으로 연결한다. 아래 "D2Coding 글꼴 파일" 참고 |
 | `/robots.txt` | 전체 허용과 `Sitemap:` 줄. `Disallow`를 넣지 않는다. 막으면 크롤러가 갤러리의 `noindex`를 읽지 못한다 |
-| `/sitemap.xml` | 랜딩, 가이드, privacy의 양 언어와 색인 대상인 디자인 페이지. 가이드와 디자인은 `buildPages`와 `DESIGN_PAGES`에서 만들어 페이지를 추가하면 자동으로 들어간다. 디자인 페이지는 `indexed` 값과 언어 목록으로 정해진다. 랜딩과 privacy는 `src/pages/sitemap.xml.ts`에 적는다. 갤러리는 넣지 않는다. `lastmod`, `changefreq`, `priority`는 정확한 값을 얻을 근거가 없어 넣지 않는다. `npm run check-sitemap`이 빌드된 HTML 중 `<head>`에 `noindex`가 없는 페이지(`404.html` 제외)를 공개 페이지로 보고 `<loc>`와 대조한다. 빠진 공개 페이지, 없는 페이지나 `noindex` 페이지를 가리키는 `<loc>`, 중복, 비어 있거나 없는 sitemap은 실패다 |
-| `/search-index.json` (en) · `/search-index.ko.json` | 검색 인덱스. 페이지마다 제목·섹션과 본문 앞 600자를 싣는다(`src/lib/search.ts`). 코드 블록과 HTML 태그는 빼고, 인라인 코드는 글자로 남기며, 단어 안의 하이픈은 지워지지 않아 `task-await` 같은 명령 이름이 입력한 그대로 맞는다. 명령 이름으로 찾게 하려면 그 이름을 제목이나 첫 문단에 쓴다 |
+| `/sitemap.xml` | 랜딩, 가이드, privacy의 모든 언어와 색인 대상인 디자인 페이지. 언어는 언어 목록 하나에서 읽는다. 랜딩과 privacy의 경로는 언어 행에, 가이드와 디자인은 `buildPages`와 `DESIGN_PAGES`에 있어 페이지를 추가하면 자동으로 들어간다. 디자인 페이지는 `indexed` 값으로 정해진다. 갤러리는 넣지 않는다. `lastmod`, `changefreq`, `priority`는 정확한 값을 얻을 근거가 없어 넣지 않는다. `npm run check-sitemap`이 빌드된 HTML 중 `<head>`에 `noindex`가 없는 페이지(`404.html` 제외)를 공개 페이지로 보고 `<loc>`와 대조한다. 빠진 공개 페이지, 없는 페이지나 `noindex` 페이지를 가리키는 `<loc>`, 중복, 비어 있거나 없는 sitemap은 실패다 |
+| `/search-index.json` (en) · `/search-index.ko.json` · `/search-index.ja.json` · `/search-index.zh.json` | 검색 인덱스. 파일 이름은 언어 행의 `searchIndex`이고 라우트는 `src/pages/[searchIndex].ts` 하나다. 페이지마다 제목·섹션과 본문 앞 600자를 싣는다(`src/lib/search.ts`). 찾기는 부분 일치라 띄어쓰기 없는 일본어와 중국어도 찾는다. 입력기가 조합 중인 키는 검색 상자가 처리하지 않는다. 코드 블록과 HTML 태그는 빼고, 인라인 코드는 글자로 남기며, 단어 안의 하이픈은 지워지지 않아 `task-await` 같은 명령 이름이 입력한 그대로 맞는다. 명령 이름으로 찾게 하려면 그 이름을 제목이나 첫 문단에 쓴다 |
 
 ### 배포 경로 (base)
 
@@ -230,13 +230,14 @@ npm run stamp content/en/index.md
 기본 URL과 랜딩 `/`는 영어로 제공한다.
 정본이 한국어인 것과는 별개다 — 작성은 한국어로, 노출 기본은 영어로.
 
-랜딩 `/`는 첫 화면을 그리기 전에 언어를 판단한다(`src/pages/index.astro`).
-헤더의 EN/KO로 고른 값(`localStorage`의 `tasty-lang`)이 있으면 그 값을, 없으면 `navigator.language`를 따르며
-`ko`로 시작하면 `/ko/`로 이동한다. 다른 페이지는 이동하지 않아 공유한 링크가 그 언어로 열린다. JS가 꺼져 있으면
+랜딩 `/`는 첫 화면을 그리기 전에 언어를 판단한다(`src/pages/[...locale]/index.astro`).
+언어 전환으로 고른 값(`localStorage`의 `tasty-lang`)이 있으면 그 값을, 없으면 `navigator.language`를 소문자로 바꿔
+언어 행의 `browserMatch`와 대조하고 맞는 행의 랜딩으로 이동한다. 기본 언어 행에는 이 값이 없어 저장값 `en`은 그 자리에 머문다.
+간체 태그(`zh`, `zh-CN`, `zh-SG`, `zh-Hans`)는 `/zh/`로 가고 번체 태그(`zh-TW`, `zh-HK`, `zh-MO`, `zh-Hant`)는 맞는 행이 없어 영어 랜딩에 남는다. 다른 페이지는 이동하지 않아 공유한 링크가 그 언어로 열린다. JS가 꺼져 있으면
 영어 랜딩이 그대로 보인다. 페이지마다 `Base.astro`가 자기 주소를 `canonical`과 `og:url`로 알리고, 언어가 나뉜 페이지는
 언어별 주소를 `hreflang`과 `og:locale:alternate`로 함께 알린다. 호출하는 쪽은 언어 코드별 경로 맵 `hrefs`를 넘기고, 언어 전환은 언어 목록 순서대로 맵에 있는 언어를 보여 준다. 번역되지 않은 디자인 페이지(토큰, 갤러리)는 내용이 같은 영어라 다른 언어판이 없으므로
 `announceLanguages={false}`로 `hreflang`과 `og:locale:alternate`를 내지 않고, 언어 전환은 그대로 보여 준다. `x-default`는 기본 언어의 경로다. 절대 주소는 `src/lib/site.ts`의 `absolute()`가 `src/lib/base.mjs`의 `SITE`로 만든다.
-언어 목록은 `src/lib/langs.mjs`에 있다. 언어마다 코드, 경로 접두어, 언어 전환 표시 글자, `og:locale` 값, 랜딩·가이드·개인정보 경로, 검색 색인 파일, 공유 이미지 경로를 한 행에 적고, 기본 언어를 `DEFAULT_LANG`으로 내보낸다. 행에는 번역 폴더 `contentDir`도 있다. 한국어 정본은 `null`이다. 코드에서 언어 코드를 비교하지 않고 행의 값을 읽으며, 주소와 언어 코드가 다를 수 있으므로 `code`로 경로를 만들지 않는다(`code`는 `hreflang`과 `<html lang>`에 나간다). `CANONICAL_LANG`은 정본 언어이고, 모든 언어에 있는 페이지의 `hrefs`는 `hrefsFor`로 목록에서 만든다. `hrefs`에 페이지 언어가 없으면 `Base.astro`가 언어 코드를 담아 실패한다.
+언어 목록은 `src/lib/langs.mjs`에 있다. 언어마다 코드, 경로 접두어, 언어 전환에 보일 그 언어의 이름, `og:locale` 값, 랜딩·가이드·개인정보 경로, 첫 페이지 이동 대상 `browserMatch`, 검색 색인 파일, 공유 이미지 경로를 한 행에 적고, 기본 언어를 `DEFAULT_LANG`으로 내보낸다. 행에는 번역 폴더 `contentDir`도 있다. 한국어 정본은 `null`이다. 코드에서 언어 코드를 비교하지 않고 행의 값을 읽으며, 주소와 언어 코드가 다를 수 있으므로 `code`로 경로를 만들지 않는다(`code`는 `hreflang`과 `<html lang>`에 나간다). `CANONICAL_LANG`은 정본 언어이고, 모든 언어에 있는 페이지의 `hrefs`는 `hrefsFor`로 목록에서 만든다. `hrefs`에 페이지 언어가 없으면 `Base.astro`가 언어 코드를 담아 실패한다.
 
 ### 언어 목록과 사전
 
@@ -254,7 +255,8 @@ npm run stamp content/en/index.md
 
 Astro 내장 i18n은 쓰지 않는다. 7.3.1에서 확인한 결과 `i18n` 설정은 페이지를 만들어 주지 않고(경로는 어차피 `getStaticPaths`가 만든다), `Astro.preferredLocale`은 정적 빌드에서 `undefined`이며, `astro:i18n`은 `scripts/`와 Markdown 처리기에서 읽지 못해 언어 목록이 둘이 된다. `fallback`은 번역이 빠져도 빌드를 통과시켜 위 규칙과 반대다.
 `Base.astro`는 언어 행의 `shareImage`로 1200×630 공유 이미지의 절대 주소를 `og:image`로 내고 크기를 `og:image:width`와 `og:image:height`로 함께 알린다. `twitter:card`는 `summary_large_image`다. 새 언어의 이미지가 생기기 전에는 행에 있는 이미지를 가리키게 한다.
-네이버 Search Advisor의 사이트 소유 확인 태그(`naver-site-verification`)는 `src/pages/index.astro`의 `head` 슬롯에 있어 `/`에만 나간다.
+네이버 Search Advisor의 사이트 소유 확인 태그(`naver-site-verification`)는 `src/pages/[...locale]/index.astro`의 `head` 슬롯에서 기본 언어일 때만 나가므로 `/`에만 있다.
+일본어와 중국어 행의 `shareImage`는 자기 이미지가 생기기 전까지 영어 이미지를 가리킨다.
 
 ## 방문자 분석
 
@@ -265,7 +267,7 @@ Astro 내장 i18n은 쓰지 않는다. 7.3.1에서 확인한 결과 `i18n` 설�
   페이지에 노출되는 공개 값이다.
 - `<head>`를 가진 `Base.astro`가 이 컴포넌트를 싣는다. `Design.astro`, `Guide.astro`는 `Base.astro`를 통해 함께 포함된다.
 - production 빌드에만 포함되어 `astro dev` 방문은 집계되지 않는다.
-- 수집 항목이나 처리 주체가 바뀌면 개인정보 안내(`src/components/Privacy.astro`)의 두 언어 본문과 최종 수정일을 함께 고친다. 앱에 외부 전송 기능을 추가할 때도 안내의 앱 항목을 확인한다.
+- 수집 항목이나 처리 주체가 바뀌면 개인정보 안내(사전의 `privacy`)의 모든 언어 본문과 최종 수정일을 함께 고친다. 앱에 외부 전송 기능을 추가할 때도 안내의 앱 항목을 확인한다.
 - 통계는 Cloudflare 대시보드의 Web Analytics에서 본다. 저장소 Insights의 Traffic은 Pages 방문을 집계하지 않는다.
 
 ## 콘텐츠 구조
@@ -378,7 +380,7 @@ npm run check-translations -- ja
 - `content/<폴더>/`: 번역 파일을 넣고 스탬프를 찍는다.
 - `checks/src/lib.rs`의 `TRANSLATION_DIRS`: Rust는 `langs.mjs`를 실행하지 못해 폴더 이름을 여기 적는다. 새 폴더를 빠뜨리면 번역이 한국어 원본으로 읽혀 "이름이 가이드에 있는가" 검사가 약해진다. 언어 행의 `contentDir`이 여기 없으면 시험이 실패한다. 행 없이 들어온 폴더는 이 시험이 잡지 못하므로 파일을 넣기 전에 먼저 고친다.
 - `checks/tests/guide_examples_parse.rs`의 `MAY_BE_ABSENT`: 번역이 들어오는 동안만 쓴다. 행을 더할 때 비운다.
-- `.github/workflows/pages.yml`의 `check-translations` 줄: 폴더 이름과 `--skip-missing`.
+- `.github/workflows/pages.yml`의 `check-translations` 줄: 폴더 이름. 파일을 행보다 먼저 넣는 동안만 `--skip-missing`을 쓰고 행을 더할 때 뺀다.
 - `src/lib/langs.mjs`: 번역 파일과 경로가 준비된 뒤 마지막에 행을 더한다.
 
 **콘텐츠의 내부 링크는 상대경로로 쓴다.** hast 플러그인이 그것을 라우트로 바꾸고, 그 라우트는
@@ -439,7 +441,7 @@ mocha 로 시작한다. 첫 페인트 전에 인라인 스크립트가 적용해
   읽는지는 이 절이 다루지 않는다.
 - 요소 크기 척도는 용도로 나눈다. `--size-control-*` 는 컨트롤의 높이 · 너비다 — `sm` 은 헤더의
   아이콘 버튼 · 언어 전환 · 검색 입력과 검색 아이콘 칸(좁은 화면에서 접힌 검색 폭 포함), `md` 는
-  랜딩 기능 카드 칩과 터미널 그림 제목 막대, `lg` 는 랜딩 CTA 버튼이다. `--size-icon-*` 는 글리프
+  랜딩 기능 카드 칩과 터미널 그림 제목 막대, 언어 목록 줄, `lg` 는 랜딩 CTA 버튼과 좁은 화면·터치 환경의 언어 목록 줄이다. `--size-icon-*` 는 글리프
   크기다 — `sm` 헤더 아이콘 버튼과 검색 돋보기, `md` CTA와 기능 카드 칩, `lg` 플랫폼 줄, `xl`
   브랜드 마크다.
 - 척도에 넣지 않는 값은 숫자로 남기고 파일 머리 주석에 그 범주를 적는다 — 글꼴 크기, 선 굵기,
@@ -487,7 +489,7 @@ mocha 로 시작한다. 첫 페인트 전에 인라인 스크립트가 적용해
 
 - 브라우저는 그 글꼴로 글자를 처음 그릴 때 파일을 받는다. 파일이 4 MB가 넘으므로 어느 글자가 D2Coding을 읽는지가 전송량을 정한다.
 - `@font-face`는 `src/styles/d2coding.css`에 있고 `design.css`가 불러온다. 디자인 구역 밖 페이지에는 규칙이 없다.
-- 디자인 구역 안에서도 `[data-site-chrome]`과 토큰 페이지(`[data-gallery-page="tokens"]`)는 `--tasty-font-family-mono-system`을 읽어 파일을 요청하지 않는다. 머리글의 언어 전환 두 글자만으로 Bold가 요청되기 때문이다. 토큰 페이지는 이름과 값의 표이고 검색에 노출된다.
+- 디자인 구역 안에서도 `[data-site-chrome]`과 토큰 페이지(`[data-gallery-page="tokens"]`)는 `--tasty-font-family-mono-system`을 읽어 파일을 요청하지 않는다. 공통 부분의 고정폭 글자 몇 개만으로 파일이 요청될 수 있기 때문이다. 토큰 페이지는 이름과 값의 표이고 검색에 노출된다.
 - 디자인 첫 페이지는 규칙이 있어도 D2Coding으로 그리는 글자가 없어 요청하지 않는다. 이 페이지나 토큰 페이지에 고정폭 글자를 더하면 요청이 생기는지 다시 잰다.
 - `font-display: swap`이다. `fallback`과 `optional`은 Slow 4G에서 같은 바이트를 다 받고도 그 페이지를 다른 글꼴로 남겼다. 파일을 받는 값을 그 페이지에서 보여 주는 쪽을 골랐다.
 - preload는 쓰지 않는다. 표본은 첫 렌더링에서 바로 요청하므로(약 1초) 끝나는 시각이 거의 같다. `local()`은 쓰지 않는다. 설치된 판이 다르면 표본이 앱과 달라진다.
@@ -549,13 +551,17 @@ mocha 로 시작한다. 첫 페인트 전에 인라인 스크립트가 적용해
 
 선택자가 요소의 `:lang`이라 `lang="en"`인 곳에는 걸리지 않는다. 디자인 구역의 이전·다음과 토큰·갤러리의 머리 부분은 영어 고정이라 그대로다.
 
-값을 담는 고정폭 규칙은 모든 언어에서 유지한다. `.brand__version`은 버전, `.code-block__lang`은 코드 언어 이름이다. `.lang-switch a`는 지금 언어 코드를 담고 있어 유지한다. 언어 행의 `label`을 `日本語`처럼 쓰면 이 규칙의 대상이 되므로 코드 형식(`JA`)을 쓴다. `.copy-btn`은 영어 고정이면 유지하고 번역하면 대상이 된다.
+값을 담는 고정폭 규칙은 모든 언어에서 유지한다. `.brand__version`은 버전, `.code-block__lang`은 코드 언어 이름이다. `.copy-btn`은 영어 고정이면 유지하고 번역하면 대상이 된다.
+
+언어 전환은 고정폭을 쓰지 않는다. 언어 이름(`English`, `한국어`, `日本語`, `简体中文`)은 어느 페이지에서든 그 언어의 글꼴 체인으로 그린다. 페이지 언어가 정하는 `--font-sans`가 닿지 않으므로 `.lang-switch [lang]` 규칙이 `--font-cjk-ja`, `--font-cjk-zh`를 직접 읽는다.
+
+랜딩 창 문서의 제목(`.shell__doc-title`)도 번역 문구라 일본어와 중국어에서 `--font-sans`를 읽는다. 터미널 그림의 줄은 터미널 내용이라 `--tasty-font-mono` 그대로다.
 
 ## 랜딩의 구조화 데이터
 
-`/`와 `/ko/`의 `<head>`에 `src/lib/structured-data.ts`가 만든 JSON-LD를 넣는다. 다른 페이지에는 넣지 않는다.
+모든 언어 랜딩의 `<head>`에 `src/lib/structured-data.ts`가 만든 JSON-LD를 넣는다. 다른 페이지에는 넣지 않는다.
 
-- `SoftwareApplication`은 두 랜딩에 넣고 `WebSite`는 첫 페이지인 `/`에만 넣는다.
+- `SoftwareApplication`은 모든 랜딩에 넣고 `WebSite`는 첫 페이지인 `/`에만 넣는다.
 - 값은 실제 제품 사실만 적고 이미 있는 곳에서 읽는다. `description`은 `src/lib/i18n/` 사전의 `meta.description`, `downloadUrl`은 `RELEASES_URL`, `softwareVersion`은 `releaseVersion`, `sameAs`는 `REPO`, 주소는 `absolute()`다.
 - `softwareVersion`은 공개된 최신 릴리스다. 개발 중인 버전을 쓰지 않는다. `release.json`이 없는 로컬 빌드에는 이 키가 없다.
 - `inLanguage`는 앱 내장 언어(영어, 한국어, 일본어)다. 웹사이트 언어가 아니다.
@@ -591,7 +597,7 @@ mocha 로 시작한다. 첫 페인트 전에 인라인 스크립트가 적용해
 - 브라우저가 보고한 값만 사용한다. Windows ARM 기기의 브라우저가 x64 라고 보고하면 x64 설치 파일로
   연결된다. 아키텍처를 판별하지 못한 방문자에게 다른 아키텍처의 파일을 대신 고르지 않는다.
 - `release.json` 이 없거나 해당 조합의 자산이 없으면 속성이 없으므로 버튼은 릴리스 페이지로 간다.
-  한국어·영어 랜딩은 같은 컴포넌트와 스크립트를 사용한다.
+  모든 언어의 랜딩은 같은 컴포넌트와 스크립트를 사용한다.
 
 ## 랜딩의 제품 창
 
