@@ -90,7 +90,7 @@
 
 | 산출물 | 만드는 곳 |
 |------|------|
-| 페이지 토큰 | `src/styles/tokens.css`. tier 순서로 `vendor/` 토큰을 `@import`한다 |
+| 페이지 토큰 | `src/styles/tokens.css`. tier 순서로 `vendor/` 토큰을 `@import`한다. D2Coding의 `@font-face`는 `src/styles/d2coding.css`에 따로 있다 |
 | `/design/kit.css` | `src/lib/vendor-assets.ts`와 이를 읽는 엔드포인트 |
 | `/tasty-melon.svg` · `/tasty-icon.png` | `assets/icons/`의 `tasty-melon.svg` · `icon_256.png`(Tasty 레포의 로고·앱 아이콘과 같은 파일)를 읽는 엔드포인트 `src/pages/tasty-melon.svg.ts` · `tasty-icon.png.ts` |
 | `/tasty-share-en.png` · `/tasty-share-ko.png` | `vendor/share/`의 `tasty-share-en.png` · `tasty-share-ko.png`를 읽는 엔드포인트 `src/pages/tasty-share-en.png.ts` · `tasty-share-ko.png.ts` |
@@ -120,6 +120,7 @@
 - 포커스 링: 앱과 같은 `border-focus`다.
 - 건너뛰기 링크: 키보드 포커스를 받을 때만 머리글 위 왼쪽 위에 나타난다. 자기 `bg-panel` 칠과 1px 테두리에 링크 잉크를 쓰고 포커스 링이 그 둘레를 두른다.
 - 인라인 코드: 칩 바탕은 `site-inline-code-bg`, 테두리는 1px `border-default`다. Latte에서 `raised`는 본문에서 지나치게 튀어 `mantle`로 내린다.
+- 글꼴 고지: 푸터의 `.site-footer__font`다. 문장 안의 링크라 밑줄을 긋는다.
 - 번역 안내: `.note`는 경고 틴트(번역이 뒤처졌을 때), `.note--untranslated`는 주 색 틴트(디자인 첫 페이지의 영어 전용 안내)다. 앞머리 낱말과 색 테두리는 없다.
 - 표: 가이드의 Markdown 표는 렌더링 단계(`src/lib/satteri-table-wrap.mjs`)에서 `.table-wrap`으로 감싼다. 1px 테두리와 `mantle` 머리 행을 그리고 좁은 화면에서는 안쪽에서 가로 스크롤한다.
 - 구분자: 이동 경로의 `/`는 장식이다. `aria-hidden`과 `data-ink-grade="none" data-ink-why="ornament"`를 붙이고 `glyph-dim`을 쓴다.
@@ -204,7 +205,7 @@ npm run stamp content/en/index.md
 | `/design/` · `/ko/design/` | 디자인 구역 안내. 제목·소개·안내는 경로의 언어로 나오고, 디자인 가이드가 영어 전용이라는 안내(`.note--untranslated`)를 제목 아래에 둔다. 왼쪽 메뉴는 영어다 |
 | `/design/tokens/` · `/ko/design/tokens/` | 3티어 토큰 표본(`vendor/gallery/tokens/`). `client:load` 없이 정적으로 그려 토큰 JSON을 브라우저로 보내지 않는다. 내용은 영어 고정이다. 기본 언어 경로만 색인하고 sitemap에 넣는다. 다른 언어 경로는 `noindex, follow`다 |
 | `/design/gallery/**` · `/ko/design/gallery/**` | 레퍼런스 갤러리 15 페이지. 머리글, 푸터, 검색, 언어 전환은 경로의 언어이고 내용은 영어 고정이며 표본은 같은 소스다. 모든 언어 경로를 `noindex, follow`로 색인에서 빼고 sitemap에도 넣지 않는다 |
-| `/fonts/D2Coding-ligature-Regular.ttf` · `/fonts/D2Coding-ligature-Bold.ttf` · `/fonts/D2Coding-OFL.txt` | D2Coding 원본 글꼴과 OFL 전문(`public/fonts/`). 페이지가 아니므로 sitemap에 넣지 않는다. 아래 "D2Coding 글꼴 파일" 참고 |
+| `/fonts/D2Coding-ligature-Regular.ttf` · `/fonts/D2Coding-ligature-Bold.ttf` · `/fonts/D2Coding-OFL.txt` | D2Coding 원본 글꼴과 OFL 전문(`public/fonts/`). 페이지가 아니므로 sitemap에 넣지 않는다. 푸터의 고지가 OFL 전문으로 연결한다. 아래 "D2Coding 글꼴 파일" 참고 |
 | `/robots.txt` | 전체 허용과 `Sitemap:` 줄. `Disallow`를 넣지 않는다. 막으면 크롤러가 갤러리의 `noindex`를 읽지 못한다 |
 | `/sitemap.xml` | 랜딩, 가이드, privacy의 양 언어와 색인 대상인 디자인 페이지. 가이드와 디자인은 `buildPages`와 `DESIGN_PAGES`에서 만들어 페이지를 추가하면 자동으로 들어간다. 디자인 페이지는 `indexed` 값과 언어 목록으로 정해진다. 랜딩과 privacy는 `src/pages/sitemap.xml.ts`에 적는다. 갤러리는 넣지 않는다. `lastmod`, `changefreq`, `priority`는 정확한 값을 얻을 근거가 없어 넣지 않는다. `npm run check-sitemap`이 빌드된 HTML 중 `<head>`에 `noindex`가 없는 페이지(`404.html` 제외)를 공개 페이지로 보고 `<loc>`와 대조한다. 빠진 공개 페이지, 없는 페이지나 `noindex` 페이지를 가리키는 `<loc>`, 중복, 비어 있거나 없는 sitemap은 실패다 |
 | `/search-index.json` (en) · `/search-index.ko.json` | 검색 인덱스. 페이지마다 제목·섹션과 본문 앞 600자를 싣는다(`src/lib/search.ts`). 코드 블록과 HTML 태그는 빼고, 인라인 코드는 글자로 남기며, 단어 안의 하이픈은 지워지지 않아 `task-await` 같은 명령 이름이 입력한 그대로 맞는다. 명령 이름으로 찾게 하려면 그 이름을 제목이나 첫 문단에 쓴다 |
@@ -462,7 +463,7 @@ Sätteri 의 hast 플러그인(`src/lib/satteri-*.mjs`)에서 일어난다.
 
 ## D2Coding 글꼴 파일
 
-`public/fonts/`에 Tasty 앱이 쓰는 D2Coding ligature 원본 TTF 두 개와 SIL Open Font License 1.1 전문을 둔다. 빌드는 이 폴더를 같은 이름으로 복사하므로 글꼴과 라이선스가 사이트의 `/fonts/`에 나란히 나간다. 아직 어떤 CSS도 이 파일을 가리키지 않아 렌더링에는 영향이 없다.
+`public/fonts/`에 Tasty 앱이 쓰는 D2Coding ligature 원본 TTF 두 개와 SIL Open Font License 1.1 전문을 둔다. 빌드는 이 폴더를 같은 이름으로 복사하므로 글꼴과 라이선스가 사이트의 `/fonts/`에 나란히 나간다. 갤러리 표본만 이 파일로 그린다(아래 "사용 범위와 로딩").
 
 | 파일 | sha256 | 크기(byte) |
 |---|---|---|
@@ -481,6 +482,42 @@ Sätteri 의 hast 플러그인(`src/lib/satteri-*.mjs`)에서 일어난다.
 - WOFF, WOFF2로 변환하지 않는다. FAQ 2.2.1의 조건을 맞추면 수정이 아니지만 바이트 해시로 대조할 수 없다. 필요해지면 사용자에게 올린다.
 - 글꼴 메타데이터의 저작권 표기와 OFL 파일 머리의 저작권 줄이 달라도 어느 쪽도 맞춰 고치지 않고 함께 배포한다. 글꼴을 고치면 수정본이 되고, OFL 파일은 upstream 원문이다.
 - 글꼴의 메타데이터에는 라이선스가 한 문장뿐이고 Reserved Font Name 문구가 없다. 그래서 OFL 파일을 빼면 안 된다.
+
+### 사용 범위와 로딩
+
+- 브라우저는 그 글꼴로 글자를 처음 그릴 때 파일을 받는다. 파일이 4 MB가 넘으므로 어느 글자가 D2Coding을 읽는지가 전송량을 정한다.
+- `@font-face`는 `src/styles/d2coding.css`에 있고 `design.css`가 불러온다. 디자인 구역 밖 페이지에는 규칙이 없다.
+- 디자인 구역 안에서도 `[data-site-chrome]`과 토큰 페이지(`[data-gallery-page="tokens"]`)는 `--tasty-font-family-mono-system`을 읽어 파일을 요청하지 않는다. 머리글의 언어 전환 두 글자만으로 Bold가 요청되기 때문이다. 토큰 페이지는 이름과 값의 표이고 검색에 노출된다.
+- 디자인 첫 페이지는 규칙이 있어도 D2Coding으로 그리는 글자가 없어 요청하지 않는다. 이 페이지나 토큰 페이지에 고정폭 글자를 더하면 요청이 생기는지 다시 잰다.
+- `font-display: swap`이다. `fallback`과 `optional`은 Slow 4G에서 같은 바이트를 다 받고도 그 페이지를 다른 글꼴로 남겼다. 파일을 받는 값을 그 페이지에서 보여 주는 쪽을 골랐다.
+- preload는 쓰지 않는다. 표본은 첫 렌더링에서 바로 요청하므로(약 1초) 끝나는 시각이 거의 같다. `local()`은 쓰지 않는다. 설치된 판이 다르면 표본이 앱과 달라진다.
+- 두 굵기를 모두 싣는다. 표본의 badge와 제목이 Bold를 쓰고 앱에도 Bold가 있다. 500은 Regular, 600 이상은 Bold로 그려진다.
+- 합자: `code, kbd, pre, samp`의 `font-variant-ligatures: contextual`은 그대로다. 범위 밖 페이지는 파일이 없어 명령 예시의 모양이 바뀌지 않는다.
+
+측정(Linux, Chromium, 첫 방문, Slow 4G는 1.6 Mbps·150 ms). 글꼴 전송은 압축이 없을 때 값이고, gzip이면 Regular 2095509, Bold 2216213 byte다. GitHub Pages의 `.ttf` 압축은 배포 전에는 잴 수 없다.
+
+| 범위 | 글꼴을 받는 페이지(82쪽 중) | `/guide/` 전송량 |
+|---|---|---|
+| 사이트 전체 | 82쪽, 두 파일 | 8656838 byte |
+| 디자인 구역 전체, chrome 포함 | 34쪽, 두 파일 | 33889 byte |
+| 지금: 갤러리 표본 | 30쪽. 22쪽은 두 파일, 8쪽(`icons`, `rules`, `rules-map`, `explorer-ops`)은 Regular만 | 34024 byte. 푸터 줄로 135 byte 늘었다 |
+
+| 지금의 페이지 | 전송량 | 글꼴 요청 | Slow 4G 글꼴 완료 | CLS 전 → 후 |
+|---|---|---|---|---|
+| `/design/gallery/` | 8823321 byte | 2 | 46.3초, gzip이면 24.0초 | 0.0260 → 0.0266 |
+| `/design/gallery/components/` | 8846105 byte | 2 | 46.6초, gzip이면 23.8초 | 0.0208 → 0.0207 |
+| `/design/gallery/icons/` | 4375573 byte | 1 | 28.0초, gzip이면 14.6초 | 0.0226 → 0.0369 |
+
+- 글꼴이 도착하는 시점의 이동: 한 화면 넘게 내려간 상태에서 CLS 증가는 0.003 이하다. 위 표의 CLS에는 표본 마운트의 이동이 들어 있다.
+- `DOMContentLoaded`는 약 1~1.6초로 글꼴의 영향이 적다. `load`는 글꼴이 끝날 때까지 늦어진다.
+- 표본의 글꼴 폭: 이 Linux의 대체 글꼴 `Noto Sans Mono CJK JP`는 11px에서 글자당 5.5px이고 D2Coding은 앱처럼 6px로 반올림된다. 문서 높이는 페이지마다 0.3~1.7% 늘고 문서 가로 넘침은 없다. 안쪽에서 잘리는 요소는 1440폭에서 434개에서 452개로 늘었다. 새로 잘린 요소는 말줄임 표시와, 값이 잘리는 사례를 보여 주는 표본이다.
+
+### 라이선스 고지
+
+푸터의 `MIT` 줄 아래에 별도 줄을 둔다(`Base.astro`, 사전의 `footerFontNote`, `footerFontLicense`, `footerFontSource`). 줄이 글꼴과 라이선스를 직접 말하므로 `MIT` 줄이 글꼴까지 덮는 것으로 읽히지 않는다. 라이선스 이름은 `/fonts/D2Coding-OFL.txt`로, 출처는 원 배포처 주소로 연결한다. 모든 페이지에 있다.
+
+- 저작권자 이름은 이 줄에 적지 않는다. OFL 파일 머리와 글꼴 메타데이터에 있고 두 표기가 다르므로, 한쪽을 골라 다시 적지 않는다.
+- 내려받기 안내가 아니다. 글꼴 링크를 사이트에 두지 않는다.
 
 ## 언어별 글꼴과 줄바꿈
 
