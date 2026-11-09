@@ -611,8 +611,9 @@ pre.astro-code span[style*="#6A737D"] { color: var(--tasty-site-code-comment) !i
   white-space: nowrap;
 }
 /* break-word lets a cell shrink to one character, so an auto-layout table narrows its code
-   first. keep-all holds a placeholder like <権限> together in every language: code wraps at
-   its spaces and hyphens, and a token wider than the room scrolls the table instead of splitting. */
+   first. keep-all also stops a break inside a run of CJK text. A bracket beside that text can
+   still wrap, which CSS alone cannot prevent without forbidding the wrap at spaces too. A token
+   wider than the room scrolls the table instead of splitting. */
 .prose .table-wrap code { word-break: keep-all; }
 /* Japanese and Chinese prose can break after any character, so without a floor the prose
    column collapses once the code stops giving way. 10em leaves about 8 characters of text;
