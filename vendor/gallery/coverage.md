@@ -118,7 +118,7 @@ The 4 contracts and 5 locations had no gallery specimen and now have one. Each p
 | Pane body | `base` | `layouts#multitab` | exists |
 | Surface head and split line | `mantle` | `layouts#surfaces` | exists |
 | Terminal surface, focused | `term` | `layouts#surfaces` | exists; overlay layers only in foundations#terminal |
-| Terminal surface, unfocused | `term-unfocused` | `layouts#surfaces` | exists |
+| Terminal surface, unfocused | `term-unfocused` | `layouts#surfaces` | exists; overlay layers only in foundations#terminal |
 | Markdown surface, focused | `term` | `plugins#markdown` | exists |
 | Markdown surface, unfocused | `term-unfocused` | `plugins#markdown` | view |
 | HTML surface | `mantle` | `plugins#html` | exists |
