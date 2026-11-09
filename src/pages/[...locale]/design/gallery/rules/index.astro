@@ -1,0 +1,11 @@
+---
+import GalleryPage from "../../../../../layouts/GalleryPage.astro";
+import Route, { page } from "../../../../../../vendor/gallery/rules/index.jsx";
+import { localePaths } from "../../../../../lib/design";
+
+export const getStaticPaths = localePaths;
+const { lang } = Astro.props;
+---
+<GalleryPage lang={lang} pageKey="rules" page={page}>
+  <Route client:load />
+</GalleryPage>

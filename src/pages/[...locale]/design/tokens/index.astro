@@ -1,0 +1,8 @@
+---
+import TokenSystem from "../../../../components/design/TokenSystem.astro";
+import { localePaths } from "../../../../lib/design";
+
+export const getStaticPaths = localePaths;
+const { lang } = Astro.props;
+---
+<TokenSystem lang={lang} />

@@ -1,0 +1,11 @@
+---
+import GalleryPage from "../../../../../layouts/GalleryPage.astro";
+import Route, { page } from "../../../../../../vendor/gallery/overlays-banners/index.jsx";
+import { localePaths } from "../../../../../lib/design";
+
+export const getStaticPaths = localePaths;
+const { lang } = Astro.props;
+---
+<GalleryPage lang={lang} pageKey="overlays-banners" page={page}>
+  <Route client:load />
+</GalleryPage>

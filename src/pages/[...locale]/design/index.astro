@@ -1,0 +1,8 @@
+---
+import Foundations from "../../../components/design/Foundations.astro";
+import { localePaths } from "../../../lib/design";
+
+export const getStaticPaths = localePaths;
+const { lang } = Astro.props;
+---
+<Foundations lang={lang} />

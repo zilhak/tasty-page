@@ -44,7 +44,7 @@ if (!c) throw new Error(`No design home copy for language: ${lang}`);
     <p class="ds-links">
       <a href={url(langRow(lang).guide)}>{c.guide}</a>
       <a href={url(designPath("tokens/", lang))}>{c.tokens}</a>
-      <a href={url(galleryPath(""))}>{c.openGallery}</a>
+      <a href={url(galleryPath("", lang))}>{c.openGallery}</a>
     </p>
   </section>
 </Design>

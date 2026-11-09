@@ -56,14 +56,12 @@ const s = stringsFor(lang);
         </details>
       ))}
 
-      {/* The gallery is one application published once, not per language, so
-          its links are the same on both sides of the site. */}
       <details class="nav-section" open>
         <summary>Gallery</summary>
         <ul class="nav-list">
           {GALLERY_GROUPS.flatMap((g) => g.pages).map((page) => (
             <li>
-              <a href={url(galleryPath(page.slug))} style="--indent:0">
+              <a href={url(galleryPath(page.slug, lang))} style="--indent:0">
                 {page.label}
                 <span class="nav-desc">{page.desc}</span>
               </a>

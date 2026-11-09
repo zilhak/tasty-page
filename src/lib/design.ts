@@ -1,4 +1,4 @@
-import { langRow } from "./langs.mjs";
+import { LANGS, langRow } from "./langs.mjs";
 
 /** Navigation for the design zone. Its menu is English in every language. */
 export interface DesignPage {
@@ -26,7 +26,14 @@ export const DESIGN_NAV: DesignGroup[] = [
 /** Route of a design page in one language. */
 export const designPath = (slug: string, lang: string) => `${langRow(lang).prefix}design/${slug}`;
 
-/** The gallery uses shared routes. `key` matches the page folder in vendor/gallery/. */
+/** One static path per language for a route under `[...locale]`. The language without a prefix has no locale segment. */
+export const localePaths = () =>
+  LANGS.map((row) => ({
+    params: { locale: row.prefix.replace(/\/$/, "") || undefined },
+    props: { lang: row.code },
+  }));
+
+/** `key` matches the page folder in vendor/gallery/. */
 export interface GalleryPage {
   key: string;
   /** Route under `design/gallery/`; "" is the gallery root. */
@@ -79,8 +86,8 @@ export const GALLERY_GROUPS: { group: string; pages: GalleryPage[] }[] = [
 
 export const GALLERY_PAGES: GalleryPage[] = GALLERY_GROUPS.flatMap((g) => g.pages);
 
-/** Route of a gallery page. The gallery is published once, not per language. */
-export const galleryPath = (slug: string) => `design/gallery/${slug}`;
+/** Route of a gallery page in one language. */
+export const galleryPath = (slug: string, lang: string) => designPath(`gallery/${slug}`, lang);
 
 /** Introductory copy for the site; specimen content comes from the design kit. */
 export const GALLERY_INTROS: Record<string, string> = {
