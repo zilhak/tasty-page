@@ -11,9 +11,10 @@
 import { DEFAULT_LANG, LANGS } from "../langs.mjs";
 import { dictionaryProblems } from "./check.mjs";
 import en from "./en.mjs";
+import ja from "./ja.mjs";
 import ko from "./ko.mjs";
 
-const DICTIONARIES = { en, ko };
+const DICTIONARIES = { en, ko, ja };
 
 const problems = dictionaryProblems(DICTIONARIES, DEFAULT_LANG, LANGS.map((row) => row.code));
 if (problems.length > 0) {
