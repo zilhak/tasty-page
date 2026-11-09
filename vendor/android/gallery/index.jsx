@@ -4,10 +4,12 @@ import React from "react";
 import { COPY } from "./copy.js";
 import { LayoutSection } from "./layout.jsx";
 import { TokensSection } from "./tokens.jsx";
+import { TouchSection } from "./touch.jsx";
 
 const NAV = [
   { id: "tokens", label: "Tokens" },
   { id: "layout", label: "Layout rules" },
+  { id: "touch", label: "Touch" },
 ];
 
 function AndroidGallery() {
@@ -15,6 +17,7 @@ function AndroidGallery() {
     <>
       <TokensSection />
       <LayoutSection />
+      <TouchSection />
     </>
   );
 }
