@@ -344,6 +344,7 @@ a.visually-hidden:focus-visible {
 }
 .search__results a:hover .r-crumb,
 .search__results a[data-active] .r-crumb { color: var(--tasty-text-muted-raised); }
+.search__results .r-crumb:lang(ja), .search__results .r-crumb:lang(zh) { font-family: var(--font-sans); }
 .search__empty {
   padding: var(--sp-4);
   color: var(--tasty-text-muted);
@@ -458,6 +459,7 @@ a.visually-hidden:focus-visible {
 .breadcrumb a { color: var(--tasty-text-muted); }
 .breadcrumb a:hover { color: var(--tasty-text-primary); }
 .breadcrumb .sep { color: var(--tasty-glyph-dim); }
+.breadcrumb:lang(ja), .breadcrumb:lang(zh) { font-family: var(--font-sans); }
 
 .prose > :first-child { margin-top: 0; }
 
@@ -666,6 +668,7 @@ pre.astro-code span[style*="#6A737D"] { color: var(--tasty-site-code-comment) !i
 .page-nav a:hover { border-color: var(--tasty-brand-ink); background: var(--tasty-bg-sidebar); text-decoration: none; }
 .page-nav .dir { display: block; font-size: 11px; font-family: var(--font-mono);
                  color: var(--tasty-text-muted); margin-bottom: 2px; } /* no site step: --sp-* has no 2 */
+.page-nav .dir:lang(ja), .page-nav .dir:lang(zh) { font-family: var(--font-sans); }
 .page-nav .next { text-align: right; }
 
 .edit-link {

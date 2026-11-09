@@ -481,6 +481,14 @@ Sätteri 의 hast 플러그인(`src/lib/satteri-*.mjs`)에서 일어난다.
 - `--tasty-font-ui`는 루트에서 덮지 않는다. 커스텀 속성은 상속되어 표본까지 내려간다.
 - `--tasty-font-family-mono`는 일반 글꼴 `monospace`로 끝나 `--font-cjk`가 그 뒤에 온다. `monospace`가 CJK 글자를 가진 글꼴로 풀리는 환경(이 규칙을 잰 Linux는 `Noto Sans Mono CJK JP`)에서는 `--font-cjk`까지 가지 않아, 코드 안의 한자가 중국어 경로에서도 일본어 모양으로 나온다.
 
+### 번역 문구를 그리는 고정폭 규칙
+
+번역 문구를 그리는 고정폭 규칙은 일본어와 중국어에서 `--font-sans`를 읽는다. 앱의 `--tasty-font-label`([RULES](../../vendor/RULES.md) 8절)과 같은 규칙이다. 고정폭 글꼴에 없는 글자가 많아 한 낱말 안에서 글꼴이 섞이기 때문이다. 대상은 `.breadcrumb`, `.page-nav .dir`, `.search__results .r-crumb`다. 디자인 머리 부분인 `.design-head`, `.ds-group`도 `--tasty-font-ui`에 CJK 이름이 없어 같은 페이지의 본문과 글꼴 체인을 맞추려고 `--font-sans`를 읽는다.
+
+선택자가 요소의 `:lang`이라 `lang="en"`인 곳에는 걸리지 않는다. 디자인 구역의 이전·다음과 토큰·갤러리의 머리 부분은 영어 고정이라 그대로다.
+
+값을 담는 고정폭 규칙은 모든 언어에서 유지한다. `.brand__version`은 버전, `.code-block__lang`은 코드 언어 이름이다. `.lang-switch a`는 지금 언어 코드를 담고 있어 유지한다. 언어 행의 `label`을 `日本語`처럼 쓰면 이 규칙의 대상이 되므로 코드 형식(`JA`)을 쓴다. `.copy-btn`은 영어 고정이면 유지하고 번역하면 대상이 된다.
+
 ## 랜딩의 구조화 데이터
 
 `/`와 `/ko/`의 `<head>`에 `src/lib/structured-data.ts`가 만든 JSON-LD를 넣는다. 다른 페이지에는 넣지 않는다.
