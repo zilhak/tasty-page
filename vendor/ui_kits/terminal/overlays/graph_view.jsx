@@ -25,16 +25,25 @@ const tokPx = (el, name, fallback) => {
   const v = parseFloat(getComputedStyle(el).getPropertyValue(name));
   return Number.isFinite(v) ? v : fallback;
 };
+// A duration token in ms ("120ms" or "0.12s"); 0 when the viewer asks for reduced motion.
+const tokMs = (el, name, fallback) => {
+  if (typeof window !== "undefined" && window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return 0;
+  if (!el || typeof getComputedStyle === "undefined") return fallback;
+  const raw = getComputedStyle(el).getPropertyValue(name).trim();
+  const v = parseFloat(raw);
+  if (!Number.isFinite(v)) return fallback;
+  return /ms$/.test(raw) ? v : /s$/.test(raw) ? v * 1000 : v;
+};
 const MINIMAP_MIN = 560;    // --tasty-dag-minimap-min-surface, measured on the canvas left uncovered
 const lodOf = (z) => (z >= 0.7 ? "full" : z >= 0.4 ? "compact" : "block");
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
 const CSS = `
-.tasty-graph-drawer { transition: transform var(--tasty-graph-drawer-motion) var(--tasty-ease-ui); }
+.tasty-graph-drawer-slot { transition: transform var(--tasty-graph-drawer-motion) var(--tasty-ease-ui); }
 .tasty-graph-push__track { transition: transform var(--tasty-graph-push-motion) var(--tasty-ease-ui); }
 .tasty-graph-chrome { transition: right var(--tasty-graph-drawer-motion) var(--tasty-ease-ui); }
 @media (prefers-reduced-motion: reduce) {
-  .tasty-graph-drawer, .tasty-graph-push__track, .tasty-graph-chrome { transition: none; }
+  .tasty-graph-drawer-slot, .tasty-graph-push__track, .tasty-graph-chrome { transition: none; }
 }
 .tasty-graph-still, .tasty-graph-still * { transition: none !important; }
 `;
@@ -52,16 +61,16 @@ function ensureCss() {
 // Flush to the canvas's right edge, full canvas height, 288 wide; it floats over the canvas
 // without a scrim, so it takes the popover shadow. Below 480 of canvas width it covers the
 // whole canvas (no shadow: nothing shows beside it). Head 36 stays put; the body scrolls.
-function GraphDrawer({ title, mono = false, onClose, closeLabel = "Close details", cover = false, open = true, children }) {
+// The slide in and out belongs to the canvas (GraphCanvas's drawer slot), not to the drawer.
+function GraphDrawer({ title, mono = false, onClose, closeLabel = "Close details", cover = false, children }) {
   ensureCss();
   return (
-    <aside className="tasty-graph-drawer" data-graph-drawer="" aria-label={typeof title === "string" ? title : undefined}
+    <aside data-graph-drawer="" aria-label={typeof title === "string" ? title : undefined}
       style={{ position: "absolute", top: 0, right: 0, bottom: 0, zIndex: 3, boxSizing: "border-box",
         width: cover ? "100%" : "var(--tasty-graph-drawer-width)", display: "flex", flexDirection: "column",
         background: "var(--tasty-dag-detail-bg)", fontFamily: "var(--tasty-font-ui)", cursor: "default",
         borderLeft: cover ? "none" : "var(--tasty-border-width) solid var(--tasty-dag-detail-border)",
-        boxShadow: cover ? "none" : "var(--tasty-shadow-popover)",
-        transform: open ? "none" : "translateX(100%)", visibility: open ? "visible" : "hidden" }}>
+        boxShadow: cover ? "none" : "var(--tasty-shadow-popover)" }}>
       <div style={{ flex: "none", display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", boxSizing: "border-box",
         height: "var(--tasty-graph-drawer-head-height)", padding: "0 var(--tasty-space-xs) 0 var(--tasty-dag-detail-padding)",
         borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
@@ -173,6 +182,31 @@ function GraphCanvas({ g, nodes, edges, renderNode, colorOf, dir = "td", onDirCh
 
   const open = !!drawer;
   const cover = open && vp.w < geo.coverBelow;
+
+  // Drawer slide (graph-drawer-motion 120, ease-ui): on open the slot mounts off the right edge
+  // ("in") and moves into place on the next frame ("open"); on close it slides back out ("out")
+  // with the content it last showed, then unmounts. A canvas that starts with a selection starts
+  // "open", and a still frame never slides. Switching the selection swaps the body in place.
+  const lastDrawer = React.useRef(drawer);
+  if (drawer) lastDrawer.current = drawer;
+  const [slide, setSlide] = React.useState(drawer ? "open" : "gone");
+  React.useLayoutEffect(() => {
+    if (open && (slide === "gone" || slide === "out")) setSlide(still ? "open" : "in");
+    else if (!open && (slide === "open" || slide === "in")) setSlide(still ? "gone" : "out");
+  }, [open, slide, still]);
+  React.useEffect(() => {
+    if (slide === "in") {
+      let id2 = 0;
+      const id1 = requestAnimationFrame(() => { id2 = requestAnimationFrame(() => setSlide((v) => (v === "in" ? "open" : v))); });
+      return () => { cancelAnimationFrame(id1); cancelAnimationFrame(id2); };
+    }
+    if (slide === "out") {
+      const t = setTimeout(() => setSlide((v) => (v === "out" ? "gone" : v)), tokMs(ref.current, "--tasty-graph-drawer-motion", 120));
+      return () => clearTimeout(t);
+    }
+    return undefined;
+  }, [slide]);
+  const slotCover = vp.w < geo.coverBelow;
   const covered = open && !cover ? geo.drawerW : 0;
 
   // Keep the selected card in sight: when the drawer opens over it, pan just enough to put the
@@ -284,7 +318,13 @@ function GraphCanvas({ g, nodes, edges, renderNode, colorOf, dir = "td", onDirCh
           {lod === "compact" ? "names only — zoom in for status" : "status blocks — zoom in for names"}
         </div>
       )}
-      {drawer && drawer(cover)}
+      {slide !== "gone" && lastDrawer.current && (
+        <div className="tasty-graph-drawer-slot" style={{ position: "absolute", top: 0, right: 0, bottom: 0, zIndex: 3,
+          width: slotCover ? "100%" : "var(--tasty-graph-drawer-width)",
+          transform: slide === "open" ? "none" : "translateX(100%)", pointerEvents: slide === "open" ? "auto" : "none" }}>
+          {lastDrawer.current(slotCover)}
+        </div>
+      )}
     </div>
   );
 }
