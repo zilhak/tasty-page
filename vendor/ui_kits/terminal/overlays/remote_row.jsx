@@ -179,7 +179,8 @@ export function RemoteConnectionPopup({ lang = "en", name = "tasty-core", profil
 // The workspace content area of a saved remote row that is not connected.
 // shape = false: no tab bar or pane, the bare workspace ground, the popup on it.
 // shape = true: the last tab bar and panes as they were, inert under the workspace-clipped scrim, the popup on it.
-// The scrim takes the pointer: nothing under it answers, so no link is caught and no picker opens there.
+// Whether the scrim takes the pointer is user-pending (Q1 scrim pointer). Drawn as "takes it": nothing under it
+// answers, so no link is caught and no picker opens there. The picture is the same either way.
 export function RemoteWorkspaceContent({ shape = false, width = "var(--tasty-size-560)", height = "var(--tasty-size-320)", children }) {
   const line = (t, c) => <div style={{ whiteSpace: "pre", color: c || "var(--tasty-surface-terminal-focused-fg)" }}>{t}</div>;
   return (

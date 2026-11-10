@@ -1145,14 +1145,16 @@ function FhGroup({ label, count, caption, tone }) {
 // state "reconnecting" takes the status bar's reconnecting form on the panel ground:
 // glyph glyph-dim, host text-muted, then the status word (status_bar.remote_reconnecting,
 // label font, text-muted). The word belongs to the mark, so the path box shrinks by it.
+// disconnected: drawn only for the Q1 branch where the remote row's scrim lets the pointer through (user-pending).
 function FhRemoteMark({ host, state = "connected" }) {
-  const live = state !== "reconnecting";
+  const live = state === "connected";
+  const word = state === "disconnected" ? rt("status_bar.remote_disconnected", "en") : "reconnecting";
   return (
     <span data-fh-remote={state} style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-fh-remote-gap)", flex: "0 0 auto", minWidth: 0,
       color: live ? "var(--tasty-fh-remote-fg)" : "var(--tasty-text-muted)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)" }}>
       <span style={{ display: "inline-flex", flex: "none", color: live ? "inherit" : "var(--tasty-glyph-dim)" }}><Icon name="remote" size="var(--tasty-icon-size-xs)" /></span>
       <span style={{ minWidth: 0, maxWidth: "var(--tasty-fh-remote-max-width)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{host}</span>
-      {!live && <span style={{ flex: "none", fontFamily: "var(--tasty-font-label)" }}>reconnecting</span>}
+      {!live && <span style={{ flex: "none", fontFamily: "var(--tasty-font-label)" }}>{word}</span>}
     </span>
   );
 }
