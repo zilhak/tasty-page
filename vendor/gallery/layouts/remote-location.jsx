@@ -89,8 +89,8 @@ const BAR_ROWS = [
   ["mirror · connected — profile mac-company-attach", { w: 470, remote: { host: MID } }],
   ["mirror · reconnecting — neutral ink + status word", { w: 470, remote: { host: MID, state: "reconnecting" } }],
   ["long profile name — capped at 160, end-elided", { w: 470, remote: { host: LONG } }],
-  ["narrow — grid and surface id drop", { w: 300, drop: 3, remote: { host: LONG } }],
-  ["narrower — palette cap drops", { w: 230, drop: 4, remote: { host: LONG } }],
+  ["narrow — grid and surface id drop", { w: 320, drop: 3, remote: { host: LONG } }],
+  ["narrower — palette cap drops", { w: 260, drop: 4, remote: { host: LONG } }],
   ["floor — host text drops, glyph stays", { w: 120, drop: 6, remote: { host: LONG } }],
   ["floor · reconnecting — the status word stays", { w: 200, drop: 6, remote: { host: LONG, state: "reconnecting" } }],
 ];
@@ -121,7 +121,7 @@ export function RemoteStatusBarSpec() {
         <View name="statusbar-remote-reconnecting-languages" label="Reconnecting — every language">
           <div style={{ display: "flex", flexDirection: "column", gap: 12, minWidth: 300 }}>
             {["en", "ko", "ja", "zh-Hans"].flatMap((lang) => [
-              <Labeled key={lang} label={`${lang} · 300, step 3`}><Bar w={300} drop={3} lang={lang} remote={{ host: HOST, state: "reconnecting" }} /></Labeled>,
+              <Labeled key={lang} label={`${lang} · 260, step 3`}><Bar w={260} drop={3} lang={lang} remote={{ host: HOST, state: "reconnecting" }} /></Labeled>,
               <Labeled key={`${lang}-floor`} label={`${lang} · floor`}><Bar w={200} drop={6} lang={lang} remote={{ host: HOST, state: "reconnecting" }} /></Labeled>,
             ])}
           </div>
