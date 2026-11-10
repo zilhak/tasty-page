@@ -877,10 +877,11 @@ function ShellMock({ scope = "none", split = "v", child = false, narrow = false,
   collapsed = null, ring = false, leftWidth = null, size = null, pin = false, label = "Show popup" }) {
   const [W, H] = size || [narrow ? 560 : 760, 380];
   const surfaceScrim = scope === "surface";
-  // The popup surface's rect in this mock: the window less its 1px border, the titlebar (28 + 1), the pane tab
-  // strip (24 + 1) and the status bar (24 + 1); a stacked split halves it. Its width is leftWidth when set, else
-  // wide enough that the width term does not bind. spacing_sm is 8 at scale 1.
-  const surfaceH = (H - 2 - 29 - 25 - 25 - (split === "h" ? 1 : 0)) / (split === "h" ? 2 : 1);
+  // The popup surface's rect in this mock: the window less its 1px border (top and bottom), the titlebar (28),
+  // the pane tab strip (24) and the status bar (24) — border-box, so each bar's height already holds its 1px rule;
+  // a stacked split takes the 1px divider and halves the rest. Its width is leftWidth when set, else wide enough
+  // that the width term does not bind. spacing_sm is 8 at scale 1, and the mock computes with 8.
+  const surfaceH = (H - 2 - 28 - 24 - 24 - (split === "h" ? 1 : 0)) / (split === "h" ? 2 : 1);
   const surfaceInset = Math.max(0, Math.min(8, leftWidth ? leftWidth / 2 : Infinity, surfaceH / 2));
   const Term = ({ lines, focused, children, label }) => (
     <div style={{ position: "relative", flex: 1, minWidth: 0, minHeight: 0, overflow: "hidden",
