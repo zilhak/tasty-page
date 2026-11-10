@@ -393,7 +393,13 @@ function TransferProgressFrame({ name = "sprint-42-demo.mp4", pct = 27, done = "
 }
 
 // ── Remote transfer — error / rejected popup ──
-function TransferErrorFrame({ retry = false, name = "sprint-42-demo.mp4", reason = "capacity exceeded — transfers folder is at its 500 MiB limit", title = "Transfer failed" }) {
+// reasonKind (2026-11-10): "machine" quotes the reported cause verbatim in mono (copyable);
+// "sentence" is a translated sentence per cause (download and run) and reads in the UI face,
+// so ko / ja / zh-Hans are not set in the mono stack. Same well, same danger ink.
+function TransferErrorFrame({ retry = false, name = "sprint-42-demo.mp4", reason = "capacity exceeded — transfers folder is at its 500 MiB limit", title = "Transfer failed", reasonKind = "machine" }) {
+  const reasonFont = reasonKind === "sentence"
+    ? { fontFamily: "var(--tasty-font-ui)", fontSize: "var(--tasty-font-size-body)", lineHeight: "var(--tasty-line-height-ui)" }
+    : { fontFamily: "var(--tasty-font-mono)", fontSize: 12 };
   return (
     <div style={{ width: "var(--tasty-transfer-popup-width)", background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-strong)",
       borderRadius: "var(--tasty-radius)", overflow: "hidden", boxShadow: "var(--tasty-shadow-modal)" }}>
@@ -406,7 +412,7 @@ function TransferErrorFrame({ retry = false, name = "sprint-42-demo.mp4", reason
           <b style={{ color: "var(--tasty-text-primary)", fontFamily: "var(--tasty-font-mono)", fontWeight: 600 }}>{name}</b> could not be received.
         </p>
         <div style={{ background: "var(--tasty-bg-app)", border: "1px solid var(--tasty-separator)", borderRadius: "var(--tasty-radius)",
-          padding: "var(--tasty-transfer-well-pad-y) var(--tasty-transfer-well-pad-x)", fontFamily: "var(--tasty-font-mono)", fontSize: 12, color: "var(--tasty-accent-danger-raised)" }}>{reason}</div>
+          padding: "var(--tasty-transfer-well-pad-y) var(--tasty-transfer-well-pad-x)", ...reasonFont, color: "var(--tasty-accent-danger-raised)" }}>{reason}</div>
       </div>
       <div style={{ display: "flex", justifyContent: "flex-end", gap: "var(--tasty-space-sm)", padding: "var(--tasty-transfer-footer-pad-y) var(--tasty-transfer-pad-x)", borderTop: "1px solid var(--tasty-separator)" }}>
         {retry ? <Button variant="ghost">Dismiss</Button> : null}

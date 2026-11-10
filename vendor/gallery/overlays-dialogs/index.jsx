@@ -553,15 +553,15 @@ function Page() {
         </Spec>
 
         <Spec id="download-run-failed" title="Download failed — one reason line per cause"
-          when={<>The transfer error popup with the title <b>Download failed</b>. The body keeps the existing line (<code>transfer.error.body_suffix</code>, “<i>name</i> could not be received.”) and the well carries a <b>sentence per cause</b> instead of the raw reason code. A <b>folder</b> is refused here too: it is the same answer to the same press, and the sentence restates the one-file rule. Every cause ends with a single <b>Dismiss</b> — nothing was opened, nothing is left behind, and opening the file again is the way to retry.</>}>
+          when={<>The transfer error popup with the title <b>Download failed</b>. The body keeps the existing line (<code>transfer.error.body_suffix</code>, “<i>name</i> could not be received.”) and the well carries a <b>sentence per cause</b> instead of the raw reason code. Because it is a translated sentence, not a machine-reported cause to copy, the well text is set in the <b>UI face at body size</b> (<code>reasonKind="sentence"</code>); the well, its ground and the danger ink stay. The mono well remains for verbatim causes such as the upload capacity limit. A <b>folder</b> is refused here too: it is the same answer to the same press, and the sentence restates the one-file rule. Every cause ends with a single <b>Dismiss</b> — nothing was opened, nothing is left behind, and opening the file again is the way to retry.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 18, flexWrap: "wrap", alignItems: "flex-start" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
               <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>folder — refused before anything is sent</div>
-              <TransferErrorFrame title="Download failed" name="assets" reason="Folders are not supported. “Download and run” supports one file only." />
+              <TransferErrorFrame title="Download failed" reasonKind="sentence" name="assets" reason="Folders are not supported. “Download and run” supports one file only." />
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
               <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>connection lost mid-download</div>
-              <TransferErrorFrame title="Download failed" name="build-artifacts.tar.gz" reason="The connection to the remote host was lost during the download." />
+              <TransferErrorFrame title="Download failed" reasonKind="sentence" name="build-artifacts.tar.gz" reason="The connection to the remote host was lost during the download." />
             </div>
           </Stage>
           <Views>
@@ -575,14 +575,14 @@ function Page() {
                   ["local_write", "build-artifacts.tar.gz", "The file could not be written on this computer."]].map(([code, name, reason]) => (
                   <div key={code} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                     <div style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: "var(--tasty-text-muted)" }}>{code}</div>
-                    <TransferErrorFrame title="Download failed" name={name} reason={reason} />
+                    <TransferErrorFrame title="Download failed" reasonKind="sentence" name={name} reason={reason} />
                   </div>
                 ))}
               </div>
             </View>
           </Views>
           <Meta
-            specs={[["frame", "TransferErrorFrame — unchanged layout and tokens"], ["title", "transfer.error.title_download_run"], ["body", "transfer.error.body_suffix — kept"], ["well", "download_run.reason.<cause> — directory · not_regular · not_found · permission_denied · changed · io · disconnected · local_write"], ["buttons", "Dismiss only (transfer.error.dismiss) for every cause"], ["folder form", "this popup, not a toast — the answer to the press stays in the layer the press opened"]]}
+            specs={[["frame", "TransferErrorFrame — unchanged layout; reason text in the sentence face"], ["well text", <><span className="tok">--tasty-font-ui</span> · <span className="tok">--tasty-font-size-body</span> · line-height-ui · danger ink — not mono: a translated sentence, not a quoted cause</>], ["title", "transfer.error.title_download_run"], ["body", "transfer.error.body_suffix — kept"], ["well", "download_run.reason.<cause> — directory · not_regular · not_found · permission_denied · changed · io · disconnected · local_write"], ["buttons", "Dismiss only (transfer.error.dismiss) for every cause"], ["folder form", "this popup, not a toast — the answer to the press stays in the layer the press opened"]]}
             tokens={[{ tok: "--tasty-accent-danger", use: "glyph + reason", color: "var(--tasty-accent-danger-raised)" }, { tok: "--tasty-bg-app", use: "reason well", color: "var(--tasty-bg-app)" }]} />
           <Note>No Retry here: a retry would be a new path into the download that skips the dialog. Opening the file again shows the dialog again.</Note>
         </Spec>
