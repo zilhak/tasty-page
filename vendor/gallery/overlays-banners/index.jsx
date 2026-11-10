@@ -3,8 +3,8 @@ import { PageStates, Views, View } from "../parts/specimen.jsx";
 import { STATES } from "./states.jsx";
 import { IconButton, Kbd, Tag, Button as BButton, Icon as BIcon, Badge as BBadge, BadgeGroup as BBadgeGroup, Spinner as BSpinner } from "../../components/index.js";
 import { HtmlSizeBanner, HtmlAddressBar } from "../../ui_kits/terminal/overlays/html_address_bar.jsx";
-import { HtmlRemoteSurfaceG, HtmlRemoteBanner, HtmlRemoteMarker } from "../../ui_kits/terminal/overlays/html_remote_banner.jsx";
-import { HtmlScriptBanner, HtmlSurfaceG, TermSurfaceG } from "../../ui_kits/terminal/overlays/html_script_banner.jsx";
+import { HtmlRemoteSurfaceG, HtmlRemoteBanner, HtmlRemoteMarker, RC_WEB } from "../../ui_kits/terminal/overlays/html_remote_banner.jsx";
+import { HtmlScriptBanner, HtmlSurfaceG, TermSurfaceG, HsTab } from "../../ui_kits/terminal/overlays/html_script_banner.jsx";
 import { BannerScope, MouseCaptureBannerG, MouseCaptureHitZone, BlacklistEditorG, BannerShellG, TtlBannerG, StackDemoG, BannerMoreMenuG, BannerMoreDemoG, ic } from "../parts/overlay-frames.jsx";
 import { Section, Spec, Stage, Meta, Note, Do, Dont } from "../parts/specimen.jsx";
 
@@ -184,6 +184,74 @@ function RcThemeGrid({ label, attr }) {
   );
 }
 
+// 2026-11-10 — top-level http(s) page (decisions 20 · 25). States of both notices with the web copy, wide and narrow.
+function RcWebStateGrid({ label, attr }) {
+
+  const cap = (t) => <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · {t}</span>;
+  const rows = [
+    ["remote · blocked", (n) => <HtmlRemoteBanner web narrow={n} />],
+    ["remote · hover — × revealed", (n) => <HtmlRemoteBanner web hover narrow={n} />],
+    ["remote · loading — Allow disabled until commit", (n) => <HtmlRemoteBanner web state="loading" narrow={n} />],
+    ["remote · reloading", (n) => <HtmlRemoteBanner web state="reloading" narrow={n} />],
+    ["script · blocked (after the remote reload)", (n) => <HtmlScriptBanner web narrow={n} />],
+    ["script · loading — Allow disabled until commit", (n) => <HtmlScriptBanner web state="loading" narrow={n} />],
+    ["script · reloading", (n) => <HtmlScriptBanner web state="reloading" narrow={n} />],
+  ];
+  return (
+    <div {...(attr ? { "data-theme": attr } : {})} style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-lg)", alignItems: "flex-start", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
+      {[["wide (≥ 440)", false, "var(--tasty-size-560)"], ["narrow (< 440)", true, "var(--tasty-size-360)"]].map(([w, n, width]) => (
+        <div key={w} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", width, maxWidth: "100%" }}>
+          {rows.map(([t, draw]) => (
+            <React.Fragment key={t}>
+              {cap(`${w} · ${t}`)}
+              {draw(n)}
+            </React.Fragment>
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// The two markers on a web page: remote = end of the `web` address field, scripts = tab cell right cluster.
+function RcWebMarkerGrid({ label, attr }) {
+
+  const cap = (t) => <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · {t}</span>;
+  const frame = (child) => <div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>{child}</div>;
+  const tab = (marker) => frame(<div style={{ display: "flex", background: "var(--tasty-bg-sidebar)" }}><HsTab label={RC_WEB.label} icon="html" active marker={marker} markerWeb /></div>);
+  const bar = (marker) => frame(<HtmlAddressBar kind="web" address={RC_WEB.address} trailing={<HtmlRemoteMarker kind={marker} web />} />);
+  return (
+    <div {...(attr ? { "data-theme": attr } : {})} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", width: "var(--tasty-size-460)", maxWidth: "100%", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
+      {cap("remote marker · blocked (notice dismissed)")}{bar("blocked")}
+      {cap("remote marker · allowed (this showing)")}{bar("allowed")}
+      {cap("script marker · blocked (notice dismissed)")}{tab("blocked")}
+      {cap("script marker · allowed (this showing)")}{tab("allowed")}
+    </div>
+  );
+}
+
+// §4a flow, one frame per step (hidden states: they only follow each other in time). Follows the page theme.
+const RC_WEB_FLOW = [
+  ["web-flow-1-loading", "1 · page opening, not committed yet — remote notice, Allow disabled, Reload busy", { remote: "loading", loading: true }],
+  ["web-flow-1-blocked", "1 · page viewed — remote notice (blocked) · no marker · no script notice", { remote: "blocked" }],
+  ["web-flow-2-reloading", "2 · Allow remote content — reloading", { remote: "reloading", loading: true }],
+  ["web-flow-2-script", "2 · reload committed — remote marker allowed, script notice takes the same slot", { script: "blocked", remoteMarker: "allowed", page: "styled" }],
+  ["web-flow-3-reloading", "3 · Allow scripts on this page — reloading, remote stays allowed", { script: "reloading", remoteMarker: "allowed", page: "styled", loading: true }],
+  ["web-flow-3-allowed", "3 · reload committed — no notice · remote marker allowed · tab marker allowed", { remoteMarker: "allowed", scriptMarker: "allowed", page: "styled" }],
+  ["web-flow-4-reloaded", "4 · user reload (or another page, Back, restart) — both allows cleared, back to step 1, shown again even if dismissed before", { remote: "blocked" }],
+  ["web-flow-x-remote", "× at step 1 — globeOff marker only · no script notice while remote is blocked", { remoteMarker: "blocked" }],
+  ["web-flow-x-script", "× at step 2 — remote marker allowed · tab lock · marker click shows the notice again", { remoteMarker: "allowed", scriptMarker: "blocked", page: "styled" }],
+  ["web-flow-global-remote", "global Allow remote content on · sandbox on — script notice at once, no remote notice or marker", { script: "blocked", page: "styled" }],
+];
+const RC_WEB_TIPS = [
+  ["web-tip-remote-allowed", "remote marker · allowed tooltip", () => <HtmlAddressBar kind="web" address={RC_WEB.address} trailing={<HtmlRemoteMarker kind="allowed" web open />} />],
+  ["web-tip-remote-blocked", "remote marker · blocked tooltip", () => <HtmlAddressBar kind="web" address={RC_WEB.address} trailing={<HtmlRemoteMarker kind="blocked" web open />} />],
+  ["web-tip-script-allowed", "script marker · allowed tooltip", () => <div style={{ display: "flex", background: "var(--tasty-bg-sidebar)" }}><HsTab label={RC_WEB.label} icon="html" active marker="allowed" markerWeb markerOpen /></div>],
+  ["web-tip-script-blocked", "script marker · blocked tooltip", () => <div style={{ display: "flex", background: "var(--tasty-bg-sidebar)" }}><HsTab label={RC_WEB.label} icon="html" active marker="blocked" markerWeb markerOpen /></div>],
+  ["web-tip-remote-loading", "remote notice · loading tooltip", () => <HtmlRemoteBanner web state="loading" tipOpen />],
+  ["web-tip-script-loading", "script notice · loading tooltip", () => <HtmlScriptBanner web state="loading" tipOpen />],
+];
+
 // 2026-11-05 — body ink on the banner shell, every banner kind in both themes.
 function BodyInkGrid({ label, theme }) {
 
@@ -192,6 +260,8 @@ function BodyInkGrid({ label, theme }) {
     ["HTML script", <HtmlScriptBanner />],
     ["HTML script · reloading", <HtmlScriptBanner state="reloading" />],
     ["HTML remote content", <HtmlRemoteBanner />],
+    ["HTML remote content · web page", <HtmlRemoteBanner web />],
+    ["HTML script · web page", <HtmlScriptBanner web />],
     ["HTML mirror · large file, more waiting", <HtmlSizeBanner more={2} />],
     ["HTML mirror · cumulative limit", <HtmlSizeBanner kind="limit" />],
     ["auto-attach refused", <AttachRefusalBannerG />],
@@ -769,6 +839,46 @@ function Page() {
             specs={[["order", "address band → size (mirror) → remote → script → WebView"], ["gaps", "banner-margin 8 top/sides · banner-inset-gap 8 between + below"], ["merge", "never — two cards, two independent allows"], ["script notice", "judged on runnable scripts (network scripts need remote allowed)"], ["bodyRemote", "kept as a key, copy revised: shown only alongside the remote notice"], ["static ref", "notice (when the user views)"], ["observed block, no ref", "marker only (Windows · Linux TBD)"], ["no signal, no ref", "nothing (macOS)"], ["narrow", "< 440 → each card wraps its action, stack order unchanged"], ["global on", "no notice · no marker"]]}
             tokens={[{ tok: "--tasty-banner-inset-gap", use: "8 between / below" }, { tok: "--tasty-banner-margin", use: "8 top / sides" }, { tok: "--tasty-banner-narrow-below", use: "→ size-440" }]} />
           <Note>Script notice <code>banner.html_script.body_remote</code> (en, revised): “Buttons and menus that need JavaScript may not respond. Allowing applies to this document only, until Tasty restarts. Scripts inside it run; scripts from the network also need remote content allowed.”</Note>
+        </Spec>
+        <Spec id="http-s-page-opened-in-the-address-field-remote-then-scripts" title="http(s) page opened in the address field — remote, then scripts"
+          when={<>A page the user opens by typing an <code>http(s)</code> address, while the global <b>Allow remote content</b> is off. The page itself loads; what it loads from the network does not. Tasty never reads the page, so the remote notice shows whenever the page is <b>viewed</b>, without waiting for a blocked request, on every OS. There is <b>no content fingerprint</b>: an allow covers <b>this showing</b> of the page only. The reload that Allow starts keeps it; the user's reload, any other page (same site too), Back and restart clear it. Remote allow does <b>not</b> enable scripts: with the script sandbox on, the <b>script notice takes the same slot</b> right after the remote reload commits. The two notices never stack on a web page. Same shell, glyphs, states, markers, tokens and stacking order as the local document notices; only the copy changes (<code>_web</code> keys).</>}>
+          <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", flexDirection: "column", gap: "var(--tasty-space-lg)", alignItems: "stretch" }}>
+            <RcWebStateGrid label="Mocha" />
+            <RcWebStateGrid label="Latte" attr="latte" />
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-lg)", alignItems: "flex-start" }}>
+              <RcWebMarkerGrid label="Mocha" />
+              <RcWebMarkerGrid label="Latte" attr="latte" />
+            </div>
+          </Stage>
+          <Meta
+            specs={[["address field", "kind web · link glyph · remote marker at the field end (unchanged slot)"], ["remote notice", "globeOff · titleWeb / bodyWeb · Allow remote content · blocked / loading / reloading"], ["script notice", "lock · titleWeb / bodyWeb · Allow scripts on this page · blocked / loading / reloading"], ["bodyRemote", "never on a web page (the notices never stack)"], ["markers", "same glyphs and inks · allowed tooltips read the _web copy"], ["narrow", "< 440 → action wraps under the body, same as local"], ["lifetime", "this showing · cleared by the user's reload, navigation, Back, restart"], ["new tokens", "none"]]}
+            tokens={[{ tok: "--tasty-html-remote-banner-glyph", use: "globeOff", color: "var(--tasty-html-remote-banner-glyph)" }, { tok: "--tasty-html-script-banner-glyph", use: "lock", color: "var(--tasty-html-script-banner-glyph)" }, { tok: "--tasty-html-remote-marker-allowed-fg", use: "globe", color: "var(--tasty-html-remote-marker-allowed-fg)" }, { tok: "--tasty-html-script-marker-allowed-fg", use: "scriptFile", color: "var(--tasty-html-script-marker-allowed-fg)" }]} />
+          <Note>Strings (en, new): <code>banner.html_remote.title_web</code> “Page loaded; remote content blocked” · <code>banner.html_remote.body_web</code> “Stylesheets, images, fonts, frames and media from the network are blocked, so the page may look incomplete. Allowing applies only to this showing of the page; reloading blocks remote content again. Permission to run scripts is requested separately.” · <code>banner.html_remote.marker_allowed_web</code> “Remote content allowed for this showing of the page; reloading blocks it again” · <code>banner.html_script.title_web</code> “Scripts on this page are blocked” · <code>banner.html_script.body_web</code> “This page may use scripts; buttons and menus that need JavaScript may not respond. Allowing applies only to this showing of the page; reloading asks again.” · <code>banner.html_script.action_web</code> “Allow scripts on this page” · <code>banner.html_script.marker_allowed_web</code> “Scripts allowed for this showing of the page; reloading blocks them again”. Shared with local documents: <code>action</code>, <code>reloading</code>, <code>action_loading</code>, <code>marker_blocked</code> of both sections.</Note>
+          <Note>Local documents keep their copy. “Applies to this document only, until Tasty restarts” stays true there: the allow survives a reload of the same content, and another document is not “this document”. The web copy says “this showing of the page” because a reload is exactly what ends it.</Note>
+          <Dont><b>Don't</b> show the script notice under the remote notice on a web page, and don't let one Allow open both. Remote allow is a choice about how the page looks; scripts are a second, separate choice, asked only once the page can load them.</Dont>
+        </Spec>
+        <Spec id="http-s-page-the-flow-step-by-step" title="http(s) page — the flow, step by step"
+          when={<>Each step only follows the previous one in time, so each is a fixed frame (remote blocked, sandbox on). After a reload commits, the next notice takes the slot the last one left, with no animation: the WebView rect is re-laid out once, as for any notice change. A user reload returns to step 1.</>}>
+          <Views>
+            {RC_WEB_FLOW.map(([name, label, p]) => (
+              <View key={name} name={name} label={label}>
+                <div style={{ width: "var(--tasty-size-480)", maxWidth: "100%", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}><HtmlRemoteSurfaceG web {...p} height={320} /></div>
+              </View>
+            ))}
+            <View name="web-flow-1-narrow" label="1 · narrow (360) — remote notice, action under the body">
+              <div style={{ width: "var(--tasty-size-360)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}><HtmlRemoteSurfaceG web narrow remote="blocked" width="var(--tasty-size-360)" height={400} /></div>
+            </View>
+            <View name="web-flow-2-narrow" label="2 · narrow (360) — script notice after the remote reload">
+              <div style={{ width: "var(--tasty-size-360)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}><HtmlRemoteSurfaceG web narrow script="blocked" remoteMarker="allowed" page="styled" width="var(--tasty-size-360)" height={360} /></div>
+            </View>
+            {RC_WEB_TIPS.map(([name, label, draw]) => (
+              <View key={name} name={name} label={label}>
+                <div style={{ width: "var(--tasty-size-480)", maxWidth: "100%", paddingTop: "var(--tasty-size-64)" }}>{draw()}</div>
+              </View>
+            ))}
+          </Views>
+          <Meta
+            specs={[["1", "remote notice blocked · no markers"], ["2", "remote reloading → commit → remote marker allowed + script notice blocked"], ["3", "script reloading → commit → no notice · both markers allowed"], ["4", "user reload → step 1, even after ×"], ["×", "marker blocked remains · click → that notice again"], ["loading", "Allow disabled until commit · Reload busy"]]} />
         </Spec>
       </Section>
       <Section id="bodyink" title="Body ink — every banner, both themes">

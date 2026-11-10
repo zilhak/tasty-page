@@ -34,6 +34,13 @@ const HS_COPY = {
   actionLoading: "Available when the document finishes loading",
   markerBlocked: "Scripts blocked. Click to show the notice again.",
   markerAllowed: "Scripts allowed for this document until Tasty restarts",
+  // 2026-11-10 — top-level http(s) page (`web`, see html_remote_banner.jsx). Same shell, glyph and states; copy only.
+  // Tasty does not read the page, so the notice cannot know whether scripts exist: the body says "may use scripts".
+  // Shown only after remote content is allowed, so it never needs bodyRemote. reloading, actionLoading, markerBlocked are shared.
+  titleWeb: "Scripts on this page are blocked",
+  bodyWeb: "This page may use scripts; buttons and menus that need JavaScript may not respond. Allowing applies only to this showing of the page; reloading asks again.",
+  actionWeb: "Allow scripts on this page",
+  markerAllowedWeb: "Scripts allowed for this showing of the page; reloading blocks them again",
 };
 
 // state: "blocked" | "loading" | "reloading"
@@ -43,21 +50,25 @@ const HS_COPY = {
 //   no grace period: a delay would reopen the window it closes. The flip is an ink change only.
 //   Tooltip on the disabled button (top): HS_COPY.actionLoading. × stays available (hover).
 //   After commit: new document still has scripts → back to "blocked" (enabled); none → banner goes.
-function HtmlScriptBanner({ state = "blocked", remote = false, hover = false, narrow = false }) {
+//   web (2026-11-10): no fingerprint; the allow is bound to this showing of the page (see html_remote_banner.jsx).
+// web: http(s) page copy (titleWeb/bodyWeb/actionWeb). tipOpen: draws the loading tooltip open (gallery frames).
+function HtmlScriptBanner({ state = "blocked", remote = false, hover = false, narrow = false, web = false, tipOpen = false }) {
   const [h, setH] = React.useState(false);
   const showX = (hover || h) && (state === "blocked" || state === "loading");
   const reloading = state === "reloading";
+  const actionLabel = web ? HS_COPY.actionWeb : HS_COPY.action;
   const action = reloading ? (
     <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-sm)", height: "var(--tasty-button-height-sm)", fontSize: "var(--tasty-banner-body-font-size)", color: "var(--tasty-banner-body-fg)", whiteSpace: "nowrap" }}>
       <Spinner size="var(--tasty-icon-size-sm)" />{HS_COPY.reloading}
     </span>
   ) : state === "loading" ? (
-    <Tooltip placement="top" content={HS_COPY.actionLoading}>
-      <span style={{ display: "inline-flex" }}><Button size="sm" variant="secondary" disabled style={{ whiteSpace: "nowrap" }}>{HS_COPY.action}</Button></span>
+    <Tooltip placement="top" open={tipOpen} content={HS_COPY.actionLoading}>
+      <span style={{ display: "inline-flex" }}><Button size="sm" variant="secondary" disabled style={{ whiteSpace: "nowrap" }}>{actionLabel}</Button></span>
     </Tooltip>
   ) : (
-    <Button size="sm" variant="secondary" style={{ whiteSpace: "nowrap" }}>{HS_COPY.action}</Button>
+    <Button size="sm" variant="secondary" style={{ whiteSpace: "nowrap" }}>{actionLabel}</Button>
   );
+  const body = web ? HS_COPY.bodyWeb : remote ? HS_COPY.bodyRemote : HS_COPY.body;
   return (
     <div data-surface="banner" onMouseEnter={() => setH(true)} onMouseLeave={() => setH(false)} style={{ position: "relative",
       background: "var(--tasty-banner-bg)", color: "var(--tasty-banner-fg)", border: "var(--tasty-border-width) solid var(--tasty-banner-border)",
@@ -69,8 +80,8 @@ function HtmlScriptBanner({ state = "blocked", remote = false, hover = false, na
           <HsIcon name="lock" size="var(--tasty-icon-size-md)" />
         </span>
         <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: "var(--tasty-banner-text-gap)" }}>
-          <div style={{ fontSize: "var(--tasty-banner-title-font-size)", fontWeight: "var(--tasty-font-weight-semibold)", lineHeight: "var(--tasty-line-height-ui)", textWrap: "pretty" }}>{HS_COPY.title}</div>
-          <div style={{ fontSize: "var(--tasty-banner-body-font-size)", lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-banner-body-fg)", textWrap: "pretty" }}>{remote ? HS_COPY.bodyRemote : HS_COPY.body}</div>
+          <div style={{ fontSize: "var(--tasty-banner-title-font-size)", fontWeight: "var(--tasty-font-weight-semibold)", lineHeight: "var(--tasty-line-height-ui)", textWrap: "pretty" }}>{web ? HS_COPY.titleWeb : HS_COPY.title}</div>
+          <div style={{ fontSize: "var(--tasty-banner-body-font-size)", lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-banner-body-fg)", textWrap: "pretty" }}>{body}</div>
         </div>
         <span style={{ flex: "none", display: "flex", marginLeft: narrow ? "calc(var(--tasty-icon-size-md) + var(--tasty-banner-gap))" : 0, width: narrow ? "100%" : "auto" }}>{action}</span>
       </div>
@@ -88,13 +99,15 @@ function HtmlScriptBanner({ state = "blocked", remote = false, hover = false, na
 // --tasty-tab-status-gap apart. lock = 16 hit cell with its own hover; scriptFile = tooltip only.
 // Tooltip placement (2026-09-29): TOP. Tab-strip / pane-head tooltips never open down into the
 // content rect — a native WebView there is drawn above egui and would hide the bubble.
-function HtmlScriptMarker({ kind = "blocked", hover = false }) {
+// web (2026-11-10): the allowed tooltip reads markerAllowedWeb; glyphs and inks are shared.
+function HtmlScriptMarker({ kind = "blocked", hover = false, web = false, open = false }) {
   const allowed = kind === "allowed";
   const [h, setH] = React.useState(false);
+  const label = allowed ? (web ? HS_COPY.markerAllowedWeb : HS_COPY.markerAllowed) : HS_COPY.markerBlocked;
   return (
-    <Tooltip placement="top" content={allowed ? HS_COPY.markerAllowed : HS_COPY.markerBlocked}>
+    <Tooltip placement="top" open={open} content={label}>
     <span role={allowed ? "img" : "button"}
-      aria-label={allowed ? HS_COPY.markerAllowed : HS_COPY.markerBlocked}
+      aria-label={label}
       onMouseEnter={() => setH(true)} onMouseLeave={() => setH(false)}
       style={{ display: "inline-flex", flex: "none", alignItems: "center", justifyContent: "center",
         width: "var(--tasty-html-script-marker-hit)", height: "var(--tasty-html-script-marker-hit)", borderRadius: "var(--tasty-radius-sm)",
@@ -106,7 +119,7 @@ function HtmlScriptMarker({ kind = "blocked", hover = false }) {
   );
 }
 
-function HsTab({ label, icon, active, marker }) {
+function HsTab({ label, icon, active, marker, markerWeb = false, markerOpen = false }) {
   return (
     <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-tab-gap)", height: "var(--tasty-control-height-tab)",
       padding: "0 var(--tasty-space-xs) 0 var(--tasty-tab-padding-x)", width: "var(--tasty-tab-width)", fontSize: "var(--tasty-font-size-caption)", borderRight: "var(--tasty-border-width) solid var(--tasty-separator)",
@@ -115,7 +128,7 @@ function HsTab({ label, icon, active, marker }) {
       <span style={{ display: "inline-flex", flex: "none" }}><HsIcon name={icon} size="var(--tasty-tab-icon-size)" /></span>
       <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{label}</span>
       <span style={{ flex: "none", display: "inline-flex", alignItems: "center", gap: "var(--tasty-tab-status-gap)" }}>
-        {marker && <HtmlScriptMarker kind={marker} />}
+        {marker && <HtmlScriptMarker kind={marker} web={markerWeb} open={markerOpen} />}
         <span style={{ width: "var(--tasty-tab-close-size)", height: "var(--tasty-tab-close-size)", display: "inline-flex", alignItems: "center", justifyContent: "center",
           color: "var(--tasty-text-muted)", visibility: active ? "visible" : "hidden" }}><HsIcon name="close" size="var(--tasty-icon-size-xs)" /></span>
       </span>
@@ -124,10 +137,10 @@ function HsTab({ label, icon, active, marker }) {
 }
 
 // the page the WebView draws — a neutral stand-in, not tasty chrome
-function HsPage() {
+function HsPage({ label = "report.html" }) {
   return (
     <div style={{ flex: 1, minHeight: 0, background: "var(--tasty-surface-terminal-focused-bg)", padding: "var(--tasty-space-md)", display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
-      <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-placeholder)" }}>WebView — report.html</span>
+      <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-placeholder)" }}>WebView — {label}</span>
       <span style={{ height: "var(--tasty-space-md)", width: "60%", background: "var(--tasty-surface-raised)", borderRadius: "var(--tasty-radius-sm)" }} />
       <span style={{ height: "var(--tasty-space-sm)", width: "85%", background: "var(--tasty-surface-raised)", borderRadius: "var(--tasty-radius-sm)" }} />
       <span style={{ height: "var(--tasty-space-sm)", width: "70%", background: "var(--tasty-surface-raised)", borderRadius: "var(--tasty-radius-sm)" }} />
