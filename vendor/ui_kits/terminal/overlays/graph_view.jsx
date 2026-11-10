@@ -132,9 +132,15 @@ function GraphCanvas({ g, nodes, edges, renderNode, colorOf, dir = "td", onDirCh
     const pad = 16;
     const k = clamp(Math.min((b.w - pad * 2) / g.width, (b.h - pad * 2) / g.height), Z_MIN, 1);
     const kk = initialZoom ? initialZoom : k;
+    let x = Math.max(pad, (b.w - g.width * kk) / 2);
+    // fit with the drawer already open (a selection carried in) also keeps the selected card in sight
+    if (drawer && b.w >= COVER_BELOW && selected && g.pos[selected]) {
+      const right = x + (g.pos[selected].x + NODE_W) * kk, limit = b.w - DRAWER_W - REVEAL;
+      if (right > limit) x -= right - limit;
+    }
     setZ(kk);
-    setO({ x: Math.max(pad, (b.w - g.width * kk) / 2), y: Math.max(pad, (b.h - g.height * kk) / 2) });
-  }, [g.width, g.height, vp, initialZoom]);
+    setO({ x, y: Math.max(pad, (b.h - g.height * kk) / 2) });
+  }, [g.width, g.height, g.pos, vp, initialZoom, drawer, selected]);
 
   React.useLayoutEffect(() => {
     const el = ref.current;
