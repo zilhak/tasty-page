@@ -6,7 +6,7 @@ import { ConvertSurfacePopup, ThemeNotFoundModal, DbInitErrorModal, Notification
 import { PermissionNoticeModal } from "../../ui_kits/terminal/overlays/macos_permissions.jsx";
 import { ExplorerDeleteFrame as ExplorerDeleteFrame_ExplorerDeleteFrame, XD_ITEMS as ExplorerDeleteFrame_XD_ITEMS } from "../parts/explorer-delete-frame.jsx";
 import { GalleryScrimGrounds } from "./scrim-grounds.jsx";
-import { Backdrop, ApprovalFrame, FileHandlerFrame, FhFooter, PresetFrame, MarkdownOpenFrame, RenameFrame, CategoryEditFrame, CategoryDeleteFrame, TransferProgressFrame, TransferErrorFrame, ShellMock } from "../parts/overlay-frames.jsx";
+import { Backdrop, ApprovalFrame, FileHandlerFrame, FhFooter, PresetFrame, MarkdownOpenFrame, RenameFrame, CategoryEditFrame, CategoryDeleteFrame, TransferProgressFrame, TransferErrorFrame, DownloadRunFrame, DownloadRunLargeFrame, ShellMock } from "../parts/overlay-frames.jsx";
 import { Section, Spec, Stage, Meta, Note, Do, Dont, Views, View } from "../parts/specimen.jsx";
 import { ThemePair } from "../parts/theme-frame.jsx";
 
@@ -55,6 +55,7 @@ const NAV = [
   { id: "rename", label: "Rename popup" },
   { id: "category", label: "Workspace category" },
   { id: "transfer", label: "Remote transfer" },
+  { id: "downloadrun", label: "Download and run" },
   { id: "permnotice", label: "Info modal shell" },
   { id: "scriptconfirm", label: "Script changed confirm" },
   { id: "permdelete", label: "Explorer delete permanently" },
@@ -474,10 +475,10 @@ function Page() {
 
       <Section id="transfer" title="Remote transfer">
         <Spec id="transfer-progress-auto-closing-status-popup" title="Transfer progress — auto-closing status popup"
-          when={<>Shown while a file is being received from an attached remote workspace over the bulk channel (begin/chunk/commit). A <b>PopupDef</b> frame on the shared scrim, headless header: download glyph · <b>Receiving file</b> · a right-aligned mono <b>percent</b>. Body: the <b>filename</b> (mono, middle of the frame, ellipsized), the system's first <b>determinate progress bar</b> — a recessed 4px track with an accent fill, <b>no animation</b> (the fill tracks bytes; motion stays 0ms) — and a mono stats line: <b>transferred / total</b> left, rate right. It <b>auto-closes on completion</b>; the single ghost <b>Cancel</b> aborts the transfer. It does <b>not</b> close on outside click — dismissing progress by mis-click would read as an abort.</>}>
+          when={<>Shown while a file is being received from an attached remote workspace over the bulk channel (begin/chunk/commit). A <b>PopupDef</b> frame on the shared scrim, headless header: download glyph · <b>Receiving file</b> · a right-aligned mono <b>percent</b>. Body: the <b>filename</b> (mono, middle of the frame, ellipsized), the system's first <b>determinate progress bar</b> — a recessed 4px track with an accent fill, <b>no animation</b> (the fill tracks bytes; motion stays 0ms) — and a mono stats line: <b>transferred / total</b> left, rate right. It <b>auto-closes on completion</b>. It does <b>not</b> close on outside click — dismissing progress by mis-click would read as an abort. <b>The one button means two things by use (2026-11-10):</b> on an <b>upload</b> (paste into a mirror) the ghost <b>Cancel</b> only <b>hides the popup</b> and the transfer goes on; on a <b>download and run</b> the button <b>stops the download</b> and discards what was received, so it is labelled <b>Stop download</b> under its own title — next section.</>}>
           <Stage variant="solo center"><Backdrop height={300}><div align="center"><TransferProgressFrame /></div></Backdrop></Stage>
           <Meta
-            specs={[["width", <span className="tok">--tasty-transfer-popup-width</span>], ["header", "download glyph · title · mono %"], ["filename", "mono 13 · ellipsized"], ["bar", "4px track + accent fill · no animation"], ["stats", "done / total · rate (mono, muted)"], ["close", "auto on completion · Cancel aborts"], ["outside click", "does not dismiss"]]}
+            specs={[["width", <span className="tok">--tasty-transfer-popup-width</span>], ["header", "download glyph · title · mono %"], ["filename", "mono 13 · ellipsized"], ["bar", "4px track + accent fill · no animation"], ["stats", "done / total · rate (mono, muted)"], ["close", "auto on completion"], ["upload button", "Cancel (transfer.progress.cancel) — hides the popup, the upload goes on"], ["download-and-run button", "Stop download (transfer.progress.stop) — stops and discards"], ["outside click", "does not dismiss"]]}
             tokens={[{ tok: "--tasty-progress-track-bg", use: "recessed track", color: "var(--tasty-progress-track-bg)" }, { tok: "--tasty-progress-fill-bg", use: "determinate fill", color: "var(--tasty-progress-fill-bg)" }, { tok: "--tasty-progress-height", use: "4px thickness" }, { tok: "--tasty-bg-panel", use: "frame", color: "var(--tasty-bg-panel)" }]} />
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
             {[["ui_scale 0.85", 0.85], ["ui_scale 1", 1], ["ui_scale 1.2", 1.2]].map(([cap, z]) => (
@@ -510,6 +511,80 @@ function Page() {
             tokens={[{ tok: "--tasty-accent-danger", use: "glyph + reason text", color: "var(--tasty-accent-danger-raised)" }, { tok: "--tasty-bg-app", use: "reason well", color: "var(--tasty-bg-app)" }, { tok: "--tasty-bg-panel", use: "frame", color: "var(--tasty-bg-panel)" }]} />
           <Dont><b>Don't</b> use a danger-filled button here — danger fill is reserved for confirming a destructive act (delete). This popup only acknowledges one; Dismiss stays secondary/ghost.</Dont>
           <Note>Capacity rejection points at its own cure: the reason names the configured limit, which lives in <b>Settings › General › Remote transfer</b> (Overlays › Windows).</Note>
+        </Spec>
+      </Section>
+
+      <Section id="downloadrun" title="Remote file — download and run">
+        <Spec id="download-run-dialog" title="No remote handler — the one place download and run is offered"
+          when={<>Opening a file in a <b>mirror</b> (explorer double-click, terminal path link Ctrl+click) when <b>nothing on the remote host can open it</b>. This dialog takes the place of the old window toast <code>explorer.state.remote_open_unsupported</code>: a toast never takes focus and expires, so it cannot carry an action. It is <b>not the handler picker</b> — no list, no Open, no Settings exit (registering a local handler cannot open a remote file). The header names the file the way the picker does: title, then the path line led by the <b>host mark</b>. The body says what the action does and, on its own line, that it takes <b>one file only</b>. The footer offers <b>Download and run</b> (primary, download glyph) beside a ghost <b>Cancel</b>. Nothing starts until the button is pressed. Same frame family as the transfer popups it leads into.</>}>
+          <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)" }}>
+            <ThemePair render={() => <DownloadRunFrame />} />
+          </Stage>
+          <Views>
+            <View name="download-run-old-server" label="Older Tasty on the remote host — the action is disabled and the reason is on the dialog">
+              <div style={{ display: "flex", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
+                <DownloadRunFrame server="old" />
+                <DownloadRunFrame server="old" lang="ko" host="mac-company-attach" />
+              </div>
+            </View>
+          </Views>
+          <Meta
+            specs={[["when", "a mirror file, no remote handler — never for a local file, never by default"], ["frame", <><span className="tok">--tasty-transfer-popup-width</span> 400 · transfer insets · scrim · shadow-modal</>], ["header", "title 14 / 600 · path line = host mark + path (picker rules: profile name, 160 cap, front-elided path)"], ["body", "description 13 · text-secondary · then the one-file line 11 · text-muted"], ["footer", "Cancel ghost · Download and run primary + download glyph"], ["older server", <>no <code>ipc.stream.file-download</code> capability → primary disabled + reason well (surface-raised, info glyph, 11 · text-secondary). Always drawn — a disabled button's tooltip would hide the reason</>], ["after the press", "≤ 1 MiB → progress popup straight away · > 1 MiB → the size question below, once"], ["handler opens a tab while a mirror is active", "the new local workspace is named after the file (main.rs) — no new string"], ["copy", "download_run.dialog.* — title, description, single_file, run, cancel, unsupported_server"]]}
+            tokens={[{ tok: "--tasty-fh-remote-fg", use: "host mark", color: "var(--tasty-fh-remote-fg)" }, { tok: "--tasty-text-secondary", use: "description", color: "var(--tasty-text-secondary)" }, { tok: "--tasty-text-muted", use: "one-file line · path", color: "var(--tasty-text-muted)" }, { tok: "--tasty-surface-raised", use: "older-server well", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-accent-info-raised", use: "well glyph", color: "var(--tasty-accent-info-raised)" }]} />
+          <Dont><b>Don't</b> put the action in a toast or make it the double-click result. It is a deliberate, one-file step the user takes after being told the remote host cannot open the file.</Dont>
+          <Dont><b>Don't</b> describe it as editing, copying or syncing, and don't show where the file lands. It downloads one file and hands it to the local handler; the remote file is untouched.</Dont>
+        </Spec>
+
+        <Spec id="download-run-large-file" title="Over 1 MiB — asked once, after the press"
+          when={<>When the file is larger than <b>1 MiB</b> (1,048,576 bytes; one byte more asks) the download waits for one answer. The question is the title; the body shows the <b>file name</b> (mono, ellipsized) and its <b>size</b>. Attention glyph — nothing is wrong, it may just take a while. <b>Download and run</b> is the same label as the button that led here, so the answer repeats the choice; Cancel drops it and nothing is received.</>}>
+          <Stage variant="solo center"><Backdrop height={240}><div align="center"><DownloadRunLargeFrame /></div></Backdrop></Stage>
+          <Meta
+            specs={[["frame", "same as the dialog above"], ["header", "attention glyph · question title"], ["body", "file glyph + name mono 13 · size sentence 13 · text-secondary"], ["size", "formatted by the app (3.2 MiB) into download_run.large.body {}"], ["footer", "Cancel ghost · Download and run primary (download_run.dialog.run)"], ["threshold", "unchanged product rule: > 1,048,576 bytes"]]}
+            tokens={[{ tok: "--tasty-accent-attention-raised", use: "glyph", color: "var(--tasty-accent-attention-raised)" }, { tok: "--tasty-text-primary", use: "file name", color: "var(--tasty-text-primary)" }]} />
+        </Spec>
+
+        <Spec id="download-run-progress" title="Download progress — the button stops"
+          when={<>The transfer progress popup, reused as is, with two changes that keep its two uses apart. The <b>title</b> says what is happening and why — <b>Downloading to open locally</b> — and the one ghost button reads <b>Stop download</b>, not Cancel: pressing it stops the download, discards what was received and opens nothing. The upload popup keeps <b>Receiving file</b> and a Cancel that only hides the view. On completion the popup closes and the local handler opens the file.</>}>
+          <Stage variant="solo center"><Backdrop height={300}><div align="center"><TransferProgressFrame name="build-artifacts.tar.gz" pct={41} done="1.3 MiB" total="3.2 MiB" rate="0.8 MiB/s" title="Downloading to open locally" action="Stop download" /></div></Backdrop></Stage>
+          <Meta
+            specs={[["frame", "TransferProgressFrame — unchanged layout and tokens"], ["title", "transfer.progress.title_download_run"], ["button", "transfer.progress.stop · ghost · stops and discards"], ["Esc / outside click", "do not stop — only the button does"], ["completion", "auto-close, then the local handler runs"]]}
+            tokens={[{ tok: "--tasty-progress-fill-bg", use: "fill", color: "var(--tasty-progress-fill-bg)" }]} />
+          <Note>The button stays ghost: stopping loses nothing on the remote host, so it is not a danger action.</Note>
+        </Spec>
+
+        <Spec id="download-run-failed" title="Download failed — one reason line per cause"
+          when={<>The transfer error popup with the title <b>Download failed</b>. The body keeps the existing line (<code>transfer.error.body_suffix</code>, “<i>name</i> could not be received.”) and the well carries a <b>sentence per cause</b> instead of the raw reason code. A <b>folder</b> is refused here too: it is the same answer to the same press, and the sentence restates the one-file rule. Every cause ends with a single <b>Dismiss</b> — nothing was opened, nothing is left behind, and opening the file again is the way to retry.</>}>
+          <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 18, flexWrap: "wrap", alignItems: "flex-start" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>folder — refused before anything is sent</div>
+              <TransferErrorFrame title="Download failed" name="assets" reason="Folders are not supported. “Download and run” supports one file only." />
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>connection lost mid-download</div>
+              <TransferErrorFrame title="Download failed" name="build-artifacts.tar.gz" reason="The connection to the remote host was lost during the download." />
+            </div>
+          </Stage>
+          <Views>
+            <View name="download-run-failed-reasons" label="Every cause — the well sentence for each">
+              <div style={{ display: "flex", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
+                {[["not_regular", "fifo", "The target is not a regular file and cannot be downloaded."],
+                  ["not_found", "main.rs", "The file no longer exists on the remote host."],
+                  ["permission_denied", "secrets.env", "The remote host denied permission to read the file."],
+                  ["changed", "server.log", "The file changed on the remote host during the download."],
+                  ["io", "main.rs", "The remote host could not read the file."],
+                  ["local_write", "build-artifacts.tar.gz", "The file could not be written on this computer."]].map(([code, name, reason]) => (
+                  <div key={code} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                    <div style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: "var(--tasty-text-muted)" }}>{code}</div>
+                    <TransferErrorFrame title="Download failed" name={name} reason={reason} />
+                  </div>
+                ))}
+              </div>
+            </View>
+          </Views>
+          <Meta
+            specs={[["frame", "TransferErrorFrame — unchanged layout and tokens"], ["title", "transfer.error.title_download_run"], ["body", "transfer.error.body_suffix — kept"], ["well", "download_run.reason.<cause> — directory · not_regular · not_found · permission_denied · changed · io · disconnected · local_write"], ["buttons", "Dismiss only (transfer.error.dismiss) for every cause"], ["folder form", "this popup, not a toast — the answer to the press stays in the layer the press opened"]]}
+            tokens={[{ tok: "--tasty-accent-danger", use: "glyph + reason", color: "var(--tasty-accent-danger-raised)" }, { tok: "--tasty-bg-app", use: "reason well", color: "var(--tasty-bg-app)" }]} />
+          <Note>No Retry here: a retry would be a new path into the download that skips the dialog. Opening the file again shows the dialog again.</Note>
         </Spec>
       </Section>
 

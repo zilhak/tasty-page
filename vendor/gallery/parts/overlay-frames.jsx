@@ -358,13 +358,18 @@ function SettingsRemoteAttachFrame({ attachText }) {
 }
 
 // ── Remote transfer — progress popup (PopupDef, auto-closes on completion) ──
-function TransferProgressFrame({ name = "sprint-42-demo.mp4", pct = 27, done = "34.6 MiB", total = "128.0 MiB", rate = "2.1 MiB/s" }) {
+// Two uses, two meanings for the one button (2026-11-10): the upload popup's Cancel
+// only hides the view and the transfer goes on; the download-and-run popup's button
+// stops the download and discards what was received. So the download use passes its
+// own title and a button that names the stop — it never reads "Cancel".
+function TransferProgressFrame({ name = "sprint-42-demo.mp4", pct = 27, done = "34.6 MiB", total = "128.0 MiB", rate = "2.1 MiB/s",
+  title = "Receiving file", action = "Cancel" }) {
   return (
     <div style={{ width: "var(--tasty-transfer-popup-width)", background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-strong)",
       borderRadius: "var(--tasty-radius)", overflow: "hidden", boxShadow: "var(--tasty-shadow-modal)" }}>
       <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-transfer-header-pad-y) var(--tasty-transfer-pad-x)", borderBottom: "1px solid var(--tasty-separator)" }}>
         <span style={{ display: "inline-flex", color: "var(--tasty-text-muted)" }}>{ic.download}</span>
-        <span style={{ fontSize: 14, fontWeight: 600 }}>Receiving file</span>
+        <span style={{ fontSize: 14, fontWeight: 600 }}>{title}</span>
         <span style={{ marginLeft: "auto", fontFamily: "var(--tasty-font-mono)", fontSize: 12, color: "var(--tasty-text-muted)" }}>{pct}%</span>
       </div>
       <div style={{ padding: "var(--tasty-transfer-pad-x)", display: "flex", flexDirection: "column", gap: "var(--tasty-transfer-body-gap)" }}>
@@ -381,20 +386,20 @@ function TransferProgressFrame({ name = "sprint-42-demo.mp4", pct = 27, done = "
         </div>
       </div>
       <div style={{ display: "flex", justifyContent: "flex-end", padding: "var(--tasty-transfer-footer-pad-y) var(--tasty-transfer-pad-x)", borderTop: "1px solid var(--tasty-separator)" }}>
-        <Button variant="ghost">Cancel</Button>
+        <Button variant="ghost">{action}</Button>
       </div>
     </div>
   );
 }
 
 // ── Remote transfer — error / rejected popup ──
-function TransferErrorFrame({ retry = false, name = "sprint-42-demo.mp4", reason = "capacity exceeded — transfers folder is at its 500 MiB limit" }) {
+function TransferErrorFrame({ retry = false, name = "sprint-42-demo.mp4", reason = "capacity exceeded — transfers folder is at its 500 MiB limit", title = "Transfer failed" }) {
   return (
     <div style={{ width: "var(--tasty-transfer-popup-width)", background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-strong)",
       borderRadius: "var(--tasty-radius)", overflow: "hidden", boxShadow: "var(--tasty-shadow-modal)" }}>
       <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-transfer-header-pad-y) var(--tasty-transfer-pad-x)", borderBottom: "1px solid var(--tasty-separator)" }}>
         <span style={{ display: "inline-flex", color: "var(--tasty-accent-danger-raised)" }}>{ic.warn}</span>
-        <span style={{ fontSize: 14, fontWeight: 600 }}>Transfer failed</span>
+        <span style={{ fontSize: 14, fontWeight: 600 }}>{title}</span>
       </div>
       <div style={{ padding: "var(--tasty-transfer-pad-x)", display: "flex", flexDirection: "column", gap: "var(--tasty-transfer-body-gap)" }}>
         <p style={{ margin: 0, fontSize: 13, color: "var(--tasty-text-secondary)", lineHeight: 1.5 }}>
@@ -406,6 +411,98 @@ function TransferErrorFrame({ retry = false, name = "sprint-42-demo.mp4", reason
       <div style={{ display: "flex", justifyContent: "flex-end", gap: "var(--tasty-space-sm)", padding: "var(--tasty-transfer-footer-pad-y) var(--tasty-transfer-pad-x)", borderTop: "1px solid var(--tasty-separator)" }}>
         {retry ? <Button variant="ghost">Dismiss</Button> : null}
         {retry ? <Button variant="secondary">Retry</Button> : <Button variant="secondary">Dismiss</Button>}
+      </div>
+    </div>
+  );
+}
+
+// ── Remote file — download and run (2026-11-10) ──
+// Opening a mirror file that nothing on the remote host can open shows this dialog in
+// place of the old window toast (explorer.state.remote_open_unsupported). It is not the
+// handler picker: no list, no Open — one explicit action, offered only here. Same family
+// as the transfer popups (width, insets, scrim) because it leads into them.
+const DR_COPY = {
+  en: {
+    title: "No remote handler for this file",
+    description: "Downloads this file to this computer and opens it with the locally configured handler. The remote file stays unchanged.",
+    single: "One file only. Folders are not supported.",
+    run: "Download and run",
+    cancel: "Cancel",
+    old: "Tasty on the remote host is too old to send files. Update it to use “Download and run”.",
+    largeTitle: "Download a file larger than 1 MiB?",
+    largeBody: (size) => `This file is ${size} (over 1 MiB). Downloading may take a while.`,
+  },
+  ko: {
+    title: "이 파일을 열 원격 핸들러 없음",
+    description: "이 파일을 이 컴퓨터로 다운로드하고 로컬에 설정된 핸들러로 엽니다. 원격 호스트의 파일은 그대로 유지됩니다.",
+    single: "파일 하나만 지원합니다. 폴더는 지원하지 않습니다.",
+    run: "다운로드 후 실행",
+    cancel: "취소",
+    old: "원격 호스트의 Tasty 버전이 오래되어 파일을 전송할 수 없습니다. 원격 호스트의 Tasty를 업데이트하면 ‘다운로드 후 실행’을 사용할 수 있습니다.",
+    largeTitle: "1 MiB보다 큰 파일을 다운로드하시겠습니까?",
+    largeBody: (size) => `파일 크기는 ${size}이며 1 MiB를 초과합니다. 다운로드에 시간이 걸릴 수 있습니다.`,
+  },
+};
+const DR_SHELL = { width: "var(--tasty-transfer-popup-width)", background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-strong)",
+  borderRadius: "var(--tasty-radius)", overflow: "hidden", boxShadow: "var(--tasty-shadow-modal)" };
+const DR_HEAD = { padding: "var(--tasty-transfer-header-pad-y) var(--tasty-transfer-pad-x)", borderBottom: "1px solid var(--tasty-separator)",
+  display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" };
+const DR_BODY = { padding: "var(--tasty-transfer-pad-x)", display: "flex", flexDirection: "column", gap: "var(--tasty-transfer-body-gap)" };
+const DR_FOOT = { display: "flex", justifyContent: "flex-end", gap: "var(--tasty-space-sm)", padding: "var(--tasty-transfer-footer-pad-y) var(--tasty-transfer-pad-x)", borderTop: "1px solid var(--tasty-separator)" };
+
+// server: "ready" — the connection announced the file-download capability; "old" — it did not,
+// so the action is drawn disabled and the reason line says why (always visible, never a tooltip).
+function DownloadRunFrame({ host = "gx10", path = "reports/q3-summary.xlsx", server = "ready", lang = "en" }) {
+  const c = DR_COPY[lang];
+  return (
+    <div data-download-run={server} style={DR_SHELL}>
+      <div style={DR_HEAD}>
+        <span style={{ fontSize: "var(--tasty-font-size-max)", fontWeight: "var(--tasty-font-weight-semibold)", color: "var(--tasty-text-primary)" }}>{c.title}</span>
+        <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", minWidth: 0 }}>
+          <FhRemoteMark host={host} />
+          <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)",
+            whiteSpace: "nowrap", overflow: "hidden", textOverflow: "clip", minWidth: 0 }}>{path}</span>
+        </div>
+      </div>
+      <div style={DR_BODY}>
+        <p style={{ margin: 0, fontSize: "var(--tasty-font-size-body)", lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-text-secondary)" }}>{c.description}</p>
+        <p style={{ margin: 0, fontSize: "var(--tasty-font-size-caption)", lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-text-muted)" }}>{c.single}</p>
+        {server === "old" && (
+          <div style={{ display: "flex", alignItems: "flex-start", gap: "var(--tasty-space-sm)", padding: "var(--tasty-transfer-well-pad-y) var(--tasty-transfer-well-pad-x)",
+            background: "var(--tasty-surface-raised)", borderRadius: "var(--tasty-radius)" }}>
+            <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-accent-info-raised)" }}><Icon name="info" size="var(--tasty-icon-size-sm)" /></span>
+            <span style={{ fontSize: "var(--tasty-font-size-caption)", lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-text-secondary)" }}>{c.old}</span>
+          </div>
+        )}
+      </div>
+      <div style={DR_FOOT}>
+        <Button variant="ghost">{c.cancel}</Button>
+        <Button variant="primary" leadingIcon={<Icon name="download" />} disabled={server === "old"}>{c.run}</Button>
+      </div>
+    </div>
+  );
+}
+
+// Shown once, after the action was pressed, when the file is over 1 MiB (1,048,576 bytes).
+function DownloadRunLargeFrame({ name = "build-artifacts.tar.gz", size = "3.2 MiB", lang = "en" }) {
+  const c = DR_COPY[lang];
+  return (
+    <div data-download-run="large" style={DR_SHELL}>
+      <div style={{ ...DR_HEAD, flexDirection: "row", alignItems: "center", gap: "var(--tasty-space-sm)" }}>
+        <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-accent-attention-raised)" }}>{ic.warn}</span>
+        <span style={{ fontSize: "var(--tasty-font-size-max)", fontWeight: "var(--tasty-font-weight-semibold)", color: "var(--tasty-text-primary)" }}>{c.largeTitle}</span>
+      </div>
+      <div style={DR_BODY}>
+        <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", minWidth: 0 }}>
+          <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-text-muted)" }}>{ic.file}</span>
+          <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+            fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-body)", color: "var(--tasty-text-primary)" }}>{name}</span>
+        </div>
+        <p style={{ margin: 0, fontSize: "var(--tasty-font-size-body)", lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-text-secondary)" }}>{c.largeBody(size)}</p>
+      </div>
+      <div style={DR_FOOT}>
+        <Button variant="ghost">{c.cancel}</Button>
+        <Button variant="primary" leadingIcon={<Icon name="download" />}>{c.run}</Button>
       </div>
     </div>
   );
@@ -3066,4 +3163,4 @@ function FilePickerFrame({ state = "loaded", remote = false, indicator = "badge"
   );
 }
 
-export { TOOLS_MENU_BUILTIN, ic, Backdrop, GroundThemes, GroundCap, PaletteFrame, ApprovalFrame, RenameFrame, SettingsFrame, SettingsGeneralOverlayFrame, SettingsRemoteTransferFrame, SettingsRemoteAttachFrame, TransferProgressFrame, TransferErrorFrame, ToastDragValue, ToolsMenuFrame, PortsFrame, PORTS_COLUMNS, PortsFavoritesG, PortStarG, RemoteFrame, LocalSshSection, SearchBarFrame, FileHandlerFrame, FhFooter, PresetFrame, MarkdownOpenFrame, HeldLabel, TabStripMock, SidebarMock, RailMock, CatSwitchSidebarMock, CatSwitchRailMock, BannerShellG, BannerScope, MouseCaptureBannerG, MouseCaptureHitZone, BlacklistEditorG, TtlBannerG, StackDemoG, BannerMoreMenuG, BannerMoreDemoG, GitViewerFrame, ClipboardFrame, RemoteFormFrame, ScriptManagerFrame, ShellMock, RemoteAttachFrame, RaNewRow, RaWsPeek, FilePickerFrame, FpCrumbMenu, ModifierHintPanelG, MH_CAT_SECTIONS, MH_MIXED_SECTIONS, MH_EMPTY_SECTIONS, catIc, CatMenu, RailCategoryFrame, CategoryEditFrame, CategoryDeleteFrame };
+export { TOOLS_MENU_BUILTIN, ic, Backdrop, GroundThemes, GroundCap, PaletteFrame, ApprovalFrame, RenameFrame, SettingsFrame, SettingsGeneralOverlayFrame, SettingsRemoteTransferFrame, SettingsRemoteAttachFrame, TransferProgressFrame, TransferErrorFrame, DownloadRunFrame, DownloadRunLargeFrame, ToastDragValue, ToolsMenuFrame, PortsFrame, PORTS_COLUMNS, PortsFavoritesG, PortStarG, RemoteFrame, LocalSshSection, SearchBarFrame, FileHandlerFrame, FhFooter, PresetFrame, MarkdownOpenFrame, HeldLabel, TabStripMock, SidebarMock, RailMock, CatSwitchSidebarMock, CatSwitchRailMock, BannerShellG, BannerScope, MouseCaptureBannerG, MouseCaptureHitZone, BlacklistEditorG, TtlBannerG, StackDemoG, BannerMoreMenuG, BannerMoreDemoG, GitViewerFrame, ClipboardFrame, RemoteFormFrame, ScriptManagerFrame, ShellMock, RemoteAttachFrame, RaNewRow, RaWsPeek, FilePickerFrame, FpCrumbMenu, ModifierHintPanelG, MH_CAT_SECTIONS, MH_MIXED_SECTIONS, MH_EMPTY_SECTIONS, catIc, CatMenu, RailCategoryFrame, CategoryEditFrame, CategoryDeleteFrame };
