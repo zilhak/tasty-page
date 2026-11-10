@@ -37,7 +37,6 @@ export const GRAPH_COPY = {
   "child_graph.drawer.last_report": {"en": "Last state report", "ko": "마지막 상태 보고", "ja": "最終状態報告", "zh-Hans": "上次状态报告"},
   "child_graph.drawer.workspace": {"en": "Workspace", "ko": "워크스페이스", "ja": "ワークスペース", "zh-Hans": "工作区"},
   "child_graph.drawer.attach_profile": {"en": "Attach profile", "ko": "Attach 프로필", "ja": "アタッチプロファイル", "zh-Hans": "附加配置档"},
-  "child_graph.drawer.attach_inline": {"en": "(no saved profile)", "ko": "(저장된 프로필 없음)", "ja": "（保存済みプロファイルなし）", "zh-Hans": "（无已保存配置档）"},
   "child_graph.drawer.external_key": {"en": "External key", "ko": "외부 키", "ja": "外部キー", "zh-Hans": "外部键"},
   "child_graph.drawer.external_note": {"en": "This key does not identify a surface you can open.", "ko": "이 키는 열 수 있는 서피스를 가리키지 않습니다.", "ja": "このキーは開けるサーフェスを指していません。", "zh-Hans": "此键不对应可打开的 Surface。"},
   "child_graph.drawer.read_only_note": {"en": "This remote workspace is not mirrored here; you can view details but cannot open the surface from this computer.", "ko": "이 원격 워크스페이스는 여기에 미러되지 않아 상세 정보만 볼 수 있으며, 이 컴퓨터에서 서피스를 열 수 없습니다.", "ja": "このリモートワークスペースはここにミラーされていないため、詳細のみ表示でき、このコンピューターからサーフェスは開けません。", "zh-Hans": "此远程工作区未在此处镜像，只能查看详情，无法从本机打开 Surface。"},

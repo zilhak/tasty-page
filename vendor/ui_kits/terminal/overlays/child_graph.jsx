@@ -70,9 +70,9 @@ const CHILD_MIRROR_LOST = CHILD_MIRROR.map((n) => (n.kind === "surface" ? { ...n
 // across machines (user decision 4-7 to 4-9): A on this computer → B on a remote → C, one graph, ordinary lines
 const CHILD_CROSS = [
   S("s_L1", { nickname: "conductor", role: "conductor", workspace: "tasty" }),
-  R("s_R1", { parent: "s_L1", nickname: "linux-build", role: "worker", profile: null, ssh: "dev@10.0.0.12" }),
-  R("s_R3", { parent: "s_R1", nickname: "linux-check", role: "checker", state: "needs_input", profile: null, ssh: "dev@10.0.0.12", evidence: "hook_needs_input" }),
-  R("s_R2", { parent: "s_L1", nickname: "linux-test", role: "tester", state: "idle", profile: null, ssh: "dev@10.0.0.12", evidence: "hook_idle" }),
+  R("s_R1", { parent: "s_L1", nickname: "linux-build", role: "worker", profile: "lab-build" }),
+  R("s_R3", { parent: "s_R1", nickname: "linux-check", role: "checker", state: "needs_input", profile: "lab-build", evidence: "hook_needs_input" }),
+  R("s_R2", { parent: "s_L1", nickname: "linux-test", role: "tester", state: "idle", profile: "lab-build", evidence: "hook_idle" }),
 ];
 // external parent (user decision 2026-11-10): its own card at the root, nothing traced beyond the key
 const CHILD_EXTERNAL = [
@@ -188,9 +188,8 @@ function ChildDetail({ node, isBase, lang = "en", onViewDags, onSetBase, onClose
   const ancestor = node.kind === "remote-ancestor";
   const st = ancestor ? null : childTone(node.state);
   const dags = (node.dags || []).map((id) => DAG_BY_ID[id]).filter(Boolean);
-  const attach = node.remote || ancestor
-    ? (node.profile ? node.profile : <>{node.ssh || "dev@10.0.0.12"} <span style={{ fontFamily: "var(--tasty-font-ui)", color: "var(--tasty-text-muted)" }}>{gt("child_graph.drawer.attach_inline", lang)}</span></>)
-    : null;
+  // attach profile name only: a mirror always attaches through a tasty-attach profile (R-57)
+  const attach = node.remote || ancestor ? node.profile : null;
   return (
     <GraphDrawer title={title} mono={mono} onClose={onClose} closeLabel={closeLabel} cover={cover}>
       {st && (
