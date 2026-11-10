@@ -4,7 +4,7 @@ import { Icon as RcIcon } from "../../../components/core/Icon.jsx";
 import { IconButton } from "../../../components/core/IconButton.jsx";
 import { Spinner } from "../../../components/feedback/Spinner.jsx";
 import { Tooltip } from "../../../components/feedback/Tooltip.jsx";
-import { HtmlAddressBar, HtmlSizeBanner } from "./html_address_bar.jsx";
+import { HtmlAddressBar, HtmlPageState, HtmlSizeBanner } from "./html_address_bar.jsx";
 import { HsTab, HsPage, HtmlScriptBanner } from "./html_script_banner.jsx";
 
 // HTML surface — REMOTE CONTENT blocked notice (inset banner) + address-field marker.
@@ -22,6 +22,11 @@ import { HsTab, HsPage, HtmlScriptBanner } from "./html_script_banner.jsx";
 //     the reload Allow itself starts keeps it; the USER's reload, any navigation (same site too), Back and restart
 //     clear it when that load commits, and the notice is back then, blocked (a new showing, even if it was dismissed
 //     before). Until that commit the allow and its markers hold; a notice already up (before Allow) stays, loading.
+//     Page area during any load of the page (2026-11-10, measured on Linux): the host hides the WebView from load
+//     start until the load finishes and paints its Loading tile (HtmlPageState "loading"); band, notices and markers
+//     stay above it. So the web title names no load state: it is true over the tile and over the finished page.
+//     Body key: picked every frame from the model's script sandbox value; changing the setting while the notice is
+//     up swaps the body on the next frame (phase and dismissal unchanged).
 //     Shown whenever the page is viewed, first at the load's commit (never before it): the static references are
 //     unknown, so the notice does not wait for a blocked request.
 //     Remote allow does not enable scripts. With the script sandbox on, the script notice (web copy) takes the SAME
@@ -49,7 +54,9 @@ const RC_COPY = {
   markerBlocked: "Remote content blocked. Click for details.",
   markerAllowed: "Remote content allowed for this document until Tasty restarts",
   // 2026-11-10 — top-level http(s) page (`web`). action, reloading, actionLoading, markerBlocked are shared.
-  titleWeb: "Page loaded; remote content blocked",
+  // 2026-11-10 — was "Page loaded; remote content blocked": wrong while the Loading tile is up (first load's commit
+  // until it finishes, and a reload before Allow). Same key, value changed.
+  titleWeb: "Remote content on this page is blocked",
   bodyWeb: "Stylesheets, images, fonts, frames and media from the network are blocked, so the page may look incomplete. Allowing applies only to this showing of the page; reloading blocks remote content again. Permission to run scripts is requested separately.",
   markerAllowedWeb: "Remote content allowed for this showing of the page; reloading blocks it again",
   // 2026-11-10 — web body when the script sandbox is off: no script notice exists and the page's own scripts already
@@ -136,7 +143,7 @@ function RcUnstyledPage({ label = "report.html" }) {
 
 // Whole surface for the comparison grid.
 // remote / script: banner state or null · remoteMarker: "blocked" | "allowed" | null · scriptMarker: tab marker kind or null
-// size: mirror size banner on top ("file" | "limit" | null) · page: "unstyled" | "styled"
+// size: mirror size banner on top ("file" | "limit" | null) · page: "unstyled" | "styled" | "loading" (host Loading tile)
 // web (2026-11-10): top-level http(s) page — `web` address field (link glyph), web copy on both notices and both
 //   allowed tooltips. A web page never passes remote and script together (they take the same slot in turn).
 // loading: the band's Reload shows busy (a load is in flight, not yet committed).
@@ -161,7 +168,7 @@ function HtmlRemoteSurfaceG({ width, height = 300, narrow = false, remote = null
       {stack.length > 0 && (
         <div style={{ flex: "none", display: "flex", flexDirection: "column", gap: "var(--tasty-banner-inset-gap)", padding: "var(--tasty-banner-margin) var(--tasty-banner-margin) var(--tasty-banner-inset-gap)" }}>{stack}</div>
       )}
-      {page === "styled" ? <HsPage label={web ? RC_WEB.page : undefined} /> : <RcUnstyledPage label={web ? RC_WEB.page : undefined} />}
+      {page === "loading" ? <HtmlPageState kind="loading" /> : page === "styled" ? <HsPage label={web ? RC_WEB.page : undefined} /> : <RcUnstyledPage label={web ? RC_WEB.page : undefined} />}
     </div>
   );
 }
