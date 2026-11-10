@@ -302,7 +302,7 @@ export function ChildGraphSection() {
       </Spec>
 
       <Spec id="child-graph-entry-points" title="Entry points and default shortcuts (decided 4-1, 4-2, 4-3)"
-        when={<><b>Tools menu</b>: <i>Open child graph</i> right after <i>Task DAGs</i>. <b>Decided 4-1</b>: default shortcuts — the child graph popup <Kbd keys="Alt+G" /> (macOS <Kbd keys={["⌘", "G"]} />), the Task DAGs popup <Kbd keys="Alt+Y" />. Keybindings and the command palette list them by action name. The Tools menu shows no keys, as today. A terminal surface's context menu takes the same label when it is adopted. <b>Decided 4-3</b>: the surface kind is <code>child_graph</code>; it shows as <i>Child graph</i> in its tab and in the convert list. <b>Decided 4-2</b>: no new entry for DAGs — the Task DAGs popup lists them and a pick goes to the graph inside the same popup (the Task DAG page's popup spec).</>}>
+        when={<><b>Tools menu</b>: <i>Open child graph</i> right after <i>Task DAGs</i>. <b>Decided 4-1</b>: default shortcuts — the child graph popup <Kbd keys="Alt+G" /> (macOS <Kbd keys={["⌘", "G"]} />), the Task DAGs popup <Kbd keys="Alt+Y" /> (macOS <Kbd keys={["⌘", "Y"]} />). On macOS a binding's Alt reads as Cmd by default and a setting can switch it to Option (R-56); neither key collides with a default binding or the macOS menu bar. Keybindings and the command palette list them by action name. The Tools menu shows no keys, as today. A terminal surface's context menu takes the same label when it is adopted. <b>Decided 4-3</b>: the surface kind is <code>child_graph</code>; it shows as <i>Child graph</i> in its tab and in the convert list. <b>Decided 4-2</b>: no new entry for DAGs — the Task DAGs popup lists them and a pick goes to the graph inside the same popup (the Task DAG page's popup spec).</>}>
         <Stage style={{ padding: 16, display: "block" }}>
           {row(<>
             <Labelled label="Tools menu — the new item" tag="decided"><div style={{ width: 360 }}><ToolsMenuFrame active="Open child graph" height={380} /></div></Labelled>
@@ -312,10 +312,10 @@ export function ChildGraphSection() {
                 <MenuItem label={gt("dag_list.keybinding_action")} shortcut={<Kbd keys={"Alt+Y"} />} />
               </div>
             </Labelled>
-            <Labelled label="default shortcuts — macOS (child graph decided; Task DAGs see the note)" tag="decided">
+            <Labelled label="default shortcuts — macOS (Alt reads as Cmd, R-56)" tag="decided">
               <div style={{ width: 320, padding: "var(--tasty-space-sm)", background: "var(--tasty-menu-bg)", border: "var(--tasty-border-width) solid var(--tasty-menu-border)", borderRadius: "var(--tasty-radius)" }}>
                 <MenuItem label={gt("child_graph.keybinding_action")} shortcut={<Kbd keys={["⌘", "G"]} />} />
-                <MenuItem label={gt("dag_list.keybinding_action")} shortcut={<Kbd keys={["⌥", "Y"]} />} />
+                <MenuItem label={gt("dag_list.keybinding_action")} shortcut={<Kbd keys={["⌘", "Y"]} />} />
               </div>
             </Labelled>
             <Labelled label="terminal context menu (when adopted)">
@@ -328,8 +328,8 @@ export function ChildGraphSection() {
             </Labelled>
           </>)}
         </Stage>
-        <Meta specs={[["Tools menu", "child_graph.tools_menu_item, after Task DAGs"], ["child graph key", "Alt+G · macOS ⌘G · child_graph.keybinding_action"], ["Task DAGs key", "Alt+Y · macOS ⌥Y (assumed) · dag_list.keybinding_action"], ["kind", "child_graph"], ["context menu", "child_graph.surface_menu_item"], ["kind name", "child_graph.kind_name — tab title and convert list"]]} tokens={[]} />
-              <Note>The decision names Alt+Y for the Task DAGs popup but no macOS key. The macOS row draws <Kbd keys={["⌥", "Y"]} /> (Alt on a Mac keyboard) as an assumption; see the question list.</Note>
+        <Meta specs={[["Tools menu", "child_graph.tools_menu_item, after Task DAGs"], ["child graph key", "Alt+G · macOS ⌘G · child_graph.keybinding_action"], ["Task DAGs key", "Alt+Y · macOS ⌘Y · dag_list.keybinding_action"], ["macOS", "a binding's Alt reads as Cmd by default; Option by setting (R-56)"], ["kind", "child_graph"], ["context menu", "child_graph.surface_menu_item"], ["kind name", "child_graph.kind_name — tab title and convert list"]]} tokens={[]} />
+              <Note>The Task DAGs list already has a key, <Kbd keys="Alt+Shift+G" /> (macOS <Kbd keys={["⌘", "⇧", "G"]} />). Whether Alt+Y replaces it is still the user's to decide, so it is neither drawn as removed nor as kept here.</Note>
       </Spec>
 
       <Spec id="child-graph-settings-default-row" title="Settings — the full tree default"
