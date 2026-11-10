@@ -7,7 +7,7 @@ import { PermissionNoticeModal } from "../../ui_kits/terminal/overlays/macos_per
 import { ExplorerDeleteFrame as ExplorerDeleteFrame_ExplorerDeleteFrame, XD_ITEMS as ExplorerDeleteFrame_XD_ITEMS } from "../parts/explorer-delete-frame.jsx";
 import { GalleryScrimGrounds } from "./scrim-grounds.jsx";
 import { Backdrop, ApprovalFrame, FileHandlerFrame, FhFooter, PresetFrame, MarkdownOpenFrame, RenameFrame, CategoryEditFrame, CategoryDeleteFrame, TransferProgressFrame, TransferErrorFrame, ShellMock } from "../parts/overlay-frames.jsx";
-import { Section, Spec, Stage, Meta, Note, Do, Dont } from "../parts/specimen.jsx";
+import { Section, Spec, Stage, Meta, Note, Do, Dont, Views, View } from "../parts/specimen.jsx";
 import { ThemePair } from "../parts/theme-frame.jsx";
 
 
@@ -298,14 +298,14 @@ function Page() {
         </Spec>
 
         <Spec id="file-handler-remote-path" title="Remote path — the host leads the path line"
-          when={<>A path link in a <b>mirror</b> terminal names a file on the remote host, and the same string can name a different local file. So when the picker's target is remote, the header's <b>path line leads with the host mark</b>: remote glyph + host in <span className="tok">--tasty-fh-remote-fg</span>, mono caption, no fill — the form the explorer uses for remote work. It sits on the line it qualifies, so the path reads as <i>this path on that host</i>. The host text has its own cap (<span className="tok">--tasty-fh-remote-max-width</span>, 160, the same cap as the status bar) and elides its end inside it; the path keeps its front elision in the <b>206px</b> left at the cap (390 − 12 glyph − 4 − 160 − 8 gap), so neither cuts the other. A <b>local</b> path has no mark. The body does not change here: a remote path still opens the empty picker. The host text is a placeholder until the product decides what names a host.</>}>
+          when={<>A path link in a <b>mirror</b> terminal names a file on the remote host, and the same string can name a different local file. So when the picker's target is remote, the header's <b>path line leads with the host mark</b>: remote glyph + host in <span className="tok">--tasty-fh-remote-fg</span>, mono caption, no fill — the form the explorer uses for remote work. It sits on the line it qualifies, so the path reads as <i>this path on that host</i>. The host text is the <b>attach profile name</b>. It has its own cap (<span className="tok">--tasty-fh-remote-max-width</span>, 160, the same cap as the status bar) and elides its end inside it. The path keeps its front elision, measured against <b>what the mark leaves</b>: 390 − mark − 8 — 258px (43 chars) beside <code>mac-company-attach</code>, 206px (34 chars) at the host cap — so neither cuts the other and the filename stays. A <b>local</b> path has no mark. The body does not change here: a remote path still opens the empty picker. A mirror attached without a profile is still open; both candidates are under Views.</>}>
           <Stage variant="solo" style={{ padding: 20, background: "var(--tasty-bg-app)" }}>
             <ThemePair render={() => (
               <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
                 {[["local path — no mark", { path: "docs/architecture.md" }],
-                  ["remote path — user@host (placeholder text)", { state: "empty", remote: { host: "user@host" }, path: "src/main.rs" }],
-                  ["remote path — loopback label the session has today", { state: "empty", remote: { host: "127.0.0.1:54321" }, path: "…/src/adapters/ui/popup/picker.rs" }],
-                  ["long host — capped at 160 and end-elided, path keeps its tail", { state: "empty", remote: { host: "deploy@build-runner-07.eu-west.example.internal" }, path: "…/services/api/handlers/upload.rs" }]].map(([label, o]) => (
+                  ["remote path — profile gx10", { state: "empty", remote: { host: "gx10" }, path: "src/main.rs" }],
+                  ["93-char path beside mac-company-attach — 258px box, 43 chars: whole segments drop, the filename stays", { state: "empty", remote: { host: "mac-company-attach" }, path: "…/SidebarCategoryHeaderContrast.tsx" }],
+                  ["same path at the host cap — 206px box, 34 chars: the one segment is cut at its front", { state: "empty", remote: { host: "build-runner-eu-west-07-staging-attach" }, path: "…SidebarCategoryHeaderContrast.tsx" }]].map(([label, o]) => (
                   <div key={label} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                     <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
                     <FileHandlerFrame {...o} />
@@ -314,10 +314,29 @@ function Page() {
               </div>
             )} />
           </Stage>
+          <Views>
+            <View name="file-handler-remote-no-profile-a" label="No profile, option A — the target the connection used">
+              <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                {[["--ssh or inline mapping — ssh destination (192px, capped at 160)", { host: "deploy@build-07.example.internal" }, "src/main.rs"],
+                  ["--target-port or debug attach — 127.0.0.1:<port> (90px, 276px box, 46 chars)", { host: "127.0.0.1:54321" }, "…/src/adapters/ui/popup/picker.rs"]].map(([label, remote, path]) => (
+                  <div key={label} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                    <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
+                    <FileHandlerFrame state="empty" remote={remote} path={path} />
+                  </div>
+                ))}
+              </div>
+            </View>
+            <View name="file-handler-remote-no-host" label="No profile, option B — no host text (also any empty value)">
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>the word Remote holds the slot — 36px, 330px box, 55 chars</div>
+                <FileHandlerFrame state="empty" remote={{ host: "" }} path="src/main.rs" />
+              </div>
+            </View>
+          </Views>
           <Meta
-            specs={[["where", "path line, before the path — never in the title row"], ["mark", "remote glyph 12 + host · mono caption · no fill"], ["ink", <><span className="tok">--tasty-fh-remote-fg</span> → accent-remote-raised · base 10.54 · 6.63</>], ["gap", <>glyph ↔ host <span className="tok">--tasty-fh-remote-gap</span> 4 · mark ↔ path space-sm 8</>], ["host cap", <><span className="tok">--tasty-fh-remote-max-width</span> 160 on the host text (glyph and gap outside it) · end-elided with …</>], ["path", "front elision in the remaining width (390 − mark − 8); 206 at the cap = 34 mono chars"], ["loopback", "127.0.0.1:54321 is 106px — never elides"], ["no host value", <>the word <b>Remote</b> (<code>attach.mirror_pill_label</code>) in the host slot</>], ["local path", "no mark — the line is the path alone"], ["body", "unchanged — remote paths open the empty picker"], ["copy", "none new"]]}
+            specs={[["where", "path line, before the path — never in the title row"], ["mark", "remote glyph 12 + host · mono caption · no fill"], ["ink", <><span className="tok">--tasty-fh-remote-fg</span> → accent-remote-raised · base 10.54 · 6.63</>], ["gap", <>glyph ↔ host <span className="tok">--tasty-fh-remote-gap</span> 4 · mark ↔ path space-sm 8</>], ["host cap", <><span className="tok">--tasty-fh-remote-max-width</span> 160 on the host text (glyph and gap outside it) · end-elided with …</>], ["host text", "attach profile name, as it was at connect time"], ["widths", "6px advance: gx10 24 · mac-company-attach 108 · cap 160"], ["path box", "390 − mark − 8; mark = 12 + 4 + host text"], ["path measure", "front elision against the path box, at a segment boundary; one segment longer than the box is cut at its front"], ["path cap, unmeasured", "floor((366 − min(6 × host chars, 160)) / 6): gx10 57 · mac-company-attach 43 · 127.0.0.1:54321 46 · Remote 55 · at the cap 34 (also when the host width is unknown)"], ["no profile A", "ssh destination as typed, or 127.0.0.1:54321 (90) — same slot, same rules"], ["no host text (B, or any empty value)", <>the word <b>Remote</b> (<code>attach.mirror_pill_label</code>) in the host slot, font-label</>], ["local path", "no mark — the line is the path alone"], ["body", "unchanged — remote paths open the empty picker"], ["copy", "none new"]]}
             tokens={[{ tok: "--tasty-fh-remote-fg", use: "host mark", color: "var(--tasty-fh-remote-fg)" }, { tok: "--tasty-fh-remote-gap", use: "glyph ↔ host" }, { tok: "--tasty-fh-remote-max-width", use: "host cap" }, { tok: "--tasty-text-muted", use: "path ink", color: "var(--tasty-text-muted)" }]} />
-          <Dont><b>Don't</b> join host and path into one string (<code>user@host:/src/main.rs</code>). The path line elides at the front, so the host would be the first thing cut. The title row is not the place either: it already holds the format Tag, and a host there is not attached to the path it qualifies.</Dont>
+          <Dont><b>Don't</b> join host and path into one string (<code>gx10:/src/main.rs</code>). The path line elides at the front, so the host would be the first thing cut. The title row is not the place either: it already holds the format Tag, and a host there is not attached to the path it qualifies.</Dont>
           <Note>The File Picker keeps its tinted host badge in the title row: there the host is the context for a whole browsing window, here it qualifies one path.</Note>
         </Spec>
 
