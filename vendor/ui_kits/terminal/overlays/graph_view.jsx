@@ -8,7 +8,7 @@ import { elbow, ZoomCluster, Minimap, NODE_W, NODE_H, sTok, sBg, sLabel } from "
 //   GraphCanvas  pan · zoom · select · elbow edges · LOD · zoom cluster · minimap · LOD chip
 //   GraphDrawer  the node detail, laid OVER the canvas from the right edge (never shrinks it)
 //   GraphPush    one frame, several screens; a new screen pushes in from the right
-//   GraphStrip   one-line notice pinned to the canvas top (refresh error, disconnected, base moved)
+//   GraphStrip   one-line notice pinned to the canvas top (refresh error, disconnected, mirror base detached or lost)
 //   DrawerRow    label · value row used by every drawer body
 // What differs per graph is passed in: the layout, the edges, the card renderer and the drawer body.
 // Popup and surface frames wrap the same parts (decision 8: only the frame differs).
