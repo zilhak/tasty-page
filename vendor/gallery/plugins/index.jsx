@@ -2,7 +2,7 @@ import React from "react";
 import { PageStates } from "../parts/specimen.jsx";
 import { STATES } from "./states.jsx";
 import { Icon as PIcon, IconButton, Button, Input, AutoComplete, MenuItem, Switch, Kbd, Spinner, Checkbox, Select, Tag } from "../../components/index.js";
-import { HtmlAddressSurfaceG } from "../../ui_kits/terminal/overlays/html_address_bar.jsx";
+import { HtmlAddressSurfaceG, HtmlPageState } from "../../ui_kits/terminal/overlays/html_address_bar.jsx";
 import { HtmlAddressContrastSpec as PluginsHtmlContrast_HtmlAddressContrastSpec } from "./html-address-ink.jsx";
 import { MdAddressBar as B, MdAddressSpecs as PluginsMdAddress_MdAddressSpecs } from "./markdown-address.jsx";
 import { Section, Spec, Stage, Meta, Note, Dont, GIcon, Views, View } from "../parts/specimen.jsx";
@@ -530,23 +530,14 @@ function MdInjectionMap() {
   );
 }
 
-function HtmlTile({ state, bed = "var(--tasty-bg-panel)", idleGlyph = "var(--tasty-text-disabled)" }) {
-  const center = (glyph, glyphColor, title, titleColor, sub) => (
-    <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, textAlign: "center", padding: 16 }}>
-      <span style={{ display: "inline-flex", color: glyphColor, transform: "scale(1.5)" }}>{glyph}</span>
-      <div style={{ fontSize: 13, color: titleColor }}>{title}</div>
-      {sub && <div style={{ fontSize: 11, fontFamily: "var(--tasty-font-mono)", color: "var(--tasty-text-muted)", maxWidth: 220, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{sub}</div>}
-    </div>
-  );
-  const body = {
-    boundary: <div style={{ flex: 1 }} />, /* 2026-10-06: plain tile while an egui overlay hides the loaded WebView — no glyph, no text */
-    placeholder: center(ic.globe, idleGlyph, "No page loaded", "var(--tasty-text-muted)"),
-    loading: center(<Spinner />, "var(--tasty-spinner-indicator)", "Loading…", "var(--tasty-text-muted)"),
-    error: center(ic.alert, "var(--tasty-accent-danger-raised)", "Failed to load", "var(--tasty-accent-danger-raised)", "https://offline.example"),
-  }[state];
+// The gallery's chrome tile = the webview page tile (HtmlPageState) in a fixed 220 x 150 specimen rect on the host bed.
+// Not a second size: the part fills the rect it is given. No border of its own; stages add the specimen frame.
+const TILE_KIND = { boundary: "boundary", placeholder: "empty", loading: "loading", error: "failed" };
+function HtmlTile({ state, bed = "var(--tasty-bg-panel)", emptyGlyph = "html" }) {
   return (
-    <div style={{ width: 220, height: 150, display: "flex", flexDirection: "column", background: bed,
-      border: "1px solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>{body}</div>
+    <div style={{ width: 220, height: 150, display: "flex", flexDirection: "column", background: bed, overflow: "hidden" }}>
+      <HtmlPageState kind={TILE_KIND[state]} url="https://offline.example" hint={false} emptyGlyph={emptyGlyph} />
+    </div>
   );
 }
 
@@ -960,7 +951,7 @@ function Page() {
             ))}
             {["boundary", "placeholder", "loading", "error"].map((state) => [true, false].map((focused) => (
               <View key={state + focused} name={`markdown-tile-${state}-${focused ? "focused" : "unfocused"}`} label={`Chrome tile, ${state}, ${focused ? "focused" : "unfocused"}`}>
-                <HtmlTile state={state} bed={surfaceBed(focused)} idleGlyph="var(--tasty-glyph-dim)" />
+                <HtmlTile state={state} bed={surfaceBed(focused)} emptyGlyph="globe" />
               </View>
             )))}
           </Views>
@@ -1058,16 +1049,16 @@ function Page() {
 
       <Section id="html" title="HTML viewer">
         <Spec id="html-webview-chrome-4-states" title="HTML — webview chrome (4 states)"
-          when={<>The html surface is <b>thin chrome + a native OS WebView overlay</b> — tasty does <b>not</b> theme the page pixels. What tasty paints is the tile skeleton before/instead of the overlay: <b>boundary</b> (region marker), <b>placeholder</b> (no URL), <b>loading</b> (Spinner), <b>error</b> (danger). Same tile (<span className="tok">--tasty-bg-panel</span> + 1px border), centered content. The address bar band above these states is specified below (2026-10-12).</>}>
+          when={<>The html surface is <b>thin chrome + a native OS WebView overlay</b> — tasty does <b>not</b> theme the page pixels. What tasty paints is the tile skeleton before/instead of the overlay: <b>boundary</b> (region marker), <b>placeholder</b> (no URL), <b>loading</b> (Spinner), <b>error</b> (danger). All four are one part, the <b>webview page tile</b> (<code>HtmlPageState</code>), drawn on the page bed with no outline of its own: the frame around each specimen is the gallery's, not the app's. The same part fills the page rect under the address band below, the html mirror notices and the load-failed state, so the tile is that part in a fixed rect, not a second size. Its block is glyph, title and a sub line that is <b>always reserved</b>, centred as one, so loading, no page and failed swap without moving the glyph. The address bar band above these states is specified below (2026-10-12).</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 14, flexWrap: "wrap" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>boundary</div><HtmlTile state="boundary" /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>placeholder</div><HtmlTile state="placeholder" /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>loading</div><HtmlTile state="loading" /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>error</div><HtmlTile state="error" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>boundary</div><div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}><HtmlTile state="boundary" /></div></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>placeholder</div><div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}><HtmlTile state="placeholder" /></div></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>loading</div><div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}><HtmlTile state="loading" /></div></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>error</div><div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}><HtmlTile state="error" /></div></div>
           </Stage>
           <Meta
-            specs={[["content", "native OS WebView (token-agnostic)"], ["tile", <><span className="tok">--tasty-bg-panel</span> + 1px <span className="tok">--tasty-border-default</span></>], ["boundary (2026-10-06)", "plain tile only (bg-panel + 1px border) — shown only while an egui overlay hides a loaded page; no glyph, label or URL / path"], ["placeholder", "GLOBE (disabled) + 'No page loaded'"], ["loading", "Spinner + 'Loading…'"], ["error", "ALERT (danger) + URL"]]}
-            tokens={[{ tok: "--tasty-text-muted", use: "placeholder / loading label", color: "var(--tasty-text-muted)" }, { tok: "--tasty-text-disabled", use: "placeholder / URL", color: "var(--tasty-text-disabled)" }, { tok: "--tasty-spinner-indicator", use: "loading", color: "var(--tasty-spinner-indicator)" }, { tok: "--tasty-accent-danger", use: "error", color: "var(--tasty-accent-danger-raised)" }]} />
+            specs={[["content", "native OS WebView (token-agnostic)"], ["part", "HtmlPageState — one part for the page rect at every size; it fills the rect the host gives"], ["tile", <>page bed (<span className="tok">--tasty-bg-panel</span>) · no border, no shadow · the band's 1px separator is the only rule</>], ["block", "glyph 16 · space-sm · title (body × line-height-ui) · space-sm · sub line (caption × line-height-ui), always reserved · centred as one · padding space-md"], ["boundary (2026-10-06)", "the bare bed — shown only while an egui overlay hides a loaded page; no glyph, label or URL / path"], ["placeholder", "html glyph (glyph-dim) + 'No page loaded' · sub line holds the address hint when the surface has a band"], ["loading", "Spinner + 'Loading…' · sub line empty"], ["error", "alertCircle (glyph-danger) + 'Failed to load' (text-danger) + URL mono"]]}
+            tokens={[{ tok: "--tasty-html-receiving-fg", use: "placeholder / loading title → text-muted", color: "var(--tasty-html-receiving-fg)" }, { tok: "--tasty-glyph-dim", use: "placeholder glyph", color: "var(--tasty-glyph-dim)" }, { tok: "--tasty-text-muted", use: "sub line · URL", color: "var(--tasty-text-muted)" }, { tok: "--tasty-spinner-indicator", use: "loading", color: "var(--tasty-spinner-indicator)" }, { tok: "--tasty-accent-danger", use: "error glyph (glyph-danger)", color: "var(--tasty-accent-danger)" }, { tok: "--tasty-accent-danger-raised", use: "error title (text-danger)", color: "var(--tasty-accent-danger-raised)" }]} />
         </Spec>
         <Spec id="html-focus-edge" title="HTML — focus edge above the band"
           when={<>The host cannot paint the page, so html shows focus only on the <a href="../layouts/#surface-focus-every-kind">surface focus edge</a>, above the address band. Its bed cannot follow focus the way a terminal's does: author CSS owns it, and a sandboxed page may run no script. Stack from the top: <b>edge → address band → size banner → script banner → page</b>. The band, the banners and the chrome tiles look the same in both states. A focused field keeps its blue ring, on a focused surface and only there.</>}>

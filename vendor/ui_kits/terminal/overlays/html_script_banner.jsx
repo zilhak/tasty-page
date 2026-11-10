@@ -1,9 +1,10 @@
 import React from "react";
 import { Button } from "../../../components/core/Button.jsx";
-import { Icon as HsIcon, Icon as DsIcon } from "../../../components/core/Icon.jsx";
+import { Icon as HsIcon } from "../../../components/core/Icon.jsx";
 import { IconButton } from "../../../components/core/IconButton.jsx";
 import { Spinner } from "../../../components/feedback/Spinner.jsx";
 import { Tooltip } from "../../../components/feedback/Tooltip.jsx";
+import { HtmlPageState } from "./html_page_state.jsx";
 
 // HTML surface — script-blocked notice (INSET banner) + tab-strip marker.
 // Designed 2026-09-28.
@@ -153,15 +154,9 @@ function HsPage({ label = "report.html" }) {
 // failure state replaces the page. DECISION: in this state there is NO script banner and NO tab lock / script
 // marker — both describe a document that is not there, and Allow would allow nothing. A reload that commits
 // re-derives banner + marker from the new document. (Passing banner/marker with failed draws the old, wrong mix.)
+// The failure state itself is the shared webview page tile (html_page_state.jsx, kind failed).
 function HsFailed({ url = "file:///Users/me/report.html" }) {
-
-  return (
-    <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md)" }}>
-      <span style={{ display: "inline-flex", color: "var(--tasty-accent-danger-raised)" }}><DsIcon name="alertCircle" size="var(--tasty-icon-size-md)" /></span>
-      <span style={{ fontSize: "var(--tasty-font-size-body)", color: "var(--tasty-accent-danger-raised)" }}>Failed to load</span>
-      <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)", maxWidth: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{url}</span>
-    </div>
-  );
+  return <HtmlPageState kind="failed" url={url} />;
 }
 function HtmlSurfaceG({ banner = "blocked", marker = null, remote = false, hover = false, narrow = false, width, height = 260, label = "report.html", failed = false }) {
   return (

@@ -646,8 +646,8 @@ function Page() {
             ))}
           </Stage>
           <Meta
-            specs={[["banner", "removed while failed"], ["tab marker", "lock / script glyph removed while failed"], ["failure state", "alertCircle md + Failed to load (accent-danger) · URL mono caption text-disabled"], ["reload commits", "banner + marker re-derived from the new document"]]}
-            tokens={[{ tok: "--tasty-accent-danger", use: "glyph + title", color: "var(--tasty-accent-danger-raised)" }, { tok: "--tasty-text-disabled", use: "URL", color: "var(--tasty-text-disabled)" }]} />
+            specs={[["banner", "removed while failed"], ["tab marker", "lock / script glyph removed while failed"], ["failure state", "the webview page tile, failed: alertCircle md (glyph-danger) + Failed to load (text-danger) · URL mono caption text-muted · sub line reserved"], ["reload commits", "banner + marker re-derived from the new document"]]}
+            tokens={[{ tok: "--tasty-accent-danger", use: "glyph", color: "var(--tasty-accent-danger)" }, { tok: "--tasty-accent-danger-raised", use: "title", color: "var(--tasty-accent-danger-raised)" }, { tok: "--tasty-text-muted", use: "URL", color: "var(--tasty-text-muted)" }]} />
         </Spec>
         <Spec id="after-and-after-allow-the-tab-strip-marker" title="After × and after Allow — the tab-strip marker"
           when={<>× hides the notice for this load; scripts stay blocked. A <b>lock</b> marker then sits in the surface's tab, first in the tab's right-hand status cluster (Layouts › Pane tab strip; <span className="tok">--tasty-html-script-marker-fg</span> → glyph-dim, 12px). Clicking it <b>shows the banner again</b> — it re-explains before offering Allow, and never allows on its own. Mouse only, no focus change. After Allow, the tab carries a <b>script</b> glyph in text-muted with a tooltip; it is not clickable. Navigating to another document clears both, and the new document starts over. <code>#fragment</code> moves keep them.</>}>
