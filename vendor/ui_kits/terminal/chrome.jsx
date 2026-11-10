@@ -11,6 +11,7 @@ import { Tab } from "../../components/navigation/Tab.jsx";
 import { TreeRow } from "../../components/navigation/TreeRow.jsx";
 import { RailNotificationSummary, NotificationSummary } from "./notification_summary.jsx";
 import { RailCategoryPopup, SidebarContextMenu } from "./overlays/sidebar_context_menu.jsx";
+import { RemoteRowLine, RemoteDotSlot, RemoteWarnMark, RemoteRailMarks, remoteRowTip } from "./overlays/remote_row.jsx";
 
 // Tasty UI kit — screen chrome (title bar, sidebar, tab strip, terminal, status bar).
 // Composes the DS component library (components/index.js).
@@ -94,10 +95,15 @@ function WorkspaceRunningCount({ count = 0, state = "rest", title, ...rest }) {
   );
 }
 
-function WorkspaceRow({ ws, active, onClick, onContextMenu }) {
+function WorkspaceRow({ ws, active, onClick, onContextMenu, lang = "en" }) {
 
   const [hover, setHover] = React.useState(false);
-  const running = ws.running ?? (ws.status === "idle" ? 0 : 1);
+  // ws.remoteState (saved remote rows): connected · connecting · reconnecting · disconnected · not_connected.
+  // Off the live state the dot slot and the running count no longer report a status.
+  const remoteState = ws.mirror ? (ws.remoteState || "connected") : null;
+  const remoteLive = !ws.mirror || remoteState === "connected";
+  const remoteTip = ws.mirror ? (ws.remoteProfile ? remoteRowTip(ws, lang) : (ws.mirrorTarget ? `Mirror of remote → ${ws.mirrorTarget}` : "Mirror of a remote workspace")) : undefined;
+  const running = remoteLive ? (ws.running ?? (ws.status === "idle" ? 0 : 1)) : 0;
   return (
     <div onClick={onClick} onContextMenu={onContextMenu} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
       style={{ display: "flex", alignItems: "flex-start", gap: "var(--tasty-workspace-dot-gap)",
@@ -115,9 +121,11 @@ function WorkspaceRow({ ws, active, onClick, onContextMenu }) {
           title x (8 + 16 + 2 + 10 + 4 = 40) never shifts; the ring can't reach the card edge,
           the 2px active accent bar, or the label. See --tasty-workspace-dot-slot. */}
       <span style={{ flex: "none", width: "var(--tasty-workspace-dot-slot)", height: "calc(var(--tasty-font-size-body) * var(--tasty-line-height-ui))", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
-        <StatusDot status={ws.status} attached={ws.attached}
-          pulse={ws.status === "agent" || ws.status === "running"}
-          title={ws.attached ? "Attached on another client" : undefined} />
+        {ws.mirror
+          ? <RemoteDotSlot state={remoteState} status={ws.status} attached={ws.attached} pulse={ws.status === "agent" || ws.status === "running"} />
+          : <StatusDot status={ws.status} attached={ws.attached}
+              pulse={ws.status === "agent" || ws.status === "running"}
+              title={ws.attached ? "Attached on another client" : undefined} />}
       </span>
       {/* A fixture that names no count still agrees with its dot: running 1, idle 0. */}
       <WorkspaceRunningCount count={running} state={active ? (hover ? "selected+hover" : "selected") : hover ? "hover" : "rest"} title={`Running surfaces: ${running}`} />
@@ -128,23 +136,14 @@ function WorkspaceRow({ ws, active, onClick, onContextMenu }) {
           <span style={{ fontSize: "var(--tasty-font-size-body)", fontWeight: "var(--tasty-font-weight-medium)", lineHeight: "var(--tasty-line-height-ui)",
             color: active ? "var(--tasty-text-on-active)" : "var(--tasty-text-secondary)", minWidth: 0,
             overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{ws.name}</span>
+          {/* a saved remote row with a reason: the refusal mark's slot, after the name */}
+          {ws.mirror && ws.remoteReason && <span style={{ display: "inline-flex", flex: "none", marginLeft: "var(--tasty-space-sm)" }}><RemoteWarnMark title={remoteTip} /></span>}
         </div>
         {/* remote pill = local mirror of a remote instance. Own line between title
             and subtitle (label + glyph) — same remote axis (--tasty-accent-remote),
             high visibility, and doesn't steal width from the title. Mirrors the
             remote_attach "in use" pill vocabulary. Separate from the status dot. */}
-        {ws.mirror && (
-          <div style={{ marginTop: "var(--tasty-size-2)" }}>
-            <Tag variant="info" caps title={ws.mirrorTarget ? `Mirror of remote → ${ws.mirrorTarget}` : "Mirror of a remote workspace"}
-              aria-label="Remote mirror" style={{ color: "var(--tasty-tag-info-fg)" }}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round"
-                style={{ width: "var(--tasty-workspace-mirror-icon-size)", height: "var(--tasty-workspace-mirror-icon-size)", display: "block" }}>
-                <path d="M4 17l6-6-6-6" /><path d="M12 19h8" />
-              </svg>
-              remote
-            </Tag>
-          </div>
-        )}
+        {ws.mirror && <RemoteRowLine state={remoteState} active={active} title={remoteTip} lang={lang} />}
         {/* subtitle = short secondary label, one notch below the title */}
         {ws.subtitle && (
           <div style={{ fontSize: "var(--tasty-font-size-term-sm)", lineHeight: "var(--tasty-line-height-ui)", marginTop: "var(--tasty-size-1)", color: active ? "var(--tasty-text-on-active)" : "var(--tasty-text-muted)",
@@ -283,20 +282,8 @@ function CollapsedSidebar({ workspaces, activeWs, onWs, onSettings, onPlugins, o
       )}
       {/* mirror = local mirror of a remote instance — sky corner chip at BOTTOM-right
           (notif owns top-right, attached owns the ring) so the three never collide */}
-      {w.mirror && (
-        <span title={w.mirrorTarget ? `Mirror of remote → ${w.mirrorTarget}` : "Mirror of a remote workspace"}
-          aria-label="Remote mirror" style={{ position: "absolute", bottom: -1, right: -1, pointerEvents: "none",
-          display: "inline-flex", alignItems: "center", justifyContent: "center",
-          width: "var(--tasty-workspace-mirror-chip-size)", height: "var(--tasty-workspace-mirror-chip-size)", borderRadius: "var(--tasty-radius-pill)",
-          boxSizing: "border-box", border: "var(--tasty-border-width) solid var(--tasty-workspace-mirror-chip-border)",
-          background: "var(--tasty-workspace-mirror-chip-bg)", color: "var(--tasty-workspace-mirror-fg)",
-          boxShadow: "0 0 0 var(--tasty-size-2) var(--tasty-bg-sidebar)" }}>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round"
-            style={{ width: "var(--tasty-size-8)", height: "var(--tasty-size-8)", display: "block" }}>
-            <path d="M4 17l6-6-6-6" /><path d="M12 19h8" />
-          </svg>
-        </span>
-      )}
+      {w.mirror && <RemoteRailMarks state={w.remoteState || "connected"} warn={!!w.remoteReason}
+        title={w.remoteProfile ? remoteRowTip(w) : (w.mirrorTarget ? `Mirror of remote → ${w.mirrorTarget}` : "Mirror of a remote workspace")} />}
     </div>
   );
   return (
@@ -366,7 +353,7 @@ function Sidebar({ workspaces, activeWs, onWs, onSettings, onPlugins, onTools, c
         <React.Fragment key={w.id}>
           {i > 0 && <div style={{ height: "var(--tasty-border-width)", background: "var(--tasty-separator)", margin: "0 0 0 var(--tasty-size-32)" }} />}
           <WorkspaceRow ws={w} active={w.id === activeWs} onClick={() => onWs(w.id)}
-            onContextMenu={categories ? (e) => openMenu(e, { kind: "workspace", ws: w, cat }) : undefined} />
+            onContextMenu={categories || w.mirror ? (e) => openMenu(e, { kind: "workspace", ws: w, cat }) : undefined} />
         </React.Fragment>
       ))}
     </div>
@@ -432,4 +419,4 @@ function Sidebar({ workspaces, activeWs, onWs, onSettings, onPlugins, onTools, c
   );
 }
 
-export { Icon, ic, TitleBar, Sidebar, WorkspaceRunningCount };
+export { Icon, ic, TitleBar, Sidebar, WorkspaceRunningCount, WorkspaceRow };

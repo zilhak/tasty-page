@@ -8,6 +8,7 @@ import { GalleryMoveSource } from "./move-source.jsx";
 import { GalleryTabStrip } from "./tab-strip.jsx";
 import { GalleryTitleBar } from "./title-bar.jsx";
 import { RemoteStatusBarSpec, RemoteLinkSpec } from "./remote-location.jsx";
+import { RemoteRowEmptySpec, RemoteRowLastScreenSpec, RemoteRowMarksSpec, RemoteRowPendingSpec } from "./remote-row.jsx";
 import { RunningCountSpec } from "./running-count.jsx";
 import { WorkspaceRunningCount } from "../../ui_kits/terminal/chrome.jsx";
 import { GallerySurfaceFocus } from "./surface-focus.jsx";
@@ -39,6 +40,7 @@ const NAV = [
   { id: "notifsummary", label: "Notifications summary" },
   { id: "statusbar", label: "Workspace status bar" },
   { id: "remotelink", label: "Path link on a mirror" },
+  { id: "remoterow", label: "Saved remote workspace" },
   { id: "titlebar", label: "Title bar" },
 ];
 
@@ -1072,6 +1074,13 @@ function Layouts() {
 
       <Section id="remotelink" title="Path link on a mirror">
         <RemoteLinkSpec />
+      </Section>
+
+      <Section id="remoterow" title="Saved remote workspace">
+        <RemoteRowMarksSpec />
+        <RemoteRowEmptySpec />
+        <RemoteRowLastScreenSpec />
+        <RemoteRowPendingSpec />
       </Section>
 
       <Section id="titlebar" title="Title bar">
