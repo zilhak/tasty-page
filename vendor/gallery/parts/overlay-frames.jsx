@@ -1158,11 +1158,15 @@ function FhRemoteMark({ host, state = "connected" }) {
 
 function FhHeader({ state, path, remote }) {
   const fmt = state === "fallback" ? "unknown" : state === "empty" ? "markdown" : "markdown";
+  // A remote file's contents are not identified, so a remote target always shows the
+  // neutral "format unknown" Tag. The body is still the remote handler list, not the
+  // fallback list: only the Tag is shared with the fallback state.
+  const unknown = state === "fallback" || !!remote;
   return (
     <div style={{ padding: "14px 14px 10px", borderBottom: "1px solid var(--tasty-separator)", display: "flex", flexDirection: "column", gap: 6 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
         <span style={{ fontSize: 14, fontWeight: 600, flex: 1 }}>Open file with…</span>
-        {state === "fallback"
+        {unknown
           ? <Tag>format unknown</Tag>
           : <Tag variant="accent">{fmt}</Tag>}
       </div>
