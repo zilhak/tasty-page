@@ -23,15 +23,23 @@ import { gt } from "./graph_copy.js";
 //   - category level only when workspace categories are on; the reserved one reads "Workspaces"; empty ones hide.
 //   - pane level only when the workspace has two or more panes.
 //   - a tab holding one surface is one row: tab title, the surface's glyph, the surface id as meta.
+// Windows: numbered in open order (Window 1, 2, …), the graph's own window marked This window; with one window in the
+// app the window level is left out (Q15, tasty recommendation 14-2, awaiting the user).
 // Open state: windows and categories open; the path to the current base open and its row selected; the rest closed.
 // Filter: surface name, surface id or workspace name; matches show with their path open; none → no_match.
 
 const SURF = (id, name, over) => ({ id, name, ...over });
 const ONE = (title, s) => ({ title, surfaces: [s] });
 
-// Mock tree. Ids match the child graph mocks so a pick shows a graph.
+// Mock tree. Ids match the child graph mocks so a pick shows a graph. Windows in open order (Q15, tasty
+// recommendation 14-2): Window 1, Window 2, …; the one the graph is in says "This window" wherever it falls.
 const PICKER_WINDOWS = [
-  { id: "w1", n: 1, current: true, categories: [
+  { id: "w1", n: 1, categories: [
+    { id: 0, reserved: true, workspaces: [
+      { id: "ws-notes", name: "notes", status: "idle", panes: [{ tabs: [ONE("zsh", SURF("s_n1", "zsh"))] }] },
+    ] },
+  ] },
+  { id: "w2", n: 2, current: true, categories: [
     { id: 0, reserved: true, workspaces: [
       { id: "ws-tasty", name: "tasty", status: "agent", panes: [
         { tabs: [ONE("conductor", SURF("s_01HX4K", "conductor")), { title: "builder", surfaces: [SURF("s_01HX7Q", "builder"), SURF("s_01HX9A", "test-runner")] }] },
@@ -45,11 +53,6 @@ const PICKER_WINDOWS = [
       { id: "ws-lab", name: "lab-main", status: "agent", host: "lab-linux", panes: [
         { tabs: [ONE("conductor", SURF("s_m1", "conductor", { remote: true })), { title: "worker-a", surfaces: [SURF("s_m2", "worker-a", { remote: true }), SURF("s_m4", "checker", { remote: true })] }] },
       ] },
-    ] },
-  ] },
-  { id: "w2", n: 2, categories: [
-    { id: 0, reserved: true, workspaces: [
-      { id: "ws-notes", name: "notes", status: "idle", panes: [{ tabs: [ONE("zsh", SURF("s_n1", "zsh"))] }] },
     ] },
   ] },
   { id: "p1", n: 1, closed: true, categories: [
@@ -72,19 +75,21 @@ function rowsOf(windows, { open, match, categoriesOn, allLevels, sel, lang }) {
   const keep = (s) => !match || match.has(s.id);
   const wsHas = (ws) => ws.panes.some((p) => p.tabs.some((t) => t.surfaces.some(keep)));
   const isOpen = (k) => (match ? true : open.has(k));
-  windows.forEach((w) => {
+  const shown = windows.filter((w) => w.categories.some((c) => c.workspaces.some(wsHas)));
+  const oneWindow = windows.length === 1; // one window in the app: no window level (Q15, recommendation 14-2)
+  const wo = oneWindow ? 0 : 1;
+  shown.forEach((w) => {
     const cats = w.categories.filter((c) => c.workspaces.some(wsHas));
-    if (!cats.length) return;
     const wk = w.id;
-    rows.push({ key: wk, kind: "window", level: 0, w, open: isOpen(wk) });
-    if (!isOpen(wk)) return;
+    if (!oneWindow) rows.push({ key: wk, kind: "window", level: 0, w, open: isOpen(wk) });
+    if (!oneWindow && !isOpen(wk)) return;
     cats.forEach((c) => {
       const band = categoriesOn;
       const ck = `${wk}/c${c.id}`;
       const wss = c.workspaces.filter(wsHas);
-      if (band) rows.push({ key: ck, kind: "category", level: 1, c, count: wss.length, open: isOpen(ck) });
+      if (band) rows.push({ key: ck, kind: "category", level: wo, c, count: wss.length, open: isOpen(ck) });
       if (band && !isOpen(ck)) return;
-      const wl = band ? 2 : 1;
+      const wl = wo + (band ? 1 : 0);
       wss.forEach((ws) => {
         const wsk = `${ck}/${ws.id}`;
         rows.push({ key: wsk, kind: "workspace", level: wl, ws, open: isOpen(wsk) });
@@ -240,4 +245,6 @@ function BasePicker({ windows = PICKER_WINDOWS, value, onChange, lang = "en", bl
   );
 }
 
-export { BasePicker, PickerTree, PICKER_WINDOWS, surfacesOf };
+const PICKER_ONE_WINDOW = [{ ...PICKER_WINDOWS[1], id: "w1", n: 1 }];
+
+export { BasePicker, PickerTree, PICKER_WINDOWS, PICKER_ONE_WINDOW, surfacesOf };
