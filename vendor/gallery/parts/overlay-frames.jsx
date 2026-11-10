@@ -954,6 +954,7 @@ function ShellMock({ scope = "none", split = "v", child = false, narrow = false,
           </div>
           <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: split === "v" ? "row" : "column" }}>
             <div style={{ position: "relative", minWidth: 0, minHeight: 0, display: "flex", overflow: collapsed ? "hidden" : undefined,
+              ...(scope === "surface" ? { containerType: "size" } : null),
               ...(leftWidth ? { flex: "none", width: leftWidth } : { flex: 1 }) }}>
               <Term focused lines={"$ tail -f deploy.log\n[12:04] applied 3 manifests\n[12:05] waiting for rollout…"} />
               {/* the scrim — surface scope: this rect, nothing else */}
@@ -961,7 +962,8 @@ function ShellMock({ scope = "none", split = "v", child = false, narrow = false,
               {scope === "surface" && (
                 <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", zIndex: 2,
                   justifyContent: collapsed === "clipped" ? "flex-start" : "center",
-                  padding: collapsed === "clipped" && leftWidth ? `8px ${Math.min(8, leftWidth / 2)}px` : 8 }}>{collapsedFrame || popup}</div>
+                  // scope_bounds inset: max(0, min(spacing_sm, width / 2, height / 2)), the same on all four sides
+                  padding: "max(0px, min(var(--tasty-space-sm), 50cqw, 50cqh))" }}>{collapsedFrame || popup}</div>
               )}
             </div>
             <div style={{ flex: "none", ...(split === "v" ? { width: 1 } : { height: 1 }), background: "var(--tasty-border-frame)" }} />

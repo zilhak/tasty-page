@@ -54,14 +54,16 @@ function CollapsedPopupSpec() {
       </Views>
       <Meta
         specs={[
-          ["collapses when", "the popup's own size is larger than the surface bounds (surface rect − the 8 inset) on either axis · no shrink range · judged every frame · fits again → expanded again"],
+          ["collapses when", "the popup's needed size is larger than the surface bounds (scope_bounds: the surface rect less the inset) on either axis — width alone or height alone is enough · expanded only when both fit · no shrink range · judged every frame · fits again → expanded again"],
+          ["needed size", "host popup: that frame's sizer result (the size the user resized it to, if they did) · no sizer: default_size × ui_zoom · plugin popup: its size_hint, 360 × 200 without one"],
+          ["inset", "max(0, min(spacing_sm, width / 2, height / 2)) of the surface rect, the same on all four sides · spacing_sm is 8 at scale 1 · host and plugin popups use the same rule · on a low, wide surface the height term is the one that reduces it"],
           ["frame", <>the popup's own frame: <span className="tok">--tasty-bg-panel</span> · 1px <span className="tok">--tasty-border-frame</span> · 4 radius · padding <span className="tok">--tasty-popup-content-margin</span> 4 · the button only</>],
           ["shadow", "shadow-modal on a scrim · shadow-popover when the popup has no scrim (the two floating shadows)"],
           ["button", <>Button.secondary md 28 · leading glyph <code>fit</code> 14 · label <code>popup.collapsed_button.label</code></>],
           ["frame size", "button + 2 × 4 + 2 × 1 → 38 tall · label frame as rendered here: en 134 · ko 109 · ja 175 · zh-Hans 110 wide · icon frame 38 × 38"],
           ["place", "centred on the popup's anchor pulled into the surface bounds (host: bounds centre · plugin ScreenCenter / ActiveSurfaceCenter: bounds centre · plugin Cursor: the pointer), re-centred on the frame's own size"],
           ["too narrow for the label", "label frame wider than the bounds → icon frame: IconButton solid 28, same glyph, accessible name = the label, tooltip unchanged"], ["too short for the label", "label frame taller than the bounds, whether or not its width fits → icon frame as well (the same 38 tall, narrower), cut on the vertical axis by the next row"],
-          ["too small for the icon", "on each axis the icon frame does not fit, its start edge sits on the bounds' start edge (the inset as reduced for a small surface) and the surface rect cuts its end; an axis that fits keeps its anchor alignment · never omitted — the popup is open and holds focus"],
+          ["too small for the icon", "on each axis the icon frame does not fit, its start edge sits on the bounds' start edge (the inset row: reduced on a small surface) and the surface rect cuts its end; an axis that fits keeps its anchor alignment · never omitted — the popup is open and holds focus"],
           ["title", "not shown — headless popups have none; the tooltip explains what the button stands for"],
           ["scrim", "follows the popup's own scrim entry, the same in both forms — no scrim blink when a divider drag crosses the fit line · the button sits on the frame, never straight on the scrim (only a modal or popup frame sits on scrim@*)"],
           ["focus", "border-focus · focus-ring-width 2 · 1px offset on the button (the :focus-visible pair) · opened by the user: shown from the first frame · passive (agent-opened): no ring"],
@@ -81,7 +83,7 @@ function CollapsedPopupSpec() {
           { tok: "--tasty-shadow-popover", use: "without a scrim" },
           { tok: "--tasty-scrim-bg", use: "unchanged by collapsing", color: "var(--tasty-scrim-bg)" },
         ]} />
-      <Note>Esc and clicks on the collapsed form follow the expanded popup's rule. Esc drops the popup's focus and closes only a popup that closes on an outside click; a click outside its scope does the same; a click inside the scope goes to the popup. So rename, the name conflict prompt, Properties and the file picker stay open on Esc while collapsed. The design adds no close mark: a close mark on a choice popup would be a new answer (cancel? skip?) that the popup itself does not offer. Press the button and answer the popup.</Note>
+      <Note>Esc and clicks on the collapsed form follow the expanded popup's rule. Esc drops the popup's focus and closes only a popup that closes on an outside click; a click outside its scope does the same; a click inside the scope goes to the popup. So of the popups that collapse, only convert surface closes on Esc; rename, the name conflict prompt, Properties, the file picker and the search bar (should it collapse, O1) drop their focus and keep the button. Enter or Space on the button shows the popup over the window. The design adds no close mark: a close mark on a choice popup would be a new answer (cancel? skip?) that the popup itself does not offer. Press the button and answer the popup.</Note>
       <Dont><b>Don't</b> shrink the popup to fit, drop the frame and leave a bare button on the scrim, or hide the button when even the icon frame does not fit. An open popup always shows where it is.</Dont>
     </Spec>
   );
