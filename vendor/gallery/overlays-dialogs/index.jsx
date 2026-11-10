@@ -9,6 +9,7 @@ import { GalleryScrimGrounds } from "./scrim-grounds.jsx";
 import { Backdrop, ApprovalFrame, FileHandlerFrame, FhFooter, PresetFrame, MarkdownOpenFrame, RenameFrame, CategoryEditFrame, CategoryDeleteFrame, TransferProgressFrame, TransferErrorFrame, DownloadRunFrame, DownloadRunLargeFrame, ShellMock } from "../parts/overlay-frames.jsx";
 import { Section, Spec, Stage, Meta, Note, Do, Dont, Views, View } from "../parts/specimen.jsx";
 import { ThemePair } from "../parts/theme-frame.jsx";
+import { CloseOnRemoteDialog } from "../../ui_kits/terminal/overlays/remote_row.jsx";
 
 
 // Tasty Gallery — Overlays · Dialogs (modal confirm/edit surfaces)
@@ -59,6 +60,7 @@ const NAV = [
   { id: "permnotice", label: "Info modal shell" },
   { id: "scriptconfirm", label: "Script changed confirm" },
   { id: "permdelete", label: "Explorer delete permanently" },
+  { id: "closeonremote", label: "Close remote workspace" },
 ];
 
 function Page() {
@@ -685,6 +687,26 @@ function Page() {
           <Meta
             specs={[["width", "info-modal-width 440"], ["max height", "info-modal-max-height 360 · list scrolls past explorer-delete-list-max-height 160"], ["buttons", "Cancel ghost (default focus) · Delete permanently danger"], ["dismiss", "Esc · close · scrim click = cancel"]]}
             tokens={[{ tok: "--tasty-accent-danger", use: "glyph + button", color: "var(--tasty-accent-danger-raised)" }, { tok: "--tasty-explorer-delete-list-max-height", use: "list" }]} />
+        </Spec>
+      </Section>
+
+      <Section id="closeonremote" title="Close remote workspace">
+        <Spec id="close-remote-workspace-destructive-confirm" title="Close remote workspace — destructive confirm"
+          when={<>On a <b>connected</b> saved remote row, <b>Close remote workspace…</b> ends the workspace on the remote Tasty, with every process in it. That cannot be undone and happens on another machine, so a centred confirm on the scrim gates it, in the Delete category tone: danger glyph, the workspace in the title, what ends and where in the body, <b>Cancel</b> and a danger button that repeats the action. Closing the <b>last tab or pane</b> of a connected remote row also closes the workspace on the remote, so it opens the <b>same confirm</b> with one more line first. A local workspace still closes with its last tab without asking; the confirm is only for the remote one. <b>Close locally</b> never asks.</>}>
+          <Stage variant="solo center"><Backdrop height={300}><div align="center"><CloseOnRemoteDialog /></div></Backdrop></Stage>
+          <Stage variant="solo center"><Backdrop height={320}><div align="center"><CloseOnRemoteDialog last /></div></Backdrop></Stage>
+          <Views>
+            <View name="close-remote-workspace-languages" label="ko, ja, zh-Hans — the last-tab form">
+              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                {["ko", "ja", "zh-Hans"].map((lang) => <Backdrop key={lang} height={340}><div align="center"><CloseOnRemoteDialog lang={lang} last /></div></Backdrop>)}
+              </div>
+            </View>
+          </Views>
+          <Meta
+            specs={[["scope", "Window · centred on the scrim · shadow-modal"], ["width", "info-modal-width 440, at most the window"], ["head", "alertTriangle 16 in accent-danger-raised · title (font-size-max, semibold) with the workspace name"], ["body", "last-tab line (only when opened by closing the last tab or pane) · then what ends on which profile · text-secondary"], ["buttons", "Cancel ghost (default focus) · danger button with the action"], ["dismiss", "Esc, Cancel — nothing happens"], ["opened by", "Close remote workspace… in the row menu · closing the last tab or pane of a connected saved remote row"], ["not for", "Close locally · a local workspace's last tab · an agent mirror"]]}
+            tokens={[{ tok: "--tasty-accent-danger", use: "glyph + button", color: "var(--tasty-accent-danger-raised)" }, { tok: "--tasty-bg-panel", use: "frame", color: "var(--tasty-bg-panel)" }, { tok: "--tasty-info-modal-width", use: "width 440" }]} />
+          <Note>Copy: <code>remote.row.close_remote.title</code> (workspace name) · <code>.last</code> · <code>.body</code> (attach profile name) · <code>.confirm</code>. Cancel is the common key. No new tokens.</Note>
+          <Dont><b>Don't</b> skip the confirm for the last tab because a local workspace does. Locally it only drops a layout; here it ends processes on another machine.</Dont>
         </Spec>
       </Section>
     </>
