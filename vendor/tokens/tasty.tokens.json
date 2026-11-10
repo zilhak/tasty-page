@@ -5503,6 +5503,14 @@
       "$type": "dimension",
       "$value": "{semantic.space-xs}"
     },
+    "graph-base-picker-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-360}"
+    },
+    "graph-base-picker-height": {
+      "$type": "dimension",
+      "$value": "{primitive.size-400}"
+    },
     "palette-list-max-height": {
       "$type": "dimension",
       "$value": "{primitive.size-320}"

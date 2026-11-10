@@ -1383,6 +1383,8 @@
   --tasty-graph-base-chip-height:    var(--tasty-size-16);                    /* chip above the base surface's card */
   --tasty-graph-base-chip-gap:       var(--tasty-space-xs);                   /* 4 — chip ↔ card top; 16 + 4 fits the 24 sibling gap */
   --tasty-graph-base-chip-padding-x: var(--tasty-space-xs);                   /* 4 */
+  --tasty-graph-base-picker-width:   var(--tasty-size-360);                   /* base surface picker popover: window › category › workspace › pane › tab › surface at 12 indent */
+  --tasty-graph-base-picker-height:  var(--tasty-size-400);                   /* picker popover cap; only the tree scrolls */
 
   /* 2026-10-06 — command palette list cap · remote protocol filter */
   --tasty-palette-list-max-height:     var(--tasty-size-320); /* list grows to 11 rows then scrolls; ON-SCALE with control-height. List padding = space-sm on all four sides (no extra footer gap) */
