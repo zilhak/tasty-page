@@ -22,9 +22,10 @@ import { HsTab, HsPage, HtmlScriptBanner } from "./html_script_banner.jsx";
 //     the reload Allow itself starts keeps it; the USER's reload, any navigation (same site too), Back and restart
 //     clear it when that load commits, and the notice is back then, blocked (a new showing, even if it was dismissed
 //     before). Until that commit the allow and its markers hold; a notice already up (before Allow) stays, loading.
-//     Page area during any load of the page (2026-11-10, measured on Linux): the host hides the WebView from load
-//     start until the load finishes and paints its Loading tile (HtmlPageState "loading"); band, notices and markers
-//     stay above it. So the web title names no load state: it is true over the tile and over the finished page.
+//     Page area during any load of the page (2026-11-10; the user's reload measured on Linux, the reloads Allow
+//     starts and the first load read from the code): the host hides the WebView from load start until the load
+//     finishes and paints its Loading tile (HtmlPageState "loading"); band, notices and markers stay above it. On
+//     the first load the notice shows at commit, so from commit until the load finishes notice and tile show together. So the web title names no load state: it is true over the tile and over the finished page.
 //     Body key: picked every frame from the model's script sandbox value; changing the setting while the notice is
 //     up swaps the body on the next frame (phase and dismissal unchanged).
 //     Shown whenever the page is viewed, first at the load's commit (never before it): the static references are
