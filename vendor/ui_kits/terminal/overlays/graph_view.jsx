@@ -14,9 +14,17 @@ import { elbow, ZoomCluster, Minimap, NODE_W, NODE_H, sTok, sBg, sLabel } from "
 // Popup and surface frames wrap the same parts (decision 8: only the frame differs).
 
 const Z_MIN = 0.2, Z_MAX = 1.5, Z_STEP = 0.1;
-const DRAWER_W = 288;       // --tasty-graph-drawer-width
-const COVER_BELOW = 480;    // --tasty-graph-drawer-cover-below
-const REVEAL = 16;          // --tasty-graph-reveal-margin
+// The drawer's geometry is read from its tokens on the canvas element (tokPx), so the drawn width
+// and the reveal / cover arithmetic cannot drift apart. These numbers are only the fallback for a
+// page without the token sheet; they repeat the token values.
+const DRAWER_W = 288;       // fallback for --tasty-graph-drawer-width
+const COVER_BELOW = 480;    // fallback for --tasty-graph-drawer-cover-below
+const REVEAL = 16;          // fallback for --tasty-graph-reveal-margin
+const tokPx = (el, name, fallback) => {
+  if (!el || typeof getComputedStyle === "undefined") return fallback;
+  const v = parseFloat(getComputedStyle(el).getPropertyValue(name));
+  return Number.isFinite(v) ? v : fallback;
+};
 const MINIMAP_MIN = 560;    // --tasty-dag-minimap-min-surface, measured on the canvas left uncovered
 const lodOf = (z) => (z >= 0.7 ? "full" : z >= 0.4 ? "compact" : "block");
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -128,6 +136,7 @@ function GraphCanvas({ g, nodes, edges, renderNode, colorOf, dir = "td", onDirCh
   const [o, setO] = React.useState({ x: 16, y: 16 });
   const drag = React.useRef(null);
   const fitted = React.useRef("");
+  const [geo, setGeo] = React.useState({ drawerW: DRAWER_W, coverBelow: COVER_BELOW, reveal: REVEAL });
 
   const fit = React.useCallback((box) => {
     const b = box || vp;
@@ -136,19 +145,22 @@ function GraphCanvas({ g, nodes, edges, renderNode, colorOf, dir = "td", onDirCh
     const kk = initialZoom ? initialZoom : k;
     let x = Math.max(pad, (b.w - g.width * kk) / 2);
     // fit with the drawer already open (a selection carried in) also keeps the selected card in sight
-    if (drawer && b.w >= COVER_BELOW && selected && g.pos[selected]) {
-      const right = x + (g.pos[selected].x + NODE_W) * kk, limit = b.w - DRAWER_W - REVEAL;
+    if (drawer && b.w >= geo.coverBelow && selected && g.pos[selected]) {
+      const right = x + (g.pos[selected].x + NODE_W) * kk, limit = b.w - geo.drawerW - geo.reveal;
       if (right > limit) x -= right - limit;
     }
     setZ(kk);
     setO({ x, y: Math.max(pad, (b.h - g.height * kk) / 2) });
-  }, [g.width, g.height, g.pos, vp, initialZoom, drawer, selected]);
+  }, [g.width, g.height, g.pos, vp, initialZoom, drawer, selected, geo]);
 
   React.useLayoutEffect(() => {
     const el = ref.current;
     if (!el) return;
     const r = el.getBoundingClientRect();
     if (Math.abs(r.width - vp.w) > 1 || Math.abs(r.height - vp.h) > 1) setVp({ w: r.width, h: r.height });
+    const next = { drawerW: tokPx(el, "--tasty-graph-drawer-width", DRAWER_W), coverBelow: tokPx(el, "--tasty-graph-drawer-cover-below", COVER_BELOW),
+      reveal: tokPx(el, "--tasty-graph-reveal-margin", REVEAL) };
+    if (next.drawerW !== geo.drawerW || next.coverBelow !== geo.coverBelow || next.reveal !== geo.reveal) setGeo(next);
   });
 
   const shapeKey = `${nodes.length}:${g.width}x${g.height}:${dir}`;
@@ -160,16 +172,16 @@ function GraphCanvas({ g, nodes, edges, renderNode, colorOf, dir = "td", onDirCh
   }, [shapeKey, vp, fit]);
 
   const open = !!drawer;
-  const cover = open && vp.w < COVER_BELOW;
-  const covered = open && !cover ? DRAWER_W : 0;
+  const cover = open && vp.w < geo.coverBelow;
+  const covered = open && !cover ? geo.drawerW : 0;
 
   // Keep the selected card in sight: when the drawer opens over it, pan just enough to put the
-  // card REVEAL px left of the drawer edge. Pan only — never zoom, never re-layout.
+  // card the reveal margin (graph-reveal-margin) left of the drawer edge. Pan only — never zoom, never re-layout.
   React.useEffect(() => {
     if (!open || cover || !selected || !g.pos[selected]) return;
     const p = g.pos[selected];
     const right = o.x + (p.x + NODE_W) * z;
-    const limit = vp.w - DRAWER_W - REVEAL;
+    const limit = vp.w - geo.drawerW - geo.reveal;
     if (right > limit) setO((prev) => ({ ...prev, x: prev.x - (right - limit) }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected, open, cover]);
@@ -372,4 +384,4 @@ function childVisible(nodes, baseId, full) {
   return nodes.filter((n) => keep.has(n.id));
 }
 
-export { GraphCanvas, GraphDrawer, DrawerRow, DrawerRows, DrawerCaption, GraphStrip, GraphPush, lodOf, CHILD_STATE, CHILD_STATE_ORDER, childTone, childColor, childLayout, childEdges, childVisible, DRAWER_W, COVER_BELOW };
+export { GraphCanvas, GraphDrawer, DrawerRow, DrawerRows, DrawerCaption, GraphStrip, GraphPush, lodOf, CHILD_STATE, CHILD_STATE_ORDER, childTone, childColor, childLayout, childEdges, childVisible };
