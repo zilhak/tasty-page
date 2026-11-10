@@ -429,8 +429,8 @@ function TransferErrorFrame({ retry = false, name = "sprint-42-demo.mp4", reason
 // as the transfer popups (width, insets, scrim) because it leads into them.
 const DR_COPY = {
   en: {
-    title: "No remote handler for this file",
-    description: "Downloads this file to this computer and opens it with the locally configured handler. The remote file stays unchanged.",
+    title: "No handler on the remote host can open this file",
+    description: "Download this file to this computer and open it with the locally configured handler? The file on the remote host stays unchanged.",
     single: "One file only. Folders are not supported.",
     run: "Download and run",
     cancel: "Cancel",
@@ -439,8 +439,8 @@ const DR_COPY = {
     largeBody: (size) => `This file is ${size} (over 1 MiB). Downloading may take a while.`,
   },
   ko: {
-    title: "이 파일을 열 원격 핸들러 없음",
-    description: "이 파일을 이 컴퓨터로 다운로드하고 로컬에 설정된 핸들러로 엽니다. 원격 호스트의 파일은 그대로 유지됩니다.",
+    title: "원격 호스트에 이 파일을 열 수 있는 핸들러가 없습니다",
+    description: "이 파일을 이 컴퓨터로 다운로드하고 로컬에 설정된 핸들러로 여시겠습니까? 원격 호스트의 파일은 그대로 유지됩니다.",
     single: "파일 하나만 지원합니다. 폴더는 지원하지 않습니다.",
     run: "다운로드 후 실행",
     cancel: "취소",
