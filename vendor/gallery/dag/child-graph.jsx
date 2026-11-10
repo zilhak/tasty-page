@@ -33,7 +33,7 @@ const Card = (props) => <div style={{ position: "relative", width: 168, height: 
 const S = (state, over) => ({ id: "s_01HX7Q", kind: "surface", nickname: "builder", role: "worker", state, ...over });
 
 function CardGrid({ lang = "en" }) {
-  const cols = [["rest", {}], ["selected", { selected: true }], ["hover", { hover: true }], ["dimmed", { dim: true }]];
+  const cols = [["rest", {}], ["selected", { selected: true }]];
   return (
     <div style={{ display: "grid", gridTemplateColumns: `96px repeat(${cols.length}, 168px)`, columnGap: 16, rowGap: 8, alignItems: "end" }}>
       <span />
@@ -42,8 +42,8 @@ function CardGrid({ lang = "en" }) {
         <React.Fragment key={s}>
           <span style={{ ...cap, alignSelf: "center" }}>{s}</span>
           {cols.map(([c, p]) => (
-            <div key={c} style={{ position: "relative", width: 168, height: 48, marginTop: 20, opacity: p.dim && !CHILD_STATE[s].dim ? "var(--tasty-dag-node-dim-opacity)" : 1 }}>
-              <ChildNode node={S(s)} lang={lang} selected={!!p.selected} hover={!!p.hover} />
+            <div key={c} style={{ position: "relative", width: 168, height: 48, marginTop: 20 }}>
+              <ChildNode node={S(s)} lang={lang} selected={!!p.selected} />
             </div>
           ))}
         </React.Fragment>
@@ -92,8 +92,9 @@ export function ChildGraphSection() {
           </View>
         </Views>
         <Meta
-          specs={[["box", "168 × 48 · the DAG card (dag-node-*)"], ["name", "nickname → role → id (mono 11)"], ["meta", "glyph · STATE caps 10 · id mono right"], ["dimmed", "exited only, dag-node-dim-opacity — the column shows the treatment on every state"], ["base chip", "16 tall · 4 above the card · label micro · text-secondary on bg-sidebar · border-strong"], ["selection", "the DAG ring, 2px accent, 1px offset"], ["hover", "the DAG hover wash"], ["external", "dashed border · link glyph · key in mono · no state"], ["read-only ancestor", "dashed border · remote glyph · “Not mirrored”"], ["stub (alternative)", "dashed · chevrons-left · “More ancestors”"]]}
+          specs={[["box", "168 × 48 · the DAG card (dag-node-*)"], ["name", "nickname → role → id (mono 11)"], ["meta", "glyph · STATE caps 10 · id mono right"], ["dimmed", "exited only, dag-node-dim-opacity (the rest column shows it)"], ["base chip", "16 tall · 4 above the card · label micro · text-secondary on bg-sidebar · border-strong"], ["selection", "the DAG ring, 2px accent, 1px offset"], ["hover", "the DAG hover wash — not shown, see the note"], ["external", "dashed border · link glyph · key in mono · no state"], ["read-only ancestor", "dashed border · remote glyph · “Not mirrored”"], ["stub (alternative)", "dashed · chevrons-left · “More ancestors”"]]}
           tokens={[{ tok: "--tasty-graph-base-chip-height", use: "16" }, { tok: "--tasty-graph-base-chip-gap", use: "4" }, { tok: "--tasty-dag-status-running", use: "active", color: "var(--tasty-dag-status-running)" }, { tok: "--tasty-dag-status-ready", use: "idle", color: "var(--tasty-dag-status-ready)" }, { tok: "--tasty-dag-phase-awaiting", use: "needs_input", color: "var(--tasty-dag-phase-awaiting)" }, { tok: "--tasty-dag-status-waiting", use: "stale", color: "var(--tasty-dag-status-waiting)" }, { tok: "--tasty-dag-status-cancelled", use: "exited", color: "var(--tasty-dag-status-cancelled)" }, { tok: "--tasty-dag-status-unknown", use: "unknown", color: "var(--tasty-dag-status-unknown)" }, { tok: "--tasty-accent-remote-raised", use: "remote glyph", color: "var(--tasty-accent-remote-raised)" }]} />
+        <Note>Hover is the DAG card's <code>dag-node-hover-bg</code> wash, unchanged. Measured over every state it drops the state label below 4.5:1 on active, idle, stale and exited in Mocha and Latte, and the DAG card has the same gap. The grid leaves hover out until that token is settled for both graphs; see the question list.</Note>
         <Dont>Do not mark the base with the accent border or a second ring: the accent border already means <i>active</i> and the ring means <i>selected</i>, and the base can be both.</Dont>
       </Spec>
 
