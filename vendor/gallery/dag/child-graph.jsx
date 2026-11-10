@@ -174,15 +174,15 @@ export function ChildGraphSection() {
         </Stage>
         <Stage style={{ padding: 16, display: "block" }}>
           {row(<>
-            <Labelled label="picker open — path to the base open, base selected" tag="decided"><div style={{ minHeight: 440 }}><BasePicker value="s_w23" open inline /></div></Labelled>
-            <Labelled label="filter “work” — matches with their path" tag="decided"><div style={{ minHeight: 440 }}><BasePicker value="s_w23" open inline query="work" /></div></Labelled>
-            <Labelled label="filter with no match" tag="decided"><div style={{ minHeight: 140 }}><BasePicker value="s_w23" open inline query="zzz" /></div></Labelled>
+            <Labelled label="picker open — path to the base open, base selected" tag="decided"><div style={{ minHeight: 440, width: "var(--tasty-graph-base-picker-width)" }}><BasePicker value="s_w23" open inline /></div></Labelled>
+            <Labelled label="filter “work” — matches with their path" tag="decided"><div style={{ minHeight: 440, width: "var(--tasty-graph-base-picker-width)" }}><BasePicker value="s_w23" open inline query="work" /></div></Labelled>
+            <Labelled label="filter with no match" tag="decided"><div style={{ minHeight: 140, width: "var(--tasty-graph-base-picker-width)" }}><BasePicker value="s_w23" open inline query="zzz" /></div></Labelled>
           </>)}
         </Stage>
         <Stage style={{ padding: 16, display: "block" }}>
           {row(<>
-            <Labelled label="folding: categories off · one pane: no pane row · one surface per tab: one row" tag="recommended"><div style={{ minHeight: 440 }}><BasePicker value="s_01HX7Q" open inline categoriesOn={false} /></div></Labelled>
-            <Labelled label="every level drawn: pane rows and tab rows always" tag="alternative"><div style={{ minHeight: 440 }}><BasePicker value="s_01HX7Q" open inline allLevels /></div></Labelled>
+            <Labelled label="folding: categories off · one pane: no pane row · one surface per tab: one row" tag="recommended"><div style={{ minHeight: 440, width: "var(--tasty-graph-base-picker-width)" }}><BasePicker value="s_01HX7Q" open inline categoriesOn={false} /></div></Labelled>
+            <Labelled label="every level drawn: pane rows and tab rows always" tag="alternative"><div style={{ minHeight: 440, width: "var(--tasty-graph-base-picker-width)" }}><BasePicker value="s_01HX7Q" open inline allLevels /></div></Labelled>
           </>)}
         </Stage>
         {focusViews("child-graph-surface", (focused) => <div style={{ height: 300, minWidth: 320 }}><ChildGraphSurface nodes={CHILD_SMALL} baseId={CHILD_SMALL_BASE} focused={focused} /></div>)}
@@ -192,7 +192,7 @@ export function ChildGraphSection() {
           </View>
           <View name="child-surface-picker-locales" label="ko, ja, zh-Hans — the open picker">
             <div style={{ display: "flex", flexWrap: "wrap", gap: 16 }}>
-              {["ko", "ja", "zh-Hans"].map((l) => <div key={l} style={{ minHeight: 440 }}><BasePicker lang={l} value="s_m2" open inline /></div>)}
+              {["ko", "ja", "zh-Hans"].map((l) => <div key={l} style={{ minHeight: 440, width: "var(--tasty-graph-base-picker-width)" }}><BasePicker lang={l} value="s_m2" open inline /></div>)}
             </div>
           </View>
         </Views>
