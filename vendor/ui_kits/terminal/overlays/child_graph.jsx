@@ -1,5 +1,6 @@
 import React from "react";
 import { Button } from "../../../components/core/Button.jsx";
+import { Spinner } from "../../../components/feedback/Spinner.jsx";
 import { Icon } from "../../../components/core/Icon.jsx";
 import { IconButton } from "../../../components/core/IconButton.jsx";
 import { ListCtrl } from "../../../components/data/ListCtrl.jsx";
@@ -232,7 +233,7 @@ function ChildGraphView({ nodes, baseId, full = false, selected, onSelect, lang 
   const shown = React.useMemo(() => childVisible(nodes, baseId, full), [nodes, baseId, full]);
   const g = React.useMemo(() => childLayout(shown), [shown]);
   const edges = React.useMemo(() => childEdges(shown, g), [shown, g]);
-  const wrap = (child) => <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", background: bed || "var(--tasty-dag-canvas-bg)" }}>{child}</div>;
+  const wrap = (child) => <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", background: bed || "var(--tasty-dag-canvas-bg)" }}>{banner}{child}</div>;
   if (status === "loading") return wrap(<DagEmpty loading copy={{ title: gt("graph.loading", lang) }} />);
   if (status === "unsupported") return wrap(<DagEmpty copy={{ icon: "remote", title: gt("graph.remote_unsupported", lang), body: gt("graph.remote_unsupported_hint", lang, host) }} />);
   if (status === "base-closed") return wrap(<DagEmpty copy={{ icon: "paneEmpty", title: gt("child_graph.empty.base_closed", lang), body: gt("child_graph.empty.base_closed_hint", lang) }}
@@ -251,6 +252,22 @@ function ChildGraphView({ nodes, baseId, full = false, selected, onSelect, lang 
         ) : null} />
     </div>
   );
+}
+
+// ── Mirror banner (user decision 2026-11-10) ────────────────────────
+// A graph whose base is a mirrored surface loses it when the mirror is detached (cause "detached",
+// neutral) or the connection drops (cause "lost", warning). The surface shows this strip over the
+// "pick a base surface" state. Reconnect attaches again with the same profile to the same remote surface:
+// state "idle" → Reconnect · "trying" → disabled Reconnecting… with a spinner · "failed" → the failure
+// sentence (warning) and Reconnect again. On success the graph comes back with that base.
+function MirrorBanner({ cause = "detached", state = "idle", host = "lab-linux", name = "worker-a", profile = "lab-linux", lang = "en", onReconnect }) {
+  const text = state === "failed" ? gt("child_graph.reconnect_failed", lang, host)
+    : gt(cause === "lost" ? "child_graph.mirror_lost" : "child_graph.mirror_detached", lang, host, name);
+  const tip = gt("child_graph.reconnect_tooltip", lang, name, profile);
+  const action = state === "trying"
+    ? <Button size="sm" variant="secondary" disabled leadingIcon={<Spinner size={12} />}>{gt("child_graph.reconnecting", lang)}</Button>
+    : <Button size="sm" variant="secondary" title={tip} onClick={onReconnect}>{gt("child_graph.reconnect", lang)}</Button>;
+  return <GraphStrip tone={cause === "lost" || state === "failed" ? "warning" : "info"} action={action}>{text}</GraphStrip>;
 }
 
 // ── Push screens shared by both frames ──────────────────────────────
@@ -369,7 +386,7 @@ function ChildGraphSurface({ nodes = CHILD_LARGE, baseId = CHILD_LARGE_BASE, lan
         <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}>
           {header}
           <ChildGraphView nodes={nodes} baseId={base} full={full} selected={sel} onSelect={setSel} lang={lang} bed={bed}
-            status={status === "base-closed" && base ? "ready" : status} banner={banner}
+            status={status === "base-closed" && base ? "ready" : status} banner={status === "base-closed" && base ? null : banner}
             onViewDags={flow.viewDags} onSetBase={(id) => { setBase(id); setSel(null); }} still={still} />
         </div>
         {screens}
@@ -397,6 +414,6 @@ function ChildGraphSettings({ lang = "en", checked = false }) {
   );
 }
 
-export { ChildNode, ChildDetail, ChildGraphView, ChildGraphWindow, ChildGraphSurface, ChildGraphSettings, nameOf,
+export { ChildNode, ChildDetail, ChildGraphView, MirrorBanner, ChildGraphWindow, ChildGraphSurface, ChildGraphSettings, nameOf,
   CHILD_SMALL, CHILD_SMALL_BASE, CHILD_LARGE, CHILD_LARGE_BASE, CHILD_MIRROR, CHILD_MIRROR_BASE, CHILD_MIRROR_LOST,
   CHILD_CROSS, CHILD_EXTERNAL };

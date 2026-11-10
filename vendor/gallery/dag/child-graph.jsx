@@ -6,7 +6,7 @@ import { ToolsMenuFrame } from "../parts/overlay-frames.jsx";
 import { Kbd, MenuItem, Table, Tab } from "../../components/index.js";
 import { DagNode, elbow } from "../../ui_kits/terminal/dag.js";
 import { GraphStrip, CHILD_STATE, CHILD_STATE_ORDER } from "../../ui_kits/terminal/overlays/graph_view.jsx";
-import { ChildNode, ChildGraphWindow, ChildGraphSurface, ChildGraphSettings, CHILD_SMALL, CHILD_SMALL_BASE, CHILD_LARGE, CHILD_LARGE_BASE,
+import { ChildNode, ChildGraphWindow, ChildGraphSurface, ChildGraphSettings, MirrorBanner, CHILD_SMALL, CHILD_SMALL_BASE, CHILD_LARGE, CHILD_LARGE_BASE,
   CHILD_MIRROR, CHILD_MIRROR_BASE, CHILD_CROSS, CHILD_EXTERNAL } from "../../ui_kits/terminal/overlays/child_graph.jsx";
 import { GRAPH_COPY, GRAPH_LANGS, gt } from "../../ui_kits/terminal/overlays/graph_copy.js";
 import { Frame, ChildView } from "./graph-shared.jsx";
@@ -221,6 +221,27 @@ export function ChildGraphSection() {
         </Stage>
         <Meta specs={[["empty", "child_graph.empty.none + none_hint · gitBranch glyph"], ["base closed", "child_graph.empty.base_closed + _hint · paneEmpty glyph · Button secondary sm pick_base"], ["selector", "placeholder child_graph.empty.pick_base"]]}
           tokens={[]} />
+      </Spec>
+
+      <Spec id="child-graph-mirror-base-detached" title="Base was a mirrored surface — detached or lost, Reconnect (decided)"
+        when={<>A child graph surface whose base is a <b>mirrored remote surface</b> loses it when the mirror is <b>detached</b> or the <b>connection is lost</b>. <b>Decided</b>: a banner across the top says which, and the rest is the <b>pick a base surface</b> state of 4-4 (the selector shows its placeholder; the canvas offers <i>Select base surface</i>). The banner ends in <b>Reconnect</b>: it attaches again with the <b>same attach profile</b> to the <b>same remote surface</b> (its tooltip names both). While it tries, the button is disabled with a spinner and reads <i>Reconnecting…</i>; on failure the banner turns to the warning recipe and says so, and Reconnect stays for another try; on success the banner goes and the graph returns with that base. Picking another base also clears the banner. Detached is the user's own act, so it takes the neutral band; a lost connection or a failed try takes the warning band, as the refresh error does.</>}>
+        <Stage style={{ padding: 16, display: "block" }}>
+          {row(<>
+            <Labelled label="mirror detached" tag="decided"><Frame w={560} h={280}><ChildGraphSurface nodes={CHILD_SMALL} status="base-closed" banner={<MirrorBanner cause="detached" />} /></Frame></Labelled>
+            <Labelled label="connection lost" tag="decided"><Frame w={560} h={280}><ChildGraphSurface nodes={CHILD_SMALL} status="base-closed" banner={<MirrorBanner cause="lost" />} /></Frame></Labelled>
+            <Labelled label="Reconnect — trying" tag="decided"><Frame w={560} h={280}><ChildGraphSurface nodes={CHILD_SMALL} status="base-closed" banner={<MirrorBanner cause="lost" state="trying" />} /></Frame></Labelled>
+            <Labelled label="Reconnect — failed, try again" tag="decided"><Frame w={560} h={280}><ChildGraphSurface nodes={CHILD_SMALL} status="base-closed" banner={<MirrorBanner cause="lost" state="failed" />} /></Frame></Labelled>
+          </>)}
+        </Stage>
+        <Views>
+          <View name="child-mirror-banner-locales" label="ko, ja, zh-Hans — the longest banner">
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 16 }}>
+              {["ko", "ja", "zh-Hans"].map((l) => <Frame key={l} label={l} w={560} h={280}><ChildGraphSurface lang={l} nodes={CHILD_SMALL} status="base-closed" banner={<MirrorBanner cause="lost" lang={l} />} /></Frame>)}
+            </div>
+          </View>
+        </Views>
+        <Meta specs={[["banner", "GraphStrip 28 · detached: info band · lost / failed: warning band (dag-cycle-*) · text ellipsis, full text as tooltip"], ["text", "child_graph.mirror_detached(host, name) · mirror_lost(host, name) · reconnect_failed(host)"], ["action", "Button secondary sm child_graph.reconnect · tooltip reconnect_tooltip(name, profile)"], ["trying", "disabled · Spinner 12 · child_graph.reconnecting"], ["below", "pick a base surface state (4-4): child_graph.empty.base_closed · pick_base"], ["clears", "reconnected, or another base picked"]]}
+          tokens={[{ tok: "--tasty-dag-cycle-bg", use: "warning band", color: "var(--tasty-dag-cycle-bg)" }, { tok: "--tasty-dag-chrome-bg", use: "info band", color: "var(--tasty-dag-chrome-bg)" }, { tok: "--tasty-dag-cycle-height", use: "28" }]} />
       </Spec>
 
       <Spec id="child-graph-mirror-scope-and-remote-ancestor" title="Across machines — one graph, read-only ancestors (decided 4-7 to 4-9)"

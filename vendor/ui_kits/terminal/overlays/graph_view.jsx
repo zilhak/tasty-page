@@ -94,7 +94,8 @@ function DrawerCaption({ children }) {
 
 // ── Strip ───────────────────────────────────────────────────────────
 // warning = the cycle notice's recipe (refresh failed, remote disconnected); info = neutral band.
-function GraphStrip({ tone = "warning", children }) {
+// action: one small button at the right end (Reconnect on the mirror banner); the text yields first.
+function GraphStrip({ tone = "warning", action = null, children }) {
   const warn = tone === "warning";
   return (
     <div role="status" style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", boxSizing: "border-box",
@@ -106,7 +107,8 @@ function GraphStrip({ tone = "warning", children }) {
       <span style={{ display: "inline-flex", flex: "none", color: warn ? "inherit" : "var(--tasty-text-muted)" }}>
         <Icon name={warn ? "alertTriangle" : "info"} size="var(--tasty-icon-size-sm)" />
       </span>
-      <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{children}</span>
+      <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={typeof children === "string" ? children : undefined}>{children}</span>
+      {action && <span style={{ flex: "none", display: "inline-flex" }}>{action}</span>}
     </div>
   );
 }
