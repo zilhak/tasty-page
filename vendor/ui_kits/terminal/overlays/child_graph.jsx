@@ -378,6 +378,10 @@ function ChildGraphSurface({ nodes = CHILD_LARGE, baseId = CHILD_LARGE_BASE, lan
   const [full, setFull] = React.useState(!!initial.full);
   const [sel, setSel] = React.useState(initial.selected || null);
   const [base, setBase] = React.useState(status === "base-closed" ? "" : baseId);
+  const [pickS, setPickS] = React.useState(false);
+  // pickerOpen pins the picker open for a gallery frame; otherwise the surface owns it, so the
+  // canvas's Select base surface button can open it.
+  const pickOpen = pickerOpen !== undefined ? pickerOpen : pickS;
   const flow = useChildFlow({ nodes, initial });
   useEscDeselect(flow, sel, setSel);
   const screens = FlowScreens({ flow, lang, bed, still });
@@ -388,7 +392,8 @@ function ChildGraphSurface({ nodes = CHILD_LARGE, baseId = CHILD_LARGE_BASE, lan
       <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-text-muted)" }}><Icon name="gitBranch" /></span>
       <span style={{ flex: "none", fontFamily: "var(--tasty-font-ui)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{gt("child_graph.base_label", lang)}</span>
       <span style={{ flex: narrow ? "1 1 auto" : "none", minWidth: 0, width: narrow ? "auto" : "var(--tasty-field-width-lg)", display: "flex" }}>
-        <BasePicker block windows={windows} value={base} lang={lang} open={pickerOpen} query={pickerQuery} onChange={(id) => { setBase(id); setSel(null); }} />
+        <BasePicker block windows={windows} value={base} lang={lang} open={pickOpen} onOpenChange={pickerOpen !== undefined ? undefined : setPickS}
+          query={pickerQuery} onChange={(id) => { setBase(id); setSel(null); }} />
       </span>
       {narrow && <span style={{ flexBasis: "100%", height: 0 }} />}
       <Checkbox checked={full} onChange={(e) => setFull(e.target.checked)} label={gt("child_graph.show_full_tree", lang)} />
@@ -403,7 +408,7 @@ function ChildGraphSurface({ nodes = CHILD_LARGE, baseId = CHILD_LARGE_BASE, lan
           {header}
           <ChildGraphView nodes={nodes} baseId={base} full={full} selected={sel} onSelect={setSel} lang={lang} bed={bed}
             status={status === "base-closed" && base ? "ready" : status} banner={status === "base-closed" && base ? null : banner}
-            onViewDags={flow.viewDags} onSetBase={(id) => { setBase(id); setSel(null); }} still={still} />
+            onViewDags={flow.viewDags} onSetBase={(id) => { setBase(id); setSel(null); }} onPickBase={() => setPickS(true)} still={still} />
         </div>
         {screens}
       </GraphPush>

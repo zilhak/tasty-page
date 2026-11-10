@@ -188,23 +188,31 @@ function PickerTree({ windows = PICKER_WINDOWS, value, onPick, query = "", categ
 }
 
 // Trigger + popover. `open` / `query` make it a still specimen; `inline` draws the popover in flow (gallery).
-function BasePicker({ windows = PICKER_WINDOWS, value, onChange, lang = "en", block = false, open: openP, query: queryP, inline = false,
+// open alone pins the popover (gallery frames); open with onOpenChange is a controlled picker that the
+// trigger, an outside click, Esc and a pick still open and close (the surface opens it from its canvas too).
+function BasePicker({ windows = PICKER_WINDOWS, value, onChange, lang = "en", block = false, open: openP, onOpenChange, query: queryP, inline = false,
   categoriesOn = true, allLevels = false, style }) {
   const [openS, setOpenS] = React.useState(false);
   const [queryS, setQueryS] = React.useState("");
   const rootRef = React.useRef(null);
   const open = openP !== undefined ? openP : openS;
   const query = queryP !== undefined ? queryP : queryS;
+  const live = openP === undefined || !!onOpenChange;
+  const setOpen = (v) => { const next = typeof v === "function" ? v(open) : v; if (onOpenChange) onOpenChange(next); else setOpenS(next); if (!next) setQueryS(""); };
   const all = surfacesOf(windows);
   const cur = all.find((s) => s.id === value);
   const disabled = all.length === 0;
   const label = disabled ? gt("child_graph.base_empty", lang) : cur ? `${cur.ws.name} / ${cur.name} · ${cur.id}` : gt("child_graph.empty.pick_base", lang);
   React.useEffect(() => {
-    if (!open || openP !== undefined) return;
-    const h = (e) => { if (rootRef.current && !rootRef.current.contains(e.target)) { setOpenS(false); setQueryS(""); } };
+    if (!open || !live) return;
+    const h = (e) => { if (rootRef.current && !rootRef.current.contains(e.target)) setOpen(false); };
+    // Esc closes the picker first; it does not reach the graph (which would clear its selection).
+    const k = (e) => { if (e.key === "Escape") { e.stopPropagation(); setOpen(false); } };
     document.addEventListener("mousedown", h);
-    return () => document.removeEventListener("mousedown", h);
-  }, [open, openP]);
+    document.addEventListener("keydown", k);
+    return () => { document.removeEventListener("mousedown", h); document.removeEventListener("keydown", k); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, live]);
   const pop = open && (
     <div role="dialog" style={{ position: inline ? "relative" : "absolute", left: 0, top: inline ? "var(--tasty-select-search-menu-gap)" : "calc(100% + var(--tasty-select-search-menu-gap))", zIndex: 40,
       width: "var(--tasty-graph-base-picker-width)", maxWidth: "100vw", maxHeight: "var(--tasty-graph-base-picker-height)", boxSizing: "border-box",
@@ -214,20 +222,20 @@ function BasePicker({ windows = PICKER_WINDOWS, value, onChange, lang = "en", bl
         padding: "0 var(--tasty-select-search-field-padding-x)", gap: "var(--tasty-select-search-field-gap)", background: "var(--tasty-select-search-field-bg)",
         border: "var(--tasty-border-width) solid var(--tasty-select-search-field-border-focus)", borderRadius: "var(--tasty-radius)" }}>
         <span style={{ flex: "none", display: "inline-flex", color: "var(--tasty-select-search-icon-fg)" }}><Icon name="search" size="var(--tasty-icon-size-sm)" /></span>
-        <input type="text" value={query} placeholder={gt("child_graph.picker.search", lang)} aria-label={gt("child_graph.picker.search", lang)} spellCheck={false} autoComplete="off"
+        <input type="text" value={query} placeholder={gt("child_graph.picker.search", lang)} aria-label={gt("child_graph.picker.search", lang)} spellCheck={false} autoComplete="off" autoFocus={live}
           readOnly={queryP !== undefined} onChange={(e) => setQueryS(e.target.value)}
           style={{ all: "unset", flex: 1, minWidth: 0, height: "100%", fontFamily: "var(--tasty-font-ui)", fontSize: "var(--tasty-select-font-size)", color: "var(--tasty-select-search-field-fg)" }} />
       </label>
       <div role="separator" style={{ flex: "none", height: "var(--tasty-border-width)", margin: "var(--tasty-space-xs) 0", background: "var(--tasty-menu-separator)" }} />
       <div className="tasty-scroll" style={{ flex: "1 1 auto", minHeight: 0, overflowY: "auto", overflowX: "hidden" }}>
         <PickerTree windows={windows} value={value} query={query} categoriesOn={categoriesOn} allLevels={allLevels} lang={lang}
-          onPick={(s) => { onChange && onChange(s.id); if (openP === undefined) { setOpenS(false); setQueryS(""); } }} />
+          onPick={(s) => { onChange && onChange(s.id); if (live) setOpen(false); }} />
       </div>
     </div>
   );
   return (
     <div ref={rootRef} style={{ position: "relative", display: block ? "flex" : "inline-flex", flexDirection: "column", width: block ? "100%" : "var(--tasty-field-width-lg)", minWidth: 0, ...style }}>
-      <button type="button" disabled={disabled} aria-haspopup="dialog" aria-expanded={!!open} onClick={() => setOpenS((o) => !o)}
+      <button type="button" disabled={disabled} aria-haspopup="dialog" aria-expanded={!!open} onClick={() => setOpen((o) => !o)}
         {...(disabled ? { "data-ink-grade": "none", "data-ink-why": "disabled" } : {})}
         style={{ all: "unset", boxSizing: "border-box", position: "relative", display: "flex", alignItems: "center", width: "100%", height: "var(--tasty-select-height)",
           padding: "0 var(--tasty-select-chevron-room) 0 var(--tasty-select-padding-x)", borderRadius: "var(--tasty-select-radius)", cursor: disabled ? "default" : "pointer",
