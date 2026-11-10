@@ -85,7 +85,7 @@ function SidebarContextMenu({ x, y, target, onClose, categories = [] }) {
             Inert "Move to category" header, then every OTHER category as a plain item. */}
         {/* a saved remote row: its whole menu, in the app's order (remote_row.jsx RemoteRowMenuItems) */}
         {saved && (
-          <RemoteRowMenuItems state={t.ws.remoteState || "connected"} onAct={act}
+          <RemoteRowMenuItems state={t.ws.remoteState || "connected"} closed={!!t.ws.remoteClosed} onAct={act}
             categories={categories && categories.length ? moveTargets.filter((c) => !(t.cat && c.id === t.cat.id)).map((c) => (c.reserved ? "Workspaces" : c.name)) : null} />
         )}
         {t.kind === "workspace" && !saved && (

@@ -99,6 +99,8 @@ function WorkspaceRow({ ws, active, onClick, onContextMenu, lang = "en" }) {
 
   const [hover, setHover] = React.useState(false);
   // ws.remoteState (saved remote rows): connected · connecting · reconnecting · disconnected · not_connected.
+  // ws.remoteClosed: disconnected because the remote workspace was closed elsewhere in this run (reason
+  // workspace_missing); the row menu keeps Reconnect disabled. Not saved across a restart.
   // Off the live state the dot slot and the running count no longer report a status.
   const remoteState = ws.mirror ? (ws.remoteState || "connected") : null;
   const remoteLive = !ws.mirror || remoteState === "connected";

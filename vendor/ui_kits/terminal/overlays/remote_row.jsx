@@ -243,12 +243,17 @@ export function CloseOnRemoteDialog({ lang = "en", name = "tasty-core", profile 
 // ── The saved remote row's menu (the OS menu in the app: order, wording, separators and disabled only) ──
 // What each state allows:
 //   Connect / Reconnect — disconnected, not connected (a row with a screen in this run says Reconnect)
+//                         · not when closed elsewhere
 //   Disconnect          — connected, connecting, reconnecting
 //   Close locally       — always
 //   Close remote …      — connected only
-export function remoteMenuEnabled(state) {
+// closed = the remote workspace was closed elsewhere while this row was connected in this run (the popup's
+// kind "closed", ws.remoteClosed): disconnected, and Reconnect stays in its place, disabled (2026-11-11, director:
+// an action that cannot succeed is shown disabled, never hidden). It is not saved, so after a restart the row is
+// not connected again and Connect is enabled.
+export function remoteMenuEnabled(state, closed = false) {
   return {
-    connect: state === "disconnected" || state === "not_connected",
+    connect: (state === "disconnected" || state === "not_connected") && !closed,
     disconnect: state === "connected" || state === "connecting" || state === "reconnecting",
     closeLocal: true,
     closeRemote: state === "connected",
@@ -260,8 +265,8 @@ export function isSavedRemoteRow(ws) {
   return !!(ws && ws.mirror && ws.remoteProfile);
 }
 // onAct: called by every enabled item (the menu closes). categories: names to move the row to, or null when off.
-export function RemoteRowMenuItems({ state = "connected", lang = "en", categories = null, forceDetach = false, onAct }) {
-  const on = remoteMenuEnabled(state);
+export function RemoteRowMenuItems({ state = "connected", closed = false, lang = "en", categories = null, forceDetach = false, onAct }) {
+  const on = remoteMenuEnabled(state, closed);
   return (
     <>
       <MenuItem label="Rename" onClick={onAct} />
