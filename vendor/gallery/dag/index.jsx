@@ -24,7 +24,7 @@ const NAV = [
   { id: "chrome", label: "Canvas chrome" },
   { id: "runner", label: "Runner badge" },
   { id: "rows", label: "DAG list row" },
-  { id: "detail", label: "Node detail" },
+  { id: "detail", label: "Node detail · drawer" },
   { id: "states", label: "Empty · cycle" },
   { id: "surfaces", label: "Surface · popup" },
 ];
@@ -173,9 +173,9 @@ function Page() {
             ))}
           </Stage>
           <Stage style={{ padding: 0, display: "block" }}>
-            <div style={{ display: "flex", height: 360, background: "var(--tasty-bg-panel)" }}>
-              <DagDetail dag={{ nodes: [mk({ id: "a", kind: "agent", phase: "awaiting_input", provider: "claude", since: "2m 4s", name: "agent:review" })] }} id="a" onClose={() => {}} onSelect={() => {}} />
-              <DagDetail dag={{ nodes: [mk({ id: "u", status: "unknown", name: "deploy:site", dur: null, reason: "run result lost: pid 4242 ended after a host restart and its exit status could not be collected" })] }} id="u" onClose={() => {}} onSelect={() => {}} />
+            <div style={{ display: "flex", gap: 16, height: 360, padding: 16, background: "var(--tasty-bg-panel)" }}>
+              <DagDetail frame="panel" dag={{ nodes: [mk({ id: "a", kind: "agent", phase: "awaiting_input", provider: "claude", since: "2m 4s", name: "agent:review" })] }} id="a" onClose={() => {}} onSelect={() => {}} />
+              <DagDetail frame="panel" dag={{ nodes: [mk({ id: "u", status: "unknown", name: "deploy:site", dur: null, reason: "run result lost: pid 4242 ended after a host restart and its exit status could not be collected" })] }} id="u" onClose={() => {}} onSelect={() => {}} />
             </div>
           </Stage>
           <Note><b>Labels (i18n).</b> Why: · 이유: · 理由: — Why unknown · 알 수 없는 이유 · 不明の理由 — “Retry or cancel it to let the graph continue.” · “다시 실행하거나 취소해야 그래프가 이어집니다.” · “再実行またはキャンセルするとグラフが続行します。” — “Waiting for a person in the {"{provider}"} session” · “{"{provider}"} 세션이 사람의 입력을 기다리는 중” · “{"{provider}"} セッションが入力を待っています”. The reason text is the host's free text, shown as is.</Note>
@@ -272,19 +272,19 @@ function Page() {
         </Spec>
       </Section>
 
-      <Section id="detail" title="Node detail">
-        <Spec id="selected-task-side-panel-bottom-sheet" title="Selected task — side panel · bottom sheet"
-          when={<>Selecting a node opens a <b>288px right panel</b> on a wide surface and a <b>220px bottom sheet</b> when the surface is narrow (&lt; 640px) or inside the popup. Failure output can run to dozens of lines, so the error tail is its own bounded, scrollable, copyable block — never an expanding wall that pushes the graph off screen.</>}>
+      <Section id="detail" title="Node detail · drawer">
+        <Spec id="selected-task-side-panel-bottom-sheet" title="Selected task — the drawer over the canvas"
+          when={<>Selecting a node opens the shared <b>288px drawer over the canvas</b> from the right edge, in the tab surface and in the popup alike (2026-11-10: the right panel and the bottom sheet that split the canvas are gone; the child graph uses the same drawer — see the Graph view section). Below 480px of canvas it covers the canvas. The body is unchanged: state and kind, the awaiting notice with <b>Open session</b>, why unknown, the rows, the command, the dependency rows that jump the selection, and the error tail as its own bounded, scrollable, copyable block — never an expanding wall.</>}>
           <Stage style={{ padding: 0, display: "block" }}>
-            <div style={{ display: "flex", height: 460, background: "var(--tasty-bg-panel)" }}>
-              <DagDetail dag={DAG_BUILD} id="build_linux" onClose={() => {}} onSelect={() => {}} />
-              <DagDetail dag={DAG_BUILD} id="unit" onClose={() => {}} onSelect={() => {}} />
+            <div style={{ display: "flex", gap: 16, height: 460, padding: 16, background: "var(--tasty-bg-panel)" }}>
+              <DagDetail dag={DAG_BUILD} id="build_linux" frame="panel" onClose={() => {}} onSelect={() => {}} />
+              <DagDetail dag={DAG_BUILD} id="unit" frame="panel" onClose={() => {}} onSelect={() => {}} />
             </div>
           </Stage>
           <Meta
-            specs={[["panel", "288 wide · 12 padding"], ["sheet", "220 tall (narrow)"], ["error tail", "max 160, scrolls, copy button"], ["output tail", "max 112, scrolls"], ["deps", "22px rows, click to jump"]]}
-            tokens={[{ tok: "--tasty-dag-detail-bg", use: "panel fill", color: "var(--tasty-dag-detail-bg)" }, { tok: "--tasty-dag-detail-log-bg", use: "log bed", color: "var(--tasty-dag-detail-log-bg)" }, { tok: "--tasty-dag-detail-log-max-height", use: "160 error tail" }]} />
-          <Note>Dependency rows are the graph's keyboard-free navigation: each row shows the upstream task's glyph + relation and jumps the selection there, so a failure can be walked back to its cause without hunting on the canvas.</Note>
+            specs={[["drawer", "288 · over the canvas · head 36 + scrolling body · 12 padding"], ["narrow", "covers the canvas below 480"], ["error tail", "max 160, scrolls, copy button"], ["output tail", "max 112, scrolls"], ["deps", "22px rows, click to jump"], ["sheet", "gone — dag-detail-sheet-height has no reader"]]}
+            tokens={[{ tok: "--tasty-dag-detail-bg", use: "drawer fill", color: "var(--tasty-dag-detail-bg)" }, { tok: "--tasty-graph-drawer-width", use: "288" }, { tok: "--tasty-dag-detail-log-bg", use: "log bed", color: "var(--tasty-dag-detail-log-bg)" }, { tok: "--tasty-dag-detail-log-max-height", use: "160 error tail" }]} />
+          <Note>Dependency rows are the graph's keyboard-free navigation: each row shows the upstream task's glyph + relation and jumps the selection there, so a failure can be walked back to its cause without hunting on the canvas. With the drawer over the canvas, the jump pans the newly selected card into view beside it.</Note>
         </Spec>
       </Section>
 
@@ -340,7 +340,7 @@ function Page() {
 
       <Section id="surfaces" title="Surface · popup">
         <Spec id="full-tab-surface-wide-and-narrow" title="Full-tab surface — wide and narrow"
-          when={<>A whole terminal tab. Header: DAG name + <code>{"{done} / {total} done"}</code> (spaces around the slash in every language, 2026-10-09) (mono caption, <code>--tasty-dag-header-count-fg</code> = the list row counter, skip suffix after it, 2026-10-07), the DAG <code>Select</code>, the runner badge, refresh. Under <b>640px</b> the header wraps to two rows (identity above, controls below), the runner hint drops, the minimap goes, and the detail panel becomes a bottom sheet.</>}>
+          when={<>A whole terminal tab. Header: DAG name + <code>{"{done} / {total} done"}</code> (spaces around the slash in every language, 2026-10-09) (mono caption, <code>--tasty-dag-header-count-fg</code> = the list row counter, skip suffix after it, 2026-10-07), the DAG <code>Select</code>, the runner badge, refresh. Under <b>640px</b> the header wraps to two rows (identity above, controls below), the runner hint drops and the minimap goes. Node detail is the drawer over the canvas; below 480px of canvas it covers it (2026-11-10).</>}>
           <Stage style={{ padding: 16, display: "flex", gap: 16, alignItems: "stretch" }}>
             <div style={{ flex: 1, minWidth: 0, height: 520, border: "var(--tasty-border-width) solid var(--tasty-border-strong)",
               borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
@@ -353,13 +353,13 @@ function Page() {
           </Stage>
           {focusViews("dag-tab-surface", (focused) => <div style={{ height: 320, minWidth: 320 }}><DagSurface dags={[DAG_BUILD]} narrow focused={focused} /></div>)}
           <Meta
-            specs={[["focus", <>the canvas takes the bed, <span className="tok">--tasty-surface-bed-focused</span> or <span className="tok">--tasty-surface-bed-unfocused</span>. Header, nodes and detail stay. The workspace popup is not a surface, and its canvas stays <span className="tok">--tasty-dag-canvas-bg</span></>], ["header", "8/12 padding · wraps < 640"], ["canvas", "all remaining space"], ["detail", "288 side → 220 sheet"], ["narrow floor", "320px, nothing clipped"], ["DAG switch", "instant swap + auto-fit"]]}
-            tokens={[{ tok: "--tasty-bg-sidebar", use: "header band", color: "var(--tasty-bg-sidebar)" }, { tok: "--tasty-separator", use: "header hairline" }, { tok: "--tasty-dag-detail-sheet-height", use: "220 sheet" }]} />
+            specs={[["focus", <>the canvas takes the bed, <span className="tok">--tasty-surface-bed-focused</span> or <span className="tok">--tasty-surface-bed-unfocused</span>. Header, nodes and detail stay. The workspace popup is not a surface, and its canvas stays <span className="tok">--tasty-dag-canvas-bg</span></>], ["header", "8/12 padding · wraps < 640"], ["canvas", "all remaining space"], ["detail", "288 drawer over the canvas → covers it below 480"], ["narrow floor", "320px, nothing clipped · drawer covers the canvas"], ["DAG switch", "instant swap + auto-fit"]]}
+            tokens={[{ tok: "--tasty-bg-sidebar", use: "header band", color: "var(--tasty-bg-sidebar)" }, { tok: "--tasty-separator", use: "header hairline" }, { tok: "--tasty-graph-drawer-width", use: "288 drawer" }]} />
           <Note>Switching DAG in the header <code>Select</code> replaces the canvas instantly (0ms) and re-fits — a new graph has no position to preserve, so fit is the honest default. Within one DAG the view never re-fits on its own.</Note>
         </Spec>
 
         <Spec id="workspace-popup-list-single-dag" title="Workspace popup — list ⇄ single DAG"
-          when={<>A movable 560 × 460 popup. The list carries search, a <b>this workspace only</b> toggle and a status filter; picking a row swaps the whole area for that DAG's canvas via <code>DrillDown</code> — instant, with a back bar that keeps the runner badge in view. The bottom sheet holds node detail here, because 560px has no room for a side panel.</>}>
+          when={<>A movable 560 × 460 popup. The list carries search, a <b>this workspace only</b> toggle and a status filter; picking a row swaps the whole area for that DAG's canvas via <code>DrillDown</code> — instant, with a back bar that keeps the runner badge in view. Node detail is the same drawer as in the surface, over the canvas (2026-11-10: the bottom sheet is gone — popup and surface share one inside).</>}>
           <Stage style={{ padding: 0, display: "block" }}><PopupStage /></Stage>
           <Meta
             specs={[["frame", "560 × 460 · resizable"], ["titlebar", "28px drag strip"], ["list rows", "36px · ~8 visible"], ["swap", "DrillDown, 0ms"], ["dismiss", <>outside click · <span className="ic">Esc</span> · ×</>]]}

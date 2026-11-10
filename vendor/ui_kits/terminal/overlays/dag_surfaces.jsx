@@ -11,114 +11,26 @@ import { Select } from "../../../components/forms/Select.jsx";
 import { DrillDown } from "../../../components/navigation/DrillDown.jsx";
 import { DAG_STATUS, DAG_STATUS_ORDER, DAG_ROLLUP_ORDER, nodeLook, DAG_KIND, DAG_REL, DIM_STATUS, sTok, sLabel, DAG_LIST, dagLayout, elbow, DagNode, RunnerBadge, ZoomCluster, Minimap, CycleBanner, DagEmpty, NODE_W, NODE_H, DAG_BUILD } from "./dag_view.jsx";
 import { Scrim } from "./shared.jsx";
+import { GraphCanvas, GraphDrawer, DrawerRow, DrawerRows, lodOf } from "./graph_view.jsx";
 
 // Tasty UI kit — Task DAG canvas + the two surfaces that host it.
 // Load AFTER dag_view.jsx (parts) and overlays/shared.jsx (Scrim).
 //   DagCanvas   pan / zoom / select, orthogonal edges, LOD, minimap, chrome
-//   DagDetail   selected-node detail (side panel · bottom sheet)
+//   DagDetail   selected-node detail (2026-11-10: the shared drawer laid over the canvas)
 //   DagSurface  full-tab surface: header + canvas + detail
 //   DagWindow   workspace popup: DrillDown list ⇄ single-DAG detail
 
 
 
 
-const Z_MIN = 0.2, Z_MAX = 1.5, Z_STEP = 0.1;
-const lodOf = (z) => (z >= 0.7 ? "full" : z >= 0.4 ? "compact" : "block");
-const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
-
 // ── Canvas ──────────────────────────────────────────────────────────
-// pan  = drag empty canvas (or middle-drag anywhere) · plain wheel = pan
-// zoom = Ctrl/⌘ + wheel (bare wheel stays pan — this is a terminal app)
-// select = click a node · Esc clears
-function DagCanvas({ dag, dir = "td", onDirChange, selected, onSelect, minimap = true, chrome = true, style }) {
-  const g = React.useMemo(() => dagLayout(dag, dir), [dag, dir]);
-  const ref = React.useRef(null);
-  const [vp, setVp] = React.useState({ w: 800, h: 480 });
-  const [z, setZ] = React.useState(1);
-  const [o, setO] = React.useState({ x: 16, y: 16 });
-  const drag = React.useRef(null);
-  const fitted = React.useRef("");
-
-  const fit = React.useCallback((box) => {
-    const b = box || vp;
-    const pad = 16;
-    const k = clamp(Math.min((b.w - pad * 2) / g.width, (b.h - pad * 2) / g.height), Z_MIN, 1);
-    setZ(k);
-    setO({ x: (b.w - g.width * k) / 2, y: Math.max(pad, (b.h - g.height * k) / 2) });
-  }, [g.width, g.height, vp]);
-
-  // Measure on every commit (ResizeObserver is not available everywhere, and a
-  // stale viewport would keep the minimap alive on a narrow surface).
-  React.useLayoutEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const r = el.getBoundingClientRect();
-    if (Math.abs(r.width - vp.w) > 1 || Math.abs(r.height - vp.h) > 1) setVp({ w: r.width, h: r.height });
-  });
-
-  // Auto-fit once per (dag, direction) and again when the surface is RESIZED
-  // (a resize invalidates the framing; a data poll never touches it).
-  React.useEffect(() => {
-    const key = `${dag.id}:${dir}:${Math.round(vp.w / 32)}:${Math.round(vp.h / 32)}`;
-    if (fitted.current === key || vp.w < 2) return;
-    fitted.current = key;
-    fit(vp);
-  }, [dag.id, dir, vp, fit]);
-
-  React.useEffect(() => {
-    const onResize = () => {
-      const el = ref.current;
-      if (!el) return;
-      const r = el.getBoundingClientRect();
-      setVp({ w: r.width, h: r.height });
-    };
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
-  }, []);
-
-  const zoomBy = (steps, cx, cy) => {
-    setZ((prev) => {
-      const next = clamp(+(prev + steps * Z_STEP).toFixed(2), Z_MIN, Z_MAX);
-      if (next === prev) return prev;
-      const px = cx == null ? vp.w / 2 : cx, py = cy == null ? vp.h / 2 : cy;
-      setO((prevO) => ({ x: px - ((px - prevO.x) / prev) * next, y: py - ((py - prevO.y) / prev) * next }));
-      return next;
-    });
-  };
-
-  const onWheel = (e) => {
-    if (e.ctrlKey || e.metaKey) {
-      e.preventDefault();
-      const r = ref.current.getBoundingClientRect();
-      zoomBy(e.deltaY > 0 ? -1 : 1, e.clientX - r.left, e.clientY - r.top);
-    } else {
-      setO((prev) => ({ x: prev.x - e.deltaX, y: prev.y - e.deltaY }));
-    }
-  };
-  const onMouseDown = (e) => {
-    const onNode = e.target.closest && e.target.closest("[data-dag-node]");
-    if (onNode && e.button !== 1) return;
-    drag.current = { x: e.clientX, y: e.clientY, o };
-    e.preventDefault();
-  };
-  React.useEffect(() => {
-    const move = (e) => {
-      if (!drag.current) return;
-      setO({ x: drag.current.o.x + (e.clientX - drag.current.x), y: drag.current.o.y + (e.clientY - drag.current.y) });
-    };
-    const up = () => { drag.current = null; };
-    window.addEventListener("mousemove", move);
-    window.addEventListener("mouseup", up);
-    return () => { window.removeEventListener("mousemove", move); window.removeEventListener("mouseup", up); };
-  }, []);
-
-  const lod = lodOf(z);
+// 2026-11-10: the DAG canvas is the shared GraphCanvas (graph_view.jsx) with the DAG's layout,
+// edges and card. pan = drag empty canvas (or middle-drag anywhere) · plain wheel = pan ·
+// zoom = Ctrl/⌘ + wheel · select = click a node · click empty canvas or Esc clears.
+// drawer = (cover) => node: the open node detail, laid over the canvas.
+function dagEdges(dag, g, dir) {
   const td = dir !== "lr";
-  const showMap = minimap && vp.w >= 560;
-  const compactChrome = vp.w < 400;
-  const r = 4;
-
-  const edges = [];
+  const out = [];
   for (const n of dag.nodes) {
     for (const [from, rel] of n.deps || []) {
       const a = g.pos[from], b = g.pos[n.id];
@@ -127,75 +39,26 @@ function DagCanvas({ dag, dir = "td", onDirChange, selected, onSelect, minimap =
       const t = td ? { x: b.x + NODE_W / 2, y: b.y } : { x: b.x, y: b.y + NODE_H / 2 };
       const src = g.byId[from];
       const dim = DIM_STATUS.has(n.status) || (src && (src.status === "failed" || DIM_STATUS.has(src.status)));
-      const hot = selected && (selected === from || selected === n.id);
-      edges.push({ key: `${from}->${n.id}`, d: elbow(s, t, td, r), rel, dim, hot, t, td });
+      out.push({ key: `${from}->${n.id}`, from, to: n.id, s, t, td, dim, color: DAG_REL[rel].color, dash: DAG_REL[rel].dash });
     }
   }
-
+  return out;
+}
+function DagCanvas({ dag, dir = "td", onDirChange, selected, onSelect, minimap = true, chrome = true, drawer = null, banner = null, still, style }) {
+  const g = React.useMemo(() => dagLayout(dag, dir), [dag, dir]);
+  const edges = React.useMemo(() => dagEdges(dag, g, dir), [dag, g, dir]);
   return (
-    <div ref={ref} onWheel={onWheel} onMouseDown={onMouseDown}
-      style={{ position: "relative", flex: 1, minHeight: 0, minWidth: 0, overflow: "hidden",
-        cursor: "grab", background: "var(--tasty-dag-canvas-bg)",
-        backgroundImage: "radial-gradient(var(--tasty-dag-canvas-dot) var(--tasty-dag-canvas-dot-size), transparent 0)",
-        backgroundSize: "var(--tasty-dag-canvas-dot-gap) var(--tasty-dag-canvas-dot-gap)", ...style }}>
-      <div style={{ position: "absolute", top: 0, left: 0, width: g.width, height: g.height,
-        transform: `translate(${o.x}px, ${o.y}px) scale(${z})`, transformOrigin: "0 0" }}>
-        <svg width={g.width} height={g.height} style={{ position: "absolute", top: 0, left: 0, overflow: "visible" }} aria-hidden="true">
-          {edges.map((e) => {
-            const color = e.hot ? "var(--tasty-dag-edge-highlight)" : e.dim ? "var(--tasty-dag-edge-dim)" : DAG_REL[e.rel].color;
-            const dash = DAG_REL[e.rel].dash;
-            const head = e.td
-              ? `${e.t.x - 4},${e.t.y - 7} ${e.t.x + 4},${e.t.y - 7} ${e.t.x},${e.t.y}`
-              : `${e.t.x - 7},${e.t.y - 4} ${e.t.x - 7},${e.t.y + 4} ${e.t.x},${e.t.y}`;
-            return (
-              <g key={e.key}>
-                <path d={e.d} fill="none" stroke={color} strokeWidth="1" strokeDasharray={dash || undefined} />
-                <polygon points={head} fill={color} />
-              </g>
-            );
-          })}
-        </svg>
-        {dag.nodes.map((n) => (
-          <span key={n.id} data-dag-node={n.id} style={{ position: "absolute", left: g.pos[n.id].x, top: g.pos[n.id].y }}>
-            <DagNode node={n} lod={lod} selected={selected === n.id} dimmed={DIM_STATUS.has(n.status)} onSelect={onSelect} />
-          </span>
-        ))}
-      </div>
-
-      {dag.cycle && <div style={{ position: "absolute", top: 0, left: 0, right: 0 }}><CycleBanner ids={dag.cycle} /></div>}
-
-      {chrome && (
-        <div style={{ position: "absolute", right: "var(--tasty-dag-chrome-inset)", bottom: "var(--tasty-dag-chrome-inset)",
-          display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "var(--tasty-space-sm)" }}>
-          {showMap && <Minimap g={g} dag={dag} z={z} ox={o.x} oy={o.y} vw={vp.w} vh={vp.h} dir={dir} />}
-          <ZoomCluster z={z} compact={compactChrome} onZoom={(s) => zoomBy(s)} onFit={() => fit()}
-            dir={dir} onDir={() => onDirChange && onDirChange(td ? "lr" : "td")} />
-        </div>
-      )}
-      {lod !== "full" && (
-        <div style={{ position: "absolute", left: "var(--tasty-dag-chrome-inset)", bottom: "var(--tasty-dag-chrome-inset)",
-          padding: "0 var(--tasty-space-sm)", height: "var(--tasty-dag-runner-height)", display: "inline-flex", alignItems: "center",
-          borderRadius: "var(--tasty-radius-sm)", border: "var(--tasty-border-width) solid var(--tasty-dag-chrome-border)",
-          background: "var(--tasty-dag-chrome-bg)", fontFamily: "var(--tasty-font-label)",
-          fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" }}>
-          {lod === "compact" ? "names only — zoom in for status" : "status blocks — zoom in for names"}
-        </div>
-      )}
-    </div>
+    <GraphCanvas g={g} nodes={dag.nodes} edges={edges} dir={dir} onDirChange={onDirChange} selected={selected} onSelect={onSelect}
+      minimap={minimap} chrome={chrome} drawer={drawer} still={still}
+      banner={banner || (dag.cycle ? <CycleBanner ids={dag.cycle} /> : null)} style={style}
+      renderNode={(n, lod, sel) => <DagNode node={n} lod={lod} selected={sel} dimmed={DIM_STATUS.has(n.status)} onSelect={onSelect} />} />
   );
 }
 
 // ── Node detail ─────────────────────────────────────────────────────
-function DetailRow({ k, v, mono }) {
-  return (
-    <>
-      <dt style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{k}</dt>
-      <dd style={{ margin: 0, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-        fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-secondary)",
-        fontFamily: mono ? "var(--tasty-font-mono)" : "var(--tasty-font-ui)" }}>{v}</dd>
-    </>
-  );
-}
+// 2026-11-10: the detail is the shared GraphDrawer (graph_view.jsx) laid over the canvas. Its body
+// is unchanged: state, awaiting notice, why unknown, rows, command, dependencies, error and output.
+const DetailRow = DrawerRow;
 
 function LogBlock({ label, text, max, onCopy }) {
   return (
@@ -215,25 +78,15 @@ function LogBlock({ label, text, max, onCopy }) {
   );
 }
 
-function DagDetail({ dag, id, onClose, onSelect, sheet = false }) {
+function DagDetail({ dag, id, onClose, onSelect, frame = "drawer", cover = false }) {
   const node = dag.nodes.find((n) => n.id === id);
   if (!node) return null;
   const st = nodeLook(node);
   const kind = DAG_KIND[node.kind] || DAG_KIND.run;
   const awaiting = node.status === "running" && node.phase === "awaiting_input";
   const deps = (node.deps || []).map(([from, rel]) => ({ rel, node: dag.nodes.find((n) => n.id === from) })).filter((d) => d.node);
-  const frame = sheet
-    ? { height: "var(--tasty-dag-detail-sheet-height)", borderTop: "var(--tasty-border-width) solid var(--tasty-dag-detail-border)" }
-    : { width: "var(--tasty-dag-detail-width)", borderLeft: "var(--tasty-border-width) solid var(--tasty-dag-detail-border)" };
-  return (
-    <aside className="tasty-scroll" style={{ flex: "none", boxSizing: "border-box", overflow: "auto", ...frame,
-      background: "var(--tasty-dag-detail-bg)", padding: "var(--tasty-dag-detail-padding)",
-      display: "flex", flexDirection: "column", gap: "var(--tasty-space-md)", fontFamily: "var(--tasty-font-ui)" }}>
-      <div style={{ display: "flex", alignItems: "flex-start", gap: "var(--tasty-space-sm)" }}>
-        <span style={{ flex: 1, minWidth: 0, fontSize: "var(--tasty-font-size-body)", fontWeight: "var(--tasty-font-weight-semibold)",
-          color: "var(--tasty-text-primary)", wordBreak: "break-word" }}>{node.name}</span>
-        <IconButton size="sm" aria-label="Close detail" title="Close detail" onClick={onClose}><Icon name="close" /></IconButton>
-      </div>
+  const body = (
+    <>
       <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-xs)" }}>
         <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-xs)",
           fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-caption)", color: st.lbl }}>
@@ -259,13 +112,12 @@ function DagDetail({ dag, id, onClose, onSelect, sheet = false }) {
           <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>Retry or cancel it to let the graph continue.</span>
         </div>
       )}
-      <dl style={{ margin: 0, display: "grid", gridTemplateColumns: "auto 1fr", columnGap: "var(--tasty-space-md)",
-        rowGap: "var(--tasty-space-xs)", alignItems: "baseline" }}>
+      <DrawerRows>
         <DetailRow k="Started" v={node.started || "—"} mono />
         <DetailRow k="Duration" v={node.dur || "—"} mono />
         <DetailRow k="Exit code" v={node.exit == null ? "—" : String(node.exit)} mono />
         <DetailRow k="Task id" v={node.id} mono />
-      </dl>
+      </DrawerRows>
       <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", minWidth: 0 }}>
         <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>Command</span>
         <code style={{ display: "block", boxSizing: "border-box", padding: "var(--tasty-space-sm)", borderRadius: "var(--tasty-radius-sm)",
@@ -298,8 +150,17 @@ function DagDetail({ dag, id, onClose, onSelect, sheet = false }) {
         <LogBlock label="Output tail" max="var(--tasty-dag-detail-out-max-height)"
           text={`$ ${node.cmd}\n… ${node.status === "running" ? "streaming" : "last 200 lines retained"}`} />
       )}
-    </aside>
+    </>
   );
+  // frame "panel": the body alone in a fixed-width column, for specimens that compare bodies side by side.
+  if (frame === "panel") {
+    return (
+      <div style={{ position: "relative", flex: "none", width: "var(--tasty-graph-drawer-width)", alignSelf: "stretch", overflow: "hidden" }}>
+        <GraphDrawer title={node.name} onClose={onClose}>{body}</GraphDrawer>
+      </div>
+    );
+  }
+  return <GraphDrawer title={node.name} onClose={onClose} cover={cover}>{body}</GraphDrawer>;
 }
 
 // 2026-10-07 — header count = the list row's counter: "{done}/{total} done" + the same skip suffix.
@@ -312,13 +173,13 @@ function dagHeaderCount(dag) {
 }
 
 // ── Full-tab surface ────────────────────────────────────────────────
-function DagSurface({ dags = [DAG_BUILD], initialId, narrow: forceNarrow, focused, style }) {
+function DagSurface({ dags = [DAG_BUILD], initialId, initialSelected = null, narrow: forceNarrow, focused, style }) {
   // A tab surface passes focused, and the canvas takes the bed. A workspace popup does not, and keeps the canvas tone.
   const bed = focused === undefined ? "var(--tasty-dag-canvas-bg)" : focused ? "var(--tasty-surface-bed-focused)" : "var(--tasty-surface-bed-unfocused)";
   const [dagId, setDagId] = React.useState(initialId || dags[0]?.id);
   const [dir, setDir] = React.useState("td");
   const [z, setZ] = React.useState(1); // detail-view zoom — lives in the back bar (S2)
-  const [sel, setSel] = React.useState(null);
+  const [sel, setSel] = React.useState(initialSelected);
   const [narrowAuto, setNarrowAuto] = React.useState(false);
   const box = React.useRef(null);
   const dag = dags.find((d) => d.id === dagId) || dags[0];
@@ -371,9 +232,9 @@ function DagSurface({ dags = [DAG_BUILD], initialId, narrow: forceNarrow, focuse
     <div ref={box} style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0, overflow: "hidden",
       background: "var(--tasty-bg-panel)", ...style }}>
       {header}
-      <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: narrow ? "column" : "row" }}>
-        <DagCanvas dag={dag} dir={dir} onDirChange={setDir} selected={sel} onSelect={setSel} style={{ backgroundColor: bed }} />
-        {sel && <DagDetail dag={dag} id={sel} sheet={narrow} onClose={() => setSel(null)} onSelect={setSel} />}
+      <div style={{ flex: 1, minHeight: 0, display: "flex" }}>
+        <DagCanvas dag={dag} dir={dir} onDirChange={setDir} selected={sel} onSelect={setSel} style={{ backgroundColor: bed }}
+          drawer={sel ? (cover) => <DagDetail dag={dag} id={sel} cover={cover} onClose={() => setSel(null)} onSelect={setSel} /> : null} />
       </div>
     </div>
   );
@@ -415,12 +276,12 @@ function dagRowItems(entries) {
 }
 
 // ── Workspace popup ─────────────────────────────────────────────────
-function DagWindow({ onClose, entries = DAG_LIST, scope = "tasty" }) {
+function DagWindow({ onClose, entries = DAG_LIST, scope = "tasty", initialOpen = null, initialSelected = null }) {
   const [q, setQ] = React.useState("");
   const [mine, setMine] = React.useState(false);
   const [status, setStatus] = React.useState("all");
-  const [openId, setOpenId] = React.useState(null);
-  const [sel, setSel] = React.useState(null);
+  const [openId, setOpenId] = React.useState(initialOpen);
+  const [sel, setSel] = React.useState(initialSelected);
   const [dir, setDir] = React.useState("td");
   const [z, setZ] = React.useState(1); // detail-view zoom — lives in the back bar (S2)
 
@@ -467,8 +328,8 @@ function DagWindow({ onClose, entries = DAG_LIST, scope = "tasty" }) {
           detail={open ? (
             <div style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0 }}>
               <div style={{ flex: 1, minHeight: 0, display: "flex" }}>
-                <DagCanvas dag={open.dag} dir={dir} onDirChange={setDir} selected={sel} onSelect={setSel} minimap={false} />
-                {sel && <DagDetail dag={open.dag} id={sel} onClose={() => setSel(null)} onSelect={setSel} sheet />}
+                <DagCanvas dag={open.dag} dir={dir} onDirChange={setDir} selected={sel} onSelect={setSel} minimap={false} chrome={false}
+                  drawer={sel ? (cover) => <DagDetail dag={open.dag} id={sel} cover={cover} onClose={() => setSel(null)} onSelect={setSel} /> : null} />
               </div>
             </div>
           ) : null}>
