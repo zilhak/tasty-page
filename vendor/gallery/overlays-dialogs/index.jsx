@@ -579,7 +579,10 @@ function Page() {
                   ["permission_denied", "secrets.env", "The remote host denied permission to read the file."],
                   ["changed", "server.log", "The file changed on the remote host during the download."],
                   ["io", "main.rs", "The remote host could not read the file."],
-                  ["local_write", "build-artifacts.tar.gz", "The file could not be written on this computer."]].map(([code, name, reason]) => (
+                  ["local_write", "build-artifacts.tar.gz", "The file could not be written on this computer."],
+                  ["timeout", "build-artifacts.tar.gz", "The remote host did not respond in time during the download."],
+                  ["bad_response", "main.rs", "The remote host sent file data in an unexpected format."],
+                  ["attached_elsewhere", "main.rs", "The remote host refused the download because this workspace is now attached by another client."]].map(([code, name, reason]) => (
                   <div key={code} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                     <div style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: "var(--tasty-text-muted)" }}>{code}</div>
                     <TransferErrorFrame title="Download failed" reasonKind="sentence" name={name} reason={reason} />
@@ -589,7 +592,7 @@ function Page() {
             </View>
           </Views>
           <Meta
-            specs={[["frame", "TransferErrorFrame — unchanged layout; reason text in the sentence face"], ["well text", <><span className="tok">--tasty-font-ui</span> · <span className="tok">--tasty-font-size-body</span> · line-height-ui · danger ink — not mono: a translated sentence, not a quoted cause</>], ["title", "transfer.error.title_download_run"], ["body", "transfer.error.body_suffix — kept"], ["well", "download_run.reason.<cause> — directory · not_regular · not_found · permission_denied · changed · io · disconnected · local_write"], ["buttons", "Dismiss only (transfer.error.dismiss) for every cause"], ["folder form", "this popup, not a toast — the answer to the press stays in the layer the press opened"]]}
+            specs={[["frame", "TransferErrorFrame — unchanged layout; reason text in the sentence face"], ["well text", <><span className="tok">--tasty-font-ui</span> · <span className="tok">--tasty-font-size-body</span> · line-height-ui · danger ink — not mono: a translated sentence, not a quoted cause</>], ["title", "transfer.error.title_download_run"], ["body", "transfer.error.body_suffix — kept"], ["well", "download_run.reason.<cause> — directory · not_regular · not_found · permission_denied · changed · io · disconnected · local_write · timeout · bad_response · attached_elsewhere"], ["timeout vs disconnected", "timeout = one request got no answer within the request limit while the connection may still be up; disconnected = the connection itself was lost. The sentence names no number of seconds"], ["bad_response vs io", "bad_response = the data the remote host sent did not match the expected form (chunk position, size, end marker); io = the remote host failed to read the file"], ["attached_elsewhere", "the remote host refused because another client now holds this workspace — reuses the attach term (attach.held_workspace_body)"], ["every cause", "the received part is deleted and no handler runs — the well does not repeat it"],["buttons", "Dismiss only (transfer.error.dismiss) for every cause"], ["folder form", "this popup, not a toast — the answer to the press stays in the layer the press opened"]]}
             tokens={[{ tok: "--tasty-accent-danger", use: "glyph + reason", color: "var(--tasty-accent-danger-raised)" }, { tok: "--tasty-bg-app", use: "reason well", color: "var(--tasty-bg-app)" }]} />
           <Note>No Retry here: a retry would be a new path into the download that skips the dialog. Opening the file again shows the dialog again.</Note>
         </Spec>
