@@ -1037,15 +1037,13 @@ function FhGroup({ label, count, caption, tone }) {
 // explorer host mark form: remote glyph + host, mono caption, remote hue, no fill. It
 // caps the host text (fh-remote-max-width) and end-elides inside it; the path keeps its
 // front elision in what is left. A local path has no mark. The host text is the attach
-// profile name. No host text (a mirror without a profile under option B, or any empty
-// value): the word Remote (attach.mirror_pill_label) holds the slot in font-label.
-function FhRemoteMark({ host, word = "Remote" }) {
+// profile name and nothing else: a mirror always attaches through a profile (R-57).
+function FhRemoteMark({ host }) {
   return (
     <span data-fh-remote style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-fh-remote-gap)", flex: "0 0 auto", minWidth: 0,
       color: "var(--tasty-fh-remote-fg)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)" }}>
       <span style={{ display: "inline-flex", flex: "none" }}><Icon name="remote" size="var(--tasty-icon-size-xs)" /></span>
-      <span style={{ minWidth: 0, maxWidth: "var(--tasty-fh-remote-max-width)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-        ...(host ? null : { fontFamily: "var(--tasty-font-label)" }) }}>{host || word}</span>
+      <span style={{ minWidth: 0, maxWidth: "var(--tasty-fh-remote-max-width)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{host}</span>
     </span>
   );
 }
@@ -1073,8 +1071,7 @@ function FhHeader({ state, path, remote }) {
           With a remote mark the path box is what the mark leaves: 390 − mark − 8 (gap),
           mark = 12 glyph + 4 + host text (6px per char, capped at 160). Measure that box;
           where measuring is not available the cap is floor((366 − min(6 × host chars, 160)) / 6):
-          gx10 → 57, mac-company-attach → 43, 127.0.0.1:54321 → 46, the word Remote → 55,
-          and 34 at the host cap — use 34 when the host width is not known either. */}
+          gx10 → 57, mac-company-attach → 43, and 34 at the host cap — use 34 when the host width is not known either. */}
       <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", minWidth: 0 }}>
         {remote && <FhRemoteMark host={remote.host} />}
         <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: "var(--tasty-text-muted)",
