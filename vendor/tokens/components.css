@@ -1367,6 +1367,23 @@
   --tasty-dag-popup-width:           var(--tasty-size-560);
   --tasty-dag-popup-height:          var(--tasty-size-460);
 
+  /* 2026-11-10 — Graph view: the child graph and the Task DAG share one graph component.
+     The dag-* tokens above stay the shared canvas, card, edge, chrome and detail-row values
+     (names never change); graph-* adds what the shared component gained. No colour here:
+     every ink and fill is an existing dag-* or semantic role. */
+  --tasty-graph-drawer-width:        var(--tasty-dag-detail-width);           /* 288 — drawer laid OVER the canvas, flush right, full canvas height */
+  --tasty-graph-drawer-cover-below:  var(--tasty-size-480);                   /* canvas narrower than this: the drawer covers the whole canvas (288 + one 168 card + 2 × 12 does not fit) */
+  --tasty-graph-drawer-head-height:  var(--tasty-drilldown-backbar-height);   /* 36 — title + close, pinned while the body scrolls */
+  --tasty-graph-drawer-motion:       var(--tasty-motion-ui);                  /* 120 slide in / out from the right edge; reduced motion → instant */
+  --tasty-graph-reveal-margin:       var(--tasty-space-lg);                   /* 16 — a selected card under the drawer pans this far left of its edge */
+  --tasty-graph-push-motion:         var(--tasty-motion-ui);                  /* 120 child graph → DAG push to the left, back slides right; reduced motion → instant */
+  --tasty-graph-toolbar-height:      var(--tasty-drilldown-backbar-height);   /* 36 — popup toolbar = back bar, so the push never moves the canvas top */
+  --tasty-graph-child-popup-width:   var(--tasty-size-600);                   /* three columns at 100%: 3 × 168 + 2 × 32 + 2 × 16 */
+  --tasty-graph-child-popup-height:  var(--tasty-dag-popup-height);           /* 460 — the DAG popup height, so a pushed DAG fits as it does there */
+  --tasty-graph-base-chip-height:    var(--tasty-size-16);                    /* chip above the base surface's card */
+  --tasty-graph-base-chip-gap:       var(--tasty-space-xs);                   /* 4 — chip ↔ card top; 16 + 4 fits the 24 sibling gap */
+  --tasty-graph-base-chip-padding-x: var(--tasty-space-xs);                   /* 4 */
+
   /* 2026-10-06 — command palette list cap · remote protocol filter */
   --tasty-palette-list-max-height:     var(--tasty-size-320); /* list grows to 11 rows then scrolls; ON-SCALE with control-height. List padding = space-sm on all four sides (no extra footer gap) */
   --tasty-remote-filter-dropdown-width: var(--tasty-size-240); /* BORDER-BOX width (includes the 1px border) of the protocol-filter popover; content = 240 − 2 */
