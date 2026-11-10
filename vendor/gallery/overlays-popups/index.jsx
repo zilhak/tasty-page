@@ -5,7 +5,8 @@ import { Kbd, MenuItem } from "../../components/index.js";
 import { GalleryNoticeColumn } from "./notice-column.jsx";
 import { GalleryWebviewOpaque } from "./opaque-over-page.jsx";
 import { GroundThemes as PGroundThemes, GroundCap as PGroundCap, ToolsMenuFrame, SearchBarFrame, HeldLabel, TabStripMock, SidebarMock, RailMock, CatSwitchSidebarMock, CatSwitchRailMock, ic, CatMenu, RailCategoryFrame, catIc, ModifierHintPanelG, MH_CAT_SECTIONS, MH_MIXED_SECTIONS, MH_EMPTY_SECTIONS } from "../parts/overlay-frames.jsx";
-import { Section, Spec, Stage, Meta, Note, Do, Dont } from "../parts/specimen.jsx";
+import { Section, Spec, Stage, Meta, Note, Do, Dont, Views, View } from "../parts/specimen.jsx";
+import { RemoteRowMenuItems } from "../../ui_kits/terminal/overlays/remote_row.jsx";
 
 // Tasty Gallery — Overlays · Popups & menus (anchored, no scrim)
 // One of the five Overlays sub-pages (dialogs · windows · popups · banners · tutorial). Frame components are shared from
@@ -289,6 +290,31 @@ function Page() {
             specs={[["boundary", <><code>---</code> full-width button</>], ["anchor", "popup to the right of the button"], ["header", "category name — non-clickable"], ["items", "Add workspace · Collapse · Rename · Delete"], ["collapsed/empty", <><code>---</code> only, no avatars</>], ["reserved", "no Rename/Delete"]]}
             tokens={[{ tok: "--tasty-separator", use: <><code>---</code> line (idle)</>, color: "var(--tasty-separator)" }, { tok: "--tasty-text-muted", use: <><code>---</code> line (hover)</>, color: "var(--tasty-text-muted)" }, { tok: "--tasty-surface-raised", use: "popup fill", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-menu-border", use: "edge", color: "var(--tasty-menu-border)" }, { tok: "--tasty-popup-content-margin", use: "inner ring 4 (all sides)" }, { tok: "--tasty-accent-danger", use: "delete row", color: "var(--tasty-accent-danger-raised)" }]} />
           <Note>Collapse state is per-category and <b>shared</b> with the full sidebar (both seed from the persisted <code>collapsed</code> flag in <code>layout.json</code>). Toggling here or in the full header updates the same state.</Note>
+        </Spec>
+        <Spec id="remote-row-context-menu-by-connection-state" title="Saved remote workspace — the row menu by connection state"
+          when={<>A saved remote row's right-click menu is the workspace menu (the OS menu in the app: order, wording, separators and disabled items only) with one <b>connection group</b> and one <b>close group</b> at the end. The connection group is <b>Connect</b> (or <b>Reconnect</b> for a row that had a screen in this run, the popup's word) and <b>Disconnect</b>; each is <b>disabled, not hidden</b>, where it cannot act. The close group names <b>where</b> the closing happens: <b>Close locally</b> takes the row out of this Tasty and leaves the workspace running on the remote; <b>Close remote workspace…</b> ends it there and opens a confirmation, so it is last and carries the ellipsis. Nothing can reach the remote while the row is not connected, so that item is enabled only when connected. The menu opens with or without categories; the category block appears only with categories on. An agent mirror made from the CLI or IPC keeps today's menu.</>}>
+          <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 22, flexWrap: "wrap", alignItems: "flex-start" }}>
+            <CatMenu caption="connected · categories on"><RemoteRowMenuItems state="connected" categories={["Workspaces", "Services"]} /></CatMenu>
+            <CatMenu caption="connecting"><RemoteRowMenuItems state="connecting" /></CatMenu>
+            <CatMenu caption="reconnecting"><RemoteRowMenuItems state="reconnecting" /></CatMenu>
+            <CatMenu caption="disconnected (last screen kept)"><RemoteRowMenuItems state="disconnected" /></CatMenu>
+            <CatMenu caption="not connected (after a restart)"><RemoteRowMenuItems state="not_connected" /></CatMenu>
+          </Stage>
+          <Views>
+            <View name="remote-row-menu-languages" label="ko, ja, zh-Hans — connected and disconnected">
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 22, alignItems: "flex-start" }}>
+                {["ko", "ja", "zh-Hans"].flatMap((lang) => [
+                  <CatMenu key={lang + "c"} caption={lang + " · connected"}><RemoteRowMenuItems state="connected" lang={lang} /></CatMenu>,
+                  <CatMenu key={lang + "d"} caption={lang + " · disconnected"}><RemoteRowMenuItems state="disconnected" lang={lang} /></CatMenu>,
+                ])}
+              </div>
+            </View>
+          </Views>
+          <Meta
+            specs={[["order", "Rename · Change Subtitle | Move Up · Move Down | Save as workspace preset | (categories) | (Force detach) | Connect or Reconnect · Disconnect | Close locally · Close remote workspace…"], ["Connect / Reconnect", "enabled: disconnected, not connected · disabled: connected, connecting, reconnecting · Reconnect when the row had a screen in this run"], ["Disconnect", "enabled: connected, connecting, reconnecting (stops the attempts; no automatic reconnect after it) · disabled: disconnected, not connected"], ["Close locally", "always · the remote workspace keeps running · no confirmation"], ["Close remote workspace…", "connected only · opens the confirmation (Dialogs › Close remote workspace)"], ["replaces", "Disconnect Workspace and Close Workspace on a saved remote row"], ["Force detach", "unchanged — only when this Tasty serves the workspace to another client"], ["agent mirror", "today's menu, unchanged"]]}
+            tokens={[]} />
+          <Note>Copy: <code>remote.row.popup.connect</code> · <code>child_graph.reconnect</code> · <code>remote.row.menu.disconnect</code> · <code>remote.row.menu.close_local</code> · <code>remote.row.menu.close_remote</code>. The other items keep their current keys and English, shown here as the app has them.</Note>
+          <Dont><b>Don't</b> label the local one plain “Close”. On a remote row the word alone reads as closing the remote workspace, which is the other item.</Dont>
         </Spec>
       </Section>
       <Section id="notices" title="Notice column — restore failure · save halt · response wait">

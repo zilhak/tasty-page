@@ -1,6 +1,7 @@
 import React from "react";
 import { Icon as TastyDesignSystem_41fd3f_Icon } from "../../../components/core/Icon.jsx";
 import { MenuItem } from "../../../components/navigation/MenuItem.jsx";
+import { RemoteRowMenuItems } from "./remote_row.jsx";
 
 // Tasty UI kit — sidebar workspace-category context menu + collapsed-rail popup.
 // Used by chrome.jsx Sidebar (right-click → SidebarContextMenu) and CollapsedSidebar
@@ -74,7 +75,12 @@ function SidebarContextMenu({ x, y, target, onClose, categories = [] }) {
         style={{ position: "fixed", left, top, ...panelStyle }}>
         {/* 2026-10-07 — flat list, no submenu: the product draws this with the OS-native menu.
             Inert "Move to category" header, then every OTHER category as a plain item. */}
-        {t.kind === "workspace" && (
+        {/* a saved remote row: its whole menu, in the app's order (remote_row.jsx RemoteRowMenuItems) */}
+        {t.kind === "workspace" && t.ws && t.ws.mirror && (
+          <RemoteRowMenuItems state={t.ws.remoteState || "connected"}
+            categories={categories && categories.length ? moveTargets.filter((c) => !(t.cat && c.id === t.cat.id)).map((c) => (c.reserved ? "Workspaces" : c.name)) : null} />
+        )}
+        {t.kind === "workspace" && !(t.ws && t.ws.mirror) && (
           <>
             <MenuItem label="Move to category" icon={cx.move} disabled />
             {moveTargets.filter((c) => !(t.cat && c.id === t.cat.id)).map((c) => (
@@ -98,8 +104,8 @@ function SidebarContextMenu({ x, y, target, onClose, categories = [] }) {
             )}
           </>
         )}
-        {t.kind === "workspace" && <MenuItem separator />}
-        <MenuItem label="New category" icon={cx.plus} onClick={act} />
+        {t.kind === "workspace" && !(t.ws && t.ws.mirror) && <MenuItem separator />}
+        {!(t.kind === "workspace" && t.ws && t.ws.mirror) && <MenuItem label="New category" icon={cx.plus} onClick={act} />}
       </div>
     </div>
   );
