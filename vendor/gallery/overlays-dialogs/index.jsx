@@ -104,7 +104,7 @@ function Page() {
           <Dont><b>Don't</b> read this as an input rule. The scrim marks <b>what the popup belongs to</b>; which input it swallows is the host's existing contract and is unchanged here.</Dont>
         </Spec>
 
-        <Spec id="both-split-directions-a-clamped-popup-and-a-child-picker" title="Both split directions, a clamped popup, and a child picker"
+        <Spec id="both-split-directions-a-clamped-popup-and-a-child-picker" title="Both split directions, a narrow surface, and a child picker"
           when={<>The boundary has to read in every arrangement. Side-by-side and stacked splits show the divider staying lit between a dimmed and an undimmed surface. In a <b>narrow</b> surface the popup does not shrink to the rect: when it does not fit, it collapses to the show button (next specimen). It never grows past its surface, and focus is never moved to win space. When a <b>child</b> picker opens from the popup, the scrim is drawn <b>once</b> — the parent shell stays fully painted under the child, which sits above it with its own shadow. Two shells, one scrim, no accumulated darkness.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 18, flexWrap: "wrap", alignItems: "flex-start" }}>
             {[["horizontal split", { scope: "surface", split: "h" }],
@@ -117,7 +117,7 @@ function Page() {
             ))}
           </Stage>
           <Meta
-            specs={[["scrim count", "one per scope — never composited twice"], ["depth", "scrim z0 · parent shell z1 · child shell z2"], ["parent under child", "full ink, not dimmed further"], ["narrow", "no shrink to the surface rect — a popup that does not fit collapses to the show button (next specimen) · whether a sizer popup keeps a shrink range above its minimum before it collapses is open (question to tasty)"], ["surface hidden", "popup shell AND scrim hide with it; both return on re-show"], ["host popups", "same rule when they declare a surface scope"]]}
+            specs={[["scrim count", "one per scope — never composited twice"], ["depth", "scrim z0 · parent shell z1 · child shell z2"], ["parent under child", "full ink, not dimmed further"], ["narrow", "no shrink to the surface rect — when the popup's own size is larger than the surface bounds it collapses to the show button (next specimen); there is no shrink range"], ["popup size", "drawn at its own size in every expanded frame (280 here, bounds 288.5 side by side) — never shrunk to fit"], ["surface hidden", "popup shell AND scrim hide with it; both return on re-show"], ["host popups", "same rule when they declare a surface scope"]]}
             tokens={[{ tok: "--tasty-fp-popup-min-width", use: "picker floor — the surface no longer overrides it" }, { tok: "--tasty-scrim-bg", use: "drawn once", color: "var(--tasty-scrim-bg)" }, { tok: "--tasty-shadow-modal", use: "both shells" }]} />
           <Note><b>convert_surface</b> and any other host popup bound to a surface gain this scrim (they have none today); host popups with no target binding stay on the window scrim. Child-lifetime and draft policy are the host's, unchanged by this visual rule.</Note>
         </Spec>

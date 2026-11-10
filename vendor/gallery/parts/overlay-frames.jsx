@@ -869,6 +869,8 @@ function LocalSshSection({ state = "hosts" }) {
 //     surface, so only the show button stands in its place (label, then icon only,
 //     then the icon frame cut at the surface rect). ring: the button holds key focus.
 //   leftWidth: fixed width of the left (popup) surface, for the very narrow frames.
+//   The popup is 280 and never shrinks (flex: none): in the wide mock the left surface is
+//   304.5, so its bounds (− 2 × 8) are 288.5 and the popup fits unshrunk.
 //   size: [W, H] override; pin: a window-scope popup bigger than the window keeps
 //     its size, left/top on the window's edge, right/bottom cut.
 function ShellMock({ scope = "none", split = "v", child = false, narrow = false, clamp = false,
@@ -884,7 +886,7 @@ function ShellMock({ scope = "none", split = "v", child = false, narrow = false,
     </div>
   );
   const popup = (
-    <div style={{ position: "relative", width: clamp ? 220 : 300, background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-frame)",
+    <div style={{ position: "relative", flex: "none", width: clamp ? 220 : 280, background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-frame)",
       borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", overflow: child ? "visible" : "hidden" }}>
       <div style={{ padding: "10px 12px 8px", display: "flex", flexDirection: "column", gap: 6 }}>
         <div style={{ fontSize: 13, fontWeight: 600 }}>Open markdown file</div>
