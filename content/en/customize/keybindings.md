@@ -1,4 +1,4 @@
-<!-- source-hash: ae207cf0c300 -->
+<!-- source-hash: 7cce37839458 -->
 # Keybindings
 
 Tasty’s keybindings can be changed with a preset or by assigning preferred key combinations to frequently used actions. Keybindings are available in **Settings** > **Keybindings**.
@@ -89,7 +89,7 @@ Category keybindings work only when **Settings** > **General** > **Workspace cat
 | Show or hide hidden files (explorer) | `Ctrl+Shift+.` · `Alt+Shift+.` | `Ctrl+Shift+.` · `Cmd+Shift+.` |
 | Zoom in · zoom out · reset zoom | `Ctrl+=` · `Ctrl+-` · `Ctrl+0` (`Alt` also works) | `Ctrl+=` · `Ctrl+-` · `Ctrl+0` (`Cmd` also works) |
 
-**Refresh** asks the surface you are looking at to refresh. Markdown re-reads its file (or the original on the remote), the explorer re-reads its folder, and a terminal does nothing. Even when it shares a key with the explorer's own Refresh, the folder is read once. On Windows and Linux, shortcuts without modifiers that use function keys such as `F2` also work in Markdown and HTML views. If the Refresh key is also assigned to an editing key such as Copy or Paste, a web page, the input fields in it and the HTML address field run only that edit and do not refresh. While you type in the HTML address field, **Focus the address bar** also comes before Refresh on a shared key. While Refresh has `F5`, programs inside a terminal (mc, htop and so on) do not receive `F5`. To use `F5` in a terminal program, clear this Refresh key or change it under **Settings** > **Keybindings** > **Surface**.
+**Refresh** asks the surface you are looking at to refresh. Markdown re-reads its file (or the original on the remote), the explorer re-reads its folder, and a terminal does nothing. Even when it shares a key with the explorer's own Refresh, the folder is read once. On Windows and Linux, shortcuts without modifiers that use function keys such as `F2` also work in Markdown and HTML views. On Windows and Linux, if you assign a letter key without modifiers, such as `R`, to Refresh, Tasty also takes that key in web views, so the letter is not entered. The key input in the settings screen does not accept letters without modifiers, so these bindings can only be created in `~/.tasty/config.toml`. Keys and letters that are not assigned to shortcuts are entered in the page as usual. If the Refresh key is also assigned to an editing key such as Copy or Paste, a web page, the input fields in it and the HTML address field run only that edit and do not refresh. While you type in the HTML address field, **Focus the address bar** also comes before Refresh on a shared key. While Refresh has `F5`, programs inside a terminal (mc, htop and so on) do not receive `F5`. To use `F5` in a terminal program, clear this Refresh key or change it under **Settings** > **Keybindings** > **Surface**.
 
 `Ctrl+C` copies when there is selected text; otherwise it interrupts the running program as usual.
 
