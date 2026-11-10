@@ -10,7 +10,8 @@ import { Kbd, Icon, Tooltip } from "../../components/index.js";
 import { Spec, Stage, Meta, Note, Do, Dont, Views, View } from "../parts/specimen.jsx";
 import { ThemePair } from "../parts/theme-frame.jsx";
 
-// Copy. reconnecting is new (status_bar.remote_reconnecting). The rest is reused
+// Copy. reconnecting is new (status_bar.remote_reconnecting); the link tooltip and the
+// file handler picker's remote mark reuse it for their reconnecting form. The rest is reused
 // from the app catalog: attach.mirror_pill_label, attach.mirror_workspace,
 // attach.toast.mirror_reconnecting.
 export const REMOTE_COPY = {
@@ -159,14 +160,20 @@ function LinkRun({ children }) {
   // the link under the pointer, unchanged: selection fill, text-on-active, blue underline
   return <span style={{ background: "var(--tasty-selection-bg)", color: "var(--tasty-text-on-active)", textDecoration: "underline", textDecorationColor: "var(--tasty-accent-primary-raised)", textUnderlineOffset: 2 }}>{children}</span>;
 }
-function LinkTip({ host, lang = "en" }) {
+// reconnecting: the status bar's reconnecting form on the tooltip's raised ground —
+// glyph glyph-dim-raised, host text-muted-raised, then the status word (label font,
+// text-muted-raised). The word never elides; the host elides first.
+function LinkTip({ host, state = "connected", lang = "en" }) {
   const c = REMOTE_COPY[lang];
+  const live = state !== "reconnecting";
   return (
-    <span lang={lang} style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-sm)", whiteSpace: "nowrap", maxWidth: "100%", minWidth: 0 }}>
+    <span lang={lang} data-link-remote={state} style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-sm)", whiteSpace: "nowrap", maxWidth: "100%", minWidth: 0 }}>
       <span style={{ flex: "none" }}>{c.remote}</span>
-      <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-link-remote-gap)", minWidth: 0, color: "var(--tasty-link-remote-fg)", fontFamily: "var(--tasty-font-mono)" }}>
-        <span style={{ display: "inline-flex", flex: "none" }}><Icon name="remote" size="var(--tasty-icon-size-xs)" /></span>
+      <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-link-remote-gap)", minWidth: 0, fontFamily: "var(--tasty-font-mono)",
+        color: live ? "var(--tasty-link-remote-fg)" : "var(--tasty-text-muted-raised)" }}>
+        <span style={{ display: "inline-flex", flex: "none", color: live ? "inherit" : "var(--tasty-glyph-dim-raised)" }}><Icon name="remote" size="var(--tasty-icon-size-xs)" /></span>
         <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis" }}>{host}</span>
+        {!live && <span style={{ flex: "none", fontFamily: "var(--tasty-font-label)" }}>{c.reconnecting}</span>}
       </span>
     </span>
   );
@@ -185,24 +192,26 @@ const LINK_ROWS = [
   ["mirror — profile gx10, tooltip says where it lives", HOST, "src/main.rs:42", true],
   ["mirror — profile mac-company-attach", MID, "src/main.rs:42", true],
   ["mirror — long profile name, end-elided in the tooltip", LONG, "src/main.rs:42", true],
+  ["mirror · reconnecting — neutral ink + status word, as the status bar", MID, "src/main.rs:42", true, "reconnecting"],
+  ["mirror · reconnecting, long profile name — the host elides, the word stays", LONG, "src/main.rs:42", true, "reconnecting"],
   ["mirror — https link, no tooltip (opens in the local browser)", HOST, "https://docs.rs/tokio", false],
 ];
 
 export function RemoteLinkSpec() {
   return (
     <Spec id="terminal-link-remote" title="Path link on a mirror — say where it lives before the click"
-      when={<>On a mirror, a path in the terminal names a file on the remote host. Holding the link modifier over it draws the same link as anywhere — selection fill, <span className="tok">text-on-active</span>, blue underline — and a <b>tooltip below the run</b> adds where it lives: the word <b>Remote</b> in tooltip ink, then <b>remote glyph + host</b> in <span className="tok">--tasty-link-remote-fg</span>. It shows after the tooltip delay and goes the frame the link is released; the terminal cells themselves do not change or animate. A <b>local</b> path gets no tooltip, and neither does a URL with a scheme: it opens in the local browser wherever the terminal runs. The host text is the <b>attach profile name</b>, and only that (R-57).</>}>
+      when={<>On a mirror, a path in the terminal names a file on the remote host. Holding the link modifier over it draws the same link as anywhere — selection fill, <span className="tok">text-on-active</span>, blue underline — and a <b>tooltip below the run</b> adds where it lives: the word <b>Remote</b> in tooltip ink, then <b>remote glyph + host</b> in <span className="tok">--tasty-link-remote-fg</span>. It shows after the tooltip delay and goes the frame the link is released; the terminal cells themselves do not change or animate. A <b>local</b> path gets no tooltip, and neither does a URL with a scheme: it opens in the local browser wherever the terminal runs. The host text is the <b>attach profile name</b>, and only that (R-57). While the mirror is <b>reconnecting</b> the link still opens, and the tooltip takes the status bar's reconnecting form: glyph and host drop to neutral ink and the status word <b>reconnecting</b> follows.</>}>
       <Stage variant="solo" style={{ padding: 20, background: "var(--tasty-bg-app)" }}>
         <ThemePair render={() => (
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            {LINK_ROWS.map(([label, host, text, tip]) => (
+            {LINK_ROWS.map(([label, host, text, tip, state]) => (
               <Labeled key={label} label={label}>
                 <Term>
                   <TermLine>{"$ cargo build"}</TermLine>
                   <TermLine>
                     {"error: mismatched types at "}
                     {tip
-                      ? <Tooltip open placement="bottom" content={<LinkTip host={host} />}><LinkRun>{text}</LinkRun></Tooltip>
+                      ? <Tooltip open placement="bottom" content={<LinkTip host={host} state={state} />}><LinkRun>{text}</LinkRun></Tooltip>
                       : <LinkRun>{text}</LinkRun>}
                   </TermLine>
                 </Term>
@@ -214,19 +223,20 @@ export function RemoteLinkSpec() {
       <Views>
         <View name="terminal-link-remote-languages" label="Tooltip — every language">
           <div style={{ display: "flex", flexDirection: "column", gap: 12, minWidth: 300 }}>
-            {["en", "ko", "ja", "zh-Hans"].map((lang) => (
-              <Labeled key={lang} label={lang}>
+            {["en", "ko", "ja", "zh-Hans"].flatMap((lang) => ["connected", "reconnecting"].map((state) => (
+              <Labeled key={`${lang}-${state}`} label={`${lang} · ${state}`}>
                 <Term>
-                  <TermLine>{"error: mismatched types at "}<Tooltip open placement="bottom" content={<LinkTip host={HOST} lang={lang} />}><LinkRun>src/main.rs:42</LinkRun></Tooltip></TermLine>
+                  <TermLine>{"error: mismatched types at "}<Tooltip open placement="bottom" content={<LinkTip host={HOST} state={state} lang={lang} />}><LinkRun>src/main.rs:42</LinkRun></Tooltip></TermLine>
                 </Term>
               </Labeled>
-            ))}
+            )))}
           </div>
         </View>
       </Views>
       <Meta
-        specs={[["when", "link modifier held + pointer on a PATH link in a mirror surface"], ["not shown", "local surface · URL with a scheme (http, https, …) · no link captured"], ["link cells", "unchanged — selection fill, text-on-active, accent-primary-raised underline"], ["means", "Tooltip, below the link run; above when there is no room; clamped to the window"], ["content", <>one line: <code>attach.mirror_pill_label</code> in tooltip-fg · space-sm · remote glyph 12 + host in <span className="tok">--tasty-link-remote-fg</span> (raised 8.08 · 4.86)</>], ["host", "attach profile name, the only host text (R-57) · mono · end-elided inside the tooltip max width (240)"], ["show", "tooltip delay (150ms), then instant hide on release — no fade on terminal cells"], ["copy", "none new"]]}
-        tokens={[{ tok: "--tasty-link-remote-fg", use: "glyph + host", color: "var(--tasty-link-remote-fg)" }, { tok: "--tasty-link-remote-gap", use: "glyph ↔ host" }, { tok: "--tasty-tooltip-fg", use: "the word Remote", color: "var(--tasty-tooltip-fg)" }, { tok: "--tasty-tooltip-max-width", use: "240 — the host elides inside it" }]} />
+        specs={[["when", "link modifier held + pointer on a PATH link in a mirror surface"], ["not shown", "local surface · URL with a scheme (http, https, …) · no link captured"], ["link cells", "unchanged — selection fill, text-on-active, accent-primary-raised underline"], ["means", "Tooltip, below the link run; above when there is no room; clamped to the window"], ["content", <>one line: <code>attach.mirror_pill_label</code> in tooltip-fg · space-sm · remote glyph 12 + host in <span className="tok">--tasty-link-remote-fg</span> (raised 8.08 · 4.86)</>], ["reconnecting", <><code>attach.mirror_pill_label</code> in tooltip-fg (unchanged) · glyph <span className="tok">--tasty-glyph-dim-raised</span> · host <span className="tok">--tasty-text-muted-raised</span> · then <code>status_bar.remote_reconnecting</code> in <span className="tok">--tasty-font-label</span>, text-muted-raised · gap 4 · no spinner, no pulse</>], ["state", "follows the mirror's session state while shown, like the status bar item"], ["disconnected", "user-pending (R-58 N1 · N2 · N3) — whether a path link on a disconnected mirror is caught and opens at all is not decided; no form is drawn here"], ["host", "attach profile name, the only host text (R-57) · mono · end-elided inside the tooltip max width (240); the status word never elides"], ["show", "tooltip delay (150ms), then instant hide on release — no fade on terminal cells"], ["copy", <>none new — the status word reuses <code>status_bar.remote_reconnecting</code></>]]}
+        tokens={[{ tok: "--tasty-link-remote-fg", use: "glyph + host", color: "var(--tasty-link-remote-fg)" }, { tok: "--tasty-link-remote-gap", use: "glyph ↔ host ↔ word" }, { tok: "--tasty-tooltip-fg", use: "the word Remote", color: "var(--tasty-tooltip-fg)" }, { tok: "--tasty-glyph-dim-raised", use: "glyph, reconnecting", color: "var(--tasty-glyph-dim-raised)" }, { tok: "--tasty-text-muted-raised", use: "host + word, reconnecting", color: "var(--tasty-text-muted-raised)" }, { tok: "--tasty-tooltip-max-width", use: "240 — the host elides inside it" }]} />
+      <Note>Reconnecting follows the <b>status bar</b>, not the child graph's mirror banner. The banner is an action (a Reconnect button, a spinner while it tries, a warning tone when the connection is lost); the bar, this tooltip and the picker mark only say where a path lives. So they share one read-only form: the remote hue goes, the word says why, nothing moves.</Note>
       <Dont><b>Don't</b> recolour the underline or the selection fill for a remote link. Colour alone does not say which host, the link grammar is shared by every surface, and a new hue on <code>term-selection</code> has no rule cell.</Dont>
       <Do><b>Do</b> keep the tooltip off the link run itself, so the path you are about to click stays readable.</Do>
     </Spec>

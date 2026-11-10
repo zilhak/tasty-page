@@ -1141,12 +1141,17 @@ function FhGroup({ label, count, caption, tone }) {
 // caps the host text (fh-remote-max-width) and end-elides inside it; the path keeps its
 // front elision in what is left. A local path has no mark. The host text is the attach
 // profile name and nothing else: a mirror always attaches through a profile (R-57).
-function FhRemoteMark({ host }) {
+// state "reconnecting" takes the status bar's reconnecting form on the panel ground:
+// glyph glyph-dim, host text-muted, then the status word (status_bar.remote_reconnecting,
+// label font, text-muted). The word belongs to the mark, so the path box shrinks by it.
+function FhRemoteMark({ host, state = "connected" }) {
+  const live = state !== "reconnecting";
   return (
-    <span data-fh-remote style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-fh-remote-gap)", flex: "0 0 auto", minWidth: 0,
-      color: "var(--tasty-fh-remote-fg)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)" }}>
-      <span style={{ display: "inline-flex", flex: "none" }}><Icon name="remote" size="var(--tasty-icon-size-xs)" /></span>
+    <span data-fh-remote={state} style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-fh-remote-gap)", flex: "0 0 auto", minWidth: 0,
+      color: live ? "var(--tasty-fh-remote-fg)" : "var(--tasty-text-muted)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)" }}>
+      <span style={{ display: "inline-flex", flex: "none", color: live ? "inherit" : "var(--tasty-glyph-dim)" }}><Icon name="remote" size="var(--tasty-icon-size-xs)" /></span>
       <span style={{ minWidth: 0, maxWidth: "var(--tasty-fh-remote-max-width)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{host}</span>
+      {!live && <span style={{ flex: "none", fontFamily: "var(--tasty-font-label)" }}>reconnecting</span>}
     </span>
   );
 }
@@ -1176,7 +1181,7 @@ function FhHeader({ state, path, remote }) {
           where measuring is not available the cap is floor((366 − min(6 × host chars, 160)) / 6):
           gx10 → 57, mac-company-attach → 43, and 34 at the host cap — use 34 when the host width is not known either. */}
       <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", minWidth: 0 }}>
-        {remote && <FhRemoteMark host={remote.host} />}
+        {remote && <FhRemoteMark host={remote.host} state={remote.state} />}
         <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: "var(--tasty-text-muted)",
           whiteSpace: "nowrap", overflow: "hidden", textOverflow: "clip", minWidth: 0 }}>
           {path || (state === "long" || state === "fallback" ? "…/federation/screens.tsx" : "docs/architecture.md")}
