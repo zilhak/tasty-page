@@ -400,6 +400,11 @@
   --tasty-tooltip-font-size:       var(--tasty-font-size-caption); /* 12 */
   --tasty-tooltip-line-height:     var(--tasty-line-height-ui);
   --tasty-tooltip-max-width:       var(--tasty-size-240);   /* wraps 2–3 sentences */
+  /* Terminal path link under the pointer on a mirror — a tooltip below the link run
+     says where the path lives: the "Remote" word in tooltip ink, then remote glyph +
+     host in the remote hue. Not shown for a local path or any URL with a scheme. */
+  --tasty-link-remote-fg:          var(--tasty-accent-remote-raised); /* raised 8.08 · 4.86 */
+  --tasty-link-remote-gap:         var(--tasty-space-xs);   /* 4 — glyph ↔ host */
   --tasty-tooltip-offset:          var(--tasty-space-xs);   /* 4 gap from anchor */
   --tasty-tooltip-delay:           var(--tasty-motion-ui-med); /* short hover reveal delay */
 
@@ -562,6 +567,15 @@
      which theme is active; sun/theme optical parity is corrected in the ASSET
      (icons/sun.svg ray extent), never by giving one glyph a different size. */
   --tasty-statusbar-glyph-size:    var(--tasty-icon-size-xs); /* 12 — smallest inline glyph step; scales with the UI scale like the rest */
+  /* Remote item — shown only while a mirror surface has focus. It leads the left
+     cluster: remote glyph + host label, both in the remote hue (the explorer host
+     mark form; the bar holds glyphs and text only, so no tag fill). Reconnecting
+     drops both to the bar's own neutral ink (text-muted, statusbar-glyph) and adds a
+     status word, so a lost link never reads as live. The host label is capped and
+     end-elided; it drops last of the text items, the glyph never drops. */
+  --tasty-statusbar-remote-fg:        var(--tasty-accent-remote-raised); /* crust 12.06 · 5.67 · mantle 11.29 · 6.17 */
+  --tasty-statusbar-remote-gap:       var(--tasty-space-xs);    /* 4 — glyph ↔ host ↔ status word */
+  --tasty-statusbar-remote-max-width: var(--tasty-size-160);    /* host label cap — the branch cap's value */
 
   /* Git viewer diff toolbar — a CONTAINER height, deliberately not button-height
      (28): the toolbar is a 32px bar that holds 28px controls with 2px of air. */
@@ -985,6 +999,13 @@
      every frame — never reflows the id beside it. The when never shrinks and
      never drops: the id yields, it already has a front-elision rule. */
   --tasty-fh-when-width:              var(--tasty-size-56);
+  /* File HANDLER picker — remote mark. When the target is a path on a mirror's remote
+     host, the header's path line leads with remote glyph + host in the remote hue (the
+     explorer host mark form, no fill). The mark is capped and end-elided on its own;
+     the path keeps its front elision in the space left, so neither cuts the other. */
+  --tasty-fh-remote-fg:               var(--tasty-accent-remote-raised); /* base 10.54 · 6.63 */
+  --tasty-fh-remote-gap:              var(--tasty-space-xs);    /* 4 — glyph ↔ host */
+  --tasty-fh-remote-max-width:        var(--tasty-size-160);    /* host cap; the path keeps 390 − 160 − 8 = 222 */
   /* Color swatch (settings color editor) */
   --tasty-swatch-size:              var(--tasty-size-16);
   --tasty-swatch-radius:            var(--tasty-radius-sm);

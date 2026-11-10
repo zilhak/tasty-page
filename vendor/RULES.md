@@ -1950,6 +1950,9 @@ Sits on: `crust`, `mantle`
 |---|---|---|---|---|
 | label | `text-muted` | rest | `crust`, `mantle` | 7.89 · 4.73 |
 | glyph | `statusbar-glyph` | rest | `crust`, `mantle` | 3.59 · 4.26 |
+| remote | `statusbar-remote-fg` | rest | `crust`, `mantle` | 11.29 · 5.67 |
+
+The remote part is the glyph and host label a mirror surface shows. While the connection is reconnecting, the same item reads the label and glyph rows above.
 
 ### Address bar
 
