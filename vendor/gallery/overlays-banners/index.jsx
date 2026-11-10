@@ -862,7 +862,7 @@ function Page() {
           <Views>
             {RC_WEB_FLOW.map(([name, label, p]) => (
               <View key={name} name={name} label={label}>
-                <div style={{ width: "var(--tasty-size-480)", maxWidth: "100%", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}><HtmlRemoteSurfaceG web {...p} height={320} /></div>
+                <div style={{ width: "var(--tasty-size-480)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}><HtmlRemoteSurfaceG web {...p} width="var(--tasty-size-480)" height={320} /></div>
               </View>
             ))}
             <View name="web-flow-1-narrow" label="1 · narrow (360) — remote notice, action under the body">
@@ -873,7 +873,7 @@ function Page() {
             </View>
             {RC_WEB_TIPS.map(([name, label, draw]) => (
               <View key={name} name={name} label={label}>
-                <div style={{ width: "var(--tasty-size-480)", maxWidth: "100%", paddingTop: "var(--tasty-size-64)" }}>{draw()}</div>
+                <div style={{ width: "var(--tasty-size-480)", paddingTop: "var(--tasty-size-64)" }}>{draw()}</div>
               </View>
             ))}
           </Views>
