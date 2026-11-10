@@ -293,7 +293,7 @@ function Page() {
         </Spec>
         <Spec id="remote-row-context-menu-by-connection-state" title="Saved remote workspace — the row menu by connection state"
           when={<>A saved remote row's right-click menu is the workspace menu (the OS menu in the app: order, wording, separators and disabled items only) with one <b>connection group</b> and one <b>close group</b> at the end. The connection group is <b>Connect</b> (or <b>Reconnect</b> for a row that had a screen in this run, the popup's word) and <b>Disconnect</b>; each is <b>disabled, not hidden</b>, where it cannot act. The close group names <b>where</b> the closing happens: <b>Close locally</b> takes the row out of this Tasty and leaves the workspace running on the remote; <b>Close remote workspace…</b> ends it there and opens a confirmation, so it is last and carries the ellipsis. Nothing can reach the remote while the row is not connected, so that item is enabled only when connected. The menu opens with or without categories; the category block appears only with categories on. An agent mirror made from the CLI or IPC keeps today's menu.</>}>
-          <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 22, flexWrap: "wrap", alignItems: "flex-start" }}>
+          <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: "var(--tasty-space-xl)", flexWrap: "wrap", alignItems: "flex-start" }}>
             <CatMenu caption="connected · categories on"><RemoteRowMenuItems state="connected" categories={["Workspaces", "Services"]} /></CatMenu>
             <CatMenu caption="connecting"><RemoteRowMenuItems state="connecting" /></CatMenu>
             <CatMenu caption="reconnecting"><RemoteRowMenuItems state="reconnecting" /></CatMenu>
@@ -302,7 +302,7 @@ function Page() {
           </Stage>
           <Views>
             <View name="remote-row-menu-languages" label="ko, ja, zh-Hans — connected and disconnected">
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 22, alignItems: "flex-start" }}>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-xl)", alignItems: "flex-start" }}>
                 {["ko", "ja", "zh-Hans"].flatMap((lang) => [
                   <CatMenu key={lang + "c"} caption={lang + " · connected"}><RemoteRowMenuItems state="connected" lang={lang} /></CatMenu>,
                   <CatMenu key={lang + "d"} caption={lang + " · disconnected"}><RemoteRowMenuItems state="disconnected" lang={lang} /></CatMenu>,
