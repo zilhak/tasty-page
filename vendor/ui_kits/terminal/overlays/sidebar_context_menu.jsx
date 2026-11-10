@@ -1,7 +1,7 @@
 import React from "react";
 import { Icon as TastyDesignSystem_41fd3f_Icon } from "../../../components/core/Icon.jsx";
 import { MenuItem } from "../../../components/navigation/MenuItem.jsx";
-import { RemoteRowMenuItems } from "./remote_row.jsx";
+import { RemoteRowMenuItems, isSavedRemoteRow } from "./remote_row.jsx";
 
 // Tasty UI kit — sidebar workspace-category context menu + collapsed-rail popup.
 // Used by chrome.jsx Sidebar (right-click → SidebarContextMenu) and CollapsedSidebar
@@ -64,23 +64,31 @@ function SidebarContextMenu({ x, y, target, onClose, categories = [] }) {
   useDismiss(onClose);
   const t = target || { kind: "background" };
   const reserved = t.kind === "category" && t.cat && t.cat.reserved;
-  // clamp within viewport
-  const W = 200, left = Math.min(x, window.innerWidth - W - 8), top = Math.min(y, window.innerHeight - 200);
+  const saved = t.kind === "workspace" && isSavedRemoteRow(t.ws);
+  // clamp within viewport — by the menu's measured size, so a long menu (a saved remote row's) opened near
+  // the bottom or right edge keeps its last item on screen; before the first measure, a generous guess
+  const panelRef = React.useRef(null);
+  const [size, setSize] = React.useState({ w: 200, h: saved ? 420 : 200 });
+  React.useLayoutEffect(() => {
+    const el = panelRef.current;
+    if (el) { const r = el.getBoundingClientRect(); if (r.width !== size.w || r.height !== size.h) setSize({ w: r.width, h: r.height }); }
+  });
+  const left = Math.max(8, Math.min(x, window.innerWidth - size.w - 8)), top = Math.max(8, Math.min(y, window.innerHeight - size.h - 8));
   const act = () => onClose();
   const moveTargets = (categories || []).filter((c) => !t.ws || c.id !== (t.cat && t.cat.id));
   return (
     <div onClick={onClose} onContextMenu={(e) => { e.preventDefault(); onClose(); }}
       style={{ position: "fixed", inset: 0, zIndex: 60 }}>
-      <div onClick={(e) => e.stopPropagation()} role="menu" aria-label="Workspace categories"
+      <div ref={panelRef} onClick={(e) => e.stopPropagation()} role="menu" aria-label="Workspace categories"
         style={{ position: "fixed", left, top, ...panelStyle }}>
         {/* 2026-10-07 — flat list, no submenu: the product draws this with the OS-native menu.
             Inert "Move to category" header, then every OTHER category as a plain item. */}
         {/* a saved remote row: its whole menu, in the app's order (remote_row.jsx RemoteRowMenuItems) */}
-        {t.kind === "workspace" && t.ws && t.ws.mirror && (
-          <RemoteRowMenuItems state={t.ws.remoteState || "connected"}
+        {saved && (
+          <RemoteRowMenuItems state={t.ws.remoteState || "connected"} onAct={act}
             categories={categories && categories.length ? moveTargets.filter((c) => !(t.cat && c.id === t.cat.id)).map((c) => (c.reserved ? "Workspaces" : c.name)) : null} />
         )}
-        {t.kind === "workspace" && !(t.ws && t.ws.mirror) && (
+        {t.kind === "workspace" && !saved && (
           <>
             <MenuItem label="Move to category" icon={cx.move} disabled />
             {moveTargets.filter((c) => !(t.cat && c.id === t.cat.id)).map((c) => (
@@ -104,8 +112,8 @@ function SidebarContextMenu({ x, y, target, onClose, categories = [] }) {
             )}
           </>
         )}
-        {t.kind === "workspace" && !(t.ws && t.ws.mirror) && <MenuItem separator />}
-        {!(t.kind === "workspace" && t.ws && t.ws.mirror) && <MenuItem label="New category" icon={cx.plus} onClick={act} />}
+        {t.kind === "workspace" && !saved && <MenuItem separator />}
+        {!saved && <MenuItem label="New category" icon={cx.plus} onClick={act} />}
       </div>
     </div>
   );

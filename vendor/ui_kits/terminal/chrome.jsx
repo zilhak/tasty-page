@@ -11,7 +11,7 @@ import { Tab } from "../../components/navigation/Tab.jsx";
 import { TreeRow } from "../../components/navigation/TreeRow.jsx";
 import { RailNotificationSummary, NotificationSummary } from "./notification_summary.jsx";
 import { RailCategoryPopup, SidebarContextMenu } from "./overlays/sidebar_context_menu.jsx";
-import { RemoteRowLine, RemoteDotSlot, RemoteWarnMark, RemoteRailMarks, remoteRowTip } from "./overlays/remote_row.jsx";
+import { RemoteRowLine, RemoteDotSlot, RemoteWarnMark, RemoteRailMarks, remoteRowTip, isSavedRemoteRow } from "./overlays/remote_row.jsx";
 
 // Tasty UI kit — screen chrome (title bar, sidebar, tab strip, terminal, status bar).
 // Composes the DS component library (components/index.js).
@@ -102,7 +102,7 @@ function WorkspaceRow({ ws, active, onClick, onContextMenu, lang = "en" }) {
   // Off the live state the dot slot and the running count no longer report a status.
   const remoteState = ws.mirror ? (ws.remoteState || "connected") : null;
   const remoteLive = !ws.mirror || remoteState === "connected";
-  const remoteTip = ws.mirror ? (ws.remoteProfile ? remoteRowTip(ws, lang) : (ws.mirrorTarget ? `Mirror of remote → ${ws.mirrorTarget}` : "Mirror of a remote workspace")) : undefined;
+  const remoteTip = ws.mirror ? (isSavedRemoteRow(ws) ? remoteRowTip(ws, lang) : (ws.mirrorTarget ? `Mirror of remote → ${ws.mirrorTarget}` : "Mirror of a remote workspace")) : undefined;
   const running = remoteLive ? (ws.running ?? (ws.status === "idle" ? 0 : 1)) : 0;
   return (
     <div onClick={onClick} onContextMenu={onContextMenu} onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
@@ -283,7 +283,7 @@ function CollapsedSidebar({ workspaces, activeWs, onWs, onSettings, onPlugins, o
       {/* mirror = local mirror of a remote instance — sky corner chip at BOTTOM-right
           (notif owns top-right, attached owns the ring) so the three never collide */}
       {w.mirror && <RemoteRailMarks state={w.remoteState || "connected"} warn={!!w.remoteReason}
-        title={w.remoteProfile ? remoteRowTip(w) : (w.mirrorTarget ? `Mirror of remote → ${w.mirrorTarget}` : "Mirror of a remote workspace")} />}
+        title={isSavedRemoteRow(w) ? remoteRowTip(w) : (w.mirrorTarget ? `Mirror of remote → ${w.mirrorTarget}` : "Mirror of a remote workspace")} />}
     </div>
   );
   return (
@@ -353,7 +353,7 @@ function Sidebar({ workspaces, activeWs, onWs, onSettings, onPlugins, onTools, c
         <React.Fragment key={w.id}>
           {i > 0 && <div style={{ height: "var(--tasty-border-width)", background: "var(--tasty-separator)", margin: "0 0 0 var(--tasty-size-32)" }} />}
           <WorkspaceRow ws={w} active={w.id === activeWs} onClick={() => onWs(w.id)}
-            onContextMenu={categories || w.mirror ? (e) => openMenu(e, { kind: "workspace", ws: w, cat }) : undefined} />
+            onContextMenu={categories || isSavedRemoteRow(w) ? (e) => openMenu(e, { kind: "workspace", ws: w, cat }) : undefined} />
         </React.Fragment>
       ))}
     </div>

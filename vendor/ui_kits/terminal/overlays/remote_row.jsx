@@ -246,33 +246,39 @@ export function remoteMenuEnabled(state) {
     closeRemote: state === "connected",
   };
 }
-export function RemoteRowMenuItems({ state = "connected", lang = "en", categories = null, forceDetach = false }) {
+// A saved remote row is a mirror added from the GUI: it carries its attach profile. A mirror without one
+// (made from the CLI or IPC — an agent mirror) keeps today's menu and tooltip.
+export function isSavedRemoteRow(ws) {
+  return !!(ws && ws.mirror && ws.remoteProfile);
+}
+// onAct: called by every enabled item (the menu closes). categories: names to move the row to, or null when off.
+export function RemoteRowMenuItems({ state = "connected", lang = "en", categories = null, forceDetach = false, onAct }) {
   const on = remoteMenuEnabled(state);
   return (
     <>
-      <MenuItem label="Rename" />
-      <MenuItem label="Change Subtitle" />
+      <MenuItem label="Rename" onClick={onAct} />
+      <MenuItem label="Change Subtitle" onClick={onAct} />
       <MenuItem separator />
-      <MenuItem label="Move Up" />
-      <MenuItem label="Move Down" />
+      <MenuItem label="Move Up" onClick={onAct} />
+      <MenuItem label="Move Down" onClick={onAct} />
       <MenuItem separator />
-      <MenuItem label="Save as workspace preset" />
+      <MenuItem label="Save as workspace preset" onClick={onAct} />
       {categories && (
         <>
           <MenuItem separator />
           <MenuItem label="Move to category" disabled />
-          {categories.map((c) => <MenuItem key={c} label={c} />)}
+          {categories.map((c) => <MenuItem key={c} label={c} onClick={onAct} />)}
           <MenuItem separator />
-          <MenuItem label="New category" />
+          <MenuItem label="New category" onClick={onAct} />
         </>
       )}
-      {forceDetach && (<><MenuItem separator /><MenuItem label="Force detach" /></>)}
+      {forceDetach && (<><MenuItem separator /><MenuItem label="Force detach" onClick={onAct} /></>)}
       <MenuItem separator />
-      <MenuItem label={rt(HAS_SHAPE[state] ? "child_graph.reconnect" : "remote.row.popup.connect", lang)} disabled={!on.connect} />
-      <MenuItem label={rt("remote.row.menu.disconnect", lang)} disabled={!on.disconnect} />
+      <MenuItem label={rt(HAS_SHAPE[state] ? "child_graph.reconnect" : "remote.row.popup.connect", lang)} disabled={!on.connect} onClick={on.connect ? onAct : undefined} />
+      <MenuItem label={rt("remote.row.menu.disconnect", lang)} disabled={!on.disconnect} onClick={on.disconnect ? onAct : undefined} />
       <MenuItem separator />
-      <MenuItem label={rt("remote.row.menu.close_local", lang)} />
-      <MenuItem label={rt("remote.row.menu.close_remote", lang)} disabled={!on.closeRemote} />
+      <MenuItem label={rt("remote.row.menu.close_local", lang)} onClick={onAct} />
+      <MenuItem label={rt("remote.row.menu.close_remote", lang)} disabled={!on.closeRemote} onClick={on.closeRemote ? onAct : undefined} />
     </>
   );
 }
