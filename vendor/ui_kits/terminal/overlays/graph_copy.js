@@ -70,11 +70,17 @@ export const GRAPH_COPY = {
   "settings.child_graph.show_full_tree_desc": {"en": "Sets the initial full tree checkbox state in new child graph popups and surfaces (off by default); changing the checkbox in an open graph affects only that graph.", "ko": "새로 여는 자식 그래프 팝업과 서피스의 전체 트리 체크박스 초기값을 정하며(기본값: 꺼짐), 열린 그래프에서 체크박스를 바꾸면 해당 그래프에만 적용됩니다.", "ja": "新しく開く子グラフのポップアップとサーフェスでツリー全体を表示するチェックボックスの初期値（既定はオフ）を設定し、開いているグラフでのチェックボックスの変更はそのグラフにのみ適用されます。", "zh-Hans": "设置新打开的父子关系图弹窗和 Surface 中完整树复选框的初始状态（默认关闭）；在已打开的图中更改复选框仅影响该图。"},
 };
 
+// Existing app keys the graph reuses, copied as they are from Tasty's lang/*.toml (not new copy, not proposed).
+export const APP_COPY = {
+  "dag.detail.close": {"en": "Close details", "ko": "상세 닫기", "ja": "詳細を閉じる", "zh-Hans": "关闭详情"},
+  "dag_list.back": {"en": "Back to list", "ko": "목록으로", "ja": "一覧に戻る", "zh-Hans": "返回列表"},
+};
+
 export const GRAPH_LANGS = ["en", "ko", "ja", "zh-Hans"];
 
 // gt(key, lang, ...args) fills each "{}" in order.
 export function gt(key, lang = "en", ...args) {
-  const row = GRAPH_COPY[key];
+  const row = GRAPH_COPY[key] || APP_COPY[key];
   if (!row) return key;
   let i = 0;
   return (row[lang] || row.en).replace(/\{\}/g, () => String(args[i++] ?? ""));

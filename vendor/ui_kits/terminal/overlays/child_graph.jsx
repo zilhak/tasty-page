@@ -176,7 +176,7 @@ function ChildNode({ node, lod = "full", selected = false, base = false, hover, 
 function ChildDetail({ node, isBase, lang = "en", onViewDags, onSetBase, onClose, cover }) {
   const title = node.kind === "external" ? node.id : node.nickname || node.id;
   const mono = node.kind === "external" || !node.nickname;
-  const closeLabel = "Close details";
+  const closeLabel = gt("dag.detail.close", lang);
   if (node.kind === "external") {
     return (
       <GraphDrawer title={title} mono onClose={onClose} closeLabel={closeLabel} cover={cover}>
@@ -315,7 +315,7 @@ function FlowScreens({ flow, lang, bed, still }) {
   const entry = dagId ? DAG_BY_ID[dagId] : null;
   if (owner && entry) {
     screens.push(
-      <DrillDown key="dag" view="detail" backLabel={viaList ? "Back to list" : gt("child_graph.back", lang)} onBack={() => back()}
+      <DrillDown key="dag" view="detail" backLabel={viaList ? gt("dag_list.back", lang) : gt("child_graph.back", lang)} onBack={() => back()}
         title={<>{entry.dag.name}<span style={{ fontWeight: "var(--tasty-font-weight-regular)", color: "var(--tasty-text-muted)" }}> {"·"} {gt("child_graph.from", lang, nameOf(owner))}</span></>}
         actions={<RunnerBadge runner={entry.dag.runner} hint={false} />}
         detail={
