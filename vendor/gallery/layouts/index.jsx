@@ -7,6 +7,7 @@ import { GalleryLoadingOverlay } from "./loading-overlay.jsx";
 import { GalleryMoveSource } from "./move-source.jsx";
 import { GalleryTabStrip } from "./tab-strip.jsx";
 import { GalleryTitleBar } from "./title-bar.jsx";
+import { RemoteStatusBarSpec, RemoteLinkSpec } from "./remote-location.jsx";
 import { RunningCountSpec } from "./running-count.jsx";
 import { WorkspaceRunningCount } from "../../ui_kits/terminal/chrome.jsx";
 import { GallerySurfaceFocus } from "./surface-focus.jsx";
@@ -37,6 +38,7 @@ const NAV = [
   { id: "loading", label: "Loading overlay" },
   { id: "notifsummary", label: "Notifications summary" },
   { id: "statusbar", label: "Workspace status bar" },
+  { id: "remotelink", label: "Path link on a mirror" },
   { id: "titlebar", label: "Title bar" },
 ];
 
@@ -1025,7 +1027,7 @@ function Layouts() {
             ))}
           </Stage>
           <Meta
-            specs={[["height", <>24 — <span className="tok">--tasty-status-bar-height</span>, outside the UI scale</>], ["left", "branch · surface id · shell · grid"], ["right", "palette shortcut · theme glyph"], ["glyphs", <span className="tok">--tasty-statusbar-glyph</span>], ["theme", <>a <code>sun</code> / <code>theme</code> glyph, <b>not</b> a coloured dot</>], ["drop order", "1 grid → 2 shell → 3 surface id → 4 palette cap → 5 branch text (glyph stays)"], ["never drops", "theme glyph"], ["no value", "the item is absent — never a dash"], ["detached HEAD", "short sha in the branch slot"], ["interaction", "read-only; no item moves focus"], ["refresh", "1Hz cache — unchanged"]]}
+            specs={[["height", <>24 — <span className="tok">--tasty-status-bar-height</span>, outside the UI scale</>], ["left", "branch · surface id · shell · grid"], ["mirror", "remote item first in the left cluster — see the remote item specimen"], ["right", "palette shortcut · theme glyph"], ["glyphs", <span className="tok">--tasty-statusbar-glyph</span>], ["theme", <>a <code>sun</code> / <code>theme</code> glyph, <b>not</b> a coloured dot</>], ["drop order", "1 grid → 2 shell → 3 surface id → 4 palette cap → 5 branch text (glyph stays) → 6 remote host text (mirror only, glyph stays)"], ["never drops", "theme glyph · remote glyph"], ["no value", "the item is absent — never a dash"], ["detached HEAD", "short sha in the branch slot"], ["interaction", "read-only; no item moves focus"], ["refresh", "1Hz cache — unchanged"]]}
             tokens={[{ tok: "--tasty-status-bar-height", use: "24px bar" }, { tok: "--tasty-statusbar-glyph", use: "item glyphs", color: "var(--tasty-statusbar-glyph)" }, { tok: "--tasty-statusbar-theme-glyph", use: "theme indicator", color: "var(--tasty-statusbar-theme-glyph)" }, { tok: "--tasty-statusbar-dot-size", use: "6 — when a surface dot is shown" }]} />
           <Note>The theme indicator used to borrow <b>accent-warning</b> for light and <b>accent-agent</b> for dark. Light-vs-dark is not a warning and not an agent, so it becomes a <b>glyph in dim ink</b> — no colour role is minted for it.</Note>
           <Dont><b>Don't</b> add counts, clocks, CPU meters or notification badges. Anything that changes faster than the bar's 1Hz read, or that is not a property of the focused surface, belongs elsewhere.</Dont>
@@ -1065,6 +1067,11 @@ function Layouts() {
           <Note>The two glyphs sit side by side here <b>only to compare them</b>. In the product the cell carries exactly one: <code>sun</code> in Latte, <code>theme</code> in Mocha, with the theme name beside it.</Note>
           <Dont><b>Don't</b> give <code>sun</code> its own size token to cancel the overshoot. A size that changes with theme state turns a dimension into a state, and the same overshoot would follow <code>sun</code> into every other place it is drawn. Optical parity belongs in the glyph.</Dont>
         </Spec>
+        <RemoteStatusBarSpec />
+      </Section>
+
+      <Section id="remotelink" title="Path link on a mirror">
+        <RemoteLinkSpec />
       </Section>
 
       <Section id="titlebar" title="Title bar">
