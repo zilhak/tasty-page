@@ -53,7 +53,7 @@ const HA_COPY = {
   receiving: "Receiving remote files…",
   paused: "Paused — answer the notice above",
   macos: "Remote web pages can't be shown on this macOS version.",
-  macosSub: "Requires macOS 14 or later.",
+  macosSub: "A newer version of macOS is required.",
   disconnected: "Disconnected from the remote",
   disconnectedSub: "Reconnect to load this page.",
   skipped: (n) => `${n} skipped`,
