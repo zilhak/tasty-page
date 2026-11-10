@@ -22,7 +22,7 @@ import { BasePicker, PICKER_WINDOWS } from "./child_base_picker.jsx";
 
 // ── Mock trees (shape is what matters; values are illustrative) ─────
 const S = (id, over) => ({ id, kind: "surface", state: "active", confidence: "confirmed", evidence: "pty_busy",
-  cwd: "~/work/tasty-project/tasty", lastReport: "10:42:07 · 4s ago", workspace: "tasty", ...over });
+  cwd: "~/work/tasty", lastReport: "10:42:07 · 4s ago", workspace: "tasty", ...over });
 
 // small: base + one parent + two children
 const CHILD_SMALL = [
@@ -35,7 +35,7 @@ const CHILD_SMALL_BASE = "s_01HX7Q";
 
 // large: depth 5, six siblings under the base's parent, two more conductors (one on a mirrored remote)
 const CHILD_LARGE = [
-  S("s_d0", { nickname: "director", role: "director", workspace: "tasty-project" }),
+  S("s_d0", { nickname: "director", role: "director", workspace: "agents" }),
   S("s_c1", { parent: "s_d0", nickname: "conductor-tasty", role: "conductor" }),
   S("s_c11", { parent: "s_c1", nickname: "lane-ui", role: "worker", state: "idle", evidence: "hook_idle" }),
   S("s_c12", { parent: "s_c1", nickname: "lane-ipc", role: "worker", state: "exited", confidence: "reported", evidence: "process_exit" }),
