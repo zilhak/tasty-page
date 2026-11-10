@@ -5,6 +5,8 @@ import { Kbd, ListCtrl } from "../../components/index.js";
 import { DAG_STATUS, DAG_STATUS_ORDER, DAG_KIND, DAG_REL, sTok, DagNode, RunnerBadge, ZoomCluster, Minimap, CycleBanner, DagEmpty, DagCanvas, DagDetail, DagSurface, DagWindow, dagRowItems, dagLayout, elbow, DAG_BUILD, DAG_INDEX, DAG_CYCLE, DAG_DENSE, DAG_LIST, DAG_PARTIAL, DAG_ROLLUP_ORDER, dagRollup, nodeTitle } from "../../ui_kits/terminal/dag.js";
 import { Section, Spec, Stage, Meta, Note, Do, Dont } from "../parts/specimen.jsx";
 import { focusViews } from "../parts/surface-focus-views.jsx";
+import { GraphSharedSection } from "./graph-shared.jsx";
+import { ChildGraphSection } from "./child-graph.jsx";
 
 // Tasty Gallery — Surfaces · Task DAG
 // Specimens for the read-only Task DAG surface + workspace popup
@@ -27,6 +29,8 @@ const NAV = [
   { id: "detail", label: "Node detail · drawer" },
   { id: "states", label: "Empty · cycle" },
   { id: "surfaces", label: "Surface · popup" },
+  { id: "graph", label: "Graph view · shared" },
+  { id: "child", label: "Child graph" },
 ];
 
 // A node card outside the canvas: the card is absolutely positioned inside the
@@ -274,7 +278,7 @@ function Page() {
 
       <Section id="detail" title="Node detail · drawer">
         <Spec id="selected-task-side-panel-bottom-sheet" title="Selected task — the drawer over the canvas"
-          when={<>Selecting a node opens the shared <b>288px drawer over the canvas</b> from the right edge, in the tab surface and in the popup alike (2026-11-10: the right panel and the bottom sheet that split the canvas are gone; the child graph uses the same drawer — see the Graph view section). Below 480px of canvas it covers the canvas. The body is unchanged: state and kind, the awaiting notice with <b>Open session</b>, why unknown, the rows, the command, the dependency rows that jump the selection, and the error tail as its own bounded, scrollable, copyable block — never an expanding wall.</>}>
+          when={<>Selecting a node opens the shared <b>288px drawer over the canvas</b> from the right edge, in the tab surface and in the popup alike (2026-11-10: the right panel and the bottom sheet that split the canvas are gone; the child graph uses the same drawer — see <a href="#graph-drawer-over-the-canvas">Graph view</a>). Below 480px of canvas it covers the canvas. The body is unchanged: state and kind, the awaiting notice with <b>Open session</b>, why unknown, the rows, the command, the dependency rows that jump the selection, and the error tail as its own bounded, scrollable, copyable block — never an expanding wall.</>}>
           <Stage style={{ padding: 0, display: "block" }}>
             <div style={{ display: "flex", gap: 16, height: 460, padding: 16, background: "var(--tasty-bg-panel)" }}>
               <DagDetail dag={DAG_BUILD} id="build_linux" frame="panel" onClose={() => {}} onSelect={() => {}} />
@@ -384,6 +388,9 @@ function Page() {
           <Note>The actions slot was empty in the current build; this fills it rather than inventing a second bar. If a future detail view needs no zoom, the slot simply goes back to empty.</Note>
         </Spec>
       </Section>
+
+      <GraphSharedSection />
+      <ChildGraphSection />
     </>
   );
 }
