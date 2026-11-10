@@ -693,12 +693,12 @@ function PresetSubtab() {
 
 // ── Settings ───────────────────────────────────────────────────────────
 // 7-tab L1 IA (settings-ia-restructure, 2026-06-17). Every category now has a
-// home: Terminal behaviour + Performance, FileHandler, and Tastyrc are promoted
+// home: Terminal behaviour + Performance and FileHandler are promoted
 // out of the old over-stuffed General group into their own top-level tabs. The
 // growable second level (incl. plugin-contributed sections) lives in the left
 // sidebar with a filter. Plugins remain their OWN top-level tab.
 // The preview OS is the `os` prop of SettingsWindow: "windows" (default) · "macos" · "linux".
-// Misc has Tastyrc (Windows-only); macOS adds Keybindings › Alt key and its link click choices (R-56).
+// macOS adds Keybindings › Alt key and its link click choices (R-56).
 // The gallery card "Alt key (macOS)" in overlays-windows renders the kit with os="macos".
 const DEFAULT_OS = "windows";
 // Plugin-contributed Appearance pages are dynamic — present only when a plugin registers
@@ -733,9 +733,10 @@ const l2For = (os) => ({
   // its own section so the label-only filter finds "alt". Absent on Windows / Linux.
   Keybindings: ["General", "Workspace", "Pane", "Tab", "Surface", "Clipboard", "Zoom", "Explorer", "Scripts", "Preset", "Plugins", ...(os === "macos" ? ["Alt key"] : []), "Import / Export"],
   FileHandler: ["File Extension Mapping", "File Detectors", "File Handlers", "Hook Handlers"],
-  // 2026-10-27: Scripts → Task pipeline → Anomaly detection → Tastyrc (Windows only)
+  // 2026-10-27: Scripts → Task pipeline → Anomaly detection
   // 2026-11-10: Child graph after Anomaly detection — its own section so the label filter finds "child" / "graph"
-  Misc: os === "windows" ? ["Scripts", "Task pipeline", "Anomaly detection", "Child graph", "Tastyrc"] : ["Scripts", "Task pipeline", "Anomaly detection", "Child graph"],
+  // 2026-11-10: the Windows-only rc section is gone; the list is the same on every OS
+  Misc: ["Scripts", "Task pipeline", "Anomaly detection", "Child graph"],
   Plugins: ["git-helper", "ai-review", "docker", "k8s-lens"],
 });
 
@@ -1019,7 +1020,6 @@ function SettingsWindow({ theme, onTheme, uiScale, onUiScale, onClose, os = DEFA
       return (
         <>
           <Row label="Shell:"><Input mono defaultValue="/usr/bin/zsh" style={{ width: "var(--tasty-field-width-lg)" }} /></Row>
-          {IS_WINDOWS && <Row label="Shell mode:"><Select options={["Default (full rc)", "Tasty (Tasty rc)", "Custom"]} defaultValue="Tasty (Tasty rc)" style={{ width: "var(--tasty-field-width-lg)" }} /></Row>}
           <Row label="Startup command:"><Input block mono placeholder="run on new session — optional" /></Row>
           <Row label="Scrollback lines:"><Input mono defaultValue="10000" style={{ width: "var(--tasty-field-width-xs)" }} /></Row>
           <Row label="Confirm close if running:"><Switch defaultChecked /></Row>
@@ -1085,7 +1085,7 @@ function SettingsWindow({ theme, onTheme, uiScale, onUiScale, onClose, os = DEFA
       return <FileHandlersPane />;
     }
 
-    // ── Misc (Scripts everywhere; Tastyrc is Windows-only) ──
+    // ── Misc (same sections on every OS) ──
     if (l1 === "Misc") {
       if (l2 === "Scripts")
         return <ScriptManager />;
@@ -1101,31 +1101,7 @@ function SettingsWindow({ theme, onTheme, uiScale, onUiScale, onClose, os = DEFA
         return <AnomalySubtab />;
       if (l2 === "Child graph")
         return <ChildGraphSettings />;
-      if (l2 === "Tastyrc")
-        return (
-          <>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <span style={{ fontSize: "var(--tasty-font-size-max)", fontWeight: "var(--tasty-font-weight-semibold)", color: "var(--tasty-text-primary)" }}>Tastyrc</span>
-              <Tag variant="warning">Windows only</Tag>
-            </div>
-            <Note>The Windows shell integration reads a generated <span style={{ fontFamily: "var(--tasty-font-mono)" }}>.tastyrc</span> to inject Tasty's prompt and key bindings into PowerShell / cmd. macOS and Linux use the rc files directly, so this tab is empty there.</Note>
-            <Row label="Profile path:"><Input mono defaultValue="%USERPROFILE%\.tastyrc" style={{ width: 240 }} /></Row>
-            <Row label="Auto-regenerate:"><Switch defaultChecked /></Row>
-            <div style={{ display: "flex", gap: 8 }}>
-              <Button variant="secondary">Open file</Button>
-              <Button variant="ghost">Regenerate now</Button>
-            </div>
-          </>
-        );
-      // non-Windows: tab is visible everywhere but has no sections → empty state
-      return (
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-          gap: "var(--tasty-space-sm)", textAlign: "center", color: "var(--tasty-text-muted)" }}>
-          <Icon name="sun" size={26} />
-          <div style={{ fontSize: 14, color: "var(--tasty-text-secondary)" }}>No settings on this platform</div>
-          <Note>The only Misc setting (<span style={{ fontFamily: "var(--tasty-font-mono)" }}>.tastyrc</span>) applies to the Windows shell integration. The tab stays visible on every platform for consistency.</Note>
-        </div>
-      );
+      return null;
     }
 
     // ── Plugins (each L2 is an installed plugin) ──

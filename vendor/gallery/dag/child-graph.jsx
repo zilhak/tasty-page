@@ -343,7 +343,7 @@ export function ChildGraphSection() {
             </div>
           ))}
         </Stage>
-        <Meta specs={[["L2", "Misc · Scripts → Task pipeline → Anomaly detection → Child graph → Tastyrc (Windows)"], ["row", "Switch · settings label column 150 · gap 16 · min-height 32"], ["caption", "11 muted · measure-md · under the row"], ["default", "off"], ["keys", "settings.misc.subtab.child_graph · settings.child_graph.show_full_tree · _desc"]]}
+        <Meta specs={[["L2", "Misc · Scripts → Task pipeline → Anomaly detection → Child graph"], ["row", "Switch · settings label column 150 · gap 16 · min-height 32"], ["caption", "11 muted · measure-md · under the row"], ["default", "off"], ["keys", "settings.misc.subtab.child_graph · settings.child_graph.show_full_tree · _desc"]]}
           tokens={[{ tok: "--tasty-settings-label-width", use: "150" }, { tok: "--tasty-settings-row-min-height", use: "row" }]} />
       </Spec>
 
