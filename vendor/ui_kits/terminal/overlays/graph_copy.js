@@ -5,7 +5,7 @@
 export const GRAPH_COPY = {
   "child_graph.tools_menu_item": {"en": "Open child graph", "ko": "자식 그래프 열기", "ja": "子グラフを開く", "zh-Hans": "打开父子关系图"},
   "child_graph.surface_menu_item": {"en": "Open child graph", "ko": "자식 그래프 열기", "ja": "子グラフを開く", "zh-Hans": "打开父子关系图"},
-  "child_graph.keybinding_action": {"en": "Open child graph", "ko": "자식 그래프 열기", "ja": "子グラフを開く", "zh-Hans": "打开父子关系图"},
+  "settings.keybindings.toggle_child_graph_label": {"en": "Toggle child graph:", "ko": "자식 그래프 열기/닫기:", "ja": "子グラフの切替:", "zh-Hans": "打开/关闭父子关系图："},
   "child_graph.kind_name": {"en": "Child graph", "ko": "자식 그래프", "ja": "子グラフ", "zh-Hans": "父子关系图"},
   "child_graph.title": {"en": "Child graph", "ko": "자식 그래프", "ja": "子グラフ", "zh-Hans": "父子关系图"},
   "child_graph.show_full_tree": {"en": "Show full tree", "ko": "전체 트리 표시", "ja": "ツリー全体を表示", "zh-Hans": "显示完整树"},

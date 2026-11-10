@@ -309,13 +309,13 @@ export function ChildGraphSection() {
             <Labelled label="Tools menu — the new item" tag="decided"><div style={{ width: 360 }}><ToolsMenuFrame active="Open child graph" height={380} /></div></Labelled>
             <Labelled label="default shortcuts — Windows and Linux (4-1); Toggle DAG list with Alt+Y only is recommended" tag={["decided", "recommended"]}>
               <div style={{ width: 320, padding: "var(--tasty-space-sm)", background: "var(--tasty-menu-bg)", border: "var(--tasty-border-width) solid var(--tasty-menu-border)", borderRadius: "var(--tasty-radius)" }}>
-                <MenuItem label={gt("child_graph.keybinding_action")} shortcut={<Kbd keys={"Alt+G"} />} />
+                <MenuItem label={gt("settings.keybindings.toggle_child_graph_label")} shortcut={<Kbd keys={"Alt+G"} />} />
                 <MenuItem label={gt("settings.keybindings.toggle_dag_list_label")} shortcut={<Kbd keys={"Alt+Y"} />} />
               </div>
             </Labelled>
             <Labelled label="default shortcuts — macOS (Alt reads as Cmd, R-56); Toggle DAG list with ⌘Y only is recommended" tag={["decided", "recommended"]}>
               <div style={{ width: 320, padding: "var(--tasty-space-sm)", background: "var(--tasty-menu-bg)", border: "var(--tasty-border-width) solid var(--tasty-menu-border)", borderRadius: "var(--tasty-radius)" }}>
-                <MenuItem label={gt("child_graph.keybinding_action")} shortcut={<Kbd keys={["⌘", "G"]} />} />
+                <MenuItem label={gt("settings.keybindings.toggle_child_graph_label")} shortcut={<Kbd keys={["⌘", "G"]} />} />
                 <MenuItem label={gt("settings.keybindings.toggle_dag_list_label")} shortcut={<Kbd keys={["⌘", "Y"]} />} />
               </div>
             </Labelled>
@@ -329,7 +329,7 @@ export function ChildGraphSection() {
             </Labelled>
           </>)}
         </Stage>
-        <Meta specs={[["Tools menu", "child_graph.tools_menu_item, after Task DAGs"], ["child graph key", "Alt+G · macOS ⌘G · child_graph.keybinding_action"], ["Task DAGs key", "existing action toggle_dag_list, existing label settings.keybindings.toggle_dag_list_label · default binding Alt+Y · macOS ⌘Y (recommended: replaces Alt+Shift+G; keeping both adds an Alt+Shift+G line)"], ["macOS", "a binding's Alt reads as Cmd by default; Option by setting (R-56)"], ["kind", "child_graph"], ["context menu", "child_graph.surface_menu_item"], ["kind name", "child_graph.kind_name — tab title and convert list"]]} tokens={[]} />
+        <Meta specs={[["Tools menu", "child_graph.tools_menu_item, after Task DAGs"], ["child graph key", "action toggle_child_graph, label settings.keybindings.toggle_child_graph_label · default binding Alt+G · macOS ⌘G"], ["Task DAGs key", "existing action toggle_dag_list, existing label settings.keybindings.toggle_dag_list_label · default binding Alt+Y · macOS ⌘Y (recommended: replaces Alt+Shift+G; keeping both adds an Alt+Shift+G line)"], ["macOS", "a binding's Alt reads as Cmd by default; Option by setting (R-56)"], ["kind", "child_graph"], ["context menu", "child_graph.surface_menu_item"], ["kind name", "child_graph.kind_name — tab title and convert list"]]} tokens={[]} />
               <Note>Drawn: the recommended replacement, so Toggle DAG list has one default binding, Alt+Y, and Alt+Shift+G is not drawn. If both are kept, the same action only gains one more binding line, Alt+Shift+G (macOS <Kbd keys={["⌘", "⇧", "G"]} />); nothing else changes.</Note>
       </Spec>
 
