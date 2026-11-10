@@ -227,7 +227,7 @@ const NAV = [
   { id: "perfapply", label: "Terminal › Performance — apply note" },
   { id: "permissions", label: "General › Permissions (macOS)" },
   { id: "kbimportexport", label: "Keybindings · Import / Export" },
-  { id: "optionkey", label: "Win · Super as option (b12)" },
+  { id: "optionkey", label: "Win · Super as extra (b12)" },
   { id: "pluginswindow", label: "Plugins window · avatar · disabled sites" },
   { id: "scripts", label: "Misc · Scripts" },
   { id: "anomaly", label: "Misc · Anomaly detection" },
