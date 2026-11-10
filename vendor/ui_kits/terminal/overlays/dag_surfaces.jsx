@@ -328,7 +328,7 @@ function DagWindow({ onClose, entries = DAG_LIST, scope = "tasty", initialOpen =
           detail={open ? (
             <div style={{ display: "flex", flexDirection: "column", height: "100%", minHeight: 0 }}>
               <div style={{ flex: 1, minHeight: 0, display: "flex" }}>
-                <DagCanvas dag={open.dag} dir={dir} onDirChange={setDir} selected={sel} onSelect={setSel} minimap={false} chrome={false}
+                <DagCanvas dag={open.dag} dir={dir} onDirChange={setDir} selected={sel} onSelect={setSel} minimap={false}
                   drawer={sel ? (cover) => <DagDetail dag={open.dag} id={sel} cover={cover} onClose={() => setSel(null)} onSelect={setSel} /> : null} />
               </div>
             </div>
