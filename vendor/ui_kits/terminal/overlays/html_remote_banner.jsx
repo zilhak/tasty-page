@@ -45,7 +45,7 @@ const RC_COPY = {
   body: "Stylesheets, images, fonts, frames and scripts from the network don't load, so the page may look incomplete. Allowing applies to this document only, until Tasty restarts.",
   action: "Allow remote content",
   reloading: "Reloading with remote content allowed",
-  actionLoading: "Available when the document finishes loading",
+  actionLoading: "Available when loading finishes",
   markerBlocked: "Remote content blocked. Click for details.",
   markerAllowed: "Remote content allowed for this document until Tasty restarts",
   // 2026-11-10 — top-level http(s) page (`web`). action, reloading, actionLoading, markerBlocked are shared.

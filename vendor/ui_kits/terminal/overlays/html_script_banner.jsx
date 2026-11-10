@@ -31,7 +31,7 @@ const HS_COPY = {
   bodyRemote: "Buttons and menus that need JavaScript may not respond. Allowing applies to this document only, until Tasty restarts. Scripts inside it run; scripts from the network also need remote content allowed.",
   action: "Allow for this document",
   reloading: "Reloading with scripts allowed",
-  actionLoading: "Available when the document finishes loading",
+  actionLoading: "Available when loading finishes",
   markerBlocked: "Scripts blocked. Click to show the notice again.",
   markerAllowed: "Scripts allowed for this document until Tasty restarts",
   // 2026-11-10 — top-level http(s) page (`web`, see html_remote_banner.jsx). Same shell, glyph and states; copy only.
