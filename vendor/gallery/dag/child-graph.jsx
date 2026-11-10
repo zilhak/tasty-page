@@ -16,6 +16,7 @@ import { BasePicker, PICKER_ONE_WINDOW } from "../../ui_kits/terminal/overlays/c
 // Parts: ui_kits/terminal/overlays/child_graph.jsx on the shared graph_view.jsx. This page only catalogues them.
 // User decisions of 2026-11-10 (request items 4-1 to 4-9) keep only the chosen expression, tagged "decided".
 // Items still open keep the recommended expression, tagged "recommended"; an alternative frame is tagged "alternative".
+// A frame that mixes a decided part with parts still open takes both tags, and its label names which part is still open.
 
 const cap = { fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" };
 const Badge = ({ tag }) => (
@@ -24,7 +25,7 @@ const Badge = ({ tag }) => (
 );
 const Labelled = ({ label, tag, children }) => (
   <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", minWidth: 0 }}>
-    <span style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)" }}>{tag && <Badge tag={tag} />}<span style={cap}>{label}</span></span>
+    <span style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "var(--tasty-space-sm)" }}>{[].concat(tag || []).map((t) => <Badge key={t} tag={t} />)}<span style={cap}>{label}</span></span>
     {children}
   </div>
 );
@@ -302,20 +303,20 @@ export function ChildGraphSection() {
       </Spec>
 
       <Spec id="child-graph-entry-points" title="Entry points and default shortcuts (decided 4-1, 4-2, 4-3)"
-        when={<><b>Tools menu</b>: <i>Open child graph</i> right after <i>Task DAGs</i>. <b>Decided 4-1</b>: default shortcuts — the child graph popup <Kbd keys="Alt+G" /> (macOS <Kbd keys={["⌘", "G"]} />), the Task DAGs popup <Kbd keys="Alt+Y" /> (macOS <Kbd keys={["⌘", "Y"]} />). On macOS a binding's Alt reads as Cmd by default and a setting can switch it to Option (R-56); neither key collides with a default binding or the macOS menu bar. Keybindings and the command palette list them by action name. The Tools menu shows no keys, as today. A terminal surface's context menu takes the same label when it is adopted. <b>Decided 4-3</b>: the surface kind is <code>child_graph</code>; it shows as <i>Child graph</i> in its tab and in the convert list. <b>Decided 4-2</b>: no new entry for DAGs — the Task DAGs popup lists them and a pick goes to the graph inside the same popup (the Task DAG page's popup spec).</>}>
+        when={<><b>Tools menu</b>: <i>Open child graph</i> right after <i>Task DAGs</i>. <b>Decided 4-1</b>: default shortcuts — the child graph popup <Kbd keys="Alt+G" /> (macOS <Kbd keys={["⌘", "G"]} />), the Task DAGs popup <Kbd keys="Alt+Y" /> (macOS <Kbd keys={["⌘", "Y"]} />). The Task DAGs key is <b>not a new action</b>: it is a binding of Tasty's existing <i>Toggle DAG list</i> action, which today defaults to <Kbd keys="Alt+Shift+G" />, and an action holds a list of bindings. Still open: whether Alt+Y replaces that binding or joins it; the recommended replacement is drawn, so the action shows Alt+Y only. On macOS a binding's Alt reads as Cmd by default and a setting can switch it to Option (R-56); neither key collides with a default binding or the macOS menu bar. Keybindings and the command palette list them by action name. The Tools menu shows no keys, as today. A terminal surface's context menu takes the same label when it is adopted. <b>Decided 4-3</b>: the surface kind is <code>child_graph</code>; it shows as <i>Child graph</i> in its tab and in the convert list. <b>Decided 4-2</b>: no new entry for DAGs — the Task DAGs popup lists them and a pick goes to the graph inside the same popup (the Task DAG page's popup spec).</>}>
         <Stage style={{ padding: 16, display: "block" }}>
           {row(<>
             <Labelled label="Tools menu — the new item" tag="decided"><div style={{ width: 360 }}><ToolsMenuFrame active="Open child graph" height={380} /></div></Labelled>
-            <Labelled label="default shortcuts — Windows and Linux (4-1)" tag="decided">
+            <Labelled label="default shortcuts — Windows and Linux (4-1); Toggle DAG list with Alt+Y only is recommended" tag={["decided", "recommended"]}>
               <div style={{ width: 320, padding: "var(--tasty-space-sm)", background: "var(--tasty-menu-bg)", border: "var(--tasty-border-width) solid var(--tasty-menu-border)", borderRadius: "var(--tasty-radius)" }}>
                 <MenuItem label={gt("child_graph.keybinding_action")} shortcut={<Kbd keys={"Alt+G"} />} />
-                <MenuItem label={gt("dag_list.keybinding_action")} shortcut={<Kbd keys={"Alt+Y"} />} />
+                <MenuItem label={gt("settings.keybindings.toggle_dag_list_label")} shortcut={<Kbd keys={"Alt+Y"} />} />
               </div>
             </Labelled>
-            <Labelled label="default shortcuts — macOS (Alt reads as Cmd, R-56)" tag="decided">
+            <Labelled label="default shortcuts — macOS (Alt reads as Cmd, R-56); Toggle DAG list with ⌘Y only is recommended" tag={["decided", "recommended"]}>
               <div style={{ width: 320, padding: "var(--tasty-space-sm)", background: "var(--tasty-menu-bg)", border: "var(--tasty-border-width) solid var(--tasty-menu-border)", borderRadius: "var(--tasty-radius)" }}>
                 <MenuItem label={gt("child_graph.keybinding_action")} shortcut={<Kbd keys={["⌘", "G"]} />} />
-                <MenuItem label={gt("dag_list.keybinding_action")} shortcut={<Kbd keys={["⌘", "Y"]} />} />
+                <MenuItem label={gt("settings.keybindings.toggle_dag_list_label")} shortcut={<Kbd keys={["⌘", "Y"]} />} />
               </div>
             </Labelled>
             <Labelled label="terminal context menu (when adopted)">
@@ -328,8 +329,8 @@ export function ChildGraphSection() {
             </Labelled>
           </>)}
         </Stage>
-        <Meta specs={[["Tools menu", "child_graph.tools_menu_item, after Task DAGs"], ["child graph key", "Alt+G · macOS ⌘G · child_graph.keybinding_action"], ["Task DAGs key", "Alt+Y · macOS ⌘Y · dag_list.keybinding_action"], ["macOS", "a binding's Alt reads as Cmd by default; Option by setting (R-56)"], ["kind", "child_graph"], ["context menu", "child_graph.surface_menu_item"], ["kind name", "child_graph.kind_name — tab title and convert list"]]} tokens={[]} />
-              <Note>The Task DAGs list already has a key, <Kbd keys="Alt+Shift+G" /> (macOS <Kbd keys={["⌘", "⇧", "G"]} />). Whether Alt+Y replaces it is still the user's to decide, so it is neither drawn as removed nor as kept here.</Note>
+        <Meta specs={[["Tools menu", "child_graph.tools_menu_item, after Task DAGs"], ["child graph key", "Alt+G · macOS ⌘G · child_graph.keybinding_action"], ["Task DAGs key", "existing action toggle_dag_list, existing label settings.keybindings.toggle_dag_list_label · default binding Alt+Y · macOS ⌘Y (recommended: replaces Alt+Shift+G; keeping both adds an Alt+Shift+G line)"], ["macOS", "a binding's Alt reads as Cmd by default; Option by setting (R-56)"], ["kind", "child_graph"], ["context menu", "child_graph.surface_menu_item"], ["kind name", "child_graph.kind_name — tab title and convert list"]]} tokens={[]} />
+              <Note>Drawn: the recommended replacement, so Toggle DAG list has one default binding, Alt+Y, and Alt+Shift+G is not drawn. If both are kept, the same action only gains one more binding line, Alt+Shift+G (macOS <Kbd keys={["⌘", "⇧", "G"]} />); nothing else changes.</Note>
       </Spec>
 
       <Spec id="child-graph-settings-default-row" title="Settings — the full tree default"
@@ -349,7 +350,7 @@ export function ChildGraphSection() {
       </Spec>
 
       <Spec id="child-graph-copy-keys" title="Copy — every key in four languages"
-        when={<>The proposed keys and their values. Codex wrote every value; a script checked placeholders, backtick spans, sentence case, the card meta length, zh-Hans spacing, punctuation and glossary terms, and polite Korean UI endings. Existing keys reused as they are: <code>dag.detail.close</code>, <code>dag_list.back</code>, <code>dag.zoom.*</code>, <code>dag.lod.*</code>, <code>dag.empty.*</code>.</>}>
+        when={<>The proposed keys and their values. Codex wrote every value; a script checked placeholders, backtick spans, sentence case, the card meta length, zh-Hans spacing, punctuation and glossary terms, and polite Korean UI endings. Existing keys reused as they are (not listed; the kit copies their four values from Tasty): <code>dag.detail.close</code>, <code>dag_list.back</code>, <code>settings.keybindings.toggle_dag_list_label</code>, <code>dag.zoom.*</code>, <code>dag.lod.*</code>, <code>dag.empty.*</code>.</>}>
         <Stage style={{ padding: 0, display: "block" }}><CopyTable /></Stage>
       </Spec>
     </Section>

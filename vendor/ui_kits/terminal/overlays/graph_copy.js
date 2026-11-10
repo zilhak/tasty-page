@@ -64,7 +64,6 @@ export const GRAPH_COPY = {
   "graph.remote_unsupported": {"en": "Remote Tasty lacks graph support", "ko": "원격 Tasty가 그래프를 지원하지 않음", "ja": "リモートの Tasty はグラフ未対応です", "zh-Hans": "远程 Tasty 不支持图"},
   "graph.remote_unsupported_hint": {"en": "Update Tasty on {} to view graphs.", "ko": "그래프를 보려면 {}의 Tasty를 업데이트하세요.", "ja": "グラフを表示するには、{} の Tasty を更新してください。", "zh-Hans": "请更新 {} 上的 Tasty 以查看图。"},
   "graph.remote_disconnected": {"en": "Connection to {} lost; showing the last graph with remote states unknown.", "ko": "{} 연결이 끊겨 마지막 그래프를 표시하며, 원격 상태는 알 수 없습니다.", "ja": "{} との接続が切れたため、最後のグラフを表示していますが、リモートの状態は不明です。", "zh-Hans": "与 {} 的连接已断开，显示上次的图，远程状态未知。"},
-  "dag_list.keybinding_action": {"en": "Open Task DAGs", "ko": "작업 DAG 열기", "ja": "タスク DAG を開く", "zh-Hans": "打开任务 DAG"},
   "settings.misc.subtab.child_graph": {"en": "Child graph", "ko": "자식 그래프", "ja": "子グラフ", "zh-Hans": "父子关系图"},
   "settings.child_graph.show_full_tree": {"en": "Show full tree", "ko": "전체 트리 표시", "ja": "ツリー全体を表示", "zh-Hans": "显示完整树"},
   "settings.child_graph.show_full_tree_desc": {"en": "Sets the initial full tree checkbox state in new child graph popups and surfaces (off by default); changing the checkbox in an open graph affects only that graph.", "ko": "새로 여는 자식 그래프 팝업과 서피스의 전체 트리 체크박스 초기값을 정하며(기본값: 꺼짐), 열린 그래프에서 체크박스를 바꾸면 해당 그래프에만 적용됩니다.", "ja": "新しく開く子グラフのポップアップとサーフェスでツリー全体を表示するチェックボックスの初期値（既定はオフ）を設定し、開いているグラフでのチェックボックスの変更はそのグラフにのみ適用されます。", "zh-Hans": "设置新打开的父子关系图弹窗和 Surface 中完整树复选框的初始状态（默认关闭）；在已打开的图中更改复选框仅影响该图。"},
@@ -74,6 +73,7 @@ export const GRAPH_COPY = {
 export const APP_COPY = {
   "dag.detail.close": {"en": "Close details", "ko": "상세 닫기", "ja": "詳細を閉じる", "zh-Hans": "关闭详情"},
   "dag_list.back": {"en": "Back to list", "ko": "목록으로", "ja": "一覧に戻る", "zh-Hans": "返回列表"},
+  "settings.keybindings.toggle_dag_list_label": {"en": "Toggle DAG list:", "ko": "DAG 목록 열기/닫기:", "ja": "DAG 一覧の切替:", "zh-Hans": "打开/关闭 DAG 列表："},
 };
 
 export const GRAPH_LANGS = ["en", "ko", "ja", "zh-Hans"];
