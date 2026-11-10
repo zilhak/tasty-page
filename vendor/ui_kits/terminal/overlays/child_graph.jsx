@@ -287,6 +287,22 @@ function useChildFlow({ nodes, initial = {} }) {
   const step = !owner ? 0 : viaList && !dagId ? 1 : viaList ? 2 : 1;
   return { owner, ownerDags, dagId, viaList, dagSel, setDagSel, setDagId, viewDags, back, step };
 }
+// Esc clears the selection of the screen in front, as the DAG surface does (dag_surfaces.jsx), and the
+// drawer closes with it. On a pushed step with nothing selected it goes back one step. On the child
+// graph with nothing selected the popup passes onIdle (close), as its Meta says; the surface stays.
+function useEscDeselect(flow, sel, setSel, onIdle) {
+  const ref = React.useRef(null);
+  ref.current = () => {
+    if (flow.dagId && flow.dagSel) { flow.setDagSel(null); return; }
+    if (flow.owner) { flow.back(); return; }
+    if (sel) setSel(null); else if (onIdle) onIdle();
+  };
+  React.useEffect(() => {
+    const onKey = (e) => { if (e.key === "Escape") ref.current(); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+}
 function FlowScreens({ flow, lang, bed, still }) {
   const { owner, ownerDags, dagId, viaList, dagSel, setDagSel, setDagId, back } = flow;
   const screens = [];
@@ -323,6 +339,7 @@ function ChildGraphWindow({ nodes = CHILD_SMALL, baseId = CHILD_SMALL_BASE, lang
   const [sel, setSel] = React.useState(initial.selected || null);
   const [base, setBase] = React.useState(baseId);
   const flow = useChildFlow({ nodes, initial });
+  useEscDeselect(flow, sel, setSel, onClose);
   const screens = FlowScreens({ flow, lang, still });
   return (
     <div style={{ width: width || "var(--tasty-graph-child-popup-width)", height: height || "var(--tasty-graph-child-popup-height)", maxWidth: "100%",
@@ -362,6 +379,7 @@ function ChildGraphSurface({ nodes = CHILD_LARGE, baseId = CHILD_LARGE_BASE, lan
   const [sel, setSel] = React.useState(initial.selected || null);
   const [base, setBase] = React.useState(status === "base-closed" ? "" : baseId);
   const flow = useChildFlow({ nodes, initial });
+  useEscDeselect(flow, sel, setSel);
   const screens = FlowScreens({ flow, lang, bed, still });
   const header = (
     <div style={{ flex: "none", display: "flex", flexWrap: narrow ? "wrap" : "nowrap", alignItems: "center",
