@@ -143,6 +143,10 @@ export function RemoteConnectionPopup({ lang = "en", name = "tasty-core", profil
   // closed: the remote workspace was closed elsewhere (another client, the remote Tasty) while this row was connected
   // in this run. Nothing failed, so the title says it was closed; the body is the workspace-missing reason.
   if (kind === "closed") { title = rt("remote.row.popup.closed_title", lang); body = remoteReasonText({ remoteReason: "workspace_missing", remoteProfile: profile, remoteName }, lang); }
+  // closed: Reconnect stays in its place, disabled (2026-11-11, director: an action that cannot succeed is shown
+  // disabled, never hidden). The remote workspace is gone, so it would always fail. The body above it is the reason;
+  // no tooltip or extra line repeats it. Not trying, so no Spinner and the label stays Reconnect.
+  const unavailable = kind === "closed";
   const label = trying
     ? rt(shape ? "child_graph.reconnecting" : "remote.row.popup.connecting", lang)
     : rt(shape ? "child_graph.reconnect" : "remote.row.popup.connect", lang);
@@ -173,7 +177,7 @@ export function RemoteConnectionPopup({ lang = "en", name = "tasty-core", profil
         </div>
       )}
       <div style={{ display: "flex", justifyContent: "flex-end" }}>
-        <Button variant="primary" size="sm" disabled={trying} leadingIcon={trying ? <Spinner size={12} label={null} /> : undefined}>{label}</Button>
+        <Button variant="primary" size="sm" disabled={trying || unavailable} leadingIcon={trying ? <Spinner size={12} label={null} /> : undefined}>{label}</Button>
       </div>
     </div>
   );
