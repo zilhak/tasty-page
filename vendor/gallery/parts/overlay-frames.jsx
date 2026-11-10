@@ -1178,8 +1178,10 @@ function FhHeader({ state, path, remote }) {
           drop whole leading segments and prefix "…/" until the rest fits.
           65 mono chars at 11px is the derived cap where measuring is not
           available: 390 / 6 — D2Coding 11px is 5.56px nominal but each glyph ADVANCES
-          a whole 6px once rounded (2026-10-06; was 70 / 5.5, which overran by ~30px). A single segment
-          longer than the line is the one case that cuts mid-segment.
+          a whole 6px once rounded (2026-10-06; was 70 / 5.5, which overran by ~30px). When "…/"
+          + the last segment does not fit but "…" + it does, only the slash drops: "…" + the whole
+          segment. Only when "…" + the last segment does not fit is the segment cut at its
+          front by characters ("…" + its tail) — the one case that cuts mid-segment.
           With a remote mark the path box is what the mark leaves: 390 − mark − 8 (gap),
           mark = 12 glyph + 4 + host text (6px per char, capped at 160). Measure that box;
           where measuring is not available the cap is floor((366 − min(6 × host chars, 160)) / 6):
