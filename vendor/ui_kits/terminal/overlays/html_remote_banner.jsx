@@ -52,11 +52,15 @@ const RC_COPY = {
   titleWeb: "Page loaded; remote content blocked",
   bodyWeb: "Stylesheets, images, fonts, frames and media from the network are blocked, so the page may look incomplete. Allowing applies only to this showing of the page; reloading blocks remote content again. Permission to run scripts is requested separately.",
   markerAllowedWeb: "Remote content allowed for this showing of the page; reloading blocks it again",
+  // 2026-11-10 — web body when the script sandbox is off: no script notice exists and the page's own scripts already
+  // run, so network scripts join the blocked list and the "requested separately" sentence goes. Picked by the sandbox.
+  bodyWebSandboxOff: "Stylesheets, images, fonts, frames, media and scripts from the network are blocked, so the page may look incomplete. Allowing applies only to this showing of the page; reloading blocks remote content again.",
 };
 
 // state: "blocked" | "loading" | "reloading" — identical visual rules to HtmlScriptBanner.
 // web: top-level http(s) page copy (titleWeb/bodyWeb). tipOpen: draws the loading tooltip open (gallery frames).
-function HtmlRemoteBanner({ state = "blocked", hover = false, narrow = false, web = false, tipOpen = false }) {
+// sandboxOff (web only): the script sandbox is off → bodyWebSandboxOff. Title, action and states are unchanged.
+function HtmlRemoteBanner({ state = "blocked", hover = false, narrow = false, web = false, sandboxOff = false, tipOpen = false }) {
   const [h, setH] = React.useState(false);
   const showX = (hover || h) && state !== "reloading";
   const reloading = state === "reloading";
@@ -83,7 +87,7 @@ function HtmlRemoteBanner({ state = "blocked", hover = false, narrow = false, we
         </span>
         <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: "var(--tasty-banner-text-gap)" }}>
           <div style={{ fontSize: "var(--tasty-banner-title-font-size)", fontWeight: "var(--tasty-font-weight-semibold)", lineHeight: "var(--tasty-line-height-ui)", textWrap: "pretty" }}>{web ? RC_COPY.titleWeb : RC_COPY.title}</div>
-          <div style={{ fontSize: "var(--tasty-banner-body-font-size)", lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-banner-body-fg)", textWrap: "pretty" }}>{web ? RC_COPY.bodyWeb : RC_COPY.body}</div>
+          <div style={{ fontSize: "var(--tasty-banner-body-font-size)", lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-banner-body-fg)", textWrap: "pretty" }}>{web ? (sandboxOff ? RC_COPY.bodyWebSandboxOff : RC_COPY.bodyWeb) : RC_COPY.body}</div>
         </div>
         <span style={{ flex: "none", display: "flex", marginLeft: narrow ? "calc(var(--tasty-icon-size-md) + var(--tasty-banner-gap))" : 0, width: narrow ? "100%" : "auto" }}>{action}</span>
       </div>
@@ -137,11 +141,12 @@ function RcUnstyledPage({ label = "report.html" }) {
 //   allowed tooltips. A web page never passes remote and script together (they take the same slot in turn).
 // loading: the band's Reload shows busy (a load is in flight, not yet committed).
 const RC_WEB = { label: "Getting started", address: "https://docs.example.com/guide/getting-started", page: "docs.example.com" };
-function HtmlRemoteSurfaceG({ width, height = 300, narrow = false, remote = null, script = null, remoteMarker = null, scriptMarker = null, size = null, page = "unstyled", mirror = false, web = false, loading = false }) {
+// sandboxOff: the remote notice takes its sandbox-off web body.
+function HtmlRemoteSurfaceG({ width, height = 300, narrow = false, remote = null, script = null, remoteMarker = null, scriptMarker = null, size = null, page = "unstyled", mirror = false, web = false, loading = false, sandboxOff = false }) {
 
   const stack = [
     size && <HtmlSizeBanner key="size" kind={size} narrow={narrow} />,
-    remote && <HtmlRemoteBanner key="remote" state={remote} narrow={narrow} web={web} />,
+    remote && <HtmlRemoteBanner key="remote" state={remote} narrow={narrow} web={web} sandboxOff={sandboxOff} />,
     script && <HtmlScriptBanner key="script" state={script} remote={!!remote} narrow={narrow} web={web} />,
   ].filter(Boolean);
   const kind = web ? "web" : mirror ? "remote" : "local";
