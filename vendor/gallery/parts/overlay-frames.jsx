@@ -3,6 +3,7 @@ import { MenuItem, Input, Select, Switch, Checkbox, Button, IconButton, Tag, Kbd
 import { Stage } from "./specimen.jsx";
 import { WorkspaceRunningCount } from "../../ui_kits/terminal/chrome.jsx";
 import { AttachConnectionsSection } from "./settings-attach-section.jsx";
+import { rt } from "../../ui_kits/terminal/overlays/remote_row_copy.js";
 
 // Tasty Gallery — Overlays SHARED frames. Loaded by every overlays-*.html page
 // (Dialogs / Windows / Popups & menus / Banners). Defines the scrim Backdrop, the
@@ -2761,17 +2762,24 @@ function RaProfile({ name, label, target, selected, inactive }) {
     </div>
   );
 }
-function RaWs({ name, panes, busy, selected, attached, muted }) {
+// chain (R-58): the remote workspace is itself a mirror of another machine — shown, not selectable,
+// name and dot muted, a neutral "mirror" Tag with the reason as its tooltip (remote.row.reason.chain).
+function RaWs({ name, panes, busy, selected, attached, muted, chain }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "var(--tasty-space-sm) var(--tasty-space-md)", position: "relative",
       background: selected ? "var(--tasty-surface-active)" : "transparent",
       boxShadow: selected ? "inset var(--tasty-selection-edge-width) 0 0 var(--tasty-accent-primary)" : "none" }}>
-      <span style={{ display: "inline-flex" }}><StatusDot status={busy ? "running" : "idle"} pulse={busy} /></span>
-      <span style={{ fontSize: 13, fontWeight: 500, color: attached || muted ? "var(--tasty-text-muted)" : selected ? "var(--tasty-text-on-active)" : "var(--tasty-text-secondary)" }}>{name}</span>
+      <span style={{ display: "inline-flex" }}><StatusDot status={busy && !chain ? "running" : "idle"} pulse={busy && !chain} /></span>
+      <span style={{ fontSize: 13, fontWeight: 500, color: attached || muted || chain ? "var(--tasty-text-muted)" : selected ? "var(--tasty-text-on-active)" : "var(--tasty-text-secondary)" }}>{name}</span>
       <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11, color: "var(--tasty-text-muted)" }}>{ic.split}{panes}</span>
       <div style={{ flex: 1 }} />
       {busy && !attached && <span style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>busy</span>}
       {attached && <RaBadge tone="attached" title="Already attached on another client">in use</RaBadge>}
+      {chain && (
+        <Tag title={rt("remote.row.reason.chain", "en", name)} aria-disabled="true" style={{ color: "var(--tasty-tag-fg)" }}>
+          <Icon name="remote" size="var(--tasty-icon-size-xs)" />{rt("remote_attach.chain_badge", "en")}
+        </Tag>
+      )}
     </div>
   );
 }
@@ -2860,6 +2868,7 @@ function RemoteAttachFrame({ state = "loaded", newPhase = "rest", newSelected, e
               <RaWs name="agents-prod" panes={3} busy selected={!newSelected && newPhase === "rest"} />
               <RaWs name="api-gateway" panes={2} attached />
               <RaWs name="scratch" panes={1} />
+              <RaWs name="build-farm" panes={2} chain />
             </div>
           </>)}
           {state === "empty" && emptyPlan === "B" && (<>
