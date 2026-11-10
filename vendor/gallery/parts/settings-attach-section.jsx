@@ -1,13 +1,17 @@
 import React from "react";
 import { Input } from "../../components/index.js";
+import { rt } from "../../ui_kits/terminal/overlays/remote_row_copy.js";
 
-// Tasty Gallery — Settings › General › Remote attach › Attach connections. One row on the shared SettingsRow and the
+// Tasty Gallery — Settings › General › Remote attach › Attach connections. Two rows on the shared SettingsRow and the
 // shared settings number field: no clamp while typing, Enter or leaving the field commits and clamps, a
 // non-number returns to the last committed value. The range line shows only while the typed value is out of range.
+// Row 1 Disconnect after: 10 to 600, default 30. Row 2 Keep reconnecting for (R-58): 0 to 3600, default 300, 0 = off;
+// it counts from the moment row 1 ends the connection.
 
 const MIN = 10;
 const MAX = 600;
 const DEFAULT = 30;
+const RECONNECT = { min: 0, max: 3600, def: 300 };
 
 // en, ko and ja are final copy, one key each. The range line is settings.number.range_between and the unit is settings.number.unit_s, both reused.
 const ATTACH_COPY = {
@@ -35,8 +39,21 @@ const ATTACH_COPY = {
 };
 
 // text: the field's typed text on mount, for a specimen that shows an uncommitted entry.
-function AttachConnectionsSection({ lang = "en", text: initial = String(DEFAULT), focused = false, stacked = false }) {
+// reconnectText / reconnectFocused: the same for the second row.
+function AttachConnectionsSection({ lang = "en", text = String(DEFAULT), focused = false, reconnectText = String(RECONNECT.def), reconnectFocused = false, stacked = false }) {
   const L = ATTACH_COPY[lang] || ATTACH_COPY.en;
+  return (
+    <section aria-label={L.section} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-settings-row-gap)", minWidth: 0 }}>
+      <div lang={lang} style={{ fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-micro)", textTransform: "uppercase", letterSpacing: "var(--tasty-letter-spacing-caps)", color: "var(--tasty-text-muted)" }}>{L.section}</div>
+      <NumberRow lang={lang} label={L.label} caption={L.caption} range={L.range} min={MIN} max={MAX} def={DEFAULT} text={text} focused={focused} stacked={stacked} />
+      <NumberRow lang={lang} label={rt("settings.remote_attach.reconnect_window", lang)} caption={rt("settings.remote_attach.reconnect_window_desc", lang)} range={L.range}
+        min={RECONNECT.min} max={RECONNECT.max} def={RECONNECT.def} text={reconnectText} focused={reconnectFocused} stacked={stacked} />
+    </section>
+  );
+}
+
+function NumberRow({ lang, label, caption, range, min: MIN, max: MAX, def: DEFAULT, text: initial, focused, stacked }) {
+  const L = { label, caption, range };
   const [committed, setCommitted] = React.useState(DEFAULT);
   const [text, setText] = React.useState(initial);
   const parsed = /^\s*-?\d+\s*$/.test(text) ? parseInt(text, 10) : null;
@@ -49,9 +66,7 @@ function AttachConnectionsSection({ lang = "en", text: initial = String(DEFAULT)
   };
   const chars = Math.max(text.length, 1) + 1;
   return (
-    <section aria-label={L.section} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-settings-row-gap)", minWidth: 0 }}>
-      <div lang={lang} style={{ fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-micro)", textTransform: "uppercase", letterSpacing: "var(--tasty-letter-spacing-caps)", color: "var(--tasty-text-muted)" }}>{L.section}</div>
-      <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-settings-row-caption-gap)", minWidth: 0 }}>
+      <div lang={lang} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-settings-row-caption-gap)", minWidth: 0 }}>
         <div style={{ display: "flex", flexDirection: stacked ? "column" : "row", alignItems: stacked ? "stretch" : "flex-start", gap: stacked ? "var(--tasty-settings-row-stack-gap)" : "var(--tasty-settings-label-gap)", minWidth: 0 }}>
           <span style={{ flex: "none", width: stacked ? "auto" : "var(--tasty-settings-label-width)", minHeight: stacked ? 0 : "var(--tasty-settings-row-min-height)", display: "flex", alignItems: "center", fontSize: "var(--tasty-font-size-body)", lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-text-secondary)", overflowWrap: "anywhere" }}>{L.label}</span>
           <span style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "var(--tasty-space-xs)", minWidth: 0 }}>
@@ -67,8 +82,7 @@ function AttachConnectionsSection({ lang = "en", text: initial = String(DEFAULT)
         </div>
         <p style={{ margin: 0, fontSize: "var(--tasty-font-size-caption)", lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-text-muted)", maxWidth: "var(--tasty-measure-md)", textWrap: "pretty", overflowWrap: "anywhere" }}>{L.caption}</p>
       </div>
-    </section>
   );
 }
 
-export { AttachConnectionsSection, ATTACH_COPY };
+export { AttachConnectionsSection, ATTACH_COPY, RECONNECT };
