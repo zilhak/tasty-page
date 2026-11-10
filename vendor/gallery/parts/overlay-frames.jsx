@@ -1128,6 +1128,13 @@ const FH_LONG = [
   { id: "com.tasty.shell/editor-env", owner: "host", kind: "editor", name: "Open in $EDITOR" },
   { id: "com.tasty.tree/reveal", owner: "host", kind: "directory", name: "Reveal in file tree" },
 ];
+// A remote target lists only the handlers that can open it on the remote host, and no
+// row carries the default Tag: the app sets no default for a remote target. Which
+// handlers those are is the app's filter; the rows here stand for it.
+const FH_REMOTE = {
+  suggested: FH_ROWS.suggested.filter((h) => h.owner === "host").map(({ dflt, ...h }) => h),
+  all: FH_ROWS.all.filter((h) => h.owner === "host"),
+};
 
 const FH_OWNER_WORD = { host: "built-in", user: "you", plugin: "plugin" };
 function FhRow({ h, sel, dim }) {
@@ -1272,7 +1279,8 @@ function FhFooter({ variant = "actions", canOpen = true }) {
 
 function FileHandlerFrame({ state = "default", headless = true, footer = "actions", path, remote }) {
   const long = state === "long";
-  const rowsOf = (key) => (state === "mixed" ? FH_ROWS.mixed : key);
+  const rowsOf = (key) => (remote ? FH_REMOTE.suggested : state === "mixed" ? FH_ROWS.mixed : key);
+  const allRows = remote ? FH_REMOTE.all : FH_ROWS.all;
   const listStyle = { padding: 6, ...(long ? { maxHeight: 264, overflow: "auto" } : null) };
   return (
     <div style={{ width: 420, background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-strong)",
@@ -1302,8 +1310,8 @@ function FileHandlerFrame({ state = "default", headless = true, footer = "action
           <div style={listStyle}>
             {state === "fallback" ? (
               <>
-                <FhGroup label="All handlers" count={FH_ROWS.all.length} caption="No handler matches this format." tone="attention" />
-                {FH_ROWS.all.map((h, i) => <FhRow key={h.id} h={h} sel={i === 0} />)}
+                <FhGroup label="All handlers" count={allRows.length} caption="No handler matches this format." tone="attention" />
+                {allRows.map((h, i) => <FhRow key={h.id} h={h} sel={i === 0} />)}
               </>
             ) : (
               <>
