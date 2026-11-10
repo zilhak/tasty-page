@@ -126,12 +126,12 @@ export function RemoteRailMarks({ state = "connected", warn = false, title }) {
 
 // ── The remote connection popup (one per row: state, reason, the connect action) ──
 // Workspace-scope popup, centred in the workspace content area, never takes focus on its own.
-// kind: connecting · idle · failed (empty workspace) · reconnecting · gave_up · user · failed (over the last screen).
+// kind: connecting · idle · failed (empty workspace) · reconnecting · gave_up · user · failed · closed (over the last screen).
 // shape = the last screen is kept under the scrim → shadow-modal; the empty workspace has no scrim → shadow-popover.
 export function RemoteConnectionPopup({ lang = "en", name = "tasty-core", profile = "gx10", remote, kind = "connecting", reason, seconds = 300,
   userVariant = "stay", shape = false, width = "var(--tasty-size-360)" }) {
   const remoteName = remote || name;
-  const warn = kind === "failed" || kind === "gave_up";
+  const warn = kind === "failed" || kind === "gave_up" || kind === "closed";
   const trying = kind === "connecting" || kind === "reconnecting";
   let title = null;
   let body = null;
@@ -140,6 +140,9 @@ export function RemoteConnectionPopup({ lang = "en", name = "tasty-core", profil
   if (kind === "user") { title = rt("remote.row.popup.user_title", lang); body = rt(userVariant === "next" ? "remote.row.popup.user_body_next" : "remote.row.popup.user_body_stay", lang); }
   if (kind === "idle") title = rt("remote.row.popup.idle_title", lang);
   if (kind === "failed") { title = rt("remote.row.popup.failed_title", lang); body = remoteReasonText({ remoteReason: reason, remoteProfile: profile, remoteName }, lang); }
+  // closed: the remote workspace was closed elsewhere (another client, the remote Tasty) while this row was connected
+  // in this run. Nothing failed, so the title says it was closed; the body is the workspace-missing reason.
+  if (kind === "closed") { title = rt("remote.row.popup.closed_title", lang); body = remoteReasonText({ remoteReason: "workspace_missing", remoteProfile: profile, remoteName }, lang); }
   const label = trying
     ? rt(shape ? "child_graph.reconnecting" : "remote.row.popup.connecting", lang)
     : rt(shape ? "child_graph.reconnect" : "remote.row.popup.connect", lang);

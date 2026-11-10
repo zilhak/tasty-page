@@ -22,6 +22,7 @@ export const REMOTE_ROW_COPY = {
   "remote.row.popup.user_body_next": {"en": "You disconnected this workspace. It will reconnect the next time you open it.", "ko": "직접 연결을 끊은 워크스페이스입니다. 다음에 열면 재연결합니다.", "ja": "手動で切断したワークスペースです。次に開くと再接続します。", "zh-Hans": "已手动断开此工作区。下次打开时将重新连接。"},
   "remote.row.popup.idle_title": {"en": "Not connected", "ko": "미연결", "ja": "未接続", "zh-Hans": "未连接"},
   "remote.row.popup.failed_title": {"en": "Connection failed", "ko": "연결 실패", "ja": "接続失敗", "zh-Hans": "连接失败"},
+  "remote.row.popup.closed_title": {"en": "Remote workspace closed", "ko": "원격 워크스페이스 닫힘", "ja": "リモートワークスペースが閉じられました", "zh-Hans": "远程工作区已关闭"},
   "remote.row.reason.profile_missing": {"en": "Profile {} no longer exists. It may have been renamed or deleted.", "ko": "{} 프로필이 더 이상 존재하지 않습니다. 이름이 변경되었거나 삭제되었을 수 있습니다.", "ja": "プロファイル {} はもう存在しません。名前が変更されたか、削除された可能性があります。", "zh-Hans": "配置档 {} 已不存在。可能已重命名或删除。"},
   "remote.row.reason.workspace_missing": {"en": "Workspace {} no longer exists on the remote Tasty.", "ko": "원격 Tasty에 {} 워크스페이스가 더 이상 존재하지 않습니다.", "ja": "リモートの Tasty にワークスペース {} はもう存在しません。", "zh-Hans": "远程 Tasty 上的工作区 {} 已不存在。"},
   "remote.row.reason.occupied": {"en": "Another client holds workspace {}. It cannot be taken over from here.", "ko": "다른 클라이언트가 {} 워크스페이스에 연결되어 있습니다. 여기서는 연결을 가져올 수 없습니다.", "ja": "別のクライアントがワークスペース {} に接続中です。ここから接続を引き継ぐことはできません。", "zh-Hans": "其他客户端已占用工作区 {}。无法从此处接管。"},
