@@ -1150,7 +1150,7 @@ function Page() {
               ["3 · cumulative limit reached", { banners: ["limit"], page: "paused" }],
               ["4 · size banner + script banner", { banners: ["size", "script"], page: "paused", height: 360 }],
               ["5 · after declining — page shown, “2 skipped” in the field", { banners: [], page: "page", skipped: 2 }],
-              ["6 · macOS 11–13, remote web address", { banners: [], page: "macos", address: "build-eu ↦ https://intranet.example/status" }],
+              ["6 · macOS 11–26, remote web address", { banners: [], page: "macos", address: "build-eu ↦ https://intranet.example/status" }],
               ["7 · disconnected before the page arrived", { banners: [], page: "disconnected", disconnected: true }],
             ].map(([cap, o]) => (
               <div key={cap} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
@@ -1176,7 +1176,7 @@ function Page() {
             ))}
           </Stage>
           <Meta
-            specs={[["placement", "inset, same as the script banner · above it when both show"], ["large file", "download glyph (info) · title · path (left-ellipsis) + size Tag warning · Decline ghost / Allow secondary"], ["several files", "one at a time · '+N more waiting'"], ["limit", "alertTriangle (warning) · received total · Stop ghost / Continue secondary"], ["dismiss", "no × · no keyboard focus · click only"], ["receiving", "Spinner + bytes · files (mono)"], ["paused", "static download glyph + 'Paused — answer the notice above'"], ["declined", "'N skipped' Tag in the read-only field, tooltip lists names · cleared by Reload"], ["macOS 11–13", "info glyph + copy in the page rect · band stays"], ["disconnected", "Reload disabled (tooltip says why) · page rect notice if nothing arrived; a received page stays"]]}
+            specs={[["placement", "inset, same as the script banner · above it when both show"], ["large file", "download glyph (info) · title · path (left-ellipsis) + size Tag warning · Decline ghost / Allow secondary"], ["several files", "one at a time · '+N more waiting'"], ["limit", "alertTriangle (warning) · received total · Stop ghost / Continue secondary"], ["dismiss", "no × · no keyboard focus · click only"], ["receiving", "Spinner + bytes · files (mono)"], ["paused", "static download glyph + 'Paused — answer the notice above'"], ["declined", "'N skipped' Tag in the read-only field, tooltip lists names · cleared by Reload"], ["macOS 11–26", "info glyph + copy in the page rect · band stays"], ["disconnected", "Reload disabled (tooltip says why) · page rect notice if nothing arrived; a received page stays"]]}
             tokens={[{ tok: "--tasty-html-size-banner-glyph", use: "→ accent-info", color: "var(--tasty-html-size-banner-glyph)" }, { tok: "--tasty-html-limit-banner-glyph", use: "→ accent-warning", color: "var(--tasty-html-limit-banner-glyph)" }, { tok: "--tasty-html-receiving-fg", use: "→ text-muted", color: "var(--tasty-html-receiving-fg)" }, { tok: "--tasty-html-receiving-glyph", use: "→ glyph-dim", color: "var(--tasty-html-receiving-glyph)" }, { tok: "--tasty-banner-inset-gap", use: "between banners + below the last" }]} />
         </Spec>
         <Spec id="html-settings-appearance-html-viewer" title="HTML — settings (Appearance › HTML viewer)">
