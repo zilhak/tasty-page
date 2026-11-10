@@ -20,8 +20,10 @@ import { HsTab, HsPage, HtmlScriptBanner } from "./html_script_banner.jsx";
 //     allow are independent; both notices can stack.
 //   web (top-level http(s) page typed into the address field): no fingerprint. Allow covers this showing only —
 //     the reload Allow itself starts keeps it; the USER's reload, any navigation (same site too), Back and restart
-//     clear it, and the notice is back at once (a new showing, even if it was dismissed before). Shown whenever the
-//     page is viewed: the static references are unknown, so the notice does not wait for a blocked request.
+//     clear it when that load commits, and the notice is back then, blocked (a new showing, even if it was dismissed
+//     before). Until that commit the allow and its markers hold; a notice already up (before Allow) stays, loading.
+//     Shown whenever the page is viewed, first at the load's commit (never before it): the static references are
+//     unknown, so the notice does not wait for a blocked request.
 //     Remote allow does not enable scripts. With the script sandbox on, the script notice (web copy) takes the SAME
 //     slot right after the remote reload commits; the two never stack on a web page, and the script notice never
 //     shows while remote is blocked (dismissing the remote notice leaves only its marker). The user's reload clears

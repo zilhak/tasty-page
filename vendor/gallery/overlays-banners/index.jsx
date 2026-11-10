@@ -232,13 +232,14 @@ function RcWebMarkerGrid({ label, attr }) {
 
 // §4a flow, one frame per step (hidden states: they only follow each other in time). Follows the page theme.
 const RC_WEB_FLOW = [
-  ["web-flow-1-loading", "1 · OPEN (fact check): IF the notice shows before the page's first load commits — Allow disabled, Reload busy. Otherwise this frame does not occur and step 1 starts at the next frame", { remote: "loading", loading: true }],
-  ["web-flow-1-blocked", "1 · page viewed — remote notice (blocked) · no marker · no script notice", { remote: "blocked" }],
+  ["web-flow-1-blocked", "1 · page viewed — the remote notice first shows when the load commits, already blocked · no marker · no script notice", { remote: "blocked" }],
   ["web-flow-2-reloading", "2 · Allow remote content — reloading", { remote: "reloading", loading: true }],
   ["web-flow-2-script", "2 · reload committed — remote marker allowed, script notice takes the same slot", { script: "blocked", remoteMarker: "allowed", page: "styled" }],
   ["web-flow-3-reloading", "3 · Allow scripts on this page — reloading, remote stays allowed", { script: "reloading", remoteMarker: "allowed", page: "styled", loading: true }],
   ["web-flow-3-allowed", "3 · reload committed — no notice · remote marker allowed · tab marker allowed", { remoteMarker: "allowed", scriptMarker: "allowed", page: "styled" }],
-  ["web-flow-4-reloaded", "4 · user reload (or another page, Back, restart) — both allows cleared, back to step 1, shown again even if dismissed before", { remote: "blocked" }],
+  ["web-flow-4a-loading", "4a · user reload before Allow — the notice stays, loading: Allow disabled, Reload busy, until the reload commits", { remote: "loading", loading: true }],
+  ["web-flow-4b-loading", "4b · user reload after Allow (from step 3) — load in flight: no notice, markers stay allowed, Reload busy", { remoteMarker: "allowed", scriptMarker: "allowed", page: "styled", loading: true }],
+  ["web-flow-4-reloaded", "4 · reload committed (4a or 4b; also another page, Back, restart) — both allows cleared, remote notice blocked as at step 1, shown even if dismissed before", { remote: "blocked" }],
   ["web-flow-x-remote", "× at step 1 — globeOff marker only · no script notice while remote is blocked", { remoteMarker: "blocked" }],
   ["web-flow-x-script", "× at step 2 — remote marker allowed · tab lock · marker click shows the notice again", { remoteMarker: "allowed", scriptMarker: "blocked", page: "styled" }],
   ["web-flow-global-remote", "global Allow remote content on · sandbox on — script notice at once, no remote notice or marker", { script: "blocked", page: "styled" }],
@@ -858,7 +859,7 @@ function Page() {
           <Dont><b>Don't</b> show the script notice under the remote notice on a web page, and don't let one Allow open both. Remote allow is a choice about how the page looks; scripts are a second, separate choice, asked only once the page can load them.</Dont>
         </Spec>
         <Spec id="http-s-page-the-flow-step-by-step" title="http(s) page — the flow, step by step"
-          when={<>Each step only follows the previous one in time, so each is a fixed frame (remote blocked, sandbox on). After a reload commits, the next notice takes the slot the last one left, with no animation: the WebView rect is re-laid out once, as for any notice change. A user reload returns to step 1.</>}>
+          when={<>Each step only follows the previous one in time, so each is a fixed frame (remote blocked, sandbox on). The remote notice first shows when the page's load <b>commits</b>, already blocked; no loading frame comes before step 1. After a reload commits, the next notice takes the slot the last one left, with no animation: the WebView rect is re-laid out once, as for any notice change. A user reload of the same address has <b>two branches</b>: before Allow, the notice that is up stays and turns loading until the reload commits (4a); after Allow, no notice shows during the load and the markers stay allowed (4b). Either way the commit clears both allows and the remote notice is back, blocked (4).</>}>
           <Views>
             {RC_WEB_FLOW.map(([name, label, p]) => (
               <View key={name} name={name} label={label}>
@@ -878,8 +879,8 @@ function Page() {
             ))}
           </Views>
           <Meta
-            specs={[["1", "remote notice blocked · no markers"], ["2", "remote reloading → commit → remote marker allowed + script notice blocked"], ["3", "script reloading → commit → no notice · both markers allowed"], ["4", "user reload → step 1, even after ×"], ["×", "marker blocked remains · click → that notice again"], ["loading", "Allow disabled until commit · Reload busy"]]} />
-          <Note>Open fact check: whether the remote notice can show before the page's <b>first</b> load commits is not settled. The first frame draws that branch only. Its title, “Page loaded; remote content blocked”, states a loaded page, so on that branch it would be early; the copy is not changed here. If the notice first appears at commit, that frame never occurs and the flow starts at “page viewed”. The same check covers the user's reload: frame 4 is drawn after the reload commits. The notice's loading state itself (Allow disabled until commit) is unchanged.</Note>
+            specs={[["1", "remote notice blocked · no markers"], ["2", "remote reloading → commit → remote marker allowed + script notice blocked"], ["3", "script reloading → commit → no notice · both markers allowed"], ["4a", "user reload before Allow → notice stays · loading until commit"], ["4b", "user reload after Allow → no notice · markers allowed until commit"], ["4", "commit → both allows cleared · remote notice blocked, even after ×"], ["×", "marker blocked remains · click → that notice again"], ["loading", "Allow disabled until commit · Reload busy"]]} />
+          <Note>First load: the remote notice first shows when the page's load commits, already blocked, so step 1 has no loading frame before it. Reload before Allow (4a): the notice keeps its title, “Page loaded; remote content blocked”. Until the reload commits the WebView still shows the showing the notice is about, the disabled Allow and the busy Reload already say a new load is in flight, and the local notices keep their title in the same state. Hiding the notice for the load would move the WebView rect twice (at load start and again at commit) for no new information. Reload after Allow (4b): the allows hold until the reload commits, then clear, and the notice comes back.</Note>
         </Spec>
       </Section>
       <Section id="bodyink" title="Body ink — every banner, both themes">
