@@ -290,7 +290,9 @@ function useChildFlow({ nodes, initial = {} }) {
 // Esc clears the selection of the screen in front, as the DAG surface does (dag_surfaces.jsx), and the
 // drawer closes with it. On a pushed step with nothing selected it goes back one step. On the child
 // graph with nothing selected the popup passes onIdle (close), as its Meta says; the surface stays.
-function useEscDeselect(flow, sel, setSel, onIdle) {
+// A frozen gallery frame (still, or a pinned push step) does not listen: one Esc anywhere on the page
+// would otherwise step every such frame back to an empty screen.
+function useEscDeselect(flow, sel, setSel, onIdle, enabled = true) {
   const ref = React.useRef(null);
   ref.current = () => {
     if (flow.dagId && flow.dagSel) { flow.setDagSel(null); return; }
@@ -298,10 +300,11 @@ function useEscDeselect(flow, sel, setSel, onIdle) {
     if (sel) setSel(null); else if (onIdle) onIdle();
   };
   React.useEffect(() => {
+    if (!enabled) return undefined;
     const onKey = (e) => { if (e.key === "Escape") ref.current(); };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, []);
+  }, [enabled]);
 }
 function FlowScreens({ flow, lang, bed, still }) {
   const { owner, ownerDags, dagId, viaList, dagSel, setDagSel, setDagId, back } = flow;
@@ -339,7 +342,7 @@ function ChildGraphWindow({ nodes = CHILD_SMALL, baseId = CHILD_SMALL_BASE, lang
   const [sel, setSel] = React.useState(initial.selected || null);
   const [base, setBase] = React.useState(baseId);
   const flow = useChildFlow({ nodes, initial });
-  useEscDeselect(flow, sel, setSel, onClose);
+  useEscDeselect(flow, sel, setSel, onClose, !still && push == null);
   const screens = FlowScreens({ flow, lang, still });
   return (
     <div style={{ width: width || "var(--tasty-graph-child-popup-width)", height: height || "var(--tasty-graph-child-popup-height)", maxWidth: "100%",
@@ -383,7 +386,7 @@ function ChildGraphSurface({ nodes = CHILD_LARGE, baseId = CHILD_LARGE_BASE, lan
   // canvas's Select base surface button can open it.
   const pickOpen = pickerOpen !== undefined ? pickerOpen : pickS;
   const flow = useChildFlow({ nodes, initial });
-  useEscDeselect(flow, sel, setSel);
+  useEscDeselect(flow, sel, setSel, undefined, !still && push == null);
   const screens = FlowScreens({ flow, lang, bed, still });
   const header = (
     <div style={{ flex: "none", display: "flex", flexWrap: narrow ? "wrap" : "nowrap", alignItems: "center",
