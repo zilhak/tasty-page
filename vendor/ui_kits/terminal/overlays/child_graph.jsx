@@ -5,18 +5,18 @@ import { Icon } from "../../../components/core/Icon.jsx";
 import { IconButton } from "../../../components/core/IconButton.jsx";
 import { ListCtrl } from "../../../components/data/ListCtrl.jsx";
 import { Checkbox } from "../../../components/forms/Checkbox.jsx";
-import { Select } from "../../../components/forms/Select.jsx";
 import { Switch } from "../../../components/forms/Switch.jsx";
 import { DrillDown } from "../../../components/navigation/DrillDown.jsx";
 import { DAG_LIST, RunnerBadge, DagEmpty } from "./dag_view.jsx";
 import { DagCanvas, DagDetail, dagRowItems } from "./dag_surfaces.jsx";
 import { GraphCanvas, GraphDrawer, DrawerRow, DrawerRows, DrawerCaption, GraphStrip, GraphPush, CHILD_STATE, childTone, childColor, childLayout, childEdges, childVisible } from "./graph_view.jsx";
 import { gt } from "./graph_copy.js";
+import { BasePicker, PICKER_WINDOWS } from "./child_base_picker.jsx";
 
 // Tasty UI kit — the child graph (2026-11-10). One internal view, two frames:
 //   ChildGraphView     canvas + drawer (+ status blocks) — the part both frames share
 //   ChildGraphWindow   popup: title bar, 36 toolbar (full tree checkbox), base = the surface it opened from
-//   ChildGraphSurface  tab surface: header with the base selector and the checkbox, canvas on the surface bed
+//   ChildGraphSurface  tab surface: header with the base picker (child_base_picker.jsx) and the checkbox, canvas on the surface bed
 // Inside either frame a surface that created DAGs pushes to them: child → (list of its DAGs) → DAG graph.
 // The back bars are DrillDown's (chevron + title, 36). Coming back restores the child view as it was.
 
@@ -353,17 +353,16 @@ function ChildGraphWindow({ nodes = CHILD_SMALL, baseId = CHILD_SMALL_BASE, lang
 
 // ── Surface frame ───────────────────────────────────────────────────
 // Header (bg-sidebar, 8 / 12 padding — the DAG header's recipe): branch glyph · "Base surface" ·
-// base selector (field-width-lg) · full tree checkbox · refresh. Under 640 it wraps to two rows like the
+// base picker (field-width-lg; a sidebar-shaped tree of every window, child_base_picker.jsx) · full tree checkbox · refresh. Under 640 it wraps to two rows like the
 // DAG header: base above, checkbox + refresh below. The canvas takes the surface bed.
 function ChildGraphSurface({ nodes = CHILD_LARGE, baseId = CHILD_LARGE_BASE, lang = "en", focused, narrow = false, initial = {},
-  status = "ready", banner, push, still, style }) {
+  status = "ready", banner, push, still, style, windows = PICKER_WINDOWS, pickerOpen, pickerQuery }) {
   const bed = focused === undefined ? "var(--tasty-dag-canvas-bg)" : focused ? "var(--tasty-surface-bed-focused)" : "var(--tasty-surface-bed-unfocused)";
   const [full, setFull] = React.useState(!!initial.full);
   const [sel, setSel] = React.useState(initial.selected || null);
   const [base, setBase] = React.useState(status === "base-closed" ? "" : baseId);
   const flow = useChildFlow({ nodes, initial });
   const screens = FlowScreens({ flow, lang, bed, still });
-  const options = nodes.filter((n) => !n.kind || n.kind === "surface").map((n) => ({ value: n.id, label: `${n.workspace} / ${nameOf(n)} · ${n.id}` }));
   const header = (
     <div style={{ flex: "none", display: "flex", flexWrap: narrow ? "wrap" : "nowrap", alignItems: "center",
       rowGap: "var(--tasty-space-xs)", columnGap: "var(--tasty-space-sm)", padding: "var(--tasty-space-sm) var(--tasty-space-md)",
@@ -371,8 +370,7 @@ function ChildGraphSurface({ nodes = CHILD_LARGE, baseId = CHILD_LARGE_BASE, lan
       <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-text-muted)" }}><Icon name="gitBranch" /></span>
       <span style={{ flex: "none", fontFamily: "var(--tasty-font-ui)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{gt("child_graph.base_label", lang)}</span>
       <span style={{ flex: narrow ? "1 1 auto" : "none", minWidth: 0, width: narrow ? "auto" : "var(--tasty-field-width-lg)", display: "flex" }}>
-        <Select block value={base} placeholder={options.length ? gt("child_graph.empty.pick_base", lang) : gt("child_graph.base_empty", lang)}
-          disabled={!options.length} onChange={(e) => { setBase(e.target.value); setSel(null); }} options={options} />
+        <BasePicker block windows={windows} value={base} lang={lang} open={pickerOpen} query={pickerQuery} onChange={(id) => { setBase(id); setSel(null); }} />
       </span>
       {narrow && <span style={{ flexBasis: "100%", height: 0 }} />}
       <Checkbox checked={full} onChange={(e) => setFull(e.target.checked)} label={gt("child_graph.show_full_tree", lang)} />

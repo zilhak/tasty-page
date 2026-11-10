@@ -10,6 +10,7 @@ import { ChildNode, ChildGraphWindow, ChildGraphSurface, ChildGraphSettings, Mir
   CHILD_MIRROR, CHILD_MIRROR_BASE, CHILD_CROSS, CHILD_EXTERNAL } from "../../ui_kits/terminal/overlays/child_graph.jsx";
 import { GRAPH_COPY, GRAPH_LANGS, gt } from "../../ui_kits/terminal/overlays/graph_copy.js";
 import { Frame, ChildView } from "./graph-shared.jsx";
+import { BasePicker } from "../../ui_kits/terminal/overlays/child_base_picker.jsx";
 
 // Tasty Gallery — Surfaces · Task DAG › Child graph (2026-11-10).
 // Parts: ui_kits/terminal/overlays/child_graph.jsx on the shared graph_view.jsx. This page only catalogues them.
@@ -165,20 +166,39 @@ export function ChildGraphSection() {
           tokens={[{ tok: "--tasty-graph-child-popup-width", use: "600" }, { tok: "--tasty-graph-child-popup-height", use: "460 → dag-popup-height" }, { tok: "--tasty-graph-toolbar-height", use: "36 → back bar" }, { tok: "--tasty-shadow-modal", use: "popup lift" }]} />
       </Spec>
 
-      <Spec id="child-graph-surface-header" title="Surface — base selector and checkbox in the header"
-        when={<>A tab of its own kind. The header is the DAG header's recipe (sidebar band, 8 / 12 padding): branch glyph · <b>Base surface</b> · the <b>base selector</b> · the full tree checkbox · refresh. Each option reads <code>workspace / name · id</code>, the DAG selector's pattern; it lists the surfaces that have a parent or a child. Under 640 the header wraps: base above, checkbox and refresh below. The canvas takes the surface bed.</>}>
+      <Spec id="child-graph-surface-header" title="Surface — base picker and checkbox in the header (base picker decided, R-51 14)"
+        when={<>A tab of its own kind. The header is the DAG header's recipe (sidebar band, 8 / 12 padding): branch glyph · <b>Base surface</b> · the <b>base picker</b> · the full tree checkbox · refresh. Under 640 the header wraps: base above, checkbox and refresh below. The canvas takes the surface bed. <b>Decided</b>: the picker lists <b>every surface in every window</b>, mirrored remote workspaces included, with no filter by parent or child. Closed it is the Select trigger and reads <code>workspace / name · id</code>. Open it is the searchable list's shell holding a tree shaped like the <b>sidebar</b>: <b>window › category › workspace › pane › tab › surface</b>, and only a surface row picks. The window the graph is in comes first and says <i>This window</i>; a closed window whose sessions still run comes after the open ones. Categories are the sidebar's band (the reserved one reads <i>Workspaces</i>), the workspace row is the sidebar's status dot and name with the remote glyph and host on a mirror, and the rest are the sidebar tree row. Split layouts (PaneGroup, SurfaceGroup) are not levels: panes and surfaces list in layout order.</>}>
         <Stage style={{ padding: 16, display: "flex", gap: 16, flexWrap: "wrap", alignItems: "stretch" }}>
           <Frame label="wide" w={760} h={420}><ChildGraphSurface /></Frame>
           <Frame label="narrow 360" w={360} h={420}><ChildGraphSurface narrow nodes={CHILD_SMALL} baseId={CHILD_SMALL_BASE} /></Frame>
         </Stage>
+        <Stage style={{ padding: 16, display: "block" }}>
+          {row(<>
+            <Labelled label="picker open — path to the base open, base selected" tag="decided"><div style={{ minHeight: 440 }}><BasePicker value="s_w23" open inline /></div></Labelled>
+            <Labelled label="filter “work” — matches with their path" tag="decided"><div style={{ minHeight: 440 }}><BasePicker value="s_w23" open inline query="work" /></div></Labelled>
+            <Labelled label="filter with no match" tag="decided"><div style={{ minHeight: 140 }}><BasePicker value="s_w23" open inline query="zzz" /></div></Labelled>
+          </>)}
+        </Stage>
+        <Stage style={{ padding: 16, display: "block" }}>
+          {row(<>
+            <Labelled label="folding: categories off · one pane: no pane row · one surface per tab: one row" tag="recommended"><div style={{ minHeight: 440 }}><BasePicker value="s_01HX7Q" open inline categoriesOn={false} /></div></Labelled>
+            <Labelled label="every level drawn: pane rows and tab rows always" tag="alternative"><div style={{ minHeight: 440 }}><BasePicker value="s_01HX7Q" open inline allLevels /></div></Labelled>
+          </>)}
+        </Stage>
         {focusViews("child-graph-surface", (focused) => <div style={{ height: 300, minWidth: 320 }}><ChildGraphSurface nodes={CHILD_SMALL} baseId={CHILD_SMALL_BASE} focused={focused} /></div>)}
         <Views>
-          <View name="child-surface-selector-empty" label="Base selector with no related surface">
-            <Frame w={560} h={200}><ChildGraphSurface nodes={[]} baseId="" status="empty" /></Frame>
+          <View name="child-surface-selector-empty" label="No terminal surface in any window — the picker is disabled">
+            <Frame w={560} h={200}><ChildGraphSurface nodes={[]} baseId="" status="empty" windows={[]} /></Frame>
+          </View>
+          <View name="child-surface-picker-locales" label="ko, ja, zh-Hans — the open picker">
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 16 }}>
+              {["ko", "ja", "zh-Hans"].map((l) => <div key={l} style={{ minHeight: 440 }}><BasePicker lang={l} value="s_m2" open inline /></div>)}
+            </div>
           </View>
         </Views>
-        <Meta specs={[["header", "bg-sidebar · 8 / 12 · wraps < 640"], ["label", "Base surface · caption muted"], ["selector", "Select · field-width-lg · “workspace / name · id”"], ["empty list", "disabled Select · child_graph.base_empty"], ["checkbox", "child_graph.show_full_tree"], ["canvas", "surface bed, focused or unfocused"]]}
-          tokens={[{ tok: "--tasty-bg-sidebar", use: "header band", color: "var(--tasty-bg-sidebar)" }, { tok: "--tasty-field-width-lg", use: "selector" }]} />
+        <Meta specs={[["header", "bg-sidebar · 8 / 12 · wraps < 640"], ["label", "Base surface · caption muted"], ["trigger", "the Select trigger · field-width-lg · “workspace / name · id” · placeholder child_graph.empty.pick_base"], ["popover", "menu shell · graph-base-picker-width 360 · max graph-base-picker-height 400 · filter field + separator + tree (only the tree scrolls)"], ["levels", "window (TreeRow, child_graph.picker.window / closed_window, meta this_window) › category (sidebar category band, count) › workspace (status dot + name, remote glyph + host) › pane (child_graph.picker.pane) › tab (title) › surface (terminal or remote glyph · name · id mono)"], ["scope", "every window, closed windows with live sessions after them · mirrors included · no relation filter"], ["folding (recommended)", "categories off: no band · one pane: no pane row · one surface in a tab: one row"], ["open state", "windows and categories open · the path to the base open, base selected · the rest closed"], ["filter", "surface name, id or workspace · child_graph.picker.search · none: picker.no_match"], ["disabled", "no surface in any window · child_graph.base_empty"], ["checkbox", "child_graph.show_full_tree"], ["canvas", "surface bed, focused or unfocused"]]}
+          tokens={[{ tok: "--tasty-graph-base-picker-width", use: "360" }, { tok: "--tasty-graph-base-picker-height", use: "400" }, { tok: "--tasty-sidebar-category-header-bg", use: "category band", color: "var(--tasty-sidebar-category-header-bg)" }, { tok: "--tasty-tree-row-indent", use: "12 per level" }, { tok: "--tasty-field-width-lg", use: "trigger" }]} />
+        <Note>In the app the picker opens as a floating layer over the surface. Here the open picker is drawn on its own beside the frames, because the gallery frame would clip it.</Note>
       </Spec>
 
       <Spec id="child-to-dag-push-and-back" title="Child graph → DAG — push right, back with the chevron"
@@ -214,17 +234,17 @@ export function ChildGraphSection() {
       </Spec>
 
       <Spec id="child-graph-empty-and-base-closed" title="Empty and base closed (decided 4-4)"
-        when={<>A base with no parent and no children shows the child empty block. On the <b>surface</b> form the base can close. <b>Decided</b> (as the DAG surface does for a missing DAG): the canvas says <i>Base surface closed</i> with a <b>Select base surface</b> button that opens the selector, and the selector shows its placeholder. A base that was a mirrored surface adds a banner with Reconnect (next spec). The <b>popup</b> form is still open; the popup closes with its surface as recommended.</>}>
+        when={<>A base with no parent and no children shows the child empty block. On the <b>surface</b> form the base can close. <b>Decided</b> (as the DAG surface does for a missing DAG): the canvas says <i>Base surface closed</i> with a <b>Select base surface</b> button that opens the base picker, and the picker shows its placeholder. A base that was a mirrored surface adds a banner with Reconnect (next spec). The <b>popup</b> form is still open; the popup closes with its surface as recommended.</>}>
         <Stage variant="grid" style={{ display: "flex", flexWrap: "wrap", gap: 16, padding: 20, alignItems: "flex-start" }}>
           <Labelled label="child empty — popup"><ChildGraphWindow nodes={CHILD_SMALL.slice(3).map((n) => ({ ...n, parent: undefined }))} baseId="s_01HXB2" width={420} height={280} /></Labelled>
           <Labelled label="base closed — pick another" tag="decided"><Frame w={480} h={300}><ChildGraphSurface status="base-closed" nodes={CHILD_SMALL} /></Frame></Labelled>
         </Stage>
-        <Meta specs={[["empty", "child_graph.empty.none + none_hint · gitBranch glyph"], ["base closed", "child_graph.empty.base_closed + _hint · paneEmpty glyph · Button secondary sm pick_base"], ["selector", "placeholder child_graph.empty.pick_base"]]}
+        <Meta specs={[["empty", "child_graph.empty.none + none_hint · gitBranch glyph"], ["base closed", "child_graph.empty.base_closed + _hint · paneEmpty glyph · Button secondary sm pick_base"], ["base picker", "placeholder child_graph.empty.pick_base"]]}
           tokens={[]} />
       </Spec>
 
       <Spec id="child-graph-mirror-base-detached" title="Base was a mirrored surface — detached or lost, Reconnect (decided)"
-        when={<>A child graph surface whose base is a <b>mirrored remote surface</b> loses it when the mirror is <b>detached</b> or the <b>connection is lost</b>. <b>Decided</b>: a banner across the top says which, and the rest is the <b>pick a base surface</b> state of 4-4 (the selector shows its placeholder; the canvas offers <i>Select base surface</i>). The banner ends in <b>Reconnect</b>: it attaches again with the <b>same attach profile</b> to the <b>same remote surface</b> (its tooltip names both). While it tries, the button is disabled with a spinner and reads <i>Reconnecting…</i>; on failure the banner turns to the warning recipe and says so, and Reconnect stays for another try; on success the banner goes and the graph returns with that base. Picking another base also clears the banner. Detached is the user's own act, so it takes the neutral band; a lost connection or a failed try takes the warning band, as the refresh error does.</>}>
+        when={<>A child graph surface whose base is a <b>mirrored remote surface</b> loses it when the mirror is <b>detached</b> or the <b>connection is lost</b>. <b>Decided</b>: a banner across the top says which, and the rest is the <b>pick a base surface</b> state of 4-4 (the picker shows its placeholder; the canvas offers <i>Select base surface</i>). The banner ends in <b>Reconnect</b>: it attaches again with the <b>same attach profile</b> to the <b>same remote surface</b> (its tooltip names both). While it tries, the button is disabled with a spinner and reads <i>Reconnecting…</i>; on failure the banner turns to the warning recipe and says so, and Reconnect stays for another try; on success the banner goes and the graph returns with that base. Picking another base also clears the banner. Detached is the user's own act, so it takes the neutral band; a lost connection or a failed try takes the warning band, as the refresh error does.</>}>
         <Stage style={{ padding: 16, display: "block" }}>
           {row(<>
             <Labelled label="mirror detached" tag="decided"><Frame w={560} h={280}><ChildGraphSurface nodes={CHILD_SMALL} status="base-closed" banner={<MirrorBanner cause="detached" />} /></Frame></Labelled>
