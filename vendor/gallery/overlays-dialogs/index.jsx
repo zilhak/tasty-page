@@ -6,6 +6,7 @@ import { ConvertSurfacePopup, ThemeNotFoundModal, DbInitErrorModal, Notification
 import { PermissionNoticeModal } from "../../ui_kits/terminal/overlays/macos_permissions.jsx";
 import { ExplorerDeleteFrame as ExplorerDeleteFrame_ExplorerDeleteFrame, XD_ITEMS as ExplorerDeleteFrame_XD_ITEMS } from "../parts/explorer-delete-frame.jsx";
 import { GalleryScrimGrounds } from "./scrim-grounds.jsx";
+import { CollapsedPopupSpec } from "./collapsed-popup.jsx";
 import { Backdrop, ApprovalFrame, FileHandlerFrame, FhFooter, PresetFrame, MarkdownOpenFrame, RenameFrame, CategoryEditFrame, CategoryDeleteFrame, TransferProgressFrame, TransferErrorFrame, DownloadRunFrame, DownloadRunLargeFrame, ShellMock } from "../parts/overlay-frames.jsx";
 import { Section, Spec, Stage, Meta, Note, Do, Dont, Views, View } from "../parts/specimen.jsx";
 import { ThemePair } from "../parts/theme-frame.jsx";
@@ -104,10 +105,10 @@ function Page() {
         </Spec>
 
         <Spec id="both-split-directions-a-clamped-popup-and-a-child-picker" title="Both split directions, a clamped popup, and a child picker"
-          when={<>The boundary has to read in every arrangement. Side-by-side and stacked splits show the divider staying lit between a dimmed and an undimmed surface. In a <b>narrow</b> surface the popup clamps to the rect (it never grows past its surface, and focus is never moved to win space). When a <b>child</b> picker opens from the popup, the scrim is drawn <b>once</b> — the parent shell stays fully painted under the child, which sits above it with its own shadow. Two shells, one scrim, no accumulated darkness.</>}>
+          when={<>The boundary has to read in every arrangement. Side-by-side and stacked splits show the divider staying lit between a dimmed and an undimmed surface. In a <b>narrow</b> surface the popup does not shrink to the rect: when it does not fit, it collapses to the show button (next specimen). It never grows past its surface, and focus is never moved to win space. When a <b>child</b> picker opens from the popup, the scrim is drawn <b>once</b> — the parent shell stays fully painted under the child, which sits above it with its own shadow. Two shells, one scrim, no accumulated darkness.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 18, flexWrap: "wrap", alignItems: "flex-start" }}>
             {[["horizontal split", { scope: "surface", split: "h" }],
-              ["narrow surface — popup clamped", { scope: "surface", narrow: true, clamp: true }],
+              ["narrow surface — popup collapsed to the show button", { scope: "surface", narrow: true, collapsed: "label", ring: true }],
               ["parent + child picker — one scrim", { scope: "surface", child: true }]].map(([label, props]) => (
               <div key={label} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                 <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
@@ -116,10 +117,12 @@ function Page() {
             ))}
           </Stage>
           <Meta
-            specs={[["scrim count", "one per scope — never composited twice"], ["depth", "scrim z0 · parent shell z1 · child shell z2"], ["parent under child", "full ink, not dimmed further"], ["clamp", "popup shrinks to the surface rect, min 320 → surface width wins"], ["surface hidden", "popup shell AND scrim hide with it; both return on re-show"], ["host popups", "same rule when they declare a surface scope"]]}
-            tokens={[{ tok: "--tasty-fp-popup-min-width", use: "picker floor, surface overrides it" }, { tok: "--tasty-scrim-bg", use: "drawn once", color: "var(--tasty-scrim-bg)" }, { tok: "--tasty-shadow-modal", use: "both shells" }]} />
+            specs={[["scrim count", "one per scope — never composited twice"], ["depth", "scrim z0 · parent shell z1 · child shell z2"], ["parent under child", "full ink, not dimmed further"], ["narrow", "no shrink to the surface rect — a popup that does not fit collapses to the show button (next specimen) · whether a sizer popup keeps a shrink range above its minimum before it collapses is open (question to tasty)"], ["surface hidden", "popup shell AND scrim hide with it; both return on re-show"], ["host popups", "same rule when they declare a surface scope"]]}
+            tokens={[{ tok: "--tasty-fp-popup-min-width", use: "picker floor — the surface no longer overrides it" }, { tok: "--tasty-scrim-bg", use: "drawn once", color: "var(--tasty-scrim-bg)" }, { tok: "--tasty-shadow-modal", use: "both shells" }]} />
           <Note><b>convert_surface</b> and any other host popup bound to a surface gain this scrim (they have none today); host popups with no target binding stay on the window scrim. Child-lifetime and draft policy are the host's, unchanged by this visual rule.</Note>
         </Spec>
+
+        <CollapsedPopupSpec />
       </Section>
 
 <Section id="scrimgrounds" title="Scrim over each ground">

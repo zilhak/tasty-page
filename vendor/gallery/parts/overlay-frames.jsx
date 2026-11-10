@@ -865,8 +865,15 @@ function LocalSshSection({ state = "hosts" }) {
 //   scope: "none" | "window" | "surface"   which rect the scrim dims
 //   split: "v" (side by side) | "h" (stacked)
 //   child: true → a Browse picker opened from the popup (two shells, ONE scrim)
-function ShellMock({ scope = "none", split = "v", child = false, narrow = false, clamp = false }) {
-  const W = narrow ? 560 : 760, H = 380;
+//   collapsed: "label" | "icon" | "clipped" → the surface popup does not fit its
+//     surface, so only the show button stands in its place (label, then icon only,
+//     then the icon frame cut at the surface rect). ring: the button holds key focus.
+//   leftWidth: fixed width of the left (popup) surface, for the very narrow frames.
+//   size: [W, H] override; pin: a window-scope popup bigger than the window keeps
+//     its size, left/top on the window's edge, right/bottom cut.
+function ShellMock({ scope = "none", split = "v", child = false, narrow = false, clamp = false,
+  collapsed = null, ring = false, leftWidth = null, size = null, pin = false, label = "Show popup" }) {
+  const [W, H] = size || [narrow ? 560 : 760, 380];
   const surfaceScrim = scope === "surface";
   const Term = ({ lines, focused, children, label }) => (
     <div style={{ position: "relative", flex: 1, minWidth: 0, minHeight: 0, overflow: "hidden",
@@ -906,6 +913,9 @@ function ShellMock({ scope = "none", split = "v", child = false, narrow = false,
       )}
     </div>
   );
+  const collapsedFrame = collapsed && (
+    <CollapsedPopupButton kind={collapsed === "label" ? "label" : "icon"} ring={ring} scrim={surfaceScrim} label={label} />
+  );
   return (
     <div style={{ width: W, height: H, display: "flex", flexDirection: "column", overflow: "hidden",
       border: "1px solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", background: "var(--tasty-bg-app)", position: "relative" }}>
@@ -941,12 +951,15 @@ function ShellMock({ scope = "none", split = "v", child = false, narrow = false,
             ))}
           </div>
           <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: split === "v" ? "row" : "column" }}>
-            <div style={{ position: "relative", flex: 1, minWidth: 0, minHeight: 0, display: "flex" }}>
+            <div style={{ position: "relative", minWidth: 0, minHeight: 0, display: "flex", overflow: collapsed ? "hidden" : undefined,
+              ...(leftWidth ? { flex: "none", width: leftWidth } : { flex: 1 }) }}>
               <Term focused lines={"$ tail -f deploy.log\n[12:04] applied 3 manifests\n[12:05] waiting for rollout…"} />
               {/* the scrim — surface scope: this rect, nothing else */}
               {surfaceScrim && <div style={{ position: "absolute", inset: 0, background: "var(--tasty-scrim-bg)", zIndex: 1 }} />}
               {scope === "surface" && (
-                <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", zIndex: 2, padding: 8 }}>{popup}</div>
+                <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", zIndex: 2,
+                  justifyContent: collapsed === "clipped" ? "flex-start" : "center",
+                  padding: collapsed === "clipped" && leftWidth ? `8px ${Math.min(8, leftWidth / 2)}px` : 8 }}>{collapsedFrame || popup}</div>
               )}
             </div>
             <div style={{ flex: "none", ...(split === "v" ? { width: 1 } : { height: 1 }), background: "var(--tasty-border-frame)" }} />
@@ -967,9 +980,27 @@ function ShellMock({ scope = "none", split = "v", child = false, narrow = false,
       {scope === "window" && (
         <>
           <div style={{ position: "absolute", inset: 0, background: "var(--tasty-scrim-bg)", zIndex: 4 }} />
-          <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", zIndex: 5 }}>{popup}</div>
+          <div style={{ position: "absolute", inset: 0, display: "flex", zIndex: 5,
+            alignItems: pin ? "flex-start" : "center", justifyContent: pin ? "flex-start" : "center" }}>{pin ? <div style={{ flex: "none" }}>{popup}</div> : popup}</div>
         </>
       )}
+    </div>
+  );
+}
+
+// ── Collapsed surface popup — the popup's own frame holding only the show button ──
+// kind: "label" (Button.secondary, fit glyph + label) | "icon" (IconButton solid, same glyph).
+// scrim: the popup's own scrim entry — shadow-modal on a scrim, shadow-popover without one.
+// ring: the button holds key focus (the base.css :focus-visible pair, drawn static).
+function CollapsedPopupButton({ kind = "label", ring = false, scrim = true, label = "Show popup" }) {
+  const ringStyle = ring ? { outline: "var(--tasty-focus-ring-width) solid var(--tasty-border-focus)", outlineOffset: "var(--tasty-border-width)" } : undefined;
+  return (
+    <div data-collapsed-popup={kind} style={{ flex: "none", display: "flex", padding: "var(--tasty-popup-content-margin)",
+      background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)",
+      boxShadow: scrim ? "var(--tasty-shadow-modal)" : "var(--tasty-shadow-popover)" }}>
+      {kind === "label"
+        ? <Button variant="secondary" leadingIcon={<Icon name="fit" size={14} />} style={ringStyle} tabIndex={-1}>{label}</Button>
+        : <IconButton variant="solid" aria-label={label} style={ringStyle} tabIndex={-1}><Icon name="fit" size={14} /></IconButton>}
     </div>
   );
 }
@@ -3195,4 +3226,4 @@ function FilePickerFrame({ state = "loaded", remote = false, indicator = "badge"
   );
 }
 
-export { TOOLS_MENU_BUILTIN, ic, Backdrop, GroundThemes, GroundCap, PaletteFrame, ApprovalFrame, RenameFrame, SettingsFrame, SettingsGeneralOverlayFrame, SettingsRemoteTransferFrame, SettingsRemoteAttachFrame, TransferProgressFrame, TransferErrorFrame, DownloadRunFrame, DownloadRunLargeFrame, ToastDragValue, ToolsMenuFrame, PortsFrame, PORTS_COLUMNS, PortsFavoritesG, PortStarG, RemoteFrame, LocalSshSection, SearchBarFrame, FileHandlerFrame, FhFooter, PresetFrame, MarkdownOpenFrame, HeldLabel, TabStripMock, SidebarMock, RailMock, CatSwitchSidebarMock, CatSwitchRailMock, BannerShellG, BannerScope, MouseCaptureBannerG, MouseCaptureHitZone, BlacklistEditorG, TtlBannerG, StackDemoG, BannerMoreMenuG, BannerMoreDemoG, GitViewerFrame, ClipboardFrame, RemoteFormFrame, ScriptManagerFrame, ShellMock, RemoteAttachFrame, RaNewRow, RaWsPeek, FilePickerFrame, FpCrumbMenu, ModifierHintPanelG, MH_CAT_SECTIONS, MH_MIXED_SECTIONS, MH_EMPTY_SECTIONS, catIc, CatMenu, RailCategoryFrame, CategoryEditFrame, CategoryDeleteFrame };
+export { TOOLS_MENU_BUILTIN, ic, Backdrop, GroundThemes, GroundCap, PaletteFrame, ApprovalFrame, RenameFrame, SettingsFrame, SettingsGeneralOverlayFrame, SettingsRemoteTransferFrame, SettingsRemoteAttachFrame, TransferProgressFrame, TransferErrorFrame, DownloadRunFrame, DownloadRunLargeFrame, ToastDragValue, ToolsMenuFrame, PortsFrame, PORTS_COLUMNS, PortsFavoritesG, PortStarG, RemoteFrame, LocalSshSection, SearchBarFrame, FileHandlerFrame, FhFooter, PresetFrame, MarkdownOpenFrame, HeldLabel, TabStripMock, SidebarMock, RailMock, CatSwitchSidebarMock, CatSwitchRailMock, BannerShellG, BannerScope, MouseCaptureBannerG, MouseCaptureHitZone, BlacklistEditorG, TtlBannerG, StackDemoG, BannerMoreMenuG, BannerMoreDemoG, GitViewerFrame, ClipboardFrame, RemoteFormFrame, ScriptManagerFrame, ShellMock, CollapsedPopupButton, RemoteAttachFrame, RaNewRow, RaWsPeek, FilePickerFrame, FpCrumbMenu, ModifierHintPanelG, MH_CAT_SECTIONS, MH_MIXED_SECTIONS, MH_EMPTY_SECTIONS, catIc, CatMenu, RailCategoryFrame, CategoryEditFrame, CategoryDeleteFrame };
