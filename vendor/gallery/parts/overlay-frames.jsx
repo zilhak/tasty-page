@@ -877,6 +877,11 @@ function ShellMock({ scope = "none", split = "v", child = false, narrow = false,
   collapsed = null, ring = false, leftWidth = null, size = null, pin = false, label = "Show popup" }) {
   const [W, H] = size || [narrow ? 560 : 760, 380];
   const surfaceScrim = scope === "surface";
+  // The popup surface's rect in this mock: the window less its 1px border, the titlebar (28 + 1), the pane tab
+  // strip (24 + 1) and the status bar (24 + 1); a stacked split halves it. Its width is leftWidth when set, else
+  // wide enough that the width term does not bind. spacing_sm is 8 at scale 1.
+  const surfaceH = (H - 2 - 29 - 25 - 25 - (split === "h" ? 1 : 0)) / (split === "h" ? 2 : 1);
+  const surfaceInset = Math.max(0, Math.min(8, leftWidth ? leftWidth / 2 : Infinity, surfaceH / 2));
   const Term = ({ lines, focused, children, label }) => (
     <div style={{ position: "relative", flex: 1, minWidth: 0, minHeight: 0, overflow: "hidden",
       background: focused ? "var(--tasty-surface-terminal-focused-bg)" : "var(--tasty-surface-terminal-unfocused-bg)" }}>
@@ -954,7 +959,6 @@ function ShellMock({ scope = "none", split = "v", child = false, narrow = false,
           </div>
           <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: split === "v" ? "row" : "column" }}>
             <div style={{ position: "relative", minWidth: 0, minHeight: 0, display: "flex", overflow: collapsed ? "hidden" : undefined,
-              ...(scope === "surface" ? { containerType: "size" } : null),
               ...(leftWidth ? { flex: "none", width: leftWidth } : { flex: 1 }) }}>
               <Term focused lines={"$ tail -f deploy.log\n[12:04] applied 3 manifests\n[12:05] waiting for rollout…"} />
               {/* the scrim — surface scope: this rect, nothing else */}
@@ -963,7 +967,7 @@ function ShellMock({ scope = "none", split = "v", child = false, narrow = false,
                 <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", zIndex: 2,
                   justifyContent: collapsed === "clipped" ? "flex-start" : "center",
                   // scope_bounds inset: max(0, min(spacing_sm, width / 2, height / 2)), the same on all four sides
-                  padding: "max(0px, min(var(--tasty-space-sm), 50cqw, 50cqh))" }}>{collapsedFrame || popup}</div>
+                  padding: surfaceInset }}>{collapsedFrame || popup}</div>
               )}
             </div>
             <div style={{ flex: "none", ...(split === "v" ? { width: 1 } : { height: 1 }), background: "var(--tasty-border-frame)" }} />
