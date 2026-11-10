@@ -85,6 +85,8 @@ function BootFrame({ w, h, z = 1, phase, showPhase = true, theme }) {
 // exists but is not Git Bash, Windows only / valid). "valid" says Git Bash on Windows, shell elsewhere.
 // notice: Windows only. "missing" = no Git Bash in a default location, "required" = a saved value failed
 // while a default location has Git Bash. It follows that search, not the verdict, so it stays while typing.
+// found: the path that search returned. "required" ends with it ({} last), drawn in mono and selectable,
+// separators shown as "/". It is only shown — the input keeps the saved value until the user confirms.
 const SHELL_CHECK = {
   empty:    null,
   missing:  { glyph: "alertCircle", fg: "var(--tasty-accent-danger-raised)",  text: "No file at this path" },
@@ -93,9 +95,17 @@ const SHELL_CHECK = {
 };
 const SHELL_NOTICE = {
   missing:  "Git Bash was not found in the default install locations. Install Git for Windows, or enter the path to bash.exe if it is elsewhere.",
-  required: "On Windows, Tasty runs only Git Bash. Enter the path to its bash.exe.",
+  required: "On Windows, Tasty runs only Git Bash. Enter the path to its bash.exe. Git Bash found in default install locations: {}",
 };
-function ShellSetupFrame({ check = "valid", os = "mac", notice = "missing", value: valueProp, theme }) {
+// The found path: whole on one line when it fits (inline-block), broken inside only when longer than the line.
+function ShellNoticeText({ text, found }) {
+  const [head, tail] = text.split("{}");
+  if (tail === undefined) return <span>{text}</span>;
+  return (
+    <span>{head}<span style={{ display: "inline-block", maxWidth: "100%", fontFamily: "var(--tasty-font-mono)", overflowWrap: "anywhere", userSelect: "text" }}>{found}</span>{tail}</span>
+  );
+}
+function ShellSetupFrame({ check = "valid", os = "mac", notice = "missing", found = "C:/Program Files/Git/bin/bash.exe", value: valueProp, theme }) {
   const c = SHELL_CHECK[check];
   const win = os === "win";
   const value = valueProp ?? { empty: "", missing: win ? "C:/Program Files/Git/bin/bash.exe" : "/usr/local/bin/zsh", notShell: "C:/Windows/System32/cmd.exe", valid: win ? "D:/Tools/Git/bin/bash.exe" : "/bin/zsh" }[check];
@@ -109,7 +119,7 @@ function ShellSetupFrame({ check = "valid", os = "mac", notice = "missing", valu
           {win && (
             <div style={{ display: "flex", alignItems: "flex-start", gap: "var(--tasty-space-xs)", fontSize: "var(--tasty-font-size-caption)", lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-accent-warning-raised)" }}>
               <span style={{ display: "inline-flex", flex: "none", marginTop: "var(--tasty-size-1)" }}><LIcon name="alertTriangle" size="var(--tasty-icon-size-sm)" /></span>
-              <span>{SHELL_NOTICE[notice]}</span>
+              <ShellNoticeText text={SHELL_NOTICE[notice]} found={found} />
             </div>
           )}
           <LInput block mono defaultValue={value} placeholder={win ? "C:/Program Files/Git/bin/bash.exe" : "/bin/zsh"} />
@@ -274,9 +284,10 @@ function Page() {
             <ShellSetupFrame os="win" check="notShell" notice="required" value="C:/msys64/usr/bin/bash.exe" />
             <ShellSetupFrame os="win" check="valid" notice="required" value="C:/Program Files/Git/bin/bash.exe" />
             <ShellSetupFrame os="win" check="notShell" notice="required" value="C:/msys64/usr/bin/bash.exe" theme="latte" />
+            <ShellSetupFrame os="win" check="missing" notice="required" value="D:/Old/Git/bin/bash.exe" found="C:/Program Files (x86)/Git/bin/bash.exe" />
           </Stage>
           <Meta
-            specs={[["notice, no Git Bash in a default location", "boot.shell_setup.git_bash_missing"], ["notice, Git Bash in a default location", "boot.shell_setup.git_bash_required"], ["valid on Windows", "boot.shell_setup.check_valid_git_bash · check_valid stays for macOS and Linux"], ["input", "keeps the saved value until the user confirms a new one"]]}
+            specs={[["notice, no Git Bash in a default location", "boot.shell_setup.git_bash_missing"], ["notice, Git Bash in a default location", "boot.shell_setup.git_bash_required · one {} = the found path, last in the sentence, nothing after it"], ["found path", "the default-location search result · separators shown as / · mono, caption size, same warning ink · selectable to copy, no click action · whole on one line when it fits, broken inside only when longer than the line · 3 lines in en, x86 path included"], ["placeholder", "fixed example C:/Program Files/Git/bin/bash.exe · not the found path"], ["valid on Windows", "boot.shell_setup.check_valid_git_bash · check_valid stays for macOS and Linux"], ["input", "keeps the saved value until the user confirms a new one · showing the found path saves nothing"]]}
             tokens={[{ tok: "--tasty-accent-warning", use: "notice", color: "var(--tasty-accent-warning-raised)" }, { tok: "--tasty-accent-danger", use: "invalid line", color: "var(--tasty-accent-danger-raised)" }, { tok: "--tasty-accent-success", use: "valid line", color: "var(--tasty-accent-success-raised)" }]} />
         </Spec>
       </Section>
