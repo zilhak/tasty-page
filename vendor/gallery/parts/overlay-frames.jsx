@@ -1198,13 +1198,14 @@ function FhRemoteMark({ host, state = "connected" }) {
 }
 
 function FhHeader({ state, path, remote }) {
-  // A remote file's contents are not read. A remote target opened by name (a plugin,
-  // a file open in the mirror; an agent's open shows no picker) carries the format its extension or file name
-  // settled in remote.format and keeps the accent Tag, the same as a local detection:
-  // that format chose the candidates. A path link settles no format, so a remote
-  // target without remote.format shows the neutral "format unknown" Tag. Either way
-  // the body is the remote handler list, not the fallback list: only the Tag is
-  // shared with the fallback state.
+  // A remote file's contents are not read. A remote target identified by name (a path
+  // link Ctrl+click, the mirror explorer, the file open tool, a plugin; an agent's open
+  // shows no picker) carries the format its extension or file name settled in
+  // remote.format and keeps the accent Tag, the same as a local detection: that format
+  // chose the candidates. The link menu's open action runs no detector, so its
+  // candidates are the fallback: state "fallback" with no remote.format draws the
+  // neutral "format unknown" Tag, the All handlers group and the one-time strip, over
+  // the remote handlers only (FH_REMOTE).
   const fmt = remote?.format ?? (state === "fallback" ? "unknown" : "markdown");
   const unknown = state === "fallback" || (!!remote && !remote.format);
   return (
