@@ -697,10 +697,10 @@ function PresetSubtab() {
 // out of the old over-stuffed General group into their own top-level tabs. The
 // growable second level (incl. plugin-contributed sections) lives in the left
 // sidebar with a filter. Plugins remain their OWN top-level tab.
-const IS_WINDOWS = true; // preview assumes Windows. Misc has Tastyrc (Windows-only); empty elsewhere.
-// macOS-only rows (R-56): Keybindings › Alt key, macOS link click choices. Flip to preview them;
-// the gallery card "Alt key (macOS)" in overlays-windows draws them without flipping.
-const IS_MAC = !IS_WINDOWS && false;
+// The preview OS is the `os` prop of SettingsWindow: "windows" (default) · "macos" · "linux".
+// Misc has Tastyrc (Windows-only); macOS adds Keybindings › Alt key and its link click choices (R-56).
+// The gallery card "Alt key (macOS)" in overlays-windows renders the kit with os="macos".
+const DEFAULT_OS = "windows";
 // Plugin-contributed Appearance pages are dynamic — present only when a plugin registers
 // one, inserted after Terminal / before HTML (mirrors the source push order). Shown with
 // the same agent-dot marker the Plugins tab uses.
@@ -713,14 +713,14 @@ const L1_TABS = ["General", "Terminal", "Appearance", "Keybindings", "FileHandle
 // 2026-11-10 (R-56): on macOS the Alt key section joins that group — it changes what the
 // `alt` / `extra` tokens mean rather than editing a binding — so the separator moves above
 // Alt key and Import / Export follows it without a second separator.
-const KB_L2_SEPARATED = IS_MAC ? ["Alt key"] : ["Import / Export"];
+const kbL2Separated = (os) => (os === "macos" ? ["Alt key"] : ["Import / Export"]);
 // L1 "File Handler" was generalized to "Handler" (inbound-hook server work): the
 // same tab now hosts BOTH the file-routing subtabs (prefixed "File …") and the
 // new Hook Handlers registry. Internal key stays `FileHandler` to avoid a rename
 // migration; only the visible label changed.
 const L1_LABEL = { General: "General", Terminal: "Terminal", Appearance: "Appearance",
   Keybindings: "Keybindings", FileHandler: "Handler", Misc: "Misc", Plugins: "Plugins" };
-const L2 = {
+const l2For = (os) => ({
   // Permissions exists in macOS builds only (last L2 of General). Shown here so the kit carries it.
   General: ["General", "Notifications", "Accessibility", "Permissions"],
   Terminal: ["General", "Mouse Capture", "TUI", "Performance"],
@@ -731,13 +731,13 @@ const L2 = {
   // is the one SEPARATED row (see KB_L2_SEPARATED — a new axis on the L2 row).
   // 2026-11-10 (R-56): macOS adds "Alt key" after Plugins (settings.keybindings.subtab.alt_key) —
   // its own section so the label-only filter finds "alt". Absent on Windows / Linux.
-  Keybindings: ["General", "Workspace", "Pane", "Tab", "Surface", "Clipboard", "Zoom", "Explorer", "Scripts", "Preset", "Plugins", ...(IS_MAC ? ["Alt key"] : []), "Import / Export"],
+  Keybindings: ["General", "Workspace", "Pane", "Tab", "Surface", "Clipboard", "Zoom", "Explorer", "Scripts", "Preset", "Plugins", ...(os === "macos" ? ["Alt key"] : []), "Import / Export"],
   FileHandler: ["File Extension Mapping", "File Detectors", "File Handlers", "Hook Handlers"],
   // 2026-10-27: Scripts → Task pipeline → Anomaly detection → Tastyrc (Windows only)
   // 2026-11-10: Child graph after Anomaly detection — its own section so the label filter finds "child" / "graph"
-  Misc: IS_WINDOWS ? ["Scripts", "Task pipeline", "Anomaly detection", "Child graph", "Tastyrc"] : ["Scripts", "Task pipeline", "Anomaly detection", "Child graph"],
+  Misc: os === "windows" ? ["Scripts", "Task pipeline", "Anomaly detection", "Child graph", "Tastyrc"] : ["Scripts", "Task pipeline", "Anomaly detection", "Child graph"],
   Plugins: ["git-helper", "ai-review", "docker", "k8s-lens"],
-};
+});
 
 // Settings › FileHandler › File Extension Mapping (2026-09-29).
 // The product's structure is the design: an extension Input + Add, then per extension an ORDERED
@@ -801,9 +801,13 @@ function ExtensionMapping({ detectors = true }) {
   );
 }
 
-function SettingsWindow({ theme, onTheme, uiScale, onUiScale, onClose }) {
-  const [l1, setL1] = React.useState("Appearance");
-  const [l2, setL2] = React.useState("Theme");
+function SettingsWindow({ theme, onTheme, uiScale, onUiScale, onClose, os = DEFAULT_OS, initialL1 = "Appearance", initialL2 = "Theme" }) {
+  const IS_WINDOWS = os === "windows";
+  const IS_MAC = os === "macos";
+  const L2 = l2For(os);
+  const KB_L2_SEPARATED = kbL2Separated(os);
+  const [l1, setL1] = React.useState(initialL1);
+  const [l2, setL2] = React.useState(initialL2);
   const [filter, setFilter] = React.useState("");
   const [toast, setToast] = React.useState(null);
   React.useEffect(() => {
@@ -1022,7 +1026,7 @@ function SettingsWindow({ theme, onTheme, uiScale, onUiScale, onClose }) {
           <Row label="Inherit working directory:"><Switch defaultChecked /></Row>
           {/* 2026-11-10 (R-56): macOS choices are the physical keys, always as words (Ctrl · Option · Cmd) —
               a settings choice, not a shortcut rendering, so the key display settings do not apply.
-              Whether "Disable left-click opening" stays, and the Windows / Linux choices, await the user's
+              Ctrl is the current value, not a decided default. Whether "Disable left-click opening" stays, the OS defaults and the Windows / Linux choices await the user's
               answer; the non-macOS branch below is the old kit row, NOT redrawn. */}
           {IS_MAC
             ? <Row label="Link click modifier:"><Select options={["Ctrl", "Option", "Cmd", "Disable left-click opening"]} defaultValue="Ctrl" style={{ width: "var(--tasty-field-width-md)" }} /></Row>

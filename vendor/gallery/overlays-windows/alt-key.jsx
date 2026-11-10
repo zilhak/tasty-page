@@ -2,9 +2,12 @@ import React from "react";
 import * as WDS from "../../components/index.js";
 import { Section as WSection, Spec as WSpec, Stage as WStage, Meta as WMeta, Note as WNote } from "../parts/specimen.jsx";
 import { wLbl, WRow } from "./settings-narrow.jsx";
+import { SettingsWindow as Kit_SettingsWindow } from "../../ui_kits/terminal/overlays/settings_window.jsx";
 
 // R-56 (2026-11-10) — macOS Alt key mapping and the macOS link click choices.
-// The settings kit previews Windows, so these macOS-only rows are drawn here.
+// The first Spec renders the settings kit itself with os="macos" (L2 order + separator);
+// the rows and open lists below are drawn here so the hidden states show without clicking.
+const noop = () => {};
 
 const { Select: WSelect, MenuItem: WMenuItem } = WDS;
 
@@ -29,6 +32,17 @@ const ALT_MAP = [
 function AltKeySection() {
   return (
     <WSection id="altkey" title="Alt key (macOS) — mapping and link click keys">
+      <WSpec id="keybindings-l2-order-macos" title="Keybindings L2 on macOS · Plugins → separator → Alt key → Import / Export"
+        when={<>The settings kit rendered with <code>os="macos"</code>, opened on Keybindings › Alt key. On macOS the L2 list ends <b>Plugins</b>, then the <b>separator</b>, then <b>Alt key</b> and <b>Import / Export</b> — the two sections that do not edit a binding. Windows and Linux keep the old order (no Alt key, separator above Import / Export). Typing in the filter hides the separator, as before.</>}>
+        <WStage variant="solo" style={{ padding: 20, background: "var(--tasty-bg-app)", overflowX: "auto" }}>
+          <div style={{ position: "relative", flex: "none", width: 1140, height: 740 }}>
+            <Kit_SettingsWindow os="macos" initialL1="Keybindings" initialL2="Alt key" theme="mocha" onTheme={noop} uiScale={1} onUiScale={noop} onClose={noop} />
+          </div>
+        </WStage>
+        <WMeta
+          specs={[["macOS L2", "General · Workspace · Pane · Tab · Surface · Clipboard · Zoom · Explorer · Scripts · Preset · Plugins | Alt key · Import / Export"], ["separator", "one, above Alt key (macOS) · above Import / Export (Windows / Linux) · hidden while filtering"], ["kit", "SettingsWindow os = windows (default) · macos · linux, initialL1 / initialL2"]]}
+          tokens={[{ tok: "--tasty-separator", use: "L2 separator", color: "var(--tasty-separator)" }]} />
+      </WSpec>
       <WSpec id="keybindings-alt-key-mapping-macos" title="Keybindings › Alt key · one row, macOS only"
         when={<>On macOS the <C>alt</C> token can mean <b>Cmd</b> (default, today's behaviour) or <b>Option</b>; <C>extra</C> is always the other key. The row lives in its <b>own Keybindings section “Alt key”</b>, after Plugins, with the Keybindings separator moved above it — it changes what the tokens mean rather than editing a binding, like Import / Export, which follows it. Its own section is what makes the label-only filter find “alt”. The section and the row do not exist on Windows or Linux. Switching keeps every saved binding; the binding list, palette, modifier hint and keycaps re-render with the physical key each token now means, drawn with that key's <b>existing display setting</b> (Cmd key display / Option key display — unchanged, the Alt text choice included).</>}>
         <WStage variant="solo" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 24, flexWrap: "wrap", alignItems: "flex-start" }}>
@@ -69,7 +83,7 @@ function AltKeySection() {
         when={<>The link click modifier is a <b>physical key</b> and ignores the Alt key mapping. On macOS the choices name the keys you press — <b>Ctrl · Option · Cmd</b> — which ends the old “Alt” label for what is really Option. They are always <b>words</b>: this is a settings choice, not a rendered shortcut, so the Cmd / Option display settings do not apply (U3 covers shortcut display only). No extra caption on the row: the key name now says what to hold. The last choice, “Disable left-click opening”, is drawn as today; whether it stays is <b>awaiting the user's answer</b>. Windows and Linux choices are not drawn — placeholder only.</>}>
         <WStage variant="solo" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 24, flexWrap: "wrap", alignItems: "flex-start" }}>
           <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
-            <span style={wLbl}>macOS — closed (default Ctrl)</span>
+            <span style={wLbl}>macOS — closed (current value Ctrl; the default awaits the user's answer)</span>
             <div style={{ ...wPanel, width: 520 }}>
               <Row label="Link click modifier:">
                 <WSelect options={[{ value: "ctrl", label: "Ctrl" }]} value="ctrl" style={{ width: "var(--tasty-field-width-md)" }} />
