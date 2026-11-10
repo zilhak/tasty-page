@@ -7,7 +7,7 @@ import { Checkbox } from "../../../components/forms/Checkbox.jsx";
 import { Select } from "../../../components/forms/Select.jsx";
 import { Switch } from "../../../components/forms/Switch.jsx";
 import { DrillDown } from "../../../components/navigation/DrillDown.jsx";
-import { DAG_STATUS, DAG_LIST, RunnerBadge, DagEmpty, sLabel } from "./dag_view.jsx";
+import { DAG_LIST, RunnerBadge, DagEmpty } from "./dag_view.jsx";
 import { DagCanvas, DagDetail, dagRowItems } from "./dag_surfaces.jsx";
 import { GraphCanvas, GraphDrawer, DrawerRow, DrawerRows, DrawerCaption, GraphStrip, GraphPush, CHILD_STATE, childTone, childColor, childLayout, childEdges, childVisible } from "./graph_view.jsx";
 import { gt } from "./graph_copy.js";
@@ -53,8 +53,8 @@ const CHILD_LARGE = [
 ];
 const CHILD_LARGE_BASE = "s_w23";
 
-// mirror, recommended scope (relations inside the remote machine) + a read-only ancestor
-// in a remote workspace that is not mirrored here (NEEDS-USER 8 / 9, recommendation)
+// mirror: relations on the remote machine + a read-only ancestor in a remote workspace that is not
+// mirrored here (user decision 2026-11-10: one graph across machines, followed to the root)
 const R = (id, over) => S(id, { remote: true, workspace: "lab-main", profile: "lab-linux", ...over });
 const CHILD_MIRROR = [
   { id: "s_m0", kind: "remote-ancestor", nickname: "orchestrator", workspace: "lab-ops", profile: "lab-linux" },
@@ -64,8 +64,6 @@ const CHILD_MIRROR = [
   R("s_m4", { parent: "s_m2", nickname: "checker", role: "checker", state: "needs_input", evidence: "hook_needs_input" }),
 ];
 const CHILD_MIRROR_BASE = "s_m2";
-// alternative 9b: cut at the mirrored workspace, a stub says more ancestors exist
-const CHILD_MIRROR_CUT = [{ id: "more", kind: "stub" }, ...CHILD_MIRROR.slice(1).map((n) => (n.id === "s_m1" ? { ...n, parent: "more" } : n))];
 // disconnected: the last graph stays, every remote state reads unknown
 const CHILD_MIRROR_LOST = CHILD_MIRROR.map((n) => (n.kind === "surface" ? { ...n, state: "unknown", confidence: "unobserved", evidence: "remote_disconnected" } : n));
 // alternative 7b / 8b: this computer's surface and the children it started on the remote, joined by a cross-machine line
@@ -74,14 +72,12 @@ const CHILD_CROSS = [
   R("s_R1", { parent: "s_L1", nickname: "linux-build", role: "worker", crossMachine: true, profile: null, ssh: "dev@10.0.0.12" }),
   R("s_R2", { parent: "s_L1", nickname: "linux-test", role: "tester", state: "idle", crossMachine: true, evidence: "hook_idle" }),
 ];
-// external parent (NEEDS-USER 7, recommendation: its own card at the root)
+// external parent (user decision 2026-11-10): its own card at the root, nothing traced beyond the key
 const CHILD_EXTERNAL = [
   { id: "codex:019a5c2e-7f3b", kind: "external" },
   S("s_e1", { parent: "codex:019a5c2e-7f3b", parentExternal: "codex:019a5c2e-7f3b", nickname: "helper", role: "worker" }),
   S("s_e2", { parent: "s_e1", nickname: "lint", role: "worker", state: "idle", evidence: "hook_idle" }),
 ];
-// alternative 7b: no card for the external key, the child is the root
-const CHILD_EXTERNAL_ROOT = CHILD_EXTERNAL.slice(1).map((n) => (n.id === "s_e1" ? { ...n, parent: undefined } : n));
 
 const DAG_BY_ID = Object.fromEntries(DAG_LIST.map((e) => [e.dag.id, e]));
 const nameOf = (n) => (n.kind === "external" ? n.id : n.nickname || n.role || n.id);
@@ -91,16 +87,16 @@ const nameOf = (n) => (n.kind === "external" ? n.id : n.nickname || n.role || n.
 //   name row  terminal glyph (remote glyph on a mirrored surface) · nickname, else role, else id
 //   meta row  state glyph · STATE · surface id (mono, right)
 // base: a chip ABOVE the card, outside the box, so it never competes with the state colour or the
-// selection ring and survives every LOD tier. external / remote-ancestor / stub: dashed border, no bar.
+// selection ring and survives every LOD tier. external / remote-ancestor: dashed border, no bar.
 function ChildNode({ node, lod = "full", selected = false, base = false, hover, lang = "en", onSelect }) {
   const [hotState, setHot] = React.useState(false);
   const hot = hover != null ? hover : hotState;
   const special = node.kind && node.kind !== "surface";
   const st = special ? null : childTone(node.state);
   const accent = special ? "var(--tasty-dag-node-border)" : st.tok;
-  const name = node.kind === "stub" ? gt("child_graph.card.more_upstream", lang) : nameOf(node);
+  const name = nameOf(node);
   const monoName = node.kind === "external" || (!special && !node.nickname && !node.role);
-  const icon = node.kind === "external" ? "link" : node.kind === "stub" ? "chevronsLeft" : node.remote || node.kind === "remote-ancestor" ? "remote" : "terminal";
+  const icon = node.kind === "external" ? "link" : node.remote || node.kind === "remote-ancestor" ? "remote" : "terminal";
   const iconInk = node.remote || node.kind === "remote-ancestor" ? "var(--tasty-accent-remote-raised)" : special ? "var(--tasty-dag-node-meta-fg)" : "var(--tasty-dag-node-meta-status-fg)";
   const label = special ? (node.kind === "external" ? gt("child_graph.card.external", lang) : node.kind === "remote-ancestor" ? gt("child_graph.card.not_attached", lang) : null) : gt(st.key, lang);
   const tip = [name, label].filter(Boolean).join(" — ");
@@ -158,7 +154,7 @@ function ChildNode({ node, lod = "full", selected = false, base = false, hover, 
               {!special && <span aria-hidden="true" style={{ flex: "none", color: st.lbl, fontFamily: "var(--tasty-font-mono)" }}>{st.glyph}</span>}
               <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
                 textTransform: "uppercase", color: special ? "var(--tasty-dag-node-meta-fg)" : st.lbl }}>{label}</span>
-              {node.kind !== "external" && node.kind !== "stub" && (
+              {node.kind !== "external" && (
                 <span style={{ flex: "none", fontFamily: "var(--tasty-font-mono)", letterSpacing: "var(--tasty-letter-spacing-ui)",
                   color: special ? "var(--tasty-dag-node-meta-fg)" : "var(--tasty-dag-node-meta-status-fg)" }}>{node.id.replace(/^s_/, "s_").slice(0, 8)}</span>
               )}
@@ -174,9 +170,8 @@ function ChildNode({ node, lod = "full", selected = false, base = false, hover, 
 // Order: state line → actions → who (role, id, workspace, attach profile) → why this state
 // (evidence, last report) → where (working directory, wraps). The nickname is the drawer title;
 // with no nickname the title is the surface id in mono and the rows start at role.
-// dagMode "button" (recommended): one button; with several DAGs it opens the list step.
-// dagMode "rows" (alternative 5b): a "Created DAGs" section, one row and Open button per DAG.
-function ChildDetail({ node, isBase, lang = "en", dagMode = "button", onViewDags, onOpenDag, onSetBase, onClose, cover }) {
+// DAGs (user decision 2026-11-10): one button; with several DAGs it opens the list of them first.
+function ChildDetail({ node, isBase, lang = "en", onViewDags, onSetBase, onClose, cover }) {
   const title = node.kind === "external" ? node.id : node.nickname || node.id;
   const mono = node.kind === "external" || !node.nickname;
   const closeLabel = "Close details";
@@ -188,7 +183,6 @@ function ChildDetail({ node, isBase, lang = "en", dagMode = "button", onViewDags
       </GraphDrawer>
     );
   }
-  if (node.kind === "stub") return null;
   const ancestor = node.kind === "remote-ancestor";
   const st = ancestor ? null : childTone(node.state);
   const dags = (node.dags || []).map((id) => DAG_BY_ID[id]).filter(Boolean);
@@ -205,9 +199,9 @@ function ChildDetail({ node, isBase, lang = "en", dagMode = "button", onViewDags
         </span>
       )}
       {ancestor && <DrawerCaption>{gt("child_graph.drawer.read_only_note", lang)}</DrawerCaption>}
-      {!ancestor && ((dags.length > 0 && dagMode === "button") || !isBase) && (
+      {!ancestor && (dags.length > 0 || !isBase) && (
         <span style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-sm)" }}>
-          {dags.length > 0 && dagMode === "button" && (
+          {dags.length > 0 && (
             <Button size="sm" variant="secondary" onClick={() => onViewDags && onViewDags(node)}>
               {dags.length === 1 ? gt("child_graph.drawer.view_dag", lang) : gt("child_graph.drawer.view_dags", lang, dags.length)}
             </Button>
@@ -226,24 +220,6 @@ function ChildDetail({ node, isBase, lang = "en", dagMode = "button", onViewDags
         {!ancestor && <DrawerRow k={gt("child_graph.drawer.last_report", lang)} v={node.lastReport} mono />}
         {!ancestor && <DrawerRow k={gt("child_graph.drawer.cwd", lang)} v={node.cwd} mono wrap />}
       </DrawerRows>
-      {!ancestor && dags.length > 0 && dagMode === "rows" && (
-        <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", minWidth: 0 }}>
-          <DrawerCaption>{gt("child_graph.drawer.dags_section", lang)} {"·"} {dags.length}</DrawerCaption>
-          {dags.map((e) => (
-            <div key={e.dag.id} style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", minWidth: 0,
-              minHeight: "var(--tasty-control-height)" }}>
-              <span style={{ flex: "none", display: "inline-flex", color: "var(--tasty-text-muted)" }}><Icon name="gitTree" size="var(--tasty-icon-size-sm)" /></span>
-              <span style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}>
-                <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-secondary)" }}>{e.dag.name}</span>
-                <span style={{ fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-micro)", color: sLabel(e.rollup) }}>
-                  {DAG_STATUS[e.rollup].glyph} {DAG_STATUS[e.rollup].label} <span style={{ color: "var(--tasty-text-muted)" }}>{e.done}/{e.total}</span>
-                </span>
-              </span>
-              <Button size="sm" variant="secondary" onClick={() => onOpenDag && onOpenDag(node, e.dag.id)}>{gt("child_graph.drawer.open_dag", lang)}</Button>
-            </div>
-          ))}
-        </div>
-      )}
     </GraphDrawer>
   );
 }
@@ -251,7 +227,7 @@ function ChildDetail({ node, isBase, lang = "en", dagMode = "button", onViewDags
 // ── Shared view ─────────────────────────────────────────────────────
 // status: "ready" | "loading" | "empty" | "base-closed" | "unsupported" (remote Tasty too old)
 function ChildGraphView({ nodes, baseId, full = false, selected, onSelect, lang = "en", bed, banner, status = "ready",
-  dagMode, onViewDags, onOpenDag, onSetBase, onPickBase, host = "lab-linux", still, initialZoom }) {
+  onViewDags, onSetBase, onPickBase, host = "lab-linux", still, initialZoom }) {
   const shown = React.useMemo(() => childVisible(nodes, baseId, full), [nodes, baseId, full]);
   const g = React.useMemo(() => childLayout(shown), [shown]);
   const edges = React.useMemo(() => childEdges(shown, g), [shown, g]);
@@ -268,16 +244,16 @@ function ChildGraphView({ nodes, baseId, full = false, selected, onSelect, lang 
         colorOf={childColor} selected={selected} onSelect={onSelect} banner={banner} still={still} initialZoom={initialZoom}
         style={bed ? { backgroundColor: bed } : undefined}
         renderNode={(n, lod, isSel) => <ChildNode node={n} lod={lod} selected={isSel} base={n.id === baseId} lang={lang} onSelect={onSelect} />}
-        drawer={sel && sel.kind !== "stub" ? (cover) => (
-          <ChildDetail node={sel} isBase={sel.id === baseId} lang={lang} dagMode={dagMode} cover={cover}
-            onViewDags={onViewDags} onOpenDag={onOpenDag} onSetBase={onSetBase} onClose={() => onSelect(null)} />
+        drawer={sel ? (cover) => (
+          <ChildDetail node={sel} isBase={sel.id === baseId} lang={lang} cover={cover}
+            onViewDags={onViewDags} onSetBase={onSetBase} onClose={() => onSelect(null)} />
         ) : null} />
     </div>
   );
 }
 
 // ── Push screens shared by both frames ──────────────────────────────
-// child → list (only when the surface created several DAGs, recommended 5a) → DAG graph.
+// child → list (only when the surface created several DAGs, user decision) → DAG graph.
 function useChildFlow({ nodes, initial = {} }) {
   const [owner, setOwner] = React.useState(initial.owner ? nodes.find((n) => n.id === initial.owner) : null);
   const [dagId, setDagId] = React.useState(initial.dagId || null);
@@ -289,10 +265,9 @@ function useChildFlow({ nodes, initial = {} }) {
     setOwner(node); setDagSel(null);
     if (ds.length === 1) { setDagId(ds[0]); setViaList(false); } else { setDagId(null); setViaList(true); }
   };
-  const openDag = (node, id) => { setOwner(node); setDagId(id); setViaList(false); setDagSel(null); };
   const back = () => { if (dagId && viaList) { setDagId(null); setDagSel(null); } else { setOwner(null); setDagId(null); setViaList(false); } };
   const step = !owner ? 0 : viaList && !dagId ? 1 : viaList ? 2 : 1;
-  return { owner, ownerDags, dagId, viaList, dagSel, setDagSel, setDagId, viewDags, openDag, back, step };
+  return { owner, ownerDags, dagId, viaList, dagSel, setDagSel, setDagId, viewDags, back, step };
 }
 function FlowScreens({ flow, lang, bed, still }) {
   const { owner, ownerDags, dagId, viaList, dagSel, setDagSel, setDagId, back } = flow;
@@ -324,7 +299,7 @@ function FlowScreens({ flow, lang, bed, still }) {
 // 600 × 460 (three columns at 100%), min 360 × 280 like the DAG popup. Title bar 28 (drag),
 // toolbar 36 with the full tree checkbox — the same height as the back bar it trades places with.
 // Base = the surface the popup opened from; the chip on its card says so. No base selector here.
-function ChildGraphWindow({ nodes = CHILD_SMALL, baseId = CHILD_SMALL_BASE, lang = "en", width, height, initial = {}, dagMode = "button",
+function ChildGraphWindow({ nodes = CHILD_SMALL, baseId = CHILD_SMALL_BASE, lang = "en", width, height, initial = {},
   status = "ready", banner, push, still, onClose }) {
   const [full, setFull] = React.useState(!!initial.full);
   const [sel, setSel] = React.useState(initial.selected || null);
@@ -350,7 +325,7 @@ function ChildGraphWindow({ nodes = CHILD_SMALL, baseId = CHILD_SMALL_BASE, lang
             <Checkbox checked={full} onChange={(e) => setFull(e.target.checked)} label={gt("child_graph.show_full_tree", lang)} />
           </div>
           <ChildGraphView nodes={nodes} baseId={base} full={full} selected={sel} onSelect={setSel} lang={lang} status={status} banner={banner}
-            dagMode={dagMode} onViewDags={flow.viewDags} onOpenDag={flow.openDag} onSetBase={(id) => { setBase(id); setSel(null); }} still={still} />
+            onViewDags={flow.viewDags} onSetBase={(id) => { setBase(id); setSel(null); }} still={still} />
         </div>
         {screens}
       </GraphPush>
@@ -362,7 +337,7 @@ function ChildGraphWindow({ nodes = CHILD_SMALL, baseId = CHILD_SMALL_BASE, lang
 // Header (bg-sidebar, 8 / 12 padding — the DAG header's recipe): branch glyph · "Base surface" ·
 // base selector (field-width-lg) · full tree checkbox · refresh. Under 640 it wraps to two rows like the
 // DAG header: base above, checkbox + refresh below. The canvas takes the surface bed.
-function ChildGraphSurface({ nodes = CHILD_LARGE, baseId = CHILD_LARGE_BASE, lang = "en", focused, narrow = false, initial = {}, dagMode = "button",
+function ChildGraphSurface({ nodes = CHILD_LARGE, baseId = CHILD_LARGE_BASE, lang = "en", focused, narrow = false, initial = {},
   status = "ready", banner, push, still, style }) {
   const bed = focused === undefined ? "var(--tasty-dag-canvas-bg)" : focused ? "var(--tasty-surface-bed-focused)" : "var(--tasty-surface-bed-unfocused)";
   const [full, setFull] = React.useState(!!initial.full);
@@ -393,8 +368,8 @@ function ChildGraphSurface({ nodes = CHILD_LARGE, baseId = CHILD_LARGE_BASE, lan
         <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}>
           {header}
           <ChildGraphView nodes={nodes} baseId={base} full={full} selected={sel} onSelect={setSel} lang={lang} bed={bed}
-            status={status === "base-closed" && base ? "ready" : status} banner={banner} dagMode={dagMode}
-            onViewDags={flow.viewDags} onOpenDag={flow.openDag} onSetBase={(id) => { setBase(id); setSel(null); }} still={still} />
+            status={status === "base-closed" && base ? "ready" : status} banner={banner}
+            onViewDags={flow.viewDags} onSetBase={(id) => { setBase(id); setSel(null); }} still={still} />
         </div>
         {screens}
       </GraphPush>
@@ -422,5 +397,5 @@ function ChildGraphSettings({ lang = "en", checked = false }) {
 }
 
 export { ChildNode, ChildDetail, ChildGraphView, ChildGraphWindow, ChildGraphSurface, ChildGraphSettings, nameOf,
-  CHILD_SMALL, CHILD_SMALL_BASE, CHILD_LARGE, CHILD_LARGE_BASE, CHILD_MIRROR, CHILD_MIRROR_BASE, CHILD_MIRROR_CUT, CHILD_MIRROR_LOST,
-  CHILD_CROSS, CHILD_EXTERNAL, CHILD_EXTERNAL_ROOT };
+  CHILD_SMALL, CHILD_SMALL_BASE, CHILD_LARGE, CHILD_LARGE_BASE, CHILD_MIRROR, CHILD_MIRROR_BASE, CHILD_MIRROR_LOST,
+  CHILD_CROSS, CHILD_EXTERNAL };

@@ -93,7 +93,7 @@ function DrawerCaption({ children }) {
 }
 
 // ── Strip ───────────────────────────────────────────────────────────
-// warning = the cycle notice's recipe (refresh failed, remote disconnected); info = neutral band (base moved).
+// warning = the cycle notice's recipe (refresh failed, remote disconnected); info = neutral band.
 function GraphStrip({ tone = "warning", children }) {
   const warn = tone === "warning";
   return (

@@ -2,28 +2,28 @@ import React from "react";
 import { Section, Spec, Stage, Meta, Note, Do, Dont, Views, View } from "../parts/specimen.jsx";
 import { ThemePair } from "../parts/theme-frame.jsx";
 import { focusViews } from "../parts/surface-focus-views.jsx";
-import { ToolsMenuFrame, TOOLS_MENU_BUILTIN } from "../parts/overlay-frames.jsx";
+import { ToolsMenuFrame } from "../parts/overlay-frames.jsx";
 import { Kbd, MenuItem, Table, Tab } from "../../components/index.js";
 import { DagNode, elbow } from "../../ui_kits/terminal/dag.js";
 import { GraphStrip, CHILD_STATE, CHILD_STATE_ORDER } from "../../ui_kits/terminal/overlays/graph_view.jsx";
 import { ChildNode, ChildGraphWindow, ChildGraphSurface, ChildGraphSettings, CHILD_SMALL, CHILD_SMALL_BASE, CHILD_LARGE, CHILD_LARGE_BASE,
-  CHILD_MIRROR, CHILD_MIRROR_BASE, CHILD_MIRROR_CUT, CHILD_CROSS, CHILD_EXTERNAL, CHILD_EXTERNAL_ROOT } from "../../ui_kits/terminal/overlays/child_graph.jsx";
+  CHILD_MIRROR, CHILD_MIRROR_BASE, CHILD_CROSS, CHILD_EXTERNAL } from "../../ui_kits/terminal/overlays/child_graph.jsx";
 import { GRAPH_COPY, GRAPH_LANGS, gt } from "../../ui_kits/terminal/overlays/graph_copy.js";
 import { Frame, ChildView } from "./graph-shared.jsx";
 
 // Tasty Gallery — Surfaces · Task DAG › Child graph (2026-11-10).
 // Parts: ui_kits/terminal/overlays/child_graph.jsx on the shared graph_view.jsx. This page only catalogues them.
-// NEEDS-USER items show the recommended expression first and the alternative in a frame marked "alternative";
-// when the user answers, drop the frame that lost.
+// User decisions of 2026-11-10 (request items 4-1 to 4-9) keep only the chosen expression, tagged "decided".
+// Items still open keep the recommended expression, tagged "recommended"; an alternative frame is tagged "alternative".
 
 const cap = { fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" };
-const Badge = ({ alt }) => (
+const Badge = ({ tag }) => (
   <span style={{ ...cap, padding: "0 var(--tasty-space-xs)", borderRadius: "var(--tasty-radius-sm)", border: "var(--tasty-border-width) solid var(--tasty-border-strong)",
-    color: "var(--tasty-text-secondary)" }}>{alt ? "alternative" : "recommended"}</span>
+    color: "var(--tasty-text-secondary)" }}>{tag}</span>
 );
-const Labelled = ({ label, alt, children }) => (
+const Labelled = ({ label, tag, children }) => (
   <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", minWidth: 0 }}>
-    <span style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)" }}>{alt != null && <Badge alt={alt} />}<span style={cap}>{label}</span></span>
+    <span style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)" }}>{tag && <Badge tag={tag} />}<span style={cap}>{label}</span></span>
     {children}
   </div>
 );
@@ -74,9 +74,8 @@ export function ChildGraphSection() {
             <Labelled label="base + selected"><Card node={S("idle")} base selected /></Labelled>
             <Labelled label="mirrored remote surface"><Card node={S("active", { remote: true, nickname: "gradle" })} /></Labelled>
             <Labelled label="no nickname, no role → id"><Card node={S("idle", { nickname: null, role: null })} /></Labelled>
-            <Labelled label="external parent (NEEDS-USER 7)" alt={false}><Card node={{ id: "codex:019a5c2e-7f3b", kind: "external" }} /></Labelled>
-            <Labelled label="remote ancestor, not mirrored (NEEDS-USER 9)" alt={false}><Card node={{ id: "s_m0", kind: "remote-ancestor", nickname: "orchestrator" }} /></Labelled>
-            <Labelled label="more ancestors stub (NEEDS-USER 9)" alt><Card node={{ id: "more", kind: "stub" }} /></Labelled>
+            <Labelled label="external parent (4-6)" tag="decided"><Card node={{ id: "codex:019a5c2e-7f3b", kind: "external" }} /></Labelled>
+            <Labelled label="remote ancestor, not mirrored (4-9)" tag="decided"><Card node={{ id: "s_m0", kind: "remote-ancestor", nickname: "orchestrator" }} /></Labelled>
           </div>
         </Stage>
         <Views>
@@ -92,7 +91,7 @@ export function ChildGraphSection() {
           </View>
         </Views>
         <Meta
-          specs={[["box", "168 × 48 · the DAG card (dag-node-*)"], ["name", "nickname → role → id (mono 11)"], ["meta", "glyph · STATE caps 10 · id mono right"], ["dimmed", "exited only, dag-node-dim-opacity (the rest column shows it)"], ["base chip", "16 tall · 4 above the card · label micro · text-secondary on bg-sidebar · border-strong"], ["selection", "the DAG ring, 2px accent, 1px offset"], ["hover", "the DAG hover wash — not shown, see the note"], ["external", "dashed border · link glyph · key in mono · no state"], ["read-only ancestor", "dashed border · remote glyph · “Not mirrored”"], ["stub (alternative)", "dashed · chevrons-left · “More ancestors”"]]}
+          specs={[["box", "168 × 48 · the DAG card (dag-node-*)"], ["name", "nickname → role → id (mono 11)"], ["meta", "glyph · STATE caps 10 · id mono right"], ["dimmed", "exited only, dag-node-dim-opacity (the rest column shows it)"], ["base chip", "16 tall · 4 above the card · label micro · text-secondary on bg-sidebar · border-strong"], ["selection", "the DAG ring, 2px accent, 1px offset"], ["hover", "the DAG hover wash — not shown, see the note"], ["external", "dashed border · link glyph · key in mono · no state"], ["read-only ancestor", "dashed border · remote glyph · “Not mirrored”"]]}
           tokens={[{ tok: "--tasty-graph-base-chip-height", use: "16" }, { tok: "--tasty-graph-base-chip-gap", use: "4" }, { tok: "--tasty-dag-status-running", use: "active", color: "var(--tasty-dag-status-running)" }, { tok: "--tasty-dag-status-ready", use: "idle", color: "var(--tasty-dag-status-ready)" }, { tok: "--tasty-dag-phase-awaiting", use: "needs_input", color: "var(--tasty-dag-phase-awaiting)" }, { tok: "--tasty-dag-status-waiting", use: "stale", color: "var(--tasty-dag-status-waiting)" }, { tok: "--tasty-dag-status-cancelled", use: "exited", color: "var(--tasty-dag-status-cancelled)" }, { tok: "--tasty-dag-status-unknown", use: "unknown", color: "var(--tasty-dag-status-unknown)" }, { tok: "--tasty-accent-remote-raised", use: "remote glyph", color: "var(--tasty-accent-remote-raised)" }]} />
         <Note>Hover is the DAG card's <code>dag-node-hover-bg</code> wash, unchanged. Measured over every state it drops the state label below 4.5:1 on active, idle, stale and exited in Mocha and Latte, and the DAG card has the same gap. The grid leaves hover out until that token is settled for both graphs; see the question list.</Note>
         <Dont>Do not mark the base with the accent border or a second ring: the accent border already means <i>active</i> and the ring means <i>selected</i>, and the base can be both.</Dont>
@@ -201,54 +200,51 @@ export function ChildGraphSection() {
         <Note>The back control is DrillDown's, so one back affordance serves the app. It draws <code>chevronLeft</code>; the request wrote <code>&lt;-</code>. See the question list if a literal arrow is wanted.</Note>
       </Spec>
 
-      <Spec id="child-several-dags-list-step" title="A surface that created several DAGs (NEEDS-USER 5)"
-        when={<><b>Recommended</b>: one button, <b>View DAGs (2)</b>. It pushes to a <b>list step</b> of the DAGs that surface created — the DAG list's own rows — titled <i>DAGs created by conductor-page</i>; picking one pushes to the graph. Three steps, one back bar each: the graph's back returns to the list (<i>Back to list</i>), the list's back returns to the child graph. With one DAG the list step is skipped. <b>Alternative</b>: a <i>Created DAGs</i> section in the drawer, one row and Open button per DAG, straight to the graph.</>}>
+      <Spec id="child-several-dags-list-step" title="A surface that created several DAGs (decided 4-5)"
+        when={<><b>Decided</b>: the list of DAGs comes first. One button, <b>View DAGs (2)</b>. It pushes to a <b>list step</b> of the DAGs that surface created — the DAG list's own rows — titled <i>DAGs created by conductor-page</i>; picking one pushes to the graph. Three steps, one back bar each: the graph's back returns to the list (<i>Back to list</i>), the list's back returns to the child graph. With one DAG the list step is skipped — still open: whether one DAG also shows the list; the recommended skip is drawn.</>}>
         <Stage style={{ padding: 16, display: "block", background: "var(--tasty-bg-app)" }}>
           {row(<>
-            <Labelled label="drawer — View DAGs (2)" alt={false}><ChildGraphWindow nodes={CHILD_LARGE} baseId="s_c2" width={480} height={380} still push={0} initial={{ selected: "s_c2", owner: "s_c2", viaList: true }} /></Labelled>
-            <Labelled label="list step" alt={false}><ChildGraphWindow nodes={CHILD_LARGE} baseId="s_c2" width={480} height={380} still push={1} initial={{ selected: "s_c2", owner: "s_c2", viaList: true }} /></Labelled>
-            <Labelled label="graph step — back to the list" alt={false}><ChildGraphWindow nodes={CHILD_LARGE} baseId="s_c2" width={480} height={380} still push={2} initial={{ selected: "s_c2", owner: "s_c2", viaList: true, dagId: "docs-publish" }} /></Labelled>
-            <Labelled label="drawer rows, one per DAG" alt><ChildGraphWindow nodes={CHILD_LARGE} baseId="s_c2" width={480} height={380} dagMode="rows" initial={{ selected: "s_c2" }} /></Labelled>
+            <Labelled label="drawer — View DAGs (2)" tag="decided"><ChildGraphWindow nodes={CHILD_LARGE} baseId="s_c2" width={480} height={380} still push={0} initial={{ selected: "s_c2", owner: "s_c2", viaList: true }} /></Labelled>
+            <Labelled label="list step" tag="decided"><ChildGraphWindow nodes={CHILD_LARGE} baseId="s_c2" width={480} height={380} still push={1} initial={{ selected: "s_c2", owner: "s_c2", viaList: true }} /></Labelled>
+            <Labelled label="graph step — back to the list" tag="decided"><ChildGraphWindow nodes={CHILD_LARGE} baseId="s_c2" width={480} height={380} still push={2} initial={{ selected: "s_c2", owner: "s_c2", viaList: true, dagId: "docs-publish" }} /></Labelled>
           </>)}
         </Stage>
-        <Meta specs={[["button", "child_graph.drawer.view_dag · view_dags({n}) when n > 1"], ["list title", "child_graph.dag_list_title({name})"], ["list rows", "the DAG list row (ListCtrl 36) — rollup + done/total"], ["back from graph", "existing dag_list.back “Back to list”"], ["back from list", "child_graph.back"], ["alternative", "child_graph.drawer.dags_section · open_dag · rows 28 · rollup glyph + label + done/total"]]}
+        <Meta specs={[["button", "child_graph.drawer.view_dag · view_dags({n}) when n > 1"], ["list title", "child_graph.dag_list_title({name})"], ["list rows", "the DAG list row (ListCtrl 36) — rollup + done/total"], ["back from graph", "existing dag_list.back “Back to list”"], ["back from list", "child_graph.back"], ["one DAG", "no list step (recommended; still open)"]]}
           tokens={[{ tok: "--tasty-dag-row-height", use: "36 list row" }]} />
       </Spec>
 
-      <Spec id="child-graph-empty-and-base-closed" title="Empty and base closed (NEEDS-USER 4)"
-        when={<>A base with no parent and no children shows the child empty block. On the <b>surface</b> form the base can close. <b>Recommended</b> (as the DAG surface does for a missing DAG): the canvas shows <i>Base surface closed</i> with a <b>Select base surface</b> button that opens the selector, and the selector shows its placeholder. <b>Alternative</b>: the graph moves to the nearest ancestor and a neutral strip says so; the strip clears on the next selection.</>}>
+      <Spec id="child-graph-empty-and-base-closed" title="Empty and base closed (decided 4-4)"
+        when={<>A base with no parent and no children shows the child empty block. On the <b>surface</b> form the base can close. <b>Decided</b> (as the DAG surface does for a missing DAG): the canvas says <i>Base surface closed</i> with a <b>Select base surface</b> button that opens the selector, and the selector shows its placeholder. A base that was a mirrored surface adds a banner with Reconnect (next spec). The <b>popup</b> form is still open; the popup closes with its surface as recommended.</>}>
         <Stage variant="grid" style={{ display: "flex", flexWrap: "wrap", gap: 16, padding: 20, alignItems: "flex-start" }}>
           <Labelled label="child empty — popup"><ChildGraphWindow nodes={CHILD_SMALL.slice(3).map((n) => ({ ...n, parent: undefined }))} baseId="s_01HXB2" width={420} height={280} /></Labelled>
-          <Labelled label="base closed — pick another" alt={false}><Frame w={480} h={300}><ChildGraphSurface status="base-closed" nodes={CHILD_SMALL} /></Frame></Labelled>
-          <Labelled label="base moved to the nearest ancestor" alt><Frame w={480} h={300}><ChildGraphSurface nodes={CHILD_SMALL} baseId="s_01HX4K" banner={<GraphStrip tone="info">{gt("child_graph.base_moved", "en", "builder", "conductor")}</GraphStrip>} /></Frame></Labelled>
+          <Labelled label="base closed — pick another" tag="decided"><Frame w={480} h={300}><ChildGraphSurface status="base-closed" nodes={CHILD_SMALL} /></Frame></Labelled>
         </Stage>
-        <Meta specs={[["empty", "child_graph.empty.none + none_hint · gitBranch glyph"], ["base closed", "child_graph.empty.base_closed + _hint · paneEmpty glyph · Button secondary sm pick_base"], ["selector", "placeholder child_graph.empty.pick_base"], ["alt strip", "info strip · child_graph.base_moved(closed, new)"]]}
-          tokens={[{ tok: "--tasty-dag-chrome-bg", use: "info strip", color: "var(--tasty-dag-chrome-bg)" }]} />
+        <Meta specs={[["empty", "child_graph.empty.none + none_hint · gitBranch glyph"], ["base closed", "child_graph.empty.base_closed + _hint · paneEmpty glyph · Button secondary sm pick_base"], ["selector", "placeholder child_graph.empty.pick_base"]]}
+          tokens={[]} />
       </Spec>
 
       <Spec id="child-graph-mirror-scope-and-remote-ancestor" title="In a mirror — remote nodes, ancestors outside it (NEEDS-USER 8, 9)"
-        when={<><b>Recommended</b>: in a mirrored workspace the graph is the remote machine's own relations. Mirrored surfaces carry the remote glyph; the drawer adds the attach profile, or the SSH target with <i>(no saved profile)</i>. An ancestor in a remote workspace that is not mirrored here is drawn <b>read-only</b>: dashed card, <i>Not mirrored</i>, a drawer with rows and a note and no actions. <b>Alternative 9b</b>: stop at the mirrored workspace and put a <i>More ancestors</i> stub at the left. <b>Alternative 7b / 8b</b>: show this computer's surface with the children it started on the remote, joined by the cross-machine line. Machine-to-machine occupancy is never drawn.</>}>
+        when={<><b>Recommended</b>: in a mirrored workspace the graph is the remote machine's own relations. Mirrored surfaces carry the remote glyph; the drawer adds the attach profile, or the SSH target with <i>(no saved profile)</i>. An ancestor in a remote workspace that is not mirrored here is drawn <b>read-only</b>: dashed card, <i>Not mirrored</i>, a drawer with rows and a note and no actions. <b>Alternative 7b / 8b</b>: show this computer's surface with the children it started on the remote, joined by the cross-machine line. Machine-to-machine occupancy is never drawn.</>}>
         <Stage style={{ padding: 16, display: "block" }}>
           {row(<>
             <Labelled label="remote relations + read-only ancestor (drawer open on it)" alt={false}><Frame w={640} h={320}><ChildView nodes={CHILD_MIRROR} baseId={CHILD_MIRROR_BASE} selected="s_m0" /></Frame></Labelled>
             <Labelled label="a remote surface's drawer — attach profile" alt={false}><Frame w={640} h={320}><ChildView nodes={CHILD_MIRROR} baseId={CHILD_MIRROR_BASE} selected="s_m2" /></Frame></Labelled>
-            <Labelled label="cut at the mirror — more ancestors stub" alt><Frame w={640} h={320}><ChildView nodes={CHILD_MIRROR_CUT} baseId={CHILD_MIRROR_BASE} /></Frame></Labelled>
             <Labelled label="this computer → its children on the remote, cross-machine line; inline SSH drawer" alt><Frame w={640} h={320}><ChildView nodes={CHILD_CROSS} baseId="s_L1" selected="s_R1" /></Frame></Labelled>
           </>)}
         </Stage>
-        <Meta specs={[["remote card", "remote glyph in accent-remote-raised · state as usual"], ["read-only ancestor", "dashed · Not mirrored · drawer: role, id, workspace, attach profile, read-only note"], ["attach profile", "profile name · or SSH target + child_graph.drawer.attach_inline"], ["disconnected", "see graph-states: warning strip, remote states unknown"], ["stub (alt 9b)", "dashed card · child_graph.card.more_upstream · not selectable"], ["cross line (alt 8b)", "remote ink · dash 2 3"]]}
+        <Meta specs={[["remote card", "remote glyph in accent-remote-raised · state as usual"], ["read-only ancestor", "dashed · Not mirrored · drawer: role, id, workspace, attach profile, read-only note"], ["attach profile", "profile name · or SSH target + child_graph.drawer.attach_inline"], ["disconnected", "see graph-states: warning strip, remote states unknown"], ["cross line (alt 8b)", "remote ink · dash 2 3"]]}
           tokens={[{ tok: "--tasty-accent-remote-raised", use: "remote glyph", color: "var(--tasty-accent-remote-raised)" }]} />
       </Spec>
 
-      <Spec id="child-graph-external-parent" title="External parent (NEEDS-USER 7)"
-        when={<>A child whose parent is not a surface — a Codex conversation, <code>codex:&lt;thread&gt;</code> — has only a key string. <b>Recommended</b>: the key gets its own dashed card at the root (link glyph, key in mono, <i>External key</i>); with the full tree on, the other children of the same key gather under it. Its drawer shows the key and a note that there is nothing to open. <b>Alternative</b>: no card; the child is the root and its drawer shows the key as a row.</>}>
+      <Spec id="child-graph-external-parent" title="External parent (decided 4-6)"
+        when={<>A child whose parent is not a surface — a Codex conversation, <code>codex:&lt;thread&gt;</code> — has only a key string. <b>Decided</b>: the key is an <i>external</i> item — its own dashed card at the root (link glyph, key in mono, <i>External key</i>), and nothing beyond it is traced. With the full tree on, the other children of the same key gather under it. Its drawer shows the key and a note that there is nothing to open; the child's drawer shows the key as a row too.</>}>
         <Stage style={{ padding: 16, display: "block" }}>
           {row(<>
-            <Labelled label="external card at the root, its drawer" alt={false}><Frame w={640} h={260}><ChildView nodes={CHILD_EXTERNAL} baseId="s_e1" selected="codex:019a5c2e-7f3b" /></Frame></Labelled>
-            <Labelled label="child as the root, key in the drawer" alt><Frame w={640} h={260}><ChildView nodes={CHILD_EXTERNAL_ROOT} baseId="s_e1" selected="s_e1" /></Frame></Labelled>
+            <Labelled label="external card at the root, its drawer" tag="decided"><Frame w={640} h={260}><ChildView nodes={CHILD_EXTERNAL} baseId="s_e1" selected="codex:019a5c2e-7f3b" /></Frame></Labelled>
+            <Labelled label="the child's drawer — the key as a row" tag="decided"><Frame w={640} h={260}><ChildView nodes={CHILD_EXTERNAL} baseId="s_e1" selected="s_e1" /></Frame></Labelled>
           </>)}
         </Stage>
-        <Meta specs={[["card", "dashed border-strong · link glyph · key mono 11 · child_graph.card.external"], ["drawer", "title = key (mono) · External key row · external_note"], ["alt", "drawer row child_graph.drawer.external_key on the child"]]} tokens={[]} />
+        <Meta specs={[["card", "dashed border-strong · link glyph · key mono 11 · child_graph.card.external"], ["drawer", "title = key (mono) · External key row · external_note"], ["child drawer", "row child_graph.drawer.external_key"], ["beyond the key", "not traced"]]} tokens={[]} />
       </Spec>
 
       <Spec id="child-graph-drawer-content" title="Child drawer — order and actions"
@@ -264,11 +260,10 @@ export function ChildGraphSection() {
       </Spec>
 
       <Spec id="child-graph-entry-points" title="Entry points (NEEDS-USER 1, 2, 3)"
-        when={<><b>Tools menu</b>: <i>Open child graph</i> right after <i>Task DAGs</i>. <b>NEEDS-USER 1, recommended</b>: no default shortcut — the item, the command palette and a user binding open it. <b>Alternative</b>: a default <Kbd keys="Ctrl+Shift+M" /> (⌘⇧M) row in Keybindings. A terminal surface's context menu takes the same label when it is adopted. <b>NEEDS-USER 3</b>: the surface kind shows as <i>Child graph</i> in its tab and in the convert list, whatever the kind id ends up being. <b>NEEDS-USER 2, alternative</b>: an <i>Open workspace DAGs</i> item that opens the DAGs of the current workspace directly; recommended is no new entry.</>}>
+        when={<><b>Tools menu</b>: <i>Open child graph</i> right after <i>Task DAGs</i>. <b>NEEDS-USER 1, recommended</b>: no default shortcut — the item, the command palette and a user binding open it. <b>Alternative</b>: a default <Kbd keys="Ctrl+Shift+M" /> (⌘⇧M) row in Keybindings. A terminal surface's context menu takes the same label when it is adopted. <b>NEEDS-USER 3</b>: the surface kind shows as <i>Child graph</i> in its tab and in the convert list, whatever the kind id ends up being. <b>Decided 4-2</b>: no new entry for DAGs — the Task DAGs popup lists them and a pick goes to the graph inside the same popup (the Task DAG page's popup spec).</>}>
         <Stage style={{ padding: 16, display: "block" }}>
           {row(<>
             <Labelled label="Tools menu — the new item" alt={false}><div style={{ width: 360 }}><ToolsMenuFrame active="Open child graph" height={380} /></div></Labelled>
-            <Labelled label="Tools menu — open workspace DAGs (NEEDS-USER 2)" alt><div style={{ width: 360 }}><ToolsMenuFrame height={400} active={gt("dag_list.open_workspace_dags")} builtin={TOOLS_MENU_BUILTIN.flatMap((l) => (l === "Task DAGs" ? [l, gt("dag_list.open_workspace_dags")] : [l]))} /></div></Labelled>
             <Labelled label="default shortcut, as the palette shows it (NEEDS-USER 1)" alt>
               <div style={{ width: 320, padding: "var(--tasty-space-sm)", background: "var(--tasty-menu-bg)", border: "var(--tasty-border-width) solid var(--tasty-menu-border)", borderRadius: "var(--tasty-radius)" }}>
                 <MenuItem label={gt("child_graph.keybinding_action")} shortcut="Ctrl+Shift+M" />
@@ -285,7 +280,7 @@ export function ChildGraphSection() {
             </Labelled>
           </>)}
         </Stage>
-        <Meta specs={[["Tools menu", "child_graph.tools_menu_item, after Task DAGs"], ["shortcut (alt)", "child_graph.keybinding_action · Ctrl+Shift+M / ⌘⇧M"], ["context menu", "child_graph.surface_menu_item"], ["kind name", "child_graph.kind_name — tab title and convert list"], ["workspace DAGs (alt)", "dag_list.open_workspace_dags"]]} tokens={[]} />
+        <Meta specs={[["Tools menu", "child_graph.tools_menu_item, after Task DAGs"], ["shortcut (alt)", "child_graph.keybinding_action · Ctrl+Shift+M / ⌘⇧M"], ["context menu", "child_graph.surface_menu_item"], ["kind name", "child_graph.kind_name — tab title and convert list"]]} tokens={[]} />
       </Spec>
 
       <Spec id="child-graph-settings-default-row" title="Settings — the full tree default"

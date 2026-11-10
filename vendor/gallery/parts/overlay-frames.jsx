@@ -412,7 +412,7 @@ function TransferErrorFrame({ retry = false, name = "sprint-42-demo.mp4", reason
 }
 
 // ── Tools menu — 160px, anchored above the sidebar Tools button, no scrim ──
-// builtin / active (2026-11-10): the graph page reuses this frame for the child graph entry and its alternative.
+// builtin / active (2026-11-10): the graph page reuses this frame for the child graph entry.
 const TOOLS_MENU_BUILTIN = ["Command palette…", "Listening ports…", "Remote connections…", "Presets", "Tutorial…", "Task DAGs", "Open child graph", "Open File…"];
 function ToolsMenuFrame({ builtin = TOOLS_MENU_BUILTIN, active, height = 400 }) {
   const plugin = ["Clipboard Viewer", "Git"];
