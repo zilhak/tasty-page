@@ -412,11 +412,12 @@ function TransferErrorFrame({ retry = false, name = "sprint-42-demo.mp4", reason
 }
 
 // ── Tools menu — 160px, anchored above the sidebar Tools button, no scrim ──
-function ToolsMenuFrame() {
-  const builtin = ["Command palette…", "Listening ports…", "Remote connections…", "Presets", "Tutorial…", "Task DAGs", "Open File…"];
+// builtin / active (2026-11-10): the graph page reuses this frame for the child graph entry and its alternative.
+const TOOLS_MENU_BUILTIN = ["Command palette…", "Listening ports…", "Remote connections…", "Presets", "Tutorial…", "Task DAGs", "Open child graph", "Open File…"];
+function ToolsMenuFrame({ builtin = TOOLS_MENU_BUILTIN, active, height = 400 }) {
   const plugin = ["Clipboard Viewer", "Git"];
   return (
-    <div style={{ position: "relative", width: "100%", height: 400, borderRadius: "var(--tasty-radius)", overflow: "hidden",
+    <div style={{ position: "relative", width: "100%", height, borderRadius: "var(--tasty-radius)", overflow: "hidden",
       border: "1px solid var(--tasty-border-default)", background: "var(--tasty-bg-app)" }}>
       {/* faux sidebar with a Tools button at the bottom */}
       <div style={{ position: "absolute", top: 0, bottom: 0, left: 0, width: 150, background: "var(--tasty-bg-sidebar)",
@@ -427,7 +428,7 @@ function ToolsMenuFrame() {
       <div role="menu" aria-label="Tools" style={{ position: "absolute", left: 12, bottom: 52, width: "max-content", minWidth: "var(--tasty-tools-menu-min-width)", maxWidth: "var(--tasty-tools-menu-max-width)", boxSizing: "border-box", whiteSpace: "nowrap",
         background: "var(--tasty-menu-bg)", border: "var(--tasty-border-width) solid var(--tasty-menu-border)",
         borderRadius: "var(--tasty-menu-radius)", padding: "var(--tasty-popup-content-margin)", boxShadow: "var(--tasty-shadow-popover)" }}>
-        {builtin.map((l) => <MenuItem key={l} label={l} />)}
+        {builtin.map((l) => <MenuItem key={l} label={l} active={l === active} />)}
         <MenuItem separator />
         {plugin.map((l) => <MenuItem key={l} label={l} />)}
       </div>
@@ -3068,4 +3069,4 @@ function FilePickerFrame({ state = "loaded", remote = false, indicator = "badge"
   );
 }
 
-export { ic, Backdrop, GroundThemes, GroundCap, PaletteFrame, ApprovalFrame, RenameFrame, SettingsFrame, SettingsGeneralOverlayFrame, SettingsRemoteTransferFrame, SettingsRemoteAttachFrame, TransferProgressFrame, TransferErrorFrame, ToastDragValue, ToolsMenuFrame, PortsFrame, PORTS_COLUMNS, PortsFavoritesG, PortStarG, RemoteFrame, LocalSshSection, SearchBarFrame, FileHandlerFrame, FhFooter, PresetFrame, MarkdownOpenFrame, HeldLabel, TabStripMock, SidebarMock, RailMock, CatSwitchSidebarMock, CatSwitchRailMock, BannerShellG, BannerScope, MouseCaptureBannerG, MouseCaptureHitZone, BlacklistEditorG, TtlBannerG, StackDemoG, BannerMoreMenuG, BannerMoreDemoG, GitViewerFrame, ClipboardFrame, RemoteFormFrame, ScriptManagerFrame, ShellMock, RemoteAttachFrame, RaNewRow, RaWsPeek, FilePickerFrame, FpCrumbMenu, ModifierHintPanelG, MH_CAT_SECTIONS, MH_MIXED_SECTIONS, MH_EMPTY_SECTIONS, catIc, CatMenu, RailCategoryFrame, CategoryEditFrame, CategoryDeleteFrame };
+export { TOOLS_MENU_BUILTIN, ic, Backdrop, GroundThemes, GroundCap, PaletteFrame, ApprovalFrame, RenameFrame, SettingsFrame, SettingsGeneralOverlayFrame, SettingsRemoteTransferFrame, SettingsRemoteAttachFrame, TransferProgressFrame, TransferErrorFrame, ToastDragValue, ToolsMenuFrame, PortsFrame, PORTS_COLUMNS, PortsFavoritesG, PortStarG, RemoteFrame, LocalSshSection, SearchBarFrame, FileHandlerFrame, FhFooter, PresetFrame, MarkdownOpenFrame, HeldLabel, TabStripMock, SidebarMock, RailMock, CatSwitchSidebarMock, CatSwitchRailMock, BannerShellG, BannerScope, MouseCaptureBannerG, MouseCaptureHitZone, BlacklistEditorG, TtlBannerG, StackDemoG, BannerMoreMenuG, BannerMoreDemoG, GitViewerFrame, ClipboardFrame, RemoteFormFrame, ScriptManagerFrame, ShellMock, RemoteAttachFrame, RaNewRow, RaWsPeek, FilePickerFrame, FpCrumbMenu, ModifierHintPanelG, MH_CAT_SECTIONS, MH_MIXED_SECTIONS, MH_EMPTY_SECTIONS, catIc, CatMenu, RailCategoryFrame, CategoryEditFrame, CategoryDeleteFrame };

@@ -18,6 +18,7 @@ import { KbPluginsSubtab } from "./kb_plugins_subtab.jsx";
 import { MacPermissionsPane } from "./macos_permissions.jsx";
 import { AnomalySubtab } from "./settings_anomaly.jsx";
 import { Scrim } from "./shared.jsx";
+import { ChildGraphSettings } from "./child_graph.jsx";
 
 // Tasty UI kit — Settings window (L1 top tabs + L2 sidebar + content).
 // Mirrors zilhak/tasty → src/view/settings/ui.rs (+ settings/ui/tabs/*, keybindings_tab.rs).
@@ -725,7 +726,8 @@ const L2 = {
   Keybindings: ["General", "Workspace", "Pane", "Tab", "Surface", "Clipboard", "Zoom", "Explorer", "Scripts", "Preset", "Plugins", "Import / Export"],
   FileHandler: ["File Extension Mapping", "File Detectors", "File Handlers", "Hook Handlers"],
   // 2026-10-27: Scripts → Task pipeline → Anomaly detection → Tastyrc (Windows only)
-  Misc: IS_WINDOWS ? ["Scripts", "Task pipeline", "Anomaly detection", "Tastyrc"] : ["Scripts", "Task pipeline", "Anomaly detection"],
+  // 2026-11-10: Child graph after Anomaly detection — its own section so the label filter finds "child" / "graph"
+  Misc: IS_WINDOWS ? ["Scripts", "Task pipeline", "Anomaly detection", "Child graph", "Tastyrc"] : ["Scripts", "Task pipeline", "Anomaly detection", "Child graph"],
   Plugins: ["git-helper", "ai-review", "docker", "k8s-lens"],
 };
 
@@ -1069,6 +1071,8 @@ function SettingsWindow({ theme, onTheme, uiScale, onUiScale, onClose }) {
         );
       if (l2 === "Anomaly detection" && AnomalySubtab)
         return <AnomalySubtab />;
+      if (l2 === "Child graph")
+        return <ChildGraphSettings />;
       if (l2 === "Tastyrc")
         return (
           <>

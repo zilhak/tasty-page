@@ -104,7 +104,7 @@ function SceneB({ mode }) {
   );
 }
 // C — Tools menu (scrim-less, shadow-popover) straddling sidebar | page
-const TOOLS = ["Command palette…", "Listening ports…", "Remote connections…", "Presets", "Tutorial…", "Task DAGs", "Open File…"];
+const TOOLS = ["Command palette…", "Listening ports…", "Remote connections…", "Presets", "Tutorial…", "Task DAGs", "Open child graph", "Open File…"];
 function SceneC({ mode }) {
   const op = mode === "opaque";
   return (

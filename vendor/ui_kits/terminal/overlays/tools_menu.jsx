@@ -1,5 +1,6 @@
 import React from "react";
 import { MenuItem } from "../../../components/navigation/MenuItem.jsx";
+import { gt } from "./graph_copy.js";
 
 // Tasty UI kit — tools menu popup (sidebar "Tools" button).
 // Mirrors zilhak/tasty → src/adapters/ui/tools_menu.rs (+ sidebar/tools.rs anchor math).
@@ -12,7 +13,7 @@ import { MenuItem } from "../../../components/navigation/MenuItem.jsx";
 // Built-in entries first, then a separator, then plugin-contributed tools
 // (clipboard-viewer contributes "Clipboard Viewer"; git-viewer contributes "Git").
 // Built-in order mirrors src/adapters/ui/tools_menu.rs:48-69 — Remote connections…
-// is the 3rd entry, between Listening ports… and Presets. Seven built-ins (2026-10-07,
+// is the 3rd entry, between Listening ports… and Presets. Eight built-ins (2026-11-10: Open child graph after Task DAGs; seven since 2026-10-07,
 // = BUILTIN_TOOLS); every label that opens a window ends in the ellipsis character.
 const TOOLS_BUILTIN = [
   { id: "palette", label: "Command palette…" },
@@ -21,6 +22,7 @@ const TOOLS_BUILTIN = [
   { id: "presets", label: "Presets" },
   { id: "tutorial", label: "Tutorial…" },
   { id: "dags", label: "Task DAGs" },
+  { id: "child_graph", label: gt("child_graph.tools_menu_item") }, // 2026-11-10 — child graph popup, no default shortcut (NEEDS-USER 1 recommendation)
   { id: "open", label: "Open File…" },
 ];
 const TOOLS_PLUGIN = [
