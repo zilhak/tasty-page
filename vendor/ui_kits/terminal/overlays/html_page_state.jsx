@@ -24,7 +24,10 @@ import { Spinner } from "../../../components/feedback/Spinner.jsx";
 //
 // Ink (ground-ink matrix, roles on the host bed):
 //   glyph  glyph-dim (empty, paused, notices) · glyph-danger → accent-danger (failed) · spinner-indicator (Spinner's own)
-//   title  text-muted via html-receiving-fg · text-danger → accent-danger-raised (failed)
+//   title  text-muted · text-danger → accent-danger-raised (failed)
+//   The part reads semantic tokens only, because its beds are base and crust (html, plugin webview) and term /
+//   term-unfocused (markdown, which lays the tile on the focus bed). html-receiving-fg / -glyph are allowed on base and
+//   crust only, so the part does not read them. glyph-dim, text-muted, accent-danger and accent-danger-raised hold on all four.
 //   sub    text-muted · mono for a URL or byte count
 // boundary: the bare bed, no glyph or text (an egui overlay hides a loaded page).
 
@@ -43,7 +46,7 @@ const PS_COPY = {
 
 const SUB_LINE = "calc(var(--tasty-font-size-caption) * var(--tasty-line-height-ui))";
 
-function HaCenter({ glyph, glyphColor = "var(--tasty-html-receiving-glyph)", spin, title, titleColor = "var(--tasty-html-receiving-fg)", sub, mono }) {
+function HaCenter({ glyph, glyphColor = "var(--tasty-glyph-dim)", spin, title, titleColor = "var(--tasty-text-muted)", sub, mono }) {
   return (
     <div style={{ flex: 1, minHeight: 0, minWidth: 0, display: "flex", alignItems: "center", justifyContent: "center", padding: "var(--tasty-space-md)" }}>
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "var(--tasty-space-sm)", maxWidth: "100%", minWidth: 0, textAlign: "center" }}>
@@ -59,11 +62,10 @@ function HaCenter({ glyph, glyphColor = "var(--tasty-html-receiving-glyph)", spi
 
 // kind: boundary | empty | loading | failed | receiving | paused | macos | disconnected
 // hint: the empty tab's address hint (+ Alt+L). Only a surface with an address band has one; without it the slot stays empty.
-// emptyGlyph: the empty state's glyph (html on html surfaces).
-function HtmlPageState({ kind = "empty", progress = "1.4 MB · 12 files", url, hint = true, emptyGlyph = "html" }) {
+function HtmlPageState({ kind = "empty", progress = "1.4 MB · 12 files", url, hint = true }) {
   switch (kind) {
     case "boundary": return <div style={{ flex: 1, minHeight: 0 }} />;
-    case "empty": return <HaCenter glyph={emptyGlyph} glyphColor="var(--tasty-glyph-dim)" title={PS_COPY.emptyTitle} sub={hint ? <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-xs)" }}>{PS_COPY.emptyHint} · <Kbd keys={["Alt", "L"]} /></span> : null} />;
+    case "empty": return <HaCenter glyph="html" title={PS_COPY.emptyTitle} sub={hint ? <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-xs)" }}>{PS_COPY.emptyHint} · <Kbd keys={["Alt", "L"]} /></span> : null} />;
     case "loading": return <HaCenter spin title={PS_COPY.loading} />;
     case "failed": return <HaCenter glyph="alertCircle" glyphColor="var(--tasty-accent-danger)" title={PS_COPY.failed} titleColor="var(--tasty-accent-danger-raised)" sub={url} mono />;
     case "receiving": return <HaCenter spin title={PS_COPY.receiving} sub={progress} mono />;

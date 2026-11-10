@@ -253,7 +253,7 @@ The bed shows focus, as the terminal's always has: **`term` focused, `term-unfoc
 - `html`: author CSS paints the document, and a sandboxed page has scripts off, so a pushed value may not arrive and may not be read.
 - Plugin surfaces: the plugin paints them and may ignore the value or declare one color twice. A plugin may follow `term` and `term-unfocused` itself, and the edge still shows.
 
-**Webview chrome tiles.** Loading, failed, no page and boundary tiles stand in for the page. On `markdown` the tile takes the bed for the focus state, so nothing jumps when the document appears. Its no page glyph is `glyph-dim`, because `text-disabled` is 2.99 on the Latte unfocused bed. On `html` and plugin webviews the tile stays `base` under the edge, because the page that follows it will not swap.
+**Webview chrome tiles.** Loading, failed, no page and boundary tiles stand in for the page. On `markdown` the tile takes the bed for the focus state, so nothing jumps when the document appears. Its no page glyph is `glyph-dim`, because `text-disabled` is 2.99 on the Latte unfocused bed. On `html` and plugin webviews the tile stays `base` under the edge, because the page that follows it will not swap. Their no page glyph is `glyph-dim` as well, so every webview tile draws one glyph ink.
 
 **Image state screens.** Empty and load-failed are the canvas with no picture on it, so they take the same bed and no mark of their own. Sub and reason are `text-muted`. Empty has a `text-muted` glyph and a `text-secondary` title. Missing and decode use `image-error-fg` for glyph and title, and permission uses `accent-warning-raised` for both. Too large has an `image-too-large-fg` glyph and a `text-primary` title. Each ink holds on both beds in both themes.
 

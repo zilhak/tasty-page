@@ -533,10 +533,10 @@ function MdInjectionMap() {
 // The gallery's chrome tile = the webview page tile (HtmlPageState) in a fixed 220 x 150 specimen rect on the host bed.
 // Not a second size: the part fills the rect it is given. No border of its own; stages add the specimen frame.
 const TILE_KIND = { boundary: "boundary", placeholder: "empty", loading: "loading", error: "failed" };
-function HtmlTile({ state, bed = "var(--tasty-bg-panel)", emptyGlyph = "html" }) {
+function HtmlTile({ state, bed = "var(--tasty-bg-panel)" }) {
   return (
     <div style={{ width: 220, height: 150, display: "flex", flexDirection: "column", background: bed, overflow: "hidden" }}>
-      <HtmlPageState kind={TILE_KIND[state]} url="https://offline.example" hint={false} emptyGlyph={emptyGlyph} />
+      <HtmlPageState kind={TILE_KIND[state]} url="https://offline.example" hint={false} />
     </div>
   );
 }
@@ -951,12 +951,12 @@ function Page() {
             ))}
             {["boundary", "placeholder", "loading", "error"].map((state) => [true, false].map((focused) => (
               <View key={state + focused} name={`markdown-tile-${state}-${focused ? "focused" : "unfocused"}`} label={`Chrome tile, ${state}, ${focused ? "focused" : "unfocused"}`}>
-                <HtmlTile state={state} bed={surfaceBed(focused)} emptyGlyph="globe" />
+                <HtmlTile state={state} bed={surfaceBed(focused)} />
               </View>
             )))}
           </Views>
           <Meta
-            specs={[["focused", "Mocha #000000, Latte #ffffff"], ["unfocused", "Mocha base #1e1e2e, Latte crust #dce0e8"], ["same as the terminal", "yes, one pair of beds"], ["motion", "0ms, one frame"], ["stays", "body ink, links, code fill, table header and grid, address band"], ["unknown focus", "unfocused values"], ["no page glyph", <><span className="tok">--tasty-glyph-dim</span> on these beds</>]]}
+            specs={[["focused", "Mocha #000000, Latte #ffffff"], ["unfocused", "Mocha base #1e1e2e, Latte crust #dce0e8"], ["same as the terminal", "yes, one pair of beds"], ["motion", "0ms, one frame"], ["stays", "body ink, links, code fill, table header and grid, address band"], ["unknown focus", "unfocused values"], ["no page glyph", <>html, <span className="tok">--tasty-glyph-dim</span> on these beds, the same part and glyph as the html tile</>]]}
             tokens={[{ tok: "--tasty-surface-bed-focused", use: "--md-bg, focused", color: "var(--tasty-surface-bed-focused)" }, { tok: "--tasty-surface-bed-unfocused", use: "--md-bg, unfocused", color: "var(--tasty-surface-bed-unfocused)" }, { tok: "--tasty-md-table-row-bg", use: "row, focused", color: "var(--tasty-md-table-row-bg)" }, { tok: "--tasty-md-table-row-bg-unfocused", use: "row, unfocused", color: "var(--tasty-md-table-row-bg-unfocused)" }, { tok: "--tasty-md-table-row-bg-zebra", use: "zebra, focused", color: "var(--tasty-md-table-row-bg-zebra)" }, { tok: "--tasty-md-table-row-bg-zebra-unfocused", use: "zebra, unfocused", color: "var(--tasty-md-table-row-bg-zebra-unfocused)" }, { tok: "--tasty-md-code-bg", use: "code fill → --md-code-bg", color: "var(--tasty-md-code-bg)" }, { tok: "--tasty-md-table-border", use: "grid → --md-border", color: "var(--tasty-md-table-border)" }]} />
           <Note>Implementing side: <code>[surfaces.markdown]</code> gets <code>focused_bg</code> and <code>unfocused_bg</code> from these two beds in Mocha and Latte, and the renderer stops reading a single bed. <code>focused_fg</code> and <code>unfocused_fg</code> stay in the file, and the document reads neither: its body ink is the same in both states.</Note>
           <Dont><b>Don't</b> reload the document or rewrite its HTML to change the bed. Scroll, selection and find state must survive a focus change.</Dont>
@@ -1058,7 +1058,7 @@ function Page() {
           </Stage>
           <Meta
             specs={[["content", "native OS WebView (token-agnostic)"], ["part", "HtmlPageState — one part for the page rect at every size; it fills the rect the host gives"], ["tile", <>page bed (<span className="tok">--tasty-bg-panel</span>) · no border, no shadow · the band's 1px separator is the only rule</>], ["block", "glyph 16 · space-sm · title (body × line-height-ui) · space-sm · sub line (caption × line-height-ui), always reserved · centred as one · padding space-md"], ["boundary (2026-10-06)", "the bare bed — shown only while an egui overlay hides a loaded page; no glyph, label or URL / path"], ["placeholder", "html glyph (glyph-dim) + 'No page loaded' · sub line holds the address hint when the surface has a band"], ["loading", "Spinner + 'Loading…' · sub line empty"], ["error", "alertCircle (glyph-danger) + 'Failed to load' (text-danger) + URL mono"]]}
-            tokens={[{ tok: "--tasty-html-receiving-fg", use: "placeholder / loading title → text-muted", color: "var(--tasty-html-receiving-fg)" }, { tok: "--tasty-glyph-dim", use: "placeholder glyph", color: "var(--tasty-glyph-dim)" }, { tok: "--tasty-text-muted", use: "sub line · URL", color: "var(--tasty-text-muted)" }, { tok: "--tasty-spinner-indicator", use: "loading", color: "var(--tasty-spinner-indicator)" }, { tok: "--tasty-accent-danger", use: "error glyph (glyph-danger)", color: "var(--tasty-accent-danger)" }, { tok: "--tasty-accent-danger-raised", use: "error title (text-danger)", color: "var(--tasty-accent-danger-raised)" }]} />
+            tokens={[{ tok: "--tasty-text-muted", use: "placeholder / loading title · sub line · URL", color: "var(--tasty-text-muted)" }, { tok: "--tasty-glyph-dim", use: "placeholder glyph", color: "var(--tasty-glyph-dim)" }, { tok: "--tasty-spinner-indicator", use: "loading", color: "var(--tasty-spinner-indicator)" }, { tok: "--tasty-accent-danger", use: "error glyph (glyph-danger)", color: "var(--tasty-accent-danger)" }, { tok: "--tasty-accent-danger-raised", use: "error title (text-danger)", color: "var(--tasty-accent-danger-raised)" }]} />
         </Spec>
         <Spec id="html-focus-edge" title="HTML — focus edge above the band"
           when={<>The host cannot paint the page, so html shows focus only on the <a href="../layouts/#surface-focus-every-kind">surface focus edge</a>, above the address band. Its bed cannot follow focus the way a terminal's does: author CSS owns it, and a sandboxed page may run no script. Stack from the top: <b>edge → address band → size banner → script banner → page</b>. The band, the banners and the chrome tiles look the same in both states. A focused field keeps its blue ring, on a focused surface and only there.</>}>
@@ -1168,7 +1168,7 @@ function Page() {
           </Stage>
           <Meta
             specs={[["placement", "inset, same as the script banner · above it when both show"], ["large file", "download glyph (info) · title · path (left-ellipsis) + size Tag warning · Decline ghost / Allow secondary"], ["several files", "one at a time · '+N more waiting'"], ["limit", "alertTriangle (warning) · received total · Stop ghost / Continue secondary"], ["dismiss", "no × · no keyboard focus · click only"], ["receiving", "Spinner + bytes · files (mono)"], ["paused", "static download glyph + 'Paused — answer the notice above'"], ["declined", "'N skipped' Tag in the read-only field, tooltip lists names · cleared by Reload"], ["macOS 11–26", "info glyph + copy in the page rect · band stays"], ["disconnected", "Reload disabled (tooltip says why) · page rect notice if nothing arrived; a received page stays"]]}
-            tokens={[{ tok: "--tasty-html-size-banner-glyph", use: "→ accent-info", color: "var(--tasty-html-size-banner-glyph)" }, { tok: "--tasty-html-limit-banner-glyph", use: "→ accent-warning", color: "var(--tasty-html-limit-banner-glyph)" }, { tok: "--tasty-html-receiving-fg", use: "→ text-muted", color: "var(--tasty-html-receiving-fg)" }, { tok: "--tasty-html-receiving-glyph", use: "→ glyph-dim", color: "var(--tasty-html-receiving-glyph)" }, { tok: "--tasty-banner-inset-gap", use: "between banners + below the last" }]} />
+            tokens={[{ tok: "--tasty-html-size-banner-glyph", use: "→ accent-info", color: "var(--tasty-html-size-banner-glyph)" }, { tok: "--tasty-html-limit-banner-glyph", use: "→ accent-warning", color: "var(--tasty-html-limit-banner-glyph)" }, { tok: "--tasty-text-muted", use: "receiving / paused / notice copy", color: "var(--tasty-text-muted)" }, { tok: "--tasty-glyph-dim", use: "static glyph while paused · notices", color: "var(--tasty-glyph-dim)" }, { tok: "--tasty-banner-inset-gap", use: "between banners + below the last" }]} />
         </Spec>
         <Spec id="html-settings-appearance-html-viewer" title="HTML — settings (Appearance › HTML viewer)">
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)" }}>
