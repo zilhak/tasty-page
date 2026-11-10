@@ -1,4 +1,4 @@
-<!-- source-hash: 613f8333b5b9 -->
+<!-- source-hash: 4fa93ddca944 -->
 <a id="remote-attach"></a>
 
 # Working remotely (attach)
@@ -202,8 +202,13 @@ tasty set workspace --id 5 --clear-mapping                              # remove
 - A Tab that closes on the remote because its shell ended (`exit`) disappears from the mirror right away too.
 - The remote terminal's completion · input-needed indicators (border · badge) also arrive in the mirror as they are.
 - If part of what the remote was sending is lost, a "Part of the remote screen was lost" toast appears and the mirror re-attaches on its own to fetch the screen again (a mirror attached without a profile does the same). After it re-attaches, the same screen may appear once more in the scrollback. If this happens during a clipboard image upload, the upload ends as failed and you can try again — it is not resent automatically, because the remote may already have saved it.
-- Pasting a clipboard image uploads it to the remote and inputs the **remote path**. Text paste works as usual.
+- Pasting a clipboard image uploads it to the remote and inputs the **remote path**. Text is entered unchanged except in the cases below.
+  - A capture in a local terminal puts the local file path and image on your clipboard. The remote cannot read that local path. When you use the paste shortcut in a mirror terminal, if the text is a file path directly inside your computer's capture folder, `~/.tasty/screenshots/`, and the clipboard image can be read, Tasty uploads the image and types the remote path. If the image cannot be read, including when the capture copied only the path because the image could not be added, the local path is typed unchanged.
 - Pressing [Screenshot to clipboard](../using/terminal.md#screenshot-to-clipboard) (`Ctrl+Alt+S`) inside a mirror captures the screen on your computer, saves the file on the remote, and puts both the remote path and the image on the **remote clipboard**. Your own clipboard does not change. If the remote Tasty is an older version that cannot copy images, only the path goes in and the toast says so. If the file cannot be sent because the remote connection is gone, the toast says it was saved only on your computer, and if the connection drops before the remote answers, it says the copy was not confirmed.
+  - The paste shortcut reads your own computer's clipboard. After the capture, if you have not copied different content on your computer, using it in a terminal of the same mirror types the remote file path under `~/.tasty/screenshots/` instead of the local content. If you have copied different content, it types that local content as usual.
+  - You can paste the same path several times. A new screenshot in that mirror replaces the previous one; once that mirror Workspace disappears from the window, the path is unavailable for this paste.
+  - Until the remote returns the saved path, or if its answer has no path, paste types the local content. If the file was saved and its path returned, paste types the remote path even if writing to the remote clipboard failed.
+  - Copying the exact same content as before the capture counts as no change, so paste types the remote path. If Tasty could not read your local clipboard just before the capture, that screenshot is unavailable for this paste. If a remote desktop (RDP) client or another program copies the remote clipboard into your local clipboard, the paste shortcut types that copied-in local content.
 - Pass a mirror Workspace number to `--workspace` and the child of `tasty claude spawn` or `tasty codex spawn` runs on the remote computer, while you manage it as a child inside that mirror. See [Claude · Codex](../agents/claude-codex.md#creating-children-in-an-attached-remote-workspace) for how to use it.
   - While the connection is down, that child's state shows as `unknown`. Once you reconnect to the same remote Tasty, a completion that happened in the meantime is delivered once.
   - If the remote Tasty restarts, completions of children created before the restart are not delivered. On a remote running an older Tasty, no child is created and you get an error.
