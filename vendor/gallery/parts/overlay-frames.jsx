@@ -1160,8 +1160,8 @@ function FhRemoteMark({ host, state = "connected" }) {
 }
 
 function FhHeader({ state, path, remote }) {
-  // A remote file's contents are not read. A remote target opened by name (agent,
-  // plugin, a file open in the mirror) carries the format its extension or file name
+  // A remote file's contents are not read. A remote target opened by name (a plugin,
+  // a file open in the mirror; an agent's open shows no picker) carries the format its extension or file name
   // settled in remote.format and keeps the accent Tag, the same as a local detection:
   // that format chose the candidates. A path link settles no format, so a remote
   // target without remote.format shows the neutral "format unknown" Tag. Either way
