@@ -33,6 +33,8 @@ const ONE = (title, s) => ({ title, surfaces: [s] });
 
 // Mock tree. Ids match the child graph mocks so a pick shows a graph. Windows in open order (Q15, tasty
 // recommendation 14-2): Window 1, Window 2, …; the one the graph is in says "This window" wherever it falls.
+// Open and closed windows share one sequence and a window keeps its number when it closes, so no two
+// rows read the same number (recommended while Q12 and Q15 are open): here the closed window is 3.
 const PICKER_WINDOWS = [
   { id: "w1", n: 1, categories: [
     { id: 0, reserved: true, workspaces: [
@@ -55,7 +57,7 @@ const PICKER_WINDOWS = [
       ] },
     ] },
   ] },
-  { id: "p1", n: 1, closed: true, categories: [
+  { id: "p1", n: 3, closed: true, categories: [
     { id: 0, reserved: true, workspaces: [
       { id: "ws-nightly", name: "nightly", status: "running", panes: [{ tabs: [ONE("nightly-build", SURF("s_q1", "nightly-build"))] }] },
     ] },
