@@ -8,6 +8,7 @@ import { ExplorerDeleteFrame as ExplorerDeleteFrame_ExplorerDeleteFrame, XD_ITEM
 import { GalleryScrimGrounds } from "./scrim-grounds.jsx";
 import { Backdrop, ApprovalFrame, FileHandlerFrame, FhFooter, PresetFrame, MarkdownOpenFrame, RenameFrame, CategoryEditFrame, CategoryDeleteFrame, TransferProgressFrame, TransferErrorFrame, ShellMock } from "../parts/overlay-frames.jsx";
 import { Section, Spec, Stage, Meta, Note, Do, Dont } from "../parts/specimen.jsx";
+import { ThemePair } from "../parts/theme-frame.jsx";
 
 
 // Tasty Gallery — Overlays · Dialogs (modal confirm/edit surfaces)
@@ -294,6 +295,30 @@ function Page() {
           <Meta
             specs={[["line box", "390 = 420 − 1 × 2 (frame border) − 14 × 2"], ["cap", "65 mono chars @ 11px (390 / 6 — rounded advance, D2Coding)"], ["was", "70 / 5.5 nominal — overran the line by ~30px (2026-10-06)"], ["rule", "measure first; the count is the fallback"], ["boundary", "segment — drop whole leading segments, prefix …/"], ["mid-segment", "only when one segment exceeds the line; then front-elide by characters, prefix …"], ["row id", "unchanged — 34 chars, front, the id line is narrower"], ["was", "48 chars provisional — retired"]]}
             tokens={[{ tok: "--tasty-font-mono", use: "path" }, { tok: "--tasty-text-muted", use: "path ink", color: "var(--tasty-text-muted)" }]} />
+        </Spec>
+
+        <Spec id="file-handler-remote-path" title="Remote path — the host leads the path line"
+          when={<>A path link in a <b>mirror</b> terminal names a file on the remote host, and the same string can name a different local file. So when the picker's target is remote, the header's <b>path line leads with the host mark</b>: remote glyph + host in <span className="tok">--tasty-fh-remote-fg</span>, mono caption, no fill — the form the explorer uses for remote work. It sits on the line it qualifies, so the path reads as <i>this path on that host</i>. The mark keeps its own cap (<span className="tok">--tasty-fh-remote-max-width</span>, 160) and elides its end inside it; the path keeps its front elision in the <b>222px</b> left (390 − 160 − 8 gap), so neither cuts the other. A <b>local</b> path has no mark. The body does not change here: a remote path still opens the empty picker. The host text is a placeholder until the product decides what names a host.</>}>
+          <Stage variant="solo" style={{ padding: 20, background: "var(--tasty-bg-app)" }}>
+            <ThemePair render={() => (
+              <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                {[["local path — no mark", { path: "docs/architecture.md" }],
+                  ["remote path — user@host (placeholder text)", { state: "empty", remote: { host: "user@host" }, path: "src/main.rs" }],
+                  ["remote path — loopback label the session has today", { state: "empty", remote: { host: "127.0.0.1:54321" }, path: "…/src/adapters/ui/popup/picker.rs" }],
+                  ["long host — capped at 160 and end-elided, path keeps its tail", { state: "empty", remote: { host: "deploy@build-runner-07.eu-west.example.internal" }, path: "…/services/api/handlers/upload.rs" }]].map(([label, o]) => (
+                  <div key={label} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                    <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
+                    <FileHandlerFrame {...o} />
+                  </div>
+                ))}
+              </div>
+            )} />
+          </Stage>
+          <Meta
+            specs={[["where", "path line, before the path — never in the title row"], ["mark", "remote glyph 12 + host · mono caption · no fill"], ["ink", <><span className="tok">--tasty-fh-remote-fg</span> → accent-remote-raised · base 10.54 · 6.63</>], ["gap", <>glyph ↔ host <span className="tok">--tasty-fh-remote-gap</span> 4 · mark ↔ path space-sm 8</>], ["host cap", <><span className="tok">--tasty-fh-remote-max-width</span> 160 · end-elided with …</>], ["path", "front elision in the remaining width (390 − mark − 8); 222 at the cap = 37 mono chars"], ["loopback", "127.0.0.1:54321 is 106px — never elides"], ["no host value", <>the word <b>Remote</b> (<code>attach.mirror_pill_label</code>) in the host slot</>], ["local path", "no mark — the line is the path alone"], ["body", "unchanged — remote paths open the empty picker"], ["copy", "none new"]]}
+            tokens={[{ tok: "--tasty-fh-remote-fg", use: "host mark", color: "var(--tasty-fh-remote-fg)" }, { tok: "--tasty-fh-remote-gap", use: "glyph ↔ host" }, { tok: "--tasty-fh-remote-max-width", use: "host cap" }, { tok: "--tasty-text-muted", use: "path ink", color: "var(--tasty-text-muted)" }]} />
+          <Dont><b>Don't</b> join host and path into one string (<code>user@host:/src/main.rs</code>). The path line elides at the front, so the host would be the first thing cut. The title row is not the place either: it already holds the format Tag, and a host there is not attached to the path it qualifies.</Dont>
+          <Note>The File Picker keeps its tinted host badge in the title row: there the host is the context for a whole browsing window, here it qualifies one path.</Note>
         </Spec>
 
         <Spec id="no-suggestions-the-whole-catalog-one-time-only" title="No suggestions — the whole catalog, one time only"

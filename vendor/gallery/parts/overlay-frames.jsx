@@ -1032,7 +1032,21 @@ function FhGroup({ label, count, caption, tone }) {
   );
 }
 
-function FhHeader({ state, path }) {
+// Remote mark on the path line — the target is a path on a mirror's remote host. The
+// explorer host mark form: remote glyph + host, mono caption, remote hue, no fill. It
+// keeps its own cap (fh-remote-max-width) and end-elides inside it; the path keeps its
+// front elision in what is left. A local path has no mark.
+function FhRemoteMark({ host }) {
+  return (
+    <span data-fh-remote style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-fh-remote-gap)", flex: "0 0 auto", minWidth: 0,
+      maxWidth: "var(--tasty-fh-remote-max-width)", color: "var(--tasty-fh-remote-fg)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)" }}>
+      <span style={{ display: "inline-flex", flex: "none" }}><Icon name="remote" size="var(--tasty-icon-size-xs)" /></span>
+      <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{host}</span>
+    </span>
+  );
+}
+
+function FhHeader({ state, path, remote }) {
   const fmt = state === "fallback" ? "unknown" : state === "empty" ? "markdown" : "markdown";
   return (
     <div style={{ padding: "14px 14px 10px", borderBottom: "1px solid var(--tasty-separator)", display: "flex", flexDirection: "column", gap: 6 }}>
@@ -1052,10 +1066,13 @@ function FhHeader({ state, path }) {
           available: 390 / 6 — D2Coding 11px is 5.56px nominal but each glyph ADVANCES
           a whole 6px once rounded (2026-10-06; was 70 / 5.5, which overran by ~30px). A single segment
           longer than the line is the one case that cuts mid-segment. */}
-      <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: "var(--tasty-text-muted)",
-        whiteSpace: "nowrap", overflow: "hidden", textOverflow: "clip", minWidth: 0 }}>
-        {path || (state === "long" || state === "fallback" ? "…/federation/screens.tsx" : "docs/architecture.md")}
-      </span>
+      <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", minWidth: 0 }}>
+        {remote && <FhRemoteMark host={remote.host} />}
+        <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: "var(--tasty-text-muted)",
+          whiteSpace: "nowrap", overflow: "hidden", textOverflow: "clip", minWidth: 0 }}>
+          {path || (state === "long" || state === "fallback" ? "…/federation/screens.tsx" : "docs/architecture.md")}
+        </span>
+      </div>
     </div>
   );
 }
@@ -1093,7 +1110,7 @@ function FhFooter({ variant = "actions", canOpen = true }) {
   );
 }
 
-function FileHandlerFrame({ state = "default", headless = true, footer = "actions", path }) {
+function FileHandlerFrame({ state = "default", headless = true, footer = "actions", path, remote }) {
   const long = state === "long";
   const rowsOf = (key) => (state === "mixed" ? FH_ROWS.mixed : key);
   const listStyle = { padding: 6, ...(long ? { maxHeight: 264, overflow: "auto" } : null) };
@@ -1101,7 +1118,7 @@ function FileHandlerFrame({ state = "default", headless = true, footer = "action
     <div style={{ width: 420, background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-strong)",
       borderRadius: "var(--tasty-radius)", overflow: "hidden", boxShadow: "var(--tasty-shadow-modal)" }}>
       {!headless && <FhTitlebar />}
-      <FhHeader state={state} path={path} />
+      <FhHeader state={state} path={path} remote={remote} />
 
       {state === "fallback" && (
         <div style={{ display: "flex", alignItems: "flex-start", gap: 8, padding: "8px 14px",
