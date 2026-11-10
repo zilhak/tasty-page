@@ -1,4 +1,4 @@
-<!-- source-hash: 7b0e6279d00f -->
+<!-- source-hash: 832bf2c9d921 -->
 # Working with the terminal
 
 You can copy the output you need, search terminal history, and open file paths as you work. You can also select text without a mouse and receive notifications when work finishes.
@@ -54,7 +54,8 @@ Press `Ctrl+Alt+S` and pick an area of the screen: the PNG file is saved under `
 
 - **macOS**: picks the area with `screencapture`. Screen recording permission is required.
 - **Linux**: on Wayland it uses `grim`·`slurp`, or `gnome-screenshot` if they are missing. On X11 it uses the installed tool in the order `gnome-screenshot` → `scrot` → ImageMagick `import`. If one tool fails, the next one is tried.
-- If the image cannot be put on the clipboard (the picture cannot be read, and so on), only the path goes in.
+- **Windows**: captures the whole screen across all monitors, without area selection.
+- If the image cannot be put on the clipboard (the picture cannot be read, or on Linux it is larger than one X11 transfer allows, and so on), only the path goes in.
 - If you cancel the area selection with Esc, no other tool opens and the clipboard is left as is. The same applies when the tool ends without leaving a file.
 - The result appears as a notification in the window where you pressed the shortcut. Copying both the image and the path shows a success; copying only the path shows a warning; a missing or failing tool, or a failed save or copy, shows the reason. Cancelling with Esc shows nothing, and a tool that ends without a file (some tools end this way when cancelled) only says "No screenshot was taken." If you move to another window while picking the area, the notification still appears in the first window, and not at all if that window was closed.
 
@@ -94,6 +95,8 @@ For example, run `printf '\033[2J\033[HABCDE\n'` in a shell to leave `ABCDE` at 
 | `Esc` | Clear the selection. Leaves if there is no selection. With a selection, the first `Esc` clears it and the second leaves |
 
 Copy notices appear only after the clipboard accepts the write. If access is unavailable or a transfer fails, Tasty shows a notice and keeps your selection. With a selection, a failed Ctrl+C copy does not interrupt the program. A failed paste sends no input; an empty clipboard does nothing.
+
+On Linux, terminal copy and paste use X11, through XWayland to exchange clipboard content with other apps in a Wayland session when `DISPLAY` is set and the X server is reachable. When Tasty runs on native Wayland because `DISPLAY` is unset or the X server cannot be reached, it cannot exchange clipboard content with external apps and shows a notice explaining this.
 
 ### Clipboard access by programs (OSC 52)
 
