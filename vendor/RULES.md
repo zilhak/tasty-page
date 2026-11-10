@@ -1748,13 +1748,13 @@ Sits on: `crust`, `mantle`, `base`, `raised`, `active`
 
 ### Spinner
 
-Sits on: `crust`, `mantle`, `base`, `raised`
+Sits on: `crust`, `mantle`, `base`, `raised`, `term`, `term-unfocused`
 
 | Part | Token | States | Ground | Lowest, Mocha · Latte |
 |---|---|---|---|---|
-| indicator | `spinner-indicator` | rest | `crust`, `mantle`, `base`, `raised` | 7.86 · 5.89 |
+| indicator | `spinner-indicator` | rest | `crust`, `mantle`, `base`, `raised`, `term`, `term-unfocused` | 7.86 · 5.89 |
 
-**Track.** The arc and its motion say the work is running, and the arc holds 3:1. The track is an ornament with no grade: arc ink at 22%, 1.44 to 1.73 in Mocha and 1.33 to 1.44 in Latte. It carries the mark `data-ink-grade="none" data-ink-why="ornament"`, and `noGradeParts` in the file records it. It goes wherever the arc goes, `solid-hover` and `active` included. The `glyph-decorative` ban on `active` is about a separate ornament that reads as a second state. The track is inside the arc, in the arc's hue, so it adds none. Nothing else may lean on this.
+**Track.** The arc and its motion say the work is running, and the arc holds 3:1. The track is an ornament with no grade: arc ink at 22%, 1.44 to 1.73 in Mocha and 1.33 to 1.47 in Latte. It carries the mark `data-ink-grade="none" data-ink-why="ornament"`, and `noGradeParts` in the file records it. It goes wherever the arc goes, `solid-hover` and `active` included. The `glyph-decorative` ban on `active` is about a separate ornament that reads as a second state. The track is inside the arc, in the arc's hue, so it adds none. Nothing else may lean on this.
 
 ### Progress
 
