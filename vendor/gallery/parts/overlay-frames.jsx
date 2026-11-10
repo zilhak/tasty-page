@@ -1034,14 +1034,14 @@ function FhGroup({ label, count, caption, tone }) {
 
 // Remote mark on the path line — the target is a path on a mirror's remote host. The
 // explorer host mark form: remote glyph + host, mono caption, remote hue, no fill. It
-// keeps its own cap (fh-remote-max-width) and end-elides inside it; the path keeps its
+// caps the host text (fh-remote-max-width) and end-elides inside it; the path keeps its
 // front elision in what is left. A local path has no mark.
 function FhRemoteMark({ host }) {
   return (
     <span data-fh-remote style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-fh-remote-gap)", flex: "0 0 auto", minWidth: 0,
-      maxWidth: "var(--tasty-fh-remote-max-width)", color: "var(--tasty-fh-remote-fg)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)" }}>
+      color: "var(--tasty-fh-remote-fg)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)" }}>
       <span style={{ display: "inline-flex", flex: "none" }}><Icon name="remote" size="var(--tasty-icon-size-xs)" /></span>
-      <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{host}</span>
+      <span style={{ minWidth: 0, maxWidth: "var(--tasty-fh-remote-max-width)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{host}</span>
     </span>
   );
 }

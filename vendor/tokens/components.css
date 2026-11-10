@@ -1005,7 +1005,7 @@
      the path keeps its front elision in the space left, so neither cuts the other. */
   --tasty-fh-remote-fg:               var(--tasty-accent-remote-raised); /* base 10.54 · 6.63 */
   --tasty-fh-remote-gap:              var(--tasty-space-xs);    /* 4 — glyph ↔ host */
-  --tasty-fh-remote-max-width:        var(--tasty-size-160);    /* host cap; the path keeps 390 − 160 − 8 = 222 */
+  --tasty-fh-remote-max-width:        var(--tasty-size-160);    /* host text cap; the path keeps 390 − 12 − 4 − 160 − 8 = 206 */
   /* Color swatch (settings color editor) */
   --tasty-swatch-size:              var(--tasty-size-16);
   --tasty-swatch-radius:            var(--tasty-radius-sm);

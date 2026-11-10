@@ -129,7 +129,7 @@ export function RemoteStatusBarSpec() {
           <div style={{ display: "flex", flexDirection: "column", gap: 16, minWidth: 300 }}>
             {[["connected", "connected", LONG], ["reconnecting", "reconnecting", HOST]].map(([label, state, host]) => (
               <Labeled key={label} label={label}>
-                <div style={{ paddingTop: 64 }}>
+                <div style={{ paddingTop: 64, paddingLeft: 96 }}>
                   <Tooltip open placement="top" content={<BarTip state={state} host={host} />}>
                     <span style={{ display: "inline-flex", padding: "0 10px", height: "var(--tasty-status-bar-height)", alignItems: "center",
                       background: "var(--tasty-bg-sidebar)", border: "1px solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius-sm)", fontSize: "var(--tasty-font-size-caption)" }}>
@@ -200,7 +200,7 @@ export function RemoteLinkSpec() {
                 <Term>
                   <TermLine>{"$ cargo build"}</TermLine>
                   <TermLine>
-                    {"  --> "}
+                    {"error: mismatched types at "}
                     {tip
                       ? <Tooltip open placement="bottom" content={<LinkTip host={host} />}><LinkRun>{text}</LinkRun></Tooltip>
                       : <LinkRun>{text}</LinkRun>}
@@ -217,7 +217,7 @@ export function RemoteLinkSpec() {
             {["en", "ko", "ja", "zh-Hans"].map((lang) => (
               <Labeled key={lang} label={lang}>
                 <Term>
-                  <TermLine>{"  --> "}<Tooltip open placement="bottom" content={<LinkTip host={HOST} lang={lang} />}><LinkRun>src/main.rs:42</LinkRun></Tooltip></TermLine>
+                  <TermLine>{"error: mismatched types at "}<Tooltip open placement="bottom" content={<LinkTip host={HOST} lang={lang} />}><LinkRun>src/main.rs:42</LinkRun></Tooltip></TermLine>
                 </Term>
               </Labeled>
             ))}
