@@ -11,7 +11,7 @@ export const GRAPH_COPY = {
   "child_graph.show_full_tree": {"en": "Show full tree", "ko": "전체 트리 표시", "ja": "ツリー全体を表示", "zh-Hans": "显示完整树"},
   "child_graph.base_label": {"en": "Base surface", "ko": "기준 서피스", "ja": "基準サーフェス", "zh-Hans": "基准 Surface"},
   "child_graph.base_badge": {"en": "Base", "ko": "기준", "ja": "基準", "zh-Hans": "基准"},
-  "child_graph.base_empty": {"en": "No surfaces", "ko": "서피스 없음", "ja": "サーフェスがありません", "zh-Hans": "无 Surface"},
+  "child_graph.base_empty": {"en": "No terminal surfaces", "ko": "터미널 서피스 없음", "ja": "ターミナルサーフェスがありません", "zh-Hans": "无终端 Surface"},
   "child_graph.picker.search": {"en": "Filter surfaces…", "ko": "서피스 검색…", "ja": "サーフェスを絞り込む…", "zh-Hans": "筛选 Surface…"},
   "child_graph.picker.no_match": {"en": "No matching surfaces", "ko": "일치하는 서피스 없음", "ja": "一致するサーフェスがありません", "zh-Hans": "无匹配的 Surface"},
   "child_graph.picker.window": {"en": "Window {}", "ko": "윈도우 {}", "ja": "ウィンドウ {}", "zh-Hans": "窗口 {}"},

@@ -19,6 +19,10 @@ import { gt } from "./graph_copy.js";
 // the workspace is the sidebar row's status dot + name (remote glyph and host on a mirror); window, pane, tab
 // and surface are TreeRow, the sidebar / explorer tree row. Only a surface row picks.
 //
+// Kinds (decided, R-51 Q14): terminal surfaces only. Markdown, explorer, html and graph surfaces are not listed, since
+// child relations form only between terminals. A workspace, tab or pane with no terminal surface is left out; with no
+// terminal surface in any window the picker is disabled and reads child_graph.base_empty.
+//
 // Folding (recommended; the alternative `allLevels` draws every level):
 //   - category level only when workspace categories are on; the reserved one reads "Workspaces"; empty ones hide.
 //   - pane level only when the workspace has two or more panes.
