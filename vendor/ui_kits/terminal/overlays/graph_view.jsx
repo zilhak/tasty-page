@@ -183,7 +183,10 @@ function GraphCanvas({ g, nodes, edges, renderNode, colorOf, dir = "td", onDirCh
       return next;
     });
   };
+  // The drawer and the chrome are not canvas: a wheel over them scrolls them (or nothing), never pans or zooms.
+  const offCanvas = (e) => !!(e.target.closest && (e.target.closest("[data-graph-drawer]") || e.target.closest("[data-graph-chrome]")));
   const onWheel = (e) => {
+    if (offCanvas(e)) return;
     if (e.ctrlKey || e.metaKey) {
       e.preventDefault();
       const r = ref.current.getBoundingClientRect();
@@ -193,7 +196,7 @@ function GraphCanvas({ g, nodes, edges, renderNode, colorOf, dir = "td", onDirCh
     }
   };
   const onMouseDown = (e) => {
-    if (e.target.closest && (e.target.closest("[data-graph-drawer]") || e.target.closest("[data-graph-chrome]"))) return;
+    if (offCanvas(e)) return;
     const onNode = e.target.closest && e.target.closest("[data-dag-node]");
     if (onNode && e.button !== 1) return;
     drag.current = { x: e.clientX, y: e.clientY, o, moved: false, empty: !onNode };
