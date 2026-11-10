@@ -11,6 +11,7 @@ import { AnomalySection as OverlaysWindowsAnomaly_AnomalySection } from "./setti
 import { KbPluginsRecordSpec as OverlaysWindowsB12_KbPluginsRecordSpec } from "./kb-plugin-records.jsx";
 import { SettingsNarrowSection as OverlaysWindowsB12_SettingsNarrowSection } from "./settings-narrow.jsx";
 import { OptionKeySection as OverlaysWindowsB12_OptionKeySection } from "./option-key.jsx";
+import { AltKeySection as OverlaysWindowsR56_AltKeySection } from "./alt-key.jsx";
 import { FileHandlerSection as OverlaysWindowsFileHandlers_FileHandlerSection } from "./file-handlers.jsx";
 import { PerfSection as OverlaysWindowsPerf_PerfSection } from "./settings-performance.jsx";
 import { FontOverrideG, FontFileRejectedSpec, FontToastSpec, FontFamilyRejectedSpec } from "./settings-font.jsx";
@@ -228,6 +229,7 @@ const NAV = [
   { id: "permissions", label: "General › Permissions (macOS)" },
   { id: "kbimportexport", label: "Keybindings · Import / Export" },
   { id: "optionkey", label: "Win · Super as extra (b12)" },
+  { id: "altkey", label: "Alt key (macOS) · link click keys" },
   { id: "pluginswindow", label: "Plugins window · avatar · disabled sites" },
   { id: "scripts", label: "Misc · Scripts" },
   { id: "anomaly", label: "Misc · Anomaly detection" },
@@ -1654,6 +1656,7 @@ function Page() {
       </Section>
 
       {<OverlaysWindowsB12_OptionKeySection />}
+      {<OverlaysWindowsR56_AltKeySection />}
       <Section id="scripts" title="Misc · Scripts (Lua script manager)">
         <Spec id="scripts-subsection-list-states-empty" title="Scripts subsection — list, states & empty"
           when={<>Settings › <b>Misc</b> › <b>Scripts</b>. A subsection (not a separate popup) that manages user <b>Lua scripts</b> run by a shortcut. Each <b>ScriptRow</b>: the display name, the absolute path (<b>middle-elided</b> — dir tail truncates, filename always shown), a bound-shortcut <span className="ic">Kbd</span> badge (or italic <b>Unbound</b>), a peach <b>changed</b> badge + help line when the file's SHA no longer matches the one recorded at registration (TOFU re-confirm on next run), and an <b>Auto-run</b> row: mono <b>trigger chips</b> for the host-lifecycle events the script fires on (click a chip to remove it) plus a dashed <b>Add trigger…</b> control offering the remaining events. Row actions: bind shortcut (→ Keybindings), rename (inline), remove (inline confirm).</>}>
