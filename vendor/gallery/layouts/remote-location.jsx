@@ -34,12 +34,13 @@ const caption = { fontSize: "var(--tasty-font-size-caption)", color: "var(--tast
 // The remote item. live = connected: glyph + host in the remote hue.
 // reconnecting: the bar's own neutral ink + the status word.
 // dropHost = collapse step 6 (host text gone, glyph stays; the status word stays).
+// The item never shrinks: the host has its own cap, and the bar narrows by the drop order.
 function RemoteItem({ host, state = "connected", dropHost = false, lang = "en" }) {
   const live = state !== "reconnecting";
   const c = REMOTE_COPY[lang];
   const label = host || c.remote;
   return (
-    <span data-statusbar-remote={state} style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-statusbar-remote-gap)", flex: "0 1 auto", minWidth: 0 }}>
+    <span data-statusbar-remote={state} style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-statusbar-remote-gap)", flex: "none" }}>
       <span style={{ display: "inline-flex", flex: "none", color: live ? "var(--tasty-statusbar-remote-fg)" : "var(--tasty-statusbar-glyph)" }}>
         <Icon name="remote" size="var(--tasty-statusbar-glyph-size)" />
       </span>
@@ -124,23 +125,23 @@ export function RemoteStatusBarSpec() {
       <Views>
         <View name="statusbar-remote-no-profile-a" label="No profile, option A — the target the connection used">
           <div style={{ display: "flex", flexDirection: "column", gap: 12, minWidth: 300 }}>
-            <Labeled label="--ssh or inline mapping — ssh destination"><Bar w={470} remote={{ host: SSH_DEST }} /></Labeled>
-            <Labeled label="--target-port or debug attach — 127.0.0.1:<port>"><Bar w={470} remote={{ host: LOOPBACK }} /></Labeled>
-            <Labeled label="reconnecting"><Bar w={470} remote={{ host: LOOPBACK, state: "reconnecting" }} /></Labeled>
+            <Labeled label="--ssh or inline mapping — ssh destination · 300, step 3"><Bar w={300} drop={3} remote={{ host: SSH_DEST }} /></Labeled>
+            <Labeled label="--target-port or debug attach — 127.0.0.1:<port> · 300, step 3"><Bar w={300} drop={3} remote={{ host: LOOPBACK }} /></Labeled>
+            <Labeled label="reconnecting · 300, step 3"><Bar w={300} drop={3} remote={{ host: LOOPBACK, state: "reconnecting" }} /></Labeled>
           </div>
         </View>
         <View name="statusbar-remote-no-host" label="No profile, option B — no host text (also any empty value)">
           <div style={{ display: "flex", flexDirection: "column", gap: 12, minWidth: 300 }}>
-            <Labeled label="connected — the word Remote holds the slot"><Bar w={470} remote={{ host: "" }} /></Labeled>
-            <Labeled label="reconnecting"><Bar w={470} remote={{ host: "", state: "reconnecting" }} /></Labeled>
+            <Labeled label="connected — the word Remote holds the slot · 300, step 3"><Bar w={300} drop={3} remote={{ host: "" }} /></Labeled>
+            <Labeled label="reconnecting · 300, step 3"><Bar w={300} drop={3} remote={{ host: "", state: "reconnecting" }} /></Labeled>
             <Labeled label="floor"><Bar w={120} drop={6} remote={{ host: "" }} /></Labeled>
-            {["ko", "ja", "zh-Hans"].map((lang) => <Labeled key={lang} label={lang}><Bar w={470} lang={lang} remote={{ host: "" }} /></Labeled>)}
+            {["ko", "ja", "zh-Hans"].map((lang) => <Labeled key={lang} label={`${lang} · 300, step 3`}><Bar w={300} drop={3} lang={lang} remote={{ host: "" }} /></Labeled>)}
           </div>
         </View>
         <View name="statusbar-remote-reconnecting-languages" label="Reconnecting — every language">
           <div style={{ display: "flex", flexDirection: "column", gap: 12, minWidth: 300 }}>
             {["en", "ko", "ja", "zh-Hans"].flatMap((lang) => [
-              <Labeled key={lang} label={`${lang} · 470`}><Bar w={470} lang={lang} remote={{ host: HOST, state: "reconnecting" }} /></Labeled>,
+              <Labeled key={lang} label={`${lang} · 300, step 3`}><Bar w={300} drop={3} lang={lang} remote={{ host: HOST, state: "reconnecting" }} /></Labeled>,
               <Labeled key={`${lang}-floor`} label={`${lang} · floor`}><Bar w={200} drop={6} lang={lang} remote={{ host: HOST, state: "reconnecting" }} /></Labeled>,
             ])}
           </div>
@@ -149,7 +150,7 @@ export function RemoteStatusBarSpec() {
           <div style={{ display: "flex", flexDirection: "column", gap: 16, minWidth: 300 }}>
             {[["connected", "connected", LONG], ["reconnecting", "reconnecting", MID], ["no host text", "connected", ""]].map(([label, state, host]) => (
               <Labeled key={label} label={label}>
-                <div style={{ paddingTop: 64, paddingLeft: 96 }}>
+                <div style={{ paddingTop: 72, display: "flex", justifyContent: "center", minWidth: 300 }}>
                   <Tooltip open placement="top" content={<BarTip state={state} host={host} />}>
                     <span style={{ display: "inline-flex", padding: "0 10px", height: "var(--tasty-status-bar-height)", alignItems: "center",
                       background: "var(--tasty-bg-sidebar)", border: "1px solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius-sm)", fontSize: "var(--tasty-font-size-caption)" }}>
