@@ -344,16 +344,14 @@ function childLayout(nodes) {
   return { pos, width: (maxDepth + 1) * NODE_W + maxDepth * LAYER_GAP, height: CHIP_ROOM + row * NODE_H + Math.max(0, row - 1) * SIB_GAP };
 }
 // One relation, parent → child: the DAG's depends_on edge (solid neutral, arrow at the child),
-// accent when it touches the selected card. cross = a line between machines (alternative 8b only).
+// accent when it touches the selected card. A parent and child on different machines take the same line.
 function childEdges(nodes, g) {
   const ids = new Set(nodes.map((n) => n.id));
   return nodes.filter((n) => n.parent && ids.has(n.parent) && g.pos[n.parent] && g.pos[n.id]).map((n) => {
     const a = g.pos[n.parent], b = g.pos[n.id];
-    const cross = !!n.crossMachine;
     return { key: `${n.parent}->${n.id}`, from: n.parent, to: n.id, td: false,
       s: { x: a.x + NODE_W, y: a.y + NODE_H / 2 }, t: { x: b.x, y: b.y + NODE_H / 2 },
-      color: cross ? "var(--tasty-accent-remote-raised)" : "var(--tasty-dag-edge-depends)",
-      dash: cross ? "var(--tasty-dag-edge-dash-reduce)" : null };
+      color: "var(--tasty-dag-edge-depends)", dash: null };
   });
 }
 // Base line only (checkbox off): ancestors to the root + every descendant of the base.

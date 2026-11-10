@@ -66,11 +66,12 @@ const CHILD_MIRROR = [
 const CHILD_MIRROR_BASE = "s_m2";
 // disconnected: the last graph stays, every remote state reads unknown
 const CHILD_MIRROR_LOST = CHILD_MIRROR.map((n) => (n.kind === "surface" ? { ...n, state: "unknown", confidence: "unobserved", evidence: "remote_disconnected" } : n));
-// alternative 7b / 8b: this computer's surface and the children it started on the remote, joined by a cross-machine line
+// across machines (user decision 4-7 to 4-9): A on this computer → B on a remote → C, one graph, ordinary lines
 const CHILD_CROSS = [
   S("s_L1", { nickname: "conductor", role: "conductor", workspace: "tasty" }),
-  R("s_R1", { parent: "s_L1", nickname: "linux-build", role: "worker", crossMachine: true, profile: null, ssh: "dev@10.0.0.12" }),
-  R("s_R2", { parent: "s_L1", nickname: "linux-test", role: "tester", state: "idle", crossMachine: true, evidence: "hook_idle" }),
+  R("s_R1", { parent: "s_L1", nickname: "linux-build", role: "worker", profile: null, ssh: "dev@10.0.0.12" }),
+  R("s_R3", { parent: "s_R1", nickname: "linux-check", role: "checker", state: "needs_input", profile: null, ssh: "dev@10.0.0.12", evidence: "hook_needs_input" }),
+  R("s_R2", { parent: "s_L1", nickname: "linux-test", role: "tester", state: "idle", profile: null, ssh: "dev@10.0.0.12", evidence: "hook_idle" }),
 ];
 // external parent (user decision 2026-11-10): its own card at the root, nothing traced beyond the key
 const CHILD_EXTERNAL = [

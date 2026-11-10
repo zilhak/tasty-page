@@ -131,10 +131,10 @@ export function ChildGraphSection() {
       </Spec>
 
       <Spec id="child-edges-one-relation" title="Edges — one relation"
-        when={<>A child graph has one relation, parent → child, so it takes the DAG's <code>depends_on</code> line: solid, neutral, elbowed with a 4px corner, an arrow at the child. Edges that touch the selected card take the accent, as in the DAG. No dashes, no relation colours. The <b>alternative</b> line between machines (NEEDS-USER 8b) is the only exception: remote ink and a fine dash.</>}>
+        when={<>A child graph has one relation, parent → child, so it takes the DAG's <code>depends_on</code> line: solid, neutral, elbowed with a 4px corner, an arrow at the child. Edges that touch the selected card take the accent, as in the DAG. No dashes, no relation colours. <b>Decided 4-7 to 4-9</b>: a parent and child on different machines are joined by this <b>same line</b> — the relation is the same; the remote glyph on the card already says which machine. Attach occupancy is never a line.</>}>
         <Stage variant="grid" style={{ display: "flex", gap: 32, padding: 20, flexWrap: "wrap" }}>
-          {[["parent → child", "var(--tasty-dag-edge-depends)", null, false], ["touching the selection", "var(--tasty-dag-edge-highlight)", null, false], ["between machines", "var(--tasty-accent-remote-raised)", "var(--tasty-dag-edge-dash-reduce)", true]].map(([l, c, d, alt]) => (
-            <Labelled key={l} label={l} alt={alt ? true : null}>
+          {[["parent → child", "var(--tasty-dag-edge-depends)", null, false], ["touching the selection", "var(--tasty-dag-edge-highlight)", null, false], ["between machines (4-7 to 4-9)", "var(--tasty-dag-edge-depends)", null, "decided"]].map(([l, c, d, tag]) => (
+            <Labelled key={l} label={l} tag={tag || null}>
               <svg width="120" height="56" viewBox="0 0 120 56" aria-hidden="true">
                 <path d={elbow({ x: 8, y: 8 }, { x: 112, y: 48 }, false, 4)} fill="none" stroke={c} strokeWidth="1" style={d ? { strokeDasharray: d } : undefined} />
                 <polygon points="105,44 105,52 112,48" fill={c} />
@@ -142,7 +142,7 @@ export function ChildGraphSection() {
             </Labelled>
           ))}
         </Stage>
-        <Meta specs={[["line", "1px solid dag-edge-depends · arrow 8 at the child"], ["selection", "dag-edge-highlight"], ["cross-machine (alt)", "accent-remote-raised · dash 2 3 — new graph-edge-remote tokens if chosen"]]}
+        <Meta specs={[["line", "1px solid dag-edge-depends · arrow 8 at the child"], ["selection", "dag-edge-highlight"], ["between machines", "the same line · no own colour or dash"]]}
           tokens={[{ tok: "--tasty-dag-edge-depends", use: "parent → child", color: "var(--tasty-dag-edge-depends)" }, { tok: "--tasty-dag-edge-highlight", use: "selected", color: "var(--tasty-dag-edge-highlight)" }]} />
       </Spec>
 
@@ -223,16 +223,16 @@ export function ChildGraphSection() {
           tokens={[]} />
       </Spec>
 
-      <Spec id="child-graph-mirror-scope-and-remote-ancestor" title="In a mirror — remote nodes, ancestors outside it (NEEDS-USER 8, 9)"
-        when={<><b>Recommended</b>: in a mirrored workspace the graph is the remote machine's own relations. Mirrored surfaces carry the remote glyph; the drawer adds the attach profile, or the SSH target with <i>(no saved profile)</i>. An ancestor in a remote workspace that is not mirrored here is drawn <b>read-only</b>: dashed card, <i>Not mirrored</i>, a drawer with rows and a note and no actions. <b>Alternative 7b / 8b</b>: show this computer's surface with the children it started on the remote, joined by the cross-machine line. Machine-to-machine occupancy is never drawn.</>}>
+      <Spec id="child-graph-mirror-scope-and-remote-ancestor" title="Across machines — one graph, read-only ancestors (decided 4-7 to 4-9)"
+        when={<><b>Decided</b>: parent and child relations that cross machines are <b>one graph</b> — this computer's surface <i>A</i>, its child <i>B</i> on a remote, and <i>B</i>'s child <i>C</i> read A → B → C with ordinary lines. Mirrored surfaces carry the remote glyph; the drawer adds the attach profile, or the SSH target with <i>(no saved profile)</i>. An ancestor in a remote workspace that is not mirrored here is drawn <b>read-only</b>: dashed card, <i>Not mirrored</i>, a drawer with rows and a note and no actions. Ancestors are followed to the root across workspaces and machines. Attach occupancy (which machine mirrors which) is never drawn.</>}>
         <Stage style={{ padding: 16, display: "block" }}>
           {row(<>
-            <Labelled label="remote relations + read-only ancestor (drawer open on it)" alt={false}><Frame w={640} h={320}><ChildView nodes={CHILD_MIRROR} baseId={CHILD_MIRROR_BASE} selected="s_m0" /></Frame></Labelled>
-            <Labelled label="a remote surface's drawer — attach profile" alt={false}><Frame w={640} h={320}><ChildView nodes={CHILD_MIRROR} baseId={CHILD_MIRROR_BASE} selected="s_m2" /></Frame></Labelled>
-            <Labelled label="this computer → its children on the remote, cross-machine line; inline SSH drawer" alt><Frame w={640} h={320}><ChildView nodes={CHILD_CROSS} baseId="s_L1" selected="s_R1" /></Frame></Labelled>
+            <Labelled label="read-only ancestor in a workspace not mirrored here (drawer open on it)" tag="decided"><Frame w={640} h={320}><ChildView nodes={CHILD_MIRROR} baseId={CHILD_MIRROR_BASE} selected="s_m0" /></Frame></Labelled>
+            <Labelled label="a remote surface's drawer — attach profile" tag="decided"><Frame w={640} h={320}><ChildView nodes={CHILD_MIRROR} baseId={CHILD_MIRROR_BASE} selected="s_m2" /></Frame></Labelled>
+            <Labelled label="A → B → C: this computer, then a remote child and its child; inline SSH drawer" tag="decided"><Frame w={640} h={320}><ChildView nodes={CHILD_CROSS} baseId="s_L1" selected="s_R1" /></Frame></Labelled>
           </>)}
         </Stage>
-        <Meta specs={[["remote card", "remote glyph in accent-remote-raised · state as usual"], ["read-only ancestor", "dashed · Not mirrored · drawer: role, id, workspace, attach profile, read-only note"], ["attach profile", "profile name · or SSH target + child_graph.drawer.attach_inline"], ["disconnected", "see graph-states: warning strip, remote states unknown"], ["cross line (alt 8b)", "remote ink · dash 2 3"]]}
+        <Meta specs={[["remote card", "remote glyph in accent-remote-raised · state as usual"], ["read-only ancestor", "dashed · Not mirrored · drawer: role, id, workspace, attach profile, read-only note"], ["attach profile", "profile name · or SSH target + child_graph.drawer.attach_inline"], ["disconnected", "see graph-states: warning strip, remote states unknown"], ["across machines", "same parent → child line"], ["attach", "occupancy not drawn"]]}
           tokens={[{ tok: "--tasty-accent-remote-raised", use: "remote glyph", color: "var(--tasty-accent-remote-raised)" }]} />
       </Spec>
 
