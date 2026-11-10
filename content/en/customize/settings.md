@@ -1,4 +1,4 @@
-<!-- source-hash: d8383ee3faf0 -->
+<!-- source-hash: 82a45060cfbe -->
 # Settings
 
 Tasty’s shell, fonts, language, and other preferences can be configured in the settings window or by editing `~/.tasty/config.toml` directly. Keybindings and themes have their own guides.
@@ -68,7 +68,7 @@ Change **Disconnect after** under **Settings** › **General** › **Remote atta
 
 | Section | Entries |
 |------|------|
-| **General** | **Shell** · **Startup command** · **Scrollback lines** (default 10000) · **Confirm close running process** · **Inherit working directory** · **Reverse-screen flash (DECSCNM)** · **Show bell notification** · **Link click modifier** (Ctrl / Alt / Disable left-click opening) · macOS: **Use Option as Meta** · Windows: **Shell mode** |
+| **General** | **Shell** · **Startup command** · **Scrollback lines** (default 10000) · **Confirm close running process** · **Inherit working directory** · **Reverse-screen flash (DECSCNM)** · **Show bell notification** · **Link click modifier** (Ctrl / Alt / Disable left-click opening) · macOS: **Use Option as Meta** |
 | **Input** | Per-app **Send a newline with Shift+Enter** rules — add an executable name (for example `claude`) and turn it on, and `Shift+Enter` sends a newline (LF) while that app takes the input. Turned off, or with no rule, it uses the platform's default encoding |
 | **Mouse Capture** | **Show mouse-capture hint** · **Let Tasty handle clicks in these programs** · **Don't show the capture notice for these programs** — process names or patterns such as `ht*` |
 | **TUI** | **Allow clipboard read (OSC 52)** — off by default. When on, programs inside the terminal can read the clipboard |
@@ -115,7 +115,6 @@ These tables are stored not in `config.toml` but in `~/.tasty/file-handlers.toml
 - **Scripts** — Register Lua scripts to run from a keybinding or an event ([Lua scripts](scripts.md)). Enter the file path (for example `~/.tasty/scripts/my-script.lua`) and a display name; attach the keybinding under **Keybindings** > **Run Scripts**. If the file changes after registration, a **changed** marker appears and you are asked to confirm on the next run.
 - **Task pipeline** — Size limits for the notes kept in a task graph's report. A note longer than the **Note size limit** is cut, and notes past the **Attempt report limit** are not stored, only counted. The first value must always be smaller than the second ([Task report](../agents/tasks.md)).
 - **Anomaly detection** — Change notification switches and thresholds for memory growth, repeated calls and call bursts. These are heuristic signals that normal work can trigger. Repeated calls counts the same call, rather than response latency. Turning notifications off keeps detection, recording and numeric editing active. Saved values apply from the next check. Out-of-range numbers are clamped on Enter or when leaving the field; Cancel discards the draft.
-- On Windows a **Tastyrc** section is added.
 
 ### Plugins
 

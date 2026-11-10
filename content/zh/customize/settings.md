@@ -1,4 +1,4 @@
-<!-- source-hash: d8383ee3faf0 -->
+<!-- source-hash: 82a45060cfbe -->
 # 设置
 
 Tasty 的 Shell、字体、语言等可在设置窗口中更改，也可直接编辑 `~/.tasty/config.toml` 进行配置。按键绑定和主题在各自的指南中详细说明。
@@ -68,7 +68,7 @@ Tasty 的 Shell、字体、语言等可在设置窗口中更改，也可直接�
 
 | 分区 | 设置项 |
 |------|------|
-| **常规** | **Shell** <!-- en: Shell --> · **启动命令** <!-- en: Startup command --> · **回滚缓冲区行数** <!-- en: Scrollback lines -->（默认 10000）· **关闭运行中进程前确认** <!-- en: Confirm close running process --> · **继承工作目录** <!-- en: Inherit working directory --> · **屏幕反色闪烁（DECSCNM）** <!-- en: Reverse-screen flash (DECSCNM) --> · **显示响铃通知** <!-- en: Show bell notification --> · **链接点击修饰键** <!-- en: Link click modifier -->（Ctrl / Alt / 禁用左键点击打开）· macOS：**将 Option 用作 Meta** <!-- en: Use Option as Meta --> · Windows：**Shell 模式** <!-- en: Shell mode --> |
+| **常规** | **Shell** <!-- en: Shell --> · **启动命令** <!-- en: Startup command --> · **回滚缓冲区行数** <!-- en: Scrollback lines -->（默认 10000）· **关闭运行中进程前确认** <!-- en: Confirm close running process --> · **继承工作目录** <!-- en: Inherit working directory --> · **屏幕反色闪烁（DECSCNM）** <!-- en: Reverse-screen flash (DECSCNM) --> · **显示响铃通知** <!-- en: Show bell notification --> · **链接点击修饰键** <!-- en: Link click modifier -->（Ctrl / Alt / 禁用左键点击打开）· macOS：**将 Option 用作 Meta** <!-- en: Use Option as Meta --> |
 | **输入** <!-- en: Input --> | 按终端应用设置的 **使用 Shift+Enter 发送换行符** <!-- en: Send a newline with Shift+Enter --> 规则——添加可执行文件名（例如 `claude`）并开启后，该应用接收输入期间，`Shift+Enter` 会发送换行符（LF）。关闭或没有规则时，按平台默认方式发送 |
 | **鼠标捕获** <!-- en: Mouse Capture --> | **显示鼠标捕获提示** <!-- en: Show mouse-capture hint --> · **让 Tasty 处理这些程序中的点击** <!-- en: Let Tasty handle clicks in these programs --> · **不为这些程序显示捕获通知** <!-- en: Don't show the capture notice for these programs -->——进程名或 `ht*` 等模式 |
 | **TUI** | **允许读取剪贴板（OSC 52）** <!-- en: Allow clipboard read (OSC 52) -->——默认关闭。开启后，终端内的程序可以读取剪贴板 |
@@ -115,7 +115,6 @@ Tasty 的 Shell、字体、语言等可在设置窗口中更改，也可直接�
 - **脚本** <!-- en: Scripts -->——注册通过按键绑定或事件执行的 Lua 脚本（[Lua 脚本](scripts.md)）。输入文件路径（例如 `~/.tasty/scripts/my-script.lua`）和显示名称，在 **按键绑定** > **运行脚本** 中分配按键绑定。注册后文件发生更改时，会显示 **已更改** <!-- en: changed --> 标记，并在下次运行时请求确认。
 - **任务流水线** <!-- en: Task pipeline -->——任务图的 report 中保留的记录大小上限。超过 **单条记录大小上限** <!-- en: Note size limit --> 的记录会被截断，超过 **单次尝试报告上限** <!-- en: Attempt report limit --> 的记录不会保存，只统计数量。前一个值必须始终小于后一个值（[任务 report](../agents/tasks.md)）。
 - **异常检测** <!-- en: Anomaly detection -->——更改内存增长、重复调用、调用激增的通知显示和阈值。这些是正常任务也可能触发的候选信号。重复调用统计的是同一调用的重复次数，而非响应延迟。关闭通知后仍会继续检测和记录，数值也可编辑。保存的值从下一次判定开始生效。超出范围的数值会在按 Enter 或移至其他输入框时校正，取消会丢弃编辑内容。
-- Windows 中会增加 **Tastyrc** 分区。
 
 ### 插件
 

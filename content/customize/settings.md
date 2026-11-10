@@ -67,7 +67,7 @@ Tasty의 셸, 글꼴, 언어 등은 설정 윈도우에서 바꾸거나 `~/.tast
 
 | 섹션 | 항목 |
 |------|------|
-| **일반** | **셸** <!-- en: Shell --> · **시작 명령어** <!-- en: Startup command --> · **스크롤백 줄 수** <!-- en: Scrollback lines --> (기본 10000) · **실행 중 프로세스 닫기 확인** <!-- en: Confirm close running process --> · **작업 디렉토리 상속** <!-- en: Inherit working directory --> · **화면 반전 플래시 (DECSCNM)** <!-- en: Reverse-screen flash (DECSCNM) --> · **벨 알림 표시** <!-- en: Show bell notification --> · **링크 클릭 수식키** <!-- en: Link click modifier --> (Ctrl / Alt / 좌클릭 열기 끄기) · macOS: **Option 을 Meta 로 사용** <!-- en: Use Option as Meta --> · Windows: **셸 모드** <!-- en: Shell mode --> |
+| **일반** | **셸** <!-- en: Shell --> · **시작 명령어** <!-- en: Startup command --> · **스크롤백 줄 수** <!-- en: Scrollback lines --> (기본 10000) · **실행 중 프로세스 닫기 확인** <!-- en: Confirm close running process --> · **작업 디렉토리 상속** <!-- en: Inherit working directory --> · **화면 반전 플래시 (DECSCNM)** <!-- en: Reverse-screen flash (DECSCNM) --> · **벨 알림 표시** <!-- en: Show bell notification --> · **링크 클릭 수식키** <!-- en: Link click modifier --> (Ctrl / Alt / 좌클릭 열기 끄기) · macOS: **Option 을 Meta 로 사용** <!-- en: Use Option as Meta --> |
 | **입력** <!-- en: Input --> | 터미널 앱별 **Shift+Enter로 줄바꿈 문자 보내기** <!-- en: Send a newline with Shift+Enter --> 규칙 — 실행 파일 이름(예: `claude`)을 추가하고 켜면 그 앱이 입력을 받는 동안 `Shift+Enter` 가 줄바꿈 문자(LF)를 보냅니다. 끄거나 규칙이 없으면 플랫폼 기본 방식으로 보냅니다 |
 | **마우스 캡처** <!-- en: Mouse Capture --> | **마우스 캡처 안내 표시** <!-- en: Show mouse-capture hint --> · **클릭을 Tasty가 처리할 프로그램** <!-- en: Let Tasty handle clicks in these programs --> · **캡처 안내를 다시 보지 않을 프로그램** <!-- en: Don't show the capture notice for these programs --> — 프로세스 이름 또는 `ht*` 같은 패턴 |
 | **TUI** | **클립보드 읽기 허용 (OSC 52)** <!-- en: Allow clipboard read (OSC 52) --> — 기본 꺼짐. 켜면 터미널 안 프로그램이 클립보드를 읽을 수 있습니다 |
@@ -114,7 +114,6 @@ Tasty의 셸, 글꼴, 언어 등은 설정 윈도우에서 바꾸거나 `~/.tast
 - **스크립트** <!-- en: Scripts --> — 단축키나 이벤트로 실행할 Lua 스크립트를 등록합니다 ([Lua 스크립트](scripts.md)). 파일 경로(예: `~/.tasty/scripts/my-script.lua`)와 표시 이름을 넣고, 단축키는 **단축키** > **스크립트 실행** 에서 붙입니다. 등록 뒤 파일이 바뀌면 **변경됨** <!-- en: changed --> 표시가 붙고 다음 실행 때 확인을 묻습니다.
 - **작업 파이프라인** <!-- en: Task pipeline --> — 작업 그래프의 report 에 남기는 기록의 크기 상한입니다. **기록 한 건 상한** <!-- en: Note size limit --> 을 넘는 기록은 잘리고, **회차 report 상한** <!-- en: Attempt report limit --> 을 넘는 기록은 저장하지 않고 개수만 셉니다. 앞의 값은 항상 뒤의 값보다 작아야 합니다 ([작업 report](../agents/tasks.md)).
 - **이상 탐지** <!-- en: Anomaly detection --> — 메모리 증가·반복 호출·호출 폭주의 알림 표시와 기준값을 바꿉니다. 정상 작업에서도 걸릴 수 있는 후보 신호입니다. 반복 호출은 응답 지연이 아니라 같은 호출의 반복 횟수를 셉니다. 알림을 꺼도 탐지와 기록은 계속되며 숫자는 편집할 수 있습니다. 저장한 값은 다음 판정부터 적용됩니다. 범위 밖 숫자는 Enter 또는 다른 칸으로 이동할 때 보정되고, 취소하면 편집 내용을 버립니다.
-- Windows 에서는 **Tastyrc** 섹션이 추가됩니다.
 
 ### 플러그인
 

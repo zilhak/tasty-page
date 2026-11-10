@@ -1,4 +1,4 @@
-<!-- source-hash: d8383ee3faf0 -->
+<!-- source-hash: 82a45060cfbe -->
 # 設定
 
 Tasty のシェル、フォント、言語などは、設定ウィンドウで変更するか、`~/.tasty/config.toml` を直接編集して設定できます。キーバインドとテーマは、それぞれのガイドで詳しく説明します。
@@ -68,7 +68,7 @@ Tasty のシェル、フォント、言語などは、設定ウィンドウで�
 
 | セクション | 項目 |
 |------|------|
-| **一般** | **シェル** <!-- en: Shell --> · **起動コマンド** <!-- en: Startup command --> · **スクロールバック行数** <!-- en: Scrollback lines --> （デフォルトは 10000） · **実行中のプロセスを閉じる前に確認** <!-- en: Confirm close running process --> · **作業ディレクトリを継承** <!-- en: Inherit working directory --> · **画面反転フラッシュ（DECSCNM）** <!-- en: Reverse-screen flash (DECSCNM) --> · **ベル通知を表示** <!-- en: Show bell notification --> · **リンククリックの修飾キー** <!-- en: Link click modifier --> （Ctrl / Alt / 左クリックで開く：オフ） · macOS: **Option を Meta として使用** <!-- en: Use Option as Meta --> · Windows: **シェルモード** <!-- en: Shell mode --> |
+| **一般** | **シェル** <!-- en: Shell --> · **起動コマンド** <!-- en: Startup command --> · **スクロールバック行数** <!-- en: Scrollback lines --> （デフォルトは 10000） · **実行中のプロセスを閉じる前に確認** <!-- en: Confirm close running process --> · **作業ディレクトリを継承** <!-- en: Inherit working directory --> · **画面反転フラッシュ（DECSCNM）** <!-- en: Reverse-screen flash (DECSCNM) --> · **ベル通知を表示** <!-- en: Show bell notification --> · **リンククリックの修飾キー** <!-- en: Link click modifier --> （Ctrl / Alt / 左クリックで開く：オフ） · macOS: **Option を Meta として使用** <!-- en: Use Option as Meta --> |
 | **入力** <!-- en: Input --> | ターミナルアプリごとの **Shift+Enterで改行文字を送信** <!-- en: Send a newline with Shift+Enter --> ルール — 実行ファイル名（例: `claude`）を追加してオンにすると、そのアプリが入力を受け取っている間、`Shift+Enter` が改行文字（LF）を送信します。オフにするかルールがない場合は、プラットフォームのデフォルトの方式で送信します |
 | **マウスキャプチャ** <!-- en: Mouse Capture --> | **マウスキャプチャのヒントを表示** <!-- en: Show mouse-capture hint --> · **クリックを Tasty で処理するプログラム** <!-- en: Let Tasty handle clicks in these programs --> · **キャプチャ通知を表示しないプログラム** <!-- en: Don't show the capture notice for these programs --> — プロセス名または `ht*` のようなパターンです |
 | **TUI** | **クリップボードの読み取りを許可（OSC 52）** <!-- en: Allow clipboard read (OSC 52) --> — デフォルトはオフです。オンにすると、ターミナル内のプログラムがクリップボードを読み取れます |
@@ -115,7 +115,6 @@ Tasty のシェル、フォント、言語などは、設定ウィンドウで�
 - **スクリプト** <!-- en: Scripts --> — ショートカットやイベントで実行する Lua スクリプトを登録します（[Lua スクリプト](scripts.md)）。ファイルパス（例: `~/.tasty/scripts/my-script.lua`）と表示名を入力し、ショートカットは **キーバインド** > **スクリプト実行** で割り当ててください。登録後にファイルが変更されると **変更あり** <!-- en: changed --> と表示され、次回実行時に確認を求められます。
 - **タスクパイプライン** <!-- en: Task pipeline --> — タスクグラフの report に残す記録のサイズ上限です。**記録 1 件の上限** <!-- en: Note size limit --> を超える記録は切り詰められ、**試行 report 上限** <!-- en: Attempt report limit --> を超える記録は保存せず、件数だけを数えます。前の値は常に後の値より小さくなければなりません（[タスク report](../agents/tasks.md)）。
 - **異常検出** <!-- en: Anomaly detection --> — メモリ増加・繰り返し呼び出し・呼び出しの急増について、通知の表示としきい値を変更します。正常なタスクでも検出されることがある候補のシグナルです。繰り返し呼び出しは、応答の遅延ではなく同じ呼び出しの繰り返し回数を数えます。通知をオフにしても検出と記録は続き、数値も編集できます。保存した値は次の判定から適用されます。範囲外の数値は Enter を押すか別の欄に移動すると補正され、キャンセルすると編集内容を破棄します。
-- Windows では **Tastyrc** セクションが追加されます。
 
 ### プラグイン
 
