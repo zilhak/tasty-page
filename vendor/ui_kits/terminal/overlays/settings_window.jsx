@@ -1026,11 +1026,11 @@ function SettingsWindow({ theme, onTheme, uiScale, onUiScale, onClose, os = DEFA
           <Row label="Inherit working directory:"><Switch defaultChecked /></Row>
           {/* 2026-11-10 (R-56): macOS choices are the physical keys, always as words (Ctrl · Option · Cmd) —
               a settings choice, not a shortcut rendering, so the key display settings do not apply.
-              Ctrl is the current value, not a decided default. Whether "Disable left-click opening" stays, the OS defaults and the Windows / Linux choices await the user's
-              answer; the non-macOS branch below is the old kit row, NOT redrawn. */}
+              Windows / Linux offer Ctrl · Alt (no Win / Super). Every OS keeps "Disable left-click opening"
+              and defaults to Ctrl. No caption on any OS. */}
           {IS_MAC
             ? <Row label="Link click modifier:"><Select options={["Ctrl", "Option", "Cmd", "Disable left-click opening"]} defaultValue="Ctrl" style={{ width: "var(--tasty-field-width-md)" }} /></Row>
-            : <Row label="Link click modifier:"><Select options={["Ctrl", "Alt", "Shift", "None"]} defaultValue="Ctrl" style={{ width: "var(--tasty-field-width-md)" }} /></Row>}
+            : <Row label="Link click modifier:"><Select options={["Ctrl", "Alt", "Disable left-click opening"]} defaultValue="Ctrl" style={{ width: "var(--tasty-field-width-md)" }} /></Row>}
           {!IS_WINDOWS && <Row label="Option as Meta (macOS):"><Switch /></Row>}
         </>
       );
