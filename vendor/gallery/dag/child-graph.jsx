@@ -259,15 +259,21 @@ export function ChildGraphSection() {
           tokens={[{ tok: "--tasty-text-muted", use: "row labels", color: "var(--tasty-text-muted)" }, { tok: "--tasty-text-secondary", use: "row values", color: "var(--tasty-text-secondary)" }]} />
       </Spec>
 
-      <Spec id="child-graph-entry-points" title="Entry points (NEEDS-USER 1, 2, 3)"
-        when={<><b>Tools menu</b>: <i>Open child graph</i> right after <i>Task DAGs</i>. <b>NEEDS-USER 1, recommended</b>: no default shortcut — the item, the command palette and a user binding open it. <b>Alternative</b>: a default <Kbd keys="Ctrl+Shift+M" /> (⌘⇧M) row in Keybindings. A terminal surface's context menu takes the same label when it is adopted. <b>NEEDS-USER 3</b>: the surface kind shows as <i>Child graph</i> in its tab and in the convert list, whatever the kind id ends up being. <b>Decided 4-2</b>: no new entry for DAGs — the Task DAGs popup lists them and a pick goes to the graph inside the same popup (the Task DAG page's popup spec).</>}>
+      <Spec id="child-graph-entry-points" title="Entry points and default shortcuts (decided 4-1, 4-2, 4-3)"
+        when={<><b>Tools menu</b>: <i>Open child graph</i> right after <i>Task DAGs</i>. <b>Decided 4-1</b>: default shortcuts — the child graph popup <Kbd keys="Alt+G" /> (macOS <Kbd keys={["⌘", "G"]} />), the Task DAGs popup <Kbd keys="Alt+Y" />. Keybindings and the command palette list them by action name. The Tools menu shows no keys, as today. A terminal surface's context menu takes the same label when it is adopted. <b>Decided 4-3</b>: the surface kind is <code>child_graph</code>; it shows as <i>Child graph</i> in its tab and in the convert list. <b>Decided 4-2</b>: no new entry for DAGs — the Task DAGs popup lists them and a pick goes to the graph inside the same popup (the Task DAG page's popup spec).</>}>
         <Stage style={{ padding: 16, display: "block" }}>
           {row(<>
-            <Labelled label="Tools menu — the new item" alt={false}><div style={{ width: 360 }}><ToolsMenuFrame active="Open child graph" height={380} /></div></Labelled>
-            <Labelled label="default shortcut, as the palette shows it (NEEDS-USER 1)" alt>
+            <Labelled label="Tools menu — the new item" tag="decided"><div style={{ width: 360 }}><ToolsMenuFrame active="Open child graph" height={380} /></div></Labelled>
+            <Labelled label="default shortcuts — Windows and Linux (4-1)" tag="decided">
               <div style={{ width: 320, padding: "var(--tasty-space-sm)", background: "var(--tasty-menu-bg)", border: "var(--tasty-border-width) solid var(--tasty-menu-border)", borderRadius: "var(--tasty-radius)" }}>
-                <MenuItem label={gt("child_graph.keybinding_action")} shortcut="Ctrl+Shift+M" />
-                <MenuItem label="Task DAGs" shortcut="Ctrl+Shift+G" />
+                <MenuItem label={gt("child_graph.keybinding_action")} shortcut={<Kbd keys={"Alt+G"} />} />
+                <MenuItem label={gt("dag_list.keybinding_action")} shortcut={<Kbd keys={"Alt+Y"} />} />
+              </div>
+            </Labelled>
+            <Labelled label="default shortcuts — macOS (child graph decided; Task DAGs see the note)" tag="decided">
+              <div style={{ width: 320, padding: "var(--tasty-space-sm)", background: "var(--tasty-menu-bg)", border: "var(--tasty-border-width) solid var(--tasty-menu-border)", borderRadius: "var(--tasty-radius)" }}>
+                <MenuItem label={gt("child_graph.keybinding_action")} shortcut={<Kbd keys={["⌘", "G"]} />} />
+                <MenuItem label={gt("dag_list.keybinding_action")} shortcut={<Kbd keys={["⌥", "Y"]} />} />
               </div>
             </Labelled>
             <Labelled label="terminal context menu (when adopted)">
@@ -275,12 +281,13 @@ export function ChildGraphSection() {
                 <MenuItem label="Copy" /><MenuItem label="Paste" /><MenuItem separator /><MenuItem label={gt("child_graph.surface_menu_item")} active />
               </div>
             </Labelled>
-            <Labelled label="kind name in a tab (NEEDS-USER 3)">
+            <Labelled label="kind child_graph — name in a tab (4-3)" tag="decided">
               <div style={{ display: "flex", background: "var(--tasty-bg-sidebar)", padding: "var(--tasty-space-xs)" }}><Tab label={gt("child_graph.kind_name")} active /><Tab label="zsh" /></div>
             </Labelled>
           </>)}
         </Stage>
-        <Meta specs={[["Tools menu", "child_graph.tools_menu_item, after Task DAGs"], ["shortcut (alt)", "child_graph.keybinding_action · Ctrl+Shift+M / ⌘⇧M"], ["context menu", "child_graph.surface_menu_item"], ["kind name", "child_graph.kind_name — tab title and convert list"]]} tokens={[]} />
+        <Meta specs={[["Tools menu", "child_graph.tools_menu_item, after Task DAGs"], ["child graph key", "Alt+G · macOS ⌘G · child_graph.keybinding_action"], ["Task DAGs key", "Alt+Y · macOS ⌥Y (assumed) · dag_list.keybinding_action"], ["kind", "child_graph"], ["context menu", "child_graph.surface_menu_item"], ["kind name", "child_graph.kind_name — tab title and convert list"]]} tokens={[]} />
+              <Note>The decision names Alt+Y for the Task DAGs popup but no macOS key. The macOS row draws <Kbd keys={["⌥", "Y"]} /> (Alt on a Mac keyboard) as an assumption; see the question list.</Note>
       </Spec>
 
       <Spec id="child-graph-settings-default-row" title="Settings — the full tree default"

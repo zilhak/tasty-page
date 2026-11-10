@@ -22,7 +22,7 @@ const TOOLS_BUILTIN = [
   { id: "presets", label: "Presets" },
   { id: "tutorial", label: "Tutorial…" },
   { id: "dags", label: "Task DAGs" },
-  { id: "child_graph", label: gt("child_graph.tools_menu_item") }, // 2026-11-10 — child graph popup, no default shortcut (NEEDS-USER 1 recommendation)
+  { id: "child_graph", label: gt("child_graph.tools_menu_item") }, // 2026-11-10 — child graph popup; default shortcut Alt+G (macOS ⌘G), user decision 4-1. Task DAGs: Alt+Y
   { id: "open", label: "Open File…" },
 ];
 const TOOLS_PLUGIN = [
