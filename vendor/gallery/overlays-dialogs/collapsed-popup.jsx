@@ -37,7 +37,7 @@ function CollapsedPopupSpec() {
       </Stage>
       <Views>
         <View name="tooltip" label="tooltip — pointer hover or key focus">
-          <div style={{ padding: "48px 16px 16px", background: "var(--tasty-surface-terminal-focused-bg)", borderRadius: "var(--tasty-radius)", display: "flex", justifyContent: "center", width: 360 }}>
+          <div style={{ padding: "96px 16px 16px", background: "var(--tasty-surface-terminal-focused-bg)", borderRadius: "var(--tasty-radius)", display: "flex", justifyContent: "center", width: 440 }}>
             <Tooltip open placement="top" content={COLLAPSED_COPY.en[1]}>
               <CollapsedPopupButton kind="label" ring scrim={false} label={COLLAPSED_COPY.en[0]} />
             </Tooltip>
@@ -58,7 +58,7 @@ function CollapsedPopupSpec() {
           ["frame", <>the popup's own frame: <span className="tok">--tasty-bg-panel</span> · 1px <span className="tok">--tasty-border-frame</span> · 4 radius · padding <span className="tok">--tasty-popup-content-margin</span> 4 · the button only</>],
           ["shadow", "shadow-modal on a scrim · shadow-popover when the popup has no scrim (the two floating shadows)"],
           ["button", <>Button.secondary md 28 · leading glyph <code>fit</code> 14 · label <code>popup.collapsed_button.label</code></>],
-          ["frame size", "button + 2 × 4 + 2 × 1 → 38 tall; en label frame ≈ 126 wide (estimate from the rendered en button)"],
+          ["frame size", "button + 2 × 4 + 2 × 1 → 38 tall · label frame as rendered here: en 134 · ko 109 · ja 175 · zh-Hans 110 wide · icon frame 38 × 38"],
           ["place", "centred on the popup's anchor pulled into the surface bounds (host: bounds centre · plugin ScreenCenter / ActiveSurfaceCenter: bounds centre · plugin Cursor: the pointer), re-centred on the frame's own size"],
           ["too narrow for the label", "label frame wider than the bounds → icon frame: IconButton solid 28, same glyph, accessible name = the label, tooltip unchanged"],
           ["too small for the icon", "on each axis the icon frame does not fit, its start edge sits on the bounds' start edge (the inset as reduced for a small surface) and the surface rect cuts its end; an axis that fits keeps its anchor alignment · never omitted — the popup is open and holds focus"],
