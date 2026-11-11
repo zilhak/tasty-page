@@ -82,7 +82,7 @@ export function FallbackMenuSection() {
   return (
     <Section id="fallback" title="Fallback context menu">
       <Spec id="fallback-context-menu" title="Fallback context menu — only where the native menu cannot open"
-        when={<>Every context menu is the <b>OS menu</b>. Tasty draws this menu <b>only where the native menu cannot be opened</b>: on Linux under the display backend causes 1 (native Wayland, no XWayland), 1b (the X server in <code>DISPLAY</code> unreachable) and 2 (<code>GDK_BACKEND=wayland</code>). It is never a setting and never shown beside an OS menu, so on X11, macOS and Windows nothing changes. It draws the <b>same item model, row for row</b> (label, enabled, reason, shortcut, icon, separator) at all 13 places that open a context menu, and adds nothing: no title, no fallback marker, no extra row, no toast. No submenu, no check mark. It is an anchored popup in the visual language of the Tools menu: no scrim, it closes on a click outside, <Kbd keys="Esc" />, focus loss or running a row.</>}>
+        when={<>Every context menu is the <b>OS menu</b>. Tasty draws this menu <b>only where the native menu cannot be opened</b>, whatever the reason. On Linux that is the display backend causes 1 (native Wayland, no XWayland), 1b (the X server in <code>DISPLAY</code> unreachable) and 2 (<code>GDK_BACKEND=wayland</code>), and any other GTK init failure (an X11 window whose GTK did not start). It is never a setting and never shown beside an OS menu, so wherever the OS menu opens (X11 with GTK, macOS, Windows) nothing changes. It draws the <b>same item model, row for row</b> (label, enabled, reason, shortcut, icon, separator) at all 13 places that open a context menu, and adds nothing: no title, no fallback marker, no extra row, no toast. No submenu, no check mark. It is an anchored popup in the visual language of the Tools menu: no scrim, it closes on a click outside, <Kbd keys="Esc" />, focus loss or running a row.</>}>
         <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
           <FallbackMenuDemo />
           <FallbackWindow w={480} h={200} click={{ x: 24, y: 24 }} caption="Explorer more menu · disabled rows · reason on hover">
@@ -143,7 +143,7 @@ export function FallbackMenuSection() {
         </Views>
         <Meta
           specs={[
-            ["where", "only where the native menu cannot open: Linux, display backend causes 1, 1b, 2 · OS menu everywhere else"],
+            ["where", "only where the native menu cannot open: Linux, display backend causes 1, 1b, 2 and any other GTK init failure (X11 window) · OS menu everywhere else"],
             ["items", "the native menu's item model, unchanged: label · enabled · tooltip (reason) · shortcut · icon · separator · no submenu, check or danger ink · no fallback marker"],
             ["container", "anchored popup, no scrim · menu-bg · menu-border 1px · menu-radius · popup-content-margin 4 ring · shadow-popover"],
             ["rows", "MenuItem 28 · label wraps (fixed copy) past the max width, never ellipsizes · shortcut = Kbd at the right end"],
@@ -169,8 +169,8 @@ export function FallbackMenuSection() {
             { tok: "--tasty-surface-active", use: "keyboard-active row", color: "var(--tasty-surface-active)" },
             { tok: "--tasty-tooltip-bg", use: "reason bubble", color: "var(--tasty-tooltip-bg)" },
           ]} />
-        <Note>The menus here are Explorer's file menu and its more menu, with the app's labels. The same shape draws every menu the app opens with the OS menu: tab, pane, workspace, category header, sidebar background, the new workspace and new tab buttons, terminal, terminal link, other surfaces, Explorer items, favorites and more. There is no indicator that this is a fallback: in these environments it is the only menu the user sees, and the cause is already named where it matters (page notices, clipboard toasts).</Note>
-        <Dont><b>Don't</b> draw this menu where the OS menu opens, offer it as a preference, or give it rows, order or wording the native menu does not have.</Dont>
+        <Note>The menus here are Explorer's file menu and its more menu, with the app's labels. The same shape draws every menu the app opens with the OS menu: tab, pane, workspace, category header, sidebar background, the new workspace and new tab buttons, terminal, terminal link, other surfaces, Explorer items, favorites and more. There is no indicator that this is a fallback: in these environments it is the only menu the user sees, and the cause is already named where it matters (page notices, clipboard toasts; after a GTK init failure, the page notice only).</Note>
+        <Dont><b>Don't</b> draw this menu where the OS menu opens, choose it from a list of causes instead of from whether the native menu opened, offer it as a preference, or give it rows, order or wording the native menu does not have.</Dont>
       </Spec>
     </Section>
   );

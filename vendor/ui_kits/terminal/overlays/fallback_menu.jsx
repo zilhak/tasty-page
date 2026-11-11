@@ -4,10 +4,11 @@ import { Tooltip } from "../../../components/feedback/Tooltip.jsx";
 import { Kbd } from "../../../components/core/Kbd.jsx";
 
 // Tasty UI kit — fallback context menu (2026-11-11).
-// Rule: Tasty draws this menu ONLY where the native (OS) context menu cannot be opened: Linux with the display
-// backend causes 1 (native Wayland, no XWayland), 1b (the X server in DISPLAY unreachable) and 2
-// (GDK_BACKEND=wayland). Everywhere else every context menu stays the OS menu. It is never offered as a choice and
-// never shown next to an OS menu.
+// Rule: Tasty draws this menu ONLY where the native (OS) context menu cannot be opened. That is decided by whether
+// the native menu can open, not by a list of causes: today it is Linux with the display backend causes 1 (native
+// Wayland, no XWayland), 1b (the X server in DISPLAY unreachable) and 2 (GDK_BACKEND=wayland), and any other GTK
+// init failure (gtk-init: an X11 window with GDK_BACKEND unset or allowing x11). Everywhere else, X11 with GTK
+// included, every context menu stays the OS menu. It is never offered as a choice and never shown next to an OS menu.
 // It draws the same item model as the native menu, row for row: label, enabled, tooltip (the reason a row is off),
 // shortcut, icon, separator. No submenu, no check mark, no danger ink (the model has none), and nothing of its own:
 // no title, no "fallback" marker, no extra row.
