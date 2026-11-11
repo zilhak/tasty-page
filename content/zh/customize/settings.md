@@ -1,4 +1,4 @@
-<!-- source-hash: 72aee20d7a9a -->
+<!-- source-hash: 8d264fb31f63 -->
 # 设置
 
 Tasty 的 Shell、字体、语言等可在设置窗口中更改，也可直接编辑 `~/.tasty/config.toml` 进行配置。按键绑定和主题在各自的指南中详细说明。
@@ -64,7 +64,7 @@ Tasty 的 Shell、字体、语言等可在设置窗口中更改，也可直接�
 
 在 **设置** <!-- en: Settings --> › **常规** <!-- en: General --> › **远程附加** 中更改 **断开前等待时长**。按 Enter 或移至其他输入框确认输入时，超出范围的数值会调整：小于 10 秒调整为 10 秒，大于 600 秒调整为 600 秒。保存的值无需重启即可应用于新连接，已打开的连接保持原样。两端 Tasty 各自使用自己的值，因此对端可能先断开。不读取配置文件的 CLI 附加使用 30 秒。
 
-**设置** <!-- en: Settings --> › **常规** <!-- en: General --> › **远程附加** <!-- en: Remote attach --> 中的 **重新连接尝试时长** <!-- en: Keep reconnecting for --> 控制连接中断后自动重新连接的持续时间。默认 300 秒，范围 0~3600 秒，0 禁用自动重新连接。不适用于手动断开的连接。配置键为 `[remote_attach] reconnect_timeout_secs`。
+**设置** <!-- en: Settings --> › **常规** <!-- en: General --> › **远程附加** <!-- en: Remote attach --> 中的 **重新连接尝试时长** <!-- en: Keep reconnecting for --> 控制已保存远程行的连接中断后自动重新连接的持续时间。默认 300 秒，范围 0~3600 秒，0 禁用自动重新连接。不适用于手动断开的连接。配置键为 `[remote_attach] reconnect_timeout_secs`。
 
 ### 终端
 
@@ -243,9 +243,9 @@ title = "내 클립보드"
 
 常规设置保存在此文件中。处理器表和主题文件等使用上文说明的独立路径。缺失的键会读取默认值，因此只需填写需要的项。
 
-`[remote_attach]` 的 `heartbeat_timeout_secs` 是远程附加连接在对端无响应时等待的时间。单位为秒，默认值为 30，范围为 10~600。文件中的值超出范围时，会恢复为默认值 30 并重新保存到配置文件，警告仅写入日志。直接编辑配置文件的内容会在下次启动 Tasty 时读取。要在不重启的情况下应用于新连接，请在设置窗口中更改并保存。
+`[remote_attach]` 的 `heartbeat_timeout_secs` 是远程附加连接在对端无响应时等待的时间。单位为秒，默认值为 30，范围为 10~600。文件中的任一值超出范围时，会将整个 `[remote_attach]` 恢复为默认值（`heartbeat_timeout_secs = 30`、`reconnect_timeout_secs = 300`），重新写入配置文件，警告仅写入日志。直接编辑配置文件的内容会在下次启动 Tasty 时读取。要在不重启的情况下应用于新连接，请在设置窗口中更改并保存。
 
-`[remote_attach]` 中的 `reconnect_timeout_secs` 为已保存远程行的自动重新连接尝试时长，单位为秒，默认 300，范围 0~3600。0 禁用自动重新连接，不重试手动断开的连接。文件中超出范围的值恢复为 300。
+`[remote_attach]` 中的 `reconnect_timeout_secs` 为已保存远程行的自动重新连接尝试时长，单位为秒，默认 300，范围 0~3600。0 禁用自动重新连接，不重试手动断开的连接。文件中的任一值超出范围时，会将整个 `[remote_attach]` 恢复为默认值（`heartbeat_timeout_secs = 30`、`reconnect_timeout_secs = 300`），重新写入配置文件，警告仅写入日志。
 
 配置文件中的字体值（如 `[appearance.default_font]` 中的 `font_family`）无法使用时，启动 Tasty 后，主窗口会为每个值显示一条警告通知。通知正文中会显示对应的值，界面会使用其他字体显示。显示通知的窗口和显示时长遵循上方外观部分的说明。智能体通过命令应用的字体值即使无法使用，也只写入日志，不会显示警告通知。
 
@@ -310,7 +310,7 @@ dir = ""                         # 留空时使用 ~/.tasty/transfers/
 max_mb = 500
 
 [remote_attach]
-reconnect_timeout_secs = 300     # 0~3600 s; 0 = off
+reconnect_timeout_secs = 300     # 重新连接尝试时长（秒），0~3600，0 禁用自动重新连接
 heartbeat_timeout_secs = 30      # 对端无响应时等待至断开的时间(秒), 10~600, 从新连接开始生效
 
 [webhook]
