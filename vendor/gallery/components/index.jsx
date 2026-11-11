@@ -731,47 +731,25 @@ function Components() {
         </Spec>
 
         <Spec id="toast-display-backend" title="Toast — display backend notices"
-          when={<>On Linux, when Tasty runs on <b>native Wayland</b> (no XWayland, cause 1; or the X server in <code>DISPLAY</code> unreachable, cause 1b) or was started with <b><code>GDK_BACKEND=wayland</code></b> (cause 2), opening a menu raises a toast <b>instead of the menu</b>, and a copy or paste that cannot reach other apps raises one too. Each toast is the user's action answered: <b>what is off, why, and the fix</b>, in one card. The cause 2 toast also names the tray icon and HTML and Markdown views, so the missing tray needs no notice of its own. <b>warning</b> rail: the action did nothing the user can fix inside Tasty, which is neither a failure of the action (danger) nor news (info). No button and no hint: a toast takes no input, and the fix is outside Tasty.</>}>
+          when={<>On Linux, when Tasty runs on <b>native Wayland</b> (no XWayland, cause 1; or the X server in <code>DISPLAY</code> unreachable, cause 1b) or was started with <b><code>GDK_BACKEND=wayland</code></b> (cause 2), a copy or paste that cannot reach other apps raises a toast. Menus raise none: there Tasty opens its fallback menu. Each toast is the user's action answered: <b>what is off, why, and the fix</b>, in one card. <b>warning</b> rail: the action did nothing the user can fix inside Tasty, which is neither a failure of the action (danger) nor news (info). No button and no hint: a toast takes no input, and the fix is outside Tasty.</>}>
           <Stage variant="column" style={{ gap: 10, alignItems: "stretch", maxWidth: 380 }}>
-            <Toast variant="warning">{dbt("toast.menu_native_wayland")}</Toast>
-            <Toast variant="warning">{dbt("toast.menu_native_wayland_x_failed")}</Toast>
-            <Toast variant="warning">{dbt("toast.gdk_backend_wayland")}</Toast>
             <Toast variant="warning">{dbt("toast.clipboard_wayland_unsupported")}</Toast>
             <Toast variant="warning">{dbt("toast.clipboard_files_wayland_copy")}</Toast>
             <Toast variant="warning">{dbt("toast.clipboard_files_wayland_paste")}</Toast>
           </Stage>
           <Views>
-            {["toast.menu_native_wayland", "toast.menu_native_wayland_x_failed", "toast.gdk_backend_wayland", "toast.clipboard_wayland_unsupported", "toast.clipboard_wayland_x_failed", "toast.clipboard_files_wayland_copy", "toast.clipboard_files_wayland_paste", "toast.clipboard_files_wayland_x_failed_copy", "toast.clipboard_files_wayland_x_failed_paste"].map((key) => (
+            {["toast.clipboard_wayland_unsupported", "toast.clipboard_wayland_x_failed", "toast.clipboard_files_wayland_copy", "toast.clipboard_files_wayland_paste", "toast.clipboard_files_wayland_x_failed_copy", "toast.clipboard_files_wayland_x_failed_paste"].map((key) => (
               <View key={key} name={`toast-db-${key.slice(6).replace(/_/g, "-")}`} label={`${key}, en · ko · ja · zh-Hans`}>
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "var(--tasty-space-sm)" }}>
                   {DB_LANGS.map((lang) => <Toast key={lang} variant="warning">{dbt(key, lang)}</Toast>)}
                 </div>
               </View>
             ))}
-            {["a", "b"].map((b) => (
-              <View key={"j1" + b} name={`toast-db-j1-${b}`} label={`J1 branch ${b} (undecided) · ${b === "a" ? "every menu open" : "once per session"}`}>
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "var(--tasty-space-sm)" }}>
-                  <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>1st menu open in this session</span>
-                  <Toast variant="warning">{dbt("toast.menu_native_wayland")}</Toast>
-                  <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>Each later menu open</span>
-                  {b === "a"
-                    ? <Toast variant="warning">{dbt("toast.menu_native_wayland")}</Toast>
-                    : <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>No menu and no toast</span>}
-                </div>
-              </View>
-            ))}
-            {["toast.menu_native_wayland", "toast.menu_native_wayland_x_failed"].map((key) => (
-              <View key={"j2b" + key} name={`toast-db-j2b-${key.slice(6).replace(/_/g, "-")}`} label={`J2 branch b (undecided), ${key}, en · ko`}>
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "var(--tasty-space-sm)" }}>
-                  {["en", "ko"].map((lang) => <Toast key={lang} variant="warning">{dbt(key, lang, "b")}</Toast>)}
-                </div>
-              </View>
-            ))}
           </Views>
           <Meta
-            specs={[["variant", "warning (rail accent-warning)"], ["variant change", "the three clipboard toasts (terminal, Explorer copy, Explorer paste) are Info today; on native Wayland they become warning. The X11 failure toasts toast.clipboard_files_internal_copy / _paste keep their current variant"],["card", "the Toast card as it is · no icon, no hint, no button"], ["body", "what is off · cause · fix · one string per key, at most 200 characters in every language, wraps in the 320 card"], ["menu", "raised instead of a menu: toast.menu_native_wayland (1) · _x_failed (1b) · toast.gdk_backend_wayland (2, also tray and HTML / Markdown views)"], ["terminal clipboard", "toast.clipboard_wayland_unsupported (1, same key, new value) · toast.clipboard_wayland_x_failed (1b)"], ["Explorer clipboard", "native Wayland: toast.clipboard_files_wayland_copy / _paste (1) · _x_failed_copy / _paste (1b) · any other system clipboard failure keeps toast.clipboard_files_internal_copy / _paste"], ["cause 2 clipboard", "none: under cause 2 the window is X11, so by the code path the clipboard is not affected (not measured by running)"], ["tray (cause 2)", "named in the cause 2 menu toast and page notice · no toast when minimizing"], ["J1 (undecided)", "a: every menu open · b: once per session — same card and copy either way (Views)"], ["J2 (undecided)", "a: no mention of file drops · b: the cause 1 and 1b menu toasts also name them (Views)"]]}
+            specs={[["variant", "warning (rail accent-warning)"], ["variant change", "the three clipboard toasts (terminal, Explorer copy, Explorer paste) are Info today; on native Wayland they become warning. The X11 failure toasts toast.clipboard_files_internal_copy / _paste keep their current variant"],["card", "the Toast card as it is · no icon, no hint, no button"], ["body", "what is off · cause · fix · one string per key, at most 200 characters in every language, wraps in the 320 card"], ["terminal clipboard", "toast.clipboard_wayland_unsupported (1, same key, new value) · toast.clipboard_wayland_x_failed (1b)"], ["Explorer clipboard", "native Wayland: toast.clipboard_files_wayland_copy / _paste (1) · _x_failed_copy / _paste (1b) · any other system clipboard failure keeps toast.clipboard_files_internal_copy / _paste"], ["cause 2 clipboard", "none: under cause 2 the window is X11, so by the code path the clipboard is not affected (not measured by running)"], ["tray (cause 2)", "named only in the cause 2 page notice title (webview.gdk_backend) · no toast when minimizing"], ["J2 (on hold)", "whether these toasts also name file drops from other apps waits on the product owner · values as drawn until then"]]}
             tokens={[{ tok: "--tasty-accent-warning", use: "rail", color: "var(--tasty-accent-warning)" }, { tok: "--tasty-surface-raised", use: "card", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-toast-max-width", use: "card width cap (320)" }]} />
-          <Note>These notices are long for a toast. Whether they need a longer life than the 2 s default is an open question for the product owner; the card does not change either way.</Note>
+          <Note>These notices are long for a toast, but their life is the global toast setting like every other toast (2 s by default); none of them has a life of its own.</Note>
         </Spec>
 
         <Spec id="toast-stack" title="Toast stack"
