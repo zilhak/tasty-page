@@ -80,10 +80,10 @@ const DB_NOTICE = { "native-wayland": "webview.native_wayland", "native-wayland-
 // kind: boundary | empty | loading | failed | receiving | paused | macos | disconnected
 //       | native-wayland | native-wayland-x | gdk-backend (display-backend notices: html, markdown and html mirror alike)
 // hint: the empty tab's address hint (+ Alt+L). Only a surface with an address band has one; without it the slot stays empty.
-// lang, j2: the notices' language and J2 branch ("a" | "b", undecided). The other kinds are en only, as the gallery is.
-function HtmlPageState({ kind = "empty", progress = "1.4 MB · 12 files", url, hint = true, lang = "en", j2 = "a" }) {
+// lang: the notices' language. The other kinds are en only, as the gallery is.
+function HtmlPageState({ kind = "empty", progress = "1.4 MB · 12 files", url, hint = true, lang = "en" }) {
   const db = DB_NOTICE[kind];
-  if (db) return <HaCenter notice glyph="info" title={dbt(db, lang, j2)} sub={dbt(`${db}_sub`, lang)} />;
+  if (db) return <HaCenter notice glyph="info" title={dbt(db, lang)} sub={dbt(`${db}_sub`, lang)} />;
   switch (kind) {
     case "boundary": return <div style={{ flex: 1, minHeight: 0 }} />;
     case "empty": return <HaCenter glyph="html" title={PS_COPY.emptyTitle} sub={hint ? <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-xs)" }}>{PS_COPY.emptyHint} · <Kbd keys={["Alt", "L"]} /></span> : null} />;

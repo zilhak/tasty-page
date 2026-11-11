@@ -29,16 +29,11 @@ export const DISPLAY_BACKEND_COPY = {
   "toast.clipboard_files_wayland_x_failed_paste": {"en": "Can't read the clipboard of other apps. Pasting files kept here. Tasty can't reach the X server in DISPLAY and runs on native Wayland. Check the X server or XWayland connection, then restart Tasty.", "ko": "DISPLAY의 X 서버에 연결할 수 없어 Tasty가 네이티브 Wayland로 실행되므로 다른 앱의 클립보드를 읽을 수 없어 이 Tasty에 저장된 파일을 붙여넣습니다. X 서버 또는 XWayland 연결을 확인한 뒤 Tasty를 재시작하세요.", "ja": "DISPLAYのXサーバーに接続できず、TastyがネイティブWaylandで動作しているため、他のアプリのクリップボードを読み取れず、このTasty内に保存されたファイルを貼り付けます。XサーバーまたはXWaylandの接続を確認してから、Tastyを再起動してください。", "zh-Hans": "无法连接 DISPLAY 指定的 X 服务器，Tasty 以原生 Wayland 运行，无法读取其他应用的剪贴板，正在粘贴此 Tasty 中保存的文件。请检查 X 服务器或 XWayland 连接后重启 Tasty。"},
 };
 
-// J2 (file drag-in from other apps) is waiting for the product owner. Branch a: no mention, the values above.
-// Branch b: the cause-1 and cause-1b webview titles also say that dropping files from other apps does not work;
-// these values replace the same keys. Nothing else changes between the branches.
-export const DISPLAY_BACKEND_COPY_J2B = {
-  "webview.native_wayland": {"en": "This view and file drops from other apps are off: no XWayland, so Tasty runs on native Wayland.", "ko": "XWayland가 없어 Tasty가 네이티브 Wayland로 실행되므로 이 뷰를 표시하거나 다른 앱에서 파일을 끌어올 수 없습니다.", "ja": "XWaylandがなく、TastyがネイティブWaylandで動作しているため、このビューの表示も他のアプリからのファイルのドラッグもできません。", "zh-Hans": "XWayland 不可用，Tasty 以原生 Wayland 运行，无法显示此视图或从其他应用拖入文件。"},
-  "webview.native_wayland_x_failed": {"en": "This view and file drops from other apps are off: Tasty can't reach the X server in DISPLAY and runs on native Wayland.", "ko": "DISPLAY의 X 서버에 연결할 수 없어 Tasty가 네이티브 Wayland로 실행되므로 이 뷰를 표시하거나 다른 앱에서 파일을 끌어올 수 없습니다.", "ja": "DISPLAYのXサーバーに接続できず、TastyがネイティブWaylandで動作しているため、このビューの表示も他のアプリからのファイルのドラッグもできません。", "zh-Hans": "无法连接 DISPLAY 指定的 X 服务器，Tasty 以原生 Wayland 运行，无法显示此视图或从其他应用拖入文件。"},
-};
+// File drops from other apps (J2, decided 2026-11-11): Tasty takes them on native Wayland too, so no notice here
+// names them. The values above are final; there is no second branch.
 
-// dbt(key, lang, j2): the value for key in lang. j2 "b" reads the J2 branch b value where one exists.
-export function dbt(key, lang = "en", j2 = "a") {
-  const e = (j2 === "b" && DISPLAY_BACKEND_COPY_J2B[key]) || DISPLAY_BACKEND_COPY[key];
+// dbt(key, lang): the value for key in lang.
+export function dbt(key, lang = "en") {
+  const e = DISPLAY_BACKEND_COPY[key];
   return (e && (e[lang] || e.en)) || key;
 }
