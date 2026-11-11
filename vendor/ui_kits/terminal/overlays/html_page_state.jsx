@@ -2,7 +2,7 @@ import React from "react";
 import { Icon as PsIcon } from "../../../components/core/Icon.jsx";
 import { Kbd } from "../../../components/core/Kbd.jsx";
 import { Spinner } from "../../../components/feedback/Spinner.jsx";
-import { dbt } from "./display_backend_copy.js";
+import { dbt, dbHas } from "./display_backend_copy.js";
 
 // Webview page tile — the one host state painted in a webview's page rect (html surface, plugin webview, html mirror)
 // while the page is not there. Decided 2026-11-11. Every page-rect state in the kit draws through this part:
@@ -23,9 +23,11 @@ import { dbt } from "./display_backend_copy.js";
 //          Content is centred in that box and never grows it (the Alt+L keycap may overhang it by its own height).
 // So loading -> failed, empty -> loading and receiving -> paused never move the glyph. CenterState makes the same call.
 //
-// Display-backend notices (2026-11-11): native-wayland, native-wayland-x, gdk-backend. The webview could not be
-// created for the life of this Tasty process, so the tile never changes state again until Tasty restarts. Title =
-// what is off + the cause, sub = the fix. The fix must be read in full, so for these kinds only:
+// Display-backend notices (2026-11-11): native-wayland, native-wayland-x, gdk-backend, gtk-init (GTK failed to
+// initialize with GDK_BACKEND unset or allowing x11). The webview could not be created for the life of this Tasty
+// process, so the tile never changes state again until Tasty restarts. Title = what is off + the cause, sub = the
+// fix. gtk-init has no fix to offer, so its sub line stays reserved and empty.
+// The fix must be read in full, so for these kinds only:
 //   title  wraps, balanced lines (text-wrap balance); breaks inside a long identifier only when it must
 //   sub    caption, wraps the same way, NEVER ellipsis. The reserved caption box is its minimum and it grows by
 //          whole caption lines. Moving the glyph is allowed here because no other state follows in the same rect.
@@ -74,16 +76,17 @@ function HaCenter({ glyph, glyphColor = "var(--tasty-glyph-dim)", spin, title, t
   );
 }
 
-// Display-backend notice kind -> copy key (display_backend_copy.js, four languages by Codex). The fix is key + "_sub".
-const DB_NOTICE = { "native-wayland": "webview.native_wayland", "native-wayland-x": "webview.native_wayland_x_failed", "gdk-backend": "webview.gdk_backend" };
+// Display-backend notice kind -> copy key (display_backend_copy.js, four languages by Codex). The fix is key + "_sub"
+// where that key exists; gtk-init has none, so its reserved sub line stays empty (it never shows a key name).
+const DB_NOTICE = { "native-wayland": "webview.native_wayland", "native-wayland-x": "webview.native_wayland_x_failed", "gdk-backend": "webview.gdk_backend", "gtk-init": "webview.gtk_init_failed" };
 
 // kind: boundary | empty | loading | failed | receiving | paused | macos | disconnected
-//       | native-wayland | native-wayland-x | gdk-backend (display-backend notices: html, markdown and html mirror alike)
+//       | native-wayland | native-wayland-x | gdk-backend | gtk-init (display-backend notices: html, markdown and html mirror alike)
 // hint: the empty tab's address hint (+ Alt+L). Only a surface with an address band has one; without it the slot stays empty.
 // lang: the notices' language. The other kinds are en only, as the gallery is.
 function HtmlPageState({ kind = "empty", progress = "1.4 MB · 12 files", url, hint = true, lang = "en" }) {
   const db = DB_NOTICE[kind];
-  if (db) return <HaCenter notice glyph="info" title={dbt(db, lang)} sub={dbt(`${db}_sub`, lang)} />;
+  if (db) return <HaCenter notice glyph="info" title={dbt(db, lang)} sub={dbHas(`${db}_sub`) ? dbt(`${db}_sub`, lang) : null} />;
   switch (kind) {
     case "boundary": return <div style={{ flex: 1, minHeight: 0 }} />;
     case "empty": return <HaCenter glyph="html" title={PS_COPY.emptyTitle} sub={hint ? <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-xs)" }}>{PS_COPY.emptyHint} · <Kbd keys={["Alt", "L"]} /></span> : null} />;
