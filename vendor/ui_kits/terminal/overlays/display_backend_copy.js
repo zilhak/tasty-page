@@ -1,6 +1,7 @@
 // Tasty UI kit — copy for the Linux display-backend notices (2026-11-11): what is off, why, and how to fix it,
-// when Tasty runs on native Wayland (no XWayland, or the X server in DISPLAY unreachable) or was started with
-// GDK_BACKEND=wayland, and what is off when GTK failed to initialize for any other reason (gtk-init: the window is
+// when Tasty runs on native Wayland (no XWayland, or the X server in DISPLAY unreachable) or was started with a
+// GDK_BACKEND value that does not allow x11 (cause 2: wayland, broadway or any other value without x11, so its title
+// names no value), and what is off when GTK failed to initialize for any other reason (gtk-init: the window is
 // X11, GDK_BACKEND is unset or allows x11; Tasty does not know why GTK failed). Values for tasty lang/*.toml. Written by Codex (en, ko, ja, zh-Hans; zh-Hans follows
 // i18n/zh-Hans/glossary.json) and checked by script: no placeholders, no line breaks, no Hangul or kana in the
 // wrong language, no glossary avoid term, every toast at most 200 characters in every language.
@@ -14,7 +15,7 @@
 // No notice here has a button or a link (decided 2026-11-11), so none opens the user guide.
 // toast.clipboard_wayland_unsupported is an existing key with a new value. The rest are new keys.
 // toast.clipboard_files_internal_copy / _paste are unchanged and stay for system clipboard failures on X11.
-// GDK_BACKEND, wayland, XWayland, Wayland, DISPLAY, GTK and Tasty are never translated.
+// GDK_BACKEND, X11, XWayland, Wayland, DISPLAY, GTK and Tasty are never translated.
 
 export const DB_LANGS = ["en", "ko", "ja", "zh-Hans"];
 
@@ -23,7 +24,7 @@ export const DISPLAY_BACKEND_COPY = {
   "webview.native_wayland_sub": {"en": "Turn on XWayland outside Tasty, then restart Tasty.", "ko": "Tasty 외부에서 XWayland를 켠 뒤 Tasty를 재시작하세요.", "ja": "Tastyの外部でXWaylandを有効にしてから、Tastyを再起動してください。", "zh-Hans": "请在 Tasty 外部启用 XWayland 后重启 Tasty。"},
   "webview.native_wayland_x_failed": {"en": "This view can't be shown: Tasty can't reach the X server in DISPLAY and runs on native Wayland.", "ko": "DISPLAY의 X 서버에 연결할 수 없어 Tasty가 네이티브 Wayland로 실행되므로 이 뷰를 표시할 수 없습니다.", "ja": "DISPLAYのXサーバーに接続できず、TastyがネイティブWaylandで動作しているため、このビューを表示できません。", "zh-Hans": "无法连接 DISPLAY 指定的 X 服务器，Tasty 以原生 Wayland 运行，无法显示此视图。"},
   "webview.native_wayland_x_failed_sub": {"en": "Check the X server or XWayland connection, then restart Tasty.", "ko": "X 서버 또는 XWayland 연결을 확인한 뒤 Tasty를 재시작하세요.", "ja": "XサーバーまたはXWaylandの接続を確認してから、Tastyを再起動してください。", "zh-Hans": "请检查 X 服务器或 XWayland 连接后重启 Tasty。"},
-  "webview.gdk_backend": {"en": "Tasty's launch environment has GDK_BACKEND=wayland, so this view and the tray icon are off.", "ko": "Tasty 시작 환경에 GDK_BACKEND=wayland가 설정되어 이 뷰와 트레이 아이콘을 사용할 수 없습니다.", "ja": "Tastyの起動環境にGDK_BACKEND=waylandが設定されているため、このビューとトレイアイコンは使えません。", "zh-Hans": "Tasty 启动环境中设置了 GDK_BACKEND=wayland，此视图和托盘图标不可用。"},
+  "webview.gdk_backend": {"en": "GDK_BACKEND in Tasty's launch environment blocks X11, so this view and the tray icon are off.", "ko": "Tasty 시작 환경의 GDK_BACKEND 설정이 X11 사용을 막아 이 뷰와 트레이 아이콘을 사용할 수 없습니다.", "ja": "Tastyの起動環境のGDK_BACKEND設定でX11が使えないため、このビューとトレイアイコンは使えません。", "zh-Hans": "Tasty 启动环境中的 GDK_BACKEND 设置不允许使用 X11，此视图和托盘图标不可用。"},
   "webview.gdk_backend_sub": {"en": "Remove GDK_BACKEND from Tasty's launch environment, then restart Tasty.", "ko": "Tasty 시작 환경에서 GDK_BACKEND를 제거한 뒤 Tasty를 재시작하세요.", "ja": "Tastyの起動環境からGDK_BACKENDを削除してから、Tastyを再起動してください。", "zh-Hans": "请从 Tasty 启动环境中移除 GDK_BACKEND 后重启 Tasty。"},
   "webview.gtk_init_failed": {"en": "GTK failed to initialize, so this view and the tray icon are off.", "ko": "GTK 초기화에 실패하여 이 뷰와 트레이 아이콘을 사용할 수 없습니다.", "ja": "GTKの初期化に失敗したため、このビューとトレイアイコンは使えません。", "zh-Hans": "GTK 初始化失败，此视图和托盘图标不可用。"},
   "toast.clipboard_wayland_unsupported": {"en": "Can't copy or paste with other apps: no XWayland, so Tasty runs on native Wayland. Turn on XWayland outside Tasty, then restart Tasty.", "ko": "XWayland가 없어 Tasty가 네이티브 Wayland로 실행되므로 다른 앱과 복사·붙여넣기를 할 수 없습니다. Tasty 외부에서 XWayland를 켠 뒤 Tasty를 재시작하세요.", "ja": "XWaylandがなく、TastyがネイティブWaylandで動作しているため、他のアプリとのコピーと貼り付けはできません。Tastyの外部でXWaylandを有効にしてから、Tastyを再起動してください。", "zh-Hans": "XWayland 不可用，Tasty 以原生 Wayland 运行，无法与其他应用之间复制粘贴。请在 Tasty 外部启用 XWayland 后重启 Tasty。"},
