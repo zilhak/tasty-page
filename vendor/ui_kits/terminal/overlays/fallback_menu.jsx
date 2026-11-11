@@ -17,7 +17,9 @@ import { Kbd } from "../../../components/core/Kbd.jsx";
 // items: [{ label, shortcut?, icon?, enabled = true, tooltip? } | { separator: true }]
 // active: index of the keyboard-active row · scrollTo: a row kept in view (the active row in the app)
 // tip: index of a disabled row whose reason is showing (gallery freezes it; the app shows it on pointer hover)
-// onPointerRow(i): the pointer moved onto enabled row i; the caller makes it the active row, so one row is lit
+// onPointerRow(i): the pointer moved onto enabled row i; the caller makes it the active row.
+// One highlight: the active row. pointerHeld (set by the caller after an arrow key) turns the rows' pointer hover
+// off until the pointer moves again (onPointerMove), so a row left under a still pointer is not lit as well.
 
 // A menu where any row has an icon gives every row the icon slot, so the labels share one left edge.
 function IconSlot() {
@@ -27,14 +29,16 @@ function IconSlot() {
 // Position from the click point (top-left corner at the point). Each axis on its own:
 // right of / below the point; if that side does not fit, left of / above it; then the result is always clamped
 // to [margin, window - margin - size], so a click inside the margin (x or y below 8, even 0) still keeps the gap.
-// The height is capped first (window - 2 margins), so on the vertical axis the clamp always fits.
+// Both sizes are capped first at window - 2 margins (the width also at fallback-menu-max-width, in the style below;
+// in a window narrower than min-width + 2 margins the cap wins over min-width), so the clamp range is never empty.
 function placeFallbackMenu(click, size, win, margin) {
   const axis = (p, s, w) => {
     const c = p + s <= w - margin ? p : p - s >= margin ? p - s : p;
     return Math.max(margin, Math.min(c, w - margin - s));
   };
+  const w = Math.min(size.w, win.w - 2 * margin);
   const h = Math.min(size.h, win.h - 2 * margin);
-  return { left: axis(click.x, size.w, win.w), top: axis(click.y, h, win.h) };
+  return { left: axis(click.x, w, win.w), top: axis(click.y, h, win.h) };
 }
 
 function readPx(el, name, fallback) {
@@ -42,7 +46,7 @@ function readPx(el, name, fallback) {
   return Number.isFinite(v) ? v : fallback;
 }
 
-function FallbackMenu({ items, click, active = -1, tip = -1, scrollTo = -1, onPointerRow = null }) {
+function FallbackMenu({ items, click, active = -1, tip = -1, scrollTo = -1, onPointerRow = null, pointerHeld = false, onPointerMove = null }) {
   const panelRef = React.useRef(null);
   const listRef = React.useRef(null);
   const rowRefs = React.useRef([]);
@@ -74,13 +78,15 @@ function FallbackMenu({ items, click, active = -1, tip = -1, scrollTo = -1, onPo
     }
   });
   return (
-    <div ref={panelRef} role="menu" data-fallback-menu="" style={{
+    <div ref={panelRef} role="menu" data-fallback-menu="" onMouseMove={onPointerMove || undefined} style={{
       position: "absolute", left: pos ? pos.left : click.x, top: pos ? pos.top : click.y, visibility: pos ? "visible" : "hidden",
-      width: "max-content", minWidth: "var(--tasty-fallback-menu-min-width)", maxWidth: "var(--tasty-fallback-menu-max-width)",
+      width: "max-content",
+      minWidth: "min(var(--tasty-fallback-menu-min-width), calc(100% - 2 * var(--tasty-fallback-menu-edge-margin)))",
+      maxWidth: "min(var(--tasty-fallback-menu-max-width), calc(100% - 2 * var(--tasty-fallback-menu-edge-margin)))",
       maxHeight: "calc(100% - 2 * var(--tasty-fallback-menu-edge-margin))", boxSizing: "border-box", display: "flex", flexDirection: "column",
       background: "var(--tasty-menu-bg)", border: "var(--tasty-border-width) solid var(--tasty-menu-border)",
       borderRadius: "var(--tasty-menu-radius)", padding: "var(--tasty-popup-content-margin)", boxShadow: "var(--tasty-shadow-popover)" }}>
-      <div ref={listRef} className="tasty-scroll" style={{ overflowY: "auto", minHeight: 0, position: "relative" }}>
+      <div ref={listRef} className="tasty-scroll" style={{ overflowY: "auto", minHeight: 0, position: "relative", pointerEvents: pointerHeld ? "none" : undefined }}>
         {items.map((it, i) => it.separator
           ? <MenuItem key={i} separator />
           : <div key={i} ref={(el) => { rowRefs.current[i] = el; }}

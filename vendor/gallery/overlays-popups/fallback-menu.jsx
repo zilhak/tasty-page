@@ -48,11 +48,12 @@ function FallbackWindow({ w, h, click, caption, children }) {
 }
 
 // Live demo: right-click inside the window. Arrow keys move the active row and skip disabled rows and separators,
-// wrapping at the ends; the pointer moving onto a row makes it the active row, so one row is lit. Enter runs it,
-// Esc or a click outside closes.
+// wrapping at the ends; the pointer moving onto a row makes it the active row, and after an arrow key the pointer
+// hover stays off until the pointer moves, so one row is lit. Enter runs it, Esc or a click outside closes.
 function FallbackMenuDemo() {
   const [click, setClick] = React.useState(null);
   const [active, setActive] = React.useState(-1);
+  const [held, setHeld] = React.useState(false);
   const ref = React.useRef(null);
   const items = FILE_MENU;
   const enabled = items.map((it, i) => (!it.separator && it.enabled !== false ? i : -1)).filter((i) => i >= 0);
@@ -64,13 +65,14 @@ function FallbackMenuDemo() {
     const k = enabled.indexOf(active);
     const n = e.key === "ArrowDown" ? (k < 0 ? 0 : (k + 1) % enabled.length) : (k < 0 ? enabled.length - 1 : (k - 1 + enabled.length) % enabled.length);
     setActive(enabled[n]);
+    setHeld(true);
   };
   return (
     <div ref={ref} tabIndex={0} onKeyDown={onKey} style={{ outline: "none" }}
       onContextMenu={(e) => { e.preventDefault(); const r = ref.current.firstChild.lastChild.getBoundingClientRect(); setClick({ x: Math.round(e.clientX - r.left), y: Math.round(e.clientY - r.top) }); setActive(-1); ref.current.focus(); }}
       onClick={() => { setClick(null); setActive(-1); }}>
       <FallbackWindow w={520} h={320} click={click} caption="right-click anywhere · ↑ ↓ · Enter · Esc">
-        {click && <FallbackMenu key={`${click.x},${click.y}`} items={items} click={click} active={active} scrollTo={active} onPointerRow={setActive} />}
+        {click && <FallbackMenu key={`${click.x},${click.y}`} items={items} click={click} active={active} scrollTo={active} onPointerRow={setActive} pointerHeld={held} onPointerMove={() => held && setHeld(false)} />}
       </FallbackWindow>
     </div>
   );
@@ -146,14 +148,14 @@ export function FallbackMenuSection() {
             ["container", "anchored popup, no scrim · menu-bg · menu-border 1px · menu-radius · popup-content-margin 4 ring · shadow-popover"],
             ["rows", "MenuItem 28 · label wraps (fixed copy) past the max width, never ellipsizes · shortcut = Kbd at the right end"],
             ["icon slot", "if any row has an icon, every row keeps the 16 icon slot so labels share one left edge; a menu with no icon has no slot"],
-            ["width", "fit to the longest row · min 160 · max 320"],
+            ["width", "fit to the longest row · min 160 · max min(320, window width - 2 x edge margin) · in a window narrower than 160 + 2 margins the window cap wins over the 160 floor · labels wrap, never ellipsize"],
             ["disabled", "MenuItem disabled · no hover fill · skipped by the arrow keys · its reason shows as the shared Tooltip on pointer hover, after the tooltip delay"],
             ["reason", "Tooltip centred on the row, tooltip-offset gap from the menu edge · right if tooltip-max-width + tooltip-offset <= the room between the menu and the edge margin on the right, else left if that fits on the left, else the side with more room · a disabled row with no reason shows none"],
             ["keyboard", "no active row on open · ↓ first enabled row, ↑ last · skips disabled rows and separators · wraps at the ends · Enter runs · Esc closes · active = MenuItem active (surface-active)"],
-            ["pointer", "hover = MenuItem hover · moving onto a row moves the active row there, so one row is lit"],
+            ["pointer", "one highlight, the active row: the pointer moving onto an enabled row makes it active · after an arrow key the pointer hover is off until the pointer moves again, so a row under a still pointer is not lit beside the active row"],
             ["anchor", "top-left corner at the click point (logical) · no offset"],
-            ["flip", "each axis alone: right of / below the point; if that side does not fit within the edge margin, left of / above; the result is always clamped to [margin, window - margin - menu], so a click inside the margin (even at 0) keeps the 8 gap"],
-            ["tall", "max height = window height - 2 x edge margin (8) · the rows scroll inside the ring with the standard scrollbar (tasty-scroll) · the active row scrolls into view"],
+            ["flip", "each axis alone: right of / below the point; if that side does not fit within the edge margin, left of / above; the result is always clamped to [margin, window - margin - menu]; both sizes are capped at window - 2 x margin first, so the range is never empty and a click inside the margin (even at 0) keeps the 8 gap on every side"],
+            ["tall", "max height = window height - 2 x edge margin (8), as the width is capped at window width - 2 x margin · the rows scroll inside the ring with the standard scrollbar (tasty-scroll) · the active row scrolls into view"],
             ["dismiss", "click outside · Esc · focus loss · running a row"],
           ]}
           tokens={[
