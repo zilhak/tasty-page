@@ -17,6 +17,7 @@ import { Kbd } from "../../../components/core/Kbd.jsx";
 // items: [{ label, shortcut?, icon?, enabled = true, tooltip? } | { separator: true }]
 // active: index of the keyboard-active row · scrollTo: a row kept in view (the active row in the app)
 // tip: index of a disabled row whose reason is showing (gallery freezes it; the app shows it on pointer hover)
+// onPointerRow(i): the pointer moved onto enabled row i; the caller makes it the active row, so one row is lit
 
 // A menu where any row has an icon gives every row the icon slot, so the labels share one left edge.
 function IconSlot() {
@@ -24,13 +25,13 @@ function IconSlot() {
 }
 
 // Position from the click point (top-left corner at the point). Each axis on its own:
-// right of / below the point; if that side does not fit, left of / above it; if neither fits, clamp to the margin.
+// right of / below the point; if that side does not fit, left of / above it; then the result is always clamped
+// to [margin, window - margin - size], so a click inside the margin (x or y below 8, even 0) still keeps the gap.
 // The height is capped first (window - 2 margins), so on the vertical axis the clamp always fits.
 function placeFallbackMenu(click, size, win, margin) {
   const axis = (p, s, w) => {
-    if (p + s <= w - margin) return p;
-    if (p - s >= margin) return p - s;
-    return Math.max(margin, Math.min(p, w - margin - s));
+    const c = p + s <= w - margin ? p : p - s >= margin ? p - s : p;
+    return Math.max(margin, Math.min(c, w - margin - s));
   };
   const h = Math.min(size.h, win.h - 2 * margin);
   return { left: axis(click.x, size.w, win.w), top: axis(click.y, h, win.h) };
@@ -41,7 +42,7 @@ function readPx(el, name, fallback) {
   return Number.isFinite(v) ? v : fallback;
 }
 
-function FallbackMenu({ items, click, active = -1, tip = -1, scrollTo = -1 }) {
+function FallbackMenu({ items, click, active = -1, tip = -1, scrollTo = -1, onPointerRow = null }) {
   const panelRef = React.useRef(null);
   const listRef = React.useRef(null);
   const rowRefs = React.useRef([]);
@@ -58,15 +59,17 @@ function FallbackMenu({ items, click, active = -1, tip = -1, scrollTo = -1 }) {
     const next = placeFallbackMenu(click, { w: r.width, h: r.height }, { w: win.width, h: win.height }, margin);
     if (!pos || pos.left !== next.left || pos.top !== next.top) setPos(next);
     const row = rowRefs.current[scrollTo];
-    if (row && listRef.current) row.scrollIntoView({ block: "nearest" });
+    if (row) row.scrollIntoView({ block: "nearest" });
     const t = rowRefs.current[tip];
-    if (t) {
+    const list = listRef.current;
+    if (t && list) {
       const roomRight = win.width - (next.left + r.width) - margin;
-      const tipW = readPx(panel, "--tasty-tooltip-max-width", 240);
-      const y = t.offsetTop - (listRef.current ? listRef.current.scrollTop : 0) + t.offsetHeight / 2 + listRef.current.offsetTop;
       const roomLeft = next.left - margin;
-      // right if it fits, else left if it fits, else the side with more room
-      const side = roomRight >= tipW ? "right" : roomLeft >= tipW ? "left" : roomRight >= roomLeft ? "right" : "left";
+      // the bubble needs its max width plus the tooltip-offset gap: right if tipW + offset <= room on the right,
+      // else left if it fits there, else the side with more room
+      const need = readPx(panel, "--tasty-tooltip-max-width", 240) + readPx(panel, "--tasty-tooltip-offset", 4);
+      const y = list.offsetTop + t.offsetTop - list.scrollTop + t.offsetHeight / 2;
+      const side = roomRight >= need ? "right" : roomLeft >= need ? "left" : roomRight >= roomLeft ? "right" : "left";
       if (!tipAt || tipAt.y !== y || tipAt.side !== side) setTipAt({ y, side });
     }
   });
@@ -80,7 +83,8 @@ function FallbackMenu({ items, click, active = -1, tip = -1, scrollTo = -1 }) {
       <div ref={listRef} className="tasty-scroll" style={{ overflowY: "auto", minHeight: 0, position: "relative" }}>
         {items.map((it, i) => it.separator
           ? <MenuItem key={i} separator />
-          : <div key={i} ref={(el) => { rowRefs.current[i] = el; }}>
+          : <div key={i} ref={(el) => { rowRefs.current[i] = el; }}
+              onMouseEnter={onPointerRow && it.enabled !== false ? () => onPointerRow(i) : undefined}>
               <MenuItem wrap label={it.label} disabled={it.enabled === false} active={i === active}
                 icon={it.icon || (hasIcon ? <IconSlot /> : null)}
                 shortcut={it.shortcut ? <Kbd keys={it.shortcut} /> : null} />

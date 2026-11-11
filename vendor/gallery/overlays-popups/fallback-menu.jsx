@@ -4,16 +4,18 @@ import { Section, Spec, Stage, Meta, Note, Dont, Views, View } from "../parts/sp
 import { FallbackMenu } from "../../ui_kits/terminal/overlays/fallback_menu.jsx";
 
 // Tasty Gallery — Popups and menus › Fallback context menu (2026-11-11).
-// Labels are the app's en strings (lang/en.toml [explorer.context_menu], [explorer.menu]); shortcuts are
-// representative and come from Keybindings in the app. Icons stand in for the SVG the item model carries.
+// Labels are the app's en strings (lang/en.toml [explorer.context_menu], [explorer.menu]). FILE_MENU is the app's
+// Explorer menu for one local file: rows and separators in the app's order, shortcuts as the app shows them with the
+// default Linux / Windows keymap (each row shows its first binding; Properties has none, so it shows no shortcut).
+// Icons stand in for the SVG the item model carries (the app's Open in system icon is an external-link glyph that
+// vendor/icons does not have).
 
 const FILE_MENU = [
-  { label: "Copy Path" },
-  { separator: true },
+  { label: "Copy Path", shortcut: "Alt+Shift+C" },
   { label: "Copy", shortcut: "Ctrl+C" },
   { label: "Cut", shortcut: "Ctrl+X" },
-  { separator: true },
   { label: "Rename", shortcut: "F2" },
+  { separator: true },
   { label: "Move to Trash", shortcut: "Del" },
   { separator: true },
   { label: "Open in system", icon: <Icon name="file" /> },
@@ -46,7 +48,8 @@ function FallbackWindow({ w, h, click, caption, children }) {
 }
 
 // Live demo: right-click inside the window. Arrow keys move the active row and skip disabled rows and separators,
-// wrapping at the ends; Enter runs it, Esc or a click outside closes.
+// wrapping at the ends; the pointer moving onto a row makes it the active row, so one row is lit. Enter runs it,
+// Esc or a click outside closes.
 function FallbackMenuDemo() {
   const [click, setClick] = React.useState(null);
   const [active, setActive] = React.useState(-1);
@@ -67,7 +70,7 @@ function FallbackMenuDemo() {
       onContextMenu={(e) => { e.preventDefault(); const r = ref.current.firstChild.lastChild.getBoundingClientRect(); setClick({ x: Math.round(e.clientX - r.left), y: Math.round(e.clientY - r.top) }); setActive(-1); ref.current.focus(); }}
       onClick={() => { setClick(null); setActive(-1); }}>
       <FallbackWindow w={520} h={320} click={click} caption="right-click anywhere · ↑ ↓ · Enter · Esc">
-        {click && <FallbackMenu key={`${click.x},${click.y}`} items={items} click={click} active={active} scrollTo={active} />}
+        {click && <FallbackMenu key={`${click.x},${click.y}`} items={items} click={click} active={active} scrollTo={active} onPointerRow={setActive} />}
       </FallbackWindow>
     </div>
   );
@@ -86,12 +89,12 @@ export function FallbackMenuSection() {
         </Stage>
         <Views>
           <View name="fallback-menu-open" label="Explorer file menu, opened at the click point">
-            <FallbackWindow w={240} h={300} click={{ x: 16, y: 16 }} caption="below and right of the point">
+            <FallbackWindow w={300} h={300} click={{ x: 16, y: 16 }} caption="below and right of the point">
               <FallbackMenu items={FILE_MENU} click={{ x: 16, y: 16 }} />
             </FallbackWindow>
           </View>
           <View name="fallback-menu-keyboard-active" label="Keyboard-active row (↑ ↓), shortcut and icon rows">
-            <FallbackWindow w={240} h={300} click={{ x: 16, y: 16 }} caption="active: Show in File Manager">
+            <FallbackWindow w={300} h={300} click={{ x: 16, y: 16 }} caption="active: Show in File Manager">
               <FallbackMenu items={FILE_MENU} click={{ x: 16, y: 16 }} active={at(FILE_MENU, "Show in File Manager")} />
             </FallbackWindow>
           </View>
@@ -106,18 +109,18 @@ export function FallbackMenuSection() {
             </FallbackWindow>
           </View>
           <View name="fallback-menu-flip-left" label="Too little room on the right: opens left of the point">
-            <FallbackWindow w={240} h={300} click={{ x: 224, y: 16 }} caption="right edge">
-              <FallbackMenu items={FILE_MENU} click={{ x: 224, y: 16 }} />
+            <FallbackWindow w={300} h={300} click={{ x: 284, y: 16 }} caption="right edge">
+              <FallbackMenu items={FILE_MENU} click={{ x: 284, y: 16 }} />
             </FallbackWindow>
           </View>
           <View name="fallback-menu-flip-up" label="Too little room below: opens above the point">
-            <FallbackWindow w={240} h={300} click={{ x: 16, y: 284 }} caption="bottom edge">
+            <FallbackWindow w={300} h={300} click={{ x: 16, y: 284 }} caption="bottom edge">
               <FallbackMenu items={FILE_MENU} click={{ x: 16, y: 284 }} />
             </FallbackWindow>
           </View>
           <View name="fallback-menu-flip-corner" label="Bottom-right corner: opens above and left">
-            <FallbackWindow w={240} h={300} click={{ x: 224, y: 284 }} caption="bottom-right corner">
-              <FallbackMenu items={FILE_MENU} click={{ x: 224, y: 284 }} />
+            <FallbackWindow w={300} h={300} click={{ x: 284, y: 284 }} caption="bottom-right corner">
+              <FallbackMenu items={FILE_MENU} click={{ x: 284, y: 284 }} />
             </FallbackWindow>
           </View>
           <View name="fallback-menu-taller-than-window" label="Taller than the window: capped, kept 8 from both edges, rows scroll">
@@ -127,7 +130,7 @@ export function FallbackMenuSection() {
           </View>
           <View name="fallback-menu-latte" label="Latte — keyboard-active row and a disabled row's reason">
             <div data-theme="latte" style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-lg)", padding: "var(--tasty-space-sm)", background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)" }}>
-              <FallbackWindow w={240} h={300} click={{ x: 16, y: 16 }} caption="Latte · active">
+              <FallbackWindow w={300} h={300} click={{ x: 16, y: 16 }} caption="Latte · active">
                 <FallbackMenu items={FILE_MENU} click={{ x: 16, y: 16 }} active={at(FILE_MENU, "Cut")} />
               </FallbackWindow>
               <FallbackWindow w={480} h={200} click={{ x: 24, y: 24 }} caption="Latte · reason">
@@ -145,11 +148,11 @@ export function FallbackMenuSection() {
             ["icon slot", "if any row has an icon, every row keeps the 16 icon slot so labels share one left edge; a menu with no icon has no slot"],
             ["width", "fit to the longest row · min 160 · max 320"],
             ["disabled", "MenuItem disabled · no hover fill · skipped by the arrow keys · its reason shows as the shared Tooltip on pointer hover, after the tooltip delay"],
-            ["reason", "Tooltip right of the menu, centred on the row, tooltip-offset gap · left of the menu when the window has no room on the right · if neither side fits, the side with more room · a disabled row with no reason shows none"],
+            ["reason", "Tooltip centred on the row, tooltip-offset gap from the menu edge · right if tooltip-max-width + tooltip-offset <= the room between the menu and the edge margin on the right, else left if that fits on the left, else the side with more room · a disabled row with no reason shows none"],
             ["keyboard", "no active row on open · ↓ first enabled row, ↑ last · skips disabled rows and separators · wraps at the ends · Enter runs · Esc closes · active = MenuItem active (surface-active)"],
             ["pointer", "hover = MenuItem hover · moving onto a row moves the active row there, so one row is lit"],
             ["anchor", "top-left corner at the click point (logical) · no offset"],
-            ["flip", "each axis alone: right of / below the point; if that side does not fit within the edge margin, left of / above; if neither, clamp to the margin"],
+            ["flip", "each axis alone: right of / below the point; if that side does not fit within the edge margin, left of / above; the result is always clamped to [margin, window - margin - menu], so a click inside the margin (even at 0) keeps the 8 gap"],
             ["tall", "max height = window height - 2 x edge margin (8) · the rows scroll inside the ring with the standard scrollbar (tasty-scroll) · the active row scrolls into view"],
             ["dismiss", "click outside · Esc · focus loss · running a row"],
           ]}
