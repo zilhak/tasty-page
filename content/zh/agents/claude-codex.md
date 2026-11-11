@@ -1,4 +1,4 @@
-<!-- source-hash: 5dae801cb067 -->
+<!-- source-hash: fa11f69ab23d -->
 # 配合 Claude 和 Codex 使用
 
 在 Tasty 终端中运行 Claude Code 和 Codex CLI 并查看状态。两个 CLI 需要单独安装。要将任务分配给多个智能体，请同时配置钩子和父智能体的结果接收路径。
@@ -263,7 +263,7 @@ tasty claude codex-returns --retry   # 将所有待发送结果重新排为立�
 
 如果尚未附加，用 `tasty remote attach --into-gui --workspace <远程 ID> --profile <名称>` 向正在运行的 Tasty 添加镜像。要新建远程工作区并附加，请用 `--new-workspace` 替换 `--workspace <远程 ID>`，可通过 `--name`、`--cwd` 指定名称和远程工作目录。也可使用 `--ssh <目标>` 代替配置档。Tasty 会自行打开 SSH 隧道，不移动焦点。附加现有工作区会输出受理和结果两行 JSON，并等待结果最多 90 秒；失败或未在时限内收到结果时，退出码为 1。新建工作区形式输出一行创建结果 JSON。
 
-在 `tasty list workspaces` 中查看 `[mirror]` 行的本地工作区 ID，并将该 ID 传给下方 spawn 的 `--workspace`。不要直接使用 attach 时指定的远程 ID。使用会话令牌调用 `tasty remote attach --into-gui` 和 `tasty remote refusals` 无需额外权限，但 `tasty list workspaces` 需要 `surface.read` 权限。CLI 没有仅断开附加连接的命令，关闭镜像的最后一个 Surface 会同时关闭远程工作区。连接方式及在 GUI 中仅分离的方法，见[继续远程工作](../remote/attach.md)。
+在 `tasty list workspaces` 中查看 `[mirror]` 行的本地工作区 ID，并将该 ID 传给下方 spawn 的 `--workspace`。不要直接使用 attach 时指定的远程 ID。仅查询列表不会连接已保存的行。向未连接的已保存行请求 spawn 时，会开始连接并等待最多 35 秒，连接成功后执行请求，否则返回说明原因的错误。手动断开的行不会自动连接，先用 `tasty remote connect --workspace <本地 ID>` 连接。使用会话令牌调用 `tasty remote attach --into-gui`、`tasty remote connect`、`tasty remote disconnect` 和 `tasty remote refusals` 无需额外权限，但 `tasty list workspaces` 需要 `surface.read` 权限。要保留远程工作并仅断开连接，使用 `tasty remote disconnect --workspace <本地 ID>`。关闭镜像的最后一个 Surface 也会关闭远程工作区。连接和关闭操作的详情见[继续远程工作](../remote/attach.md)。
 
 如果已附加其他计算机的 Tasty 工作区，可将该工作区编号传给 `--workspace`，执行 `tasty claude spawn`、`tasty codex spawn`。子智能体在远程计算机上，使用该计算机的 Claude Code、Codex 安装、设置和登录状态运行，在本地显示为已附加工作区中的子智能体。`tell`、`children`、`kill` 的用法与本地子智能体相同。
 

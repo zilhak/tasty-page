@@ -53,7 +53,7 @@ Tasty의 셸, 글꼴, 언어 등은 설정 윈도우에서 바꾸거나 `~/.tast
 | **접근성** <!-- en: Accessibility --> | **모션 줄이기** <!-- en: Reduced motion --> (토스트·오버레이 페이드, 로딩 스피너 회전, 모달 흔들기를 끕니다) · **수식키 힌트 표시** <!-- en: Show modifier key hints --> |
 | **오버레이** <!-- en: Overlay --> | **토스트 표시 시간** <!-- en: Toast duration --> (1~10초) |
 | **원격 전송** <!-- en: Remote transfer --> | **저장 폴더** <!-- en: Save folder --> (기본 `~/.tasty/transfers/`) · **최대 용량** <!-- en: Maximum size --> (MiB) — 원격 워크스페이스에서 받은 파일이 저장되는 곳 |
-| **원격 Attach** <!-- en: Remote attach --> | **Attach 연결** <!-- en: Attach connections --> 아래 **끊기 전 대기 시간** <!-- en: Disconnect after --> — 초 단위, 기본 30, 범위 10~600. 원격 attach 연결에서 상대가 응답하지 않을 때 끊기까지 기다리는 시간 |
+| **원격 Attach** <!-- en: Remote attach --> | **Attach 연결** <!-- en: Attach connections --> 아래 **끊기 전 대기 시간** <!-- en: Disconnect after --> — 초 단위, 기본 30, 범위 10~600. 원격 attach 연결에서 상대가 응답하지 않을 때 끊기까지 기다리는 시간 · **재연결 시도 시간** <!-- en: Keep reconnecting for --> — 기본 300초, 범위 0~3600초 |
 | **표시** <!-- en: Display --> (macOS 만) | **Cmd 키 표시** · **Option 키 표시** · **Shift 키 표시** — 단축키 표기를 텍스트 / 심볼 중에서 고릅니다 |
 | **권한** <!-- en: Permissions --> (macOS 만) | **전체 디스크 접근 권한** <!-- en: Full Disk Access --> · **화면 기록** <!-- en: Screen recording --> 상태, **모든 권한 요청하기** <!-- en: Request all permissions --> (폴더 · 화면 기록을 한 번에 요청), 전체 디스크 접근 권한 행의 **시스템 설정 열기** <!-- en: Open System Settings --> |
 
@@ -62,6 +62,8 @@ Tasty의 셸, 글꼴, 언어 등은 설정 윈도우에서 바꾸거나 `~/.tast
 **원격 전송**의 저장 폴더 옆 **찾아보기…**는 설정 안의 Tasty 폴더 피커를 엽니다. 선택한 하위 폴더 또는 현재 폴더를 **폴더 선택**으로 확정하면 입력칸만 바뀝니다. 설정의 **저장**을 눌러 적용하세요. 취소하거나 Esc를 누르면 폴더 값은 그대로입니다.
 
 **설정** <!-- en: Settings --> › **일반** <!-- en: General --> › **원격 Attach**에서 **끊기 전 대기 시간**을 바꿉니다. 범위 밖 숫자는 Enter를 누르거나 다른 칸으로 이동해 입력을 확정할 때 10초 미만이면 10초, 600초 초과이면 600초로 맞춥니다. 저장한 값은 재시작 없이 새 연결부터 적용되며 이미 열린 연결은 그대로입니다. 양쪽 Tasty는 각자 자기 값을 쓰므로 상대가 먼저 끊을 수 있습니다. 설정 파일을 읽지 않는 CLI attach는 30초를 사용합니다.
+
+**설정** <!-- en: Settings --> › **일반** <!-- en: General --> › **원격 Attach** <!-- en: Remote attach -->의 **재연결 시도 시간** <!-- en: Keep reconnecting for -->은 연결이 끊긴 뒤 자동 재연결을 시도하는 시간입니다. 기본 300초, 범위 0~3600초이며 0이면 자동 재연결을 끕니다. 직접 끊은 연결에는 적용하지 않습니다. 설정 파일의 키는 `[remote_attach] reconnect_timeout_secs`입니다.
 
 ### 터미널
 
@@ -243,6 +245,8 @@ title = "내 클립보드"
 
 `[remote_attach]`의 `heartbeat_timeout_secs`는 원격 attach 연결에서 상대의 응답 없이 기다리는 시간입니다. 단위는 초이며 기본값은 30, 범위는 10~600입니다. 파일 값이 범위 밖이면 기본값 30으로 되돌려 설정 파일에 다시 저장하고, 경고는 로그에만 남깁니다. 설정 파일을 직접 편집한 내용은 Tasty를 다음에 시작할 때 읽습니다. 재시작 없이 새 연결에 적용하려면 설정 윈도우에서 바꾸고 저장하세요.
 
+`[remote_attach]`의 `reconnect_timeout_secs`는 저장된 원격 행의 자동 재연결 시도 시간입니다. 단위는 초이며 기본값은 300, 범위는 0~3600입니다. 0이면 자동 재연결을 끄고, 직접 끊은 연결에는 이 재시도를 적용하지 않습니다. 범위 밖의 파일 값은 300으로 되돌립니다.
+
 설정 파일에 적은 글꼴 값(`[appearance.default_font]`의 `font_family` 등)을 쓸 수 없으면 Tasty를 시작한 뒤 메인 윈도우에 값마다 경고 알림이 하나씩 뜹니다. 알림 본문에는 해당 값이 표시되며, 화면은 다른 폰트로 표시됩니다. 알림이 뜨는 윈도우와 표시 시간은 위 외관 설명을 따릅니다. 에이전트가 명령으로 적용한 글꼴 값은 쓸 수 없어도 경고 알림 없이 로그에만 남깁니다.
 
 ```toml
@@ -306,6 +310,7 @@ dir = ""                         # 비우면 ~/.tasty/transfers/
 max_mb = 500
 
 [remote_attach]
+reconnect_timeout_secs = 300     # 0~3600 s; 0 = off
 heartbeat_timeout_secs = 30      # 상대 응답 없이 기다리다 끊는 시간(초), 10~600, 새 연결부터 적용
 
 [webhook]

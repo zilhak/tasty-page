@@ -1,4 +1,4 @@
-<!-- source-hash: 82a45060cfbe -->
+<!-- source-hash: 72aee20d7a9a -->
 # Settings
 
 Tasty’s shell, fonts, language, and other preferences can be configured in the settings window or by editing `~/.tasty/config.toml` directly. Keybindings and themes have their own guides.
@@ -54,7 +54,7 @@ Press the same shortcut again to close the settings window.
 | **Accessibility** | **Reduced motion** (turns off toast and overlay fades, the loading spinner's rotation, and the modal shake) · **Show modifier key hints** |
 | **Overlay** | **Toast duration** (1~10 seconds) |
 | **Remote transfer** | **Save folder** (default `~/.tasty/transfers/`) · **Maximum size** (MiB) — where files received from a remote Workspace are saved |
-| **Remote attach** | **Disconnect after**, under **Attach connections** — seconds, default 30, range 10–600. How long an established remote attach connection waits without receiving anything from the other side before disconnecting |
+| **Remote attach** | **Disconnect after**, under **Attach connections** — seconds, default 30, range 10–600. How long an established remote attach connection waits without receiving anything from the other side before disconnecting · **Keep reconnecting for** — default 300 s, range 0–3600 s |
 | **Display** (macOS only) | **Cmd key display** · **Option key display** · **Shift key display** — choose text or symbols for keybinding notation |
 | **Permissions** (macOS only) | **Full Disk Access** · **Screen recording** status, **Request all permissions** (asks for the folders and screen recording in one go), and **Open System Settings** in the Full Disk Access row |
 
@@ -63,6 +63,8 @@ Turn off **Restore surface content on restart** and earlier terminal content no 
 **Browse…** beside the **Remote transfer** save folder opens the Tasty folder picker inside Settings. **Select folder** fills the field with the selected subfolder, or the current folder when nothing is selected. Press **Save** in Settings to apply it. Cancel or Esc leaves the folder value unchanged.
 
 Change **Disconnect after** under **Settings** › **General** › **Remote attach**. When you commit an entry by pressing Enter or leaving the field, values below 10 seconds become 10 and values above 600 become 600. Saved values apply to new connections without restarting; open connections keep their existing value. Each Tasty uses its own value, so the other side may disconnect first. CLI attach that does not read the settings file uses 30 seconds.
+
+**Keep reconnecting for** under **Settings** › **General** › **Remote attach** controls how long automatic retries continue after a connection drops. The default is 300 seconds, with a range of 0–3600; 0 disables automatic reconnecting. It does not apply to connections you end yourself. The configuration key is `[remote_attach] reconnect_timeout_secs`.
 
 ### Terminal
 
@@ -253,6 +255,8 @@ General settings are stored in this file. Handler tables, theme files, and other
 
 `heartbeat_timeout_secs` in `[remote_attach]` sets how long a remote attach connection waits without receiving anything from the other side. The unit is seconds, the default is 30, and the range is 10–600. An out-of-range file value is reset to the default of 30 and saved back to the settings file; a warning is written only to the log. Direct edits to the settings file are read the next time Tasty starts. To apply a change to new connections without restarting, change it in the settings window and save.
 
+`reconnect_timeout_secs` in `[remote_attach]` is the automatic reconnect window for saved remote rows, in seconds: default 300, range 0–3600. At 0, automatic reconnecting is disabled. It does not retry connections you end yourself. Out-of-range file values revert to 300.
+
 If font values in the settings file (such as `font_family` in `[appearance.default_font]`) cannot be used, one warning notification appears in the main window for each value after Tasty starts. The notification body shows the value, and another font is used for display. The window where notifications appear and their duration follow the appearance description above. Unusable font values applied by an agent through commands are recorded only in the log, without warning notifications.
 
 ```toml
@@ -316,6 +320,7 @@ dir = ""                         # empty = ~/.tasty/transfers/
 max_mb = 500
 
 [remote_attach]
+reconnect_timeout_secs = 300     # 0~3600 s; 0 = off
 heartbeat_timeout_secs = 30      # seconds of peer silence before disconnecting, 10-600, applies to new connections
 
 [webhook]

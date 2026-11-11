@@ -1,4 +1,4 @@
-<!-- source-hash: c5535ad51fa9 -->
+<!-- source-hash: 1c0ea619cd71 -->
 # CLI 命令参考
 
 按用途说明入门内容之外的命令，包括指定读取位置的 `read since-mark`、Surface 状态、消息队列和共享记忆。完整参数和选项可通过 `tasty help` 查看。
@@ -61,7 +61,7 @@ tasty session revoke --token <令牌>
 子智能体将签发的令牌用作 `TASTY_SESSION_TOKEN` 时，发往 Tasty 的请求会按该令牌的权限检查。
 会话令牌用于区分请求来自哪个智能体，并防止智能体误操作，不构成安全边界。不带令牌调用的命令按用户命令处理。
 
-准备远程连接时，可使用会话令牌运行 `tasty remote attach --into-gui` 和 `tasty remote refusals`，无需额外权限。通过 `tasty list workspaces` 查看连接结果列表需要 `surface.read` 权限。命令形式和 JSON 结果参见[继续远程工作](../remote/attach.md)。
+准备远程连接时，可使用会话令牌运行 `tasty remote attach --into-gui`、`tasty remote connect`、`tasty remote disconnect` 和 `tasty remote refusals`，无需额外权限。通过 `tasty list workspaces` 查看连接结果列表需要 `surface.read` 权限。命令形式和 JSON 结果参见[继续远程工作](../remote/attach.md)。
 
 插件添加的命令（`tasty markdown recent` · `tasty codex spawn` 等）也需要权限。
 对于 `tasty <命令> …`，请添加 `--permission ipc.invoke:<命令>`——`tasty markdown …` 对应

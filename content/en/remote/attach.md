@@ -1,4 +1,4 @@
-<!-- source-hash: 4fa93ddca944 -->
+<!-- source-hash: 5925a8beb4df -->
 <a id="remote-attach"></a>
 
 # Working remotely (attach)
@@ -9,7 +9,7 @@ Tasty’s remote attach uses SSH to display and control a workspace from Tasty r
 
 - attach brings in and shows a Workspace from a **remote Tasty that is already running**. It does not open a new remote shell. Tasty must be running on the remote machine (either the GUI or a windowless [headless build](../getting-started/install.md#headless-build)).
 - The remote Workspace is held **exclusively** by the side that mirrors it. Meanwhile the user on the remote side can see that terminal but cannot type into it (read-only). It comes back when the connection is closed.
-- A mirror Workspace carries a sky-blue **REMOTE** tag in the sidebar. It disappears on restart and is not saved.
+- Mirror workspaces have a sky-blue **REMOTE** marker in the sidebar. Rows attached through the GUI remote connection picker are saved and return to the same place after restart. Mirrors attached through the CLI are not saved.
 - The remote Tasty does not need to be on PATH. It is enough that the port file (`~/.tasty/tasty.port`) can be read.
 
 ## 1. Create a profile
@@ -99,6 +99,8 @@ Connection attempts do not wait forever — 10 seconds for the SSH connection, 2
    - Once the list appears, move between rows with `↑` / `↓` and press `Enter` to connect.
 4. A mirror Workspace with the **REMOTE** tag appears in the sidebar and focus moves to it. If connecting or preparing the mirror fails, a failure toast with the reason appears in that window. Nothing is shown if you have closed the window.
 
+A remote workspace that is itself a mirror from another Tasty is disabled with a `mirror` marker and cannot be attached. `tasty remote workspaces` also prints a note beneath that row.
+
 ## 4. Attach from the CLI
 
 ```sh
@@ -137,7 +139,9 @@ The existing `--target-port` form still attaches through a local port you have a
 tasty remote attach --into-gui --target-port 5555 --workspace 3
 ```
 
-An agent using a session token can run `tasty remote attach --into-gui` and `tasty remote refusals` without an additional permission. However, `tasty list workspaces`, used to check the mirror, requires `surface.read`.
+If the same profile and remote workspace already belong to a saved remote row, this connects that row instead of creating another mirror. It cannot reconnect a row you disconnected yourself; use `tasty remote connect --workspace <local id>` instead.
+
+An agent using a session token can run `tasty remote attach --into-gui`, `tasty remote connect`, `tasty remote disconnect`, and `tasty remote refusals` without an additional permission. However, `tasty list workspaces`, used to check the mirror, requires `surface.read`.
 
 Common options:
 
@@ -166,28 +170,33 @@ Common options:
 - While you're viewing a mirror, when the **Open Markdown File** popup converts a Surface to markdown or opens a new tab, the path you type in the popup or pick with **Browse…** opens as a file on the remote computer. A relative path is taken from the remote terminal's current folder. A file opened this way is not added to this computer's recent files list.
 - On Linux, Windows, and macOS, you can view the body of a remote HTML file. Choose **Allow** or **Decline** before receiving a large file. Scripts follow your local HTML settings; allowing scripts displays the body already received. The address is read-only, and **Reload** receives the latest body. A completed body remains visible after disconnection, with Reload disabled. Connections to older versions may still show an empty area. If the remote version also supports it, referenced files such as CSS and images under the same folder are received too. Large files are presented one at a time. At the 2MB document limit, choose **Continue** or **Stop**. Large-file and document questions do not disappear however long you wait. If the remote transfer expired in the meantime, **Allow** or **Continue** requests that file again, and asks once more if its size has changed. Continue also receives the remaining files; Reload also retries failed files. The count of declined or failed files remains until Reload. Moving to a child HTML file checks it as a new document. When the page cancels a file request, its receive wait ends while other requests for the same file remain active. On Linux X11 (including XWayland in Wayland sessions where `DISPLAY` is set and the X server is reachable), Windows, and macOS 27 or later, HTTP and HTTPS addresses also open when both versions support them. Requests run on the remote computer, so submitting a form or using a page button can change the remote service. On Windows and macOS, however, WebRTC connections from a page whose scripts are allowed can leave this computer directly. Tasty removes the page's WebRTC features to reduce this but does not guarantee that every path is closed. Same-origin requests are allowed by default; requests to other origins follow your local HTML remote-content setting. Browser security policies still apply. Existing receive consent applies at 100000 encoded bytes per response and 2000000 encoded bytes per document. Allowing scripts reuses the received body without resubmitting a form. An explicit Reload sends the original request again and keeps that document’s native cookies. Disconnection stops scripts; reconnecting or replacing the remote source does not copy cookies or script permission. If private browser storage preparation briefly overlaps, it waits for a bounded time; storage limits and safety-check failures still appear as errors. On macOS, a remote address such as `localhost` or `127.0.0.1` opens under a separate name such as `localhost.tasty.localhost`. The address bar shows the original address, but page scripts read the separate name, and images or requests inside the document that name the remote `localhost` with a full address do not load. Relative paths and following links still work. Native Wayland on Linux, used when `DISPLAY` is unset or the X server cannot be reached, and macOS 11–26 do not support remote web-address rendering and do not connect from this computer as a fallback. The minimum supported macOS version remains 11.
 - `--raw` works only at the Surface level.
-- Unless you pass `--no-reconnect`, it automatically tries to reconnect when SSH drops.
+- For terminal attach, Unless you pass `--no-reconnect`, it automatically tries to reconnect when SSH drops.
 - If a slow link makes you miss part of the screen the remote was sending, the remote says so and the attach re-attaches on its own to fetch the screen again, printing a one-line notice in your terminal. An attach that prints the screen and exits re-attaches up to three times per run; if it still misses something, it prints the result and then warns that part of the screen may be missing. `--raw` re-attaches with no limit and redraws the screen from scratch. Input given with `--send` is not sent again.
 
-To attach directly to a running Tasty window from the CLI, use `--into-gui` above. To attach automatically whenever you switch to a workspace, see “Set up automatic attach on a Workspace” below.
+To attach directly to a running Tasty window from the CLI, use `--into-gui` above. For connections that remain after restart, see saved remote rows below.
 
-## 5. Set up automatic attach on a Workspace
+<a id="5-set-up-automatic-attach-on-a-workspace"></a>
 
-If you map a remote target onto a local Workspace, every time you switch to that Workspace Tasty sets up the SSH tunnel and attaches the mirror on its own.
+## 5. Connect a saved remote row
+
+A workspace attached through the GUI remote connection picker saves its connection details and the row's name, category, and position. It returns to the same place after a restart and tries to connect as soon as it becomes visible. This includes the restored active row after restart, switching window focus, and selecting a row. Rows you disconnected yourself and rows closed elsewhere are excluded. Mirrors attached through the CLI are not saved and are removed when disconnected.
+
+A saved row whose connection drops retries for **Keep reconnecting for**, then stays in the list as disconnected. The default is 300 seconds, with a range of 0–3600. At 0, it becomes disconnected immediately without automatic retries. A connection popup and card and status indicators report reconnecting, success, and timeout instead of toasts. Retries stop immediately with a reason if another client holds the workspace, the remote workspace is gone, or the target is itself a mirror. If the first connection fails, the row keeps the reason and does not retry automatically until you return to it or request a connection.
+
+A row you disconnected shows **Disconnected** and “You disconnected this workspace. It stays disconnected until you reconnect.” in its popup. Switching away and back does not connect it. Choose connect or reconnect from its popup or row menu, or select the same row in the remote connection picker. An agent can explicitly connect it with:
 
 ```sh
-tasty new workspace --name gx10-dev --ssh-profile gx10-attach --remote-workspace 3
-tasty set workspace --id 5 --ssh-profile gx10-attach --remote-workspace 3
-tasty set workspace --id 5 --ssh me@10.0.0.5 --remote-workspace 3      # without a profile
-tasty set workspace --id 5 --clear-mapping                              # remove the mapping
+tasty list workspaces
+tasty remote connect --workspace 7
 ```
 
-- `--remote-workspace` is the remote Workspace **ID**. Look it up with `tasty remote workspaces`.
-- A mapped mirror keeps the Workspace and its scrollback as they are when the connection drops and reconnects in the background (retrying with intervals growing from 0.5 seconds up to 30 seconds; at 30-second intervals when the remote is occupied by someone else). After 20 failures it stops and notifies you with a toast — leaving that Workspace and coming back triggers one more attempt immediately.
-- If the first connection fails (a profile, port or SSH problem), it retries with intervals growing from 0.5 seconds up to 30 seconds. Switching back to that Workspace or changing the mapping triggers one more attempt immediately.
-- If the mapped target is this same Tasty, it does not connect. A mapping set with `--ssh` is not retried until you change the mapping, and a profile mapping is checked once more when you switch back to that Workspace. `tasty remote refusals` lists the refused attempts.
-- If a mapping cannot connect (the target is this same Tasty, the SSH profile does not exist, or the endpoint cannot be prepared), a warning mark appears on that Workspace's row in the sidebar, after the name and to the left of the notification count badges. When the sidebar is collapsed, a small warning mark sits on the top-left corner of the Workspace icon. Hover it to see the target and the reason. Opening that Workspace shows a banner at the top with the same details, and **Remove mapping** clears the mapping right there. × closes the banner for this visit only; it comes back when you leave the Workspace and return. The mark goes away when you change or remove the mapping, or when the connection succeeds.
-- A mirror attached without a mapping disappears from the window when the connection drops. If it was the only Workspace left in that window, the window stays open and a new terminal Workspace takes its place.
+`--workspace` is required and takes the saved remote row's **local ID**. In this example, `7` is the row's ID from `tasty list workspaces`, not the remote ID. Connecting does not move focus. The command prints an accepted reply as one JSON line, then the final result as a second JSON line. An already connected row succeeds immediately; a connecting row joins that attempt. It exits with code 1 if the result fails or does not arrive within 90 seconds. It fails immediately for a normal local workspace, an unsaved CLI mirror, a nonexistent ID, a remote workspace that is gone, or a row whose window is closed.
+
+Commands such as `tasty send`, `tasty read screen`, and `tasty claude spawn --workspace` that use an unconnected saved row start connecting and wait up to 35 seconds. Once connected, the request runs; otherwise it ends with an error explaining the failure or refusal. A row you disconnected yourself instead returns a disconnected error without running the request. Follow the error's guidance to connect first with `tasty remote connect --workspace <id>` or the row's connection menu. Sending `tasty remote attach --into-gui` for the same remote target does not clear your disconnect either.
+
+Listing with `tasty list workspaces`, `tasty remote workspaces`, or `tasty remote refusals` does not connect rows. The regular output of `tasty list workspaces` includes a `[mirror]` marker but does not display connection state; use the GUI popup and card to see a saved row's connection state.
+
+A row whose remote workspace was closed elsewhere stays in the list, but selecting it does not connect it and its reconnect button is disabled. After restarting Tasty, it returns to an unconnected row and you can request a connection again.
 
 ## What you can do inside a mirror
 
@@ -214,27 +223,28 @@ tasty set workspace --id 5 --clear-mapping                              # remove
   - If the remote Tasty restarts, completions of children created before the restart are not delivered. On a remote running an older Tasty, no child is created and you get an error.
 - Restarting the shell of a mirror surface (`tasty surface respawn-terminal`, `tasty terminal respawn`) or attaching a background PTY as a tab inside a mirror (`tasty pty attach-surface`) is also refused, because it would put a local shell where the remote terminal is. Run them directly on the remote instance.
 - Applying a Tab or Pane preset to a mirror Workspace (the preset popup, `tasty preset apply`) is refused for the same reason. A Workspace preset creates a new Workspace, so it still works.
-- Closing the last terminal of a mirror removes the remote Workspace itself and disconnects.
 
 ## Closing and disconnecting a mirror
 
-**Disconnect Workspace** closes your mirror and leaves the remote work in place. **Close Workspace** closes the workspace on the remote computer. Choose Disconnect to leave the remote work running.
+Right-click a saved remote row for these actions:
 
-Right-clicking a mirror card shows two items together. Your own regular Workspace cards only have **Close Workspace**.
+- **Disconnect** — Ends the connection and any ongoing connection or reconnect attempt, keeping the row. The remote workspace and programs keep running, and input becomes available on the remote side again. Explicitly connect the row to use it again.
+- **Close locally** — Removes the row from this Tasty and cancels ongoing connection attempts, keeping the remote workspace and programs. The close-workspace shortcut also closes a saved row locally.
+- **Close remote workspace…** — While connected, opens a confirmation dialog before ending the remote workspace and all its programs. This cannot be undone; success also removes the saved row. Manually closing a connected saved row's last tab, pane, or surface also asks you to confirm the remote close. Agent close requests run without confirmation.
 
-- **Close Workspace** — actually closes that Workspace on the remote computer. All its tabs, panes and terminals, and the programs running in them, end on the remote side. Only after the remote answers that it closed does your mirror disappear, with **Closed the workspace on the remote Tasty.** If the remote refuses, the mirror stays and a failure notice appears. The closed Workspace can be brought back with Restore closed in the remote window (running programs do not come back).
-  - Closing the Workspace with a shortcut does the same. Closing a mirror's last tab, pane or terminal with a shortcut, which falls back to closing the Workspace, also closes the remote Workspace. To keep the remote running, use **Disconnect Workspace**.
-  - If it was the remote's last Workspace, the remote window does not close; a new terminal Workspace opens in its place.
-  - While the connection is down or reconnecting, the close is not sent and only a notice appears. It is not sent either when the remote Tasty is an older version without this feature. In that case update the remote, or use **Disconnect Workspace**.
-  - If the connection ends before the remote answers, you are told that whether it closed is unknown. The Workspace may still be running on the remote, so reconnect and check.
-  - When you close a mapped mirror on the remote, the same mapping does not reconnect automatically. The mapping is not deleted; point it at another remote Workspace or clear it yourself.
-- **Disconnect Workspace** — closes only your mirror and ends the connection. The remote Workspace and its programs keep running, and the remote side can type again. It works while reconnecting too, and then also stops the reconnect attempts. If it was the last Workspace, the window does not close and a new terminal Workspace opens.
-  - A mapped mirror keeps its mapping but does not attach again right away. Go to another Workspace and come back to the mapped one to reconnect. For a mirror attached without a mapping, attach again with **Add remote workspace** to see the same Workspace and output.
-  - A drop caused by the network still reconnects automatically as before. Only a disconnect you chose stops it.
+An unsaved mirror attached through the CLI has **Disconnect Workspace** and **Close Workspace** in its card menu. The former removes your mirror while keeping remote work running; the latter ends the remote workspace and programs. Closing its last tab, pane, or surface also closes the remote workspace. Closing the last remote workspace creates a new terminal workspace in the remote window.
 
-These two items differ from **Force detach** in the remote window. Force detach removes someone else's connection on the remote computer; Disconnect closes the mirror you attached, from your side.
+A remote close cannot be sent while connecting or reconnecting. If the remote Tasty does not support it, update it or disconnect instead. If the connection drops before the reply, Tasty reports that the close result is unknown. The remote work may still be running; reconnect to check.
 
-There is no CLI command that only disconnects the mirror. Closing its last surface also closes the remote workspace. To leave the remote work running and only disconnect, use **Disconnect Workspace** in the GUI.
+The CLI can also disconnect while keeping remote work running:
+
+```sh
+tasty remote disconnect --workspace 7
+```
+
+`--workspace` takes the **local ID** of the `[mirror]` row in `tasty list workspaces`. A saved row stays in the list; reconnect with `tasty remote connect --workspace <local id>`. For an unsaved mirror, attach again with `tasty remote attach --into-gui --workspace <remote id>`. Disconnecting a saved row succeeds even when it is not yet connected and cancels ongoing attempts.
+
+This differs from **Force detach** in the remote window, which removes someone else's connection from the remote computer.
 
 ## Releasing the occupation (on the remote side)
 
@@ -262,6 +272,8 @@ A remote attach connection disconnects after receiving nothing from the other si
 
 Saving applies the value to new connections without restarting; open connections keep their existing value. Each Tasty uses its own value, so increasing yours does not prevent the other side from disconnecting first. CLI attach that does not read the settings file uses 30 seconds. See [Settings](../customize/settings.md) for the file key and how out-of-range file values are handled.
 
+**Keep reconnecting for** under **Settings** › **General** › **Remote attach** controls how long automatic retries continue after a connection drops. The default is 300 seconds, with a range of 0–3600; 0 disables automatic reconnecting. It does not apply to connections you end yourself. The configuration key is `[remote_attach] reconnect_timeout_secs`.
+
 ## While waiting for a response
 
 When you create a new tab or split in a mirror, Tasty shows its place from the next frame. You cannot send input to that new area until the server confirms it, but you can select an existing Tab or area and keep working. If you select somewhere else while waiting, a late completion does not move your selection back. A failed request removes only its own temporary area.
@@ -270,7 +282,7 @@ After 200 ms without a response, spinners appear in the Tab and sidebar, and **W
 
 The spinner appears only in place of the Tab icon, the sidebar status dot, or the avatar in the collapsed sidebar; Tab titles and Workspace names do not change. Hover over a waiting Tab or Workspace to see **Attaching…** under its name.
 
-For ordinary input, a server that supports input acknowledgments confirms that preceding input has reached the app's processing boundary. This does not mean a shell command or program has finished. Normal input without output and long-running commands do not keep the indicator on; older servers are not asked for unsupported input acknowledgments. If the connection drops, the existing reconnection notice takes over.
+For ordinary input, a server that supports input acknowledgments confirms that preceding input has reached the app's processing boundary. This does not mean a shell command or program has finished. Normal input without output and long-running commands do not keep the indicator on; older servers are not asked for unsupported input acknowledgments. If the connection drops, saved rows show their state through the connection popup and indicators; unsaved CLI mirrors are removed.
 
 ## Troubleshooting
 

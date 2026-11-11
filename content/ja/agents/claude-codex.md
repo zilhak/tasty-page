@@ -1,4 +1,4 @@
-<!-- source-hash: 5dae801cb067 -->
+<!-- source-hash: fa11f69ab23d -->
 # Claude・Codex と一緒に使う
 
 Claude Code と Codex CLI を Tasty のターミナルで実行し、状態を確認します。両方の CLI は別途インストールする必要があります。複数のエージェントにタスクを分担させるには、フックと親の結果受信経路をあわせて設定してください。
@@ -263,7 +263,7 @@ tasty claude codex-returns --retry   # 残っている結果をすべて今す�
 
 まだ接続していない場合は、`tasty remote attach --into-gui --workspace <リモート ID> --profile <名前>` で、実行中の Tasty にミラーをアタッチします。リモートに新しいワークスペースを作成してアタッチするには、`--workspace <リモート ID>` の代わりに `--new-workspace` を使用し、名前とリモートの作業パスは `--name`・`--cwd` で指定できます。プロファイルの代わりに `--ssh <対象>` も使用できます。Tasty が SSH トンネルを直接開き、フォーカスは移しません。既存のワークスペースへの接続は、受付と結果の JSON を 2 行出力し、結果を最大 90 秒待ちます。失敗した場合や時間内に結果を受け取れなかった場合は、終了コードが 1 になります。新しいワークスペースを作成する形式では、作成結果の JSON を 1 行出力します。
 
-`tasty list workspaces` の `[mirror]` 行で、こちら側のワークスペース ID を確認し、以下の spawn の `--workspace` にその ID を指定してください。attach に指定したリモート ID をそのまま使用しないでください。セッショントークンで `tasty remote attach --into-gui` と `tasty remote refusals` を使用するのに別途権限は必要ありませんが、`tasty list workspaces` には `surface.read` 権限が必要です。CLI には接続だけを切断するコマンドがなく、ミラーの最後のサーフェスを閉じると、リモートワークスペースも一緒に閉じます。接続方法と GUI で接続だけを切断する方法は、[リモート作業を再開する](../remote/attach.md)を参照してください。
+`tasty list workspaces` の `[mirror]` 行でローカルワークスペース ID を確認し、以下の spawn の `--workspace` に指定してください。attach に指定したリモート ID をそのまま使用しないでください。一覧の取得だけでは保存された行に接続しません。未接続の保存された行への spawn は接続を開始して最大 35 秒待ち、接続できれば要求を実行し、接続できなければ理由を示すエラーで終了します。手動で切断した行は自動で接続しないため、先に `tasty remote connect --workspace <ローカル ID>` を使ってください。セッショントークンで `tasty remote attach --into-gui`、`tasty remote connect`、`tasty remote disconnect`、`tasty remote refusals` を使うのに別途権限は必要ありませんが、`tasty list workspaces` には `surface.read` 権限が必要です。リモートの作業を残して接続だけを切るには、`tasty remote disconnect --workspace <ローカル ID>` を使ってください。ミラーの最後のサーフェスを閉じると、リモートワークスペースも閉じます。接続と閉じる操作の詳細は、[リモート作業を再開する](../remote/attach.md)を参照してください。
 
 別のコンピューターの Tasty ワークスペースを接続（アタッチ）してある場合は、そのワークスペース番号を `--workspace` に指定し、`tasty claude spawn`・`tasty codex spawn` を実行できます。子はリモートコンピューターで、そのコンピューターの Claude Code・Codex のインストール、設定、ログイン情報を使って実行され、こちら側では接続したワークスペース内の子として表示されます。`tell`・`children`・`kill` も、こちら側の子と同じように使用します。
 
