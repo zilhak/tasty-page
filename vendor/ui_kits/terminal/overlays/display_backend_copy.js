@@ -11,6 +11,7 @@
 // Every toast holds the cause and the fix. A webview notice holds the cause in its title and the fix in its _sub,
 // except webview.gtk_init_failed: there is no fix the user can take, so it has no _sub key and its sub line stays
 // empty. gtk-init raises no toast (the window is X11, so the clipboard works) and names neither menus nor file drops.
+// No notice here has a button or a link (decided 2026-11-11), so none opens the user guide.
 // toast.clipboard_wayland_unsupported is an existing key with a new value. The rest are new keys.
 // toast.clipboard_files_internal_copy / _paste are unchanged and stay for system clipboard failures on X11.
 // GDK_BACKEND, wayland, XWayland, Wayland, DISPLAY, GTK and Tasty are never translated.

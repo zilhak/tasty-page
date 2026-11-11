@@ -26,7 +26,7 @@ import { dbt, dbHas } from "./display_backend_copy.js";
 // Display-backend notices (2026-11-11): native-wayland, native-wayland-x, gdk-backend, gtk-init (GTK failed to
 // initialize with GDK_BACKEND unset or allowing x11). The webview could not be created for the life of this Tasty
 // process, so the tile never changes state again until Tasty restarts. Title = what is off + the cause, sub = the
-// fix. gtk-init has no fix to offer, so its sub line stays reserved and empty.
+// fix. gtk-init has no fix to offer, so its sub line stays reserved and empty. No kind has a button or a link.
 // The fix must be read in full, so for these kinds only:
 //   title  wraps, balanced lines (text-wrap balance); breaks inside a long identifier only when it must
 //   sub    caption, wraps the same way, NEVER ellipsis. The reserved caption box is its minimum and it grows by
