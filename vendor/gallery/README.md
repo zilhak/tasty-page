@@ -27,7 +27,7 @@ The 15 URLs do not change, so `/design/gallery/<key>/` keeps its current path. E
 | Components | Components | `components` | Buttons, Badge, Tag, Kbd, form controls, Tab, TreeRow, MenuItem, feedback, CenterState, HelpHint, Tooltip, hint text, Table, ListCtrl, Scrollbar |
 | Overlays | Dialogs | `overlays-dialogs` | Scrim and frame, scrim over each ground, approval, convert, file handler, preset, markdown open, rename, category, transfer, info modal, script confirm, delete permanently |
 | Overlays | Windows | `overlays-windows` | Palette, ports, remote, remote attach, file picker, settings, permissions, plugins window, keybinding import, scripts, git viewer, clipboard, notifications, move and resize, preset editor |
-| Overlays | Popups and menus | `overlays-popups` | Tools menu, search bar, switch overlays, modifier hints, categories, notice column, opaque mode over a page |
+| Overlays | Popups and menus | `overlays-popups` | Tools menu, fallback context menu, search bar, switch overlays, modifier hints, categories, notice column, opaque mode over a page |
 | Overlays | Banners | `overlays-banners` | Banner family and its instances |
 | Overlays | Tutorial | `overlays-tutorial` | Marker, callout, topic list, composite |
 | Shell | Layouts | `layouts` | Sidebar and rail, tab strip, list idioms, tiers, divider, surface focus on every kind, attention, move source, loading, notification summary, status bar, title bar |

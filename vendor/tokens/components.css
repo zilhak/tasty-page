@@ -1447,6 +1447,10 @@
   /* 2026-10-07 (batch 4) */
   --tasty-tools-menu-min-width:        var(--tasty-size-160);      /* Tools menu grows to its longest label; 160 is the floor */
   --tasty-tools-menu-max-width:        var(--tasty-size-240);      /* past this a label ellipsizes at the END */
+  /* 2026-11-11 — fallback context menu: the egui menu drawn only where the native menu cannot open (Linux, display backend causes 1, 1b, 2) */
+  --tasty-fallback-menu-min-width:     var(--tasty-size-160);      /* grows to its longest row; 160 is the floor */
+  --tasty-fallback-menu-max-width:     var(--tasty-size-320);      /* past this a label wraps (fixed copy), never ellipsizes */
+  --tasty-fallback-menu-edge-margin:   var(--tasty-space-sm);      /* 8 kept clear of every window edge; max height = window height - 2 x this, then the rows scroll */
   --tasty-explorer-state-compact-below: var(--tasty-size-120);     /* content body under this → status screens switch to the one-line compact row */
   --tasty-md-callout-icon-gap:         var(--tasty-space-xs);      /* callout header: marker → type icon → label, 4 each */
   --tasty-md-callout-marker-size:      var(--tasty-icon-size-sm);  /* collapsible callout chevron (replaces the <details> default marker) */

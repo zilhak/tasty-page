@@ -5731,6 +5731,18 @@
       "$type": "dimension",
       "$value": "{primitive.size-240}"
     },
+    "fallback-menu-min-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-160}"
+    },
+    "fallback-menu-max-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-320}"
+    },
+    "fallback-menu-edge-margin": {
+      "$type": "dimension",
+      "$value": "{semantic.space-sm}"
+    },
     "explorer-state-compact-below": {
       "$type": "dimension",
       "$value": "{primitive.size-120}"

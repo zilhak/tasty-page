@@ -7,6 +7,7 @@ import { GalleryWebviewOpaque } from "./opaque-over-page.jsx";
 import { GroundThemes as PGroundThemes, GroundCap as PGroundCap, ToolsMenuFrame, SearchBarFrame, HeldLabel, TabStripMock, SidebarMock, RailMock, CatSwitchSidebarMock, CatSwitchRailMock, ic, CatMenu, RailCategoryFrame, catIc, ModifierHintPanelG, MH_CAT_SECTIONS, MH_MIXED_SECTIONS, MH_EMPTY_SECTIONS } from "../parts/overlay-frames.jsx";
 import { Section, Spec, Stage, Meta, Note, Do, Dont, Views, View } from "../parts/specimen.jsx";
 import { RemoteRowMenuItems } from "../../ui_kits/terminal/overlays/remote_row.jsx";
+import { FallbackMenuSection } from "./fallback-menu.jsx";
 
 // Tasty Gallery — Overlays · Popups & menus (anchored, no scrim)
 // One of the five Overlays sub-pages (dialogs · windows · popups · banners · tutorial). Frame components are shared from
@@ -19,6 +20,7 @@ import { RemoteRowMenuItems } from "../../ui_kits/terminal/overlays/remote_row.j
 
 const NAV = [
   { id: "tools", label: "Tools menu" },
+  { id: "fallback", label: "Fallback context menu" },
   { id: "search", label: "Search bar" },
   { id: "switch", label: "Switch-number overlay" },
   { id: "modhint", label: "Modifier hints" },
@@ -97,6 +99,8 @@ function Page() {
           <Note>Plugins extend the list <b>below</b> the separator only — built-in order is fixed. This is a popover, not a dialog: it never dims the app.</Note>
         </Spec>
       </Section>
+
+<FallbackMenuSection />
 
 <Section id="search" title="Search bar">
         <Spec id="search-bar-ctrl-f-headless" title="Search bar — Ctrl/⌘F, headless"
