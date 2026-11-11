@@ -30,7 +30,7 @@ import { dbt } from "./display_backend_copy.js";
 //   sub    caption, wraps the same way, NEVER ellipsis. The reserved caption box is its minimum and it grows by
 //          whole caption lines. Moving the glyph is allowed here because no other state follows in the same rect.
 //   block  centred while it fits; when it does not, it starts at the top padding and the rect scrolls vertically
-//          (the standard surface scrollbar), so nothing is clipped: the glyph and the cause show first and the fix is
+//          (the standard scrollbar, class tasty-scroll), so nothing is clipped: the glyph and the cause show first and the fix is
 //          a scroll away. Measured 2026-11-11: at 220 x 150 the cause 2 text (en, ja) and cause 1b (ja) run 13-31 px
 //          over, and at 160 wide every cause does, so clipping would hide the fix.
 // Glyph info in glyph-dim; title and sub text-muted: the same inks as macos, so all four beds already hold.
@@ -62,7 +62,7 @@ const SUB_LINE = "calc(var(--tasty-font-size-caption) * var(--tasty-line-height-
 function HaCenter({ glyph, glyphColor = "var(--tasty-glyph-dim)", spin, title, titleColor = "var(--tasty-text-muted)", sub, mono, notice }) {
   const wrap = notice ? { textWrap: "balance", overflowWrap: "anywhere" } : null;
   return (
-    <div data-page-notice={notice ? "" : undefined} style={{ flex: 1, minHeight: 0, minWidth: 0, display: "flex", alignItems: "center", justifyContent: "center", padding: "var(--tasty-space-md)", ...(notice ? { overflowX: "hidden", overflowY: "auto" } : null) }}>
+    <div data-page-notice={notice ? "" : undefined} className={notice ? "tasty-scroll" : undefined} style={{ flex: 1, minHeight: 0, minWidth: 0, display: "flex", alignItems: "center", justifyContent: "center", padding: "var(--tasty-space-md)", ...(notice ? { overflowX: "hidden", overflowY: "auto" } : null) }}>
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "var(--tasty-space-sm)", maxWidth: "100%", minWidth: 0, textAlign: "center", ...(notice ? { margin: "auto 0" } : null) }}>
         <span style={{ flex: "none", display: "inline-flex", height: "var(--tasty-icon-size-md)", color: glyphColor }}>{spin ? <Spinner /> : <PsIcon name={glyph} size="var(--tasty-icon-size-md)" />}</span>
         <span style={{ fontSize: "var(--tasty-font-size-body)", lineHeight: "var(--tasty-line-height-ui)", color: titleColor, ...wrap }}>{title}</span>

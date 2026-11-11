@@ -544,6 +544,19 @@ function HtmlTile({ state, bed = "var(--tasty-bg-panel)", width = 220, height = 
 // Display-backend notices: the three causes, in the order the guide names them.
 const DB_CAUSES = [["native-wayland", "cause 1 · no XWayland"], ["native-wayland-x", "cause 1b · X server in DISPLAY unreachable"], ["gdk-backend", "cause 2 · GDK_BACKEND=wayland"]];
 const DB_TILE_LANGS = ["en", "ko", "ja", "zh-Hans"];
+// Tiles whose notice block is taller than the rect (render of 2026-11-11): the fix line is only reached by scrolling.
+// [kind, lang, width] — 220 x 150: cause 2 en and ja, cause 1b ja; 160 x 150: every cause (ja).
+const DB_OVERFLOW = [["gdk-backend", "en", 220], ["gdk-backend", "ja", 220], ["native-wayland-x", "ja", 220], ["native-wayland", "ja", 160], ["native-wayland-x", "ja", 160], ["gdk-backend", "ja", 160]];
+// Freezes a frame at the end of its notice scroll, so the fix line shows without scrolling by hand. Gallery only:
+// it moves the scroll position of the part's own scroll area and paints nothing.
+function ScrolledToEnd({ children }) {
+  const ref = React.useRef(null);
+  React.useEffect(() => {
+    const area = ref.current && ref.current.querySelector("[data-page-notice]");
+    if (area) area.scrollTop = area.scrollHeight;
+  }, []);
+  return <div ref={ref}>{children}</div>;
+}
 function Framed({ cap, children, theme }) {
   return (
     <div data-theme={theme} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", ...(theme ? { padding: "var(--tasty-space-sm)", background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)" } : null) }}>
@@ -1091,6 +1104,11 @@ function Page() {
                 <HtmlTile state={kind} lang="ja" width={160} />
               </View>
             ))}
+            {DB_OVERFLOW.map(([kind, lang, width]) => (
+              <View key={"end" + kind + lang + width} name={`html-notice-${kind}-${lang}-${width}-scrolled-end`} label={`${kind}, ${lang}, ${width} x 150, scrolled to the end (fix line)`}>
+                <ScrolledToEnd><HtmlTile state={kind} lang={lang} width={width} /></ScrolledToEnd>
+              </View>
+            ))}
             {["native-wayland", "native-wayland-x"].map((kind) => ["en", "ko"].map((lang) => (
               <View key={"j2b" + kind + lang} name={`html-notice-${kind}-j2b-${lang}`} label={`J2 branch b (undecided), ${kind}, ${lang}`}>
                 <HtmlTile state={kind} lang={lang} j2="b" />
@@ -1098,9 +1116,9 @@ function Page() {
             )))}
           </Views>
           <Meta
-            specs={[["kinds", "native-wayland (1) · native-wayland-x (1b) · gdk-backend (2) — one at a time; 1 and 2 never hold in one window"], ["where", "the page rect of html, markdown and html mirror surfaces; the band stays above it"], ["when", "the webview could not be created; the notice stays while the surface is visible, until Tasty restarts"], ["glyph", <>info · <span className="tok">--tasty-glyph-dim</span></>], ["title", <>cause · body · <span className="tok">--tasty-text-muted</span> · wraps, balanced lines</>], ["sub", <>fix · caption · <span className="tok">--tasty-text-muted</span> · wraps, balanced lines · <b>never ellipsis</b> · min one caption line box, grows by whole lines</>], ["block", "centred while it fits · otherwise starts at the top padding and the rect scrolls vertically (standard surface scrollbar) — never clipped"], ["button", "none — the fix is outside Tasty and needs a restart"], ["copy", "webview.native_wayland(_sub) · webview.native_wayland_x_failed(_sub) · webview.gdk_backend(_sub) — display_backend_copy.js, four languages"], ["J2 (undecided)", "branch a: as drawn · branch b: the cause 1 and 1b titles also say file drops from other apps are off (Views)"]]}
+            specs={[["kinds", "native-wayland (1) · native-wayland-x (1b) · gdk-backend (2) — one at a time; 1 and 2 never hold in one window"], ["where", "the page rect of html, markdown and html mirror surfaces; the band stays above it"], ["when", "the webview could not be created; the notice stays while the surface is visible, until Tasty restarts"], ["glyph", <>info · <span className="tok">--tasty-glyph-dim</span></>], ["title", <>cause · body · <span className="tok">--tasty-text-muted</span> · wraps, balanced lines</>], ["sub", <>fix · caption · <span className="tok">--tasty-text-muted</span> · wraps, balanced lines · <b>never ellipsis</b> · min one caption line box, grows by whole lines</>], ["block", "centred while it fits · otherwise starts at the top padding and the rect scrolls vertically (standard scrollbar, tasty-scroll) — never clipped"], ["button", "none — the fix is outside Tasty and needs a restart"], ["copy", "webview.native_wayland(_sub) · webview.native_wayland_x_failed(_sub) · webview.gdk_backend(_sub) — display_backend_copy.js, four languages"], ["J2 (undecided)", "branch a: as drawn · branch b: the cause 1 and 1b titles also say file drops from other apps are off (Views)"]]}
             tokens={[{ tok: "--tasty-glyph-dim", use: "info glyph", color: "var(--tasty-glyph-dim)" }, { tok: "--tasty-text-muted", use: "title · fix line", color: "var(--tasty-text-muted)" }, { tok: "--tasty-font-size-caption", use: "fix line" }, { tok: "--tasty-space-md", use: "padding" }, { tok: "--tasty-space-sm", use: "glyph · title · fix gaps" }]} />
-          <Note>The Views draw every cause in all four languages at the gallery tile size and the Japanese text at 160 wide. Where the block is taller than the rect (cause 2 at 220 x 150, every cause at 160 wide) the tile scrolls, so the fix is reached by scrolling, never cut. The copy is the app's, from <code>display_backend_copy.js</code>; the rest of the gallery stays en-only.</Note>
+          <Note>The Views draw every cause in all four languages at the gallery tile size and the Japanese text at 160 wide. Where the block is taller than the rect the tile scrolls, so the fix is reached by scrolling, never cut: at 220 x 150 cause 2 in en and ja and cause 1b in ja, and at 160 wide every cause. Those tiles also appear scrolled to the end, with the fix line in view. The copy is the app's, from <code>display_backend_copy.js</code>; the rest of the gallery stays en-only.</Note>
           <Dont><b>Don't</b> put the fix in a tooltip or behind a link, and don't ellipsize it. The notice must name the cause and the fix where it is read.</Dont>
         </Spec>
         <Spec id="html-focus-edge" title="HTML — focus edge above the band"
