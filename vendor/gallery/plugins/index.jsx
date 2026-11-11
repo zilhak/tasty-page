@@ -546,7 +546,8 @@ const DB_CAUSES = [["native-wayland", "cause 1 · no XWayland"], ["native-waylan
 const DB_TILE_LANGS = ["en", "ko", "ja", "zh-Hans"];
 // Tiles whose notice block is taller than the rect (render of 2026-11-11): the fix line is only reached by scrolling.
 // [kind, lang, width] — 220 x 150: cause 2 en and ja, cause 1b ja; 160 x 150: every cause (ja). gtk-init has no fix
-// line and fits at both sizes in every language (render of 2026-11-11), so it has no entry.
+// line and fits at both sizes in every language (render of 2026-11-11), so it has no entry. The cause 2 entries
+// still hold for its value-free title (render after that change, 2026-11-11).
 const DB_OVERFLOW = [["gdk-backend", "en", 220], ["gdk-backend", "ja", 220], ["native-wayland-x", "ja", 220], ["native-wayland", "ja", 160], ["native-wayland-x", "ja", 160], ["gdk-backend", "ja", 160]];
 // Freezes a frame at the end of its notice scroll, so the fix line shows without scrolling by hand. Gallery only:
 // it moves the scroll position of the part's own scroll area and paints nothing.

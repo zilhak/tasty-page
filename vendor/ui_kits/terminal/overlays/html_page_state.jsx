@@ -34,7 +34,8 @@ import { dbt, dbHas } from "./display_backend_copy.js";
 //   block  centred while it fits; when it does not, it starts at the top padding and the rect scrolls vertically
 //          (the standard scrollbar, class tasty-scroll), so nothing is clipped: the glyph and the cause show first and the fix is
 //          a scroll away. Measured 2026-11-11: at 220 x 150 the cause 2 text (en, ja) and cause 1b (ja) run 13-31 px
-//          over, and at 160 wide every cause does, so clipping would hide the fix.
+//          over, and at 160 wide every cause does, so clipping would hide the fix. That cause 2 figure is for its earlier
+//          title; the value-free title of 2026-11-11 is about as long and still runs over there (en, ja at 220; ja at 160).
 // Glyph info in glyph-dim; title and sub text-muted: the same inks as macos, so all four beds already hold.
 //
 // Ink (ground-ink matrix, roles on the host bed):
