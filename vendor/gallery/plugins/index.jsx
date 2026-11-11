@@ -532,11 +532,23 @@ function MdInjectionMap() {
 
 // The gallery's chrome tile = the webview page tile (HtmlPageState) in a fixed 220 x 150 specimen rect on the host bed.
 // Not a second size: the part fills the rect it is given. No border of its own; stages add the specimen frame.
-const TILE_KIND = { boundary: "boundary", placeholder: "empty", loading: "loading", error: "failed" };
-function HtmlTile({ state, bed = "var(--tasty-bg-panel)" }) {
+const TILE_KIND = { boundary: "boundary", placeholder: "empty", loading: "loading", error: "failed", "native-wayland": "native-wayland", "native-wayland-x": "native-wayland-x", "gdk-backend": "gdk-backend" };
+function HtmlTile({ state, bed = "var(--tasty-bg-panel)", width = 220, height = 150, lang, j2 }) {
   return (
-    <div style={{ width: 220, height: 150, display: "flex", flexDirection: "column", background: bed, overflow: "hidden" }}>
-      <HtmlPageState kind={TILE_KIND[state]} url="https://offline.example" hint={false} />
+    <div style={{ width, height, display: "flex", flexDirection: "column", background: bed, overflow: "hidden" }}>
+      <HtmlPageState kind={TILE_KIND[state]} url="https://offline.example" hint={false} lang={lang} j2={j2} />
+    </div>
+  );
+}
+
+// Display-backend notices: the three causes, in the order the guide names them.
+const DB_CAUSES = [["native-wayland", "cause 1 · no XWayland"], ["native-wayland-x", "cause 1b · X server in DISPLAY unreachable"], ["gdk-backend", "cause 2 · GDK_BACKEND=wayland"]];
+const DB_TILE_LANGS = ["en", "ko", "ja", "zh-Hans"];
+function Framed({ cap, children, theme }) {
+  return (
+    <div data-theme={theme} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", ...(theme ? { padding: "var(--tasty-space-sm)", background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)" } : null) }}>
+      <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
+      <div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>{children}</div>
     </div>
   );
 }
@@ -949,7 +961,7 @@ function Page() {
                 </MdFocused.Provider>
               </View>
             ))}
-            {["boundary", "placeholder", "loading", "error"].map((state) => [true, false].map((focused) => (
+            {["boundary", "placeholder", "loading", "error", "native-wayland", "native-wayland-x", "gdk-backend"].map((state) => [true, false].map((focused) => (
               <View key={state + focused} name={`markdown-tile-${state}-${focused ? "focused" : "unfocused"}`} label={`Chrome tile, ${state}, ${focused ? "focused" : "unfocused"}`}>
                 <HtmlTile state={state} bed={surfaceBed(focused)} />
               </View>
@@ -1059,6 +1071,37 @@ function Page() {
           <Meta
             specs={[["content", "native OS WebView (token-agnostic)"], ["part", "HtmlPageState — one part for the page rect at every size; it fills the rect the host gives"], ["tile", <>page bed (<span className="tok">--tasty-bg-panel</span>) · no border, no shadow · the band's 1px separator is the only rule</>], ["block", "glyph 16 · space-sm · title (body × line-height-ui) · space-sm · sub line (caption × line-height-ui), always reserved · centred as one · padding space-md"], ["boundary (2026-10-06)", "the bare bed — shown only while an egui overlay hides a loaded page; no glyph, label or URL / path"], ["placeholder", "html glyph (glyph-dim) + 'No page loaded' · sub line holds the address hint when the surface has a band"], ["loading", "Spinner + 'Loading…' · sub line empty"], ["error", "alertCircle (glyph-danger) + 'Failed to load' (text-danger) + URL mono"]]}
             tokens={[{ tok: "--tasty-text-muted", use: "placeholder / loading title · sub line · URL", color: "var(--tasty-text-muted)" }, { tok: "--tasty-glyph-dim", use: "placeholder glyph", color: "var(--tasty-glyph-dim)" }, { tok: "--tasty-spinner-indicator", use: "loading", color: "var(--tasty-spinner-indicator)" }, { tok: "--tasty-accent-danger", use: "error glyph (glyph-danger)", color: "var(--tasty-accent-danger)" }, { tok: "--tasty-accent-danger-raised", use: "error title (text-danger)", color: "var(--tasty-accent-danger-raised)" }]} />
+        </Spec>
+        <Spec id="html-display-backend-notice" title="HTML and Markdown — display backend notice"
+          when={<>On Linux the webview cannot be created when Tasty runs on <b>native Wayland</b> (no XWayland, cause 1; or the X server in <code>DISPLAY</code> unreachable, cause 1b) or was started with <b><code>GDK_BACKEND=wayland</code></b> (cause 2). Instead of the bare tile, the page rect shows a notice for as long as the surface is visible: <b>title = what is off and why, sub = the fix</b>. The same notice covers html, markdown and the html mirror, including a remote web address: there is no separate remote state. Cause 2 also names the tray icon and menus, which are off for the same reason, so no other notice is raised for them. The fix is done outside Tasty and needs a restart, so the notice has no button. It is the webview page tile with three more kinds; its fix line <b>wraps and never ellipsizes</b>, because a cut fix fails the notice.</>}>
+          <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
+            {DB_CAUSES.map(([kind, cap]) => <Framed key={kind} cap={cap}><HtmlTile state={kind} /></Framed>)}
+            <Framed cap="html surface with its band · cause 1"><HtmlAddressSurfaceG width="var(--tasty-size-460)" height={240} bar={{ kind: "local", address: "~/work/tasty/target/report.html" }} page="native-wayland" /></Framed>
+            <Framed cap="html mirror, remote web address · cause 2"><HtmlAddressSurfaceG width="var(--tasty-size-460)" height={240} label={`${BASE}design/gallery/`} bar={{ kind: "remote", address: "build-eu ↦ https://intranet.example/status" }} page="gdk-backend" /></Framed>
+            {DB_CAUSES.map(([kind, cap]) => <Framed key={"latte" + kind} theme="latte" cap={`Latte · ${cap}`}><HtmlTile state={kind} /></Framed>)}
+          </Stage>
+          <Views>
+            {DB_CAUSES.map(([kind]) => DB_TILE_LANGS.map((lang) => (
+              <View key={kind + lang} name={`html-notice-${kind}-${lang}`} label={`${kind}, ${lang}, 220 x 150`}>
+                <HtmlTile state={kind} lang={lang} />
+              </View>
+            )))}
+            {DB_CAUSES.map(([kind]) => (
+              <View key={"narrow" + kind} name={`html-notice-${kind}-narrow`} label={`${kind}, ja, narrow 160 x 150`}>
+                <HtmlTile state={kind} lang="ja" width={160} />
+              </View>
+            ))}
+            {["native-wayland", "native-wayland-x"].map((kind) => ["en", "ko"].map((lang) => (
+              <View key={"j2b" + kind + lang} name={`html-notice-${kind}-j2b-${lang}`} label={`J2 branch b (undecided), ${kind}, ${lang}`}>
+                <HtmlTile state={kind} lang={lang} j2="b" />
+              </View>
+            )))}
+          </Views>
+          <Meta
+            specs={[["kinds", "native-wayland (1) · native-wayland-x (1b) · gdk-backend (2) — one at a time; 1 and 2 never hold in one window"], ["where", "the page rect of html, markdown and html mirror surfaces; the band stays above it"], ["when", "the webview could not be created; the notice stays while the surface is visible, until Tasty restarts"], ["glyph", <>info · <span className="tok">--tasty-glyph-dim</span></>], ["title", <>cause · body · <span className="tok">--tasty-text-muted</span> · wraps, balanced lines</>], ["sub", <>fix · caption · <span className="tok">--tasty-text-muted</span> · wraps, balanced lines · <b>never ellipsis</b> · min one caption line box, grows by whole lines</>], ["block", "centred while it fits · otherwise starts at the top padding and the rect clips the bottom"], ["button", "none — the fix is outside Tasty and needs a restart"], ["copy", "webview.native_wayland(_sub) · webview.native_wayland_x_failed(_sub) · webview.gdk_backend(_sub) — display_backend_copy.js, four languages"], ["J2 (undecided)", "branch a: as drawn · branch b: the cause 1 and 1b titles also say file drops from other apps are off (Views)"]]}
+            tokens={[{ tok: "--tasty-glyph-dim", use: "info glyph", color: "var(--tasty-glyph-dim)" }, { tok: "--tasty-text-muted", use: "title · fix line", color: "var(--tasty-text-muted)" }, { tok: "--tasty-font-size-caption", use: "fix line" }, { tok: "--tasty-space-md", use: "padding" }, { tok: "--tasty-space-sm", use: "glyph · title · fix gaps" }]} />
+          <Note>The Views draw every cause in all four languages at the gallery tile size and the Japanese text at 160 wide, so a fix line that would be cut shows up here. The copy is the app's, from <code>display_backend_copy.js</code>; the rest of the gallery stays en-only.</Note>
+          <Dont><b>Don't</b> put the fix in a tooltip or behind a link, and don't ellipsize it. The notice must name the cause and the fix where it is read.</Dont>
         </Spec>
         <Spec id="html-focus-edge" title="HTML — focus edge above the band"
           when={<>The host cannot paint the page, so html shows focus only on the <a href="../layouts/#surface-focus-every-kind">surface focus edge</a>, above the address band. Its bed cannot follow focus the way a terminal's does: author CSS owns it, and a sandboxed page may run no script. Stack from the top: <b>edge → address band → size banner → script banner → page</b>. The band, the banners and the chrome tiles look the same in both states. A focused field keeps its blue ring, on a focused surface and only there.</>}>
