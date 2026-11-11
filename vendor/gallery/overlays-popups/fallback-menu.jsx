@@ -6,7 +6,8 @@ import { FallbackMenu } from "../../ui_kits/terminal/overlays/fallback_menu.jsx"
 // Tasty Gallery — Popups and menus › Fallback context menu (2026-11-11).
 // Labels are the app's en strings (lang/en.toml [explorer.context_menu], [explorer.menu]). FILE_MENU is the app's
 // Explorer menu for one local file: rows and separators in the app's order, shortcuts as the app shows them with the
-// default Linux / Windows keymap (each row shows its first binding; Properties has none, so it shows no shortcut).
+// default keymap, preset_tasty, which is the same on every platform (each row shows its first binding; Properties
+// has none, so it shows no shortcut).
 // Icons stand in for the SVG the item model carries (the app's Open in system icon is an external-link glyph that
 // vendor/icons does not have).
 
