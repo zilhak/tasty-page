@@ -1,4 +1,4 @@
-<!-- source-hash: 832bf2c9d921 -->
+<!-- source-hash: e0046f62c597 -->
 # Working with the terminal
 
 You can copy the output you need, search terminal history, and open file paths as you work. You can also select text without a mouse and receive notifications when work finishes.
@@ -96,7 +96,7 @@ For example, run `printf '\033[2J\033[HABCDE\n'` in a shell to leave `ABCDE` at 
 
 Copy notices appear only after the clipboard accepts the write. If access is unavailable or a transfer fails, Tasty shows a notice and keeps your selection. With a selection, a failed Ctrl+C copy does not interrupt the program. A failed paste sends no input; an empty clipboard does nothing.
 
-On Linux, terminal copy and paste use X11, through XWayland to exchange clipboard content with other apps in a Wayland session when `DISPLAY` is set and the X server is reachable. When Tasty runs on native Wayland because `DISPLAY` is unset or the X server cannot be reached, it cannot exchange clipboard content with external apps and shows a notice explaining this.
+On Linux, terminal copy and paste use X11, through XWayland to exchange clipboard content with other apps in a Wayland session when `DISPLAY` is set and the X server is reachable. When Tasty runs on native Wayland because `DISPLAY` is unset or the X server cannot be reached, it cannot exchange clipboard content with external apps. Copying or pasting shows a notice with the cause and remedy, distinguishing these two causes. See [Linux native Wayland troubleshooting](../help/troubleshooting.md#linux-native-wayland).
 
 ### Clipboard access by programs (OSC 52)
 

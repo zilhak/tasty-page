@@ -1,4 +1,4 @@
-<!-- source-hash: 832bf2c9d921 -->
+<!-- source-hash: e0046f62c597 -->
 # 使用终端
 
 介绍在终端运行命令时复制输出、搜索和打开文件路径的方法。还可使用无需鼠标的复制模式，以及任务完成通知。
@@ -96,7 +96,7 @@ Windows 版 Codex CLI 在默认按键发送方式下，使用 `Shift+Enter` 或 
 
 仅在成功写入剪贴板后显示复制通知。无法访问或传输失败时，会显示提示并保留选区。有选区时，即使 Ctrl+C 复制失败，也不会中断程序。粘贴失败时不发送输入；剪贴板为空时不执行任何操作。
 
-Linux 的终端复制和粘贴使用 X11；在设有 `DISPLAY` 且能连接 X 服务器的 Wayland 会话中，通过 XWayland 与其他应用交换剪贴板内容。因未设置 `DISPLAY` 或无法连接 X 服务器而使用原生 Wayland 运行时，无法与外部应用交换剪贴板内容，并会通过通知说明。
+Linux 的终端复制和粘贴使用 X11；在设有 `DISPLAY` 且能连接 X 服务器的 Wayland 会话中，通过 XWayland 与其他应用交换剪贴板内容。因未设置 `DISPLAY` 或无法连接 X 服务器而使用原生 Wayland 运行时，无法与外部应用交换剪贴板内容。复制或粘贴时，通知会区分这两种原因，并说明原因和解决方法。参见 [Linux 原生 Wayland 故障排除](../help/troubleshooting.md#linux-native-wayland)。
 
 ### 程序访问剪贴板（OSC 52）
 

@@ -1,4 +1,4 @@
-<!-- source-hash: fad4eb7f997a -->
+<!-- source-hash: 8927d069129a -->
 # 故障排除
 
 本页按症状列出 Tasty 安装、输入、显示、恢复和通知问题的原因及解决方法。如果 CLI 无法连接或响应缓慢，也可查看连接诊断。问题仍未解决时，可附上运行环境和日志报告问题。
@@ -20,6 +20,37 @@
 - **在 Tasty 终端中输入 `tasty`，但没有打开新窗口** — 在 Tasty 内不带参数运行时，会显示帮助，而非打开新窗口。使用 `tasty new window` 打开新窗口（当前查看窗口的焦点保持不变）。
 
 安装步骤见[安装](../getting-started/install.md)。
+
+<a id="linux-native-wayland"></a>
+
+## Linux 上无法查看文档或与外部应用复制和粘贴时
+
+Tasty 使用原生 Wayland 运行时，无法查看 HTML、Markdown、远程 HTML 文件和网址，也无法与外部应用交换文本和文件剪贴板内容。原生右键菜单也尚未显示。
+
+从外部应用拖入文件无法使用。
+
+根据原因，按以下方式处理。
+
+- 未设置 `DISPLAY` 时，由于没有 XWayland，Tasty 使用原生 Wayland 运行。在 Tasty 外部启用 XWayland 后重启 Tasty。
+- 设有 `DISPLAY`，但无法连接其 X 服务器，且设有 `WAYLAND_DISPLAY` 时，会记录警告并使用原生 Wayland 运行。在 Tasty 外部检查 `DISPLAY` 的 X 服务器或 XWayland 连接后重启 Tasty。
+
+HTML、Markdown 和远程 HTML 文件 Surface 的页面区域以标题显示原因，下方一行显示解决方法。远程 HTML 文件在接收期间显示接收状态，接收完成后显示此说明。复制或粘贴时，会显示包含原因和解决方法的警告短暂提示。短暂提示的显示时长遵循全局设置。
+
+<a id="linux-gdk-backend"></a>
+
+## Linux 上无法查看文档或使用托盘图标时
+
+即使设有 `DISPLAY` 且 Tasty 窗口使用 X11 运行，若 Tasty 启动环境中的 `GDK_BACKEND` 不允许 x11，GTK 初始化也会失败。此时无法使用托盘图标，也无法查看 HTML、Markdown、远程 HTML 文件和网址。右键菜单也尚未显示。窗口使用 X11 运行，因此剪贴板正常工作。
+
+在 Tasty 外部从 Tasty 启动环境中移除 `GDK_BACKEND` 后重启 Tasty。Tasty 不会删除或覆盖此值，终端内的 Shell 也会原样接收用户设置的值。
+
+页面区域显示原因和解决方法，标题也会说明托盘图标不可用。托盘本身没有单独的说明。
+
+### `GDK_BACKEND` 并非原因但 GTK 初始化失败时
+
+未设置 `GDK_BACKEND` 或其允许 x11 时，GTK 初始化仍可能失败。此时同样无法使用托盘图标或查看 HTML、Markdown、远程 HTML 文件和网址，右键菜单也尚未显示。窗口使用 X11 运行，因此剪贴板正常工作。
+
+应用仅显示 GTK 初始化失败的说明，没有解决方法一行。此时 Tasty 无法确定原因。查看[日志和配置文件位置](#日志和配置文件位置)中的警告日志，并附上[报告问题](#报告问题)中列出的信息。
 
 ## macOS 权限提示
 

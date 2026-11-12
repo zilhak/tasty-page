@@ -1,4 +1,4 @@
-<!-- source-hash: fad4eb7f997a -->
+<!-- source-hash: 8927d069129a -->
 # Troubleshooting
 
 Causes and remedies for Tasty installation, input, display, restoration, and notification issues are organized by symptom. For CLI connection failures or slow responses, also see connection diagnostics. If the problem remains, report it with your environment details and logs.
@@ -20,6 +20,37 @@ Causes and remedies for Tasty installation, input, display, restoration, and not
 - **You typed `tasty` inside a Tasty terminal but no new window appeared** — run with no arguments inside Tasty, it shows the help instead of opening a new window. For a new window use `tasty new window` (it leaves the focus on the window you were looking at).
 
 The install procedure itself is in [Install](../getting-started/install.md).
+
+<a id="linux-native-wayland"></a>
+
+## Document views and clipboard exchange with other apps do not work on Linux
+
+When Tasty runs on native Wayland, HTML and Markdown views, remote HTML files and web addresses, and text and file clipboard exchange with other apps are unavailable. Native right-click menus do not appear yet.
+
+Dragging files in from other apps does not work.
+
+Follow the steps for your cause below.
+
+- When `DISPLAY` is unset, there is no XWayland, so Tasty runs on native Wayland. Turn on XWayland outside Tasty, then restart Tasty.
+- When `DISPLAY` is set but Tasty cannot reach that X server and `WAYLAND_DISPLAY` is set, Tasty logs a warning and runs on native Wayland. Check the X server in `DISPLAY` or the XWayland connection outside Tasty, then restart Tasty.
+
+The page area of HTML, Markdown, and remote HTML file surfaces shows the cause as a heading and the remedy on the line below it. A remote HTML file shows the receiving status during transfer and this notice after transfer finishes. Copying or pasting shows a warning toast with the cause and remedy. Toast duration follows the global setting.
+
+<a id="linux-gdk-backend"></a>
+
+## Document views and the tray icon are unavailable on Linux
+
+Even when `DISPLAY` is set and Tasty's window runs on X11, GTK initialization fails if `GDK_BACKEND` in Tasty's launch environment does not allow x11. The tray icon, HTML and Markdown views, and remote HTML files and web addresses are then unavailable. Right-click menus do not appear yet. The window runs on X11, so the clipboard works normally.
+
+Remove `GDK_BACKEND` from Tasty's launch environment outside Tasty, then restart Tasty. Tasty does not remove or overwrite this value, and the shell inside the terminal receives the value you set unchanged.
+
+The page area shows the cause and remedy, with a heading that also says the tray icon is unavailable. There is no separate notice from the tray itself.
+
+### GTK initialization fails without `GDK_BACKEND` being the cause
+
+GTK initialization can fail even when `GDK_BACKEND` is unset or allows x11. The tray icon, HTML and Markdown views, and remote HTML files and web addresses are unavailable in this case too, and right-click menus do not appear yet. The window runs on X11, so the clipboard works normally.
+
+The app shows only a GTK initialization failure notice, without a remedy line. Tasty cannot identify the cause in this case. Check the warning log under [Log and settings file locations](#log-and-settings-file-locations) and include the information listed in [Reporting a problem](#reporting-a-problem).
 
 ## macOS permission prompts
 
