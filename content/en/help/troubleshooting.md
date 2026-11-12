@@ -1,4 +1,4 @@
-<!-- source-hash: 8927d069129a -->
+<!-- source-hash: c22d1be7cd98 -->
 # Troubleshooting
 
 Causes and remedies for Tasty installation, input, display, restoration, and notification issues are organized by symptom. For CLI connection failures or slow responses, also see connection diagnostics. If the problem remains, report it with your environment details and logs.
@@ -25,16 +25,16 @@ The install procedure itself is in [Install](../getting-started/install.md).
 
 ## Document views and clipboard exchange with other apps do not work on Linux
 
-When Tasty runs on native Wayland, HTML and Markdown views, remote HTML files and web addresses, and text and file clipboard exchange with other apps are unavailable. Native right-click menus do not appear yet.
+When Tasty runs on native Wayland, HTML and Markdown views, remote HTML files, and web addresses are unavailable. Terminal copy and paste and Explorer file copy, cut, and paste cannot exchange clipboard content with other apps. Native right-click menus do not appear yet.
 
-Dragging files in from other apps does not work.
+Text fields in settings, workspace renaming, and the address bar, for example, support copying and pasting text to and from other apps.
 
 Follow the steps for your cause below.
 
 - When `DISPLAY` is unset, there is no XWayland, so Tasty runs on native Wayland. Turn on XWayland outside Tasty, then restart Tasty.
 - When `DISPLAY` is set but Tasty cannot reach that X server and `WAYLAND_DISPLAY` is set, Tasty logs a warning and runs on native Wayland. Check the X server in `DISPLAY` or the XWayland connection outside Tasty, then restart Tasty.
 
-The page area of HTML, Markdown, and remote HTML file surfaces shows the cause as a heading and the remedy on the line below it. A remote HTML file shows the receiving status during transfer and this notice after transfer finishes. Copying or pasting shows a warning toast with the cause and remedy. Toast duration follows the global setting.
+The page area of HTML, Markdown, and remote HTML file surfaces shows the cause as a heading and the remedy on the line below it. A remote HTML file shows the receiving status during transfer and this notice after transfer finishes. Terminal copy and paste or Explorer file copy, cut, and paste show a warning toast with the cause and remedy. Toast duration follows the global setting.
 
 <a id="linux-gdk-backend"></a>
 
