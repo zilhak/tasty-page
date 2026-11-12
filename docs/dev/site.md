@@ -21,8 +21,10 @@
   `main`에 커밋해 태그 없이 배포한 뒤 곧바로 `main`을 `release`와 `develop`에 합친다([CLAUDE.md](../../CLAUDE.md) "게시용 페이지와 최신 페이지").
   배포 조건은 push된 커밋의 `pages.yml`이 정한다. `main`에 이 조건이 든 `pages.yml`이 아직 없으면 게시용 수정을 push해도 배포되지 않는다.
 - 다른 CI: `checks.yml`은 `checks/`의 Rust 시험으로 가이드를 Tasty 소스와 대조한다. Tasty 소스는
-  `.tasty-src`에 받으며, `develop`과 `release`에서는 Tasty `main`, `main`에서는 가장 가까운 태그와 같은 이름의 Tasty
-  태그다. 릴리스 후보는 태그가 생기기 전에 검사하므로 Tasty 릴리스를 준비하는 Tasty `main`과 대조한다. 매일 한 번 `develop`으로도 실행한다. 세 브랜치 모두 `design.yml`이 `vendor/` 디자인 정본을 검사한다(아래 "vendor 검사").
+  `.tasty-src`에 받으며, `develop`과 그 밖의 브랜치에서는 Tasty `develop`, `release`에서는 Tasty `release`, `main`에서는 가장 가까운 태그와 같은 이름의 Tasty
+  태그다. 릴리스 후보는 태그가 생기기 전에 검사하므로 Tasty의 릴리스 후보와 대조한다. 그래서 `release`는 Tasty `release`와 같은 시점을 담을 때만 통과를 기대한다.
+  승격 사이에 게시용 수정을 `release`에 역병합하면 앞서 나간 Tasty `release`와 어긋나 실패할 수 있다. 배포에는 영향이 없다.
+  Tasty hotfix 릴리스는 Tasty가 `main`을 `release`에 역병합한 뒤에 승격한다. 그 전에 승격하면 `release`가 hotfix가 빠진 Tasty `release`와 대조된다. 매일 한 번 `develop`으로도 실행한다. 세 브랜치 모두 `design.yml`이 `vendor/` 디자인 정본을 검사한다(아래 "vendor 검사").
   `checks/Cargo.lock`은 추적하지 않는다. `checks/`의 의존성은 받은 Tasty 소스를 따라 움직이므로, CI는 실행할 때
   `.tasty-src/Cargo.lock`을 복사해 쓴다. 로컬에서 돌릴 때도 `cargo test` 전에 같은 복사를 한다.
 
