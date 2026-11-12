@@ -17,8 +17,9 @@
 // toast.clipboard_files_internal_copy / _paste are unchanged and stay for system clipboard failures on X11.
 //
 // Native Wayland clipboard scope (2026-11-12): Tasty now owns the Wayland clipboard itself, so on native Wayland
-// (cause 1 and 1b) ordinary terminal copy and paste, text and images, reach other apps and raise no toast. What is
-// still off, each with its own keys, always split by cause 1 / 1b:
+// (cause 1 and 1b) ordinary terminal copy and paste, text and images, reach other apps and raise none of these
+// Wayland warning toasts (the usual copy success toasts such as toast.copied stay). What is still off, each with its
+// own keys, always split by cause 1 / 1b:
 //   (a) a copy mode yank into the "* register: toast.clipboard_primary_wayland_unsupported / _x_failed. The value
 //       names only "*, says "+ works, and never says copy or paste with other apps is off as a whole.
 //   (b) Explorer file copy, cut and paste: toast.clipboard_files_wayland_* (values for _paste narrowed to files
