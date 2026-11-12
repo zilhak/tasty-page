@@ -28,7 +28,7 @@ Tasty와 같은 `develop`·`release`·`main` 세 브랜치를 쓴다.
 - `release`: 릴리스 후보다. Tasty를 릴리스할 때 `develop`의 한 시점을 골라 합친다. 여기서는 실행 확인, 버전 표기, 릴리스 문제 수정만 한다. push하면 빌드와 검사만 하고 배포하지 않는다.
 - `main`: 게시용 페이지다. 배포는 `main`에 push하거나 `main`에서 Pages 워크플로를 수동으로 실행할 때만 한다.
 - 승격: Tasty 릴리스 때 `develop`의 고른 시점을 `release`에 합치고 검사를 통과시킨다. 그다음 `release`를 `main`에 merge 커밋으로 합치고, 그 커밋에 Tasty 릴리스와 같은 태그를 붙여 `git push --atomic origin main <tag>`로 함께 push한다. `release`를 `main`에 합치는 단계는 pull request를 쓰지 않는다. `main` 쪽 검사는 도달할 수 있는 태그로 Tasty 버전을 정하므로 태그를 붙이기 전에는 직전 릴리스와 대조된다. 승격 뒤 `release`에서 고친 것이 있으면 `release`를 `develop`에 합친다.
-- 게시용 수정: 공개된 Tasty 버전의 기능 설명이나 버전이 바뀌지 않는 변경(문구, 메타데이터 등)은 묻지 않고 `main`에 커밋해 태그 없이 배포한다. 그 직후 `main`을 `release`와 `develop`에 합친다. 배포 조건은 push한 커밋의 `pages.yml`이 정하므로, `main`의 `pages.yml`이 아직 `main` 배포 조건을 담지 않았으면 push해도 배포되지 않는다([사이트 개발 문서](docs/dev/site.md) "배포").
+- 게시용 수정: 공개된 Tasty 버전의 기능 설명이나 버전이 바뀌지 않는 변경(문구, 메타데이터 등)은 묻지 않고 `main`에 커밋해 태그 없이 배포한다. 그 직후 `main`을 `release`와 `develop`에 합친다. 배포 조건은 push한 커밋의 `pages.yml`이 정하므로, `main`의 `pages.yml`이 아직 `main` 배포 조건을 담지 않았으면 push해도 배포되지 않는다([사이트 개발 문서](docs/dev/site.md) "게시용 수정").
 - merge 커밋은 승격과 이 역병합에만 쓴다. 작업 브랜치는 `develop` 위로 rebase해 fast-forward로 합친다.
 
 ## 갤러리
