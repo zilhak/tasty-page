@@ -7,26 +7,29 @@
 - 문구: `src/lib/i18n/` (언어당 사전 하나. "언어 목록과 사전" 참고)
 - 산출물: 레포 루트 아래 `dist/` — 빌드가 만들며 Git에서 제외한다(경로 인용으로 안 적는다. 갓 클론한
   트리에는 없어서 좌표를 실재로 판정하는 CI의 경로 검사가 실패할 수 있다)
-- 배포: `.github/workflows/pages.yml`. `main`과 `release`의 push마다 `npm run build`로 빌드하고
+- 배포: `.github/workflows/pages.yml`. `develop`·`release`·`main`의 push마다 `npm run build`로 빌드하고
   `npm run check-links`로 산출물의 내부 링크와 `content/` 앵커의 실제 HTML 결과, 디자인 페이지 사이 링크의 언어 유지를 전수 판정하고, `npm run check-sitemap`으로
   공개 페이지와 sitemap을 대조하고, `npm run check-translations`로 일본어·중국어 가이드를 한국어 원본과 대조한다.
-  **배포는 `release` push와 `release`에서 수동 실행할 때만** 한다. 공개 사이트는 사용자가 받을 수 있는
-  버전을 설명해야 하기 때문이다. `main`은 최신 페이지라 빌드와 검사만 한다. 표시 버전은 공개된 최신
+  **배포는 `main` push와 `main`에서 수동 실행할 때만** 한다. 공개 사이트는 사용자가 받을 수 있는
+  버전을 설명해야 하기 때문이다. `develop`은 최신 페이지, `release`는 릴리스 후보라 빌드와 검사만 한다. 표시 버전은 공개된 최신
   Tasty 릴리스(`release.json`)이고, 이 파일이 없는 로컬 빌드는 버전을 표시하지 않는다.
-- 승격: Tasty를 릴리스할 때 `release`를 `main`으로 fast-forward하고 Tasty 릴리스와 같은 태그를 붙여
-  `git push --atomic origin release <tag>`로 함께 push한다. 기능 설명이나 버전이 바뀌는 변경은 이때 함께 공개한다.
+- 승격: Tasty를 릴리스할 때 `develop`의 고른 시점을 `release`에 합쳐 검사를 통과시키고, `release`를 `main`에
+  merge 커밋으로 합친다. 그 커밋에 Tasty 릴리스와 같은 태그를 붙여 `git push --atomic origin main <tag>`로 함께 push한다.
+  `release`를 `main`에 합치는 단계는 pull request로 하지 않는다. `main` 쪽 검사는 태그로 Tasty 버전을 정하므로 태그가 붙기 전에는 직전 릴리스와 대조된다.
+  기능 설명이나 버전이 바뀌는 변경은 이때 함께 공개한다.
 - 게시용 수정: 공개된 Tasty 버전의 기능 설명이나 버전이 바뀌지 않는 변경(문구, 메타데이터 등)은 묻지 않고
-  `release`에 커밋해 태그 없이 배포한 뒤 곧바로 `release`를 `main`에 합친다([CLAUDE.md](../../CLAUDE.md) "게시용 페이지와 최신 페이지").
+  `main`에 커밋해 태그 없이 배포한 뒤 곧바로 `main`을 `release`와 `develop`에 합친다([CLAUDE.md](../../CLAUDE.md) "게시용 페이지와 최신 페이지").
+  배포 조건은 push된 커밋의 `pages.yml`이 정한다. `main`에 이 조건이 든 `pages.yml`이 아직 없으면 게시용 수정을 push해도 배포되지 않는다.
 - 다른 CI: `checks.yml`은 `checks/`의 Rust 시험으로 가이드를 Tasty 소스와 대조한다. Tasty 소스는
-  `.tasty-src`에 받으며, `main`에서는 Tasty `main`, `release`에서는 가장 가까운 태그와 같은 이름의 Tasty
-  태그다. 매일 한 번도 실행한다. `design.yml`은 `vendor/` 디자인 정본을 검사한다(아래 "vendor 검사").
+  `.tasty-src`에 받으며, `develop`과 `release`에서는 Tasty `main`, `main`에서는 가장 가까운 태그와 같은 이름의 Tasty
+  태그다. 릴리스 후보는 태그가 생기기 전에 검사하므로 Tasty 릴리스를 준비하는 Tasty `main`과 대조한다. 매일 한 번 `develop`으로도 실행한다. 세 브랜치 모두 `design.yml`이 `vendor/` 디자인 정본을 검사한다(아래 "vendor 검사").
   `checks/Cargo.lock`은 추적하지 않는다. `checks/`의 의존성은 받은 Tasty 소스를 따라 움직이므로, CI는 실행할 때
   `.tasty-src/Cargo.lock`을 복사해 쓴다. 로컬에서 돌릴 때도 `cargo test` 전에 같은 복사를 한다.
 
 **`docs/` 는 발행하지 않는다.** 이 레포의 `docs/`는 사이트를 고치는 사람과 에이전트를 위한 개발 문서(`docs/dev/`)와
 기획서(`docs/plan/`)이고, 사이트는 Tasty 를 받아서 쓰는 사람을 위한 것이라 독자가 다르다. Tasty의 명세·설계·ADR은
 [Tasty 레포](https://github.com/zilhak/tasty)의 `docs/`에 있다. 사이트가 실을 내용은 전부 `content/` 에 사용자 시점으로
-따로 쓴다. 사용자에게 보이는 동작이 바뀌면 기획서를 기준으로 최신 페이지(`main`)의 가이드를 고친다.
+따로 쓴다. 사용자에게 보이는 동작이 바뀌면 기획서를 기준으로 최신 페이지(`develop`)의 가이드를 고친다.
 
 ## 사이트 문구와 어조
 
@@ -166,7 +169,7 @@
 [`vendor/README.md`](../../vendor/README.md)에 있고, 변경 기록은 커밋 이력이다. Tasty 본체가 이 레포의 어느 커밋을
 따르는지는 [Tasty 레포](https://github.com/zilhak/tasty)가 기록한다.
 
-`design.yml`이 `main` push와 pull request마다 다음을 검사한다.
+`design.yml`이 `develop`·`release`·`main` push와 pull request마다 다음을 검사한다.
 
 - `npm run build`와 `npm run check-contrast`(위 "렌더링 대비 검사").
 - 토큰 JSON: `scripts/design-tokens/gen_tokens_json.py`로 `vendor/tokens/tasty.tokens.json`을 다시 만들어 차이가 없는지,

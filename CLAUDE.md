@@ -22,10 +22,14 @@
 
 ### 브랜치
 
-- `main`: 최신 페이지다. 게시용 수정을 뺀 기획서, 문구, 갤러리 디자인 작업은 모두 `main`에서 한다. push하면 빌드와 검사만 하고 배포하지 않는다.
-- `release`: 게시용 페이지다. 배포는 `release`에 push될 때만 한다.
-- 승격: Tasty 릴리스 때 `release`를 `main`으로 fast-forward하고, 그 커밋에 Tasty 릴리스와 같은 태그를 붙인다. 태그와 함께 `git push --atomic origin release <tag>`로 push한다.
-- 게시용 수정: 공개된 Tasty 버전의 기능 설명이나 버전이 바뀌지 않는 변경(문구, 메타데이터 등)은 묻지 않고 `release`에 커밋해 태그 없이 배포한다. 그 직후 `release`를 `main`에 합쳐 `release`가 항상 `main`에 포함되게 한다. 그래야 다음 승격이 fast-forward로 된다.
+Tasty와 같은 `develop`·`release`·`main` 세 브랜치를 쓴다.
+
+- `develop`: 최신 페이지다. 게시용 수정을 뺀 기획서, 문구, 갤러리 디자인 작업은 모두 `develop`에서 한다. 작업 브랜치는 `develop`에서 갈라 `develop`에 합친다. push하면 빌드와 검사만 하고 배포하지 않는다.
+- `release`: 릴리스 후보다. Tasty를 릴리스할 때 `develop`의 한 시점을 골라 합친다. 여기서는 실행 확인, 버전 표기, 릴리스 문제 수정만 한다. push하면 빌드와 검사만 하고 배포하지 않는다.
+- `main`: 게시용 페이지다. 배포는 `main`에 push하거나 `main`에서 Pages 워크플로를 수동으로 실행할 때만 한다.
+- 승격: Tasty 릴리스 때 `develop`의 고른 시점을 `release`에 합치고 검사를 통과시킨다. 그다음 `release`를 `main`에 merge 커밋으로 합치고, 그 커밋에 Tasty 릴리스와 같은 태그를 붙여 `git push --atomic origin main <tag>`로 함께 push한다. `release`를 `main`에 합치는 단계는 pull request를 쓰지 않는다. `main` 쪽 검사는 도달할 수 있는 태그로 Tasty 버전을 정하므로 태그를 붙이기 전에는 직전 릴리스와 대조된다. 승격 뒤 `release`에서 고친 것이 있으면 `release`를 `develop`에 합친다.
+- 게시용 수정: 공개된 Tasty 버전의 기능 설명이나 버전이 바뀌지 않는 변경(문구, 메타데이터 등)은 묻지 않고 `main`에 커밋해 태그 없이 배포한다. 그 직후 `main`을 `release`와 `develop`에 합친다. 배포 조건은 push한 커밋의 `pages.yml`이 정하므로, `main`의 `pages.yml`이 아직 `main` 배포 조건을 담지 않았으면 push해도 배포되지 않는다([사이트 개발 문서](docs/dev/site.md) "배포").
+- merge 커밋은 승격과 이 역병합에만 쓴다. 작업 브랜치는 `develop` 위로 rebase해 fast-forward로 합친다.
 
 ## 갤러리
 
@@ -35,7 +39,7 @@
 2. Tasty 레포의 갤러리(`crates/tasty-gallery`)에 같은 형상을 구현한다.
 3. Tasty 본체 소스에 적용한다. 갤러리와 본체는 같은 컴포넌트 소스를 쓰므로, 모양만 바꾸는 변경은 2단계에서 본체에도 반영된다.
 
-갤러리도 두 벌 규칙을 따른다. 디자인은 최신 페이지의 갤러리에 반영하고, 게시용 갤러리는 릴리스할 때 함께 옮긴다.
+갤러리도 두 벌 규칙을 따른다. 디자인은 최신 페이지(`develop`)의 갤러리에 반영하고, 게시용 갤러리는 릴리스할 때 함께 옮긴다.
 
 ### 디자인 작업 규칙
 
@@ -68,4 +72,4 @@
 - 한 커밋에는 한 변경만 담는다. 기능 수정이나 추가가 끝나면 다시 묻지 않고 커밋한다. 리팩토링과 기능 추가는 나눈다.
 - `--no-verify`를 쓰지 않는다. 훅이 막으면 우회하지 말고 고치거나 보고한다.
 - `.claude`와 `.claude-workspace`는 git에 넣지 않는다. 로컬 경로와 로컬 작업 문서를 이 레포에 적지 않는다.
-- 자세한 기준은 [커밋 컨벤션](https://github.com/zilhak/tasty/blob/main/docs/dev-guide/commit-convention.md)을 따른다.
+- 자세한 기준은 [커밋 컨벤션](https://github.com/zilhak/tasty/blob/develop/docs/dev-guide/commit-convention.md)을 따른다.
