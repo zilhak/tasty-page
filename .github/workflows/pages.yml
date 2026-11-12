@@ -1,14 +1,15 @@
 name: Pages
 
 # Build the site with Astro and publish it to GitHub Pages.
-# A push to main builds the site and checks its links and sitemap only.
-# A push to release, or a manual run on release, also deploys the build.
+# A push to develop or release builds the site and checks its links and sitemap only.
+# A push to main, or a manual run on main, also deploys the build. main is the
+# published site.
 # The deploy condition appears in three places that must stay the same: the
 # configure-pages step, the upload-pages-artifact step, and the deploy job.
 
 on:
   push:
-    branches: [main, release]
+    branches: [develop, release, main]
   workflow_dispatch:
 
 permissions:
@@ -54,16 +55,16 @@ jobs:
       - run: npm run check-translations -- ja zh
 
       # Pages setup and upload run only when the deploy job runs.
-      - if: github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+      - if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         uses: actions/configure-pages@v5
 
-      - if: github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+      - if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         uses: actions/upload-pages-artifact@v3
         with:
           path: dist
 
   deploy:
-    if: github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     needs: build
     # Never cancel a deploy that has started; queue the next one instead.
     concurrency:

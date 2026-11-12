@@ -2,13 +2,15 @@ name: Checks
 
 # Compares the user guide in content/ with the Tasty source it describes.
 # The Tasty source is checked out into .tasty-src:
-#   main (and pull requests into main, scheduled runs) -> Tasty main
-#   release (and pull requests into release) -> the Tasty tag with the same name
-#     as the latest tag reachable in this repository
+#   develop and release (and pull requests into them, scheduled runs) -> Tasty main
+#   main (and pull requests into main) -> the Tasty tag with the same name as the
+#     latest tag reachable in this repository
+# A release candidate is checked before its tag exists, so release follows Tasty
+# main, where the Tasty release is prepared.
 # The daily run catches Tasty changes that land while this repository is quiet.
 on:
   push:
-    branches: [main, release]
+    branches: [develop, release, main]
   pull_request:
   schedule:
     - cron: "17 3 * * *"
@@ -28,7 +30,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          # The release side needs the tags to find its Tasty version.
+          # The main side needs the tags to find its Tasty version.
           fetch-depth: 0
 
       - name: Choose the Tasty ref
@@ -41,13 +43,13 @@ jobs:
           if [ "$EVENT" = "pull_request" ]; then
             branch="$BASE_REF"
           elif [ "$EVENT" = "schedule" ]; then
-            branch=main
+            branch=develop
           else
             branch="$REF_NAME"
           fi
-          if [ "$branch" = "release" ]; then
+          if [ "$branch" = "main" ]; then
             if ! ref=$(git describe --tags --abbrev=0 HEAD); then
-              echo "::error::No tag is reachable from release. Tag each release with the Tasty release tag."
+              echo "::error::No tag is reachable from main. Tag each release with the Tasty release tag."
               exit 1
             fi
           else
