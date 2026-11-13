@@ -14,15 +14,18 @@
 // because the card says what happened and the text is still there. In a host egui field, toast.cut needs a signal
 // that text was removed; egui's copy output (OutputCommand::CopyText) carries only the text, not copy or cut and not
 // whether anything was deleted, so without that signal the field raises toast.copied.
-// Plugin egui fields: the rule above holds for now. A Cut request the host sent to the plugin, paired with its
-// result, raises toast.cut. Open, waiting on a product decision: an exception for a plugin field that cannot be
-// edited (the cut removed nothing and only copied), and whether the protocol gains a signal that text was removed.
-// The host gets back only the copied text, so until then a read-only plugin field can show Text cut.
+// Plugin egui fields (decided 2026-11-14): if the result the plugin returns can carry whether text was removed, as
+// one more field in the same result, the host egui rule extends to plugin fields: toast.cut only when the result
+// says text was removed, otherwise toast.copied. If that needs a separate step, nothing is added and the rule above
+// holds: a Cut request sent to the plugin, paired with its result, raises toast.cut, and a read-only plugin field
+// showing Text cut with nothing removed is accepted.
 // Web and markdown pages, a selection that cannot be edited: not part of this exception. Open until the engine
 // behavior is checked; until then the page rule above applies (toast.cut through the host's cut command).
 // A page cut made by the web engine itself, not through Tasty (the engine's own cut key, the page context menu's
-// Cut): open, not covered by the page's execCommand('cut') above. Whether the host notices it at all is a product
-// decision not yet made, so no toast key yet: neither toast.cut, toast.copied nor no toast is settled here.
+// Cut), decided 2026-11-14: if the same path that notices a page copy (for example a document level copy and cut
+// event) also catches this cut without extra steps, it raises a toast by the rule above: toast.cut when the cut is
+// certain, toast.copied when copy and cut cannot be told apart. If it needs a separate step or handling per engine,
+// it is not done and no toast is raised.
 // Kind: success for both keys, as the Toast specimen already draws Path copied (the app raises them as info today).
 // A copy a program asked for (toast.copied_osc52) stays info. Hint rule as for toast.copied.
 
