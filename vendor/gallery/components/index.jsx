@@ -4,6 +4,7 @@ import { STATES } from "./states.jsx";
 import { Icon as CIcon, Button, IconButton, Badge, BadgeGroup, Tag, Kbd, Input, Select, MultiSelect, AutoComplete, Checkbox, Switch, Tab, TreeRow, MenuItem, StatusDot, Toast, Table, Spinner, HelpHint, Tooltip, ListCtrl, CenterState } from "../../components/index.js";
 import { WorkspaceRunningCount } from "../../ui_kits/terminal/chrome.jsx";
 import { DB_LANGS, dbt } from "../../ui_kits/terminal/overlays/display_backend_copy.js";
+import { CLIPBOARD_TOAST_LANGS, ctt } from "../../ui_kits/terminal/overlays/clipboard_toast_copy.js";
 import { GalleryScrollbar } from "./scrollbar.jsx";
 import { GallerySearchableSelect } from "./searchable-select.jsx";
 import { Section, Spec, Stage, Cluster, Meta, Note, Do, Dont, GIcon, Views, View } from "../parts/specimen.jsx";
@@ -718,14 +719,25 @@ function Components() {
           <Stage variant="column" style={{ gap: 10, alignItems: "stretch", maxWidth: 380 }}>
             <Toast variant="success" hint={<Kbd keys="⌘⇧C" />}>Path copied</Toast>
             <Toast variant="success">Path copied</Toast>
+            <Toast variant="success">{ctt("toast.copied")}</Toast>
+            <Toast variant="success">{ctt("toast.cut")}</Toast>
             <Toast variant="success" hint={<Kbd keys="⌘C" />}>Copied 3 lines from the selection to the clipboard</Toast>
             <Toast variant="info">Copied (OSC 52)</Toast>
             <Toast variant="warning">Held by another client (readonly)</Toast>
             <Toast variant="warning">Could not load the font: ~/fonts/notes.txt. Using another font.</Toast>
             <Toast variant="danger">Force detach — connection dropped</Toast>
           </Stage>
+          <Views>
+            {["toast.copied", "toast.cut"].map((key) => (
+              <View key={key} name={`toast-clipboard-${key.slice(6).replace(/_/g, "-")}`} label={`${key}, en · ko · ja · zh-Hans`}>
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "var(--tasty-space-sm)" }}>
+                  {CLIPBOARD_TOAST_LANGS.map((lang) => <Toast key={lang} variant="success">{ctt(key, lang)}</Toast>)}
+                </div>
+              </View>
+            ))}
+          </Views>
           <Meta
-            specs={[["rail", "3px accent left edge"], ["radius", <span className="tok">--tasty-radius</span>], ["fill", <span className="tok">--tasty-surface-raised</span>], ["boxes", "rail · body (flex 1) · hint (flex none) · gap space-sm · pad space-sm / space-md"], ["hint", "Kbd of the action's binding · menu / mouse origin only · none when unbound"], ["hint position", "right end, first line · never truncated — body wraps first"], ["platform", "Kbd rule: ⌘ ⇧ ⌥ on macOS, Ctrl+Shift+ on Windows / Linux"], ["agent", "catalog only — host does not emit"], ["icon", "catalog only — host card has no icon"]]}
+            specs={[["copy and cut (2026-11-13)", "text copy raises toast.copied, text cut raises toast.cut (values in ui_kits/terminal/overlays/clipboard_toast_copy.js) · a source that cannot tell copy from cut (a page script writing the clipboard) raises toast.copied · copy and cut never merge, their bodies differ"], ["kind (2026-11-13)", "success for a copy or cut the user made: toast.copied, toast.cut, toast.copied_path · info for a copy a program asked for: toast.copied_osc52"], ["rail", "3px accent left edge"], ["radius", <span className="tok">--tasty-radius</span>], ["fill", <span className="tok">--tasty-surface-raised</span>], ["boxes", "rail · body (flex 1) · hint (flex none) · gap space-sm · pad space-sm / space-md"], ["hint", "Kbd of the action's binding · menu / mouse origin only · none when unbound"], ["hint position", "right end, first line · never truncated — body wraps first"], ["platform", "Kbd rule: ⌘ ⇧ ⌥ on macOS, Ctrl+Shift+ on Windows / Linux"], ["agent", "catalog only — host does not emit"], ["icon", "catalog only — host card has no icon"]]}
             tokens={[{ tok: "--tasty-accent-success", use: "ok rail", color: "var(--tasty-accent-success-raised)" }, { tok: "--tasty-toast-hint-font-size", use: "hint · micro mono" }, { tok: "--tasty-surface-raised", use: "card", color: "var(--tasty-surface-raised)" }]} />
           <Note>A long unbroken value such as a path wraps inside the card. The font rejected toast is on Overlays › Windows, under Settings.</Note>
         </Spec>
