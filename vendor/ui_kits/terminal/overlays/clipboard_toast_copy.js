@@ -14,11 +14,12 @@
 // because the card says what happened and the text is still there. In a host egui field, toast.cut needs a signal
 // that text was removed; egui's copy output (OutputCommand::CopyText) carries only the text, not copy or cut and not
 // whether anything was deleted, so without that signal the field raises toast.copied.
-// Plugin egui fields: open. The host sends the plugin a Cut request and gets back only the copied text, so whether
-// the plugin field removed anything is not known to the host; whether the protocol carries such a signal is not a
-// design decision.
-// Web and markdown pages, a selection that cannot be edited: not part of this exception. The page rule above stays
-// as it is and the case is open until the engine behavior is checked.
+// Plugin egui fields: the rule above holds for now. A Cut request the host sent to the plugin, paired with its
+// result, raises toast.cut. Open, waiting on a product decision: an exception for a plugin field that cannot be
+// edited (the cut removed nothing and only copied), and whether the protocol gains a signal that text was removed.
+// The host gets back only the copied text, so until then a read-only plugin field can show Text cut.
+// Web and markdown pages, a selection that cannot be edited: not part of this exception. Open until the engine
+// behavior is checked; until then the page rule above applies (toast.cut through the host's cut command).
 // A page cut made by the web engine itself, not through Tasty (the engine's own cut key, the page context menu's
 // Cut): open, not covered by the page's execCommand('cut') above. Whether the host notices it at all is a product
 // decision not yet made, so no toast key yet: neither toast.cut, toast.copied nor no toast is settled here.
