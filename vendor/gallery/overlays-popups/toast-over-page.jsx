@@ -11,8 +11,9 @@ import { Spec, Meta, Note, Views, View } from "../parts/specimen.jsx";
 // the look inside each option is set here.
 // Dashed amber outline = a rect the host paints over the page (a hole cut out of the page). Drawn 2px outside the card.
 
-const W = 420, H = 240, STRIP = 28, INSET = 12;
-const ZOOM = 0.72;
+const W = 400, H = 220, STRIP = 28, INSET = 12;
+// 400 × 0.5 = 200 fits a 240 Views column (padding included), so the card corner shows without scrolling.
+const ZOOM = 0.5;
 
 function Strip({ children }) {
   return (
