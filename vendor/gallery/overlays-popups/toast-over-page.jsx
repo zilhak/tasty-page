@@ -91,7 +91,7 @@ function GalleryToastOverPage() {
           ["hole", "one hole per card, the card's own rect, not one for the column · the 8px gaps between cards stay page · up to 5 holes at once · the hole opens when the card shows and closes when it leaves"],
           ["look", "square corners (Toast opaque → webview-opaque-radius, like an opaque-mode box) · no shadow (a toast has none) · rail and body unchanged · no fade: hole and card appear and leave in the same frame, so no blank rect shows"],
           ["pointer", "a click inside a hole goes to the host, not the page, for the card's life (2 s by default) · hover over the card keeps it up, as on other grounds"],
-          ["keys", "the page keeps keyboard focus; a toast never takes focus"],
+          ["keys", "the page keeps keyboard focus; a toast never takes focus (key route with the pointer over a hole on Linux X11: F4)"],
           ["OS · Linux X11 / XWayland with XFixes and SHAPE", "hole"],
           ["OS · macOS", "hole (layer mask, hit test excluded)"],
           ["OS · Windows", "hole (child window region)"],
@@ -107,7 +107,7 @@ function GalleryToastOverPage() {
           { tok: "--tasty-surface-raised", use: "card", color: "var(--tasty-surface-raised)" },
           { tok: "--tasty-accent-success", use: "rail · copy and cut", color: "var(--tasty-accent-success-raised)" },
         ]} />
-      <Note><b>Decided 2026-11-14.</b> The hole keeps the one position rule every toast follows and draws the same square card on all three OSes, on the hole the restore notice already cuts. The cost is accepted: a card-sized rect at the page's bottom-right takes no clicks while the card is up. Also considered and not chosen: a window overlay host with a rounded card (one Linux environment only), a place in the pane tab strip (the 24 strip does not fit the card), and keeping the card under the page.</Note>
+      <Note><b>Decided 2026-11-14.</b> The hole keeps the one position rule every toast follows and draws the same square card on all three OSes, on the hole the restore notice already cuts. The cost is accepted: a card-sized rect at the page's bottom-right takes no clicks while the card is up. Also considered and not chosen: a window overlay host with a rounded card (one Linux environment only), a place in the pane tab strip (the 24 strip does not fit the card), and keeping the card under the page everywhere (it stays only where no hole can be cut).</Note>
     </Spec>
   );
 }
