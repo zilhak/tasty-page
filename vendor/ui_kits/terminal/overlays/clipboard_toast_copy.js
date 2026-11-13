@@ -6,14 +6,22 @@
 // toast.copied is the existing value, unchanged, listed here so the cut toast is always read beside it.
 //
 // Which key a source raises: toast.cut only when the source says the action was a cut (a cut key or menu command in
-// a text field, a page cut through the host's cut command or the page's own cut command). A source that cannot tell
-// copy from cut (a page script writing to the clipboard directly) raises toast.copied: the text did reach the
-// clipboard, so "Copied" stays true. Files keep toast.copied_files / toast.cut_files.
-// A cut key or cut command in a field that cannot be edited (a label, a read-only text field) removes nothing and
-// only copies the selection: it raises toast.copied, because the card says what happened and the text is still
-// there (2026-11-14).
+// a text field, a page cut through the host's cut command, a page script calling execCommand('cut')). A source that
+// cannot tell copy from cut (a page script writing to the clipboard directly) raises toast.copied: the text did reach
+// the clipboard, so "Copied" stays true. Files keep toast.copied_files / toast.cut_files.
+// Exception, host egui fields (2026-11-14): a cut key or cut command on a selectable label or a read-only TextEdit in
+// Tasty's own egui UI, when it does produce copy output, removes nothing and only copies the selection: toast.copied,
+// because the card says what happened and the text is still there. In a host egui field, toast.cut needs a signal
+// that text was removed; egui's copy output (OutputCommand::CopyText) carries only the text, not copy or cut and not
+// whether anything was deleted, so without that signal the field raises toast.copied.
+// Plugin egui fields: open. The host sends the plugin a Cut request and gets back only the copied text, so whether
+// the plugin field removed anything is not known to the host; whether the protocol carries such a signal is not a
+// design decision.
+// Web and markdown pages, a selection that cannot be edited: not part of this exception. The page rule above stays
+// as it is and the case is open until the engine behavior is checked.
 // A page cut made by the web engine itself, not through Tasty (the engine's own cut key, the page context menu's
-// Cut): open. Whether the host notices it at all is a product decision not yet made, so no key is assigned here.
+// Cut): open, not covered by the page's execCommand('cut') above. Whether the host notices it at all is a product
+// decision not yet made, so no toast key yet: neither toast.cut, toast.copied nor no toast is settled here.
 // Kind: success for both keys, as the Toast specimen already draws Path copied (the app raises them as info today).
 // A copy a program asked for (toast.copied_osc52) stays info. Hint rule as for toast.copied.
 
