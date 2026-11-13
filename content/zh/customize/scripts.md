@@ -1,4 +1,4 @@
-<!-- source-hash: da31d4f006e4 -->
+<!-- source-hash: e9fa2e1b8a49 -->
 # Lua 脚本
 
 在 Tasty 中注册的 Lua 脚本可通过快捷键运行，也可设置为在窗口、工作区或标签页打开和关闭时自动运行。
@@ -43,7 +43,7 @@
 
 | 函数 | 作用 |
 |---|---|
-| `tasty.tree()` | 将工作区、窗格、标签页、Surface 结构读取为表。顶层是汇集所有窗口中工作区的列表，没有单独的窗口层级。这是只读副本 |
+| `tasty.tree()` | 以 Lua 表返回工作区、窗格、标签页和 Surface 结构的副本。顶层是工作区数组，没有单独的窗口层级 |
 | `tasty.run_cli(args)` | 运行 `tasty` 命令。传入单个字符串或字符串表 |
 | `tasty.log(msg)` · `tasty.warn(msg)` | 写入日志 |
 | `tasty.on(event, cb)` | 注册事件触发时调用的函数。可接收事件并执行后续任务，但不能取消或更改已发生的事件 |
@@ -58,6 +58,55 @@ tasty.run_cli({ "notify", "新工作区", "--title", "script" })
 ```
 
 可照常使用 Lua 标准库的文件输入输出和外部命令执行功能。运行在本机编写的脚本，不通过单独的沙箱隔离。
+
+### `tasty.tree()` 的返回结构
+
+`tasty.tree()` 返回调用时最近一次生成的树的副本。修改返回的表不会改变 Tasty 的状态。`tasty.run_cli` 仅请求执行，不等待完成，因此紧接着调用 `tasty.tree()` 时，树中不一定已包含执行结果。
+
+工作区按窗口依次追加到数组中。已打开的窗口（包括隐藏或最小化的窗口）中的工作区排在前面，窗口之间的顺序不固定。在 macOS 上通过 Tasty 的 **最小化** <!-- en: Minimize --> 转入后台的窗口中的工作区，按窗口转入后台的顺序排在后面。同一次操作中一起转入后台的窗口之间，顺序不固定。
+
+| 层级 | 字段 |
+|---|---|
+| 工作区 | `id`、`name`、`active`（该窗口中选中的工作区，包括转入后台的窗口）、`busy_count`（工作区内处于 busy 状态的 Surface 数量）、`panes` |
+| 窗格 | `id`、`focused`（该工作区中具有焦点的窗格）、`busy_count`、`tabs` |
+| 标签页 | `id`、`name`、`active`（该窗格中选中的标签页）、`busy`、`surface` |
+| `tab.surface`（已拆分的标签页） | `type = "SplitLayout"`、`focused_surface`（该标签页中具有焦点的 Surface id）、`surfaces`（标签页内 Surface id 的数组）、`layout` |
+| `layout` 节点 | `Leaf`：`type`、`id`、`kind`。`Split`：`type`、`direction`（`horizontal` · `vertical`）、`ratio`、`focus_second`、`first`、`second` |
+| `tab.surface`（未拆分的标签页） | 单个 Surface。所有 Surface 都有 `id` 和 `type`，其他字段因类型而异。终端的 `type = "Terminal"`，`cols` 和 `rows` 在这棵树中始终为 0 |
+
+### 查找具有焦点的 Surface
+
+按以下顺序查找一个窗口中具有焦点的 Surface id。转入后台的窗口也包括在内。
+
+1. 查找 `active` 为真的工作区。
+2. 在其中查找 `focused` 为真的窗格。
+3. 在其中查找 `active` 为真的标签页。
+4. 如果 `tab.surface.type` 为 `"SplitLayout"`，则读取 `tab.surface.focused_surface`，否则读取 `tab.surface.id`。
+
+```lua
+local function focused_surface_id()
+  for _, ws in ipairs(tasty.tree()) do
+    if ws.active then
+      for _, pane in ipairs(ws.panes) do
+        if pane.focused then
+          for _, tab in ipairs(pane.tabs) do
+            if tab.active then
+              local s = tab.surface
+              return s.type == "SplitLayout" and s.focused_surface or s.id
+            end
+          end
+        end
+      end
+    end
+  end
+end
+```
+
+### 树无法区分的情况
+
+`active` 和 `focused` 按窗口确定，包括转入后台的窗口。有多个窗口时，每个窗口都有一个 `active` 为真的工作区。树中没有标识窗口的字段，因此无法区分哪个窗口具有操作系统焦点，或哪些窗口显示在屏幕上。像上面的示例一样选择第一个 `active` 工作区，可能返回其他窗口的 Surface。通过 **最小化** 将 Tasty 转入后台后，可能返回未显示在屏幕上的窗口中的 Surface。
+
+目前，只有工作区的 `busy_count` 与 Surface 的实际 busy 状态一致。标签页的 `busy` 和窗格的 `busy_count` 不代表 Surface 的实际状态。Surface 对象没有 `busy` 字段。
 
 ## 文件更改时
 

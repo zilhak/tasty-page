@@ -1,4 +1,4 @@
-<!-- source-hash: da31d4f006e4 -->
+<!-- source-hash: e9fa2e1b8a49 -->
 # Lua scripts
 
 Lua scripts registered in Tasty can run from a keybinding or be set to run automatically when a window, workspace, or tab opens or closes.
@@ -43,7 +43,7 @@ Use the following Tasty functions in your scripts.
 
 | Function | What it does |
 |---|---|
-| `tasty.tree()` | Reads the Workspace · Pane · Tab · Surface structure as a table. The top level is one list of the Workspaces from every window, with no separate window level. It is a read-only copy |
+| `tasty.tree()` | Returns a copy of the Workspace · Pane · Tab · Surface structure as a Lua table. The top level is a Workspace array, with no separate window level |
 | `tasty.run_cli(args)` | Runs a `tasty` command. Pass a single string or a table of strings |
 | `tasty.log(msg)` · `tasty.warn(msg)` | Writes to the log |
 | `tasty.on(event, cb)` | Registers a function to be called when an event fires. It can run follow-up work, but cannot cancel or alter an event that has already happened |
@@ -58,6 +58,55 @@ tasty.run_cli({ "notify", "New Workspace", "--title", "script" })
 ```
 
 File I/O and running external commands from the Lua standard library are available as they are. Scripts run on your computer without a separate sandbox.
+
+### `tasty.tree()` return structure
+
+`tasty.tree()` returns a copy of the most recently prepared tree at the time of the call. Changing the returned table does not change Tasty. `tasty.run_cli` requests execution without waiting for completion, so a `tasty.tree()` call immediately after it may not include the result.
+
+Workspaces are appended to the array by window. Workspaces from open windows, including hidden or minimized windows, come first, with no fixed order between windows. Workspaces from windows sent to the background with Tasty’s **Minimize** on macOS follow in the order the windows were sent to the background. The order among windows sent to the background together in one operation is not fixed.
+
+| Level | Fields |
+|---|---|
+| Workspace | `id`, `name`, `active` (the selected Workspace in that window, including windows sent to the background), `busy_count` (the number of busy Surfaces in the Workspace), `panes` |
+| Pane | `id`, `focused` (the focused Pane in that Workspace), `busy_count`, `tabs` |
+| Tab | `id`, `name`, `active` (the selected Tab in that Pane), `busy`, `surface` |
+| `tab.surface` (split Tab) | `type = "SplitLayout"`, `focused_surface` (the focused Surface id in that Tab), `surfaces` (an array of Surface ids in the Tab), `layout` |
+| `layout` node | `Leaf`: `type`, `id`, `kind`. `Split`: `type`, `direction` (`horizontal` · `vertical`), `ratio`, `focus_second`, `first`, `second` |
+| `tab.surface` (unsplit Tab) | A single Surface. Every Surface has `id` and `type`; the other fields depend on its type. A terminal has `type = "Terminal"`; `cols` and `rows` are always 0 in this tree |
+
+### Finding the focused Surface
+
+Find the focused Surface id within one window in this order. Windows sent to the background are included.
+
+1. Find the Workspace whose `active` is true.
+2. Within it, find the Pane whose `focused` is true.
+3. Within it, find the Tab whose `active` is true.
+4. Read `tab.surface.focused_surface` if `tab.surface.type` is `"SplitLayout"`, or `tab.surface.id` otherwise.
+
+```lua
+local function focused_surface_id()
+  for _, ws in ipairs(tasty.tree()) do
+    if ws.active then
+      for _, pane in ipairs(ws.panes) do
+        if pane.focused then
+          for _, tab in ipairs(pane.tabs) do
+            if tab.active then
+              local s = tab.surface
+              return s.type == "SplitLayout" and s.focused_surface or s.id
+            end
+          end
+        end
+      end
+    end
+  end
+end
+```
+
+### What the tree cannot distinguish
+
+`active` and `focused` are determined per window, including windows sent to the background. With multiple windows, each has a Workspace whose `active` is true. The tree has no field identifying the window, so it cannot distinguish the window with OS focus or the windows visible on screen. Selecting the first `active` Workspace, as in the example above, may return a Surface from another window. When Tasty is sent to the background with **Minimize**, it may return a Surface from a window that is not on screen.
+
+Currently, only the Workspace's `busy_count` matches the actual busy state of its Surfaces. The Tab's `busy` and the Pane's `busy_count` do not represent the actual Surface state. Surface objects have no `busy` field.
 
 ## When the file changes
 

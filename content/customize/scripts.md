@@ -42,7 +42,7 @@ Tasty에 등록한 Lua 스크립트는 단축키로 실행하거나 윈도우·�
 
 | 함수 | 하는 일 |
 |---|---|
-| `tasty.tree()` | 워크스페이스 · 페인 · 탭 · 서피스 구조를 테이블로 읽습니다. 맨 위는 모든 윈도우의 워크스페이스를 모은 목록이며 윈도우 단계는 따로 없습니다. 읽기 전용 사본입니다 |
+| `tasty.tree()` | 워크스페이스 · 페인 · 탭 · 서피스 구조의 사본을 Lua 테이블로 돌려줍니다. 맨 위는 워크스페이스 배열이며 윈도우 단계는 따로 없습니다 |
 | `tasty.run_cli(args)` | `tasty` 명령을 실행합니다. 문자열 하나 또는 문자열 테이블을 넘깁니다 |
 | `tasty.log(msg)` · `tasty.warn(msg)` | 로그에 남깁니다 |
 | `tasty.on(event, cb)` | 이벤트가 날 때 호출될 함수를 등록합니다. 이벤트를 받아 후속 작업을 할 수 있지만 이미 발생한 이벤트를 취소하거나 바꾸지는 못합니다 |
@@ -57,6 +57,55 @@ tasty.run_cli({ "notify", "새 워크스페이스", "--title", "script" })
 ```
 
 Lua 표준 라이브러리의 파일 입출력과 외부 명령 실행은 그대로 쓸 수 있습니다. 내 컴퓨터에서 작성한 스크립트를 실행하며, 별도의 샌드박스로 격리하지 않습니다.
+
+### `tasty.tree()` 반환 구조
+
+`tasty.tree()`는 호출한 시점에 마지막으로 만들어 둔 트리의 사본을 돌려줍니다. 돌려받은 테이블을 바꿔도 Tasty 상태는 바뀌지 않습니다. `tasty.run_cli`는 실행을 요청만 하고 완료를 기다리지 않으므로, 바로 뒤에 `tasty.tree()`를 호출해도 그 결과가 반영됐다고 가정할 수 없습니다.
+
+워크스페이스는 윈도우 단위로 배열에 이어집니다. 열려 있는 윈도우(숨기거나 최소화한 윈도우 포함)의 워크스페이스가 먼저 오며, 윈도우 사이 순서는 고정돼 있지 않습니다. macOS에서 Tasty의 **최소화** <!-- en: Minimize --> 를 골라 백그라운드로 내린 윈도우의 워크스페이스는 내린 순서대로 뒤에 옵니다. 한 번에 함께 내린 윈도우 사이의 순서는 고정돼 있지 않습니다.
+
+| 단계 | 필드 |
+|---|---|
+| 워크스페이스 | `id`, `name`, `active`(해당 윈도우에서 선택된 워크스페이스, 백그라운드로 내린 윈도우 포함), `busy_count`(워크스페이스 안에서 busy 상태인 서피스 수), `panes` |
+| 페인 | `id`, `focused`(해당 워크스페이스의 포커스 페인), `busy_count`, `tabs` |
+| 탭 | `id`, `name`, `active`(해당 페인에서 선택된 탭), `busy`, `surface` |
+| `tab.surface`(나뉜 탭) | `type = "SplitLayout"`, `focused_surface`(해당 탭의 포커스 서피스 id), `surfaces`(탭 안 서피스 id 배열), `layout` |
+| `layout` 노드 | `Leaf`: `type`, `id`, `kind`. `Split`: `type`, `direction`(`horizontal` · `vertical`), `ratio`, `focus_second`, `first`, `second` |
+| `tab.surface`(나뉘지 않은 탭) | 서피스 하나입니다. 모든 서피스에 `id`와 `type`이 있고 나머지 필드는 종류마다 다릅니다. 터미널은 `type = "Terminal"`이며 `cols` · `rows`는 이 트리에서 항상 0입니다 |
+
+### 포커스 서피스 찾기
+
+윈도우 하나의 포커스 서피스 id는 다음 순서로 찾습니다. 백그라운드로 내린 윈도우도 포함됩니다.
+
+1. `active`가 참인 워크스페이스를 찾습니다.
+2. 그 안에서 `focused`가 참인 페인을 찾습니다.
+3. 그 안에서 `active`가 참인 탭을 찾습니다.
+4. `tab.surface.type`이 `"SplitLayout"`이면 `tab.surface.focused_surface`, 아니면 `tab.surface.id`를 읽습니다.
+
+```lua
+local function focused_surface_id()
+  for _, ws in ipairs(tasty.tree()) do
+    if ws.active then
+      for _, pane in ipairs(ws.panes) do
+        if pane.focused then
+          for _, tab in ipairs(pane.tabs) do
+            if tab.active then
+              local s = tab.surface
+              return s.type == "SplitLayout" and s.focused_surface or s.id
+            end
+          end
+        end
+      end
+    end
+  end
+end
+```
+
+### 트리로 구분할 수 없는 것
+
+`active`와 `focused`는 윈도우마다 정해지며, 백그라운드로 내린 윈도우도 포함됩니다. 윈도우가 여럿이면 `active`가 참인 워크스페이스도 윈도우마다 하나씩 나옵니다. 트리에는 윈도우를 가리키는 필드가 없어, OS 포커스를 가진 윈도우나 화면에 보이는 윈도우를 구분할 수 없습니다. 위 예제처럼 첫 번째 `active` 워크스페이스를 고르면 다른 윈도우의 서피스가 나올 수 있습니다. **최소화**를 골라 Tasty를 백그라운드로 내린 상태에서는 화면에 없는 윈도우의 서피스가 나올 수 있습니다.
+
+지금은 워크스페이스의 `busy_count`만 실제 서피스의 busy 상태와 맞습니다. 탭의 `busy`와 페인의 `busy_count`는 실제 서피스 상태를 나타내지 않습니다. 서피스 객체에는 `busy` 필드가 없습니다.
 
 ## 파일이 바뀌면
 

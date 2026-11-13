@@ -1,4 +1,4 @@
-<!-- source-hash: da31d4f006e4 -->
+<!-- source-hash: e9fa2e1b8a49 -->
 # Lua スクリプト
 
 Tasty に登録した Lua スクリプトは、ショートカットで実行したり、ウィンドウ・ワークスペース・タブが開閉するときに自動実行するよう設定したりできます。
@@ -43,7 +43,7 @@ Tasty に登録した Lua スクリプトは、ショートカットで実行し
 
 | 関数 | 動作 |
 |---|---|
-| `tasty.tree()` | ワークスペース・ペイン・タブ・サーフェスの構造をテーブルとして読み取ります。最上位はすべてのウィンドウのワークスペースを集めたリストで、ウィンドウの階層は別途ありません。読み取り専用のコピーです |
+| `tasty.tree()` | ワークスペース・ペイン・タブ・サーフェスの構造のコピーを Lua テーブルとして返します。最上位はワークスペースの配列で、ウィンドウの階層は別途ありません |
 | `tasty.run_cli(args)` | `tasty` コマンドを実行します。文字列 1 つ、または文字列のテーブルを渡してください |
 | `tasty.log(msg)` · `tasty.warn(msg)` | ログに記録します |
 | `tasty.on(event, cb)` | イベント発生時に呼び出される関数を登録します。イベントを受け取って後続の処理を行えますが、すでに発生したイベントの取り消しや変更はできません |
@@ -58,6 +58,55 @@ tasty.run_cli({ "notify", "新しいワークスペース", "--title", "script" 
 ```
 
 Lua 標準ライブラリのファイル入出力や外部コマンド実行は、そのまま使用できます。自分のコンピューターで作成したスクリプトを実行し、別のサンドボックスには隔離しません。
+
+### `tasty.tree()` の戻り値の構造
+
+`tasty.tree()` は、呼び出し時点で最後に作られたツリーのコピーを返します。返されたテーブルを変更しても、Tasty の状態は変わりません。`tasty.run_cli` は実行を要求するだけで完了を待たないため、直後に `tasty.tree()` を呼び出しても、その結果が反映されているとは限りません。
+
+ワークスペースはウィンドウ単位で配列に追加されます。開いているウィンドウ（非表示や最小化されたウィンドウも含みます）のワークスペースが先に並びますが、ウィンドウ間の順序は固定されていません。macOS で Tasty の **最小化** <!-- en: Minimize --> によりバックグラウンドに送ったウィンドウのワークスペースは、送った順に続きます。1 回の操作でまとめて送ったウィンドウ間の順序は固定されていません。
+
+| 階層 | フィールド |
+|---|---|
+| ワークスペース | `id`, `name`, `active`（そのウィンドウで選択されたワークスペース。バックグラウンドに送ったウィンドウも含みます）, `busy_count`（ワークスペース内の busy 状態のサーフェス数）, `panes` |
+| ペイン | `id`, `focused`（そのワークスペースのフォーカスペイン）, `busy_count`, `tabs` |
+| タブ | `id`, `name`, `active`（そのペインで選択されたタブ）, `busy`, `surface` |
+| `tab.surface`（分割されたタブ） | `type = "SplitLayout"`, `focused_surface`（そのタブのフォーカスサーフェスの id）, `surfaces`（タブ内のサーフェス id の配列）, `layout` |
+| `layout` ノード | `Leaf`: `type`, `id`, `kind`。`Split`: `type`, `direction`（`horizontal` ・ `vertical`）, `ratio`, `focus_second`, `first`, `second` |
+| `tab.surface`（分割されていないタブ） | サーフェス 1 つです。すべてのサーフェスに `id` と `type` があり、ほかのフィールドは種類によって異なります。ターミナルは `type = "Terminal"` で、`cols` ・ `rows` はこのツリーでは常に 0 です |
+
+### フォーカスサーフェスを探す
+
+ウィンドウ 1 つのフォーカスサーフェスの id は、次の順序で探します。バックグラウンドに送ったウィンドウも含まれます。
+
+1. `active` が真のワークスペースを探します。
+2. その中で `focused` が真のペインを探します。
+3. その中で `active` が真のタブを探します。
+4. `tab.surface.type` が `"SplitLayout"` なら `tab.surface.focused_surface`、それ以外なら `tab.surface.id` を読み取ります。
+
+```lua
+local function focused_surface_id()
+  for _, ws in ipairs(tasty.tree()) do
+    if ws.active then
+      for _, pane in ipairs(ws.panes) do
+        if pane.focused then
+          for _, tab in ipairs(pane.tabs) do
+            if tab.active then
+              local s = tab.surface
+              return s.type == "SplitLayout" and s.focused_surface or s.id
+            end
+          end
+        end
+      end
+    end
+  end
+end
+```
+
+### ツリーで区別できないこと
+
+`active` と `focused` はウィンドウごとに決まり、バックグラウンドに送ったウィンドウも含まれます。ウィンドウが複数あれば、`active` が真のワークスペースも各ウィンドウに 1 つずつあります。ツリーにはウィンドウを示すフィールドがないため、OS のフォーカスがあるウィンドウや画面に表示されているウィンドウを区別できません。上の例のように最初の `active` ワークスペースを選ぶと、別のウィンドウのサーフェスが返ることがあります。Tasty を **最小化** でバックグラウンドに送った状態では、画面に表示されていないウィンドウのサーフェスが返ることがあります。
+
+現在、サーフェスの実際の busy 状態と一致するのは、ワークスペースの `busy_count` だけです。タブの `busy` とペインの `busy_count` は、サーフェスの実際の状態を表しません。サーフェスオブジェクトに `busy` フィールドはありません。
 
 ## ファイルが変更された場合
 
