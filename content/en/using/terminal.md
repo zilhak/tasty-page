@@ -1,4 +1,4 @@
-<!-- source-hash: e0046f62c597 -->
+<!-- source-hash: 42b45e7ce43f -->
 # Working with the terminal
 
 You can copy the output you need, search terminal history, and open file paths as you work. You can also select text without a mouse and receive notifications when work finishes.
@@ -96,7 +96,11 @@ For example, run `printf '\033[2J\033[HABCDE\n'` in a shell to leave `ABCDE` at 
 
 Copy notices appear only after the clipboard accepts the write. If access is unavailable or a transfer fails, Tasty shows a notice and keeps your selection. With a selection, a failed Ctrl+C copy does not interrupt the program. A failed paste sends no input; an empty clipboard does nothing.
 
-On Linux, terminal copy and paste use X11, through XWayland to exchange clipboard content with other apps in a Wayland session when `DISPLAY` is set and the X server is reachable. When Tasty runs on native Wayland because `DISPLAY` is unset or the X server cannot be reached, it cannot exchange clipboard content with external apps. Copying or pasting shows a notice with the cause and remedy, distinguishing these two causes. See [Linux native Wayland troubleshooting](../help/troubleshooting.md#linux-native-wayland).
+On Linux, terminal copy and paste use X11 when Tasty runs on X11. In a Wayland session with `DISPLAY` set and the X server reachable, they exchange content with other apps through XWayland. When Tasty runs on native Wayland because `DISPLAY` is unset or the X server cannot be reached, the terminal also supports copying and pasting text to and from other apps. If another app copied only an image without text, pasting saves it as a PNG file and inserts its path.
+
+On native Wayland, copying with `"*` in vi copy mode does not reach other apps. Copy with `"+` or without specifying a target instead. Explorer file copy, cut, and paste cannot use the OS file clipboard and use only the list kept in this Tasty.
+
+If the compositor does not support the clipboard, neither the terminal nor text fields can exchange content with other apps through copy and paste. In this case, copying and pasting in the terminal and copying and cutting in text fields show warning toasts with the cause and a remedy using XWayland. Copying with `"*` and Explorer file copy, cut, and paste also show warning toasts. See [Linux native Wayland troubleshooting](../help/troubleshooting.md#linux-native-wayland).
 
 ### Clipboard access by programs (OSC 52)
 

@@ -1,4 +1,4 @@
-<!-- source-hash: c22d1be7cd98 -->
+<!-- source-hash: 85239482d2bb -->
 # Troubleshooting
 
 Causes and remedies for Tasty installation, input, display, restoration, and notification issues are organized by symptom. For CLI connection failures or slow responses, also see connection diagnostics. If the problem remains, report it with your environment details and logs.
@@ -23,18 +23,20 @@ The install procedure itself is in [Install](../getting-started/install.md).
 
 <a id="linux-native-wayland"></a>
 
-## Document views and clipboard exchange with other apps do not work on Linux
+<a id="document-views-and-clipboard-exchange-with-other-apps-do-not-work-on-linux"></a>
 
-When Tasty runs on native Wayland, HTML and Markdown views, remote HTML files, and web addresses are unavailable. Terminal copy and paste and Explorer file copy, cut, and paste cannot exchange clipboard content with other apps. Native right-click menus do not appear yet.
+## Document viewing and clipboard limits on Linux native Wayland
 
-Text fields in settings, workspace renaming, and the address bar, for example, support copying and pasting text to and from other apps.
+When Tasty runs on native Wayland, HTML and Markdown views, remote HTML files, and web addresses are unavailable. Explorer file copy, cut, and paste cannot use the OS file clipboard and use only the list kept in this Tasty. In vi copy mode, copying with `"*` does not reach other apps. Copy with `"+` or without specifying a target instead. Native right-click menus do not appear yet.
+
+If the compositor supports the clipboard, the terminal and text fields in settings, workspace renaming, and the address bar, for example, support copying and pasting text to and from other apps. If another app copied only an image without text, pasting into the terminal saves it as a PNG file and inserts its path.
 
 Follow the steps for your cause below.
 
 - When `DISPLAY` is unset, there is no XWayland, so Tasty runs on native Wayland. Turn on XWayland outside Tasty, then restart Tasty.
 - When `DISPLAY` is set but Tasty cannot reach that X server and `WAYLAND_DISPLAY` is set, Tasty logs a warning and runs on native Wayland. Check the X server in `DISPLAY` or the XWayland connection outside Tasty, then restart Tasty.
 
-The page area of HTML, Markdown, and remote HTML file surfaces shows the cause as a heading and the remedy on the line below it. A remote HTML file shows the receiving status during transfer and this notice after transfer finishes. Terminal copy and paste or Explorer file copy, cut, and paste show a warning toast with the cause and remedy. Toast duration follows the global setting.
+The page area of HTML, Markdown, and remote HTML file surfaces shows the cause as a heading and the remedy on the line below it. A remote HTML file shows the receiving status during transfer and this notice after transfer finishes. Explorer file copy, cut, and paste and copying with `"*` in vi copy mode show warning toasts with the cause and remedy. The `"*` notice also offers copying with `"+` as an alternative. If the compositor does not support the clipboard, neither the terminal nor text fields can exchange content with other apps through copy and paste. In this case, copying and pasting in the terminal and copying and cutting in text fields show warning toasts with the cause and a remedy using XWayland. Toast duration follows the global setting.
 
 <a id="linux-gdk-backend"></a>
 
