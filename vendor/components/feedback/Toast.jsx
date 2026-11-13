@@ -11,6 +11,8 @@ import React from "react";
  *   hint — the shortcut of the action that produced the notice, shown only when that action came
  *     from a non-keyboard path (menu / mouse) and the binding is non-empty. Empty binding → no hint.
  *   icon — catalog-only optional slot; the host card draws rail + body only.
+ *   opaque (2026-11-13) — the card drawn in a hole cut out of a web page (opaque mode over a page): square corners
+ *     (webview-opaque-radius), as every host box over a page in opaque mode. A toast card has no shadow in any mode.
  */
 
 const CSS = `
@@ -30,6 +32,7 @@ const CSS = `
   font-size: var(--tasty-font-size-body);
   max-width: var(--tasty-toast-max-width);
 }
+.tasty-toast--opaque { border-radius: var(--tasty-webview-opaque-radius); }
 .tasty-toast--success { border-left-color: var(--tasty-accent-success); }
 .tasty-toast--warning { border-left-color: var(--tasty-accent-warning); }
 .tasty-toast--danger  { border-left-color: var(--tasty-accent-danger); }
@@ -59,9 +62,9 @@ function ensureCss() {
   injected = true;
 }
 
-export function Toast({ variant = "info", icon = null, hint = null, className = "", children, ...rest }) {
+export function Toast({ variant = "info", icon = null, hint = null, opaque = false, className = "", children, ...rest }) {
   ensureCss();
-  const cls = ["tasty-toast", `tasty-toast--${variant}`, className].filter(Boolean).join(" ");
+  const cls = ["tasty-toast", `tasty-toast--${variant}`, opaque && "tasty-toast--opaque", className].filter(Boolean).join(" ");
   return (
     <div className={cls} role="status" {...rest}>
       {icon && <span className="tasty-toast__icon">{icon}</span>}

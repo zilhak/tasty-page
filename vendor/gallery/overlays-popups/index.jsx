@@ -4,6 +4,7 @@ import { STATES } from "./states.jsx";
 import { Kbd, MenuItem } from "../../components/index.js";
 import { GalleryNoticeColumn } from "./notice-column.jsx";
 import { GalleryWebviewOpaque } from "./opaque-over-page.jsx";
+import { GalleryToastOverPage } from "./toast-over-page.jsx";
 import { GroundThemes as PGroundThemes, GroundCap as PGroundCap, ToolsMenuFrame, SearchBarFrame, HeldLabel, TabStripMock, SidebarMock, RailMock, CatSwitchSidebarMock, CatSwitchRailMock, ic, CatMenu, RailCategoryFrame, catIc, ModifierHintPanelG, MH_CAT_SECTIONS, MH_MIXED_SECTIONS, MH_EMPTY_SECTIONS } from "../parts/overlay-frames.jsx";
 import { Section, Spec, Stage, Meta, Note, Do, Dont, Views, View } from "../parts/specimen.jsx";
 import { RemoteRowMenuItems } from "../../ui_kits/terminal/overlays/remote_row.jsx";
@@ -328,6 +329,7 @@ function Page() {
       </Section>
       <Section id="webview" title="Over a web page — opaque mode">
         {GalleryWebviewOpaque ? <GalleryWebviewOpaque /> : null}
+        <GalleryToastOverPage />
       </Section>
     </>
   );

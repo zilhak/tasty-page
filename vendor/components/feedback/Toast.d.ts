@@ -7,6 +7,8 @@ export interface ToastProps extends React.HTMLAttributes<HTMLDivElement> {
   icon?: React.ReactNode;
   /** Trailing monospace hint (e.g. a keybinding or count). */
   hint?: React.ReactNode;
+  /** Card drawn in a hole cut out of a web page: square corners (webview-opaque-radius). */
+  opaque?: boolean;
   children?: React.ReactNode;
 }
 
