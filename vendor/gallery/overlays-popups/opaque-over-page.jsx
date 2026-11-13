@@ -179,7 +179,7 @@ function GalleryWebviewOpaque() {
   return (
     <>
       <Spec id="contract-popup-over-a-page-in-opaque-mode" title="Contract — popup over a page in opaque mode"
-        when={<>A markdown or html page is a native WebView. Where the host cannot composite over it with transparency (e.g. Linux X11 with no compositing manager), the host paints only inside the <b>popup box rect</b> and each <b>dropdown box rect</b>; those pixels are fully opaque and the page outside them cannot change. Transparent mode is unchanged. The mode is decided by the environment; there is no user setting and no on-screen indicator. Toasts and passive popups keep the current rule: the overlapped page is hidden, except a page that takes keys, which stays on top of the card. How a toast shows over a page that takes keys is open; the options are under Toast over a page that takes keys, below.</>}>
+        when={<>A markdown or html page is a native WebView. Where the host cannot composite over it with transparency (e.g. Linux X11 with no compositing manager), the host paints only inside the <b>popup box rect</b> and each <b>dropdown box rect</b>; those pixels are fully opaque and the page outside them cannot change. Transparent mode is unchanged. The mode is decided by the environment; there is no user setting and no on-screen indicator. Toasts and passive popups keep the current rule: the overlapped page is hidden, except a page that takes keys, which is never hidden. A toast card over a page that takes keys is drawn in a hole cut out of the page (2026-11-14), see Toast over a page that takes keys, below.</>}>
         <Meta
           specs={[
             ["1 · corner", "square — box reads webview-opaque-radius (0); nothing to fill outside an arc"],

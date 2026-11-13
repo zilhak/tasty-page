@@ -4,13 +4,12 @@ import { ctt } from "../../ui_kits/terminal/overlays/clipboard_toast_copy.js";
 import { MdPage, Tile, Frame, Host } from "./opaque-over-page.jsx";
 import { Spec, Meta, Note, Views, View } from "../parts/specimen.jsx";
 
-// Tasty Gallery — Overlays · Popups › Toast over a page that takes keys (2026-11-13)
-// A copy or cut on a web or markdown page raises the common success toast on that surface. The page the user just
-// copied from usually has keyboard focus, and a page that takes keys is never hidden, so today the card sits under it.
-// Current states first (the second one is option D, keep as is), then options A to C. Which option ships is a user
-// decision (pending); the look inside each option is set here, except the card shape in C (decided only if C is chosen).
+// Tasty Gallery — Overlays · Popups › Toast over a page that takes keys (2026-11-13, decided 2026-11-14)
+// Every toast whose card lands on a web or markdown page that takes keys is drawn in a hole cut out of that page:
+// same corner, same stack, square card. A page without keys is hidden for the card's life, as before. Where no hole
+// can be cut (Linux without XFixes or SHAPE) the current rule holds and the card stays under the page.
 // Dashed amber outline = a rect the host paints over the page (a hole cut out of the page). Drawn 2px outside the card.
-// Dashed muted outline = where a card would be, not drawn.
+// Dashed muted outline = where a card is under the page, not drawn.
 
 const W = 400, H = 220;
 const STRIP = "var(--tasty-tab-height)"; // the pane tab strip, 24
@@ -18,12 +17,11 @@ const INSET = "var(--tasty-space-md)"; // scope margin, 12
 // 400 × 0.5 = 200 fits a 240 Views column (padding included), so the card corner shows without scrolling.
 const ZOOM = 0.5;
 
-function Strip({ children }) {
+function Strip() {
   return (
     <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: STRIP, boxSizing: "border-box", display: "flex", alignItems: "center", gap: "var(--tasty-space-xs)", padding: "0 var(--tasty-space-sm)",
       background: "var(--tasty-bg-sidebar)", borderBottom: "var(--tasty-border-width) solid var(--tasty-border-frame)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-secondary)" }}>
       <Icon name="markdown" size="var(--tasty-icon-size-sm)" /><span>release-notes.md</span>
-      {children}
     </div>
   );
 }
@@ -38,23 +36,10 @@ const Slot = () => (
     <Toast variant="success" style={{ visibility: "hidden" }}>{ctt("toast.copied")}</Toast>
   </div>
 );
-// option C: the place at the right end of the tab strip, as tall as the strip and as wide as the body text
-// (no card shape yet, it is open)
-const StripSlot = () => (
-  <div aria-hidden="true" style={{ flex: "none", height: STRIP, boxSizing: "border-box", display: "flex", alignItems: "center", padding: "0 var(--tasty-space-md)", fontSize: "var(--tasty-font-size-body)", ...SLOT_EDGE }}>
-    <span style={{ visibility: "hidden" }}>{ctt("toast.copied")}</span>
-  </div>
-);
 
 function Scene({ mode }) {
   if (mode === "nokey") {
     return <Frame w={W} h={H}><Strip /><Body><Tile /><Corner><Toast variant="success">{ctt("toast.copied")}</Toast></Corner></Body></Frame>;
-  }
-  if (mode === "key") {
-    return <Frame w={W} h={H}><Strip /><Body><MdPage /><Corner><Slot /></Corner></Body></Frame>;
-  }
-  if (mode === "hole") {
-    return <Frame w={W} h={H}><Strip /><Body><MdPage /><Corner><Host on><Toast variant="success" opaque>{ctt("toast.copied")}</Toast></Host></Corner></Body></Frame>;
   }
   if (mode === "hole-stack") {
     return (
@@ -64,17 +49,10 @@ function Scene({ mode }) {
       </Corner></Body></Frame>
     );
   }
-  if (mode === "overlay") {
-    return <Frame w={W} h={H}><Strip /><Body><MdPage /><Corner><Toast variant="success">{ctt("toast.copied")}</Toast></Corner></Body></Frame>;
+  if (mode === "nohole") {
+    return <Frame w={W} h={H}><Strip /><Body><MdPage /><Corner><Slot /></Corner></Body></Frame>;
   }
-  // host area: the card would move to the right end of the pane tab strip (24 tall). The Toast card is about 36 tall,
-  // so it does not fit; the shape that fits the strip is decided only if C is chosen. The slot marks the place.
-  return (
-    <Frame w={W} h={H}>
-      <Body><MdPage /></Body>
-      <Strip><span style={{ flex: 1 }} /><StripSlot /></Strip>
-    </Frame>
-  );
+  return <Frame w={W} h={H}><Strip /><Body><MdPage /><Corner><Host on><Toast variant="success" opaque>{ctt("toast.copied")}</Toast></Host></Corner></Body></Frame>;
 }
 
 function Pair({ mode }) {
@@ -91,18 +69,16 @@ function Pair({ mode }) {
 }
 
 const VIEWS = [
-  ["toast-over-page-without-keys", "nokey", "Current · page without keys: page hidden for the card's life, card on the tile (unchanged in every option)"],
-  ["toast-over-page-with-keys", "key", "Current · page that takes keys = option D, keep as is: page stays, card under it (dashed: where the card is, not drawn)"],
-  ["toast-over-page-option-a-hole", "hole", "Option A · hole (recommended): same corner, the card's rect is cut out of the page, square card"],
-  ["toast-over-page-option-a-stack", "hole-stack", "Option A · stack: one hole per card, the page shows between cards, newest bottom"],
-  ["toast-over-page-option-b-overlay-host", "overlay", "Option B · window overlay host: same corner, rounded card as on other grounds (Linux with a compositing manager only)"],
-  ["toast-over-page-option-c-host-area", "host-area", "Option C · host area: the right end of the pane tab strip (dashed: the place; the card shape for a 24 row is open)"],
+  ["toast-over-page-hole", "hole", "Page that takes keys: the card's rect is cut out of the page, the host draws the card there, square"],
+  ["toast-over-page-hole-stack", "hole-stack", "Stack: one hole per card, the page shows in the gaps between cards, newest bottom"],
+  ["toast-over-page-without-keys", "nokey", "Page without keys (unchanged): page hidden for the card's life, card on the tile"],
+  ["toast-over-page-no-hole", "nohole", "Linux without XFixes or SHAPE: no hole, the page stays and the card is under it (dashed: where the card is, not drawn)"],
 ];
 
 function GalleryToastOverPage() {
   return (
     <Spec id="toast-over-a-page-that-takes-keys" title="Toast over a page that takes keys"
-      when={<>A copy or cut on a web or markdown page raises the same success toast as any other copy, on that surface, in its bottom-right corner. That corner is on the page, and the page the user just copied from usually takes keys. A page that takes keys is never hidden for a toast (typed keys must not be lost), so today the card sits under the page and is not seen. <b>Which option ships is a user decision and is open.</b> The options are D (keep as is, the second current frame) and A to C below, each keeping the card's position rule or the page's input in a different way. The look inside A and B is set here and holds once that option is chosen; the card shape in C is open. These options are not the popup overlay modes (transparent, opaque, hidden): if A is chosen it applies in every overlay mode.</>}>
+      when={<>Every toast whose card lands on a web or markdown page that takes keys, a copy or cut on that page included. A page that takes keys is never hidden (typed keys must not be lost), so the host cuts each card's rect out of the page as a hole and draws the card there, in the same bottom-right corner and stack as on any other ground. The rule is the same on Linux, macOS and Windows. A page without keys is still hidden for the card's life. Where no hole can be cut (Linux without XFixes or SHAPE) the current rule holds: the page stays and the card is under it. This is not one of the popup overlay modes (transparent, opaque, hidden); it applies in all of them.</>}>
       <Views>
         {VIEWS.map(([name, mode, label]) => (
           <View key={name} name={name} label={label}><Pair mode={mode} /></View>
@@ -110,29 +86,28 @@ function GalleryToastOverPage() {
       </Views>
       <Meta
         specs={[
-          ["D · keep as is", "the card stays under a page that takes keys and is not seen there; the copy on that page raises a toast nobody sees"],
-          ["A · hole (recommended)", "the card's rect is cut out of the page, as the restore notice is: the host paints the card there, and a click there goes to the host, not the page, for the card's life (2 s by default). Same corner, same stack, same card. The restore notice is a long-lived card; opening and closing a hole per short-lived card (up to 5) is not measured on any OS"],
-          ["A · look", "square corners (Toast opaque → webview-opaque-radius, square like an opaque-mode box), no shadow (a toast has none), rail and body unchanged · no fade: hole and card appear and leave in the same frame, so no blank rect shows during a fade"],
-          ["A · stack", "one hole per card, not one for the column; the 8px gaps stay page · cap 5 and the shared corner column unchanged"],
-          ["A · pointer and keys", "the pointer over the card reaches the host, so hover can keep the card as on other grounds. Open (fact check): on Linux X11 keys follow the pointer when the X focus is on an ancestor window, so with the pointer over the hole keys may go to the host, the page may stop counting as taking keys, and the hide rule would then hide it"],
-          ["B · window overlay host", "the card is drawn on the host window that floats over the page and keeps its rounded corners · only Linux X11 / XWayland with a compositing manager · every other environment falls back to A"],
-          ["C · host area", "the card moves to the right end of the pane tab strip (the tab strip tooltip precedent) · the page keeps every pixel and click. Open if C is chosen: the strip is 24 (tab-height) and the Toast card is about 36, so the card needs a shape that fits a 24 row; and a fallback where the pane shows no tab strip, which is A or the current rule"],
-          ["OS · Linux X11 / XWayland, XFixes and SHAPE", "A: hole · B: overlay host if a compositing manager runs, else hole"],
-          ["OS · macOS", "A: hole (layer mask, hit test excluded), probe only, not measured · B: hole"],
-          ["OS · Windows", "A: hole (child window region) · B: hole (no overlay host)"],
-          ["OS · Linux without XFixes or SHAPE", "open (P3); recommended: current rule. No hole can be cut there; a page can still be hidden, but a page that takes keys is not hidden under the input rule, so the card stays under it in A and B. C would still show it"],
-          ["native Wayland", "no web page is shown, nothing to decide"],
-          ["page without keys", "unchanged in every option: the page is hidden for the card's life and the card sits on the tile"],
+          ["scope", "every toast whose card's rect intersects a page that takes keys (not only copy and cut). Other pages under the stack follow the hide rule"],
+          ["position", "unchanged: the scope's bottom-right corner, the shared corner column, newest bottom, cap 5, 8px gap"],
+          ["hole", "one hole per card, the card's own rect, not one for the column · the 8px gaps between cards stay page · up to 5 holes at once · the hole opens when the card shows and closes when it leaves"],
+          ["look", "square corners (Toast opaque → webview-opaque-radius, like an opaque-mode box) · no shadow (a toast has none) · rail and body unchanged · no fade: hole and card appear and leave in the same frame, so no blank rect shows"],
+          ["pointer", "a click inside a hole goes to the host, not the page, for the card's life (2 s by default) · hover over the card keeps it up, as on other grounds"],
+          ["keys", "the page keeps keyboard focus; a toast never takes focus"],
+          ["OS · Linux X11 / XWayland with XFixes and SHAPE", "hole"],
+          ["OS · macOS", "hole (layer mask, hit test excluded)"],
+          ["OS · Windows", "hole (child window region)"],
+          ["OS · Linux without XFixes or SHAPE", "no hole: current rule, the page that takes keys is not hidden and the card stays under it, unseen. A page without keys is still hidden"],
+          ["native Wayland", "no web page is shown, nothing to apply"],
           ["markdown copy button", "the code block button keeps its own Copied state; the toast also shows. The button answers where the click was, the toast is the common notice"],
-          ["scope", "open with the option: copy and cut toasts only, or every toast whose card lands on a page that takes keys (recommended: every toast, so one rule holds)"],
+          ["for the implementing side to check · F2", "opening and closing a hole per short-lived card (up to 5 at once) without flicker, on Linux, macOS and Windows. The restore notice cuts a long-lived hole; per-card holes are not measured on any OS"],
+          ["for the implementing side to check · F3", "whether a hole and its card can open and close in the same frame (no blank rect, no card under the page for a frame)"],
+          ["for the implementing side to check · F4", "Linux X11: with the X focus on an ancestor window, keys follow the pointer, so with the pointer over a hole keys may go to the host and the page may stop counting as taking keys (the hide rule would then hide it). Check the key route and the takes-keys test with the pointer over a hole"],
         ]}
         tokens={[
-          { tok: "--tasty-webview-opaque-radius", use: "A · card corners (0)" },
+          { tok: "--tasty-webview-opaque-radius", use: "card corners in a hole (0)" },
           { tok: "--tasty-surface-raised", use: "card", color: "var(--tasty-surface-raised)" },
           { tok: "--tasty-accent-success", use: "rail · copy and cut", color: "var(--tasty-accent-success-raised)" },
-          { tok: "--tasty-tab-height", use: "C · pane tab strip (24)" },
         ]} />
-      <Note><b>Why A is recommended:</b> it keeps the one position rule every toast follows, draws the same square card on Linux, macOS and Windows, and builds on the hole the restore notice already cuts. Its costs: a card-sized rect at the page's bottom-right takes no clicks while the card is up, the pointer over that rect may change where keys go on Linux (open), and holes opened and closed per card are not measured on any OS. B keeps the rounded card but runs in one environment and falls back to A in the others. C keeps the page whole but needs a new card shape for the 24 strip and a fallback where a pane shows no host area, which brings back A or the hidden card. D changes nothing and leaves the toast unseen on the page it came from.</Note>
+      <Note><b>Decided 2026-11-14.</b> The hole keeps the one position rule every toast follows and draws the same square card on all three OSes, on the hole the restore notice already cuts. The cost is accepted: a card-sized rect at the page's bottom-right takes no clicks while the card is up. Also considered and not chosen: a window overlay host with a rounded card (one Linux environment only), a place in the pane tab strip (the 24 strip does not fit the card), and keeping the card under the page.</Note>
     </Spec>
   );
 }

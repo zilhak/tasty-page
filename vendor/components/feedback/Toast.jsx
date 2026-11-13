@@ -11,8 +11,8 @@ import React from "react";
  *   hint — the shortcut of the action that produced the notice, shown only when that action came
  *     from a non-keyboard path (menu / mouse) and the binding is non-empty. Empty binding → no hint.
  *   icon — catalog-only optional slot; the host card draws rail + body only.
- *   opaque (2026-11-13) — card drawn in a hole cut out of a page (option A of Toast over a page that takes keys,
- *     pending a user decision); square like an opaque-mode box (webview-opaque-radius). Not tied to the popup overlay
+ *   opaque (2026-11-13, decided 2026-11-14) — card drawn in a hole cut out of a page that takes keys (Toast over a
+ *     page that takes keys); square like an opaque-mode box (webview-opaque-radius). Not tied to the popup overlay
  *     modes. A toast card has no shadow in any case.
  */
 
