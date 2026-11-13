@@ -1,4 +1,4 @@
-<!-- source-hash: e9fa2e1b8a49 -->
+<!-- source-hash: 308387cf9570 -->
 # Lua スクリプト
 
 Tasty に登録した Lua スクリプトは、ショートカットで実行したり、ウィンドウ・ワークスペース・タブが開閉するときに自動実行するよう設定したりできます。
@@ -68,11 +68,13 @@ Lua 標準ライブラリのファイル入出力や外部コマンド実行は�
 | 階層 | フィールド |
 |---|---|
 | ワークスペース | `id`, `name`, `active`（そのウィンドウで選択されたワークスペース。バックグラウンドに送ったウィンドウも含みます）, `busy_count`（ワークスペース内の busy 状態のサーフェス数）, `panes` |
-| ペイン | `id`, `focused`（そのワークスペースのフォーカスペイン）, `busy_count`, `tabs` |
-| タブ | `id`, `name`, `active`（そのペインで選択されたタブ）, `busy`, `surface` |
-| `tab.surface`（分割されたタブ） | `type = "SplitLayout"`, `focused_surface`（そのタブのフォーカスサーフェスの id）, `surfaces`（タブ内のサーフェス id の配列）, `layout` |
-| `layout` ノード | `Leaf`: `type`, `id`, `kind`。`Split`: `type`, `direction`（`horizontal` ・ `vertical`）, `ratio`, `focus_second`, `first`, `second` |
-| `tab.surface`（分割されていないタブ） | サーフェス 1 つです。すべてのサーフェスに `id` と `type` があり、ほかのフィールドは種類によって異なります。ターミナルは `type = "Terminal"` で、`cols` ・ `rows` はこのツリーでは常に 0 です |
+| ペイン | `id`, `focused`（そのワークスペースのフォーカスペイン）, `busy_count`（選択されていないタブも含め、ペイン内のすべてのタブで busy 状態のサーフェス数）, `tabs` |
+| タブ | `id`, `name`, `active`（そのペインで選択されたタブ）, `busy_count`（タブ内の busy 状態のサーフェス数）, `busy`（タブ内のサーフェスが 1 つでも busy 状態なら真）, `surface` |
+| `tab.surface`（分割されたタブ） | `type = "SplitLayout"`, `focused_surface`（そのタブのフォーカスサーフェスの id）, `surfaces`（タブ内のサーフェス id の配列）, `layout`。`busy` フィールドはありません |
+| `layout` ノード | `Leaf`: `type`, `id`, `kind`, `busy`。`Split`: `type`, `direction`（`horizontal` ・ `vertical`）, `ratio`, `focus_second`, `first`, `second`。`Split` には `busy` フィールドはありません |
+| `tab.surface`（分割されていないタブ） | サーフェス 1 つです。すべてのサーフェスに `id`、`type`、`busy` があり、ほかのフィールドは種類によって異なります。ターミナルは `type = "Terminal"` で、`cols` ・ `rows` はこのツリーでは常に 0 です |
+
+`focus_second` は分割の作成時や復元時に設定された値のため、現在のフォーカスと異なる場合があります。現在のフォーカスは `focused_surface` で判断します。
 
 ### フォーカスサーフェスを探す
 
@@ -105,8 +107,6 @@ end
 ### ツリーで区別できないこと
 
 `active` と `focused` はウィンドウごとに決まり、バックグラウンドに送ったウィンドウも含まれます。ウィンドウが複数あれば、`active` が真のワークスペースも各ウィンドウに 1 つずつあります。ツリーにはウィンドウを示すフィールドがないため、OS のフォーカスがあるウィンドウや画面に表示されているウィンドウを区別できません。上の例のように最初の `active` ワークスペースを選ぶと、別のウィンドウのサーフェスが返ることがあります。Tasty を **最小化** でバックグラウンドに送った状態では、画面に表示されていないウィンドウのサーフェスが返ることがあります。
-
-現在、サーフェスの実際の busy 状態と一致するのは、ワークスペースの `busy_count` だけです。タブの `busy` とペインの `busy_count` は、サーフェスの実際の状態を表しません。サーフェスオブジェクトに `busy` フィールドはありません。
 
 ## ファイルが変更された場合
 

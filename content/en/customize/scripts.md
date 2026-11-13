@@ -1,4 +1,4 @@
-<!-- source-hash: e9fa2e1b8a49 -->
+<!-- source-hash: 308387cf9570 -->
 # Lua scripts
 
 Lua scripts registered in Tasty can run from a keybinding or be set to run automatically when a window, workspace, or tab opens or closes.
@@ -68,11 +68,13 @@ Workspaces are appended to the array by window. Workspaces from open windows, in
 | Level | Fields |
 |---|---|
 | Workspace | `id`, `name`, `active` (the selected Workspace in that window, including windows sent to the background), `busy_count` (the number of busy Surfaces in the Workspace), `panes` |
-| Pane | `id`, `focused` (the focused Pane in that Workspace), `busy_count`, `tabs` |
-| Tab | `id`, `name`, `active` (the selected Tab in that Pane), `busy`, `surface` |
-| `tab.surface` (split Tab) | `type = "SplitLayout"`, `focused_surface` (the focused Surface id in that Tab), `surfaces` (an array of Surface ids in the Tab), `layout` |
-| `layout` node | `Leaf`: `type`, `id`, `kind`. `Split`: `type`, `direction` (`horizontal` · `vertical`), `ratio`, `focus_second`, `first`, `second` |
-| `tab.surface` (unsplit Tab) | A single Surface. Every Surface has `id` and `type`; the other fields depend on its type. A terminal has `type = "Terminal"`; `cols` and `rows` are always 0 in this tree |
+| Pane | `id`, `focused` (the focused Pane in that Workspace), `busy_count` (the number of busy Surfaces across all Tabs in the Pane, including unselected Tabs), `tabs` |
+| Tab | `id`, `name`, `active` (the selected Tab in that Pane), `busy_count` (the number of busy Surfaces in the Tab), `busy` (true when any Surface in the Tab is busy), `surface` |
+| `tab.surface` (split Tab) | `type = "SplitLayout"`, `focused_surface` (the focused Surface id in that Tab), `surfaces` (an array of Surface ids in the Tab), `layout`. There is no `busy` field |
+| `layout` node | `Leaf`: `type`, `id`, `kind`, `busy`. `Split`: `type`, `direction` (`horizontal` · `vertical`), `ratio`, `focus_second`, `first`, `second`. `Split` has no `busy` field |
+| `tab.surface` (unsplit Tab) | A single Surface. Every Surface has `id`, `type`, and `busy`; the other fields depend on its type. A terminal has `type = "Terminal"`; `cols` and `rows` are always 0 in this tree |
+
+`focus_second` is set when a split is created or restored and may differ from the current focus. Use `focused_surface` to determine the current focus.
 
 ### Finding the focused Surface
 
@@ -105,8 +107,6 @@ end
 ### What the tree cannot distinguish
 
 `active` and `focused` are determined per window, including windows sent to the background. With multiple windows, each has a Workspace whose `active` is true. The tree has no field identifying the window, so it cannot distinguish the window with OS focus or the windows visible on screen. Selecting the first `active` Workspace, as in the example above, may return a Surface from another window. When Tasty is sent to the background with **Minimize**, it may return a Surface from a window that is not on screen.
-
-Currently, only the Workspace's `busy_count` matches the actual busy state of its Surfaces. The Tab's `busy` and the Pane's `busy_count` do not represent the actual Surface state. Surface objects have no `busy` field.
 
 ## When the file changes
 

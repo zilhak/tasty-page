@@ -67,11 +67,13 @@ Lua 표준 라이브러리의 파일 입출력과 외부 명령 실행은 그대
 | 단계 | 필드 |
 |---|---|
 | 워크스페이스 | `id`, `name`, `active`(해당 윈도우에서 선택된 워크스페이스, 백그라운드로 내린 윈도우 포함), `busy_count`(워크스페이스 안에서 busy 상태인 서피스 수), `panes` |
-| 페인 | `id`, `focused`(해당 워크스페이스의 포커스 페인), `busy_count`, `tabs` |
-| 탭 | `id`, `name`, `active`(해당 페인에서 선택된 탭), `busy`, `surface` |
-| `tab.surface`(나뉜 탭) | `type = "SplitLayout"`, `focused_surface`(해당 탭의 포커스 서피스 id), `surfaces`(탭 안 서피스 id 배열), `layout` |
-| `layout` 노드 | `Leaf`: `type`, `id`, `kind`. `Split`: `type`, `direction`(`horizontal` · `vertical`), `ratio`, `focus_second`, `first`, `second` |
-| `tab.surface`(나뉘지 않은 탭) | 서피스 하나입니다. 모든 서피스에 `id`와 `type`이 있고 나머지 필드는 종류마다 다릅니다. 터미널은 `type = "Terminal"`이며 `cols` · `rows`는 이 트리에서 항상 0입니다 |
+| 페인 | `id`, `focused`(해당 워크스페이스의 포커스 페인), `busy_count`(선택되지 않은 탭을 포함해 페인 안 모든 탭에서 busy 상태인 서피스 수), `tabs` |
+| 탭 | `id`, `name`, `active`(해당 페인에서 선택된 탭), `busy_count`(탭 안에서 busy 상태인 서피스 수), `busy`(탭 안 서피스 중 하나라도 busy 상태이면 참), `surface` |
+| `tab.surface`(나뉜 탭) | `type = "SplitLayout"`, `focused_surface`(해당 탭의 포커스 서피스 id), `surfaces`(탭 안 서피스 id 배열), `layout`. `busy` 필드는 없습니다 |
+| `layout` 노드 | `Leaf`: `type`, `id`, `kind`, `busy`. `Split`: `type`, `direction`(`horizontal` · `vertical`), `ratio`, `focus_second`, `first`, `second`. `Split`에는 `busy` 필드가 없습니다 |
+| `tab.surface`(나뉘지 않은 탭) | 서피스 하나입니다. 모든 서피스에 `id`, `type`, `busy`가 있고 나머지 필드는 종류마다 다릅니다. 터미널은 `type = "Terminal"`이며 `cols` · `rows`는 이 트리에서 항상 0입니다 |
+
+`focus_second`는 분할을 만들거나 복원할 때 정해진 값이라 현재 포커스와 다를 수 있습니다. 현재 포커스는 `focused_surface`로 판단합니다.
 
 ### 포커스 서피스 찾기
 
@@ -104,8 +106,6 @@ end
 ### 트리로 구분할 수 없는 것
 
 `active`와 `focused`는 윈도우마다 정해지며, 백그라운드로 내린 윈도우도 포함됩니다. 윈도우가 여럿이면 `active`가 참인 워크스페이스도 윈도우마다 하나씩 나옵니다. 트리에는 윈도우를 가리키는 필드가 없어, OS 포커스를 가진 윈도우나 화면에 보이는 윈도우를 구분할 수 없습니다. 위 예제처럼 첫 번째 `active` 워크스페이스를 고르면 다른 윈도우의 서피스가 나올 수 있습니다. **최소화**를 골라 Tasty를 백그라운드로 내린 상태에서는 화면에 없는 윈도우의 서피스가 나올 수 있습니다.
-
-지금은 워크스페이스의 `busy_count`만 실제 서피스의 busy 상태와 맞습니다. 탭의 `busy`와 페인의 `busy_count`는 실제 서피스 상태를 나타내지 않습니다. 서피스 객체에는 `busy` 필드가 없습니다.
 
 ## 파일이 바뀌면
 

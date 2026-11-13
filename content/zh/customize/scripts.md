@@ -1,4 +1,4 @@
-<!-- source-hash: e9fa2e1b8a49 -->
+<!-- source-hash: 308387cf9570 -->
 # Lua 脚本
 
 在 Tasty 中注册的 Lua 脚本可通过快捷键运行，也可设置为在窗口、工作区或标签页打开和关闭时自动运行。
@@ -68,11 +68,13 @@ tasty.run_cli({ "notify", "新工作区", "--title", "script" })
 | 层级 | 字段 |
 |---|---|
 | 工作区 | `id`、`name`、`active`（该窗口中选中的工作区，包括转入后台的窗口）、`busy_count`（工作区内处于 busy 状态的 Surface 数量）、`panes` |
-| 窗格 | `id`、`focused`（该工作区中具有焦点的窗格）、`busy_count`、`tabs` |
-| 标签页 | `id`、`name`、`active`（该窗格中选中的标签页）、`busy`、`surface` |
-| `tab.surface`（已拆分的标签页） | `type = "SplitLayout"`、`focused_surface`（该标签页中具有焦点的 Surface id）、`surfaces`（标签页内 Surface id 的数组）、`layout` |
-| `layout` 节点 | `Leaf`：`type`、`id`、`kind`。`Split`：`type`、`direction`（`horizontal` · `vertical`）、`ratio`、`focus_second`、`first`、`second` |
-| `tab.surface`（未拆分的标签页） | 单个 Surface。所有 Surface 都有 `id` 和 `type`，其他字段因类型而异。终端的 `type = "Terminal"`，`cols` 和 `rows` 在这棵树中始终为 0 |
+| 窗格 | `id`、`focused`（该工作区中具有焦点的窗格）、`busy_count`（窗格内所有标签页中处于 busy 状态的 Surface 数量，包括未选中的标签页）、`tabs` |
+| 标签页 | `id`、`name`、`active`（该窗格中选中的标签页）、`busy_count`（标签页内处于 busy 状态的 Surface 数量）、`busy`（标签页内至少有一个 Surface 处于 busy 状态时为真）、`surface` |
+| `tab.surface`（已拆分的标签页） | `type = "SplitLayout"`、`focused_surface`（该标签页中具有焦点的 Surface id）、`surfaces`（标签页内 Surface id 的数组）、`layout`。没有 `busy` 字段 |
+| `layout` 节点 | `Leaf`：`type`、`id`、`kind`、`busy`。`Split`：`type`、`direction`（`horizontal` · `vertical`）、`ratio`、`focus_second`、`first`、`second`。`Split` 没有 `busy` 字段 |
+| `tab.surface`（未拆分的标签页） | 单个 Surface。所有 Surface 都有 `id`、`type` 和 `busy`，其他字段因类型而异。终端的 `type = "Terminal"`，`cols` 和 `rows` 在这棵树中始终为 0 |
+
+`focus_second` 是创建或恢复拆分时设置的值，可能与当前焦点不同。使用 `focused_surface` 判断当前焦点。
 
 ### 查找具有焦点的 Surface
 
@@ -105,8 +107,6 @@ end
 ### 树无法区分的情况
 
 `active` 和 `focused` 按窗口确定，包括转入后台的窗口。有多个窗口时，每个窗口都有一个 `active` 为真的工作区。树中没有标识窗口的字段，因此无法区分哪个窗口具有操作系统焦点，或哪些窗口显示在屏幕上。像上面的示例一样选择第一个 `active` 工作区，可能返回其他窗口的 Surface。通过 **最小化** 将 Tasty 转入后台后，可能返回未显示在屏幕上的窗口中的 Surface。
-
-目前，只有工作区的 `busy_count` 与 Surface 的实际 busy 状态一致。标签页的 `busy` 和窗格的 `busy_count` 不代表 Surface 的实际状态。Surface 对象没有 `busy` 字段。
 
 ## 文件更改时
 
