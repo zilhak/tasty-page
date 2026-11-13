@@ -31,9 +31,19 @@ const Body = ({ children }) => <div style={{ position: "absolute", top: STRIP, l
 const Corner = ({ children }) => (
   <div style={{ position: "absolute", right: INSET, bottom: INSET, display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "var(--tasty-space-sm)" }}>{children}</div>
 );
-// where a card would be, not drawn
-const Slot = ({ h = "var(--tasty-control-height)" }) => (
-  <div style={{ flex: "none", width: "var(--tasty-size-96)", height: h, boxSizing: "border-box", outline: "var(--tasty-border-width) dashed var(--tasty-text-muted)", outlineOffset: -1 }} />
+const SLOT_EDGE = { outline: "var(--tasty-border-width) dashed var(--tasty-text-muted)", outlineOffset: "calc(-1 * var(--tasty-border-width))" };
+// where the card is under the page, not drawn: the outline takes the size of the card itself (same width and height rule)
+const Slot = () => (
+  <div aria-hidden="true" style={{ flex: "none", display: "flex", ...SLOT_EDGE }}>
+    <Toast variant="success" style={{ visibility: "hidden" }}>{ctt("toast.copied")}</Toast>
+  </div>
+);
+// option C: the place at the right end of the tab strip, as tall as the strip and as wide as the body text
+// (no card shape yet, it is open)
+const StripSlot = () => (
+  <div aria-hidden="true" style={{ flex: "none", height: STRIP, boxSizing: "border-box", display: "flex", alignItems: "center", padding: "0 var(--tasty-space-md)", fontSize: "var(--tasty-font-size-body)", ...SLOT_EDGE }}>
+    <span style={{ visibility: "hidden" }}>{ctt("toast.copied")}</span>
+  </div>
 );
 
 function Scene({ mode }) {
@@ -62,7 +72,7 @@ function Scene({ mode }) {
   return (
     <Frame w={W} h={H}>
       <Body><MdPage /></Body>
-      <Strip><span style={{ flex: 1 }} /><Slot h={STRIP} /></Strip>
+      <Strip><span style={{ flex: 1 }} /><StripSlot /></Strip>
     </Frame>
   );
 }
