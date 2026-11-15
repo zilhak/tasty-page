@@ -1,4 +1,4 @@
-<!-- source-hash: 85239482d2bb -->
+<!-- source-hash: 0786ef0b4f5e -->
 # Troubleshooting
 
 Causes and remedies for Tasty installation, input, display, restoration, and notification issues are organized by symptom. For CLI connection failures or slow responses, also see connection diagnostics. If the problem remains, report it with your environment details and logs.
@@ -30,6 +30,21 @@ The install procedure itself is in [Install](../getting-started/install.md).
 When Tasty runs on native Wayland, HTML and Markdown views, remote HTML files, and web addresses are unavailable. Explorer file copy, cut, and paste cannot use the OS file clipboard and use only the list kept in this Tasty. In vi copy mode, copying with `"*` does not reach other apps. Copy with `"+` or without specifying a target instead. Native right-click menus do not appear yet.
 
 If the compositor supports the clipboard, the terminal and text fields in settings, workspace renaming, and the address bar, for example, support copying and pasting text to and from other apps. If another app copied only an image without text, pasting into the terminal saves it as a PNG file and inserts its path.
+
+If the compositor supports the clipboard, plugins that have agreed to report editing results to Tasty wait while reading clipboard text from another app before pasting into a text field on native Wayland. This applies to text fields in local plugin views and popups, and to pasting into that local view from the command palette. Plugin views mirrored from a remote workspace are excluded. Built-in plugins do not report editing results yet, so this waiting behavior does not apply to them.
+
+The read can end in the following ways.
+
+- **No text or a failed read — views with format support**: Tasty requests a format paste from a local plugin view that both reports editing results and supports formats other than text, such as images. If the plugin reports that there is no format it can paste, the original key input is passed on.
+- **No text or a failed read — other views and popups**: The original key input is passed on.
+- **The read takes too long**: If the read does not finish within a time limit, the original key input is passed on regardless of support for formats other than text.
+- **The plugin does not respond**: After the read finishes and a paste is requested, if the plugin does not report an editing result within a time limit, processing ends without passing on the original key.
+
+The command palette also attempts a format paste under the same conditions. Since there is no key to pass on, a paste from the palette ends wherever the list above calls for passing on the original key.
+
+Format pasting is also supported on other platforms. Plugin views that do not report editing results receive paste actions if they support the format; the plugin reads the required format itself and attempts to paste it.
+
+While waiting for the read, closing the target view or popup, or changing which target receives keyboard input, cancels the paste. Clicking anywhere in the same window, the window losing focus, another clipboard read replacing the pending read, or the plugin stopping or restarting also cancels it. Text that arrives after cancellation is not pasted.
 
 Follow the steps for your cause below.
 
