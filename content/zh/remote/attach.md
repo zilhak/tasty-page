@@ -1,4 +1,4 @@
-<!-- source-hash: 5882df6f56c8 -->
+<!-- source-hash: a3d2f2f1502f -->
 <a id="远程附加"></a>
 
 # 继续远程工作（attach）
@@ -246,7 +246,14 @@ CLI 也可以保留远程工作，仅断开连接：
 tasty remote disconnect --workspace 7
 ```
 
-`--workspace` 接收 `tasty list workspaces` 中 `[mirror]` 行的 **本地 ID**。已保存的行会留在列表中，用 `tasty remote connect --workspace <本地 id>` 重新连接。未保存的镜像用 `tasty remote attach --into-gui --workspace <远程 id>` 再次附加。已保存的行即使尚未连接，断开命令也会成功并取消正在进行的尝试。
+`--workspace` 接收 `tasty list workspaces` 中 `[mirror]` 行的 **本地 ID**。已保存的行会留在列表中，用 `tasty remote connect --workspace <本地 id>` 重新连接。未保存的镜像用 `tasty remote attach --into-gui --workspace <远程 id>` 再次附加。
+
+成功时输出包含 `disconnected`、`already_disconnected`、`workspace_id` 和 `remote_workspace` 的 JSON，并以退出码 0 结束。已保存的远程行还包含 `previous_state`，表示调用前的状态（`connected`、`reconnecting`、`connecting`、`disconnected`、`failed`、`not_connected`）。`disconnected` 表示本次调用是否实际断开了连接或取消了正在进行的尝试，并非调用后的状态。
+
+- 调用前的状态为 `connected`、`reconnecting`、`connecting`，或存在需要取消的尝试时，会断开连接并取消尝试，返回 `disconnected: true`、`already_disconnected: false`。
+- 已保存行的调用前状态为 `disconnected`、`failed`、`not_connected`，且没有需要取消的尝试时，以 `disconnected: false`、`already_disconnected: true` 成功返回。在其他位置关闭了远程工作区的行也属于此情况。不会更改连接状态，也不会再次显示连接的短暂提示，并在 stderr 中以应用语言说明连接已断开、未做任何更改。此时仍会保留手动断开标记，因此从未连接过的行也不会自动连接。再次使用时，运行 `tasty remote connect --workspace <本地 id>` 连接。
+
+因 ID 不存在或工作区不是镜像而被拒绝时，以退出码 1 结束，并在 stderr 的错误下方通过 `data:` 行输出原因。ID 不存在时，`data.reason` 为 `workspace_not_found`；工作区既不是已保存的远程行，也不是带有 attach 会话的镜像时，为 `not_a_mirror`。通过 CLI 附加的未保存镜像会在断开连接后消失，因此使用同一 ID 第二次调用会返回 `workspace_not_found` 错误。
 
 这与远程窗口中的 **强制分离** 不同。强制分离用于从远程计算机移除其他人的连接。
 

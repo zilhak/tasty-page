@@ -1,4 +1,4 @@
-<!-- source-hash: 5882df6f56c8 -->
+<!-- source-hash: a3d2f2f1502f -->
 <a id="リモート-attach"></a>
 
 # リモートの作業を続ける（attach）
@@ -246,7 +246,14 @@ CLI でもリモートの作業を残して接続だけを切れます。
 tasty remote disconnect --workspace 7
 ```
 
-`--workspace` には `tasty list workspaces` の `[mirror]` 行の **ローカル ID** を指定します。保存された行は一覧に残るため、`tasty remote connect --workspace <ローカル id>` で再接続します。保存されていないミラーは `tasty remote attach --into-gui --workspace <リモート id>` で再びアタッチします。保存された行は未接続でも切断コマンドが成功し、進行中の試行を取り消します。
+`--workspace` には `tasty list workspaces` の `[mirror]` 行の **ローカル ID** を指定します。保存された行は一覧に残るため、`tasty remote connect --workspace <ローカル id>` で再接続します。保存されていないミラーは `tasty remote attach --into-gui --workspace <リモート id>` で再びアタッチします。
+
+成功すると、`disconnected`、`already_disconnected`、`workspace_id`、`remote_workspace` を含む JSON を出力し、終了コード 0 で終了します。保存されたリモート行には、呼び出し前の状態を示す `previous_state` も含まれます（`connected`、`reconnecting`、`connecting`、`disconnected`、`failed`、`not_connected`）。`disconnected` は今回の呼び出しで接続や進行中の試行を実際に切断・キャンセルしたかを示し、呼び出し後の状態を示すものではありません。
+
+- 呼び出し前の状態が `connected`・`reconnecting`・`connecting`、またはキャンセルする試行がある場合、接続を切断して試行をキャンセルし、`disconnected: true`、`already_disconnected: false` を返します。
+- 保存された行の呼び出し前の状態が `disconnected`・`failed`・`not_connected` で、キャンセルする試行がない場合、`disconnected: false`、`already_disconnected: true` で成功します。別の場所でリモートワークスペースが閉じられた行も該当します。接続状態を変更せず、接続案内のトーストも再表示しません。すでに切断されていて何も変更されていない旨を、アプリの言語で stderr に出力します。この場合も手動で切断した印が残るため、一度も接続していない行でも自動接続しません。再び使うには `tasty remote connect --workspace <ローカル id>` で接続してください。
+
+存在しない ID やミラーではないワークスペースを理由に拒否された場合、終了コード 1 で終了し、stderr のエラーの下にある `data:` 行に理由を出力します。存在しない ID の `data.reason` は `workspace_not_found` です。保存されたリモート行でも attach セッションのあるミラーでもないワークスペースでは `not_a_mirror` です。CLI で接続した保存されていないミラーは切断すると消えるため、同じ ID で 2 回目に呼び出すと `workspace_not_found` エラーになります。
 
 これはリモートウィンドウの **強制切断** とは異なります。強制切断はリモートコンピューターから他の人の接続を解除する操作です。
 

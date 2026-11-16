@@ -1,4 +1,4 @@
-<!-- source-hash: 5882df6f56c8 -->
+<!-- source-hash: a3d2f2f1502f -->
 <a id="remote-attach"></a>
 
 # Working remotely (attach)
@@ -246,7 +246,14 @@ The CLI can also disconnect while keeping remote work running:
 tasty remote disconnect --workspace 7
 ```
 
-`--workspace` takes the **local ID** of the `[mirror]` row in `tasty list workspaces`. A saved row stays in the list; reconnect with `tasty remote connect --workspace <local id>`. For an unsaved mirror, attach again with `tasty remote attach --into-gui --workspace <remote id>`. Disconnecting a saved row succeeds even when it is not yet connected and cancels ongoing attempts.
+`--workspace` takes the **local ID** of the `[mirror]` row in `tasty list workspaces`. A saved row stays in the list; reconnect with `tasty remote connect --workspace <local id>`. For an unsaved mirror, attach again with `tasty remote attach --into-gui --workspace <remote id>`.
+
+On success, the command prints JSON containing `disconnected`, `already_disconnected`, `workspace_id`, and `remote_workspace`, and exits with code 0. For a saved remote row, it also includes `previous_state`, the state before the call (`connected`, `reconnecting`, `connecting`, `disconnected`, `failed`, or `not_connected`). `disconnected` means this call actually disconnected a connection or canceled an ongoing attempt; it does not describe the resulting state.
+
+- If the previous state is `connected`, `reconnecting`, or `connecting`, or there is an attempt to cancel, the command disconnects the connection and cancels attempts, returning `disconnected: true` and `already_disconnected: false`.
+- If a saved row's previous state is `disconnected`, `failed`, or `not_connected` and there is no attempt to cancel, the command succeeds with `disconnected: false` and `already_disconnected: true`. This also applies to a row whose remote workspace was closed elsewhere. It does not change the connection state or show the connection notice toast again. It prints a notice to stderr in the app's language saying the workspace was already disconnected and nothing changed. The row is still marked as manually disconnected, so even a row that has never connected will not connect automatically. To use it again, run `tasty remote connect --workspace <local id>`.
+
+If the command is rejected because the ID does not exist or the workspace is not a mirror, it exits with code 1 and prints the reason in a `data:` line below the error on stderr. `data.reason` is `workspace_not_found` for a nonexistent ID, or `not_a_mirror` for a workspace that is neither a saved remote row nor a mirror with an attach session. An unsaved mirror attached through the CLI disappears when disconnected, so a second call with the same ID returns a `workspace_not_found` error.
 
 This differs from **Force detach** in the remote window, which removes someone else's connection from the remote computer.
 

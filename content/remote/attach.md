@@ -245,7 +245,14 @@ CLI에서도 원격 작업을 남기고 연결만 끊을 수 있습니다.
 tasty remote disconnect --workspace 7
 ```
 
-`--workspace`에는 `tasty list workspaces`의 `[mirror]` 행에 표시된 **로컬 ID**를 줍니다. 저장 행은 목록에 남으므로 `tasty remote connect --workspace <로컬 id>`로 다시 연결합니다. 저장되지 않은 mirror는 `tasty remote attach --into-gui --workspace <원격 id>`로 다시 붙입니다. 저장 행은 아직 연결되지 않았어도 연결 끊기 명령이 성공하며 진행 중인 시도를 취소합니다.
+`--workspace`에는 `tasty list workspaces`의 `[mirror]` 행에 표시된 **로컬 ID**를 줍니다. 저장 행은 목록에 남으므로 `tasty remote connect --workspace <로컬 id>`로 다시 연결합니다. 저장되지 않은 mirror는 `tasty remote attach --into-gui --workspace <원격 id>`로 다시 붙입니다.
+
+성공하면 `disconnected`, `already_disconnected`, `workspace_id`, `remote_workspace`가 든 JSON을 출력하고 종료 코드 0으로 끝납니다. 저장된 원격 행에는 호출 전 상태를 나타내는 `previous_state`도 들어갑니다(`connected`, `reconnecting`, `connecting`, `disconnected`, `failed`, `not_connected`). `disconnected`는 이번 호출이 연결이나 진행 중인 시도를 실제로 끊었는지를 뜻하며, 호출 후 상태를 뜻하지 않습니다.
+
+- 호출 전 상태가 `connected`·`reconnecting`·`connecting`이거나 취소할 시도가 있으면 연결과 시도를 끊고 `disconnected: true`, `already_disconnected: false`를 반환합니다.
+- 저장 행의 호출 전 상태가 `disconnected`·`failed`·`not_connected`이고 취소할 시도가 없으면 `disconnected: false`, `already_disconnected: true`로 성공합니다. 다른 곳에서 원격 워크스페이스가 닫힌 행도 여기에 해당합니다. 연결 상태를 바꾸거나 연결 안내 토스트를 다시 띄우지 않으며, stderr에 앱 언어로 이미 연결이 끊겨 있고 바뀐 것이 없다는 안내를 출력합니다. 이때도 직접 끊은 표시가 남으므로 아직 연결한 적 없는 행도 자동으로 연결하지 않습니다. 다시 쓰려면 `tasty remote connect --workspace <로컬 id>`로 연결하세요.
+
+없는 ID나 mirror가 아닌 워크스페이스로 거절되면 종료 코드 1로 끝나고 stderr의 오류 아래 `data:` 줄에 이유가 나옵니다. 없는 ID의 `data.reason`은 `workspace_not_found`이며, 저장된 원격 행도 아니고 attach 세션이 있는 mirror도 아닌 워크스페이스는 `not_a_mirror`입니다. CLI로 붙인 저장되지 않은 mirror는 연결을 끊으면 사라지므로 같은 ID로 두 번째 호출을 하면 `workspace_not_found` 오류가 납니다.
 
 이 연결 끊기는 원격 쪽 윈도우의 **강제 끊기**와 다릅니다. 강제 끊기는 원격 컴퓨터에서 다른 사람의 연결을 내보내는 동작입니다.
 
