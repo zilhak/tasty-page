@@ -282,6 +282,16 @@ The bed shows focus, as the terminal's always has: **`term` focused, `term-unfoc
   - This reading comes from the stacking order, not from the app. It is unmeasured. Measure it when the edge is built, and send it back to design if a 1px row does not read.
 - **`markdown` has no reserved row,** so a native webview covers the ring on all sides, and the ring does not show on a markdown leaf. That is unmeasured too. Measure it when the bed is built, and send it back to design if it does not read.
 
+### Popup focus
+
+A click or key outside a popup's scope does not close it or take its focus. So a popup scoped narrower than the window (surface, tab, pane, workspace) stays open while the user types in another surface. Its frame tells whether keys go to it with the same neutral bar as the surface focus edge.
+
+- **Lit edge.** While the popup holds key focus, its shell paints `popup-focus-edge-focused` across the top of the frame, `popup-focus-edge-width` 2px, zoom-exempt, inside the 1px border and clipped by the radius. It sits over the content margin, so no content moves. Role `glyph`, grade 3: on `base` (dialog shells) 9.26 · 5.53, on `raised` (search bar) 7.10 · 4.05, Mocha · Latte.
+- **Unfocused.** No bar. The frame keeps its border, shadow and fill, and the scrim keeps its value: the scrim marks the scope the popup covers, where a click still goes to the popup, not where keys go. Nothing dims, because a user still reads an unfocused popup ([section 12](#12-exceptions), `dimmed`).
+- **Host and plugin alike.** The host draws the shell around a plugin's content, so a plugin cannot drop or recolor the bar. The plugin's own focus cues, such as a caret, come on top.
+- **One focus.** Key focus is in one place, so at most one popup in the window is lit. A child popup takes the bar from its parent. A surface that holds focus keeps its own focused bed or edge, and the popup beside it is unlit.
+- **Window scope draws none.** Every click in the window is in its scope, so while open it holds focus or is passive, which has its own rule (no ring).
+
 ### Terminal content
 
 Three layers, three answers:

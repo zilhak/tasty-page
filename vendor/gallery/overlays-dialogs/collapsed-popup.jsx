@@ -16,7 +16,7 @@ const COLLAPSED_COPY = {
 const FRAMES = [
   ["wide surface — popup expanded in its surface", { scope: "surface" }],
   ["narrow surface — collapsed, opened by the user (key focus)", { scope: "surface", narrow: true, collapsed: "label", ring: true }],
-  ["narrow surface — collapsed, opened by an agent (no focus)", { scope: "surface", narrow: true, collapsed: "label" }],
+  ["narrow surface — collapsed, opened by an agent (no focus)", { scope: "surface", narrow: true, collapsed: "label", agent: true }],
   ["very narrow — label frame does not fit, icon only", { scope: "surface", narrow: true, collapsed: "icon", ring: true, leftWidth: 64 }],
   ["narrower than the icon frame — cut at the surface rect", { scope: "surface", narrow: true, collapsed: "clipped", ring: true, leftWidth: 24 }],
   ["pressed — the popup over the window", { scope: "window", narrow: true }],
@@ -66,7 +66,7 @@ function CollapsedPopupSpec() {
           ["too small for the icon", "on each axis the icon frame does not fit, its start edge sits on the bounds' start edge (the inset row: reduced on a small surface) and the surface rect cuts its end; an axis that fits keeps its anchor alignment · never omitted — the popup is open and holds focus"],
           ["title", "not shown — headless popups have none; the tooltip explains what the button stands for"],
           ["scrim", "follows the popup's own scrim entry, the same in both forms — no scrim blink when a divider drag crosses the fit line · the button sits on the frame, never straight on the scrim (only a modal or popup frame sits on scrim@*)"],
-          ["focus", "border-focus · focus-ring-width 2 · 1px offset on the button (the :focus-visible pair) · opened by the user: shown from the first frame · passive (agent-opened): no ring"],
+          ["focus", "border-focus · focus-ring-width 2 · 1px offset on the button (the :focus-visible pair) · opened by the user: shown from the first frame · passive (agent-opened): no ring · the frame lights the popup focus edge while it holds key focus (Focus, below)"],
           ["tooltip", <><code>popup.collapsed_button.tooltip</code> · Tooltip on pointer hover and key focus · 150ms delay</>],
           ["close", "no close mark on the collapsed form · the way out is the popup's own controls after pressing · Esc and outside clicks: the expanded popup's rule (below)"],
           ["pressed", "window scope: centred, full-window scrim, shadow-modal · stays window scope until it closes"],

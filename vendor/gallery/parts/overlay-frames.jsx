@@ -859,6 +859,15 @@ function LocalSshSection({ state = "hosts" }) {
   );
 }
 
+// ── Popup focus edge — the bar a popup narrower than the window lights across the top of its frame while it
+// holds key focus (RULES.md "Popup focus"). Inside the 1px border, over the content margin, clipped by the frame's
+// radius (the frame clips its overflow), so nothing in the popup moves. Unfocused: not drawn.
+function PopupFocusEdge({ lit = true }) {
+  if (!lit) return null;
+  return <div data-popup-focus-edge="lit" aria-hidden="true" style={{ position: "absolute", left: 0, right: 0, top: 0, zIndex: 1,
+    height: "var(--tasty-popup-focus-edge-width)", background: "var(--tasty-popup-focus-edge-focused)", pointerEvents: "none" }} />;
+}
+
 // ── ShellMock — the whole window at 1/1 scale, small: CSD titlebar · sidebar ·
 // pane tab strip · two surfaces · status bar. Exists so a SCOPED scrim can be
 // judged against everything it does and does not cover.
@@ -873,10 +882,17 @@ function LocalSshSection({ state = "hosts" }) {
 //   304.5, so its bounds (− 2 × 8) are 288.5 and the popup fits unshrunk.
 //   size: [W, H] override; pin: a window-scope popup bigger than the window keeps
 //     its size, left/top on the window's edge, right/bottom cut.
+//   focus: "popup" (default) — the popup holds key focus, its edge is lit and the left surface paints focused under the
+//     scrim; "other" — the user clicked the right surface and types there: the right surface paints focused, the popup
+//     stays open and unlit, the collapsed button has no ring. Window-scope popups draw no edge.
+//   agent: the popup was opened by an agent (passive): no focus anywhere in it, so no ring and no edge.
 function ShellMock({ scope = "none", split = "v", child = false, narrow = false, clamp = false,
-  collapsed = null, ring = false, leftWidth = null, size = null, pin = false, label = "Show popup" }) {
+  collapsed = null, ring = false, leftWidth = null, size = null, pin = false, label = "Show popup",
+  focus = "popup", agent = false }) {
   const [W, H] = size || [narrow ? 560 : 760, 380];
   const surfaceScrim = scope === "surface";
+  const popupFocused = focus === "popup" && !agent;
+  const edgeLit = scope === "surface" && popupFocused;
   // The popup surface's rect in this mock: the window less its 1px border (top and bottom), the titlebar (28),
   // the pane tab strip (24) and the status bar (24) — border-box, so each bar's height already holds its 1px rule;
   // a stacked split takes the 1px divider and halves the rest. Its width is leftWidth when set, else wide enough
@@ -894,6 +910,9 @@ function ShellMock({ scope = "none", split = "v", child = false, narrow = false,
   const popup = (
     <div style={{ position: "relative", flex: "none", width: clamp ? 220 : 280, background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-frame)",
       borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", overflow: child ? "visible" : "hidden" }}>
+      {/* the child picker holds focus, so the parent is unlit; the parent clips nothing when it has a child, so the bar is
+          not drawn there either way */}
+      <PopupFocusEdge lit={edgeLit && !child} />
       <div style={{ padding: "10px 12px 8px", display: "flex", flexDirection: "column", gap: 6 }}>
         <div style={{ fontSize: 13, fontWeight: 600 }}>Open markdown file</div>
         <div style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: "var(--tasty-text-muted)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>docs/architecture.md</div>
@@ -908,6 +927,7 @@ function ShellMock({ scope = "none", split = "v", child = false, narrow = false,
         <div style={{ position: "absolute", left: "50%", top: "50%", transform: "translate(-50%,-50%)", zIndex: 3,
           width: clamp ? 200 : 260, background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-frame)",
           borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", overflow: "hidden" }}>
+          <PopupFocusEdge lit={edgeLit} />
           <div style={{ padding: "8px 10px", fontSize: 12, fontWeight: 600, borderBottom: "1px solid var(--tasty-separator)" }}>Open file</div>
           <div style={{ padding: "8px 10px", display: "flex", flexDirection: "column", gap: 4 }}>
             {["configs", "docs", "README.md"].map((n, i) => (
@@ -922,7 +942,7 @@ function ShellMock({ scope = "none", split = "v", child = false, narrow = false,
     </div>
   );
   const collapsedFrame = collapsed && (
-    <CollapsedPopupButton kind={collapsed === "label" ? "label" : "icon"} ring={ring} scrim={surfaceScrim} label={label} />
+    <CollapsedPopupButton kind={collapsed === "label" ? "label" : "icon"} ring={ring && popupFocused} edge={edgeLit} scrim={surfaceScrim} label={label} />
   );
   return (
     <div style={{ width: W, height: H, display: "flex", flexDirection: "column", overflow: "hidden",
@@ -961,7 +981,7 @@ function ShellMock({ scope = "none", split = "v", child = false, narrow = false,
           <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: split === "v" ? "row" : "column" }}>
             <div style={{ position: "relative", minWidth: 0, minHeight: 0, display: "flex", overflow: collapsed ? "hidden" : undefined,
               ...(leftWidth ? { flex: "none", width: leftWidth } : { flex: 1 }) }}>
-              <Term focused lines={"$ tail -f deploy.log\n[12:04] applied 3 manifests\n[12:05] waiting for rollout…"} />
+              <Term focused={focus !== "other"} lines={"$ tail -f deploy.log\n[12:04] applied 3 manifests\n[12:05] waiting for rollout…"} />
               {/* the scrim — surface scope: this rect, nothing else */}
               {surfaceScrim && <div style={{ position: "absolute", inset: 0, background: "var(--tasty-scrim-bg)", zIndex: 1 }} />}
               {scope === "surface" && (
@@ -972,7 +992,7 @@ function ShellMock({ scope = "none", split = "v", child = false, narrow = false,
               )}
             </div>
             <div style={{ flex: "none", ...(split === "v" ? { width: 1 } : { height: 1 }), background: "var(--tasty-border-frame)" }} />
-            <Term lines={"$ git status\nOn branch feat/dag-detail\nnothing to commit"} />
+            <Term focused={focus === "other"} lines={"$ git status\nOn branch feat/dag-detail\nnothing to commit"} />
           </div>
         </div>
       </div>
@@ -1001,12 +1021,14 @@ function ShellMock({ scope = "none", split = "v", child = false, narrow = false,
 // kind: "label" (Button.secondary, fit glyph + label) | "icon" (IconButton solid, same glyph).
 // scrim: the popup's own scrim entry — shadow-modal on a scrim, shadow-popover without one.
 // ring: the button holds key focus (the base.css :focus-visible pair, drawn static).
-function CollapsedPopupButton({ kind = "label", ring = false, scrim = true, label = "Show popup" }) {
+// edge: the popup holds key focus, so its frame lights the popup focus edge (a surface popup; follows ring).
+function CollapsedPopupButton({ kind = "label", ring = false, edge = ring, scrim = true, label = "Show popup" }) {
   const ringStyle = ring ? { outline: "var(--tasty-focus-ring-width) solid var(--tasty-border-focus)", outlineOffset: "var(--tasty-border-width)" } : undefined;
   return (
-    <div data-collapsed-popup={kind} style={{ flex: "none", display: "flex", padding: "var(--tasty-popup-content-margin)",
+    <div data-collapsed-popup={kind} style={{ position: "relative", overflow: "hidden", flex: "none", display: "flex", padding: "var(--tasty-popup-content-margin)",
       background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)",
       boxShadow: scrim ? "var(--tasty-shadow-modal)" : "var(--tasty-shadow-popover)" }}>
+      <PopupFocusEdge lit={edge} />
       {kind === "label"
         ? <Button variant="secondary" leadingIcon={<Icon name="fit" size={14} />} style={ringStyle} tabIndex={-1}>{label}</Button>
         : <IconButton variant="solid" aria-label={label} style={ringStyle} tabIndex={-1}><Icon name="fit" size={14} /></IconButton>}
@@ -1038,7 +1060,8 @@ function SearchBarFrame({ value = "tasty", focused = false, invalid = false, hei
       {/* the search bar */}
       <div role="search" style={{ position: "absolute", top: 8, right: 8, width: 360, maxWidth: "calc(100% - 16px)",
         display: "flex", alignItems: "center", gap: 4, padding: 4, background: "var(--tasty-surface-raised)",
-        border: "var(--tasty-border-width) solid var(--tasty-search-bar-border)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-popover)" }}>
+        border: "var(--tasty-border-width) solid var(--tasty-search-bar-border)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-popover)", overflow: "hidden" }}>
+        <PopupFocusEdge lit={focused} />
         <span style={{ flex: 1, minWidth: 60, display: "flex" }}><Input block ground="raised" focused={focused} invalid={invalid} defaultValue={value} /></span>
         <span style={{ flex: "none", width: 40, textAlign: "center", fontSize: 12, color: invalid ? "var(--tasty-accent-danger-raised)" : "var(--tasty-text-muted-raised)", fontVariantNumeric: "tabular-nums" }}>{invalid ? "0/0" : "2/3"}</span>
         <IconButton size="sm" aria-label="Previous"><Icon name="chevronUp" size={14} /></IconButton>

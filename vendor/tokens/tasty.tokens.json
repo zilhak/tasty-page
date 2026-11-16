@@ -4004,6 +4004,14 @@
       "$type": "dimension",
       "$value": "{semantic.selection-edge-width}"
     },
+    "popup-focus-edge-focused": {
+      "$type": "color",
+      "$value": "{semantic.text-secondary}"
+    },
+    "popup-focus-edge-width": {
+      "$type": "dimension",
+      "$value": "{semantic.selection-edge-width}"
+    },
     "table-cell-height": {
       "$type": "dimension",
       "$value": "{semantic.control-height}"
