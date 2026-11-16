@@ -873,8 +873,8 @@ function LocalSshSection({ state = "hosts" }) {
 //   leftWidth: fixed width of the left (popup) surface, for the very narrow frames.
 //   The popup is 280 and never shrinks (flex: none): in the wide mock the left surface is
 //   304.5, so its bounds (− 2 × 8) are 288.5 and the popup fits unshrunk.
-//   size: [W, H] override; pin: a window-scope popup bigger than the window keeps
-//     its size, left/top on the window's edge, right/bottom cut.
+//   size: [W, H] override; pin: a window-scope popup bigger than the window: left/top on the window's edge, width
+//     fitted to the window so its title bar and buttons stay whole, the rest cut at the bottom.
 //   focus: "popup" (default) — the popup holds key focus, its edge is lit and the left surface paints focused under the
 //     scrim; "other" — the user clicked the right surface and types there: the right surface paints focused, the popup
 //     stays open and unlit, the collapsed button has no ring. Window-scope popups draw no edge.
@@ -903,7 +903,7 @@ function ShellMock({ scope = "none", split = "v", child = false, narrow = false,
     </div>
   );
   const popup = (
-    <div style={{ position: "relative", flex: "none", width: clamp ? 220 : 280, background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-frame)",
+    <div style={{ position: "relative", flex: "none", width: pin ? Math.min(clamp ? 220 : 280, W - 2) : (clamp ? 220 : 280), background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-frame)",
       borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", overflow: child ? "visible" : "hidden" }}>
       {/* the child picker holds focus, so the parent is unlit; the parent clips nothing when it has a child, so the bar is
           not drawn there either way */}
@@ -1006,7 +1006,7 @@ function ShellMock({ scope = "none", split = "v", child = false, narrow = false,
         <>
           <div style={{ position: "absolute", inset: 0, background: "var(--tasty-scrim-bg)", zIndex: 4 }} />
           <div style={{ position: "absolute", inset: 0, display: "flex", zIndex: 5,
-            alignItems: pin ? "flex-start" : "center", justifyContent: pin ? "flex-start" : "center" }}>{pin ? <div style={{ flex: "none" }}>{popup}</div> : popup}</div>
+            alignItems: pin ? "flex-start" : "center", justifyContent: pin ? "flex-start" : "center" }}>{pin ? <div style={{ flex: "none", maxHeight: H - 2, overflow: "hidden" }}>{popup}</div> : popup}</div>
         </>
       )}
     </div>
