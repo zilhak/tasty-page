@@ -55,6 +55,7 @@ const GROUPS = [
       { name: "chevronsRight", role: "expand sidebar rail" },
       { name: "move", role: "move / reposition (4-way)" },
       { name: "fit", role: "fullscreen stage (popup title bar) · show a collapsed surface popup" },
+      { name: "shrink", role: "collapse an expanded popup back to its show button (popup title bar)" },
     ],
   },
   {
