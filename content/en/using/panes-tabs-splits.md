@@ -1,4 +1,4 @@
-<!-- source-hash: 90f862335685 -->
+<!-- source-hash: 008615b26a65 -->
 # Panes, tabs, and splits
 
 Tasty’s pane splits create areas with independent tab switching, while surface splits divide views that stay together within one tab. Choose either level to build the layout you need.
@@ -161,7 +161,7 @@ Open **Tools** > **Presets** in the sidebar and the **Layout Presets** window ap
 
 - Right-click the **New Workspace** button > **Create workspace from preset...**.
 - Right-click the tab strip `+` > **Create tab from preset...** / **Create pane from preset...**.
-- The three shortcuts such as **Apply workspace preset** are empty by default. Once assigned, they open a selection popup.
+- The three shortcuts such as **Apply workspace preset** are empty by default. Once assigned, they open a selection popup. If the same preset application popup is requested for another target while open, the existing popup closes and reopens for the new target.
 
 If a terminal cell has a startup command, one line is entered as soon as the shell starts.
 

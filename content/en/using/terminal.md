@@ -1,4 +1,4 @@
-<!-- source-hash: 42b45e7ce43f -->
+<!-- source-hash: c9ed7e9278db -->
 # Working with the terminal
 
 You can copy the output you need, search terminal history, and open file paths as you work. You can also select text without a mouse and receive notifications when work finishes.
@@ -136,7 +136,7 @@ Right-click an underlined link to open a link menu.
 
 - **Select** — selects the whole link text.
 - **Copy** — copies the link text as shown on screen. If you assign a key to **Copy link** in the keybinding settings, the "Copied" notice shows that key on its right, and pressing it over a link copies without the menu. It has no default key.
-- **Open With…** — instead of opening right away, shows a list to choose which program opens it. `http(s)://` addresses can be chosen too; picking the HTML viewer, for example, opens the page in a Tasty tab instead of the browser. A path in a remotely attached terminal cannot be opened on this computer, so the list is empty.
+- **Open With…** — instead of opening right away, shows a list to choose which program opens it. `http(s)://` addresses can be chosen too; picking the HTML viewer, for example, opens the page in a Tasty tab instead of the browser. This list appears within the terminal surface where you opened the link. For a path in a remotely attached terminal, it lists only handlers that can open the file remotely. If none are available, a **Download and run** dialog opens.
 
 Even while a program that uses the mouse (vim · tmux and so on) is running, right-clicking a link shows this menu instead of going to that program. Right-clicking anywhere else works as before.
 
@@ -162,7 +162,7 @@ When a program that uses the mouse directly, such as vim (`:set mouse=a`) · hto
 - `Shift+drag` — select text. `Shift+double-click` selects a word.
 - `Shift+right-click` — Tasty's copy menu.
 - The banner closes by itself when the program ends. You can also close it right away with `×`.
-- In **More options**, which appears when you hover the banner, choose **Don't show again for {program}** or **Let Tasty handle clicks in {program}**. When Tasty handles the clicks, clicks over that program act as selection as usual and only the wheel goes to the program. When Tasty can't tell which program is running, such as in a terminal you view by attaching to a remote Tasty, both items are dimmed and can't be chosen. A note at the top of the menu says why.
+- In **More options**, which appears when you hover the banner, choose **Don't show again for {program}** or **Let Tasty handle clicks in {program}**. When Tasty handles the clicks, clicks over that program act as selection as usual and only the wheel goes to the program. When Tasty can't tell which program is running, such as in a terminal you view by attaching to a remote Tasty, both items are dimmed and can't be chosen. A note at the top of the menu says why. This menu opens within the surface containing the banner.
 
 The same items are under **Settings** > **Terminal** > **Mouse Capture** — the **Show mouse-capture hint** toggle, the **Let Tasty handle clicks in these programs** list, and the **Don't show the capture notice for these programs** list. Names match partially and take wildcards such as `ht*`.
 

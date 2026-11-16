@@ -1,4 +1,4 @@
-<!-- source-hash: 6a58c974d138 -->
+<!-- source-hash: f37fda3ce615 -->
 # Managing and viewing files
 
 Find and manage files in the Explorer, and view Markdown, images, and HTML beside the terminal. Inspect changes in the Git viewer. The viewers and Git tools require their respective plugins to be enabled.
@@ -19,13 +19,15 @@ The file extension decides which Surface opens it — `.md` is Markdown, image f
 
 File type and handler settings take effect when you press **Save** and are saved to the file in the background. If saving fails, a warning and notification explain why, and the changes last only until Tasty exits. An externally edited or damaged original is kept; check the file and restart Tasty before changing those settings again. If these settings cannot be loaded on startup, the log names the file and the type of problem without including the file contents.
 
-The **Open file with…** window lists the file path, detected format, and available handlers. Each handler has an icon, a name, and its origin (**built-in** · **you** · **plugin**).
+The **Open file with…** window lists the file path, detected format, and available handlers. Each handler has an icon, a name, and its origin (**built-in** · **you** · **plugin**). This list appears within the surface that requested opening the file.
 
 **Recent** shows previously used handlers and when you used them: just now, minutes ago, hours ago, yesterday, or days ago. After a week, it shows a date such as `2026-09-13`. The display updates if the window stays open across midnight.
 
 One click selects a handler; a double-click opens the file. This choice applies **only this time**. It does not register a default for the file type, so the chooser can appear again for the same file. Set a default under **Settings** > **Handler**. Press `Esc` or **Cancel** to close the chooser.
 
 A Surface opened from a file is split · moved · closed · restored on restart just like any other Surface. The Tab name becomes the file name.
+
+A file chooser opened from the new tab button menu appears within that pane; one opened from sidebar **Tools** appears over the whole window. A chooser opened by a plugin appears within the requesting surface, or within the same area as its parent plugin popup when opened from that popup.
 
 Drag the file chooser by its top row, the one with the title and ✕. Closing it with ✕, **Cancel**, or `Esc` opens nothing.
 
