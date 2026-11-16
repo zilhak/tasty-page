@@ -2,6 +2,7 @@ import React from "react";
 import { Spec, Stage, Meta, Note, Dont, Views, View } from "../parts/specimen.jsx";
 import { Tooltip } from "../../components/index.js";
 import { ShellMock, CollapsedPopupButton } from "../parts/overlay-frames.jsx";
+import { ConvertSurfacePopup, PopupTitleBar } from "../../ui_kits/terminal/overlays/info_modal.jsx";
 
 // Tasty Gallery: Dialogs, a surface-scope popup that does not fit its surface. Only the show button stays in its
 // place; pressing it shows the popup over the window. Copy values come from Codex (en, ko, ja, zh-Hans).
@@ -13,6 +14,21 @@ const COLLAPSED_COPY = {
   "zh-Hans": ["查看弹窗", "此 Surface 太小，无法容纳弹窗。按下此按钮可在应用窗口上方显示弹窗。"],
 };
 
+// popup.collapse_button.label · popup.collapse_button.tooltip — the shrink button on the expanded popup.
+const COLLAPSE_COPY = {
+  en: ["Collapse popup", "Collapse the popup to its show button to use the rest of the window. The popup stays open and keeps your input."],
+  ko: ["팝업 접기", "팝업을 보기 버튼으로 접어 윈도우의 다른 영역을 사용합니다. 팝업은 열린 상태로 유지되며 입력 내용도 보존됩니다."],
+  ja: ["ポップアップを折りたたむ", "ポップアップを表示ボタンに折りたたみ、ウィンドウの他の領域を操作できるようにします。ポップアップは開いたまま、入力内容も保持されます。"],
+  "zh-Hans": ["折叠弹窗", "将弹窗折叠为查看按钮，以使用窗口的其他区域。弹窗保持打开，并保留输入内容。"],
+};
+
+// The round trip, left to right: collapsed in its surface, expanded over the window, collapsed again with its state.
+const FLOW = [
+  ["1 · collapsed — the show button in its surface; the rest of the window is usable", { scope: "surface", narrow: true, collapsed: "label", ring: true }],
+  ["2 · pressed — expanded in window scope: the whole window is covered and nothing else takes a press, the sidebar included", { scope: "window", narrow: true, expanded: true }],
+  ["3 · shrink pressed — collapsed again, the same popup with its input kept; the rest of the window is usable again", { scope: "surface", narrow: true, collapsed: "label", ring: true }],
+];
+
 const FRAMES = [
   ["wide surface — popup expanded in its surface", { scope: "surface" }],
   ["narrow surface — collapsed, opened by the user (key focus)", { scope: "surface", narrow: true, collapsed: "label", ring: true }],
@@ -20,14 +36,14 @@ const FRAMES = [
   ["narrow surface — collapsed, opened by an agent (no focus)", { scope: "surface", narrow: true, collapsed: "label", agent: true }],
   ["very narrow — label frame does not fit, icon only", { scope: "surface", narrow: true, collapsed: "icon", ring: true, leftWidth: 64 }],
   ["narrower than the icon frame — cut at the surface rect", { scope: "surface", narrow: true, collapsed: "clipped", ring: true, leftWidth: 24 }],
-  ["pressed — the popup over the window", { scope: "window", narrow: true }],
-  ["pressed, window smaller than the popup — right and bottom cut", { scope: "window", size: [240, 76], pin: true }],
+  ["pressed — the popup over the window, with the shrink button", { scope: "window", narrow: true, expanded: true }],
+  ["pressed, window smaller than the popup — right and bottom cut", { scope: "window", size: [240, 76], pin: true, expanded: true }],
 ];
 
 function CollapsedPopupSpec() {
   return (
     <Spec id="collapse-a-surface-popup-that-does-not-fit-leaves-a-show-button" title="Collapse — a surface popup that does not fit leaves a show button"
-      when={<>A <b>surface-scope</b> popup that does not fit inside its surface bounds is <b>not shrunk</b>. In its place the surface keeps <b>one button</b> in the popup's own frame, and nothing else. The popup is still open: the button takes key focus, and pressing it (click, <b>Enter</b> or <b>Space</b>) shows the popup <b>centered over the window</b> with the window scrim, where it stays until it closes. Its logical scope is still the surface, but it is shown in window scope: the scrim covers the whole window and no other surface can be selected until it closes. Host and plugin popups take the same path: collapsed first, over the window only once pressed. While collapsed, the other surfaces stay usable. The check runs every frame, so when the surface grows back the popup returns to its expanded form in the surface. If the window is smaller than the popup too, the popup keeps its size, its left and top sit on the window's edge, and its right and bottom are cut. The button never names the popup: headless popups have no title, and a title would widen the button and make it collapse sooner.</>}>
+      when={<>A popup scoped <b>narrower than the window</b> (surface, tab or pane: the kind of scope does not matter, the frames draw a surface) that does not fit inside its scope's bounds is <b>not shrunk</b>. In its place the surface keeps <b>one button</b> in the popup's own frame, and nothing else. The popup is still open: the button takes key focus, and pressing it (click, <b>Enter</b> or <b>Space</b>) shows the popup <b>centered over the window</b> with the window scrim, where it stays until it closes. Its logical scope is still the surface, but it is shown in window scope: the scrim covers the whole window and nothing else in the window takes a press, the sidebar's workspace rows included, until it is collapsed again or closed. A <b>shrink</b> button in its title bar collapses it back to the show button: collapsing is not closing, the popup keeps its state and the rest of the window is usable again. Host and plugin popups take the same path: collapsed first, over the window only once pressed. While collapsed, the other surfaces stay usable. The check runs every frame, so when the surface grows back the popup returns to its expanded form in the surface. If the window is smaller than the popup too, the popup keeps its size, its left and top sit on the window's edge, and its right and bottom are cut. The button never names the popup: headless popups have no title, and a title would widen the button and make it collapse sooner.</>}>
       <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 18, flexWrap: "wrap", alignItems: "flex-start" }}>
         {FRAMES.map(([label, props]) => (
           <div key={label} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
@@ -52,6 +68,32 @@ function CollapsedPopupSpec() {
             </div>
           </View>
         ))}
+        <View name="expanded-title-bar" label="expanded — the shrink button: headless popup (host bar, no title) and a popup with its own title bar">
+          <div style={{ padding: 16, background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)", display: "flex", gap: 16, alignItems: "flex-start", flexWrap: "wrap" }}>
+            <div style={{ width: 280, background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", overflow: "hidden" }}>
+              <PopupTitleBar title={null} closable={false} collapse={COLLAPSE_COPY.en[0]} collapseTip={COLLAPSE_COPY.en[1]} />
+              <div style={{ padding: "10px 12px", fontSize: 12, color: "var(--tasty-text-secondary)" }}>plugin content</div>
+            </div>
+            <ConvertSurfacePopup focused={false} collapse={COLLAPSE_COPY.en[0]} />
+          </div>
+        </View>
+        <View name="collapse-tooltip" label="shrink tooltip — pointer hover or key focus">
+          <div style={{ padding: "96px 16px 16px", background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)", display: "flex", justifyContent: "center", width: 440 }}>
+            <Tooltip open placement="top" content={COLLAPSE_COPY.en[1]}>
+              <span style={{ display: "inline-flex", width: 280 }}><span style={{ flex: 1, background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
+                <PopupTitleBar title={null} closable={false} collapse={COLLAPSE_COPY.en[0]} />
+              </span></span>
+            </Tooltip>
+          </div>
+        </View>
+        {Object.entries(COLLAPSE_COPY).map(([lang, [label, tip]]) => (
+          <View key={"collapse-" + lang} name={`collapse-copy-${lang}`} label={`shrink button copy — ${lang}`}>
+            <div lang={lang} style={{ padding: 16, background: "var(--tasty-bg-panel)", borderRadius: "var(--tasty-radius)", display: "flex", flexDirection: "column", gap: 4, maxWidth: 440, fontSize: 12 }}>
+              <span style={{ color: "var(--tasty-text-primary)" }}>{label}</span>
+              <span style={{ color: "var(--tasty-text-secondary)" }}>{tip}</span>
+            </div>
+          </View>
+        ))}
       </Views>
       <Meta
         specs={[
@@ -69,6 +111,7 @@ function CollapsedPopupSpec() {
           ["scrim", "--tasty-scrim-bg, the one scrim value, on the surface while collapsed and on the whole window once pressed · follows the popup's own scrim entry, the same in both forms — no scrim blink when a divider drag crosses the fit line · the button sits on the frame, never straight on the scrim (only a modal or popup frame sits on scrim@*)"],
           ["focus", "border-focus · focus-ring-width 2 · 1px offset on the button (the :focus-visible pair) · opened by the user: shown from the first frame · passive (agent-opened): no ring · the frame lights the popup focus edge while it holds key focus (Focus, below)"],
           ["tooltip", <><code>popup.collapsed_button.tooltip</code> · Tooltip on pointer hover and key focus · 150ms delay</>],
+          ["collapse back", <>expanded form only · IconButton sm, glyph <code>shrink</code>, first in the title bar's button cluster (before fullscreen and close), popup-title-btn-size 24, gap 4, edge inset 4 · accessible name <code>popup.collapse_button.label</code>, Tooltip <code>popup.collapse_button.tooltip</code> · a headless popup (no title bar of its own, plugin popups) gets the host title bar with no title and only this button: control-height 28, bg-sidebar, the title edge below — the expanded frame grows by it · keeps the popup's state: input, selection, scroll · back in the collapsed form the show button takes key focus</>],
           ["close", "no close mark on the collapsed form · the way out is the popup's own controls after pressing · Esc and outside clicks: the expanded popup's rule (below)"],
           ["pressed", "shown in window scope (logical scope stays the surface): centred, full-window scrim, shadow-modal · no other surface can be selected until it closes · host and plugin popups alike, always through the button: no popup goes over the window without it"],
           ["window too small", "the popup keeps its size · left and top on the window's inner edge, margin 0 · right and bottom cut by the window"],
@@ -90,4 +133,34 @@ function CollapsedPopupSpec() {
   );
 }
 
-export { CollapsedPopupSpec, COLLAPSED_COPY };
+function CollapseFlowSpec() {
+  return (
+    <Spec id="collapse-and-expand-a-round-trip-that-keeps-the-popup" title="Collapse and expand — a round trip that keeps the popup"
+      when={<>The show button and the shrink button move one open popup between two forms. Collapsed, it sits in its own scope and the rest of the window works. Expanded, it covers the window in window scope and takes every press until it is collapsed again or closed. Its logical scope, the thing it acts on, is always its own surface, tab or pane. Collapsing never closes it: what the user typed is still there when it expands again.</>}>
+      <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 18, flexWrap: "wrap", alignItems: "flex-start" }}>
+        {FLOW.map(([label, props]) => (
+          <div key={label} style={{ display: "flex", flexDirection: "column", gap: 6, maxWidth: 560 }}>
+            <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
+            <ShellMock {...props} />
+          </div>
+        ))}
+      </Stage>
+      <Meta
+        specs={[
+          ["collapsed → expanded", "the show button (click, Enter, Space) · key focus goes into the popup"],
+          ["expanded", "window scope for the picture and for presses: scrim-bg over the whole window, shadow-modal, centred · no popup focus edge · logical scope unchanged"],
+          ["expanded → collapsed", "the shrink button (click, Enter, Space) · the show button takes key focus · state kept"],
+          ["closing", "only the popup's own controls · the shrink button never closes"],
+          ["scope kinds", "surface, tab or pane — one rule"],
+        ]}
+        tokens={[
+          { tok: "--tasty-scrim-bg", use: "whole window while expanded", color: "var(--tasty-scrim-bg)" },
+          { tok: "--tasty-shadow-modal", use: "the expanded frame" },
+          { tok: "--tasty-bg-sidebar", use: "host title bar of a headless expanded popup", color: "var(--tasty-bg-sidebar)" },
+          { tok: "--tasty-popup-title-btn-size", use: "24 — the shrink button" },
+        ]} />
+    </Spec>
+  );
+}
+
+export { CollapsedPopupSpec, CollapseFlowSpec, COLLAPSED_COPY, COLLAPSE_COPY };

@@ -6,7 +6,7 @@ import { ConvertSurfacePopup, ThemeNotFoundModal, DbInitErrorModal, Notification
 import { PermissionNoticeModal } from "../../ui_kits/terminal/overlays/macos_permissions.jsx";
 import { ExplorerDeleteFrame as ExplorerDeleteFrame_ExplorerDeleteFrame, XD_ITEMS as ExplorerDeleteFrame_XD_ITEMS } from "../parts/explorer-delete-frame.jsx";
 import { GalleryScrimGrounds } from "./scrim-grounds.jsx";
-import { CollapsedPopupSpec } from "./collapsed-popup.jsx";
+import { CollapsedPopupSpec, CollapseFlowSpec } from "./collapsed-popup.jsx";
 import { PopupFocusSpec } from "./popup-focus.jsx";
 import { Backdrop, ApprovalFrame, FileHandlerFrame, FhFooter, PresetFrame, MarkdownOpenFrame, RenameFrame, CategoryEditFrame, CategoryDeleteFrame, TransferProgressFrame, TransferErrorFrame, DownloadRunFrame, DownloadRunLargeFrame, ShellMock } from "../parts/overlay-frames.jsx";
 import { Section, Spec, Stage, Meta, Note, Do, Dont, Views, View } from "../parts/specimen.jsx";
@@ -124,6 +124,8 @@ function Page() {
         </Spec>
 
         <CollapsedPopupSpec />
+
+        <CollapseFlowSpec />
 
         <PopupFocusSpec />
       </Section>

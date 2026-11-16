@@ -5,6 +5,7 @@ import { WorkspaceRunningCount } from "../../ui_kits/terminal/chrome.jsx";
 import { AttachConnectionsSection } from "./settings-attach-section.jsx";
 import { rt } from "../../ui_kits/terminal/overlays/remote_row_copy.js";
 import { PopupFocusEdge } from "../../ui_kits/terminal/overlays/shared.jsx";
+import { PopupTitleBar } from "../../ui_kits/terminal/overlays/info_modal.jsx";
 
 // Tasty Gallery — Overlays SHARED frames. Loaded by every overlays-*.html page
 // (Dialogs / Windows / Popups & menus / Banners). Defines the scrim Backdrop, the
@@ -877,10 +878,12 @@ function LocalSshSection({ state = "hosts" }) {
 //   focus: "popup" (default) — the popup holds key focus, its edge is lit and the left surface paints focused under the
 //     scrim; "other" — the user clicked the right surface and types there: the right surface paints focused, the popup
 //     stays open and unlit, the collapsed button has no ring. Window-scope popups draw no edge.
+//   expanded: a collapsed popup the user pressed, drawn over the window (use with scope "window"). The popup here is
+//     headless, so the host adds its title bar with no title and only the shrink button that collapses it back.
 //   agent: the popup was opened by an agent (passive): no focus anywhere in it, so no ring and no edge.
 function ShellMock({ scope = "none", split = "v", child = false, narrow = false, clamp = false,
   collapsed = null, ring = false, leftWidth = null, size = null, pin = false, label = "Show popup",
-  focus = "popup", agent = false }) {
+  focus = "popup", agent = false, expanded = false }) {
   const [W, H] = size || [narrow ? 560 : 760, 380];
   const surfaceScrim = scope === "surface";
   const popupFocused = focus === "popup" && !agent;
@@ -905,6 +908,7 @@ function ShellMock({ scope = "none", split = "v", child = false, narrow = false,
       {/* the child picker holds focus, so the parent is unlit; the parent clips nothing when it has a child, so the bar is
           not drawn there either way */}
       <PopupFocusEdge lit={edgeLit && !child} />
+      {expanded && <PopupTitleBar title={null} closable={false} collapse="Collapse popup" />}
       <div style={{ padding: "10px 12px 8px", display: "flex", flexDirection: "column", gap: 6 }}>
         <div style={{ fontSize: 13, fontWeight: 600 }}>Open markdown file</div>
         <div style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: "var(--tasty-text-muted)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>docs/architecture.md</div>
