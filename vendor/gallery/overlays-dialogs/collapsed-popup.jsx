@@ -26,6 +26,7 @@ const COLLAPSE_COPY = {
 const FLOW = [
   ["1 · collapsed — the show button in its surface; the rest of the window is usable", { scope: "surface", narrow: true, collapsed: "label", ring: true }],
   ["2 · pressed — expanded in window scope: the whole window is covered and nothing else takes a press, the sidebar included", { scope: "window", narrow: true, expanded: true }],
+  ["2b · a child picker opened from it — over the window too, never a show button of its own", { scope: "window", narrow: true, expanded: true, child: true }],
   ["3 · shrink or Esc pressed — collapsed again, the same popup with its input kept; the rest of the window is usable again", { scope: "surface", narrow: true, collapsed: "label", ring: true }],
 ];
 
@@ -151,6 +152,8 @@ function CollapseFlowSpec() {
           ["expanded", "window scope for the picture and for presses: scrim-bg over the whole window, shadow-modal, centred · no popup focus edge · logical scope unchanged"],
           ["expanded → collapsed", "the shrink button (click, Enter, Space) or Esc · the show button takes key focus · state kept"],
           ["collapsed", "the popup itself, drawn small · keeps its scope, its scrim if it covers the scope, its outside-click and Esc rules and its key focus"],
+          ["child popup", "a picker the popup opens takes its parent's scope and form: over the window when the parent is, collapsed with it, never starting as its own show button · one scrim"],
+          ["shortcut", "none for collapsing · over the window the way back is the shrink button or Esc, nothing else"],
           ["closing", "only the popup's own controls, or what closes it in its scope while collapsed (an outside click or Esc for a popup that closes on an outside click) · over the window neither the shrink button nor Esc closes it"],
           ["scope kinds", "surface, tab or pane — one rule"],
         ]}
