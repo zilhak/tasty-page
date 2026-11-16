@@ -44,7 +44,7 @@ function PopupFocusSpec() {
       </Views>
       <Meta
         specs={[
-          ["applies to", "every popup whose scope is narrower than the window: surface, tab, pane, workspace · host and plugin popups alike · the collapsed show-button frame and the search bar too"],
+          ["applies to", "every popup whose scope is narrower than the window: surface, tab, pane, workspace · host and plugin popups alike · the collapsed show-button frame and the search bar too · not a surface popup shown over the window (pressed, or moved there): it is shown in window scope and blocks the other surfaces, so it draws none"],
           ["lit when", "the popup (or a widget inside it) holds key focus — host model focus, not OS window activation"],
           ["bar", <><span className="tok">--tasty-popup-focus-edge-focused</span> · <span className="tok">--tasty-popup-focus-edge-width</span> 2, zoom-exempt · full width across the top, inside the 1px border, clipped by the 4 radius</>],
           ["layout", "drawn over the content margin (popup-content-margin 4 ≥ 2) — no row is reserved, nothing moves on a focus change"],

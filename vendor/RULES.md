@@ -291,6 +291,7 @@ A click or key outside a popup's scope does not close it or take its focus. So a
 - **Host and plugin alike.** The host draws the shell around a plugin's content, so a plugin cannot drop or recolor the bar. The plugin's own focus cues, such as a caret, come on top.
 - **One focus.** Key focus is in one place, so at most one popup in the window is lit. A child popup takes the bar from its parent. A surface that holds focus keeps its own focused bed or edge, and the popup beside it is unlit.
 - **Window scope draws none.** Every click in the window is in its scope, so while open it holds focus or is passive, which has its own rule (no ring).
+- **Shown over the window.** A surface popup drawn over the window because its surface is too narrow (the pressed collapsed form, or a plugin popup moved there) keeps its surface as its logical scope but is shown in window scope: the whole window takes `scrim-bg`, the same value as every scrim, with `shadow-modal`, and no other surface can be selected until it closes. It draws no focus edge, as window scope does.
 
 ### Terminal content
 
