@@ -1,4 +1,4 @@
-<!-- source-hash: 1c0ea619cd71 -->
+<!-- source-hash: d2e902bfc27f -->
 # CLI command reference
 
 Find commands beyond the introduction, including `read since-mark`, surface state, message queues, and shared memory, organized by purpose. Use `tasty help` for the full list of arguments and options.
@@ -101,6 +101,12 @@ tasty read queue --surface 42            # pop all queued messages
 tasty read queue --surface 42 --peek     # look without popping
 tasty read queue --surface 42 --clear    # empty everything
 ```
+
+Sending with `tasty send queue --to <surface>` writes one arrival line starting with `[queue] ` to the receiving surface’s completion log, regardless of what is running there. The line follows the app language and includes the pending count, the latest sender’s surface, and the read command. It contains no message body; run `tasty read queue --surface <surface>` without `--peek` to receive the contents and empty the queue. See [Receiving completion notifications](claude-codex.md#4-receiving-completion-notifications) for automatic delivery in Claude Code.
+
+A message entering an empty queue triggers an immediate notification. While unread messages remain, another notification is written only when a message arrives at least 60 seconds after the last notification. Emptying the queue by reading without `--peek`, using `--clear`, or cleaning up the surface resets this interval record. `--peek` does not reset it.
+
+Sending to a nonexistent surface number stores the message but writes no notification line. For a surface in a remote workspace connected through remote attach (mirror), both the queue and notification log are on this computer. The remote Claude does not receive this notification.
 
 <a id="running-child-terminals-like-agents"></a>
 

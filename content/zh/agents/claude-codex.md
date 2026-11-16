@@ -1,4 +1,4 @@
-<!-- source-hash: fa11f69ab23d -->
+<!-- source-hash: 1cdfd1acbd23 -->
 # 配合 Claude 和 Codex 使用
 
 在 Tasty 终端中运行 Claude Code 和 Codex CLI 并查看状态。两个 CLI 需要单独安装。要将任务分配给多个智能体，请同时配置钩子和父智能体的结果接收路径。
@@ -162,6 +162,8 @@ Monitor 仅在有事件时输出，因此无输出是正常情况。已结束响
 
 受支持的父 Codex 对话会收到结果引用，表示子智能体已结束响应。用引用中的事件 ID 执行 `tasty codex result` 读取回答。连接条件和支持的路径见下方[自动传递给父 Codex](#自动传递给父-codex) 一节。
 
+同一完成日志也会收到以 `[queue] ` 开头的[队列到达通知](cli-reference.md#在-surface-之间收发消息队列)。启用完成通知 mod 的 Claude Code 也会将这些行作为提示接收并被唤醒，因此无需为了等待队列消息而保持 Monitor 或反复查询。
+
 ### 在 Claude Code 中自动接收
 
 更新后，请重新执行 `tasty claude install` 并启动新的 Claude Code 会话。安装命令会保留现有钩子和其他插件路径，同时安装完成通知 mod 和防重复插件。基于 Claude Code 2.1.307 的 mod API 编写。实际模型回合的接收验证需单独进行，不将用量限制或认证错误视为成功。
@@ -173,6 +175,8 @@ mod 启用后，从会话开始就读取自己的完成日志；如果 Claude �
 ### 通过 Claude Code 的 Monitor 接收
 
 仅在父 Claude Code 不支持 mod 或未能启用 mod 时使用 Monitor。在首次 spawn/tell 前订阅，并在订阅后立即查看子智能体列表。
+
+使用 Monitor 直接读取日志并等待完成时，应将以 `[queue] ` 开头的行识别为队列到达通知，不要视为完成。
 
 ```text
 Monitor({ command: "tail -n0 -F \"$TASTY_PARENT_HOME/notify/$TASTY_SURFACE_ID.log\"", timeout_ms: 1800000 })

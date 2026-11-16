@@ -1,4 +1,4 @@
-<!-- source-hash: fa11f69ab23d -->
+<!-- source-hash: 1cdfd1acbd23 -->
 # Claude・Codex と一緒に使う
 
 Claude Code と Codex CLI を Tasty のターミナルで実行し、状態を確認します。両方の CLI は別途インストールする必要があります。複数のエージェントにタスクを分担させるには、フックと親の結果受信経路をあわせて設定してください。
@@ -162,6 +162,8 @@ Monitor を区別する新しいフックを取得するには、`tasty claude i
 
 対応する Codex の親会話には、子の応答が終了したことを知らせる結果参照が届きます。参照に記載されたイベント ID で `tasty codex result` を実行し、回答を読みます。接続条件と対応経路は、後述の [Codex の親に自動的に届ける](#codex-の親に自動的に届ける)節に従ってください。
 
+同じ完了ログには、[キュー到着通知](cli-reference.md#サーフェス間でメッセージをやり取りするキュー)も `[queue] ` で始まる行として届きます。完了通知 mod が有効な Claude Code は、この行もプロンプトとして受け取って再開するため、キューメッセージを待つために Monitor や繰り返しの問い合わせを動かしておく必要はありません。
+
 ### Claude Code で自動的に受け取る
 
 更新後は `tasty claude install` を再度実行し、新しい Claude Code セッションを開始してください。インストールコマンドは、既存のフックとほかのプラグインのパスを保持しながら、完了通知 mod と重複防止プラグインを一緒にインストールします。Claude Code 2.1.307 の mod API を基準に作成されています。実際のモデルターンでの受信検証は別であり、使用量制限や認証エラーを成功とは見なしません。
@@ -173,6 +175,8 @@ mod が有効になると、セッション開始時から自分の完了ログ�
 ### Claude Code の Monitor で受け取る
 
 mod に対応していないか、有効にできていない親の Claude Code でのみ Monitor を使用します。最初の spawn/tell の前に購読し、購読直後に子の一覧も確認してください。
+
+Monitor でログを直接読みながら完了を待つ場合は、`[queue] ` で始まる行をキュー到着通知として区別し、完了と見なさないでください。
 
 ```text
 Monitor({ command: "tail -n0 -F \"$TASTY_PARENT_HOME/notify/$TASTY_SURFACE_ID.log\"", timeout_ms: 1800000 })

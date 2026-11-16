@@ -1,4 +1,4 @@
-<!-- source-hash: 1c0ea619cd71 -->
+<!-- source-hash: d2e902bfc27f -->
 # CLI 命令参考
 
 按用途说明入门内容之外的命令，包括指定读取位置的 `read since-mark`、Surface 状态、消息队列和共享记忆。完整参数和选项可通过 `tasty help` 查看。
@@ -103,6 +103,12 @@ tasty read queue --surface 42            # 取出所有积累的消息
 tasty read queue --surface 42 --peek     # 查看但不取出
 tasty read queue --surface 42 --clear    # 全部清空
 ```
+
+使用 `tasty send queue --to <surface>` 发送消息后，无论接收方 Surface 正在运行什么，都会在其完成日志中写入一行以 `[queue] ` 开头的到达通知。文本遵循应用语言，包含待处理消息数、最后发送消息的 Surface 和读取命令。通知不含消息正文；运行 `tasty read queue --surface <surface>` 时不加 `--peek`，即可接收内容并清空队列。Claude Code 的自动接收配置见[接收完成通知](claude-codex.md#4-接收完成通知)。
+
+消息进入空队列时会立即通知。仍有未读消息时，仅在距上次通知至少 60 秒后又有消息到达时再次通知。不加 `--peek` 读取并清空队列、使用 `--clear` 清空队列或清理 Surface，都会重置此通知间隔记录。`--peek` 不会重置记录。
+
+发送到不存在的 Surface 编号时，消息会保存，但不会写入通知行。发送到通过远程 attach 连接的远程工作区（mirror）中的 Surface 时，队列和通知日志都保存在本机。远程 Claude 不会收到此通知。
 
 <a id="将子终端作为智能体运行"></a>
 

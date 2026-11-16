@@ -161,6 +161,8 @@ Monitor를 구별하는 새 훅을 받으려면 `tasty claude install`을 다시
 
 지원되는 Codex 부모 대화에는 자식의 응답이 끝났음을 알리는 결과 참조가 전달됩니다. 참조에 나온 이벤트 ID로 `tasty codex result`를 실행해 답변을 읽습니다. 연결 조건과 지원 경로는 아래 [Codex 부모에게 자동으로 전달하기](#codex-부모에게-자동으로-전달하기) 절을 따르세요.
 
+같은 완료 로그에는 [큐 도착 알림](cli-reference.md#서피스끼리-메시지-주고받기-큐)도 `[queue] `로 시작하는 줄로 들어옵니다. 완료 알림 mod가 켜진 Claude Code는 이 줄도 프롬프트로 받아 깨어나므로, 큐 메시지를 기다리려고 Monitor나 반복 조회를 켜 둘 필요가 없습니다.
+
 ### Claude Code에서 자동으로 받기
 
 업데이트 후 `tasty claude install`을 다시 실행하고 새 Claude Code 세션을 시작하세요. 설치 명령은 기존 훅과 다른 플러그인 경로를 보존하면서 완료 알림 mod와 중복 방지 플러그인을 함께 설치합니다. Claude Code 2.1.307의 mod API를 기준으로 작성됐습니다. 실제 모델 턴 수신 검증은 별도이며, 사용량 제한이나 인증 오류를 성공으로 보지 않습니다.
@@ -172,6 +174,8 @@ mod가 활성화되면 세션 시작부터 자기 완료 로그를 읽고, Claud
 ### Claude Code의 Monitor로 받기
 
 mod를 지원하지 않거나 활성화하지 못한 부모 Claude Code에서만 Monitor를 사용합니다. 첫 spawn/tell 전에 구독하고, 구독 직후 자식 목록도 확인하세요.
+
+Monitor로 로그를 직접 읽으며 완료를 기다릴 때는 `[queue] `로 시작하는 줄을 큐 도착 알림으로 구분하고, 완료로 보지 마세요.
 
 ```text
 Monitor({ command: "tail -n0 -F \"$TASTY_PARENT_HOME/notify/$TASTY_SURFACE_ID.log\"", timeout_ms: 1800000 })

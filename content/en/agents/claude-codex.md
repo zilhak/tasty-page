@@ -1,4 +1,4 @@
-<!-- source-hash: fa11f69ab23d -->
+<!-- source-hash: 1cdfd1acbd23 -->
 # Working with Claude and Codex
 
 Run Claude Code and Codex CLI in Tasty terminals and follow their status. Install each CLI separately. To delegate work across agents, configure both the hooks and the parent’s result delivery path.
@@ -163,6 +163,8 @@ To get the new hooks that distinguish Monitor, run `tasty claude install` again,
 
 A supported Codex parent conversation receives a result reference when the child’s response ends. Use the event ID in that reference with `tasty codex result` to read the answer. See [Automatic delivery to a Codex parent](#automatic-delivery-to-a-codex-parent) below for connection requirements and supported paths.
 
+The same completion log also receives [queue arrival notifications](cli-reference.md#passing-messages-between-surfaces-queue) as lines starting with `[queue] `. Claude Code with the completion notification mod enabled receives these lines as prompts and wakes up, so there is no need to keep Monitor or repeated polling running to wait for queued messages.
+
 ### Receive automatically in Claude Code
 
 After updating Tasty, run `tasty claude install` again and start a new Claude Code session. It installs the notification mod and its duplicate-prevention plugin alongside the existing hooks, preserving other hooks and plugin paths. The mod uses the API bundled with Claude Code2.1.307. Real model-turn acceptance is a separate check; a usage limit or authentication error is not success.
@@ -174,6 +176,8 @@ In that Claude's Bash, `TASTY_CLAUDE_NOTIFY_MOD` should match its surface number
 ### Receiving through Claude Code's Monitor
 
 Use Monitor only when the parent Claude Code does not support or has not activated the mod. Subscribe before the first spawn/tell and check the child list immediately after subscribing.
+
+When reading the log directly with Monitor to wait for completion, identify lines starting with `[queue] ` as queue arrival notifications and do not treat them as completion.
 
 ```text
 Monitor({ command: "tail -n0 -F \"$TASTY_PARENT_HOME/notify/$TASTY_SURFACE_ID.log\"", timeout_ms: 1800000 })
