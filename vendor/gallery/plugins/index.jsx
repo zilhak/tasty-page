@@ -1,4 +1,5 @@
 import React from "react";
+import { PopupFocusEdge } from "../../ui_kits/terminal/overlays/shared.jsx";
 import { PageStates } from "../parts/specimen.jsx";
 import { STATES } from "./states.jsx";
 import { Icon as PIcon, IconButton, Button, Input, AutoComplete, MenuItem, Switch, Kbd, Spinner, Checkbox, Select, Tag } from "../../components/index.js";
@@ -353,8 +354,9 @@ function MdAddressBar({ editing = false, path = "~/work/tasty/docs/architecture.
 // Large-file (>1MB) confirm — surface-scoped popup, same 360px shell as markdown_open.
 function MdLargeFilePopup() {
   return (
-    <div style={{ width: 360, maxWidth: "100%", background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-strong)",
+    <div style={{ position: "relative", width: 360, maxWidth: "100%", background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-strong)",
       borderRadius: "var(--tasty-radius)", overflow: "hidden", boxShadow: "var(--tasty-shadow-modal)" }}>
+      <PopupFocusEdge />
       <div style={{ padding: "14px 14px 0" }}>
         <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 3 }}>Open large file?</div>
         <div style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 10, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>~/work/tasty/docs/CHANGELOG-full.md</div>

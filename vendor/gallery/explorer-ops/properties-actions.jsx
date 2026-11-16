@@ -1,4 +1,5 @@
 import React from "react";
+import { PopupFocusEdge } from "../../ui_kits/terminal/overlays/shared.jsx";
 import { Button, IconButton, Icon, Checkbox, Spinner, Select, MenuItem } from "../../components/index.js";
 import { XCol, XThemes } from "./create-drag-search.jsx";
 import * as K from "../parts/explorer-kit.jsx";
@@ -40,7 +41,8 @@ const pMono = { fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-fon
 // Properties frame (same as YProps / QProps) + optional Open footer
 function PProps({ glyph = K.ic.file, glyphColor, name, children, note, footer, w }) {
   return (
-    <div style={{ width: w || "var(--tasty-explorer-props-width)", maxWidth: "100%", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", overflow: "hidden" }}>
+    <div style={{ position: "relative", width: w || "var(--tasty-explorer-props-width)", maxWidth: "100%", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", overflow: "hidden" }}>
+      <PopupFocusEdge />
       <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-explorer-props-padding-x) var(--tasty-space-sm)" }}>
         <span style={{ display: "inline-flex", flex: "none", color: glyphColor || "var(--tasty-text-muted)" }}>{glyph}</span>
         <span style={{ flex: 1, minWidth: 0, fontSize: "var(--tasty-font-size-max)", fontWeight: "var(--tasty-font-weight-normal)", color: "var(--tasty-text-primary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{name}</span>

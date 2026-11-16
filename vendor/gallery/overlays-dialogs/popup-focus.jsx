@@ -54,7 +54,7 @@ function PopupFocusSpec() {
           ["scrim", "unchanged by focus — it marks the scope the popup covers (a click there still goes to the popup), not where keys go"],
           ["window scope", "no bar — in scope everywhere, so focused while open, or passive"],
           ["motion", "none — the bar appears and goes in the frame focus changes"],
-          ["contrast", "role glyph, grade 3 · on base 9.26 Mocha · 5.53 Latte · on raised (search bar) 7.10 · 4.05"],
+          ["contrast", "role glyph, grade 3 · on base 9.26 Mocha · 5.53 Latte · on mantle (a title strip at the top) 9.91 · 5.14 · on raised (search bar) 7.10 · 4.05"],
         ]}
         tokens={[
           { tok: "--tasty-popup-focus-edge-focused", use: "the lit bar (text-secondary)", color: "var(--tasty-popup-focus-edge-focused)" },
@@ -63,7 +63,7 @@ function PopupFocusSpec() {
           { tok: "--tasty-border-frame", use: "frame edge, both states", color: "var(--tasty-border-frame)" },
           { tok: "--tasty-scrim-bg", use: "the same in both states", color: "var(--tasty-scrim-bg)" },
         ]} />
-      <Note>The bar is the surface focus edge's own idea and value, so "keys go here" reads one way on a leaf and on a popup. It is neutral on purpose: blue is the keyboard focus ring of the control inside, which still shows on top. Specimens elsewhere that draw a surface popup's frame alone show its shell without this state.</Note>
+      <Note>The bar is the surface focus edge's own idea and value, so "keys go here" reads one way on a leaf and on a popup. It is neutral on purpose: blue is the keyboard focus ring of the control inside, which still shows on top. Specimens elsewhere that draw a surface popup's frame alone (markdown open, large file, convert, file picker, explorer name conflict and Properties) draw it holding key focus, so they show the lit bar.</Note>
       <Dont><b>Don't</b> dim or fade an unfocused popup, lighten its scrim, or add a second unfocused color. The user still reads it, and a click inside its scope still goes to it.</Dont>
     </Spec>
   );

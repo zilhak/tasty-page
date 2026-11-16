@@ -4,6 +4,7 @@ import { Stage } from "./specimen.jsx";
 import { WorkspaceRunningCount } from "../../ui_kits/terminal/chrome.jsx";
 import { AttachConnectionsSection } from "./settings-attach-section.jsx";
 import { rt } from "../../ui_kits/terminal/overlays/remote_row_copy.js";
+import { PopupFocusEdge } from "../../ui_kits/terminal/overlays/shared.jsx";
 
 // Tasty Gallery — Overlays SHARED frames. Loaded by every overlays-*.html page
 // (Dialogs / Windows / Popups & menus / Banners). Defines the scrim Backdrop, the
@@ -859,15 +860,6 @@ function LocalSshSection({ state = "hosts" }) {
   );
 }
 
-// ── Popup focus edge — the bar a popup narrower than the window lights across the top of its frame while it
-// holds key focus (RULES.md "Popup focus"). Inside the 1px border, over the content margin, clipped by the frame's
-// radius (the frame clips its overflow), so nothing in the popup moves. Unfocused: not drawn.
-function PopupFocusEdge({ lit = true }) {
-  if (!lit) return null;
-  return <div data-popup-focus-edge="lit" aria-hidden="true" style={{ position: "absolute", left: 0, right: 0, top: 0, zIndex: 1,
-    height: "var(--tasty-popup-focus-edge-width)", background: "var(--tasty-popup-focus-edge-focused)", pointerEvents: "none" }} />;
-}
-
 // ── ShellMock — the whole window at 1/1 scale, small: CSD titlebar · sidebar ·
 // pane tab strip · two surfaces · status bar. Exists so a SCOPED scrim can be
 // judged against everything it does and does not cover.
@@ -1425,8 +1417,9 @@ function MarkdownOpenFrame() {
     </button>
   );
   return (
-    <div style={{ width: 420, background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-strong)",
+    <div style={{ position: "relative", width: 420, background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-strong)",
       borderRadius: "var(--tasty-radius)", overflow: "hidden", boxShadow: "var(--tasty-shadow-modal)" }}>
+      <PopupFocusEdge />
       <div style={{ padding: "14px 14px 0" }}>
         <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 2 }}>Open markdown file</div>
         <div style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 12 }}>README.md</div>
@@ -3143,10 +3136,12 @@ function FilePickerFrame({ state = "loaded", remote = false, indicator = "badge"
     ? { title: "Remote connection lost", body: <>The SSH tunnel to <span style={{ fontFamily: "var(--tasty-font-mono)" }}>{host}</span> dropped. Reconnect to resume browsing from the last folder.</> }
     : { title: "Permission denied", body: <>You don't have permission to read <span style={{ fontFamily: "var(--tasty-font-mono)" }}>/home/deploy/agents-prod</span>. Try a different folder or check access.</> };
   return (
-    <div style={{ width: w, height: h, display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)",
+    <div style={{ position: "relative", width: w, height: h, display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)",
       border: borderMode ? "1px solid var(--tasty-accent-info)" : "1px solid var(--tasty-border-strong)",
       borderRadius: opaque ? "var(--tasty-webview-opaque-radius)" : "var(--tasty-radius)", overflow: "hidden", boxShadow: opaque ? "var(--tasty-webview-opaque-shadow)" : "var(--tasty-shadow-modal)" }}>
       {borderMode && <div style={{ height: 2, flex: "none", background: "var(--tasty-accent-info)" }} />}
+      {/* the picker is scoped to its surface, so it lights the focus edge; in border mode the info row keeps the top and the edge sits under it */}
+      <PopupFocusEdge top={borderMode ? 2 : 0} />
       {/* header */}
       {/* section insets (2026-09-29): every section starts on fp-inset-start (12) — header glyph, first crumb, Name, row icon and footer label share one column */}
       <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-fp-section-gap)", padding: "var(--tasty-fp-header-pad-y) var(--tasty-fp-inset-end) var(--tasty-fp-header-pad-y) var(--tasty-fp-inset-start)", flex: "none", borderBottom: "1px solid var(--tasty-separator)" }}>
@@ -3267,4 +3262,4 @@ function FilePickerFrame({ state = "loaded", remote = false, indicator = "badge"
   );
 }
 
-export { TOOLS_MENU_BUILTIN, ic, Backdrop, GroundThemes, GroundCap, PaletteFrame, ApprovalFrame, RenameFrame, SettingsFrame, SettingsGeneralOverlayFrame, SettingsRemoteTransferFrame, SettingsRemoteAttachFrame, TransferProgressFrame, TransferErrorFrame, DownloadRunFrame, DownloadRunLargeFrame, ToastDragValue, ToolsMenuFrame, PortsFrame, PORTS_COLUMNS, PortsFavoritesG, PortStarG, RemoteFrame, LocalSshSection, SearchBarFrame, FileHandlerFrame, FhFooter, PresetFrame, MarkdownOpenFrame, HeldLabel, TabStripMock, SidebarMock, RailMock, CatSwitchSidebarMock, CatSwitchRailMock, BannerShellG, BannerScope, MouseCaptureBannerG, MouseCaptureHitZone, BlacklistEditorG, TtlBannerG, StackDemoG, BannerMoreMenuG, BannerMoreDemoG, GitViewerFrame, ClipboardFrame, RemoteFormFrame, ScriptManagerFrame, ShellMock, CollapsedPopupButton, RemoteAttachFrame, RaNewRow, RaWsPeek, FilePickerFrame, FpCrumbMenu, ModifierHintPanelG, MH_CAT_SECTIONS, MH_MIXED_SECTIONS, MH_EMPTY_SECTIONS, catIc, CatMenu, RailCategoryFrame, CategoryEditFrame, CategoryDeleteFrame };
+export { PopupFocusEdge, TOOLS_MENU_BUILTIN, ic, Backdrop, GroundThemes, GroundCap, PaletteFrame, ApprovalFrame, RenameFrame, SettingsFrame, SettingsGeneralOverlayFrame, SettingsRemoteTransferFrame, SettingsRemoteAttachFrame, TransferProgressFrame, TransferErrorFrame, DownloadRunFrame, DownloadRunLargeFrame, ToastDragValue, ToolsMenuFrame, PortsFrame, PORTS_COLUMNS, PortsFavoritesG, PortStarG, RemoteFrame, LocalSshSection, SearchBarFrame, FileHandlerFrame, FhFooter, PresetFrame, MarkdownOpenFrame, HeldLabel, TabStripMock, SidebarMock, RailMock, CatSwitchSidebarMock, CatSwitchRailMock, BannerShellG, BannerScope, MouseCaptureBannerG, MouseCaptureHitZone, BlacklistEditorG, TtlBannerG, StackDemoG, BannerMoreMenuG, BannerMoreDemoG, GitViewerFrame, ClipboardFrame, RemoteFormFrame, ScriptManagerFrame, ShellMock, CollapsedPopupButton, RemoteAttachFrame, RaNewRow, RaWsPeek, FilePickerFrame, FpCrumbMenu, ModifierHintPanelG, MH_CAT_SECTIONS, MH_MIXED_SECTIONS, MH_EMPTY_SECTIONS, catIc, CatMenu, RailCategoryFrame, CategoryEditFrame, CategoryDeleteFrame };

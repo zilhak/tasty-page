@@ -27,6 +27,16 @@ const Spinner = _TDS.Spinner || (() => {
   };
 })();
 
+// ── Popup focus edge — the bar a popup narrower than the window lights across the top of its frame while it
+// holds key focus (vendor/RULES.md "Popup focus"). Inside the 1px border, over the content margin, clipped by the frame's
+// radius (the frame clips its overflow), so nothing in the popup moves. Unfocused: not drawn. top: an offset for a frame
+// whose top row is already taken (the file picker's remote border mode draws its own 2px info row there).
+function PopupFocusEdge({ lit = true, top = 0 }) {
+  if (!lit) return null;
+  return <div data-popup-focus-edge="lit" aria-hidden="true" style={{ position: "absolute", left: 0, right: 0, top, zIndex: 1,
+    height: "var(--tasty-popup-focus-edge-width)", background: "var(--tasty-popup-focus-edge-focused)", pointerEvents: "none" }} />;
+}
+
 function Scrim({ onClose, children, align = "center" }) {
   return (
     <div onClick={onClose} style={{ position: "absolute", inset: 0, background: "var(--tasty-scrim-bg)",
@@ -37,4 +47,4 @@ function Scrim({ onClose, children, align = "center" }) {
   );
 }
 
-export { Scrim, Spinner };
+export { Scrim, Spinner, PopupFocusEdge };
