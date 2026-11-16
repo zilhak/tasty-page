@@ -16,6 +16,7 @@ const COLLAPSED_COPY = {
 const FRAMES = [
   ["wide surface — popup expanded in its surface", { scope: "surface" }],
   ["narrow surface — collapsed, opened by the user (key focus)", { scope: "surface", narrow: true, collapsed: "label", ring: true }],
+  ["narrow surface — collapsed, the user typing in the other surface (no ring, no edge)", { scope: "surface", narrow: true, collapsed: "label", ring: true, focus: "other" }],
   ["narrow surface — collapsed, opened by an agent (no focus)", { scope: "surface", narrow: true, collapsed: "label", agent: true }],
   ["very narrow — label frame does not fit, icon only", { scope: "surface", narrow: true, collapsed: "icon", ring: true, leftWidth: 64 }],
   ["narrower than the icon frame — cut at the surface rect", { scope: "surface", narrow: true, collapsed: "clipped", ring: true, leftWidth: 24 }],
@@ -26,7 +27,7 @@ const FRAMES = [
 function CollapsedPopupSpec() {
   return (
     <Spec id="collapse-a-surface-popup-that-does-not-fit-leaves-a-show-button" title="Collapse — a surface popup that does not fit leaves a show button"
-      when={<>A <b>surface-scope</b> popup that does not fit inside its surface bounds is <b>not shrunk</b>. In its place the surface keeps <b>one button</b> in the popup's own frame, and nothing else. The popup is still open: the button takes key focus, and pressing it (click, <b>Enter</b> or <b>Space</b>) shows the popup <b>centered over the window</b> with the window scrim, where it stays until it closes. Its logical scope is still the surface, but it is shown in window scope: the scrim covers the whole window and no other surface can be selected until it closes. A plugin popup moved over the window because its surface is too narrow takes the same picture. The check runs every frame, so when the surface grows back the popup returns to its expanded form in the surface. If the window is smaller than the popup too, the popup keeps its size, its left and top sit on the window's edge, and its right and bottom are cut. The button never names the popup: headless popups have no title, and a title would widen the button and make it collapse sooner.</>}>
+      when={<>A <b>surface-scope</b> popup that does not fit inside its surface bounds is <b>not shrunk</b>. In its place the surface keeps <b>one button</b> in the popup's own frame, and nothing else. The popup is still open: the button takes key focus, and pressing it (click, <b>Enter</b> or <b>Space</b>) shows the popup <b>centered over the window</b> with the window scrim, where it stays until it closes. Its logical scope is still the surface, but it is shown in window scope: the scrim covers the whole window and no other surface can be selected until it closes. Host and plugin popups take the same path: collapsed first, over the window only once pressed. While collapsed, the other surfaces stay usable. The check runs every frame, so when the surface grows back the popup returns to its expanded form in the surface. If the window is smaller than the popup too, the popup keeps its size, its left and top sit on the window's edge, and its right and bottom are cut. The button never names the popup: headless popups have no title, and a title would widen the button and make it collapse sooner.</>}>
       <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 18, flexWrap: "wrap", alignItems: "flex-start" }}>
         {FRAMES.map(([label, props]) => (
           <div key={label} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
@@ -69,7 +70,7 @@ function CollapsedPopupSpec() {
           ["focus", "border-focus · focus-ring-width 2 · 1px offset on the button (the :focus-visible pair) · opened by the user: shown from the first frame · passive (agent-opened): no ring · the frame lights the popup focus edge while it holds key focus (Focus, below)"],
           ["tooltip", <><code>popup.collapsed_button.tooltip</code> · Tooltip on pointer hover and key focus · 150ms delay</>],
           ["close", "no close mark on the collapsed form · the way out is the popup's own controls after pressing · Esc and outside clicks: the expanded popup's rule (below)"],
-          ["pressed", "shown in window scope (logical scope stays the surface): centred, full-window scrim, shadow-modal · no other surface can be selected until it closes · plugin popups moved over the window: the same"],
+          ["pressed", "shown in window scope (logical scope stays the surface): centred, full-window scrim, shadow-modal · no other surface can be selected until it closes · host and plugin popups alike, always through the button: no popup goes over the window without it"],
           ["window too small", "the popup keeps its size · left and top on the window's inner edge, margin 0 · right and bottom cut by the window"],
           ["search bar", "not drawn: whether it collapses is a pending user decision (O1)"],
         ]}
