@@ -1,4 +1,4 @@
-<!-- source-hash: a9f2da77996b -->
+<!-- source-hash: f772e08da886 -->
 # Troubleshooting
 
 Causes and remedies for Tasty installation, input, display, restoration, and notification issues are organized by symptom. For CLI connection failures or slow responses, also see connection diagnostics. If the problem remains, report it with your environment details and logs.
@@ -149,7 +149,7 @@ Open **Listening ports…** from the **Tools** menu in the sidebar. It shows the
 
 ## The window freezes or crashes
 
-- **The window does not respond to clicks, key input or the CLI** — A record is written when Tasty detects that progress has stopped for more than roughly 5 seconds. Not every hang produces a record. Tasty does not recover on its own while frozen. Follow [Crash and hang reports and logs](error-reports.md) to copy the logs and collect any stack sample you need, then force-quit Tasty and start it again. If you suspect a GPU-related hang, also check for GPU driver updates.
+- **The window does not respond to clicks, key input or the CLI** — In Tasty with a graphical interface (GUI), a record is written when progress is detected to have stopped for more than roughly 5 seconds. Not every hang produces a record. Tasty does not recover on its own while frozen. Follow [Crash and hang reports and logs](error-reports.md) to copy the logs and collect any stack sample you need, then force-quit Tasty and start it again. If you suspect a GPU-related hang, also check for GPU driver updates.
 - **It exited suddenly** — look for `crash-reports/crash-*.log` in the data folder and keep it with the logs. **Copy `debug.log` before starting Tasty again.**
 
 ### A notice says saving stopped while Tasty was running
@@ -244,13 +244,13 @@ The default folder is `~/.tasty/` (on Windows, `%USERPROFILE%\.tasty\`). If you 
 | `tasty.port` | The IPC port number of the running Tasty. Created when Tasty starts |
 | `debug.log` | Warnings and above from the running Tasty instance. Copy before restarting |
 | `crash-reports/crash-*.log` | Crash reports — version · OS · location · message · backtrace |
-| `crash-reports/hang-*.log` | A record is written when Tasty detects that progress has stopped for more than roughly 5 seconds. Not every hang produces a record. |
+| `crash-reports/hang-*.log` | In Tasty with a graphical interface (GUI), a record is written when progress is detected to have stopped for more than roughly 5 seconds. Not every hang produces a record. System load, CPU and scheduling information is collected on Linux. |
 | `launch.log` | Records and results of launching Tasty again while one is already running |
 | `hook-failures.log` | Records of Claude / Codex hooks that failed to reach Tasty |
 | `plugins-logs/<plugin id>.log` | Per-plugin logs. Copy before restarting the plugin. Also viewable with `tasty plugin logs <id>` |
 | `state.db` | Data the app manages on its own, such as recent files |
 
-See [Crash and hang reports and logs](error-reports.md) for when to copy logs and how to collect more detailed output.
+See [Crash and hang reports and logs](error-reports.md) for when to copy logs, how to collect more detailed output, and how to keep `tasty.pdb` with Tasty on Windows.
 
 ## Reporting a problem
 

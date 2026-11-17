@@ -1,4 +1,4 @@
-<!-- source-hash: a9f2da77996b -->
+<!-- source-hash: f772e08da886 -->
 # 故障排除
 
 本页按症状列出 Tasty 安装、输入、显示、恢复和通知问题的原因及解决方法。如果 CLI 无法连接或响应缓慢，也可查看连接诊断。问题仍未解决时，可附上运行环境和日志报告问题。
@@ -149,7 +149,7 @@ Tasty 检测到 XIM 输入法服务器退出或被替换后，会停止向旧服
 
 ## 窗口无响应或意外退出时
 
-- **窗口对点击、按键输入、CLI 完全无响应** — 检测到进度停止超过约 5 秒时会留下记录。并非每次无响应都会产生记录。 Tasty 不会从无响应状态自行恢复。按[崩溃、无响应报告与日志](error-reports.md)中的说明复制日志并收集所需的堆栈样本，再强制退出并重新启动 Tasty。如果怀疑与 GPU 有关，也检查 GPU 驱动程序更新。
+- **窗口对点击、按键输入、CLI 完全无响应** — 带图形界面的 Tasty（GUI）检测到进度停止超过约 5 秒时会留下记录。并非每次无响应都会产生记录。 Tasty 不会从无响应状态自行恢复。按[崩溃、无响应报告与日志](error-reports.md)中的说明复制日志并收集所需的堆栈样本，再强制退出并重新启动 Tasty。如果怀疑与 GPU 有关，也检查 GPU 驱动程序更新。
 - **突然退出** — 查找数据文件夹中的 `crash-reports/crash-*.log`，与日志一并保留。**重新启动前复制 `debug.log`。**
 
 ### 运行期间提示已停止保存时
@@ -244,13 +244,13 @@ tasty codex install     # ~/.codex/config.toml
 | `tasty.port` | 正在运行的 Tasty 的 IPC 端口号。Tasty 启动时创建 |
 | `debug.log` | 运行中 Tasty 的警告及以上级别日志。重新启动前复制 |
 | `crash-reports/crash-*.log` | 崩溃报告 — 版本 · OS · 位置 · 消息 · 回溯 |
-| `crash-reports/hang-*.log` | 检测到进度停止超过约 5 秒时会留下记录。并非每次无响应都会产生记录。 |
+| `crash-reports/hang-*.log` | 带图形界面的 Tasty（GUI）检测到进度停止超过约 5 秒时会留下记录。并非每次无响应都会产生记录。系统负载、CPU 和调度信息在 Linux 上收集。 |
 | `launch.log` | 已有 Tasty 运行时再次启动的记录和结果 |
 | `hook-failures.log` | Claude / Codex 钩子未能连接 Tasty 的记录 |
 | `plugins-logs/<插件 id>.log` | 各插件的日志。重新启动插件前复制。也可使用 `tasty plugin logs <id>` 查看 |
 | `state.db` | 最近文件等由应用自动管理的数据 |
 
-复制日志的时机和收集更详细日志的方法，参阅[崩溃、无响应报告与日志](error-reports.md)。
+复制日志的时机、收集更详细日志的方法以及 Windows 上 `tasty.pdb` 的保留说明，参阅[崩溃、无响应报告与日志](error-reports.md)。
 
 ## 报告问题
 

@@ -1,4 +1,4 @@
-<!-- source-hash: cf5de87effcc -->
+<!-- source-hash: 38f36b361baa -->
 # 崩溃、无响应报告与日志
 
 Tasty 意外退出或无响应时，可以收集报告和日志来报告问题。
@@ -24,12 +24,16 @@ Tasty 意外退出或无响应时，可以收集报告和日志来报告问题�
 | 文件 | 内容和保存时机 |
 |---|---|
 | `crash-reports/crash-*.log` | 包含崩溃时间、Tasty 版本、OS 和架构、错误位置和消息以及回溯。附上与问题发生时间对应的文件 |
-| `crash-reports/hang-*.log` | 检测到进度停止超过约 5 秒时会留下记录。并非每次无响应都会产生记录。附上与问题发生时间对应的文件 |
+| `crash-reports/hang-*.log` | 带图形界面的 Tasty（GUI）检测到进度停止超过约 5 秒时会留下记录。并非每次无响应都会产生记录。附上与问题发生时间对应的文件 |
 | `debug.log` | 默认记录警告及以上级别日志。记录运行中的 Tasty，退出后仍保留，但重新启动会清空。**重新启动前复制** |
 | `plugins-logs/<id>.log` | 各插件的日志。**重新启动插件前复制相关文件** |
 | `hook-failures.log` · `hook-failures.log.1` | Claude Code、Codex CLI 钩子未能连接 Tasty 的记录。钩子问题应一并附上。超过 256 KiB 后，会在下次记录前将原文件移至 `.1` |
 
 崩溃报告不会自动删除。报告问题时，选择对应发生时间的文件。`debug.log` 可能不包含打开日志文件之前的早期输出。仅运行 `tasty --version` 等 CLI 命令不会清空此文件。
+
+仅在运行带图形界面的 Tasty（GUI）时自动检测无响应并记录报告。无响应报告包含停止时长、最后记录的处理和渲染状态，以及窗口焦点和遮挡状态。在 Linux 上，还包含系统负载、Tasty 的 CPU 使用时间以及运行、等待和调度信息。Linux 的负载、CPU 和调度信息中，无法收集的项目会显示原因。窗口焦点和遮挡状态可能显示为未知。仅凭最后的渲染状态无法确定无响应的原因。
+
+Linux、Windows 发行版的崩溃报告回溯中会显示 Tasty 函数名称，不包含 Tasty 函数的行号。Windows ZIP、无界面 ZIP 和 MSI 安装文件夹中，`tasty.exe` 旁均附带 `tasty.pdb`，无需单独下载。**不要删除 `tasty.pdb`，也不要单独移动 `tasty.exe`。** 同一位置缺少 `tasty.pdb` 时，回溯可能显示错误的函数名称。即使有 `tasty.pdb`，部分帧的函数名称也可能不准确。
 
 ## 收集更详细的日志
 
@@ -71,6 +75,8 @@ thread apply all bt
 detach
 quit
 ```
+
+Linux 发行版的 GDB 堆栈样本也会显示 Tasty 函数名称，不包含 Tasty 函数的行号。
 
 如果已有在 macOS、Windows 上收集的进程样本或转储，注明所用工具和收集时间后一并附上。
 

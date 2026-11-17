@@ -1,4 +1,4 @@
-<!-- source-hash: cf5de87effcc -->
+<!-- source-hash: 38f36b361baa -->
 # Crash and hang reports and logs
 
 When Tasty exits unexpectedly or stops responding, you can collect reports and logs to report the problem.
@@ -24,12 +24,16 @@ All paths below are relative to this data folder.
 | File | Contents and when to save it |
 |---|---|
 | `crash-reports/crash-*.log` | Crash time, Tasty version, OS and architecture, error location and message, and backtrace. Attach the file that matches the time of the problem |
-| `crash-reports/hang-*.log` | A record is written when Tasty detects that progress has stopped for more than roughly 5 seconds. Not every hang produces a record. Attach the file that matches the time of the problem |
+| `crash-reports/hang-*.log` | In Tasty with a graphical interface (GUI), a record is written when progress is detected to have stopped for more than roughly 5 seconds. Not every hang produces a record. Attach the file that matches the time of the problem |
 | `debug.log` | Warnings and above by default. Logs the running Tasty instance and remains after it exits, but is cleared on the next start. **Copy it before restarting** |
 | `plugins-logs/<id>.log` | Per-plugin logs. **Copy the relevant files before restarting the plugins** |
 | `hook-failures.log` · `hook-failures.log.1` | Records of Claude Code and Codex CLI hooks that failed to reach Tasty. Include these for hook problems. Once the log exceeds 256 KiB, it is moved to `.1` before the next entry |
 
 Crash reports are not deleted automatically. Choose files from the time of the problem. `debug.log` may lack early output produced before the log file was opened. Running a CLI command such as `tasty --version` does not clear this file.
+
+Automatic hang detection and hang reports are available only when running Tasty with a graphical interface (GUI). Hang reports include the time spent stalled, the last recorded activity and rendering state, and window focus and occlusion state. On Linux, they also include system load, Tasty CPU time, and execution, wait and scheduling information. If Linux load, CPU or scheduling information cannot be collected, the report shows the reason for each unavailable item. Window focus and occlusion state may be shown as unknown. The last rendering state alone does not establish the cause of a hang.
+
+In Linux and Windows distribution builds, crash report backtraces show Tasty function names. Line numbers for Tasty functions are not included. Windows ZIPs, headless ZIPs and MSI installation folders include `tasty.pdb` alongside `tasty.exe`; no separate download is needed. **Do not delete `tasty.pdb` or move `tasty.exe` on its own.** Without `tasty.pdb` alongside it, backtraces may show incorrect function names. Even with `tasty.pdb` present, function names for some frames may be inaccurate.
 
 ## Collect more detailed logs
 
@@ -71,6 +75,8 @@ thread apply all bt
 detach
 quit
 ```
+
+GDB stack samples from Linux distribution builds also show Tasty function names, without line numbers for Tasty functions.
 
 If you already have a process sample or dump collected on macOS or Windows, attach it with the tool used and the collection time.
 
