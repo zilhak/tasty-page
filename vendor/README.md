@@ -37,7 +37,7 @@ An agent's side effects never touch the user's focus, history, or selection; eve
 
 **Object model (ubiquitous language):** Window › Workspace › Tab › Pane › **Surface**. A surface has a *kind* — `terminal`, `markdown`, `explorer`, `html`, `image`, or a plugin-defined kind. Modal / Popup / Toast are distinct UI layers.
 
-**Signature features:** multi-agent orchestration (`agent.task_*` DAGs, barrier/semaphore/lease/rate-limit), headless operation (`--headless`), vi copy mode, a Plugin SDK with a permission system, shared context (Blackboard / Plan / Cache), OSC-133 command indexing, output observers, telemetry + token cost caps, and a fully user-rebindable keybinding system.
+**Signature features:** multi-agent orchestration (`agent.task_*` DAGs, barrier/semaphore/lease/rate-limit), headless operation (`--headless`), vi copy mode, a Plugin SDK, shared context (Blackboard / Plan / Cache), OSC-133 command indexing, output observers, telemetry + token cost caps, and a fully user-rebindable keybinding system.
 
 ---
 
