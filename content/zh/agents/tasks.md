@@ -1,4 +1,4 @@
-<!-- source-hash: a5e99f1be7d9 -->
+<!-- source-hash: 8956777bc01d -->
 <a id="任务-dag"></a>
 
 # 任务顺序管理（DAG）
@@ -199,7 +199,7 @@ Tasty 无法打开记忆文件而使用[临时记忆](cli-reference.md#智能体
  "output_schema": {"type": "enum", "values": ["approve", "revise"]}}
 ```
 
-- `provider` 是负责会话的插件名称。Claude 插件为 `claude`，Codex 插件为 `codex`，支持智能体任务的其他插件也可使用各自的名称。若插件未安装、已关闭或没有轮次报告权限，创建任务时会被拒绝并说明原因。创建后关闭插件，则该任务会在执行时失败。
+- `provider` 是负责会话的插件名称。Claude 插件为 `claude`，Codex 插件为 `codex`，支持智能体任务的其他插件也可使用各自的名称。若插件未安装、已关闭，创建任务时会被拒绝并说明原因。创建后关闭插件，则该任务会在执行时失败。
 - `command` 中的 `workspace_id` 是新会话所在的工作区。提交值的 `task-submit` 会发往任务所在的工作区，指令末尾附加的说明中包含该编号。
 - `session` 为 `{"kind": "new", "parent_surface": <Surface>}` 时，在该 Surface 下启动新会话并发送指令。添加 `"cwd": "<路径>"` 可指定新会话的工作文件夹。为 `{"kind": "existing", "surface_id": <Surface>}` 时，发送到已打开的会话。
 - 已打开的会话仅在空闲时接收指令。若正在直接对话，会等到对话结束，以免混合对话。指令末尾会附加一行用于识别该次执行的标记，只有由该标记发起的轮次才视为任务轮次。使用同一会话的任务会依次执行。

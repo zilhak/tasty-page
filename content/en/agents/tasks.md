@@ -1,4 +1,4 @@
-<!-- source-hash: a5e99f1be7d9 -->
+<!-- source-hash: 8956777bc01d -->
 <a id="task-dag"></a>
 
 # Task workflows (DAG)
@@ -199,7 +199,7 @@ An `agent` task sends one instruction to an agent session such as Claude or Code
  "output_schema": {"type": "enum", "values": ["approve", "revise"]}}
 ```
 
-- `provider` names the plugin that runs the session: `claude` for the Claude plugin and `codex` for the Codex plugin. Other plugins that support agent tasks use their own name. If that plugin is not installed, is turned off, or lacks the turn-report permission, creating the task is refused with the reason. If you turn the plugin off after creating the task, the task fails when it runs.
+- `provider` names the plugin that runs the session: `claude` for the Claude plugin and `codex` for the Codex plugin. Other plugins that support agent tasks use their own name. If that plugin is not installed or is turned off, creating the task is refused with the reason. If you turn the plugin off after creating the task, the task fails when it runs.
 - The `workspace_id` in `command` is the workspace a new session opens in. `task-submit` hands the value to the workspace the task lives in, and the guidance appended to the instruction carries that number.
 - With `session` set to `{"kind": "new", "parent_surface": <surface>}`, a new session starts under that surface and gets the instruction. Add `"cwd": "<path>"` to set the new session's working folder. With `{"kind": "existing", "surface_id": <surface>}`, the instruction goes to a session that is already open.
 - An open session gets the instruction only when it is idle. If you are talking to it, the task waits until you finish, so the conversations do not mix. A one-line marker for that run is added to the end of the instruction, and only a turn started with that marker counts as the task's turn. Tasks that use the same session run one after another.

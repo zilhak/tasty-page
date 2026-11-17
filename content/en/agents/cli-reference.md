@@ -1,4 +1,4 @@
-<!-- source-hash: d2e902bfc27f -->
+<!-- source-hash: 0f54ef3daa95 -->
 # CLI command reference
 
 Find commands beyond the introduction, including `read since-mark`, surface state, message queues, and shared memory, organized by purpose. Use `tasty help` for the full list of arguments and options.
@@ -61,7 +61,7 @@ A session token tells Tasty which agent a request comes from and keeps agents fr
 
 To prepare a remote connection, an agent with a session token can run `tasty remote attach --into-gui`, `tasty remote connect`, `tasty remote disconnect`, and `tasty remote refusals` without an additional permission. Checking the workspace list with `tasty list workspaces` requires `surface.read`. See [Working remotely](../remote/attach.md) for command forms and JSON output.
 
-Commands that a plugin adds (`tasty markdown recent`, `tasty codex spawn` and so on) need a permission too.
+Agents using a session token also need permission to call commands that a plugin adds (`tasty markdown recent`, `tasty codex spawn` and so on).
 For `tasty <command> …`, add `--permission ipc.invoke:<command>` — `tasty markdown …` needs
 `ipc.invoke:markdown`, and a `-` in the command name becomes `_`. Without it the call is refused and a permission approval request goes to a person.
 A Claude started with `tasty claude spawn` already holds the permissions for `tasty claude …` and `tasty codex …`.

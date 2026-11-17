@@ -1,4 +1,4 @@
-<!-- source-hash: d2e902bfc27f -->
+<!-- source-hash: 0f54ef3daa95 -->
 # CLI コマンドリファレンス
 
 読み取り位置を指定する `read since-mark`、サーフェスの状態、メッセージキュー、共有メモリなど、入門で扱わないコマンドを目的別に説明します。すべての引数とオプションは `tasty help` で確認できます。
@@ -63,7 +63,7 @@ tasty session revoke --token <トークン>
 
 リモート接続を準備する際は、セッショントークンで `tasty remote attach --into-gui`、`tasty remote connect`、`tasty remote disconnect`、`tasty remote refusals` を追加の権限なしで使えます。接続結果を一覧で確認する `tasty list workspaces` には `surface.read` 権限が必要です。コマンド形式と JSON の結果は、[リモート作業を続ける](../remote/attach.md)を参照してください。
 
-プラグインが追加したコマンド（`tasty markdown recent` · `tasty codex spawn` など）にも権限が必要です。
+セッショントークンを使うエージェントがプラグインの追加したコマンド（`tasty markdown recent` · `tasty codex spawn` など）を呼び出すときも、権限が必要です。
 `tasty <コマンド> …` なら `--permission ipc.invoke:<コマンド>` を指定してください — `tasty markdown …` は
 `ipc.invoke:markdown` で、コマンド名に `-` がある場合は `_` に置き換えます。指定せずに呼び出すと拒否され、人に権限の承認リクエストが届きます。
 `tasty claude spawn` で起動した Claude には、`tasty claude …` · `tasty codex …` の権限がすでに与えられています。
