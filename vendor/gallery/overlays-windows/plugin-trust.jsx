@@ -269,6 +269,38 @@ function ReservedNotice({ lang = "en", id = RESERVED_SAMPLE.id }) {
   );
 }
 
+// Needs attention — the four reasons (2026-11-17). One list row per reason, in list order: the three that
+// are not registered (danger) first, then the one that is registered but failing (warning).
+const ATTN_REASONS = [
+  { key: "unknown-key", name: "fleet-sync", sev: "danger", label: { en: "Signature not trusted", ko: "서명을 신뢰할 수 없음", ja: "署名が信頼されていません" }, status: "not-registered", action: "Register anyway" },
+  { key: "signature-invalid", name: "remote-shell", sev: "danger", label: { en: "Signature invalid", ko: "서명이 유효하지 않음", ja: "署名が無効です" }, status: "not-registered", action: "Register anyway" },
+  { key: "reserved-id", name: "com.tasty.agent-stream-plus", sev: "danger", label: { en: "Not an official plugin", ko: "공식 플러그인 아님", ja: "公式プラグインではありません" }, status: "not-registered", action: "Remove" },
+  { key: "health-error", name: "k8s-lens", sev: "warning", label: { en: "Runtime error", ko: "실행 오류", ja: "実行エラー" }, status: "needs-review", action: "Configure" },
+];
+const SEV_FILL = { danger: "var(--tasty-accent-danger)", warning: "var(--tasty-accent-warning)" };
+const SEV_INK = { danger: "var(--tasty-accent-danger-raised)", warning: "var(--tasty-accent-warning-raised)" };
+function AttnRow({ r, lang = "en", selected = false }) {
+  const on = selected;
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-sm)", borderRadius: "var(--tasty-radius)",
+      background: on ? "var(--tasty-surface-active)" : "transparent", boxShadow: on ? "inset var(--tasty-selection-edge-width) 0 0 " + SEV_FILL[r.sev] : "none" }}>
+      <ReservedAvatar name={r.name} />
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontSize: 13, color: on ? "var(--tasty-text-on-active)" : "var(--tasty-text-secondary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.name}</div>
+        <div lang={lang} style={{ fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-micro)", color: on ? "var(--tasty-text-on-active)" : SEV_INK[r.sev], overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.label[lang] || r.label.en}</div>
+      </div>
+      {dot(SEV_FILL[r.sev])}
+    </div>
+  );
+}
+function AttnList({ lang = "en", selected = 0 }) {
+  return (
+    <div style={{ width: "var(--tasty-plugins-list-width)", maxWidth: "100%", padding: "var(--tasty-space-sm)", background: "var(--tasty-bg-sidebar)", borderRadius: "var(--tasty-radius)", display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
+      {ATTN_REASONS.map((r, i) => <AttnRow key={r.key} r={r} lang={lang} selected={i === selected} />)}
+    </div>
+  );
+}
+
 const Themed = ({ attr, children }) => (
   <div data-theme={attr || undefined} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-md)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", minWidth: 0 }}>{children}</div>
 );
@@ -340,8 +372,30 @@ function PluginTrustSpecs() {
         <Dont><b>Don't</b> say the plugin was reviewed, certified or sandboxed, and don't let Enter on a freshly shown verdict install it.</Dont>
       </Spec>
 
+      <Spec id="plugin-attention-four-reasons" title="Needs attention — four reasons"
+        when={<>Plugin permissions are gone (2026-11-17), and with them the <b>permissions changed</b> reason, its permission change list and <b>Re-approve</b>. Needs attention now has <b>four reasons</b>. The list shows the three that are <b>not registered</b> first — <b>signature not trusted</b>, <b>signature invalid</b>, <b>not an official plugin</b> — all <b>danger</b>, then the one that is registered but failing, <b>runtime error</b>, in <b>warning</b>. Each row keeps one recipe: avatar · name · reason label · severity dot. The label is text, so it takes the <b>-raised</b> ink of its severity for every reason (plain accent-danger is 4.46:1 on Latte mantle). The dot and the selection edge keep the plain accent. One action per reason: Register anyway (both signature reasons) · Remove (not an official plugin) · Configure (runtime error).</>}>
+        <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
+          {THEMES.map(([label, attr]) => (
+            <Themed key={label} attr={attr}>
+              <span style={cap}>{label} · list, first row selected</span>
+              <AttnList />
+              <span style={cap}>{label} · list, runtime error selected</span>
+              <AttnList selected={3} />
+            </Themed>
+          ))}
+          <Themed>
+            <span style={cap}>Mocha · ko / ja length</span>
+            <AttnList lang="ko" selected={-1} /><AttnList lang="ja" selected={-1} />
+          </Themed>
+        </Stage>
+        <Meta
+          specs={[["reasons", "signature not trusted · signature invalid · not an official plugin (danger, not registered) · runtime error (warning, registered)"], ["order", "not registered first, then failing — the kit list order"], ["row", "avatar sm · name 13 · label micro in the reason ink · status dot · selected = surface-active + selection edge in the plain accent"], ["label ink", "accent-danger-raised / accent-warning-raised for every reason; text-on-active when selected"], ["status text", "Not registered (three danger reasons) · Needs review (runtime error) — same -raised ink"], ["action", "Register anyway · Remove · Configure — one per reason, no Re-approve"], ["badges", "the tab and sidebar badges count all four reasons"]]}
+          tokens={[{ tok: "--tasty-accent-danger-raised", use: "danger label · status text", color: "var(--tasty-accent-danger-raised)" }, { tok: "--tasty-accent-warning-raised", use: "warning label · status text · runtime error banner title", color: "var(--tasty-accent-warning-raised)" }, { tok: "--tasty-accent-danger", use: "dot · selection edge", color: "var(--tasty-accent-danger)" }, { tok: "--tasty-accent-warning", use: "dot · selection edge", color: "var(--tasty-accent-warning)" }]} />
+        <Note>Labels are the existing keys (<code>plugins.attn_unknown_key_label</code> · <code>attn_sig_invalid_label</code> · <code>attn_reserved_id_label</code> · <code>attn_health_label</code>); ko / ja above are the meaning reference. No new key.</Note>
+      </Spec>
+
       <Spec id="plugin-reserved-id" title="Needs attention › reserved id — not an official plugin, remove only"
-        when={<>A folder in the plugins folder whose id starts with <code>com.tasty.</code> but is not on the official id list is never registered. It sits in <b>Needs attention</b> as a fifth reason, <b>danger</b>, counted in the Attention tab badge and the sidebar plugin badge like the other unregistered reasons. Its only action is <b>Remove</b>: no Register anyway, Re-approve or Configure. The detail shows only what Tasty itself knows — the <b>folder name</b> as the title and the <b>id</b> on the meta line. The manifest name, version, author, homepage and description are not shown (a muted line says the description is hidden), because an unofficial <code>com.tasty.*</code> manifest can word itself as Tasty. The banner states the fact without calling it malicious. Remove is a secondary button with danger ink (the Installed Uninstall recipe), never focused by selecting the row; clicking it replaces the bar with a confirm in place (Cancel holds focus, Esc cancels, changing the selection cancels). Confirming deletes the folder and the row leaves the list. The arrival notice stays, with its own copy.</>}>
+        when={<>A folder in the plugins folder whose id starts with <code>com.tasty.</code> but is not on the official id list is never registered. It sits in <b>Needs attention</b> as the fourth reason (2026-11-17: permissions changed is gone, so the reasons are signature not trusted · signature invalid · not an official plugin · runtime error — see <b>Needs attention — four reasons</b> below), <b>danger</b>, counted in the Attention tab badge and the sidebar plugin badge like the other unregistered reasons. Its only action is <b>Remove</b>: no Register anyway or Configure. The detail shows only what Tasty itself knows — the <b>folder name</b> as the title and the <b>id</b> on the meta line. The manifest name, version, author, homepage and description are not shown (a muted line says the description is hidden), because an unofficial <code>com.tasty.*</code> manifest can word itself as Tasty. The banner states the fact without calling it malicious. Remove is a secondary button with danger ink (the Installed Uninstall recipe), never focused by selecting the row; clicking it replaces the bar with a confirm in place (Cancel holds focus, Esc cancels, changing the selection cancels). Confirming deletes the folder and the row leaves the list. The arrival notice stays, with its own copy.</>}>
         <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
           {THEMES.map(([label, attr]) => (
             <Themed key={label} attr={attr}>
@@ -368,14 +422,14 @@ function PluginTrustSpecs() {
           </Themed>
         </Stage>
         <Meta
-          specs={[["reason", "fifth AttentionKind · danger (dot, selection edge, banner tint) · list label in accent-danger-raised (accent-danger is 4.46:1 on Latte mantle) · counted in the tab + sidebar badges"], ["identity", "avatar from the folder name initial · title = folder name · meta = id only (no author, homepage, version tag)"], ["description", "always hidden · caption text-muted line (same recipe as signature invalid)"], ["banner", "danger tint box (fill + border alpha tokens) · alertCircle 16 in plugin-trust-glyph-danger · title text-primary · body plugin-trust-body-fg"], ["detail", "label header Folder · full path, caption text-muted, break-all, selectable · no Open folder"], ["bar · rest", "danger dot + Not registered (reused) · Remove secondary + accent-danger-raised ink · no auto focus"], ["bar · confirm", "alertTriangle 16 attention-raised · Remove {folder}? body text-primary · note caption muted · Cancel ghost (focus) · Remove danger · wraps on narrow"], ["bar · removing", "Cancel + Remove disabled · Spinner 14 + Removing… caption muted"], ["after remove", "row leaves the list · badges drop by one · toast Removed '{folder}'. · failure toast Remove failed: {reason}, bar back to rest"], ["notice", "warning level · once per newly seen folder (unchanged behaviour) · new title + body keys"]]}
+          specs={[["reason", "fourth AttentionKind (2026-11-17) · danger (dot, selection edge, banner tint) · list label in accent-danger-raised (accent-danger is 4.46:1 on Latte mantle) · counted in the tab + sidebar badges"], ["identity", "avatar from the folder name initial · title = folder name · meta = id only (no author, homepage, version tag)"], ["description", "always hidden · caption text-muted line (same recipe as signature invalid)"], ["banner", "danger tint box (fill + border alpha tokens) · alertCircle 16 in plugin-trust-glyph-danger · title text-primary · body plugin-trust-body-fg"], ["detail", "label header Folder · full path, caption text-muted, break-all, selectable · no Open folder"], ["bar · rest", "danger dot + Not registered (reused) · Remove secondary + accent-danger-raised ink · no auto focus"], ["bar · confirm", "alertTriangle 16 attention-raised · Remove {folder}? body text-primary · note caption muted · Cancel ghost (focus) · Remove danger · wraps on narrow"], ["bar · removing", "Cancel + Remove disabled · Spinner 14 + Removing… caption muted"], ["after remove", "row leaves the list · badges drop by one · toast Removed '{folder}'. · failure toast Remove failed: {reason}, bar back to rest"], ["notice", "warning level · once per newly seen folder (unchanged behaviour) · new title + body keys"]]}
           tokens={[{ tok: "--tasty-accent-danger", use: "dot · selection edge · banner tint", color: "var(--tasty-accent-danger)" }, { tok: "--tasty-accent-danger-raised", use: "list label · status text · Remove ink", color: "var(--tasty-accent-danger-raised)" }, { tok: "--tasty-plugin-trust-glyph-danger", use: "banner glyph", color: "var(--tasty-plugin-trust-glyph-danger)" }, { tok: "--tasty-plugin-trust-title-fg", use: "banner title", color: "var(--tasty-plugin-trust-title-fg)" }, { tok: "--tasty-plugin-trust-body-fg", use: "banner body", color: "var(--tasty-plugin-trust-body-fg)" }, { tok: "--tasty-accent-attention-raised", use: "confirm glyph (as Installed)", color: "var(--tasty-accent-attention-raised)" }]} />
         <Note>English is the source copy; ko / ja above are the meaning reference. Keys (all new unless marked): <code>plugins.attn_reserved_id_label</code> · <code>plugins.attn_reserved_id_blurb</code> · <code>plugins.attn_reserved_desc_hidden</code> · <code>plugins.attn_folder</code> · <code>plugins.attn_not_registered</code> (reused) · <code>plugins.attn_remove</code> · <code>plugins.attn_remove_confirm_title</code> · <code>plugins.attn_remove_note</code> · <code>plugins.attn_removing</code> · <code>plugins.attn_removed</code> (“Removed '{}'.” / “'{}'을(를) 제거했습니다.” / “'{}' を削除しました。”) · <code>plugins.attn_remove_failed</code> (“Remove failed: {}” / “제거 실패: {}” / “削除に失敗しました: {}”) · <code>plugin_notice.reserved_id_title</code> · <code>plugin_notice.reserved_id_body</code>. The notice stops reusing <code>start_failed_title</code> and the raw English reason.</Note>
         <Note><b>Why not the Uninstall confirm.</b> The plugin was never installed or registered, so the verb is <b>Remove</b>, and the Installed note (“Settings stay until you delete them”) would promise settings that an unregistered id may not have. The confirm keeps the Installed layout and only swaps the copy.</Note>
-        <Dont><b>Don't</b> show the manifest's own name, author, homepage or description here, don't offer Register anyway, Re-approve, Configure or Open folder, and don't call the plugin malicious — the copy states what Tasty checked.</Dont>
+        <Dont><b>Don't</b> show the manifest's own name, author, homepage or description here, don't offer Register anyway, Configure or Open folder, and don't call the plugin malicious — the copy states what Tasty checked.</Dont>
       </Spec>
     </>
   );
 }
 
-export { TrustBox2, PluginTrustSpecs, ReservedDetail, ReservedRow, RESERVED };
+export { TrustBox2, PluginTrustSpecs, ReservedDetail, ReservedRow, RESERVED, AttnList, ATTN_REASONS };

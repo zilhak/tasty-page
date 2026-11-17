@@ -79,6 +79,11 @@ const ATTN = {
     blurb: "Registration was rejected because its id uses the com.tasty. prefix, which is reserved for official Tasty plugins, and this is not one of them. You can only remove it." },
 };
 const SEV_COLOR = { danger: "var(--tasty-accent-danger)", warning: "var(--tasty-accent-warning)" };
+// 2026-11-17 — four reasons (unknown key · signature invalid · reserved id · runtime error). TEXT in the
+// severity colour (list label, banner title, status text) takes the -raised ink for every reason, as the
+// reserved-id label already did: plain accent-danger is 4.46:1 on Latte mantle and accent-warning far less.
+// Dots, the selection edge and banner tints keep SEV_COLOR.
+const SEV_INK = { danger: "var(--tasty-accent-danger-raised)", warning: "var(--tasty-accent-warning-raised)" };
 
 // Rejected / unregistered plugins — these never made it into the installed list.
 const ATTENTION_LIST = [
@@ -426,6 +431,7 @@ function AttentionPanel({ items, onFlash, onConfigure, onRemove }) {
 
   const meta = sel && ATTN[sel.reason];
   const c = sel && SEV_COLOR[meta.sev];
+  const ink = sel && SEV_INK[meta.sev];
   return (
     <React.Fragment>
       {/* list */}
@@ -444,7 +450,7 @@ function AttentionPanel({ items, onFlash, onConfigure, onRemove }) {
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: 13, color: on ? "var(--tasty-text-on-active)" : "var(--tasty-text-secondary)",
                   overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.name}</div>
-                <div style={{ fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-micro)", color: on ? "var(--tasty-text-on-active)" : ATTN[p.reason].removeOnly ? "var(--tasty-accent-danger-raised)" : pc,
+                <div style={{ fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-micro)", color: on ? "var(--tasty-text-on-active)" : SEV_INK[ATTN[p.reason].sev],
                   overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{ATTN[p.reason].label}</div>
               </div>
               <span style={{ flex: "none", width: "var(--tasty-status-dot-size)", height: "var(--tasty-status-dot-size)", borderRadius: "50%", background: pc }} />
@@ -502,7 +508,7 @@ function AttentionPanel({ items, onFlash, onConfigure, onRemove }) {
             borderRadius: "var(--tasty-radius)", color: "var(--tasty-text-secondary)",
             background: `color-mix(in srgb, ${c} 11%, transparent)`,
             border: `1px solid color-mix(in srgb, ${c} 36%, transparent)` }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", color: c, fontSize: 13, fontWeight: 600 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", color: ink, fontSize: 13, fontWeight: 600 }}>
               <Icon name={meta.sev === "danger" ? "alertCircle" : "alertTriangle"} size={16} />
               <span>{meta.label}</span>
             </div>
@@ -547,7 +553,7 @@ function AttentionPanel({ items, onFlash, onConfigure, onRemove }) {
             <RemoveReserved item={sel} confirming={confirmId === sel.id} busy={removing} onBusy={setRemoving} onConfirm={() => setConfirmId(sel.id)}
               onCancel={() => setConfirmId(null)} onRemove={(it) => { setConfirmId(null); onRemove && onRemove(it); }} onFlash={onFlash} />
           ) : (<>
-          <span style={{ fontSize: 12, color: c, display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-sm)" }}>
+          <span style={{ fontSize: 12, color: ink, display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-sm)" }}>
             <span style={{ width: "var(--tasty-status-dot-size)", height: "var(--tasty-status-dot-size)", borderRadius: "50%", background: c }} />
             {meta.sev === "danger" ? "Not registered" : "Needs review"}
           </span>
