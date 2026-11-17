@@ -1,4 +1,4 @@
-<!-- source-hash: 008615b26a65 -->
+<!-- source-hash: b492f31592f1 -->
 # Panes, tabs, and splits
 
 Tasty’s pane splits create areas with independent tab switching, while surface splits divide views that stay together within one tab. Choose either level to build the layout you need.
@@ -60,6 +60,8 @@ A Tab's name is decided in this order of priority — a name you set yourself > 
 - Right-click a Tab > **Rename Tab**, or `F2`. Once set, it does not change when you move directories.
 - **Green dot** — a program other than the shell is producing output. It disappears while waiting at a prompt or when the program is idle. Output that only changes the terminal title does not count, so the dot also disappears for a program that blinks its title while it waits for input (for example, Codex waiting on a question).
 - **Yellow name** — the program is waiting for input. **Blue name** — a job finished. Click that Surface and it returns to its normal color.
+
+The tab rename popup opens within the tab’s pane, including the tab bar. Renaming another tab in the same pane changes only the target, keeping the popup in place. Closing the pane also closes the popup.
 
 Tab width and font size have no entry in the settings window; change them with `tab_width` · `tab_font_size` under `[appearance]` in `~/.tasty/config.toml`.
 
@@ -162,6 +164,8 @@ Open **Tools** > **Presets** in the sidebar and the **Layout Presets** window ap
 - Right-click the **New Workspace** button > **Create workspace from preset...**.
 - Right-click the tab strip `+` > **Create tab from preset...** / **Create pane from preset...**.
 - The three shortcuts such as **Apply workspace preset** are empty by default. Once assigned, they open a selection popup. If the same preset application popup is requested for another target while open, the existing popup closes and reopens for the new target.
+
+The tab preset application popup opens within the pane containing that tab and closes when either the target tab or its pane closes. The pane preset application popup opens in the center of the window. It is hidden when you switch to another workspace and reappears when you return. Closing the target pane also closes the popup.
 
 If a terminal cell has a startup command, one line is entered as soon as the shell starts.
 

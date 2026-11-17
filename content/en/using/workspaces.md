@@ -1,4 +1,4 @@
-<!-- source-hash: ca164c155008 -->
+<!-- source-hash: 529cc6cc07a5 -->
 # Workspaces
 
 Tasty’s workspaces group terminals and layouts by project or task, organized by name and category and switched from the sidebar.
@@ -28,6 +28,8 @@ The default name is a sequence number such as `Workspace 1`. Right-click the sid
 
 - **Rename** — shortcut `F3`.
 - **Change Subtitle** — the small text under the card. Shortcut `F4`.
+
+Renaming a workspace or changing its subtitle while you are viewing another workspace opens an input popup immediately in the center of the current window without switching workspaces. The popup stays visible when you switch to another workspace.
 
 ```sh
 tasty set workspace --id 3 --name api --subtitle "port 8080"
@@ -74,7 +76,7 @@ get a notice instead. Someone is working in that terminal right now, and closing
 end their session without warning. To take it back, press **Force detach** on the occupancy
 badge, then close again. If you would rather not switch to that Workspace, right-click its
 sidebar card instead — a **Force detach** item appears only while it is occupied, and it
-goes through a confirmation first. If the same confirmation popup is requested for another workspace while open, the existing popup closes and reopens for the new target.
+opens a confirmation popup immediately in the center of the current window without switching to that workspace. The popup stays visible when you switch to another workspace. Requesting force detach for another workspace while the popup is open closes the existing popup and reopens it for the new target.
 
 Press `Ctrl+Shift+T` to restore workspaces, panes, tabs, and surfaces you closed, starting with the most recent item. Tasty keeps up to 10 records and retains them when the same layout slot is resumed normally. Terminal history is restored according to the content restoration setting. Shells start again, and saved session resume commands run when present. Items closed through the CLI are not added to this list.
 

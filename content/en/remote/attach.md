@@ -1,4 +1,4 @@
-<!-- source-hash: 6832dd0c0d68 -->
+<!-- source-hash: 61a4d22a5b6e -->
 <a id="remote-attach"></a>
 
 # Working remotely (attach)
@@ -230,7 +230,7 @@ Right-click a saved remote row for these actions:
 
 - **Disconnect** — Ends the connection and any ongoing connection or reconnect attempt, keeping the row. The remote workspace and programs keep running, and input becomes available on the remote side again. Explicitly connect the row to use it again.
 - **Close locally** — Removes the row from this Tasty and cancels ongoing connection attempts, keeping the remote workspace and programs. The close-workspace shortcut also closes a saved row locally.
-- **Close remote workspace…** — While connected, opens a confirmation dialog before ending the remote workspace and all its programs. This cannot be undone; success also removes the saved row. Manually closing a connected saved row's last tab, pane, or surface also asks you to confirm the remote close. Agent close requests run without confirmation.
+- **Close remote workspace…** — While connected, opens a confirmation popup before ending the remote workspace and all its programs. Choosing this for a workspace you are not viewing opens the popup immediately in the center of the current window without switching to that workspace. The popup stays visible when you switch to another workspace. This cannot be undone; success also removes the saved row. Manually closing a connected saved row's last tab, pane, or surface also asks you to confirm the remote close. Agent close requests run without confirmation.
 
 An unsaved mirror attached through the CLI has **Disconnect Workspace** and **Close Workspace** in its card menu. The former removes your mirror while keeping remote work running; the latter ends the remote workspace and programs. Closing its last tab, pane, or surface also closes the remote workspace. Closing the last remote workspace creates a new terminal workspace in the remote window.
 
