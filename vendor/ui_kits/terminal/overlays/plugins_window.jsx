@@ -72,7 +72,7 @@ const ATTN = {
   "signature-invalid":  { sev: "danger",  label: "Signature invalid", unverified: "signature-error",
     blurb: "Signature missing or failed verification. Not registered — you can register it anyway." },
   "health-error":       { sev: "warning", label: "Runtime error",
-    blurb: "Enabled, but failing at runtime." },
+    blurb: "Enabled, but failing at runtime. See the log for details." },
   // 2026-11-08 (plugin-attention-unknown-official-id): a com.tasty.* id that is not on the official list.
   // Never registered; the only action is Remove. Identity = folder name + id (no manifest text).
   "reserved-id":        { sev: "danger",  label: "Not an official plugin", removeOnly: true,
@@ -536,12 +536,13 @@ function AttentionPanel({ items, onFlash, onConfigure, onRemove }) {
             </div>
           )}
 
-          {sel.reason === "health-error" && sel.detail.error && (
-            <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
-              <Mono>Error</Mono>
-              <pre style={{ margin: 0, background: "var(--tasty-bg-app)", border: "var(--tasty-border-width) solid var(--tasty-separator)",
-                borderRadius: "var(--tasty-radius)", padding: "var(--tasty-space-md) var(--tasty-space-md)", fontFamily: "var(--tasty-font-mono)",
-                fontSize: 12, lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-accent-danger-raised)", whiteSpace: "pre-wrap" }}>{sel.detail.error}</pre>
+          {/* 2026-11-17: the runtime-error detail shows where the log is, not an error message. Header "Log"
+              (plugins.attn_error), path in the same muted, selectable mono as Folder above and the Installed "Log:" line. */}
+          {sel.reason === "health-error" && sel.detail.logPath && (
+            <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", minWidth: 0 }}>
+              <Mono>Log</Mono>
+              <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)",
+                wordBreak: "break-all", userSelect: "text" }}>{sel.detail.logPath}</span>
             </div>
           )}
         </div>
@@ -621,7 +622,7 @@ function PluginsWindow({ onClose, onFlash, onConfigure, removedAttention, onRemo
     .filter((p) => installed[p.id] && enabled[p.id] && p.status === "error")
     .map((p) => ({ id: p.id, name: p.name, author: p.author, version: p.version, cat: p.cat,
       reason: "health-error", desc: p.desc,
-      detail: { error: "Failed to reach the configured cluster at https://10.0.4.11:6443\nkubeconfig context \"prod\" — connection refused" } }));
+      detail: { logPath: `/home/tasty/.local/state/tasty/plugins/${p.id}/plugin.log` } }));
   const attention = [...ATTENTION_LIST.filter((p) => !removed.includes(p.id)), ...healthErrors];
   const attentionCount = attention.length;
 
