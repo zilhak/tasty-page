@@ -47,43 +47,21 @@ function FpLineG({ value }) {
     </div>
   );
 }
-function AddBarG({ blocked, trusted = true, perms = 3 }) {
-  // 2026-10-06: "unsigned-no-key" → "missing-pubkey" (the state IS signed; only the .pub is missing / unreadable)
-  const why = { installed: "Already installed", "missing-pubkey": "Signed, but the publisher's public key file is missing", "signature-error": "Signature check failed" }[blocked];
-  const grants = perms === 0 ? "No permissions" : perms === 1 ? "Grants 1 permission" : "Grants " + perms + " permissions";
+function AddBarG({ blocked }) {
+  // 2026-11-17 (plugin permissions removed): the left holds only a blocked reason; otherwise it is empty.
+  // Untrusted verdicts and their danger "Add anyway" bar live in plugin-trust.jsx (Unverified plugin spec).
+  const why = { installed: "Already installed" }[blocked];
   return (
     <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-size-14)", borderTop: "var(--tasty-border-width) solid var(--tasty-separator)", background: "var(--tasty-bg-panel)" }}>
-      <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{why || grants}</span>
-      <div style={{ flex: 1 }} />
+      {why ? <span style={{ flex: "1 1 auto", minWidth: 0, fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{why}</span> : <div style={{ flex: 1 }} />}
       <Button variant="ghost">Cancel</Button>
-      {blocked ? <Button variant="primary" disabled>Add plugin</Button> : trusted ? <Button variant="primary">Add plugin</Button> : <Button variant="primary">Trust &amp; add</Button>}
+      <Button variant="primary" disabled={!!blocked}>Add plugin</Button>
     </div>
   );
 }
-// 2026-10-06 static specimen of plugins_window.jsx TrustBox (same copy + recipe)
-const TRUST_G = {
-  "unknown-key":         ["warning", "alertTriangle", "Unverified publisher", "This plugin isn't signed by a key in your trust store. It runs with the permissions above on every launch — review them, and only add plugins from sources you trust. Adding it also trusts this key."],
-  "permissions-changed": ["warning", "alertTriangle", "Permissions changed", "This publisher is trusted, but this version asks for permissions the trusted version did not have. Review the list above; adding it trusts the new set."],
-  "missing-pubkey":      ["danger", "alertCircle", "Public key file missing", "The manifest is signed by a key that isn't in your trust store, and tasty-plugin.toml.pub is missing or unreadable, so the key can't be added. Ask the publisher for this public key file."],
-  "signature-error":     ["danger", "alertCircle", "Signature check failed", "The signature could not be verified. The plugin can't be added until the publisher ships a valid signature."],
-};
+// 2026-10-19: the trust box is one copy in plugin-trust.jsx (TrustBox2); this name stays for the specs below.
 function TrustBoxG({ kind }) {
-  // 2026-10-19: the trust box moved to the unverified-warning recipe — one copy in overlays-windows-plugin-trust.jsx
-  if (true) return <OverlaysWindowsPluginTrust_TrustBox2 kind={kind} />;
-  const [tone, glyph, title, body] = kind === "trusted" ? ["success"] : TRUST_G[kind];
-  const acc = "var(--tasty-accent-" + tone + ")";
-  const box = { display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-size-14)", borderRadius: "var(--tasty-radius)", color: "var(--tasty-text-secondary)",
-    background: "color-mix(in srgb, " + acc + " calc(var(--tasty-tint-fill-alpha) * 100%), transparent)", border: "var(--tasty-border-width) solid color-mix(in srgb, " + acc + " calc(var(--tasty-tint-border-alpha) * 100%), transparent)" };
-  if (kind === "trusted") return (
-    <div style={{ ...box, flexDirection: "row", alignItems: "center", color: acc, fontSize: "var(--tasty-font-size-term-sm)" }}><WIcon name="shieldCheck" size={16} /><span>Signed by a <b>trusted publisher</b> — its key is in your trust store.</span></div>
-  );
-  return (
-    <div style={box}>
-      <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", color: acc, fontSize: 13, fontWeight: 600 }}><WIcon name={glyph} size={16} /><span>{title}</span></div>
-      <p style={{ margin: 0, fontSize: "var(--tasty-font-size-term-sm)", lineHeight: "var(--tasty-line-height-ui)" }}>{body}</p>
-      {kind !== "signature-error" && <FpLineG value="9f2c 4ad1 b770 e3a6  ·  ed25519" />}
-    </div>
-  );
+  return <OverlaysWindowsPluginTrust_TrustBox2 kind={kind} />;
 }
 function ExtMapG({ draft = "", detectors = true, custom = false, missing = false, long = false, pendingRemove = false, pendingReset = false }) {
   // 2026-10-06 (b2) — pending (draft) state: the button that changed the draft becomes Undo in the same slot,
@@ -1483,35 +1461,32 @@ function Page() {
           <Dont><b>Don't</b> mix the tint into the row background to "blend" on a selected row — the mark would then shift colour with row state and stop being a stable identity. And don't re-derive the initial's size from the box (<code>round(size × 0.42)</code>): that produced 19px at lg, off the type scale and over the UI cap with no decision behind it.</Dont>
         </Spec>
         <Spec id="copy-fingerprint-add-plugin-that-can-t-be-added" title="Copy fingerprint · Add plugin that can't be added"
-          when={<><b>Copy fingerprint</b> moves out of the action bar: an <b>IconButton sm</b> <code>copy</code> right after the mono fingerprint, in Attention and in the Add plugin manifest card alike. No fingerprint → no line and no button (nothing to copy, so no disabled state). Attention's action bar has <b>no Details</b> for signature reasons (2026-10-06): the reason panel already shows the blurb and the fingerprint. <b>Add plugin</b> on a verified manifest that can't be added (already installed · signed but the public key file is missing · signature error) stays in its slot <b>disabled</b> — the variant it would have had, drawn with the shared disabled ink — and the reason replaces "Grants N permissions" on the left of the bar.</>}>
+          when={<><b>Copy fingerprint</b> moves out of the action bar: an <b>IconButton sm</b> <code>copy</code> right after the mono fingerprint, in Attention and in the Add plugin manifest card alike. No fingerprint → no line and no button (nothing to copy, so no disabled state). Attention's action bar has <b>no Details</b> for signature reasons (2026-10-06): the reason panel already shows the blurb and the fingerprint. <b>Add plugin</b> on a verified manifest that can't be added (already installed · signed but the public key file is missing · signature error) stays in its slot <b>disabled</b> — the variant it would have had, drawn with the shared disabled ink — and the reason sits on the left of the bar. <b>2026-11-17</b>: plugin permissions are gone, so the "Grants N permissions" line is gone too — when Add is not blocked the left of the bar is <b>empty</b> and the buttons keep their right-aligned slot.</>}>
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
             <ThemePair>
               <FpLineG value="a13c 4e7f 2b08 9d51  ·  ed25519" />
               <div style={{ width: "var(--tasty-size-560)", maxWidth: "100%", display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
                 <AddBarG />
-                <AddBarG trusted={false} />
                 <AddBarG blocked="installed" />
-                <AddBarG perms={1} />
-                <AddBarG perms={0} />
               </div>
             </ThemePair>
           </Stage>
           <Meta
-            specs={[["copy fingerprint", "IconButton sm copy · after the value · absent without a fingerprint"], ["attention bar", "no Details (2026-10-06) — the reason panel already shows the blurb + fingerprint"], ["add — blocked", "disabled Add plugin · reason on the left"], ["reasons", "Already installed (2026-10-19: missing .pub / signature error are addable now — Add anyway)"], ["untrusted + .pub", "Trust & add — Primary (agent is for AI-agent surfaces only)"], ["grants", "No permissions · Grants 1 permission · Grants N permissions"]]}
+            specs={[["copy fingerprint", "IconButton sm copy · after the value · absent without a fingerprint"], ["attention bar", "no Details (2026-10-06) — the reason panel already shows the blurb + fingerprint"], ["add — blocked", "disabled Add plugin · reason on the left"], ["reasons", "Already installed (2026-10-19: missing .pub / signature error are addable now — Add anyway)"], ["add — not blocked (2026-11-17)", "left empty (no summary line) · Cancel ghost · Add plugin primary · bar height unchanged"], ["unverified", "danger Add anyway / Trust key & add anyway — see Unverified plugin below"]]}
             tokens={[{ tok: "--tasty-state-disabled-fg", use: "disabled ink", color: "var(--tasty-state-disabled-fg)" }, { tok: "--tasty-text-muted", use: "reason", color: "var(--tasty-text-muted)" }]} />
         </Spec>
-        <Spec id="add-plugin-trust-judgment-six-kinds" title="Add plugin — trust judgment, six kinds"
-          when={<>One box under the manifest card, toned by <b>what Add will do</b>: <b>success</b> — adds as is; <b>warning</b> — adds, and adding trusts the key (unknown key) or the new permission set (permissions changed); <b>danger</b> — unverified (2026-10-19: no longer blocked; explicit <b>Add anyway</b>, see the next spec). The fingerprint line follows the body whenever a fingerprint exists (signature errors have none). Untrusted-but-addable uses <b>Trust &amp; add</b> in <b>Primary</b>: the agent variant is reserved for AI-agent surfaces.</>}>
+        <Spec id="add-plugin-trust-judgment-six-kinds" title="Add plugin — trust judgment, five kinds"
+          when={<>One box under the manifest card, toned by <b>what Add will do</b>: <b>success</b> — adds as is; <b>danger</b> — unverified (2026-10-19: no longer blocked; explicit <b>Add anyway</b>, see the next spec). <b>2026-11-17</b>: plugin permissions are gone, so <b>permissions changed</b> and its Trust &amp; add are gone and no kind is warning-toned. Order: trusted, then the four unverified kinds in cause order (unknown key · public key file missing · unsigned · signature error). The fingerprint line follows the body whenever a fingerprint exists (unsigned and signature errors have none).</>}>
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
             <ThemePair>
               <div style={{ width: "var(--tasty-size-560)", maxWidth: "100%", display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
-                {["trusted", "permissions-changed", "unknown-key", "missing-pubkey", "unsigned", "signature-error"].map((k) => <TrustBoxG key={k} kind={k} />)}
+                {["trusted", "unknown-key", "missing-pubkey", "unsigned", "signature-error"].map((k) => <TrustBoxG key={k} kind={k} />)}
               </div>
             </ThemePair>
           </Stage>
           <Meta
-            specs={[["tone", "success add · warning add + trust · danger blocked"], ["box", "tint-fill + tint-border of the tone · pad space-md / 14 · radius"], ["title", "glyph 16 + 13/600 in the tone"], ["body", "term-sm · text-secondary"], ["fingerprint", "after the body · absent for signature-error"], ["installed", "trust box as judged · bar reason 'Already installed' only (no second notice)"], ["Attention › signature invalid", "no fingerprint line (the signature it would identify is the broken part)"], ["homepage", "mono caption row 'Homepage' under Source · link text, opens the default browser"], ["homepage link (b2)", "text-secondary · 1px underline always · hover text-primary · focus = focus ring · pointer cursor (no accent: the row sits on surface-raised and text-secondary already clears 4.5:1)"], ["authors", "id · first author · +N (tooltip lists all)"], ["empty lists", "Permissions / Surface kinds: 'None' in text-muted, no Tag · font-size-caption (same as the mono caption rows it replaces)"], ["long fingerprint (b2)", "colon-hex over 16 bytes → first 8 + ' … ' + last 8 bytes, one line; tooltip + copy = full value"], ["Signature invalid (b2)", "header kept · fixed note 'The signature does not match this plugin's files.' · cause (key missing / mismatch …) as a mono caption text-muted line under it"], ["action-bar left text (b2)", "font-size-caption — the kit's 12 is corrected"], ["flow (b2)", "kit structure: path input, preview card directly under it, no 'Plugin information' title / second step"]]}
-            tokens={[{ tok: "--tasty-tint-fill-alpha", use: "box fill" }, { tok: "--tasty-tint-border-alpha", use: "box edge" }, { tok: "--tasty-accent-warning", use: "add + trust", color: "var(--tasty-accent-warning-raised)" }, { tok: "--tasty-accent-danger", use: "blocked", color: "var(--tasty-accent-danger-raised)" }, { tok: "--tasty-accent-success", use: "trusted", color: "var(--tasty-accent-success-raised)" }]} />
+            specs={[["tone", "success add · danger unverified (explicit Add anyway) · no warning kind (2026-11-17)"], ["box", "tint-fill + tint-border of the tone · pad space-md / 14 · radius"], ["title", "glyph 16 + 13/600 in the tone"], ["body", "term-sm · text-secondary"], ["fingerprint", "after the body · absent for signature-error"], ["installed", "trust box as judged · bar reason 'Already installed' only (no second notice)"], ["Attention › signature invalid", "no fingerprint line (the signature it would identify is the broken part)"], ["homepage", "mono caption row 'Homepage' under Source · link text, opens the default browser"], ["homepage link (b2)", "text-secondary · 1px underline always · hover text-primary · focus = focus ring · pointer cursor (no accent: the row sits on surface-raised and text-secondary already clears 4.5:1)"], ["authors", "id · first author · +N (tooltip lists all)"], ["empty lists", "Surface kinds (the only Tag list since 2026-11-17): 'None' in text-muted, no Tag · font-size-caption (same as the mono caption rows it replaces)"], ["long fingerprint (b2)", "colon-hex over 16 bytes → first 8 + ' … ' + last 8 bytes, one line; tooltip + copy = full value"], ["Signature invalid (b2)", "header kept · fixed note 'The signature does not match this plugin's files.' · cause (key missing / mismatch …) as a mono caption text-muted line under it"], ["action-bar left text (b2)", "font-size-caption — the kit's 12 is corrected"], ["flow (b2)", "kit structure: path input, preview card directly under it, no 'Plugin information' title / second step"]]}
+            tokens={[{ tok: "--tasty-tint-fill-alpha", use: "box fill" }, { tok: "--tasty-tint-border-alpha", use: "box edge" }, { tok: "--tasty-accent-danger", use: "unverified", color: "var(--tasty-accent-danger-raised)" }, { tok: "--tasty-accent-success", use: "trusted", color: "var(--tasty-accent-success-raised)" }]} />
         </Spec>
         {<OverlaysWindowsPluginTrust_PluginTrustSpecs />}
         <Spec id="add-plugin-dashed-empty-hint-manifest-read-error" title="Add plugin — dashed empty hint · manifest read error"
@@ -1543,7 +1518,7 @@ function Page() {
           <Note>The same dash pair draws the Scripts <b>Add trigger…</b> control (Misc › Scripts). Strings: <code>plugins.add.read_error</code> “Can't read tasty-plugin.toml” · <code>plugins.add.invalid</code> “tasty-plugin.toml is not valid”.</Note>
         </Spec>
         <Spec id="installed-detail-install-path-log-path-open-folder" title="Installed detail — install path · log path · Open folder"
-          when={<>Last section of the installed detail, after Command (identity · description · error · Permissions · Command · <b>Install path</b>). <b>Open folder</b> moves to the <b>caption row</b>, right-aligned, so the path never competes with it for width: at the 720 minimum and the 880 default the button is always whole. The install path and the log path are mono caption muted, <b>wrap at any character</b> and stay selectable, so nothing is cut and no tooltip is needed.</>}>
+          when={<>Last section of the installed detail, after Command and Surface kinds (identity · description · error · Command · Surface kinds · <b>Install path</b>; Permissions left on 2026-11-17 and nothing replaces it — the column gap 16 is the only spacing between sections). <b>Open folder</b> moves to the <b>caption row</b>, right-aligned, so the path never competes with it for width: at the 720 minimum and the 880 default the button is always whole. The install path and the log path are mono caption muted, <b>wrap at any character</b> and stay selectable, so nothing is cut and no tooltip is needed.</>}>
           <Stage variant="grid" style={{ display: "flex", flexWrap: "wrap", gap: 16, padding: 20, alignItems: "flex-start" }}>
             <div style={{ width: 380, boxSizing: "border-box", padding: 16, display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)",
                 border: "var(--tasty-border-width) solid var(--tasty-border-default)", background: "var(--tasty-bg-panel)" }}>
@@ -1567,7 +1542,7 @@ function Page() {
               </div>
           </Stage>
           <Meta
-            specs={[["order", "… Permissions · Command · Install path"], ["caption row", "INSTALL PATH (label 10 caps) · flex · Open folder"], ["Open folder", "Button secondary sm · folder icon · opens the OS file manager"], ["path", "mono caption 11 · text-muted · break-all · selectable"], ["log", "same style, “Log: ” prefix, own line"], ["widths", "left 380 ≈ 720 window · right 540 ≈ 880 window"], ["shown", "installed plugins only"]]}
+            specs={[["order", "… error · Command · Surface kinds (when any) · Install path"], ["section gap", "16 (column gap) — no extra space where Permissions was"], ["caption row", "INSTALL PATH (label 10 caps) · flex · Open folder"], ["Open folder", "Button secondary sm · folder icon · opens the OS file manager"], ["path", "mono caption 11 · text-muted · break-all · selectable"], ["log", "same style, “Log: ” prefix, own line"], ["widths", "left 380 ≈ 720 window · right 540 ≈ 880 window"], ["shown", "installed plugins only"]]}
             tokens={[{ tok: "--tasty-text-muted", use: "path text", color: "var(--tasty-text-muted)" }, { tok: "--tasty-font-size-caption", use: "11 path" }, { tok: "--tasty-space-sm", use: "8 row gap" }]} />
         </Spec>
         <Spec id="installed-detail-command-keycaps-per-platform" title="Installed detail — command keycaps per platform"

@@ -28,35 +28,35 @@ const PLUGIN_LIST = [
     installed: true, status: "running", agent: false, installs: "126k", rating: "4.9", builtin: true,
     homepage: "https://github.com/zilhak/tasty-git-helper", kinds: ["git-blame", "git-branches"],
     desc: "Inline git status, blame, and one-key staging inside any terminal surface. Adds a gutter ribbon and a compact branch switcher to the tab strip.",
-    perms: ["fs:read", "clipboard", "ipc:git-helper.*"], cmd: "git-helper: open panel", key: "Ctrl+Alt+G" },
+    cmd: "git-helper: open panel", key: "Ctrl+Alt+G" },
   { id: "ai-review", name: "ai-review", author: "tasty-labs", version: "0.9.0", cat: "AI",
     installed: true, status: "agent", agent: true, installs: "84k", rating: "4.7",
     desc: "Agent-driven review of staged diffs. Streams suggested patches into a side surface and lets you apply them hunk by hunk.",
-    perms: ["fs:read", "fs:write", "net", "ipc:ai-review.*"], cmd: "ai-review: review staged", key: "Ctrl+Alt+R" },
+    cmd: "ai-review: review staged", key: "Ctrl+Alt+R" },
   { id: "docker", name: "docker", author: "community", version: "2.1.0", cat: "DevOps",
     installed: true, status: "idle", agent: false, installs: "203k", rating: "4.6",
     desc: "A surface for container logs, exec sessions, and compose control. Attaches to the local Docker socket and mirrors `docker ps` live.",
-    perms: ["ipc:docker.*", "net"], cmd: "docker: containers", key: "Ctrl+Alt+D" },
+    cmd: "docker: containers", key: "Ctrl+Alt+D" },
   { id: "k8s-lens", name: "k8s-lens", author: "community", version: "0.6.3", cat: "DevOps",
     installed: true, status: "error", agent: false, installs: "57k", rating: "4.1",
     desc: "Kubernetes context switcher and pod log streamer. Currently failing to reach the configured cluster — check kubeconfig.",
-    perms: ["net", "fs:read", "ipc:k8s-lens.*"], cmd: "k8s-lens: switch context", key: "Ctrl+Alt+K" },
+    cmd: "k8s-lens: switch context", key: "Ctrl+Alt+K" },
   { id: "vim-mode", name: "vim-mode", author: "ophen", version: "3.2.1", cat: "Editing",
     installed: false, status: "idle", agent: false, installs: "418k", rating: "4.8",
     desc: "Modal editing keybindings for every text surface — normal/insert/visual modes, registers, and the operators you actually use.",
-    perms: ["clipboard", "ipc:vim-mode.*"], cmd: "vim-mode: toggle", key: "Ctrl+Alt+V" },
+    cmd: "vim-mode: toggle", key: "Ctrl+Alt+V" },
   { id: "theme-studio", name: "theme-studio", author: "tasty-labs", version: "1.0.4", cat: "Appearance",
     installed: false, status: "idle", agent: false, installs: "92k", rating: "4.9",
     desc: "Live-edit surface colors and export a Catppuccin-compatible theme. Hot-reloads every open pane as you drag.",
-    perms: ["fs:read", "fs:write"], cmd: "theme-studio: open", key: "Ctrl+Alt+T" },
+    cmd: "theme-studio: open", key: "Ctrl+Alt+T" },
   { id: "s3-browser", name: "s3-browser", author: "community", version: "0.4.0", cat: "Cloud",
     installed: false, status: "idle", agent: false, installs: "31k", rating: "4.3",
     desc: "Browse, preview, and stream from S3 buckets as a first-class surface. Drag objects between buckets and your local tree.",
-    perms: ["net", "fs:read", "fs:write"], cmd: "s3-browser: open bucket", key: "" },
+    cmd: "s3-browser: open bucket", key: "" },
   { id: "pomodoro", name: "pomodoro", author: "kettle", version: "2.0.0", cat: "Productivity",
     installed: false, status: "idle", agent: false, installs: "19k", rating: "4.5",
     desc: "A focus timer that lives in the status bar, logs sessions per workspace, and dims inactive panes while you're in a sprint.",
-    perms: ["ipc:pomodoro.*"], cmd: "pomodoro: start", key: "" },
+    cmd: "pomodoro: start", key: "" },
 ];
 
 // ── Needs-attention cases ───────────────────────────────────────────────
@@ -71,8 +71,6 @@ const ATTN = {
     blurb: "Signed by a key that isn't in your trust store. Not registered — you can register it anyway." },
   "signature-invalid":  { sev: "danger",  label: "Signature invalid", unverified: "signature-error",
     blurb: "Signature missing or failed verification. Not registered — you can register it anyway." },
-  "permissions-changed":{ sev: "warning", label: "Permissions changed",
-    blurb: "Manifest permissions changed since you trusted it — re-approval required. Permissions limit what the plugin can ask Tasty to do; they don't isolate the plugin program." },
   "health-error":       { sev: "warning", label: "Runtime error",
     blurb: "Enabled, but failing at runtime." },
   // 2026-11-08 (plugin-attention-unknown-official-id): a com.tasty.* id that is not on the official list.
@@ -89,10 +87,6 @@ const ATTENTION_LIST = [
     desc: "Bundled cluster fleet sync. Its publisher key was rotated and the signature no longer matches a trusted key.",
     detail: { fingerprint: "a13c 4e7f 2b08 9d51  ·  ed25519",
       note: "The built-in publisher key rotated this release; the bundled signature was made with a key not yet in your trust store. Update Tasty or import the new key to restore it." } },
-  { id: "secrets-vault", name: "secrets-vault", author: "community", version: "0.8.4", cat: "Cloud",
-    reason: "permissions-changed",
-    desc: "Reads and injects secrets into surfaces. You trusted v0.7 — v0.8.4 requests a different permission set.",
-    detail: { added: ["fs:write", "net"], removed: ["clipboard"] } },
   { id: "remote-shell", name: "remote-shell", author: "community", version: "1.0.0", cat: "DevOps",
     reason: "signature-invalid", homepage: "https://example.invalid/remote-shell",
     desc: "Opens remote SSH surfaces. The bundle's signature file is missing or corrupt.",
@@ -142,7 +136,6 @@ const SAMPLE_MANIFEST = {
   id: "com.aurelia.logwatch", name: "logwatch", version: "0.3.1", author: "aurelia",
   trusted: false, fingerprint: "9f2c 4ad1 b770 e3a6  ·  ed25519",
   desc: "Tails and highlights structured log files as a dedicated surface — severity filters, a jump-to-error gutter, and live follow on the active workspace.",
-  perms: ["fs:read", "fs:watch", "ipc:logwatch.*"],
   surfaces: ["logwatch.viewer"],
   path: "~/dev/tasty-logwatch",
 };
@@ -169,7 +162,10 @@ function FingerprintLine({ value, onCopy }) {
 }
 
 // Add plugin — a verified manifest that can't be added (2026-09-29): the button stays in its slot,
-// DISABLED (shared ink rule), and the reason replaces "Grants N permissions" on the left of the bar.
+// DISABLED (shared ink rule), and the reason sits on the left of the bar.
+// 2026-11-17 (plugin permissions removed): the left of the bar holds ONLY that reason. When Add is not
+// blocked the left is empty — the manifest card and the trust box above already say everything, so the
+// bar adds no summary line. The buttons keep their right-aligned slot; the bar height does not change.
 //   manifest.blocked: "installed" | "missing-pubkey" | "signature-error"
 //   2026-10-06: "unsigned-no-key" → "missing-pubkey". The host state (UntrustedNoPubkey) IS signed — by a key
 //   not in the trust store — and the .pub that would let us trust it is missing or unreadable.
@@ -178,19 +174,19 @@ function FingerprintLine({ value, onCopy }) {
 const ADD_BLOCKED = {
   "installed": "Already installed",
 };
-const grantsLabel = (n) => n === 0 ? "No permissions" : n === 1 ? "Grants 1 permission" : "Grants " + n + " permissions";
 
-// Trust judgment box (2026-10-06) — one box, five kinds. Tone: success = can add as is · warning = can add,
-// adding trusts the key · danger = blocked. Box = tint-fill + tint-border of the tone, pad space-md / 14,
+// Trust judgment box (2026-10-06) — one box. 2026-11-17: five kinds (trusted + the four unverified);
+// "permissions-changed" left with plugin permissions, so no trust box is warning-toned any more.
+// Tone: success = can add as is · danger = unverified, added only by an explicit choice. Box = tint-fill + tint-border of the tone, pad space-md / 14,
 // title row (glyph md + 13/600 in the tone) > body (term-sm, text-secondary) > fingerprint line (absent
 // when there is no fingerprint — signature-error never has one).
-//   manifest.trust: "trusted" | "unknown-key" | "permissions-changed" | "missing-pubkey" | "signature-error"
+//   manifest.trust: "trusted" | "unknown-key" | "missing-pubkey" | "unsigned" | "signature-error"
 //   2026-10-19 (plugin-install-warning-and-choice): the four UNVERIFIED kinds (unknown-key · missing-pubkey ·
 //   unsigned · signature-error) share ONE danger box: same title, same risk paragraph; only the cause line
 //   differs. All four are addable through an explicit "Add anyway" (danger button, never the initial focus).
 //   Title ink is text-primary (accent titles failed 4.5:1 in Latte); only the glyph carries the tone.
 const UNVERIFIED_TITLE = "Unverified plugin";
-const UNVERIFIED_RISK = "Tasty can't confirm who made this plugin or that its files are unchanged. A plugin runs as a program with your account's access: it can read and change your files, use the network, and start other programs. The permissions above only limit what it can ask Tasty to do. Add it only if you trust where it came from.";
+const UNVERIFIED_RISK = "Tasty can't confirm who made this plugin or that its files are unchanged. A plugin runs as a program with your account's access: it can read and change your files, use the network, and start other programs. Add it only if you trust where it came from.";
 const UNVERIFIED_CAUSE = {
   "unknown-key":     "It is signed by a key that isn't in your trust store.",
   "missing-pubkey":  "It is signed, but the publisher's public key file (tasty-plugin.toml.pub) is missing or unreadable.",
@@ -199,8 +195,6 @@ const UNVERIFIED_CAUSE = {
 };
 const TRUST_KIND = {
   "trusted":             { tone: "success", glyph: "shieldCheck",  title: null },
-  "permissions-changed": { tone: "warning", glyph: "alertTriangle", title: "Permissions changed",
-    body: "This publisher is trusted, but this version asks for permissions the trusted version did not have. Review the list above; adding it trusts the new set. These permissions limit what the plugin can ask Tasty to do; they don't isolate the plugin program from your files, network or other programs." },
   "unknown-key":         { tone: "danger", glyph: "alertCircle", title: UNVERIFIED_TITLE, unverified: true, after: "Adding it also trusts this key." },
   "missing-pubkey":      { tone: "danger", glyph: "alertCircle", title: UNVERIFIED_TITLE, unverified: true },
   "unsigned":            { tone: "danger", glyph: "alertCircle", title: UNVERIFIED_TITLE, unverified: true, noFingerprint: true },
@@ -228,10 +222,8 @@ function TrustBox({ manifest }) {
       <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", color: "var(--tasty-plugin-trust-title-fg)", fontSize: 13, fontWeight: 600 }}>
         <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-plugin-trust-glyph-" + k.tone + ")" }}><Icon name={k.glyph} size={16} /></span><span>{k.title}</span>
       </div>
-      {k.unverified ? <>
-        <p style={p}>{UNVERIFIED_CAUSE[kind]}</p>
-        <p style={p}>{UNVERIFIED_RISK}{k.after ? " " + k.after : ""}</p>
-      </> : <p style={p}>{k.body}</p>}
+      <p style={p}>{UNVERIFIED_CAUSE[kind]}</p>
+      <p style={p}>{UNVERIFIED_RISK}{k.after ? " " + k.after : ""}</p>
       {!k.noFingerprint && <FingerprintLine value={manifest.fingerprint} />}
     </div>
   );
@@ -241,7 +233,6 @@ function TrustBox({ manifest }) {
 function addActionLabel(m) {
   const kind = trustKindOf(m);
   if (kind === "trusted") return "Add plugin";
-  if (kind === "permissions-changed") return "Trust & add";
   return kind === "unknown-key" ? "Trust key & add anyway" : "Add anyway";
 }
 function AddPluginForm({ onAdded, onCancel }) {
@@ -315,10 +306,6 @@ function AddPluginForm({ onAdded, onCancel }) {
               </div>
               <p style={{ margin: 0, fontSize: 13, lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-text-secondary)" }}>{manifest.desc}</p>
               <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
-                <Mono>Permissions</Mono>
-                <div style={{ display: "flex", gap: "var(--tasty-space-sm)", flexWrap: "wrap" }}>{manifest.perms.map((p) => <Tag key={p} mono>{p}</Tag>)}</div>
-              </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
                 <Mono>Surface kinds</Mono>
                 <div style={{ display: "flex", gap: "var(--tasty-space-sm)", flexWrap: "wrap" }}>{manifest.surfaces.map((s) => <Tag key={s} mono>{s}</Tag>)}</div>
               </div>
@@ -340,12 +327,11 @@ function AddPluginForm({ onAdded, onCancel }) {
           initial focus = Cancel (Enter on it cancels), Esc = Cancel, Tab → "Add anyway". No implicit default button. */}
       <div onKeyDown={onBarKey} style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-size-14)",
         borderTop: "var(--tasty-border-width) solid var(--tasty-separator)", flex: "none" }}>
-        {manifest && (
+        {manifest && manifest.blocked ? (
           <span style={{ flex: "1 1 auto", minWidth: 0, fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>
-            {manifest.blocked ? ADD_BLOCKED[manifest.blocked] : grantsLabel(manifest.perms.length)}
+            {ADD_BLOCKED[manifest.blocked]}
           </span>
-        )}
-        {!manifest && <div style={{ flex: 1 }} />}
+        ) : <div style={{ flex: 1 }} />}
         <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", marginLeft: "auto" }}>
           {busy && <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-sm)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}><PwSpinner size={14} label="Adding" />Adding…</span>}
           <Button key={manifest ? manifest.path + trustKindOf(manifest) : "none"} variant="ghost" autoFocus={!!manifest && TRUST_KIND[trustKindOf(manifest)].unverified} disabled={busy} onClick={onCancel}>Cancel</Button>
@@ -524,30 +510,6 @@ function AttentionPanel({ items, onFlash, onConfigure, onRemove }) {
           </div>}
 
           {/* reason-specific detail */}
-          {sel.reason === "permissions-changed" && (
-            <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
-              <Mono>Permission changes</Mono>
-              <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
-                {(sel.detail.added || []).map((p) => (
-                  <div key={p} style={{ display: "flex", alignItems: "center", gap: 8,
-                    fontFamily: "var(--tasty-font-mono)", fontSize: 12 }}>
-                    <span style={{ color: "var(--tasty-accent-success-raised)", fontWeight: 700, width: 10 }}>+</span>
-                    <span style={{ color: "var(--tasty-text-secondary)" }}>{p}</span>
-                    <span style={{ fontFamily: "var(--tasty-font-label)", fontSize: 11, color: "var(--tasty-text-muted)" }}>newly requested</span>
-                  </div>
-                ))}
-                {(sel.detail.removed || []).map((p) => (
-                  <div key={p} style={{ display: "flex", alignItems: "center", gap: 8,
-                    fontFamily: "var(--tasty-font-mono)", fontSize: 12 }}>
-                    <span style={{ color: "var(--tasty-text-muted)", fontWeight: 700, width: 10 }}>−</span>
-                    <span style={{ color: "var(--tasty-text-muted)", textDecoration: "line-through" }}>{p}</span>
-                    <span style={{ fontFamily: "var(--tasty-font-label)", fontSize: 11, color: "var(--tasty-text-muted)" }}>no longer used</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
           {(sel.reason === "unknown-key" || sel.reason === "signature-invalid") && (
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
               <Mono>Signature</Mono>
@@ -590,9 +552,6 @@ function AttentionPanel({ items, onFlash, onConfigure, onRemove }) {
             {meta.sev === "danger" ? "Not registered" : "Needs review"}
           </span>
           <div style={{ flex: 1 }} />
-          {sel.reason === "permissions-changed" && (
-            <Button variant="primary" onClick={() => onFlash && onFlash("Re-approve " + sel.name)}>Re-approve</Button>
-          )}
           {sel.reason === "health-error" && (
             <Button variant="ghost" leadingIcon={ic.settings}
               onClick={() => onConfigure && onConfigure()}>Configure</Button>
@@ -730,13 +689,9 @@ function PluginsWindow({ onClose, onFlash, onConfigure, removedAttention, onRemo
             </div>
           )}
 
-          <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
-            <Mono>Permissions</Mono>
-            <div style={{ display: "flex", gap: "var(--tasty-space-sm)", flexWrap: "wrap" }}>
-              {sel.perms.map((p) => <Tag key={p} mono>{p}</Tag>)}
-            </div>
-          </div>
-
+          {/* 2026-11-17 — the Permissions section left with plugin permissions. Order: identity · description ·
+              (health box) · Command · Surface kinds (when any) · Install path. The column gap (16) is the only
+              spacing between sections, so nothing is added where Permissions was. */}
           {sel.cmd && (
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
               <Mono>Command</Mono>
