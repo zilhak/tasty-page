@@ -1,4 +1,4 @@
-<!-- source-hash: 7cce37839458 -->
+<!-- source-hash: 75379c4b4169 -->
 # Keybindings
 
 Tasty’s keybindings can be changed with a preset or by assigning preferred key combinations to frequently used actions. Keybindings are available in **Settings** > **Keybindings**.
@@ -207,6 +207,8 @@ Recording rules:
 ## Changing a plugin keybinding
 
 In the **Plugins** sub-tab, pick a plugin from the **Plugin:** drop-down at the top. Each of its commands gets one line.
+
+Plugin command shortcuts remain available while a mirror waits for a new Tab or split, and their keys are not passed to the terminal or another action. See the [remote guide](../remote/attach.md#what-you-can-do-inside-a-mirror) for where popups open and what happens if creation fails.
 
 - **Inherit** in the mode drop-down follows the key of one Tasty action (for example `clipboard.paste`). The key it follows right now is shown under the line.
 - **Custom** records the key the same way as the other subtabs. Click the key button and press the combination; use `+` to add another one. Pressing `Esc` while recording removes that key, and removing every key leaves the command without a shortcut. Changing the plugin or the mode, or pressing **Reset**, while recording cancels the recording. With many keys or a narrow window, the key buttons and **Reset** continue on the next line, and every key stays visible.

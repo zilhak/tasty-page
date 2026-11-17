@@ -1,4 +1,4 @@
-<!-- source-hash: 61a4d22a5b6e -->
+<!-- source-hash: 93497003828b -->
 <a id="remote-attach"></a>
 
 # Working remotely (attach)
@@ -203,6 +203,7 @@ A row whose remote workspace was closed elsewhere stays in the list, but selecti
 - Keyboard input · mouse go straight to the remote terminal. The remote re-lays out to match the size of your Pane.
 - If the remote does not answer a new size, Tasty asks once more. If there is still no answer (about 10 seconds), a banner saying **Couldn't sync the terminal size with the remote** appears at the top of the Workspace with the affected tab names. When several tabs share a name, as split tabs do, the name appears once with a count, such as `Shell ×2`. **Retry** (**Retry all** for several) asks again, and × only closes the banner. If the remote accepts that size later, the banner goes away on its own. A remote running an older Tasty without this feature never shows the banner.
 - Splits, new Tabs, closing · reordering Tabs, Surface conversion, and reopening a closed item are **executed on the remote** and the result is reflected in the mirror. Creating a Surface of a type the remote does not have fails with a toast. When an agent requests a split, new Tab, close, move, or conversion (including a markdown navigation or an image open), or a file open without specifying where to open it, and that fails on the remote, it is only logged, with no toast.
+- While a mirror is waiting for the remote to create a new Tab or split, you can still use the Tools menu, command palette, and plugin command shortcuts. A command’s target is set when you issue it. If you issue a command that opens a popup during this wait, the popup opens in the new Surface once it is created. Selecting another Surface while waiting does not change this: the popup opens in the new Surface. If creation fails on the remote, that command does not run. While waiting for the remote to create the new Tab or split, keys pressed for a plugin command shortcut are not passed to the terminal or another action.
 - **Move Surface** from the Surface context menu is executed on the remote only within the same mirror Workspace. Moving between a mirror and another Workspace is blocked.
 - Moving with **Move Tab** · **Move Pane** from the Tab context menu is not available in a mirror. If the item to move or the destination is a mirror, a toast says it was blocked and nothing changes.
 - **Reopening a closed item** (`Ctrl+Shift+T` by default) inside a mirror brings back a Tab that was closed on the remote — that Tab is a remote terminal, so your input goes to the remote too. Its earlier scrollback is fully visible only in the remote window (a mirror starts from the visible screen).
