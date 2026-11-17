@@ -1,4 +1,4 @@
-<!-- source-hash: 8d264fb31f63 -->
+<!-- source-hash: bd005896030c -->
 # Settings
 
 Tasty’s shell, fonts, language, and other preferences can be configured in the settings window or by editing `~/.tasty/config.toml` directly. Keybindings and themes have their own guides.
@@ -365,6 +365,8 @@ Commands that change settings (`set-remote-transfer`, `set-input-rule`, `tasty w
 
 `~/.tasty/config.toml` stores settings. Layouts and plugin data are managed separately. Do not edit or delete the layout store to troubleshoot restoration.
 
+If you set `TASTY_HOME`, the files below are in that folder instead. See [Crash and hang reports and logs](../help/error-reports.md) for when to save logs and how to report a problem.
+
 | Path | Contents |
 |------|------|
 | `config.toml` | The settings above |
@@ -376,6 +378,8 @@ Commands that change settings (`set-remote-transfer`, `set-input-rule`, `tasty w
 | `scripts/` | The conventional place for Lua scripts — [Lua scripts](scripts.md) |
 | `transfers/` | Default save folder for files received from a remote |
 | `tasty.port` · `debug.log` | The running instance's port, and the warning-and-above log — [Troubleshooting](../help/troubleshooting.md) |
+| `crash-reports/` | Crash and hang reports |
+| `hook-failures.log` · `hook-failures.log.1` | Hook failure records |
 
 <a id="what-to-read-next"></a>
 

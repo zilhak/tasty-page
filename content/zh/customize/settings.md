@@ -1,4 +1,4 @@
-<!-- source-hash: 8d264fb31f63 -->
+<!-- source-hash: bd005896030c -->
 # 设置
 
 Tasty 的 Shell、字体、语言等可在设置窗口中更改，也可直接编辑 `~/.tasty/config.toml` 进行配置。按键绑定和主题在各自的指南中详细说明。
@@ -355,6 +355,8 @@ tasty settings set-remote-transfer --dir ~/incoming --max-mb 1000
 
 `~/.tasty/config.toml` 是配置文件。布局存储和插件数据单独管理。不要为排查布局恢复问题而直接编辑或删除存储文件。
 
+如果指定了 `TASTY_HOME`，以下文件也位于该文件夹中。保存日志的时机和报告方法，参阅[崩溃、无响应报告与日志](../help/error-reports.md)。
+
 | 路径 | 内容 |
 |------|------|
 | `config.toml` | 上述设置 |
@@ -366,6 +368,8 @@ tasty settings set-remote-transfer --dir ~/incoming --max-mb 1000
 | `scripts/` | 放置 Lua 脚本的惯例位置——[Lua 脚本](scripts.md) |
 | `transfers/` | 远程接收文件的默认保存文件夹 |
 | `tasty.port` · `debug.log` | 运行中实例的端口、警告及以上级别的日志——[故障排除](../help/troubleshooting.md) |
+| `crash-reports/` | 崩溃和无响应报告 |
+| `hook-failures.log` · `hook-failures.log.1` | 钩子失败记录 |
 
 <a id="接下来阅读"></a>
 

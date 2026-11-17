@@ -1,4 +1,4 @@
-<!-- source-hash: 0786ef0b4f5e -->
+<!-- source-hash: a9f2da77996b -->
 # Troubleshooting
 
 Causes and remedies for Tasty installation, input, display, restoration, and notification issues are organized by symptom. For CLI connection failures or slow responses, also see connection diagnostics. If the problem remains, report it with your environment details and logs.
@@ -149,8 +149,8 @@ Open **Listening ports…** from the **Tools** menu in the sidebar. It shows the
 
 ## The window freezes or crashes
 
-- **The window does not respond to clicks · key input · the CLI at all** — when it freezes for more than 5 seconds, `~/.tasty/crash-reports/hang-*.log` is written automatically. A `Render phase` of `acquire` / `submit` / `present` records where rendering was stalled. A GPU driver issue is one possibility, so check for driver updates. Tasty does not recover on its own, so force-quit it and start it again.
-- **It exited suddenly** — look at `~/.tasty/crash-reports/crash-*.log`. Attach this file when you report the problem.
+- **The window does not respond to clicks, key input or the CLI** — A record is written when Tasty detects that progress has stopped for more than roughly 5 seconds. Not every hang produces a record. Tasty does not recover on its own while frozen. Follow [Crash and hang reports and logs](error-reports.md) to copy the logs and collect any stack sample you need, then force-quit Tasty and start it again. If you suspect a GPU-related hang, also check for GPU driver updates.
+- **It exited suddenly** — look for `crash-reports/crash-*.log` in the data folder and keep it with the logs. **Copy `debug.log` before starting Tasty again.**
 
 ### A notice says saving stopped while Tasty was running
 
@@ -236,31 +236,22 @@ The name contains a character that is not allowed, such as an uppercase letter o
 
 ## Log and settings file locations
 
-All of them live under `~/.tasty/` (on Windows, `%USERPROFILE%\.tasty\`).
+The default folder is `~/.tasty/` (on Windows, `%USERPROFILE%\.tasty\`). If you set `TASTY_HOME`, the files are in that folder instead.
 
 | File | Contents |
 |---|---|
 | `config.toml` | Settings. Values saved from the settings window end up here |
 | `tasty.port` | The IPC port number of the running Tasty. Created when Tasty starts |
-| `debug.log` | Warning-and-above log of the previous run. Cleared when Tasty starts again |
+| `debug.log` | Warnings and above from the running Tasty instance. Copy before restarting |
 | `crash-reports/crash-*.log` | Crash reports — version · OS · location · message · backtrace |
-| `crash-reports/hang-*.log` | Written automatically when the window freezes for more than 5 seconds |
+| `crash-reports/hang-*.log` | A record is written when Tasty detects that progress has stopped for more than roughly 5 seconds. Not every hang produces a record. |
 | `launch.log` | Records and results of launching Tasty again while one is already running |
 | `hook-failures.log` | Records of Claude / Codex hooks that failed to reach Tasty |
-| `plugins-logs/<plugin id>.log` | Per-plugin logs. Also viewable with `tasty plugin logs <id>` |
+| `plugins-logs/<plugin id>.log` | Per-plugin logs. Copy before restarting the plugin. Also viewable with `tasty plugin logs <id>` |
 | `state.db` | Data the app manages on its own, such as recent files |
 
-If you need more detailed logs, run Tasty from a terminal with the log level raised. The variable is `TASTY_LOG`, not `RUST_LOG`.
-
-```sh
-TASTY_LOG=debug tasty 2> tasty.log
-```
+See [Crash and hang reports and logs](error-reports.md) for when to copy logs and how to collect more detailed output.
 
 ## Reporting a problem
 
-Include the steps to reproduce, Tasty version, OS and architecture, and relevant error messages in a [GitHub issue](https://github.com/zilhak/tasty/issues). Before attaching logs, check paths and output for personal information.
-
-- The output of `tasty --version`, plus your OS · version
-- Steps to reproduce
-- The matching `crash-*.log` / `hang-*.log` from `~/.tasty/crash-reports/`
-- `~/.tasty/debug.log` from right after the symptom (it is cleared on the next start, so copy it first)
+Include reproduction steps, Tasty version, OS and architecture, and relevant error messages in a [GitHub issue](https://github.com/zilhak/tasty/issues). Follow [Crash and hang reports and logs](error-reports.md) to choose attachments and redact tokens and personal information.

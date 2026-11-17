@@ -14,3 +14,4 @@ Tasty는 Windows, macOS, Linux용 GPU 가속 터미널로, 워크스페이스로
 - [Claude·Codex 연결](agents/claude-codex.md)
 - [원격 Tasty에 연결](remote/attach.md)
 - [문제 해결](help/troubleshooting.md)
+- [크래시·멈춤 리포트와 로그](help/error-reports.md)

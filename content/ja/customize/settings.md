@@ -1,4 +1,4 @@
-<!-- source-hash: 8d264fb31f63 -->
+<!-- source-hash: bd005896030c -->
 # 設定
 
 Tasty のシェル、フォント、言語などは、設定ウィンドウで変更するか、`~/.tasty/config.toml` を直接編集して設定できます。キーバインドとテーマは、それぞれのガイドで詳しく説明します。
@@ -356,6 +356,8 @@ tasty settings set-remote-transfer --dir ~/incoming --max-mb 1000
 
 `~/.tasty/config.toml` は設定ファイルです。配置の保存先とプラグインのデータは別に管理します。配置の復元の問題を解決するために、保存先のファイルを直接編集したり削除したりしないでください。
 
+`TASTY_HOME` を指定すると、以下のファイルもそのフォルダーにあります。ログを保存するタイミングと報告方法は、[クラッシュ・フリーズのレポートとログ](../help/error-reports.md)を参照してください。
+
 | パス | 内容 |
 |------|------|
 | `config.toml` | 上記の設定 |
@@ -367,6 +369,8 @@ tasty settings set-remote-transfer --dir ~/incoming --max-mb 1000
 | `scripts/` | Lua スクリプトを置く慣例的な場所 — [Lua スクリプト](scripts.md) |
 | `transfers/` | リモートから受信したファイルのデフォルト保存フォルダー |
 | `tasty.port` · `debug.log` | 実行中のインスタンスのポート、警告以上のログ — [トラブルシューティング](../help/troubleshooting.md) |
+| `crash-reports/` | クラッシュ・フリーズのレポート |
+| `hook-failures.log` · `hook-failures.log.1` | フックの失敗記録 |
 
 <a id="次に読むもの"></a>
 

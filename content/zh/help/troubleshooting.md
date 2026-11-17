@@ -1,4 +1,4 @@
-<!-- source-hash: 0786ef0b4f5e -->
+<!-- source-hash: a9f2da77996b -->
 # 故障排除
 
 本页按症状列出 Tasty 安装、输入、显示、恢复和通知问题的原因及解决方法。如果 CLI 无法连接或响应缓慢，也可查看连接诊断。问题仍未解决时，可附上运行环境和日志报告问题。
@@ -149,8 +149,8 @@ Tasty 检测到 XIM 输入法服务器退出或被替换后，会停止向旧服
 
 ## 窗口无响应或意外退出时
 
-- **窗口对点击 · 按键输入 · CLI 完全无响应** — 无响应超过 5 秒时，会自动生成 `~/.tasty/crash-reports/hang-*.log`。文件中的 `Render phase` 为 `acquire` / `submit` / `present` 时，表示停在对应渲染阶段。可能是 GPU 驱动程序问题，因此也需检查驱动程序更新。Tasty 不会自行恢复，需强制退出后重新启动。
-- **突然退出** — 查看 `~/.tasty/crash-reports/crash-*.log`。报告问题时附上此文件。
+- **窗口对点击、按键输入、CLI 完全无响应** — 检测到进度停止超过约 5 秒时会留下记录。并非每次无响应都会产生记录。 Tasty 不会从无响应状态自行恢复。按[崩溃、无响应报告与日志](error-reports.md)中的说明复制日志并收集所需的堆栈样本，再强制退出并重新启动 Tasty。如果怀疑与 GPU 有关，也检查 GPU 驱动程序更新。
+- **突然退出** — 查找数据文件夹中的 `crash-reports/crash-*.log`，与日志一并保留。**重新启动前复制 `debug.log`。**
 
 ### 运行期间提示已停止保存时
 
@@ -236,31 +236,22 @@ tasty codex install     # ~/.codex/config.toml
 
 ## 日志和配置文件位置
 
-均位于 `~/.tasty/` 下（Windows 上为 `%USERPROFILE%\.tasty\`）。
+默认位于 `~/.tasty/` 下（Windows 上为 `%USERPROFILE%\.tasty\`）。如果指定了 `TASTY_HOME`，则位于该文件夹中。
 
 | 文件 | 内容 |
 |---|---|
 | `config.toml` | 设置。设置窗口中保存的值会写入此处 |
 | `tasty.port` | 正在运行的 Tasty 的 IPC 端口号。Tasty 启动时创建 |
-| `debug.log` | 上次运行的警告及以上级别日志。重新启动 Tasty 时清空 |
+| `debug.log` | 运行中 Tasty 的警告及以上级别日志。重新启动前复制 |
 | `crash-reports/crash-*.log` | 崩溃报告 — 版本 · OS · 位置 · 消息 · 回溯 |
-| `crash-reports/hang-*.log` | 窗口无响应超过 5 秒时自动留下的记录 |
+| `crash-reports/hang-*.log` | 检测到进度停止超过约 5 秒时会留下记录。并非每次无响应都会产生记录。 |
 | `launch.log` | 已有 Tasty 运行时再次启动的记录和结果 |
 | `hook-failures.log` | Claude / Codex 钩子未能连接 Tasty 的记录 |
-| `plugins-logs/<插件 id>.log` | 各插件的日志。也可使用 `tasty plugin logs <id>` 查看 |
+| `plugins-logs/<插件 id>.log` | 各插件的日志。重新启动插件前复制。也可使用 `tasty plugin logs <id>` 查看 |
 | `state.db` | 最近文件等由应用自动管理的数据 |
 
-需要更详细的日志时，在终端中提高日志级别后运行。使用的是 `TASTY_LOG`，而非 `RUST_LOG`。
-
-```sh
-TASTY_LOG=debug tasty 2> tasty.log
-```
+复制日志的时机和收集更详细日志的方法，参阅[崩溃、无响应报告与日志](error-reports.md)。
 
 ## 报告问题
 
-在 [GitHub Issues](https://github.com/zilhak/tasty/issues) 中填写复现问题的步骤、Tasty 版本、OS 和架构，以及相关错误消息。附上日志前，检查路径和输出中是否包含个人信息。
-
-- `tasty --version` 的输出和 OS · 版本
-- 复现步骤
-- `~/.tasty/crash-reports/` 中对应的 `crash-*.log` / `hang-*.log`
-- 症状出现后的 `~/.tasty/debug.log`（重新启动会清空，因此先复制保留）
+在 [GitHub Issues](https://github.com/zilhak/tasty/issues) 中填写复现步骤、Tasty 版本、OS 和架构，以及相关错误消息。按[崩溃、无响应报告与日志](error-reports.md)中的说明选择附件，并隐去令牌和个人信息。

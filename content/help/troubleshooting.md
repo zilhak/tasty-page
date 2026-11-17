@@ -148,8 +148,8 @@ Tasty는 XIM 입력기 서버의 종료·교체를 감지하면 이전 서버로
 
 ## 윈도우가 멈추거나 갑자기 종료될 때
 
-- **윈도우가 클릭 · 키 입력 · CLI 에 전혀 반응하지 않습니다** — 5초 넘게 멈추면 `~/.tasty/crash-reports/hang-*.log` 가 자동으로 남습니다. 파일의 `Render phase`가 `acquire` / `submit` / `present`이면 해당 렌더링 단계에서 멈춘 기록입니다. GPU 드라이버 문제일 수 있으므로 드라이버 업데이트도 확인하세요. Tasty 는 스스로 복구하지 않으므로 강제 종료하고 다시 띄웁니다.
-- **갑자기 종료됐습니다** — `~/.tasty/crash-reports/crash-*.log` 를 봅니다. 문제를 신고할 때 이 파일을 함께 붙입니다.
+- **윈도우가 클릭 · 키 입력 · CLI에 전혀 반응하지 않습니다** — 약 5초 넘게 진행이 멈춘 것으로 감지되면 기록을 남깁니다. 모든 멈춤에 기록이 생기는 것은 아닙니다. Tasty는 멈춘 상태에서 스스로 복구하지 않습니다. [크래시·멈춤 리포트와 로그](error-reports.md)에 따라 로그를 복사하고 필요한 스택 표본을 모은 뒤 강제 종료하고 다시 띄우세요. GPU 관련 멈춤이 의심되면 GPU 드라이버 업데이트도 확인하세요.
+- **갑자기 종료됐습니다** — 데이터 폴더의 `crash-reports/crash-*.log`를 찾아 로그와 함께 보관하세요. **다시 켜기 전에 `debug.log`를 복사하세요.**
 
 ### 실행 중 저장이 멈췄다는 안내가 뜬 경우
 
@@ -235,31 +235,22 @@ tasty codex install     # ~/.codex/config.toml
 
 ## 로그와 설정 파일 위치
 
-모두 `~/.tasty/` 아래에 있습니다 (Windows 는 `%USERPROFILE%\.tasty\`).
+기본은 `~/.tasty/` 아래입니다(Windows는 `%USERPROFILE%\.tasty\`). `TASTY_HOME`을 지정했다면 그 폴더에 있습니다.
 
 | 파일 | 내용 |
 |---|---|
 | `config.toml` | 설정. 설정 윈도우에서 저장한 값이 여기 들어갑니다 |
 | `tasty.port` | 실행 중인 Tasty 의 IPC 포트 번호. Tasty 가 뜰 때 만들어집니다 |
-| `debug.log` | 직전 실행의 경고 이상 로그. Tasty 를 다시 켜면 비워집니다 |
+| `debug.log` | 실행 중인 Tasty의 경고 이상 로그. 재실행 전에 복사하세요 |
 | `crash-reports/crash-*.log` | 크래시 리포트 — 버전 · OS · 위치 · 메시지 · backtrace |
-| `crash-reports/hang-*.log` | 윈도우가 5초 넘게 멈췄을 때 자동으로 남는 기록 |
+| `crash-reports/hang-*.log` | 약 5초 넘게 진행이 멈춘 것으로 감지되면 기록을 남깁니다. 모든 멈춤에 기록이 생기는 것은 아닙니다. |
 | `launch.log` | 이미 실행 중인 Tasty 가 있을 때 다시 실행한 기록과 결과 |
 | `hook-failures.log` | Claude / Codex 훅이 Tasty 에 닿지 못한 기록 |
-| `plugins-logs/<플러그인 id>.log` | 플러그인별 로그. `tasty plugin logs <id>` 로도 봅니다 |
+| `plugins-logs/<플러그인 id>.log` | 플러그인별 로그. 재실행 전에 복사하세요. `tasty plugin logs <id>`로도 봅니다 |
 | `state.db` | 최근 파일 등 앱이 자동으로 관리하는 데이터 |
 
-더 자세한 로그가 필요하면 터미널에서 로그 레벨을 올려 실행합니다. `RUST_LOG` 가 아니라 `TASTY_LOG` 입니다.
-
-```sh
-TASTY_LOG=debug tasty 2> tasty.log
-```
+로그를 복사할 시점과 더 자세한 로그를 받는 방법은 [크래시·멈춤 리포트와 로그](error-reports.md)에 있습니다.
 
 ## 문제 신고
 
-문제를 재현한 순서, Tasty 버전, OS와 아키텍처, 관련 오류 문구를 [GitHub Issues](https://github.com/zilhak/tasty/issues)에 적어 주세요. 로그를 첨부할 때는 경로와 출력에 개인 정보가 포함되어 있는지 확인하세요.
-
-- `tasty --version` 출력과 OS · 버전
-- 재현 절차
-- `~/.tasty/crash-reports/` 의 해당 `crash-*.log` / `hang-*.log`
-- 증상 직후의 `~/.tasty/debug.log` (다시 켜면 비워지므로 먼저 복사해 둡니다)
+문제를 재현한 순서, Tasty 버전, OS와 아키텍처, 관련 오류 문구를 [GitHub Issues](https://github.com/zilhak/tasty/issues)에 적어 주세요. 첨부할 파일과 토큰·개인 정보를 가리는 방법은 [크래시·멈춤 리포트와 로그](error-reports.md)를 따르세요.

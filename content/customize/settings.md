@@ -355,6 +355,8 @@ tasty settings set-remote-transfer --dir ~/incoming --max-mb 1000
 
 `~/.tasty/config.toml`은 설정 파일입니다. 배치 저장소와 플러그인 자료는 별도로 관리합니다. 배치 복원 문제를 해결하기 위해 저장소 파일을 직접 편집하거나 지우지 마세요.
 
+`TASTY_HOME`을 지정하면 아래 파일도 그 폴더에 있습니다. 로그의 보관 시점과 신고 방법은 [크래시·멈춤 리포트와 로그](../help/error-reports.md)를 참고하세요.
+
 | 경로 | 내용 |
 |------|------|
 | `config.toml` | 위 설정 |
@@ -366,6 +368,8 @@ tasty settings set-remote-transfer --dir ~/incoming --max-mb 1000
 | `scripts/` | Lua 스크립트를 두는 관례 위치 — [Lua 스크립트](scripts.md) |
 | `transfers/` | 원격에서 받은 파일 기본 저장 폴더 |
 | `tasty.port` · `debug.log` | 실행 중 인스턴스의 포트, 경고 이상 로그 — [문제 해결](../help/troubleshooting.md) |
+| `crash-reports/` | 크래시·멈춤 리포트 |
+| `hook-failures.log` · `hook-failures.log.1` | 훅 실패 기록 |
 
 <a id="다음-읽을-것"></a>
 
