@@ -1,5 +1,5 @@
 import React from "react";
-import { Select as FrSelect, MenuItem as FrMenuItem, HelpHint as FrHelp } from "../../components/index.js";
+import { Select as FrSelect, MenuItem as FrMenuItem, HelpHint as FrHelp, Tooltip as FrTooltip } from "../../components/index.js";
 import { Section, Spec, Stage, Meta, Note, Do, Dont } from "../parts/specimen.jsx";
 
 // Tasty Gallery — Overlays · Windows › Settings › Terminal › Frame rate: the two redraw caps.
@@ -77,6 +77,21 @@ function FrList({ lang = "en", hz = 60, saved = 30 }) {
   );
 }
 
+// A row label with its HelpHint held open (the hover state, drawn as a frame so the check measures the bubble).
+// The bare HelpHint glyph inside a forced-open Tooltip is what HelpHint renders on hover. The label starts half a
+// bubble in, so the centred bubble stays inside the frame; the frame is wider than a narrow page and scrolls in its stage.
+function FrHintOpen({ lang = "en", row = "output" }) {
+  const L = FR[lang];
+  return (
+    <div lang={lang} data-view={"help-" + row + "-" + lang} style={{ padding: "var(--tasty-space-md) var(--tasty-space-md) var(--tasty-size-160) calc(var(--tasty-tooltip-max-width) / 2)", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", width: "var(--tasty-size-480)", flex: "none", boxSizing: "border-box" }}>
+      <span style={{ fontSize: "var(--tasty-font-size-body)", color: "var(--tasty-text-secondary)", lineHeight: "var(--tasty-line-height-ui)", display: "inline-flex", alignItems: "center", gap: "var(--tasty-help-hint-gap)" }}>
+        <span>{row === "output" ? L.output : L.input}:</span>
+        <FrTooltip open placement="bottom" content={row === "output" ? L.outputHint : L.inputHint} className="tasty-help-hint"><FrHelp /></FrTooltip>
+      </span>
+    </div>
+  );
+}
+
 const FrPair = ({ children }) => (
   <>{[["Mocha", "mocha"], ["Latte", "latte"]].map(([label, t]) => (
     <div key={label} data-theme={t} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)", minWidth: 0, flex: "1 1 var(--tasty-size-560)", maxWidth: "100%" }}>
@@ -103,8 +118,13 @@ function FrameRateSection() {
             <FrCase label="input · Match monitor"><FrPage input={UNLIMITED} /></FrCase>
           </FrPair>
         </Stage>
+        <Stage variant="solo" style={st}>
+          {["en", "ko", "ja", "zh-Hans"].flatMap((lg) => ["output", "input"].map((row) => (
+            <FrCase key={lg + row} label={lg + " · " + row + " HelpHint open"}><FrHintOpen lang={lg} row={row} /></FrCase>
+          )))}
+        </Stage>
         <Meta
-          specs={[["place", "Terminal L2, new last section “Frame rate” after Performance · section heading = the L2 label · no apply note"], ["rows", "settings Row: label settings-label-width + HelpHint (?) · gap settings-label-gap · min-height settings-row-min-height · rows gap settings-row-gap · output row first, input row second"], ["control", "the shared Select (choice_select) · width field-width-lg 200 · height select-height"], ["caption", "one, under the input row · caption text-muted · line-height-ui · max-width measure-md · wraps, never ellipsises"], ["defaults", "output 30 fps · input 60 fps"], ["applies", "on save, to every open window (no restart) · nothing on the page says so, as with any setting that applies at once"], ["not added", "no apply note · no per-window applied value · no restart hint · no slider or free number field"]]}
+          specs={[["place", "Terminal L2, new last section “Frame rate” after Performance · section heading = the L2 label · no apply note"], ["rows", "settings Row: label settings-label-width + HelpHint (?) · gap settings-label-gap · min-height settings-row-min-height · rows gap settings-row-gap · output row first, input row second"], ["control", "the shared Select (choice_select) · width field-width-lg 200 · height select-height"], ["caption", "one, under the input row · caption text-muted · line-height-ui · max-width measure-md · wraps, never ellipsises"], ["defaults", "output 30 fps · input 60 fps"], ["applies", "on save, to every open window (no restart) · nothing on the page says so, as with any setting that applies at once"], ["HelpHint", "the shared HelpHint → Tooltip bubble (tooltip-bg · tooltip-border · max-width tooltip-max-width) · placement bottom · open frames above, one per row and language"], ["not added", "no apply note · no per-window applied value · no restart hint · no slider or free number field"]]}
           tokens={[{ tok: "--tasty-field-width-lg", use: "Select width (200)" }, { tok: "--tasty-select-height", use: "trigger height" }, { tok: "--tasty-settings-label-width", use: "label column" }, { tok: "--tasty-text-muted", use: "caption ink", color: "var(--tasty-text-muted)" }]} />
         <Do>Keep the two caps side by side in a section the filter can find by name.</Do>
         <Dont>Add these rows under the Performance note: the note's “terminals opened afterward” would be wrong for them.</Dont>
