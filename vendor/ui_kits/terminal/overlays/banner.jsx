@@ -198,7 +198,7 @@ function makeSamples() {
   },
   err: {
     id: "write-failed", glyph: bic.warn, glyphColor: "var(--tasty-accent-danger)",
-    title: "Couldn’t write ~/.tastyrc",
+    title: "Couldn’t write config.toml",
     body: "Permission denied. Check the file owner, or open it to resolve the conflict.",
     actions: (<><Button variant="secondary" size="sm">Retry</Button><Button variant="ghost" ground="raised" size="sm">Open file</Button></>),
   },

@@ -7,7 +7,7 @@ name: Design
 
 on:
   push:
-    branches: [main]
+    branches: [develop, release, main]
   pull_request:
 
 concurrency:

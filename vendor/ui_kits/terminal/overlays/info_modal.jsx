@@ -1,4 +1,5 @@
 import React from "react";
+import { PopupFocusEdge } from "./shared.jsx";
 import { Button } from "../../../components/core/Button.jsx";
 import { Icon } from "../../../components/core/Icon.jsx";
 import { IconButton } from "../../../components/core/IconButton.jsx";
@@ -40,8 +41,12 @@ import { MenuItem } from "../../../components/navigation/MenuItem.jsx";
 const TITLE_RESERVE = (n) => `calc(var(--tasty-popup-title-edge-inset) + ${n} * var(--tasty-popup-title-btn-size) + ${n - 1} * var(--tasty-popup-title-btn-gap) + var(--tasty-popup-title-text-gap))`;
 
 // The shared popup title bar. fullscreen = the popup declares a fullscreen stage (adds the fit button).
-function PopupTitleBar({ title, id, fullscreen = false, edge = "var(--tasty-info-modal-title-edge)", onClose, closeLabel = "Close" }) {
-  const n = fullscreen ? 2 : 1;
+// collapse: the popup is expanded over the window from its show button; this label names the shrink button that puts it
+// back (it stays open). It sits first in the cluster, before fullscreen and close. closable: false for a popup with no
+// close of its own (a headless plugin popup): the host then draws this bar with no title and the shrink button only.
+function PopupTitleBar({ title, id, fullscreen = false, edge = "var(--tasty-info-modal-title-edge)", onClose, closeLabel = "Close",
+  collapse = null, collapseTip = null, closable = true }) {
+  const n = (fullscreen ? 1 : 0) + (collapse ? 1 : 0) + (closable ? 1 : 0);
   const tRef = React.useRef(null);
   const [cut, setCut] = React.useState(false);
   React.useLayoutEffect(() => {
@@ -57,11 +62,12 @@ function PopupTitleBar({ title, id, fullscreen = false, edge = "var(--tasty-info
         fontSize: "var(--tasty-font-size-max)", fontWeight: "var(--tasty-font-weight-semibold)", color: "var(--tasty-text-primary)" }}>{title}</span>;
   return (
     <div style={{ flex: "none", position: "relative", height: "var(--tasty-control-height)", display: "flex", alignItems: "center", justifyContent: "center",
-      padding: "0 " + TITLE_RESERVE(n), background: "var(--tasty-bg-sidebar)", borderBottom: "var(--tasty-border-width) solid " + edge }}>
+      padding: "0 " + (n ? TITLE_RESERVE(n) : "var(--tasty-popup-title-edge-inset)"), background: "var(--tasty-bg-sidebar)", borderBottom: "var(--tasty-border-width) solid " + edge }}>
       <span style={{ display: "flex", minWidth: 0 }}>{text}</span>
       <span style={{ position: "absolute", right: "var(--tasty-popup-title-edge-inset)", top: 0, bottom: 0, display: "flex", alignItems: "center", gap: "var(--tasty-popup-title-btn-gap)" }}>
+        {collapse && <IconButton size="sm" aria-label={collapse} title={collapseTip || collapse} data-popup-collapse=""><Icon name="shrink" /></IconButton>}
         {fullscreen && <IconButton size="sm" aria-label="Fullscreen" title="Fullscreen"><Icon name="fit" /></IconButton>}
-        <IconButton size="sm" aria-label={closeLabel} title={closeLabel} onClick={onClose}><Icon name="close" /></IconButton>
+        {closable && <IconButton size="sm" aria-label={closeLabel} title={closeLabel} onClick={onClose}><Icon name="close" /></IconButton>}
       </span>
     </div>
   );
@@ -134,11 +140,13 @@ function NotificationsPopupHead({ title = "Notifications", w = "var(--tasty-noti
 // kinds: [icon, label, key | null]
 const CONVERT_KINDS = [["markdown", "Markdown", "M"], ["image", "Image", "I"], ["gitTree", "DAG", "D"], ["html", "HTML", "H"], ["folder", "Explorer", "E"]];
 // opaque (2026-10-21): shell over an opaque-mode WebView page — square corner, no shadow, border-frame kept
-function ConvertSurfacePopup({ title = "Surface Type", kinds = CONVERT_KINDS, active = 0, hover = -1, opaque = false }) {
+// focused: the popup holds key focus, so it lights the popup focus edge (it is scoped to its surface).
+function ConvertSurfacePopup({ title = "Surface Type", kinds = CONVERT_KINDS, active = 0, hover = -1, opaque = false, focused = true, collapse = null }) {
   return (
-    <div style={{ width: "var(--tasty-convert-popup-width)", display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)",
+    <div style={{ position: "relative", width: "var(--tasty-convert-popup-width)", display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)",
       borderRadius: opaque ? "var(--tasty-webview-opaque-radius)" : "var(--tasty-radius)", boxShadow: opaque ? "var(--tasty-webview-opaque-shadow)" : "var(--tasty-shadow-modal)", overflow: "hidden" }}>
-      <PopupTitleBar title={title} />
+      <PopupFocusEdge lit={focused} />
+      <PopupTitleBar title={title} collapse={collapse} />
       <div style={{ display: "flex", flexDirection: "column", padding: "var(--tasty-space-xs)" }}>
         {kinds.map(([ic, label, key], i) => <MenuItem key={ic + i} icon={<Icon name={ic} />} label={label} active={i === active}
           shortcut={key ? <Kbd keys={[key]} aria-hidden="true" /> : null}

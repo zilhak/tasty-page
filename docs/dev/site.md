@@ -7,26 +7,31 @@
 - 문구: `src/lib/i18n/` (언어당 사전 하나. "언어 목록과 사전" 참고)
 - 산출물: 레포 루트 아래 `dist/` — 빌드가 만들며 Git에서 제외한다(경로 인용으로 안 적는다. 갓 클론한
   트리에는 없어서 좌표를 실재로 판정하는 CI의 경로 검사가 실패할 수 있다)
-- 배포: `.github/workflows/pages.yml`. `main`과 `release`의 push마다 `npm run build`로 빌드하고
+- 배포: `.github/workflows/pages.yml`. `develop`·`release`·`main`의 push마다 `npm run build`로 빌드하고
   `npm run check-links`로 산출물의 내부 링크와 `content/` 앵커의 실제 HTML 결과, 디자인 페이지 사이 링크의 언어 유지를 전수 판정하고, `npm run check-sitemap`으로
-  공개 페이지와 sitemap을 대조하고, `npm run check-translations`로 일본어·중국어 가이드를 한국어 원본과 대조한다.
-  **배포는 `release` push와 `release`에서 수동 실행할 때만** 한다. 공개 사이트는 사용자가 받을 수 있는
-  버전을 설명해야 하기 때문이다. `main`은 최신 페이지라 빌드와 검사만 한다. 표시 버전은 공개된 최신
+  공개 페이지와 sitemap을 대조하고, `npm run check-translations`로 영어·일본어·중국어 가이드를 한국어 원본과 대조한다.
+  **배포는 `main` push와 `main`에서 수동 실행할 때만** 한다. 공개 사이트는 사용자가 받을 수 있는
+  버전을 설명해야 하기 때문이다. `develop`은 최신 페이지, `release`는 릴리스 후보라 빌드와 검사만 한다. 표시 버전은 공개된 최신
   Tasty 릴리스(`release.json`)이고, 이 파일이 없는 로컬 빌드는 버전을 표시하지 않는다.
-- 승격: Tasty를 릴리스할 때 `release`를 `main`으로 fast-forward하고 Tasty 릴리스와 같은 태그를 붙여
-  `git push --atomic origin release <tag>`로 함께 push한다. 기능 설명이나 버전이 바뀌는 변경은 이때 함께 공개한다.
+- 승격: Tasty를 릴리스할 때 `develop`의 고른 시점을 `release`에 합쳐 검사를 통과시키고, `release`를 `main`에
+  merge 커밋으로 합친다. 그 커밋에 Tasty 릴리스와 같은 태그를 붙여 `git push --atomic origin main <tag>`로 함께 push한다.
+  `release`를 `main`에 합치는 단계는 pull request로 하지 않는다. `main` 쪽 검사는 태그로 Tasty 버전을 정하므로 태그가 붙기 전에는 직전 릴리스와 대조된다.
+  기능 설명이나 버전이 바뀌는 변경은 이때 함께 공개한다.
 - 게시용 수정: 공개된 Tasty 버전의 기능 설명이나 버전이 바뀌지 않는 변경(문구, 메타데이터 등)은 묻지 않고
-  `release`에 커밋해 태그 없이 배포한 뒤 곧바로 `release`를 `main`에 합친다([CLAUDE.md](../../CLAUDE.md) "게시용 페이지와 최신 페이지").
+  `main`에 커밋해 태그 없이 배포한 뒤 곧바로 `main`을 `release`와 `develop`에 합친다([CLAUDE.md](../../CLAUDE.md) "게시용 페이지와 최신 페이지").
+  배포 조건은 push된 커밋의 `pages.yml`이 정한다. `main`에 이 조건이 든 `pages.yml`이 아직 없으면 게시용 수정을 push해도 배포되지 않는다.
 - 다른 CI: `checks.yml`은 `checks/`의 Rust 시험으로 가이드를 Tasty 소스와 대조한다. Tasty 소스는
-  `.tasty-src`에 받으며, `main`에서는 Tasty `main`, `release`에서는 가장 가까운 태그와 같은 이름의 Tasty
-  태그다. 매일 한 번도 실행한다. `design.yml`은 `vendor/` 디자인 정본을 검사한다(아래 "vendor 검사").
+  `.tasty-src`에 받으며, `develop`과 그 밖의 브랜치에서는 Tasty `develop`, `release`에서는 Tasty `release`, `main`에서는 가장 가까운 태그와 같은 이름의 Tasty
+  태그다. 릴리스 후보는 태그가 생기기 전에 검사하므로 Tasty의 릴리스 후보와 대조한다. 그래서 `release`는 Tasty `release`와 같은 시점을 담을 때만 통과를 기대한다.
+  승격 사이에 게시용 수정을 `release`에 역병합하면 앞서 나간 Tasty `release`와 어긋나 실패할 수 있다. 배포에는 영향이 없다.
+  Tasty hotfix 릴리스는 Tasty가 `main`을 `release`에 역병합한 뒤에 승격한다. 그 전에 승격하면 `release`가 hotfix가 빠진 Tasty `release`와 대조된다. 매일 한 번 `develop`으로도 실행한다. 세 브랜치 모두 `design.yml`이 `vendor/` 디자인 정본을 검사한다(아래 "vendor 검사").
   `checks/Cargo.lock`은 추적하지 않는다. `checks/`의 의존성은 받은 Tasty 소스를 따라 움직이므로, CI는 실행할 때
   `.tasty-src/Cargo.lock`을 복사해 쓴다. 로컬에서 돌릴 때도 `cargo test` 전에 같은 복사를 한다.
 
 **`docs/` 는 발행하지 않는다.** 이 레포의 `docs/`는 사이트를 고치는 사람과 에이전트를 위한 개발 문서(`docs/dev/`)와
 기획서(`docs/plan/`)이고, 사이트는 Tasty 를 받아서 쓰는 사람을 위한 것이라 독자가 다르다. Tasty의 명세·설계·ADR은
 [Tasty 레포](https://github.com/zilhak/tasty)의 `docs/`에 있다. 사이트가 실을 내용은 전부 `content/` 에 사용자 시점으로
-따로 쓴다. 사용자에게 보이는 동작이 바뀌면 기획서를 기준으로 최신 페이지(`main`)의 가이드를 고친다.
+따로 쓴다. 사용자에게 보이는 동작이 바뀌면 기획서를 기준으로 최신 페이지(`develop`)의 가이드를 고친다.
 
 ## 사이트 문구와 어조
 
@@ -63,7 +68,7 @@
 - ‘전체화면 무대’와 UI 배율 Zoom을 구분한다. 전체화면을 터미널 페인 확대 기능으로 소개하지 않는다.
 - 배치 복원, 닫은 항목 복원, 프리셋 적용, 에이전트 세션 재개를 구분한다. 재시작 뒤 실행 중이던 모든 프로세스가 그대로 살아난다고 쓰지 않는다.
 - 알림 패널, 서피스 강조, 부모 대화로 결과 전달을 구분한다. 응답 종료·idle·작업 성공을 같은 뜻으로 쓰지 않는다.
-- 제품명은 Tasty, 명령은 `tasty`, 연동 대상은 Claude Code·Codex CLI로 쓴다. 웹사이트 언어는 한국어·영어, 앱 내장 언어는 영어·한국어·일본어로 구분한다.
+- 제품명은 Tasty, 명령은 `tasty`, 연동 대상은 Claude Code·Codex CLI로 쓴다. 웹사이트 언어는 영어·한국어·일본어·중국어 간체, 앱 내장 언어는 영어·한국어·일본어로 구분한다.
 - 메뉴 이름은 앱의 실제 메뉴 이름을 기준으로 쓴다. 한국어 가이드의 첫 등장에는 영어 라벨을 HTML 주석으로 붙인다. 언어별 문구는 각 언어의 페이지에 나누어 싣는다.
 - 원칙의 지향점이나 향후 구상을 현재 구현의 보장으로 옮기지 않는다. 플러그인 인증처럼 아직 제공하지 않는 제도를 현재 기능으로 홍보하지 않는다.
 
@@ -78,6 +83,7 @@
   package.json          astro · @astrojs/react · react 18
   astro.config.mjs      정적 출력, React 아일랜드
   vendor/               Tasty UI 디자인 정본. 사이트가 그대로 import한다
+  public/fonts/         D2Coding 원본 글꼴과 OFL 전문. 빌드가 그대로 복사한다 (아래 "D2Coding 글꼴 파일")
   scripts/              check-links · check-sitemap · check-translations · check-contrast · check-icons · check-tokens-copy · stamp · design-tokens/
   src/pages/            라우트
   src/components/ src/layouts/ src/lib/ src/styles/
@@ -89,7 +95,7 @@
 
 | 산출물 | 만드는 곳 |
 |------|------|
-| 페이지 토큰 | `src/styles/tokens.css`. tier 순서로 `vendor/` 토큰을 `@import`한다 |
+| 페이지 토큰 | `src/styles/tokens.css`. tier 순서로 `vendor/` 토큰을 `@import`한다. D2Coding의 `@font-face`는 `src/styles/d2coding.css`에 따로 있다 |
 | `/design/kit.css` | `src/lib/vendor-assets.ts`와 이를 읽는 엔드포인트 |
 | `/tasty-melon.svg` · `/tasty-icon.png` | `assets/icons/`의 `tasty-melon.svg` · `icon_256.png`(Tasty 레포의 로고·앱 아이콘과 같은 파일)를 읽는 엔드포인트 `src/pages/tasty-melon.svg.ts` · `tasty-icon.png.ts` |
 | `/tasty-share-en.png` · `/tasty-share-ko.png` | `vendor/share/`의 `tasty-share-en.png` · `tasty-share-ko.png`를 읽는 엔드포인트 `src/pages/tasty-share-en.png.ts` · `tasty-share-ko.png.ts` |
@@ -102,8 +108,8 @@
 - `src/layouts/Design.astro`: 안내·토큰·갤러리가 함께 쓰는 레이아웃이다. 공용 머리글·테마·푸터(`Base.astro`), 메뉴, 머리 부분(제목과 소개), 이전·다음을 그린다. 페이지 순서와 묶음은 `src/lib/design.ts`의 `DESIGN_GROUPS`가 정한다.
 - `src/components/design/SpecimenPage.astro`: 토큰과 갤러리 페이지의 래퍼다. `[data-gallery-page]`를 두르고 `specimen.css`와 `design/kit.css`를 싣는다. 레이아웃에 두지 않는 이유는 표본을 보여 주는 페이지만 이 스타일시트를 쓰기 때문이다.
 - `src/pages/[...locale]/design/gallery/*/index.astro`: 라우트마다 `vendor/gallery/<페이지>/index.jsx`의 `page`와 기본 내보내기를 싣는다. `client:load`는 컴파일할 때 import를 찾아야 하므로 15개를 파일 하나로 합치지 않는다.
-- 언어 경로: `getStaticPaths`는 `src/lib/design.ts`의 `localePaths`이고 `src/lib/langs.mjs`의 목록에서 만든다. 언어별 파일을 복제하지 않으며 표본은 같은 소스를 쓴다.
-- `lang`: 헤더와 푸터는 페이지 언어다. 메뉴와 이전·다음은 `lang="en"`이다. `main`은 안내 페이지에서는 표시하지 않고 토큰과 갤러리에서는 `lang="en"`이다. 레이아웃은 언어 코드를 비교하지 않고 페이지 자료의 `translated`를 읽는다. `<title>`과 메타 설명은 머리에 있어 `lang`을 표시할 수 없다.
+- 언어 경로: `getStaticPaths`는 `src/lib/langs.mjs`의 `localePaths`이고 언어 목록에서 만든다. 언어별 파일을 복제하지 않으며 표본은 같은 소스를 쓴다.
+- `lang`: 헤더와 푸터는 페이지 언어다. 메뉴와 이전·다음은 `lang="en"`이다. 메뉴의 `lang`은 사이드바 안쪽 `div`에 둔다. 좁은 화면 서랍은 사이드바에 페이지 언어의 사이트 메뉴를 복제해 넣으므로, 사이드바에 두면 그 메뉴까지 영어 구역이 되어 중국어 글자가 일본어 글꼴로 그려진다. `main`은 안내 페이지에서는 표시하지 않고 토큰과 갤러리에서는 `lang="en"`이다. 레이아웃은 언어 코드를 비교하지 않고 페이지 자료의 `translated`를 읽는다. `<title>`과 메타 설명은 머리에 있어 `lang`을 표시할 수 없다.
 - 표본 안의 페이지 사이 링크는 상대 경로(`../plugins/#html`)로 쓴다. 어느 언어 경로에서든 같은 언어의 페이지로 가고 표본에 언어 개념이 들어가지 않는다. `npm run check-links`가 디자인 페이지에서 다른 언어의 디자인 페이지로 나가는 링크를 실패로 처리한다. 예외는 언어 전환(`a[data-lang]`)이다.
 - 표본의 범위는 `[data-gallery-page]`다. 사이트 전역 규칙 중 표본과 부딪히는 것(`img`, `:focus-visible`)은 이 범위를 뺀다.
 - `parts/specimen.jsx`의 `Spec`이 제목, 데모, 상태 격자, 숨은 상태의 프레임, 명세 표 순서로 그린다. `?audit=1`을 붙이면 지연 마운트 없이 모든 데모를 그린다.
@@ -119,8 +125,9 @@
 - 포커스 링: 앱과 같은 `border-focus`다.
 - 건너뛰기 링크: 키보드 포커스를 받을 때만 머리글 위 왼쪽 위에 나타난다. 자기 `bg-panel` 칠과 1px 테두리에 링크 잉크를 쓰고 포커스 링이 그 둘레를 두른다.
 - 인라인 코드: 칩 바탕은 `site-inline-code-bg`, 테두리는 1px `border-default`다. Latte에서 `raised`는 본문에서 지나치게 튀어 `mantle`로 내린다.
+- 글꼴 고지: 푸터의 `.site-footer__font`다. 문장 안의 링크라 밑줄을 긋는다.
 - 번역 안내: `.note`는 경고 틴트(번역이 뒤처졌을 때), `.note--untranslated`는 주 색 틴트(디자인 첫 페이지의 영어 전용 안내)다. 앞머리 낱말과 색 테두리는 없다.
-- 표: 가이드의 Markdown 표는 렌더링 단계(`src/lib/satteri-table-wrap.mjs`)에서 `.table-wrap`으로 감싼다. 1px 테두리와 `mantle` 머리 행을 그리고 좁은 화면에서는 안쪽에서 가로 스크롤한다.
+- 표: 가이드의 Markdown 표는 렌더링 단계(`src/lib/satteri-table-wrap.mjs`)에서 `.table-wrap`으로 감싼다. 1px 테두리와 `mantle` 머리 행을 그리고 좁은 화면에서는 안쪽에서 가로 스크롤한다. `.table-wrap`은 `tabindex="0"`이라 넘치지 않는 표도 Tab 정지점이 되고, 포커스하면 방향키로 밀 수 있다. 표 안의 인라인 코드는 모든 폭에서 공백과 하이픈 같은 원래 나눔 지점에서만 줄을 바꾸고, 칸보다 긴 코드는 끊지 않고 표를 넓혀 가로 스크롤로 보낸다. 파일 이름, 플러그인 ID, 환경 변수를 나누지 않고 같은 규칙으로 다룬다. 일본어와 중국어는 글자마다 줄을 바꿀 수 있어 칸이 한 글자 폭까지 줄어들므로, 이 두 언어의 칸에만 `min-width: 10em`을 둔다. 표 밖 본문의 인라인 코드는 `.prose`의 `word-break: break-word`를 그대로 써서, 줄보다 긴 코드만 글자 단위로 끊어 페이지 폭을 넘지 않는다.
 - 구분자: 이동 경로의 `/`는 장식이다. `aria-hidden`과 `data-ink-grade="none" data-ink-why="ornament"`를 붙이고 `glyph-dim`을 쓴다.
 - 코드 블록: 두 테마에서 같은 어두운 팔레트(`site-code-*`)다. 하이라이터가 색을 인라인으로 쓰므로 `global.css`의 `pre.astro-code` 규칙이 `!important`로 바탕, 기본 잉크, 주석 색을 덮는다. 주석은 `style` 속성의 `#6A737D`로 찾으므로 하이라이터 테마를 바꾸면 이 선택자도 함께 고친다. 다른 하이라이터 잉크는 예외 없이 일반 기준으로 잰다.
 - 앱 그림: 페이지가 직접 그리는 터미널과 창 그림은 프로그램 출력이 아니므로 `ansi-content` 예외를 쓰지 않는다. 선은 `term`과 `base` 바탕의 글자 셀을 읽는다. `AppShell.jsx`와 `WindowAnatomy.jsx`는 킷 `work.jsx`의 `C`와 같은 잉크를 쓴다.
@@ -164,7 +171,7 @@
 [`vendor/README.md`](../../vendor/README.md)에 있고, 변경 기록은 커밋 이력이다. Tasty 본체가 이 레포의 어느 커밋을
 따르는지는 [Tasty 레포](https://github.com/zilhak/tasty)가 기록한다.
 
-`design.yml`이 `main` push와 pull request마다 다음을 검사한다.
+`design.yml`이 `develop`·`release`·`main` push와 pull request마다 다음을 검사한다.
 
 - `npm run build`와 `npm run check-contrast`(위 "렌더링 대비 검사").
 - 토큰 JSON: `scripts/design-tokens/gen_tokens_json.py`로 `vendor/tokens/tasty.tokens.json`을 다시 만들어 차이가 없는지,
@@ -185,7 +192,7 @@ npm run check-sitemap   # 빌드 결과의 공개 페이지와 sitemap.xml 대�
 npm run check-contrast  # 빌드 결과의 갤러리·사이트 페이지 렌더링 대비 검사
 npm run check-icons     # vendor 아이콘 파일과 Icon 컴포넌트의 글리프 대조
 npm run check-tokens-copy  # vendor/tokens.css의 1단계 값과 primitives.css 대조
-npm run check-translations -- ja zh  # 번역 가이드와 한국어 원본의 구조 대조 (아래 "번역 구조 검사")
+npm run check-translations -- en ja zh  # 번역 가이드와 한국어 원본의 구조 대조 (아래 "번역 구조 검사")
 
 # 번역 파일에 원본 해시 스탬프 (아래 "번역 모델")
 npm run stamp content/en/index.md
@@ -195,17 +202,18 @@ npm run stamp content/en/index.md
 
 | 경로 | 내용 |
 |------|------|
-| `/` | 영어 랜딩 |
-| `/ko/` | 한국어 랜딩 |
+| `/` · `/ko/` · `/ja/` · `/zh/` | 영어, 한국어, 일본어, 중국어 간체 랜딩. 라우트는 `src/pages/[...locale]/index.astro` 하나다 |
 | `/guide/**` | 영어 가이드. `content/en/**.md` 를 발행한다. 파일이 없으면 빌드가 실패한다 |
 | `/ko/guide/**` | 한국어 가이드 (`content/**.md`, canonical) |
-| `/privacy/` · `/ko/privacy/` | 개인정보 안내. 본문은 `src/components/Privacy.astro` 에 두 언어로 있고 푸터에서 연결한다 |
-| `/design/` · `/ko/design/` | 디자인 구역 안내. 제목·소개·안내는 경로의 언어로 나오고, 디자인 가이드가 영어 전용이라는 안내(`.note--untranslated`)를 제목 아래에 둔다. 왼쪽 메뉴는 영어다 |
-| `/design/tokens/` · `/ko/design/tokens/` | 3티어 토큰 표본(`vendor/gallery/tokens/`). `client:load` 없이 정적으로 그려 토큰 JSON을 브라우저로 보내지 않는다. 내용은 영어 고정이다. 기본 언어 경로만 색인하고 sitemap에 넣는다. 다른 언어 경로는 `noindex, follow`다 |
-| `/design/gallery/**` · `/ko/design/gallery/**` | 레퍼런스 갤러리 15 페이지. 머리글, 푸터, 검색, 언어 전환은 경로의 언어이고 내용은 영어 고정이며 표본은 같은 소스다. 모든 언어 경로를 `noindex, follow`로 색인에서 빼고 sitemap에도 넣지 않는다 |
+| `/ja/guide/**` · `/zh/guide/**` | 일본어, 중국어 간체 가이드. `content/ja/**.md`, `content/zh/**.md` 를 발행한다. 파일이 없으면 빌드가 실패한다 |
+| `/privacy/` · `/ko/privacy/` · `/ja/privacy/` · `/zh/privacy/` | 개인정보 안내. 구성은 `src/components/Privacy.astro`, 문구는 사전의 `privacy`에 있고 푸터에서 연결한다 |
+| `/design/` · `/<언어>/design/` | 디자인 구역 안내. 제목·소개·안내는 경로의 언어로 나오고, 디자인 가이드가 영어 전용이라는 안내(`.note--untranslated`)를 제목 아래에 둔다. 왼쪽 메뉴는 영어다 |
+| `/design/tokens/` · `/<언어>/design/tokens/` | 3티어 토큰 표본(`vendor/gallery/tokens/`). `client:load` 없이 정적으로 그려 토큰 JSON을 브라우저로 보내지 않는다. 내용은 영어 고정이다. 기본 언어 경로만 색인하고 sitemap에 넣는다. 다른 언어 경로는 `noindex, follow`다 |
+| `/design/gallery/**` · `/<언어>/design/gallery/**` | 레퍼런스 갤러리 15 페이지. 머리글, 푸터, 검색, 언어 전환은 경로의 언어이고 내용은 영어 고정이며 표본은 같은 소스다. 모든 언어 경로를 `noindex, follow`로 색인에서 빼고 sitemap에도 넣지 않는다 |
+| `/fonts/D2Coding-ligature-Regular.ttf` · `/fonts/D2Coding-ligature-Bold.ttf` · `/fonts/D2Coding-OFL.txt` | D2Coding 원본 글꼴과 OFL 전문(`public/fonts/`). 페이지가 아니므로 sitemap에 넣지 않는다. 푸터의 고지가 OFL 전문으로 연결한다. 아래 "D2Coding 글꼴 파일" 참고 |
 | `/robots.txt` | 전체 허용과 `Sitemap:` 줄. `Disallow`를 넣지 않는다. 막으면 크롤러가 갤러리의 `noindex`를 읽지 못한다 |
-| `/sitemap.xml` | 랜딩, 가이드, privacy의 양 언어와 색인 대상인 디자인 페이지. 가이드와 디자인은 `buildPages`와 `DESIGN_PAGES`에서 만들어 페이지를 추가하면 자동으로 들어간다. 디자인 페이지는 `indexed` 값과 언어 목록으로 정해진다. 랜딩과 privacy는 `src/pages/sitemap.xml.ts`에 적는다. 갤러리는 넣지 않는다. `lastmod`, `changefreq`, `priority`는 정확한 값을 얻을 근거가 없어 넣지 않는다. `npm run check-sitemap`이 빌드된 HTML 중 `<head>`에 `noindex`가 없는 페이지(`404.html` 제외)를 공개 페이지로 보고 `<loc>`와 대조한다. 빠진 공개 페이지, 없는 페이지나 `noindex` 페이지를 가리키는 `<loc>`, 중복, 비어 있거나 없는 sitemap은 실패다 |
-| `/search-index.json` (en) · `/search-index.ko.json` | 검색 인덱스. 페이지마다 제목·섹션과 본문 앞 600자를 싣는다(`src/lib/search.ts`). 코드 블록과 HTML 태그는 빼고, 인라인 코드는 글자로 남기며, 단어 안의 하이픈은 지워지지 않아 `task-await` 같은 명령 이름이 입력한 그대로 맞는다. 명령 이름으로 찾게 하려면 그 이름을 제목이나 첫 문단에 쓴다 |
+| `/sitemap.xml` | 랜딩, 가이드, privacy의 모든 언어와 색인 대상인 디자인 페이지. 언어는 언어 목록 하나에서 읽는다. 랜딩과 privacy의 경로는 언어 행에, 가이드와 디자인은 `buildPages`와 `DESIGN_PAGES`에 있어 페이지를 추가하면 자동으로 들어간다. 디자인 페이지는 `indexed` 값으로 정해진다. 갤러리는 넣지 않는다. `lastmod`, `changefreq`, `priority`는 정확한 값을 얻을 근거가 없어 넣지 않는다. `npm run check-sitemap`이 빌드된 HTML 중 `<head>`에 `noindex`가 없는 페이지(`404.html` 제외)를 공개 페이지로 보고 `<loc>`와 대조한다. 빠진 공개 페이지, 없는 페이지나 `noindex` 페이지를 가리키는 `<loc>`, 중복, 비어 있거나 없는 sitemap은 실패다 |
+| `/search-index.json` (en) · `/search-index.ko.json` · `/search-index.ja.json` · `/search-index.zh.json` | 검색 인덱스. 파일 이름은 언어 행의 `searchIndex`이고 라우트는 `src/pages/[searchIndex].ts` 하나다. 페이지마다 제목·섹션과 본문 앞 600자를 싣는다(`src/lib/search.ts`). 찾기는 부분 일치라 띄어쓰기 없는 일본어와 중국어도 찾는다. 입력기가 조합 중인 키는 검색 상자가 처리하지 않는다. 코드 블록과 HTML 태그는 빼고, 인라인 코드는 글자로 남기며, 단어 안의 하이픈은 지워지지 않아 `task-await` 같은 명령 이름이 입력한 그대로 맞는다. 명령 이름으로 찾게 하려면 그 이름을 제목이나 첫 문단에 쓴다 |
 
 ### 배포 경로 (base)
 
@@ -227,13 +235,14 @@ npm run stamp content/en/index.md
 기본 URL과 랜딩 `/`는 영어로 제공한다.
 정본이 한국어인 것과는 별개다 — 작성은 한국어로, 노출 기본은 영어로.
 
-랜딩 `/`는 첫 화면을 그리기 전에 언어를 판단한다(`src/pages/index.astro`).
-헤더의 EN/KO로 고른 값(`localStorage`의 `tasty-lang`)이 있으면 그 값을, 없으면 `navigator.language`를 따르며
-`ko`로 시작하면 `/ko/`로 이동한다. 다른 페이지는 이동하지 않아 공유한 링크가 그 언어로 열린다. JS가 꺼져 있으면
+랜딩 `/`는 첫 화면을 그리기 전에 언어를 판단한다(`src/pages/[...locale]/index.astro`).
+언어 전환으로 고른 값(`localStorage`의 `tasty-lang`)이 있으면 그 값을, 없으면 `navigator.language`를 소문자로 바꿔
+언어 행의 `browserMatch`와 대조하고 맞는 행의 랜딩으로 이동한다. 기본 언어 행에는 이 값이 없어 저장값 `en`은 그 자리에 머문다.
+간체 태그(`zh`, `zh-CN`, `zh-SG`, `zh-Hans`)는 `/zh/`로 가고 번체 태그(`zh-TW`, `zh-HK`, `zh-MO`, `zh-Hant`)는 맞는 행이 없어 영어 랜딩에 남는다. 다른 페이지는 이동하지 않아 공유한 링크가 그 언어로 열린다. JS가 꺼져 있으면
 영어 랜딩이 그대로 보인다. 페이지마다 `Base.astro`가 자기 주소를 `canonical`과 `og:url`로 알리고, 언어가 나뉜 페이지는
 언어별 주소를 `hreflang`과 `og:locale:alternate`로 함께 알린다. 호출하는 쪽은 언어 코드별 경로 맵 `hrefs`를 넘기고, 언어 전환은 언어 목록 순서대로 맵에 있는 언어를 보여 준다. 번역되지 않은 디자인 페이지(토큰, 갤러리)는 내용이 같은 영어라 다른 언어판이 없으므로
 `announceLanguages={false}`로 `hreflang`과 `og:locale:alternate`를 내지 않고, 언어 전환은 그대로 보여 준다. `x-default`는 기본 언어의 경로다. 절대 주소는 `src/lib/site.ts`의 `absolute()`가 `src/lib/base.mjs`의 `SITE`로 만든다.
-언어 목록은 `src/lib/langs.mjs`에 있다. 언어마다 코드, 경로 접두어, 언어 전환 표시 글자, `og:locale` 값, 랜딩·가이드·개인정보 경로, 검색 색인 파일, 공유 이미지 경로를 한 행에 적고, 기본 언어를 `DEFAULT_LANG`으로 내보낸다. 행에는 번역 폴더 `contentDir`도 있다. 한국어 정본은 `null`이다. 코드에서 언어 코드를 비교하지 않고 행의 값을 읽으며, 주소와 언어 코드가 다를 수 있으므로 `code`로 경로를 만들지 않는다(`code`는 `hreflang`과 `<html lang>`에 나간다). `CANONICAL_LANG`은 정본 언어이고, 모든 언어에 있는 페이지의 `hrefs`는 `hrefsFor`로 목록에서 만든다. `hrefs`에 페이지 언어가 없으면 `Base.astro`가 언어 코드를 담아 실패한다.
+언어 목록은 `src/lib/langs.mjs`에 있다. 언어마다 코드, 경로 접두어, 언어 전환에 보일 그 언어의 이름, `og:locale` 값, 랜딩·가이드·개인정보 경로, 첫 페이지 이동 대상 `browserMatch`, 검색 색인 파일, 공유 이미지 경로를 한 행에 적고, 기본 언어를 `DEFAULT_LANG`으로 내보낸다. 행에는 번역 폴더 `contentDir`도 있다. 한국어 정본은 `null`이다. 코드에서 언어 코드를 비교하지 않고 행의 값을 읽으며, 주소와 언어 코드가 다를 수 있으므로 `code`로 경로를 만들지 않는다(`code`는 `hreflang`과 `<html lang>`에 나간다). `CANONICAL_LANG`은 정본 언어이고, 모든 언어에 있는 페이지의 `hrefs`는 `hrefsFor`로 목록에서 만든다. `hrefs`에 페이지 언어가 없으면 `Base.astro`가 언어 코드를 담아 실패한다.
 
 ### 언어 목록과 사전
 
@@ -251,7 +260,8 @@ npm run stamp content/en/index.md
 
 Astro 내장 i18n은 쓰지 않는다. 7.3.1에서 확인한 결과 `i18n` 설정은 페이지를 만들어 주지 않고(경로는 어차피 `getStaticPaths`가 만든다), `Astro.preferredLocale`은 정적 빌드에서 `undefined`이며, `astro:i18n`은 `scripts/`와 Markdown 처리기에서 읽지 못해 언어 목록이 둘이 된다. `fallback`은 번역이 빠져도 빌드를 통과시켜 위 규칙과 반대다.
 `Base.astro`는 언어 행의 `shareImage`로 1200×630 공유 이미지의 절대 주소를 `og:image`로 내고 크기를 `og:image:width`와 `og:image:height`로 함께 알린다. `twitter:card`는 `summary_large_image`다. 새 언어의 이미지가 생기기 전에는 행에 있는 이미지를 가리키게 한다.
-네이버 Search Advisor의 사이트 소유 확인 태그(`naver-site-verification`)는 `src/pages/index.astro`의 `head` 슬롯에 있어 `/`에만 나간다.
+네이버 Search Advisor의 사이트 소유 확인 태그(`naver-site-verification`)는 `src/pages/[...locale]/index.astro`의 `head` 슬롯에서 기본 언어일 때만 나가므로 `/`에만 있다.
+일본어와 중국어 행의 `shareImage`는 자기 이미지가 생기기 전까지 영어 이미지를 가리킨다.
 
 ## 방문자 분석
 
@@ -262,7 +272,7 @@ Astro 내장 i18n은 쓰지 않는다. 7.3.1에서 확인한 결과 `i18n` 설�
   페이지에 노출되는 공개 값이다.
 - `<head>`를 가진 `Base.astro`가 이 컴포넌트를 싣는다. `Design.astro`, `Guide.astro`는 `Base.astro`를 통해 함께 포함된다.
 - production 빌드에만 포함되어 `astro dev` 방문은 집계되지 않는다.
-- 수집 항목이나 처리 주체가 바뀌면 개인정보 안내(`src/components/Privacy.astro`)의 두 언어 본문과 최종 수정일을 함께 고친다. 앱에 외부 전송 기능을 추가할 때도 안내의 앱 항목을 확인한다.
+- 수집 항목이나 처리 주체가 바뀌면 개인정보 안내(사전의 `privacy`)의 모든 언어 본문과 최종 수정일을 함께 고친다. 앱에 외부 전송 기능을 추가할 때도 안내의 앱 항목을 확인한다.
 - 통계는 Cloudflare 대시보드의 Web Analytics에서 본다. 저장소 Insights의 Traffic은 Pages 방문을 집계하지 않는다.
 
 ## 콘텐츠 구조
@@ -360,14 +370,16 @@ npm run check-translations -- ja
 | `commands` | 코드 펜스 안의 `tasty ...` 줄이 다르다. `#` 뒤 주석은 뺀다. 원본에서 한글이 든 따옴표 값, `<자리 표시>`, 낱말은 예시 글이라 번역할 수 있다 |
 | `links` | 링크 대상 경로(앵커 제외)의 묶음이 다르다. 순서는 보지 않는다 |
 | `diagrams` | `tasty-diagram` 표식의 이름이나 순서가 다르다 |
-| `labels` | `<!-- en: ... -->` 값의 집합이 다르다 |
+| `labels` | 언어 행의 `code`가 `en`이면 원본의 `<!-- en: ... -->` 값이 영어 본문에 없다. 마크다운 서식은 걷고 `{n}` 같은 중괄호 자리 표시는 임의의 값과 맞춘다. 다른 언어는 주석 값의 집합이 다르다 |
 | `stamp` | 스탬프가 없거나 원본 해시와 다르다 |
 | `hangul` | 한글이 남아 있다. 앱 언어 이름 `한국어`와 앱의 한국어 표시 예시는 스크립트의 `ALLOWED_HANGUL`에 적어 뺀다 |
 | `kana` | `zh` 폴더에 가나가 있다 |
 
 `zh` 폴더에서 GB2312 밖의 한자는 번체 후보로 출력하며 실패가 아니다. 근사이므로 사람이 본다.
 
-`--counts`는 규칙별 수만 내고 항상 0으로 끝난다. 영어 번역은 이 검사보다 먼저 쓰였고 범위 밖이라 `labels`가 어긋난다(라벨 주석을 싣지 않는다). 그래서 CI는 영어를 판정하지 않고 `ja`, `zh`만 판정한다. `--skip-missing`은 없는 폴더를 건너뛴다.
+영어 번역은 라벨 주석을 싣지 않고 본문에 영어 라벨을 그대로 쓴다. CI는 `en`, `ja`, `zh`를 모두 판정한다.
+
+`--counts`는 규칙별 수만 내고 항상 0으로 끝난다. `--skip-missing`은 없는 폴더를 건너뛴다.
 
 ### 언어를 더할 때 고칠 곳
 
@@ -375,7 +387,7 @@ npm run check-translations -- ja
 - `content/<폴더>/`: 번역 파일을 넣고 스탬프를 찍는다.
 - `checks/src/lib.rs`의 `TRANSLATION_DIRS`: Rust는 `langs.mjs`를 실행하지 못해 폴더 이름을 여기 적는다. 새 폴더를 빠뜨리면 번역이 한국어 원본으로 읽혀 "이름이 가이드에 있는가" 검사가 약해진다. 언어 행의 `contentDir`이 여기 없으면 시험이 실패한다. 행 없이 들어온 폴더는 이 시험이 잡지 못하므로 파일을 넣기 전에 먼저 고친다.
 - `checks/tests/guide_examples_parse.rs`의 `MAY_BE_ABSENT`: 번역이 들어오는 동안만 쓴다. 행을 더할 때 비운다.
-- `.github/workflows/pages.yml`의 `check-translations` 줄: 폴더 이름과 `--skip-missing`.
+- `.github/workflows/pages.yml`의 `check-translations` 줄: 폴더 이름. 파일을 행보다 먼저 넣는 동안만 `--skip-missing`을 쓰고 행을 더할 때 뺀다.
 - `src/lib/langs.mjs`: 번역 파일과 경로가 준비된 뒤 마지막에 행을 더한다.
 
 **콘텐츠의 내부 링크는 상대경로로 쓴다.** hast 플러그인이 그것을 라우트로 바꾸고, 그 라우트는
@@ -410,8 +422,8 @@ Sätteri 의 hast 플러그인(`src/lib/satteri-*.mjs`)에서 일어난다.
   vendor 스케일은 앱 chrome 용이라(14px UI 상한, 조밀한 4/8/12 간격) 웹 본문에 그대로 쓰면
   읽히지 않기 때문이다.
 
-선택은 `localStorage` 에 남고(`tasty-theme`), 저장값이 없으면 `prefers-color-scheme` 을
-따른다. 첫 페인트 전에 인라인 스크립트가 적용해 깜빡임이 없다. 옛 빌드가 저장한
+선택은 `localStorage` 에 남고(`tasty-theme`), 저장값이 없으면 OS나 브라우저 설정과 상관없이
+mocha 로 시작한다. 첫 페인트 전에 인라인 스크립트가 적용해 깜빡임이 없다. 옛 빌드가 저장한
 `"light"` · `"dark"` 도 그대로 해석된다.
 
 ### 치수 척도의 두 출처
@@ -436,12 +448,12 @@ Sätteri 의 hast 플러그인(`src/lib/satteri-*.mjs`)에서 일어난다.
   읽는지는 이 절이 다루지 않는다.
 - 요소 크기 척도는 용도로 나눈다. `--size-control-*` 는 컨트롤의 높이 · 너비다 — `sm` 은 헤더의
   아이콘 버튼 · 언어 전환 · 검색 입력과 검색 아이콘 칸(좁은 화면에서 접힌 검색 폭 포함), `md` 는
-  랜딩 기능 카드 칩과 터미널 그림 제목 막대, `lg` 는 랜딩 CTA 버튼이다. `--size-icon-*` 는 글리프
+  랜딩 기능 카드 칩과 터미널 그림 제목 막대, 언어 목록 줄, `lg` 는 랜딩 CTA 버튼과 좁은 화면·터치 환경의 언어 목록 줄이다. `--size-icon-*` 는 글리프
   크기다 — `sm` 헤더 아이콘 버튼과 검색 돋보기, `md` CTA와 기능 카드 칩, `lg` 플랫폼 줄, `xl`
   브랜드 마크다.
 - 척도에 넣지 않는 값은 숫자로 남기고 파일 머리 주석에 그 범주를 적는다 — 글꼴 크기, 선 굵기,
   pill 반경, 그림의 세부인 장식(eyebrow 점 7px · 창 점 10px · 사이드바 스크롤바 8px), 한 곳에서만
-  쓰는 레이아웃 폭(검색 기본 폭 220px, 펼친 검색 190px, 검색 결과 `min(460px, 82vw)`, 좁은 화면
+  쓰는 레이아웃 폭(검색 기본 폭 220px, 펼친 검색 190px, 640px 이하에서 포커스한 검색칸은 머리글 내용 폭으로 머리글을 덮고 터치 기기에서는 글자 16px, 검색 결과 `min(460px, 82vw)`, 640px 이하에서는 머리글 내용 폭과 같은 화면 고정 위치, 좁은 화면
   사이드바 `min(320px, 86vw)`, 푸터 열 최소 140px). `--sp-*` 는 간격
   척도라 크기 값에 빌려 쓰지 않고, `--size-*` 를 간격에 빌려 쓰지도 않는다.
 - 상대 단위(`em` · `rem` · `ch`)인지는 한 물음으로 가른다 — *사용자가 브라우저 글꼴 크기를 키웠을 때
@@ -458,11 +470,106 @@ Sätteri 의 hast 플러그인(`src/lib/satteri-*.mjs`)에서 일어난다.
 - 미디어 쿼리와 컨테이너 쿼리의 **조건**은 숫자로 남긴다. media feature 는 custom property 를
   읽지 못한다(`@media (max-width: var(--x))` 는 파싱되지 않는다). 블록 안의 선언은 위 규칙을 따른다.
 
+## D2Coding 글꼴 파일
+
+`public/fonts/`에 Tasty 앱이 쓰는 D2Coding ligature 원본 TTF 두 개와 SIL Open Font License 1.1 전문을 둔다. 빌드는 이 폴더를 같은 이름으로 복사하므로 글꼴과 라이선스가 사이트의 `/fonts/`에 나란히 나간다. 갤러리 표본만 이 파일로 그린다(아래 "사용 범위와 로딩").
+
+| 파일 | sha256 | 크기(byte) |
+|---|---|---|
+| `D2Coding-ligature-Regular.ttf` | `0890bd19cc222951f99fc4f29b46141c828c613719a8b16189eae3e21788c142` | 4224160 |
+| `D2Coding-ligature-Bold.ttf` | `2d7d153b6bc29a7216e62070348e1240305c95263a78da2b5ef836cf5ce59343` | 4398252 |
+| `D2Coding-OFL.txt` | `1807e8dec4d65f474cbf9be39f5e2254ecb81702babc320749e272ea66ffcc69` | 4511 |
+
+- 글꼴의 출처와 판: [Tasty 레포](https://github.com/zilhak/tasty)의 `crates/tasty-font/assets/`에 있는 파일과 같다. upstream 릴리스 [VER1.3.2](https://github.com/naver/d2-coding-font/releases/tag/VER1.3.2)의 ZIP에 있는 `D2CodingLigature/` 파일과도 해시가 같다. 판은 글꼴의 name 5(`Version 1.3.2; Build 20180524`)와 해시로 대조한다. `head.fontRevision`은 1.002라 판 번호와 다르다.
+- 라이선스의 출처: Tasty 레포의 `LICENSES/D2Coding-OFL.txt`와 같고, upstream 태그 `VER1.3.3`의 `OFL.txt`와도 같다. 태그 `VER1.3.2`와 그 릴리스 ZIP에는 라이선스 파일이 없다.
+- 폴더: Vite가 처리하는 import는 이름에 해시가 붙어 라이선스 파일과 떨어진다. 엔드포인트는 파일마다 코드가 필요한데 바이트를 그대로 내보내는 일만 한다. `public/`은 처리 없이 복사하므로 이름과 바이트가 그대로 유지된다.
+- 대조: 이 레포에서 `sha256sum public/fonts/*`를 실행하고, 빌드한 뒤 산출물의 `fonts` 폴더에도 실행해 위 표와 비교한다. 글꼴을 올릴 때는 Tasty 레포의 파일과도 비교한다.
+
+**세 파일을 고치지 않는다.** OFL은 형식 변환과 구성 요소의 추가, 삭제, 교체를 Modified Version으로 정의하고, Modified Version은 Reserved Font Name인 `D2Coding`, `D2Coding-Bold`를 쓸 수 없다. 글꼴을 고치면 이름과 CSS 패밀리까지 바꿔야 한다.
+
+- 서브셋을 만들지 않는다. [OFL FAQ](https://openfontlicense.org/ofl-faq/) 2.6은 글리프와 스마트 글꼴 코드를 빼는 것을 수정으로 본다.
+- WOFF, WOFF2로 변환하지 않는다. FAQ 2.2.1의 조건을 맞추면 수정이 아니지만 바이트 해시로 대조할 수 없다. 필요해지면 사용자에게 올린다.
+- 글꼴 메타데이터의 저작권 표기와 OFL 파일 머리의 저작권 줄이 달라도 어느 쪽도 맞춰 고치지 않고 함께 배포한다. 글꼴을 고치면 수정본이 되고, OFL 파일은 upstream 원문이다.
+- 글꼴의 메타데이터에는 라이선스가 한 문장뿐이고 Reserved Font Name 문구가 없다. 그래서 OFL 파일을 빼면 안 된다.
+
+### 사용 범위와 로딩
+
+- 브라우저는 그 글꼴로 글자를 처음 그릴 때 파일을 받는다. 파일이 4 MB가 넘으므로 어느 글자가 D2Coding을 읽는지가 전송량을 정한다.
+- `@font-face`는 `src/styles/d2coding.css`에 있고 `design.css`가 불러온다. 디자인 구역 밖 페이지에는 규칙이 없다.
+- 디자인 구역 안에서도 `[data-site-chrome]`과 토큰 페이지(`[data-gallery-page="tokens"]`)는 `--tasty-font-family-mono-system`을 읽어 파일을 요청하지 않는다. 공통 부분의 고정폭 글자 몇 개만으로 파일이 요청될 수 있기 때문이다. 토큰 페이지는 이름과 값의 표이고 검색에 노출된다.
+- 디자인 첫 페이지는 규칙이 있어도 D2Coding으로 그리는 글자가 없어 요청하지 않는다. 이 페이지나 토큰 페이지에 고정폭 글자를 더하면 요청이 생기는지 다시 잰다.
+- `font-display: swap`이다. `fallback`과 `optional`은 Slow 4G에서 같은 바이트를 다 받고도 그 페이지를 다른 글꼴로 남겼다. 파일을 받는 값을 그 페이지에서 보여 주는 쪽을 골랐다.
+- preload는 쓰지 않는다. 표본은 첫 렌더링에서 바로 요청하므로(약 1초) 끝나는 시각이 거의 같다. `local()`은 쓰지 않는다. 설치된 판이 다르면 표본이 앱과 달라진다.
+- 두 굵기를 모두 싣는다. 표본의 badge와 제목이 Bold를 쓰고 앱에도 Bold가 있다. 500은 Regular, 600 이상은 Bold로 그려진다.
+- 합자: `code, kbd, pre, samp`의 `font-variant-ligatures: contextual`은 그대로다. 범위 밖 페이지는 파일이 없어 명령 예시의 모양이 바뀌지 않는다.
+
+측정(Linux, Chromium, 첫 방문, Slow 4G는 1.6 Mbps·150 ms). 글꼴 전송은 압축이 없을 때 값이고, gzip이면 Regular 2095509, Bold 2216213 byte다. GitHub Pages의 `.ttf` 압축은 배포 전에는 잴 수 없다.
+
+| 범위 | 글꼴을 받는 페이지(82쪽 중) | `/guide/` 전송량 |
+|---|---|---|
+| 사이트 전체 | 82쪽, 두 파일 | 8656838 byte |
+| 디자인 구역 전체, chrome 포함 | 34쪽, 두 파일 | 33889 byte |
+| 지금: 갤러리 표본 | 30쪽. 22쪽은 두 파일, 8쪽(`icons`, `rules`, `rules-map`, `explorer-ops`)은 Regular만 | 34024 byte. 푸터 줄로 135 byte 늘었다 |
+
+| 지금의 페이지 | 전송량 | 글꼴 요청 | Slow 4G 글꼴 완료 | CLS 전 → 후 |
+|---|---|---|---|---|
+| `/design/gallery/` | 8823321 byte | 2 | 46.3초, gzip이면 24.0초 | 0.0260 → 0.0266 |
+| `/design/gallery/components/` | 8846105 byte | 2 | 46.6초, gzip이면 23.8초 | 0.0208 → 0.0207 |
+| `/design/gallery/icons/` | 4375573 byte | 1 | 28.0초, gzip이면 14.6초 | 0.0226 → 0.0369 |
+
+- 글꼴이 도착하는 시점의 이동: 한 화면 넘게 내려간 상태에서 CLS 증가는 0.003 이하다. 위 표의 CLS에는 표본 마운트의 이동이 들어 있다.
+- `DOMContentLoaded`는 약 1~1.6초로 글꼴의 영향이 적다. `load`는 글꼴이 끝날 때까지 늦어진다.
+- 표본의 글꼴 폭: 이 Linux의 대체 글꼴 `Noto Sans Mono CJK JP`는 11px에서 글자당 5.5px이고 D2Coding은 앱처럼 6px로 반올림된다. 문서 높이는 페이지마다 0.3~1.7% 늘고 문서 가로 넘침은 없다. 안쪽에서 잘리는 요소는 1440폭에서 434개에서 452개로 늘었다. 내용을 확인한 새 잘림은 말줄임 표시, 경로 입력 칸, 값이 잘리는 사례를 보여 주는 표본이다.
+
+### 라이선스 고지
+
+푸터의 `MIT` 줄 아래에 별도 줄을 둔다(`Base.astro`, 사전의 `footerFontNote`, `footerFontLicense`, `footerFontSource`). 줄이 글꼴과 라이선스를 직접 말하므로 `MIT` 줄이 글꼴까지 덮는 것으로 읽히지 않는다. 라이선스 이름은 `/fonts/D2Coding-OFL.txt`로, 출처는 원 배포처 주소로 연결한다. 모든 페이지에 있다.
+
+- 저작권자 이름은 이 줄에 적지 않는다. OFL 파일 머리와 글꼴 메타데이터에 있고 두 표기가 다르므로, 한쪽을 골라 다시 적지 않는다.
+- 내려받기 안내가 아니다. 글꼴 링크를 사이트에 두지 않는다.
+
+## 언어별 글꼴과 줄바꿈
+
+페이지 언어(`<html lang>`)가 일본어나 중국어일 때만 값이 달라진다. 영어와 한국어 경로의 계산값은 언어를 더하기 전과 같다. 규칙은 `src/styles/global.css`에 있다.
+
+### 줄바꿈
+
+`body`의 `word-break: keep-all`은 한국어를 위한 값이다. 일본어와 중국어에서는 문장 부호까지 줄을 바꾸지 않아 줄 길이가 들쭉날쭉해지고 줄 수가 늘어난다. 그래서 `:root:lang(ja)`, `:root:lang(zh)`의 `body`는 `normal`이다.
+
+`:root`를 함께 쓰는 이유는 기준이 요소가 아니라 페이지 언어이기 때문이다. `:lang(ko)`로 옮기거나 `:lang(ja)`만 쓰면 영어 경로 표본 안의 `lang="ko"`, `lang="ja"` 요소의 줄바꿈이 달라진다.
+
+### 영어 구역의 경계
+
+`word-break`와 `font-family`는 상속된다. 일본어·중국어 경로의 메뉴, 이전·다음, 토큰과 갤러리의 `main`은 `lang="en"`이지만 그대로 두면 `body`의 값을 물려받아, 같은 소스여야 할 표본이 언어 경로마다 달라진다. 그래서 가장 바깥의 `[lang="en"]`에서 다른 경로와 같은 값으로 되돌린다. 이 선택자는 명시도가 0이라 값을 직접 정한 규칙이 항상 이긴다. 되돌리는 값은 `--font-sans`, `--font-mono`, `font-family`, `word-break`다. `--font-*-default`가 그 값을 담는다.
+
+### 글꼴 대체
+
+같은 한자도 언어마다 모양이 다르다. 글꼴 이름이 없으면 시스템 기본으로 떨어져 다른 언어의 글꼴로 그려질 수 있다. Windows에서는 `Malgun Gothic`이 먼저 잡힐 수 있다. 그래서 `:root:lang(ja)`, `:root:lang(zh)`가 `--font-cjk`에 그 언어의 시스템 글꼴 이름과 Linux 배포판의 Noto 이름을 적고, `--font-sans`와 `--font-mono`가 이를 읽는다.
+
+- 순서는 토큰, `--font-cjk`, 한국어 이름, 일반 글꼴이다. 토큰이 앞이라 라틴 글자의 모양이 언어마다 달라지지 않고, 한국어 이름이 뒤라 한국어 글꼴이 일본어·중국어를 그리지 않는다.
+- 이 대체를 위해 글꼴 파일을 배포하거나 외부 글꼴을 요청하지 않는다. 이름만 더한다.
+- `--tasty-font-ui`는 루트에서 덮지 않는다. 커스텀 속성은 상속되어 표본까지 내려간다.
+- 일본어와 중국어의 `--font-mono`는 `--tasty-font-family-mono-system`, `--font-cjk-mono`, Linux와 Android의 고정폭 글꼴 이름(`Noto Sans Mono`, `DejaVu Sans Mono`, `Liberation Mono`, `Droid Sans Mono`), `--font-cjk`, `monospace` 순서다. `--tasty-font-family-mono`를 그대로 쓰면 일반 글꼴 `monospace`가 `--font-cjk`보다 앞에 온다. `monospace`가 CJK 글자를 가진 글꼴로 풀리는 환경(Linux의 `Noto Sans Mono CJK JP`)에서는 코드 안의 한자가 중국어 경로에서도 일본어 모양으로 나온다.
+- `--font-cjk-mono`는 그 언어의 CJK 고정폭 이름이다(`Noto Sans Mono CJK JP`, `Noto Sans Mono CJK SC`). `--font-cjk`의 글꼴은 라틴 글자를 비례폭으로 그리므로 그 앞에 있는 이름은 모두 고정폭이어야 한다. 그래야 파일 이름 같은 라틴 코드가 비례폭으로 떨어지지 않는다. `--font-cjk-mono` 뒤의 이름에는 한자가 없어, 한자는 `--font-cjk`로 넘어가 그 언어의 모양으로 나온다.
+- 이 값에는 D2Coding이 없다. 글꼴이 설치된 컴퓨터에서도 번역 문장 옆 코드의 가나와 한자가 D2Coding과 다른 글꼴로 섞이지 않게 하기 위해서다. 표본과 메뉴처럼 `lang="en"`인 구역은 경계에서 `--font-mono-default`로 돌아간다.
+
+### 번역 문구를 그리는 고정폭 규칙
+
+번역 문구를 그리는 고정폭 규칙은 일본어와 중국어에서 `--font-sans`를 읽는다. 앱의 `--tasty-font-label`([RULES](../../vendor/RULES.md) 8절)과 같은 규칙이다. 고정폭 글꼴에 없는 글자가 많아 한 낱말 안에서 글꼴이 섞이기 때문이다. 대상은 `.breadcrumb`, `.page-nav .dir`, `.search__results .r-crumb`다. 디자인 머리 부분인 `.design-head`, `.ds-group`도 `--tasty-font-ui`에 CJK 이름이 없어 같은 페이지의 본문과 글꼴 체인을 맞추려고 `--font-sans`를 읽는다.
+
+선택자가 요소의 `:lang`이라 `lang="en"`인 곳에는 걸리지 않는다. 디자인 구역의 이전·다음과 토큰·갤러리의 머리 부분은 영어 고정이라 그대로다.
+
+값을 담는 고정폭 규칙은 모든 언어에서 유지한다. `.brand__version`은 버전, `.code-block__lang`은 코드 언어 이름이다. `.copy-btn`은 영어 고정이면 유지하고 번역하면 대상이 된다.
+
+언어 전환은 고정폭을 쓰지 않는다. 언어 이름(`English`, `한국어`, `日本語`, `简体中文`)은 어느 페이지에서든 그 언어의 글꼴 체인으로 그린다. 페이지 언어가 정하는 `--font-sans`가 닿지 않으므로 `.lang-switch [lang]` 규칙이 `--font-cjk-ja`, `--font-cjk-zh`를 직접 읽는다.
+
+랜딩 창 문서의 제목(`.shell__doc-title`)도 번역 문구라 일본어와 중국어에서 `--font-sans`를 읽는다. 터미널 그림의 줄은 터미널 내용이라 `--tasty-font-mono` 그대로다.
+
 ## 랜딩의 구조화 데이터
 
-`/`와 `/ko/`의 `<head>`에 `src/lib/structured-data.ts`가 만든 JSON-LD를 넣는다. 다른 페이지에는 넣지 않는다.
+모든 언어 랜딩의 `<head>`에 `src/lib/structured-data.ts`가 만든 JSON-LD를 넣는다. 다른 페이지에는 넣지 않는다.
 
-- `SoftwareApplication`은 두 랜딩에 넣고 `WebSite`는 첫 페이지인 `/`에만 넣는다.
+- `SoftwareApplication`은 모든 랜딩에 넣고 `WebSite`는 첫 페이지인 `/`에만 넣는다.
 - 값은 실제 제품 사실만 적고 이미 있는 곳에서 읽는다. `description`은 `src/lib/i18n/` 사전의 `meta.description`, `downloadUrl`은 `RELEASES_URL`, `softwareVersion`은 `releaseVersion`, `sameAs`는 `REPO`, 주소는 `absolute()`다.
 - `softwareVersion`은 공개된 최신 릴리스다. 개발 중인 버전을 쓰지 않는다. `release.json`이 없는 로컬 빌드에는 이 키가 없다.
 - `inLanguage`는 앱 내장 언어(영어, 한국어, 일본어)다. 웹사이트 언어가 아니다.
@@ -498,7 +605,7 @@ Sätteri 의 hast 플러그인(`src/lib/satteri-*.mjs`)에서 일어난다.
 - 브라우저가 보고한 값만 사용한다. Windows ARM 기기의 브라우저가 x64 라고 보고하면 x64 설치 파일로
   연결된다. 아키텍처를 판별하지 못한 방문자에게 다른 아키텍처의 파일을 대신 고르지 않는다.
 - `release.json` 이 없거나 해당 조합의 자산이 없으면 속성이 없으므로 버튼은 릴리스 페이지로 간다.
-  한국어·영어 랜딩은 같은 컴포넌트와 스크립트를 사용한다.
+  모든 언어의 랜딩은 같은 컴포넌트와 스크립트를 사용한다.
 
 ## 랜딩의 제품 창
 
@@ -506,7 +613,7 @@ Sätteri 의 hast 플러그인(`src/lib/satteri-*.mjs`)에서 일어난다.
 순서로 합성한 것이고(타이틀바 → 사이드바 | 탭 스트립 → 분할 서피스 → 상태바), 킷이 바뀌면
 같이 바뀐다. `src/components/AppShell.jsx`, 프레임 스타일은 `src/styles/app-shell.css`.
 
-**동작한다.** 탭을 고르고 닫고 열 수 있고(마크다운 탭은 패인을 마크다운 서피스로 바꾼다),
+**동작한다.** 탭을 고르고 닫고 열 수 있고(마크다운 탭은 패인을 마크다운 서피스로 바꾼다. 키보드는 활성 탭에 Tab 정지점 하나를 두고 좌우 방향키, Home, End로 탭을 고른다. 활성 탭의 닫기 단추가 다음 정지점이고, 닫으면 포커스는 활성 탭으로, 탭이 없으면 새 탭 단추로 간다. 키트의 `Tab`을 바꾸지 않고 `AppShell.jsx`가 밖에서 속성을 붙인다),
 워크스페이스를 옮기고, 사이드바를 접고, 터미널 검색을 열고, 사이드바 버튼으로 Settings ·
 Plugins · Ports · Remote · 커맨드 팔레트를 연다. 페이지이기 때문에 킷 프리뷰와 다른 점이 둘 있다.
 

@@ -400,6 +400,11 @@
   --tasty-tooltip-font-size:       var(--tasty-font-size-caption); /* 12 */
   --tasty-tooltip-line-height:     var(--tasty-line-height-ui);
   --tasty-tooltip-max-width:       var(--tasty-size-240);   /* wraps 2–3 sentences */
+  /* Terminal path link under the pointer on a mirror — a tooltip below the link run
+     says where the path lives: the "Remote" word in tooltip ink, then remote glyph +
+     host in the remote hue. Not shown for a local path or any URL with a scheme. */
+  --tasty-link-remote-fg:          var(--tasty-accent-remote-raised); /* raised 8.08 · 4.86 */
+  --tasty-link-remote-gap:         var(--tasty-space-xs);   /* 4 — glyph ↔ host */
   --tasty-tooltip-offset:          var(--tasty-space-xs);   /* 4 gap from anchor */
   --tasty-tooltip-delay:           var(--tasty-motion-ui-med); /* short hover reveal delay */
 
@@ -562,6 +567,15 @@
      which theme is active; sun/theme optical parity is corrected in the ASSET
      (icons/sun.svg ray extent), never by giving one glyph a different size. */
   --tasty-statusbar-glyph-size:    var(--tasty-icon-size-xs); /* 12 — smallest inline glyph step; scales with the UI scale like the rest */
+  /* Remote item — shown only while a mirror surface has focus. It leads the left
+     cluster: remote glyph + host label, both in the remote hue (the explorer host
+     mark form; the bar holds glyphs and text only, so no tag fill). Reconnecting
+     drops both to the bar's own neutral ink (text-muted, statusbar-glyph) and adds a
+     status word, so a lost link never reads as live. The host label is capped and
+     end-elided; it drops last of the text items, the glyph never drops. */
+  --tasty-statusbar-remote-fg:        var(--tasty-accent-remote-raised); /* crust 12.06 · 5.67 · mantle 11.29 · 6.17 */
+  --tasty-statusbar-remote-gap:       var(--tasty-space-xs);    /* 4 — glyph ↔ host ↔ status word */
+  --tasty-statusbar-remote-max-width: var(--tasty-size-160);    /* host label cap — the branch cap's value */
 
   /* Git viewer diff toolbar — a CONTAINER height, deliberately not button-height
      (28): the toolbar is a 32px bar that holds 28px controls with 2px of air. */
@@ -599,7 +613,8 @@
   --tasty-workspace-dot-slot:      var(--tasty-size-16);    /* 16 at scale 1 — DERIVED in Theme: round(dot) + 2 × (round(ring-width) + round(ring-offset)); never rounded on its own (0.85 → 15, 1.2 → 18). Square; height does not grow the row. */
   --tasty-workspace-row-active-bar-width: var(--tasty-selection-edge-width); /* 2 — hairline, zoom-exempt */
   --tasty-workspace-dot-gap:       var(--tasty-space-xs);   /* 4 — slot → title / subtitle / pill */
-  /* Running count (2026-11-09) — plain mono numeral between the dot slot and the body, on every row, 0 included.
+  /* Running count (2026-11-09) — plain mono numeral between the dot slot and the body, shown from 1. At 0 no numeral:
+     the column stays, empty, on every row, so body x is the same at 0 to 99.
      Row x at scale 1: 8 + slot 16 + gap 2 + column 10 + dot-gap 4 = body 40. Ink: the text-muted role, no token of its own. */
   --tasty-workspace-running-count-gap:       var(--tasty-size-2);  /* 2 — slot → numeral; clears the attached ring and the keycap */
   --tasty-workspace-running-count-min-width: var(--tasty-size-10); /* 10 — two D2Coding digits at micro, so 0 to 99 never move the name. Another mono font: the wider of this and its two digits */
@@ -738,6 +753,17 @@
   --tasty-surface-focus-edge-focused:   var(--tasty-text-secondary);
   --tasty-surface-focus-edge-unfocused: var(--tasty-bg-sidebar);
   --tasty-surface-focus-edge-width:     var(--tasty-selection-edge-width); /* 2 — hairline, zoom-exempt */
+
+  /* Popup focus edge. A popup whose scope is narrower than the window (surface,
+     tab, pane, workspace) can stay open while key focus sits on another surface.
+     The popup shell, host or plugin alike, lights a bar across the top of its
+     frame while it holds key focus: the same neutral signal as the surface focus
+     edge, so "keys go here" reads one way on a leaf and on a popup. Unfocused,
+     the frame is what it was: no bar, no second value. The bar sits inside the
+     1px border over the content margin, clipped by the radius, so nothing moves.
+     Window-scope popups draw none. The scrim does not change with focus. */
+  --tasty-popup-focus-edge-focused:     var(--tasty-text-secondary);
+  --tasty-popup-focus-edge-width:       var(--tasty-selection-edge-width); /* 2 — hairline, zoom-exempt */
 
   /* ─────────────────  DATA  ───────────────── */
 
@@ -984,6 +1010,13 @@
      every frame — never reflows the id beside it. The when never shrinks and
      never drops: the id yields, it already has a front-elision rule. */
   --tasty-fh-when-width:              var(--tasty-size-56);
+  /* File HANDLER picker — remote mark. When the target is a path on a mirror's remote
+     host, the header's path line leads with remote glyph + host in the remote hue (the
+     explorer host mark form, no fill). The mark is capped and end-elided on its own;
+     the path keeps its front elision in the space left, so neither cuts the other. */
+  --tasty-fh-remote-fg:               var(--tasty-accent-remote-raised); /* base 10.54 · 6.63 */
+  --tasty-fh-remote-gap:              var(--tasty-space-xs);    /* 4 — glyph ↔ host */
+  --tasty-fh-remote-max-width:        var(--tasty-size-160);    /* host text cap; the path keeps 390 − 12 − 4 − 160 − 8 = 206 */
   /* Color swatch (settings color editor) */
   --tasty-swatch-size:              var(--tasty-size-16);
   --tasty-swatch-radius:            var(--tasty-radius-sm);
@@ -1345,6 +1378,25 @@
   --tasty-dag-popup-width:           var(--tasty-size-560);
   --tasty-dag-popup-height:          var(--tasty-size-460);
 
+  /* 2026-11-10 — Graph view: the child graph and the Task DAG share one graph component.
+     The dag-* tokens above stay the shared canvas, card, edge, chrome and detail-row values
+     (names never change); graph-* adds what the shared component gained. No colour here:
+     every ink and fill is an existing dag-* or semantic role. */
+  --tasty-graph-drawer-width:        var(--tasty-dag-detail-width);           /* 288 — drawer laid OVER the canvas, flush right, full canvas height */
+  --tasty-graph-drawer-cover-below:  var(--tasty-size-480);                   /* canvas narrower than this: the drawer covers the whole canvas (288 + one 168 card + 2 × 12 does not fit) */
+  --tasty-graph-drawer-head-height:  var(--tasty-drilldown-backbar-height);   /* 36 — title + close, pinned while the body scrolls */
+  --tasty-graph-drawer-motion:       var(--tasty-motion-ui);                  /* 120 slide in / out from the right edge; reduced motion → instant */
+  --tasty-graph-reveal-margin:       var(--tasty-space-lg);                   /* 16 — a selected card under the drawer pans this far left of its edge */
+  --tasty-graph-push-motion:         var(--tasty-motion-ui);                  /* 120 child graph → DAG push to the left, back slides right; reduced motion → instant */
+  --tasty-graph-toolbar-height:      var(--tasty-drilldown-backbar-height);   /* 36 — popup toolbar = back bar, so the push never moves the canvas top */
+  --tasty-graph-child-popup-width:   var(--tasty-size-600);                   /* three columns at 100%: 3 × 168 + 2 × 32 + 2 × 16 */
+  --tasty-graph-child-popup-height:  var(--tasty-dag-popup-height);           /* 460 — the DAG popup height, so a pushed DAG fits as it does there */
+  --tasty-graph-base-chip-height:    var(--tasty-size-16);                    /* chip above the base surface's card */
+  --tasty-graph-base-chip-gap:       var(--tasty-space-xs);                   /* 4 — chip ↔ card top; 16 + 4 fits the 24 sibling gap */
+  --tasty-graph-base-chip-padding-x: var(--tasty-space-xs);                   /* 4 */
+  --tasty-graph-base-picker-width:   var(--tasty-size-360);                   /* base surface picker popover: window › category › workspace › pane › tab › surface at 12 indent */
+  --tasty-graph-base-picker-height:  var(--tasty-size-400);                   /* picker popover cap; only the tree scrolls */
+
   /* 2026-10-06 — command palette list cap · remote protocol filter */
   --tasty-palette-list-max-height:     var(--tasty-size-320); /* list grows to 11 rows then scrolls; ON-SCALE with control-height. List padding = space-sm on all four sides (no extra footer gap) */
   --tasty-remote-filter-dropdown-width: var(--tasty-size-240); /* BORDER-BOX width (includes the 1px border) of the protocol-filter popover; content = 240 − 2 */
@@ -1406,6 +1458,10 @@
   /* 2026-10-07 (batch 4) */
   --tasty-tools-menu-min-width:        var(--tasty-size-160);      /* Tools menu grows to its longest label; 160 is the floor */
   --tasty-tools-menu-max-width:        var(--tasty-size-240);      /* past this a label ellipsizes at the END */
+  /* 2026-11-11 — fallback context menu: the egui menu drawn only where the native menu cannot open (Linux: display backend causes 1, 1b, 2 or any other GTK init failure) */
+  --tasty-fallback-menu-min-width:     var(--tasty-size-160);      /* grows to its longest row; 160 is the floor */
+  --tasty-fallback-menu-max-width:     var(--tasty-size-320);      /* past this a label wraps (fixed copy), never ellipsizes */
+  --tasty-fallback-menu-edge-margin:   var(--tasty-space-sm);      /* 8 kept clear of every window edge; max height = window height - 2 x this, then the rows scroll */
   --tasty-explorer-state-compact-below: var(--tasty-size-120);     /* content body under this → status screens switch to the one-line compact row */
   --tasty-md-callout-icon-gap:         var(--tasty-space-xs);      /* callout header: marker → type icon → label, 4 each */
   --tasty-md-callout-marker-size:      var(--tasty-icon-size-sm);  /* collapsible callout chevron (replaces the <details> default marker) */
@@ -1606,6 +1662,30 @@
   --tasty-site-code-fg:        var(--tasty-code-fixed-fg);
   --tasty-site-code-comment:   var(--tasty-code-fixed-comment);
   --tasty-site-inline-code-bg: var(--tasty-code-inline-bg);
+
+  /* Capture region select. RULES section 4 */
+  --tasty-capture-band-height: var(--tasty-toolbar-height); /* the band above the picture */
+  --tasty-capture-stage-inset: var(--tasty-space-sm);       /* around the picture, so the picture frame and the selection edge always have room */
+  --tasty-capture-edge-width:  var(--tasty-border-width);   /* each of the two edge strokes */
+  --tasty-capture-min-drag:    var(--tasty-space-xs);       /* below this on either axis, in display px, there is no selection */
+
+  /* ── Android (2026-11-18). Sizes of the Android app, read only by vendor/android and the Android app. The desktop
+     UI never reads them. Each points at a canon token; colors stay the desktop roles. ── */
+  --tasty-android-tab-height:         var(--tasty-size-32); /* Bar height, and the height of a tab's target */
+  --tasty-android-tab-min-width:      var(--tasty-size-96); /* Narrowest tab. One whole tab fits a 180 pane that also holds + and the logo */
+  --tasty-android-tab-max-width:      var(--tasty-size-240); /* Widest tab, when the pane has room to share */
+  --tasty-android-tab-button-width:   var(--tasty-size-40); /* Width of the + and logo buttons, which is their target width */
+  --tasty-android-tab-button-reach:   var(--tasty-space-sm); /* How far the + and logo targets reach below the bar, into the pane's own terminal */
+  --tasty-android-tab-logo-size:      var(--tasty-size-20); /* Drawn logo mark inside its target */
+  --tasty-android-popup-max-width:    var(--tasty-size-320); /* Widest the popup gets. Narrower areas keep the side margin instead */
+  --tasty-android-popup-margin:       var(--tasty-space-lg); /* Space between the popup and the edge of the area it sits in, on every side */
+  --tasty-android-popup-title-height: var(--tasty-size-48); /* Title row, its rule included: the name of what was pressed */
+  --tasty-android-popup-row-height:   var(--tasty-size-48); /* The row unit. Every list item is one unit; an action row is also its target */
+  --tasty-android-popup-padding-x:    var(--tasty-space-lg); /* Inset of the title, headings and row labels */
+  --tasty-android-popup-font-size:    var(--tasty-font-size-max); /* Title and row labels */
+  --tasty-android-popup-lane-width:   var(--tasty-size-24); /* Scroll lane at the right of a list that scrolls. The rows give up this width */
+  --tasty-android-popup-lane-glyph:   var(--tasty-icon-size-md); /* Chevron at each end of the lane */
+  --tasty-android-popup-thumb-width:  var(--tasty-space-xs); /* Thumb in the lane */
 }
 
 

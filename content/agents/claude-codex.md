@@ -102,7 +102,7 @@ tasty codex spawn --workspace workers --cwd ~/proj --sandbox read-only \
 | `--prompt <텍스트>` | 띄운 직후 보낼 첫 지시 |
 | `--surface <ID>` | 부모 서피스 (기본: 자기 자신) |
 
-`spawn` 은 **즉시 반환**합니다. 별도의 대기 명령은 없습니다. 자식의 훅과 [수신 설정](#4-완료-알림-받기)을 마치면 자식이 보고한 대기 상태를 부모에게 전달합니다. 대기는 작업 성공을 뜻하지 않습니다. Claude 자식의 서브에이전트가 끝났거나 백그라운드 작업이 남은 채 응답이 끝난 것은 대기로 보지 않습니다. 백그라운드 작업이 끝나고 이어진 응답까지 마쳐야 알립니다. [Stop 게이트](#8-claude-세션-프로필과-stop-게이트)가 체크리스트를 보내 응답을 이어 가게 한 경우도 대기로 보지 않고, 게이트를 통과해 응답이 끝나면 알립니다. 끝나지 않는 백그라운드 명령(개발 서버 등)을 남기면 대기 상태가 되지 않습니다. 백그라운드 작업을 기다리는 동안 출력이 없으면 부모에게 한 번 알립니다. 기본 기준은 10분이며, 출력 파일을 찾았는지와 Monitor만 남았는지에 따라 달라집니다([4절의 출력 없음 알림](#4-완료-알림-받기)).
+`spawn` 은 **즉시 반환**합니다. 별도의 대기 명령은 없습니다. 자식의 훅과 [수신 설정](#4-완료-알림-받기)을 마치면 자식이 보고한 대기 상태를 부모에게 전달합니다. 대기는 작업 성공을 뜻하지 않습니다. Claude 자식의 서브에이전트가 끝났거나 백그라운드 작업이 남은 채 응답이 끝난 것은 대기로 보지 않습니다. 백그라운드 작업이 끝나고 이어진 응답까지 마쳐야 알립니다. 다만 Monitor만 남긴 경우는 아래 설명처럼 대기로 봅니다. [Stop 게이트](#8-claude-세션-프로필과-stop-게이트)가 체크리스트를 보내 응답을 이어 가게 한 경우도 대기로 보지 않고, 게이트를 통과해 응답이 끝나면 알립니다. 끝나지 않는 백그라운드 명령(개발 서버 등)을 남기면 대기 상태가 되지 않습니다. 백그라운드 작업을 기다리는 동안 출력이 없으면 부모에게 한 번 알립니다. 기본 기준은 10분이며, 출력 파일을 찾았는지와 Monitor만 남았는지에 따라 달라집니다([4절의 출력 없음 알림](#4-완료-알림-받기)).
 
 부모는 자기 워크스페이스가 아닌 **다른 워크스페이스**에 자식을 두는 편이 안전합니다. 연결한 원격 워크스페이스에서 자식을 실행하는 방법과 결과를 받는 조건은 아래 ‘[연결한 원격 워크스페이스에 자식 만들기](#연결한-원격-워크스페이스에-자식-만들기)’ 절에서 설명합니다. 자식은 원격 컴퓨터의 도구와 설정으로 실행됩니다.
 
@@ -110,7 +110,7 @@ tasty codex spawn --workspace workers --cwd ~/proj --sandbox read-only \
 
 ```sh
 tasty claude tell "이번엔 clippy 도 돌려" --surface 57     # 여러 줄 가능, 자동 제출
-tasty claude children                                       # 자식 목록 (index · surface · 상태)
+tasty claude children                                       # 자식 표: id · parents · nickname · state · cwd · last_report_at · index · confidence · evidence
 tasty claude state --surface 57                             # idle / needs_input / active / exited
 tasty claude broadcast "진행 상황 보고해\r" --role tester   # 역할별로 일괄 전송 (\r 로 제출)
 tasty claude kill --child 0                                 # index 로 종료
@@ -122,7 +122,23 @@ tasty claude parent --surface 57                            # 이 자식의 부�
 
 `tasty codex …` 도 같은 서브커맨드(`tell` / `children` / `state` / `broadcast` / `kill` / `respawn` / `parent`)를 가집니다. Codex 대화에서 실행하면 결과를 받는 방법이 다릅니다([Codex 부모에게 자동으로 전달하기](#codex-부모에게-자동으로-전달하기)).
 
+`tasty claude children`과 `tasty codex children`의 기본 출력은 부모 ID 표입니다. 두 명령은 `--format table|json`을 받으며 기본값은 `table`입니다. 다른 값을 주면 오류로 끝납니다. 스크립트에서 JSON으로 읽으려면 `--format json`을 붙이세요. 이전 버전처럼 기본 출력을 JSON으로 읽던 스크립트도 이 옵션을 붙여야 합니다.
+
 자식이 너무 많아지면 spawn 응답에 경고가 붙습니다. 임계치는 **설정** <!-- en: Settings --> › **플러그인** <!-- en: Plugins --> › **Claude Code** / **Codex** 의 **Spawn child 경고 임계치** <!-- en: Spawn child warning threshold --> 에서 바꿉니다 (Claude Code·Codex 모두 기본 6).
+
+### Claude 자식의 idle 체크
+
+부모 Claude나 셸에서 `tasty claude idle-check --surface <자식>`을 실행하면 자식에게 메시지를 보내지 않고 idle 체크만 겁니다.
+
+```sh
+tasty claude idle-check --surface 57
+```
+
+자식이 2분(120초) 동안 활동(`active`)도 턴 종료도 없으면 부모에게 경고 한 줄이 한 번 갑니다. 활동이 보이면 2분을 다시 셉니다. 그 체크가 기다리는 턴이 끝나면 별도 알림 없이 해제됩니다.
+
+일하던 자식에게 `tell`을 보내면 진행 중이던 턴의 끝이 아니라 메시지를 처리한 턴의 끝에서 해제됩니다. 질문하며 기다리던 자식에게 `tell`로 답하면 그 답을 처리한 턴의 끝에서 해제됩니다. `tell`과 `--prompt`를 준 `spawn`·`respawn`은 자동으로 같은 체크를 겁니다.
+
+경고를 받은 부모는 자식의 상태와 출력을 살펴보고 필요하면 다시 체크를 거세요. Tasty가 자동으로 복구하지는 않습니다.
 
 ### Claude 자식의 모델과 effort
 
@@ -147,17 +163,25 @@ Claude Code 부모나 일반 터미널 부모의 상태 알림은 자식이 Clau
 Claude 자식이 API 에러로 턴을 끝냈으면 완료 알림 줄 끝에 그 사실과 에러 종류(예: `overloaded`)가 붙습니다. 백그라운드 작업이 남아 자식이 계속 기다리는 경우에는 완료 줄 대신 그 사실을 적은 줄이 한 번 남습니다.
 Claude 자식의 출력 없음 알림은 기본 10분(600초)을 기준으로 합니다. [설정 > 플러그인 > Claude Code](../plugins/index.md#플러그인이-추가하는-설정)에서 60~86400초로 바꿀 수 있으며, 재시작 없이 반영됩니다. 알림을 끄는 값은 없습니다.
 
+기존의 오래 출력이 없는 자식에 대한 알림(기본 10분)은 그대로입니다. 다만 그 자식에 idle 체크를 걸어 둔 부모만 같은 조용함을 idle 체크 한 줄로 받습니다.
+
 백그라운드 셸이나 서브에이전트를 기다리는 자식은 찾은 작업 출력 파일이 모두 설정 시간 동안 바뀌지 않으면 작업 이름을 적은 줄을 대기 한 번에 한 번 남깁니다. 영어 줄은 `background work <이름> has written no output for <분> min`입니다. 작업 출력을 찾지 못하면 화면 출력이 10분과 설정값 중 큰 값 동안 바뀌지 않을 때 대기 한 번에 한 번 남깁니다. 이때 영어 줄은 `waiting on background work (<종류>) for <분> min, with no output meanwhile`입니다. 실제 알림은 앱 언어를 따릅니다.
 
-Monitor는 이벤트가 있을 때만 출력하므로 조용한 것이 정상입니다. 응답을 마치고 Monitor 작업만 남긴 자식에는 출력 없음 알림이 나가지 않습니다. 그런 자식은 Monitor가 끝날 때까지 `active`로 남고 완료 신호도 가지 않습니다. Monitor와 다른 작업이 함께 있으면 다른 작업만으로 판정합니다.
+Monitor는 이벤트가 있을 때만 출력하므로 조용한 것이 정상입니다. 일을 마치고 Monitor만 켜 둔 채 턴을 끝낸 자식은 `idle`로 보이고 부모에게 완료 알림이 한 번 갑니다. `tasty claude children`에도 `idle`로 나오며 `stale`로 바뀌지 않습니다. Monitor 이벤트가 오면 잠깐 `active`가 되었다가 다시 `idle`이 됩니다. 새 `spawn`·`tell`이 없으면 완료 알림은 더 오지 않습니다.
 
-이 알림은 완료 로그에 기록되며, 아래의 mod나 Monitor 수신 설정을 마친 부모 Claude Code의 새 턴을 깨웁니다. Codex 부모 대화에서 만든 자식에는 이 알림 경로가 적용되지 않습니다. Codex 부모는 아래의 결과 반환 경로로 턴 결과를 받습니다.
+작업 그래프(DAG)의 `spawn`·`tell` 대기 노드도 이때 끝나므로 Monitor가 계속 실행 중이어도 다음 노드가 시작될 수 있습니다.
+
+Monitor만 남긴 자식에는 출력 없음 알림이 나가지 않습니다. Monitor와 백그라운드 Bash·서브에이전트가 함께 남으면 `active`(대기)이고, 출력 없음 여부는 Monitor를 제외한 다른 작업만으로 판정합니다. 출력 없는 Bash에는 알림이 갑니다. Bash가 끝나 Monitor만 남으면 그때 `idle`이 되고 완료 알림이 갑니다.
+
+출력 없음 알림은 완료 로그에 기록되며, 아래의 mod나 Monitor 수신 설정을 마친 부모 Claude Code의 새 턴을 깨웁니다. Codex 부모 대화에서 만든 자식에는 이 알림 경로가 적용되지 않습니다. Codex 부모는 아래의 결과 반환 경로로 턴 결과를 받습니다.
 
 백그라운드 작업 대기가 아닌 턴에서 마지막 출력에 오류 문구가 있으면 기준은 30초로 고정됩니다. 오류 직후의 30초와 재알림 최소 간격 5분은 설정 대상이 아닙니다. 같은 조용한 구간에서는 한 번만 알립니다. 이 설정은 `tasty claude children`의 `stale` 표시 기준인 120초와 별개이므로, 알림보다 `stale`이 먼저 보일 수 있습니다. 알림만으로 작업이 멈췄다고 확정하지 않습니다.
 
-Monitor를 구별하는 새 훅을 받으려면 `tasty claude install`을 다시 실행한 뒤 새 Claude Code 프로세스를 시작하세요. 그 전에는 Monitor도 셸 작업으로 보고 알립니다.
+Monitor를 구별하는 새 훅을 받으려면 `tasty claude install`을 다시 실행한 뒤 새 Claude Code 프로세스를 시작하세요. 그 전에는 Monitor도 셸 작업으로 보고 자식은 대기로 남으며, 출력 없음 알림이 갈 수 있습니다.
 
 지원되는 Codex 부모 대화에는 자식의 응답이 끝났음을 알리는 결과 참조가 전달됩니다. 참조에 나온 이벤트 ID로 `tasty codex result`를 실행해 답변을 읽습니다. 연결 조건과 지원 경로는 아래 [Codex 부모에게 자동으로 전달하기](#codex-부모에게-자동으로-전달하기) 절을 따르세요.
+
+같은 완료 로그에는 [큐 도착 알림](cli-reference.md#서피스끼리-메시지-주고받기-큐)도 `[queue] `로 시작하는 줄로 들어옵니다. 완료 알림 mod가 켜진 Claude Code는 이 줄도 프롬프트로 받아 깨어나므로, 큐 메시지를 기다리려고 Monitor나 반복 조회를 켜 둘 필요가 없습니다.
 
 ### Claude Code에서 자동으로 받기
 
@@ -170,6 +194,8 @@ mod가 활성화되면 세션 시작부터 자기 완료 로그를 읽고, Claud
 ### Claude Code의 Monitor로 받기
 
 mod를 지원하지 않거나 활성화하지 못한 부모 Claude Code에서만 Monitor를 사용합니다. 첫 spawn/tell 전에 구독하고, 구독 직후 자식 목록도 확인하세요.
+
+Monitor로 로그를 직접 읽으며 완료를 기다릴 때는 `[queue] `로 시작하는 줄을 큐 도착 알림으로 구분하고, 완료로 보지 마세요.
 
 ```text
 Monitor({ command: "tail -n0 -F \"$TASTY_PARENT_HOME/notify/$TASTY_SURFACE_ID.log\"", timeout_ms: 1800000 })
@@ -260,7 +286,7 @@ tasty claude codex-returns --retry   # 남은 결과를 모두 지금 보낼 차
 
 아직 연결하지 않았다면 `tasty remote attach --into-gui --workspace <원격 ID> --profile <이름>`으로 실행 중인 Tasty에 mirror를 붙입니다. 원격에 새 워크스페이스를 만들어 붙이려면 `--workspace <원격 ID>` 대신 `--new-workspace`를 사용하며, 이름과 원격 작업 경로는 `--name`·`--cwd`로 지정할 수 있습니다. 프로필 대신 `--ssh <대상>`도 사용할 수 있습니다. Tasty가 SSH 터널을 직접 열며 포커스를 옮기지 않습니다. 기존 워크스페이스 연결은 접수·결과의 JSON 두 줄을 출력하고 결과를 최대 90초 기다리며, 실패하거나 시간 안에 결과를 받지 못하면 종료 코드 1입니다. 새 워크스페이스 형태는 생성 결과 JSON 한 줄을 출력합니다.
 
-`tasty list workspaces`에서 `[mirror]` 행의 이쪽 워크스페이스 ID를 확인하고, 아래 spawn의 `--workspace`에 그 ID를 주세요. attach에 지정한 원격 ID를 그대로 쓰지 마세요. 세션 토큰으로 `tasty remote attach --into-gui`와 `tasty remote refusals`를 쓰는 데 별도 권한은 필요 없지만, `tasty list workspaces`에는 `surface.read` 권한이 필요합니다. CLI에는 연결만 끊는 명령이 없고 mirror의 마지막 서피스를 닫으면 원격 워크스페이스도 함께 닫힙니다. 연결 방식과 GUI에서 연결만 끊는 방법은 [원격 작업 이어가기](../remote/attach.md)를 참고하세요.
+`tasty list workspaces`에서 `[mirror]` 행의 로컬 워크스페이스 ID를 확인하고, 아래 spawn의 `--workspace`에 그 ID를 주세요. attach에 지정한 원격 ID를 그대로 쓰지 마세요. 목록 조회만으로는 저장 행이 연결되지 않습니다. 연결되지 않은 저장 행에 spawn을 요청하면 연결을 시작하고 최대 35초 기다린 뒤, 연결되면 실행하고 못 하면 이유를 담은 오류로 끝납니다. 직접 끊은 행은 자동으로 연결하지 않으므로 먼저 `tasty remote connect --workspace <로컬 ID>`로 연결하세요. 세션 토큰으로 `tasty remote attach --into-gui`·`tasty remote connect`·`tasty remote disconnect`·`tasty remote refusals`를 쓰는 데 별도 권한은 필요 없지만, `tasty list workspaces`에는 `surface.read` 권한이 필요합니다. 원격 작업을 남기고 연결만 끊으려면 `tasty remote disconnect --workspace <로컬 ID>`를 사용하세요. mirror의 마지막 서피스를 닫으면 원격 워크스페이스도 닫힙니다. 자세한 연결·닫기 동작은 [원격 작업 이어가기](../remote/attach.md)를 참고하세요.
 
 다른 컴퓨터의 Tasty 워크스페이스를 연결(attach)해 두었다면, 그 워크스페이스 번호를 `--workspace` 로 주어 `tasty claude spawn`·`tasty codex spawn` 할 수 있습니다. 자식은 원격 컴퓨터에서 그 컴퓨터의 Claude Code·Codex 설치, 설정, 로그인으로 실행되고, 내 쪽에서는 연결한 워크스페이스 안의 자식으로 보입니다. `tell`·`children`·`kill` 도 내 쪽 자식처럼 씁니다.
 
@@ -375,15 +401,12 @@ tasty claude spawn --workspace w --profile continue-checklist
 
 ## 문제 해결
 
-Windows와 macOS에서 Tasty 터미널의 Codex 세션이 연결 직후 끊기던 문제를 수정했습니다.
-
 - **완료 알림이 안 옵니다** — 자식 CLI의 훅 설치·실행과 [수신 설정](#4-완료-알림-받기)을 확인하세요. 부모가 Claude Code이면 완료 알림 mod가 활성화됐는지 확인하세요. mod가 없을 때는 Monitor 구독을 확인하세요. 훅 전달 실패는 `~/.tasty/hook-failures.log` 에 남습니다. 플러그인 로그는 `tasty plugin logs com.tasty.claude --follow`.
 - **`reboot` 가 "claude-session-id meta not set" 으로 실패합니다** — 세션 시작 훅이 세션 ID 를 못 남긴 것입니다. `tasty surface-meta set --key claude-session-id --value <세션ID>` 로 직접 넣습니다.
 - **자식이 spawn 되지 않고 "occupied" 오류** — 대상 워크스페이스가 원격에서 attach 중이거나 mirror 입니다. 다른 워크스페이스를 씁니다.
 - **`kill` 이 "hard-occupied" 오류로 거부됩니다** — 그 자식이 있는 워크스페이스를 원격 사용자가 attach 해 쓰는 중입니다. 자식과의 관계와 탭은 그대로 남습니다. 원격 쪽이 연결을 끊거나 강제 끊기로 점유를 푼 뒤 다시 `kill` 합니다.
 - **Codex가 "app-server could not start"로 시작하지 않습니다** — Tasty가 그 터미널의 전용 Codex 서버를 띄우지 못한 것입니다. 같은 터미널에서 `codex app-server --help`가 실행되는지 확인하세요. 이 기능은 Codex CLI 0.154.0 기준으로 확인했습니다.
 - **Codex 부모에게 결과가 오지 않습니다** — Codex의 `/hooks`에서 Tasty 훅이 승인됐는지, 자식을 Codex 대화 안에서 spawn했는지 확인하세요. 부모 Codex를 직접 입력한 `codex`로 띄웠다면 공유 Codex 서버에 그 대화가 열려 있어야 합니다.
-- **macOS 에서 앱 아이콘으로 실행하면 알림이 안 옵니다** — Tasty 가 알림을 쓸 때 `tasty` 를 다시 호출하는데, Tasty 는 자기 실행 파일 경로를 자동으로 PATH 에 넣으므로 보통은 문제없습니다. 그래도 안 되면 `hook-failures.log` 를 봅니다.
 
 <a id="다음-읽을-것"></a>
 

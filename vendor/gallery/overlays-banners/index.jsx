@@ -3,8 +3,8 @@ import { PageStates, Views, View } from "../parts/specimen.jsx";
 import { STATES } from "./states.jsx";
 import { IconButton, Kbd, Tag, Button as BButton, Icon as BIcon, Badge as BBadge, BadgeGroup as BBadgeGroup, Spinner as BSpinner } from "../../components/index.js";
 import { HtmlSizeBanner, HtmlAddressBar } from "../../ui_kits/terminal/overlays/html_address_bar.jsx";
-import { HtmlRemoteSurfaceG, HtmlRemoteBanner, HtmlRemoteMarker } from "../../ui_kits/terminal/overlays/html_remote_banner.jsx";
-import { HtmlScriptBanner, HtmlSurfaceG, TermSurfaceG } from "../../ui_kits/terminal/overlays/html_script_banner.jsx";
+import { HtmlRemoteSurfaceG, HtmlRemoteBanner, HtmlRemoteMarker, RC_WEB } from "../../ui_kits/terminal/overlays/html_remote_banner.jsx";
+import { HtmlScriptBanner, HtmlSurfaceG, TermSurfaceG, HsTab } from "../../ui_kits/terminal/overlays/html_script_banner.jsx";
 import { BannerScope, MouseCaptureBannerG, MouseCaptureHitZone, BlacklistEditorG, BannerShellG, TtlBannerG, StackDemoG, BannerMoreMenuG, BannerMoreDemoG, ic } from "../parts/overlay-frames.jsx";
 import { Section, Spec, Stage, Meta, Note, Do, Dont } from "../parts/specimen.jsx";
 
@@ -184,6 +184,79 @@ function RcThemeGrid({ label, attr }) {
   );
 }
 
+// 2026-11-10 — top-level http(s) page (decisions 20 · 25). States of both notices with the web copy, wide and narrow.
+function RcWebStateGrid({ label, attr }) {
+
+  const cap = (t) => <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · {t}</span>;
+  const rows = [
+    ["remote · blocked", (n) => <HtmlRemoteBanner web narrow={n} />],
+    ["remote · hover — × revealed", (n) => <HtmlRemoteBanner web hover narrow={n} />],
+    ["remote · loading — Allow disabled until commit", (n) => <HtmlRemoteBanner web state="loading" narrow={n} />],
+    ["remote · reloading", (n) => <HtmlRemoteBanner web state="reloading" narrow={n} />],
+    ["remote · blocked · script sandbox off — network scripts listed, no script sentence", (n) => <HtmlRemoteBanner web sandboxOff narrow={n} />],
+    ["script · blocked (after the remote reload)", (n) => <HtmlScriptBanner web narrow={n} />],
+    ["script · loading — Allow disabled until commit", (n) => <HtmlScriptBanner web state="loading" narrow={n} />],
+    ["script · reloading", (n) => <HtmlScriptBanner web state="reloading" narrow={n} />],
+  ];
+  return (
+    <div {...(attr ? { "data-theme": attr } : {})} style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-lg)", alignItems: "flex-start", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
+      {[["wide (≥ 440)", false, "var(--tasty-size-560)"], ["narrow (< 440)", true, "var(--tasty-size-360)"]].map(([w, n, width]) => (
+        <div key={w} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", width, maxWidth: "100%" }}>
+          {rows.map(([t, draw]) => (
+            <React.Fragment key={t}>
+              {cap(`${w} · ${t}`)}
+              {draw(n)}
+            </React.Fragment>
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// The two markers on a web page: remote = end of the `web` address field, scripts = tab cell right cluster.
+function RcWebMarkerGrid({ label, attr }) {
+
+  const cap = (t) => <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · {t}</span>;
+  const frame = (child) => <div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>{child}</div>;
+  const tab = (marker) => frame(<div style={{ display: "flex", background: "var(--tasty-bg-sidebar)" }}><HsTab label={RC_WEB.label} icon="html" active marker={marker} markerWeb /></div>);
+  const bar = (marker) => frame(<HtmlAddressBar kind="web" address={RC_WEB.address} trailing={<HtmlRemoteMarker kind={marker} web />} />);
+  return (
+    <div {...(attr ? { "data-theme": attr } : {})} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", width: "var(--tasty-size-460)", maxWidth: "100%", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
+      {cap("remote marker · blocked (notice dismissed)")}{bar("blocked")}
+      {cap("remote marker · allowed (this showing)")}{bar("allowed")}
+      {cap("script marker · blocked (notice dismissed)")}{tab("blocked")}
+      {cap("script marker · allowed (this showing)")}{tab("allowed")}
+    </div>
+  );
+}
+
+// §4a flow, one frame per step (hidden states: they only follow each other in time). Follows the page theme.
+const RC_WEB_FLOW = [
+  ["web-flow-1-blocked", "1 · page viewed — the remote notice first shows when the load commits, already blocked · no marker · no script notice", { remote: "blocked" }],
+  ["web-flow-1-loading", "1 · first load, committed but not finished — the notice, blocked, over the host's Loading tile until the load finishes · Reload busy", { remote: "blocked", loading: true, page: "loading" }],
+  ["web-flow-2-reloading", "2 · Allow remote content — reloading · page area: the host's Loading tile until the load finishes · remote marker allowed at once (the allow is recorded before the reload)", { remote: "reloading", remoteMarker: "allowed", loading: true, page: "loading" }],
+  ["web-flow-2-script", "2 · reload committed — remote marker allowed, script notice takes the same slot", { script: "blocked", remoteMarker: "allowed", page: "styled" }],
+  ["web-flow-3-reloading", "3 · Allow scripts on this page — reloading, remote stays allowed · page area: the host's Loading tile until the load finishes · tab marker allowed at once (the allow is recorded before the reload)", { script: "reloading", remoteMarker: "allowed", scriptMarker: "allowed", page: "loading", loading: true }],
+  ["web-flow-3-allowed", "3 · reload committed — no notice · remote marker allowed · tab marker allowed", { remoteMarker: "allowed", scriptMarker: "allowed", page: "styled" }],
+  ["web-flow-4a-loading", "4a · user reload before Allow — page area: the host's Loading tile until the load finishes · the notice stays above it, loading: Allow disabled, Reload busy, until the reload commits", { remote: "loading", loading: true, page: "loading" }],
+  ["web-flow-4b-loading", "4b · user reload after Allow (from step 3) — page area: the host's Loading tile · no notice · remote and tab markers stay allowed until commit (that load's scripts do not run) · Reload busy", { remoteMarker: "allowed", scriptMarker: "allowed", page: "loading", loading: true }],
+  ["web-flow-4-reloaded", "4 · reload committed (4a or 4b; also another page, Back, restart) — both allows cleared, remote notice blocked as at step 1, shown even if dismissed before", { remote: "blocked" }],
+  ["web-flow-x-remote", "× at step 1 — globeOff marker only · no script notice while remote is blocked", { remoteMarker: "blocked" }],
+  ["web-flow-x-script", "× at step 2 — remote marker allowed · tab lock · marker click shows the notice again", { remoteMarker: "allowed", scriptMarker: "blocked", page: "styled" }],
+  ["web-flow-global-remote", "global Allow remote content on · sandbox on — script notice at once, no remote notice or marker", { script: "blocked", page: "styled" }],
+  ["web-flow-sandbox-off-1", "script sandbox off · step 1 — remote notice with the sandbox-off body (network scripts listed, no script sentence)", { remote: "blocked", sandboxOff: true }],
+  ["web-flow-sandbox-off-2", "script sandbox off · remote reload committed — remote marker allowed · no script notice · no tab marker", { remoteMarker: "allowed", page: "styled" }],
+];
+const RC_WEB_TIPS = [
+  ["web-tip-remote-allowed", "remote marker · allowed tooltip", () => <HtmlAddressBar kind="web" address={RC_WEB.address} trailing={<HtmlRemoteMarker kind="allowed" web open />} />],
+  ["web-tip-remote-blocked", "remote marker · blocked tooltip", () => <HtmlAddressBar kind="web" address={RC_WEB.address} trailing={<HtmlRemoteMarker kind="blocked" web open />} />],
+  ["web-tip-script-allowed", "script marker · allowed tooltip", () => <div style={{ display: "flex", background: "var(--tasty-bg-sidebar)" }}><HsTab label={RC_WEB.label} icon="html" active marker="allowed" markerWeb markerOpen /></div>],
+  ["web-tip-script-blocked", "script marker · blocked tooltip", () => <div style={{ display: "flex", background: "var(--tasty-bg-sidebar)" }}><HsTab label={RC_WEB.label} icon="html" active marker="blocked" markerWeb markerOpen /></div>],
+  ["web-tip-remote-loading", "remote notice · loading tooltip", () => <HtmlRemoteBanner web state="loading" tipOpen />],
+  ["web-tip-script-loading", "script notice · loading tooltip", () => <HtmlScriptBanner web state="loading" tipOpen />],
+];
+
 // 2026-11-05 — body ink on the banner shell, every banner kind in both themes.
 function BodyInkGrid({ label, theme }) {
 
@@ -192,6 +265,8 @@ function BodyInkGrid({ label, theme }) {
     ["HTML script", <HtmlScriptBanner />],
     ["HTML script · reloading", <HtmlScriptBanner state="reloading" />],
     ["HTML remote content", <HtmlRemoteBanner />],
+    ["HTML remote content · web page", <HtmlRemoteBanner web />],
+    ["HTML script · web page", <HtmlScriptBanner web />],
     ["HTML mirror · large file, more waiting", <HtmlSizeBanner more={2} />],
     ["HTML mirror · cumulative limit", <HtmlSizeBanner kind="limit" />],
     ["auto-attach refused", <AttachRefusalBannerG />],
@@ -415,7 +490,7 @@ function Page() {
           <Note>While the menu is open the banner is treated as <b>hover-equivalent</b> — a TTL banner would keep its countdown paused, and the affordance column stays drawn even if the pointer has left the card.</Note>
         </Spec>
         <Spec id="elastic-width-the-interpolated-program-name" title="Elastic width — the interpolated program name"
-          when={<>Every row interpolates a program name of arbitrary length, and word order differs by locale (en: name last; ko/ja: name first). So a row's label is <b>two parts</b>: the <b>fixed text</b> (never truncates) and the <b>program name</b> in <b>mono</b> (same row ink as the fixed text: text-secondary at rest, text-primary on hover — 2026-10-08), which is the part that <b>shrinks and ellipsises</b>. The menu grows with the content between <b>200px</b> and <b>288px</b> (a wider band than the Tools menu's 160–240, since every row carries a program name) and the full name is available as the row's tooltip.</>}>
+          when={<>Every row interpolates a program name of arbitrary length, and word order differs by locale (en: name last; ko/ja: name first; zh-Hans: name in the middle). So a row's label is <b>two parts</b>: the <b>fixed text</b> (never truncates) and the <b>program name</b> in <b>mono</b> (same row ink as the fixed text: text-secondary at rest, text-primary on hover — 2026-10-08), which is the part that <b>shrinks and ellipsises</b>. The menu grows with the content between <b>200px</b> and <b>288px</b> (a wider band than the Tools menu's 160–240, since every row carries a program name) and the full name is available as the row's tooltip.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 18, alignItems: "flex-start", flexWrap: "wrap" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
               <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>short name — content-sized (the vim row already passes the 200 floor)</div>
@@ -444,10 +519,10 @@ function Page() {
           <Do><b>Do</b> keep the program name as the mono part of the row — it is the one thing the user must verify before writing a permanent per-app setting, and mono marks it as a process name rather than prose.</Do>
           <Dont><b>Don't</b> paint the “Let Tasty handle clicks” row in <b>danger</b> tone (last card above, shown for the record). Nothing is destroyed and nothing is lost: the setting is reversible from Settings › Terminal, and it <i>returns</i> the mouse to tasty. Danger in this system means delete — spending it here would make the two rows look like different classes of action when they are the same class at two strengths.</Dont>
         </Spec>
-        <Spec id="row-copy-en-ko-ja" title="Row copy — en / ko / ja"
-          when={<>Each row names <b>the program</b> and <b>what changes for it</b>, in words a user already has: “show again” for the notice, “clicks” for capture. “Again” / “다시” / “今後” marks the first row as lasting; the second row reads as a standing rule (“in vim, Tasty handles clicks”). The old “~에 대해” and “disable mouse capture” (which read as turning off a feature of the app) are gone. Each row = prefix + <span className="ic">{"{app}"}</span> (mono) + suffix; en uses the prefix only, ko/ja the suffix only (leading space in ja before the particle). Width band 200–288 is unchanged; with this copy no row wraps for a short name in any locale (the old ja wrap is retired, the wrap rule stays for long names and future copy).</>}>
+        <Spec id="row-copy-en-ko-ja" title="Row copy — en / ko / ja / zh-Hans"
+          when={<>Each row names <b>the program</b> and <b>what changes for it</b>, in words a user already has: “show again” for the notice, “clicks” for capture. “Again” / “다시” / “今後” marks the first row as lasting; the second row reads as a standing rule (“in vim, Tasty handles clicks”). The old “~에 대해” and “disable mouse capture” (which read as turning off a feature of the app) are gone. Each row = prefix + <span className="ic">{"{app}"}</span> (mono) + suffix; en uses the prefix only, ko/ja the suffix only (leading space in ja before the particle), zh-Hans <b>both</b>: Chinese puts the name inside the verb frame, so splitting it to one side would turn the row into a label, not an action (2026-11-10). Rule per locale: copy on <b>one side or both</b>, never empty on both; zh-Hans keeps one space between the name and the copy on each side. The known-name zh-Hans rows equal the unknown-name rows with the name in place of “this program”. Width band 200–288 is unchanged; with this copy no row wraps for a short name in any locale (the old ja wrap is retired, the wrap rule stays for long names and future copy). With a long name in zh-Hans both fixed parts stay whole and only the name between them ellipsises.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 18, alignItems: "flex-start", flexWrap: "wrap" }}>
-            {[["en", "vim"], ["ko", "vim"], ["ja", "vim"], ["en · long name", "some-very-long-tool-name", "en"], ["ja · long name", "some-very-long-tool-name", "ja"]].map(([cap, app, l]) => (
+            {[["en", "vim"], ["ko", "vim"], ["ja", "vim"], ["zh-Hans", "vim"], ["en · long name", "some-very-long-tool-name", "en"], ["ja · long name", "some-very-long-tool-name", "ja"], ["zh-Hans · long name", "some-very-long-tool-name", "zh-Hans"]].map(([cap, app, l]) => (
               <div key={cap} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                 <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{cap}</div>
                 <BannerMoreMenuG app={app} lang={l || cap} />
@@ -455,7 +530,7 @@ function Page() {
             ))}
           </Stage>
           <Meta
-            specs={[["row 1 en", <>prefix <code>Don't show again for </code> · suffix —</>], ["row 1 ko", <>prefix — · suffix <code>에서 다시 보지 않기</code></>], ["row 1 ja", <>prefix — · suffix <code> では今後表示しない</code></>], ["row 2 en", <>prefix <code>Let Tasty handle clicks in </code> · suffix —</>], ["row 2 ko", <>prefix — · suffix <code>에서 클릭은 Tasty가 처리</code></>], ["row 2 ja", <>prefix — · suffix <code> ではクリックを Tasty で処理</code></>], ["keys", "[popup.mouse_capture_banner_menu] prefix / suffix"]]}
+            specs={[["row 1 en", <>prefix <code>Don't show again for </code> · suffix —</>], ["row 1 ko", <>prefix — · suffix <code>에서 다시 보지 않기</code></>], ["row 1 ja", <>prefix — · suffix <code> では今後表示しない</code></>], ["row 1 zh-Hans", <>prefix <code>不再为 </code> · suffix <code> 显示横幅</code></>], ["row 2 en", <>prefix <code>Let Tasty handle clicks in </code> · suffix —</>], ["row 2 ko", <>prefix — · suffix <code>에서 클릭은 Tasty가 처리</code></>], ["row 2 ja", <>prefix — · suffix <code> ではクリックを Tasty で処理</code></>], ["row 2 zh-Hans", <>prefix <code>让 Tasty 处理 </code> · suffix <code> 中的点击</code></>], ["keys", "[popup.mouse_capture_banner_menu] prefix / suffix"], ["order", "en prefix only · ko / ja suffix only · zh-Hans prefix + suffix"]]}
             tokens={[{ tok: "--tasty-banner-more-menu-max-width", use: "288 — unchanged" }]} />
           <Note>Settings › Terminal › Mouse Capture and the user guide take the same verbs: list 1 <code>Don't show the capture notice for these programs</code> / <code>캡처 안내를 다시 보지 않을 프로그램</code> / <code>キャプチャ通知を表示しないプログラム</code> · list 2 <code>Let Tasty handle clicks in these programs</code> / <code>클릭을 Tasty가 처리할 프로그램</code> / <code>クリックを Tasty で処理するプログラム</code>, with the existing description (clicks and drags go to selection and the menu; the wheel is still sent).</Note>
         </Spec>
@@ -468,7 +543,7 @@ function Page() {
             </div>
           </Stage>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 18, alignItems: "flex-start", flexWrap: "wrap" }}>
-            {["en", "ko", "ja"].map((l) => (
+            {["en", "ko", "ja", "zh-Hans"].map((l) => (
               <div key={l} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                 <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{l} · unknown</div>
                 <BannerMoreMenuG app={null} lang={l} />
@@ -537,7 +612,7 @@ function Page() {
             </div>
           </Stage>
           <Meta
-            specs={[["title", "\"Scripts in this document are blocked\" · 13/600"], ["body", "caption · banner-body-fg · wraps, never clamps (b12 — was ≤ 2 lines)"], ["remote branch", "network scripts stay blocked — says so"], ["action", "Secondary / Sm · no wrap"], ["reloading", "spinner + label · no × · fade out on commit"], ["loading (still blocked)", "Allow disabled from load start to commit · no delay · tooltip (top) \"Available when the document finishes loading\" · × kept"], ["narrow", "surface width < 440 (--tasty-banner-narrow-below) → action on its own line, body-aligned"], ["glyph nudge", "1 · --tasty-banner-glyph-offset"], ["title ↔ body", "2 · --tasty-banner-text-gap (every banner)"]]}
+            specs={[["title", "\"Scripts in this document are blocked\" · 13/600"], ["body", "caption · banner-body-fg · wraps, never clamps (b12 — was ≤ 2 lines)"], ["remote branch", "network scripts stay blocked — says so"], ["action", "Secondary / Sm · no wrap"], ["reloading", "spinner + label · no × · fade out on commit"], ["loading (still blocked)", "Allow disabled from load start to commit · no delay · tooltip (top) \"Available when loading finishes\" · × kept"], ["narrow", "surface width < 440 (--tasty-banner-narrow-below) → action on its own line, body-aligned"], ["glyph nudge", "1 · --tasty-banner-glyph-offset"], ["title ↔ body", "2 · --tasty-banner-text-gap (every banner)"]]}
             tokens={[{ tok: "--tasty-html-script-banner-glyph", use: "lock → accent-info", color: "var(--tasty-html-script-banner-glyph)" }, { tok: "--tasty-banner-title-font-size", use: "13" }, { tok: "--tasty-banner-body-font-size", use: "11" }]} />
         </Spec>
         <Spec id="a-button-on-the-banner-shell" title="A button on the banner shell"
@@ -571,8 +646,8 @@ function Page() {
             ))}
           </Stage>
           <Meta
-            specs={[["banner", "removed while failed"], ["tab marker", "lock / script glyph removed while failed"], ["failure state", "alertCircle md + Failed to load (accent-danger) · URL mono caption text-disabled"], ["reload commits", "banner + marker re-derived from the new document"]]}
-            tokens={[{ tok: "--tasty-accent-danger", use: "glyph + title", color: "var(--tasty-accent-danger-raised)" }, { tok: "--tasty-text-disabled", use: "URL", color: "var(--tasty-text-disabled)" }]} />
+            specs={[["banner", "removed while failed"], ["tab marker", "lock / script glyph removed while failed"], ["failure state", "the webview page tile, failed: alertCircle md (glyph-danger) + Failed to load (text-danger) · URL mono caption text-muted · sub line reserved"], ["reload commits", "banner + marker re-derived from the new document"]]}
+            tokens={[{ tok: "--tasty-accent-danger", use: "glyph", color: "var(--tasty-accent-danger)" }, { tok: "--tasty-accent-danger-raised", use: "title", color: "var(--tasty-accent-danger-raised)" }, { tok: "--tasty-text-muted", use: "URL", color: "var(--tasty-text-muted)" }]} />
         </Spec>
         <Spec id="after-and-after-allow-the-tab-strip-marker" title="After × and after Allow — the tab-strip marker"
           when={<>× hides the notice for this load; scripts stay blocked. A <b>lock</b> marker then sits in the surface's tab, first in the tab's right-hand status cluster (Layouts › Pane tab strip; <span className="tok">--tasty-html-script-marker-fg</span> → glyph-dim, 12px). Clicking it <b>shows the banner again</b> — it re-explains before offering Allow, and never allows on its own. Mouse only, no focus change. After Allow, the tab carries a <b>script</b> glyph in text-muted with a tooltip; it is not clickable. Navigating to another document clears both, and the new document starts over. <code>#fragment</code> moves keep them.</>}>
@@ -621,6 +696,7 @@ function Page() {
             specs={[["row mark", "alertTriangle 14 · accent-warning · trailing slot of the workspace row · tooltip = target + reason"], ["banner scope", "Workspace · shown while that workspace is active"], ["glyph", "alertTriangle 16 · accent-warning"], ["title", "Remote not attached — {target} (target mono)"], ["body", "{reason} Change or remove the mapping for this workspace."], ["action", "Remove mapping · banner button (secondary sm on banner-button tokens)"], ["×", "hides for this activation; the row mark stays"], ["clears", "mapping changed / removed · profile re-check succeeds"], ["focus", "never moved — agent-made mappings included"], ["toast", "none"]]}
             tokens={[{ tok: "--tasty-accent-warning", use: "glyph + row mark", color: "var(--tasty-accent-warning-raised)" }, { tok: "--tasty-banner-bg", use: "shell", color: "var(--tasty-banner-bg)" }, { tok: "--tasty-banner-button-bg", use: "Remove mapping", color: "var(--tasty-banner-button-bg)" }, { tok: "--tasty-banner-body-font-size", use: "reason 11" }]} />
           <Note>Strings (en): <code>remote.refusal.title</code> “Remote not attached — {"{target}"}” · <code>remote.refusal.self</code> “This mapping points at this Tasty, so it was not attached.” · <code>remote.refusal.profile_missing</code> “No SSH profile with this name.” · <code>remote.refusal.unresolved</code> “The endpoint could not be resolved.” · <code>remote.refusal.hint</code> “Change or remove the mapping for this workspace.” · <code>remote.refusal.remove</code> “Remove mapping”. No new tokens.</Note>
+          <Note><b>Saved remote workspaces (R-58).</b> A remote workspace added from the GUI has no mapping, so this banner never shows on it: its connection state, reason and Connect button live in one connection popup over its workspace (Layouts › Saved remote workspace). It keeps this pair's <b>row mark</b> and <b>rail chip</b> for a failed connection, with the reason in the tooltip, so a mapped workspace and a saved remote row warn in the same place.</Note>
         </Spec>
         <Spec id="collapsed-rail-beside-the-attention-badges" title="Collapsed rail · beside the attention badges"
           when={<><b>Rail:</b> the refusal takes the one free avatar corner, <b>top-left</b>, as a 12px chip (alertTriangle 8 on bg-sidebar) — top-right stays the attention dot, bottom-right the mirror chip, bottom-left the move chip; all four can show at once, so there is no priority rule. Same tooltip as the row. <b>Row:</b> order after the name is <b>move glyph · refusal mark · badge group</b>, gap = the row item spacing (space-sm). The badges stay rightmost so the counts line up down the list; the two persistent marks sit before them. The mark never replaces a badge.</>}>
@@ -732,9 +808,9 @@ function Page() {
             ))}
           </Stage>
           <Meta
-            specs={[["glyph", "globeOff 16 · html-remote-banner-glyph → accent-info"], ["title", "“Remote content in this document is blocked” · 13/600 · wraps"], ["body", "kinds, no counts · scope and lifetime last · 11 · banner-body-fg · wraps"], ["action", "Allow remote content · Secondary / Sm · no wrap"], ["loading", "disabled from load start to commit · tooltip top “Available when the document finishes loading” · × kept"], ["reloading", "Spinner 14 + “Reloading with remote content allowed” · body opacity-dimmed · no × · fades out on commit"], ["×", "hover only · hides the notice for this document, block stays"], ["focus", "never taken · click only"]]}
+            specs={[["glyph", "globeOff 16 · html-remote-banner-glyph → accent-info"], ["title", "“Remote content in this document is blocked” · 13/600 · wraps"], ["body", "kinds, no counts · scope and lifetime last · 11 · banner-body-fg · wraps"], ["action", "Allow remote content · Secondary / Sm · no wrap"], ["loading", "disabled from load start to commit · tooltip top “Available when loading finishes” · × kept"], ["reloading", "Spinner 14 + “Reloading with remote content allowed” · body opacity-dimmed · no × · fades out on commit"], ["×", "hover only · hides the notice for this document, block stays"], ["focus", "never taken · click only"]]}
             tokens={[{ tok: "--tasty-html-remote-banner-glyph", use: "→ accent-info", color: "var(--tasty-html-remote-banner-glyph)" }, { tok: "--tasty-banner-bg", use: "shell", color: "var(--tasty-banner-bg)" }, { tok: "--tasty-banner-button-bg", use: "Allow", color: "var(--tasty-banner-button-bg)" }]} />
-          <Note>Strings (en): <code>banner.html_remote.title</code> “Remote content in this document is blocked” · <code>banner.html_remote.body</code> “Stylesheets, images, fonts, frames and scripts from the network don't load, so the page may look incomplete. Allowing applies to this document only, until Tasty restarts.” · <code>banner.html_remote.action</code> “Allow remote content” · <code>banner.html_remote.reloading</code> “Reloading with remote content allowed” · <code>banner.html_remote.action_loading</code> “Available when the document finishes loading” (same text as the script key) · <code>banner.html_remote.marker_blocked</code> “Remote content blocked. Click for details.” · <code>banner.html_remote.marker_allowed</code> “Remote content allowed for this document until Tasty restarts”.</Note>
+          <Note>Strings (en): <code>banner.html_remote.title</code> “Remote content in this document is blocked” · <code>banner.html_remote.body</code> “Stylesheets, images, fonts, frames and scripts from the network don't load, so the page may look incomplete. Allowing applies to this document only, until Tasty restarts.” · <code>banner.html_remote.action</code> “Allow remote content” · <code>banner.html_remote.reloading</code> “Reloading with remote content allowed” · <code>banner.html_remote.action_loading</code> “Available when loading finishes” (same text as the script key; shared with web pages, so it names neither a document nor a page) · <code>banner.html_remote.marker_blocked</code> “Remote content blocked. Click for details.” · <code>banner.html_remote.marker_allowed</code> “Remote content allowed for this document until Tasty restarts”.</Note>
         </Spec>
         <Spec id="the-address-field-marker-always-findable" title="The address-field marker — always findable"
           when={<>The persistent signal lives at the <b>end of the address field</b>, after the mirror's “n skipped” Tag: the band is where the document's address and its loading state already are, and the tab cell's right cluster is kept for the script marker. Shown whenever the notice is <b>not</b> on screen. <b>Blocked</b> (× dismissed, or a block the OS observed without a static reference) = <b>globeOff</b> in glyph-dim inside a 20 hit cell with the hover fill; a click <b>shows the notice</b>, it never allows on its own. <b>Allowed</b> = <b>globe</b> in text-muted, tooltip only. Tooltips open <b>top</b>. Agent IPC/CLI queries and allows never change focus, the active tab or the marker drawing beyond the reload result. Failed (uncommitted) documents: no notice, no marker.</>}>
@@ -769,6 +845,47 @@ function Page() {
             specs={[["order", "address band → size (mirror) → remote → script → WebView"], ["gaps", "banner-margin 8 top/sides · banner-inset-gap 8 between + below"], ["merge", "never — two cards, two independent allows"], ["script notice", "judged on runnable scripts (network scripts need remote allowed)"], ["bodyRemote", "kept as a key, copy revised: shown only alongside the remote notice"], ["static ref", "notice (when the user views)"], ["observed block, no ref", "marker only (Windows · Linux TBD)"], ["no signal, no ref", "nothing (macOS)"], ["narrow", "< 440 → each card wraps its action, stack order unchanged"], ["global on", "no notice · no marker"]]}
             tokens={[{ tok: "--tasty-banner-inset-gap", use: "8 between / below" }, { tok: "--tasty-banner-margin", use: "8 top / sides" }, { tok: "--tasty-banner-narrow-below", use: "→ size-440" }]} />
           <Note>Script notice <code>banner.html_script.body_remote</code> (en, revised): “Buttons and menus that need JavaScript may not respond. Allowing applies to this document only, until Tasty restarts. Scripts inside it run; scripts from the network also need remote content allowed.”</Note>
+        </Spec>
+        <Spec id="http-s-page-opened-in-the-address-field-remote-then-scripts" title="http(s) page opened in the address field — remote, then scripts"
+          when={<>A page the user opens by typing an <code>http(s)</code> address, while the global <b>Allow remote content</b> is off. The page itself loads; what it loads from the network does not. Tasty never reads the page, so the remote notice shows whenever the page is <b>viewed</b>, without waiting for a blocked request, on every OS. There is <b>no content fingerprint</b>: an allow covers <b>this showing</b> of the page only. The reload that Allow starts keeps it; the user's reload, any other page (same site too), Back and restart clear it. Remote allow does <b>not</b> enable scripts: with the script sandbox on, the <b>script notice takes the same slot</b> right after the remote reload commits. The two notices never stack on a web page. With the script sandbox <b>off</b> there is no script notice and the page's own scripts run from the start, so the remote notice takes its sandbox-off body: network scripts join the blocked list and the sentence about asking for scripts separately goes. Same shell, glyphs, states, markers, tokens and stacking order as the local document notices; only the copy changes (<code>_web</code> keys).</>}>
+          <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", flexDirection: "column", gap: "var(--tasty-space-lg)", alignItems: "stretch" }}>
+            <RcWebStateGrid label="Mocha" />
+            <RcWebStateGrid label="Latte" attr="latte" />
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-lg)", alignItems: "flex-start" }}>
+              <RcWebMarkerGrid label="Mocha" />
+              <RcWebMarkerGrid label="Latte" attr="latte" />
+            </div>
+          </Stage>
+          <Meta
+            specs={[["address field", "kind web · link glyph · remote marker at the field end (unchanged slot)"], ["remote notice", "globeOff · titleWeb / bodyWeb · Allow remote content · blocked / loading / reloading"], ["sandbox off", "remote notice body → bodyWebSandboxOff · no script notice, no tab marker"], ["body key", "picked every frame from the model's script sandbox value · setting changed while the notice is up → body swaps on the next frame · phase and dismissal unchanged"], ["script notice", "lock · titleWeb / bodyWeb · Allow scripts on this page · blocked / loading / reloading"], ["bodyRemote", "never on a web page (the notices never stack)"], ["markers", "same glyphs and inks · allowed tooltips read the _web copy"], ["narrow", "< 440 → action wraps under the body, same as local"], ["lifetime", "this showing · cleared by the user's reload, navigation, Back, restart"], ["new tokens", "none"]]}
+            tokens={[{ tok: "--tasty-html-remote-banner-glyph", use: "globeOff", color: "var(--tasty-html-remote-banner-glyph)" }, { tok: "--tasty-html-script-banner-glyph", use: "lock", color: "var(--tasty-html-script-banner-glyph)" }, { tok: "--tasty-html-remote-marker-allowed-fg", use: "globe", color: "var(--tasty-html-remote-marker-allowed-fg)" }, { tok: "--tasty-html-script-marker-allowed-fg", use: "scriptFile", color: "var(--tasty-html-script-marker-allowed-fg)" }]} />
+          <Note>Strings (en, new): <code>banner.html_remote.title_web</code> “Remote content on this page is blocked” (2026-11-10, was “Page loaded; remote content blocked”: the page area shows the Loading tile while the notice is up during a load) · <code>banner.html_remote.body_web</code> “Stylesheets, images, fonts, frames and media from the network are blocked, so the page may look incomplete. Allowing applies only to this showing of the page; reloading blocks remote content again. Permission to run scripts is requested separately.” (script sandbox on) · <code>banner.html_remote.body_web_sandbox_off</code> “Stylesheets, images, fonts, frames, media and scripts from the network are blocked, so the page may look incomplete. Allowing applies only to this showing of the page; reloading blocks remote content again.” (script sandbox off) · <code>banner.html_remote.marker_allowed_web</code> “Remote content allowed for this showing of the page; reloading blocks it again” · <code>banner.html_script.title_web</code> “Scripts on this page are blocked” · <code>banner.html_script.body_web</code> “This page may use scripts; buttons and menus that need JavaScript may not respond. Allowing applies only to this showing of the page; reloading asks again.” · <code>banner.html_script.action_web</code> “Allow scripts on this page” · <code>banner.html_script.marker_allowed_web</code> “Scripts allowed for this showing of the page; reloading blocks them again”. Shared with local documents: remote notice <code>banner.html_remote.action</code>, <code>reloading</code>, <code>action_loading</code>, <code>marker_blocked</code> · script notice <code>banner.html_script.reloading</code>, <code>action_loading</code>, <code>marker_blocked</code> only. Both <code>action_loading</code> keys read “Available when loading finishes”, true for a local document and a web page alike. The script notice's button on a web page is <code>action_web</code>, not <code>action</code> (“Allow for this document” would claim a lifetime it does not have).</Note>
+          <Note>Local documents keep their copy. “Applies to this document only, until Tasty restarts” stays true there: the allow survives a reload of the same content, and another document is not “this document”. The web copy says “this showing of the page” because a reload is exactly what ends it.</Note>
+          <Dont><b>Don't</b> show the script notice under the remote notice on a web page, and don't let one Allow open both. Remote allow is a choice about how the page looks; scripts are a second, separate choice, asked only once the page can load them.</Dont>
+        </Spec>
+        <Spec id="http-s-page-the-flow-step-by-step" title="http(s) page — the flow, step by step"
+          when={<>Each step only follows the previous one in time, so each is a fixed frame (remote blocked, script sandbox on unless marked). The remote notice first shows when the page's load <b>commits</b>, already blocked; no loading frame comes before step 1. After a reload commits, the next notice takes the slot the last one left, with no animation: the WebView rect is re-laid out once, as for any notice change. From load start until the load finishes the host hides the WebView and paints its <b>Loading tile</b> (Spinner + Loading…) in the page area; the address band, the notices and both markers stay above it. A user reload of the same address has <b>two branches</b>: before Allow, the notice that is up stays over the tile and turns loading until the reload commits (4a); after Allow, no notice shows during the load and both markers stay allowed until commit (4b). Either way the commit clears both allows and the remote notice is back, blocked (4). The frames marked “script sandbox off” draw that setting: one notice only, then nothing to ask.</>}>
+          <Views>
+            {RC_WEB_FLOW.map(([name, label, p]) => (
+              <View key={name} name={name} label={label}>
+                <div style={{ width: "var(--tasty-size-480)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}><HtmlRemoteSurfaceG web {...p} width="var(--tasty-size-480)" height={320} /></div>
+              </View>
+            ))}
+            <View name="web-flow-1-narrow" label="1 · narrow (360) — remote notice, action under the body">
+              <div style={{ width: "var(--tasty-size-360)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}><HtmlRemoteSurfaceG web narrow remote="blocked" width="var(--tasty-size-360)" height={400} /></div>
+            </View>
+            <View name="web-flow-2-narrow" label="2 · narrow (360) — script notice after the remote reload">
+              <div style={{ width: "var(--tasty-size-360)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}><HtmlRemoteSurfaceG web narrow script="blocked" remoteMarker="allowed" page="styled" width="var(--tasty-size-360)" height={360} /></div>
+            </View>
+            {RC_WEB_TIPS.map(([name, label, draw]) => (
+              <View key={name} name={name} label={label}>
+                <div style={{ width: "var(--tasty-size-480)", paddingTop: "var(--tasty-size-64)" }}>{draw()}</div>
+              </View>
+            ))}
+          </Views>
+          <Meta
+            specs={[["1", "remote notice blocked · no markers"], ["2", "remote reloading, remote marker allowed from the press → commit → script notice blocked"], ["3", "script reloading, tab marker allowed from the press → commit → no notice · both markers allowed"], ["markers on Allow", "read the allow record of the current document, so they turn allowed when Allow is pressed, not at the reload's commit · script marker: from the code, the same rule as in a local document · remote marker: read from the code, not measured"], ["4a", "user reload before Allow → notice stays over the Loading tile · loading until commit"], ["4b", "user reload after Allow → no notice · remote and tab markers allowed until commit · that load's scripts do not run"], ["4", "commit → both allows cleared · remote notice blocked, even after ×"], ["×", "marker blocked remains · click → that notice again"], ["loading", "Allow disabled until commit · Reload busy"], ["page area", "host Loading tile (Spinner + Loading…) from load start until the load finishes, for any load: the first load (from its commit the notice and the tile show together, 1), the reloads Allow starts (2, 3) and a user reload (4a, 4b) · band, notices, markers stay above it · 4a and 4b measured on Linux, the rest read from the code"]]} />
+          <Note>First load: the remote notice first shows when the page's load commits, already blocked, so step 1 has no loading frame before it. From that commit until the load finishes the notice and the Loading tile show together (frame “1 · first load”); how long depends on the page's subrequests, and it is short while they are blocked. A reload that Allow starts (2, 3) is a load too: the tile holds the page area until it finishes. Reload before Allow (4a): the notice stays, loading, and keeps one title for every phase: “Remote content on this page is blocked” (<code>title_web</code>, value changed; was “Page loaded; remote content blocked”). The page area shows the Loading tile, not the earlier showing, so a title that says the page has loaded would contradict the screen, here and at the first load's commit. The new title names no load state: it is true over the tile, over the finished page, and for the new load, which is blocked too. The disabled Allow and the busy Reload already say a load is in flight. Reload after Allow (4b): the allows and both markers hold until the reload commits, then clear, and the notice comes back.</Note>
         </Spec>
       </Section>
       <Section id="bodyink" title="Body ink — every banner, both themes">

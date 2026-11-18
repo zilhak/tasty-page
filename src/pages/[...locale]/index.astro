@@ -1,0 +1,39 @@
+---
+import Base from "../../layouts/Base.astro";
+import Landing from "../../components/Landing.astro";
+import { dictionaryFor } from "../../lib/i18n/index.mjs";
+import { DEFAULT_LANG, LANGS, hrefsFor, localePaths } from "../../lib/langs.mjs";
+import { url } from "../../lib/site";
+import { landingJsonLd } from "../../lib/structured-data";
+
+export const getStaticPaths = localePaths;
+const { lang } = Astro.props;
+const meta = dictionaryFor(lang).meta;
+/* The site verification and the language redirect belong to the first page only. */
+const isFirstPage = lang === DEFAULT_LANG;
+const targets = LANGS.filter((row) => row.browserMatch).map((row) => ({ match: row.browserMatch, landing: url(row.landing) }));
+---
+<Base lang={lang} title={meta.title} description={meta.description} hrefs={hrefsFor((row) => row.landing)}>
+  <Fragment slot="head">
+    {isFirstPage && <meta name="naver-site-verification" content="5da8d0987466907d092c6f94e26364e785acf65b" />}
+    <link rel="stylesheet" href={url("design/kit.css")} />
+    <script is:inline type="application/ld+json" set:html={landingJsonLd(lang)} />
+    {isFirstPage && (
+      <script is:inline define:vars={{ targets }}>
+        /* Runs before first paint. A saved choice outranks the browser language. */
+        (function () {
+          var saved = null;
+          try { saved = localStorage.getItem("tasty-lang"); } catch (e) { /* private mode */ }
+          var language = (saved || navigator.language || "").toLowerCase();
+          for (var i = 0; i < targets.length; i++) {
+            if (new RegExp(targets[i].match).test(language)) {
+              location.replace(targets[i].landing + location.search + location.hash);
+              return;
+            }
+          }
+        })();
+      </script>
+    )}
+  </Fragment>
+  <Landing lang={lang} />
+</Base>

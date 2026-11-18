@@ -1,0 +1,29 @@
+/* The D2Coding files, for the design zone only: a page outside it has no font rule, so it
+   never asks for a file. A browser fetches a face when text first draws in it, and each
+   file is over 4 MB, so inside the zone only gallery specimens draw in it. The site chrome
+   would otherwise fetch both files on every page: the language switch alone asks for Bold.
+   Root-absolute URLs keep the files beside their license and the build adds the base. */
+@font-face {
+  font-family: "D2Coding";
+  src: url("/fonts/D2Coding-ligature-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "D2Coding";
+  src: url("/fonts/D2Coding-ligature-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+[data-site-chrome] { --font-mono: var(--tasty-font-family-mono-system), monospace; }
+/* The token page lists names and values and is indexed, so it stays out too. Its [data-theme]
+   frames declare the tokens again, so they take the same values. */
+[data-gallery-page="tokens"],
+[data-gallery-page="tokens"] [data-theme] {
+  --tasty-font-family-mono: var(--tasty-font-family-mono-system), monospace;
+  --tasty-font-mono: var(--tasty-font-family-mono);
+  --font-mono: var(--tasty-font-family-mono);
+}

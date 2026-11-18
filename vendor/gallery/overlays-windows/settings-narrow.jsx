@@ -62,4 +62,4 @@ function SettingsNarrowSection() {
   );
 }
 
-export { wLbl, wRec, WKbd, WInput, WIcon, SettingsNarrowSection };
+export { wLbl, wRec, WKbd, WInput, WIcon, WRow, SettingsNarrowSection };

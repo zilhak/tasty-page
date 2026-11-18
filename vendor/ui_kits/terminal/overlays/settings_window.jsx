@@ -18,6 +18,7 @@ import { KbPluginsSubtab } from "./kb_plugins_subtab.jsx";
 import { MacPermissionsPane } from "./macos_permissions.jsx";
 import { AnomalySubtab } from "./settings_anomaly.jsx";
 import { Scrim } from "./shared.jsx";
+import { ChildGraphSettings } from "./child_graph.jsx";
 
 // Tasty UI kit — Settings window (L1 top tabs + L2 sidebar + content).
 // Mirrors zilhak/tasty → src/view/settings/ui.rs (+ settings/ui/tabs/*, keybindings_tab.rs).
@@ -692,11 +693,14 @@ function PresetSubtab() {
 
 // ── Settings ───────────────────────────────────────────────────────────
 // 7-tab L1 IA (settings-ia-restructure, 2026-06-17). Every category now has a
-// home: Terminal behaviour + Performance, FileHandler, and Tastyrc are promoted
+// home: Terminal behaviour + Performance and FileHandler are promoted
 // out of the old over-stuffed General group into their own top-level tabs. The
 // growable second level (incl. plugin-contributed sections) lives in the left
 // sidebar with a filter. Plugins remain their OWN top-level tab.
-const IS_WINDOWS = true; // preview assumes Windows. Misc has Tastyrc (Windows-only); empty elsewhere.
+// The preview OS is the `os` prop of SettingsWindow: "windows" (default) · "macos" · "linux".
+// macOS adds Keybindings › Alt key and its link click choices (R-56).
+// The gallery card "Alt key (macOS)" in overlays-windows renders the kit with os="macos".
+const DEFAULT_OS = "windows";
 // Plugin-contributed Appearance pages are dynamic — present only when a plugin registers
 // one, inserted after Terminal / before HTML (mirrors the source push order). Shown with
 // the same agent-dot marker the Plugins tab uses.
@@ -706,14 +710,17 @@ const L1_TABS = ["General", "Terminal", "Appearance", "Keybindings", "FileHandle
 // a section can ask for a SEPARATOR above it. Used by exactly one row today —
 // Keybindings › Import / Export, which moves a configuration rather than
 // editing bindings, so it reads as a different kind of destination.
-const KB_L2_SEPARATED = ["Import / Export"];
+// 2026-11-10 (R-56): on macOS the Alt key section joins that group — it changes what the
+// `alt` / `extra` tokens mean rather than editing a binding — so the separator moves above
+// Alt key and Import / Export follows it without a second separator.
+const kbL2Separated = (os) => (os === "macos" ? ["Alt key"] : ["Import / Export"]);
 // L1 "File Handler" was generalized to "Handler" (inbound-hook server work): the
 // same tab now hosts BOTH the file-routing subtabs (prefixed "File …") and the
 // new Hook Handlers registry. Internal key stays `FileHandler` to avoid a rename
 // migration; only the visible label changed.
 const L1_LABEL = { General: "General", Terminal: "Terminal", Appearance: "Appearance",
   Keybindings: "Keybindings", FileHandler: "Handler", Misc: "Misc", Plugins: "Plugins" };
-const L2 = {
+const l2For = (os) => ({
   // Permissions exists in macOS builds only (last L2 of General). Shown here so the kit carries it.
   General: ["General", "Notifications", "Accessibility", "Permissions"],
   Terminal: ["General", "Mouse Capture", "TUI", "Performance"],
@@ -722,12 +729,16 @@ const L2 = {
   // sections; the old design list carried a phantom "Image" and was missing
   // Explorer + Scripts). "Import / Export" is appended LAST, after Plugins, and
   // is the one SEPARATED row (see KB_L2_SEPARATED — a new axis on the L2 row).
-  Keybindings: ["General", "Workspace", "Pane", "Tab", "Surface", "Clipboard", "Zoom", "Explorer", "Scripts", "Preset", "Plugins", "Import / Export"],
+  // 2026-11-10 (R-56): macOS adds "Alt key" after Plugins (settings.keybindings.subtab.alt_key) —
+  // its own section so the label-only filter finds "alt". Absent on Windows / Linux.
+  Keybindings: ["General", "Workspace", "Pane", "Tab", "Surface", "Clipboard", "Zoom", "Explorer", "Scripts", "Preset", "Plugins", ...(os === "macos" ? ["Alt key"] : []), "Import / Export"],
   FileHandler: ["File Extension Mapping", "File Detectors", "File Handlers", "Hook Handlers"],
-  // 2026-10-27: Scripts → Task pipeline → Anomaly detection → Tastyrc (Windows only)
-  Misc: IS_WINDOWS ? ["Scripts", "Task pipeline", "Anomaly detection", "Tastyrc"] : ["Scripts", "Task pipeline", "Anomaly detection"],
+  // 2026-10-27: Scripts → Task pipeline → Anomaly detection
+  // 2026-11-10: Child graph after Anomaly detection — its own section so the label filter finds "child" / "graph"
+  // 2026-11-10: the Windows-only rc section is gone; the list is the same on every OS
+  Misc: ["Scripts", "Task pipeline", "Anomaly detection", "Child graph"],
   Plugins: ["git-helper", "ai-review", "docker", "k8s-lens"],
-};
+});
 
 // Settings › FileHandler › File Extension Mapping (2026-09-29).
 // The product's structure is the design: an extension Input + Add, then per extension an ORDERED
@@ -791,9 +802,13 @@ function ExtensionMapping({ detectors = true }) {
   );
 }
 
-function SettingsWindow({ theme, onTheme, uiScale, onUiScale, onClose }) {
-  const [l1, setL1] = React.useState("Appearance");
-  const [l2, setL2] = React.useState("Theme");
+function SettingsWindow({ theme, onTheme, uiScale, onUiScale, onClose, os = DEFAULT_OS, initialL1 = "Appearance", initialL2 = "Theme" }) {
+  const IS_WINDOWS = os === "windows";
+  const IS_MAC = os === "macos";
+  const L2 = l2For(os);
+  const KB_L2_SEPARATED = kbL2Separated(os);
+  const [l1, setL1] = React.useState(initialL1);
+  const [l2, setL2] = React.useState(initialL2);
   const [filter, setFilter] = React.useState("");
   const [toast, setToast] = React.useState(null);
   React.useEffect(() => {
@@ -836,6 +851,10 @@ function SettingsWindow({ theme, onTheme, uiScale, onUiScale, onClose }) {
       </div>
     );
   };
+  // inline code run inside a caption (backtick runs in the catalog) — the shared ui-code tokens.
+  const KbCode = ({ children }) => (
+    <code style={{ fontFamily: "var(--tasty-ui-code-font)", fontSize: "1em", background: "var(--tasty-ui-code-bg)", color: "var(--tasty-ui-code-fg)", padding: "0 var(--tasty-ui-code-padding-x)", borderRadius: "var(--tasty-ui-code-radius)" }}>{children}</code>
+  );
   const RowCaption = ({ children }) => (
     <p style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)", margin: 0, maxWidth: "var(--tasty-measure-md)", lineHeight: "var(--tasty-line-height-ui)" }}>{children}</p>
   );
@@ -1001,12 +1020,17 @@ function SettingsWindow({ theme, onTheme, uiScale, onUiScale, onClose }) {
       return (
         <>
           <Row label="Shell:"><Input mono defaultValue="/usr/bin/zsh" style={{ width: "var(--tasty-field-width-lg)" }} /></Row>
-          {IS_WINDOWS && <Row label="Shell mode:"><Select options={["Default (full rc)", "Tasty (Tasty rc)", "Custom"]} defaultValue="Tasty (Tasty rc)" style={{ width: "var(--tasty-field-width-lg)" }} /></Row>}
           <Row label="Startup command:"><Input block mono placeholder="run on new session — optional" /></Row>
           <Row label="Scrollback lines:"><Input mono defaultValue="10000" style={{ width: "var(--tasty-field-width-xs)" }} /></Row>
           <Row label="Confirm close if running:"><Switch defaultChecked /></Row>
           <Row label="Inherit working directory:"><Switch defaultChecked /></Row>
-          <Row label="Link click modifier:"><Select options={["Ctrl", "Alt", "Shift", "None"]} defaultValue="Ctrl" style={{ width: "var(--tasty-field-width-md)" }} /></Row>
+          {/* 2026-11-10 (R-56): macOS choices are the physical keys, always as words (Ctrl · Option · Cmd) —
+              a settings choice, not a shortcut rendering, so the key display settings do not apply.
+              Windows / Linux offer Ctrl · Alt (no Win / Super). Every OS keeps "Disable left-click opening"
+              and defaults to Ctrl. No caption on any OS. */}
+          {IS_MAC
+            ? <Row label="Link click modifier:"><Select options={["Ctrl", "Option", "Cmd", "Disable left-click opening"]} defaultValue="Ctrl" style={{ width: "var(--tasty-field-width-md)" }} /></Row>
+            : <Row label="Link click modifier:"><Select options={["Ctrl", "Alt", "Disable left-click opening"]} defaultValue="Ctrl" style={{ width: "var(--tasty-field-width-md)" }} /></Row>}
           {!IS_WINDOWS && <Row label="Option as Meta (macOS):"><Switch /></Row>}
         </>
       );
@@ -1026,6 +1050,12 @@ function SettingsWindow({ theme, onTheme, uiScale, onUiScale, onClose }) {
           {l2 === "Explorer" && <><KeyRow action="Explorer: open surface" keys="Ctrl+Shift+E" /><KeyRow action="Explorer: reveal current path" keys="Ctrl+Alt+E" /><KeyRow action="Explorer: toggle favorites" keys="None" /></>}
           {l2 === "Scripts" && <><KeyRow action="deploy-staging.lua" keys="Ctrl+Alt+1" /><KeyRow action="rotate-logs.lua" keys="Ctrl+Alt+2" /></>}
           {l2 === "Preset" && <PresetSubtab />}
+          {/* 2026-11-10 (R-56) — macOS only. One Row (Select field-width-md, Cmd default) + RowCaption.
+              settings.keybindings.alt_key_label / alt_key_cmd / alt_key_option / alt_key_desc. */}
+          {l2 === "Alt key" &&
+            <Row label="Alt key mapping:" caption={<RowCaption>Saved shortcuts stay the same; only the keys you press change. <KbCode>alt</KbCode> uses the selected key and <KbCode>extra</KbCode> the other.</RowCaption>}>
+              <Select options={["Cmd", "Option"]} defaultValue="Cmd" style={{ width: "var(--tasty-field-width-md)" }} />
+            </Row>}
           {l2 === "Import / Export" && KbImportExportSubtab &&
             <KbImportExportSubtab onFlash={setToast} />}
           {/* 2026-10-08 (batch 8) — real structure: plugin picker + per-command mode / slot / Reset (kb_plugins_subtab.jsx). */}
@@ -1055,7 +1085,7 @@ function SettingsWindow({ theme, onTheme, uiScale, onUiScale, onClose }) {
       return <FileHandlersPane />;
     }
 
-    // ── Misc (Scripts everywhere; Tastyrc is Windows-only) ──
+    // ── Misc (same sections on every OS) ──
     if (l1 === "Misc") {
       if (l2 === "Scripts")
         return <ScriptManager />;
@@ -1069,31 +1099,9 @@ function SettingsWindow({ theme, onTheme, uiScale, onUiScale, onClose }) {
         );
       if (l2 === "Anomaly detection" && AnomalySubtab)
         return <AnomalySubtab />;
-      if (l2 === "Tastyrc")
-        return (
-          <>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <span style={{ fontSize: "var(--tasty-font-size-max)", fontWeight: "var(--tasty-font-weight-semibold)", color: "var(--tasty-text-primary)" }}>Tastyrc</span>
-              <Tag variant="warning">Windows only</Tag>
-            </div>
-            <Note>The Windows shell integration reads a generated <span style={{ fontFamily: "var(--tasty-font-mono)" }}>.tastyrc</span> to inject Tasty's prompt and key bindings into PowerShell / cmd. macOS and Linux use the rc files directly, so this tab is empty there.</Note>
-            <Row label="Profile path:"><Input mono defaultValue="%USERPROFILE%\.tastyrc" style={{ width: 240 }} /></Row>
-            <Row label="Auto-regenerate:"><Switch defaultChecked /></Row>
-            <div style={{ display: "flex", gap: 8 }}>
-              <Button variant="secondary">Open file</Button>
-              <Button variant="ghost">Regenerate now</Button>
-            </div>
-          </>
-        );
-      // non-Windows: tab is visible everywhere but has no sections → empty state
-      return (
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-          gap: "var(--tasty-space-sm)", textAlign: "center", color: "var(--tasty-text-muted)" }}>
-          <Icon name="sun" size={26} />
-          <div style={{ fontSize: 14, color: "var(--tasty-text-secondary)" }}>No settings on this platform</div>
-          <Note>The only Misc setting (<span style={{ fontFamily: "var(--tasty-font-mono)" }}>.tastyrc</span>) applies to the Windows shell integration. The tab stays visible on every platform for consistency.</Note>
-        </div>
-      );
+      if (l2 === "Child graph")
+        return <ChildGraphSettings />;
+      return null;
     }
 
     // ── Plugins (each L2 is an installed plugin) ──

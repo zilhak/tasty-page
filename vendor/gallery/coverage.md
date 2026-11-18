@@ -140,6 +140,7 @@ The 4 contracts and 5 locations had no gallery specimen and now have one. Each p
 | File picker | `base` | `overlays-windows#filepicker` | exists |
 | Remote connections | `base` | `overlays-windows#remote` | exists |
 | Preset editor | `base` | `overlays-windows#preseteditor` | exists |
+| Capture region select | `crust` | `overlays-windows#captureregion` | view |
 | Task DAG, focused | `term` | `dag#surfaces` | view |
 | Task DAG, unfocused | `term-unfocused` | `dag#surfaces` | view |
 | Plugin surface chrome | `base` | `plugins#explorer` | exists |

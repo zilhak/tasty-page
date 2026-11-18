@@ -1,4 +1,4 @@
-<!-- source-hash: d52404a7c85c -->
+<!-- source-hash: 8956777bc01d -->
 <a id="task-dag"></a>
 
 # Task workflows (DAG)
@@ -157,7 +157,7 @@ To run a task's result through another command (a judge or summary tool, say) an
 - Until the postprocess finishes, the task shows as running and the next tasks wait. `task-get` shows `phase: postprocessing (run 1)` on the line after `state: running` (`phase: retry_wait (run 2)` while it waits to retry).
 - If the postprocess fails, the `state` line in `task-get` gives the reason. The lines under it give the last run's cause and exit code, such as `postprocess: run 2 failed (nonzero_exit), exit_code 3`, and the causes of the runs that were retried (`postprocess retried after: ...`). If the postprocess result is too large to store, a successful postprocess is kept as a success without the main work's response in the raw result of `task-get`. If it is still too large, or the run failed, the cause is `result_too_large` and the postprocess is not run again, even if retries are left.
 - If you quit Tasty while a postprocess runs, Tasty ends the postprocess command and the processes it started. After the restart the postprocess is not run again and the task fails. Stopping the runner (`task-run --action stop`) ends a postprocess the same way, and the task shows as running until you start the runner again. To try again, rerun the task with `task-retry`.
-- If Tasty is killed (with `kill`, for example), it depends on the OS. On Linux only the postprocess command itself gets a termination signal. That usually ends the command, so after the restart the task fails because its result cannot be collected, and other processes the command started can be left running. With `["sh", "-c", "sleep 300; echo x"]`, for example, `sh` ends and `sleep` is left running. On Windows they end with Tasty, and on macOS they are all left running.
+- If Tasty is killed (with `kill`, for example), it depends on the OS. On Linux only the postprocess command itself gets a termination signal. That usually ends the command, so after the restart the task fails because its result cannot be collected, and other processes the command started can be left running. With `["sh", "-c", "sleep 300; echo x"]`, for example, `sh` ends and `sleep` is left running. On Windows the postprocess command and the processes it started end together with Tasty, and on macOS they are all left running.
 - If the postprocess command is still running after Tasty restarts (Tasty was killed on macOS, or the command ignored the termination signal on Linux), the task stays running and keeps its semaphore or lease until the command ends. When it ends, its result cannot be collected, so the task fails and gives the resource back then. Tasty does not wait when only processes the command started are left. A task that was waiting to run its postprocess (including a wait before a retry) keeps its resources and runs the postprocess as scheduled.
 
 While Tasty runs on [temporary memory](cli-reference.md#memory-shared-between-agents) because it could not open its memory file, a graph would not survive a restart, so sending it as is gets refused. For a graph that may be lost on restart, add `"durability": "best_effort"`.
@@ -199,7 +199,7 @@ An `agent` task sends one instruction to an agent session such as Claude or Code
  "output_schema": {"type": "enum", "values": ["approve", "revise"]}}
 ```
 
-- `provider` names the plugin that runs the session: `claude` for the Claude plugin and `codex` for the Codex plugin. Other plugins that support agent tasks use their own name. If that plugin is not installed, is turned off, or lacks the turn-report permission, creating the task is refused with the reason. If you turn the plugin off after creating the task, the task fails when it runs.
+- `provider` names the plugin that runs the session: `claude` for the Claude plugin and `codex` for the Codex plugin. Other plugins that support agent tasks use their own name. If that plugin is not installed or is turned off, creating the task is refused with the reason. If you turn the plugin off after creating the task, the task fails when it runs.
 - The `workspace_id` in `command` is the workspace a new session opens in. `task-submit` hands the value to the workspace the task lives in, and the guidance appended to the instruction carries that number.
 - With `session` set to `{"kind": "new", "parent_surface": <surface>}`, a new session starts under that surface and gets the instruction. Add `"cwd": "<path>"` to set the new session's working folder. With `{"kind": "existing", "surface_id": <surface>}`, the instruction goes to a session that is already open.
 - An open session gets the instruction only when it is idle. If you are talking to it, the task waits until you finish, so the conversations do not mix. A one-line marker for that run is added to the end of the instruction, and only a turn started with that marker counts as the task's turn. Tasks that use the same session run one after another.
@@ -329,7 +329,11 @@ tasty agent task-get --workspace 2 --id "$BUILD"
 tasty agent task-graph --workspace 2 --format dot   # draw it with Graphviz
 ```
 
-`--format dot` writes only the graph to standard output, so you can hand it straight to Graphviz (for example `... --format dot | dot -Tsvg > graph.svg`). A cycle warning and the runner status go to standard error. `dag-get --format dot` works the same way.
+`tasty agent task-graph` and `tasty agent dag-get` print a parent ID table by default. Choose the format with `--format table|json|dot`; the default is `table`. To read JSON in scripts, add `--format json`. Scripts that parsed the default output as JSON in earlier versions also need this option.
+
+The table uses Markdown-style pipe (`|`) rows. Its columns, in order, are `id`, `parents`, `name`, `state`. Multiple parents are joined with commas in `parents`; a task without parents shows `-`. A `|` inside a value is escaped as `\|`. The table's `parents` column lists the source of every edge regardless of edge kind. To see edge kinds, use `--format json` or `--format dot`. With no tasks, only the two header lines are printed and the exit code is 0.
+
+`--format dot` writes only the graph to standard output, so you can hand it straight to Graphviz (for example `... --format dot | dot -Tsvg > graph.svg`). The cycle notice and runner status line go to standard error with both `--format dot` and table output. The same applies to `dag-get`.
 
 `task-list` and `task-get` print lines for people to read. To use them from a script, or to see the input a task received (`input_snapshot`) and its raw result (`typed_result.raw`), add `--json`. The response from Tasty is printed as JSON as it is.
 

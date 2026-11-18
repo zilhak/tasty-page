@@ -4,16 +4,36 @@ import { Icon as RcIcon } from "../../../components/core/Icon.jsx";
 import { IconButton } from "../../../components/core/IconButton.jsx";
 import { Spinner } from "../../../components/feedback/Spinner.jsx";
 import { Tooltip } from "../../../components/feedback/Tooltip.jsx";
-import { HtmlAddressBar, HtmlSizeBanner } from "./html_address_bar.jsx";
+import { HtmlAddressBar, HtmlPageState, HtmlSizeBanner } from "./html_address_bar.jsx";
 import { HsTab, HsPage, HtmlScriptBanner } from "./html_script_banner.jsx";
 
 // HTML surface — REMOTE CONTENT blocked notice (inset banner) + address-field marker.
 // Designed 2026-11-01.
 //
 // Same life rules as the script notice (html_script_banner.jsx): fires only when the USER views the document,
-// allow binds to the committed document (URL + content fingerprint), Allow reloads once, disabled while loading,
-// no banner/marker on a failed (uncommitted) document, none while the global "Allow remote content" is on.
-// Remote allow and script allow are independent.
+// Allow reloads once, disabled while loading, no banner/marker on a failed (uncommitted) document, none while the
+// global "Allow remote content" is on.
+//
+// Two document kinds, one shell (2026-11-10). `web` picks the copy; box, glyph, states, marker cell are shared.
+//   file (local file:// document): allow binds to the committed document (URL + content fingerprint), survives a
+//     reload of the same content, cleared by another document committing or by a restart. Remote allow and script
+//     allow are independent; both notices can stack.
+//   web (top-level http(s) page typed into the address field): no fingerprint. Allow covers this showing only —
+//     the reload Allow itself starts keeps it; the USER's reload, any navigation (same site too), Back and restart
+//     clear it when that load commits, and the notice is back then, blocked (a new showing, even if it was dismissed
+//     before). Until that commit the allow and its markers hold; a notice already up (before Allow) stays, loading.
+//     Page area during any load of the page (2026-11-10; the user's reload measured on Linux, the reloads Allow
+//     starts and the first load read from the code): the host hides the WebView from load start until the load
+//     finishes and paints its Loading tile (HtmlPageState "loading"); band, notices and markers stay above it. On
+//     the first load the notice shows at commit, so from commit until the load finishes notice and tile show together. So the web title names no load state: it is true over the tile and over the finished page.
+//     Body key: picked every frame from the model's script sandbox value; changing the setting while the notice is
+//     up swaps the body on the next frame (phase and dismissal unchanged).
+//     Shown whenever the page is viewed, first at the load's commit (never before it): the static references are
+//     unknown, so the notice does not wait for a blocked request.
+//     Remote allow does not enable scripts. With the script sandbox on, the script notice (web copy) takes the SAME
+//     slot right after the remote reload commits; the two never stack on a web page, and the script notice never
+//     shows while remote is blocked (dismissing the remote notice leaves only its marker). The user's reload clears
+//     both allows and starts again at the remote notice.
 //
 // Box boundaries: tab strip → address band [nav | field [kind glyph | address | skipped Tag | REMOTE MARKER]]
 //   → inset banner stack (size → REMOTE → script, banner-inset-gap apart) → WebView rect.
@@ -31,13 +51,24 @@ const RC_COPY = {
   body: "Stylesheets, images, fonts, frames and scripts from the network don't load, so the page may look incomplete. Allowing applies to this document only, until Tasty restarts.",
   action: "Allow remote content",
   reloading: "Reloading with remote content allowed",
-  actionLoading: "Available when the document finishes loading",
+  actionLoading: "Available when loading finishes",
   markerBlocked: "Remote content blocked. Click for details.",
   markerAllowed: "Remote content allowed for this document until Tasty restarts",
+  // 2026-11-10 — top-level http(s) page (`web`). action, reloading, actionLoading, markerBlocked are shared.
+  // 2026-11-10 — was "Page loaded; remote content blocked": wrong while the Loading tile is up (first load's commit
+  // until it finishes, and a reload before Allow). Same key, value changed.
+  titleWeb: "Remote content on this page is blocked",
+  bodyWeb: "Stylesheets, images, fonts, frames and media from the network are blocked, so the page may look incomplete. Allowing applies only to this showing of the page; reloading blocks remote content again. Permission to run scripts is requested separately.",
+  markerAllowedWeb: "Remote content allowed for this showing of the page; reloading blocks it again",
+  // 2026-11-10 — web body when the script sandbox is off: no script notice exists and the page's own scripts already
+  // run, so network scripts join the blocked list and the "requested separately" sentence goes. Picked by the sandbox.
+  bodyWebSandboxOff: "Stylesheets, images, fonts, frames, media and scripts from the network are blocked, so the page may look incomplete. Allowing applies only to this showing of the page; reloading blocks remote content again.",
 };
 
 // state: "blocked" | "loading" | "reloading" — identical visual rules to HtmlScriptBanner.
-function HtmlRemoteBanner({ state = "blocked", hover = false, narrow = false }) {
+// web: top-level http(s) page copy (titleWeb/bodyWeb). tipOpen: draws the loading tooltip open (gallery frames).
+// sandboxOff (web only): the script sandbox is off → bodyWebSandboxOff. Title, action and states are unchanged.
+function HtmlRemoteBanner({ state = "blocked", hover = false, narrow = false, web = false, sandboxOff = false, tipOpen = false }) {
   const [h, setH] = React.useState(false);
   const showX = (hover || h) && state !== "reloading";
   const reloading = state === "reloading";
@@ -46,7 +77,7 @@ function HtmlRemoteBanner({ state = "blocked", hover = false, narrow = false }) 
       <Spinner size="var(--tasty-icon-size-sm)" />{RC_COPY.reloading}
     </span>
   ) : state === "loading" ? (
-    <Tooltip placement="top" content={RC_COPY.actionLoading}>
+    <Tooltip placement="top" open={tipOpen} content={RC_COPY.actionLoading}>
       <span style={{ display: "inline-flex" }}><Button size="sm" variant="secondary" disabled style={{ whiteSpace: "nowrap" }}>{RC_COPY.action}</Button></span>
     </Tooltip>
   ) : (
@@ -63,8 +94,8 @@ function HtmlRemoteBanner({ state = "blocked", hover = false, narrow = false }) 
           <RcIcon name="globeOff" size="var(--tasty-icon-size-md)" />
         </span>
         <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: "var(--tasty-banner-text-gap)" }}>
-          <div style={{ fontSize: "var(--tasty-banner-title-font-size)", fontWeight: "var(--tasty-font-weight-semibold)", lineHeight: "var(--tasty-line-height-ui)", textWrap: "pretty" }}>{RC_COPY.title}</div>
-          <div style={{ fontSize: "var(--tasty-banner-body-font-size)", lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-banner-body-fg)", textWrap: "pretty" }}>{RC_COPY.body}</div>
+          <div style={{ fontSize: "var(--tasty-banner-title-font-size)", fontWeight: "var(--tasty-font-weight-semibold)", lineHeight: "var(--tasty-line-height-ui)", textWrap: "pretty" }}>{web ? RC_COPY.titleWeb : RC_COPY.title}</div>
+          <div style={{ fontSize: "var(--tasty-banner-body-font-size)", lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-banner-body-fg)", textWrap: "pretty" }}>{web ? (sandboxOff ? RC_COPY.bodyWebSandboxOff : RC_COPY.bodyWeb) : RC_COPY.body}</div>
         </div>
         <span style={{ flex: "none", display: "flex", marginLeft: narrow ? "calc(var(--tasty-icon-size-md) + var(--tasty-banner-gap))" : 0, width: narrow ? "100%" : "auto" }}>{action}</span>
       </div>
@@ -76,13 +107,13 @@ function HtmlRemoteBanner({ state = "blocked", hover = false, narrow = false }) 
   );
 }
 
-// kind: "blocked" | "allowed"
-function HtmlRemoteMarker({ kind = "blocked", hover = false }) {
+// kind: "blocked" | "allowed" · web: allowed tooltip says "this showing" (markerAllowedWeb); glyphs and inks are shared.
+function HtmlRemoteMarker({ kind = "blocked", hover = false, web = false, open = false }) {
   const allowed = kind === "allowed";
   const [h, setH] = React.useState(false);
-  const label = allowed ? RC_COPY.markerAllowed : RC_COPY.markerBlocked;
+  const label = allowed ? (web ? RC_COPY.markerAllowedWeb : RC_COPY.markerAllowed) : RC_COPY.markerBlocked;
   return (
-    <Tooltip placement="top" content={label}>
+    <Tooltip placement="top" open={open} content={label}>
       <span role={allowed ? "img" : "button"} aria-label={label} onMouseEnter={() => setH(true)} onMouseLeave={() => setH(false)}
         style={{ display: "inline-flex", flex: "none", alignItems: "center", justifyContent: "center", marginRight: "calc(-1 * var(--tasty-space-xs))",
           width: "var(--tasty-html-remote-marker-hit)", height: "var(--tasty-html-remote-marker-hit)", borderRadius: "var(--tasty-radius-sm)",
@@ -95,7 +126,7 @@ function HtmlRemoteMarker({ kind = "blocked", hover = false }) {
 }
 
 // stand-in for a page whose remote stylesheet/images did not load (not tasty chrome)
-function RcUnstyledPage() {
+function RcUnstyledPage({ label = "report.html" }) {
   const line = (w) => <span style={{ height: "var(--tasty-space-sm)", width: w, background: "var(--tasty-surface-raised)", borderRadius: "var(--tasty-radius-sm)" }} />;
   const broken = (w) => (
     <span style={{ width: w, height: "var(--tasty-size-40)", flex: "none", border: "var(--tasty-border-width) dashed var(--tasty-border-default)", borderRadius: "var(--tasty-radius-sm)",
@@ -103,7 +134,7 @@ function RcUnstyledPage() {
   );
   return (
     <div style={{ flex: 1, minHeight: 0, background: "var(--tasty-surface-terminal-focused-bg)", padding: "var(--tasty-space-md)", display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
-      <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-placeholder)" }}>WebView — report.html · remote CSS + images not loaded</span>
+      <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-placeholder)" }}>WebView — {label} · remote CSS + images not loaded</span>
       {line("40%")}{line("92%")}
       <span style={{ display: "flex", gap: "var(--tasty-space-sm)" }}>{broken("var(--tasty-size-64)")}{broken("var(--tasty-size-64)")}</span>
       {line("75%")}
@@ -113,27 +144,34 @@ function RcUnstyledPage() {
 
 // Whole surface for the comparison grid.
 // remote / script: banner state or null · remoteMarker: "blocked" | "allowed" | null · scriptMarker: tab marker kind or null
-// size: mirror size banner on top ("file" | "limit" | null) · page: "unstyled" | "styled"
-function HtmlRemoteSurfaceG({ width, height = 300, narrow = false, remote = null, script = null, remoteMarker = null, scriptMarker = null, size = null, page = "unstyled", mirror = false }) {
-  
+// size: mirror size banner on top ("file" | "limit" | null) · page: "unstyled" | "styled" | "loading" (host Loading tile)
+// web (2026-11-10): top-level http(s) page — `web` address field (link glyph), web copy on both notices and both
+//   allowed tooltips. A web page never passes remote and script together (they take the same slot in turn).
+// loading: the band's Reload shows busy (a load is in flight, not yet committed).
+const RC_WEB = { label: "Getting started", address: "https://docs.example.com/guide/getting-started", page: "docs.example.com" };
+// sandboxOff: the remote notice takes its sandbox-off web body.
+function HtmlRemoteSurfaceG({ width, height = 300, narrow = false, remote = null, script = null, remoteMarker = null, scriptMarker = null, size = null, page = "unstyled", mirror = false, web = false, loading = false, sandboxOff = false }) {
+
   const stack = [
     size && <HtmlSizeBanner key="size" kind={size} narrow={narrow} />,
-    remote && <HtmlRemoteBanner key="remote" state={remote} narrow={narrow} />,
-    script && <HtmlScriptBanner key="script" state={script} remote={!!remote} narrow={narrow} />,
+    remote && <HtmlRemoteBanner key="remote" state={remote} narrow={narrow} web={web} sandboxOff={sandboxOff} />,
+    script && <HtmlScriptBanner key="script" state={script} remote={!!remote} narrow={narrow} web={web} />,
   ].filter(Boolean);
+  const kind = web ? "web" : mirror ? "remote" : "local";
+  const address = web ? RC_WEB.address : mirror ? "build-eu:~/reports/q3/report.html" : "~/reports/q3/report.html";
   return (
     <div style={{ width, height, flex: width ? "none" : 1, minWidth: 0, display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)", overflow: "hidden" }}>
       <div style={{ display: "flex", flex: "none", background: "var(--tasty-bg-sidebar)", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
-        <HsTab label="report.html" icon="html" active marker={scriptMarker} />
+        <HsTab label={web ? RC_WEB.label : "report.html"} icon="html" active marker={scriptMarker} markerWeb={web} />
       </div>
-      <HtmlAddressBar kind={mirror ? "remote" : "local"} address={mirror ? "build-eu:~/reports/q3/report.html" : "~/reports/q3/report.html"} narrow={narrow}
-        trailing={remoteMarker ? <HtmlRemoteMarker kind={remoteMarker} /> : null} />
+      <HtmlAddressBar kind={kind} address={address} narrow={narrow} state={loading ? "loading" : "idle"}
+        trailing={remoteMarker ? <HtmlRemoteMarker kind={remoteMarker} web={web} /> : null} />
       {stack.length > 0 && (
         <div style={{ flex: "none", display: "flex", flexDirection: "column", gap: "var(--tasty-banner-inset-gap)", padding: "var(--tasty-banner-margin) var(--tasty-banner-margin) var(--tasty-banner-inset-gap)" }}>{stack}</div>
       )}
-      {page === "styled" ? <HsPage /> : <RcUnstyledPage />}
+      {page === "loading" ? <HtmlPageState kind="loading" /> : page === "styled" ? <HsPage label={web ? RC_WEB.page : undefined} /> : <RcUnstyledPage label={web ? RC_WEB.page : undefined} />}
     </div>
   );
 }
 
-export { HtmlRemoteBanner, HtmlRemoteMarker, HtmlRemoteSurfaceG, RC_COPY };
+export { HtmlRemoteBanner, HtmlRemoteMarker, HtmlRemoteSurfaceG, RC_COPY, RC_WEB };

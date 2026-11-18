@@ -1,4 +1,4 @@
-<!-- source-hash: 783596359d46 -->
+<!-- source-hash: bd005896030c -->
 # 设置
 
 Tasty 的 Shell、字体、语言等可在设置窗口中更改，也可直接编辑 `~/.tasty/config.toml` 进行配置。按键绑定和主题在各自的指南中详细说明。
@@ -54,7 +54,7 @@ Tasty 的 Shell、字体、语言等可在设置窗口中更改，也可直接�
 | **辅助功能** <!-- en: Accessibility --> | **减少动态效果** <!-- en: Reduced motion -->（关闭短暂提示和叠加层的淡入淡出、加载指示器旋转、模态框抖动）· **显示修饰键提示** <!-- en: Show modifier key hints --> |
 | **叠加层** <!-- en: Overlay --> | **短暂提示显示时长** <!-- en: Toast duration -->（1~10 秒） |
 | **远程传输** <!-- en: Remote transfer --> | **保存文件夹** <!-- en: Save folder -->（默认 `~/.tasty/transfers/`）· **最大容量** <!-- en: Maximum size -->（MiB）——从远程工作区接收的文件的保存位置 |
-| **远程附加** <!-- en: Remote attach --> | **附加连接** <!-- en: Attach connections --> 下的 **断开前等待时长** <!-- en: Disconnect after -->——单位为秒，默认 30，范围 10~600。远程附加连接中对端无响应时，断开前等待的时间 |
+| **远程附加** <!-- en: Remote attach --> | **附加连接** <!-- en: Attach connections --> 下的 **断开前等待时长** <!-- en: Disconnect after -->——单位为秒，默认 30，范围 10~600。远程附加连接中对端无响应时，断开前等待的时间 · **重新连接尝试时长** <!-- en: Keep reconnecting for --> ——默认 300 秒，范围 0~3600 秒 |
 | **显示** <!-- en: Display -->（仅 macOS） | **Cmd 键显示** · **Option 键显示** · **Shift 键显示**——选择以文本或符号显示快捷键 |
 | **权限** <!-- en: Permissions -->（仅 macOS） | **完全磁盘访问权限** <!-- en: Full Disk Access --> · **屏幕录制** <!-- en: Screen recording --> 状态，**请求所有权限** <!-- en: Request all permissions -->（一次请求文件夹和屏幕录制权限），完全磁盘访问权限行的 **打开系统设置** <!-- en: Open System Settings --> |
 
@@ -64,11 +64,13 @@ Tasty 的 Shell、字体、语言等可在设置窗口中更改，也可直接�
 
 在 **设置** <!-- en: Settings --> › **常规** <!-- en: General --> › **远程附加** 中更改 **断开前等待时长**。按 Enter 或移至其他输入框确认输入时，超出范围的数值会调整：小于 10 秒调整为 10 秒，大于 600 秒调整为 600 秒。保存的值无需重启即可应用于新连接，已打开的连接保持原样。两端 Tasty 各自使用自己的值，因此对端可能先断开。不读取配置文件的 CLI 附加使用 30 秒。
 
+**设置** <!-- en: Settings --> › **常规** <!-- en: General --> › **远程附加** <!-- en: Remote attach --> 中的 **重新连接尝试时长** <!-- en: Keep reconnecting for --> 控制已保存远程行的连接中断后自动重新连接的持续时间。默认 300 秒，范围 0~3600 秒，0 禁用自动重新连接。不适用于手动断开的连接。配置键为 `[remote_attach] reconnect_timeout_secs`。
+
 ### 终端
 
 | 分区 | 设置项 |
 |------|------|
-| **常规** | **Shell** <!-- en: Shell --> · **启动命令** <!-- en: Startup command --> · **回滚缓冲区行数** <!-- en: Scrollback lines -->（默认 10000）· **关闭运行中进程前确认** <!-- en: Confirm close running process --> · **继承工作目录** <!-- en: Inherit working directory --> · **屏幕反色闪烁（DECSCNM）** <!-- en: Reverse-screen flash (DECSCNM) --> · **显示响铃通知** <!-- en: Show bell notification --> · **链接点击修饰键** <!-- en: Link click modifier -->（Ctrl / Alt / 禁用左键点击打开）· macOS：**将 Option 用作 Meta** <!-- en: Use Option as Meta --> · Windows：**Shell 模式** <!-- en: Shell mode --> |
+| **常规** | **Shell** <!-- en: Shell --> · **启动命令** <!-- en: Startup command --> · **回滚缓冲区行数** <!-- en: Scrollback lines -->（默认 10000）· **关闭运行中进程前确认** <!-- en: Confirm close running process --> · **继承工作目录** <!-- en: Inherit working directory --> · **屏幕反色闪烁（DECSCNM）** <!-- en: Reverse-screen flash (DECSCNM) --> · **显示响铃通知** <!-- en: Show bell notification --> · **链接点击修饰键** <!-- en: Link click modifier -->（Ctrl / Alt / 禁用左键点击打开）· macOS：**将 Option 用作 Meta** <!-- en: Use Option as Meta --> |
 | **输入** <!-- en: Input --> | 按终端应用设置的 **使用 Shift+Enter 发送换行符** <!-- en: Send a newline with Shift+Enter --> 规则——添加可执行文件名（例如 `claude`）并开启后，该应用接收输入期间，`Shift+Enter` 会发送换行符（LF）。关闭或没有规则时，按平台默认方式发送 |
 | **鼠标捕获** <!-- en: Mouse Capture --> | **显示鼠标捕获提示** <!-- en: Show mouse-capture hint --> · **让 Tasty 处理这些程序中的点击** <!-- en: Let Tasty handle clicks in these programs --> · **不为这些程序显示捕获通知** <!-- en: Don't show the capture notice for these programs -->——进程名或 `ht*` 等模式 |
 | **TUI** | **允许读取剪贴板（OSC 52）** <!-- en: Allow clipboard read (OSC 52) -->——默认关闭。开启后，终端内的程序可以读取剪贴板 |
@@ -91,7 +93,9 @@ Tasty 的 Shell、字体、语言等可在设置窗口中更改，也可直接�
 
 字体设置中，**常规** 的默认值统一应用于终端、Markdown、文件浏览器；在各分区关闭 **使用默认值** <!-- en: Use default --> 后，仅该种类使用不同的值。**字体 DPI 缩放** 为 **自动** 时，不同显示器上的文字物理尺寸相同；为 **固定** 时，像素尺寸相同，因此高分辨率显示器上的文字会变小。
 
-打开 **字体族** 列表后，可在顶部搜索框输入部分名称进行筛选，关闭列表会清除搜索词。**monospace（默认）** <!-- en: monospace (default) --> 项始终位于最顶部，不受搜索词影响，可随时返回默认字体。如果配置文件中指定了本机不存在的字体名称，会原样显示该名称，不会更改。
+打开 **字体族** 列表后，可在顶部搜索框输入部分名称进行筛选，关闭列表会清除搜索词。**monospace（默认）** <!-- en: monospace (default) --> 项始终位于最顶部，不受搜索词影响，可随时返回默认字体。
+
+**字体族** 或 **自定义字体文件** 的值无法使用时，会在对应输入框下方显示错误。本机未安装的字体名称也会显示为错误。输入框有焦点或字体列表打开时，以及正在检查输入值期间，会隐藏错误文字和红色标记。无法使用的值也可以 **保存**，值会原样保存，界面会使用其他字体显示。点击 **保存** 后，主窗口会立即为每个无法使用的值显示一条警告通知，通知正文中会显示对应的值。再次保存相同的值不会增加通知，在设置窗口中输入时也不会显示通知。有多个主窗口时，通知会显示在有焦点的主窗口中，显示时长遵循 **常规** 标签页中 **叠加层** 下的 **短暂提示显示时长** 设置。
 
 ### 按键绑定
 
@@ -113,7 +117,6 @@ Tasty 的 Shell、字体、语言等可在设置窗口中更改，也可直接�
 - **脚本** <!-- en: Scripts -->——注册通过按键绑定或事件执行的 Lua 脚本（[Lua 脚本](scripts.md)）。输入文件路径（例如 `~/.tasty/scripts/my-script.lua`）和显示名称，在 **按键绑定** > **运行脚本** 中分配按键绑定。注册后文件发生更改时，会显示 **已更改** <!-- en: changed --> 标记，并在下次运行时请求确认。
 - **任务流水线** <!-- en: Task pipeline -->——任务图的 report 中保留的记录大小上限。超过 **单条记录大小上限** <!-- en: Note size limit --> 的记录会被截断，超过 **单次尝试报告上限** <!-- en: Attempt report limit --> 的记录不会保存，只统计数量。前一个值必须始终小于后一个值（[任务 report](../agents/tasks.md)）。
 - **异常检测** <!-- en: Anomaly detection -->——更改内存增长、重复调用、调用激增的通知显示和阈值。这些是正常任务也可能触发的候选信号。重复调用统计的是同一调用的重复次数，而非响应延迟。关闭通知后仍会继续检测和记录，数值也可编辑。保存的值从下一次判定开始生效。超出范围的数值会在按 Enter 或移至其他输入框时校正，取消会丢弃编辑内容。
-- Windows 中会增加 **Tastyrc** 分区。
 
 ### 插件
 
@@ -240,7 +243,11 @@ title = "내 클립보드"
 
 常规设置保存在此文件中。处理器表和主题文件等使用上文说明的独立路径。缺失的键会读取默认值，因此只需填写需要的项。
 
-`[remote_attach]` 的 `heartbeat_timeout_secs` 是远程附加连接在对端无响应时等待的时间。单位为秒，默认值为 30，范围为 10~600。文件中的值超出范围时，会恢复为默认值 30 并重新保存到配置文件，警告仅写入日志。直接编辑配置文件的内容会在下次启动 Tasty 时读取。要在不重启的情况下应用于新连接，请在设置窗口中更改并保存。
+`[remote_attach]` 的 `heartbeat_timeout_secs` 是远程附加连接在对端无响应时等待的时间。单位为秒，默认值为 30，范围为 10~600。文件中的任一值超出范围时，会将整个 `[remote_attach]` 恢复为默认值（`heartbeat_timeout_secs = 30`、`reconnect_timeout_secs = 300`），重新写入配置文件，警告仅写入日志。直接编辑配置文件的内容会在下次启动 Tasty 时读取。要在不重启的情况下应用于新连接，请在设置窗口中更改并保存。
+
+`[remote_attach]` 中的 `reconnect_timeout_secs` 为已保存远程行的自动重新连接尝试时长，单位为秒，默认 300，范围 0~3600。0 禁用自动重新连接，不重试手动断开的连接。文件中的任一值超出范围时，会将整个 `[remote_attach]` 恢复为默认值（`heartbeat_timeout_secs = 30`、`reconnect_timeout_secs = 300`），重新写入配置文件，警告仅写入日志。
+
+配置文件中的字体值（如 `[appearance.default_font]` 中的 `font_family`）无法使用时，启动 Tasty 后，主窗口会为每个值显示一条警告通知。通知正文中会显示对应的值，界面会使用其他字体显示。显示通知的窗口和显示时长遵循上方外观部分的说明。智能体通过命令应用的字体值即使无法使用，也只写入日志，不会显示警告通知。
 
 ```toml
 [general]
@@ -303,6 +310,7 @@ dir = ""                         # 留空时使用 ~/.tasty/transfers/
 max_mb = 500
 
 [remote_attach]
+reconnect_timeout_secs = 300     # 重新连接尝试时长（秒），0~3600，0 禁用自动重新连接
 heartbeat_timeout_secs = 30      # 对端无响应时等待至断开的时间(秒), 10~600, 从新连接开始生效
 
 [webhook]
@@ -347,6 +355,8 @@ tasty settings set-remote-transfer --dir ~/incoming --max-mb 1000
 
 `~/.tasty/config.toml` 是配置文件。布局存储和插件数据单独管理。不要为排查布局恢复问题而直接编辑或删除存储文件。
 
+如果指定了 `TASTY_HOME`，以下文件也位于该文件夹中。保存日志的时机和报告方法，参阅[崩溃、无响应报告与日志](../help/error-reports.md)。
+
 | 路径 | 内容 |
 |------|------|
 | `config.toml` | 上述设置 |
@@ -358,6 +368,8 @@ tasty settings set-remote-transfer --dir ~/incoming --max-mb 1000
 | `scripts/` | 放置 Lua 脚本的惯例位置——[Lua 脚本](scripts.md) |
 | `transfers/` | 远程接收文件的默认保存文件夹 |
 | `tasty.port` · `debug.log` | 运行中实例的端口、警告及以上级别的日志——[故障排除](../help/troubleshooting.md) |
+| `crash-reports/` | 崩溃和无响应报告 |
+| `hook-failures.log` · `hook-failures.log.1` | 钩子失败记录 |
 
 <a id="接下来阅读"></a>
 

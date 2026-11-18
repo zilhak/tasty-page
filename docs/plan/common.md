@@ -13,7 +13,7 @@
 
 ## 개인정보 페이지
 
-- 사이트 소스: [영어 진입점](../../src/pages/privacy/index.astro) · [한국어 진입점](../../src/pages/ko/privacy/index.astro) · [본문](../../src/components/Privacy.astro) · [통계 구성](../../src/components/Analytics.astro)
+- 사이트 소스: [진입점](../../src/pages/[...locale]/privacy/index.astro) · [본문](../../src/components/Privacy.astro) · [통계 구성](../../src/components/Analytics.astro)
 - 역할: 방문자가 웹사이트 통계 처리의 범위와 주체, 정책·문의 경로를 찾는 페이지.
 - 보여 줄 항목: 방문 통계의 목적·수집 항목·식별 방식·처리 주체·조회 기간, 사이트 선호 저장과 통계 수집의 구별, 앱과 외부 도구에 대한 적용 경계, 현재 정책 링크·수정일·문의 경로.
 - 넣지 않을 항목: 앱·플러그인·외부 에이전트 전체의 데이터 무전송 보장, 새 동의 UI, 법률 적합성 보장, 조회 가능 기간을 모든 서버 기록의 삭제 기간으로 확대하는 설명.

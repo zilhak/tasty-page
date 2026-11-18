@@ -1,4 +1,4 @@
-<!-- source-hash: 357c2cdcc2a8 -->
+<!-- source-hash: 91ec00388bb6 -->
 # CLI command reference
 
 Find commands beyond the introduction, including `read since-mark`, surface state, message queues, and shared memory, organized by purpose. Use `tasty help` for the full list of arguments and options.
@@ -46,7 +46,7 @@ tasty surface fire-hook --surface 42 --event idle-timeout:300 # some events carr
 If that exit is not confirmed within 5 seconds, the new shell stays usable but the reply is a recovery-required error (`-32068`).
 After that error, sending the request again with the same idempotency key (`idempotency_key` on the IPC request) returns the success result, because the shell replacement already finished.
 When a command that creates a terminal, workspace, or tab fails while starting the shell and it is unknown what actually ran, it replies with a recovery-required error (`-32068`) instead of waiting. Sending it again with the same idempotency key (`idempotency_key` on the IPC request) does not run it again and returns the same error.
-When the shell fails before its process is created, for example because the configured shell file is not executable, or the path has no file and no other shell was found to use instead, the command replies with an ordinary error. Sending it again with the same idempotency key returns the same failure; after fixing the shell setting, a new idempotency key runs it again.
+On macOS and Linux, when the shell fails before its process is created, for example because the configured shell file is not executable, or the path has no file and no other shell was found to use instead, the command replies with an ordinary error. On Windows, if the configured shell is not Git Bash, the path has no file, or the setting is empty and Git Bash was not found in the default install locations, a command that creates a terminal fails with an ordinary error before any shell process is created, without substituting another shell. Sending it again with the same idempotency key returns the same failure; after fixing the shell setting, a new idempotency key runs it again.
 
 ## Granting permissions to a child agent
 
@@ -59,12 +59,18 @@ tasty session revoke --token <token>
 When a child uses the issued token as `TASTY_SESSION_TOKEN`, Tasty checks its requests against the permissions on that token.
 A session token tells Tasty which agent a request comes from and keeps agents from making mistakes; it is not a security boundary. A command run without a token is handled as the user's command.
 
-To prepare a remote connection, an agent with a session token can run `tasty remote attach --into-gui` and `tasty remote refusals` without an additional permission. Checking the workspace list with `tasty list workspaces` requires `surface.read`. See [Working remotely](../remote/attach.md) for command forms and JSON output.
+To prepare a remote connection, an agent with a session token can run `tasty remote attach --into-gui`, `tasty remote connect`, `tasty remote disconnect`, and `tasty remote refusals` without an additional permission. Checking the workspace list with `tasty list workspaces` requires `surface.read`. See [Working remotely](../remote/attach.md) for command forms and JSON output.
 
-Commands that a plugin adds (`tasty markdown recent`, `tasty codex spawn` and so on) need a permission too.
+Agents using a session token also need permission to call commands that a plugin adds (`tasty markdown recent`, `tasty codex spawn` and so on).
 For `tasty <command> …`, add `--permission ipc.invoke:<command>` — `tasty markdown …` needs
 `ipc.invoke:markdown`, and a `-` in the command name becomes `_`. Without it the call is refused and a permission approval request goes to a person.
 A Claude started with `tasty claude spawn` already holds the permissions for `tasty claude …` and `tasty codex …`.
+
+## Idle checks for Claude children
+
+`tasty claude idle-check --surface <child>` sets an idle check from a parent Claude or a shell without sending the child a message. `--surface` is required and selects the child to watch. The optional `--caller-surface` selects the Surface that receives the warning line.
+
+For timing, automatic checks and when checks end, see [Working with Claude and Codex](claude-codex.md#idle-checks-for-claude-children).
 
 ## Sending notifications
 
@@ -102,6 +108,12 @@ tasty read queue --surface 42 --peek     # look without popping
 tasty read queue --surface 42 --clear    # empty everything
 ```
 
+Sending with `tasty send queue --to <surface>` writes one arrival line starting with `[queue] ` to the receiving surface’s completion log, regardless of what is running there. The line follows the app language and includes the pending count, the latest sender’s surface, and the read command. It contains no message body; run `tasty read queue --surface <surface>` without `--peek` to receive the contents and empty the queue. See [Receiving completion notifications](claude-codex.md#4-receiving-completion-notifications) for automatic delivery in Claude Code.
+
+A message entering an empty queue triggers an immediate notification. While unread messages remain, another notification is written only when a message arrives at least 60 seconds after the last notification. Emptying the queue by reading without `--peek`, using `--clear`, or cleaning up the surface resets this interval record. `--peek` does not reset it.
+
+Sending to a nonexistent surface number stores the message but writes no notification line. For a surface in a remote workspace connected through remote attach (mirror), both the queue and notification log are on this computer. The remote Claude does not receive this notification.
+
 <a id="running-child-terminals-like-agents"></a>
 
 ## Running tasks in several terminals
@@ -115,6 +127,10 @@ tasty terminal tell "y" --surface 57           # send input to a child (line bre
 tasty terminal broadcast $'git pull\r' --role worker # to every child with the same role (submits only with a real trailing CR)
 tasty terminal kill --child 1                   # kill a child by index
 ```
+
+`tasty terminal children` prints a parent ID table by default. It accepts `--format table|json`, with `table` as the default. Other values cause an error. To read JSON in scripts, add `--format json`. Scripts that parsed the default output as JSON in earlier versions also need this option.
+
+The table uses Markdown-style pipe (`|`) rows. Its columns, in order, are `id`, `parents`, `nickname`, `state`, `cwd`, `last_report_at`, `index`, `confidence`, `evidence`. `id` is the child surface ID; `index` is the number passed to `kill --child` and `respawn --child`. Multiple parents are joined with commas in `parents`. An external parent set with `--parent-external`, as in the example below, appears in `parents` as its key. `last_report_at` uses a format such as `2026-11-09T12:19:12Z`. With no children, only the two header lines are printed and the exit code is 0. `tasty claude children` and `tasty codex children` print the same columns.
 
 `spawn` replies when terminal preparation completes; it does not wait for the agent to finish its work. Agent state delivery and parent setup follow [Claude & Codex integration](claude-codex.md). Starting an ordinary program does not guarantee delivery of agent results.
 There is no separate command to wait on. Tag children with `--role` to address them together with `broadcast`.

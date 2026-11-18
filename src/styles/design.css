@@ -6,6 +6,8 @@
    reader's font size and stay relative. Media query conditions stay literal because a query condition cannot
    read a custom property. */
 
+@import "./d2coding.css";
+
 .layout--design {
   grid-template-columns: var(--sidebar-w) minmax(0, 1fr);
   max-width: none;
@@ -38,6 +40,8 @@
   font-size: var(--tasty-font-size-body);
   line-height: var(--tasty-line-height-ui);
 }
+.design-head:lang(ja), .design-head:lang(zh),
+.ds-group:lang(ja), .ds-group:lang(zh) { font-family: var(--font-sans); }
 .ds-group > h2 {
   margin: 0 0 var(--sp-5);
   padding-bottom: var(--tasty-space-sm);

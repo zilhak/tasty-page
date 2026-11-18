@@ -1,4 +1,4 @@
-<!-- source-hash: d52404a7c85c -->
+<!-- source-hash: 8956777bc01d -->
 <a id="任务-dag"></a>
 
 # 任务顺序管理（DAG）
@@ -157,7 +157,7 @@ JSON
 - 后处理结束前，任务显示为运行中，后续任务继续等待。`task-get` 会在 `state: running` 的下一行显示 `phase: postprocessing (run 1)`（等待重试时为 `phase: retry_wait (run 2)`）。
 - 后处理失败时，`task-get` 的 `state` 行会显示原因，下方会显示最后一次执行的原因和退出码，如 `postprocess: run 2 failed (nonzero_exit), exit_code 3`，以及进入重试的各次执行的原因（`postprocess retried after: ...`）。若后处理结果过大而无法保存，成功的后处理会从 `task-get` 的原始结果中去掉主任务响应，并保留成功状态。若仍超限，或执行失败，原因为 `result_too_large`，即使还剩重试次数也不会重新执行。
 - 后处理运行期间退出 Tasty，会终止该后处理命令及其启动的进程。重新启动后不会再次执行该后处理，任务以失败结束。停止运行器（`task-run --action stop`）也会以同样方式终止后处理，任务会保持显示为运行中，直到再次启动运行器。需要重试时，用 `task-retry` 重新执行任务。
-- Tasty 被强制终止时（如 `kill`），行为因操作系统而异。在 Linux 上，只有后处理命令本身收到终止信号。通常该命令会结束，因此重启后任务因无法接收结果而失败，该命令启动的其他进程可能仍会保留。例如 `["sh", "-c", "sleep 300; echo x"]` 中，`sh` 结束，`sleep` 保留。在 Windows 上会一同结束，在 macOS 上则全部保留。
+- Tasty 被强制终止时（如 `kill`），行为因操作系统而异。在 Linux 上，只有后处理命令本身收到终止信号。通常该命令会结束，因此重启后任务因无法接收结果而失败，该命令启动的其他进程可能仍会保留。例如 `["sh", "-c", "sleep 300; echo x"]` 中，`sh` 结束，`sleep` 保留。在 Windows 上，后处理命令及其启动的进程会一同结束，在 macOS 上则全部保留。
 - 如果重新启动后后处理命令仍在运行（在 macOS 上被强制终止，或 Linux 上的命令忽略了终止信号），任务会保持运行中，并持续持有信号量和 lease，直到该命令结束。命令结束时因无法接收结果而将任务判为失败，此时才释放资源。如果只剩该命令启动的其他进程，则不等待。等待后处理的任务（包括等待重试的任务）会持有资源，并按计划执行后处理。
 
 Tasty 无法打开记忆文件而使用[临时记忆](cli-reference.md#智能体共享的记忆)时，图无法在重启后保留，因此直接提交会被拒绝。对于允许重启后丢失的图，添加 `"durability": "best_effort"` 后提交。
@@ -199,7 +199,7 @@ Tasty 无法打开记忆文件而使用[临时记忆](cli-reference.md#智能体
  "output_schema": {"type": "enum", "values": ["approve", "revise"]}}
 ```
 
-- `provider` 是负责会话的插件名称。Claude 插件为 `claude`，Codex 插件为 `codex`，支持智能体任务的其他插件也可使用各自的名称。若插件未安装、已关闭或没有轮次报告权限，创建任务时会被拒绝并说明原因。创建后关闭插件，则该任务会在执行时失败。
+- `provider` 是负责会话的插件名称。Claude 插件为 `claude`，Codex 插件为 `codex`，支持智能体任务的其他插件也可使用各自的名称。若插件未安装、已关闭，创建任务时会被拒绝并说明原因。创建后关闭插件，则该任务会在执行时失败。
 - `command` 中的 `workspace_id` 是新会话所在的工作区。提交值的 `task-submit` 会发往任务所在的工作区，指令末尾附加的说明中包含该编号。
 - `session` 为 `{"kind": "new", "parent_surface": <Surface>}` 时，在该 Surface 下启动新会话并发送指令。添加 `"cwd": "<路径>"` 可指定新会话的工作文件夹。为 `{"kind": "existing", "surface_id": <Surface>}` 时，发送到已打开的会话。
 - 已打开的会话仅在空闲时接收指令。若正在直接对话，会等到对话结束，以免混合对话。指令末尾会附加一行用于识别该次执行的标记，只有由该标记发起的轮次才视为任务轮次。使用同一会话的任务会依次执行。
@@ -329,7 +329,11 @@ tasty agent task-get --workspace 2 --id "$BUILD"
 tasty agent task-graph --workspace 2 --format dot   # 用 Graphviz 绘制
 ```
 
-`--format dot` 只向标准输出写入可直接传给 Graphviz 的图（如 `... --format dot | dot -Tsvg > graph.svg`）。存在环的提示和运行器状态会输出到标准错误。`dag-get --format dot` 也相同。
+`tasty agent task-graph` 和 `tasty agent dag-get` 默认输出父 ID 表。通过 `--format table|json|dot` 选择格式，默认值为 `table`。要在脚本中按 JSON 读取输出，添加 `--format json`。在旧版本中将默认输出解析为 JSON 的脚本也必须添加此选项。
+
+表格使用 Markdown 风格的管道符（`|`）分隔列，列顺序为 `id`、`parents`、`name`、`state`。存在多个父任务时，`parents` 用逗号连接；没有父任务时显示 `-`。值中的 `|` 转义为 `\|`。表格的 `parents` 列列出每条边的起点，不区分边的类型。要查看边的类型，使用 `--format json` 或 `--format dot`。没有任务时，仅输出两行表头，退出码为 0。
+
+`--format dot` 只向标准输出写入可直接传给 Graphviz 的图（如 `... --format dot | dot -Tsvg > graph.svg`）。使用 `--format dot` 或表格输出时，存在环的提示和运行器状态行均输出到标准错误。`dag-get` 也相同。
 
 `task-list` 和 `task-get` 输出供人阅读的文本行。要在脚本中使用，或查看任务接收的输入（`input_snapshot`）和原始结果（`typed_result.raw`），添加 `--json`。Tasty 返回的响应会原样以 JSON 输出。
 

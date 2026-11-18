@@ -53,7 +53,7 @@ Tasty의 셸, 글꼴, 언어 등은 설정 윈도우에서 바꾸거나 `~/.tast
 | **접근성** <!-- en: Accessibility --> | **모션 줄이기** <!-- en: Reduced motion --> (토스트·오버레이 페이드, 로딩 스피너 회전, 모달 흔들기를 끕니다) · **수식키 힌트 표시** <!-- en: Show modifier key hints --> |
 | **오버레이** <!-- en: Overlay --> | **토스트 표시 시간** <!-- en: Toast duration --> (1~10초) |
 | **원격 전송** <!-- en: Remote transfer --> | **저장 폴더** <!-- en: Save folder --> (기본 `~/.tasty/transfers/`) · **최대 용량** <!-- en: Maximum size --> (MiB) — 원격 워크스페이스에서 받은 파일이 저장되는 곳 |
-| **원격 Attach** <!-- en: Remote attach --> | **Attach 연결** <!-- en: Attach connections --> 아래 **끊기 전 대기 시간** <!-- en: Disconnect after --> — 초 단위, 기본 30, 범위 10~600. 원격 attach 연결에서 상대가 응답하지 않을 때 끊기까지 기다리는 시간 |
+| **원격 Attach** <!-- en: Remote attach --> | **Attach 연결** <!-- en: Attach connections --> 아래 **끊기 전 대기 시간** <!-- en: Disconnect after --> — 초 단위, 기본 30, 범위 10~600. 원격 attach 연결에서 상대가 응답하지 않을 때 끊기까지 기다리는 시간 · **재연결 시도 시간** <!-- en: Keep reconnecting for --> — 기본 300초, 범위 0~3600초 |
 | **표시** <!-- en: Display --> (macOS 만) | **Cmd 키 표시** · **Option 키 표시** · **Shift 키 표시** — 단축키 표기를 텍스트 / 심볼 중에서 고릅니다 |
 | **권한** <!-- en: Permissions --> (macOS 만) | **전체 디스크 접근 권한** <!-- en: Full Disk Access --> · **화면 기록** <!-- en: Screen recording --> 상태, **모든 권한 요청하기** <!-- en: Request all permissions --> (폴더 · 화면 기록을 한 번에 요청), 전체 디스크 접근 권한 행의 **시스템 설정 열기** <!-- en: Open System Settings --> |
 
@@ -63,11 +63,13 @@ Tasty의 셸, 글꼴, 언어 등은 설정 윈도우에서 바꾸거나 `~/.tast
 
 **설정** <!-- en: Settings --> › **일반** <!-- en: General --> › **원격 Attach**에서 **끊기 전 대기 시간**을 바꿉니다. 범위 밖 숫자는 Enter를 누르거나 다른 칸으로 이동해 입력을 확정할 때 10초 미만이면 10초, 600초 초과이면 600초로 맞춥니다. 저장한 값은 재시작 없이 새 연결부터 적용되며 이미 열린 연결은 그대로입니다. 양쪽 Tasty는 각자 자기 값을 쓰므로 상대가 먼저 끊을 수 있습니다. 설정 파일을 읽지 않는 CLI attach는 30초를 사용합니다.
 
+**설정** <!-- en: Settings --> › **일반** <!-- en: General --> › **원격 Attach** <!-- en: Remote attach -->의 **재연결 시도 시간** <!-- en: Keep reconnecting for -->은 저장된 원격 행의 연결이 끊긴 뒤 자동 재연결을 시도하는 시간입니다. 기본 300초, 범위 0~3600초이며 0이면 자동 재연결을 끕니다. 직접 끊은 연결에는 적용하지 않습니다. 설정 파일의 키는 `[remote_attach] reconnect_timeout_secs`입니다.
+
 ### 터미널
 
 | 섹션 | 항목 |
 |------|------|
-| **일반** | **셸** <!-- en: Shell --> · **시작 명령어** <!-- en: Startup command --> · **스크롤백 줄 수** <!-- en: Scrollback lines --> (기본 10000) · **실행 중 프로세스 닫기 확인** <!-- en: Confirm close running process --> · **작업 디렉토리 상속** <!-- en: Inherit working directory --> · **화면 반전 플래시 (DECSCNM)** <!-- en: Reverse-screen flash (DECSCNM) --> · **벨 알림 표시** <!-- en: Show bell notification --> · **링크 클릭 수식키** <!-- en: Link click modifier --> (Ctrl / Alt / 좌클릭 열기 끄기) · macOS: **Option 을 Meta 로 사용** <!-- en: Use Option as Meta --> · Windows: **셸 모드** <!-- en: Shell mode --> |
+| **일반** | **셸** <!-- en: Shell --> · **시작 명령어** <!-- en: Startup command --> · **스크롤백 줄 수** <!-- en: Scrollback lines --> (기본 10000) · **실행 중 프로세스 닫기 확인** <!-- en: Confirm close running process --> · **작업 디렉토리 상속** <!-- en: Inherit working directory --> · **화면 반전 플래시 (DECSCNM)** <!-- en: Reverse-screen flash (DECSCNM) --> · **벨 알림 표시** <!-- en: Show bell notification --> · **링크 클릭 수식키** <!-- en: Link click modifier --> (Ctrl / Alt / 좌클릭 열기 끄기) · macOS: **Option 을 Meta 로 사용** <!-- en: Use Option as Meta --> |
 | **입력** <!-- en: Input --> | 터미널 앱별 **Shift+Enter로 줄바꿈 문자 보내기** <!-- en: Send a newline with Shift+Enter --> 규칙 — 실행 파일 이름(예: `claude`)을 추가하고 켜면 그 앱이 입력을 받는 동안 `Shift+Enter` 가 줄바꿈 문자(LF)를 보냅니다. 끄거나 규칙이 없으면 플랫폼 기본 방식으로 보냅니다 |
 | **마우스 캡처** <!-- en: Mouse Capture --> | **마우스 캡처 안내 표시** <!-- en: Show mouse-capture hint --> · **클릭을 Tasty가 처리할 프로그램** <!-- en: Let Tasty handle clicks in these programs --> · **캡처 안내를 다시 보지 않을 프로그램** <!-- en: Don't show the capture notice for these programs --> — 프로세스 이름 또는 `ht*` 같은 패턴 |
 | **TUI** | **클립보드 읽기 허용 (OSC 52)** <!-- en: Allow clipboard read (OSC 52) --> — 기본 꺼짐. 켜면 터미널 안 프로그램이 클립보드를 읽을 수 있습니다 |
@@ -90,7 +92,9 @@ Tasty의 셸, 글꼴, 언어 등은 설정 윈도우에서 바꾸거나 `~/.tast
 
 폰트 설정은 **일반** 의 기본값이 터미널 · 마크다운 · 탐색기에 일괄 적용되고, 각 섹션에서 **기본값 사용** <!-- en: Use default --> 을 끄면 그 종류만 다른 값을 씁니다. **폰트 DPI 스케일링** 이 **자동** 이면 모니터가 달라도 글자의 물리 크기가 같고, **고정** 이면 픽셀 크기가 같아 고해상도 모니터에서 글자가 작아집니다.
 
-**폰트** 목록을 열면 맨 위 검색칸에 이름 일부를 입력해 거를 수 있고, 목록을 닫으면 검색어는 지워집니다. **monospace (기본)** <!-- en: monospace (default) --> 항목은 검색어와 관계없이 맨 위에 있어 언제든 기본 폰트로 돌아갈 수 있습니다. 설정 파일에 이 컴퓨터에 없는 폰트 이름이 적혀 있으면 그 이름이 그대로 표시되고 바뀌지 않습니다.
+**폰트** 목록을 열면 맨 위 검색칸에 이름 일부를 입력해 거를 수 있고, 목록을 닫으면 검색어는 지워집니다. **monospace (기본)** <!-- en: monospace (default) --> 항목은 검색어와 관계없이 맨 위에 있어 언제든 기본 폰트로 돌아갈 수 있습니다.
+
+**폰트**나 **커스텀 폰트 파일**의 값을 쓸 수 없으면 해당 입력 아래에 오류가 표시됩니다. 이 컴퓨터에 설치되지 않은 폰트 이름도 오류로 표시됩니다. 입력칸에 포커스가 있거나 폰트 목록이 열려 있을 때, 입력한 값을 확인하는 중에는 오류 문구와 빨간 표시가 숨겨집니다. 쓸 수 없는 값도 **저장**할 수 있으며, 값은 그대로 저장되고 화면은 다른 폰트로 표시됩니다. **저장**을 누른 직후에는 쓸 수 없는 값마다 메인 윈도우에 경고 알림이 하나씩 뜨고, 알림 본문에 해당 값이 표시됩니다. 같은 값을 다시 저장해도 알림이 더 생기지 않으며, 설정 윈도우에서 입력하는 동안에는 알림이 뜨지 않습니다. 메인 윈도우가 여럿이면 포커스된 메인 윈도우에 뜨며, 표시 시간은 **일반** 탭의 **오버레이**에 있는 **토스트 표시 시간** 설정을 따릅니다.
 
 ### 단축키
 
@@ -112,7 +116,6 @@ Tasty의 셸, 글꼴, 언어 등은 설정 윈도우에서 바꾸거나 `~/.tast
 - **스크립트** <!-- en: Scripts --> — 단축키나 이벤트로 실행할 Lua 스크립트를 등록합니다 ([Lua 스크립트](scripts.md)). 파일 경로(예: `~/.tasty/scripts/my-script.lua`)와 표시 이름을 넣고, 단축키는 **단축키** > **스크립트 실행** 에서 붙입니다. 등록 뒤 파일이 바뀌면 **변경됨** <!-- en: changed --> 표시가 붙고 다음 실행 때 확인을 묻습니다.
 - **작업 파이프라인** <!-- en: Task pipeline --> — 작업 그래프의 report 에 남기는 기록의 크기 상한입니다. **기록 한 건 상한** <!-- en: Note size limit --> 을 넘는 기록은 잘리고, **회차 report 상한** <!-- en: Attempt report limit --> 을 넘는 기록은 저장하지 않고 개수만 셉니다. 앞의 값은 항상 뒤의 값보다 작아야 합니다 ([작업 report](../agents/tasks.md)).
 - **이상 탐지** <!-- en: Anomaly detection --> — 메모리 증가·반복 호출·호출 폭주의 알림 표시와 기준값을 바꿉니다. 정상 작업에서도 걸릴 수 있는 후보 신호입니다. 반복 호출은 응답 지연이 아니라 같은 호출의 반복 횟수를 셉니다. 알림을 꺼도 탐지와 기록은 계속되며 숫자는 편집할 수 있습니다. 저장한 값은 다음 판정부터 적용됩니다. 범위 밖 숫자는 Enter 또는 다른 칸으로 이동할 때 보정되고, 취소하면 편집 내용을 버립니다.
-- Windows 에서는 **Tastyrc** 섹션이 추가됩니다.
 
 ### 플러그인
 
@@ -240,7 +243,11 @@ title = "내 클립보드"
 
 일반 설정은 이 파일에 저장됩니다. 핸들러 표와 테마 파일 등은 위에서 설명한 별도 경로를 사용합니다. 없는 키는 기본값으로 읽히므로 필요한 것만 적어도 됩니다.
 
-`[remote_attach]`의 `heartbeat_timeout_secs`는 원격 attach 연결에서 상대의 응답 없이 기다리는 시간입니다. 단위는 초이며 기본값은 30, 범위는 10~600입니다. 파일 값이 범위 밖이면 기본값 30으로 되돌려 설정 파일에 다시 저장하고, 경고는 로그에만 남깁니다. 설정 파일을 직접 편집한 내용은 Tasty를 다음에 시작할 때 읽습니다. 재시작 없이 새 연결에 적용하려면 설정 윈도우에서 바꾸고 저장하세요.
+`[remote_attach]`의 `heartbeat_timeout_secs`는 원격 attach 연결에서 상대의 응답 없이 기다리는 시간입니다. 단위는 초이며 기본값은 30, 범위는 10~600입니다. 파일의 두 값 중 하나라도 범위 밖이면 `[remote_attach]` 전체를 기본값(`heartbeat_timeout_secs = 30`, `reconnect_timeout_secs = 300`)으로 되돌려 설정 파일에 다시 저장하고, 경고는 로그에만 남깁니다. 설정 파일을 직접 편집한 내용은 Tasty를 다음에 시작할 때 읽습니다. 재시작 없이 새 연결에 적용하려면 설정 윈도우에서 바꾸고 저장하세요.
+
+`[remote_attach]`의 `reconnect_timeout_secs`는 저장된 원격 행의 자동 재연결 시도 시간입니다. 단위는 초이며 기본값은 300, 범위는 0~3600입니다. 0이면 자동 재연결을 끄고, 직접 끊은 연결에는 이 재시도를 적용하지 않습니다. 파일의 두 값 중 하나라도 범위 밖이면 `[remote_attach]` 전체를 기본값(`heartbeat_timeout_secs = 30`, `reconnect_timeout_secs = 300`)으로 되돌려 설정 파일에 다시 저장하고, 경고는 로그에만 남깁니다.
+
+설정 파일에 적은 글꼴 값(`[appearance.default_font]`의 `font_family` 등)을 쓸 수 없으면 Tasty를 시작한 뒤 메인 윈도우에 값마다 경고 알림이 하나씩 뜹니다. 알림 본문에는 해당 값이 표시되며, 화면은 다른 폰트로 표시됩니다. 알림이 뜨는 윈도우와 표시 시간은 위 외관 설명을 따릅니다. 에이전트가 명령으로 적용한 글꼴 값은 쓸 수 없어도 경고 알림 없이 로그에만 남깁니다.
 
 ```toml
 [general]
@@ -303,6 +310,7 @@ dir = ""                         # 비우면 ~/.tasty/transfers/
 max_mb = 500
 
 [remote_attach]
+reconnect_timeout_secs = 300     # 재연결 시도 시간(초), 0~3600, 0이면 자동 재연결 끔
 heartbeat_timeout_secs = 30      # 상대 응답 없이 기다리다 끊는 시간(초), 10~600, 새 연결부터 적용
 
 [webhook]
@@ -347,6 +355,8 @@ tasty settings set-remote-transfer --dir ~/incoming --max-mb 1000
 
 `~/.tasty/config.toml`은 설정 파일입니다. 배치 저장소와 플러그인 자료는 별도로 관리합니다. 배치 복원 문제를 해결하기 위해 저장소 파일을 직접 편집하거나 지우지 마세요.
 
+`TASTY_HOME`을 지정하면 아래 파일도 그 폴더에 있습니다. 로그의 보관 시점과 신고 방법은 [크래시·멈춤 리포트와 로그](../help/error-reports.md)를 참고하세요.
+
 | 경로 | 내용 |
 |------|------|
 | `config.toml` | 위 설정 |
@@ -358,6 +368,8 @@ tasty settings set-remote-transfer --dir ~/incoming --max-mb 1000
 | `scripts/` | Lua 스크립트를 두는 관례 위치 — [Lua 스크립트](scripts.md) |
 | `transfers/` | 원격에서 받은 파일 기본 저장 폴더 |
 | `tasty.port` · `debug.log` | 실행 중 인스턴스의 포트, 경고 이상 로그 — [문제 해결](../help/troubleshooting.md) |
+| `crash-reports/` | 크래시·멈춤 리포트 |
+| `hook-failures.log` · `hook-failures.log.1` | 훅 실패 기록 |
 
 <a id="다음-읽을-것"></a>
 

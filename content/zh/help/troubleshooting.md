@@ -1,4 +1,4 @@
-<!-- source-hash: 0ba3fd0b8571 -->
+<!-- source-hash: 7c4f4cd45f06 -->
 # 故障排除
 
 本页按症状列出 Tasty 安装、输入、显示、恢复和通知问题的原因及解决方法。如果 CLI 无法连接或响应缓慢，也可查看连接诊断。问题仍未解决时，可附上运行环境和日志报告问题。
@@ -11,15 +11,63 @@
 - **Linux：提示 `GLIBC_2.39 not found`，无法运行** — 发行版比构建基准（Ubuntu 24.04）更旧，例如 Ubuntu 20.04 · Debian 11。不提供适用于旧发行版的构建。
 - **Linux `.tar.gz`：提示缺少库后退出** — `tasty` 会列出缺失的共享库文件名后退出。使用同时显示的搜索命令（从 `apt-file search` · `dnf provides` · `zypper what-provides` · `pacman -F` 中选择适合发行版的命令），查找并安装提供该库的软件包。要自动安装所需的库，使用 `.deb` / `.rpm`。
 - **窗口未显示便立即退出，日志中留下“找不到 GPU 适配器”** — 未找到可用的 GPU 适配器（Vulkan / DirectX 12 / Metal）。此错误不会单独显示在界面中，只记录在 `~/.tasty/debug.log` 和终端输出中（从终端启动时）。安装或更新驱动程序。Linux 上存在 `libvulkan1` / `vulkan-loader` 时使用 Vulkan，否则使用 OpenGL，再失败则使用软件渲染。要在没有图形界面的服务器 · VM 上运行，使用[无界面构建](../getting-started/install.md#无界面构建)。
-- **Windows：“找不到 Git Bash”** — Tasty 在 Windows 上使用 Git Bash 作为 Shell。安装 Git for Windows，或在**设置** <!-- en: Settings --> > **终端** <!-- en: Terminal --> > **Shell** <!-- en: Shell --> 中手动指定 bash 路径。首次启动时，会显示**选择 Shell** <!-- en: Choose a shell --> 界面，而非终端。在该界面输入 bash.exe 路径并点击**使用此 Shell** <!-- en: Use this shell -->，或点击**退出** <!-- en: Quit --> 关闭，安装 Git for Windows 后重新运行。
-- **打开的 Shell 与配置的 Shell 不同** — 如果配置的 Shell 路径下没有文件（在 Windows 上，文件不是 bash · zsh 时也一样），Tasty 会使用找到的其他 Shell 打开终端（Windows 上为 Git Bash，macOS · Linux 上为登录 Shell 或 `$SHELL`）。配置文件中的 Shell 值不会更改，因此修正路径或重新安装该 Shell 后，新终端便会恢复使用原来的 Shell。替代使用的 Shell 会记录在 `~/.tasty/debug.log` 中，**设置** <!-- en: Settings --> > **终端** <!-- en: Terminal --> 标签页也会显示说明（Windows 上为“找不到 Git Bash”，macOS · Linux 上为“在配置的路径中找不到 Shell”）。
-- **macOS · Linux：启动时立即显示 Shell 选择界面，或设置中显示 Shell 错误** — 配置的 Shell 路径是文件夹，或是没有执行权限的文件。此时 Tasty 不会换用其他 Shell，而是显示原因。首次启动时，**选择 Shell** <!-- en: Choose a shell --> 界面的检查结果行会显示“此路径是文件夹”或“此文件没有执行权限”。运行期间，**设置** <!-- en: Settings --> > **终端** <!-- en: Terminal --> 标签页会显示相同原因，且无法打开新终端。将路径改为 Shell 可执行文件路径，或使用 `chmod +x` 赋予执行权限。在 macOS · Linux 上，fish 等非 bash · zsh 的 Shell 只要文件可执行，也会直接使用。
+- **Windows：启动时显示 Shell 选择界面，或无法打开新终端** — Tasty 在 Windows 上仅运行 Git Bash。Shell 设置不是 Git Bash（包括文件夹路径）、配置的路径下没有文件，或设置为空且默认安装位置也未找到 Git Bash 时，会出现此问题。启动时会显示**选择 Shell** <!-- en: Choose a shell --> 界面；运行期间，**设置** <!-- en: Settings --> > **终端** <!-- en: Terminal --> 标签页会显示原因，且无法打开新终端。安装 Git for Windows，或在其位于其他位置时输入对应的 `bash.exe` 路径。在 Shell 选择界面输入路径并点击**使用此 Shell** <!-- en: Use this shell -->。运行期间，在**设置** > **终端** > **Shell** <!-- en: Shell --> 中修正路径。Git for Windows 的 `usr\bin\bash.exe` 也可使用，但如果 Git 不在 Windows 的 `PATH` 中，该 Shell 将找不到 `git` 命令；改为输入 `bin\bash.exe`。
+- **打开的 Shell 与配置的 Shell 不同** — 在 macOS · Linux 上，如果配置的 Shell 路径下没有文件，Tasty 会使用找到的其他 Shell（登录 Shell 或 `$SHELL`）打开终端。配置文件中的 Shell 值不会更改，因此修正路径或重新安装该 Shell 后，新终端便会恢复使用原来的 Shell。替代使用的 Shell 会记录在 `~/.tasty/debug.log` 中，**设置** <!-- en: Settings --> > **终端** <!-- en: Terminal --> 标签页也会显示说明。在 Windows 上，Tasty 不会换用其他 Shell；参见上方的 Windows 条目。
+- **macOS · Linux：启动时立即显示 Shell 选择界面，或设置中显示 Shell 错误** — 配置的 Shell 路径是文件夹，或是没有执行权限的文件。此时 Tasty 不会换用其他 Shell，而是显示原因。首次启动时，**选择 Shell** <!-- en: Choose a shell --> 界面的检查结果行会显示“此路径是文件夹”或“此文件没有执行权限”。运行期间，**设置** <!-- en: Settings --> > **终端** <!-- en: Terminal --> 标签页会显示相同原因，且无法打开新终端。将路径改为 Shell 可执行文件路径，或使用 `chmod +x` 赋予执行权限。
 - **启动后立即显示“无法启动终端”界面** — 无法打开首个终端。正文的“详细信息”中会显示原因。解决原因后重新运行。如果在运行期间打开新窗口时因相同原因失败，**无法打开新窗口** <!-- en: Could not open a new window --> 提示中会显示原因，已打开的窗口仍正常运行。
 - **通知中出现“最近列表和教程进度未保存”** — 无法打开保存最近文件列表和教程进度的 `~/.tasty/state.db`。Tasty 仍可使用，终端和布局恢复不受影响，但无法加载之前保存的最近列表和教程进度，本次运行中的更改也不会保存。本次运行中通过文件浏览器访问的文件夹，可能仍会显示在该窗口运行期间的最近列表中，但下次运行时不会保留。通知正文会显示原因。“数据库已锁定”表示另一个 Tasty 已在运行。如果显示“已损坏”/“架构版本不匹配”，关闭 Tasty，备份并删除 `~/.tasty/state.db`，下次运行便会重新开始。解决原因后必须重新运行 Tasty，才会恢复保存。
 - **显示“无法启动 Tasty”界面，终端未打开** — 准备首个窗口时，Tasty 的内部步骤失败。“详细信息”中会显示原因。点击**退出** <!-- en: Quit --> 或按 Esc · Enter 关闭后，Tasty 会退出。重新运行；如果持续重复，检查数据文件夹（`TASTY_HOME`，默认 `~/.tasty`）是否可用，并查看 `~/.tasty/debug.log`。无法显示界面的环境中，相同内容会通过消息框显示（Linux 上没有 zenity 时，使用桌面通知）。
 - **在 Tasty 终端中输入 `tasty`，但没有打开新窗口** — 在 Tasty 内不带参数运行时，会显示帮助，而非打开新窗口。使用 `tasty new window` 打开新窗口（当前查看窗口的焦点保持不变）。
 
 安装步骤见[安装](../getting-started/install.md)。
+
+<a id="linux-native-wayland"></a>
+
+<a id="linux-上无法查看文档或与外部应用复制和粘贴时"></a>
+
+## Linux 原生 Wayland 的文档查看与剪贴板限制
+
+Tasty 使用原生 Wayland 运行时，无法查看 HTML、Markdown、远程 HTML 文件和网址。文件浏览器的文件复制、剪切和粘贴无法使用操作系统的文件剪贴板，只使用此 Tasty 中保存的列表。在 vi 复制模式中，用 `"*` 复制的内容无法传递到其他应用。请改用 `"+` 复制，或不指定目标直接复制。原生右键菜单也尚未显示。
+
+如果合成器支持剪贴板，终端以及设置输入框、工作区重命名、地址栏等处可与其他应用相互复制和粘贴文本。如果其他应用只复制了图像而没有文本，粘贴到终端时会将图像保存为 PNG 文件并输入其路径。
+
+如果合成器支持剪贴板，已约定向 Tasty 回报编辑结果的插件，在原生 Wayland 上会等待从其他应用的剪贴板读取文本，再粘贴到输入框。此行为适用于本地插件界面和弹出窗口的输入框，以及从命令面板向该本地界面执行的粘贴。从远程工作区镜像的插件界面不在此范围内。内置插件尚不回报编辑结果，因此不适用此等待处理。
+
+上述等待处理的结果如下。
+
+- **没有文本或读取失败——支持相应格式的界面**：Tasty 会向既回报编辑结果又支持图像等非文本格式的本地插件界面请求粘贴该格式。如果插件回报没有可粘贴的格式，会传递原来的按键输入。
+- **没有文本或读取失败——其他界面和弹出窗口**：传递原来的按键输入。
+- **读取耗时过长**：如果读取未在一定时间内完成，无论是否支持非文本格式，都会传递原来的按键输入。
+- **插件不响应**：读取完成并请求粘贴后，如果插件未在一定时间内回报编辑结果，会结束处理，不传递原来的按键。
+
+命令面板也会在相同条件下尝试粘贴相应格式。但由于没有可传递的按键，上述列表中传递原来按键的情况，在面板中会改为结束粘贴。
+
+其他平台也支持粘贴相应格式。不回报编辑结果的插件界面，只要支持相应格式，也会接收粘贴操作，由插件自行读取所需格式并尝试粘贴。
+
+等待读取期间关闭目标界面或弹出窗口，或接收键盘输入的目标发生变化时，会取消粘贴。在同一窗口内点击、窗口失去焦点、其他剪贴板读取取代正在等待的读取，或插件停止或重启时，也会取消。取消后即使文本稍后到达，也不会粘贴。
+
+根据原因，按以下方式处理。
+
+- 未设置 `DISPLAY` 时，由于没有 XWayland，Tasty 使用原生 Wayland 运行。在 Tasty 外部启用 XWayland 后重启 Tasty。
+- 设有 `DISPLAY`，但无法连接其 X 服务器，且设有 `WAYLAND_DISPLAY` 时，会记录警告并使用原生 Wayland 运行。在 Tasty 外部检查 `DISPLAY` 的 X 服务器或 XWayland 连接后重启 Tasty。
+
+HTML、Markdown 和远程 HTML 文件 Surface 的页面区域以标题显示原因，下方一行显示解决方法。远程 HTML 文件在接收期间显示接收状态，接收完成后显示此说明。在文件浏览器复制、剪切和粘贴文件，或在 vi 复制模式中用 `"*` 复制时，会显示包含原因和解决方法的警告短暂提示。`"*` 的复制提示也会说明可改用 `"+` 复制。如果合成器不支持剪贴板，终端和输入框都无法通过复制和粘贴与其他应用交换内容。此时，在终端复制和粘贴，或在输入框复制和剪切时，会显示包含原因和使用 XWayland 的解决方法的警告短暂提示。短暂提示的显示时长遵循全局设置。
+
+<a id="linux-gdk-backend"></a>
+
+## Linux 上无法查看文档或使用托盘图标时
+
+即使设有 `DISPLAY` 且 Tasty 窗口使用 X11 运行，若 Tasty 启动环境中的 `GDK_BACKEND` 不允许 x11，GTK 初始化也会失败。此时无法使用托盘图标，也无法查看 HTML、Markdown、远程 HTML 文件和网址。右键菜单也尚未显示。窗口使用 X11 运行，因此剪贴板正常工作。
+
+在 Tasty 外部从 Tasty 启动环境中移除 `GDK_BACKEND` 后重启 Tasty。Tasty 不会删除或覆盖此值，终端内的 Shell 也会原样接收用户设置的值。
+
+页面区域显示原因和解决方法，标题也会说明托盘图标不可用。托盘本身没有单独的说明。
+
+### `GDK_BACKEND` 并非原因但 GTK 初始化失败时
+
+未设置 `GDK_BACKEND` 或其允许 x11 时，GTK 初始化仍可能失败。此时同样无法使用托盘图标或查看 HTML、Markdown、远程 HTML 文件和网址，右键菜单也尚未显示。窗口使用 X11 运行，因此剪贴板正常工作。
+
+应用仅显示 GTK 初始化失败的说明，没有解决方法一行。此时 Tasty 无法确定原因。查看[日志和配置文件位置](#日志和配置文件位置)中的警告日志，并附上[报告问题](#报告问题)中列出的信息。
 
 ## macOS 权限提示
 
@@ -101,8 +149,8 @@ Tasty 检测到 XIM 输入法服务器退出或被替换后，会停止向旧服
 
 ## 窗口无响应或意外退出时
 
-- **窗口对点击 · 按键输入 · CLI 完全无响应** — 无响应超过 5 秒时，会自动生成 `~/.tasty/crash-reports/hang-*.log`。文件中的 `Render phase` 为 `acquire` / `submit` / `present` 时，表示停在对应渲染阶段。可能是 GPU 驱动程序问题，因此也需检查驱动程序更新。Tasty 不会自行恢复，需强制退出后重新启动。
-- **突然退出** — 查看 `~/.tasty/crash-reports/crash-*.log`。报告问题时附上此文件。
+- **窗口对点击、按键输入、CLI 完全无响应** — 带图形界面的 Tasty（GUI）检测到进度停止超过约 5 秒时会留下记录。并非每次无响应都会产生记录。 Tasty 不会从无响应状态自行恢复。按[崩溃、无响应报告与日志](error-reports.md)中的说明复制日志并收集所需的堆栈样本，再强制退出并重新启动 Tasty。如果怀疑与 GPU 有关，也检查 GPU 驱动程序更新。
+- **突然退出** — 查找数据文件夹中的 `crash-reports/crash-*.log`，与日志一并保留。**重新启动前复制 `debug.log`。**
 
 ### 运行期间提示已停止保存时
 
@@ -169,8 +217,6 @@ tasty codex install     # ~/.codex/config.toml
 
 仍无效时，查看 `~/.tasty/hook-failures.log` 和 `tasty plugin logs com.tasty.claude --follow`。详细内容见[配合 Claude 和 Codex 使用](../agents/claude-codex.md#故障排除)。
 
-已修复 Windows 和 macOS 上 Tasty 终端中的 Codex 会话在连接后立即断开的问题。
-
 ### 父智能体未收到子智能体的结果
 
 子智能体的边框 · 徽标状态与父智能体接收结果是独立的。如果父智能体是 Claude Code，重新运行 install 后，在新会话中检查完成通知的 mod 标记及接收情况。仅在没有 mod 时检查 Monitor 订阅，不要同时启用两者。按照[连接与恢复说明](../agents/claude-codex.md)操作。
@@ -181,8 +227,12 @@ tasty codex install     # ~/.codex/config.toml
 
 ## 插件停止运行时
 
-- **`tasty plugin list` 中为 enabled，但不是 running** — 10 秒内 3 次运行失败后，会自动停止。使用 `tasty plugin logs <id>` 查看原因，再使用 `tasty plugin enable <id>` 重新启动。
-- **刚运行 `plugin enable` 时为 running，稍后便不再是 running** — `plugin enable` 不会等待插件连接 Tasty，而是立即返回。因此刚启用的插件在连接前也会显示为 running，其间发送的请求会在连接后传达。如果 10 秒内未能连接，会计为运行失败，并不再显示为 running。使用 `tasty plugin logs <id>` 查看原因。
+- **`tasty plugin list` 中为 enabled，但不是 running** — 插件可能正在等待自动重试。应用启动时，如果插件无法启动或连接，会在 10 秒后重试；再次失败则再等 20 秒重试。运行中的插件无响应或退出后，自动重启失败时也按此规则处理。连续失败 3 次后，会自动禁用该插件。此外，仍保留进程本身在 10 秒内启动失败 3 次即自动停止的规则。
+
+  连接成功后，连续失败次数会从头计算。手动禁用或重新启用会清除重试记录，已禁用或已移除的插件不会重试。自动禁用的原因会留在通知中，插件会在 **插件 › 待处理** <!-- en: Plugins › Attention --> 中显示为 **运行时错误** <!-- en: Runtime error -->。应用启动期间失败的通知会在创建第一个工作区后留下。查看通知和 **待处理**，使用 `tasty plugin logs <id>` 确认原因后，再使用 `tasty plugin enable <id>` 重新启用。
+- **手动启用后无法启动** — 使用 `tasty plugin enable <id>` 或 **插件** 中的开关手动启用时，失败会立即显示错误，不会自动重试。`enable` 默认等待连接结果。使用 `--no-wait` 立即返回后，可通过 `tasty plugin show <id>` 查看结果。
+
+  通过 `--no-wait` 或应智能体请求启用的插件，在连接前也会显示为 running，其间发送的请求会在连接后传达。如果 10 秒内未能连接，会计为运行失败，并不再显示为 running。
 - **随附插件损坏** — 使用 `tasty plugin upgrade-builtins --force` 从随附文件中重新复制。插件数据（书签 · 配置档等）会保留。
 - **macOS：内置插件无法运行** — 应用上残留的 Gatekeeper 隔离标记（quarantine）可能也被带到插件副本上，阻止运行。Tasty 不会自行删除此标记。使用 `tasty plugin logs <id>` 确认原因；要手动删除，在终端运行 `xattr -dr com.apple.quarantine /Applications/Tasty.app ~/.tasty/plugins`，然后重启 Tasty。
 
@@ -190,31 +240,22 @@ tasty codex install     # ~/.codex/config.toml
 
 ## 日志和配置文件位置
 
-均位于 `~/.tasty/` 下（Windows 上为 `%USERPROFILE%\.tasty\`）。
+默认位于 `~/.tasty/` 下（Windows 上为 `%USERPROFILE%\.tasty\`）。如果指定了 `TASTY_HOME`，则位于该文件夹中。
 
 | 文件 | 内容 |
 |---|---|
 | `config.toml` | 设置。设置窗口中保存的值会写入此处 |
 | `tasty.port` | 正在运行的 Tasty 的 IPC 端口号。Tasty 启动时创建 |
-| `debug.log` | 上次运行的警告及以上级别日志。重新启动 Tasty 时清空 |
+| `debug.log` | 运行中 Tasty 的警告及以上级别日志。重新启动前复制 |
 | `crash-reports/crash-*.log` | 崩溃报告 — 版本 · OS · 位置 · 消息 · 回溯 |
-| `crash-reports/hang-*.log` | 窗口无响应超过 5 秒时自动留下的记录 |
+| `crash-reports/hang-*.log` | 带图形界面的 Tasty（GUI）检测到进度停止超过约 5 秒时会留下记录。并非每次无响应都会产生记录。系统负载、CPU 和调度信息在 Linux 上收集。 |
 | `launch.log` | 已有 Tasty 运行时再次启动的记录和结果 |
 | `hook-failures.log` | Claude / Codex 钩子未能连接 Tasty 的记录 |
-| `plugins-logs/<插件 id>.log` | 各插件的日志。也可使用 `tasty plugin logs <id>` 查看 |
+| `plugins-logs/<插件 id>.log` | 各插件的日志。重新启动插件前复制。也可使用 `tasty plugin logs <id>` 查看 |
 | `state.db` | 最近文件等由应用自动管理的数据 |
 
-需要更详细的日志时，在终端中提高日志级别后运行。使用的是 `TASTY_LOG`，而非 `RUST_LOG`。
-
-```sh
-TASTY_LOG=debug tasty 2> tasty.log
-```
+复制日志的时机、收集更详细日志的方法以及 Windows 上 `tasty.pdb` 的保留说明，参阅[崩溃、无响应报告与日志](error-reports.md)。
 
 ## 报告问题
 
-在 [GitHub Issues](https://github.com/zilhak/tasty/issues) 中填写复现问题的步骤、Tasty 版本、OS 和架构，以及相关错误消息。附上日志前，检查路径和输出中是否包含个人信息。
-
-- `tasty --version` 的输出和 OS · 版本
-- 复现步骤
-- `~/.tasty/crash-reports/` 中对应的 `crash-*.log` / `hang-*.log`
-- 症状出现后的 `~/.tasty/debug.log`（重新启动会清空，因此先复制保留）
+在 [GitHub Issues](https://github.com/zilhak/tasty/issues) 中填写复现步骤、Tasty 版本、OS 和架构，以及相关错误消息。按[崩溃、无响应报告与日志](error-reports.md)中的说明选择附件，并隐去令牌和个人信息。

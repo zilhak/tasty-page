@@ -3,7 +3,7 @@ import * as DSA from "../../../components/index.js";
 
 // Tasty UI kit — Settings › Misc › Anomaly detection (2026-10-27).
 // Mirrors zilhak/tasty → crates/tasty-settings/src/anomaly_detection.rs ([anomaly_detection], 9 fields).
-// L2 order under Misc: Scripts → Task pipeline → Anomaly detection → Tastyrc (Windows only).
+// L2 order under Misc: Scripts → Task pipeline → Anomaly detection → Child graph.
 // One page = info notice + three sections (Memory growth · Repeated calls · Call bursts); each section =
 // mono micro heading · notify Switch row (+ caption naming the detector) · two number rows (+ caption).
 // Notify off hides notifications only: number rows keep the normal look and stay editable.

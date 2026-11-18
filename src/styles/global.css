@@ -21,9 +21,15 @@
   --link: var(--tasty-accent-primary-raised);
 
 
-  --font-sans: var(--tasty-font-family-sans), "Apple SD Gothic Neo",
-               "Pretendard", "Noto Sans KR", "Malgun Gothic", sans-serif;
-  --font-mono: var(--tasty-font-family-mono), monospace;
+  --font-sans-tail: "Apple SD Gothic Neo", "Pretendard", "Noto Sans KR", "Malgun Gothic", sans-serif;
+  --font-sans-default: var(--tasty-font-family-sans), var(--font-sans-tail);
+  --font-cjk-ja: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Yu Gothic",
+                 "Meiryo", "Noto Sans CJK JP", "Noto Sans JP";
+  --font-cjk-zh: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei UI", "Microsoft YaHei",
+                 "Noto Sans CJK SC", "Noto Sans SC";
+  --font-mono-default: var(--tasty-font-family-mono), monospace;
+  --font-sans: var(--font-sans-default);
+  --font-mono: var(--font-mono-default);
 
 
   /* The site's own variables (scale, radii, layout, borders, shadows) are defined
@@ -67,6 +73,23 @@
   color-scheme: light;
 }
 
+/* A Han character takes a different form per language, and without a name of its own a
+   page can land on another language's font. The names sit after the token so Latin
+   letters look the same in every language, and ahead of the Korean names so Korean
+   fonts do not draw Japanese or Chinese text. */
+:root:lang(ja) { --font-cjk: var(--font-cjk-ja); --font-cjk-mono: "Noto Sans Mono CJK JP"; }
+:root:lang(zh) { --font-cjk: var(--font-cjk-zh); --font-cjk-mono: "Noto Sans Mono CJK SC"; }
+:root:lang(ja), :root:lang(zh) {
+  --font-sans: var(--tasty-font-family-sans), var(--font-cjk), var(--font-sans-tail);
+  /* Without D2Coding and ahead of the generic family, so Han in code takes this language's
+     forms. On Linux the generic family has Han of its own, in Japanese forms. --font-cjk has
+     Latin letters of its own and they are proportional, so every name ahead of it is a
+     fixed-width font, and the ones after --font-cjk-mono have no Han to take over. */
+  --font-mono: var(--tasty-font-family-mono-system), var(--font-cjk-mono),
+               "Noto Sans Mono", "DejaVu Sans Mono", "Liberation Mono", "Droid Sans Mono",
+               var(--font-cjk), monospace;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
@@ -95,6 +118,18 @@ body {
   text-rendering: optimizeLegibility;
   word-break: keep-all;
   overflow-wrap: break-word;
+}
+
+/* keep-all is for Korean. In Japanese and Chinese it holds a line until the next
+   punctuation mark, so those pages break between characters. An English region inside
+   such a page (menu, specimens) returns to the values every other path gives it. The
+   selector carries no specificity so any rule that sets a value still wins. */
+:root:lang(ja) body, :root:lang(zh) body { word-break: normal; }
+:where(:root:lang(ja), :root:lang(zh)) :where([lang="en"]:not([lang="en"] *)) {
+  --font-sans: var(--font-sans-default);
+  --font-mono: var(--font-mono-default);
+  font-family: var(--font-sans);
+  word-break: keep-all;
 }
 
 /* Gallery specimens size their own media, as the app does. */
@@ -216,30 +251,75 @@ a.visually-hidden:focus-visible {
 .icon-btn:hover { background: var(--tasty-surface-raised); color: var(--tasty-text-secondary-raised); }
 .icon-btn svg { width: var(--size-icon-sm); height: var(--size-icon-sm); }
 
-/* Match adjacent controls in height. surface1 keeps the active fill distinct
-   from the surface0 border. */
+/* The language switch is a disclosure: a header button and a list of links, in every
+   width. Each language name is written in its own language, so a reader finds theirs
+   without reading the page. <details> keeps it working without the site script. */
 .lang-switch {
-  display: inline-flex;
+  position: relative;
   flex: none;
-  height: var(--size-control-sm);
-  border: var(--border);
-  border-radius: var(--radius-sm);
-  overflow: hidden;
 }
-.lang-switch a {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  padding: 0 var(--sp-3);
-  color: var(--tasty-text-muted);
+.lang-switch__toggle {
+  width: auto;
+  gap: var(--sp-1);
+  padding: 0 var(--sp-2);
+  list-style: none;
+  font-size: 13px;
+  font-weight: 500;
   line-height: 1;
-  display: inline-flex;
-  align-items: center;
+  white-space: nowrap;
+  user-select: none;
 }
-.lang-switch a + a { border-left: var(--border); }
-.lang-switch a:hover { background: var(--tasty-surface-raised); color: var(--tasty-text-primary); text-decoration: none; }
-.lang-switch a[aria-current] { background: var(--tasty-surface-hover); color: var(--tasty-text-on-active); }
+.lang-switch__toggle::-webkit-details-marker { display: none; }
+.lang-switch[open] > .lang-switch__toggle { background: var(--tasty-surface-raised); color: var(--tasty-text-primary); }
+.lang-switch > .lang-switch__toggle:active { background: var(--tasty-surface-hover); color: var(--tasty-text-on-active); }
+.lang-switch__icon { display: inline-flex; flex: none; }
+.lang-switch__icon svg { width: var(--size-icon-sm); height: var(--size-icon-sm); }
+.lang-switch__chevron svg { width: 12px; height: 12px; } /* no site step: --size-icon-* starts at 16 */
+.lang-switch[open] .lang-switch__chevron { transform: rotate(180deg); }
+
+.lang-switch__menu {
+  position: absolute;
+  top: calc(100% + var(--sp-2));
+  right: 0;
+  display: grid;
+  gap: var(--sp-1);
+  min-width: 160px;
+  margin: 0;
+  padding: var(--sp-1);
+  list-style: none;
+  background: var(--tasty-bg-sidebar);
+  border: var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--tasty-shadow-popover);
+}
+.lang-switch__menu a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  min-height: var(--size-control-md);
+  padding: 0 var(--sp-3);
+  border-radius: var(--radius-sm);
+  color: var(--tasty-text-primary);
+  font-size: 14px;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+.lang-switch__menu a:hover { background: var(--tasty-surface-raised); text-decoration: none; }
+.lang-switch__menu a:active { background: var(--tasty-surface-hover); color: var(--tasty-text-on-active); }
+.lang-switch__menu a[aria-current] {
+  background: var(--tasty-tint-primary-bg);
+  color: var(--tasty-accent-primary-raised);
+  font-weight: 600;
+}
+/* The ring sits outside the row, on the panel, and fits in the gap between rows. */
+.lang-switch__menu a:focus-visible { outline-offset: 0; }
+
+/* Every name in the switch takes the font of its own language, on every page. The page
+   language sets --font-sans for running text only, so it cannot reach these. */
+.lang-switch [lang="en"], .lang-switch [lang="ko"] { font-family: var(--font-sans-default); }
+.lang-switch [lang="ja"] { font-family: var(--tasty-font-family-sans), var(--font-cjk-ja), var(--font-sans-tail); }
+.lang-switch [lang="zh-Hans"] { font-family: var(--tasty-font-family-sans), var(--font-cjk-zh), var(--font-sans-tail); }
 
 
 .theme-toggle .icon-sun { display: none; }
@@ -313,6 +393,7 @@ a.visually-hidden:focus-visible {
 }
 .search__results a:hover .r-crumb,
 .search__results a[data-active] .r-crumb { color: var(--tasty-text-muted-raised); }
+.search__results .r-crumb:lang(ja), .search__results .r-crumb:lang(zh) { font-family: var(--font-sans); }
 .search__empty {
   padding: var(--sp-4);
   color: var(--tasty-text-muted);
@@ -427,6 +508,7 @@ a.visually-hidden:focus-visible {
 .breadcrumb a { color: var(--tasty-text-muted); }
 .breadcrumb a:hover { color: var(--tasty-text-primary); }
 .breadcrumb .sep { color: var(--tasty-glyph-dim); }
+.breadcrumb:lang(ja), .breadcrumb:lang(zh) { font-family: var(--font-sans); }
 
 .prose > :first-child { margin-top: 0; }
 
@@ -508,6 +590,8 @@ pre.astro-code span[style*="#6A737D"] { color: var(--tasty-site-code-comment) !i
   border: var(--border);
   border-radius: var(--radius);
 }
+/* The ring follows the table's own corners instead of the focus rule's smaller radius. */
+.table-wrap:focus-visible { border-radius: var(--radius); }
 .table-wrap table {
   border-collapse: collapse;
   width: 100%;
@@ -526,6 +610,15 @@ pre.astro-code span[style*="#6A737D"] { color: var(--tasty-site-code-comment) !i
   color: var(--tasty-text-secondary);
   white-space: nowrap;
 }
+/* break-word lets a cell shrink to one character, so an auto-layout table narrows its code
+   first. keep-all also stops a break inside a run of CJK text. A bracket beside that text can
+   still wrap, which CSS alone cannot prevent without forbidding the wrap at spaces too. A token
+   wider than the room scrolls the table instead of splitting. */
+.prose .table-wrap code { word-break: keep-all; }
+/* Japanese and Chinese prose can break after any character, so without a floor the prose
+   column collapses once the code stops giving way. 10em leaves about 8 characters of text;
+   8em left tables a few pixels too wide to read as scrollable. */
+:root:lang(ja) .table-wrap td, :root:lang(zh) .table-wrap td { min-width: 10em; }
 .table-wrap tbody tr:last-child td { border-bottom: 0; }
 .table-wrap tbody tr:hover { background: var(--tasty-overlay-hover); }
 
@@ -635,6 +728,7 @@ pre.astro-code span[style*="#6A737D"] { color: var(--tasty-site-code-comment) !i
 .page-nav a:hover { border-color: var(--tasty-brand-ink); background: var(--tasty-bg-sidebar); text-decoration: none; }
 .page-nav .dir { display: block; font-size: 11px; font-family: var(--font-mono);
                  color: var(--tasty-text-muted); margin-bottom: 2px; } /* no site step: --sp-* has no 2 */
+.page-nav .dir:lang(ja), .page-nav .dir:lang(zh) { font-family: var(--font-sans); }
 .page-nav .next { text-align: right; }
 
 .edit-link {
@@ -717,10 +811,23 @@ pre.astro-code span[style*="#6A737D"] { color: var(--tasty-site-code-comment) !i
   gap: var(--sp-4);
   align-items: center;
 }
+/* Its own line under the MIT line, so neither license reads as covering the other's subject.
+   The links sit in a sentence, so they are underlined. */
+.site-footer__font {
+  max-width: var(--landing-max);
+  margin: var(--sp-2) auto 0;
+  color: var(--tasty-text-muted);
+  font-size: 13px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--sp-4);
+}
+.site-footer__font a { text-decoration: underline; }
 
 
 
 .menu-btn { display: none; }
+.site-menu, .sidebar--site, .nav-scrim { display: none; }
 
 @media (max-width: 1180px) {
   .layout { grid-template-columns: var(--sidebar-w) minmax(0, 1fr); }
@@ -740,33 +847,139 @@ pre.astro-code span[style*="#6A737D"] { color: var(--tasty-site-code-comment) !i
     border-right: var(--border);
     padding: var(--sp-5) var(--sp-4) var(--sp-16);
     transform: translateX(-102%);
-    transition: transform 180ms ease;
+    visibility: hidden;
+    transition: transform 180ms ease, visibility 0s linear 180ms;
     z-index: 40;
     max-height: none;
   }
-  body[data-nav-open] .sidebar { transform: none; box-shadow: var(--shadow-lg); }
-  body[data-nav-open]::after {
-    content: "";
+  .sidebar--site { display: block; }
+  body[data-nav-open] { overflow: hidden; }
+  body[data-nav-open] .sidebar {
+    transform: none;
+    visibility: visible;
+    transition: transform 180ms ease;
+    box-shadow: var(--shadow-lg);
+  }
+  body[data-nav-open] .nav-scrim {
+    display: block;
     position: fixed;
     inset: var(--header-h) 0 0 0;
     background: hsl(var(--shadow-color) / 0.5);
     z-index: 30;
+    cursor: pointer;
+    touch-action: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .menu-btn[aria-expanded="true"] {
+    background: var(--tasty-surface-raised);
+    color: var(--tasty-text-secondary-raised);
+  }
+  .site-menu {
+    display: block;
+    margin-bottom: var(--sp-4);
+    padding-bottom: var(--sp-4);
+    border-bottom: var(--border);
+  }
+  .sidebar--site .site-menu { margin-bottom: 0; padding-bottom: 0; border-bottom: 0; }
+  .site-menu a {
+    display: flex;
+    align-items: center;
+    min-height: var(--size-control-lg);
+    padding: 0 var(--sp-3);
+    border-radius: var(--radius-sm);
+    color: var(--tasty-text-muted);
+    font-size: 14px;
+    font-weight: 500;
+  }
+  .site-menu a:hover {
+    color: var(--tasty-text-primary);
+    background: var(--tasty-surface-raised);
+    text-decoration: none;
+  }
+  .site-menu a[aria-current] {
+    color: var(--tasty-accent-primary-raised);
+    font-weight: 600;
+    background: var(--tasty-tint-primary-bg);
   }
   .search { flex-basis: var(--size-control-sm); transition: flex-basis 160ms ease; }
   .search:focus-within { flex-basis: 190px; }
   .search input { padding: 0 var(--sp-2); }
   .search input::placeholder { color: transparent; }
   .search__icon { display: flex; }
+  /* The glyph sits above the input, so it gives way to the text being typed. Once the
+     field collapses again, a kept query would run under the glyph, so only the glyph shows. */
+  .search:focus-within .search__icon { display: none; }
+  .search:not(:focus-within) input { color: transparent; }
+  .search:not(:focus-within) input::-webkit-search-cancel-button { display: none; }
   .brand__version { display: none; }
   .site-footer__inner { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  /* The button stays the size of its neighbors and its name stays in the accessible name. */
+  .lang-switch__toggle { width: var(--size-control-sm); padding: 0; }
+  .lang-switch__chevron { display: none; }
+  .lang-switch__current {
+    position: absolute; width: 1px; height: 1px;
+    overflow: hidden; clip: rect(0 0 0 0);
+  }
+}
+
+@media (max-width: 900px), (pointer: coarse) {
+  .lang-switch__menu a { min-height: var(--size-control-lg); }
+}
+
+/* At 320px the header's fixed parts are 6px wider than the page. */
+@media (max-width: 340px) {
+  .site-header { gap: var(--sp-2); }
 }
 
 @media (max-width: 560px) {
   .page-nav { flex-direction: column; }
 }
 
+/* The collapsed search box leaves 460px beside it only above this width. Below it the
+   panel would start off screen, so it takes the edges of the header's own content. */
+@media (max-width: 640px) {
+  .search__results {
+    position: fixed;
+    top: calc(var(--header-h) + var(--sp-2));
+    left: var(--sp-5);
+    right: var(--sp-5);
+    width: auto;
+  }
+  /* The fixed parts leave the focused field too little room for a query, so it covers the
+     header's content from edge to edge, in line with the panel under it. The collapsed box
+     keeps its place, so nothing moves behind the field. Focus leaving the search uncovers
+     the header in the same step, so Tab never lands on a covered control. An input does not
+     stretch between left and right, so the width is worked out; 100% is the header's width.
+     The controls sit on half pixels here, so a cover keeps their edges from showing past it. */
+  .search:focus-within { position: static; flex-basis: var(--size-control-sm); }
+  .search:focus-within::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: var(--tasty-bg-sidebar);
+  }
+  .search:focus-within input {
+    position: absolute;
+    z-index: 2;
+    top: 0;
+    bottom: 0;
+    left: var(--sp-5);
+    width: calc(100% - 2 * var(--sp-5));
+    margin-block: auto;
+  }
+  .search:focus-within input::placeholder { color: var(--tasty-text-placeholder); }
+}
+
+/* iOS Safari zooms the page when an input under 16px takes focus, which would slide the
+   header and the panel out of place. 16px is above the 14px cap of the app's chrome, and this
+   field on a phone is the one place on the site that pays that. */
+@media (max-width: 640px) and (pointer: coarse) {
+  .search input { font-size: 16px; }
+}
+
 @media print {
-  .site-header, .sidebar, .toc, .page-nav, .site-footer, .copy-btn { display: none !important; }
+  .site-header, .sidebar, .nav-scrim, .toc, .page-nav, .site-footer, .copy-btn { display: none !important; }
   .layout { grid-template-columns: 1fr; }
   body { background: #fff; color: #000; }
 }

@@ -143,6 +143,69 @@ export function AppShell({ heading = "Workspaces", task = "run tests", doc }) {
   // Search is scoped to the focused surface — close it when the tab changes.
   React.useEffect(() => { setSearchOpen(false); }, [activeTab]);
 
+  // A narrow window shows only part of the tab row: keep the active tab inside it.
+  const tabsRef = React.useRef(null);
+  const tabCount = tabs.length;
+  React.useEffect(() => {
+    const row = tabsRef.current.firstElementChild.firstElementChild;
+    const reveal = () => {
+      const tab = row.querySelector(".tasty-tab--active");
+      if (!tab) return;
+      const t = tab.getBoundingClientRect();
+      const r = row.getBoundingClientRect();
+      if (t.right > r.right) row.scrollLeft += t.right - r.right;
+      else if (t.left < r.left) row.scrollLeft -= r.left - t.left;
+    };
+    const watcher = new ResizeObserver(reveal);
+    watcher.observe(row);
+    return () => watcher.disconnect();
+  }, [activeTab, tabCount]);
+
+  // The kit's tab is a pointer-only div, and the app's own keyboard path is not the kit's
+  // to draw. So the demo adds what a keyboard needs from outside: one Tab stop on the active
+  // tab, and only the active tab's close button, since the others are invisible.
+  const moveFocus = React.useRef(false);
+  React.useEffect(() => {
+    const row = tabsRef.current.firstElementChild.firstElementChild;
+    const panes = tabsRef.current.nextElementSibling;
+    row.setAttribute("role", "tablist");
+    panes.setAttribute("role", "tabpanel");
+    panes.removeAttribute("aria-labelledby");
+    Array.from(row.children).forEach((el, i) => {
+      const selected = tabs[i].id === activeTab;
+      el.id = `shell-tab-${tabs[i].id}`;
+      el.setAttribute("role", "tab");
+      el.setAttribute("aria-selected", String(selected));
+      el.tabIndex = selected ? 0 : -1;
+      el.querySelector(".tasty-tab__close").tabIndex = selected ? 0 : -1;
+      if (selected) panes.setAttribute("aria-labelledby", el.id);
+    });
+    if (moveFocus.current) {
+      moveFocus.current = false;
+      const target = row.querySelector(".tasty-tab--active") ?? row.nextElementSibling.querySelector("button");
+      target.focus({ preventScroll: true });
+    }
+  }, [activeTab, tabs]);
+
+  const onTabKey = (e) => {
+    // A close button handles its own keys; only keys pressed on a tab itself choose a tab.
+    if (!e.target.classList.contains("tasty-tab")) return;
+    if (e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+    const last = tabs.length - 1;
+    const at = tabs.findIndex((x) => x.id === activeTab);
+    let next;
+    if (e.key === "ArrowRight") next = at === last ? 0 : at + 1;
+    else if (e.key === "ArrowLeft") next = at === 0 ? last : at - 1;
+    else if (e.key === "Home") next = 0;
+    else if (e.key === "End") next = last;
+    else if (e.key === " " || e.key === "Enter") next = at; // already chosen: focus follows the selection
+    else return;
+    e.preventDefault();
+    if (next === at) return;
+    moveFocus.current = true;
+    setActiveTab(tabs[next].id);
+  };
+
   const flash = (msg) => {
     setToast(msg);
     clearTimeout(toastTimer.current);
@@ -155,6 +218,8 @@ export function AppShell({ heading = "Workspaces", task = "run tests", doc }) {
     setActiveTab(id);
   };
   const closeTab = (id) => {
+    // Closing removes the focused button, so focus goes to the tab that stays active.
+    moveFocus.current = tabsRef.current.contains(document.activeElement);
     setTabs((prev) => {
       const next = prev.filter((x) => x.id !== id);
       if (id === activeTab && next.length) setActiveTab(next[0].id);
@@ -197,8 +262,11 @@ export function AppShell({ heading = "Workspaces", task = "run tests", doc }) {
             onTools={(rect) => setToolsAnchor((a) => (a ? null : rect))} />
         </div>
         <div className="shell__work">
-          <TabStrip tabs={tabs} active={activeTab} onSelect={setActiveTab} onClose={closeTab}
-            onNew={newTab} onSearch={() => setSearchOpen((v) => !v)} />
+          {/* Wrapped so the page can reach the kit's tab row, which it styles inline. */}
+          <div className="shell__tabs" ref={tabsRef} onKeyDown={onTabKey}>
+            <TabStrip tabs={tabs} active={activeTab} onSelect={setActiveTab} onClose={closeTab}
+              onNew={newTab} onSearch={() => setSearchOpen((v) => !v)} />
+          </div>
           <div className={`shell__panes${tab?.kind === "split" ? " shell__panes--mixed" : ""}`}>
             {tab && tab.kind === "markdown" ? (
               <div className="shell__pane"><MarkdownSurface focused /></div>
@@ -210,7 +278,7 @@ export function AppShell({ heading = "Workspaces", task = "run tests", doc }) {
                 </div>
                 <div className="shell__pane">
                   <MarkdownSurface path="~/work/tasty/notes/split-layout.md">
-                    <h2 style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-prose-h1)", margin: "0 0 var(--tasty-space-sm)" }}>
+                    <h2 className="shell__doc-title" style={{ fontSize: "var(--tasty-font-size-prose-h1)", margin: "0 0 var(--tasty-space-sm)" }}>
                       {doc.splitTitle}
                     </h2>
                     <p style={{ fontSize: "var(--tasty-font-size-body)", color: "var(--tasty-text-secondary)" }}>

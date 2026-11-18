@@ -1,4 +1,4 @@
-<!-- source-hash: 1d7a625dbda7 -->
+<!-- source-hash: 3c114743a841 -->
 # 配合 Claude 和 Codex 使用
 
 在 Tasty 终端中运行 Claude Code 和 Codex CLI 并查看状态。两个 CLI 需要单独安装。要将任务分配给多个智能体，请同时配置钩子和父智能体的结果接收路径。
@@ -103,7 +103,7 @@ tasty codex spawn --workspace workers --cwd ~/proj --sandbox read-only \
 | `--prompt <文本>` | 启动后立即发送的第一条指令 |
 | `--surface <ID>` | 父 Surface（默认：自身） |
 
-`spawn` **立即返回**。没有单独的等待命令。完成子智能体的钩子和[接收配置](#4-接收完成通知)后，会将子智能体报告的空闲状态传递给父智能体。空闲不表示任务成功。Claude 子智能体的子智能体结束，或响应结束但仍有后台任务时，不视为空闲。后台任务完成且接续的响应也结束后才会通知。[Stop Gate](#8-claude-会话配置档和-stop-gate) 发送检查清单让响应继续时，也不视为空闲，通过 Gate 并结束响应后才会通知。如果留下永不结束的后台命令（如开发服务器），就不会进入空闲状态。等待后台任务期间没有输出时，会向父智能体通知一次。默认阈值为 10 分钟，具体取决于是否找到输出文件及是否仅剩 Monitor（[第 4 节的无输出通知](#4-接收完成通知)）。
+`spawn` **立即返回**。没有单独的等待命令。完成子智能体的钩子和[接收配置](#4-接收完成通知)后，会将子智能体报告的空闲状态传递给父智能体。空闲不表示任务成功。Claude 子智能体的子智能体结束，或响应结束但仍有后台任务时，不视为空闲。后台任务完成且接续的响应也结束后才会通知。但仅剩 Monitor 时，如下文所述，视为空闲。[Stop Gate](#8-claude-会话配置档和-stop-gate) 发送检查清单让响应继续时，也不视为空闲，通过 Gate 并结束响应后才会通知。如果留下永不结束的后台命令（如开发服务器），就不会进入空闲状态。等待后台任务期间没有输出时，会向父智能体通知一次。默认阈值为 10 分钟，具体取决于是否找到输出文件及是否仅剩 Monitor（[第 4 节的无输出通知](#4-接收完成通知)）。
 
 父智能体将子智能体放在自身工作区以外的**其他工作区**中更安全。在已附加的远程工作区中运行子智能体的方法及结果接收条件，见下方“[在已附加的远程工作区中创建子智能体](#在已附加的远程工作区中创建子智能体)”一节。子智能体使用远程计算机的工具和设置运行。
 
@@ -111,7 +111,7 @@ tasty codex spawn --workspace workers --cwd ~/proj --sandbox read-only \
 
 ```sh
 tasty claude tell "这次也运行 clippy" --surface 57     # 支持多行，自动提交
-tasty claude children                                       # 子智能体列表（index · surface · 状态）
+tasty claude children                                       # 子智能体表：id · parents · nickname · state · cwd · last_report_at · index · confidence · evidence
 tasty claude state --surface 57                             # idle / needs_input / active / exited
 tasty claude broadcast "报告进度\r" --role tester   # 按角色批量发送（用 \r 提交）
 tasty claude kill --child 0                                 # 按 index 终止
@@ -123,7 +123,23 @@ tasty claude parent --surface 57                            # 此子智能体的
 
 `tasty codex …` 也有相同的子命令（`tell` / `children` / `state` / `broadcast` / `kill` / `respawn` / `parent`）。在 Codex 对话中执行时，结果接收方式不同（[自动传递给父 Codex](#自动传递给父-codex)）。
 
+`tasty claude children` 和 `tasty codex children` 默认输出父 ID 表。两个命令都接受 `--format table|json`，默认值为 `table`。其他值会报错。要在脚本中按 JSON 读取输出，添加 `--format json`。在旧版本中将默认输出解析为 JSON 的脚本也必须添加此选项。
+
 子智能体过多时，spawn 响应会附带警告。可在**设置** <!-- en: Settings --> › **插件** <!-- en: Plugins --> › **Claude Code** / **Codex** 的 **Spawn 子实例警告阈值** <!-- en: Spawn child warning threshold --> 中更改阈值（Claude Code、Codex 均默认为 6）。
+
+### Claude 子智能体的 idle 检查
+
+在父 Claude 或 Shell 中执行 `tasty claude idle-check --surface <子智能体>`，可在不向子智能体发送消息的情况下设置 idle 检查。
+
+```sh
+tasty claude idle-check --surface 57
+```
+
+如果子智能体在 2 分钟（120 秒）内既没有活动（`active`）也没有结束回合，父智能体会收到一行警告，仅发送一次。检测到活动时，重新计算 2 分钟。检查所等待的回合结束后，会解除检查，不另行通知。
+
+向正在工作的子智能体发送 `tell` 时，会在处理该消息的回合结束后解除检查，而不是在原先进行中的回合结束时解除。用 `tell` 回答正在提问等待的子智能体时，也会在处理该回答的回合结束后解除检查。`tell` 以及带有 `--prompt` 的 `spawn`、`respawn` 会自动设置相同的检查。
+
+父智能体收到警告后，请查看子智能体的状态和输出，并在需要时重新设置检查。Tasty 不会自动恢复子智能体。
 
 ### 子 Claude 的模型和 effort
 
@@ -148,17 +164,25 @@ tasty claude spawn --workspace workers --cwd ~/proj --model opus --effort high \
 如果 Claude 子智能体因 API 错误结束回合，完成通知行末会附上该情况和错误种类（如 `overloaded`）。如果仍有后台任务且子智能体继续等待，则不会写入完成行，而是仅写入一行说明该情况。
 Claude 子智能体的无输出通知默认以 10 分钟（600 秒）为阈值。可在[设置 > 插件 > Claude Code](../plugins/index.md#插件添加的设置) 中改为 60～86400 秒，无需重启即可生效。没有关闭通知的取值。
 
+原有针对长时间无输出的子智能体的通知（默认为 10 分钟）保持不变。但只有对该子智能体设置了 idle 检查的父智能体，会针对同一段无输出收到 idle 检查的一行通知。
+
 等待后台 Shell 或子智能体的子智能体，在找到的所有任务输出文件持续配置时长未变化时，每次等待仅写入一行带任务名称的记录。英文为 `background work <名称> has written no output for <分钟> min`。如果找不到任务输出，则在画面输出持续未变化的时间达到 10 分钟与配置值中的较大值时，每次等待仅写入一行。此时英文为 `waiting on background work (<种类>) for <分钟> min, with no output meanwhile`。实际通知遵循应用语言。
 
-Monitor 仅在有事件时输出，因此无输出是正常情况。已结束响应且仅剩 Monitor 任务的子智能体不会触发无输出通知。此类子智能体在 Monitor 结束前保持 `active`，也不会发送完成信号。如果 Monitor 与其他任务并存，则仅根据其他任务判定。
+Monitor 仅在有事件时输出，因此无输出是正常情况。子智能体完成工作、仅保持 Monitor 运行并结束轮次后，会显示为 `idle`，父智能体会收到一次完成通知。`tasty claude children` 中也显示为 `idle`，不会变为 `stale`。收到 Monitor 事件时，会短暂变为 `active`，然后回到 `idle`。没有新的 `spawn` 或 `tell` 时，不会再发送完成通知。
 
-此通知会写入完成日志，并唤醒已完成下方 mod 或 Monitor 接收配置的父 Claude Code，启动新回合。此通知路径不适用于从父 Codex 对话中创建的子智能体。父 Codex 通过下方的结果返回路径接收回合结果。
+任务图（DAG）中等待 `spawn`、`tell` 完成的节点也会在此时结束，因此 Monitor 仍在运行时，下一个节点就可能开始。
+
+仅剩 Monitor 的子智能体不会触发无输出通知。Monitor 与后台 Bash、子智能体同时保留时，仍为 `active`（等待），仅根据 Monitor 以外的任务判定是否无输出。没有输出的 Bash 会触发通知。Bash 结束、仅剩 Monitor 时，才会变为 `idle` 并发送完成通知。
+
+无输出通知会写入完成日志，并唤醒已完成下方 mod 或 Monitor 接收配置的父 Claude Code，启动新回合。此通知路径不适用于从父 Codex 对话中创建的子智能体。父 Codex 通过下方的结果返回路径接收回合结果。
 
 在非等待后台任务的回合中，如果最后的输出包含错误文本，阈值固定为 30 秒。错误后的 30 秒和重复通知的最小间隔 5 分钟不可配置。同一段无输出期间仅通知一次。此设置与 `tasty claude children` 中 `stale` 标记的 120 秒阈值相互独立，因此可能在通知前先看到 `stale`。不能仅凭通知断定任务已停止。
 
-要获取能区分 Monitor 的新钩子，请重新执行 `tasty claude install`，然后启动新的 Claude Code 进程。此前会将 Monitor 也视为 Shell 任务并发送通知。
+要获取能区分 Monitor 的新钩子，请重新执行 `tasty claude install`，然后启动新的 Claude Code 进程。此前会将 Monitor 也视为 Shell 任务，子智能体会继续等待，并可能发送无输出通知。
 
 受支持的父 Codex 对话会收到结果引用，表示子智能体已结束响应。用引用中的事件 ID 执行 `tasty codex result` 读取回答。连接条件和支持的路径见下方[自动传递给父 Codex](#自动传递给父-codex) 一节。
+
+同一完成日志也会收到以 `[queue] ` 开头的[队列到达通知](cli-reference.md#在-surface-之间收发消息队列)。启用完成通知 mod 的 Claude Code 也会将这些行作为提示接收并被唤醒，因此无需为了等待队列消息而保持 Monitor 或反复查询。
 
 ### 在 Claude Code 中自动接收
 
@@ -171,6 +195,8 @@ mod 启用后，从会话开始就读取自己的完成日志；如果 Claude �
 ### 通过 Claude Code 的 Monitor 接收
 
 仅在父 Claude Code 不支持 mod 或未能启用 mod 时使用 Monitor。在首次 spawn/tell 前订阅，并在订阅后立即查看子智能体列表。
+
+使用 Monitor 直接读取日志并等待完成时，应将以 `[queue] ` 开头的行识别为队列到达通知，不要视为完成。
 
 ```text
 Monitor({ command: "tail -n0 -F \"$TASTY_PARENT_HOME/notify/$TASTY_SURFACE_ID.log\"", timeout_ms: 1800000 })
@@ -261,7 +287,7 @@ tasty claude codex-returns --retry   # 将所有待发送结果重新排为立�
 
 如果尚未附加，用 `tasty remote attach --into-gui --workspace <远程 ID> --profile <名称>` 向正在运行的 Tasty 添加镜像。要新建远程工作区并附加，请用 `--new-workspace` 替换 `--workspace <远程 ID>`，可通过 `--name`、`--cwd` 指定名称和远程工作目录。也可使用 `--ssh <目标>` 代替配置档。Tasty 会自行打开 SSH 隧道，不移动焦点。附加现有工作区会输出受理和结果两行 JSON，并等待结果最多 90 秒；失败或未在时限内收到结果时，退出码为 1。新建工作区形式输出一行创建结果 JSON。
 
-在 `tasty list workspaces` 中查看 `[mirror]` 行的本地工作区 ID，并将该 ID 传给下方 spawn 的 `--workspace`。不要直接使用 attach 时指定的远程 ID。使用会话令牌调用 `tasty remote attach --into-gui` 和 `tasty remote refusals` 无需额外权限，但 `tasty list workspaces` 需要 `surface.read` 权限。CLI 没有仅断开附加连接的命令，关闭镜像的最后一个 Surface 会同时关闭远程工作区。连接方式及在 GUI 中仅分离的方法，见[继续远程工作](../remote/attach.md)。
+在 `tasty list workspaces` 中查看 `[mirror]` 行的本地工作区 ID，并将该 ID 传给下方 spawn 的 `--workspace`。不要直接使用 attach 时指定的远程 ID。仅查询列表不会连接已保存的行。向未连接的已保存行请求 spawn 时，会开始连接并等待最多 35 秒，连接成功后执行请求，否则返回说明原因的错误。手动断开的行不会自动连接，先用 `tasty remote connect --workspace <本地 ID>` 连接。使用会话令牌调用 `tasty remote attach --into-gui`、`tasty remote connect`、`tasty remote disconnect` 和 `tasty remote refusals` 无需额外权限，但 `tasty list workspaces` 需要 `surface.read` 权限。要保留远程工作并仅断开连接，使用 `tasty remote disconnect --workspace <本地 ID>`。关闭镜像的最后一个 Surface 也会关闭远程工作区。连接和关闭操作的详情见[继续远程工作](../remote/attach.md)。
 
 如果已附加其他计算机的 Tasty 工作区，可将该工作区编号传给 `--workspace`，执行 `tasty claude spawn`、`tasty codex spawn`。子智能体在远程计算机上，使用该计算机的 Claude Code、Codex 安装、设置和登录状态运行，在本地显示为已附加工作区中的子智能体。`tell`、`children`、`kill` 的用法与本地子智能体相同。
 
@@ -376,15 +402,12 @@ tasty claude spawn --workspace w --profile continue-checklist
 
 ## 故障排除
 
-已修复 Windows 和 macOS 上 Tasty 终端中的 Codex 会话在连接后立即断开的问题。
-
 - **未收到完成通知** — 检查子 CLI 的钩子安装、运行情况及[接收配置](#4-接收完成通知)。如果父智能体是 Claude Code，请检查完成通知 mod 是否启用。没有 mod 时，请检查 Monitor 订阅。钩子传递失败会记录在 `~/.tasty/hook-failures.log` 中。插件日志使用 `tasty plugin logs com.tasty.claude --follow`。
 - **`reboot` 因“claude-session-id meta not set”失败** — 会话启动钩子未能记录会话 ID。用 `tasty surface-meta set --key claude-session-id --value <会话ID>` 手动设置。
 - **子智能体未能 spawn，出现“occupied”错误** — 目标工作区正被远程附加，或是镜像。请使用其他工作区。
 - **`kill` 因“hard-occupied”错误被拒绝** — 远程用户正附加并使用该子智能体所在的工作区。子智能体关系和标签页会保留。远程端分离，或通过强制分离解除占用后，再执行 `kill`。
 - **Codex 无法启动，显示“app-server could not start”** — Tasty 未能启动该终端的专用 Codex 服务器。请检查在同一终端中能否运行 `codex app-server --help`。此功能基于 Codex CLI 0.154.0 验证。
 - **父 Codex 未收到结果** — 检查 Codex 的 `/hooks` 中是否已批准 Tasty 钩子，以及是否从 Codex 对话中 spawn 子智能体。如果通过手动输入 `codex` 启动父 Codex，该对话必须已在共享 Codex 服务器中打开。
-- **在 macOS 上通过应用图标启动时收不到通知** — Tasty 写入通知时会再次调用 `tasty`，但 Tasty 会自动将自身可执行文件路径加入 PATH，因此通常没有问题。如果仍失败，请查看 `hook-failures.log`。
 
 <a id="接下来阅读"></a>
 

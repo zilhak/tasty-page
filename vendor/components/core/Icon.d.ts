@@ -3,7 +3,7 @@ import * as React from "react";
 /** Every canonical Tasty glyph name. Mirrors icons/<name>.svg and icons.json. */
 export type IconName =
   | "plus" | "close" | "refresh" | "edit" | "trash" | "copy" | "check" | "search" | "filter" | "swap" | "more" | "download" | "star" | "starFill"
-  | "chevronRight" | "arrowRight" | "chevronDown" | "chevronUp" | "chevronLeft" | "chevronsLeft" | "chevronsRight" | "move" | "fit"
+  | "chevronRight" | "arrowRight" | "chevronDown" | "chevronUp" | "chevronLeft" | "chevronsLeft" | "chevronsRight" | "move" | "fit" | "shrink"
   | "terminal" | "agent" | "markdown" | "html" | "split" | "splitH" | "paneEmpty" | "folder" | "folderOpen" | "file" | "image" | "list" | "layoutGrid" | "layoutDetail" | "listView" | "layers" | "columns"
   | "clipboard" | "textLeft" | "scriptFile" | "remote" | "port" | "gitBranch" | "gitTree"
   | "eye" | "eyeOff" | "lock" | "globe" | "globeOff"

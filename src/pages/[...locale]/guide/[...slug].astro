@@ -1,0 +1,31 @@
+---
+import { getCollection, render } from "astro:content";
+import Guide from "../../../layouts/Guide.astro";
+import { buildPages, entryIdFor } from "../../../lib/guide";
+import { localePaths } from "../../../lib/langs.mjs";
+import { slugOf } from "../../../lib/urls";
+
+export async function getStaticPaths() {
+  const pages = buildPages(process.cwd());
+  const entries = await getCollection("guide");
+  return localePaths().flatMap(({ params: { locale }, props: { lang } }) =>
+    pages.map((page, idx) => {
+      const id = entryIdFor(page, lang);
+      const entry = entries.find((e) => e.id === id);
+      if (!entry) throw new Error(`no content entry for ${id}`);
+      return {
+        params: { locale, slug: slugOf(page.rel) || undefined },
+        props: { lang, page, pages, idx, entry },
+      };
+    }),
+  );
+}
+
+const { lang, page, pages, idx, entry } = Astro.props;
+const { Content, headings } = await render(entry);
+// Load kit styles only when the source contains a diagram marker.
+const hasDiagram = /<!--\s*tasty-diagram:/.test(entry.body ?? "");
+---
+<Guide lang={lang} page={page} pages={pages} idx={idx} headings={headings} hasDiagram={hasDiagram}>
+  <Content />
+</Guide>

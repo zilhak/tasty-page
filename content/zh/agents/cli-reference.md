@@ -1,4 +1,4 @@
-<!-- source-hash: 357c2cdcc2a8 -->
+<!-- source-hash: 91ec00388bb6 -->
 # CLI 命令参考
 
 按用途说明入门内容之外的命令，包括指定读取位置的 `read since-mark`、Surface 状态、消息队列和共享记忆。完整参数和选项可通过 `tasty help` 查看。
@@ -48,7 +48,7 @@ tasty surface fire-hook --surface 42 --event idle-timeout:300 # 也有附带秒�
 若 5 秒内未能确认退出，新 Shell 仍可使用，但响应为需要恢复的错误（`-32068`）。
 收到此错误后，使用相同的幂等键（IPC 请求的 `idempotency_key`）重新发送，由于 Shell 替换已完成，会收到成功结果。
 创建终端、工作区或标签页的命令若在启动 Shell 时失败，且无法确定实际运行了什么，会立即返回需要恢复的错误（`-32068`），不再等待。使用相同的幂等键（IPC 请求的 `idempotency_key`）重新发送也不会再次执行，而是返回相同错误。
-若在 Shell 进程创建前失败，例如配置的 Shell 文件没有执行权限，或路径下没有文件且找不到替代 Shell，则返回普通错误。使用相同幂等键重新发送会返回相同失败；修正 Shell 配置后，使用新幂等键发送会再次执行。
+在 macOS · Linux 上，若在 Shell 进程创建前失败，例如配置的 Shell 文件没有执行权限，或路径下没有文件且找不到替代 Shell，则返回普通错误。在 Windows 上，如果配置的 Shell 不是 Git Bash、路径下没有文件，或设置为空且默认安装位置也未找到 Git Bash，创建终端的命令会在 Shell 进程创建前返回普通错误，不会换用其他 Shell。使用相同幂等键重新发送会返回相同失败；修正 Shell 配置后，使用新幂等键发送会再次执行。
 
 ## 为子智能体授予权限
 
@@ -61,12 +61,18 @@ tasty session revoke --token <令牌>
 子智能体将签发的令牌用作 `TASTY_SESSION_TOKEN` 时，发往 Tasty 的请求会按该令牌的权限检查。
 会话令牌用于区分请求来自哪个智能体，并防止智能体误操作，不构成安全边界。不带令牌调用的命令按用户命令处理。
 
-准备远程连接时，可使用会话令牌运行 `tasty remote attach --into-gui` 和 `tasty remote refusals`，无需额外权限。通过 `tasty list workspaces` 查看连接结果列表需要 `surface.read` 权限。命令形式和 JSON 结果参见[继续远程工作](../remote/attach.md)。
+准备远程连接时，可使用会话令牌运行 `tasty remote attach --into-gui`、`tasty remote connect`、`tasty remote disconnect` 和 `tasty remote refusals`，无需额外权限。通过 `tasty list workspaces` 查看连接结果列表需要 `surface.read` 权限。命令形式和 JSON 结果参见[继续远程工作](../remote/attach.md)。
 
-插件添加的命令（`tasty markdown recent` · `tasty codex spawn` 等）也需要权限。
+使用会话令牌的智能体调用插件添加的命令（`tasty markdown recent` · `tasty codex spawn` 等）时，也需要权限。
 对于 `tasty <命令> …`，请添加 `--permission ipc.invoke:<命令>`——`tasty markdown …` 对应
 `ipc.invoke:markdown`，命令名称中的 `-` 要替换为 `_`。未添加权限就调用时，请求会被拒绝，并向用户发送权限批准请求。
 通过 `tasty claude spawn` 启动的 Claude 已获得 `tasty claude …` · `tasty codex …` 权限。
+
+## Claude 子智能体的 idle 检查
+
+`tasty claude idle-check --surface <子智能体>` 可从父 Claude 或 Shell 设置 idle 检查，不向子智能体发送消息。`--surface` 为必填项，指定要监视的子智能体。可选项 `--caller-surface` 指定接收警告行的 Surface。
+
+检查时间、自动检查和解除条件，见[配合 Claude 和 Codex 使用](claude-codex.md#claude-子智能体的-idle-检查)。
 
 ## 发送通知
 
@@ -104,6 +110,12 @@ tasty read queue --surface 42 --peek     # 查看但不取出
 tasty read queue --surface 42 --clear    # 全部清空
 ```
 
+使用 `tasty send queue --to <surface>` 发送消息后，无论接收方 Surface 正在运行什么，都会在其完成日志中写入一行以 `[queue] ` 开头的到达通知。文本遵循应用语言，包含待处理消息数、最后发送消息的 Surface 和读取命令。通知不含消息正文；运行 `tasty read queue --surface <surface>` 时不加 `--peek`，即可接收内容并清空队列。Claude Code 的自动接收配置见[接收完成通知](claude-codex.md#4-接收完成通知)。
+
+消息进入空队列时会立即通知。仍有未读消息时，仅在距上次通知至少 60 秒后又有消息到达时再次通知。不加 `--peek` 读取并清空队列、使用 `--clear` 清空队列或清理 Surface，都会重置此通知间隔记录。`--peek` 不会重置记录。
+
+发送到不存在的 Surface 编号时，消息会保存，但不会写入通知行。发送到通过远程 attach 连接的远程工作区（mirror）中的 Surface 时，队列和通知日志都保存在本机。远程 Claude 不会收到此通知。
+
 <a id="将子终端作为智能体运行"></a>
 
 ## 将任务交给多个终端
@@ -117,6 +129,10 @@ tasty terminal tell "y" --surface 57           # 向子终端发送输入 (保�
 tasty terminal broadcast $'git pull\r' --role worker # 发给所有相同角色的子终端 (末尾必须有实际 CR 才会提交)
 tasty terminal kill --child 1                   # 按索引终止子终端
 ```
+
+`tasty terminal children` 默认输出父 ID 表。接受 `--format table|json`，默认值为 `table`。其他值会报错。要在脚本中按 JSON 读取输出，添加 `--format json`。在旧版本中将默认输出解析为 JSON 的脚本也必须添加此选项。
+
+表格使用 Markdown 风格的管道符（`|`）分隔列，列顺序为 `id`、`parents`、`nickname`、`state`、`cwd`、`last_report_at`、`index`、`confidence`、`evidence`。`id` 是子 Surface ID，`index` 是传给 `kill --child` 和 `respawn --child` 的编号。存在多个父方时，`parents` 用逗号连接。如下方示例所示，通过 `--parent-external` 指定的外部父方会在 `parents` 中显示其键。`last_report_at` 的显示格式如 `2026-11-09T12:19:12Z`。没有子项时，仅输出两行表头，退出码为 0。`tasty claude children` 和 `tasty codex children` 输出相同的列。
 
 `spawn` 在终端准备完成后响应，不等待智能体任务结束。智能体状态传递和父方接收准备遵循 [Claude·Codex 集成](claude-codex.md)中的说明。仅创建普通程序不保证智能体结果传递。
 无需单独运行等待命令。使用 `--role` 指定角色后，可通过 `broadcast` 批量发送。

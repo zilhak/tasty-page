@@ -47,7 +47,7 @@ tasty surface fire-hook --surface 42 --event idle-timeout:300 # 초 단위가 �
 5초 안에 종료를 확인하지 못하면 새 셸은 그대로 쓸 수 있지만 응답은 복구 필요 오류(`-32068`)입니다.
 이 오류를 받은 뒤 같은 멱등 키(IPC 요청의 `idempotency_key`)로 다시 보내면 셸 교체는 이미 끝났으므로 성공 결과를 받습니다.
 터미널·workspace·탭을 만드는 명령이 셸을 시작하다 실패해 실제로 무엇이 실행됐는지 알 수 없으면 기다리지 않고 복구 필요 오류(`-32068`)로 응답합니다. 같은 멱등 키(IPC 요청의 `idempotency_key`)로 다시 보내도 다시 실행하지 않고 같은 오류를 돌려줍니다.
-설정한 셸 파일에 실행 권한이 없거나 경로에 파일이 없고 대신할 셸도 찾지 못한 경우처럼 셸 프로세스가 만들어지기 전에 실패하면 일반 오류로 응답합니다. 같은 멱등 키로 다시 보내면 같은 실패를 돌려주고, 셸 설정을 고친 뒤 새 멱등 키로 보내면 다시 실행합니다.
+macOS · Linux 에서 설정한 셸 파일에 실행 권한이 없거나 경로에 파일이 없고 대신할 셸도 찾지 못한 경우처럼 셸 프로세스가 만들어지기 전에 실패하면 일반 오류로 응답합니다. Windows 에서는 설정한 셸이 Git Bash 가 아니거나, 해당 경로에 파일이 없거나, 설정이 비어 있고 기본 설치 위치에서도 Git Bash 를 찾지 못하면 터미널을 만드는 명령이 다른 셸로 대신하지 않고 셸 프로세스가 만들어지기 전에 일반 오류로 실패합니다. 같은 멱등 키로 다시 보내면 같은 실패를 돌려주고, 셸 설정을 고친 뒤 새 멱등 키로 보내면 다시 실행합니다.
 
 ## 자식 에이전트에게 권한 주기
 
@@ -60,12 +60,18 @@ tasty session revoke --token <토큰>
 발급된 토큰을 자식이 `TASTY_SESSION_TOKEN`으로 사용하면 Tasty에 보내는 요청은 그 토큰의 권한으로 검사됩니다.
 세션 토큰은 요청이 어느 에이전트의 것인지 구분하고 에이전트의 실수를 막는 장치이며, 보안 경계가 아닙니다. 토큰 없이 부른 명령은 사용자의 명령으로 처리됩니다.
 
-원격 연결을 준비할 때 세션 토큰으로 `tasty remote attach --into-gui`와 `tasty remote refusals`를 별도 권한 없이 사용할 수 있습니다. 연결 결과를 목록으로 확인하는 `tasty list workspaces`에는 `surface.read` 권한이 필요합니다. 명령 형태와 JSON 결과는 [원격 작업 이어가기](../remote/attach.md)를 참고하세요.
+원격 연결을 준비할 때 세션 토큰으로 `tasty remote attach --into-gui`와 `tasty remote connect`·`tasty remote disconnect`·`tasty remote refusals`를 별도 권한 없이 사용할 수 있습니다. 연결 결과를 목록으로 확인하는 `tasty list workspaces`에는 `surface.read` 권한이 필요합니다. 명령 형태와 JSON 결과는 [원격 작업 이어가기](../remote/attach.md)를 참고하세요.
 
-플러그인이 더한 명령(`tasty markdown recent` · `tasty codex spawn` 등)도 권한이 필요합니다.
+세션 토큰을 쓰는 에이전트가 플러그인이 더한 명령(`tasty markdown recent` · `tasty codex spawn` 등)을 호출할 때도 권한이 필요합니다.
 `tasty <명령> …` 이면 `--permission ipc.invoke:<명령>` 을 적어 주세요 — `tasty markdown …` 은
 `ipc.invoke:markdown` 이고, 명령 이름에 `-` 가 있으면 `_` 로 바꿉니다. 적지 않은 채 부르면 거부되고 사람에게 권한 승인 요청이 갑니다.
 `tasty claude spawn` 으로 띄운 Claude 는 `tasty claude …` · `tasty codex …` 권한을 이미 받아 둡니다.
+
+## Claude 자식의 idle 체크
+
+`tasty claude idle-check --surface <자식>`은 부모 Claude나 셸에서 자식에게 메시지를 보내지 않고 idle 체크를 거는 명령입니다. `--surface`는 필수이며 감시할 자식을 지정합니다. 선택 옵션 `--caller-surface`로 경고 줄을 받을 서피스를 지정할 수 있습니다.
+
+체크 시간, 자동 체크와 해제 조건은 [Claude·Codex와 함께 쓰기](claude-codex.md#claude-자식의-idle-체크)를 보세요.
 
 ## 알림 보내기
 
@@ -103,6 +109,12 @@ tasty read queue --surface 42 --peek     # 꺼내지 않고 보기
 tasty read queue --surface 42 --clear    # 전부 비움
 ```
 
+`tasty send queue --to <서피스>`로 보내면 받는 서피스에서 무엇이 실행 중이든 완료 로그에 `[queue] `로 시작하는 도착 알림 한 줄이 기록됩니다. 문구는 앱 언어를 따르며, 대기 메시지 수·마지막 보낸 서피스·읽는 명령을 담습니다. 메시지 내용은 없으므로 `tasty read queue --surface <서피스>`를 `--peek` 없이 실행해 내용을 받고 큐를 비우세요. Claude Code의 자동 수신 설정은 [완료 알림 받기](claude-codex.md#4-완료-알림-받기)를 참고하세요.
+
+빈 큐에 메시지가 들어오면 바로 알립니다. 안 읽은 메시지가 남아 있으면 마지막 알림 뒤 60초가 지난 다음 메시지가 들어올 때만 다시 알립니다. `--peek` 없이 읽어 큐가 비거나, `--clear`로 비우거나, 서피스를 정리하면 알림 간격 기록이 초기화됩니다. `--peek`은 초기화하지 않습니다.
+
+없는 서피스 번호로 보내면 메시지는 저장되지만 알림 줄은 기록되지 않습니다. 원격 attach로 연결한 원격 워크스페이스(mirror)의 서피스로 보내면 큐와 알림 로그는 이 컴퓨터에 쌓이며, 원격의 Claude는 이 알림을 받지 않습니다.
+
 <a id="자식-터미널을-에이전트처럼-굴리기"></a>
 
 ## 여러 터미널에 작업 맡기기
@@ -116,6 +128,10 @@ tasty terminal tell "y" --surface 57           # 자식에게 입력 보내기 (
 tasty terminal broadcast $'git pull\r' --role worker # 역할이 같은 자식 전부에게 (끝에 실제 CR 이 있어야 제출)
 tasty terminal kill --child 1                   # 자식을 인덱스로 종료
 ```
+
+`tasty terminal children`의 기본 출력은 부모 ID 표입니다. `--format table|json`을 받으며 기본값은 `table`입니다. 다른 값을 주면 오류로 끝납니다. 스크립트에서 JSON으로 읽으려면 `--format json`을 붙이세요. 이전 버전처럼 기본 출력을 JSON으로 읽던 스크립트도 이 옵션을 붙여야 합니다.
+
+표는 Markdown처럼 파이프(`|`)로 열을 나누며, 열 순서는 `id`, `parents`, `nickname`, `state`, `cwd`, `last_report_at`, `index`, `confidence`, `evidence`입니다. `id`는 자식 서피스 ID이고, `index`는 `kill --child`와 `respawn --child`에 넘기는 번호입니다. 부모가 여럿이면 `parents`에 쉼표로 이어서 표시합니다. 아래 예시처럼 `--parent-external`로 지정한 외부 부모는 그 키가 `parents`에 나옵니다. `last_report_at`은 `2026-11-09T12:19:12Z` 같은 형식으로 표시합니다. 자식이 없으면 머리글 두 줄만 출력하고 종료 코드는 0입니다. `tasty claude children`과 `tasty codex children`도 같은 열을 출력합니다.
 
 `spawn`은 터미널 준비가 끝나면 응답하며 에이전트 작업 종료는 기다리지 않습니다. 에이전트의 상태 전달과 부모의 수신 준비는 [Claude·Codex 연동](claude-codex.md)을 따릅니다. 일반 프로그램의 생성만으로 에이전트 결과 전달을 보장하지 않습니다.
 기다리는 명령을 따로 돌릴 필요가 없습니다. `--role` 로 역할을 지정하면 `broadcast` 로 묶어 보냅니다.

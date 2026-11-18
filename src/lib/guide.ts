@@ -41,6 +41,7 @@ export const ORDER: string[] = [
   "remote/attach",
   "plugins/index",
   "help/troubleshooting",
+  "help/error-reports",
   "help/cli-diagnostics",
 ];
 

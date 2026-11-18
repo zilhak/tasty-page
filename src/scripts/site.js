@@ -19,17 +19,34 @@
   }
 
   function currentTheme() {
-    if (root.getAttribute("data-theme") === "latte") return "latte";
-    return window.matchMedia("(prefers-color-scheme: light)").matches ? "latte" : "mocha";
+    return root.getAttribute("data-theme") === "latte" ? "latte" : "mocha";
   }
 
   /* A language picked here outranks the browser language on the next visit to
-     the landing page. See the redirect in pages/index.astro. */
+     the landing page. See the redirect in pages/[...locale]/index.astro. */
   document.querySelectorAll(".lang-switch a[data-lang]").forEach(function (link) {
     link.addEventListener("click", function () {
       try { localStorage.setItem("tasty-lang", link.getAttribute("data-lang")); } catch (e) { /* private mode */ }
     });
   });
+
+  /* <details> opens and closes by itself. These close the language list the way a popup closes. */
+  var langSwitch = document.querySelector(".lang-switch");
+  if (langSwitch) {
+    document.addEventListener("click", function (e) {
+      if (langSwitch.open && !langSwitch.contains(e.target)) langSwitch.open = false;
+    });
+    langSwitch.addEventListener("keydown", function (e) {
+      if (e.key !== "Escape" || !langSwitch.open) return;
+      langSwitch.open = false;
+      langSwitch.querySelector("summary").focus();
+    });
+    langSwitch.addEventListener("focusout", function (e) {
+      if (e.relatedTarget && !langSwitch.contains(e.relatedTarget)) langSwitch.open = false;
+    });
+    /* The back button restores the page as it was left, with the list open. */
+    window.addEventListener("pageshow", function () { langSwitch.open = false; });
+  }
 
   /* Let the React demo read and update the shared page theme. */
   window.tastyTheme = { get: currentTheme, set: applyTheme };
@@ -43,19 +60,74 @@
 
 
   var menuBtn = document.querySelector(".menu-btn");
-  if (menuBtn) {
-    menuBtn.addEventListener("click", function () {
-      var open = body.hasAttribute("data-nav-open");
-      if (open) body.removeAttribute("data-nav-open");
-      else body.setAttribute("data-nav-open", "");
-      menuBtn.setAttribute("aria-expanded", String(!open));
-    });
-    document.addEventListener("click", function (e) {
-      if (!body.hasAttribute("data-nav-open")) return;
-      if (e.target.closest(".sidebar") || e.target.closest(".menu-btn")) return;
+  var siteNav = document.querySelector(".site-nav");
+  if (menuBtn && siteNav) {
+    /* Below 901px the header links are hidden and the drawer carries a copy of
+       them. A page with no sidebar gets a drawer that holds only the copy. */
+    var drawer = document.querySelector(".sidebar");
+    if (!drawer) {
+      drawer = document.createElement("div");
+      drawer.className = "sidebar sidebar--site";
+      body.appendChild(drawer);
+    }
+    var siteMenu = siteNav.cloneNode(true);
+    siteMenu.className = "site-menu";
+    drawer.insertBefore(siteMenu, drawer.firstChild);
+    drawer.id = "site-drawer";
+    menuBtn.setAttribute("aria-controls", drawer.id);
+
+    /* An element of its own, not a pseudo-element of body: iOS Safari sends no
+       click for a tap on body unless the tapped element has its own listener. */
+    var scrim = document.createElement("div");
+    scrim.className = "nav-scrim";
+    body.appendChild(scrim);
+
+    var narrow = window.matchMedia("(max-width: 900px)");
+    var isOpen = function () { return body.hasAttribute("data-nav-open"); };
+    var openNav = function () {
+      drawer.inert = false;
+      body.setAttribute("data-nav-open", "");
+      menuBtn.setAttribute("aria-expanded", "true");
+      siteMenu.querySelector("a").focus({ preventScroll: true });
+    };
+    var closeNav = function (restoreFocus) {
+      if (!isOpen()) return;
       body.removeAttribute("data-nav-open");
       menuBtn.setAttribute("aria-expanded", "false");
+      if (restoreFocus) menuBtn.focus({ preventScroll: true });
+      /* The drawer stays visible while it slides out, and Tab would land in it. */
+      if (narrow.matches) drawer.inert = true;
+    };
+
+    menuBtn.addEventListener("click", function () {
+      if (isOpen()) closeNav(true);
+      else openNav();
     });
+    scrim.addEventListener("click", function () { closeNav(true); });
+    drawer.addEventListener("click", function (e) {
+      if (e.target.closest("a")) closeNav(false);
+    });
+    document.addEventListener("click", function (e) {
+      if (e.target.closest("#site-drawer") || e.target.closest(".menu-btn")) return;
+      closeNav(false);
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") closeNav(true);
+    });
+    /* The page under the scrim takes no focus. On a page whose drawer ends the
+       document, Tab leaves the page first, so this watches where focus lands. */
+    document.addEventListener("focusin", function (e) {
+      if (!drawer.contains(e.target) && e.target !== menuBtn) closeNav(false);
+    });
+    /* The back button restores the page as it was left. */
+    window.addEventListener("pageshow", function () { closeNav(false); });
+    if (narrow.addEventListener) {
+      narrow.addEventListener("change", function (e) {
+        if (e.matches) return;
+        closeNav(false);
+        drawer.inert = false; /* above 900px this element is the page's sidebar */
+      });
+    }
   }
 
 
@@ -213,6 +285,9 @@
     searchInput.addEventListener("focus", loadIndex);
     searchInput.addEventListener("input", run);
     searchInput.addEventListener("keydown", function (e) {
+      /* An input method uses these keys to pick a candidate while it composes. Safari
+         reports the Enter that ends a composition only by its key code. */
+      if (e.isComposing || e.keyCode === 229) return;
       if (e.key === "ArrowDown") { e.preventDefault(); move(1); }
       else if (e.key === "ArrowUp") { e.preventDefault(); move(-1); }
       else if (e.key === "Enter") {

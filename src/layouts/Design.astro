@@ -36,24 +36,27 @@ const next = DESIGN_PAGES[idx + 1];
 >
   <slot name="head" slot="head" />
   <div class="layout layout--design">
-    <aside class="sidebar" aria-label={DESIGN_MENU_LABEL} lang={DESIGN_LANG} data-site-chrome>
-      {DESIGN_GROUPS.map((group) => (
-        <details class="nav-section" open data-current={group.pages.includes(current) ? "" : undefined}>
-          <summary>{group.group}</summary>
-          <ul class="nav-list">
-            {group.pages.map((item) => (
-              <li>
-                <a href={url(designPath(item.slug, lang))} aria-current={item === current ? "page" : undefined} style="--indent:0">{item.label}</a>
-                {item === current && sections.length > 0 && (
-                  <ul class="nav-list nav-list--sections">
-                    {sections.map((n) => <li><a href={`#${n.id}`} style="--indent:1">{n.label}</a></li>)}
-                  </ul>
-                )}
-              </li>
-            ))}
-          </ul>
-        </details>
-      ))}
+    <aside class="sidebar" aria-label={DESIGN_MENU_LABEL} data-site-chrome>
+      {/* Only the menu is English. The drawer puts the page's own site menu above it. */}
+      <div lang={DESIGN_LANG}>
+        {DESIGN_GROUPS.map((group) => (
+          <details class="nav-section" open data-current={group.pages.includes(current) ? "" : undefined}>
+            <summary>{group.group}</summary>
+            <ul class="nav-list">
+              {group.pages.map((item) => (
+                <li>
+                  <a href={url(designPath(item.slug, lang))} aria-current={item === current ? "page" : undefined} style="--indent:0">{item.label}</a>
+                  {item === current && sections.length > 0 && (
+                    <ul class="nav-list nav-list--sections">
+                      {sections.map((n) => <li><a href={`#${n.id}`} style="--indent:1">{n.label}</a></li>)}
+                    </ul>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </details>
+        ))}
+      </div>
     </aside>
     <main class="content" id="content" lang={current.translated ? undefined : DESIGN_LANG}>
       <header class="design-head">

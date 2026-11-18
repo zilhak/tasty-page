@@ -1,4 +1,4 @@
-<!-- source-hash: e7d1ef7df6c7 -->
+<!-- source-hash: fee848136b67 -->
 # Working with the terminal
 
 You can copy the output you need, search terminal history, and open file paths as you work. You can also select text without a mouse and receive notifications when work finishes.
@@ -9,7 +9,7 @@ The shortcuts below use the default **Tasty** preset. On macOS, read `Alt` as `C
 
 Set under **Settings** > **Terminal**.
 
-- **Shell** — the shell to run. On Windows, Tasty looks for the bash from Git for Windows and, if it is missing, tells you to specify the path yourself.
+- **Shell** — the shell to run. On Windows, Tasty runs only Git Bash (`bash.exe` from Git for Windows). An empty value uses Git Bash found in the default install locations. If it is installed elsewhere, enter its `bash.exe` path.
 - **Startup command** — one line entered at the start of every new terminal.
 - **Inherit working directory** — starts a new terminal in the current terminal's directory (on by default).
 - **Confirm close running process** — asks for confirmation when closing a terminal in which a program is running.
@@ -96,7 +96,11 @@ For example, run `printf '\033[2J\033[HABCDE\n'` in a shell to leave `ABCDE` at 
 
 Copy notices appear only after the clipboard accepts the write. If access is unavailable or a transfer fails, Tasty shows a notice and keeps your selection. With a selection, a failed Ctrl+C copy does not interrupt the program. A failed paste sends no input; an empty clipboard does nothing.
 
-On Linux, terminal copy and paste use X11 (through XWayland in a Wayland session). Native Wayland clipboard access is not supported. If X11 access is unavailable, Tasty tells you so.
+On Linux, terminal copy and paste use X11 when Tasty runs on X11. In a Wayland session with `DISPLAY` set and the X server reachable, they exchange content with other apps through XWayland. When Tasty runs on native Wayland because `DISPLAY` is unset or the X server cannot be reached, the terminal also supports copying and pasting text to and from other apps. If another app copied only an image without text, pasting saves it as a PNG file and inserts its path.
+
+On native Wayland, copying with `"*` in vi copy mode does not reach other apps. Copy with `"+` or without specifying a target instead. Explorer file copy, cut, and paste cannot use the OS file clipboard and use only the list kept in this Tasty.
+
+If the compositor does not support the clipboard, neither the terminal nor text fields can exchange content with other apps through copy and paste. In this case, copying and pasting in the terminal and copying and cutting in text fields show warning toasts with the cause and a remedy using XWayland. Copying with `"*` and Explorer file copy, cut, and paste also show warning toasts. See [Linux native Wayland troubleshooting](../help/troubleshooting.md#linux-native-wayland).
 
 ### Clipboard access by programs (OSC 52)
 
@@ -132,7 +136,7 @@ Right-click an underlined link to open a link menu.
 
 - **Select** — selects the whole link text.
 - **Copy** — copies the link text as shown on screen. If you assign a key to **Copy link** in the keybinding settings, the "Copied" notice shows that key on its right, and pressing it over a link copies without the menu. It has no default key.
-- **Open With…** — instead of opening right away, shows a list to choose which program opens it. `http(s)://` addresses can be chosen too; picking the HTML viewer, for example, opens the page in a Tasty tab instead of the browser. A path in a remotely attached terminal cannot be opened on this computer, so the list is empty.
+- **Open With…** — instead of opening right away, shows a list to choose which program opens it. `http(s)://` addresses can be chosen too; picking the HTML viewer, for example, opens the page in a Tasty tab instead of the browser. This list appears within the terminal surface where you opened the link. It opens separately on other surfaces. For a path in a remotely attached terminal, it lists only handlers that can open the file remotely. If none are available, a **Download and run** dialog opens.
 
 Even while a program that uses the mouse (vim · tmux and so on) is running, right-clicking a link shows this menu instead of going to that program. Right-clicking anywhere else works as before.
 
@@ -158,7 +162,7 @@ When a program that uses the mouse directly, such as vim (`:set mouse=a`) · hto
 - `Shift+drag` — select text. `Shift+double-click` selects a word.
 - `Shift+right-click` — Tasty's copy menu.
 - The banner closes by itself when the program ends. You can also close it right away with `×`.
-- In **More options**, which appears when you hover the banner, choose **Don't show again for {program}** or **Let Tasty handle clicks in {program}**. When Tasty handles the clicks, clicks over that program act as selection as usual and only the wheel goes to the program. When Tasty can't tell which program is running, such as in a terminal you view by attaching to a remote Tasty, both items are dimmed and can't be chosen. A note at the top of the menu says why.
+- In **More options**, which appears when you hover the banner, choose **Don't show again for {program}** or **Let Tasty handle clicks in {program}**. When Tasty handles the clicks, clicks over that program act as selection as usual and only the wheel goes to the program. When Tasty can't tell which program is running, such as in a terminal you view by attaching to a remote Tasty, both items are dimmed and can't be chosen. A note at the top of the menu says why. This menu opens within the surface containing the banner. This menu opens separately for each surface.
 
 The same items are under **Settings** > **Terminal** > **Mouse Capture** — the **Show mouse-capture hint** toggle, the **Let Tasty handle clicks in these programs** list, and the **Don't show the capture notice for these programs** list. Names match partially and take wildcards such as `ht*`.
 

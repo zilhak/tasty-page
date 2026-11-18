@@ -8,7 +8,7 @@ A design system for **Tasty** — a cross-platform, GPU-accelerated terminal emu
 
 ## The form kept here
 
-The files are in their final form as they stand. Tier 1 values live in `tokens/primitives.css` itself, which does not import `tokens.css`; `tokens.css` holds the same values. The D2Coding web font (`tokens/fonts.css` and the font files) is not kept, so `styles.css` falls back to the system sans and the mono fallback stack. Icons carry no provenance metadata (C2PA). Token comments do not cite working notes. There is no prebuilt component bundle or per-component preview page: the site imports `components/**/*.jsx` directly, so every `.jsx` here is an ES module.
+The files are in their final form as they stand. Tier 1 values live in `tokens/primitives.css` itself, which does not import `tokens.css`; `tokens.css` holds the same values. The D2Coding font files are not kept in this folder, so `styles.css` alone falls back to the system sans and the mono fallback stack. The site keeps them with their license at `/fonts/` and draws gallery specimens in them. Icons carry no provenance metadata (C2PA). Token comments do not cite working notes. There is no prebuilt component bundle or per-component preview page: the site imports `components/**/*.jsx` directly, so every `.jsx` here is an ES module.
 
 ---
 
@@ -19,7 +19,7 @@ Everything here is lifted from the product's own code, not guessed. Explore thes
 - **GitHub:** [`github.com/zilhak/tasty`](https://github.com/zilhak/tasty) — Rust workspace (winit + wgpu + egui + termwiz).
   - `crates/tasty-themes/themes/{mocha,latte}.toml` — the exact color palettes reproduced as primitives in `tokens.css`.
   - `crates/tasty-type-appearance/src/theme.rs` — `SIZING` constants (spacing, radius, item heights, font caps) reproduced across `tokens.css` + `tokens/semantic.css`, plus `derive_overlays()` (hover/active/separator).
-  - [`docs/design/systems/theme.md`](https://github.com/zilhak/tasty/blob/main/docs/design/systems/theme.md), [`CLAUDE.md`](https://github.com/zilhak/tasty/blob/main/CLAUDE.md) — the UI design rules (4px grid, 14px cap, 1px border, overlays, 0ms terminal motion).
+  - [`docs/design/systems/theme.md`](https://github.com/zilhak/tasty/blob/develop/docs/design/systems/theme.md), [`CLAUDE.md`](https://github.com/zilhak/tasty/blob/develop/CLAUDE.md) — the UI design rules (4px grid, 14px cap, 1px border, overlays, 0ms terminal motion).
   - `lang/en.toml` — UI copy, the source for the tone notes below.
   - `assets/icons/` — the watermelon app icon.
 - **Fonts:** `D2Coding` (ligature build) — Tasty's default terminal/code typeface. The font files are not kept in this folder (see "The form kept here").
@@ -37,7 +37,7 @@ An agent's side effects never touch the user's focus, history, or selection; eve
 
 **Object model (ubiquitous language):** Window › Workspace › Tab › Pane › **Surface**. A surface has a *kind* — `terminal`, `markdown`, `explorer`, `html`, `image`, or a plugin-defined kind. Modal / Popup / Toast are distinct UI layers.
 
-**Signature features:** multi-agent orchestration (`agent.task_*` DAGs, barrier/semaphore/lease/rate-limit), headless operation (`--headless`), vi copy mode, a Plugin SDK with a permission system, shared context (Blackboard / Plan / Cache), OSC-133 command indexing, output observers, telemetry + token cost caps, and a fully user-rebindable keybinding system.
+**Signature features:** multi-agent orchestration (`agent.task_*` DAGs, barrier/semaphore/lease/rate-limit), headless operation (`--headless`), vi copy mode, a Plugin SDK, shared context (Blackboard / Plan / Cache), OSC-133 command indexing, output observers, telemetry + token cost caps, and a fully user-rebindable keybinding system.
 
 ---
 
@@ -81,7 +81,7 @@ How Tasty writes. Match this voice in any copy you produce.
 - **In the repo:** Tasty ships only a handful of raster/SVG marks (the watermelon app icon `assets/icons/icon_*.png`, plus `chevron-left/right.svg`). It does **not** bundle a large icon font; egui draws most affordances as simple vector paths.
 - **In this system:** the canonical glyph set lives in **`icons/<name>.svg`** (one 24×24 viewBox, 2px stroke, round cap/join, `currentColor`), with `icons.json` as its manifest and `gallery/icons/index.jsx` as its catalog. UI renders a glyph **by name** through the `Icon` component (`components/core/Icon.jsx`) — never an inline `<svg>` or `<img src=".svg">`. **⚠ Substitution flagged** — the set is designed here in a Lucide-like 2px style; it is not extracted from the product's egui draw code.
 - **Unicode as glyphs:** Tasty uses bare unicode for some affordances — `❯` prompt, `◑` theme, `✓ ✗ ⚠` status, `+ −` toggles, `↑ ↓ ↵` palette hints. Reuse these rather than inventing icons for them.
-- **Logo:** a watermelon slice (coral-red flesh `#f25d6b`, deep-green rind `#1e7d4f`, dark seeds) — the single playful brand element. Pair with the lowercase monospace wordmark `tasty.` (the `.` in flesh red). Assets in [`assets/icons/`](https://github.com/zilhak/tasty/tree/main/assets/icons) of the Tasty repository.
+- **Logo:** a watermelon slice (coral-red flesh `#f25d6b`, deep-green rind `#1e7d4f`, dark seeds) — the single playful brand element. Pair with the lowercase monospace wordmark `tasty.` (the `.` in flesh red). Assets in [`assets/icons/`](https://github.com/zilhak/tasty/tree/develop/assets/icons) of the Tasty repository.
 - **No emoji as UI icons.**
 
 ---
@@ -131,4 +131,4 @@ How Tasty writes. Match this voice in any copy you produce.
 ## Caveats
 
 - **Icons are a flagged substitution** — the `icons/` set is designed here (Lucide-like 2px line style) and stands in for Tasty's egui-drawn affordances. The product side should adopt it as-is or map each name to its own asset.
-- **UI sans is a system stack** — Tasty's UI font is whatever egui renders natively; this system uses the platform sans rather than a bundled webfont. D2Coding (the mono) is the brand font, but its files are not kept in this folder.
+- **UI sans is a system stack** — Tasty's UI font is whatever egui renders natively; this system uses the platform sans rather than a bundled webfont. D2Coding (the mono) is the brand font. Its files are not kept in this folder, and on the site only gallery specimens draw in them.

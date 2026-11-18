@@ -71,6 +71,7 @@
   font-size: 12px;
   letter-spacing: 0.04em;
   color: var(--tasty-text-muted);
+  margin-bottom: var(--sp-4); /* with the hero gap: 32px from the badge to the title */
 }
 .hero__eyebrow .dot {
   width: 7px;
@@ -78,18 +79,6 @@
   border-radius: 999px;
   background: var(--tasty-site-eyebrow-dot);
 }
-
-.hero__tagline {
-  margin: 0;
-  font-size: 1.05rem;
-  color: var(--tasty-text-secondary);
-}
-.wordmark {
-  font-family: var(--font-mono);
-  font-weight: 700;
-  color: var(--tasty-text-primary);
-}
-.wordmark b { color: var(--tasty-site-wordmark-dot); }
 
 .hero h1 {
   margin: 0;
@@ -300,6 +289,7 @@
 @media (max-width: 900px) {
   .section { padding: var(--sp-16) 0; }
   .hero { padding: var(--sp-12) 0 var(--sp-10); }
+  .hero__eyebrow { margin-bottom: var(--sp-2); } /* 24px to the title */
   .split, .split--rev > :first-child { grid-template-columns: minmax(0, 1fr); order: 0; }
   .split { gap: var(--sp-8); }
 }

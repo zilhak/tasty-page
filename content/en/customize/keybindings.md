@@ -1,7 +1,9 @@
-<!-- source-hash: 97f6d0525a11 -->
+<!-- source-hash: 92b91678f657 -->
 # Keybindings
 
 Tasty’s keybindings can be changed with a preset or by assigning preferred key combinations to frequently used actions. Keybindings are available in **Settings** > **Keybindings**.
+
+In an HTML or Markdown page, built-in shortcuts for closing, renaming or switching Tabs, zooming, switching Workspaces by number, going to the next or previous Workspace, and going to the next or previous category target the Tab, Pane and Workspace containing that page. For example, pressing `F2` in an HTML page renames that HTML Tab, rather than an Explorer item.
 
 ## Notation
 
@@ -89,13 +91,11 @@ Category keybindings work only when **Settings** > **General** > **Workspace cat
 | Show or hide hidden files (explorer) | `Ctrl+Shift+.` · `Alt+Shift+.` | `Ctrl+Shift+.` · `Cmd+Shift+.` |
 | Zoom in · zoom out · reset zoom | `Ctrl+=` · `Ctrl+-` · `Ctrl+0` (`Alt` also works) | `Ctrl+=` · `Ctrl+-` · `Ctrl+0` (`Cmd` also works) |
 
-**Refresh** asks the surface you are looking at to refresh. Markdown re-reads its file (or the original on the remote), the explorer re-reads its folder, and a terminal does nothing. Even when it shares a key with the explorer's own Refresh, the folder is read once. Over a Markdown or HTML page, the only keys without modifiers it takes are function keys such as `F5`; if you assign a letter such as `R`, that page keeps it as typing. If the Refresh key is also assigned to an editing key such as Copy or Paste, a web page, the input fields in it and the HTML address field run only that edit and do not refresh. While you type in the HTML address field, **Focus the address bar** also comes before Refresh on a shared key. While Refresh has `F5`, programs inside a terminal (mc, htop and so on) do not receive `F5`. To use `F5` in a terminal program, clear this Refresh key or change it under **Settings** > **Keybindings** > **Surface**.
+**Refresh** asks the surface you are looking at to refresh. Markdown re-reads its file (or the original on the remote), the explorer re-reads its folder, and a terminal does nothing. Even when it shares a key with the explorer's own Refresh, the folder is read once. On Windows and Linux, shortcuts without modifiers that use function keys such as `F2` also work in Markdown and HTML views. On Windows and Linux, if you assign a letter key without modifiers, such as `R`, to Refresh, Tasty also takes that key in web views, so the letter is not entered. The key input in the settings screen does not accept letters without modifiers, so these bindings can only be created in `~/.tasty/config.toml`. Keys and letters that are not assigned to shortcuts are entered in the page as usual. If the Refresh key is also assigned to an editing key such as Copy or Paste, a web page, the input fields in it and the HTML address field run only that edit and do not refresh. While you type in the HTML address field, **Focus the address bar** also comes before Refresh on a shared key. While Refresh has `F5`, programs inside a terminal (mc, htop and so on) do not receive `F5`. To use `F5` in a terminal program, clear this Refresh key or change it under **Settings** > **Keybindings** > **Surface**.
 
 `Ctrl+C` copies when there is selected text; otherwise it interrupts the running program as usual.
 
-The copy, cut, paste and select-all keys also work in the body of Markdown and HTML views, in their input fields, and in the HTML address bar. They act only where the focus is. In an input field, select all picks just that field's text; in the body it picks the whole document. Read-only fields and the body do not change on cut or paste. On Windows and Linux, editing keys that web views and input fields already know, such as `Ctrl+C` and `Ctrl+V`, keep working even if you remove them here. A key you add here, such as `Alt+C`, runs the same edit once. Copy or cut with nothing selected leaves the clipboard as it was. Undo and redo in web pages can be changed separately from the explorer; on Mac, removing them also turns off `Cmd+Z` in web pages. If a plugin command uses the same key, the edit comes first in web pages. Word movement uses the default keys of the web view and the input field. On Linux, if too many edit requests pile up while a page is not responding, the edit keys can stop working in that view. Typing still works; close the view and open it again to get the edit keys back.
-
-On Windows, while a Markdown or HTML view has keyboard focus, a shortcut assigned to a letter, digit or symbol key pressed without `Ctrl` or `Alt` (with or without `Shift`) is not received, and the key is typed into the view. For shortcuts that should also work in web views, use a combination with `Ctrl` or `Alt`, or a non-character key such as `F5`.
+The copy, cut, paste and select-all keys also work in the body of Markdown and HTML views, in their input fields, and in the HTML address bar. They act only where the focus is. In an input field, select all picks just that field's text; in the body it picks the whole document. Read-only fields and the body do not change on cut or paste. On Windows and Linux, `Ctrl+C`, `Ctrl+X`, `Ctrl+V` and `Ctrl+A` run as Tasty commands in web views when assigned as shortcuts. Removing them from the shortcut settings restores the web view’s default behavior. On Windows and Linux, other editing keys assigned as shortcuts besides `Ctrl+C`, `Ctrl+X`, `Ctrl+V` and `Ctrl+A`, including default keys such as `Alt+C` and keys you add yourself, also run the same edit in web views. On Linux, assigned `Ctrl+C` and `Ctrl+X` are passed to the page when nothing is selected. Undo and redo in web pages can be changed separately from the explorer; on Mac, removing them also turns off `Cmd+Z` in web pages. If a plugin command uses the same key, the edit comes first in web pages. Word movement uses the default keys of the web view and the input field. On Linux, if too many edit requests pile up while a page is not responding, the edit keys can stop working in that view. Typing still works; close the view and open it again to get the edit keys back.
 
 **Copy link** has no default key. Once you assign one, hover a terminal link and press it to copy the link text right away. It does not appear in the command palette.
 
@@ -210,6 +210,8 @@ Recording rules:
 
 In the **Plugins** sub-tab, pick a plugin from the **Plugin:** drop-down at the top. Each of its commands gets one line.
 
+Plugin command shortcuts remain available while a mirror waits for a new Tab or split, and their keys are not passed to the terminal or another action. While a mirror waits for a new Tab to be created, built-in actions that target a single Tab, such as Search and Refresh, run in order in the new Tab after it is created. Copy, Cut and Paste are excluded; actions unsupported by the new Tab type do not run, and all held actions are discarded if creation fails or is cancelled. The Explorer keys for Move between items, extend the selection, Open the selected item and clear the selection are also excluded. See the [remote guide](../remote/attach.md#what-you-can-do-inside-a-mirror) for where popups open and what happens if creation fails.
+
 - **Inherit** in the mode drop-down follows the key of one Tasty action (for example `clipboard.paste`). The key it follows right now is shown under the line.
 - **Custom** records the key the same way as the other subtabs. Click the key button and press the combination; use `+` to add another one. Pressing `Esc` while recording removes that key, and removing every key leaves the command without a shortcut. Changing the plugin or the mode, or pressing **Reset**, while recording cancels the recording. With many keys or a narrow window, the key buttons and **Reset** continue on the next line, and every key stays visible.
 - If a hand-edited settings file holds a key that can never match any input (for example `ctrl+shft+h`), that key's button shows the text as written with an error border, and **Unrecognized key:** appears under the row. That key will not run the command.
@@ -236,6 +238,8 @@ While a popup that takes input — the search bar, the file picker, the command 
 focus, keybindings are paused.** This prevents a shortcut such as `Alt+W` from closing a surface while you type into the search bar. If such a popup is merely open and does not
 have focus, keybindings work as usual.
 
+Tasty notice popups, such as startup errors, and the **Transfer failed** and **Download failed** popups for remote files do not close with `Enter` or `Esc` when they lack focus. Click the popup or give it focus before using these keys.
+
 To return to terminal controls, use either of these actions.
 
 - **`Esc`** — releases the focused popup. Popups of the kind that close when you click outside
@@ -249,6 +253,10 @@ While the settings window or the notification panel is open, `Esc` closes that o
 
 - **Modifier key hints** — Hold `Ctrl` · `Alt` · `Shift` and the like for 0.5 seconds or longer (Shift alone: 1.2 seconds) and a list of keybindings starting with that combination appears below the sidebar. It disappears when you let go. On Windows and Linux, `Win` and `Super` show the list only when at least one keybinding uses that key. Turn it off with **Settings** > **General** > **Accessibility** > **Show modifier key hints**; the panel can be dragged around or resized.
 - **Command palette** — `Ctrl+Shift+P` or the palette shortcut keycap on the right of the status bar. Type an action's name and run it with `Enter`. The actions in the Keybindings tab and the global commands of active plugins are searchable. Left out are the command palette itself, **Exit fullscreen stage**, **Copy link** (its target is the link under the mouse), the code field keys, and the Explorer keys for moving between items, extending the selection, opening and clearing the selection (the Explorer's rename and move to trash are included). Script keybindings don't appear in the palette either. The query field keeps a distinct background and border when unfocused, and shows a focus border while you type.
+
+When you choose an action that targets a single Tab from the command palette, such as Search, Refresh, Convert Surface type, vi copy mode or an Explorer action, it runs in the Tab selected when you press `Enter`. Actions that the Tab type does not support do not run.
+
+Closing, renaming or moving a Tab, applying presets, and Copy, Cut and Paste also target the Surface, Tab, Pane and Workspace selected when you press `Enter`. A new Workspace is created in the category of the Workspace selected at that time. If the target closes before execution, the command does not run or switch to another target. Pane and Surface splits, restoring closed items, opening the Explorer, and opening Markdown in a new Tab use the focus at execution time instead. If focus changes after `Enter`, those commands apply at the new location.
 
 ## Editing the settings file directly
 

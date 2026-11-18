@@ -152,6 +152,9 @@
                             "Noto Sans", "Helvetica Neue", Arial, sans-serif;
   --tasty-font-family-mono: "D2Coding", "SF Mono", "Cascadia Code",
                             "JetBrains Mono", ui-monospace, "Menlo", "Consolas", monospace;
+  /* The same names without D2Coding and without the generic family, in the same order. For a place that
+     must not draw in D2Coding, and so that a language's own font names can come before the generic family. */
+  --tasty-font-family-mono-system: "SF Mono", "Cascadia Code", "JetBrains Mono", ui-monospace, "Menlo", "Consolas";
 
   /* ── Type size scale (value = px) ─────────────────────────── */
   --tasty-font-size-10: 10px;  /* sub-caption micro-labels (kbd, badge, meta) */

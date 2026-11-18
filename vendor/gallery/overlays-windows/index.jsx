@@ -11,11 +11,13 @@ import { AnomalySection as OverlaysWindowsAnomaly_AnomalySection } from "./setti
 import { KbPluginsRecordSpec as OverlaysWindowsB12_KbPluginsRecordSpec } from "./kb-plugin-records.jsx";
 import { SettingsNarrowSection as OverlaysWindowsB12_SettingsNarrowSection } from "./settings-narrow.jsx";
 import { OptionKeySection as OverlaysWindowsB12_OptionKeySection } from "./option-key.jsx";
+import { AltKeySection as OverlaysWindowsR56_AltKeySection } from "./alt-key.jsx";
 import { FileHandlerSection as OverlaysWindowsFileHandlers_FileHandlerSection } from "./file-handlers.jsx";
 import { PerfSection as OverlaysWindowsPerf_PerfSection } from "./settings-performance.jsx";
 import { FontOverrideG, FontFileRejectedSpec, FontToastSpec, FontFamilyRejectedSpec } from "./settings-font.jsx";
 import { TrustBox2 as OverlaysWindowsPluginTrust_TrustBox2, PluginTrustSpecs as OverlaysWindowsPluginTrust_PluginTrustSpecs } from "./plugin-trust.jsx";
 import { Section as PresetEditor_Section } from "./preset-editor.jsx";
+import { CaptureRegionSection } from "./capture-region.jsx";
 import { Section, Spec, Stage, Meta, Note, Do, Dont } from "../parts/specimen.jsx";
 
 // Tasty Gallery — Overlays · Windows (large modal surfaces)
@@ -46,43 +48,21 @@ function FpLineG({ value }) {
     </div>
   );
 }
-function AddBarG({ blocked, trusted = true, perms = 3 }) {
-  // 2026-10-06: "unsigned-no-key" → "missing-pubkey" (the state IS signed; only the .pub is missing / unreadable)
-  const why = { installed: "Already installed", "missing-pubkey": "Signed, but the publisher's public key file is missing", "signature-error": "Signature check failed" }[blocked];
-  const grants = perms === 0 ? "No permissions" : perms === 1 ? "Grants 1 permission" : "Grants " + perms + " permissions";
+function AddBarG({ blocked }) {
+  // 2026-11-17 (plugin permissions removed): the left holds only a blocked reason; otherwise it is empty.
+  // Untrusted verdicts and their danger "Add anyway" bar live in plugin-trust.jsx (Unverified plugin spec).
+  const why = { installed: "Already installed" }[blocked];
   return (
     <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-size-14)", borderTop: "var(--tasty-border-width) solid var(--tasty-separator)", background: "var(--tasty-bg-panel)" }}>
-      <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{why || grants}</span>
-      <div style={{ flex: 1 }} />
+      {why ? <span style={{ flex: "1 1 auto", minWidth: 0, fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{why}</span> : <div style={{ flex: 1 }} />}
       <Button variant="ghost">Cancel</Button>
-      {blocked ? <Button variant="primary" disabled>Add plugin</Button> : trusted ? <Button variant="primary">Add plugin</Button> : <Button variant="primary">Trust &amp; add</Button>}
+      <Button variant="primary" disabled={!!blocked}>Add plugin</Button>
     </div>
   );
 }
-// 2026-10-06 static specimen of plugins_window.jsx TrustBox (same copy + recipe)
-const TRUST_G = {
-  "unknown-key":         ["warning", "alertTriangle", "Unverified publisher", "This plugin isn't signed by a key in your trust store. It runs with the permissions above on every launch — review them, and only add plugins from sources you trust. Adding it also trusts this key."],
-  "permissions-changed": ["warning", "alertTriangle", "Permissions changed", "This publisher is trusted, but this version asks for permissions the trusted version did not have. Review the list above; adding it trusts the new set."],
-  "missing-pubkey":      ["danger", "alertCircle", "Public key file missing", "The manifest is signed by a key that isn't in your trust store, and tasty-plugin.toml.pub is missing or unreadable, so the key can't be added. Ask the publisher for this public key file."],
-  "signature-error":     ["danger", "alertCircle", "Signature check failed", "The signature could not be verified. The plugin can't be added until the publisher ships a valid signature."],
-};
+// 2026-10-19: the trust box is one copy in plugin-trust.jsx (TrustBox2); this name stays for the specs below.
 function TrustBoxG({ kind }) {
-  // 2026-10-19: the trust box moved to the unverified-warning recipe — one copy in overlays-windows-plugin-trust.jsx
-  if (true) return <OverlaysWindowsPluginTrust_TrustBox2 kind={kind} />;
-  const [tone, glyph, title, body] = kind === "trusted" ? ["success"] : TRUST_G[kind];
-  const acc = "var(--tasty-accent-" + tone + ")";
-  const box = { display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-size-14)", borderRadius: "var(--tasty-radius)", color: "var(--tasty-text-secondary)",
-    background: "color-mix(in srgb, " + acc + " calc(var(--tasty-tint-fill-alpha) * 100%), transparent)", border: "var(--tasty-border-width) solid color-mix(in srgb, " + acc + " calc(var(--tasty-tint-border-alpha) * 100%), transparent)" };
-  if (kind === "trusted") return (
-    <div style={{ ...box, flexDirection: "row", alignItems: "center", color: acc, fontSize: "var(--tasty-font-size-term-sm)" }}><WIcon name="shieldCheck" size={16} /><span>Signed by a <b>trusted publisher</b> — its key is in your trust store.</span></div>
-  );
-  return (
-    <div style={box}>
-      <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", color: acc, fontSize: 13, fontWeight: 600 }}><WIcon name={glyph} size={16} /><span>{title}</span></div>
-      <p style={{ margin: 0, fontSize: "var(--tasty-font-size-term-sm)", lineHeight: "var(--tasty-line-height-ui)" }}>{body}</p>
-      {kind !== "signature-error" && <FpLineG value="9f2c 4ad1 b770 e3a6  ·  ed25519" />}
-    </div>
-  );
+  return <OverlaysWindowsPluginTrust_TrustBox2 kind={kind} />;
 }
 function ExtMapG({ draft = "", detectors = true, custom = false, missing = false, long = false, pendingRemove = false, pendingReset = false }) {
   // 2026-10-06 (b2) — pending (draft) state: the button that changed the draft becomes Undo in the same slot,
@@ -227,13 +207,15 @@ const NAV = [
   { id: "perfapply", label: "Terminal › Performance — apply note" },
   { id: "permissions", label: "General › Permissions (macOS)" },
   { id: "kbimportexport", label: "Keybindings · Import / Export" },
-  { id: "optionkey", label: "Win · Super as option (b12)" },
+  { id: "optionkey", label: "Win · Super as extra (b12)" },
+  { id: "altkey", label: "Alt key (macOS) · link click keys" },
   { id: "pluginswindow", label: "Plugins window · avatar · disabled sites" },
   { id: "scripts", label: "Misc · Scripts" },
   { id: "anomaly", label: "Misc · Anomaly detection" },
   { id: "gitviewer", label: "Git viewer" },
   { id: "clipboard", label: "Clipboard viewer" },
   { id: "notifications", label: "Notifications" },
+  { id: "captureregion", label: "Capture region select" },
   { id: "moveresize", label: "Move & resize" },
 ];
 
@@ -865,9 +847,10 @@ function Page() {
           when={<>Sidebar workspaces-header / new-workspace(<span className="ic">+</span>) right click → <b>Add remote workspace</b>. A <b>680×460</b> modal in the <b>remote_tool</b> language (Scrim · content-drawn header · <span className="tok">--tasty-bg-panel</span> frame). It <b>consumes</b> the <b>tasty-attach</b> profiles registered on remote_tool's Attach tab — it never edits them. <b>Left (240px)</b>: the attach-profile list, single select, with an <b>inactive</b> badge on profiles whose last detection failed. <b>Right</b>: the selected profile's remote workspaces. <b>Footer</b>: <b>Connect</b> (primary, enabled <i>only</i> when a selectable remote workspace is chosen) · <b>Cancel</b> (ghost, always enabled — closes, aborting any in-flight connect).</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)" }}><RemoteAttachFrame state="loaded" /></Stage>
           <Meta
-            specs={[["frame", "680 × 460"], ["left", "240px attach-profile list (single select)"], ["right", "remote workspaces — 4 states"], ["ws row", "dot · name · panes · busy / in-use"], ["connect", "enabled only with a selectable ws"], ["cancel", "always enabled · aborts connect"], ["dismiss", <>×/Cancel/<span className="ic">Esc</span></>]]}
+            specs={[["frame", "680 × 460"], ["left", "240px attach-profile list (single select)"], ["right", "remote workspaces — 4 states"], ["ws row", "dot · name · panes · busy / in-use / mirror"], ["mirror (chain)", "a remote workspace that is itself a mirror of another machine: shown, not selectable, name text-muted, idle dot, neutral Tag remote glyph + mirror, tooltip remote.row.reason.chain"], ["connect", "enabled only with a selectable ws"], ["cancel", "always enabled · aborts connect"], ["dismiss", <>×/Cancel/<span className="ic">Esc</span></>]]}
             tokens={[{ tok: "--tasty-bg-panel", use: "frame", color: "var(--tasty-bg-panel)" }, { tok: "--tasty-bg-sidebar", use: "left pane", color: "var(--tasty-bg-sidebar)" }, { tok: "--tasty-surface-active", use: "selected row", color: "var(--tasty-surface-active)" }, { tok: "--tasty-accent-primary", use: "selected bar · Connect", color: "var(--tasty-accent-primary-raised)" }, { tok: "--tasty-accent-attached", use: "in-use (claimed elsewhere)", color: "var(--tasty-accent-attached)" }, { tok: "--tasty-accent-success", use: "busy dot", color: "var(--tasty-accent-success-raised)" }]} />
           <Do><b>Do</b> block selection of a remote workspace already <b>attached on another client</b> (lavender <span className="ic">in use</span> badge, dot dimmed) — mirror it there, not twice. This is the same <span className="tok">--tasty-accent-attached</span> axis as the sidebar attached ring.</Do>
+          <Do><b>Do</b> keep a remote workspace that is <b>itself a mirror</b> of another machine in the list, disabled, with a neutral <span className="ic">mirror</span> Tag and the reason in its tooltip (R-58: a mirror cannot be mirrored again, and the server refuses it). Hiding it would leave you looking for a workspace you can see on the other machine. Neutral, not warning: nothing is wrong, it is just not a target.</Do>
           <Note>The right pane runs four states off the left selection: <b>initial</b> (nothing picked — placeholder), <b>connecting</b> (Spinner — SSH tunnel + list can take seconds), <b>error</b> (danger glyph + reason + <b>Retry</b>), and <b>loaded</b> (the workspace list, or a muted “no workspaces” empty when the remote is reachable but idle).</Note>
         </Spec>
         <Spec id="right-pane-states-initial-connecting-error-empty" title="Right-pane states — initial · connecting · error · empty"
@@ -1175,10 +1158,12 @@ function Page() {
           <Note>The unit is a static mono <b>MiB</b> suffix outside the field — not typed, not a Tag — mirroring how Toast duration carries its “s” unit. Exceeding <b>Maximum size</b> rejects new transfers before they start; the rejection surfaces as the <b>Transfer failed</b> popup (Overlays › Dialogs › Remote transfer).</Note>
         </Spec>
         <Spec id="settings-general-remote-attach-connections" title="Settings · General › Remote attach — 6th L2 subtab"
-          when={<>The <b>General</b> L1 tab gains a sixth L2 section, <b>Remote attach</b> (after Remote transfer, before the macOS-only subtabs), holding one row under an <b>Attach connections</b> heading. A section filter that matches L2 labels finds it by “remote” or “attach”, and “transfer” still finds Remote transfer. The row sets how long an attach connection can receive nothing before it disconnects: whole seconds, default 30, range 10 to 600. The caption carries when a saved value applies. Typing never corrects the value. While the typed number is out of range the field takes the <b>invalid</b> edge and one line under it names the range and the value to save. <span className="ic">Enter</span> or leaving the field commits and clamps, and a non-number returns to the last committed value. The first two frames are live.</>}>
+          when={<>The <b>General</b> L1 tab gains a sixth L2 section, <b>Remote attach</b> (after Remote transfer, before the macOS-only subtabs), holding one row under an <b>Attach connections</b> heading. A section filter that matches L2 labels finds it by “remote” or “attach”, and “transfer” still finds Remote transfer. The row sets how long an attach connection can receive nothing before it disconnects: whole seconds, default 30, range 10 to 600. The caption carries when a saved value applies. A second row, <b>Keep reconnecting for</b> (R-58), sits under it: how long a dropped connection keeps retrying, counted from the moment the first row ends it — whole seconds, default 300, range 0 to 3600, and 0 turns automatic reconnecting off, so 0 is a valid value, not an error. It applies to <b>saved remote rows</b> only: an agent mirror made from the CLI or IPC does not reconnect and is closed as soon as it drops (R-58 decision 23-4). The caption does not name the scope. This row is the R-58 target: the app has no such setting today, and only a mapped auto-attach session retries, a fixed 20 attempts. The two labels split the timeline: the first is the time to notice the loss, the second the time spent getting back; each caption says so. Typing never corrects the value. While the typed number is out of range the field takes the <b>invalid</b> edge and one line under it names the range and the value to save. <span className="ic">Enter</span> or leaving the field commits and clamps, and a non-number returns to the last committed value. The first two frames are live.</>}>
           {attachStage(<>
             {ATTACH_THEMES.map(([l, t]) => <AttachFrame key={"rest" + l} theme={t} label={l + " · rest · 30 · live"}><AttachConnectionsSection /></AttachFrame>)}
             {ATTACH_THEMES.map(([l, t]) => <AttachFrame key={"low" + l} theme={t} label={l + " · 5 typed · saves 10"}><AttachConnectionsSection text="5" focused /></AttachFrame>)}
+            {ATTACH_THEMES.map(([l, t]) => <AttachFrame key={"rc0" + l} theme={t} label={l + " · reconnect 0 typed · off, valid"}><AttachConnectionsSection reconnectText="0" reconnectFocused /></AttachFrame>)}
+            {ATTACH_THEMES.map(([l, t]) => <AttachFrame key={"rcHigh" + l} theme={t} label={l + " · reconnect 5000 typed · saves 3600"}><AttachConnectionsSection reconnectText="5000" reconnectFocused /></AttachFrame>)}
             {ATTACH_THEMES.map(([l, t]) => <AttachFrame key={"high" + l} theme={t} label={l + " · 1000 typed · saves 600"}><AttachConnectionsSection text="1000" focused /></AttachFrame>)}
             <AttachFrame theme="mocha" label="Mocha · ko · rest"><AttachConnectionsSection lang="ko" /></AttachFrame>
             <AttachFrame theme="latte" label="Latte · ko · 5 typed"><AttachConnectionsSection lang="ko" text="5" focused /></AttachFrame>
@@ -1190,13 +1175,13 @@ function Page() {
           <Stage variant="solo center"><Backdrop height={420}><SettingsRemoteAttachFrame /></Backdrop></Stage>
           <Stage variant="solo center"><Backdrop height={420}><SettingsRemoteAttachFrame attachText="5" /></Backdrop></Stage>
           <Meta
-            specs={[["L2 position", "6th, after Remote transfer. macOS Display and Permissions follow"], ["content inset", "--tasty-space-lg"], ["heading → row", "--tasty-settings-row-gap"], ["row → caption", "--tasty-settings-row-caption-gap"], ["row height", "--tasty-settings-row-min-height"], ["label column", "--tasty-settings-label-width"], ["label → field", "--tasty-settings-label-gap"], ["field floor", "--tasty-number-field-min-width"], ["field → unit", "--tasty-number-field-unit-gap"], ["caption and range line width", "--tasty-measure-md"], ["stacked gap", "--tasty-settings-row-stack-gap"], ["value", "mono, right aligned, grows with its length"], ["unit", "mono caption, outside the field"], ["bounds", "10 to 600 s, default 30"]]}
+            specs={[["rows", "Disconnect after (10–600, default 30) · Keep reconnecting for (0–3600, default 300, 0 = off) — same row grid, same number field"], ["reconnect scope", "R-58 target: saved remote rows only · an agent mirror is closed when it drops, with no reconnect · today: no setting, a mapped auto-attach session retries a fixed 20 attempts"], ["L2 position", "6th, after Remote transfer. macOS Display and Permissions follow"], ["content inset", "--tasty-space-lg"], ["heading → row", "--tasty-settings-row-gap"], ["row → caption", "--tasty-settings-row-caption-gap"], ["row height", "--tasty-settings-row-min-height"], ["label column", "--tasty-settings-label-width"], ["label → field", "--tasty-settings-label-gap"], ["field floor", "--tasty-number-field-min-width"], ["field → unit", "--tasty-number-field-unit-gap"], ["caption and range line width", "--tasty-measure-md"], ["stacked gap", "--tasty-settings-row-stack-gap"], ["value", "mono, right aligned, grows with its length"], ["unit", "mono caption, outside the field"], ["bounds", "10 to 600 s, default 30"]]}
             tokens={[{ tok: "--tasty-text-muted", use: "section heading, unit, caption", color: "var(--tasty-text-muted)" }, { tok: "--tasty-text-secondary", use: "row label", color: "var(--tasty-text-secondary)" }, { tok: "--tasty-accent-danger-raised", use: "range line", color: "var(--tasty-accent-danger-raised)" }, { tok: "--tasty-input-border-invalid", use: "invalid field edge", color: "var(--tasty-input-border-invalid)" }, { tok: "--tasty-font-size-micro", use: "section heading" }, { tok: "--tasty-letter-spacing-caps", use: "section heading" }, { tok: "--tasty-font-size-body", use: "row label" }, { tok: "--tasty-font-size-caption", use: "unit, caption, range line" }, { tok: "--tasty-line-height-ui", use: "label, caption, range line" }]} />
-          <Note><b>Copy.</b> The new tab label is <code>Remote attach</code>, ko <code>원격 Attach</code>, ja <code>リモートアタッチ</code>. The <code>Remote transfer</code> label stays as it is. The range line is <code>settings.number.range_between</code>, and the unit is <code>settings.number.unit_s</code> in every language. No token was added.</Note>
+          <Note><b>Copy.</b> The new tab label is <code>Remote attach</code>, ko <code>원격 Attach</code>, ja <code>リモートアタッチ</code>. The <code>Remote transfer</code> label stays as it is. The range line is <code>settings.number.range_between</code>, and the unit is <code>settings.number.unit_s</code> in every language. No token was added. The second row is <code>settings.remote_attach.reconnect_window</code> with <code>reconnect_window_desc</code> (values in <code>ui_kits/terminal/overlays/remote_row_copy.js</code>); its range line reuses <code>settings.number.range_between</code>.</Note>
           <Dont><b>Don't</b> name the 5 second signal or use the word heartbeat on screen, and don't add a stepper or slider. The caption says each Tasty uses its own value; it doesn't promise that the two sides agree.</Dont>
         </Spec>
         <Spec id="settings-misc-task-pipeline-report-limits" title="Settings · Misc › Task pipeline — Report limits"
-          when={<>A new Misc L2 subtab <b>Task pipeline</b> (after Scripts, before Tastyrc on Windows). The content column is one <b>mono micro uppercase</b> heading, <b>REPORT LIMITS</b>, then two settings rows in the row grid (label column = longest label clamped 150 … 240, gap 16), each a <b>mono numeric Input</b> (90) with the static unit <b>B</b>, its description caption directly under it (gap 4, measure-md), and a 1px separator between the rows. The two values are tied (note limit &lt; attempt limit): each field's range narrows to the other's current value, so a crossed pair can't be committed. The relation stays in the description copy; the range line appears <b>only when a value is out of range</b>, like every numeric field. Values are raw bytes with no grouping (they are typed, and match the config file); the unit stays <b>B</b>.</>}>
+          when={<>A new Misc L2 subtab <b>Task pipeline</b> (after Scripts). The content column is one <b>mono micro uppercase</b> heading, <b>REPORT LIMITS</b>, then two settings rows in the row grid (label column = longest label clamped 150 … 240, gap 16), each a <b>mono numeric Input</b> (90) with the static unit <b>B</b>, its description caption directly under it (gap 4, measure-md), and a 1px separator between the rows. The two values are tied (note limit &lt; attempt limit): each field's range narrows to the other's current value, so a crossed pair can't be committed. The relation stays in the description copy; the range line appears <b>only when a value is out of range</b>, like every numeric field. Values are raw bytes with no grouping (they are typed, and match the config file); the unit stays <b>B</b>.</>}>
           <Stage variant="solo" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 16, flexWrap: "wrap", alignItems: "flex-start" }}>
             {[["Mocha", "mocha", false], ["Latte · out of range", "latte", true]].map(([label, th, bad]) => (
               <div key={label} data-theme={th || undefined} style={{ width: 460, display: "flex", flexDirection: "column", gap: "var(--tasty-settings-row-gap)", padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
@@ -1221,7 +1206,7 @@ function Page() {
             ))}
           </Stage>
           <Meta
-            specs={[["L2 position", "Misc · after Scripts · before Tastyrc (Windows)"], ["heading", "REPORT LIMITS · label micro uppercase · muted"], ["row grid", "label [150 … 240] · gap 16 (settings-label-gap — the request's 12 is superseded)"], ["field", "mono Input · field-width-xs 90 · right-aligned · unit B (static, muted, 8 after the field)"], ["caption", "under its row · gap 4 · caption 11 · muted · measure-md"], ["between rows", "1px separator · settings-row-gap 12"], ["ranges", "note 64 … min(65536, attempt − 1) · attempt max(128, note + 1) … 131072"], ["range line", "only when out of range (danger) · clamp on commit · directly UNDER THE INPUT, in the control column (label width + label gap) — b10, every numeric field"], ["numbers", "raw bytes, no grouping, no KiB"]]}
+            specs={[["L2 position", "Misc · after Scripts"], ["heading", "REPORT LIMITS · label micro uppercase · muted"], ["row grid", "label [150 … 240] · gap 16 (settings-label-gap — the request's 12 is superseded)"], ["field", "mono Input · field-width-xs 90 · right-aligned · unit B (static, muted, 8 after the field)"], ["caption", "under its row · gap 4 · caption 11 · muted · measure-md"], ["between rows", "1px separator · settings-row-gap 12"], ["ranges", "note 64 … min(65536, attempt − 1) · attempt max(128, note + 1) … 131072"], ["range line", "only when out of range (danger) · clamp on commit · directly UNDER THE INPUT, in the control column (label width + label gap) — b10, every numeric field"], ["numbers", "raw bytes, no grouping, no KiB"]]}
             tokens={[{ tok: "--tasty-settings-row-gap", use: "→ space-md 12 (2026-10-09)" }, { tok: "--tasty-settings-row-caption-gap", use: "row → caption 4" }, { tok: "--tasty-field-width-xs", use: "90" }, { tok: "--tasty-accent-danger", use: "out of range", color: "var(--tasty-accent-danger-raised)" }]} />
           <Note>i18n (given): en “Note size limit” / “Attempt report limit” · ko “기록 한 건 상한” / “회차 report 상한” · ja “記録 1 件の上限” / “試行 report 上限” · heading “Report limits”. Gallery spec id: <code>settings-task-pipeline</code>.</Note>
         </Spec>
@@ -1478,35 +1463,32 @@ function Page() {
           <Dont><b>Don't</b> mix the tint into the row background to "blend" on a selected row — the mark would then shift colour with row state and stop being a stable identity. And don't re-derive the initial's size from the box (<code>round(size × 0.42)</code>): that produced 19px at lg, off the type scale and over the UI cap with no decision behind it.</Dont>
         </Spec>
         <Spec id="copy-fingerprint-add-plugin-that-can-t-be-added" title="Copy fingerprint · Add plugin that can't be added"
-          when={<><b>Copy fingerprint</b> moves out of the action bar: an <b>IconButton sm</b> <code>copy</code> right after the mono fingerprint, in Attention and in the Add plugin manifest card alike. No fingerprint → no line and no button (nothing to copy, so no disabled state). Attention's action bar has <b>no Details</b> for signature reasons (2026-10-06): the reason panel already shows the blurb and the fingerprint. <b>Add plugin</b> on a verified manifest that can't be added (already installed · signed but the public key file is missing · signature error) stays in its slot <b>disabled</b> — the variant it would have had, drawn with the shared disabled ink — and the reason replaces "Grants N permissions" on the left of the bar.</>}>
+          when={<><b>Copy fingerprint</b> moves out of the action bar: an <b>IconButton sm</b> <code>copy</code> right after the mono fingerprint, in Attention and in the Add plugin manifest card alike. No fingerprint → no line and no button (nothing to copy, so no disabled state). Attention's action bar has <b>no Details</b> for signature reasons (2026-10-06): the reason panel already shows the blurb and the fingerprint. <b>Add plugin</b> on a verified manifest that can't be added (already installed · signed but the public key file is missing · signature error) stays in its slot <b>disabled</b> — the variant it would have had, drawn with the shared disabled ink — and the reason sits on the left of the bar. <b>2026-11-17</b>: plugin permissions are gone, so the "Grants N permissions" line is gone too — when Add is not blocked the left of the bar is <b>empty</b> and the buttons keep their right-aligned slot.</>}>
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
             <ThemePair>
               <FpLineG value="a13c 4e7f 2b08 9d51  ·  ed25519" />
               <div style={{ width: "var(--tasty-size-560)", maxWidth: "100%", display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
                 <AddBarG />
-                <AddBarG trusted={false} />
                 <AddBarG blocked="installed" />
-                <AddBarG perms={1} />
-                <AddBarG perms={0} />
               </div>
             </ThemePair>
           </Stage>
           <Meta
-            specs={[["copy fingerprint", "IconButton sm copy · after the value · absent without a fingerprint"], ["attention bar", "no Details (2026-10-06) — the reason panel already shows the blurb + fingerprint"], ["add — blocked", "disabled Add plugin · reason on the left"], ["reasons", "Already installed (2026-10-19: missing .pub / signature error are addable now — Add anyway)"], ["untrusted + .pub", "Trust & add — Primary (agent is for AI-agent surfaces only)"], ["grants", "No permissions · Grants 1 permission · Grants N permissions"]]}
+            specs={[["copy fingerprint", "IconButton sm copy · after the value · absent without a fingerprint"], ["attention bar", "no Details (2026-10-06) — the reason panel already shows the blurb + fingerprint"], ["add — blocked", "disabled Add plugin · reason on the left"], ["reasons", "Already installed (2026-10-19: missing .pub / signature error are addable now — Add anyway)"], ["add — not blocked (2026-11-17)", "left empty (no summary line) · Cancel ghost · Add plugin primary · bar height unchanged"], ["unverified", "danger Add anyway / Trust key & add anyway — see Unverified plugin below"]]}
             tokens={[{ tok: "--tasty-state-disabled-fg", use: "disabled ink", color: "var(--tasty-state-disabled-fg)" }, { tok: "--tasty-text-muted", use: "reason", color: "var(--tasty-text-muted)" }]} />
         </Spec>
-        <Spec id="add-plugin-trust-judgment-six-kinds" title="Add plugin — trust judgment, six kinds"
-          when={<>One box under the manifest card, toned by <b>what Add will do</b>: <b>success</b> — adds as is; <b>warning</b> — adds, and adding trusts the key (unknown key) or the new permission set (permissions changed); <b>danger</b> — unverified (2026-10-19: no longer blocked; explicit <b>Add anyway</b>, see the next spec). The fingerprint line follows the body whenever a fingerprint exists (signature errors have none). Untrusted-but-addable uses <b>Trust &amp; add</b> in <b>Primary</b>: the agent variant is reserved for AI-agent surfaces.</>}>
+        <Spec id="add-plugin-trust-judgment-six-kinds" title="Add plugin — trust judgment, five kinds"
+          when={<>One box under the manifest card, toned by <b>what Add will do</b>: <b>success</b> — adds as is; <b>danger</b> — unverified (2026-10-19: no longer blocked; explicit <b>Add anyway</b>, see the next spec). <b>2026-11-17</b>: plugin permissions are gone, so <b>permissions changed</b> and its Trust &amp; add are gone and no kind is warning-toned. Order: trusted, then the four unverified kinds in cause order (unknown key · public key file missing · unsigned · signature error). The fingerprint line follows the body whenever a fingerprint exists (unsigned and signature errors have none).</>}>
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
             <ThemePair>
               <div style={{ width: "var(--tasty-size-560)", maxWidth: "100%", display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
-                {["trusted", "permissions-changed", "unknown-key", "missing-pubkey", "unsigned", "signature-error"].map((k) => <TrustBoxG key={k} kind={k} />)}
+                {["trusted", "unknown-key", "missing-pubkey", "unsigned", "signature-error"].map((k) => <TrustBoxG key={k} kind={k} />)}
               </div>
             </ThemePair>
           </Stage>
           <Meta
-            specs={[["tone", "success add · warning add + trust · danger blocked"], ["box", "tint-fill + tint-border of the tone · pad space-md / 14 · radius"], ["title", "glyph 16 + 13/600 in the tone"], ["body", "term-sm · text-secondary"], ["fingerprint", "after the body · absent for signature-error"], ["installed", "trust box as judged · bar reason 'Already installed' only (no second notice)"], ["Attention › signature invalid", "no fingerprint line (the signature it would identify is the broken part)"], ["homepage", "mono caption row 'Homepage' under Source · link text, opens the default browser"], ["homepage link (b2)", "text-secondary · 1px underline always · hover text-primary · focus = focus ring · pointer cursor (no accent: the row sits on surface-raised and text-secondary already clears 4.5:1)"], ["authors", "id · first author · +N (tooltip lists all)"], ["empty lists", "Permissions / Surface kinds: 'None' in text-muted, no Tag · font-size-caption (same as the mono caption rows it replaces)"], ["long fingerprint (b2)", "colon-hex over 16 bytes → first 8 + ' … ' + last 8 bytes, one line; tooltip + copy = full value"], ["Signature invalid (b2)", "header kept · fixed note 'The signature does not match this plugin's files.' · cause (key missing / mismatch …) as a mono caption text-muted line under it"], ["action-bar left text (b2)", "font-size-caption — the kit's 12 is corrected"], ["flow (b2)", "kit structure: path input, preview card directly under it, no 'Plugin information' title / second step"]]}
-            tokens={[{ tok: "--tasty-tint-fill-alpha", use: "box fill" }, { tok: "--tasty-tint-border-alpha", use: "box edge" }, { tok: "--tasty-accent-warning", use: "add + trust", color: "var(--tasty-accent-warning-raised)" }, { tok: "--tasty-accent-danger", use: "blocked", color: "var(--tasty-accent-danger-raised)" }, { tok: "--tasty-accent-success", use: "trusted", color: "var(--tasty-accent-success-raised)" }]} />
+            specs={[["tone", "success add · danger unverified (explicit Add anyway) · no warning kind (2026-11-17)"], ["box", "tint-fill + tint-border of the tone · pad space-md / 14 · radius"], ["title", "glyph 16 + 13/600 in the tone"], ["body", "term-sm · text-secondary"], ["fingerprint", "after the body · absent for signature-error"], ["installed", "trust box as judged · bar reason 'Already installed' only (no second notice)"], ["Attention › signature invalid", "no fingerprint line (the signature it would identify is the broken part)"], ["homepage", "mono caption row 'Homepage' under Source · link text, opens the default browser"], ["homepage link (b2)", "text-secondary · 1px underline always · hover text-primary · focus = focus ring · pointer cursor (no accent: the row sits on surface-raised and text-secondary already clears 4.5:1)"], ["authors", "id · first author · +N (tooltip lists all)"], ["empty lists", "Surface kinds (the only Tag list since 2026-11-17): 'None' in text-muted, no Tag · font-size-caption (same as the mono caption rows it replaces)"], ["long fingerprint (b2)", "colon-hex over 16 bytes → first 8 + ' … ' + last 8 bytes, one line; tooltip + copy = full value"], ["Signature invalid (b2)", "header kept · fixed note 'The signature does not match this plugin's files.' · cause (key missing / mismatch …) as a mono caption text-muted line under it"], ["action-bar left text (b2)", "font-size-caption — the kit's 12 is corrected"], ["flow (b2)", "kit structure: path input, preview card directly under it, no 'Plugin information' title / second step"]]}
+            tokens={[{ tok: "--tasty-tint-fill-alpha", use: "box fill" }, { tok: "--tasty-tint-border-alpha", use: "box edge" }, { tok: "--tasty-accent-danger", use: "unverified", color: "var(--tasty-accent-danger-raised)" }, { tok: "--tasty-accent-success", use: "trusted", color: "var(--tasty-accent-success-raised)" }]} />
         </Spec>
         {<OverlaysWindowsPluginTrust_PluginTrustSpecs />}
         <Spec id="add-plugin-dashed-empty-hint-manifest-read-error" title="Add plugin — dashed empty hint · manifest read error"
@@ -1538,7 +1520,7 @@ function Page() {
           <Note>The same dash pair draws the Scripts <b>Add trigger…</b> control (Misc › Scripts). Strings: <code>plugins.add.read_error</code> “Can't read tasty-plugin.toml” · <code>plugins.add.invalid</code> “tasty-plugin.toml is not valid”.</Note>
         </Spec>
         <Spec id="installed-detail-install-path-log-path-open-folder" title="Installed detail — install path · log path · Open folder"
-          when={<>Last section of the installed detail, after Command (identity · description · error · Permissions · Command · <b>Install path</b>). <b>Open folder</b> moves to the <b>caption row</b>, right-aligned, so the path never competes with it for width: at the 720 minimum and the 880 default the button is always whole. The install path and the log path are mono caption muted, <b>wrap at any character</b> and stay selectable, so nothing is cut and no tooltip is needed.</>}>
+          when={<>Last section of the installed detail, after Command and Surface kinds (identity · description · error · Command · Surface kinds · <b>Install path</b>; Permissions left on 2026-11-17 and nothing replaces it — the column gap 16 is the only spacing between sections). <b>Open folder</b> moves to the <b>caption row</b>, right-aligned, so the path never competes with it for width: at the 720 minimum and the 880 default the button is always whole. The install path and the log path are mono caption muted, <b>wrap at any character</b> and stay selectable, so nothing is cut and no tooltip is needed.</>}>
           <Stage variant="grid" style={{ display: "flex", flexWrap: "wrap", gap: 16, padding: 20, alignItems: "flex-start" }}>
             <div style={{ width: 380, boxSizing: "border-box", padding: 16, display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)",
                 border: "var(--tasty-border-width) solid var(--tasty-border-default)", background: "var(--tasty-bg-panel)" }}>
@@ -1562,7 +1544,7 @@ function Page() {
               </div>
           </Stage>
           <Meta
-            specs={[["order", "… Permissions · Command · Install path"], ["caption row", "INSTALL PATH (label 10 caps) · flex · Open folder"], ["Open folder", "Button secondary sm · folder icon · opens the OS file manager"], ["path", "mono caption 11 · text-muted · break-all · selectable"], ["log", "same style, “Log: ” prefix, own line"], ["widths", "left 380 ≈ 720 window · right 540 ≈ 880 window"], ["shown", "installed plugins only"]]}
+            specs={[["order", "… error · Command · Surface kinds (when any) · Install path"], ["section gap", "16 (column gap) — no extra space where Permissions was"], ["caption row", "INSTALL PATH (label 10 caps) · flex · Open folder"], ["Open folder", "Button secondary sm · folder icon · opens the OS file manager"], ["path", "mono caption 11 · text-muted · break-all · selectable"], ["log", "same style, “Log: ” prefix, own line"], ["widths", "left 380 ≈ 720 window · right 540 ≈ 880 window"], ["shown", "installed plugins only"]]}
             tokens={[{ tok: "--tasty-text-muted", use: "path text", color: "var(--tasty-text-muted)" }, { tok: "--tasty-font-size-caption", use: "11 path" }, { tok: "--tasty-space-sm", use: "8 row gap" }]} />
         </Spec>
         <Spec id="installed-detail-command-keycaps-per-platform" title="Installed detail — command keycaps per platform"
@@ -1654,6 +1636,7 @@ function Page() {
       </Section>
 
       {<OverlaysWindowsB12_OptionKeySection />}
+      {<OverlaysWindowsR56_AltKeySection />}
       <Section id="scripts" title="Misc · Scripts (Lua script manager)">
         <Spec id="scripts-subsection-list-states-empty" title="Scripts subsection — list, states & empty"
           when={<>Settings › <b>Misc</b> › <b>Scripts</b>. A subsection (not a separate popup) that manages user <b>Lua scripts</b> run by a shortcut. Each <b>ScriptRow</b>: the display name, the absolute path (<b>middle-elided</b> — dir tail truncates, filename always shown), a bound-shortcut <span className="ic">Kbd</span> badge (or italic <b>Unbound</b>), a peach <b>changed</b> badge + help line when the file's SHA no longer matches the one recorded at registration (TOFU re-confirm on next run), and an <b>Auto-run</b> row: mono <b>trigger chips</b> for the host-lifecycle events the script fires on (click a chip to remove it) plus a dashed <b>Add trigger…</b> control offering the remaining events. Row actions: bind shortcut (→ Keybindings), rename (inline), remove (inline confirm).</>}>
@@ -1733,6 +1716,7 @@ function Page() {
         {true ? <GalleryNotifications_Popup /> : null}
       </Section>
 
+      <CaptureRegionSection />
       <Section id="moveresize" title="Move & resize — popup interaction spec">
         <Spec id="drag-handles-titlebar-region-none" title="Drag handles — TitleBar · Region · None"
           when={<>How a popup moves. A <b>titlebar</b> popup drags from the <b>whole bar</b> (the close button is excluded). A <b>headless</b> popup can declare a <b>Region</b> handle — a header band (currently the left half: icon + title) — while the header's own widgets (search, close) keep priority. <b>None</b> means the popup can't be moved. Affordance is the <b>cursor</b> only (grab → grabbing); no painted grip. Hover the bars below to feel the cursors.</>}>

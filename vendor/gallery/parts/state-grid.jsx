@@ -98,6 +98,8 @@ export function StateGrid({ contract, label }) {
 export function resolveToken(name, theme) {
   const el = document.createElement("div");
   if (theme) el.setAttribute("data-theme", theme);
+  // Specimens are English on every language path, and font-label takes its value from the language.
+  el.setAttribute("lang", "en");
   el.style.cssText = `position:absolute;visibility:hidden;color:var(--tasty-${name})`;
   document.body.appendChild(el);
   const cs = getComputedStyle(el);

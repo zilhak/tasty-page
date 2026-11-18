@@ -1,8 +1,9 @@
 import React from "react";
+import { PopupFocusEdge } from "../../ui_kits/terminal/overlays/shared.jsx";
 import { PageStates } from "../parts/specimen.jsx";
 import { STATES } from "./states.jsx";
 import { Icon as PIcon, IconButton, Button, Input, AutoComplete, MenuItem, Switch, Kbd, Spinner, Checkbox, Select, Tag } from "../../components/index.js";
-import { HtmlAddressSurfaceG } from "../../ui_kits/terminal/overlays/html_address_bar.jsx";
+import { HtmlAddressSurfaceG, HtmlPageState } from "../../ui_kits/terminal/overlays/html_address_bar.jsx";
 import { HtmlAddressContrastSpec as PluginsHtmlContrast_HtmlAddressContrastSpec } from "./html-address-ink.jsx";
 import { MdAddressBar as B, MdAddressSpecs as PluginsMdAddress_MdAddressSpecs } from "./markdown-address.jsx";
 import { Section, Spec, Stage, Meta, Note, Dont, GIcon, Views, View } from "../parts/specimen.jsx";
@@ -353,8 +354,9 @@ function MdAddressBar({ editing = false, path = "~/work/tasty/docs/architecture.
 // Large-file (>1MB) confirm — surface-scoped popup, same 360px shell as markdown_open.
 function MdLargeFilePopup() {
   return (
-    <div style={{ width: 360, maxWidth: "100%", background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-strong)",
+    <div style={{ position: "relative", width: 360, maxWidth: "100%", background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-strong)",
       borderRadius: "var(--tasty-radius)", overflow: "hidden", boxShadow: "var(--tasty-shadow-modal)" }}>
+      <PopupFocusEdge />
       <div style={{ padding: "14px 14px 0" }}>
         <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 3 }}>Open large file?</div>
         <div style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 10, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>~/work/tasty/docs/CHANGELOG-full.md</div>
@@ -530,23 +532,41 @@ function MdInjectionMap() {
   );
 }
 
-function HtmlTile({ state, bed = "var(--tasty-bg-panel)", idleGlyph = "var(--tasty-text-disabled)" }) {
-  const center = (glyph, glyphColor, title, titleColor, sub) => (
-    <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, textAlign: "center", padding: 16 }}>
-      <span style={{ display: "inline-flex", color: glyphColor, transform: "scale(1.5)" }}>{glyph}</span>
-      <div style={{ fontSize: 13, color: titleColor }}>{title}</div>
-      {sub && <div style={{ fontSize: 11, fontFamily: "var(--tasty-font-mono)", color: "var(--tasty-text-muted)", maxWidth: 220, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{sub}</div>}
+// The gallery's chrome tile = the webview page tile (HtmlPageState) in a fixed 220 x 150 specimen rect on the host bed.
+// Not a second size: the part fills the rect it is given. No border of its own; stages add the specimen frame.
+const TILE_KIND = { boundary: "boundary", placeholder: "empty", loading: "loading", error: "failed", "native-wayland": "native-wayland", "native-wayland-x": "native-wayland-x", "gdk-backend": "gdk-backend", "gtk-init": "gtk-init" };
+function HtmlTile({ state, bed = "var(--tasty-bg-panel)", width = 220, height = 150, lang }) {
+  return (
+    <div style={{ width, height, display: "flex", flexDirection: "column", background: bed, overflow: "hidden" }}>
+      <HtmlPageState kind={TILE_KIND[state]} url="https://offline.example" hint={false} lang={lang} />
     </div>
   );
-  const body = {
-    boundary: <div style={{ flex: 1 }} />, /* 2026-10-06: plain tile while an egui overlay hides the loaded WebView — no glyph, no text */
-    placeholder: center(ic.globe, idleGlyph, "No page loaded", "var(--tasty-text-muted)"),
-    loading: center(<Spinner />, "var(--tasty-spinner-indicator)", "Loading…", "var(--tasty-text-muted)"),
-    error: center(ic.alert, "var(--tasty-accent-danger-raised)", "Failed to load", "var(--tasty-accent-danger-raised)", "https://offline.example"),
-  }[state];
+}
+
+// Display-backend notices: the three causes in the order the guide names them, then GTK init failure (no fix line).
+const DB_CAUSES = [["native-wayland", "cause 1 · no XWayland"], ["native-wayland-x", "cause 1b · X server in DISPLAY unreachable"], ["gdk-backend", "cause 2 · GDK_BACKEND without x11"], ["gtk-init", "GTK init failed · X11 window"]];
+const DB_TILE_LANGS = ["en", "ko", "ja", "zh-Hans"];
+// Tiles whose notice block is taller than the rect (render of 2026-11-11): the fix line is only reached by scrolling.
+// [kind, lang, width] — 220 x 150: cause 2 en and ja, cause 1b ja; 160 x 150: every cause (ja). gtk-init has no fix
+// line and fits at both sizes in every language (render of 2026-11-11), so it has no entry. The cause 2 entries
+// still hold for its value-free title (render after that change, 2026-11-11).
+const DB_OVERFLOW = [["gdk-backend", "en", 220], ["gdk-backend", "ja", 220], ["native-wayland-x", "ja", 220], ["native-wayland", "ja", 160], ["native-wayland-x", "ja", 160], ["gdk-backend", "ja", 160]];
+// Freezes a frame at the end of its notice scroll, so the fix line shows without scrolling by hand. Gallery only:
+// it moves the scroll position of the part's own scroll area and paints nothing.
+function ScrolledToEnd({ children }) {
+  const ref = React.useRef(null);
+  React.useEffect(() => {
+    const area = ref.current && ref.current.querySelector("[data-page-notice]");
+    if (area) area.scrollTop = area.scrollHeight;
+  }, []);
+  return <div ref={ref}>{children}</div>;
+}
+function Framed({ cap, children, theme }) {
   return (
-    <div style={{ width: 220, height: 150, display: "flex", flexDirection: "column", background: bed,
-      border: "1px solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>{body}</div>
+    <div data-theme={theme} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", ...(theme ? { padding: "var(--tasty-space-sm)", background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)" } : null) }}>
+      <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
+      <div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>{children}</div>
+    </div>
   );
 }
 
@@ -958,14 +978,14 @@ function Page() {
                 </MdFocused.Provider>
               </View>
             ))}
-            {["boundary", "placeholder", "loading", "error"].map((state) => [true, false].map((focused) => (
+            {["boundary", "placeholder", "loading", "error", "native-wayland", "native-wayland-x", "gdk-backend", "gtk-init"].map((state) => [true, false].map((focused) => (
               <View key={state + focused} name={`markdown-tile-${state}-${focused ? "focused" : "unfocused"}`} label={`Chrome tile, ${state}, ${focused ? "focused" : "unfocused"}`}>
-                <HtmlTile state={state} bed={surfaceBed(focused)} idleGlyph="var(--tasty-glyph-dim)" />
+                <HtmlTile state={state} bed={surfaceBed(focused)} />
               </View>
             )))}
           </Views>
           <Meta
-            specs={[["focused", "Mocha #000000, Latte #ffffff"], ["unfocused", "Mocha base #1e1e2e, Latte crust #dce0e8"], ["same as the terminal", "yes, one pair of beds"], ["motion", "0ms, one frame"], ["stays", "body ink, links, code fill, table header and grid, address band"], ["unknown focus", "unfocused values"], ["no page glyph", <><span className="tok">--tasty-glyph-dim</span> on these beds</>]]}
+            specs={[["focused", "Mocha #000000, Latte #ffffff"], ["unfocused", "Mocha base #1e1e2e, Latte crust #dce0e8"], ["same as the terminal", "yes, one pair of beds"], ["motion", "0ms, one frame"], ["stays", "body ink, links, code fill, table header and grid, address band"], ["unknown focus", "unfocused values"], ["no page glyph", <>html, <span className="tok">--tasty-glyph-dim</span> on these beds, the same part and glyph as the html tile</>]]}
             tokens={[{ tok: "--tasty-surface-bed-focused", use: "--md-bg, focused", color: "var(--tasty-surface-bed-focused)" }, { tok: "--tasty-surface-bed-unfocused", use: "--md-bg, unfocused", color: "var(--tasty-surface-bed-unfocused)" }, { tok: "--tasty-md-table-row-bg", use: "row, focused", color: "var(--tasty-md-table-row-bg)" }, { tok: "--tasty-md-table-row-bg-unfocused", use: "row, unfocused", color: "var(--tasty-md-table-row-bg-unfocused)" }, { tok: "--tasty-md-table-row-bg-zebra", use: "zebra, focused", color: "var(--tasty-md-table-row-bg-zebra)" }, { tok: "--tasty-md-table-row-bg-zebra-unfocused", use: "zebra, unfocused", color: "var(--tasty-md-table-row-bg-zebra-unfocused)" }, { tok: "--tasty-md-code-bg", use: "code fill → --md-code-bg", color: "var(--tasty-md-code-bg)" }, { tok: "--tasty-md-table-border", use: "grid → --md-border", color: "var(--tasty-md-table-border)" }]} />
           <Note>Implementing side: <code>[surfaces.markdown]</code> gets <code>focused_bg</code> and <code>unfocused_bg</code> from these two beds in Mocha and Latte, and the renderer stops reading a single bed. <code>focused_fg</code> and <code>unfocused_fg</code> stay in the file, and the document reads neither: its body ink is the same in both states.</Note>
           <Dont><b>Don't</b> reload the document or rewrite its HTML to change the bed. Scroll, selection and find state must survive a focus change.</Dont>
@@ -1058,16 +1078,47 @@ function Page() {
 
       <Section id="html" title="HTML viewer">
         <Spec id="html-webview-chrome-4-states" title="HTML — webview chrome (4 states)"
-          when={<>The html surface is <b>thin chrome + a native OS WebView overlay</b> — tasty does <b>not</b> theme the page pixels. What tasty paints is the tile skeleton before/instead of the overlay: <b>boundary</b> (region marker), <b>placeholder</b> (no URL), <b>loading</b> (Spinner), <b>error</b> (danger). Same tile (<span className="tok">--tasty-bg-panel</span> + 1px border), centered content. The address bar band above these states is specified below (2026-10-12).</>}>
+          when={<>The html surface is <b>thin chrome + a native OS WebView overlay</b> — tasty does <b>not</b> theme the page pixels. What tasty paints is the tile skeleton before/instead of the overlay: <b>boundary</b> (region marker), <b>placeholder</b> (no URL), <b>loading</b> (Spinner), <b>error</b> (danger). All four are one part, the <b>webview page tile</b> (<code>HtmlPageState</code>), drawn on the page bed with no outline of its own: the frame around each specimen is the gallery's, not the app's. The same part fills the page rect under the address band below, the html mirror notices and the load-failed state, so the tile is that part in a fixed rect, not a second size. Its block is glyph, title and a sub line that is <b>always reserved</b>, centred as one, so loading, no page and failed swap without moving the glyph. The address bar band above these states is specified below (2026-10-12).</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 14, flexWrap: "wrap" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>boundary</div><HtmlTile state="boundary" /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>placeholder</div><HtmlTile state="placeholder" /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>loading</div><HtmlTile state="loading" /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>error</div><HtmlTile state="error" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>boundary</div><div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}><HtmlTile state="boundary" /></div></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>placeholder</div><div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}><HtmlTile state="placeholder" /></div></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>loading</div><div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}><HtmlTile state="loading" /></div></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>error</div><div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}><HtmlTile state="error" /></div></div>
           </Stage>
           <Meta
-            specs={[["content", "native OS WebView (token-agnostic)"], ["tile", <><span className="tok">--tasty-bg-panel</span> + 1px <span className="tok">--tasty-border-default</span></>], ["boundary (2026-10-06)", "plain tile only (bg-panel + 1px border) — shown only while an egui overlay hides a loaded page; no glyph, label or URL / path"], ["placeholder", "GLOBE (disabled) + 'No page loaded'"], ["loading", "Spinner + 'Loading…'"], ["error", "ALERT (danger) + URL"]]}
-            tokens={[{ tok: "--tasty-text-muted", use: "placeholder / loading label", color: "var(--tasty-text-muted)" }, { tok: "--tasty-text-disabled", use: "placeholder / URL", color: "var(--tasty-text-disabled)" }, { tok: "--tasty-spinner-indicator", use: "loading", color: "var(--tasty-spinner-indicator)" }, { tok: "--tasty-accent-danger", use: "error", color: "var(--tasty-accent-danger-raised)" }]} />
+            specs={[["content", "native OS WebView (token-agnostic)"], ["part", "HtmlPageState — one part for the page rect at every size; it fills the rect the host gives"], ["tile", <>page bed (<span className="tok">--tasty-bg-panel</span>) · no border, no shadow · the band's 1px separator is the only rule</>], ["block", "glyph 16 · space-sm · title (body × line-height-ui) · space-sm · sub line (caption × line-height-ui), always reserved · centred as one · padding space-md"], ["boundary (2026-10-06)", "the bare bed — shown only while an egui overlay hides a loaded page; no glyph, label or URL / path"], ["placeholder", "html glyph (glyph-dim) + 'No page loaded' · sub line holds the address hint when the surface has a band"], ["loading", "Spinner + 'Loading…' · sub line empty"], ["error", "alertCircle (glyph-danger) + 'Failed to load' (text-danger) + URL mono"]]}
+            tokens={[{ tok: "--tasty-text-muted", use: "placeholder / loading title · sub line · URL", color: "var(--tasty-text-muted)" }, { tok: "--tasty-glyph-dim", use: "placeholder glyph", color: "var(--tasty-glyph-dim)" }, { tok: "--tasty-spinner-indicator", use: "loading", color: "var(--tasty-spinner-indicator)" }, { tok: "--tasty-accent-danger", use: "error glyph (glyph-danger)", color: "var(--tasty-accent-danger)" }, { tok: "--tasty-accent-danger-raised", use: "error title (text-danger)", color: "var(--tasty-accent-danger-raised)" }]} />
+        </Spec>
+        <Spec id="html-display-backend-notice" title="HTML and Markdown — display backend notice"
+          when={<>On Linux the webview cannot be created when Tasty runs on <b>native Wayland</b> (no XWayland, cause 1; or the X server in <code>DISPLAY</code> unreachable, cause 1b) or was started with a <b><code>GDK_BACKEND</code> value that does not allow x11</b> (cause 2: <code>wayland</code>, <code>broadway</code> or any other value without x11, so its title names no value), and when GTK failed to initialize for any other reason (<b>gtk-init</b>: the window is X11 and <code>GDK_BACKEND</code> is unset or allows x11). Instead of the bare tile, the page rect shows a notice for as long as the surface is visible: <b>title = what is off and why, sub = the fix</b>. The same notice covers html, markdown and the html mirror, including a remote web address: there is no separate remote state. Cause 2 and gtk-init also name the tray icon, which is off for the same reason; this title is the only notice for it. gtk-init names GTK init failure as the cause and nothing else: Tasty does not know why GTK failed, so there is no fix to offer and the sub line stays empty. Menus are not named: where the native menu cannot open, Tasty opens its fallback menu. Neither the clipboard nor file drops are named. No kind has a button or a link, and none opens the user guide: the fix for causes 1, 1b and 2 is done outside Tasty and needs a restart, and gtk-init has none. It is the webview page tile with four more kinds; its fix line <b>wraps and never ellipsizes</b>, because a cut fix fails the notice.</>}>
+          <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
+            {DB_CAUSES.map(([kind, cap]) => <Framed key={kind} cap={cap}><HtmlTile state={kind} /></Framed>)}
+            <Framed cap="html surface with its band · cause 1"><HtmlAddressSurfaceG width="var(--tasty-size-460)" height={240} bar={{ kind: "local", address: "~/work/tasty/target/report.html" }} page="native-wayland" /></Framed>
+            <Framed cap="html mirror, remote web address · cause 2"><HtmlAddressSurfaceG width="var(--tasty-size-460)" height={240} label={`${BASE}design/gallery/`} bar={{ kind: "remote", address: "build-eu ↦ https://intranet.example/status" }} page="gdk-backend" /></Framed>
+            {DB_CAUSES.map(([kind, cap]) => <Framed key={"latte" + kind} theme="latte" cap={`Latte · ${cap}`}><HtmlTile state={kind} /></Framed>)}
+          </Stage>
+          <Views>
+            {DB_CAUSES.map(([kind]) => DB_TILE_LANGS.map((lang) => (
+              <View key={kind + lang} name={`html-notice-${kind}-${lang}`} label={`${kind}, ${lang}, 220 x 150`}>
+                <HtmlTile state={kind} lang={lang} />
+              </View>
+            )))}
+            {DB_CAUSES.map(([kind]) => (
+              <View key={"narrow" + kind} name={`html-notice-${kind}-narrow`} label={`${kind}, ja, narrow 160 x 150`}>
+                <HtmlTile state={kind} lang="ja" width={160} />
+              </View>
+            ))}
+            {DB_OVERFLOW.map(([kind, lang, width]) => (
+              <View key={"end" + kind + lang + width} name={`html-notice-${kind}-${lang}-${width}-scrolled-end`} label={`${kind}, ${lang}, ${width} x 150, scrolled to the end (fix line)`}>
+                <ScrolledToEnd><HtmlTile state={kind} lang={lang} width={width} /></ScrolledToEnd>
+              </View>
+            ))}
+          </Views>
+          <Meta
+            specs={[["kinds", "native-wayland (1) · native-wayland-x (1b) · gdk-backend (2) · gtk-init (GTK init failed, X11 window) — one at a time; 1 never holds with 2 or gtk-init in one window, and 2 and gtk-init exclude each other"], ["where", "the page rect of html, markdown and html mirror surfaces; the band stays above it"], ["when", "the webview could not be created; the notice stays while the surface is visible, until Tasty restarts"], ["glyph", <>info · <span className="tok">--tasty-glyph-dim</span></>], ["title", <>cause · body · <span className="tok">--tasty-text-muted</span> · wraps, balanced lines</>], ["sub", <>fix (gtk-init: none, the line stays reserved and empty) · caption · <span className="tok">--tasty-text-muted</span> · wraps, balanced lines · <b>never ellipsis</b> · min one caption line box, grows by whole lines</>], ["block", "centred while it fits · otherwise starts at the top padding and the rect scrolls vertically (standard scrollbar, tasty-scroll) — never clipped"], ["button", "none, and no link, for every kind including gtk-init: no notice opens the user guide (decided 2026-11-11) · the 1 / 1b / 2 fix is outside Tasty and needs a restart · gtk-init has no fix"], ["copy", "webview.native_wayland(_sub) · webview.native_wayland_x_failed(_sub) · webview.gdk_backend(_sub) · webview.gtk_init_failed (no _sub) — display_backend_copy.js, four languages"], ["file drops (J2, decided 2026-11-11)", "not named: Tasty takes file drops from other apps on native Wayland too, so no title mentions them"]]}
+            tokens={[{ tok: "--tasty-glyph-dim", use: "info glyph", color: "var(--tasty-glyph-dim)" }, { tok: "--tasty-text-muted", use: "title · fix line", color: "var(--tasty-text-muted)" }, { tok: "--tasty-font-size-caption", use: "fix line" }, { tok: "--tasty-space-md", use: "padding" }, { tok: "--tasty-space-sm", use: "glyph · title · fix gaps" }]} />
+          <Note>The Views draw every cause in all four languages at the gallery tile size and the Japanese text at 160 wide. Where the block is taller than the rect the tile scrolls, so the fix is reached by scrolling, never cut: at 220 x 150 cause 2 in en and ja and cause 1b in ja, and at 160 wide every cause. Those tiles also appear scrolled to the end, with the fix line in view. gtk-init has no fix line and fits at both sizes in all four languages, so it has no scrolled frame. The copy is the app's, from <code>display_backend_copy.js</code>; the rest of the gallery stays en-only.</Note>
+          <Dont><b>Don't</b> put the fix in a tooltip or behind a link, add a button such as one that opens the user guide, or ellipsize the fix. The notice must name the cause and the fix where it is read.</Dont>
         </Spec>
         <Spec id="html-focus-edge" title="HTML — focus edge above the band"
           when={<>The host cannot paint the page, so html shows focus only on the <a href="../layouts/#surface-focus-every-kind">surface focus edge</a>, above the address band. Its bed cannot follow focus the way a terminal's does: author CSS owns it, and a sandboxed page may run no script. Stack from the top: <b>edge → address band → size banner → script banner → page</b>. The band, the banners and the chrome tiles look the same in both states. A focused field keeps its blue ring, on a focused surface and only there.</>}>
@@ -1150,7 +1201,7 @@ function Page() {
               ["3 · cumulative limit reached", { banners: ["limit"], page: "paused" }],
               ["4 · size banner + script banner", { banners: ["size", "script"], page: "paused", height: 360 }],
               ["5 · after declining — page shown, “2 skipped” in the field", { banners: [], page: "page", skipped: 2 }],
-              ["6 · macOS 11–13, remote web address", { banners: [], page: "macos", address: "build-eu ↦ https://intranet.example/status" }],
+              ["6 · macOS 11–26, remote web address", { banners: [], page: "macos", address: "build-eu ↦ https://intranet.example/status" }],
               ["7 · disconnected before the page arrived", { banners: [], page: "disconnected", disconnected: true }],
             ].map(([cap, o]) => (
               <div key={cap} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
@@ -1176,8 +1227,8 @@ function Page() {
             ))}
           </Stage>
           <Meta
-            specs={[["placement", "inset, same as the script banner · above it when both show"], ["large file", "download glyph (info) · title · path (left-ellipsis) + size Tag warning · Decline ghost / Allow secondary"], ["several files", "one at a time · '+N more waiting'"], ["limit", "alertTriangle (warning) · received total · Stop ghost / Continue secondary"], ["dismiss", "no × · no keyboard focus · click only"], ["receiving", "Spinner + bytes · files (mono)"], ["paused", "static download glyph + 'Paused — answer the notice above'"], ["declined", "'N skipped' Tag in the read-only field, tooltip lists names · cleared by Reload"], ["macOS 11–13", "info glyph + copy in the page rect · band stays"], ["disconnected", "Reload disabled (tooltip says why) · page rect notice if nothing arrived; a received page stays"]]}
-            tokens={[{ tok: "--tasty-html-size-banner-glyph", use: "→ accent-info", color: "var(--tasty-html-size-banner-glyph)" }, { tok: "--tasty-html-limit-banner-glyph", use: "→ accent-warning", color: "var(--tasty-html-limit-banner-glyph)" }, { tok: "--tasty-html-receiving-fg", use: "→ text-muted", color: "var(--tasty-html-receiving-fg)" }, { tok: "--tasty-html-receiving-glyph", use: "→ glyph-dim", color: "var(--tasty-html-receiving-glyph)" }, { tok: "--tasty-banner-inset-gap", use: "between banners + below the last" }]} />
+            specs={[["placement", "inset, same as the script banner · above it when both show"], ["large file", "download glyph (info) · title · path (left-ellipsis) + size Tag warning · Decline ghost / Allow secondary"], ["several files", "one at a time · '+N more waiting'"], ["limit", "alertTriangle (warning) · received total · Stop ghost / Continue secondary"], ["dismiss", "no × · no keyboard focus · click only"], ["receiving", "Spinner + bytes · files (mono)"], ["paused", "static download glyph + 'Paused — answer the notice above'"], ["declined", "'N skipped' Tag in the read-only field, tooltip lists names · cleared by Reload"], ["macOS 11–26", "info glyph + copy in the page rect · band stays"], ["disconnected", "Reload disabled (tooltip says why) · page rect notice if nothing arrived; a received page stays"]]}
+            tokens={[{ tok: "--tasty-html-size-banner-glyph", use: "→ accent-info", color: "var(--tasty-html-size-banner-glyph)" }, { tok: "--tasty-html-limit-banner-glyph", use: "→ accent-warning", color: "var(--tasty-html-limit-banner-glyph)" }, { tok: "--tasty-text-muted", use: "receiving / paused / notice copy", color: "var(--tasty-text-muted)" }, { tok: "--tasty-glyph-dim", use: "static glyph while paused · notices", color: "var(--tasty-glyph-dim)" }, { tok: "--tasty-banner-inset-gap", use: "between banners + below the last" }]} />
         </Spec>
         <Spec id="html-settings-appearance-html-viewer" title="HTML — settings (Appearance › HTML viewer)">
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)" }}>

@@ -1,17 +1,17 @@
-<!-- source-hash: 931d3753b399 -->
+<!-- source-hash: 806d3e373cba -->
 # Plugins
 
-Plugins provide Markdown, image, and HTML viewers, along with Claude Code and Codex integrations. Manage bundled plugins or install new ones and review the permissions they need.
+Plugins provide Markdown, image, and HTML viewers, along with Claude Code and Codex integrations. Manage bundled plugins or install new ones.
 
 ## What a plugin is
 
-Features such as the Markdown viewer, the image viewer and the Claude Code integration are provided not by the Tasty core but by **plugins**. A plugin runs as a separate process, declares what it adds (Surface kinds · tool menu items · `tasty` subcommands · settings pages · file handlers) and which **permissions** it needs, and Tasty accepts its requests only within the granted permissions.
+Features such as the Markdown viewer, the image viewer and the Claude Code integration are provided by **plugins**. A plugin runs as a separate process and declares what it adds (Surface kinds · tool menu items · `tasty` subcommands · settings pages · file handlers).
 
 - Plugins are installed in `~/.tasty/plugins/<id>/`, with logs in `~/.tasty/plugins-logs/<id>.log`.
 - The bundled plugins are installed automatically on first launch. After that they can be disabled or removed exactly like plugins you installed yourself. A bundled plugin you removed is not reinstalled on the next launch.
 - When a plugin is disabled, the Surface kinds · commands · menu items it added disappear with it. This takes effect right away when you disable or remove it while Tasty is running: opening a new Surface of such a kind fails with the reason that the plugin providing it is turned off or has not reconnected yet. Surfaces you already opened stay as they are and pick up again when you enable the plugin, but their scroll position and any unsaved content are lost.
 
-When you enable or disable a plugin or change its permissions, Tasty confirms the save before applying the runtime change. Installation and trust choices also report their result after saving. A failed or unconfirmed save is not reported as success. An enable saved during shutdown takes effect on the next launch; shutdown does not start a new plugin process. A change whose result remains unconfirmed at the shutdown deadline is not reported as successful or automatically replayed.
+When you enable or disable a plugin, Tasty confirms the save before applying the runtime change. Installation and trust choices also report their result after saving. A failed or unconfirmed save is not reported as success. An enable saved during shutdown takes effect on the next launch; shutdown does not start a new plugin process. A change whose result remains unconfirmed at the shutdown deadline is not reported as successful or automatically replayed.
 
 ## Bundled plugins
 
@@ -52,7 +52,6 @@ The **Installed** tab. Pick one from the list on the left and the details appear
 
 - The line under the name at the top of the details shows the authors and the plugin id. If the plugin has a homepage, it appears at the end of the same line. An `http://` or `https://` address is an underlined link that opens in your browser (if the browser can't be started, a notice says it couldn't be opened); any other value is shown as plain text.
 - Rows in the list are marked **Disabled** or **Running**. If a plugin is enabled but fails to run, a red marker appears with the notice **Failed to connect. Check the plugin's configuration in Settings.**
-- **Permissions** — The list of permissions this plugin has been granted. Read-only here; it cannot be changed.
 - **Commands** — Keybinding commands added by the plugin, one command and its shortcut per line. On macOS the shortcut shows the keys you actually press, in the order Ctrl · Option · Shift · Command, and Option, Shift and Command follow the modifier display style (word or symbol) under **Settings** > **General**. Change the keys under **Settings** > **Keybindings** > **Plugins**.
 - **Install path** · **Log** — The last section of the details. A long path wraps so it is shown in full, and you can drag to select and copy it. **Open folder** on the right of the heading row opens the install folder in your file manager. If the file manager can't be started, the plugin window shows a notice that the folder couldn't be opened.
 - The bar under the details stays visible while you scroll the details.
@@ -68,13 +67,14 @@ The **Attention** tab. Plugins whose registration was rejected or that failed to
 |------|----|------|
 | **Signature not trusted** | Signed with a key not in the trust list | The details show an **Unverified plugin** warning. Confirm the source, then copy the fingerprint with the **Copy fingerprint** button in the Signature section and compare. If you trust it, press **Register anyway** |
 | **Signature invalid** | No signature, or verification failed. The detail shows the cause (such as a missing signature file) on one line | Getting a correct package from the distributor is safest. If you trust the source, you can use it with **Register anyway** |
-| **Permissions changed** | An update changed the required permissions | Read the **newly requested** list and **Re-approve** |
-| **Runtime error** | Enabled but failed while running | Check the **Log** |
+| **Runtime error** | Failed to start or run, or turned off automatically after consecutive failures | Check the **Log** |
 | **Not an official plugin** | Registration was rejected because its id uses the `com.tasty.` prefix, which is reserved for official Tasty plugins, and this is not one of them. You can only remove it. | Select the folder in **Plugins › Attention** and press **Remove** |
+
+If a plugin cannot start or connect during app startup or an automatic restart, Tasty retries after 10 seconds, then after another 20 seconds if it fails again, and turns the plugin off after three consecutive failures. Turning a plugin on yourself shows an error immediately on failure without an automatic retry. Time when Tasty itself is stalled does not count toward deciding that a plugin is unresponsive, so a Tasty stall and recovery alone do not trigger a plugin restart.
 
 A **Not an official plugin** entry is a folder directly under the plugins folder (`~/.tasty/plugins/`) whose manifest can be read and whose id starts with `com.tasty.` but is absent from the official list. Folders whose manifests cannot be read do not appear as these entries. They are not registered, do not run, and do not appear in `tasty plugin list`; Tasty does not delete them automatically. The folder name can differ from the id. Several folders with the same id appear as separate rows that you can select individually. Each row counts toward both the tab badge and the sidebar badge.
 
-The details for these entries show only the folder name and id, hiding the manifest's display name, authors, description, homepage, and version, because an unofficial manifest could present itself as Tasty. **Description hidden — it is not an official plugin.** appears in place of the description. The **Folder** section shows the path, and the bottom bar reads **Not registered**. **Remove** is the only action; **Register anyway**, **Re-approve**, **Configure**, and **Open folder** are not available.
+The details for these entries show only the folder name and id, hiding the manifest's display name, authors, description, homepage, and version, because an unofficial manifest could present itself as Tasty. **Description hidden — it is not an official plugin.** appears in place of the description. The **Folder** section shows the path, and the bottom bar reads **Not registered**. **Remove** is the only action; **Register anyway**, **Configure**, and **Open folder** are not available.
 
 - In **Plugins › Attention**, select the row for the folder you want to delete and press **Remove**. Selecting a row alone does not move keyboard focus to the Remove button. The bottom bar turns into a confirmation in place, titled **Remove {folder name}?**, with the note **Its folder is deleted from your plugins folder.** Focus is on **Cancel**, so Enter cancels. Esc, **Cancel**, or selecting another row also cancels the confirmation.
 - Press **Remove** in the confirmation to delete only the selected folder; other folders with the same id remain. While **Removing…** is shown, both buttons are disabled, and Esc and row clicks are ignored. Tasty checks again just before deletion. If the manifest's id has changed to an allowed id or the manifest can no longer be read, removal fails without deleting the folder.
@@ -90,67 +90,35 @@ The **Add plugin** tab.
 Plugin ids starting with `com.tasty.` are reserved for official Tasty plugins. A `com.tasty.*` id absent from Tasty’s official list is rejected in every build before signature verification and cannot be installed with **Add anyway** or `--allow-unverified`. This check examines only the id; ids on the official list still undergo signature verification. A folder with a `com.tasty.*` id absent from the official list is not registered even if placed directly under the plugins folder; if its manifest can be read, it appears in **Attention**, where you can remove it.
 
 1. In the **Plugin folder** field, enter a folder containing `tasty-plugin.toml`, or pick one with **Find folder…**. The Tasty folder picker confirms the selected subfolder, or the current folder when no row is selected. Double-click enters a folder; Enter confirms it. Cancelling keeps the field unchanged.
-2. Choosing a folder validates it immediately. If you typed a path, press **Verify**. The manifest card appears right under the field: name · version · id · authors · description · **required permissions** · surface kinds · source path, plus the homepage when the plugin has one. An `http://` or `https://` address is an underlined link that opens in your browser (if the browser can't be started, a notice says it couldn't be opened); any other value is shown as plain text. With several authors, the first one is followed by `+N`; hover to see them all. Editing the path clears the card, so press **Verify** again. If the folder has no `tasty-plugin.toml` or the file can't be parsed, a **Can't read tasty-plugin.toml** box takes the card's place with the reader's error on the line below. If the file reads but breaks a manifest rule (for example, the listed binary is not in the folder), a **tasty-plugin.toml is not valid** box appears in the same place with what is wrong on the line below. A `com.tasty.*` id absent from the official list is also rejected with this box. The line below shows the original English reason, `plugin id '<id>' uses the reserved com.tasty. prefix but is not an official Tasty plugin`, and no preview or add button appears. Fix the path and press **Verify** again.
-3. The box under the card tells you how the signature was judged: **Signed by a trusted publisher**, **Permissions changed**, or **Unverified plugin**. For an unverified plugin the box gives the cause (a key not in the trust list, a missing public key file, no signature, or a failed signature check) and warns that the plugin runs with your account's access and that its permissions only limit what it can ask Tasty to do. When the judgment involves a key, the box shows the fingerprint, which you can copy with its button. A long fingerprint shows only its first and last 8 bytes with `…` in between; hovering or copying gives the full value.
-4. The left of the bottom bar shows how many permissions the plugin will get. Press **Add plugin**. For changed permissions the same button reads **Trust & add**; pressing it records the new permission set in the trust list. Permissions only limit what the plugin can ask Tasty to do; they don't isolate the plugin program from your files, network or other programs. For an unverified plugin the button reads **Add anyway** (**Trust key & add anyway** for a key not in the trust list), and **Cancel** has focus at first, so Enter or Esc goes back without installing. Press it only if you trust where the plugin came from. The choice is remembered until the manifest changes or the plugin is removed; once installed, the plugin has no other restriction beyond its mark in the list. While adding, the button reads **Adding…**.
+2. Choosing a folder validates it immediately. If you typed a path, press **Verify**. The manifest card appears right under the field: name · version · id · authors · description · surface kinds · source path, plus the homepage when the plugin has one. An `http://` or `https://` address is an underlined link that opens in your browser (if the browser can't be started, a notice says it couldn't be opened); any other value is shown as plain text. With several authors, the first one is followed by `+N`; hover to see them all. Editing the path clears the card, so press **Verify** again. If the folder has no `tasty-plugin.toml` or the file can't be parsed, a **Can't read tasty-plugin.toml** box takes the card's place with the reader's error on the line below. If the file reads but breaks a manifest rule (for example, the listed binary is not in the folder), a **tasty-plugin.toml is not valid** box appears in the same place with what is wrong on the line below. A `com.tasty.*` id absent from the official list is also rejected with this box. The line below shows the original English reason, `plugin id '<id>' uses the reserved com.tasty. prefix but is not an official Tasty plugin`, and no preview or add button appears. Fix the path and press **Verify** again.
+3. The box under the card tells you how the signature was judged: **Signed by a trusted publisher** or **Unverified plugin**. For an unverified plugin the box gives the cause (a key not in the trust list, a missing public key file, no signature, or a failed signature check) and warns that the plugin runs with your account's access. When the judgment involves a key, the box shows the fingerprint, which you can copy with its button. A long fingerprint shows only its first and last 8 bytes with `…` in between; hovering or copying gives the full value.
+4. Press **Add plugin**. For an unverified plugin the button reads **Add anyway** (**Trust key & add anyway** for a key not in the trust list), and **Cancel** has focus at first, so Enter or Esc goes back without installing. Press it only if you trust where the plugin came from. The choice is remembered until the manifest changes or the plugin is removed; once installed, the plugin has no other restriction beyond its mark in the list. While adding, the button reads **Adding…**.
 5. If the plugin is already installed, the button stays disabled and **Already installed** is shown on its left.
 
-Installing grants the permissions the plugin requests. Review the permission list in the preview before adding it.
+<a id="permissions"></a>
 
-## Permissions
+## Features plugins can use
 
-A plugin declares the permissions it needs in advance. Tasty rejects requests to the host when the required permission has not been granted.
+Plugins can use Tasty features available to plugins without separate approval and call commands provided by other plugins. Local-only and debug features are unavailable to plugins.
 
-Permissions define which features a plugin can request from Tasty. They do not isolate every file or network operation performed by the plugin process. Check the source and description of a plugin before installing it.
+Plugins run with your account’s access and are not isolated from your files, network or other programs. Check the source and description of a plugin before installing it.
 
-Common names and their meanings:
-
-| Permission | What it allows |
-|------|-------------|
-| `surface.read` · `surface.write` | Reading the Surface list · state, creating · changing Surfaces |
-| `fs.read` · `fs.write` | Reading · writing files |
-| `clipboard.read` · `clipboard.write` | Reading · writing the clipboard |
-| `terminal.spawn` · `terminal.write` · `terminal.read` | Creating terminals, sending key input, reading output |
-| `notification` | Showing notifications |
-| `process.spawn` · `network` | Running external processes, network |
-| `ui.tool_item` · `ui.popup` · `ui.settings_page` | Adding tool menu items, popups, settings pages |
-| `file_handler.define` · `file_handler.handle:<kind>` | Defining file-kind detection rules, being the one that opens files of that kind |
-| `memory.read` · `memory.write` · `memory.secret` | Access to the agent memory store |
-| `agent` · `approval` · `telemetry` | Agent collaboration · approval gates · telemetry |
-| `agent.turn_report` | Reporting the start and end of an agent task turn only (opens no other agent collaboration feature) |
-| `completion_strategy.define` | Defining how the task runner decides that a child agent has finished |
-| `ipc.invoke:<prefix>` | Calling commands another plugin provides under `<prefix>` (for example `ipc.invoke:codex` for the Codex plugin's commands) |
-
-Permissions granted to the bundled plugins:
-
-| Plugin | Permissions |
-|---------|------|
-| Markdown Viewer | `surface.read` `surface.write` `fs.read` `file_handler.define` `file_handler.handle:markdown` `ui.settings_page` `ui.popup` |
-| Image | `surface.read` `surface.write` `clipboard.read` `fs.read` `fs.write` `file_handler.define` `file_handler.handle:image` |
-| HTML Viewer | `surface.read` `surface.write` `file_handler.define` `file_handler.handle:html` `file_handler.handle:svg` `ui.settings_page` |
-| Clipboard Viewer | `clipboard.read` `ui.popup` `ui.tool_item` |
-| Git Viewer | `ui.popup` `ui.tool_item` `fs.read` |
-| Claude Code | `surface.read` `surface.write` `terminal.spawn` `terminal.write` `terminal.read` `fs.read` `fs.write` `notification` `telemetry` `agent` `agent.turn_report` `ui.settings_page` `completion_strategy.define` `memory.read` `ipc.invoke:codex` |
-| Codex | `surface.read` `surface.write` `terminal.spawn` `terminal.write` `terminal.read` `fs.write` `notification` `ui.settings_page` `completion_strategy.define` `agent.turn_report` |
-
-Removing or restoring individual permissions is done only from the CLI (below).
+When building a plugin, declare the events it subscribes to in `event_subscribe` and the events it publishes in `event_publish` in `tasty-plugin.toml`. These are contract declarations for the events the plugin exchanges, rather than permission requests. Tasty rejects subscriptions and publications of undeclared events and writes the cause and how to fix the declaration to the host log.
 
 ## The `tasty plugin` command
 
 Use it from a terminal while Tasty is running. The output is JSON.
 
-A `com.tasty.*` id absent from the official list cannot be installed even with `--allow-unverified`. This rejection happens before signature verification and leaves nothing behind in the plugins folder, the permissions or the trust list.
+A `com.tasty.*` id absent from the official list cannot be installed even with `--allow-unverified`. This rejection happens before signature verification and leaves nothing behind in the plugins folder or the trust list.
 
 | Command | What it does |
 |------|---------|
 | `tasty plugin list` | The id · version · enabled · running state of installed plugins, whether one was turned off automatically, and its last start failure |
-| `tasty plugin show <id>` | The full manifest · permissions · commands · running state |
-| `tasty plugin install <folder> [--allow-unverified]` | Installs from a folder containing `tasty-plugin.toml`. Grants the manifest permissions as they are. An unverified plugin is installed only with `--allow-unverified` |
+| `tasty plugin show <id>` | The full manifest · commands · running state |
+| `tasty plugin install <folder> [--allow-unverified]` | Installs from a folder containing `tasty-plugin.toml`. An unverified plugin is installed only with `--allow-unverified` |
 | `tasty plugin remove <id>` | Removes an installed plugin. For a **Not an official plugin** folder, fails with an error directing you to **Attention** without deleting the folder |
 | `tasty plugin enable <id> [--no-wait]` · `disable <id>` | Enables · disables it. `enable` waits until the plugin connects (up to 15 seconds) and fails with the cause if it does not start. If it is still starting after 3 seconds, it shows a progress line once |
 | `tasty plugin logs <id> [--follow]` | Prints the log. `--follow` keeps showing new lines (stop with `Ctrl+C`) |
-| `tasty plugin permissions <id>` | The permissions the manifest requires and those actually granted |
-| `tasty plugin grant <id> <permission>` · `revoke <id> <permission>` | Grants · revokes one permission. Only permissions declared in the manifest can be granted |
 | `tasty plugin doctor <id>` | Diagnoses the manifest — whether it has rules this version of Tasty does not understand |
 | `tasty plugin upgrade-builtins [--force] [--restore-removed <id>] [--restore-removed-all] [--restart-running]` | Realigns the bundled plugins with the bundled version. `--restore-removed` brings back a bundled plugin you removed (can be repeated), and `--restore-removed-all` brings back every bundled plugin you removed. `--restart-running` restarts plugins whose binary was replaced (that plugin's Surfaces close briefly) |
 | `tasty plugin extension list` | Extensions that plugins add to other plugins, and their state |
@@ -159,9 +127,9 @@ A `com.tasty.*` id absent from the official list cannot be installed even with `
 | `tasty plugin request-permission --agent <id> --permission <permission> [--reason <reason>]` | Shows the approval popup that asks whether to give an agent a permission, ahead of time. When an agent runs it, the agent can only name itself, and only the user can approve or deny this popup |
 | `tasty plugin audit-query` · `audit-summary` · `audit-follow` · `audit-clear` | Queries · summarizes · follows live · deletes the allow/deny records of requests Tasty received (CLI, plugins, agents) |
 
-For a plugin that passes the id check, `install` checks the signature before copying the folder. For an unverified plugin it warns about the cause and the risk, installs nothing, and shows the `tasty plugin install --allow-unverified <folder>` command to use if you trust the source. When the signature check refuses the install, it tells you the actual reason (no signature, a key you have not trusted, a public key file that is missing or does not match, and so on) and leaves nothing behind in the plugins folder, the permissions or the trust list. Fix the problem and run the same command again to install. If the plugin is registered but then fails to start, the installed folder stays; check `tasty plugin logs <id>` for the cause.
+For a plugin that passes the id check, `install` checks the signature before copying the folder. For an unverified plugin it warns about the cause and the risk, installs nothing, and shows the `tasty plugin install --allow-unverified <folder>` command to use if you trust the source. When the signature check refuses the install, it tells you the actual reason (no signature, a key you have not trusted, a public key file that is missing or does not match, and so on) and leaves nothing behind in the plugins folder or the trust list. Fix the problem and run the same command again to install. If the plugin is registered but then fails to start, the installed folder stays; check `tasty plugin logs <id>` for the cause.
 
-When a plugin does not start, a warning is left in the notification list. If it fails several times in a short time and Tasty turns it off automatically, a separate error notification is left and the plugin is not started until you turn it on again. Repeated failures of the same plugin that you did not turn on again are grouped into one. Each time you turn it on yourself, that result gets its own notification. The notification body and `tasty plugin logs <id>` show the cause.
+When a plugin does not start, a warning is left in the notification list. Failures of the same plugin are grouped into one warning only when they occur within 10 seconds of each other. A successful connection or turning the plugin on yourself ends the group. Failures on retries after 10 or 20 seconds can therefore leave separate warnings. If three consecutive startup failures turn the plugin off automatically, one separate error notification is left, and the plugin is not started until you turn it on again. A separate rule also stops a plugin if the process itself fails to launch three times within 10 seconds. Each time you turn it on yourself, that result gets its own notification. The notification body and `tasty plugin logs <id>` show the cause.
 
 Running `tasty plugin remove <id>` with the id of a **Not an official plugin** folder fails with the following error without deleting the folder. `enable` and `disable` fail with the same guidance.
 
@@ -171,25 +139,15 @@ Several folders can share the same id, so the id alone cannot identify which fol
 
 `enable` and `disable` require an installed plugin ID. An id that is not installed and has no such folder returns an error with `plugin '<id>' not installed` as the reason and leaves settings unchanged. Use `tasty plugin list` to find installed IDs.
 
-`disable` starts shutdown, normally in the background. If the plugin has not exited after a 2-second grace period, Tasty attempts to force-stop it. Those 2 seconds are not a limit on the entire operation; waiting for the OS to finish the process can take longer. An `enable` during shutdown waits for the previous process to finish before starting a new one. `tasty plugin enable` then waits (up to 15 seconds) for the new plugin to connect and reports the result. Pass `--no-wait` to return right away. In that case, and when an agent calls IPC directly, the reply only says the start was accepted, so check the result with `tasty plugin show <id>`. If startup or connection fails, check the notification and the logs.
+`disable` starts shutdown, normally in the background. If the plugin has not exited after a 2-second grace period, Tasty attempts to force-stop it. Those 2 seconds are not a limit on the entire operation; waiting for the OS to finish the process can take longer. An `enable` during shutdown waits for the previous process to finish before starting a new one. `tasty plugin enable` then waits (up to 15 seconds) for the new plugin to connect and reports the result. Pass `--no-wait` to return right away. In that case, and when an agent requests directly, the reply only says the start was accepted, so check the result with `tasty plugin show <id>`. If startup or connection fails, check the notification and the logs.
 
 While closing a Surface of a stuck plugin takes time, other commands and input are still handled as usual. If you `disable` that plugin while the close is waiting, the close succeeds as soon as the process exits. If you quit Tasty in the meantime, quitting waits for that close to finish (up to 5 seconds).
 
 ```sh
 tasty plugin list
-tasty plugin permissions com.tasty.git-viewer
+tasty plugin show com.tasty.git-viewer
 tasty plugin disable com.tasty.clipboard-viewer
 tasty plugin logs com.tasty.markdown --follow
-```
-
-Example output of `tasty plugin permissions com.tasty.git-viewer`:
-
-```json
-{
-  "granted": ["ui.tool_item", "fs.read", "ui.popup"],
-  "id": "com.tasty.git-viewer",
-  "manifest": ["ui.popup", "ui.tool_item", "fs.read"]
-}
 ```
 
 ## Troubleshooting
@@ -200,7 +158,6 @@ Example output of `tasty plugin permissions com.tasty.git-viewer`:
 | **Clipboard Viewer** · **Git** are missing from the Tools menu | The two plugins are disabled or have landed in **Attention** |
 | A plugin's status is red | The **Log** button or `tasty plugin logs <id>` |
 | I want to bring back a bundled plugin I removed | `tasty plugin upgrade-builtins --restore-removed <id>` |
-| A plugin landed in **Attention** after an update | If marked **Permissions changed**, its required permissions changed. Read the list and **Re-approve** |
 | A **Plugin '&lt;id&gt;' was not registered** notification appears, or the **Attention** tab shows a **Not an official plugin** entry | The folder uses the prefix reserved for official plugins but is absent from the official list. It is not registered and does not run. Select the folder in **Plugins › Attention** and press **Remove** |
 
 <a id="what-to-read-next"></a>

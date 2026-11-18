@@ -4,8 +4,11 @@ import { STATES } from "./states.jsx";
 import { Kbd, MenuItem } from "../../components/index.js";
 import { GalleryNoticeColumn } from "./notice-column.jsx";
 import { GalleryWebviewOpaque } from "./opaque-over-page.jsx";
+import { GalleryToastOverPage } from "./toast-over-page.jsx";
 import { GroundThemes as PGroundThemes, GroundCap as PGroundCap, ToolsMenuFrame, SearchBarFrame, HeldLabel, TabStripMock, SidebarMock, RailMock, CatSwitchSidebarMock, CatSwitchRailMock, ic, CatMenu, RailCategoryFrame, catIc, ModifierHintPanelG, MH_CAT_SECTIONS, MH_MIXED_SECTIONS, MH_EMPTY_SECTIONS } from "../parts/overlay-frames.jsx";
-import { Section, Spec, Stage, Meta, Note, Do, Dont } from "../parts/specimen.jsx";
+import { Section, Spec, Stage, Meta, Note, Do, Dont, Views, View } from "../parts/specimen.jsx";
+import { RemoteRowMenuItems } from "../../ui_kits/terminal/overlays/remote_row.jsx";
+import { FallbackMenuSection } from "./fallback-menu.jsx";
 
 // Tasty Gallery — Overlays · Popups & menus (anchored, no scrim)
 // One of the five Overlays sub-pages (dialogs · windows · popups · banners · tutorial). Frame components are shared from
@@ -18,6 +21,7 @@ import { Section, Spec, Stage, Meta, Note, Do, Dont } from "../parts/specimen.js
 
 const NAV = [
   { id: "tools", label: "Tools menu" },
+  { id: "fallback", label: "Fallback context menu" },
   { id: "search", label: "Search bar" },
   { id: "switch", label: "Switch-number overlay" },
   { id: "modhint", label: "Modifier hints" },
@@ -88,14 +92,16 @@ function Page() {
     <>
 <Section id="tools" title="Tools menu">
         <Spec id="tools-menu-anchored-no-scrim" title="Tools menu — anchored, no scrim"
-          when={<>A popup anchored <b>above</b> the sidebar Tools button (left-aligned to it). Unlike the modal layer this is a lightweight menu — <b>no scrim</b>, dismisses on outside click or <Kbd keys="Esc" />. Built-in entries first, in this fixed order — <b>Command palette… · Listening ports… · Remote connections… · Presets · Tutorial… · Task DAGs · Open File…</b> — then a separator, then <b>plugin-contributed</b> tools in manifest <code>order</code> (Clipboard Viewer 100 · Git 130). Every label that opens a further window ends in the single ellipsis character <code>…</code>, never three periods. <b>Width (2026-10-07)</b>: the menu is as wide as its longest row (label + <span className="tok">--tasty-menu-item-padding-x</span> both sides + the 4 ring + border), never narrower than <b>160</b> and never wider than <b>240</b>; a label past 240 ellipsizes at its <b>end</b>. This covers translated labels without a per-locale width.</>}>
+          when={<>A popup anchored <b>above</b> the sidebar Tools button (left-aligned to it). Unlike the modal layer this is a lightweight menu — <b>no scrim</b>, dismisses on outside click or <Kbd keys="Esc" />. Built-in entries first, in this fixed order — <b>Command palette… · Listening ports… · Remote connections… · Presets · Tutorial… · Task DAGs · Open child graph · Open File…</b> — then a separator, then <b>plugin-contributed</b> tools in manifest <code>order</code> (Clipboard Viewer 100 · Git 130). Every label that opens a further window ends in the single ellipsis character <code>…</code>, never three periods. <b>Width (2026-10-07)</b>: the menu is as wide as its longest row (label + <span className="tok">--tasty-menu-item-padding-x</span> both sides + the 4 ring + border), never narrower than <b>160</b> and never wider than <b>240</b>; a label past 240 ellipsizes at its <b>end</b>. This covers translated labels without a per-locale width.</>}>
           <Stage variant="solo center"><ToolsMenuFrame /></Stage>
           <Meta
-            specs={[["width", <>fit content · min 160 <span className="tok">--tasty-tools-menu-min-width</span> · max 240 <span className="tok">--tasty-tools-menu-max-width</span></>], ["overflow", "end ellipsis past max"], ["anchor", "above button, left-aligned"], ["rows", "28px MenuItem, no icons"], ["built-in", "7 — fixed order"], ["inner ring", <>4 · <span className="tok">--tasty-popup-content-margin</span></>], ["scrim", "none"], ["dismiss", <>outside click · <span className="ic">Esc</span></>]]}
+            specs={[["width", <>fit content · min 160 <span className="tok">--tasty-tools-menu-min-width</span> · max 240 <span className="tok">--tasty-tools-menu-max-width</span></>], ["overflow", "end ellipsis past max"], ["anchor", "above button, left-aligned"], ["rows", "28px MenuItem, no icons"], ["built-in", "8 — fixed order"], ["inner ring", <>4 · <span className="tok">--tasty-popup-content-margin</span></>], ["scrim", "none"], ["dismiss", <>outside click · <span className="ic">Esc</span></>]]}
             tokens={[{ tok: "--tasty-menu-bg", use: "menu fill", color: "var(--tasty-menu-bg)" }, { tok: "--tasty-menu-border", use: "edge → border-strong", color: "var(--tasty-menu-border)" }, { tok: "--tasty-popup-content-margin", use: "→ space-xs 4" }, { tok: "--tasty-tools-menu-min-width", use: "→ size-160" }, { tok: "--tasty-tools-menu-max-width", use: "→ size-240" }, { tok: "--tasty-shadow-popover", use: "lift" }]} />
           <Note>Plugins extend the list <b>below</b> the separator only — built-in order is fixed. This is a popover, not a dialog: it never dims the app.</Note>
         </Spec>
       </Section>
+
+<FallbackMenuSection />
 
 <Section id="search" title="Search bar">
         <Spec id="search-bar-ctrl-f-headless" title="Search bar — Ctrl/⌘F, headless"
@@ -290,12 +296,40 @@ function Page() {
             tokens={[{ tok: "--tasty-separator", use: <><code>---</code> line (idle)</>, color: "var(--tasty-separator)" }, { tok: "--tasty-text-muted", use: <><code>---</code> line (hover)</>, color: "var(--tasty-text-muted)" }, { tok: "--tasty-surface-raised", use: "popup fill", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-menu-border", use: "edge", color: "var(--tasty-menu-border)" }, { tok: "--tasty-popup-content-margin", use: "inner ring 4 (all sides)" }, { tok: "--tasty-accent-danger", use: "delete row", color: "var(--tasty-accent-danger-raised)" }]} />
           <Note>Collapse state is per-category and <b>shared</b> with the full sidebar (both seed from the persisted <code>collapsed</code> flag in <code>layout.json</code>). Toggling here or in the full header updates the same state.</Note>
         </Spec>
+        <Spec id="remote-row-context-menu-by-connection-state" title="Saved remote workspace — the row menu by connection state"
+          when={<>A saved remote row's right-click menu is the workspace menu (the OS menu in the app: order, wording, separators and disabled items only) with one <b>connection group</b> and one <b>close group</b> at the end. The connection group is <b>Connect</b> (or <b>Reconnect</b> for a row that had a screen in this run, the popup's word) and <b>Disconnect</b>; each is <b>disabled, not hidden</b>, where it cannot act. When the remote workspace was <b>closed elsewhere</b> in this run (the popup's Remote workspace closed), Reconnect stays in its place, <b>disabled</b>, as on the popup: the workspace is gone, so it could only fail, and the row's tooltip and popup already give the reason, so the menu adds nothing. That is not kept across a restart: the row comes back not connected with Connect enabled. The close group names <b>where</b> the closing happens: <b>Close locally</b> takes the row out of this Tasty and leaves the workspace running on the remote; <b>Close remote workspace…</b> ends it there and opens a confirmation, so it is last and carries the ellipsis. Nothing can reach the remote while the row is not connected, so that item is enabled only when connected. The menu opens with or without categories; the category block appears only with categories on. An agent mirror made from the CLI or IPC keeps today's menu.</>}>
+          <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: "var(--tasty-space-xl)", flexWrap: "wrap", alignItems: "flex-start" }}>
+            <CatMenu caption="connected · categories on"><RemoteRowMenuItems state="connected" categories={["Workspaces", "Services"]} /></CatMenu>
+            <CatMenu caption="connecting"><RemoteRowMenuItems state="connecting" /></CatMenu>
+            <CatMenu caption="reconnecting"><RemoteRowMenuItems state="reconnecting" /></CatMenu>
+            <CatMenu caption="disconnected (last screen kept)"><RemoteRowMenuItems state="disconnected" /></CatMenu>
+            <CatMenu caption="not connected (after a restart)"><RemoteRowMenuItems state="not_connected" /></CatMenu>
+            <CatMenu caption="closed elsewhere (this run) · Reconnect disabled"><RemoteRowMenuItems state="disconnected" closed /></CatMenu>
+          </Stage>
+          <Views>
+            <View name="remote-row-menu-languages" label="ko, ja, zh-Hans — connected, disconnected and closed elsewhere">
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-xl)", alignItems: "flex-start" }}>
+                {["ko", "ja", "zh-Hans"].flatMap((lang) => [
+                  <CatMenu key={lang + "c"} caption={lang + " · connected"}><RemoteRowMenuItems state="connected" lang={lang} /></CatMenu>,
+                  <CatMenu key={lang + "d"} caption={lang + " · disconnected"}><RemoteRowMenuItems state="disconnected" lang={lang} /></CatMenu>,
+                  <CatMenu key={lang + "x"} caption={lang + " · closed elsewhere"}><RemoteRowMenuItems state="disconnected" closed lang={lang} /></CatMenu>,
+                ])}
+              </div>
+            </View>
+          </Views>
+          <Meta
+            specs={[["order", "Rename · Change Subtitle | Move Up · Move Down | Save as workspace preset | (categories) | (Force detach) | Connect or Reconnect · Disconnect | Close locally · Close remote workspace…"], ["Connect / Reconnect", "enabled: disconnected, not connected · disabled: connected, connecting, reconnecting, and closed elsewhere in this run (disconnected, the popup's Remote workspace closed) · Reconnect when the row had a screen in this run · disabled keeps its place and its label, no reason line · closed elsewhere is not kept: after a restart the row is not connected and Connect is enabled, and a refused connect is Connection failed with Connect still enabled"], ["closed elsewhere", "Reconnect disabled · Disconnect disabled (already disconnected) · Close locally enabled, removes the row · Close remote workspace… disabled — the same as disconnected but for Reconnect"], ["Disconnect", "enabled: connected, connecting, reconnecting · disabled: disconnected, not connected · while connecting or reconnecting it cancels the attempt in progress and leaves the row disconnected by the user, the popup's user-disconnected form (decided, R-58 Q2; looked at again if L1 = b) · no automatic reconnect after it"], ["Close locally", "always · the remote workspace keeps running · no confirmation"], ["Close remote workspace…", "connected only · opens the confirmation (Dialogs › Close remote workspace)"], ["replaces", "Disconnect Workspace and Close Workspace on a saved remote row"], ["Force detach", "unchanged — only when this Tasty serves the workspace to another client"], ["agent mirror", "today's menu, unchanged"]]}
+            tokens={[]} />
+          <Note>Copy: <code>remote.row.popup.connect</code> · <code>child_graph.reconnect</code> · <code>remote.row.menu.disconnect</code> · <code>remote.row.menu.close_local</code> · <code>remote.row.menu.close_remote</code>. The other items keep their current keys and English, shown here as the app has them.</Note>
+          <Dont><b>Don't</b> label the local one plain “Close”. On a remote row the word alone reads as closing the remote workspace, which is the other item.</Dont>
+        </Spec>
       </Section>
       <Section id="notices" title="Notice column — restore failure · save halt · response wait">
         {GalleryNoticeColumn ? <GalleryNoticeColumn /> : null}
       </Section>
       <Section id="webview" title="Over a web page — opaque mode">
         {GalleryWebviewOpaque ? <GalleryWebviewOpaque /> : null}
+        <GalleryToastOverPage />
       </Section>
     </>
   );

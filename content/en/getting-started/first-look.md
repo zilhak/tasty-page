@@ -1,4 +1,4 @@
-<!-- source-hash: cd49cf4b7b6e -->
+<!-- source-hash: 1ace6e12a765 -->
 # A first look
 
 Tasty’s first screen has a sidebar for switching workspaces and a work area for terminals or documents. Each pane has a tab bar, and each tab contains surfaces for terminals or documents.
@@ -107,6 +107,8 @@ If you want iTerm2-style `⌘`-centric combinations on macOS, pick the **Mac** p
 ## When you close the window
 
 With several windows open, the close button closes only that window. On the last remaining window, the close button asks whether to **Quit** or **Minimize**. If you choose Minimize, Tasty goes into the system tray (menu bar) and comes back via **Show Window** in the tray icon's menu. To stop being asked every time, change **Settings** > **General** > **Close behavior**.
+
+On Linux, the tray icon is unavailable if `GDK_BACKEND` blocks X11 or GTK initialization fails. See [Linux document view and tray troubleshooting](../help/troubleshooting.md#linux-gdk-backend).
 
 Once you confirm quitting, web pages and Markdown documents in all windows are hidden so the progress screen can be shown while shutdown is pending. If you cancel the confirmation or return after minimizing to the background, you can continue using the documents.
 
