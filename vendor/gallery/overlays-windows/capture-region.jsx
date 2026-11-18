@@ -1,16 +1,18 @@
 import React from "react";
-import { Kbd } from "../../components/index.js";
+import { Kbd, Toast } from "../../components/index.js";
 import { Section, Spec, Stage, Views, View, Meta, Note, Do, Dont } from "../parts/specimen.jsx";
 import { ThemePair } from "../parts/theme-frame.jsx";
 
 // Capture region select: the Windows screen capture picks its area here. RULES section 4 holds the rules.
 // Translation keys are proposals. The values are canon, in en, ko, ja and zh-Hans.
+// cancelled is the result toast of a cancel (Esc, or a release with no selection), proposed as toast.screenshot_cancelled.
 export const CAPTURE_COPY = {
-  en: { idle: "Drag to select an area of the picture.", dragging: "Release to copy this area.", cancel: "Cancel" },
-  ko: { idle: "이미지에서 드래그해 영역을 선택하세요.", dragging: "놓으면 이 영역이 복사됩니다.", cancel: "취소" },
-  ja: { idle: "画像をドラッグして範囲を選択してください。", dragging: "離すとこの範囲がコピーされます。", cancel: "キャンセル" },
-  "zh-Hans": { idle: "拖动以选择图片区域。", dragging: "松开以复制此区域。", cancel: "取消" },
+  en: { idle: "Drag to select an area of the picture.", dragging: "Release to copy this area.", cancel: "Cancel", cancelled: "Screenshot cancelled. The clipboard was not changed." },
+  ko: { idle: "이미지에서 드래그해 영역을 선택하세요.", dragging: "놓으면 이 영역이 복사됩니다.", cancel: "취소", cancelled: "스크린샷을 취소했습니다. 클립보드는 변경되지 않았습니다." },
+  ja: { idle: "画像をドラッグして範囲を選択してください。", dragging: "離すとこの範囲がコピーされます。", cancel: "キャンセル", cancelled: "スクリーンショットをキャンセルしました。クリップボードは変更されませんでした。" },
+  "zh-Hans": { idle: "拖动以选择图片区域。", dragging: "松开以复制此区域。", cancel: "取消", cancelled: "已取消截图。剪贴板未更改。" },
 };
+const LANGS = ["en", "ko", "ja", "zh-Hans"];
 
 // The picture is a copy of a screen, so its colors are nobody's token. The two Tasty windows in it pin a theme of
 // their own and stay the same whatever the page theme is. The flat and checker pictures are the two hard cases for
@@ -126,6 +128,18 @@ const dragRect = { x: "24%", y: "22%", w: "44%", h: "48%" };
 
 const Pair = ({ frame }) => <ThemePair render={frame} />;
 
+const CANCEL_DEMO = "The view closes. The clipboard does not change, and the cancel toast appears.";
+
+// The window that asked, after a cancel: the view is gone and the cancel toast sits in the window's toast stack.
+function CancelledWindow() {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", justifyContent: "flex-end", alignItems: "flex-end", gap: "var(--tasty-space-sm)", minHeight: "var(--tasty-size-180)", boxSizing: "border-box",
+      padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)" }}>
+      {LANGS.map((lang) => <Toast key={lang} lang={lang} variant="info">{CAPTURE_COPY[lang].cancelled}</Toast>)}
+    </div>
+  );
+}
+
 // Pointer and keyboard work: drag on the picture, press Esc while the frame has focus.
 function CaptureDemo() {
   const SOURCE = { w: 3840, h: 2160 };
@@ -158,12 +172,12 @@ function CaptureDemo() {
   const onUp = () => {
     const s = shown();
     setDrag(null);
-    setLast(s ? `The view closes and the crop is ${s.size}.` : "No selection. The view stays open.");
+    setLast(s ? `The view closes and the crop is ${s.size}. The existing result toast reports the copy.` : `No selection, so this cancels. ${CANCEL_DEMO}`);
   };
   const onKey = (e) => {
     if (e.key !== "Escape") return;
     setDrag(null);
-    setLast("The view closes. The clipboard does not change.");
+    setLast(`Esc cancels. ${CANCEL_DEMO}`);
   };
   const s = shown();
   return (
@@ -186,7 +200,7 @@ export function CaptureRegionSection() {
         <Stage variant="solo center" eager style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)" }}>
           <CaptureDemo />
         </Stage>
-        <Note>Release a real drag to copy the area and close the view; the existing result toast reports the result. Press Esc at any time to close without a toast or clipboard change. A click without a drag, or a drag under 4 px on either axis, leaves the view unchanged with no rectangle, error or toast, so you can drag again.</Note>
+        <Note>Release a drag to copy the selected area to the clipboard and close the view. The existing result toast reports the result. Press Esc at any time, or click without dragging, to cancel. The view closes, the clipboard does not change, and the cancel toast always appears. A drag under 4 px on either axis counts as a click.</Note>
         <Do>Keep the hint, crop size and Esc in the opaque 32 px mantle band above the picture. In a narrow window, ellipsize only the hint so the size and Esc stay visible.</Do>
         <Dont>Do not float a hint or size over the picture. It would hide pixels you might select and make text contrast depend on the picture.</Dont>
         <Dont>Do not reuse the modal scrim for the picture dim. A scrim marks underlying content as inert; this picture is what you read and act on.</Dont>
@@ -197,8 +211,8 @@ export function CaptureRegionSection() {
           <View wide name="capture-dragging" label="Dragging: the selection is clear, the size is live">
             <Pair frame={() => <CaptureFrame size="1690 × 1037"><CapturePicture tone="dark" rect={dragRect} style={fill} /></CaptureFrame>} />
           </View>
-          <View wide name="capture-click-no-drag" label="A click with no drag: no rectangle, same as before a drag">
-            <Pair frame={() => <CaptureFrame><CapturePicture tone="dark" style={fill} /></CaptureFrame>} />
+          <View wide name="capture-cancelled" label="After a cancel, by Esc or by a click with no drag: the view is closed, the cancel toast in every language">
+            <Pair frame={() => <CancelledWindow />} />
           </View>
           <View wide name="capture-smallest-area" label="The smallest area: capture-min-drag on both axes">
             <Pair frame={() => <CaptureFrame size="12 × 12"><CapturePicture tone="dark" rect={{ x: "50%", y: "40%", w: "var(--tasty-capture-min-drag)", h: "var(--tasty-capture-min-drag)" }} style={fill} /></CaptureFrame>} />
@@ -219,6 +233,9 @@ export function CaptureRegionSection() {
             ["edge", <><span className="tok">--tasty-capture-edge-width</span> × 2 · outside the selection · dark inner, light outer · no radius</>],
             ["no selection under", <span className="tok">--tasty-capture-min-drag</span>],
             ["pointer", "crosshair on the picture and the inset · default on the band · a press in the inset starts at the nearest picture edge · past the picture, the selection clamps to it"],
+            ["release with a selection", "copies, closes the view · the existing result toasts, unchanged: toast.screenshot_copied, toast.screenshot_path_only, toast.screenshot_copy_failed"],
+            ["cancel", "Esc at any time, or release with no selection (a click, or under capture-min-drag on either axis) · closes the view · clipboard unchanged · toast.screenshot_cancelled, info"],
+            ["result toast", "every way the view ends raises one · in the window that asked"],
             ["motion", "0ms · the view, the dim and the edge never fade"],
           ]}
           tokens={[
@@ -231,6 +248,7 @@ export function CaptureRegionSection() {
             { tok: "--tasty-border-frame", use: "picture frame", color: "var(--tasty-border-frame)" },
             { tok: "--tasty-text-primary", use: "hint and size", color: "var(--tasty-text-primary)" },
             { tok: "--tasty-text-secondary", use: "Cancel", color: "var(--tasty-text-secondary)" },
+            { tok: "--tasty-toast-accent-info", use: "cancel toast rail, the info Toast as it is", color: "var(--tasty-toast-accent-info)" },
           ]} />
       </Spec>
 

@@ -264,7 +264,7 @@ The paint order is bed, picture, picture frame, dim, edge.
 | Dragging, both axes at `capture-min-drag` or more | Outside the selection | Yes | Release hint, size |
 | Dragging, either axis under `capture-min-drag` | The whole picture | None | Idle hint |
 
-Release with no selection leaves the view as it was, with no toast. `capture-min-drag` is in display pixels, because it tells a click from a drag and says nothing about the crop.
+Every way the view ends closes it and raises one result toast in the window that asked. Release with a selection copies and raises the existing screenshot result toast. Esc at any time, or release with no selection, cancels: the clipboard does not change, and the toast is `toast.screenshot_cancelled`, the info Toast. A click and a drag under `capture-min-drag` are both a release with no selection. `capture-min-drag` is in display pixels, because it tells a click from a drag and says nothing about the crop.
 
 The picture keeps its ratio and scales down to fit the bed. It is never scaled above one to one, and a smaller picture is centered. The crop comes from the source picture at its own resolution, however it is displayed.
 
