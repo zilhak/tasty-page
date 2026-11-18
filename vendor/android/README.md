@@ -54,7 +54,11 @@ The Android app looks different from the desktop, so its parts are drawn separat
 
 Colors stay canon tokens, and icons stay `vendor/icons`. A size the canon has no token for is declared in the part as an `--android-*` property that reads a canon token, and its table is on the page.
 
-**Long press.** Every menu a long press opens is a list popup in the middle of the window, over a scrim. It is never a context menu at the finger. Its title names what was pressed. A tap on a row runs it; a tap on the scrim or the system back closes it.
+**Menus.** Every menu on Android is a list popup in the middle of the window, over a scrim: the tab menu a long press opens, the Tasty menu the logo opens, and any menu added later. It is never a context menu at the finger, as a right click opens on the desktop. Its title names what was pressed. A tap on a row runs it; a tap on the scrim or the system back closes it. A row that is not available stays in place, disabled, and is never hidden.
+
+**Long press.** A long press gives one haptic tick when it is reached, and the pressed target keeps its pressed ground while its popup is open.
+
+**On-screen keyboard.** Opening a popup leaves an open on-screen keyboard open, and a popup never pushes the keyboard away. The popup centres in the window area above the keyboard; when that area is short, the title stays and the rows scroll.
 
 The Touch, Widths and Shared parts sections predate this rule and still draw desktop components.
 
