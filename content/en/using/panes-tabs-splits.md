@@ -1,4 +1,4 @@
-<!-- source-hash: b492f31592f1 -->
+<!-- source-hash: a88ae7bc0d61 -->
 # Panes, tabs, and splits
 
 Tasty’s pane splits create areas with independent tab switching, while surface splits divide views that stay together within one tab. Choose either level to build the layout you need.
@@ -61,7 +61,7 @@ A Tab's name is decided in this order of priority — a name you set yourself > 
 - **Green dot** — a program other than the shell is producing output. It disappears while waiting at a prompt or when the program is idle. Output that only changes the terminal title does not count, so the dot also disappears for a program that blinks its title while it waits for input (for example, Codex waiting on a question).
 - **Yellow name** — the program is waiting for input. **Blue name** — a job finished. Click that Surface and it returns to its normal color.
 
-The tab rename popup opens within the tab’s pane, including the tab bar. Renaming another tab in the same pane changes only the target, keeping the popup in place. Closing the pane also closes the popup.
+The tab rename popup opens within the tab’s pane, including the tab bar. Renaming another tab in the same pane changes only the target, keeping the popup in place. Closing the pane also closes the popup. Other panes can open their own tab rename popup.
 
 Tab width and font size have no entry in the settings window; change them with `tab_width` · `tab_font_size` under `[appearance]` in `~/.tasty/config.toml`.
 
@@ -113,7 +113,7 @@ The mark goes away when the move is done, when you cut something else, or when t
 
 ## Changing the kind
 
-Press `Alt+'` and the **Surface Type** popup appears. It changes the current Surface, in place, to **Terminal** · **Explorer** · **Markdown** · **HTML...** · **Image** · **DAG**. Choose with the arrow keys and `Enter`, or with the letter shown at the right end of the row. A row without a letter is chosen with the arrow keys or a click. The current kind is not in the list. The button in the middle of an empty Surface is the same popup.
+Press `Alt+'` and the **Surface Type** popup appears. It changes the current Surface, in place, to **Terminal** · **Explorer** · **Markdown** · **HTML...** · **Image** · **DAG**. Choose with the arrow keys and `Enter`, or with the letter shown at the right end of the row. A row without a letter is chosen with the arrow keys or a click. The current kind is not in the list. The button in the middle of an empty Surface is the same popup. Each surface can open its own popup, including in different tabs or splits.
 
 - Changing to Explorer opens the terminal's current directory as the root.
 - Markdown · HTML ask for a file path · URL.

@@ -1,4 +1,4 @@
-<!-- source-hash: f37fda3ce615 -->
+<!-- source-hash: f64d38f7bbad -->
 # Managing and viewing files
 
 Find and manage files in the Explorer, and view Markdown, images, and HTML beside the terminal. Inspect changes in the Git viewer. The viewers and Git tools require their respective plugins to be enabled.
@@ -19,7 +19,7 @@ The file extension decides which Surface opens it — `.md` is Markdown, image f
 
 File type and handler settings take effect when you press **Save** and are saved to the file in the background. If saving fails, a warning and notification explain why, and the changes last only until Tasty exits. An externally edited or damaged original is kept; check the file and restart Tasty before changing those settings again. If these settings cannot be loaded on startup, the log names the file and the type of problem without including the file contents.
 
-The **Open file with…** window lists the file path, detected format, and available handlers. Each handler has an icon, a name, and its origin (**built-in** · **you** · **plugin**). This list appears within the surface that requested opening the file.
+The **Open file with…** window lists the file path, detected format, and available handlers. Each handler has an icon, a name, and its origin (**built-in** · **you** · **plugin**). This list appears within the surface that requested opening the file. It opens separately for each surface: a request from another surface keeps the earlier chooser open, while a new request from the same surface replaces it.
 
 **Recent** shows previously used handlers and when you used them: just now, minutes ago, hours ago, yesterday, or days ago. After a week, it shows a date such as `2026-09-13`. The display updates if the window stays open across midnight.
 
@@ -27,7 +27,7 @@ One click selects a handler; a double-click opens the file. This choice applies 
 
 A Surface opened from a file is split · moved · closed · restored on restart just like any other Surface. The Tab name becomes the file name.
 
-A file chooser opened from the new tab button menu appears within that pane; one opened from sidebar **Tools** appears over the whole window. A chooser opened by a plugin appears within the requesting surface, or within the same area as its parent plugin popup when opened from that popup.
+A file chooser opened from the new tab button menu appears within that pane; one opened from sidebar **Tools** appears over the whole window. A chooser opened by a plugin appears within the requesting surface, or within the same area as its parent plugin popup when opened from that popup. The folder button in a Markdown address bar opens it within that surface. Choosers can open at the same time in different places, and each result goes back separately to where it was requested. If one is already open in the same place, a new request is declined, with a toast when you try to open it yourself. Switching tabs within the same pane and using the new tab button menu again, or using sidebar **Tools** again, does not open a separate chooser.
 
 Drag the file chooser by its top row, the one with the title and ✕. Closing it with ✕, **Cancel**, or `Esc` opens nothing.
 
@@ -41,11 +41,11 @@ A file you open yourself, by any of the ways above, opens in a new tab and **swi
 
 When an opening request specifies its source surface, switching windows while it is pending keeps the result in a new tab in that surface’s pane. Opening a file from the Explorer while you are looking at another pane still puts it in the Explorer’s pane. Closing the source does not open the file in another window.
 
-If a file selection is already in progress, another request is declined with a notice. Finish or cancel the existing selection before opening another chooser.
-
 ## Explorer
 
 The file manager built into Tasty. Change a terminal with `Alt+'` > **Explorer** and it opens that terminal's current directory as the root. `tasty new tab --pane 1 --type explorer --path ~/proj` also opens one. Passing `--cwd ~/proj` instead of `--path` opens that folder as the root too.
+
+Properties, name conflict questions and popups for renaming Explorer entries open separately for each surface.
 
 ### Screen
 
@@ -230,7 +230,7 @@ Renders `.md` files. When the file changes, it redraws automatically within 1 se
 - The **Find** key from the [Keyboard shortcuts](../customize/keybindings.md) settings (default `Ctrl+F` · `Alt+F`, macOS `Ctrl+F` · `Cmd+F`) while the document has focus — **Find in document**. Changing the Find key applies to open documents right away.
 - Select all and copy act only on what has focus. Select all in the document picks only the document text, without the address bar or find box text; in the address bar or find box it picks only that field's text.
 - Type another file path in the address bar at the top and press `Enter` or **Go** to move to it. Recently opened files appear as autocompletion. Files opened in other windows of the same Tasty instance are included, with up to 10 entries in most recently opened order. When the Surface is narrow the Go button hides, but `Enter` still moves.
-- The folder button left of the address bar (**Open a file…**) opens the file chooser in the current document's folder. The file you pick opens in the same Surface, without a new tab. Cancelling leaves the document as it was. If a file chooser is already open, a new one doesn't open, so finish or close that one first. On macOS, pressing the folder button with the keyboard can leave the file chooser hidden behind the document, so click it with the mouse. The address bar of a Markdown document in a remote Workspace is described in [Working remotely](../remote/attach.md).
+- The folder button left of the address bar (**Open a file…**) opens the file chooser in the current document's folder. The file you pick opens in the same Surface, without a new tab. Cancelling leaves the document as it was. If a file chooser is already open on the same surface, a new one doesn't open, so finish or close that one first. On macOS, pressing the folder button with the keyboard can leave the file chooser hidden behind the document, so click it with the mouse. The address bar of a Markdown document in a remote Workspace is described in [Working remotely](../remote/attach.md).
 - Links in the document — other Markdown · files open in a new Tab in the same Pane, and on Linux Tasty switches to it (on macOS Tasty switches to the new Tab only for links you click with the mouse; a link opened with the keyboard only adds the new Tab behind the current one), and `http(s)://` goes to the browser. Relative paths are relative to the folder the document is in. If no handler can open a linked file, the **Open file with…** window appears so you can choose (in a remote Workspace it lists only handlers that can open the file on the remote, and a notice appears when there are none). Links that point inside the same document, such as `#heading`, and footnote numbers and their back arrows only move to that spot.
 - Press the **Refresh** key (default `F5`) to re-read and redraw only the document you are looking at. It also works while you are typing in the address bar or the find box. Because the document is drawn again, what you were typing in the address bar, the open find box and its query, and the selection are cleared; the scroll position is restored when possible. A document in a remote Workspace fetches the original from the remote again; while disconnected, the disconnected state stays as it is. Large files go through the same confirmation described below.
 - Files over 1 MiB are asked about once with **Open large file?**. The prompt appears in the middle of that Markdown surface, or in the middle of the window when the surface is narrower than the prompt. A file that was small when opened is asked about the same way before it is re-read once it grows past 1 MiB, and its previous content stays visible until you answer. If you cancel, the document area shows **This file is larger than 1 MiB and has not been loaded**, with an **Open file…** button below it that asks again. A file you cancelled is not re-read automatically when it changes; `tasty markdown reload --surface <ID>` also asks again. Once you choose **Open**, that file is not asked about again.

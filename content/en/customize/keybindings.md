@@ -1,4 +1,4 @@
-<!-- source-hash: 657995d900eb -->
+<!-- source-hash: 6089be17f8fd -->
 # Keybindings
 
 Tasty’s keybindings can be changed with a preset or by assigning preferred key combinations to frequently used actions. Keybindings are available in **Settings** > **Keybindings**.
@@ -235,6 +235,8 @@ Plugin command shortcuts remain available while a mirror waits for a new Tab or 
 While a popup that takes input — the search bar, the file picker, the command palette — **has
 focus, keybindings are paused.** This prevents a shortcut such as `Alt+W` from closing a surface while you type into the search bar. If such a popup is merely open and does not
 have focus, keybindings work as usual.
+
+Tasty notice popups, such as startup errors, and the **Transfer failed** and **Download failed** popups for remote files do not close with `Enter` or `Esc` when they lack focus. Click the popup or give it focus before using these keys.
 
 To return to terminal controls, use either of these actions.
 
