@@ -1,4 +1,4 @@
-<!-- source-hash: bd005896030c -->
+<!-- source-hash: a0c9edb4a6b5 -->
 # Settings
 
 Tasty’s shell, fonts, language, and other preferences can be configured in the settings window or by editing `~/.tasty/config.toml` directly. Keybindings and themes have their own guides.
@@ -253,6 +253,12 @@ the text that language ships with stays on screen, and you never get a blank spo
 
 General settings are stored in this file. Handler tables, theme files, and other items described above use their separate paths. Missing keys are read as defaults, so you only need to write the ones you need.
 
+In `[performance]`, `output_redraw_fps` caps screen redraws caused by terminal output per second and defaults to 30. `input_redraw_fps` caps redraws caused by user input, such as keys and mouse actions, per second and defaults to 60. Echo output returned to the same terminal immediately after input also follows the input cap. The first input after the screen has been idle redraws immediately without waiting.
+
+Both keys accept `15`, `30`, `60`, `120`, `144`, `240`, or `-1` (unlimited). The actual redraw rate never exceeds the refresh rate of the monitor containing the window, even with `-1`. A value above the monitor's refresh rate stays unchanged; only the applied redraw rate is capped at that refresh rate. Values outside the list fall back to each key's default when the file is read.
+
+These two settings are currently available only through `config.toml`, not in the settings window. Tasty does not reread this file while running, so restart Tasty after editing the file to apply the changes.
+
 `heartbeat_timeout_secs` in `[remote_attach]` sets how long a remote attach connection waits without receiving anything from the other side. The unit is seconds, the default is 30, and the range is 10–600. If either file value is out of range, the entire `[remote_attach]` section is reset to its defaults (`heartbeat_timeout_secs = 30`, `reconnect_timeout_secs = 300`) and saved back to the settings file; a warning is written only to the log. Direct edits to the settings file are read the next time Tasty starts. To apply a change to new connections without restarting, change it in the settings window and save.
 
 `reconnect_timeout_secs` in `[remote_attach]` is the automatic reconnect window for saved remote rows, in seconds: default 300, range 0–3600. At 0, automatic reconnecting is disabled. It does not retry connections you end yourself. If either file value is out of range, the entire `[remote_attach]` section is reset to its defaults (`heartbeat_timeout_secs = 30`, `reconnect_timeout_secs = 300`) and saved back to the settings file; a warning is written only to the log.
@@ -311,6 +317,8 @@ enabled = true
 toast_duration_ms = 2000
 
 [performance]
+output_redraw_fps = 30          # terminal output redraw cap per second
+input_redraw_fps = 60           # user input redraw cap per second
 targeted_pty_polling = true
 scrollback_disk_swap = false
 scrollback_disk_lines = 10000     # lines kept on disk, -1 = unlimited

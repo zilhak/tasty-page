@@ -1,4 +1,4 @@
-<!-- source-hash: bd005896030c -->
+<!-- source-hash: a0c9edb4a6b5 -->
 # 设置
 
 Tasty 的 Shell、字体、语言等可在设置窗口中更改，也可直接编辑 `~/.tasty/config.toml` 进行配置。按键绑定和主题在各自的指南中详细说明。
@@ -243,6 +243,12 @@ title = "내 클립보드"
 
 常规设置保存在此文件中。处理器表和主题文件等使用上文说明的独立路径。缺失的键会读取默认值，因此只需填写需要的项。
 
+`[performance]` 中的 `output_redraw_fps` 是终端输出引起的屏幕重绘每秒上限，默认值为 30。`input_redraw_fps` 是按键、鼠标等用户输入引起的重绘每秒上限，默认值为 60。输入后立即返回同一终端的回显输出也遵循输入侧的上限。屏幕停止更新后的首次输入会立即重绘，无需等待。
+
+两个键均可设为 `15`、`30`、`60`、`120`、`144`、`240`、`-1`（无限制）。实际重绘频率不会超过窗口所在显示器的刷新率，即使设为 `-1` 也只会达到显示器刷新率。填写高于显示器刷新率的值时，该值保持不变，仅将实际应用的频率限制在刷新率以内。读取文件时，列表以外的值会恢复为各键的默认值。
+
+目前设置窗口中没有这两项，只能通过 `config.toml` 修改。运行中的 Tasty 不会重新读取此文件，因此编辑后需要重启 Tasty 才能应用。
+
 `[remote_attach]` 的 `heartbeat_timeout_secs` 是远程附加连接在对端无响应时等待的时间。单位为秒，默认值为 30，范围为 10~600。文件中的任一值超出范围时，会将整个 `[remote_attach]` 恢复为默认值（`heartbeat_timeout_secs = 30`、`reconnect_timeout_secs = 300`），重新写入配置文件，警告仅写入日志。直接编辑配置文件的内容会在下次启动 Tasty 时读取。要在不重启的情况下应用于新连接，请在设置窗口中更改并保存。
 
 `[remote_attach]` 中的 `reconnect_timeout_secs` 为已保存远程行的自动重新连接尝试时长，单位为秒，默认 300，范围 0~3600。0 禁用自动重新连接，不重试手动断开的连接。文件中的任一值超出范围时，会将整个 `[remote_attach]` 恢复为默认值（`heartbeat_timeout_secs = 30`、`reconnect_timeout_secs = 300`），重新写入配置文件，警告仅写入日志。
@@ -301,6 +307,8 @@ enabled = true
 toast_duration_ms = 2000
 
 [performance]
+output_redraw_fps = 30          # 终端输出引起的每秒重绘上限
+input_redraw_fps = 60           # 用户输入引起的每秒重绘上限
 targeted_pty_polling = true
 scrollback_disk_swap = false
 scrollback_disk_lines = 10000     # 磁盘保留行数, -1 表示无限制
