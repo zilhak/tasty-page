@@ -1606,6 +1606,24 @@
   --tasty-site-code-fg:        var(--tasty-code-fixed-fg);
   --tasty-site-code-comment:   var(--tasty-code-fixed-comment);
   --tasty-site-inline-code-bg: var(--tasty-code-inline-bg);
+
+  /* ── Android (2026-11-18). Sizes of the Android app, read only by vendor/android and the Android app. The desktop
+     UI never reads them. Each points at a canon token; colors stay the desktop roles. ── */
+  --tasty-android-tab-height:         var(--tasty-size-32); /* Bar height, and the height of a tab's target */
+  --tasty-android-tab-min-width:      var(--tasty-size-96); /* Narrowest tab. One whole tab fits a 180 pane that also holds + and the logo */
+  --tasty-android-tab-max-width:      var(--tasty-size-240); /* Widest tab, when the pane has room to share */
+  --tasty-android-tab-button-width:   var(--tasty-size-40); /* Width of the + and logo buttons, which is their target width */
+  --tasty-android-tab-button-reach:   var(--tasty-space-sm); /* How far the + and logo targets reach below the bar, into the pane's own terminal */
+  --tasty-android-tab-logo-size:      var(--tasty-size-20); /* Drawn logo mark inside its target */
+  --tasty-android-popup-max-width:    var(--tasty-size-320); /* Widest the popup gets. Narrower areas keep the side margin instead */
+  --tasty-android-popup-margin:       var(--tasty-space-lg); /* Space between the popup and the edge of the area it sits in, on every side */
+  --tasty-android-popup-title-height: var(--tasty-size-48); /* Title row, its rule included: the name of what was pressed */
+  --tasty-android-popup-row-height:   var(--tasty-size-48); /* The row unit. Every list item is one unit; an action row is also its target */
+  --tasty-android-popup-padding-x:    var(--tasty-space-lg); /* Inset of the title, headings and row labels */
+  --tasty-android-popup-font-size:    var(--tasty-font-size-max); /* Title and row labels */
+  --tasty-android-popup-lane-width:   var(--tasty-size-24); /* Scroll lane at the right of a list that scrolls. The rows give up this width */
+  --tasty-android-popup-lane-glyph:   var(--tasty-icon-size-md); /* Chevron at each end of the lane */
+  --tasty-android-popup-thumb-width:  var(--tasty-space-xs); /* Thumb in the lane */
 }
 
 
