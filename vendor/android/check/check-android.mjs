@@ -6,7 +6,9 @@
  *
  * Opens every built page under android-gallery/, on each language path, in Mocha and Latte, wide and narrow. Fails on: a
  * page error, page-level horizontal scroll, no noindex in the head, anything but one [data-gallery-page], nothing measured
- * in it, an ink below its grade, a frozen cell that differs from its contract row or has none, or an unknown exempt id.
+ * in it, an ink below its grade, a frozen cell that differs from its contract row or has none, an unknown exempt id, or
+ * text cut by the top or bottom edge of a box that scrolls or clips, or a box that scrolls vertically outside a scroll
+ * specimen (see findClipped).
  *
  * The gallery's measure function is read from scripts/check-contrast.mjs when this runs, so its rules are not copied here.
  * That file does not export it, and importing the file would start its run. If the function cannot be found this stops.
@@ -90,6 +92,57 @@ async function waitForSpecimens(tab) {
   await stylesSettled(tab);
 }
 
+// The gallery shows every row: a specimen draws a popup or list in full, and only a scroll specimen ([data-scroll-specimen],
+// the Scrolling spec) shows a list that scrolls. So a box that scrolls vertically outside a scroll specimen is a fault.
+// Text cut by the top or bottom edge of a box that scrolls or clips is a fault anywhere, the scroll specimen included,
+// because a list that scrolls still shows whole rows. Sideways cuts are left alone: a tab cut at the end of a
+// tab row and a terminal line cut at a pane edge are drawn on purpose. Subtrees marked data-audit-exempt are skipped, as
+// in the contrast measure: what lies under a scrim is inert. Runs in the page.
+function findClipped() {
+  const TOL = 0.5;
+  const out = [];
+  const page = document.querySelector("[data-gallery-page]");
+  const clips = (o) => ["auto", "scroll", "hidden", "clip"].includes(o);
+  for (const box of page.querySelectorAll("*")) {
+    const overflowY = getComputedStyle(box).overflowY;
+    if ((overflowY === "auto" || overflowY === "scroll") && box.scrollHeight > box.clientHeight + 1 && !box.closest("[data-scroll-specimen]") && !box.closest("[data-audit-exempt]")) {
+      const spec = box.closest("[data-spec]")?.getAttribute("data-spec") ?? "?";
+      out.push(`a box scrolls vertically outside a scroll specimen (${box.scrollHeight} in ${box.clientHeight}) at ${spec}`);
+    }
+  }
+  // Each line of text against the band every clipping ancestor leaves visible. Outside the band it is hidden, which is
+  // fine; across an edge of the band it is cut.
+  const walk = document.createTreeWalker(page, NodeFilter.SHOW_TEXT, { acceptNode: (n) => (n.textContent.trim() ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT) });
+  for (let node = walk.nextNode(); node; node = walk.nextNode()) {
+    const el = node.parentElement;
+    if (el.closest("[data-audit-exempt]")) continue;
+    const style = getComputedStyle(el);
+    if (style.visibility !== "visible" || style.display === "none") continue;
+    let top = -Infinity;
+    let bottom = Infinity;
+    for (let a = el; a && a !== page.parentElement; a = a.parentElement) {
+      if (!clips(getComputedStyle(a).overflowY) || a.clientHeight === 0) continue;
+      const t = a.getBoundingClientRect().top + a.clientTop;
+      top = Math.max(top, t);
+      bottom = Math.min(bottom, t + a.clientHeight);
+    }
+    if (top === -Infinity) continue;
+    const range = document.createRange();
+    range.selectNodeContents(node);
+    for (const r of range.getClientRects()) {
+      if (r.height === 0 || r.bottom <= top + TOL || r.top >= bottom - TOL) continue;
+      if (r.top < top - TOL || r.bottom > bottom + TOL) {
+        const spec = el.closest("[data-spec]")?.getAttribute("data-spec") ?? "?";
+        const view = el.closest("[data-view]")?.getAttribute("data-view");
+        const shown = Math.round(Math.min(r.bottom, bottom) - Math.max(r.top, top));
+        out.push(`text cut by a box edge: "${node.textContent.trim().slice(0, 40)}" shows ${shown} of ${Math.round(r.height)} at ${spec}${view ? ` view ${view}` : ""}`);
+        break;
+      }
+    }
+  }
+  return out;
+}
+
 async function measurePage(context, origin, path, measure, theme, viewport) {
   const problems = [];
   const tab = await context.newPage();
@@ -112,6 +165,7 @@ async function measurePage(context, origin, path, measure, theme, viewport) {
     m.rows.filter((r) => r.status !== "ok").forEach((r) => problems.push(`${r.status} ${r.contract} ${r.part}: got ${r.got} want ${r.token} on ${r.ground}`));
     m.below.forEach((b) => problems.push(`${b.kind} "${b.text}" ${b.got} on ${b.ground} ${b.ratio} < ${b.grade} at ${b.spec}`));
     m.badExempt.forEach((b) => problems.push(`unknown exempt id ${b.id} at ${b.spec}`));
+    (await tab.evaluate(findClipped)).forEach((c) => problems.push(c));
     // The measure function skips a cell's inside and reads it through its rows, so a cell with no row is not measured at all.
     const known = new Set(measure.args.rows.map((r) => `${r.component}|${r.state}|${r.host}`));
     m.keys.filter((k) => !known.has(k)).forEach((k) => problems.push(`frozen cell ${k} has no contract row, so nothing in it is measured`));
