@@ -67,10 +67,11 @@ function FrPage({ lang = "en", hz = 60, output = 30, input = 60, w }) {
 }
 
 // The open list under a trigger, drawn as a frame (the shared Select list: menu ground, popover shadow).
+// At least as wide as the trigger; a longer row widens it rather than ellipsising (the selected row also holds the check).
 function FrList({ lang = "en", hz = 60, saved = 30 }) {
   const L = FR[lang];
   return (
-    <div lang={lang} style={{ width: "var(--tasty-field-width-lg)", padding: "var(--tasty-space-xs)", border: "var(--tasty-border-width) solid var(--tasty-menu-border)", borderRadius: "var(--tasty-menu-radius)", background: "var(--tasty-menu-bg)", boxShadow: "var(--tasty-shadow-popover)", display: "flex", flexDirection: "column", boxSizing: "border-box" }}>
+    <div lang={lang} style={{ width: "max-content", minWidth: "var(--tasty-field-width-lg)", padding: "var(--tasty-space-xs)", border: "var(--tasty-border-width) solid var(--tasty-menu-border)", borderRadius: "var(--tasty-menu-radius)", background: "var(--tasty-menu-bg)", boxShadow: "var(--tasty-shadow-popover)", display: "flex", flexDirection: "column", boxSizing: "border-box" }}>
       {frOptions(L, hz, saved).map((o) => <FrMenuItem key={o.value} label={o.label} selected={o.value === String(saved)} />)}
     </div>
   );
@@ -120,7 +121,7 @@ function FrameRateSection() {
           </FrPair>
         </Stage>
         <Meta
-          specs={[["choices", "15 · 30 · 60 · 120 · 144 · 240 · Match monitor (stored -1) · the same list for both rows"], ["shown", "values ≤ the fastest connected monitor's rate (rounded) · Match monitor always, last"], ["no report", "treated as 60 Hz → 15 · 30 · 60 · Match monitor"], ["label", "“{} fps” · Match monitor for -1"], ["selected", "MenuItem selected (text-primary + accent check)"], ["refresh", "the list is built each time it opens, from the monitors connected then"], ["list frame", "menu-bg · menu-border · menu-radius · shadow-popover · width field-width-lg, as the trigger"]]}
+          specs={[["choices", "15 · 30 · 60 · 120 · 144 · 240 · Match monitor (stored -1) · the same list for both rows"], ["shown", "values ≤ the fastest connected monitor's rate (rounded) · Match monitor always, last"], ["no report", "treated as 60 Hz → 15 · 30 · 60 · Match monitor"], ["label", "“{} fps” · Match monitor for -1"], ["selected", "MenuItem selected (text-primary + accent check)"], ["refresh", "the list is built each time it opens, from the monitors connected then"], ["list frame", "menu-bg · menu-border · menu-radius · shadow-popover · at least the trigger width (field-width-lg), wider when a row needs it, so no option ellipsises"]]}
           tokens={[{ tok: "--tasty-menu-bg", use: "open list ground", color: "var(--tasty-menu-bg)" }, { tok: "--tasty-menu-border", use: "open list edge", color: "var(--tasty-menu-border)" }, { tok: "--tasty-shadow-popover", use: "floating list" }]} />
       </Spec>
 
