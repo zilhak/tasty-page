@@ -12,32 +12,33 @@ const FR = {
     outputHint: "The most frames per second Tasty draws when terminal output changes the screen. Lower values use less CPU and GPU while a program prints fast.",
     inputHint: "The most frames per second Tasty draws in response to your input, such as typing. The first input after a pause draws at once, and output that echoes your input counts as input.",
     caption: "Both are maximums. Tasty never draws faster than the monitor each window is on, and lists only values up to your fastest monitor's refresh rate.",
-    fps: "{} fps", match: "Match monitor", above: "(above monitor)" },
+    fps: "{} fps", match: "Match monitor", above: "{} fps (above monitor)" },
   ko: { section: "프레임 레이트", output: "출력 프레임 레이트", input: "입력 프레임 레이트",
     outputHint: "터미널 출력으로 화면이 바뀔 때 1초에 그리는 최대 프레임 수입니다. 낮출수록 프로그램이 빠르게 출력하는 동안 CPU와 GPU를 덜 씁니다.",
     inputHint: "입력에 반응해 1초에 그리는 최대 프레임 수입니다. 잠시 멈춘 뒤의 첫 입력은 바로 그리고, 입력 직후 돌아온 에코 출력도 입력으로 봅니다.",
     caption: "두 값은 최대치입니다. 창이 있는 모니터의 주사율보다 빠르게 그리지 않으며, 연결된 모니터 중 가장 높은 주사율까지의 값만 목록에 보입니다.",
-    fps: "{} fps", match: "모니터에 맞춤", above: "(모니터 초과)" },
+    fps: "{} fps", match: "모니터에 맞춤", above: "{} fps (모니터 초과)" },
   ja: { section: "フレームレート", output: "出力フレームレート", input: "入力フレームレート",
     outputHint: "ターミナルの出力で画面が変わるときに、1秒間に描画する最大フレーム数です。低くすると、プログラムが高速に出力している間の CPU と GPU の使用量が減ります。",
     inputHint: "入力に応じて1秒間に描画する最大フレーム数です。しばらく止まった後の最初の入力はすぐに描画し、入力直後に返るエコー出力も入力として扱います。",
     caption: "どちらも上限です。ウィンドウがあるモニターのリフレッシュレートより速くは描画せず、接続中のモニターの最高リフレッシュレートまでの値だけを一覧に表示します。",
-    fps: "{} fps", match: "モニターに合わせる", above: "(モニター超過)" },
+    fps: "{} fps", match: "モニターに合わせる", above: "{} fps (モニター超過)" },
   "zh-Hans": { section: "帧率", output: "输出帧率", input: "输入帧率",
     outputHint: "终端输出使屏幕变化时，Tasty 每秒绘制的最大帧数。值越低，程序快速输出时的 CPU 和 GPU 使用率越低。",
     inputHint: "Tasty 响应键入等输入时，每秒绘制的最大帧数。暂停后的首次输入会立即绘制，输入的回显输出也按输入处理。",
     caption: "两项均为上限。Tasty 的绘制帧率不会超过各窗口所在显示器的刷新率，列表中仅显示不超过已连接显示器最高刷新率的值。",
-    fps: "{} fps", match: "匹配显示器", above: "（超出显示器刷新率）" },
+    fps: "{} fps", match: "匹配显示器", above: "{} fps（超出刷新率）" },
 };
 
 const CHOICES = [15, 30, 60, 120, 144, 240];
 const UNLIMITED = -1;
 
 // The list the row shows: every choice up to the fastest connected monitor, then Match monitor.
-// A saved value above that range keeps its place in numeric order, before Match monitor, with the suffix.
+// A saved value above that range keeps its place in numeric order, before Match monitor, in its own template
+// (each language places the bracket and its spacing).
 function frOptions(L, hz, saved) {
   const list = CHOICES.filter((v) => v <= hz).map((v) => ({ value: String(v), label: L.fps.replace("{}", v) }));
-  if (saved !== UNLIMITED && saved > hz) list.push({ value: String(saved), label: L.fps.replace("{}", saved) + " " + L.above, over: true });
+  if (saved !== UNLIMITED && saved > hz) list.push({ value: String(saved), label: L.above.replace("{}", saved), over: true });
   list.push({ value: String(UNLIMITED), label: L.match });
   return list;
 }
@@ -124,7 +125,7 @@ function FrameRateSection() {
       </Spec>
 
       <Spec id="terminal-frame-rate-saved-above-monitor" title="A saved value above every monitor"
-        when={<>Pick 144 fps, then keep only a 60 Hz monitor: the saved 144 stays, and Tasty draws at most what the monitor shows. The row does not pretend the value is gone, and it does not use the shared “(unknown)” suffix, since the value is known. The trigger shows <b>“144 fps (above monitor)”</b>, and the open list keeps that row selected <b>in numeric order</b>, before Match monitor, with the same suffix. The row shows no applied number, because it depends on which monitor each window is on; the caption under the pair already says Tasty never draws faster than the monitor. Picking another value saves it, and the extra row is gone on the next open. Nothing rewrites the saved value on its own.</>}>
+        when={<>Pick 144 fps, then keep only a 60 Hz monitor: the saved 144 stays, and Tasty draws at most what the monitor shows. The row does not pretend the value is gone, and it does not use the shared “(unknown)” suffix, since the value is known. The trigger shows <b>“144 fps (above monitor)”</b>, and the open list keeps that row selected <b>in numeric order</b>, before Match monitor, in the same words. The row shows no applied number, because it depends on which monitor each window is on; the caption under the pair already says Tasty never draws faster than the monitor. Picking another value saves it, and the extra row is gone on the next open. Nothing rewrites the saved value on its own.</>}>
         <Stage variant="solo" style={st}>
           <FrPair>
             <FrCase label="60 Hz monitor · output saved 144"><FrPage output={144} /></FrCase>
@@ -132,6 +133,7 @@ function FrameRateSection() {
           </FrPair>
         </Stage>
         <Stage variant="solo" style={st}>
+          <FrCase label="en · 60 Hz · input saved 240 — the longest trigger"><FrPage input={240} /></FrCase>
           <FrCase label="ko · 60 Hz · input saved 240"><FrPage lang="ko" input={240} /></FrCase>
           <FrCase label="ko · open list"><FrList lang="ko" hz={60} saved={240} /></FrCase>
           <FrCase label="ja · 60 Hz · output saved 144"><FrPage lang="ja" output={144} /></FrCase>
@@ -140,8 +142,8 @@ function FrameRateSection() {
           <FrCase label="zh-Hans · open list"><FrList lang="zh-Hans" hz={60} saved={144} /></FrCase>
         </Stage>
         <Meta
-          specs={[["when", "the saved value is a listed choice above the fastest connected monitor (a value outside the choices never reaches the row: it reads as the default)"], ["trigger", "“{} fps” + space + suffix · Select ink unchanged (text-primary), no warning colour"], ["list", "the saved value in numeric order, before Match monitor, selected, same suffix"], ["applied value", "not shown"], ["write", "unchanged until the user picks another value"]]} />
-        <Note>The suffix is a new key, not <code>settings.choice_missing_suffix</code>: “(unknown)” would say Tasty cannot read the value. The longest trigger, “240 fps (above monitor)”, fits field-width-lg in every language shown; at narrow widths the trigger keeps its width and the row stacks.</Note>
+          specs={[["when", "the saved value is a listed choice above the fastest connected monitor (a value outside the choices never reaches the row: it reads as the default)"], ["trigger", "its own template “{} fps (above monitor)” (not value + suffix, so each language places the bracket) · Select ink unchanged (text-primary), no warning colour"], ["list", "the saved value in numeric order, before Match monitor, selected, same template"], ["applied value", "not shown"], ["write", "unchanged until the user picks another value"]]} />
+        <Note>This is a new template key, not <code>settings.choice_missing_suffix</code>: “(unknown)” would say Tasty cannot read the value. The longest trigger, “240 fps (above monitor)”, fits field-width-lg in every language shown (zh-Hans has no space before its full-width bracket); at narrow widths the trigger keeps its width and the row stacks.</Note>
         <Dont>Clamp or rewrite the saved value, or colour the trigger as an error: the value is valid and only limited by the monitor.</Dont>
       </Spec>
 
@@ -156,7 +158,7 @@ function FrameRateSection() {
           <FrCase label="en · narrow 360 · Match monitor"><FrPage input={UNLIMITED} w="var(--tasty-size-360)" /></FrCase>
         </Stage>
         <Meta specs={[["stack", "settings_stack_row: label over control · gap settings-row-stack-gap · control keeps field-width-lg (max 100%)"], ["label", "wraps in settings-label-width, never ellipsises"], ["caption", "wraps at the column width"]]} />
-        <Note>i18n (new keys; names are a proposal, the implementing side may place them): L2 label and heading <code>settings.misc.subtab.frame_rate</code> “Frame rate” · “프레임 레이트” · “フレームレート” · “帧率”. Rows <code>settings.frame_rate.output</code> “Output frame rate” · “출력 프레임 레이트” · “出力フレームレート” · “输出帧率” and <code>settings.frame_rate.input</code> “Input frame rate” · “입력 프레임 레이트” · “入力フレームレート” · “输入帧率”, each with a <code>…_desc</code> HelpHint as drawn. <code>settings.frame_rate.caption</code> as drawn. Options <code>settings.frame_rate.fps</code> “{"{}"} fps” in every language, <code>settings.frame_rate.match_monitor</code> “Match monitor” · “모니터에 맞춤” · “モニターに合わせる” · “匹配显示器”, <code>settings.frame_rate.above_monitor_suffix</code> “(above monitor)” · “(모니터 초과)” · “(モニター超過)” · “（超出显示器刷新率）”. Row labels add the colon the way the Performance rows do. <code>settings.performance.apply_notice</code> does not change.</Note>
+        <Note>i18n (new keys; names are a proposal, the implementing side may place them): L2 label and heading <code>settings.misc.subtab.frame_rate</code> “Frame rate” · “프레임 레이트” · “フレームレート” · “帧率”. Rows <code>settings.frame_rate.output</code> “Output frame rate” · “출력 프레임 레이트” · “出力フレームレート” · “输出帧率” and <code>settings.frame_rate.input</code> “Input frame rate” · “입력 프레임 레이트” · “入力フレームレート” · “输入帧率”, each with a <code>…_desc</code> HelpHint as drawn. <code>settings.frame_rate.caption</code> as drawn. Options <code>settings.frame_rate.fps</code> “{"{}"} fps” in every language, <code>settings.frame_rate.match_monitor</code> “Match monitor” · “모니터에 맞춤” · “モニターに合わせる” · “匹配显示器”, <code>settings.frame_rate.fps_above_monitor</code> “{"{}"} fps (above monitor)” · “{"{}"} fps (모니터 초과)” · “{"{}"} fps (モニター超過)” · “{"{}"} fps（超出刷新率）”. Row labels add the colon the way the Performance rows do. <code>settings.performance.apply_notice</code> does not change.</Note>
       </Spec>
     </Section>
   );
