@@ -1,4 +1,4 @@
-<!-- source-hash: 75379c4b4169 -->
+<!-- source-hash: 657995d900eb -->
 # Keybindings
 
 Tasty’s keybindings can be changed with a preset or by assigning preferred key combinations to frequently used actions. Keybindings are available in **Settings** > **Keybindings**.
@@ -208,7 +208,7 @@ Recording rules:
 
 In the **Plugins** sub-tab, pick a plugin from the **Plugin:** drop-down at the top. Each of its commands gets one line.
 
-Plugin command shortcuts remain available while a mirror waits for a new Tab or split, and their keys are not passed to the terminal or another action. See the [remote guide](../remote/attach.md#what-you-can-do-inside-a-mirror) for where popups open and what happens if creation fails.
+Plugin command shortcuts remain available while a mirror waits for a new Tab or split, and their keys are not passed to the terminal or another action. While a mirror waits for a new Tab to be created, built-in actions that target a single Tab, such as Search and Refresh, run in order in the new Tab after it is created. Copy, Cut and Paste are excluded; actions unsupported by the new Tab type do not run, and all held actions are discarded if creation fails or is cancelled. The Explorer keys for Move between items, extend the selection, Open the selected item and clear the selection are also excluded. See the [remote guide](../remote/attach.md#what-you-can-do-inside-a-mirror) for where popups open and what happens if creation fails.
 
 - **Inherit** in the mode drop-down follows the key of one Tasty action (for example `clipboard.paste`). The key it follows right now is shown under the line.
 - **Custom** records the key the same way as the other subtabs. Click the key button and press the combination; use `+` to add another one. Pressing `Esc` while recording removes that key, and removing every key leaves the command without a shortcut. Changing the plugin or the mode, or pressing **Reset**, while recording cancels the recording. With many keys or a narrow window, the key buttons and **Reset** continue on the next line, and every key stays visible.
@@ -249,6 +249,8 @@ While the settings window or the notification panel is open, `Esc` closes that o
 
 - **Modifier key hints** — Hold `Ctrl` · `Alt` · `Shift` and the like for 0.5 seconds or longer (Shift alone: 1.2 seconds) and a list of keybindings starting with that combination appears below the sidebar. It disappears when you let go. On Windows and Linux, `Win` and `Super` show the list only when at least one keybinding uses that key. Turn it off with **Settings** > **General** > **Accessibility** > **Show modifier key hints**; the panel can be dragged around or resized.
 - **Command palette** — `Ctrl+Shift+P` or the palette shortcut keycap on the right of the status bar. Type an action's name and run it with `Enter`. The actions in the Keybindings tab and the global commands of active plugins are searchable. Left out are the command palette itself, **Exit fullscreen stage**, **Copy link** (its target is the link under the mouse), the code field keys, and the Explorer keys for moving between items, extending the selection, opening and clearing the selection (the Explorer's rename and move to trash are included). Script keybindings don't appear in the palette either. The query field keeps a distinct background and border when unfocused, and shows a focus border while you type.
+
+When you choose an action that targets a single Tab from the command palette, such as Search, Refresh, Convert Surface type, vi copy mode or an Explorer action, it runs in the Tab selected when you press `Enter`. Actions that the Tab type does not support do not run.
 
 ## Editing the settings file directly
 

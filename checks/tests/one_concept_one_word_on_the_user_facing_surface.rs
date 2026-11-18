@@ -60,8 +60,8 @@ const NOT_A_WINDOW: &[NotAWindow] = &[
     NotAWindow {
         path: "content/remote/attach.md",
         phrase: "주소창",
-        count: 6,
-        evidence: "낱말이 다르다 — 원격 마크다운 문서 맨 위의 address bar 다. Window 를 가리키지 않는다",
+        count: 7,
+        evidence: "낱말이 다르다 — 원격 마크다운 문서 맨 위의 address bar 와, 새 탭 생성 대기 중 거는 탐색기 동작 라벨 \"주소창으로 이동\"(Go to the address bar)이다. Window 를 가리키지 않는다",
     },
     NotAWindow {
         path: "content/remote/attach.md",
