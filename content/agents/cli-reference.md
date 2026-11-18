@@ -67,6 +67,12 @@ tasty session revoke --token <토큰>
 `ipc.invoke:markdown` 이고, 명령 이름에 `-` 가 있으면 `_` 로 바꿉니다. 적지 않은 채 부르면 거부되고 사람에게 권한 승인 요청이 갑니다.
 `tasty claude spawn` 으로 띄운 Claude 는 `tasty claude …` · `tasty codex …` 권한을 이미 받아 둡니다.
 
+## Claude 자식의 idle 체크
+
+`tasty claude idle-check --surface <자식>`은 부모 Claude나 셸에서 자식에게 메시지를 보내지 않고 idle 체크를 거는 명령입니다. `--surface`는 필수이며 감시할 자식을 지정합니다. 선택 옵션 `--caller-surface`로 경고 줄을 받을 서피스를 지정할 수 있습니다.
+
+체크 시간, 자동 체크와 해제 조건은 [Claude·Codex와 함께 쓰기](claude-codex.md#claude-자식의-idle-체크)를 보세요.
+
 ## 알림 보내기
 
 긴 작업이 끝났을 때 사람에게 알립니다. 알림은 알림 패널에 쌓이고 서피스 테두리·사이드바 배지로 표시됩니다. OS 알림 센터로는 보내지 않습니다.

@@ -1,4 +1,4 @@
-<!-- source-hash: 1cdfd1acbd23 -->
+<!-- source-hash: 02f85c1eb68c -->
 # Working with Claude and Codex
 
 Run Claude Code and Codex CLI in Tasty terminals and follow their status. Install each CLI separately. To delegate work across agents, configure both the hooks and the parent’s result delivery path.
@@ -127,6 +127,20 @@ A Claude child started without a prompt is `idle` once its input screen appears.
 
 When there are too many children, a warning is attached to the spawn response. Change the threshold at **Settings** › **Plugins** › **Claude Code** / **Codex** › **Spawn child warning threshold** (default 6 for both Claude Code and Codex).
 
+### Idle checks for Claude children
+
+From a parent Claude or a shell, run `tasty claude idle-check --surface <child>` to set an idle check without sending the child a message.
+
+```sh
+tasty claude idle-check --surface 57
+```
+
+If the child shows neither activity (`active`) nor a turn ending for 2 minutes (120 seconds), the parent receives one warning line, once. Activity restarts the 2-minute count. The check is removed without a notification when the turn it is waiting for ends.
+
+If you send `tell` to a working child, the check ends when the turn that handles the message ends, rather than when the turn already in progress ends. If you answer a child waiting on a question with `tell`, the check ends when the turn handling that answer ends. `tell`, and `spawn` or `respawn` with `--prompt`, automatically set the same check.
+
+After a warning, inspect the child's state and output, and set another check if needed. Tasty does not recover the child automatically.
+
 ### Model and effort for a Claude child
 
 Set a model and effort for this child session only.
@@ -150,6 +164,8 @@ Input requests,
 interruptions, errors, and process exits are state notifications too; they do not establish task success.
 When a Claude child ended its turn on an API error, the end of the completion line says so and names the error kind (for example `overloaded`). If background work is still running and the child keeps waiting, a single line saying so is written instead of a completion line.
 The default threshold for a Claude child’s no-output notification is 10 minutes (600 seconds). It can be changed to 60–86400 seconds in [Settings > Plugins > Claude Code](../plugins/index.md#settings-added-by-plugins), without restarting Tasty. There is no value that disables the notification.
+
+The existing notification for children with no output for a long time (10 minutes by default) remains in place. Only a parent with an idle check set on that child receives an idle-check line for the same silence.
 
 For a child waiting on a background shell or subagent, if all located task output files remain unchanged for the configured time, one line naming the work is written once per wait. In English, it reads `background work <name> has written no output for <min> min`. If Tasty cannot find the work’s output, it writes one line per wait after screen output remains unchanged for the greater of 10 minutes and the configured time. In English, this reads `waiting on background work (<kind>) for <min> min, with no output meanwhile`. Actual notifications follow the app language.
 

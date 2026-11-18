@@ -1,4 +1,4 @@
-<!-- source-hash: 0f54ef3daa95 -->
+<!-- source-hash: 91ec00388bb6 -->
 # CLI 命令参考
 
 按用途说明入门内容之外的命令，包括指定读取位置的 `read since-mark`、Surface 状态、消息队列和共享记忆。完整参数和选项可通过 `tasty help` 查看。
@@ -67,6 +67,12 @@ tasty session revoke --token <令牌>
 对于 `tasty <命令> …`，请添加 `--permission ipc.invoke:<命令>`——`tasty markdown …` 对应
 `ipc.invoke:markdown`，命令名称中的 `-` 要替换为 `_`。未添加权限就调用时，请求会被拒绝，并向用户发送权限批准请求。
 通过 `tasty claude spawn` 启动的 Claude 已获得 `tasty claude …` · `tasty codex …` 权限。
+
+## Claude 子智能体的 idle 检查
+
+`tasty claude idle-check --surface <子智能体>` 可从父 Claude 或 Shell 设置 idle 检查，不向子智能体发送消息。`--surface` 为必填项，指定要监视的子智能体。可选项 `--caller-surface` 指定接收警告行的 Surface。
+
+检查时间、自动检查和解除条件，见[配合 Claude 和 Codex 使用](claude-codex.md#claude-子智能体的-idle-检查)。
 
 ## 发送通知
 

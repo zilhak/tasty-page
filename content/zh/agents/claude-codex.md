@@ -1,4 +1,4 @@
-<!-- source-hash: 1cdfd1acbd23 -->
+<!-- source-hash: 02f85c1eb68c -->
 # 配合 Claude 和 Codex 使用
 
 在 Tasty 终端中运行 Claude Code 和 Codex CLI 并查看状态。两个 CLI 需要单独安装。要将任务分配给多个智能体，请同时配置钩子和父智能体的结果接收路径。
@@ -127,6 +127,20 @@ tasty claude parent --surface 57                            # 此子智能体的
 
 子智能体过多时，spawn 响应会附带警告。可在**设置** <!-- en: Settings --> › **插件** <!-- en: Plugins --> › **Claude Code** / **Codex** 的 **Spawn 子实例警告阈值** <!-- en: Spawn child warning threshold --> 中更改阈值（Claude Code、Codex 均默认为 6）。
 
+### Claude 子智能体的 idle 检查
+
+在父 Claude 或 Shell 中执行 `tasty claude idle-check --surface <子智能体>`，可在不向子智能体发送消息的情况下设置 idle 检查。
+
+```sh
+tasty claude idle-check --surface 57
+```
+
+如果子智能体在 2 分钟（120 秒）内既没有活动（`active`）也没有结束回合，父智能体会收到一行警告，仅发送一次。检测到活动时，重新计算 2 分钟。检查所等待的回合结束后，会解除检查，不另行通知。
+
+向正在工作的子智能体发送 `tell` 时，会在处理该消息的回合结束后解除检查，而不是在原先进行中的回合结束时解除。用 `tell` 回答正在提问等待的子智能体时，也会在处理该回答的回合结束后解除检查。`tell` 以及带有 `--prompt` 的 `spawn`、`respawn` 会自动设置相同的检查。
+
+父智能体收到警告后，请查看子智能体的状态和输出，并在需要时重新设置检查。Tasty 不会自动恢复子智能体。
+
 ### 子 Claude 的模型和 effort
 
 可仅为本次子会话指定模型和 effort。
@@ -149,6 +163,8 @@ tasty claude spawn --workspace workers --cwd ~/proj --model opus --effort high \
 输入请求、中断、错误和进程退出也属于状态通知，不要将通知直接视为任务成功。
 如果 Claude 子智能体因 API 错误结束回合，完成通知行末会附上该情况和错误种类（如 `overloaded`）。如果仍有后台任务且子智能体继续等待，则不会写入完成行，而是仅写入一行说明该情况。
 Claude 子智能体的无输出通知默认以 10 分钟（600 秒）为阈值。可在[设置 > 插件 > Claude Code](../plugins/index.md#插件添加的设置) 中改为 60～86400 秒，无需重启即可生效。没有关闭通知的取值。
+
+原有针对长时间无输出的子智能体的通知（默认为 10 分钟）保持不变。但只有对该子智能体设置了 idle 检查的父智能体，会针对同一段无输出收到 idle 检查的一行通知。
 
 等待后台 Shell 或子智能体的子智能体，在找到的所有任务输出文件持续配置时长未变化时，每次等待仅写入一行带任务名称的记录。英文为 `background work <名称> has written no output for <分钟> min`。如果找不到任务输出，则在画面输出持续未变化的时间达到 10 分钟与配置值中的较大值时，每次等待仅写入一行。此时英文为 `waiting on background work (<种类>) for <分钟> min, with no output meanwhile`。实际通知遵循应用语言。
 
