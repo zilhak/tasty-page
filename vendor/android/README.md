@@ -38,7 +38,7 @@ What crosses over is values, not components. The Android theme takes them from `
 | Layout rules | The fixed limits of `vendor/RULES.md` section 10: 4 dp grid, 1 dp border, 4 dp radius, 14 sp UI type cap. Heights by place are Android's own |
 | Icons | The drawings in `vendor/icons`, through `Icon` |
 | Parts | Not taken. Android parts are drawn in `parts/`. The desktop components are a reference only |
-| Sizes | Android's own, declared in the part that uses them, each pointing at a canon token |
+| Sizes | Android's own `--tasty-android-*` tokens in `tokens/components.css`, each pointing at a canon token. The desktop UI never reads them |
 | Width classes | The canon has none. Android's own, declared in `gallery/widths.jsx` |
 
 Screens wait for the decision on how the app is used. Nothing here decides product behaviour.
@@ -52,7 +52,7 @@ The Android app looks different from the desktop, so its parts are drawn separat
 | Pane tab bar | `parts/tab-bar.jsx` | The pane tab strip |
 | List popup | `parts/list-popup.jsx` | The context menu |
 
-Colors stay canon tokens, and icons stay `vendor/icons`. A size the canon has no token for is declared in the part as an `--android-*` property that reads a canon token, and its table is on the page.
+Colors stay canon tokens, and icons stay `vendor/icons`. A size an Android part needs is a `--tasty-android-*` token in `tokens/components.css` that reads a canon token, so the Android theme takes it from `tasty.tokens.json` like every other value. Adding one is a shared change: report it first, then add it with the JSON and its class in `ground-ink-rules.json`. The part file lists its tokens for the page tables.
 
 **Menus.** Every menu on Android is a list popup in the middle of the window, over a scrim: the tab menu a long press opens, the Tasty menu the logo opens, and any menu added later. It is never a context menu at the finger, as a right click opens on the desktop. Its title names what was pressed. A tap on a row runs it; a tap on the scrim or the system back closes it. A row that is not available stays in place, disabled, and is never hidden.
 
@@ -60,11 +60,13 @@ Colors stay canon tokens, and icons stay `vendor/icons`. A size the canon has no
 
 **On-screen keyboard.** Opening a popup leaves an open on-screen keyboard open, and a popup never pushes the keyboard away. The popup centres in the window area above the keyboard; when that area is short, the title stays and the rows scroll.
 
+**The user's choices.** Tasty gets in the way of the user's choices as little as it can. It does not change the screen state the user set up, such as the keyboard, the window size or the font scale. It also adds no special handling for when that state does not fit. A popup in a cramped area follows the same rules as anywhere else, and if it is too tight, the user changes the keyboard or the window.
+
 **Lists that scroll.** This applies to every Android popup and list. Scrolling is allowed, but it must always show:
 
 - A list shows whole rows only. Every item is one row unit, a group heading included. A group rule sits inside the top edge of its first row. The list area is a whole number of rows tall, and scrolling comes to rest on row edges.
 - While any row is out of view, a scroll lane stands at the right of the list for the whole time, not only during a scroll. It has a chevron at each end, lit when rows lie that way and dimmed when that end is reached, and a thumb between them. A row cut at the edge never stands in for it.
-- In a short area the popup margin steps down so that at least two whole rows show: first to the tight margin, then to none. Below that, one row shows. If whole rows and a clear lane ever conflict, the lane wins.
+- A short area follows the same rules: the same margin, and the whole rows that fit, at least one. If whole rows and a clear lane ever conflict, the lane wins.
 
 The Touch, Widths and Shared parts sections predate this rule and still draw desktop components.
 
