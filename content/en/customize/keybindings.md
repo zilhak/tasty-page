@@ -1,7 +1,9 @@
-<!-- source-hash: 6089be17f8fd -->
+<!-- source-hash: 92b91678f657 -->
 # Keybindings
 
 Tasty’s keybindings can be changed with a preset or by assigning preferred key combinations to frequently used actions. Keybindings are available in **Settings** > **Keybindings**.
+
+In an HTML or Markdown page, built-in shortcuts for closing, renaming or switching Tabs, zooming, switching Workspaces by number, going to the next or previous Workspace, and going to the next or previous category target the Tab, Pane and Workspace containing that page. For example, pressing `F2` in an HTML page renames that HTML Tab, rather than an Explorer item.
 
 ## Notation
 
@@ -253,6 +255,8 @@ While the settings window or the notification panel is open, `Esc` closes that o
 - **Command palette** — `Ctrl+Shift+P` or the palette shortcut keycap on the right of the status bar. Type an action's name and run it with `Enter`. The actions in the Keybindings tab and the global commands of active plugins are searchable. Left out are the command palette itself, **Exit fullscreen stage**, **Copy link** (its target is the link under the mouse), the code field keys, and the Explorer keys for moving between items, extending the selection, opening and clearing the selection (the Explorer's rename and move to trash are included). Script keybindings don't appear in the palette either. The query field keeps a distinct background and border when unfocused, and shows a focus border while you type.
 
 When you choose an action that targets a single Tab from the command palette, such as Search, Refresh, Convert Surface type, vi copy mode or an Explorer action, it runs in the Tab selected when you press `Enter`. Actions that the Tab type does not support do not run.
+
+Closing, renaming or moving a Tab, applying presets, and Copy, Cut and Paste also target the Surface, Tab, Pane and Workspace selected when you press `Enter`. A new Workspace is created in the category of the Workspace selected at that time. If the target closes before execution, the command does not run or switch to another target. Pane and Surface splits, restoring closed items, opening the Explorer, and opening Markdown in a new Tab use the focus at execution time instead. If focus changes after `Enter`, those commands apply at the new location.
 
 ## Editing the settings file directly
 
