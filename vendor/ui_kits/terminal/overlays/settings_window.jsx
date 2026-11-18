@@ -1003,10 +1003,10 @@ function SettingsWindow({ theme, onTheme, uiScale, onUiScale, onClose, os = DEFA
         const fr = [["15", "15 fps"], ["30", "30 fps"], ["60", "60 fps"], ["-1", "Match monitor"]].map(([value, label]) => ({ value, label }));
         return (
           <>
-            <Mono>Frame rate — redraw caps</Mono>
-            <Row label="Output frame rate:" hint="The most frames per second Tasty draws when terminal output changes the screen. Lower values use less CPU and GPU while a program prints fast."><Select options={fr} defaultValue="30" style={{ width: "var(--tasty-field-width-lg)" }} /></Row>
-            <Row label="Input frame rate:" hint="The most frames per second Tasty draws in response to your input, such as typing. The first input after a pause draws at once, and output that echoes your input counts as input."><Select options={fr} defaultValue="60" style={{ width: "var(--tasty-field-width-lg)" }} /></Row>
-            <Note>Both are maximums. Tasty never draws faster than the monitor each window is on, and lists only values up to your fastest monitor's refresh rate.</Note>
+            <Mono>Frame rate</Mono>
+            <Row label="Output frame rate:" hint="The most frames per second Tasty draws when terminal output changes the screen."><Select options={fr} defaultValue="30" style={{ width: "var(--tasty-field-width-lg)" }} /></Row>
+            <Row label="Input frame rate:" hint="The most frames per second Tasty draws in response to your input, such as typing. When the screen has not drawn for a frame interval, the next input draws at once, and output the same terminal returns right after your input counts as input."><Select options={fr} defaultValue="60" style={{ width: "var(--tasty-field-width-lg)" }} /></Row>
+            <Note>Both are maximums. Tasty never draws faster than the monitor each window is on. The list holds values up to your fastest monitor's refresh rate, plus any saved value above it.</Note>
           </>
         );
       }

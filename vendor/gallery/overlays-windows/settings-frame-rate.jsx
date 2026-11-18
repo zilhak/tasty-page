@@ -9,24 +9,24 @@ import { Section, Spec, Stage, Meta, Note, Do, Dont } from "../parts/specimen.js
 // Copy per language. zh-Hans values were written by Codex against the zh-Hans glossary.
 const FR = {
   en: { section: "Frame rate", output: "Output frame rate", input: "Input frame rate",
-    outputHint: "The most frames per second Tasty draws when terminal output changes the screen. Lower values use less CPU and GPU while a program prints fast.",
-    inputHint: "The most frames per second Tasty draws in response to your input, such as typing. The first input after a pause draws at once, and output that echoes your input counts as input.",
-    caption: "Both are maximums. Tasty never draws faster than the monitor each window is on, and lists only values up to your fastest monitor's refresh rate.",
+    outputHint: "The most frames per second Tasty draws when terminal output changes the screen.",
+    inputHint: "The most frames per second Tasty draws in response to your input, such as typing. When the screen has not drawn for a frame interval, the next input draws at once, and output the same terminal returns right after your input counts as input.",
+    caption: "Both are maximums. Tasty never draws faster than the monitor each window is on. The list holds values up to your fastest monitor's refresh rate, plus any saved value above it.",
     fps: "{} fps", match: "Match monitor", above: "{} fps (above monitor)" },
   ko: { section: "프레임 레이트", output: "출력 프레임 레이트", input: "입력 프레임 레이트",
-    outputHint: "터미널 출력으로 화면이 바뀔 때 1초에 그리는 최대 프레임 수입니다. 낮출수록 프로그램이 빠르게 출력하는 동안 CPU와 GPU를 덜 씁니다.",
-    inputHint: "입력에 반응해 1초에 그리는 최대 프레임 수입니다. 잠시 멈춘 뒤의 첫 입력은 바로 그리고, 입력 직후 돌아온 에코 출력도 입력으로 봅니다.",
-    caption: "두 값은 최대치입니다. 창이 있는 모니터의 주사율보다 빠르게 그리지 않으며, 연결된 모니터 중 가장 높은 주사율까지의 값만 목록에 보입니다.",
+    outputHint: "터미널 출력으로 화면이 바뀔 때 1초에 그리는 최대 프레임 수입니다.",
+    inputHint: "입력에 반응해 1초에 그리는 최대 프레임 수입니다. 마지막으로 그린 뒤 프레임 간격 이상 지난 화면에서는 다음 입력을 바로 그리고, 입력 직후 같은 터미널에서 돌아온 출력도 입력으로 봅니다.",
+    caption: "두 값은 최대치입니다. 창이 있는 모니터의 주사율보다 빠르게 그리지 않습니다. 목록에는 연결된 모니터 중 가장 높은 주사율까지의 값과, 그보다 높게 저장된 값이 보입니다.",
     fps: "{} fps", match: "모니터에 맞춤", above: "{} fps (모니터 초과)" },
   ja: { section: "フレームレート", output: "出力フレームレート", input: "入力フレームレート",
-    outputHint: "ターミナルの出力で画面が変わるときに、1秒間に描画する最大フレーム数です。低くすると、プログラムが高速に出力している間の CPU と GPU の使用量が減ります。",
-    inputHint: "入力に応じて1秒間に描画する最大フレーム数です。しばらく止まった後の最初の入力はすぐに描画し、入力直後に返るエコー出力も入力として扱います。",
-    caption: "どちらも上限です。ウィンドウがあるモニターのリフレッシュレートより速くは描画せず、接続中のモニターの最高リフレッシュレートまでの値だけを一覧に表示します。",
+    outputHint: "ターミナルの出力で画面が変わるときに、1秒間に描画する最大フレーム数です。",
+    inputHint: "入力に応じて1秒間に描画する最大フレーム数です。最後の描画からフレーム間隔以上たった画面では次の入力をすぐに描画し、入力直後に同じターミナルから返る出力も入力として扱います。",
+    caption: "どちらも上限です。ウィンドウがあるモニターのリフレッシュレートより速くは描画しません。一覧には、接続中のモニターの最高リフレッシュレートまでの値と、それより高く保存された値が表示されます。",
     fps: "{} fps", match: "モニターに合わせる", above: "{} fps (モニター超過)" },
   "zh-Hans": { section: "帧率", output: "输出帧率", input: "输入帧率",
-    outputHint: "终端输出使屏幕变化时，Tasty 每秒绘制的最大帧数。值越低，程序快速输出时的 CPU 和 GPU 使用率越低。",
-    inputHint: "Tasty 响应键入等输入时，每秒绘制的最大帧数。暂停后的首次输入会立即绘制，输入的回显输出也按输入处理。",
-    caption: "两项均为上限。Tasty 的绘制帧率不会超过各窗口所在显示器的刷新率，列表中仅显示不超过已连接显示器最高刷新率的值。",
+    outputHint: "终端输出使屏幕变化时，Tasty 每秒绘制的最大帧数。",
+    inputHint: "Tasty 响应键入等输入时，每秒绘制的最大帧数。若屏幕自上次绘制以来已至少经过一个帧间隔，下一次输入会立即触发绘制；输入后紧接着由同一终端返回的输出也按输入处理。",
+    caption: "两项均为上限。Tasty 的绘制帧率不会超过各窗口所在显示器的刷新率。列表包含不超过已连接显示器最高刷新率的值，以及已保存的高于该刷新率的值。",
     fps: "{} fps", match: "匹配显示器", above: "{} fps（超出刷新率）" },
 };
 
@@ -96,7 +96,7 @@ function FrameRateSection() {
   return (
     <Section id="framerate" title="Terminal › Frame rate — redraw caps">
       <Spec id="terminal-frame-rate-two-redraw-caps" title="Two redraw caps, one choice list"
-        when={<>Two caps on how often Tasty redraws: one for redraws that terminal output causes, one for redraws your input causes. They are a pair with the same choices, so they sit together in their <b>own Terminal section, Frame rate</b>, after Performance. Its own section keeps two things apart. The label-only section filter finds “frame”, which it would not if the rows lived inside Performance. And these caps take effect as soon as they are saved, while the Performance note says its rows reach only terminals opened afterward, so the new section carries <b>no apply note</b> and the Performance note stays as it is. Each row is a <b>Select at field-width-lg</b> with the usual HelpHint. One muted caption under the pair says both are maximums and why the list can be short. Defaults: output 30 fps, input 60 fps.</>}>
+        when={<>Two caps on how often Tasty redraws: one for redraws that terminal output causes, one for redraws your input causes. They are a pair with the same choices, so they sit together in their <b>own Terminal section, Frame rate</b>, after Performance. Its own section keeps two things apart. The label-only section filter finds “frame”, which it would not if the rows lived inside Performance. And these caps take effect as soon as they are saved, while the Performance note says its rows reach only terminals opened afterward, so the new section carries <b>no apply note</b> and the Performance note stays as it is. Each row is a <b>Select at field-width-lg</b> with the usual HelpHint. One muted caption under the pair says both are maximums and which values the list holds. Neither HelpHint claims a CPU or GPU saving: a cap only limits the interval between frames. Defaults: output 30 fps, input 60 fps.</>}>
         <Stage variant="solo" style={st}>
           <FrPair>
             <FrCase label="default · output 30 · input 60"><FrPage /></FrCase>
