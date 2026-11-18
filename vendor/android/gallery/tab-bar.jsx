@@ -36,7 +36,8 @@ export function Terminal({ focused, lines = 2, style }) {
     <div style={{ padding: "var(--tasty-space-xs) var(--tasty-space-sm)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-term)",
       background: focused ? "var(--tasty-surface-terminal-focused-bg)" : "var(--tasty-surface-terminal-unfocused-bg)",
       color: focused ? "var(--tasty-surface-terminal-focused-fg)" : "var(--tasty-surface-terminal-unfocused-fg)", ...style }}>
-      {LINES.slice(0, lines).map((l) => <div key={l} style={{ whiteSpace: "nowrap", overflow: "hidden" }}>{l}</div>)}
+      {/* A terminal wraps at its last whole cell; it never shows part of a character at the pane edge. */}
+      {LINES.slice(0, lines).map((l) => <div key={l} style={{ whiteSpace: "pre-wrap", wordBreak: "break-all" }}>{l}</div>)}
     </div>
   );
 }
