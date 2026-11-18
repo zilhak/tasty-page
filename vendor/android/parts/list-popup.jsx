@@ -2,69 +2,158 @@
 // scrim, not a context menu at the finger as on the desktop. That covers a long press (the tab menu) and the logo
 // (the Tasty menu). An open on-screen keyboard stays open and is never pushed away: the popup centres in the window
 // area above it, and its rows scroll when that area is short.
+//
+// Whole rows only. Every item in the list is one row unit tall: an action row, a row in effect, a disabled row and a
+// group heading alike. A group rule is drawn on the top edge of the group's first row, inside it, so it adds no height.
+// The list area is a whole number of rows tall, and scrolling comes to rest on row edges, so a row is never shown in
+// part.
+//
+// A list that scrolls says so. While any row is out of view, a scroll lane stands at the right of the list: a chevron
+// at each end, lit when rows lie that way and dimmed when that end is reached, and a thumb between them for the share
+// in view and the place. It shows the whole time the list can scroll, not only during a scroll, and never covers a row.
+//
 // Drawn here, not taken from vendor/components, because its shape differs from the desktop menu. Colors and type are
 // canon tokens; sizes are declared below, each pointing at a canon token. Icons come from vendor/icons through Icon.
-import React from "react";
+import React, { useLayoutEffect, useRef, useState } from "react";
 import { Icon } from "../../components/index.js";
 
 export const LIST_POPUP_DECLARED = [
-  ["android-popup-max-width", "size-320", "Widest the popup gets. Narrower windows keep the side margin instead"],
-  ["android-popup-margin", "space-lg", "Least space between the popup and the edge of the area it sits in, on every side"],
-  ["android-popup-title-height", "size-48", "Title row: the name of what was pressed"],
-  ["android-popup-row-height", "size-48", "One row, and its target. The row is the full popup width"],
-  ["android-popup-heading-height", "size-32", "Group heading, such as Workspaces. Not a target"],
+  ["android-popup-max-width", "size-320", "Widest the popup gets. Narrower areas keep the side margin instead"],
+  ["android-popup-margin", "space-lg", "Space between the popup and the edge of the area it sits in, on every side"],
+  ["android-popup-margin-tight", "space-xs", "The margin when the normal one would leave fewer than two whole rows"],
+  ["android-popup-title-height", "size-48", "Title row, its rule included: the name of what was pressed"],
+  ["android-popup-row-height", "size-48", "The row unit. Every list item is one unit; an action row is also its target"],
   ["android-popup-padding-x", "space-lg", "Inset of the title, headings and row labels"],
   ["android-popup-font-size", "font-size-max", "Title and row labels"],
+  ["android-popup-lane-width", "size-24", "Scroll lane at the right of a list that scrolls. The rows give up this width"],
+  ["android-popup-lane-glyph", "icon-size-md", "Chevron at each end of the lane"],
+  ["android-popup-thumb-width", "space-xs", "Thumb in the lane"],
 ];
 export const listPopupVars = Object.fromEntries(LIST_POPUP_DECLARED.map(([name, from]) => [`--${name}`, `var(--tasty-${from})`]));
 
-// A row. disabled: shown in place and not tappable, never hidden, so rows do not move between openings.
-// current: the one row that is already in effect, such as the workspace on screen.
-export function ListPopupRow({ label, pressed, disabled, current }) {
+const ruleAbove = { borderTop: "var(--tasty-border-width) solid var(--tasty-menu-separator)" };
+
+// A row. rule: this row starts a group. disabled: shown in place and not tappable, never hidden, so rows do not move
+// between openings. current: the one row already in effect, such as the workspace on screen.
+export function ListPopupRow({ label, pressed, disabled, current, rule }) {
   return (
-    <div role="menuitem" aria-disabled={disabled || undefined} aria-current={current || undefined}
+    <div role="menuitem" aria-disabled={disabled || undefined} aria-current={current || undefined} data-popup-item=""
       {...(disabled ? { "data-ink-grade": "none", "data-ink-why": "disabled" } : null)}
-      style={{ position: "relative", flex: "none", height: "var(--android-popup-row-height)", display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)",
-        padding: "0 var(--android-popup-padding-x)", fontSize: "var(--android-popup-font-size)",
+      style={{ position: "relative", flex: "none", boxSizing: "border-box", height: "var(--android-popup-row-height)", display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)",
+        padding: "0 var(--android-popup-padding-x)", fontSize: "var(--android-popup-font-size)", scrollSnapAlign: "start",
         color: disabled ? "var(--tasty-text-disabled)" : "var(--tasty-text-primary)",
         fontWeight: current ? "var(--tasty-font-weight-semibold)" : undefined,
-        background: pressed && !disabled ? "var(--tasty-overlay-active)" : "transparent" }}>
+        background: pressed && !disabled ? "var(--tasty-overlay-active)" : "transparent", ...(rule ? ruleAbove : null) }}>
       <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{label}</span>
       {current && <span style={{ flex: "none", display: "inline-flex", color: "var(--tasty-accent-primary)" }}><Icon name="check" size="var(--tasty-icon-size-md)" /></span>}
     </div>
   );
 }
 
-export function ListPopupHeading({ label }) {
+// A group heading, such as Workspaces. One row unit, label at the bottom, not a target.
+export function ListPopupHeading({ label, rule }) {
   return (
-    <div role="presentation" style={{ flex: "none", height: "var(--android-popup-heading-height)", display: "flex", alignItems: "flex-end", padding: "0 var(--android-popup-padding-x) var(--tasty-space-xs)",
-      fontSize: "var(--tasty-font-size-caption)", fontWeight: "var(--tasty-font-weight-semibold)", color: "var(--tasty-text-secondary)" }}>{label}</div>
+    <div role="presentation" data-popup-item="" style={{ flex: "none", boxSizing: "border-box", height: "var(--android-popup-row-height)", display: "flex", alignItems: "flex-end",
+      padding: "0 var(--android-popup-padding-x) var(--tasty-space-sm)", scrollSnapAlign: "start", fontSize: "var(--tasty-font-size-caption)", fontWeight: "var(--tasty-font-weight-semibold)",
+      color: "var(--tasty-text-secondary)", ...(rule ? ruleAbove : null) }}>{label}</div>
   );
 }
 
-export function ListPopupSeparator() {
-  return <div role="separator" style={{ flex: "none", height: "var(--tasty-border-width)", background: "var(--tasty-menu-separator)" }} />;
+// How many whole rows fit, and with which margin. free: the height of the area the popup sits in. Try the normal
+// margin, then the tight one, then none, and take the first that shows two whole rows (or every row, when the list
+// has fewer). Below that, none still shows one row; an area too short for the title and one row is an open question.
+export function fitRows({ free, count, row, title, margin, tight, border }) {
+  const rowsAt = (m) => Math.floor((free - 2 * m - 2 * border - title) / row);
+  const want = Math.min(2, count);
+  for (const m of [margin, tight, 0]) {
+    const n = rowsAt(m);
+    if (n >= want) return { margin: m, rows: Math.min(n, count) };
+  }
+  return { margin: 0, rows: Math.max(1, Math.min(rowsAt(0), count)) };
 }
+
+// The scroll lane. above, below: rows lie that way. share: the part of the list in view. at: how far it is scrolled, 0 to 1.
+// A chevron is lit in text-secondary when rows lie its way and dimmed to text-disabled at that end. Not a target: the
+// list scrolls by swipe.
+function LaneEnd({ dir, lit }) {
+  return (
+    <span aria-hidden="true" {...(lit ? null : { "data-ink-grade": "none", "data-ink-why": "disabled" })}
+      style={{ flex: "none", height: "var(--android-popup-lane-width)", display: "flex", alignItems: "center", justifyContent: "center",
+        color: lit ? "var(--tasty-text-secondary)" : "var(--tasty-text-disabled)" }}>
+      <Icon name={dir === "up" ? "chevronUp" : "chevronDown"} size="var(--android-popup-lane-glyph)" />
+    </span>
+  );
+}
+export function ScrollLane({ above, below, share, at }) {
+  return (
+    <div data-scroll-lane={above && below ? "both" : above ? "above" : below ? "below" : "none"}
+      style={{ flex: "none", width: "var(--android-popup-lane-width)", display: "flex", flexDirection: "column", background: "var(--tasty-surface-raised)" }}>
+      <LaneEnd dir="up" lit={above} />
+      <div style={{ position: "relative", flex: 1, minHeight: 0 }}>
+        <span style={{ position: "absolute", left: "50%", transform: "translateX(-50%)", width: "var(--android-popup-thumb-width)", borderRadius: "var(--tasty-radius-sm)",
+          background: "var(--tasty-text-muted)", height: `${share * 100}%`, top: `${at * (1 - share) * 100}%` }} />
+      </div>
+      <LaneEnd dir="down" lit={below} />
+    </div>
+  );
+}
+
+const px = (el, name) => parseFloat(getComputedStyle(el).getPropertyValue(name));
 
 // The popup over a window. under is the app window's content, inert while the popup is open. keyboard is the height of
 // an open on-screen keyboard in px, or 0: the keyboard stays where it is, outside the scrim, and the popup centres in
-// what is left above it. When the rows do not fit, the title stays and the rows scroll.
-export function ListPopup({ title, children, under, keyboard = 0, scrollTo = 0 }) {
-  const body = React.useRef(null);
-  React.useEffect(() => { if (body.current) body.current.scrollTop = scrollTo; }, [scrollTo]);
+// what is left above it. scrollTo puts the list at a scroll position, for specimens that show a scrolled list.
+// expanded: for the gallery, show every row and let the frame grow instead of scrolling. onFit reports what the app
+// would show in the frame's real free height: { count, rows }.
+export function ListPopup({ title, children, under, keyboard = 0, scrollTo = 0, expanded = false, onFit }) {
+  const area = useRef(null);
+  const body = useRef(null);
+  const [fit, setFit] = useState(null);
+  const [grow, setGrow] = useState(0);
+  const [pos, setPos] = useState({ top: 0, max: 0 });
+
+  useLayoutEffect(() => {
+    const el = area.current;
+    const count = body.current.querySelectorAll(":scope > [data-popup-item]").length;
+    const v = { row: px(el, "--android-popup-row-height"), title: px(el, "--android-popup-title-height"), margin: px(el, "--android-popup-margin"),
+      tight: px(el, "--android-popup-margin-tight"), border: px(el, "--tasty-border-width") };
+    const real = fitRows({ free: el.clientHeight, count, ...v });
+    if (onFit) onFit({ count, rows: real.rows });
+    if (expanded) {
+      const need = v.title + count * v.row + 2 * v.border + 2 * v.margin;
+      setGrow(Math.max(el.clientHeight, need));
+      setFit({ count, margin: v.margin, rows: count });
+    } else setFit({ count, ...real });
+  }, [keyboard, expanded]);
+
+  useLayoutEffect(() => {
+    const el = body.current;
+    if (!fit || !el) return;
+    el.scrollTop = scrollTo;
+    setPos({ top: el.scrollTop, max: el.scrollHeight - el.clientHeight });
+  }, [fit, scrollTo]);
+
+  const hidden = fit ? fit.count - fit.rows : 0;
+  const onScroll = () => setPos({ top: body.current.scrollTop, max: body.current.scrollHeight - body.current.clientHeight });
   return (
-    <div style={{ position: "relative", height: "100%", display: "flex", flexDirection: "column", overflow: "hidden" }}>
-      <div style={{ position: "relative", flex: 1, minHeight: 0 }}>
-        <div data-audit-exempt="under-scrim" style={{ height: "100%" }}>{under}</div>
-        <div style={{ position: "absolute", inset: 0, background: "var(--tasty-scrim-bg)", display: "flex", alignItems: "center", justifyContent: "center", padding: "var(--android-popup-margin)", boxSizing: "border-box" }}>
-          <div role="menu" aria-label={title} style={{ width: "100%", maxWidth: "var(--android-popup-max-width)", maxHeight: "100%", display: "flex", flexDirection: "column", boxSizing: "border-box",
+    <div style={{ position: "relative", flex: 1, height: grow ? undefined : "100%", display: "flex", flexDirection: "column", overflow: "hidden" }}>
+      <div ref={area} style={{ position: "relative", flex: grow ? "none" : 1, minHeight: 0, height: grow ? `${grow}px` : undefined }}>
+        {/* Out of flow, so what lies under the scrim never sets the free height the popup is fitted to. */}
+        <div data-audit-exempt="under-scrim" style={{ position: "absolute", inset: 0, overflow: "hidden" }}>{under}</div>
+        <div style={{ position: "absolute", inset: 0, background: "var(--tasty-scrim-bg)", display: "flex", alignItems: "center", justifyContent: "center",
+          padding: fit ? `${fit.margin}px` : "var(--android-popup-margin)", boxSizing: "border-box" }}>
+          <div role="menu" aria-label={title} style={{ width: "100%", maxWidth: "var(--android-popup-max-width)", display: "flex", flexDirection: "column", boxSizing: "content-box",
             background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)",
-            fontFamily: "var(--tasty-font-ui)", overflow: "hidden" }}>
-            <div style={{ flex: "none", height: "var(--android-popup-title-height)", display: "flex", alignItems: "center", padding: "0 var(--android-popup-padding-x)",
+            fontFamily: "var(--tasty-font-ui)", overflow: "hidden", visibility: fit ? "visible" : "hidden" }}>
+            <div style={{ flex: "none", boxSizing: "border-box", height: "var(--android-popup-title-height)", display: "flex", alignItems: "center", padding: "0 var(--android-popup-padding-x)",
               fontSize: "var(--android-popup-font-size)", fontWeight: "var(--tasty-font-weight-semibold)", color: "var(--tasty-text-primary)", borderBottom: "var(--tasty-border-width) solid var(--tasty-menu-separator)" }}>
               <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{title}</span>
             </div>
-            <div ref={body} style={{ minHeight: 0, overflowY: "auto", display: "flex", flexDirection: "column" }}>{children}</div>
+            <div style={{ display: "flex", flex: "none" }}>
+              <div ref={body} onScroll={onScroll} data-popup-list="" style={{ flex: 1, minWidth: 0, height: fit ? `calc(${fit.rows} * var(--android-popup-row-height))` : undefined, overflowY: "auto",
+                scrollbarWidth: "none", scrollSnapType: "y mandatory", display: "flex", flexDirection: "column" }}>{children}</div>
+              {hidden > 0 && <ScrollLane above={pos.top > 1} below={pos.top < pos.max - 1} share={fit.rows / fit.count} at={pos.max ? pos.top / pos.max : 0} />}
+            </div>
           </div>
         </div>
       </div>

@@ -4,7 +4,7 @@
 // draws them.
 import React from "react";
 import { Cluster, Section, Spec, Stage, View, Views } from "../../gallery/parts/specimen.jsx";
-import { LIST_POPUP_DECLARED, ListPopup, ListPopupHeading, ListPopupRow, ListPopupSeparator, listPopupVars } from "../parts/list-popup.jsx";
+import { LIST_POPUP_DECLARED, ListPopup, ListPopupHeading, ListPopupRow, fitRows, listPopupVars } from "../parts/list-popup.jsx";
 import { Bar, tabBarVars } from "../parts/tab-bar.jsx";
 import { COPY } from "./copy.js";
 import { Prose, SpecTable, TokenValue } from "./kit.jsx";
@@ -26,6 +26,10 @@ const COLORS = [
   ["Title", "", "text-primary, semibold"],
   ["Group heading", "", "text-secondary, caption, semibold"],
   ["Title rule, group rule", "menu-separator", ""],
+  ["Scroll lane", "surface-raised", ""],
+  ["Lane chevron, rows that way", "", "text-secondary"],
+  ["Lane chevron, that end reached", "", "text-disabled"],
+  ["Lane thumb", "text-muted", ""],
   ["Row", "", "text-primary"],
   ["Row in effect (current workspace)", "", "text-primary, semibold, check in accent-primary"],
   ["Row not available", "", "text-disabled"],
@@ -39,8 +43,7 @@ function TabMenu({ index, count, pressed }) {
       <ListPopupRow label="Rename tab" pressed={pressed === "rename"} />
       <ListPopupRow label="Move left" disabled={index === 0} />
       <ListPopupRow label="Move right" disabled={index === count - 1} />
-      <ListPopupSeparator />
-      <ListPopupRow label="Close tab" pressed={pressed === "close"} />
+      <ListPopupRow label="Close tab" pressed={pressed === "close"} rule />
     </>
   );
 }
@@ -54,31 +57,31 @@ function TastyMenu({ workspaces = 3, current = 0, pane = true, surface = true })
       <ListPopupHeading label="Workspaces" />
       {WORKSPACES.slice(0, workspaces).map((w, i) => <ListPopupRow key={w} label={w} current={i === current} />)}
       <ListPopupRow label="New workspace" />
-      <ListPopupSeparator />
       {pane && (
         <>
-          <ListPopupRow label="Split pane right" />
+          <ListPopupRow label="Split pane right" rule />
           <ListPopupRow label="Split pane down" />
           <ListPopupRow label="Close pane" />
-          <ListPopupSeparator />
         </>
       )}
       {surface && (
         <>
-          <ListPopupRow label="Split surface right" />
+          <ListPopupRow label="Split surface right" rule />
           <ListPopupRow label="Split surface down" />
           <ListPopupRow label="Close surface" />
-          <ListPopupSeparator />
         </>
       )}
-      <ListPopupRow label="Close workspace" />
+      <ListPopupRow label="Close workspace" rule />
     </>
   );
 }
 
 // A window: the pane's bar and its terminal under the popup, and the keyboard below when it is open.
 // held: the tab held by a long press, or "logo" when the logo was tapped.
-function Screen({ width, height, keyboard = 0, tabs = 3, selected = 0, held = 1, title, scrollTo, children }) {
+// Outside the Scrolling spec a frame shows every row: the frame grows past the real window instead of scrolling, and a
+// line under it says what the app shows at the real size. scroll: draw the app's real behaviour, for the Scrolling spec.
+function Screen({ width, height, keyboard = 0, tabs = 3, selected = 0, held = 1, title, scrollTo, scroll = false, children }) {
+  const [real, setReal] = React.useState(null);
   const under = (
     <div style={{ height: "100%", display: "flex", flexDirection: "column", background: "var(--tasty-surface-terminal-focused-bg)" }}>
       <Bar pane={width} tabs={titles(tabs)} selected={selected} logo pressed={held === "logo" ? { logo: true } : { tab: held }} />
@@ -86,10 +89,33 @@ function Screen({ width, height, keyboard = 0, tabs = 3, selected = 0, held = 1,
     </div>
   );
   return (
-    <div style={{ width: `${width}px`, height: `${height}px`, flex: "none" }}>
-      <ListPopup title={title || titles(tabs)[held]} under={under} keyboard={keyboard} scrollTo={scrollTo}>{children}</ListPopup>
+    <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", flex: "none", width: `${width}px` }}>
+      <div style={{ width: `${width}px`, minHeight: `${height}px`, display: "flex", flexDirection: "column" }}>
+        <ListPopup title={title || titles(tabs)[held]} under={under} keyboard={keyboard} scrollTo={scrollTo} expanded={!scroll} onFit={setReal}>{children}</ListPopup>
+      </div>
+      {!scroll && real && real.rows < real.count && (
+        <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-secondary)" }}>
+          Shown in full. In the app at {width} by {height}, {real.rows} of {real.count} rows show and the list scrolls, as in the Scrolling spec.
+        </span>
+      )}
     </div>
   );
+}
+
+// Free heights for the short-area frames: each lands on one step of fitRows. The table works the steps out from the
+// declared values when the page renders.
+// Scroll positions for the lane states, in px from the top of a list of 48 high rows: snapped, so whole rows.
+const SCROLL_STATES = [[0, "At the top: rows below"], [192, "In the middle: rows above and below"], [100000, "At the end: rows above"]];
+const FIT_FRAMES = [[178, "Normal margin, two rows"], [160, "Tight margin, two rows"], [146, "No margin, two rows"], [120, "No margin, one row"]];
+function FitTable() {
+  const [rows, set] = React.useState([]);
+  React.useEffect(() => {
+    const el = document.querySelector("#popup-scroll") || document.documentElement;
+    const v = (n) => parseFloat(getComputedStyle(el).getPropertyValue(n));
+    const base = { count: 4, row: v("--android-popup-row-height"), title: v("--android-popup-title-height"), margin: v("--android-popup-margin"), tight: v("--android-popup-margin-tight"), border: v("--tasty-border-width") };
+    set([...FIT_FRAMES.map(([f]) => f), 97].map((free) => { const r = fitRows({ ...base, free }); return [free, r.margin, r.rows, free - 2 * r.margin - 2 * base.border - base.title < base.row ? "Too short for one row: open question" : ""]; }));
+  }, []);
+  return <SpecTable head={["Free height", "Margin", "Whole rows shown", "Note"]} mono={[0, 1, 2]} rows={rows} />;
 }
 
 const column = { overflowX: "auto", flexWrap: "nowrap" };
@@ -115,18 +141,36 @@ export function PopupMenuSection() {
         <Spec id="popup-tasty-menu" title="Tasty menu, from the logo" when={COPY.popupTastyMenuWhen}>
           <Stage eager variant="column" style={column}>
             <Cluster label="Logo tapped: three workspaces, a focused pane and surface"><Screen width={PORTRAIT} height={TALL} held="logo" title="Tasty"><TastyMenu /></Screen></Cluster>
-            <Cluster label="Eight workspaces: the rows scroll under the title, shown scrolled to the end"><Screen width={PORTRAIT} height={TALL} held="logo" title="Tasty" scrollTo={10000}><TastyMenu workspaces={8} current={1} /></Screen></Cluster>
+            <Cluster label="Eight workspaces"><Screen width={PORTRAIT} height={TALL} held="logo" title="Tasty"><TastyMenu workspaces={8} current={1} /></Screen></Cluster>
           </Stage>
           <Prose k="popupTastyMenuNote" />
         </Spec>
         <Spec id="popup-keyboard" title="With the on-screen keyboard open" when={COPY.popupKeyboardWhen}>
           <Stage eager variant="column" style={column}>
             <Cluster label={`Portrait ${PORTRAIT} by ${TALL}, keyboard ${KEYBOARD_PORTRAIT}: tab menu`}><Screen width={PORTRAIT} height={TALL} keyboard={KEYBOARD_PORTRAIT}><TabMenu index={1} count={3} /></Screen></Cluster>
-            <Cluster label={`Portrait ${PORTRAIT} by ${TALL}, keyboard ${KEYBOARD_PORTRAIT}: Tasty menu, rows scroll`}><Screen width={PORTRAIT} height={TALL} keyboard={KEYBOARD_PORTRAIT} held="logo" title="Tasty"><TastyMenu /></Screen></Cluster>
-            <Cluster label={`Landscape ${LANDSCAPE} by ${SHORT}, keyboard ${KEYBOARD_LANDSCAPE}: tab menu, rows scroll`}><Screen width={LANDSCAPE} height={SHORT} keyboard={KEYBOARD_LANDSCAPE} tabs={4}><TabMenu index={1} count={4} /></Screen></Cluster>
-            <Cluster label={`Landscape ${LANDSCAPE} by ${SHORT}, keyboard ${KEYBOARD_LANDSCAPE}: Tasty menu, rows scroll`}><Screen width={LANDSCAPE} height={SHORT} keyboard={KEYBOARD_LANDSCAPE} tabs={4} held="logo" title="Tasty"><TastyMenu /></Screen></Cluster>
+            <Cluster label={`Portrait ${PORTRAIT} by ${TALL}, keyboard ${KEYBOARD_PORTRAIT}: Tasty menu`}><Screen width={PORTRAIT} height={TALL} keyboard={KEYBOARD_PORTRAIT} held="logo" title="Tasty"><TastyMenu /></Screen></Cluster>
+            <Cluster label={`Landscape ${LANDSCAPE} by ${SHORT}, keyboard ${KEYBOARD_LANDSCAPE}: tab menu`}><Screen width={LANDSCAPE} height={SHORT} keyboard={KEYBOARD_LANDSCAPE} tabs={4}><TabMenu index={1} count={4} /></Screen></Cluster>
+            <Cluster label={`Landscape ${LANDSCAPE} by ${SHORT}, keyboard ${KEYBOARD_LANDSCAPE}: Tasty menu`}><Screen width={LANDSCAPE} height={SHORT} keyboard={KEYBOARD_LANDSCAPE} tabs={4} held="logo" title="Tasty"><TastyMenu /></Screen></Cluster>
           </Stage>
           <Prose k="popupKeyboardNote" />
+        </Spec>
+        <Spec id="popup-scroll" title="Scrolling" when={COPY.popupScrollWhen}>
+          <div data-scroll-specimen="">
+            <Stage eager variant="column" style={column}>
+              {SCROLL_STATES.map(([to, label]) => (
+                <Cluster key={label} label={label}><Screen scroll width={PORTRAIT} height={TALL} keyboard={KEYBOARD_PORTRAIT} held="logo" title="Tasty" scrollTo={to}><TastyMenu workspaces={8} current={1} /></Screen></Cluster>
+              ))}
+              <Cluster label="Every row fits: no lane"><Screen scroll width={PORTRAIT} height={TALL} keyboard={KEYBOARD_PORTRAIT}><TabMenu index={1} count={3} /></Screen></Cluster>
+            </Stage>
+            <Prose k="popupScrollNote" />
+            <Stage eager variant="column" style={column}>
+              {FIT_FRAMES.map(([free, label]) => (
+                <Cluster key={free} label={`Short area, ${label}: free height ${free}`}><Screen scroll width={LANDSCAPE} height={free + KEYBOARD_LANDSCAPE} keyboard={KEYBOARD_LANDSCAPE} tabs={4}><TabMenu index={1} count={4} /></Screen></Cluster>
+              ))}
+            </Stage>
+            <FitTable />
+            <Prose k="popupFitNote" />
+          </div>
         </Spec>
         <Spec id="popup-values" title="Values" when={COPY.popupValuesWhen}>
           <SpecTable head={["Declared here", "Reads", "Value", "Sets"]} mono={[0, 1, 2]}
@@ -139,7 +183,10 @@ export function PopupMenuSection() {
               ["Where", "Middle of the app window area that is free, over a scrim. Never at the finger"],
               ["On-screen keyboard", "Stays open and is not pushed away. The scrim stops at the keyboard, and the popup centres in the area above it"],
               ["Width", "android-popup-max-width, or the free width less two margins when that is narrower"],
-              ["Height", "As tall as its rows, up to the free height less two margins. Past that the title stays and the rows scroll"],
+              ["Height", "The title and a whole number of rows: as many as fit in the free height less two margins, at most all of them. The title stays and the rows scroll"],
+              ["Whole rows", "Every list item is one row unit, the Workspaces heading included. A group rule sits on the top edge of its first row and adds no height. Scrolling comes to rest on row edges, so no row is ever shown in part"],
+              ["Rows out of view", "A scroll lane at the right of the list, android-popup-lane-width wide: a chevron at each end, lit in text-secondary when rows lie that way and text-disabled at that end, and a thumb between them. Shown the whole time the list can scroll. The rows give up the lane width; nothing covers a row"],
+              ["Short area", "If the normal margin leaves fewer than two whole rows, the margin becomes android-popup-margin-tight, then none. Below two rows with no margin, one row shows"],
               ["Title", "What was pressed: the tab title, or Tasty for the logo. One line, ellipsis at the end. No close button"],
               ["Rows", "Full popup width, one line each, ellipsis at the end. A rule separates groups. A heading names a group when its rows are names, such as Workspaces"],
               ["Row not available", "Shown in place in text-disabled and not tappable. Never hidden, so rows keep their place"],
