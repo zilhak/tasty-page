@@ -226,8 +226,12 @@ tasty codex install     # ~/.codex/config.toml
 
 ## 플러그인이 멈췄을 때
 
-- **`tasty plugin list` 에서 enabled 인데 running 이 아닙니다** — 10초 안에 3번 실행에 실패하면 자동으로 정지됩니다. `tasty plugin logs <id>` 로 원인을 본 뒤 `tasty plugin enable <id>` 로 다시 시작합니다.
-- **`plugin enable` 직후에는 running 인데 잠시 뒤 running 이 아니게 됩니다** — `plugin enable` 은 플러그인이 Tasty 에 연결하기를 기다리지 않고 바로 돌아옵니다. 그래서 막 켠 플러그인은 연결 전에도 running 으로 보이고, 그 사이 보낸 요청은 연결된 뒤 전달됩니다. 10초 안에 연결하지 못하면 실행 실패로 세어 running 이 아니게 됩니다. 원인은 `tasty plugin logs <id>` 로 봅니다.
+- **`tasty plugin list` 에서 enabled 인데 running 이 아닙니다** — 자동 재시도를 기다리는 중일 수 있습니다. 앱 시작 때 플러그인을 실행하지 못하거나 연결하지 못하면 10초 뒤 다시 시도하고, 다시 실패하면 20초 뒤 한 번 더 시도합니다. 실행 중 응답이 없거나 종료된 플러그인을 자동으로 다시 시작하다 실패한 경우에도 같습니다. 세 번 연속 실패하면 그 플러그인을 자동으로 끕니다. 이와 별도로, 10초 안에 실행 자체가 3번 실패하면 자동으로 정지하는 규칙도 있습니다.
+
+  연결에 성공하면 연속 실패 수는 처음부터 다시 셉니다. 사용자가 끄거나 다시 켜면 재시도 기록이 지워지며, 꺼졌거나 제거된 플러그인은 다시 시도하지 않습니다. 자동으로 꺼진 이유는 알림에 남고 **플러그인 › 확인 필요** <!-- en: Plugins > Attention --> 에 **실행 오류** <!-- en: Runtime error --> 로 표시됩니다. 앱 시작 중 실패의 알림은 첫 워크스페이스가 생긴 뒤 남습니다. 알림과 **확인 필요**를 살펴보고, `tasty plugin logs <id>`로 원인을 확인한 뒤 `tasty plugin enable <id>`로 다시 켜세요.
+- **직접 켰는데 시작하지 못합니다** — `tasty plugin enable <id>`나 **플러그인**의 스위치로 직접 켤 때 실패하면 자동으로 다시 시도하지 않고 오류를 바로 보입니다. `enable`은 기본적으로 연결 결과를 기다립니다. `--no-wait`로 바로 돌아온 경우에는 `tasty plugin show <id>`로 결과를 확인하세요.
+
+  `--no-wait`로 켰거나 에이전트가 요청해 켠 플러그인은 연결 전에도 running으로 보이고, 그 사이 보낸 요청은 연결된 뒤 전달됩니다. 10초 안에 연결하지 못하면 실행 실패로 세어 running이 아니게 됩니다.
 - **번들 플러그인이 깨졌습니다** — `tasty plugin upgrade-builtins --force` 로 번들에서 다시 복사합니다. 플러그인 데이터(북마크 · 프로필 등)는 유지됩니다.
 - **macOS: 기본 제공 플러그인이 실행되지 않습니다** — 앱에 남은 Gatekeeper 격리 표지(quarantine)가 플러그인 복사본에도 붙어 실행이 막혔을 수 있습니다. Tasty 는 이 표지를 스스로 지우지 않습니다. `tasty plugin logs <id>` 로 원인을 확인하고, 직접 지우려면 터미널에서 `xattr -dr com.apple.quarantine /Applications/Tasty.app ~/.tasty/plugins` 를 실행한 뒤 Tasty 를 다시 시작합니다.
 

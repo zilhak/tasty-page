@@ -1,4 +1,4 @@
-<!-- source-hash: f772e08da886 -->
+<!-- source-hash: f68cfb1d8475 -->
 # 故障排除
 
 本页按症状列出 Tasty 安装、输入、显示、恢复和通知问题的原因及解决方法。如果 CLI 无法连接或响应缓慢，也可查看连接诊断。问题仍未解决时，可附上运行环境和日志报告问题。
@@ -227,8 +227,12 @@ tasty codex install     # ~/.codex/config.toml
 
 ## 插件停止运行时
 
-- **`tasty plugin list` 中为 enabled，但不是 running** — 10 秒内 3 次运行失败后，会自动停止。使用 `tasty plugin logs <id>` 查看原因，再使用 `tasty plugin enable <id>` 重新启动。
-- **刚运行 `plugin enable` 时为 running，稍后便不再是 running** — `plugin enable` 不会等待插件连接 Tasty，而是立即返回。因此刚启用的插件在连接前也会显示为 running，其间发送的请求会在连接后传达。如果 10 秒内未能连接，会计为运行失败，并不再显示为 running。使用 `tasty plugin logs <id>` 查看原因。
+- **`tasty plugin list` 中为 enabled，但不是 running** — 插件可能正在等待自动重试。应用启动时，如果插件无法启动或连接，会在 10 秒后重试；再次失败则再等 20 秒重试。运行中的插件无响应或退出后，自动重启失败时也按此规则处理。连续失败 3 次后，会自动禁用该插件。此外，仍保留进程本身在 10 秒内启动失败 3 次即自动停止的规则。
+
+  连接成功后，连续失败次数会从头计算。手动禁用或重新启用会清除重试记录，已禁用或已移除的插件不会重试。自动禁用的原因会留在通知中，插件会在 **插件 › 待处理** <!-- en: Plugins > Attention --> 中显示为 **运行时错误** <!-- en: Runtime error -->。应用启动期间失败的通知会在创建第一个工作区后留下。查看通知和 **待处理**，使用 `tasty plugin logs <id>` 确认原因后，再使用 `tasty plugin enable <id>` 重新启用。
+- **手动启用后无法启动** — 使用 `tasty plugin enable <id>` 或 **插件** 中的开关手动启用时，失败会立即显示错误，不会自动重试。`enable` 默认等待连接结果。使用 `--no-wait` 立即返回后，可通过 `tasty plugin show <id>` 查看结果。
+
+  通过 `--no-wait` 或应智能体请求启用的插件，在连接前也会显示为 running，其间发送的请求会在连接后传达。如果 10 秒内未能连接，会计为运行失败，并不再显示为 running。
 - **随附插件损坏** — 使用 `tasty plugin upgrade-builtins --force` 从随附文件中重新复制。插件数据（书签 · 配置档等）会保留。
 - **macOS：内置插件无法运行** — 应用上残留的 Gatekeeper 隔离标记（quarantine）可能也被带到插件副本上，阻止运行。Tasty 不会自行删除此标记。使用 `tasty plugin logs <id>` 确认原因；要手动删除，在终端运行 `xattr -dr com.apple.quarantine /Applications/Tasty.app ~/.tasty/plugins`，然后重启 Tasty。
 

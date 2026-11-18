@@ -1,4 +1,4 @@
-<!-- source-hash: 49215017847d -->
+<!-- source-hash: 806d3e373cba -->
 # Plugins
 
 Plugins provide Markdown, image, and HTML viewers, along with Claude Code and Codex integrations. Manage bundled plugins or install new ones.
@@ -67,8 +67,10 @@ The **Attention** tab. Plugins whose registration was rejected or that failed to
 |------|----|------|
 | **Signature not trusted** | Signed with a key not in the trust list | The details show an **Unverified plugin** warning. Confirm the source, then copy the fingerprint with the **Copy fingerprint** button in the Signature section and compare. If you trust it, press **Register anyway** |
 | **Signature invalid** | No signature, or verification failed. The detail shows the cause (such as a missing signature file) on one line | Getting a correct package from the distributor is safest. If you trust the source, you can use it with **Register anyway** |
-| **Runtime error** | Enabled but failed while running | Check the **Log** |
+| **Runtime error** | Failed to start or run, or turned off automatically after consecutive failures | Check the **Log** |
 | **Not an official plugin** | Registration was rejected because its id uses the `com.tasty.` prefix, which is reserved for official Tasty plugins, and this is not one of them. You can only remove it. | Select the folder in **Plugins › Attention** and press **Remove** |
+
+If a plugin cannot start or connect during app startup or an automatic restart, Tasty retries after 10 seconds, then after another 20 seconds if it fails again, and turns the plugin off after three consecutive failures. Turning a plugin on yourself shows an error immediately on failure without an automatic retry. Time when Tasty itself is stalled does not count toward deciding that a plugin is unresponsive, so a Tasty stall and recovery alone do not trigger a plugin restart.
 
 A **Not an official plugin** entry is a folder directly under the plugins folder (`~/.tasty/plugins/`) whose manifest can be read and whose id starts with `com.tasty.` but is absent from the official list. Folders whose manifests cannot be read do not appear as these entries. They are not registered, do not run, and do not appear in `tasty plugin list`; Tasty does not delete them automatically. The folder name can differ from the id. Several folders with the same id appear as separate rows that you can select individually. Each row counts toward both the tab badge and the sidebar badge.
 
@@ -127,7 +129,7 @@ A `com.tasty.*` id absent from the official list cannot be installed even with `
 
 For a plugin that passes the id check, `install` checks the signature before copying the folder. For an unverified plugin it warns about the cause and the risk, installs nothing, and shows the `tasty plugin install --allow-unverified <folder>` command to use if you trust the source. When the signature check refuses the install, it tells you the actual reason (no signature, a key you have not trusted, a public key file that is missing or does not match, and so on) and leaves nothing behind in the plugins folder or the trust list. Fix the problem and run the same command again to install. If the plugin is registered but then fails to start, the installed folder stays; check `tasty plugin logs <id>` for the cause.
 
-When a plugin does not start, a warning is left in the notification list. If it fails several times in a short time and Tasty turns it off automatically, a separate error notification is left and the plugin is not started until you turn it on again. Repeated failures of the same plugin that you did not turn on again are grouped into one. Each time you turn it on yourself, that result gets its own notification. The notification body and `tasty plugin logs <id>` show the cause.
+When a plugin does not start, a warning is left in the notification list. Failures of the same plugin are grouped into one warning only when they occur within 10 seconds of each other. A successful connection or turning the plugin on yourself ends the group. Failures on retries after 10 or 20 seconds can therefore leave separate warnings. If three consecutive startup failures turn the plugin off automatically, one separate error notification is left, and the plugin is not started until you turn it on again. A separate rule also stops a plugin if the process itself fails to launch three times within 10 seconds. Each time you turn it on yourself, that result gets its own notification. The notification body and `tasty plugin logs <id>` show the cause.
 
 Running `tasty plugin remove <id>` with the id of a **Not an official plugin** folder fails with the following error without deleting the folder. `enable` and `disable` fail with the same guidance.
 

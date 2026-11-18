@@ -1,4 +1,4 @@
-<!-- source-hash: f772e08da886 -->
+<!-- source-hash: f68cfb1d8475 -->
 # Troubleshooting
 
 Causes and remedies for Tasty installation, input, display, restoration, and notification issues are organized by symptom. For CLI connection failures or slow responses, also see connection diagnostics. If the problem remains, report it with your environment details and logs.
@@ -227,8 +227,12 @@ The name contains a character that is not allowed, such as an uppercase letter o
 
 ## A plugin has stopped
 
-- **`tasty plugin list` shows enabled but not running** — a plugin that fails to run 3 times within 10 seconds is stopped automatically. Check the cause with `tasty plugin logs <id>`, then start it again with `tasty plugin enable <id>`.
-- **Right after `plugin enable` it shows running, then a moment later it does not** — `plugin enable` returns without waiting for the plugin to connect to Tasty. A plugin you just turned on therefore shows as running before it connects, and requests sent in the meantime are delivered once it connects. If it does not connect within 10 seconds, that counts as a failed run and it is no longer running. Check the cause with `tasty plugin logs <id>`.
+- **`tasty plugin list` shows enabled but not running** — the plugin may be waiting for an automatic retry. If a plugin cannot start or connect when the app launches, Tasty retries after 10 seconds, then after another 20 seconds if it fails again. The same applies if an automatic restart fails after a running plugin stops responding or exits. After three consecutive failures, Tasty turns that plugin off automatically. A separate rule also stops a plugin if the process itself fails to launch three times within 10 seconds.
+
+  A successful connection resets the consecutive failure count. Turning a plugin off or on yourself clears its retry history, and disabled or removed plugins are not retried. The reason for an automatic disable appears in a notification, and the plugin appears as **Runtime error** under **Plugins › Attention**. Notifications for failures during app startup are left after the first workspace is created. Check notifications and **Attention**, review the cause with `tasty plugin logs <id>`, then turn the plugin on again with `tasty plugin enable <id>`.
+- **A plugin does not start when I turn it on myself** — if `tasty plugin enable <id>` or the switch in **Plugins** fails to turn a plugin on, the error is shown immediately without an automatic retry. By default, `enable` waits for the connection result. If you used `--no-wait` to return immediately, check the result with `tasty plugin show <id>`.
+
+  A plugin enabled with `--no-wait` or at an agent’s request shows as running even before it connects. Requests sent in the meantime are delivered once it connects. If it does not connect within 10 seconds, that counts as a failed run and it is no longer running.
 - **A bundled plugin is broken** — copy it again from the bundle with `tasty plugin upgrade-builtins --force`. Plugin data (bookmarks · profiles and so on) is kept.
 - **macOS: built-in plugins do not run** — the Gatekeeper quarantine flag left on the app may have been carried over to the plugin copies and blocked them. Tasty does not remove this flag by itself. Check the cause with `tasty plugin logs <id>`; to remove it yourself, run `xattr -dr com.apple.quarantine /Applications/Tasty.app ~/.tasty/plugins` in a terminal and restart Tasty.
 
