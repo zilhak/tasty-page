@@ -1,7 +1,7 @@
 // Specimens of the Android pane tab bar. The part itself is ../parts/tab-bar.jsx. Product behaviour (what a tab, a pane
 // and the logo menu do) is not decided here: this section only draws it.
 import React from "react";
-import { Bar, TAB_BAR_DECLARED, tabBarVars } from "../parts/tab-bar.jsx";
+import { Bar, TAB_BAR_TOKENS } from "../parts/tab-bar.jsx";
 import { Cluster, Section, Spec, Stage, View, Views } from "../../gallery/parts/specimen.jsx";
 import { COPY } from "./copy.js";
 import { Prose, SpecTable, TokenValue } from "./kit.jsx";
@@ -75,7 +75,7 @@ function Split({ left, right, focus, targets }) {
 export function TabBarSection() {
   return (
     <Section id="tab-bar" title="Pane tab bar">
-      <div style={tabBarVars}>
+      <div>
         <Spec id="tab-bar-anatomy" title="Anatomy" when={COPY.tabBarAnatomyWhen}>
           <Views>
             <View name="tab-bar-focused" label="Focused pane, with the logo"><Bar pane={HALF} tabs={titles(1)} logo /></View>
@@ -88,8 +88,8 @@ export function TabBarSection() {
           <Prose k="tabBarAnatomyNote" />
         </Spec>
         <Spec id="tab-bar-values" title="Values" when={COPY.tabBarValuesWhen}>
-          <SpecTable head={["Declared here", "Reads", "Value", "Sets"]} mono={[0, 1, 2]}
-            rows={TAB_BAR_DECLARED.map(([name, from, use]) => [name, from, <TokenValue name={from} />, use])} />
+          <SpecTable head={["Android token", "Reads", "Value", "Sets"]} mono={[0, 1, 2]}
+            rows={TAB_BAR_TOKENS.map(([name, from, use]) => [name, from, <TokenValue name={name} />, use])} />
           <SpecTable head={["Part", "Canon token", "Value"]} mono={[1, 2]}
             rows={CANON.map(([part, name]) => [part, name, <TokenValue name={name} />])} />
           <SpecTable head={["Rule", "Value"]}
@@ -114,7 +114,7 @@ export function TabBarSection() {
             rows={[
               ["Tab", "the whole tab", "android-tab-min-width to max by android-tab-height", "48 by 48"],
               ["+", <>icon-size-md <TokenValue name="icon-size-md" /></>, "android-tab-button-width by android-tab-height + android-tab-button-reach", "48 by 48"],
-              ["Logo", <>android-tab-logo-size <TokenValue name="size-20" /></>, "android-tab-button-width by android-tab-height + android-tab-button-reach", "48 by 48"],
+              ["Logo", <>android-tab-logo-size <TokenValue name="android-tab-logo-size" /></>, "android-tab-button-width by android-tab-height + android-tab-button-reach", "48 by 48"],
             ]} />
           <Prose k="tabBarTargetsNote" />
         </Spec>
