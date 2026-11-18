@@ -12,11 +12,11 @@ import { PORTRAIT, Terminal, titles } from "./tab-bar.jsx";
 
 // Screen sizes for the frames: a 360 by 640 portrait window and the same class of phone turned, 800 by 360. The keyboard
 // heights are chosen for the specimen, not measured on a device.
-const TALL = 640;
-const LANDSCAPE = 800;
-const SHORT = 360;
-const KEYBOARD_PORTRAIT = 280;
-const KEYBOARD_LANDSCAPE = 200;
+export const TALL = 640;
+export const LANDSCAPE = 800;
+export const SHORT = 360;
+export const KEYBOARD_PORTRAIT = 280;
+export const KEYBOARD_LANDSCAPE = 200;
 
 const COLORS = [
   ["Scrim, over the app window only", "scrim-bg", ""],
@@ -37,7 +37,7 @@ const COLORS = [
 ];
 
 // The tab menu. index and count place the tab in its row: the first tab cannot move left, the last cannot move right.
-function TabMenu({ index, count, pressed }) {
+export function TabMenu({ index, count, pressed }) {
   return (
     <>
       <ListPopupRow label="Rename tab" pressed={pressed === "rename"} />
@@ -80,7 +80,7 @@ function TastyMenu({ workspaces = 3, current = 0, pane = true, surface = true })
 // held: the tab held by a long press, or "logo" when the logo was tapped.
 // Outside the Scrolling spec a frame shows every row: the frame grows past the real window instead of scrolling, and a
 // line under it says what the app shows at the real size. scroll: draw the app's real behaviour, for the Scrolling spec.
-function Screen({ width, height, keyboard = 0, tabs = 3, selected = 0, held = 1, title, scrollTo, scroll = false, children }) {
+export function Screen({ width, height, keyboard = 0, tabs = 3, selected = 0, held = 1, title, scrollTo, scroll = false, children }) {
   const [real, setReal] = React.useState(null);
   const under = (
     <div style={{ height: "100%", display: "flex", flexDirection: "column", background: "var(--tasty-surface-terminal-focused-bg)" }}>
