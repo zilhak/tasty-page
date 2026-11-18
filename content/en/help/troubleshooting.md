@@ -1,4 +1,4 @@
-<!-- source-hash: f68cfb1d8475 -->
+<!-- source-hash: 7c4f4cd45f06 -->
 # Troubleshooting
 
 Causes and remedies for Tasty installation, input, display, restoration, and notification issues are organized by symptom. For CLI connection failures or slow responses, also see connection diagnostics. If the problem remains, report it with your environment details and logs.
