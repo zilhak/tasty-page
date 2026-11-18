@@ -11,7 +11,7 @@ A change to the desktop gallery must not conflict with this one, so everything o
 | `vendor/android/` | The page module, specimens, this document, the check |
 | `src/pages/[...locale]/android-gallery/` | The route |
 
-Tokens and desktop parts are read only. Never copy a value and never edit a shared file. If a shared file has to change, report the file, the line and the reason first.
+Tokens and desktop parts are read only, and desktop parts are not used in the Android specimens. Never copy a value and never edit a shared file. If a shared file has to change, report the file, the line and the reason first.
 
 Desktop changes arrive by `git merge main`, never by rebase. A conflict means the separation broke, so find out which shared file caused it before resolving it. To see the changes on this branch:
 
@@ -35,12 +35,28 @@ What crosses over is values, not components. The Android theme takes them from `
 | Item | Rule |
 |---|---|
 | Color tokens | The same as Tasty, read from the canon |
-| Layout rules | The same as Tasty, `vendor/RULES.md` section 10 |
-| Parts | The desktop components, imported unchanged |
-| A value touch does not fit | Stays as it is. The touch section measures it, and the owner decides |
+| Layout rules | The fixed limits of `vendor/RULES.md` section 10: 4 dp grid, 1 dp border, 4 dp radius, 14 sp UI type cap. Heights by place are Android's own |
+| Icons | The drawings in `vendor/icons`, through `Icon` |
+| Parts | Not taken. Android parts are drawn in `parts/`. The desktop components are a reference only |
+| Sizes | Android's own, declared in the part that uses them, each pointing at a canon token |
 | Width classes | The canon has none. Android's own, declared in `gallery/widths.jsx` |
 
 Screens wait for the decision on how the app is used. Nothing here decides product behaviour.
+
+## Parts
+
+The Android app looks different from the desktop, so its parts are drawn separately. A specimen on this page draws an Android part from `parts/`, never a desktop component from `vendor/components`. The desktop parts are read for reference: what a part does, its states, its color roles. Size, shape and input are set for touch and a hardware keyboard here.
+
+| Part | File | Desktop reference |
+|---|---|---|
+| Pane tab bar | `parts/tab-bar.jsx` | The pane tab strip |
+| List popup | `parts/list-popup.jsx` | The context menu |
+
+Colors stay canon tokens, and icons stay `vendor/icons`. A size the canon has no token for is declared in the part as an `--android-*` property that reads a canon token, and its table is on the page.
+
+**Long press.** Every menu a long press opens is a list popup in the middle of the window, over a scrim. It is never a context menu at the finger. Its title names what was pressed. A tap on a row runs it; a tap on the scrim or the system back closes it.
+
+The Touch, Widths and Shared parts sections predate this rule and still draw desktop components.
 
 Token lengths read as dp and type sizes as sp, one to one. The baselines in `gallery/touch.jsx` are comparison points with their sources. They are not Tasty values.
 
