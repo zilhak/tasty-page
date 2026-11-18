@@ -14,6 +14,7 @@ import { OptionKeySection as OverlaysWindowsB12_OptionKeySection } from "./optio
 import { AltKeySection as OverlaysWindowsR56_AltKeySection } from "./alt-key.jsx";
 import { FileHandlerSection as OverlaysWindowsFileHandlers_FileHandlerSection } from "./file-handlers.jsx";
 import { PerfSection as OverlaysWindowsPerf_PerfSection } from "./settings-performance.jsx";
+import { FrameRateSection as OverlaysWindowsFrameRate_FrameRateSection } from "./settings-frame-rate.jsx";
 import { FontOverrideG, FontFileRejectedSpec, FontToastSpec, FontFamilyRejectedSpec } from "./settings-font.jsx";
 import { TrustBox2 as OverlaysWindowsPluginTrust_TrustBox2, PluginTrustSpecs as OverlaysWindowsPluginTrust_PluginTrustSpecs } from "./plugin-trust.jsx";
 import { Section as PresetEditor_Section } from "./preset-editor.jsx";
@@ -205,6 +206,7 @@ const NAV = [
   { id: "settingsnarrow", label: "Settings rows — narrow (b12)" },
   { id: "filehandlers", label: "Handler › File Detectors · Handlers" },
   { id: "perfapply", label: "Terminal › Performance — apply note" },
+  { id: "framerate", label: "Terminal › Frame rate — redraw caps" },
   { id: "permissions", label: "General › Permissions (macOS)" },
   { id: "kbimportexport", label: "Keybindings · Import / Export" },
   { id: "optionkey", label: "Win · Super as extra (b12)" },
@@ -1413,6 +1415,7 @@ function Page() {
       {<OverlaysWindowsB12_SettingsNarrowSection />}
       {<OverlaysWindowsFileHandlers_FileHandlerSection />}
       {<OverlaysWindowsPerf_PerfSection />}
+      {<OverlaysWindowsFrameRate_FrameRateSection />}
       {<OverlaysWindowsAnomaly_AnomalySection />}
       <Section id="permissions" title="Settings › General › Permissions (macOS)">
         <Spec id="status-table-one-action-per-row-one-request-button" title="Status table, one action per row, one request button"

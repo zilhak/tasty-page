@@ -723,7 +723,8 @@ const L1_LABEL = { General: "General", Terminal: "Terminal", Appearance: "Appear
 const l2For = (os) => ({
   // Permissions exists in macOS builds only (last L2 of General). Shown here so the kit carries it.
   General: ["General", "Notifications", "Accessibility", "Permissions"],
-  Terminal: ["General", "Mouse Capture", "TUI", "Performance"],
+  // 2026-11-19: Frame rate after Performance — the two redraw caps, in their own section so the label filter finds "frame"
+  Terminal: ["General", "Mouse Capture", "TUI", "Performance", "Frame rate"],
   Appearance: ["Theme", "Colors", "General", "Display", "Tasty", "Terminal", ...APPEARANCE_PLUGIN_PAGES, "HTML"],
   // Keybindings L2 — TRANSCRIBED from src/view/settings/ui.rs:906-950 (eleven
   // sections; the old design list carried a phantom "Image" and was missing
@@ -997,6 +998,18 @@ function SettingsWindow({ theme, onTheme, uiScale, onUiScale, onClose, os = DEFA
             <Row label="Disk scrollback lines:" hint="Lines kept on disk per terminal while disk swap is on. -1 keeps every line. Separate from Scrollback lines."><span style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-number-field-unit-gap)" }}><Input mono defaultValue="10000" style={{ width: "var(--tasty-number-field-min-width)" }} /><span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-number-field-unit-fg)" }}>lines</span></span></Row>
           </>
         );
+      // Terminal › Frame rate (2026-11-19) — two redraw caps, one choice list (60 Hz monitor here); no apply note: saving applies at once
+      if (l2 === "Frame rate") {
+        const fr = [["15", "15 fps"], ["30", "30 fps"], ["60", "60 fps"], ["-1", "Match monitor"]].map(([value, label]) => ({ value, label }));
+        return (
+          <>
+            <Mono>Frame rate — redraw caps</Mono>
+            <Row label="Output frame rate:" hint="The most frames per second Tasty draws when terminal output changes the screen. Lower values use less CPU and GPU while a program prints fast."><Select options={fr} defaultValue="30" style={{ width: "var(--tasty-field-width-lg)" }} /></Row>
+            <Row label="Input frame rate:" hint="The most frames per second Tasty draws in response to your input, such as typing. The first input after a pause draws at once, and output that echoes your input counts as input."><Select options={fr} defaultValue="60" style={{ width: "var(--tasty-field-width-lg)" }} /></Row>
+            <Note>Both are maximums. Tasty never draws faster than the monitor each window is on, and lists only values up to your fastest monitor's refresh rate.</Note>
+          </>
+        );
+      }
       // Terminal › Mouse Capture — hint banner toggle + per-program capture opt-out
       if (l2 === "Mouse Capture")
         return (
