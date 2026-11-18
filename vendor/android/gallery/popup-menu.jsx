@@ -4,8 +4,8 @@
 // draws them.
 import React from "react";
 import { Cluster, Section, Spec, Stage, View, Views } from "../../gallery/parts/specimen.jsx";
-import { LIST_POPUP_DECLARED, ListPopup, ListPopupHeading, ListPopupRow, fitRows, listPopupVars } from "../parts/list-popup.jsx";
-import { Bar, tabBarVars } from "../parts/tab-bar.jsx";
+import { LIST_POPUP_TOKENS, ListPopup, ListPopupHeading, ListPopupRow } from "../parts/list-popup.jsx";
+import { Bar } from "../parts/tab-bar.jsx";
 import { COPY } from "./copy.js";
 import { Prose, SpecTable, TokenValue } from "./kit.jsx";
 import { PORTRAIT, Terminal, titles } from "./tab-bar.jsx";
@@ -102,28 +102,14 @@ function Screen({ width, height, keyboard = 0, tabs = 3, selected = 0, held = 1,
   );
 }
 
-// Free heights for the short-area frames: each lands on one step of fitRows. The table works the steps out from the
-// declared values when the page renders.
 // Scroll positions for the lane states, in px from the top of a list of 48 high rows: snapped, so whole rows.
 const SCROLL_STATES = [[0, "At the top: rows below"], [192, "In the middle: rows above and below"], [100000, "At the end: rows above"]];
-const FIT_FRAMES = [[178, "Normal margin, two rows"], [160, "Tight margin, two rows"], [146, "No margin, two rows"], [120, "No margin, one row"]];
-function FitTable() {
-  const [rows, set] = React.useState([]);
-  React.useEffect(() => {
-    const el = document.querySelector("#popup-scroll") || document.documentElement;
-    const v = (n) => parseFloat(getComputedStyle(el).getPropertyValue(n));
-    const base = { count: 4, row: v("--android-popup-row-height"), title: v("--android-popup-title-height"), margin: v("--android-popup-margin"), tight: v("--android-popup-margin-tight"), border: v("--tasty-border-width") };
-    set([...FIT_FRAMES.map(([f]) => f), 97].map((free) => { const r = fitRows({ ...base, free }); return [free, r.margin, r.rows, free - 2 * r.margin - 2 * base.border - base.title < base.row ? "Too short for one row: open question" : ""]; }));
-  }, []);
-  return <SpecTable head={["Free height", "Margin", "Whole rows shown", "Note"]} mono={[0, 1, 2]} rows={rows} />;
-}
-
 const column = { overflowX: "auto", flexWrap: "nowrap" };
 
 export function PopupMenuSection() {
   return (
     <Section id="popup-menu" title="Popup menus">
-      <div style={{ ...tabBarVars, ...listPopupVars }}>
+      <div>
         <Spec id="popup-tab-menu" title="Tab menu, by long press" when={COPY.popupTabMenuWhen}>
           <Stage eager variant="column" style={column}>
             <Cluster label="1. Finger down on a tab: the tab takes the pressed ground"><Bar pane={PORTRAIT} tabs={titles(3)} logo pressed={{ tab: 1 }} /></Cluster>
@@ -163,18 +149,11 @@ export function PopupMenuSection() {
               <Cluster label="Every row fits: no lane"><Screen scroll width={PORTRAIT} height={TALL} keyboard={KEYBOARD_PORTRAIT}><TabMenu index={1} count={3} /></Screen></Cluster>
             </Stage>
             <Prose k="popupScrollNote" />
-            <Stage eager variant="column" style={column}>
-              {FIT_FRAMES.map(([free, label]) => (
-                <Cluster key={free} label={`Short area, ${label}: free height ${free}`}><Screen scroll width={LANDSCAPE} height={free + KEYBOARD_LANDSCAPE} keyboard={KEYBOARD_LANDSCAPE} tabs={4}><TabMenu index={1} count={4} /></Screen></Cluster>
-              ))}
-            </Stage>
-            <FitTable />
-            <Prose k="popupFitNote" />
           </div>
         </Spec>
         <Spec id="popup-values" title="Values" when={COPY.popupValuesWhen}>
-          <SpecTable head={["Declared here", "Reads", "Value", "Sets"]} mono={[0, 1, 2]}
-            rows={LIST_POPUP_DECLARED.map(([name, from, use]) => [name, from, <TokenValue name={from} />, use])} />
+          <SpecTable head={["Android token", "Reads", "Value", "Sets"]} mono={[0, 1, 2]}
+            rows={LIST_POPUP_TOKENS.map(([name, from, use]) => [name, from, <TokenValue name={name} />, use])} />
           <SpecTable head={["Part", "Ground", "Ink"]} mono={[1, 2]} rows={COLORS} />
           <SpecTable head={["Rule", "Value"]}
             rows={[
@@ -186,7 +165,7 @@ export function PopupMenuSection() {
               ["Height", "The title and a whole number of rows: as many as fit in the free height less two margins, at most all of them. The title stays and the rows scroll"],
               ["Whole rows", "Every list item is one row unit, the Workspaces heading included. A group rule sits on the top edge of its first row and adds no height. Scrolling comes to rest on row edges, so no row is ever shown in part"],
               ["Rows out of view", "A scroll lane at the right of the list, android-popup-lane-width wide: a chevron at each end, lit in text-secondary when rows lie that way and text-disabled at that end, and a thumb between them. Shown the whole time the list can scroll. The rows give up the lane width; nothing covers a row"],
-              ["Short area", "If the normal margin leaves fewer than two whole rows, the margin becomes android-popup-margin-tight, then none. Below two rows with no margin, one row shows"],
+              ["Short area", "The same rules at every size, at least one whole row. Nothing special for a cramped screen: the keyboard, the window and the font scale are the user's, and the user changes them if the popup is too tight"],
               ["Title", "What was pressed: the tab title, or Tasty for the logo. One line, ellipsis at the end. No close button"],
               ["Rows", "Full popup width, one line each, ellipsis at the end. A rule separates groups. A heading names a group when its rows are names, such as Workspaces"],
               ["Row not available", "Shown in place in text-disabled and not tappable. Never hidden, so rows keep their place"],
