@@ -9,7 +9,7 @@
   트리에는 없어서 좌표를 실재로 판정하는 CI의 경로 검사가 실패할 수 있다)
 - 배포: `.github/workflows/pages.yml`. `develop`·`release`·`main`의 push마다 `npm run build`로 빌드하고
   `npm run check-links`로 산출물의 내부 링크와 `content/` 앵커의 실제 HTML 결과, 디자인 페이지 사이 링크의 언어 유지를 전수 판정하고, `npm run check-sitemap`으로
-  공개 페이지와 sitemap을 대조하고, `npm run check-translations`로 일본어·중국어 가이드를 한국어 원본과 대조한다.
+  공개 페이지와 sitemap을 대조하고, `npm run check-translations`로 영어·일본어·중국어 가이드를 한국어 원본과 대조한다.
   **배포는 `main` push와 `main`에서 수동 실행할 때만** 한다. 공개 사이트는 사용자가 받을 수 있는
   버전을 설명해야 하기 때문이다. `develop`은 최신 페이지, `release`는 릴리스 후보라 빌드와 검사만 한다. 표시 버전은 공개된 최신
   Tasty 릴리스(`release.json`)이고, 이 파일이 없는 로컬 빌드는 버전을 표시하지 않는다.
@@ -192,7 +192,7 @@ npm run check-sitemap   # 빌드 결과의 공개 페이지와 sitemap.xml 대�
 npm run check-contrast  # 빌드 결과의 갤러리·사이트 페이지 렌더링 대비 검사
 npm run check-icons     # vendor 아이콘 파일과 Icon 컴포넌트의 글리프 대조
 npm run check-tokens-copy  # vendor/tokens.css의 1단계 값과 primitives.css 대조
-npm run check-translations -- ja zh  # 번역 가이드와 한국어 원본의 구조 대조 (아래 "번역 구조 검사")
+npm run check-translations -- en ja zh  # 번역 가이드와 한국어 원본의 구조 대조 (아래 "번역 구조 검사")
 
 # 번역 파일에 원본 해시 스탬프 (아래 "번역 모델")
 npm run stamp content/en/index.md
@@ -370,14 +370,16 @@ npm run check-translations -- ja
 | `commands` | 코드 펜스 안의 `tasty ...` 줄이 다르다. `#` 뒤 주석은 뺀다. 원본에서 한글이 든 따옴표 값, `<자리 표시>`, 낱말은 예시 글이라 번역할 수 있다 |
 | `links` | 링크 대상 경로(앵커 제외)의 묶음이 다르다. 순서는 보지 않는다 |
 | `diagrams` | `tasty-diagram` 표식의 이름이나 순서가 다르다 |
-| `labels` | `<!-- en: ... -->` 값의 집합이 다르다 |
+| `labels` | 언어 행의 `code`가 `en`이면 원본의 `<!-- en: ... -->` 값이 영어 본문에 없다. 마크다운 서식은 걷고 `{n}` 같은 중괄호 자리 표시는 임의의 값과 맞춘다. 다른 언어는 주석 값의 집합이 다르다 |
 | `stamp` | 스탬프가 없거나 원본 해시와 다르다 |
 | `hangul` | 한글이 남아 있다. 앱 언어 이름 `한국어`와 앱의 한국어 표시 예시는 스크립트의 `ALLOWED_HANGUL`에 적어 뺀다 |
 | `kana` | `zh` 폴더에 가나가 있다 |
 
 `zh` 폴더에서 GB2312 밖의 한자는 번체 후보로 출력하며 실패가 아니다. 근사이므로 사람이 본다.
 
-`--counts`는 규칙별 수만 내고 항상 0으로 끝난다. 영어 번역은 이 검사보다 먼저 쓰였고 범위 밖이라 `labels`가 어긋난다(라벨 주석을 싣지 않는다). 그래서 CI는 영어를 판정하지 않고 `ja`, `zh`만 판정한다. `--skip-missing`은 없는 폴더를 건너뛴다.
+영어 번역은 라벨 주석을 싣지 않고 본문에 영어 라벨을 그대로 쓴다. CI는 `en`, `ja`, `zh`를 모두 판정한다.
+
+`--counts`는 규칙별 수만 내고 항상 0으로 끝난다. `--skip-missing`은 없는 폴더를 건너뛴다.
 
 ### 언어를 더할 때 고칠 곳
 
