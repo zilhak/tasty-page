@@ -11,7 +11,7 @@ A change to the desktop gallery must not conflict with this one, so everything o
 | `vendor/android/` | The page module, specimens, this document, the check |
 | `src/pages/[...locale]/android-gallery/` | The route |
 
-Tokens and desktop parts are read only. Never copy a value and never edit a shared file. If a shared file has to change, report the file, the line and the reason first.
+Tokens and desktop parts are read only, and desktop parts are not used in the Android specimens. Never copy a value and never edit a shared file. If a shared file has to change, report the file, the line and the reason first.
 
 Desktop changes arrive by `git merge main`, never by rebase. A conflict means the separation broke, so find out which shared file caused it before resolving it. To see the changes on this branch:
 
@@ -35,16 +35,46 @@ What crosses over is values, not components. The Android theme takes them from `
 | Item | Rule |
 |---|---|
 | Color tokens | The same as Tasty, read from the canon |
-| Layout rules | The same as Tasty, `vendor/RULES.md` section 10 |
-| Parts | The desktop components, imported unchanged |
-| A value touch does not fit | Stays as it is. The touch section measures it, and the owner decides |
+| Layout rules | The fixed limits of `vendor/RULES.md` section 10: 4 dp grid, 1 dp border, 4 dp radius, 14 sp UI type cap. Heights by place are Android's own |
+| Icons | The drawings in `vendor/icons`, through `Icon` |
+| Parts | Not taken. Android parts are drawn in `parts/`. The desktop components are a reference only |
+| Sizes | Android's own `--tasty-android-*` tokens in `tokens/components.css`, each pointing at a canon token. The desktop UI never reads them |
 | Width classes | The canon has none. Android's own, declared in `gallery/widths.jsx` |
 
 Screens wait for the decision on how the app is used. Nothing here decides product behaviour.
 
+## Parts
+
+The Android app looks different from the desktop, so its parts are drawn separately. A specimen on this page draws an Android part from `parts/`, never a desktop component from `vendor/components`. The desktop parts are read for reference: what a part does, its states, its color roles. Size, shape and input are set for touch and a hardware keyboard here.
+
+| Part | File | Desktop reference |
+|---|---|---|
+| Pane tab bar | `parts/tab-bar.jsx` | The pane tab strip |
+| List popup | `parts/list-popup.jsx` | The context menu |
+
+Colors stay canon tokens, and icons stay `vendor/icons`. A size an Android part needs is a `--tasty-android-*` token in `tokens/components.css` that reads a canon token, so the Android theme takes it from `tasty.tokens.json` like every other value. Adding one is a shared change: report it first, then add it with the JSON and its class in `ground-ink-rules.json`. The part file lists its tokens for the page tables.
+
+**Menus.** Every menu on Android is a list popup in the middle of the window, over a scrim: the tab menu a long press opens, the Tasty menu the logo opens, and any menu added later. It is never a context menu at the finger, as a right click opens on the desktop. Its title names what was pressed. A tap on a row runs it; a tap on the scrim or the system back closes it. A row that is not available stays in place, disabled, and is never hidden.
+
+**Long press.** A long press gives one haptic tick when it is reached, and the pressed target keeps its pressed ground while its popup is open.
+
+**On-screen keyboard.** Opening a popup leaves an open on-screen keyboard open, and a popup never pushes the keyboard away. The popup centres in the window area above the keyboard; when that area is short, the title stays and the rows scroll.
+
+**The user's choices.** Tasty gets in the way of the user's choices as little as it can. It does not change the screen state the user set up, such as the keyboard, the window size or the font scale. It also adds no special handling for when that state does not fit. A popup in a cramped area follows the same rules as anywhere else, and if it is too tight, the user changes the keyboard or the window.
+
+**Lists that scroll.** This applies to every Android popup and list. Scrolling is allowed, but it must always show:
+
+- A list shows whole rows only. Every item is one row unit, a group heading included. A group rule sits inside the top edge of its first row. The list area is a whole number of rows tall, and scrolling comes to rest on row edges.
+- While any row is out of view, a scroll lane stands at the right of the list for the whole time, not only during a scroll. It has a chevron at each end, lit when rows lie that way and dimmed when that end is reached, and a thumb between them. A row cut at the edge never stands in for it.
+- A short area follows the same rules: the same margin, and the whole rows that fit, at least one. If whole rows and a clear lane ever conflict, the lane wins.
+
+The Touch, Widths and Shared parts sections predate this rule and still draw desktop components.
+
 Token lengths read as dp and type sizes as sp, one to one. The baselines in `gallery/touch.jsx` are comparison points with their sources. They are not Tasty values.
 
 ## Page
+
+**Specimens show everything.** A specimen draws a popup or list with every row in view. The frame grows past the real screen when it has to, and a line under it says what the app shows at the real size. Scrolling is shown only in a scroll specimen, a block marked `data-scroll-specimen`, which is the Scrolling spec of Popup menus. That spec holds the lane and its states.
 
 - `gallery/index.jsx` exports `page` and a default route, the form of `vendor/gallery/<page>/index.jsx`. Each section has its own file, listed in `NAV`. `?audit=1` mounts every stage, as on the desktop gallery.
 - Prose is in `gallery/copy.js`. A slot with no text draws nothing. Labels and spec tables stay in the section files.
@@ -75,6 +105,6 @@ node vendor/android/check/check-android.mjs
 npm run check-links && npm run check-sitemap && npm run check-contrast
 ```
 
-`npm run check-contrast` measures only the chrome around the specimens on this page. `check-android.mjs` measures inside them, with the gallery's own measure function, on every language path in Mocha and Latte at 1440 and 390 wide. It also fails on a page error, page-level horizontal scroll, a missing `noindex`, or nothing measured.
+`npm run check-contrast` measures only the chrome around the specimens on this page. `check-android.mjs` measures inside them, with the gallery's own measure function, on every language path in Mocha and Latte at 1440 and 390 wide. It also fails on a page error, page-level horizontal scroll, a missing `noindex`, or nothing measured. It also fails on a box that scrolls vertically outside a scroll specimen, and on text cut by the top or bottom edge of whatever clips it, anywhere on the page. Sideways cuts are allowed, such as a tab cut at the end of a tab row.
 
 Frozen cells are read through the rows of `vendor/tokens/ground-ink-rules.json`, and a cell for a desktop contract is measured against its row. That file is shared, so an Android contract has no rows there. The measure function skips the inside of a cell, so a `data-contract` cell with no row would go unmeasured, and the check fails on one. Draw an Android-only state without `data-contract`, and it is measured as ordinary text and shapes at 4.5 and 3. The check does not fail on a contract row missing from this page, because the desktop gallery holds those cells.
