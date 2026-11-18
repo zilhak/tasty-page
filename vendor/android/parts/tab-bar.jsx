@@ -7,7 +7,7 @@ import { Icon } from "../../components/index.js";
 const BASE = `${import.meta.env.BASE_URL.replace(/\/$/, "")}/`;
 
 // Android's own values. Name, the canon token it reads, and what it sets. Declared as custom properties on the section
-// root (and on the long-press section, which draws this bar too), so the specimens read these names and no number.
+// root (and on the popup menu section, which draws this bar too), so the specimens read these names and no number.
 export const TAB_BAR_DECLARED = [
   ["android-tab-height", "size-32", "Bar height, and the height of a tab's target"],
   ["android-tab-min-width", "size-96", "Narrowest tab. One whole tab fits a 180 pane that also holds + and the logo"],

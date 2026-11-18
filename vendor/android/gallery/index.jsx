@@ -3,7 +3,7 @@
 import React from "react";
 import { COPY } from "./copy.js";
 import { LayoutSection } from "./layout.jsx";
-import { LongPressSection } from "./long-press.jsx";
+import { PopupMenuSection } from "./popup-menu.jsx";
 import { PartsSection } from "./parts.jsx";
 import { TabBarSection } from "./tab-bar.jsx";
 import { TokensSection } from "./tokens.jsx";
@@ -16,7 +16,7 @@ const NAV = [
   { id: "touch", label: "Touch" },
   { id: "widths", label: "Phone and tablet widths" },
   { id: "tab-bar", label: "Pane tab bar" },
-  { id: "long-press", label: "Long-press menu" },
+  { id: "popup-menu", label: "Popup menus" },
   { id: "parts", label: "Shared parts" },
 ];
 
@@ -28,7 +28,7 @@ function AndroidGallery() {
       <TouchSection />
       <WidthsSection />
       <TabBarSection />
-      <LongPressSection />
+      <PopupMenuSection />
       <PartsSection />
     </>
   );

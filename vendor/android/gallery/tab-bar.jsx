@@ -95,7 +95,7 @@ export function TabBarSection() {
             rows={[
               ["Tab width", "Equal share of the bar width left after + and the logo, kept between min and max width"],
               ["Label", "One line, ellipsis at the end, no icon, no close button. The whole tab width less the two insets"],
-              ["Closing a tab", "Long press on the tab, then Close tab in the long-press menu"],
+              ["Tab menu", "Long press on a tab opens the tab menu: Rename tab, Move left, Move right, Close tab"],
               ["+", "Right after the last tab. Stays at the right end of the tab row when the tabs overflow"],
               ["Logo", "Far right, only on the pane that reaches the top right of the screen"],
               ["Overflow", "The tab row scrolls sideways. No arrows. A cut tab at the edge shows there is more"],
