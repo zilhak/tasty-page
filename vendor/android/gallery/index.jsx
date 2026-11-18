@@ -4,6 +4,7 @@ import React from "react";
 import { COPY } from "./copy.js";
 import { LayoutSection } from "./layout.jsx";
 import { PopupMenuSection } from "./popup-menu.jsx";
+import { RenameSection } from "./rename.jsx";
 import { PartsSection } from "./parts.jsx";
 import { TabBarSection } from "./tab-bar.jsx";
 import { TokensSection } from "./tokens.jsx";
@@ -17,6 +18,7 @@ const NAV = [
   { id: "widths", label: "Phone and tablet widths" },
   { id: "tab-bar", label: "Pane tab bar" },
   { id: "popup-menu", label: "Popup menus" },
+  { id: "rename-tab", label: "Rename tab" },
   { id: "parts", label: "Shared parts" },
 ];
 
@@ -29,6 +31,7 @@ function AndroidGallery() {
       <WidthsSection />
       <TabBarSection />
       <PopupMenuSection />
+      <RenameSection />
       <PartsSection />
     </>
   );

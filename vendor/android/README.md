@@ -51,6 +51,7 @@ The Android app looks different from the desktop, so its parts are drawn separat
 |---|---|---|
 | Pane tab bar | `parts/tab-bar.jsx` | The pane tab strip |
 | List popup | `parts/list-popup.jsx` | The context menu |
+| Input popup | `parts/input-popup.jsx` | The rename dialog |
 
 Colors stay canon tokens, and icons stay `vendor/icons`. A size an Android part needs is a `--tasty-android-*` token in `tokens/components.css` that reads a canon token, so the Android theme takes it from `tasty.tokens.json` like every other value. Adding one is a shared change: report it first, then add it with the JSON and its class in `ground-ink-rules.json`. The part file lists its tokens for the page tables.
 
