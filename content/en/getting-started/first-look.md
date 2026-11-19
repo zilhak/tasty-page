@@ -1,4 +1,4 @@
-<!-- source-hash: 1ace6e12a765 -->
+<!-- source-hash: e30154ab9991 -->
 # A first look
 
 Tasty’s first screen has a sidebar for switching workspaces and a work area for terminals or documents. Each pane has a tab bar, and each tab contains surfaces for terminals or documents.
@@ -65,7 +65,7 @@ At the top of each Pane.
 
 - Each Tab shows a type icon (terminal · Markdown, etc.) and a name. The name is chosen in this order: a name you set → the terminal title set by the program → the name of the shell's current directory → the default name. Once you set a name with right-click > **Rename Tab**, it no longer changes.
 - A **green dot** appears while a program is producing output, and the name changes colour when it waits for input or finishes ([Names and marks](../using/panes-tabs-splits.md#names-and-marks)).
-- `+` is a new Tab. Right-click to create from a preset. The split · search icons next to it split this Pane or search inside the current Surface.
+- `+` opens a new tab. Right-click to create from a preset. The split icon beside it splits the pane it belongs to, even if another pane has focus. The search icon searches inside the current surface.
 - When Tabs overflow, left/right arrows appear. Drag to reorder.
 - Right-click an empty spot to create a new Tab with **New Terminal** · **New Markdown...** · **New HTML...** · **New Image**. **New HTML...** opens a Tab in that Pane once you pick an HTML or SVG file in the file chooser. The same menu also has **Save as pane preset**, **Create tab from preset...** and **Create pane from preset...**. Each type is described in [Managing and viewing files](../using/files.md).
 

@@ -1,4 +1,4 @@
-<!-- source-hash: f64d38f7bbad -->
+<!-- source-hash: 1fb3cfdd7d55 -->
 # Managing and viewing files
 
 Find and manage files in the Explorer, and view Markdown, images, and HTML beside the terminal. Inspect changes in the Git viewer. The viewers and Git tools require their respective plugins to be enabled.
@@ -24,6 +24,10 @@ The **Open file with…** window lists the file path, detected format, and avail
 **Recent** shows previously used handlers and when you used them: just now, minutes ago, hours ago, yesterday, or days ago. After a week, it shows a date such as `2026-09-13`. The display updates if the window stays open across midnight.
 
 One click selects a handler; a double-click opens the file. This choice applies **only this time**. It does not register a default for the file type, so the chooser can appear again for the same file. Set a default under **Settings** > **Handler**. Press `Esc` or **Cancel** to close the chooser.
+
+When you choose **Open File…** from **Tools** or use its shortcut, the resulting tab opens in the pane selected when you entered the command. When you drop a file, it opens in the pane you dropped it on, including on that pane’s tab strip. A local file link opened by clicking it in a terminal or using its right-click menu opens in that terminal’s pane. Moving focus while the file is opening leaves the destination unchanged. If that pane closes first, the file does not open. A file opened from Explorer opens in the pane containing that Explorer.
+
+If a file-opening request specifies a Surface, the resulting tab opens in that Surface’s pane even if you switch to another window while it is opening. If the specified Surface closes, the file does not open, even if its pane is still there.
 
 A Surface opened from a file is split · moved · closed · restored on restart just like any other Surface. The Tab name becomes the file name.
 
@@ -178,7 +182,7 @@ When Tasty runs on native Linux Wayland because `DISPLAY` is unset or the X serv
 - **Rename**. The new name follows the same rules as a new folder or file (empty, characters that can't be used, leading or trailing spaces, reserved names); if it breaks one, the reason appears under the field and it isn't saved.
 - **Open in system** — opens chosen files in their default app and folders in the OS file manager. With several items chosen, it opens each one.
 - **Show in Finder** (macOS) · **Show in File Explorer** (Windows) · **Show in File Manager** (Linux) — with one item chosen, opens the folder that holds it with the item selected. On Linux, if the file manager can't select items, only the folder opens.
-- **Open in New Tab** — opens one more Explorer Tab in the Pane with that folder as the root.
+- **Open in New Tab** — opens one more Explorer Tab in the Pane with that folder as the root. Working directory inheritance does not apply to this action.
 - **Set as Root** — moves the root of the left tree.
 - **Add to Favorites** — appears when you right-click a single folder or an empty area. It gives the folder a name and puts it in the list at the bottom left. Favorites are shared by all Explorers and saved in `~/.tasty/explorer-favorites.toml`. Favorites added or removed in another window show up right away. File saving runs in the background so you can keep working. If saving fails, a warning appears and the list stays available for this session. Changes made to the favorites file outside Tasty are preserved; check the file and restart Tasty to load them. Right-clicking a favorite at the bottom left offers **Open in New Tab** · **Set as Root** · **Remove from Favorites** (a remote Explorer leaves out Open in New Tab). Removing a favorite leaves the folder itself alone.
 - **Properties** — opens the [Properties](#properties) popup above. It also appears in remote Explorers.
@@ -235,7 +239,9 @@ Renders `.md` files. When the file changes, it redraws automatically within 1 se
 - Press the **Refresh** key (default `F5`) to re-read and redraw only the document you are looking at. It also works while you are typing in the address bar or the find box. Because the document is drawn again, what you were typing in the address bar, the open find box and its query, and the selection are cleared; the scroll position is restored when possible. A document in a remote Workspace fetches the original from the remote again; while disconnected, the disconnected state stays as it is. Large files go through the same confirmation described below.
 - Files over 1 MiB are asked about once with **Open large file?**. The prompt appears in the middle of that Markdown surface, or in the middle of the window when the surface is narrower than the prompt. A file that was small when opened is asked about the same way before it is re-read once it grows past 1 MiB, and its previous content stays visible until you answer. If you cancel, the document area shows **This file is larger than 1 MiB and has not been loaded**, with an **Open file…** button below it that asks again. A file you cancelled is not re-read automatically when it changes; `tasty markdown reload --surface <ID>` also asks again. Once you choose **Open**, that file is not asked about again.
 
-**New Markdown...** or `Alt+'` > **Markdown** opens the **Open Markdown File** window. Type a path or choose one with **Browse…**. Browse starts in the current folder of the terminal you are looking at, and a relative path you type is opened from that folder too. The window appears centered over that surface, and it hides while you switch to another workspace or tab and comes back as you left it when you return. The file chooser opened by Browse hides and returns with it, keeping your selected files and current folder. While hidden, it does not block clicks or keyboard input on the other screen.
+**New Markdown...** or `Alt+'` > **Markdown** opens the **Open Markdown File** window. Type a path or choose one with **Browse…**. Browse starts in the working directory of the Surface selected when you asked to open Markdown, and a relative path you type is opened from that folder too. The window appears centered over that surface, and it hides while you switch to another workspace or tab and comes back as you left it when you return. The file chooser opened by Browse hides and returns with it, keeping your selected files and current folder. While hidden, it does not block clicks or keyboard input on the other screen.
+
+When you open Markdown in a new tab from the command palette, Tasty uses the pane and Surface selected when you press `Enter`. If that target has closed by the time the command runs, nothing opens.
 
 ```sh
 tasty markdown recent

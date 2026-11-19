@@ -1,4 +1,4 @@
-<!-- source-hash: a88ae7bc0d61 -->
+<!-- source-hash: c877be2d6754 -->
 # Panes, tabs, and splits
 
 Tasty’s pane splits create areas with independent tab switching, while surface splits divide views that stay together within one tab. Choose either level to build the layout you need.
@@ -19,9 +19,9 @@ The shortcuts below use the default **Tasty** preset. On macOS, read `Alt` as `C
 - To keep an agent fixed on one side while moving between several Tabs on the other, split the **Pane**.
 - To keep the log · editor belonging to one task side by side and switch them as a whole Tab, split the **Surface**.
 
-The terminal in the new cell starts in the working directory of the original cell (**Settings** > **Terminal** > **Inherit working directory**). Drag the border between cells to change the ratio.
+A shortcut, the command palette, or a modifier double-tap splits the pane or Surface selected when you enter the command. A pane split goes ahead as long as that pane is still open. For a local pane split, if the selected Surface has closed, the new pane does not inherit its working directory. A Surface split is skipped if the selected Surface has closed. Drag the border between cells to resize them.
 
-The split icon on the right of the tab strip divides that Pane side by side. To split into a different kind of Surface, use the CLI.
+The split icon on the right of the tab strip splits its own pane side by side, even when another pane has focus. When working directory inheritance is on, the new pane inherits the working directory of the Surface selected in the pane being split. See [Inherit working directory](terminal.md#shell) for when Tasty reads the directory. To split into a different kind of Surface, use the CLI.
 
 ```sh
 tasty split --level pane --pane 1 --direction horizontal
@@ -33,7 +33,7 @@ tasty split --level surface --surface 5 --type explorer --path ~/proj
 
 ### Creating · closing
 
-- The `+` button or `Alt+T` — a new terminal Tab.
+- The `+` button or `Alt+T` opens a new terminal tab. Shortcuts, the command palette, and modifier double-taps open the tab in the pane selected when you enter the command. If that pane closes before the command runs, the tab does not open. When you use the tab strip’s `+` button or the pane menu, the Surface selected in that pane supplies the working directory.
 - Right-click `+` — **Create tab from preset...** / **Create pane from preset...**.
 - Right-click an empty area of the tab strip — **New Terminal** · **New Markdown...** · **New HTML...** · **New Image** create a new Tab. **New HTML...** opens a Tab in that Pane once you pick an HTML or SVG file in the file chooser. The same menu also has **Save as pane preset**, **Create tab from preset...** and **Create pane from preset...**. Each kind is described in [Managing and viewing files](files.md).
 - The Tab's `×`, right-click the Tab > **Close Tab**, or `Ctrl+W`. The last remaining Tab of a Pane does not close. To close the whole Pane, use Close Pane (`Ctrl+Shift+W`).
@@ -116,6 +116,7 @@ The mark goes away when the move is done, when you cut something else, or when t
 Press `Alt+'` and the **Surface Type** popup appears. It changes the current Surface, in place, to **Terminal** · **Explorer** · **Markdown** · **HTML...** · **Image** · **DAG**. Choose with the arrow keys and `Enter`, or with the letter shown at the right end of the row. A row without a letter is chosen with the arrow keys or a click. The current kind is not in the list. The button in the middle of an empty Surface is the same popup. Each surface can open its own popup, including in different tabs or splits.
 
 - Changing to Explorer opens the terminal's current directory as the root.
+- Changing to Terminal carries over the Surface’s working directory from before the conversion.
 - Markdown · HTML ask for a file path · URL.
 - The previous content is lost. Going terminal → Explorer → terminal starts a new shell session.
 - While the popup is open only **that one Surface** dims. Whatever is running in the pane beside it, the sidebar and the status bar all stay readable.

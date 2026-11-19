@@ -1,4 +1,4 @@
-<!-- source-hash: 529cc6cc07a5 -->
+<!-- source-hash: 81c7c8014ed6 -->
 # Workspaces
 
 Tasty’s workspaces group terminals and layouts by project or task, organized by name and category and switched from the sidebar.
@@ -12,7 +12,7 @@ Tasty’s workspaces group terminals and layouts by project or task, organized b
 | Right-click the **New Workspace** button > **Create workspace from preset...** | Creates one from a saved layout preset ([Saving layouts](panes-tabs-splits.md#saving-layouts--presets)) |
 | Right-click an empty area of the sidebar > **Add remote workspace** | Mirrors tasty on another machine ([Working remotely](../remote/attach.md)) |
 
-The terminal in a new Workspace starts in the working directory of the current terminal (**Settings** > **Terminal** > **Inherit working directory**, on by default).
+When **Settings** > **Terminal** > **Inherit working directory** is on (the default), a new local workspace inherits its working directory from the Surface selected when you enter the command. Tasty reads the directory when it creates the workspace. If the selected Surface is in a mirror or has since closed, the new terminal starts in your home directory.
 
 To start with a non-terminal Surface or to set the name at creation, use the CLI.
 
@@ -79,6 +79,8 @@ sidebar card instead — a **Force detach** item appears only while it is occupi
 opens a confirmation popup immediately in the center of the current window without switching to that workspace. The popup stays visible when you switch to another workspace. Requesting force detach for another workspace while the popup is open closes the existing popup and reopens it for the new target.
 
 Press `Ctrl+Shift+T` to restore workspaces, panes, tabs, and surfaces you closed, starting with the most recent item. Tasty keeps up to 10 records and retains them when the same layout slot is resumed normally. Terminal history is restored according to the content restoration setting. Shells start again, and saved session resume commands run when present. Items closed through the CLI are not added to this list.
+
+Restoring with a shortcut, the command palette, or a modifier double-tap uses the pane selected when you enter the command. It uses that pane even if you move focus after pressing `Enter` in the palette or the selected Surface closes. If the pane closes before the command runs, nothing is restored.
 
 Terminal history for items being closed is kept within a 64 MiB pending-request budget, minus the space used by other pending requests and the close record itself. Even scrollback smaller than 64 MiB can therefore be omitted if it does not fit the remaining budget. The terminal is still added to the restore list without its scrollback, and closing continues. A warning is left in the notification panel; for a workspace opened over remote attach, a warning notice appears once in the window that requested the close. Restoring a terminal whose history was omitted opens it in the same directory with empty scrollback. History retained for the other terminals is restored according to the content restoration setting. This warning does not mean that all ongoing saving of layouts and contents has stopped.
 

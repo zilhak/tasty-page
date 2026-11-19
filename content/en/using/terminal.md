@@ -1,4 +1,4 @@
-<!-- source-hash: fee848136b67 -->
+<!-- source-hash: e34849b248b3 -->
 # Working with the terminal
 
 You can copy the output you need, search terminal history, and open file paths as you work. You can also select text without a mouse and receive notifications when work finishes.
@@ -11,7 +11,7 @@ Set under **Settings** > **Terminal**.
 
 - **Shell** — the shell to run. On Windows, Tasty runs only Git Bash (`bash.exe` from Git for Windows). An empty value uses Git Bash found in the default install locations. If it is installed elsewhere, enter its `bash.exe` path.
 - **Startup command** — one line entered at the start of every new terminal.
-- **Inherit working directory** — starts a new terminal in the current terminal's directory (on by default).
+- **Inherit working directory** — new tabs, splits, and workspaces inherit the working directory from the Surface selected when you enter the command (on by default). Tasty reads the directory when it creates the item. If the source is a terminal and you run `cd` there in the meantime, Tasty uses the updated directory. For local commands, if the source Surface closes before Tasty reads its directory, there is no directory to inherit. See [Working remotely](../remote/attach.md) for remote tabs and splits. Markdown, image, and HTML files use their containing folder, and Explorer uses its root folder.
 - **Confirm close running process** — asks for confirmation when closing a terminal in which a program is running.
 
 bash (4.4 or later) and zsh get shell integration with no extra setup. The Tab name follows the current directory, the git branch appears in the status bar, and you can attach hooks to command completion ([Hooks · notifications](../agents/hooks-notifications.md)). Other shells such as fish need to be set up by hand, and until then the **Shell integration not detected** banner may appear. It does not appear on terminals you view by attaching to a remote Tasty. It closes on its own after 10 seconds, and waits while the pointer is over it.
@@ -141,6 +141,8 @@ Right-click an underlined link to open a link menu.
 Even while a program that uses the mouse (vim · tmux and so on) is running, right-clicking a link shows this menu instead of going to that program. Right-clicking anywhere else works as before.
 
 Under **Settings** > **Terminal** > **Link click modifier**, choose `Ctrl`, `Alt`, or **Disable left-click opening**. The last option prevents left-clicks from opening links. You can still hover a link without a modifier and use its right-click menu. Popups and banners can block link highlighting.
+
+When you open a local file link in a Tasty tab by clicking it or choosing a handler from **Open With…**, the tab opens in the pane containing the terminal where you used the link. Moving focus while it opens does not change the destination. If that pane closes first, the file does not open.
 
 How files are opened (Markdown · image · Explorer) is in [Managing and viewing files](files.md). Dropping a file onto the terminal (**Drop to open**) opens it by the same rules.
 

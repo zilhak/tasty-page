@@ -1,4 +1,4 @@
-<!-- source-hash: 92b91678f657 -->
+<!-- source-hash: c21ef1542118 -->
 # Keybindings
 
 Tasty’s keybindings can be changed with a preset or by assigning preferred key combinations to frequently used actions. Keybindings are available in **Settings** > **Keybindings**.
@@ -256,7 +256,7 @@ While the settings window or the notification panel is open, `Esc` closes that o
 
 When you choose an action that targets a single Tab from the command palette, such as Search, Refresh, Convert Surface type, vi copy mode or an Explorer action, it runs in the Tab selected when you press `Enter`. Actions that the Tab type does not support do not run.
 
-Closing, renaming or moving a Tab, applying presets, and Copy, Cut and Paste also target the Surface, Tab, Pane and Workspace selected when you press `Enter`. A new Workspace is created in the category of the Workspace selected at that time. If the target closes before execution, the command does not run or switch to another target. Pane and Surface splits, restoring closed items, opening the Explorer, and opening Markdown in a new Tab use the focus at execution time instead. If focus changes after `Enter`, those commands apply at the new location.
+Closing, renaming or moving a tab, applying a preset, and copying, cutting or pasting also use the surface, tab, pane or workspace selected when you press `Enter`. The same timing applies to pane and surface splits, new tabs, restoring closed items, opening Explorer, and opening Markdown in a new tab. Moving focus after `Enter` leaves the target unchanged. If the target closes before the command runs, Tasty skips the command. For a pane split, a new tab, or restoration of a closed item, the target is the pane. These commands still run if the selected Surface closes and the pane stays open. A local pane split then creates a pane without inheriting the working directory. A Surface split is skipped if the selected Surface closes. A new workspace goes in the category of the workspace selected when you press `Enter`.
 
 ## Editing the settings file directly
 
