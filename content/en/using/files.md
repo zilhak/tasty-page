@@ -1,4 +1,4 @@
-<!-- source-hash: 1fb3cfdd7d55 -->
+<!-- source-hash: fade50eb18dd -->
 # Managing and viewing files
 
 Find and manage files in the Explorer, and view Markdown, images, and HTML beside the terminal. Inspect changes in the Git viewer. The viewers and Git tools require their respective plugins to be enabled.
@@ -31,7 +31,7 @@ If a file-opening request specifies a Surface, the resulting tab opens in that S
 
 A Surface opened from a file is split · moved · closed · restored on restart just like any other Surface. The Tab name becomes the file name.
 
-A file chooser opened from the new tab button menu appears within that pane; one opened from sidebar **Tools** appears over the whole window. A chooser opened by a plugin appears within the requesting surface, or within the same area as its parent plugin popup when opened from that popup. The folder button in a Markdown address bar opens it within that surface. Choosers can open at the same time in different places, and each result goes back separately to where it was requested. If one is already open in the same place, a new request is declined, with a toast when you try to open it yourself. Switching tabs within the same pane and using the new tab button menu again, or using sidebar **Tools** again, does not open a separate chooser.
+A file chooser opened from the new tab button menu appears within that pane; one opened from sidebar **Tools** appears over the whole window. A chooser opened by a plugin appears within the requesting surface, or within the same area as its parent plugin popup when opened from that popup. If closing the window also closes the popup, any file chooser opened by that popup is canceled, whichever window the chooser is in. The folder button in a Markdown address bar opens it within that surface. Choosers can open at the same time in different places, and each result goes back separately to where it was requested. If one is already open in the same place, a new request is declined, with a toast when you try to open it yourself. Switching tabs within the same pane and using the new tab button menu again, or using sidebar **Tools** again, does not open a separate chooser.
 
 Drag the file chooser by its top row, the one with the title and ✕. Closing it with ✕, **Cancel**, or `Esc` opens nothing.
 

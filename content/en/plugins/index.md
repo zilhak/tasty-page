@@ -1,4 +1,4 @@
-<!-- source-hash: 4f3d1f3648fd -->
+<!-- source-hash: c9a521a33242 -->
 # Plugins
 
 Plugins provide Markdown, image, and HTML viewers, along with Claude Code and Codex integrations. Manage bundled plugins or install new ones.
@@ -11,7 +11,7 @@ Features such as the Markdown viewer, the image viewer and the Claude Code integ
 - The bundled plugins are installed automatically on first launch. After that they can be disabled or removed exactly like plugins you installed yourself. A bundled plugin you removed is not reinstalled on the next launch.
 - When a plugin is disabled, the Surface kinds · commands · menu items it added disappear with it. This takes effect right away when you disable or remove it while Tasty is running: opening a new Surface of such a kind fails with the reason that the plugin providing it is turned off or has not reconnected yet. Surfaces you already opened stay as they are and pick up again when you enable the plugin, but their scroll position and any unsaved content are lost.
 
-When you open a plugin screen from Tools, the command palette, or a plugin command shortcut, it opens in the pane containing the Surface targeted at the time of input. In the palette, pressing `Enter` determines the pane and the Surface that supplies the working directory. See [Resuming remote work](../remote/attach.md) for what happens while a mirror is creating a tab or split.
+When you open a plugin screen as a tab from Tools, the command palette, or a plugin command shortcut, it opens in the pane containing the Surface targeted at the time of input. In the palette, pressing `Enter` determines the pane and the Surface that supplies the working directory. See [Resuming remote work](../remote/attach.md) for what happens while a mirror is creating a tab or split.
 
 When you enable or disable a plugin, Tasty confirms the save before applying the runtime change. Installation and trust choices also report their result after saving. A failed or unconfirmed save is not reported as success. An enable saved during shutdown takes effect on the next launch; shutdown does not start a new plugin process. A change whose result remains unconfirmed at the shutdown deadline is not reported as successful or automatically replayed.
 
@@ -26,6 +26,8 @@ When you enable or disable a plugin, Tasty confirms the save before applying the
 | **Git Viewer** | `com.tasty.git-viewer` | A read-only popup showing the status · log · diff of the repository in the current directory. With several worktrees, pick one on the left | **Tools** > **Git**, keybinding assigned by you |
 | **Claude Code** | `com.tasty.claude` | Multi-agent commands that launch Claude Code inside Tasty, spawn child instances, send them messages and get notified on completion | `tasty claude launch` · `spawn` · `tell` … — [Working with Claude and Codex](../agents/claude-codex.md) |
 | **Codex** | `com.tasty.codex` | Does the same as above for the Codex CLI | `tasty codex launch` · `spawn` · `tell` … — same page |
+
+Plugin popups such as Clipboard Viewer and Git appear only in the window where you open them from the **Tools** menu, the command palette, or a keyboard shortcut. If you try to reopen a popup from another window, it stays in the window where it first opened. Closing that window closes the popup immediately. When Tasty hides the last window or minimizes it to the background, the popup stays open. See [**Close behavior**](../customize/settings.md#general) for details. When a plugin opens a popup in response to an event on a Surface, the popup appears in the window containing that Surface. Events unrelated to a Surface cannot open these popups.
 
 How to use each Surface kind is in [Managing and viewing files](../using/files.md). There are also demo · experimental plugins that ship only in development builds; they are not included in the distribution.
 
