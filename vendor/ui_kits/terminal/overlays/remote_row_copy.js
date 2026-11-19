@@ -20,6 +20,7 @@ export const REMOTE_ROW_COPY = {
   "remote.row.popup.user_title": {"en": "Disconnected", "ko": "연결 종료", "ja": "切断済み", "zh-Hans": "连接已断开"},
   "remote.row.popup.user_body_stay": {"en": "You disconnected this workspace. It stays disconnected until you reconnect.", "ko": "직접 연결을 끊은 워크스페이스입니다. 재연결할 때까지 연결이 끊긴 상태로 유지됩니다.", "ja": "手動で切断したワークスペースです。再接続するまで切断状態が続きます。", "zh-Hans": "已手动断开此工作区。重新连接前将保持断开。"},
   "remote.row.popup.user_body_next": {"en": "You disconnected this workspace. It will reconnect the next time you open it.", "ko": "직접 연결을 끊은 워크스페이스입니다. 다음에 열면 재연결합니다.", "ja": "手動で切断したワークスペースです。次に開くと再接続します。", "zh-Hans": "已手动断开此工作区。下次打开时将重新连接。"},
+  "remote.row.popup.server_body": {"en": "The remote Tasty disconnected this workspace. It stays disconnected until you reconnect.", "ko": "원격 Tasty에서 연결을 끊은 워크스페이스입니다. 재연결할 때까지 연결이 끊긴 상태로 유지됩니다.", "ja": "リモートの Tasty が切断したワークスペースです。再接続するまで切断状態が続きます。", "zh-Hans": "远程 Tasty 已断开此工作区。重新连接前将保持断开。"},
   "remote.row.popup.idle_title": {"en": "Not connected", "ko": "미연결", "ja": "未接続", "zh-Hans": "未连接"},
   "remote.row.popup.failed_title": {"en": "Connection failed", "ko": "연결 실패", "ja": "接続失敗", "zh-Hans": "连接失败"},
   "remote.row.popup.closed_title": {"en": "Remote workspace closed", "ko": "원격 워크스페이스 닫힘", "ja": "リモートワークスペースが閉じられました", "zh-Hans": "远程工作区已关闭"},
