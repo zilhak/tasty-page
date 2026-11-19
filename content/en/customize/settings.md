@@ -1,4 +1,4 @@
-<!-- source-hash: a0c9edb4a6b5 -->
+<!-- source-hash: f9b6f2647380 -->
 # Settings
 
 Tasty’s shell, fonts, language, and other preferences can be configured in the settings window or by editing `~/.tasty/config.toml` directly. Keybindings and themes have their own guides.
@@ -38,7 +38,7 @@ Press the same shortcut again to close the settings window.
 - If saved settings cannot be applied, an error notice appears and the settings stay as they were. If they were applied on screen but could not be written to `config.toml`, a warning notice appears instead; those changes are lost when Tasty restarts.
 - If another program changes `config.toml` after Tasty reads it, Tasty reports a save failure and preserves that file. Restart Tasty to load the changes made outside the app.
 - Startup corrections and the confirmed shell path are saved together. The loading screen keeps updating while the save completes. During normal use, new windows use the latest settings applied in this run even if a save is still pending.
-- Changes to **Language** take effect after you save and restart Tasty. Performance settings apply to terminals you open after saving; terminals that are already open don't change right away.
+- Changes to **Language** take effect after you save and restart Tasty. The three settings in the **Performance** section of the **Terminal** tab apply to terminals you open after saving. Saving **Frame rate** settings applies them immediately to all open windows without restarting Tasty.
 - Numeric entries are **typed**, never dragged. Values are not adjusted while you type; they are brought into the allowed range when you leave the field or press `Enter`. Type something outside the range and the field's border takes the warning colour, with one line under it naming the range and the value that will actually be saved.
 - Whole-number fields widen to show the entire value, and grow with each character as you type. The unit sits after the field. Some entries show an oversized value from the settings file unchanged. However, when `[remote_attach] heartbeat_timeout_secs` is outside 10–600, Tasty resets it to the default of 30 when reading the file, saves the corrected value back to the settings file, and writes a warning only to the log.
 - If the settings window is so narrow that an entry's control no longer fits beside its name, that entry moves the control onto the line below the name. Widen the window and it moves back beside it.
@@ -75,6 +75,9 @@ Change **Disconnect after** under **Settings** › **General** › **Remote atta
 | **Mouse Capture** | **Show mouse-capture hint** · **Let Tasty handle clicks in these programs** · **Don't show the capture notice for these programs** — process names or patterns such as `ht*` |
 | **TUI** | **Allow clipboard read (OSC 52)** — off by default. When on, programs inside the terminal can read the clipboard |
 | **Performance** | **Targeted PTY polling** · **Scrollback disk swap** (moves lines past the scrollback line count to disk) · **Lines kept on disk** (default 10000, -1 = unlimited — separate from the scrollback line count; the oldest lines past it are dropped). The unit **lines** follows the field, and at -1 **no limit** takes its place. Type a value outside the range and "Use -1 or a number from 0 to 100000000." appears under the field. As the note at the top of the tab says, all three apply to terminals you open after saving, and terminals that are already open don't change right away |
+| **Frame rate** | **Output frame rate** (default 30 fps) · **Input frame rate** (default 60 fps) |
+
+Both **Frame rate** lists offer **Match monitor** and any of 15, 30, 60, 120, 144, and 240 fps up to the rounded refresh rate of the fastest connected monitor. A monitor with no reported refresh rate counts as 60 Hz. A saved value above that limit stays selected and appears as **{n} fps (above monitor)**. The actual redraw rate never exceeds the refresh rate of the monitor the window is on, even with **Match monitor**.
 
 Set **Link click modifier** to **Disable left-click opening** to prevent left-clicks from opening links. You can still hover a link without a modifier and use its right-click menu. Popups and banners can block link highlighting. The meaning of the mouse capture entries is in [Working in the terminal](../using/terminal.md).
 
@@ -253,11 +256,11 @@ the text that language ships with stays on screen, and you never get a blank spo
 
 General settings are stored in this file. Handler tables, theme files, and other items described above use their separate paths. Missing keys are read as defaults, so you only need to write the ones you need.
 
-In `[performance]`, `output_redraw_fps` caps screen redraws caused by terminal output per second and defaults to 30. `input_redraw_fps` caps redraws caused by user input, such as keys and mouse actions, per second and defaults to 60. Echo output returned to the same terminal immediately after input also follows the input cap. The first input after the screen has been idle redraws immediately without waiting.
+In `[performance]`, `output_redraw_fps` (**Output frame rate**) caps screen redraws caused by terminal output per second and defaults to 30. `input_redraw_fps` (**Input frame rate**) caps redraws caused by user input, such as keys and mouse actions, per second and defaults to 60. Echo output returned to the same terminal immediately after input also follows the input cap. The first input after the screen has been idle redraws immediately without waiting.
 
-Both keys accept `15`, `30`, `60`, `120`, `144`, `240`, or `-1` (unlimited). The actual redraw rate never exceeds the refresh rate of the monitor containing the window, even with `-1`. A value above the monitor's refresh rate stays unchanged; only the applied redraw rate is capped at that refresh rate. Values outside the list fall back to each key's default when the file is read.
+Both keys accept `15`, `30`, `60`, `120`, `144`, `240`, or `-1`. With `-1` (**Match monitor**), there is no separate redraw cap per second. If a saved value exceeds the refresh rate of the monitor the window is on, the value stays unchanged and the actual redraw rate is capped at that monitor’s refresh rate. Values outside this list fall back to each key’s default when the file is read.
 
-These two settings are currently available only through `config.toml`, not in the settings window. Tasty does not reread this file while running, so restart Tasty after editing the file to apply the changes.
+You can change **Frame rate** settings in the **Terminal** tab of the settings window. If you edit `config.toml` directly, restart Tasty to apply the changes.
 
 `heartbeat_timeout_secs` in `[remote_attach]` sets how long a remote attach connection waits without receiving anything from the other side. The unit is seconds, the default is 30, and the range is 10–600. If either file value is out of range, the entire `[remote_attach]` section is reset to its defaults (`heartbeat_timeout_secs = 30`, `reconnect_timeout_secs = 300`) and saved back to the settings file; a warning is written only to the log. Direct edits to the settings file are read the next time Tasty starts. To apply a change to new connections without restarting, change it in the settings window and save.
 
@@ -317,8 +320,8 @@ enabled = true
 toast_duration_ms = 2000
 
 [performance]
-output_redraw_fps = 30          # terminal output redraw cap per second
-input_redraw_fps = 60           # user input redraw cap per second
+output_redraw_fps = 30          # terminal output redraw cap per second (-1 = Match monitor)
+input_redraw_fps = 60           # user input redraw cap per second (-1 = Match monitor)
 targeted_pty_polling = true
 scrollback_disk_swap = false
 scrollback_disk_lines = 10000     # lines kept on disk, -1 = unlimited
