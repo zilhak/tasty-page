@@ -1,4 +1,4 @@
-<!-- source-hash: c877be2d6754 -->
+<!-- source-hash: a39e4851261f -->
 # Panes, tabs, and splits
 
 Tasty’s pane splits create areas with independent tab switching, while surface splits divide views that stay together within one tab. Choose either level to build the layout you need.
@@ -119,9 +119,42 @@ Press `Alt+'` and the **Surface Type** popup appears. It changes the current Sur
 - Changing to Terminal carries over the Surface’s working directory from before the conversion.
 - Markdown · HTML ask for a file path · URL.
 - The previous content is lost. Going terminal → Explorer → terminal starts a new shell session.
-- While the popup is open only **that one Surface** dims. Whatever is running in the pane beside it, the sidebar and the status bar all stay readable.
+- When this popup is not expanded, it dims **only that Surface**. If the Surface is smaller than the popup, it collapses as described in [Popups](#popups).
 
 **Convert to Markdown** · **Convert to Explorer** are shortcuts that change the kind directly without the popup; they are empty by default.
+
+## Popups
+
+### Collapsing and expanding
+
+If a popup does not fit in its Surface, Tab, Pane, or workspace, it collapses to a **Show popup** button. It also collapses if that area becomes too small while the popup is open. A popup that opens over the whole window does not collapse. The search bar shrinks to fit a narrow Surface.
+
+Click the button to expand the popup over the window. When the collapsed popup has keyboard focus, you can press `Enter` or `Space` to expand it without tabbing to the button. An expanded popup stays expanded even if its original area grows. Click **Collapse popup** in the title bar or press `Esc` to collapse it again. A collapsed popup stays open and keeps what you entered.
+
+If an expanded popup is larger than the window, its border fits the window. The title bar, collapse button, and close button stay visible, and content is cut off at the right and bottom. A file chooser opened from an expanded popup opens expanded too. Collapsing either one collapses both.
+
+### What a popup covers
+
+An expanded popup covers the whole window. A popup that has not been expanded usually dims the area it opens in. For example, a popup for a Tab covers the area below the tab bar. A popup for a workspace is placed in and covers the workspace area outside the sidebar and status bar.
+
+Notifications, the search bar, approval popups, the **Tools** menu, the banner’s **More options** menu, the category menu in the collapsed sidebar, modifier key hints, and the restore notice leave the area undimmed. The connection popup for a saved remote workspace leaves the area undimmed when it opens in an empty workspace and dims the last view when it opens over that view.
+
+The popup receives clicks, wheel scrolls, mouse movement, and file drops in the area it covers. A covered terminal stops reporting mouse movement to the running program, highlighting links on hover, and receiving the **Copy link** shortcut. If you press a mouse button in a terminal and release it over a covered area, the terminal where you pressed the button receives the release.
+
+You can resize the window by dragging its border while a popup is covering an area or expanded. Pressing the border leaves the popup open.
+
+### Focus and outside clicks
+
+Clicking another Surface leaves an unexpanded popup in the original Surface open and focused. When you click outside the box of an unexpanded popup but within the area it opened in, what happens depends on where focus was just before the click.
+
+- If focus was outside that area, such as on another Surface, the first click leaves the popup open and preserves any focus it already had. A popup that covers the area receives focus.
+- If focus was inside that area, the click counts as an outside click. Popups that close on an outside click close. Of the popups that stay open, those that cover the area take focus, and those like the search bar that leave the area uncovered release focus.
+
+When an expanded popup is receiving keys, a click inside the window but outside the popup box counts as an outside click. Popups that close on an outside click close in this case. A click handled by a popup above the expanded popup stays with the upper popup.
+
+When popups are open in several places, each keeps its focus and only the topmost popup receives keys. If an expanded popup is receiving keys, `Esc` collapses it first. The same press leaves the notification list and other popups underneath it open. In other cases, `Esc` can close only one popup at a time. Some popups stay open and only release focus.
+
+A popup for a Surface, Tab, Pane, or workspace shows a focus bar along its top edge when it has keyboard focus. When a collapsed popup has keyboard focus, the bar appears along the top edge of the frame containing the **Show popup** button. Expanded popups and popups that open over the whole window have no focus bar. Use `Tab` to focus **Collapse popup** or **Show popup** and display the button’s tooltip.
 
 ## Fullscreen
 
@@ -166,7 +199,7 @@ Open **Tools** > **Presets** in the sidebar and the **Layout Presets** window ap
 - Right-click the tab strip `+` > **Create tab from preset...** / **Create pane from preset...**.
 - The three shortcuts such as **Apply workspace preset** are empty by default. Once assigned, they open a selection popup. If the same preset application popup is requested for another target while open, the existing popup closes and reopens for the new target.
 
-The tab preset application popup opens within the pane containing that tab and closes when either the target tab or its pane closes. The pane preset application popup opens in the center of the window. It is hidden when you switch to another workspace and reappears when you return. Closing the target pane also closes the popup.
+The tab preset application popup opens within the pane containing that tab and closes when either the target tab or its pane closes. The pane preset application popup opens in the center of the workspace area outside the sidebar and status bar. It is hidden when you switch to another workspace and reappears when you return. Closing the target pane also closes the popup.
 
 If a terminal cell has a startup command, one line is entered as soon as the shell starts.
 

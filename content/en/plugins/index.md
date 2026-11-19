@@ -1,4 +1,4 @@
-<!-- source-hash: c9a521a33242 -->
+<!-- source-hash: 5f2ce63d3886 -->
 # Plugins
 
 Plugins provide Markdown, image, and HTML viewers, along with Claude Code and Codex integrations. Manage bundled plugins or install new ones.
@@ -27,7 +27,7 @@ When you enable or disable a plugin, Tasty confirms the save before applying the
 | **Claude Code** | `com.tasty.claude` | Multi-agent commands that launch Claude Code inside Tasty, spawn child instances, send them messages and get notified on completion | `tasty claude launch` · `spawn` · `tell` … — [Working with Claude and Codex](../agents/claude-codex.md) |
 | **Codex** | `com.tasty.codex` | Does the same as above for the Codex CLI | `tasty codex launch` · `spawn` · `tell` … — same page |
 
-Plugin popups such as Clipboard Viewer and Git appear only in the window where you open them from the **Tools** menu, the command palette, or a keyboard shortcut. If you try to reopen a popup from another window, it stays in the window where it first opened. Closing that window closes the popup immediately. When Tasty hides the last window or minimizes it to the background, the popup stays open. See [**Close behavior**](../customize/settings.md#general) for details. When a plugin opens a popup in response to an event on a Surface, the popup appears in the window containing that Surface. Events unrelated to a Surface cannot open these popups.
+Plugin popups such as Clipboard Viewer and Git appear only in the window where you open them from the **Tools** menu, the command palette, or a keyboard shortcut. If you try to reopen a popup from another window, it stays in the window where it first opened. Closing that window closes the popup immediately. When Tasty hides the last window or minimizes it to the background, the popup stays open. See [**Close behavior**](../customize/settings.md#general) for details. When a plugin opens a popup in response to an event on a Surface, the popup appears in the window containing that Surface. Events unrelated to a Surface cannot open these popups. Plugin popups also collapse on narrow Surfaces as described in [Popups](../using/panes-tabs-splits.md#popups).
 
 How to use each Surface kind is in [Managing and viewing files](../using/files.md). There are also demo · experimental plugins that ship only in development builds; they are not included in the distribution.
 

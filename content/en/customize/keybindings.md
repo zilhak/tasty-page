@@ -1,4 +1,4 @@
-<!-- source-hash: 4bd1d43c8190 -->
+<!-- source-hash: 04adb9cae0f7 -->
 # Keybindings
 
 Tasty’s keybindings can be changed with a preset or by assigning preferred key combinations to frequently used actions. Keybindings are available in **Settings** > **Keybindings**.
@@ -242,14 +242,9 @@ Tasty notice popups for issues such as startup errors or failure to open the set
 
 The restore notice at the top right keeps focus where it is when it appears. It receives keystrokes only while a control inside the card has focus.
 
-To return to terminal controls, use either of these actions.
+See [Popups](../using/panes-tabs-splits.md#popups) for what happens when you press `Esc` or click outside a popup.
 
-- **`Esc`** — releases the focused popup. Popups of the kind that close when you click outside
-  them close as well; the others stay open and merely lose focus. Other popups that are open
-  but not focused are left alone.
-- **Click outside the popup** — same result as `Esc`.
-
-While the settings window or the notification panel is open, `Esc` closes that one first.
+To close the settings window, press the shortcut assigned to **Open/close Settings**. The table above lists the default. When an expanded popup is not receiving keys, `Esc` closes an open notification list before other popups.
 
 ## Two things that save you from memorising keybindings
 

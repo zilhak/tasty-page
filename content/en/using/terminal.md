@@ -1,4 +1,4 @@
-<!-- source-hash: e34849b248b3 -->
+<!-- source-hash: 91c8321238ab -->
 # Working with the terminal
 
 You can copy the output you need, search terminal history, and open file paths as you work. You can also select text without a mouse and receive notifications when work finishes.
@@ -77,7 +77,7 @@ If Tasty cannot enter copy mode, a notice tells you why.
 - You cannot enter it on a surface that is not a terminal, such as the explorer. You also cannot enter it while a markdown or HTML surface takes keyboard input, but then the notice may be hidden behind that surface's page.
 - If you are already in copy mode, Tasty tells you so instead of entering again.
 
-While a modal or popup takes keyboard input, the shortcut goes there, so neither copy mode nor a notice appears. Click the terminal and press it again.
+While a popup receives keyboard input, the copy-mode shortcut goes there too. See [Popups](panes-tabs-splits.md#popups) for how to close or collapse it.
 
 For example, run `printf '\033[2J\033[HABCDE\n'` in a shell to leave `ABCDE` at the top of the screen. Enter copy mode and check that the cursor sits on `A`. Release `Ctrl` and `Shift`, then press `v` `l` `l` `y` in turn: `ABC` is copied to the clipboard and copy mode ends.
 

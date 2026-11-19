@@ -1,4 +1,4 @@
-<!-- source-hash: c9a521a33242 -->
+<!-- source-hash: 5f2ce63d3886 -->
 # 插件
 
 Markdown、图像、HTML 查看及 Claude Code、Codex 集成等功能由插件提供。可以管理内置插件或安装新插件。
@@ -27,7 +27,7 @@ Markdown 查看器、图像查看器、Claude Code 集成等功能由 **插件**
 | **Claude Code** | `com.tasty.claude` | 在 Tasty 中启动 Claude Code、创建子实例、发送消息并接收完成通知的多智能体命令 | `tasty claude launch` · `spawn` · `tell` … — [与 Claude、Codex 配合使用](../agents/claude-codex.md) |
 | **Codex** | `com.tasty.codex` | 为 Codex CLI 提供上述相同功能 | `tasty codex launch` · `spawn` · `tell` … — 同一页面 |
 
-通过 **工具** 菜单、命令面板或快捷键打开剪贴板查看器、Git 等插件弹窗时，弹窗只会显示在执行命令的窗口中。若弹窗已经打开，从另一个窗口再次尝试打开时，弹窗仍留在最初打开它的窗口。关闭该窗口时，弹窗也会立即关闭。最后一个窗口隐藏或最小化到后台时，弹窗会保持打开。详情见[**关闭行为**](../customize/settings.md#常规) <!-- en: Close behavior -->。插件根据事件在窗口中打开弹窗时，弹窗会显示在事件发生的 Surface 所在的窗口。与 Surface 无关的事件不会打开此类弹窗。
+通过 **工具** 菜单、命令面板或快捷键打开剪贴板查看器、Git 等插件弹窗时，弹窗只会显示在执行命令的窗口中。若弹窗已经打开，从另一个窗口再次尝试打开时，弹窗仍留在最初打开它的窗口。关闭该窗口时，弹窗也会立即关闭。最后一个窗口隐藏或最小化到后台时，弹窗会保持打开。详情见[**关闭行为**](../customize/settings.md#常规) <!-- en: Close behavior -->。插件根据事件在窗口中打开弹窗时，弹窗会显示在事件发生的 Surface 所在的窗口。与 Surface 无关的事件不会打开此类弹窗。 在较窄的 Surface 中打开插件弹窗时，弹窗也会按[弹窗](../using/panes-tabs-splits.md#弹窗)一节所述折叠。
 
 各 Surface 种类的用法见[文件管理与查看](../using/files.md)。此外还有仅包含在开发构建中的演示 · 实验插件，发行版不包含这些插件。
 
