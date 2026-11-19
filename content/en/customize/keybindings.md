@@ -1,4 +1,4 @@
-<!-- source-hash: c21ef1542118 -->
+<!-- source-hash: 4bd1d43c8190 -->
 # Keybindings
 
 Tasty’s keybindings can be changed with a preset or by assigning preferred key combinations to frequently used actions. Keybindings are available in **Settings** > **Keybindings**.
@@ -238,7 +238,9 @@ While a popup that takes input — the search bar, the file picker, the command 
 focus, keybindings are paused.** This prevents a shortcut such as `Alt+W` from closing a surface while you type into the search bar. If such a popup is merely open and does not
 have focus, keybindings work as usual.
 
-Tasty notice popups, such as startup errors, and the **Transfer failed** and **Download failed** popups for remote files do not close with `Enter` or `Esc` when they lack focus. Click the popup or give it focus before using these keys.
+Tasty notice popups for issues such as startup errors or failure to open the settings window, and the **Transfer failed** and **Download failed** popups for remote files do not close with `Enter` or `Esc` when they lack focus. Click the popup or give it focus before using these keys.
+
+The restore notice at the top right keeps focus where it is when it appears. It receives keystrokes only while a control inside the card has focus.
 
 To return to terminal controls, use either of these actions.
 
@@ -251,7 +253,7 @@ While the settings window or the notification panel is open, `Esc` closes that o
 
 ## Two things that save you from memorising keybindings
 
-- **Modifier key hints** — Hold `Ctrl` · `Alt` · `Shift` and the like for 0.5 seconds or longer (Shift alone: 1.2 seconds) and a list of keybindings starting with that combination appears below the sidebar. It disappears when you let go. On Windows and Linux, `Win` and `Super` show the list only when at least one keybinding uses that key. Turn it off with **Settings** > **General** > **Accessibility** > **Show modifier key hints**; the panel can be dragged around or resized.
+- **Modifier key hints** — Hold modifiers such as `Ctrl` · `Alt` · `Shift` for at least 0.5 seconds (1.2 seconds for Shift alone) to see a popup listing keybindings that include all the held modifiers. With no saved position, it appears at the bottom of the sidebar (lower left of the window). It disappears when you let go. On Windows and Linux, `Win` and `Super` show the list only if a keybinding uses the key or the key has an assigned role. Turn it off with **Settings** > **General** > **Accessibility** > **Show modifier key hints**. Drag the strip at the top to move the popup or the grip in the lower-right corner to resize it. Release the primary mouse button to end the drag. The settings file saves the popup’s position and size as `pos` and `size` under `[modifier_hint]`. The popup appears over HTML and Markdown views without hiding them or taking keyboard focus.
 - **Command palette** — `Ctrl+Shift+P` or the palette shortcut keycap on the right of the status bar. Type an action's name and run it with `Enter`. The actions in the Keybindings tab and the global commands of active plugins are searchable. Left out are the command palette itself, **Exit fullscreen stage**, **Copy link** (its target is the link under the mouse), the code field keys, and the Explorer keys for moving between items, extending the selection, opening and clearing the selection (the Explorer's rename and move to trash are included). Script keybindings don't appear in the palette either. The query field keeps a distinct background and border when unfocused, and shows a focus border while you type.
 
 When you choose an action that targets a single Tab from the command palette, such as Search, Refresh, Convert Surface type, vi copy mode or an Explorer action, it runs in the Tab selected when you press `Enter`. Actions that the Tab type does not support do not run.

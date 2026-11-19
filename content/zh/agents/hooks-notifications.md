@@ -1,4 +1,4 @@
-<!-- source-hash: 92f6a783624e -->
+<!-- source-hash: a4a4ab5f195f -->
 # 钩子、通知和 Webhook
 
 钩子按 Tasty 事件执行操作，通知在应用内显示待查看事项。Webhook 接收外部服务的 HTTP 请求。按需选择并配置。
@@ -185,6 +185,7 @@ tasty approval await --id "$ID"            # 等待响应，以 JSON 输出结�
 - 弹窗不会获取键盘焦点。原本在终端或文档中输入的文字仍会输入到原处。若要用数字键选择，先点击弹窗标题或空白处。按钮可直接点击。正在 Markdown、HTML 文档中输入时，该文档可能遮住与弹窗重叠的部分。也可通过同时发送的通知查看请求。
 - 在评论框中输入时，数字会作为评论文字输入，不会选择选项。写完评论后若要用数字键选择，按 Tab 离开评论框，或点击弹窗空白处。
 - `--severity info` 仅发送通知，不显示弹窗；`warn`/`danger` 显示弹窗并发送通知。`danger` 必须由用户直接响应。
+- 批准弹窗关闭期间处理完毕的请求会从待处理列表中移除，不会再次出现在弹窗中。
 - 弹窗不能用 Esc 关闭（防止绕过）。通过 `tasty approval list` / `get` / `history` 查询。
 - `approval await` 仅供用户使用。通过会话令牌（`TASTY_SESSION_TOKEN`）连接的智能体无法调用，请通过 `tasty approval get --id "$ID"` 查看状态（需要 `approval` 权限）。
 - `--metadata` 的 `kind` 不能使用 `capability_elevation`。该值专用于智能体权限请求，使用时会拒绝请求。请通过 `tasty plugin request-permission` 请求智能体权限。

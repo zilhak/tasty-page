@@ -1,4 +1,4 @@
-<!-- source-hash: 92f6a783624e -->
+<!-- source-hash: a4a4ab5f195f -->
 # Hooks, notifications, and webhooks
 
 Hooks run actions in response to Tasty events, notifications show items to check in the app, and webhooks receive HTTP requests from external services. Choose the path that fits your task.
@@ -186,6 +186,7 @@ tasty approval await --id "$ID"            # wait until a response arrives, prin
 - The popup does not take keyboard focus. Whatever you were typing into a terminal or a document keeps going there. To pick with a number key, first click the popup's title or an empty part of it. Buttons can be clicked right away. While you are typing into a Markdown or HTML document, that document can cover the part of the popup it overlaps. The notification that goes out with the request shows it as well.
 - Digits typed while the comment field is focused go into the comment and do not pick a choice. To pick with a number key after writing a comment, leave the comment field with Tab or click an empty part of the popup.
 - `--severity info` sends only a notification with no popup; `warn`/`danger` show a popup plus a notification. `danger` must be answered by the user directly.
+- If a request is resolved while the approval popup is closed, it leaves the pending list and does not appear in the popup again.
 - The popup does not close on Esc (to prevent bypassing). Query with `tasty approval list` / `get` / `history`.
 - `approval await` is for the user only. An agent connected with a session token (`TASTY_SESSION_TOKEN`) cannot call it; check the state with `tasty approval get --id "$ID"` instead (this needs the `approval` permission).
 - `--metadata` cannot use `capability_elevation` as its `kind`. That value is reserved for agent permission requests, so the request is rejected. Ask for an agent permission with `tasty plugin request-permission` instead.
