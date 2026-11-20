@@ -1,4 +1,4 @@
-<!-- source-hash: 5e9770143bac -->
+<!-- source-hash: ea02a3a05464 -->
 <a id="remote-attach"></a>
 
 # Working remotely (attach)
@@ -98,6 +98,7 @@ Connection attempts do not wait forever — 10 seconds for the SSH connection, 2
    - Picking the first row, **New workspace**, creates a Workspace on the remote with a default name and then attaches to it (**Create & connect**). A Workspace created this way stays on the remote.
    - Once the list appears, move between rows with `↑` / `↓` and press `Enter` to connect.
 4. A mirror Workspace with the **REMOTE** tag appears in the sidebar and focus moves to it. If connecting or preparing the mirror fails, a failure toast with the reason appears in that window. Nothing is shown if you have closed the window.
+   - If the remote force detach is already confirmed when Tasty checks whether the new connection is ready, no row is created. The toast reads **Couldn&apos;t connect to the remote workspace.** followed by **force-detached by server** in parentheses. If the force detach is confirmed after that check, the connection can succeed and then drop shortly afterward.
 
 A remote workspace that is itself a mirror from another Tasty is disabled with a `mirror` marker and cannot be attached. `tasty remote workspaces` also prints a note beneath that row.
 
@@ -124,6 +125,8 @@ tasty remote attach --into-gui --workspace 3 --ssh me@10.0.0.5
 
 When attaching an existing workspace, the command prints the acknowledgement as one JSON line, waits up to 90 seconds for the connection result, then prints that result as a second JSON line. It exits with code 1 if the connection fails or no result arrives within 90 seconds. An acknowledgement alone does not mean the connection succeeded.
 
+If the remote force-detaches you while connecting, see the [connection result](#5-connect-a-saved-remote-row).
+
 To create a remote workspace and immediately attach it as a mirror, use `--new-workspace` instead of `--workspace`. `--name` and `--cwd` are optional; `--cwd` is a path on the remote computer. This form prints the creation result as one JSON line. It does not wait for a second result line as the existing-workspace form does. Check `tasty list workspaces` for a row marked `[mirror]` to confirm that the mirror appeared.
 
 ```sh
@@ -139,7 +142,7 @@ The existing `--target-port` form still attaches through a local port you have a
 tasty remote attach --into-gui --target-port 5555 --workspace 3
 ```
 
-If the same profile and remote workspace already belong to a saved remote row, this connects that row instead of creating another mirror. It cannot reconnect a row you disconnected yourself; use `tasty remote connect --workspace <local id>` instead.
+If the same profile and remote workspace already belong to a saved remote row, this connects that row instead of creating another mirror. If you disconnected the row yourself or a force detach is blocking it, `tasty remote attach --into-gui` cannot reconnect it. First run `tasty remote connect --workspace <local id>` or choose connect from the row menu.
 
 An agent using a session token can run `tasty remote attach --into-gui`, `tasty remote connect`, `tasty remote disconnect`, and `tasty remote refusals` without an additional permission. However, `tasty list workspaces`, used to check the mirror, requires `surface.read`.
 
@@ -170,7 +173,7 @@ Common options:
 - While you're viewing a mirror, when the **Open Markdown File** popup converts a Surface to markdown or opens a new tab, the path you type in the popup or pick with **Browse…** opens as a file on the remote computer. A relative path is taken from the remote terminal's current folder. A file opened this way is not added to this computer's recent files list.
 - On Linux, Windows, and macOS, you can view the body of a remote HTML file. Choose **Allow** or **Decline** before receiving a large file. Scripts follow your local HTML settings; allowing scripts displays the body already received. The address is read-only, and **Reload** receives the latest body. A completed body remains visible after disconnection, with Reload disabled. Connections to older versions may still show an empty area. If the remote version also supports it, referenced files such as CSS and images under the same folder are received too. Large files are presented one at a time. At the 2MB document limit, choose **Continue** or **Stop**. Large-file and document questions do not disappear however long you wait. If the remote transfer expired in the meantime, **Allow** or **Continue** requests that file again, and asks once more if its size has changed. Continue also receives the remaining files; Reload also retries failed files. The count of declined or failed files remains until Reload. Moving to a child HTML file checks it as a new document. When the page cancels a file request, its receive wait ends while other requests for the same file remain active. On Linux X11 (including XWayland in Wayland sessions where `DISPLAY` is set and the X server is reachable), Windows, and macOS 27 or later, HTTP and HTTPS addresses also open when both versions support them. Requests run on the remote computer, so submitting a form or using a page button can change the remote service. On Windows and macOS, however, WebRTC connections from a page whose scripts are allowed can leave this computer directly. Tasty removes the page's WebRTC features to reduce this but does not guarantee that every path is closed. Same-origin requests are allowed by default; requests to other origins follow your local HTML remote-content setting. Browser security policies still apply. Existing receive consent applies at 100000 encoded bytes per response and 2000000 encoded bytes per document. Allowing scripts reuses the received body without resubmitting a form. An explicit Reload sends the original request again and keeps that document’s native cookies. Disconnection stops scripts; reconnecting or replacing the remote source does not copy cookies or script permission. If private browser storage preparation briefly overlaps, it waits for a bounded time; storage limits and safety-check failures still appear as errors. On macOS, a remote address such as `localhost` or `127.0.0.1` opens under a separate name such as `localhost.tasty.localhost`. The address bar shows the original address, but page scripts read the separate name, and images or requests inside the document that name the remote `localhost` with a full address do not load. Relative paths and following links still work. Native Wayland on Linux, used when `DISPLAY` is unset or the X server cannot be reached, and macOS 11–26 do not support remote web-address rendering and do not connect from this computer as a fallback. If remote HTML files or web addresses cannot be viewed on Linux, see [native Wayland troubleshooting](../help/troubleshooting.md#linux-native-wayland) and [GTK initialization and tray troubleshooting](../help/troubleshooting.md#linux-gdk-backend). The minimum supported macOS version remains 11.
 - `--raw` works only at the Surface level.
-- For terminal attach, unless you pass `--no-reconnect`, it automatically tries to reconnect when SSH drops.
+- When you run `tasty remote attach` in a terminal, it tries to reconnect if SSH drops unless you pass `--no-reconnect`. If it receives a force-detach notice from the remote, it exits without reconnecting.
 - If a slow link makes you miss part of the screen the remote was sending, the remote says so and the attach re-attaches on its own to fetch the screen again, printing a one-line notice in your terminal. An attach that prints the screen and exits re-attaches up to three times per run; if it still misses something, it prints the result and then warns that part of the screen may be missing. `--raw` re-attaches with no limit and redraws the screen from scratch. Input given with `--send` is not sent again.
 
 To attach directly to a running Tasty window from the CLI, use `--into-gui` above. For connections that remain after restart, see saved remote rows below.
@@ -179,9 +182,11 @@ To attach directly to a running Tasty window from the CLI, use `--into-gui` abov
 
 ## 5. Connect a saved remote row
 
-A workspace attached through the **Add remote workspace** dialog saves its connection details and the row's name, category, and position. It returns to the same place after a restart and tries to connect as soon as it becomes visible. This includes the restored active row after restart, switching window focus, and selecting a row. Rows you disconnected yourself and rows closed elsewhere are excluded. Mirrors attached through the CLI are not saved and are removed when disconnected.
+A workspace attached through the **Add remote workspace** dialog saves its connection details and the row's name, category, and position. It returns to the same place after a restart and tries to connect as soon as it becomes visible. This includes the restored active row after restart, switching window focus, and selecting a row. Rows you disconnected yourself, rows closed elsewhere, and rows blocked from connecting automatically by a force detach are excluded. Mirrors attached through the CLI are not saved and are removed when disconnected.
 
 A saved row whose connection drops retries for **Keep reconnecting for**, then stays in the list as disconnected. The default is 300 seconds, with a range of 0–3600. At 0, it becomes disconnected immediately without automatic retries. A connection popup and card and status indicators report reconnecting, success, and timeout instead of toasts. Retries stop immediately with a reason if another client holds the workspace, the remote workspace is gone, or the target is itself a mirror. If the first connection fails, the row keeps the reason and does not retry automatically until you return to it or request a connection.
+
+If the connection breaks because Tasty could not send data or the mirror could not apply a remote screen update, Tasty immediately stops sending data and shows **reconnecting**. It starts trying to reconnect once it confirms that the old connection has ended. The delay is usually very short. If the server stops responding, it can be about twice the time Tasty waits before disconnecting an unresponsive connection.
 
 A row you disconnected shows **Disconnected** and “You disconnected this workspace. It stays disconnected until you reconnect.” in its popup. Switching away and back does not connect it. Choose connect or reconnect from its popup or row menu, or select the same row in the **Add remote workspace** dialog. An agent can explicitly connect it with:
 
@@ -192,11 +197,25 @@ tasty remote connect --workspace 7
 
 `--workspace` is required and takes the saved remote row's **local ID**. In this example, `7` is the row's ID from `tasty list workspaces`, not the remote ID. Connecting does not move focus. The command prints an accepted reply as one JSON line, then the final result as a second JSON line. An already connected row succeeds immediately; a connecting row joins that attempt. It exits with code 1 if the result fails or does not arrive within 90 seconds. It fails immediately for a normal local workspace, an unsaved CLI mirror, a nonexistent ID, a remote workspace that is gone, or a row whose window is closed.
 
-Requests that target an unconnected saved row by workspace, such as `tasty claude spawn --workspace`, start connecting and wait up to 35 seconds. After restart, a row that has not connected yet has no panes, tabs, or surfaces, so only requests that accept a workspace argument can target it. Commands targeting a surface, such as `tasty send` and `tasty read screen`, can only use a row that connected during this run and still has surfaces. Once connected, the request runs; otherwise it ends with an error explaining the failure or refusal. A row you disconnected yourself instead returns a disconnected error without running the request. Follow the error's guidance to connect first with `tasty remote connect --workspace <id>` or the row's connection menu. Sending `tasty remote attach --into-gui` for the same remote target does not clear your disconnect either.
+If the remote force detach is already confirmed when Tasty checks whether the connection is ready, the connection fails. This applies to `tasty remote connect` and to `tasty remote attach --into-gui` with a profile or SSH target when connecting to an existing remote workspace. The final result has `state` set to `failed` with the message `the remote workspace was force-detached before the connection was installed`. Requests that joined the connection attempt for the same row receive the same result.
+
+If the connection request has no saved row, this failure leaves no force-detach record. If the force detach is confirmed after Tasty checks that the connection is ready, the result can report success and the connection can then drop.
+
+Requests that target an unconnected saved row by workspace, such as `tasty claude spawn --workspace`, start connecting and wait up to 35 seconds. After restart, a row that has not connected yet has no panes, tabs, or surfaces, so only requests that accept a workspace argument can target it. Commands targeting a surface, such as `tasty send` and `tasty read screen`, can only use a row that connected during this run and still has surfaces. Once connected, the request runs; otherwise it ends with an error explaining the failure or refusal.
+
+If a saved row needs a new connection because it has yet to connect or its connection has dropped, these requests return a disconnected error when the row was disconnected manually or a force detach blocks it from connecting automatically. A request can still use a live connection. To connect a blocked row manually, run `tasty remote connect --workspace <id>` or choose connect from the row menu. Running `tasty remote attach --into-gui` for the same remote target does not clear either block.
 
 Listing with `tasty list workspaces`, `tasty remote workspaces`, or `tasty remote refusals` does not connect rows. The regular output of `tasty list workspaces` includes a `[mirror]` marker but does not display connection state; use the GUI popup and card to see a saved row's connection state.
 
 A row whose remote workspace was closed elsewhere stays in the list, but selecting it does not connect it and its reconnect button is disabled. After restarting Tasty, it returns to an unconnected row and you can request a connection again.
+
+### Force-detached rows
+
+A saved remote row stays disconnected after it receives a force-detach notice from the remote. Reopening the row, bringing it into view, or restarting Tasty does not connect it automatically. To connect it yourself, use the Connect button, choose connect from the row menu, run `tasty remote connect`, or select the same row in the **Add remote workspace** dialog. Once a manual connection clears the force-detach record, later interruptions trigger automatic reconnects as usual. If the connection drops before the notice arrives, Tasty may reconnect as it would after any other interruption.
+
+If several saved rows point to the same remote workspace through the same profile, force-detaching one row also stops the others from connecting automatically. Connecting one row yourself clears the record, but the other rows remain blocked during the current run. Connect each of the other rows separately. On restart, the block carries over only for targets that still have a force-detach record. Closing the last saved row for that workspace and profile locally clears both the record and the block for the current run.
+
+Older versions of the remote Tasty also report a force detach when the connection ends because the workspace was closed. A row that receives that notice stays disconnected even after a restart. In rare cases, the remote may confirm that it closed the workspace and send a force-detach notice at the same time. The row you asked to close closes, but other saved rows for the same remote workspace and profile can stop connecting automatically and stay force-detached. Connect an affected row yourself to clear the block for that row.
 
 ## What you can do inside a mirror
 
@@ -217,7 +236,10 @@ A row whose remote workspace was closed elsewhere stays in the list, but selecti
   - A reopen only brings back what was closed **in that remote Workspace**. If the remote has nothing to reopen you just get an informational toast and nothing happens — a Tab you closed on your own side is never created inside the mirror instead. Go back to your own Workspace and press the same key to reopen yours.
 - A Tab that closes on the remote because its shell ended (`exit`) disappears from the mirror right away too.
 - The remote terminal's completion · input-needed indicators (border · badge) also arrive in the mirror as they are.
-- If part of what the remote was sending is lost, a "Part of the remote screen was lost" toast appears and the mirror re-attaches on its own to fetch the screen again (a mirror attached without a profile does the same). After it re-attaches, the same screen may appear once more in the scrollback. If this happens during a clipboard image upload, the upload ends as failed and you can try again — it is not resent automatically, because the remote may already have saved it. Each surface shows its own image upload progress and **Transfer failed** popups. If several transfers fail on the same surface, their failure popups appear one at a time. If the surface that started the upload has closed but the connection is still active and its mirror workspace is still present, failure popups appear one at a time in that workspace, with **Retry** disabled. If the connection has dropped or the workspace is gone, the failure is recorded only in the log and no popup appears. The **Transfer failed** and **Download failed** popups for remote files do not close with `Enter` or `Esc` when they lack focus. Click the popup or give it focus before using these keys.
+- If part of the remote screen is lost, the mirror usually shows the toast “Part of the remote screen was lost. Fetching it again…” and re-attaches to fetch the screen again (even if you attached without a profile). After it re-attaches, the same screen may appear once more in the scrollback.
+  - If a force-detach notice arrives while Tasty is fetching the screen again, the saved row stops trying to reconnect and stays disconnected.
+  - Starting a manual connection clears the existing force-detach record. If another saved row for the same remote workspace and profile is force-detached while that connection is pending or after it succeeds, the record can return and block automatic connections again. If the row is blocked when it loses part of the screen, it stays disconnected without retrying or showing the recovery toast. Connect the row yourself to use it again.
+- If part of the remote screen is lost during a clipboard image upload, the upload ends as failed and you can try again — it is not resent automatically, because the remote may already have saved it. Each surface shows its own image upload progress and **Transfer failed** popups. If several transfers fail on the same surface, their failure popups appear one at a time. If the surface that started the upload has closed but the connection is still active and its mirror workspace is still present, failure popups appear one at a time in that workspace, with **Retry** disabled. If the connection has dropped or the workspace is gone, the failure is recorded only in the log and no popup appears. The **Transfer failed** and **Download failed** popups for remote files do not close with `Enter` or `Esc` when they lack focus. Click the popup or give it focus before using these keys.
 - Pasting a clipboard image uploads it to the remote and inputs the **remote path**. Text is entered unchanged except in the cases below.
   - A capture in a local terminal puts the local file path and image on your clipboard. The remote cannot read that local path. When you use the paste shortcut in a mirror terminal, if the text is a file path directly inside your computer's capture folder, `~/.tasty/screenshots/`, and the clipboard image can be read, Tasty uploads the image and types the remote path. If the image cannot be read, including when the capture copied only the path because the image could not be added, the local path is typed unchanged.
 - Pressing [Screenshot to clipboard](../using/terminal.md#screenshot-to-clipboard) (`Ctrl+Alt+S`) inside a mirror captures the screen on your computer, saves the file on the remote, and puts both the remote path and the image on the **remote clipboard**. Your own clipboard does not change. If the remote Tasty is an older version that cannot copy images, only the path goes in and the toast says so. If the file cannot be sent because the remote connection is gone, the toast says it was saved only on your computer, and if the connection drops before the remote answers, it says the copy was not confirmed.
@@ -268,9 +290,30 @@ This differs from **Force detach** in the remote window, which removes someone e
 
 When a Workspace in your Tasty has been attached from elsewhere and become read-only, a **Force detach** notice appears on the Surface. That notice only shows while you are looking at that Workspace, so you can also detach straight from the sidebar — right-click the occupied Workspace card > **Force detach**, and a confirmation appears; confirming releases it on the spot. You do not have to switch to that Workspace.
 
-There is no CLI command that disconnects someone else's attach. Detaching is done from the window so that an agent on the server does not cut off a person working remotely by mistake. On a server without a GUI, such as a windowless Tasty, ending the SSH session the remote side came in through closes the connection and releases the occupation. If the remote side reconnects automatically, it may attach again.
+Run `tasty remote detach` on the computer hosting the occupied Workspace or Surface to disconnect remote clients occupying that Tasty instance. This also works on a server without a GUI. Choose exactly one of these options.
+
+- `--workspace <id>` takes a Workspace ID on that Tasty instance and disconnects the client occupying it.
+- `--surface <id>` takes a Surface ID on that Tasty instance and disconnects the client occupying it. Specifying a Surface in an occupied Workspace releases the entire Workspace.
+- `--all` disconnects all remote clients occupying that Tasty instance.
+
+`--all` disconnects clients occupying Workspaces first. It then reads the list again and disconnects clients still occupying Surfaces. It prints per-target results in `workspaces` and `surfaces`. The command exits with code 1 in the following cases.
+
+- If the initial list cannot be read, the command exits with an error and no per-target results.
+- If Tasty returns an error response for an individual target, the command records an `error` for that target and continues with the remaining targets.
+- If the command loses its connection to Tasty while processing a target, it stops and prints the results so far, including an `error` for that target.
+- If the command cannot read the list a second time, it stops and prints the results so far, including `list_error`.
+
+`notified: true` means the server queued the force-detach notice for sending. The connection can still close before the other side receives it. `notified: false` appears in the following cases.
+
+- No client occupied the target. The result also includes `force_detached: false`.
+- The occupation was released, but the client's connection was already closed.
+- The send queue was full. The server closes the connection without a notice once the current send finishes or times out.
+
+A client that did not receive the notice may reconnect as it would after any other connection loss.
 
 While the other side's user is attached, attempting a split · new Tab · `spawn` locally in that Workspace, applying a Tab or Pane preset from the CLI (`tasty preset apply`), or attaching a background PTY as a Tab (`tasty pty attach-surface`) is refused with an "occupied" error. Use another Workspace, or force-detach and then proceed.
+
+See [Force-detached rows](#force-detached-rows) for what happens on the side that receives the notice.
 
 ## Where files received from the remote are stored
 
