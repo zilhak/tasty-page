@@ -19,7 +19,7 @@
   기능 설명이나 버전이 바뀌는 변경은 이때 함께 공개한다.
 - 게시용 수정: 공개된 Tasty 버전의 기능 설명이나 버전이 바뀌지 않는 변경(문구, 메타데이터 등)은 묻지 않고
   `main`에 커밋해 태그 없이 배포한 뒤 곧바로 `main`을 `release`와 `develop`에 합친다([CLAUDE.md](../../CLAUDE.md) "게시용 페이지와 최신 페이지").
-  배포 조건은 push된 커밋의 `pages.yml`이 정한다. `main`에 이 조건이 든 `pages.yml`이 아직 없으면 게시용 수정을 push해도 배포되지 않는다.
+  배포 조건은 push된 커밋의 `pages.yml`이 정한다.
 - 다른 CI: `checks.yml`은 `checks/`의 Rust 시험으로 가이드를 Tasty 소스와 대조한다. Tasty 소스는
   `.tasty-src`에 받으며, `develop`과 그 밖의 브랜치에서는 Tasty `develop`, `release`에서는 Tasty `release`, `main`에서는 가장 가까운 태그와 같은 이름의 Tasty
   태그다. 릴리스 후보는 태그가 생기기 전에 검사하므로 Tasty의 릴리스 후보와 대조한다. 그래서 `release`는 Tasty `release`와 같은 시점을 담을 때만 통과를 기대한다.
