@@ -1,4 +1,4 @@
-<!-- source-hash: 0f61a734690c -->
+<!-- source-hash: 1c2a8431d95d -->
 # 故障排除
 
 本页按症状列出 Tasty 安装、输入、显示、恢复和通知问题的原因及解决方法。如果 CLI 无法连接或响应缓慢，也可查看连接诊断。问题仍未解决时，可附上运行环境和日志报告问题。
@@ -7,8 +7,8 @@
 
 - **Windows：出现“Windows 已保护你的电脑”警告** — 原因是没有代码签名。点击**更多信息 → 仍要运行**。
 - **macOS：提示“身份不明的开发者”，无法打开** — 这是 Gatekeeper。在**系统设置 > 隐私与安全性**中允许，或在终端运行 `xattr -dr com.apple.quarantine /Applications/Tasty.app`。
-- **Linux：AppImage 无法运行** — 缺少执行权限或 FUSE。先运行 `chmod +x Tasty-*.AppImage`，仍无法运行时，使用 `./Tasty-*.AppImage --appimage-extract-and-run` 启动。
-- **Linux：提示 `GLIBC_2.39 not found`，无法运行** — 发行版比构建基准（Ubuntu 24.04）更旧，例如 Ubuntu 20.04 · Debian 11。不提供适用于旧发行版的构建。
+- **Linux：运行 AppImage 时提示权限或 FUSE 错误** — 遇到执行权限错误时，运行 `chmod +x Tasty-*.AppImage`。遇到 FUSE 错误时，使用 `./Tasty-*.AppImage --appimage-extract-and-run` 启动。如果提示 `GLIBC_2.39` 错误，请参见下一项。
+- **Linux：软件包管理器报错称无法满足 glibc 2.39 要求，或启动时提示 `GLIBC_2.39 not found`** — 发行版的 glibc 版本低于 2.39，例如 Ubuntu 22.04、Debian 12、RHEL 9、openSUSE Leap 15.6。运行 `ldd --version`，在输出的第一行查看 glibc 版本。不提供适用于旧发行版的构建。
 - **Linux `.tar.gz`：提示缺少库后退出** — `tasty` 会列出缺失的共享库文件名后退出。使用同时显示的搜索命令（从 `apt-file search` · `dnf provides` · `zypper what-provides` · `pacman -F` 中选择适合发行版的命令），查找并安装提供该库的软件包。要自动安装所需的库，使用 `.deb` / `.rpm`。
 - **窗口未显示便立即退出，日志中留下“找不到 GPU 适配器”** — 未找到可用的 GPU 适配器（Vulkan / DirectX 12 / Metal）。此错误不会单独显示在界面中，只记录在 `~/.tasty/debug.log` 和终端输出中（从终端启动时）。安装或更新驱动程序。Linux 上存在 `libvulkan1` / `vulkan-loader` 时使用 Vulkan，否则使用 OpenGL，再失败则使用软件渲染。要在没有图形界面的服务器 · VM 上运行，使用[无界面构建](../getting-started/install.md#无界面构建)。
 - **Windows：启动时显示 Shell 选择界面，或无法打开新终端** — Tasty 在 Windows 上仅运行 Git Bash。Shell 设置不是 Git Bash（包括文件夹路径）、配置的路径下没有文件，或设置为空且默认安装位置也未找到 Git Bash 时，会出现此问题。启动时会显示**选择 Shell** <!-- en: Choose a shell --> 界面；运行期间，**设置** <!-- en: Settings --> > **终端** <!-- en: Terminal --> 标签页会显示原因，且无法打开新终端。安装 Git for Windows，或在其位于其他位置时输入对应的 `bash.exe` 路径。在 Shell 选择界面输入路径并点击**使用此 Shell** <!-- en: Use this shell -->。运行期间，在**设置** > **终端** > **Shell** <!-- en: Shell --> 中修正路径。Git for Windows 的 `usr\bin\bash.exe` 也可使用，但如果 Git 不在 Windows 的 `PATH` 中，该 Shell 将找不到 `git` 命令；改为输入 `bin\bash.exe`。

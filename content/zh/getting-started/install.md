@@ -1,4 +1,4 @@
-<!-- source-hash: 5b61af467604 -->
+<!-- source-hash: f195995e4211 -->
 # 安装
 
 Tasty 的 Windows、macOS 和 Linux 安装文件可在 GitHub 发布页面按架构下载。macOS 支持 Apple Silicon。
@@ -9,11 +9,13 @@ Tasty 的 Windows、macOS 和 Linux 安装文件可在 GitHub 发布页面按架
 
 `{ver}` 表示版本号（例如 `0.10.3`）。
 
+**Linux 版 Tasty 的所有构建均需要 glibc 2.39 或更高版本。** 下表中各文件格式的条件也适用于 ARM64。版本号后的 `+` 表示该版本或更高版本。
+
 | OS | 架构 | 文件 | 说明 |
 |----|---------|------|------|
-| Linux | x86_64 | `tasty_{ver}-1_amd64.deb` | Debian / Ubuntu / Mint |
-| Linux | x86_64 | `tasty-{ver}-1.x86_64.rpm` | Fedora / RHEL / openSUSE |
-| Linux | x86_64 | `Tasty-{ver}-x86_64.AppImage` | 不依赖发行版的单文件 |
+| Linux | x86_64 | `tasty_{ver}-1_amd64.deb` | Ubuntu 24.04+ / Linux Mint 22+ / Debian 13+ |
+| Linux | x86_64 | `tasty-{ver}-1.x86_64.rpm` | Fedora 40+ / openSUSE Leap 16.0+ / Tumbleweed |
+| Linux | x86_64 | `Tasty-{ver}-x86_64.AppImage` | 单文件，需要 glibc 2.39+ |
 | Linux | x86_64 | `tasty-{ver}-linux-x64.tar.gz` | 用于手动安装的压缩包 |
 | Linux | aarch64 | `_arm64.deb` / `.aarch64.rpm` / `-aarch64.AppImage` / `-linux-arm64.tar.gz` | ARM64 |
 | Linux | x86_64 | `tasty-headless-{ver}-linux-x64.tar.gz` | [无界面构建](#无界面构建)（在服务器上运行，不打开窗口） |
@@ -33,12 +35,21 @@ Tasty 的 Windows、macOS 和 Linux 安装文件可在 GitHub 发布页面按架
 
 ## Linux
 
+表中未列出的发行版也须满足同样的 glibc 要求。安装 `.deb` 或 `.rpm` 时，软件包仓库还须提供所需的库。
+
+RHEL 10 提供 glibc 2.39，满足最低要求。仅使用 RHEL 默认仓库无法满足 `.rpm` 对 WebKitGTK 的依赖。
+
+Ubuntu 22.04、Debian 12、RHEL 9、openSUSE Leap 15.6 的 glibc 版本过低，安装软件包时可能出现 glibc 依赖错误，启动时则会出现 `GLIBC_2.39 not found` 错误。运行 `ldd --version`，在输出的第一行查看 glibc 版本。不单独提供适用于旧发行版的构建。
+
 ```sh
-# .deb (Debian / Ubuntu / Mint)
+# .deb (Ubuntu 24.04+ / Linux Mint 22+ / Debian 13+)
 sudo apt install ./tasty_{ver}-1_amd64.deb
 
-# .rpm (Fedora / RHEL / openSUSE)
+# .rpm (Fedora 40+)
 sudo dnf install ./tasty-{ver}-1.x86_64.rpm
+
+# .rpm (openSUSE Leap 16.0+ / Tumbleweed)
+sudo zypper install ./tasty-{ver}-1.x86_64.rpm
 
 # .AppImage — 无需安装即可运行
 chmod +x Tasty-{ver}-x86_64.AppImage && ./Tasty-{ver}-x86_64.AppImage
@@ -52,11 +63,10 @@ tar -xzf tasty-{ver}-linux-x64.tar.gz && ./tasty-linux-x64/tasty
 - `.deb` / `.rpm` 会将 `tasty` 命令加入 PATH，并在应用菜单中添加图标。包管理器会一并安装所需的库。
 - 存在 `libvulkan1` / `vulkan-loader` 时使用 GPU 加速（Vulkan）。没有这些库也能安装和运行，此时使用 OpenGL；如果 OpenGL 也不可用，则使用软件渲染。
 - `zenity` 是推荐安装的包。无法将再次启动的请求传递给已运行的 Tasty 时，用它显示提示框。未安装时改用桌面通知。
-- `.AppImage` 捆绑了运行所需的库。应用菜单项需自行注册（使用 `appimaged`，或将 `.desktop` 文件放入 `~/.local/share/applications/`）。
+- `.AppImage` 捆绑了部分运行所需的库，并使用系统安装的 glibc。应用菜单项需自行注册（使用 `appimaged`，或将 `.desktop` 文件放入 `~/.local/share/applications/`）。
 - `.tar.gz` 需要自行配置 PATH 和菜单项。缺少所需的系统库时，运行 `tasty` 会提示缺失的库并退出。
 - 许可证声明（Tasty 的 MIT 全文、捆绑字体和 Markdown 渲染引擎的许可证全文、第三方声明文档）随构建产物一同提供。`.deb` 中的位置是 `/usr/share/doc/tasty/`，`.rpm` 和 `.AppImage` 中是 `usr/share/licenses/tasty/`，`.tar.gz` 中是解压后目录的顶层。
-- 构建基准为 Ubuntu 24.04（glibc 2.39），因此在更旧的发行版（Ubuntu 20.04、Debian 11 等）上可能因 `GLIBC_2.39 not found` 错误而无法运行。不单独提供适用于旧发行版的构建。
-- HTML 和 Markdown 查看器需要 WebKitGTK 2.40 或更高版本。构建基准 Ubuntu 24.04 的 `libwebkit2gtk-4.1` 满足此条件。
+- HTML 和 Markdown 查看器需要 WebKitGTK 2.40 或更高版本。在 Ubuntu 24.04 上，`libwebkit2gtk-4.1-0` 软件包提供此库。
 
 ## macOS
 

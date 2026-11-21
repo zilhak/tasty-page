@@ -1,4 +1,4 @@
-<!-- source-hash: 5b61af467604 -->
+<!-- source-hash: f195995e4211 -->
 # Installation
 
 Tasty installation files for Windows, macOS, and Linux are available on GitHub Releases, organized by architecture. macOS support is for Apple Silicon.
@@ -9,11 +9,13 @@ Download the installer from the [GitHub releases page](https://github.com/zilhak
 
 `{ver}` stands for the version (e.g. `0.10.3`).
 
+**All Linux builds of Tasty require glibc 2.39 or later.** The requirements listed for each file format also apply to ARM64. A `+` after a version means that version or later.
+
 | OS | Architecture | File | Notes |
 |----|---------|------|------|
-| Linux | x86_64 | `tasty_{ver}-1_amd64.deb` | Debian / Ubuntu / Mint |
-| Linux | x86_64 | `tasty-{ver}-1.x86_64.rpm` | Fedora / RHEL / openSUSE |
-| Linux | x86_64 | `Tasty-{ver}-x86_64.AppImage` | Distribution-independent single file |
+| Linux | x86_64 | `tasty_{ver}-1_amd64.deb` | Ubuntu 24.04+ / Linux Mint 22+ / Debian 13+ |
+| Linux | x86_64 | `tasty-{ver}-1.x86_64.rpm` | Fedora 40+ / openSUSE Leap 16.0+ / Tumbleweed |
+| Linux | x86_64 | `Tasty-{ver}-x86_64.AppImage` | Single file. Requires glibc 2.39+ |
 | Linux | x86_64 | `tasty-{ver}-linux-x64.tar.gz` | Archive for manual installation |
 | Linux | aarch64 | `_arm64.deb` / `.aarch64.rpm` / `-aarch64.AppImage` / `-linux-arm64.tar.gz` | ARM64 |
 | Linux | x86_64 | `tasty-headless-{ver}-linux-x64.tar.gz` | [Headless build](#headless-build) (runs on a server without a window) |
@@ -33,12 +35,21 @@ The download button on the site's front page links straight to a file only when 
 
 ## Linux
 
+The same glibc minimum applies to distributions outside the table. Installing the `.deb` or `.rpm` also requires package repositories that provide the necessary libraries.
+
+RHEL 10 ships with glibc 2.39, which meets the minimum. Its official repositories lack WebKitGTK, so they cannot provide the library needed to install the `.rpm`.
+
+Ubuntu 22.04, Debian 12, RHEL 9, and openSUSE Leap 15.6 ship with older versions of glibc. This can cause a glibc dependency error during package installation or `GLIBC_2.39 not found` at startup. Run `ldd --version` and check the first line for the glibc version. No separate build is provided for older distributions.
+
 ```sh
-# .deb (Debian / Ubuntu / Mint)
+# .deb (Ubuntu 24.04+ / Linux Mint 22+ / Debian 13+)
 sudo apt install ./tasty_{ver}-1_amd64.deb
 
-# .rpm (Fedora / RHEL / openSUSE)
+# .rpm (Fedora 40+)
 sudo dnf install ./tasty-{ver}-1.x86_64.rpm
+
+# .rpm (openSUSE Leap 16.0+ / Tumbleweed)
+sudo zypper install ./tasty-{ver}-1.x86_64.rpm
 
 # .AppImage — run without installing
 chmod +x Tasty-{ver}-x86_64.AppImage && ./Tasty-{ver}-x86_64.AppImage
@@ -52,11 +63,10 @@ tar -xzf tasty-{ver}-linux-x64.tar.gz && ./tasty-linux-x64/tasty
 - `.deb` / `.rpm` put the `tasty` command on PATH and add an icon to the app menu. The package manager installs the required libraries.
 - GPU acceleration (Vulkan) is used when `libvulkan1` / `vulkan-loader` is present. Without it, Tasty still installs and runs, using OpenGL, or software rendering if that fails too.
 - `zenity` is a recommended package. Tasty uses it to show a notice when a new launch cannot be handed to the Tasty that is already running. Without it, a desktop notification is shown instead.
-- `.AppImage` bundles libraries used to run Tasty. You register it in the app menu yourself (use `appimaged`, or put a `.desktop` file in `~/.local/share/applications/`).
+- `.AppImage` bundles some of the libraries Tasty uses and relies on the system's glibc. You register it in the app menu yourself (use `appimaged`, or put a `.desktop` file in `~/.local/share/applications/`).
 - `.tar.gz` requires you to set up PATH and the menu entry yourself. If a required system library is missing, `tasty` tells you what is missing and exits.
 - The licence notices (Tasty's MIT text, the licence texts of the bundled font and markdown rendering engines, and the third-party notice document) travel inside the artifacts. `.deb` keeps them in `/usr/share/doc/tasty/`, `.rpm` and `.AppImage` in `usr/share/licenses/tasty/`, and `.tar.gz` at the top of the extracted directory.
-- The build baseline is Ubuntu 24.04 (glibc 2.39), so on older distributions (Ubuntu 20.04, Debian 11, etc.) it may fail to start with a `GLIBC_2.39 not found` error. No separate build is provided for older distributions.
-- The HTML and Markdown viewers need WebKitGTK 2.40 or later. The `libwebkit2gtk-4.1` of the Ubuntu 24.04 build baseline meets this.
+- The HTML and Markdown viewers need WebKitGTK 2.40 or later. On Ubuntu 24.04, the `libwebkit2gtk-4.1-0` package provides this library.
 
 ## macOS
 

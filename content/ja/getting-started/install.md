@@ -1,4 +1,4 @@
-<!-- source-hash: 5b61af467604 -->
+<!-- source-hash: f195995e4211 -->
 # インストール
 
 Tasty の Windows・macOS・Linux 用インストールファイルは、GitHub リリースページからアーキテクチャ別にダウンロードできます。macOS は Apple Silicon をサポートしています。
@@ -9,11 +9,13 @@ Tasty の Windows・macOS・Linux 用インストールファイルは、GitHub 
 
 `{ver}` にはバージョン（例: `0.10.3`）が入ります。
 
+**Linux 版 Tasty はどのファイル形式でも glibc 2.39 以上が必要です。** 以下の形式ごとの条件は ARM64 にも適用されます。バージョン番号の後ろの `+` は、そのバージョン以上を表します。
+
 | OS | アーキテクチャ | ファイル | 説明 |
 |----|---------|------|------|
-| Linux | x86_64 | `tasty_{ver}-1_amd64.deb` | Debian / Ubuntu / Mint |
-| Linux | x86_64 | `tasty-{ver}-1.x86_64.rpm` | Fedora / RHEL / openSUSE |
-| Linux | x86_64 | `Tasty-{ver}-x86_64.AppImage` | ディストリビューションを問わない単一ファイル |
+| Linux | x86_64 | `tasty_{ver}-1_amd64.deb` | Ubuntu 24.04+ / Linux Mint 22+ / Debian 13+ |
+| Linux | x86_64 | `tasty-{ver}-1.x86_64.rpm` | Fedora 40+ / openSUSE Leap 16.0+ / Tumbleweed |
+| Linux | x86_64 | `Tasty-{ver}-x86_64.AppImage` | 単一ファイル。glibc 2.39+ が必要 |
 | Linux | x86_64 | `tasty-{ver}-linux-x64.tar.gz` | 手動インストール用の圧縮ファイル |
 | Linux | aarch64 | `_arm64.deb` / `.aarch64.rpm` / `-aarch64.AppImage` / `-linux-arm64.tar.gz` | ARM64 |
 | Linux | x86_64 | `tasty-headless-{ver}-linux-x64.tar.gz` | [ヘッドレスビルド](#ヘッドレスビルド)（ウィンドウなしでサーバー上で実行） |
@@ -33,12 +35,21 @@ Tasty の Windows・macOS・Linux 用インストールファイルは、GitHub 
 
 ## Linux
 
+表にないディストリビューションにも同じ glibc の条件が適用されます。`.deb` や `.rpm` のインストールには、必要なライブラリを提供するパッケージリポジトリが必要です。
+
+RHEL 10 は glibc 2.39 を提供しており、最低条件を満たしています。RHEL の標準リポジトリだけでは、`.rpm` が必要とする WebKitGTK の依存関係を満たせません。
+
+Ubuntu 22.04、Debian 12、RHEL 9、openSUSE Leap 15.6 では glibc のバージョンが古いため、パッケージのインストール時に glibc の依存関係エラーが発生するか、起動時に `GLIBC_2.39 not found` と表示されます。`ldd --version` を実行し、出力の 1 行目で glibc のバージョンを確認してください。古いディストリビューション向けのビルドは別途提供していません。
+
 ```sh
-# .deb (Debian / Ubuntu / Mint)
+# .deb (Ubuntu 24.04+ / Linux Mint 22+ / Debian 13+)
 sudo apt install ./tasty_{ver}-1_amd64.deb
 
-# .rpm (Fedora / RHEL / openSUSE)
+# .rpm (Fedora 40+)
 sudo dnf install ./tasty-{ver}-1.x86_64.rpm
+
+# .rpm (openSUSE Leap 16.0+ / Tumbleweed)
+sudo zypper install ./tasty-{ver}-1.x86_64.rpm
 
 # .AppImage — インストールせずに実行
 chmod +x Tasty-{ver}-x86_64.AppImage && ./Tasty-{ver}-x86_64.AppImage
@@ -52,11 +63,10 @@ tar -xzf tasty-{ver}-linux-x64.tar.gz && ./tasty-linux-x64/tasty
 - `.deb` / `.rpm` は `tasty` コマンドを PATH に登録し、アプリメニューにアイコンを追加します。パッケージマネージャーが必要なライブラリを一緒にインストールします。
 - GPU アクセラレーション（Vulkan）は `libvulkan1` / `vulkan-loader` がある場合に使用します。なくてもインストール・実行は可能で、OpenGL、それも使えない場合はソフトウェアレンダリングで動作します。
 - `zenity` は推奨パッケージです。すでに実行中の Tasty に新たな起動要求を渡せなかったときに、案内ダイアログを表示するために使います。ない場合はデスクトップ通知で代わりに知らせます。
-- `.AppImage` は実行に使うライブラリをまとめて配布します。アプリメニューへの登録は自分で行ってください（`appimaged` を使用するか、`.desktop` ファイルを `~/.local/share/applications/` に配置してください）。
+- `.AppImage` は実行に使うライブラリの一部を同梱し、glibc はシステムにインストールされているものを使います。アプリメニューへの登録は自分で行ってください（`appimaged` を使用するか、`.desktop` ファイルを `~/.local/share/applications/` に配置してください）。
 - `.tar.gz` は PATH 登録とメニュー登録を自分で行う必要があります。必要なシステムライブラリがない場合は、`tasty` の実行時に何が不足しているかを案内して終了します。
 - ライセンス表記（Tasty の MIT ライセンス本文・同梱するフォントと markdown レンダリングエンジンのライセンス本文・第三者に関する告知文書）は配布物内に同梱されています。配置場所は、`.deb` では `/usr/share/doc/tasty/`、`.rpm` と `.AppImage` では `usr/share/licenses/tasty/`、`.tar.gz` では解凍したディレクトリの最上位です。
-- ビルドの基準が Ubuntu 24.04（glibc 2.39）のため、それより古いディストリビューション（Ubuntu 20.04、Debian 11 など）では `GLIBC_2.39 not found` エラーで起動しない場合があります。古いディストリビューション向けのビルドは別途提供していません。
-- HTML・Markdown ビューアには WebKitGTK 2.40 以上が必要です。ビルドの基準である Ubuntu 24.04 の `libwebkit2gtk-4.1` はこの条件を満たしています。
+- HTML・Markdown ビューアには WebKitGTK 2.40 以上が必要です。Ubuntu 24.04 では `libwebkit2gtk-4.1-0` パッケージがこのライブラリを提供します。
 
 ## macOS
 
