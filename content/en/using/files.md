@@ -1,4 +1,4 @@
-<!-- source-hash: dbe70d84dd9a -->
+<!-- source-hash: 50425a58292d -->
 # Managing and viewing files
 
 Find and manage files in the Explorer, and view Markdown, images, and HTML beside the terminal. Inspect changes in the Git viewer. The viewers and Git tools require their respective plugins to be enabled.
@@ -212,7 +212,7 @@ Paste, drag and drop, and Move to Trash run one at a time, in order. Copy and mo
 When a name already exists, a question opens in that Explorer if it has focus. If you were looking elsewhere, click **Show** in its status line.
 
 - **Keep both** (`Enter`) — the default. The new item gets `(copy)`; the existing one is left alone.
-- **Skip** · **Replace** (files only) · **Cancel the rest** (`Esc`).
+- **Skip** · **Replace** (files only) · **Cancel the rest**. Closing the popup with ✕ also cancels the remaining operations.
 - Folders with the same name are never merged; for folders you can only Skip or Keep both.
 - With more conflicts left, turn on **Do this for the other conflicts** to answer them all at once.
 
