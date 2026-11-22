@@ -1,4 +1,4 @@
-<!-- source-hash: 587f7c7f1a17 -->
+<!-- source-hash: f57db017afd4 -->
 # CLI 响应延迟和连接诊断
 
 本页用于诊断 `tasty` 命令响应缓慢、无法连接或以 `Error (-32061)` 等错误结束的问题。内容包括响应等待上限与任务等待时间的区别、各错误代码的处理方式、查看当前 Tasty 支持的功能，以及通过 `tasty list pressure` 查看连接数、请求队列和数据库状态。首次使用 CLI 时，先阅读[使用 tasty CLI 操作终端](../agents/cli.md)。
@@ -31,6 +31,9 @@ tasty --response-timeout-ms 5000 read screen --surface 42
 
 ## 各类错误的处理方式
 
+- **命令以 UTF-8 错误退出**——`tasty` 在标准错误（stderr）中输出一行，只报告首个包含无效 UTF-8 的参数的位置，然后以退出码 2 结束。错误信息不包含参数原文。即使同时指定了 `--help`，也不会显示帮助、启动 Tasty 或向已运行的 Tasty 发送请求。
+  错误信息采用 Tasty 当前使用的语言。例如，首个包含无效 UTF-8 的参数是第 3 个时，会看到 `错误：第 3 个参数包含无效的 UTF-8。程序名后的第一个参数编号为 1。未执行任何操作，也未发送任何内容。` 这条错误。程序名本身包含无效 UTF-8 时，会显示不带位置编号的错误 `错误：程序名（argv[0]）包含无效的 UTF-8。未执行任何操作，也未发送任何内容。`，并以退出码 2 结束。
+  如果错误信息显示位置编号，从程序名后实际传入的第一个参数数起，即可找到对应的值。第一个参数对应 shell 的 `$1`，子命令和选项也计入。如果生成参数的 shell 代码或脚本按字节截取输入，先按输入原有的编码解码，再从解码后的字符串（例如 Python 字符串）中截取所需部分。以字节形式传递结果时，将其编码为 UTF-8。
 - **出现包含 `"sent":false` 的单行错误**——连接的 Tasty 是不支持该功能（指定读取位置、响应等待上限等）的旧版。未发送请求。`capability` 中的名称表示缺少哪项功能。
 - **`Error (…)` 行下附有 `data: {…}` 行**——Tasty 同时发送了失败分类（例如，记忆存储失败的 `storage_failure`、拒绝原因的 `reason`）。`data: ` 后是单行 JSON，脚本可根据此值而非首行进行分支处理。无论有无此行，首行 `Error (代码): 消息` 都相同。`tasty events follow` 和 `tasty plugin audit-follow` 也会附加此行，这两个命令的首行保持 `Error: Error (代码): 消息` 的形式，前面多一个 `Error: `。
 - **以 `Error (-32603): memory writer queue is full …` 结束**——记忆存储请求同时大量涌入，Tasty 未接收此请求（`data` 中的 `storage_failure` 为 `busy`）。未保存，可稍后再次调用。`memory writer is not accepting requests` 表示 Tasty 正在退出。

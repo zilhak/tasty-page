@@ -1,4 +1,4 @@
-<!-- source-hash: 587f7c7f1a17 -->
+<!-- source-hash: f57db017afd4 -->
 # CLI response delays and connection diagnostics
 
 Read this page when a `tasty` command replies slowly, cannot connect, or ends with an error such as `Error (-32061)`. It covers the difference between the reply wait bound and the task wait time, what to do for each error code, checking what this Tasty supports, and the connection counts, request queues and database state shown by `tasty list pressure`. If you are new to the CLI, start with [Driving terminals with the tasty CLI](../agents/cli.md).
@@ -31,6 +31,9 @@ When a command ends with an error line containing `"sent":false`, the Tasty you 
 
 ## What to do for each error
 
+- **The command exits with a UTF-8 error** — `tasty` reports the position of the first argument that contains invalid UTF-8 on one line of standard error (stderr) and exits with code 2. The message leaves out the argument itself. Even with `--help`, the command exits before showing help, starting Tasty, or sending a request to a running instance.
+  The message uses Tasty’s language. If the third argument is the first to contain invalid UTF-8, it reads `Error: argument 3 contains invalid UTF-8. The first argument after the program name is numbered 1. Nothing was executed or sent.` If the program name itself contains invalid UTF-8, the message has no position number and reads `Error: the program name (argv[0]) contains invalid UTF-8. Nothing was executed or sent.` The command exits with code 2 in this case as well.
+  If the message shows a position number, count the arguments actually passed after the program name to find the value. The first corresponds to the shell’s `$1`, and subcommands and options count too. If the shell code or script that builds the arguments slices the input by byte, first decode the input using its original encoding. Then slice the decoded string, for example with a Python string. If you pass the result as bytes, encode it as UTF-8.
 - **An error line containing `"sent":false`** — the Tasty you are connected to is an older version that does not know that feature (reading from a position, bounding the reply wait, and so on). The request was not sent. The name under `capability` says what is missing.
 - **A `data: {…}` line follows the `Error (…)` line** — Tasty sent a classification of the failure along with it (for example `storage_failure` when a memory write fails, or `reason` for a refusal). Everything after `data: ` is one line of JSON, so a script can branch on that value instead of the first line. The first line, `Error (code): message`, is the same whether or not this line is present. `tasty events follow` and `tasty plugin audit-follow` add this line too; their first line keeps its shape, `Error: Error (code): message`, with one extra `Error: ` in front.
 - **The command ends with `Error (-32603): memory writer queue is full …`** — Too many memory storage requests arrived at once, so Tasty did not take this one (`storage_failure` in `data` is `busy`). Nothing was stored, so call it again after a short pause. `memory writer is not accepting requests` means Tasty is shutting down.
