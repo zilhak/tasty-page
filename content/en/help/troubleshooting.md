@@ -1,4 +1,4 @@
-<!-- source-hash: be7e001074ed -->
+<!-- source-hash: 5634362901a9 -->
 # Troubleshooting
 
 Causes and remedies for Tasty installation, input, display, restoration, and notification issues are organized by symptom. For CLI connection failures or slow responses, also see connection diagnostics. If the problem remains, report it with your environment details and logs.
@@ -213,8 +213,24 @@ If your layout does not return, first check **Restore layout on startup** and th
 
 ## Running Tasty again
 
-- **Launching from the app menu or a launcher brings the open window forward instead of a new window** — only one Tasty runs per data folder (`~/.tasty/` or the folder set with `TASTY_HOME`). The running instance receives the new launch request. On X11 and XWayland, restoring a window hidden to the tray requires using the same data folder and launching from a launcher that passes window activation information. Starting Tasty from an external terminal with the same data folder and without that information opens a new window and leaves the hidden window as it was. When hidden or minimized windows are restored, Tasty asks the OS to bring the last-used window to the front. Whether it actually comes to the front is up to the OS, so in some environments the taskbar entry only flashes. On Wayland, if the desktop does not support window activation requests, a new window opens instead of the open one.
-- **Running `tasty` in a terminal opens just one new window** — running it from a terminal, script, or agent outside Tasty without arguments or window activation information is the same as `tasty new window`. Inside a terminal that Tasty opened, it shows the help instead of a new window. The focused window and hidden windows stay as they are. On Windows, launching from the terminal you are using (the one in front) passes on the permission to come forward, so the open window may come forward as it does from the app menu.
+- **Launching from the app menu or a launcher brings back an existing window or opens a new one** — only one Tasty runs per data folder (`~/.tasty/` or the folder set with `TASTY_HOME`). The running instance receives the new launch request. On Linux and Windows, a new window opens if only dialogs remain.
+
+  On Linux with X11 or XWayland, Tasty shows all hidden or minimized windows again if you relaunch with the same data folder, the launcher passes window activation information, and there is an existing main window (such as a Tasty window with a terminal). Tasty requests activation of the last focused window. It requests activation of the first main window if no focus was recorded or that window has closed. A new window opens if there is no activation information or no existing main window. The window manager or compositor decides whether a window comes to the front.
+
+  On native Wayland, if the launcher passes Wayland activation information and there is an existing main window, Tasty asks the compositor to activate the target window. The compositor decides whether to show the window and whether to bring it to the front. A new window opens if there is no activation information or no existing main window, or if the compositor does not support activation requests.
+
+  On Windows, when you relaunch from the Start menu, taskbar, or File Explorer, the new process can give the running app permission to bring windows to the front. If it passes that permission and there is an existing main window, Tasty shows hidden or minimized windows again and asks to bring the last focused window forward (or the first main window if no focus was recorded or that window has closed). The OS can refuse the request and just flash the taskbar icon. A new window opens if permission was not passed or there is no existing main window.
+
+  When you reopen Tasty from Finder or the Dock, for example, macOS sends a reopen request to the running app. Tasty opens one new window only if none are visible. Minimizing Tasty to the background closes its windows and keeps their layouts and terminal state in the running app. If any window states were kept, Tasty restores one in the new window.
+
+- **Running `tasty` in a terminal opens a new window or brings back an existing one** — running it without arguments from a terminal, script, or agent outside Tasty behaves differently depending on the OS. Inside a terminal that Tasty opened, it shows the help instead of a new window.
+
+  On Linux, running without window activation information opens one new window and leaves hidden windows as they are.
+
+  On Windows, launching from the terminal in front can bring back an existing window, just as launching from the Start menu can, if the new process passes permission to the running app and a main window already exists. If the process cannot pass permission or there is no existing main window, one new window opens. Hidden windows stay hidden if permission cannot be passed, as may happen when launching from a background terminal or script.
+
+  On macOS, running the executable directly opens one new window. The new window restores one of the window states kept by the running app, if available.
+
 - **A "Tasty is already running." box appears** — the launch could not be handed to the running Tasty and the running Tasty does not respond. When the request did arrive but is handled late, no box appears and a window opens a moment later. Usually the box means the running Tasty was still starting up, or on Linux the session bus could not be reached. The cause is written to `launch.log` in the data folder (`~/.tasty/launch.log`). Each launch adds several lines, one per step. On Linux without `zenity`, a desktop notification appears instead of the box.
 - **Starting Tasty right after force-quitting it takes a moment** — it waits up to two seconds for the leftover lock to be released before starting.
 - **You need two separate Tastys** — start one with a different `TASTY_HOME`.
