@@ -1,4 +1,4 @@
-<!-- source-hash: da6b7d8c0ecb -->
+<!-- source-hash: 9ae54ad45130 -->
 # 故障排除
 
 本页按症状列出 Tasty 安装、输入、显示、恢复和通知问题的原因及解决方法。如果 CLI 无法连接或响应缓慢，也可查看连接诊断。问题仍未解决时，可附上运行环境和日志报告问题。
@@ -13,7 +13,7 @@
 - **窗口未显示便立即退出，日志中留下“找不到 GPU 适配器”** — 未找到可用的 GPU 适配器（Vulkan / DirectX 12 / Metal）。此错误不会单独显示在界面中，只记录在 `~/.tasty/debug.log` 和终端输出中（从终端启动时）。安装或更新驱动程序。Linux 上存在 `libvulkan1` / `vulkan-loader` 时使用 Vulkan，否则使用 OpenGL，再失败则使用软件渲染。要在没有图形界面的服务器 · VM 上运行，使用[无界面构建](../getting-started/install.md#无界面构建)。
 - **Windows：启动时显示 Shell 选择界面，或无法打开新终端** — Tasty 在 Windows 上仅运行 Git Bash。Shell 设置不是 Git Bash（包括文件夹路径）、配置的路径下没有文件，或设置为空且默认安装位置也未找到 Git Bash 时，会出现此问题。启动时会显示**选择 Shell** <!-- en: Choose a shell --> 界面；运行期间，**设置** <!-- en: Settings --> > **终端** <!-- en: Terminal --> 标签页会显示原因，且无法打开新终端。安装 Git for Windows，或在其位于其他位置时输入对应的 `bash.exe` 路径。在 Shell 选择界面输入路径并点击**使用此 Shell** <!-- en: Use this shell -->。运行期间，在**设置** > **终端** > **Shell** <!-- en: Shell --> 中修正路径。Git for Windows 的 `usr\bin\bash.exe` 也可使用，但如果 Git 不在 Windows 的 `PATH` 中，该 Shell 将找不到 `git` 命令；改为输入 `bin\bash.exe`。
 - **打开的 Shell 与配置的 Shell 不同** — 在 macOS · Linux 上，如果配置的 Shell 路径下没有文件，Tasty 会使用找到的其他 Shell（登录 Shell 或 `$SHELL`）打开终端。配置文件中的 Shell 值不会更改，因此修正路径或重新安装该 Shell 后，新终端便会恢复使用原来的 Shell。替代使用的 Shell 会记录在 `~/.tasty/debug.log` 中，**设置** <!-- en: Settings --> > **终端** <!-- en: Terminal --> 标签页也会显示说明。在 Windows 上，Tasty 不会换用其他 Shell；参见上方的 Windows 条目。
-- **macOS · Linux：启动时立即显示 Shell 选择界面，或设置中显示 Shell 错误** — 配置的 Shell 路径是文件夹，或是没有执行权限的文件。此时 Tasty 不会换用其他 Shell，而是显示原因。首次启动时，**选择 Shell** <!-- en: Choose a shell --> 界面的检查结果行会显示“此路径是文件夹”或“此文件没有执行权限”。运行期间，**设置** <!-- en: Settings --> > **终端** <!-- en: Terminal --> 标签页会显示相同原因，且无法打开新终端。将路径改为 Shell 可执行文件路径，或使用 `chmod +x` 赋予执行权限。
+- **macOS · Linux：启动时立即显示 Shell 选择界面，或设置中显示 Shell 错误** — 配置的 Shell 路径是文件夹，或是没有执行权限的文件。此时 Tasty 不会换用其他 Shell，而是显示原因。启动时，**选择 Shell** <!-- en: Choose a shell --> 界面的检查结果行会显示“此路径是文件夹”或“此文件没有执行权限”。运行期间，**设置** <!-- en: Settings --> > **终端** <!-- en: Terminal --> 标签页会显示相同原因，且无法打开新终端。将路径改为 Shell 可执行文件路径，或使用 `chmod +x` 赋予执行权限。
 - **启动后立即显示“无法启动终端”界面** — 无法打开首个终端。正文的“详细信息”中会显示原因。解决原因后重新运行。如果在运行期间打开新窗口时因相同原因失败，**无法打开新窗口** <!-- en: Could not open a new window --> 提示中会显示原因，已打开的窗口仍正常运行。
 - **通知中出现“最近列表和教程进度未保存”** — 无法打开保存最近文件列表和教程进度的 `~/.tasty/state.db`。Tasty 仍可使用，终端和布局恢复不受影响，但无法加载之前保存的最近列表和教程进度，本次运行中的更改也不会保存。本次运行中通过文件浏览器访问的文件夹，可能仍会显示在该窗口运行期间的最近列表中，但下次运行时不会保留。通知正文会显示原因。“数据库已锁定”表示另一个 Tasty 已在运行。如果显示“已损坏”/“架构版本不匹配”，关闭 Tasty，备份并删除 `~/.tasty/state.db`，下次运行便会重新开始。解决原因后必须重新运行 Tasty，才会恢复保存。
 - **显示“无法启动 Tasty”界面，终端未打开** — 准备首个窗口时，Tasty 的内部步骤失败。“详细信息”中会显示原因。点击**退出** <!-- en: Quit --> 或按 Esc · Enter 关闭后，Tasty 会退出。重新运行；如果持续重复，检查数据文件夹（`TASTY_HOME`，默认 `~/.tasty`）是否可用，并查看 `~/.tasty/debug.log`。无法显示界面的环境中，相同内容会通过消息框显示（Linux 上没有 zenity 时，使用桌面通知）。
