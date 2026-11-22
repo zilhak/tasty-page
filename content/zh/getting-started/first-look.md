@@ -1,4 +1,4 @@
-<!-- source-hash: 9a73b624a889 -->
+<!-- source-hash: 8ec126eb6145 -->
 # 初识界面
 
 Tasty 的初始界面由用于切换工作区的侧边栏和用于显示终端或文档的工作区域组成。每个窗格都有标签栏，每个标签页内都有用于显示终端或文档的 Surface。
@@ -106,9 +106,15 @@ Tasty 的特点是 **拆分分为两级**。
 
 ## 关闭窗口时
 
-有多个窗口时，关闭按钮只会关闭所在窗口。点击最后一个窗口的关闭按钮时，会询问是 **退出** <!-- en: Quit --> 还是 **最小化** <!-- en: Minimize -->。托盘图标可用时，选择最小化会将 Tasty 收入系统托盘（菜单栏）。通过托盘图标菜单中的 **显示窗口** <!-- en: Show Window --> 可恢复窗口。若不想每次都询问，可修改 **设置** > **常规** > **关闭行为** <!-- en: Close behavior -->。
+有多个工作窗口时，关闭按钮只会关闭所在的工作窗口。若**设置** > **常规** > **关闭行为** <!-- en: Close behavior --> 设为**询问** <!-- en: Ask -->，点击最后一个工作窗口的关闭按钮时，可以选择**退出** <!-- en: Quit --> 或**最小化** <!-- en: Minimize -->。若设为**最小化到后台** <!-- en: Minimize to background --> 或**退出**，关闭最后一个工作窗口时会直接执行相应操作。
 
-在 Linux 上，若无法创建托盘，选择最小化时，Tasty 会向系统发出最小化窗口的请求。若未显示托盘图标，请查看 [AppIndicator 安装方法和桌面显示条件](../help/troubleshooting.md#linux-tray-icon-missing)。若因 `GDK_BACKEND` 阻止使用 X11 等原因导致 GTK 初始化失败，参见 [Linux 文档查看和托盘故障排除](../help/troubleshooting.md#linux-gdk-backend)。
+在 Windows 和使用 X11（含 XWayland）的 Linux 上，只要托盘已创建，即使未显示图标，最小化到后台也会隐藏窗口。若无法创建托盘，Windows 上会将窗口最小化到任务栏，X11 上会请求窗口管理器最小化窗口。若能打开托盘菜单，可选择**显示窗口** <!-- en: Show Window --> 恢复隐藏的窗口。
+
+在 macOS 上，最小化到后台会关闭窗口，并保留布局和终端状态。此时点击程序坞中的 Tasty 图标，会打开一个新窗口，并恢复一个已保留的窗口状态。若能从菜单栏打开托盘菜单，也可以选择**显示窗口**恢复窗口。
+
+在 Linux 原生 Wayland 上，即使托盘已创建，Tasty 也会请求合成器最小化窗口。
+
+有关 X11（含 XWayland）和原生 Wayland 上托盘图标不显示的原因及窗口恢复方法，参见 [Linux 托盘故障排除](../help/troubleshooting.md#linux-tray-icon-missing)。在使用 X11（含 XWayland）的 Linux 上，若因 `GDK_BACKEND` 设置等原因导致 GTK 初始化失败，参见 [Linux 文档查看和托盘故障排除](../help/troubleshooting.md#linux-gdk-backend)。
 
 确认退出后，所有窗口中的网页和 Markdown 文档会隐藏；若需要等待退出，则显示进度界面。取消退出确认，或最小化到后台后返回时，可以继续使用文档。
 

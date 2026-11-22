@@ -72,9 +72,19 @@ Tasty 외부에서 Tasty 시작 환경의 `GDK_BACKEND`를 제거한 뒤 Tasty�
 
 ## Linux에서 트레이 아이콘이 안 보일 때
 
-Linux에서 트레이 아이콘을 사용하려면 AppIndicator 라이브러리(`libayatana-appindicator3` 또는 `libappindicator3`)가 필요합니다. Tasty는 실행 중에 이 라이브러리를 불러옵니다. 라이브러리가 없으면 Tasty는 트레이 없이 계속 동작하며 오류 윈도우는 띄우지 않습니다. GTK 초기화에는 성공했지만 라이브러리를 불러오지 못한 경우, 로그에 `Failed to create tray icon: dlopen failed for every AppIndicator library name`으로 시작하는 경고가 한 줄 남습니다. 로그에 `GTK init failed`가 보이면 [Linux 문서 보기·트레이 문제 해결](#linux-gdk-backend)을 참고하세요.
+Linux에서 트레이 아이콘을 사용하려면 AppIndicator 라이브러리(`libayatana-appindicator3` 또는 `libappindicator3`)가 필요합니다. Tasty는 실행 중에 이 라이브러리를 불러옵니다. 라이브러리가 없으면 Tasty는 트레이 없이 계속 동작하며 오류 윈도우는 띄우지 않습니다. GTK 초기화에는 성공했지만 라이브러리를 불러오지 못한 경우, 로그에 `Failed to create tray icon: dlopen failed for every AppIndicator library name`으로 시작하는 경고가 한 줄 남습니다. Tasty가 X11(XWayland 포함)에서 실행 중이고 로그에 `GTK init failed`가 보이면 [Linux 문서 보기·트레이 문제 해결](#linux-gdk-backend)을 참고하세요.
 
-트레이가 만들어지지 않으면 Tasty는 백그라운드로 들어갈 때 시스템에 윈도우 최소화를 요청합니다. 마지막 윈도우를 닫는 확인 화면에서 **최소화** <!-- en: Minimize --> 를 고르거나, **종료 동작** <!-- en: Close behavior --> 을 **백그라운드로 최소화** <!-- en: Minimize to background --> 로 설정한 상태에서 종료를 요청하거나, **백그라운드로 최소화** 단축키를 누를 때 적용됩니다. 실제로 최소화되는지, 작업 표시줄이나 독에서 돌아올 수 있는지는 윈도우 관리자나 컴포지터가 정합니다.
+AppIndicator 라이브러리를 불러왔지만 트레이에 필요한 함수가 빠져 있어도 Tasty는 트레이 없이 계속 동작합니다. 로그에는 `Failed to create tray icon: AppIndicator library <라이브러리 이름> has missing or null required symbols (...)` 형식의 경고가 남습니다. 로그에 적힌 라이브러리 이름을 확인하고, 그 라이브러리를 제공하는 배포판 패키지를 다시 설치하거나 갱신하세요. 그런 다음 Tasty를 완전히 종료하고 다시 실행하세요.
+
+Linux, Windows, macOS에서 Tasty를 시작할 때 **셸 선택** 화면이 열렸다면 셸을 고르고 **이 셸 사용**을 눌러 확정한 뒤 트레이 생성을 시도합니다. 화면이 열리는 조건은 [설치 · 첫 실행](#설치--첫-실행)의 셸 문제 항목을 참고하세요.
+
+**종료 동작** <!-- en: Close behavior --> 이 **물어보기** <!-- en: Ask --> 일 때는 마지막 작업 윈도우를 닫는 확인 화면에서 **최소화** <!-- en: Minimize --> 를 고르세요. **종료 동작**을 **백그라운드로 최소화** <!-- en: Minimize to background --> 로 설정했다면 마지막 작업 윈도우의 닫기 버튼을 누르거나 **종료** 단축키를 누르세요. 명령 팔레트에서 **백그라운드로 최소화**를 실행하거나 이 동작에 지정된 단축키를 눌러도 됩니다.
+
+백그라운드로 최소화하면 열려 있는 윈도우가 모두 대상이 됩니다. 명령 팔레트의 **윈도우 최소화** <!-- en: Minimize window --> 는 현재 윈도우에만 최소화를 요청합니다.
+
+Linux에서 트레이를 만들지 못하면 Tasty는 백그라운드로 최소화할 때 시스템에 열린 윈도우를 모두 최소화하도록 요청합니다. AppIndicator에 필요한 함수가 빠진 경우에도 이 동작을 따릅니다. X11(XWayland 포함)에서 실제로 최소화되는지, 작업 표시줄이나 독에서 돌아올 수 있는지는 윈도우 관리자가 정합니다.
+
+네이티브 Wayland에서는 트레이 아이콘이 있어도 Tasty가 컴포지터에 윈도우 최소화를 요청합니다. 컴포지터가 요청을 반영하지 않으면 윈도우는 그대로 남습니다. 컴포지터가 작업 표시줄이나 독 등에서 복귀 기능을 제공하면 그곳에서 최소화된 윈도우로 돌아올 수 있습니다. 트레이 메뉴의 **윈도우 표시** <!-- en: Show Window --> 로는 돌아올 수 없습니다. 실행기에서 다시 여는 방법은 [Tasty를 다시 실행했을 때](#tasty-를-다시-실행했을-때)를 참고하세요.
 
 ### AppIndicator 설치
 
@@ -95,7 +105,7 @@ Tasty 설치 형식에 따라 AppIndicator 설치 방식이 다릅니다.
 
 트레이가 만들어져도 데스크톱에 아이콘을 표시할 곳이 없으면 아이콘이 보이지 않습니다. StatusNotifierItem(SNI)로 등록된 아이콘을 표시하려면 SNI 호스트가 필요합니다. 데스크톱에 SNI 등록을 받는 서비스가 없거나 등록이 실패하면 Ayatana AppIndicator는 XEmbed를 사용하므로, 아이콘을 표시하려면 XEmbed 트레이가 필요합니다. GNOME에서는 AppIndicator 확장을 설치하고 활성화하세요.
 
-이 경우 X11(XWayland 포함)에서 Tasty를 백그라운드로 최소화하면 윈도우가 숨겨집니다. 숨긴 윈도우를 다시 표시하려면 [Tasty를 다시 실행했을 때](#tasty-를-다시-실행했을-때)의 앱 메뉴·실행기 항목을 참고하세요.
+X11(XWayland 포함)에서는 트레이가 만들어졌다면 아이콘이 보이지 않아도 백그라운드로 최소화할 때 윈도우가 숨겨집니다. 숨긴 윈도우를 다시 표시하려면 [Tasty를 다시 실행했을 때](#tasty-를-다시-실행했을-때)의 앱 메뉴·실행기 항목을 참고하세요.
 
 ## macOS 권한 프롬프트
 

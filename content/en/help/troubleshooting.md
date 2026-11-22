@@ -1,4 +1,4 @@
-<!-- source-hash: 5634362901a9 -->
+<!-- source-hash: da6b7d8c0ecb -->
 # Troubleshooting
 
 Causes and remedies for Tasty installation, input, display, restoration, and notification issues are organized by symptom. For CLI connection failures or slow responses, also see connection diagnostics. If the problem remains, report it with your environment details and logs.
@@ -73,9 +73,19 @@ The app shows only a GTK initialization failure notice, without a remedy line. T
 
 ## The tray icon is missing on Linux
 
-On Linux, the tray icon requires an AppIndicator library (`libayatana-appindicator3` or `libappindicator3`). Tasty loads it at runtime. If the library is missing, Tasty keeps running without a tray or an error window. If GTK initializes successfully and Tasty cannot load the library, the log contains one warning starting with `Failed to create tray icon: dlopen failed for every AppIndicator library name`. If the log says `GTK init failed`, see [Linux document view and tray troubleshooting](#linux-gdk-backend).
+On Linux, the tray icon requires an AppIndicator library (`libayatana-appindicator3` or `libappindicator3`). Tasty loads it at runtime. If the library is missing, Tasty keeps running without a tray or an error window. If GTK initializes successfully and Tasty cannot load the library, the log contains one warning starting with `Failed to create tray icon: dlopen failed for every AppIndicator library name`. If Tasty is running on X11 (including XWayland) and the log says `GTK init failed`, see [Linux document view and tray troubleshooting](#linux-gdk-backend).
 
-If Tasty could not create the tray, it asks the system to minimize the window when you send Tasty to the background. This applies when you choose **Minimize** in the confirmation dialog for closing the last window, try to quit with **Close behavior** set to **Minimize to background**, or use the **Minimize to background** shortcut. Your window manager or compositor determines whether the window minimizes and whether you can restore it from the taskbar or dock.
+If the AppIndicator library loads but lacks a function the tray needs, Tasty keeps running without a tray. The warning in the log takes the form `Failed to create tray icon: AppIndicator library <library name> has missing or null required symbols (...)`. Check the library name in the log and reinstall or update the package that provides it for your distribution. Then quit Tasty completely and start it again.
+
+On Linux, Windows, and macOS, if the **Choose a shell** screen opens when you start Tasty, pick a shell and click **Use this shell**. Tasty then tries to create the tray. For details on when the screen appears, see the shell troubleshooting items under [Install · first launch](#install--first-launch).
+
+With **Close behavior** set to **Ask**, choose **Minimize** in the confirmation dialog for closing the last main window. With **Close behavior** set to **Minimize to background**, click the close button on the last main window or press the **Quit** shortcut. You can also run **Minimize to background** from the command palette or press the shortcut assigned to that action.
+
+Minimizing to the background applies to all open windows. The **Minimize window** command in the command palette requests minimization of the current window only.
+
+On Linux, if Tasty could not create the tray, background minimization asks the system to minimize all open windows. This includes cases where AppIndicator lacks a required function. On X11, including XWayland, the window manager determines whether the windows minimize and whether you can restore them from the taskbar or dock.
+
+On native Wayland, Tasty asks the compositor to minimize the windows even when the tray icon is available. If the compositor does not act on the request, the windows stay as they are. You can restore minimized windows from the taskbar or dock if your compositor provides that option. **Show Window** in the tray menu cannot restore them. For how to reopen Tasty from a launcher, see [Running Tasty again](#running-tasty-again).
 
 ### Install AppIndicator
 
@@ -96,7 +106,7 @@ How AppIndicator is installed depends on the Tasty package format.
 
 The tray can be created even when the desktop has nowhere to display its icon. An icon registered as a StatusNotifierItem (SNI) needs an SNI host to display it. If no desktop service accepts SNI registrations or registration fails, Ayatana AppIndicator falls back to XEmbed and needs an XEmbed tray to display the icon. On GNOME, install and enable an AppIndicator extension.
 
-In this case, minimizing Tasty to the background hides the window on X11, including XWayland. To bring back the hidden window, see the app menu or launcher item under [Running Tasty again](#running-tasty-again).
+On X11, including XWayland, if Tasty creates the tray, minimizing to the background hides the window even when the icon is missing from the desktop. To bring back the hidden window, see the app menu or launcher item under [Running Tasty again](#running-tasty-again).
 
 ## macOS permission prompts
 

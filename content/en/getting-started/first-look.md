@@ -1,4 +1,4 @@
-<!-- source-hash: 9a73b624a889 -->
+<!-- source-hash: 8ec126eb6145 -->
 # A first look
 
 Tasty’s first screen has a sidebar for switching workspaces and a work area for terminals or documents. Each pane has a tab bar, and each tab contains surfaces for terminals or documents.
@@ -106,9 +106,15 @@ If you want iTerm2-style `⌘`-centric combinations on macOS, pick the **Mac** p
 
 ## When you close the window
 
-With several windows open, the close button closes only that window. On the last remaining window, the close button asks whether to **Quit** or **Minimize**. When the tray icon is available, choosing Minimize sends Tasty to the system tray (menu bar). You can bring it back with **Show Window** in the tray icon's menu. To stop being asked every time, change **Settings** > **General** > **Close behavior**.
+When several main windows are open, clicking a close button closes only that main window. When **Close behavior** under **Settings** > **General** is set to **Ask**, clicking the close button on the last main window prompts you to choose **Quit** or **Minimize**. If you select **Minimize to background** or **Quit** in settings, closing the last main window runs that action immediately.
 
-On Linux, if Tasty cannot create the tray, choosing Minimize asks the system to minimize the window. If the tray icon is missing, see [how to install AppIndicator and check desktop support](../help/troubleshooting.md#linux-tray-icon-missing). If GTK initialization fails, including when `GDK_BACKEND` blocks X11, see [Linux document view and tray troubleshooting](../help/troubleshooting.md#linux-gdk-backend).
+On Windows and Linux with X11 (including XWayland), if Tasty creates the tray, minimizing to the background hides the windows even when the icon is missing from the desktop. If Tasty cannot create the tray, it minimizes to the taskbar on Windows and asks the window manager to minimize on X11. If you can open the tray menu, choose **Show Window** to bring back the hidden windows.
+
+On macOS, minimizing to the background closes the windows and keeps their layouts and terminal state. While Tasty is in this state, clicking its Dock icon restores one saved state in a new window. If you can open the tray menu in the menu bar, **Show Window** also brings Tasty back.
+
+On Linux with native Wayland, Tasty asks the compositor to minimize the windows even if it creates the tray.
+
+For help with a missing tray icon or restoring a window on X11 (including XWayland) or native Wayland, see [Linux tray troubleshooting](../help/troubleshooting.md#linux-tray-icon-missing). If GTK initialization fails on Linux with X11 (including XWayland), such as when `GDK_BACKEND` blocks X11, see [Linux document view and tray troubleshooting](../help/troubleshooting.md#linux-gdk-backend).
 
 Once you confirm quitting, web pages and Markdown documents in all windows are hidden so the progress screen can be shown while shutdown is pending. If you cancel the confirmation or return after minimizing to the background, you can continue using the documents.
 

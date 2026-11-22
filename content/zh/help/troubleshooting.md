@@ -1,4 +1,4 @@
-<!-- source-hash: 5634362901a9 -->
+<!-- source-hash: da6b7d8c0ecb -->
 # 故障排除
 
 本页按症状列出 Tasty 安装、输入、显示、恢复和通知问题的原因及解决方法。如果 CLI 无法连接或响应缓慢，也可查看连接诊断。问题仍未解决时，可附上运行环境和日志报告问题。
@@ -73,9 +73,19 @@ HTML、Markdown 和远程 HTML 文件 Surface 的页面区域以标题显示原�
 
 ## Linux 上不显示托盘图标时
 
-Linux 上的托盘图标需要 AppIndicator 库（`libayatana-appindicator3` 或 `libappindicator3`）。Tasty 在运行时加载此库。缺少此库时，Tasty 会在没有托盘的情况下继续运行，也不会显示错误窗口。若 GTK 初始化成功但无法加载此库，日志会记录一条以 `Failed to create tray icon: dlopen failed for every AppIndicator library name` 开头的警告。若日志显示 `GTK init failed`，参见 [Linux 文档查看和托盘故障排除](#linux-gdk-backend)。
+Linux 上的托盘图标需要 AppIndicator 库（`libayatana-appindicator3` 或 `libappindicator3`）。Tasty 在运行时加载此库。缺少此库时，Tasty 会在没有托盘的情况下继续运行，也不会显示错误窗口。若 GTK 初始化成功但无法加载此库，日志会记录一条以 `Failed to create tray icon: dlopen failed for every AppIndicator library name` 开头的警告。若 Tasty 在 X11（含 XWayland）上运行，且日志显示 `GTK init failed`，参见 [Linux 文档查看和托盘故障排除](#linux-gdk-backend)。
 
-无法创建托盘时，Tasty 转入后台会请求系统最小化窗口。这适用于在关闭最后一个窗口的确认界面中选择 **最小化** <!-- en: Minimize -->、将 **关闭行为** <!-- en: Close behavior --> 设为 **最小化到后台** <!-- en: Minimize to background --> 后尝试退出，或使用 **最小化到后台** 快捷键的情况。窗口是否最小化、能否从任务栏或程序坞恢复，由窗口管理器或合成器决定。
+如果 AppIndicator 库已加载，但缺少托盘所需的函数，Tasty 会在没有托盘的情况下继续运行。日志会记录形如 `Failed to create tray icon: AppIndicator library <library name> has missing or null required symbols (...)` 的警告。请查看日志中的库名称，重新安装或更新当前发行版中提供该库的软件包，然后完全退出 Tasty 并重新启动。
+
+在 Linux、Windows 和 macOS 上，如果启动 Tasty 时出现**选择 Shell** 界面，选定 Shell 并点击**使用此 Shell** 后，Tasty 会尝试创建托盘。此界面的显示条件见[安装和首次启动](#安装和首次启动)中有关 Shell 的条目。
+
+若**关闭行为** <!-- en: Close behavior --> 设为**询问** <!-- en: Ask -->，请在关闭最后一个工作窗口的确认界面中选择**最小化** <!-- en: Minimize -->。若**关闭行为**设为**最小化到后台** <!-- en: Minimize to background -->，请点击最后一个工作窗口的关闭按钮，或按下**退出**快捷键。也可以在命令面板中运行**最小化到后台**，或按下为此操作设置的快捷键。
+
+最小化到后台会处理所有打开的窗口。命令面板中的**最小化窗口** <!-- en: Minimize window --> 只会请求最小化当前窗口。
+
+在 Linux 上，如果无法创建托盘，最小化到后台时 Tasty 会请求系统最小化所有打开的窗口。AppIndicator 缺少必需函数时也一样。在 X11（含 XWayland）上，窗口是否最小化、能否从任务栏或程序坞恢复，由窗口管理器决定。
+
+在原生 Wayland 上，即使托盘图标可用，Tasty 也会请求合成器最小化窗口。若合成器未执行请求，窗口会保持原样。若合成器在任务栏或程序坞等位置提供恢复功能，可以从那里恢复最小化的窗口。托盘菜单中的**显示窗口** <!-- en: Show Window --> 无法恢复窗口。要通过启动器重新打开 Tasty，参见[重新运行 Tasty 时](#重新运行-tasty-时)。
 
 ### 安装 AppIndicator
 
@@ -96,7 +106,7 @@ AppIndicator 的安装方式取决于 Tasty 的软件包格式。
 
 即使托盘已创建，桌面环境也可能没有可显示图标的位置。注册为 StatusNotifierItem（SNI）的图标需要 SNI 宿主才能显示。若桌面环境没有接收 SNI 注册的服务，或注册失败，Ayatana AppIndicator 会改用 XEmbed，此时需要 XEmbed 托盘来显示图标。在 GNOME 中，请安装并启用 AppIndicator 扩展。
 
-这种情况下，在 X11（含 XWayland）上将 Tasty 最小化到后台会隐藏窗口。要恢复隐藏的窗口，参见 [重新运行 Tasty 时](#重新运行-tasty-时)的应用菜单或启动器条目。
+在 X11（含 XWayland）上，只要托盘已创建，即使桌面未显示图标，将 Tasty 最小化到后台也会隐藏窗口。要恢复隐藏的窗口，参见 [重新运行 Tasty 时](#重新运行-tasty-时)的应用菜单或启动器条目。
 
 ## macOS 权限提示
 
