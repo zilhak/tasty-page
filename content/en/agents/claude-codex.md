@@ -1,4 +1,4 @@
-<!-- source-hash: 3c114743a841 -->
+<!-- source-hash: 41fbab214ee4 -->
 # Working with Claude and Codex
 
 Run Claude Code and Codex CLI in Tasty terminals and follow their status. Install each CLI separately. To delegate work across agents, configure both the hooks and the parent’s result delivery path.
@@ -205,15 +205,17 @@ Monitor({ command: "tail -n0 -F \"$TASTY_PARENT_HOME/notify/$TASTY_SURFACE_ID.lo
 
 Monitor expires after at most 30 minutes. When you get the expiry notice, subscribe again with the same command, then check child states once with `tasty claude children`. The list includes Codex children too (`tasty codex children` shows the same children). That way you do not miss a child that finished while the subscription was down.
 
-Log messages follow the app language. Claude and Codex children record notifications one line at a time in the same file. **Restarting Tasty deletes completion logs from the previous run.** Reading a log without Monitor does not provide automatic resumption or permanent storage.
+Log messages follow the app language. Claude and Codex children record notifications one line at a time in the same file. See below for when Tasty clears logs at startup. Reading a log without Monitor does not provide automatic resumption or permanent storage.
 
-Before writing a new line, if the file is already **256 KiB** or larger, Tasty empties the whole file and then writes. It does not keep the last part, so unread notifications are lost too. Adding a line or concurrent writes can take it beyond that size. When it empties the file, it normally raises the `retention_start` total below by the number of bytes discarded. If other children are writing at the same time and Tasty can't get its turn to clean up in time, it empties the file without raising the total, so notifications lost then can't be detected from the total either. There is no time limit or file-count limit; a closed tab’s log stays until the next restart.
+Before writing a new line, if the file is already **256 KiB** or larger, Tasty empties the whole file and then writes. It does not keep the last part, so unread notifications are lost too. Adding a line or concurrent writes can take it beyond that size. When it empties the file, it normally raises the `retention_start` total below by the number of bytes discarded. If other children are writing at the same time and Tasty can't get its turn to clean up in time, it empties the file without raising the total, so notifications lost then can't be detected from the total either. There is no time or file-count limit. Closing a tab leaves its log in place, subject to the startup cleanup rules below.
 
-If you read logs directly and resume later, also keep track of `retention_start` in the adjacent `<number>.log.meta` file. It counts the total bytes removed by cleanup. Compare it with your saved read position to detect a gap. Cleanup or metadata-write failures can leave losses out of that total, so this does not detect every missing notification. Monitor subscriptions do not need to read this metadata file.
+If you read logs directly and resume later, also keep track of `retention_start` in the adjacent `<number>.log.meta` file. It counts bytes discarded when the file is emptied because of the size limit. Compare it with your saved read position to detect a gap. Errors when emptying the file or writing metadata can leave losses out of that total. Monitor subscriptions do not need to read this metadata file.
 
-**Do not run two copies of tasty against the same data folder.** The one that starts later wipes
-the completion-log folder as it boots, which takes the live log the earlier one was writing to.
-Give each copy its own data folder with `TASTY_HOME` if you need both.
+On a fresh start, just before writing the port file, Tasty deletes the completion logs and their metadata files from `notify/` in the data folder. Files can remain if cleanup fails.
+Tasty skips cleanup if the file specified with `--port-file` is in a folder other than the data folder.
+A second GUI launch with the same data folder leaves the logs in place if it exits without starting a new instance (for example, after forwarding the request to the running Tasty or showing a notice).
+With the default port file location, a headless launch using the same data folder can delete the running Tasty’s completion logs even if startup fails.
+To run two copies of Tasty at once, give each its own data folder with `TASTY_HOME`.
 
 ### Automatic delivery to a Codex parent
 
