@@ -1,4 +1,4 @@
-<!-- source-hash: e30154ab9991 -->
+<!-- source-hash: 9a73b624a889 -->
 # 初识界面
 
 Tasty 的初始界面由用于切换工作区的侧边栏和用于显示终端或文档的工作区域组成。每个窗格都有标签栏，每个标签页内都有用于显示终端或文档的 Surface。
@@ -106,9 +106,9 @@ Tasty 的特点是 **拆分分为两级**。
 
 ## 关闭窗口时
 
-有多个窗口时，关闭按钮只会关闭所在窗口。点击最后一个窗口的关闭按钮时，会询问是 **退出** <!-- en: Quit --> 还是 **最小化** <!-- en: Minimize -->。选择最小化后，Tasty 会进入系统托盘（菜单栏），通过托盘图标菜单中的 **显示窗口** <!-- en: Show Window --> 可返回。若不想每次都询问，可修改 **设置** > **常规** > **关闭行为** <!-- en: Close behavior -->。
+有多个窗口时，关闭按钮只会关闭所在窗口。点击最后一个窗口的关闭按钮时，会询问是 **退出** <!-- en: Quit --> 还是 **最小化** <!-- en: Minimize -->。托盘图标可用时，选择最小化会将 Tasty 收入系统托盘（菜单栏）。通过托盘图标菜单中的 **显示窗口** <!-- en: Show Window --> 可恢复窗口。若不想每次都询问，可修改 **设置** > **常规** > **关闭行为** <!-- en: Close behavior -->。
 
-在 Linux 上，若 `GDK_BACKEND` 阻止使用 X11，或 GTK 初始化失败，则无法使用托盘图标。参见 [Linux 文档查看和托盘故障排除](../help/troubleshooting.md#linux-gdk-backend)。
+在 Linux 上，若无法创建托盘，选择最小化时，Tasty 会向系统发出最小化窗口的请求。若未显示托盘图标，请查看 [AppIndicator 安装方法和桌面显示条件](../help/troubleshooting.md#linux-tray-icon-missing)。若因 `GDK_BACKEND` 阻止使用 X11 等原因导致 GTK 初始化失败，参见 [Linux 文档查看和托盘故障排除](../help/troubleshooting.md#linux-gdk-backend)。
 
 确认退出后，所有窗口中的网页和 Markdown 文档会隐藏；若需要等待退出，则显示进度界面。取消退出确认，或最小化到后台后返回时，可以继续使用文档。
 

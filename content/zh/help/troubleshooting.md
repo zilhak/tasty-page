@@ -1,4 +1,4 @@
-<!-- source-hash: 1c2a8431d95d -->
+<!-- source-hash: be7e001074ed -->
 # 故障排除
 
 本页按症状列出 Tasty 安装、输入、显示、恢复和通知问题的原因及解决方法。如果 CLI 无法连接或响应缓慢，也可查看连接诊断。问题仍未解决时，可附上运行环境和日志报告问题。
@@ -68,6 +68,35 @@ HTML、Markdown 和远程 HTML 文件 Surface 的页面区域以标题显示原�
 未设置 `GDK_BACKEND` 或其允许 x11 时，GTK 初始化仍可能失败。此时同样无法使用托盘图标或查看 HTML、Markdown、远程 HTML 文件和网址，右键菜单也尚未显示。窗口使用 X11 运行，因此剪贴板正常工作。
 
 应用仅显示 GTK 初始化失败的说明，没有解决方法一行。此时 Tasty 无法确定原因。查看[日志和配置文件位置](#日志和配置文件位置)中的警告日志，并附上[报告问题](#报告问题)中列出的信息。
+
+<a id="linux-tray-icon-missing"></a>
+
+## Linux 上不显示托盘图标时
+
+Linux 上的托盘图标需要 AppIndicator 库（`libayatana-appindicator3` 或 `libappindicator3`）。Tasty 在运行时加载此库。缺少此库时，Tasty 会在没有托盘的情况下继续运行，也不会显示错误窗口。若 GTK 初始化成功但无法加载此库，日志会记录一条以 `Failed to create tray icon: dlopen failed for every AppIndicator library name` 开头的警告。若日志显示 `GTK init failed`，参见 [Linux 文档查看和托盘故障排除](#linux-gdk-backend)。
+
+无法创建托盘时，Tasty 转入后台会请求系统最小化窗口。这适用于在关闭最后一个窗口的确认界面中选择 **最小化** <!-- en: Minimize -->、将 **关闭行为** <!-- en: Close behavior --> 设为 **最小化到后台** <!-- en: Minimize to background --> 后尝试退出，或使用 **最小化到后台** 快捷键的情况。窗口是否最小化、能否从任务栏或程序坞恢复，由窗口管理器或合成器决定。
+
+### 安装 AppIndicator
+
+安装适用于当前发行版的软件包。安装后，请完全退出 Tasty，再重新启动。
+
+- Ubuntu 24.04 和 Debian 13 — `libayatana-appindicator3-1`
+- Fedora — `libayatana-appindicator-gtk3`
+- openSUSE Tumbleweed 和 Leap 16.0 — `libayatana-appindicator3-1`
+
+AppIndicator 的安装方式取决于 Tasty 的软件包格式。
+
+- `.rpm` 将 64 位的 Ayatana AppIndicator 库（`libayatana-appindicator3.so.1`）列为推荐依赖。若 dnf 或 zypper 配置为安装推荐的软件包，且已启用的软件源中有提供此库的软件包，就会随 Tasty 一起安装。
+- `.deb` 不会自动安装 AppIndicator。若系统缺少此库，请单独安装上面列出的软件包。
+- `.tar.gz` 使用系统中安装的 AppIndicator。AppIndicator 是可选库，因此启动时关于缺少必需共享库的提示不会列出它。
+- 若运行 AppImage 时不显示托盘图标，且系统未安装 AppIndicator，请安装上面列出的软件包。
+
+### 已安装库但仍不显示图标时
+
+即使托盘已创建，桌面环境也可能没有可显示图标的位置。注册为 StatusNotifierItem（SNI）的图标需要 SNI 宿主才能显示。若桌面环境没有接收 SNI 注册的服务，或注册失败，Ayatana AppIndicator 会改用 XEmbed，此时需要 XEmbed 托盘来显示图标。在 GNOME 中，请安装并启用 AppIndicator 扩展。
+
+这种情况下，在 X11（含 XWayland）上将 Tasty 最小化到后台会隐藏窗口。要恢复隐藏的窗口，参见 [重新运行 Tasty 时](#重新运行-tasty-时)的应用菜单或启动器条目。
 
 ## macOS 权限提示
 
@@ -184,8 +213,8 @@ Tasty 检测到 XIM 输入法服务器退出或被替换后，会停止向旧服
 
 ## 重新运行 Tasty 时
 
-- **从应用菜单 · 启动器重新运行后，已有窗口置于前台，而未打开新窗口** — 使用同一数据文件夹（`~/.tasty/`，或通过 `TASTY_HOME` 指定的文件夹）的 Tasty 只能运行一个。再次运行时，不会创建新进程，而是交给正在运行的 Tasty。隐藏到托盘或最小化的窗口也会重新显示，最后使用的窗口会置于前台。实际是否置于前台由 OS 决定，因此某些环境中只会闪烁任务栏。Wayland 上，如果桌面环境不支持窗口激活请求，会打开新窗口，而非激活已有窗口。
-- **在终端运行 `tasty` 后，只打开一个新窗口** — 从 Tasty 外部的终端 · 脚本 · 智能体不带参数运行时，结果与 `tasty new window` 相同。在 Tasty 打开的终端内，会显示帮助，而非打开新窗口。当前查看窗口的焦点和隐藏的窗口保持不变。在 Windows 上，从当前使用的（前台）终端运行时，OS 会传递置于前台的权限，因此可能与从应用菜单启动时一样，将已有窗口置于前台。
+- **从应用菜单 · 启动器重新运行后，已有窗口置于前台，而未打开新窗口** — 同一数据文件夹（`~/.tasty/` 或 `TASTY_HOME` 指定的文件夹）只允许运行一个 Tasty 实例。重新启动的请求会交给正在运行的 Tasty。在 X11 和 XWayland 上，要恢复隐藏到托盘的窗口，必须使用同一数据文件夹，且启动器必须传递窗口激活信息。如果从 Tasty 外部的终端使用同一数据文件夹启动，且没有这项信息，就会打开新窗口，已隐藏的窗口仍保持隐藏。恢复隐藏或最小化的窗口时，Tasty 会请求 OS 将最后使用的窗口置于前台。实际是否置于前台由 OS 决定，因此某些环境中只会闪烁任务栏。Wayland 上，如果桌面环境不支持窗口激活请求，会打开新窗口，而非激活已有窗口。
+- **在终端运行 `tasty` 后，只打开一个新窗口** — 从 Tasty 外部的终端 · 脚本 · 智能体运行时，如果没有参数和窗口激活信息，结果与 `tasty new window` 相同。在 Tasty 打开的终端内，会显示帮助，而非打开新窗口。当前查看窗口的焦点和隐藏的窗口保持不变。在 Windows 上，从当前使用的（前台）终端运行时，OS 会传递置于前台的权限，因此可能与从应用菜单启动时一样，将已有窗口置于前台。
 - **出现“已有 Tasty 正在运行。”消息框** — 无法将请求交给正在运行的 Tasty，且正在运行的 Tasty 没有响应。如果请求已传达但处理缓慢，不会显示消息框，稍后会打开窗口。消息框多数出现在正在运行的 Tasty 尚在启动，或 Linux 上无法连接会话总线时。原因会记录在数据文件夹中的 `launch.log`（`~/.tasty/launch.log`）。每次重新运行都会按进度阶段记录多行。Linux 上没有 `zenity` 时，会以桌面通知代替消息框。
 - **刚强制退出 Tasty 后重新运行，显示稍慢** — 会等待残留锁释放，最多 2 秒，然后启动。
 - **需要分别运行两个 Tasty** — 使用不同的 `TASTY_HOME` 启动其中一个。

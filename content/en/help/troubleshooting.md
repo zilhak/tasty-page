@@ -1,4 +1,4 @@
-<!-- source-hash: 1c2a8431d95d -->
+<!-- source-hash: be7e001074ed -->
 # Troubleshooting
 
 Causes and remedies for Tasty installation, input, display, restoration, and notification issues are organized by symptom. For CLI connection failures or slow responses, also see connection diagnostics. If the problem remains, report it with your environment details and logs.
@@ -68,6 +68,35 @@ The page area shows the cause and remedy, with a heading that also says the tray
 GTK initialization can fail even when `GDK_BACKEND` is unset or allows x11. The tray icon, HTML and Markdown views, and remote HTML files and web addresses are unavailable in this case too, and right-click menus do not appear yet. The window runs on X11, so the clipboard works normally.
 
 The app shows only a GTK initialization failure notice, without a remedy line. Tasty cannot identify the cause in this case. Check the warning log under [Log and settings file locations](#log-and-settings-file-locations) and include the information listed in [Reporting a problem](#reporting-a-problem).
+
+<a id="linux-tray-icon-missing"></a>
+
+## The tray icon is missing on Linux
+
+On Linux, the tray icon requires an AppIndicator library (`libayatana-appindicator3` or `libappindicator3`). Tasty loads it at runtime. If the library is missing, Tasty keeps running without a tray or an error window. If GTK initializes successfully and Tasty cannot load the library, the log contains one warning starting with `Failed to create tray icon: dlopen failed for every AppIndicator library name`. If the log says `GTK init failed`, see [Linux document view and tray troubleshooting](#linux-gdk-backend).
+
+If Tasty could not create the tray, it asks the system to minimize the window when you send Tasty to the background. This applies when you choose **Minimize** in the confirmation dialog for closing the last window, try to quit with **Close behavior** set to **Minimize to background**, or use the **Minimize to background** shortcut. Your window manager or compositor determines whether the window minimizes and whether you can restore it from the taskbar or dock.
+
+### Install AppIndicator
+
+Install the package for your distribution. After installation, quit Tasty completely and start it again.
+
+- Ubuntu 24.04 and Debian 13 — `libayatana-appindicator3-1`
+- Fedora — `libayatana-appindicator-gtk3`
+- openSUSE Tumbleweed and Leap 16.0 — `libayatana-appindicator3-1`
+
+How AppIndicator is installed depends on the Tasty package format.
+
+- The `.rpm` recommends the 64-bit Ayatana AppIndicator library (`libayatana-appindicator3.so.1`). It is installed with Tasty if dnf or zypper is set to install recommended packages and an enabled repository has a package that provides this library.
+- The `.deb` does not install AppIndicator automatically. If the library is missing from your system, install the package listed above separately.
+- The `.tar.gz` uses the AppIndicator library installed on your system. AppIndicator is optional, so it does not appear in the startup message about missing required shared libraries.
+- If the tray icon is missing when you run the AppImage and AppIndicator is missing from your system, install the package listed above.
+
+### The icon is missing even with the library installed
+
+The tray can be created even when the desktop has nowhere to display its icon. An icon registered as a StatusNotifierItem (SNI) needs an SNI host to display it. If no desktop service accepts SNI registrations or registration fails, Ayatana AppIndicator falls back to XEmbed and needs an XEmbed tray to display the icon. On GNOME, install and enable an AppIndicator extension.
+
+In this case, minimizing Tasty to the background hides the window on X11, including XWayland. To bring back the hidden window, see the app menu or launcher item under [Running Tasty again](#running-tasty-again).
 
 ## macOS permission prompts
 
@@ -184,8 +213,8 @@ If your layout does not return, first check **Restore layout on startup** and th
 
 ## Running Tasty again
 
-- **Launching from the app menu or a launcher brings the open window forward instead of a new window** — only one Tasty runs per data folder (`~/.tasty/`, or the folder set with `TASTY_HOME`). A new launch does not start a second process; it is handed to the running Tasty. Windows hidden to the tray or minimized come back, and the window you used last comes forward. Whether it actually comes to the front is up to the OS, so in some environments the taskbar entry only flashes. On Wayland, if the desktop does not support window activation requests, a new window opens instead of the open one.
-- **Running `tasty` in a terminal opens just one new window** — running it with no arguments from a terminal, script, or agent outside Tasty is the same as `tasty new window`. Inside a terminal that Tasty opened, it shows the help instead of a new window. The focused window and hidden windows stay as they are. On Windows, launching from the terminal you are using (the one in front) passes on the permission to come forward, so the open window may come forward as it does from the app menu.
+- **Launching from the app menu or a launcher brings the open window forward instead of a new window** — only one Tasty runs per data folder (`~/.tasty/` or the folder set with `TASTY_HOME`). The running instance receives the new launch request. On X11 and XWayland, restoring a window hidden to the tray requires using the same data folder and launching from a launcher that passes window activation information. Starting Tasty from an external terminal with the same data folder and without that information opens a new window and leaves the hidden window as it was. When hidden or minimized windows are restored, Tasty asks the OS to bring the last-used window to the front. Whether it actually comes to the front is up to the OS, so in some environments the taskbar entry only flashes. On Wayland, if the desktop does not support window activation requests, a new window opens instead of the open one.
+- **Running `tasty` in a terminal opens just one new window** — running it from a terminal, script, or agent outside Tasty without arguments or window activation information is the same as `tasty new window`. Inside a terminal that Tasty opened, it shows the help instead of a new window. The focused window and hidden windows stay as they are. On Windows, launching from the terminal you are using (the one in front) passes on the permission to come forward, so the open window may come forward as it does from the app menu.
 - **A "Tasty is already running." box appears** — the launch could not be handed to the running Tasty and the running Tasty does not respond. When the request did arrive but is handled late, no box appears and a window opens a moment later. Usually the box means the running Tasty was still starting up, or on Linux the session bus could not be reached. The cause is written to `launch.log` in the data folder (`~/.tasty/launch.log`). Each launch adds several lines, one per step. On Linux without `zenity`, a desktop notification appears instead of the box.
 - **Starting Tasty right after force-quitting it takes a moment** — it waits up to two seconds for the leftover lock to be released before starting.
 - **You need two separate Tastys** — start one with a different `TASTY_HOME`.

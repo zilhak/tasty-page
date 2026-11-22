@@ -1,4 +1,4 @@
-<!-- source-hash: e30154ab9991 -->
+<!-- source-hash: 9a73b624a889 -->
 # A first look
 
 Tasty’s first screen has a sidebar for switching workspaces and a work area for terminals or documents. Each pane has a tab bar, and each tab contains surfaces for terminals or documents.
@@ -106,9 +106,9 @@ If you want iTerm2-style `⌘`-centric combinations on macOS, pick the **Mac** p
 
 ## When you close the window
 
-With several windows open, the close button closes only that window. On the last remaining window, the close button asks whether to **Quit** or **Minimize**. If you choose Minimize, Tasty goes into the system tray (menu bar) and comes back via **Show Window** in the tray icon's menu. To stop being asked every time, change **Settings** > **General** > **Close behavior**.
+With several windows open, the close button closes only that window. On the last remaining window, the close button asks whether to **Quit** or **Minimize**. When the tray icon is available, choosing Minimize sends Tasty to the system tray (menu bar). You can bring it back with **Show Window** in the tray icon's menu. To stop being asked every time, change **Settings** > **General** > **Close behavior**.
 
-On Linux, the tray icon is unavailable if `GDK_BACKEND` blocks X11 or GTK initialization fails. See [Linux document view and tray troubleshooting](../help/troubleshooting.md#linux-gdk-backend).
+On Linux, if Tasty cannot create the tray, choosing Minimize asks the system to minimize the window. If the tray icon is missing, see [how to install AppIndicator and check desktop support](../help/troubleshooting.md#linux-tray-icon-missing). If GTK initialization fails, including when `GDK_BACKEND` blocks X11, see [Linux document view and tray troubleshooting](../help/troubleshooting.md#linux-gdk-backend).
 
 Once you confirm quitting, web pages and Markdown documents in all windows are hidden so the progress screen can be shown while shutdown is pending. If you cancel the confirmation or return after minimizing to the background, you can continue using the documents.
 
