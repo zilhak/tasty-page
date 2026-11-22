@@ -1,10 +1,10 @@
-<!-- source-hash: 38f36b361baa -->
+<!-- source-hash: 8ed38b0439e6 -->
 # Crash and hang reports and logs
 
 When Tasty exits unexpectedly or stops responding, you can collect reports and logs to report the problem.
 
 1. Note the time and what you were doing just before the problem. If Tasty is still frozen, you can also collect a stack sample below before quitting.
-2. **Copy `debug.log` from the data folder to another folder before starting Tasty again. Starting it again clears the previous contents.** Copy the relevant plugin logs before restarting the plugins too.
+2. **Copy `debug.log` from the data folder to another folder before starting Tasty again. The previous contents are cleared when a new instance opens this log.** Copy the relevant plugin logs before restarting the plugins too.
 3. Collect `crash-*.log` or `hang-*.log` from the same time, along with the diagnostic information below. If there is no report, send the available logs and describe the symptoms.
 4. Redact tokens and personal information from the copies you attach, then report the problem on [GitHub Issues](https://github.com/zilhak/tasty/issues).
 
@@ -25,7 +25,7 @@ All paths below are relative to this data folder.
 |---|---|
 | `crash-reports/crash-*.log` | Crash time, Tasty version, OS and architecture, error location and message, and backtrace. Attach the file that matches the time of the problem |
 | `crash-reports/hang-*.log` | In Tasty with a graphical interface (GUI), a record is written when progress is detected to have stopped for more than roughly 5 seconds. Not every hang produces a record. Attach the file that matches the time of the problem |
-| `debug.log` | Warnings and above by default. Logs the running Tasty instance and remains after it exits, but is cleared on the next start. **Copy it before restarting** |
+| `debug.log` | Warnings and above by default. Logs the running Tasty instance and remains after it exits. The next instance to open the file clears it. **Copy it before restarting** |
 | `plugins-logs/<id>.log` | Per-plugin logs. **Copy the relevant files before restarting the plugins** |
 | `hook-failures.log` · `hook-failures.log.1` | Records of Claude Code and Codex CLI hooks that failed to reach Tasty. Include these for hook problems. Once the log exceeds 256 KiB, it is moved to `.1` before the next entry |
 

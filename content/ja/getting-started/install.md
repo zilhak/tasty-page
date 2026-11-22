@@ -1,4 +1,4 @@
-<!-- source-hash: f195995e4211 -->
+<!-- source-hash: b3071374dfdb -->
 # インストール
 
 Tasty の Windows・macOS・Linux 用インストールファイルは、GitHub リリースページからアーキテクチャ別にダウンロードできます。macOS は Apple Silicon をサポートしています。
@@ -143,6 +143,8 @@ Expand-Archive tasty-headless-{ver}-windows-x64.zip -DestinationPath tasty-headl
 macOS でブラウザーからダウンロードしたファイルは、実行時に「未確認の開発元」という警告が表示される場合があります。その場合は `xattr -dr com.apple.quarantine tasty-headless-macos-arm64` で隔離属性を削除してください。
 
 ヘッドレスビルドの `tasty` はオプションなしで実行してもウィンドウなしで起動し、ターミナルの作成と操作は `tasty` CLI でのみ行います。別のコンピューターから [リモートアタッチ](../remote/attach.md) で、そのワークスペースを取り込んで表示できます。GUI ビルドに `--headless` を付けて実行しても、ウィンドウなしでは起動せず、通常どおり GUI で起動します。
+
+Tasty を 2 つ同時に実行するには、`TASTY_HOME` でインスタンスごとに別のデータフォルダーを指定してください。実行中の Tasty が同じデータフォルダーのロックを保持し続けている場合、ヘッドレスビルドは標準エラー出力にメッセージを書き込み、終了コード 1 で終了します。詳しくは [Tasty を再び起動した場合](../help/troubleshooting.md#tasty-を再び起動した場合)を参照してください。
 
 配布ファイルがない環境（例: Intel Mac）では、Rust がインストールされた環境でソースから直接ビルドしてください。
 

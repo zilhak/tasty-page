@@ -1,4 +1,4 @@
-<!-- source-hash: 41fbab214ee4 -->
+<!-- source-hash: b7e0742d904c -->
 # Working with Claude and Codex
 
 Run Claude Code and Codex CLI in Tasty terminals and follow their status. Install each CLI separately. To delegate work across agents, configure both the hooks and the parent’s result delivery path.
@@ -213,8 +213,20 @@ If you read logs directly and resume later, also keep track of `retention_start`
 
 On a fresh start, just before writing the port file, Tasty deletes the completion logs and their metadata files from `notify/` in the data folder. Files can remain if cleanup fails.
 Tasty skips cleanup if the file specified with `--port-file` is in a folder other than the data folder.
-A second GUI launch with the same data folder leaves the logs in place if it exits without starting a new instance (for example, after forwarding the request to the running Tasty or showing a notice).
-With the default port file location, a headless launch using the same data folder can delete the running Tasty’s completion logs even if startup fails.
+If a GUI relaunch with the same data folder exits before starting a new instance, it leaves the completion logs in place. This includes a released GUI build that exits after forwarding the request or showing a notice when forwarding fails, and a development GUI build that exits after showing the lock error screen.
+
+If you start a headless build with the same data folder as a running Tasty, the second process retries the folder lock for up to two seconds at startup. If the lock is still held, it exits before opening the host log, cleaning up completion logs, writing the port file, starting webhooks or plugins, or saving settings. It writes these three lines to standard error (stderr) in the language configured for Tasty and returns exit code 1. The second line contains the actual data folder path.
+
+```text
+Data folder already in use
+Another Tasty is already using this data folder: <data folder path>
+Use the Tasty that is already running, or start this one with a different TASTY_HOME.
+```
+
+In this case, the second launch leaves the completion logs and `.log.meta` files in `notify/`, the port file, and the host log in place. The second launch leaves existing CLI connection targets and completion notification routes in place. This also applies when the first instance is a GUI build. The headless launch does not forward a request to the running Tasty.
+
+Startup continues if Tasty cannot locate the data folder or cannot open or lock the lock file. Files in the data folder may change during startup, and the process may still end with an error.
+
 To run two copies of Tasty at once, give each its own data folder with `TASTY_HOME`.
 
 ### Automatic delivery to a Codex parent

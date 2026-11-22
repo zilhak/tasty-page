@@ -1,4 +1,4 @@
-<!-- source-hash: dc770545578d -->
+<!-- source-hash: 1d40fa4873ab -->
 # 钩子、通知和 Webhook
 
 钩子按 Tasty 事件执行操作，通知在应用内显示待查看事项。Webhook 接收外部服务的 HTTP 请求。按需选择并配置。
@@ -212,7 +212,7 @@ tasty --webhook-port 28500          # 仅本次运行使用此端口启动
 - **已指定端口时**（`--webhook-port` 或 `tasty webhook port <N>`，同时指定时优先使用 `--webhook-port`），仅使用该端口。若被其他程序占用，不会切换到其他端口，而是**在不启用 Webhook 的情况下启动**。终端可正常使用，通知列表会留下一条包含端口、原因和解决方法的警告。此时 Webhook 地址（包括已保存的 `--persistent` Webhook）不会响应，但注册仍会保留，修正端口并重新启动后，可继续使用相同注册接收请求。地址中的端口会变为本次运行开放的端口，因此请通过 `tasty webhook list` 查看实际地址。`tasty webhook port` 会显示 `bound: false`，并在 `unavailable` 中显示无法开放的端口和原因。请使用其他端口启动；若为已保存的端口，执行 `tasty webhook port --unset`（删除）或 `tasty webhook port <空闲端口>`（更改）后重新启动。即使 Tasty 未运行，这两条命令也会直接修改 `~/.tasty/webhooks.toml`，并告知已如此处理。Tasty 正在运行时，从下次启动起生效。
 - `tasty webhook config --port <N>` 为旧名称，已不再推荐使用（deprecated）。目前仍与 `tasty webhook port <N>` 完全相同。
 - 端口因占用而不再使用 `28429`，且存在通过 `--persistent` 保存的 Webhook 时，会在通知列表留下警告。已保存 Webhook 的地址端口也会改变，请通过 `tasty webhook list` 查看新 URL。地址不能改变时，请指定端口。
-- Tasty 已运行时，若使用不同的 `--webhook-port` 再次启动，不会转交给正在运行的 Tasty，而是显示提示后结束。端口相同时，请求会转交给正在运行的 Tasty。不同 OS 和启动方式的具体行为见[重新运行 Tasty 时](../help/troubleshooting.md#重新运行-tasty-时)。
+- 使用同一数据文件夹重新启动发布版 GUI 并指定 `--webhook-port` 时，只有在请求转交过程中确认了运行中的 GUI 实例的连接信息，才会查询其 Webhook 端口。如果确认端口不同，或没有端口在监听 Webhook，会显示提示并以退出码 1 结束，不会转交请求。端口相同时，会照常尝试转交请求。查询失败时，会记录警告，再尝试转交请求。 无界面构建不会转交请求或比较端口。启动时如果数据文件夹的锁仍被占用，会在启动 Webhook 前退出。详情见[重新运行 Tasty 时](../help/troubleshooting.md#重新运行-tasty-时)。
 - 旧版本自动写入的 `port = 28429` 会在首次运行时删除，改为自动选择。手动指定的其他端口保持不变。
 - **默认情况下，Webhook 服务器仅接收来自本机（`127.0.0.1`）的调用。**若其他计算机或 CI 需要直接调用，启用**设置 → 常规 → 接收其他计算机的 Webhook 调用**，或执行 `tasty webhook allow-external on` 后重新启动 Tasty。在 `~/.tasty/config.toml` 的 `[webhook]` 下写入 `allow_external = true` 效果相同。启用后，会在所有 IPv4 网络接口（`0.0.0.0`）上接收，因此主机防火墙允许时，同一网络（公司内网、公共 Wi-Fi 等）无需路由器转发即可访问。请检查防火墙和认证设置。HTTPS 由前置反向代理处理。
 

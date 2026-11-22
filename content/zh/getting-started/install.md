@@ -1,4 +1,4 @@
-<!-- source-hash: f195995e4211 -->
+<!-- source-hash: b3071374dfdb -->
 # 安装
 
 Tasty 的 Windows、macOS 和 Linux 安装文件可在 GitHub 发布页面按架构下载。macOS 支持 Apple Silicon。
@@ -143,6 +143,8 @@ Expand-Archive tasty-headless-{ver}-windows-x64.zip -DestinationPath tasty-headl
 在 macOS 上，通过浏览器下载的文件在运行时可能出现“无法验证开发者”警告。此时使用 `xattr -dr com.apple.quarantine tasty-headless-macos-arm64` 清除隔离标记。
 
 无界面构建的 `tasty` 即使不带选项运行，也不会打开窗口，终端仅通过 `tasty` CLI 创建和操作。可以从其他计算机通过[远程附加](../remote/attach.md)查看该工作区。给 GUI 构建添加 `--headless` 运行时，仍会像平常一样以 GUI 启动，并不会在无窗口状态下运行。
+
+要同时运行两个 Tasty 实例，用 `TASTY_HOME` 为各实例指定不同的数据文件夹。如果运行中的 Tasty 仍持有同一数据文件夹的锁，无界面构建会将消息写入标准错误，并以退出码 1 结束。详情见[重新运行 Tasty 时](../help/troubleshooting.md#重新运行-tasty-时)。
 
 对于没有发布文件的环境（例如 Intel Mac），在已安装 Rust 的环境中从源码自行构建。
 

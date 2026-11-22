@@ -1,4 +1,4 @@
-<!-- source-hash: bbc278d4cb74 -->
+<!-- source-hash: 15c0a01eeba0 -->
 # Workspaces
 
 Tasty’s workspaces group terminals and layouts by project or task, organized by name and category and switched from the sidebar.
@@ -127,6 +127,6 @@ Only one window appears on restart; the remaining slots are restored when you op
 
 A [headless build](../getting-started/install.md#headless-build) of Tasty, which runs without a window, neither saves nor restores the arrangement, whatever this setting says — its workspaces last only for that run. If the setting is on, it logs a one-line warning about this at startup.
 
-When you run Tasty again with the same data folder, the running app receives the request. A new window restores one of the window states kept by the running app, if available. Otherwise it takes the next empty slot. For example, Tasty keeps window state if you close the last window by closing its last workspace, or if you minimize Tasty to the background on macOS. For differences by OS and launch method, see [Running Tasty again](../help/troubleshooting.md#running-tasty-again).
+When you run the released GUI build again with the same data folder, it tries to forward the request to the running GUI instance. If the request gets through and a new window opens, it restores one of the window states kept by the running app, if available. Otherwise it takes the next empty slot. For example, Tasty keeps window state if you close the last window by closing its last workspace, or if you minimize Tasty to the background on macOS. For differences by OS and launch method, see [Running Tasty again](../help/troubleshooting.md#running-tasty-again).
 
 To reuse a layout that is not a restore target, save it as a preset — [Saving layouts](panes-tabs-splits.md#saving-layouts--presets).

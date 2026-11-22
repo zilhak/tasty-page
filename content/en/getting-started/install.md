@@ -1,4 +1,4 @@
-<!-- source-hash: f195995e4211 -->
+<!-- source-hash: b3071374dfdb -->
 # Installation
 
 Tasty installation files for Windows, macOS, and Linux are available on GitHub Releases, organized by architecture. macOS support is for Apple Silicon.
@@ -143,6 +143,8 @@ Expand-Archive tasty-headless-{ver}-windows-x64.zip -DestinationPath tasty-headl
 On macOS, a file downloaded with a browser may show an "unidentified developer" warning when you run it. In that case, clear the quarantine flag with `xattr -dr com.apple.quarantine tasty-headless-macos-arm64`.
 
 The headless build's `tasty` starts without a window even with no options, and you create and drive its terminals only through the `tasty` CLI. From another computer you can bring its workspaces in with [remote attach](../remote/attach.md). Running a GUI build with `--headless` does not start it without a window; it starts the GUI as usual.
+
+To run two Tasty instances at once, give each its own data folder with `TASTY_HOME`. If a running Tasty still holds the lock on the same data folder, the headless build writes a message to standard error and exits with code 1. See [Running Tasty again](../help/troubleshooting.md#running-tasty-again) for details.
 
 Where no archive is published (for example, an Intel Mac), build it yourself from source on a machine with Rust installed.
 
