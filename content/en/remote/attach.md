@@ -1,4 +1,4 @@
-<!-- source-hash: 41100d8a0532 -->
+<!-- source-hash: b5230a824bc6 -->
 <a id="remote-attach"></a>
 
 # Working remotely (attach)
@@ -252,6 +252,18 @@ Older versions of the remote Tasty also report a force detach when the connectio
   - If the remote Tasty restarts, completions of children created before the restart are not delivered. On a remote running an older Tasty, no child is created and you get an error.
 - Restarting the shell of a mirror surface (`tasty surface respawn-terminal`, `tasty terminal respawn`) or attaching a background PTY as a tab inside a mirror (`tasty pty attach-surface`) is also refused, because it would put a local shell where the remote terminal is. Run them directly on the remote instance.
 - Applying a Tab or Pane preset to a mirror Workspace (the preset popup, `tasty preset apply`) is refused for the same reason. A Workspace preset creates a new Workspace, so it still works.
+
+<a id="osc-52-during-attach"></a>
+
+### Clipboard access from remote programs (OSC 52)
+
+When your local GUI and the remote Tasty both support this feature, an OSC 52 copy from a remote program goes only to your computer's clipboard. The `allow_clipboard_read` setting under `[general]` in your local `config.toml` controls whether Tasty answers read requests with your clipboard contents. It is off by default.
+
+If you attach from a newer GUI to an older server, copying can update both computers' clipboards. The server can answer from its own clipboard if it allows reads, even when you have disabled reads locally. With a CLI attach or an older GUI client, the remote Tasty handles OSC 52 requests.
+
+A progress indicator appears at the upper right of the work area while Tasty receives the content. A quick copy can finish before the indicator appears. Tasty shows one copy confirmation on success. An error notification appears if the write fails, the connection drops mid-copy, or the copy content is lost while the screen recovers. If the source Surface is out of view because you switched tabs or workspaces, the result appears in its window. If you close the mirror yourself or the source Surface disappears on the server, a copy in progress can end without a result notification.
+
+For sounds from remote work, see [Notifications during attach](../agents/hooks-notifications.md#remote-attach-notifications).
 
 ## Closing and disconnecting a mirror
 

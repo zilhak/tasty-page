@@ -1,4 +1,4 @@
-<!-- source-hash: 208db1198dea -->
+<!-- source-hash: 85d042b7a818 -->
 # Hooks, notifications, and webhooks
 
 Hooks run actions in response to Tasty events, notifications show items to check in the app, and webhooks receive HTTP requests from external services. Choose the path that fits your task.
@@ -174,7 +174,9 @@ Use `notify --workspace 12` for an alert without a Surface. This does not add a 
 - **Notification panel** — open it from the summary or with `Ctrl+Shift+I`. The newest-first list shows level, title, body, source, and elapsed time. Opening or closing the panel keeps unread notifications unchanged. Click a row or **More** to expand the full text and mark that notification as read. Use the check button for one notification or **Mark all read** for that window. **Jump** takes you to the source Surface or Workspace. A closed source keeps its notification history, with Jump disabled. The title bar lets you switch to fullscreen. New notifications do not open the panel automatically or scroll the list back to the top. Your reading position also stays in place when new content is merged into an existing notification and makes its body longer.
 - **Surface border** — a blue border on the Surface where the notification occurred. It disappears when you focus that Surface while the Tasty window is active. While you are in another app it stays, and it disappears when you return to the window.
 - **Sidebar badge** — a count badge on the row of any Workspace that has a Surface needing attention.
-- **Sound** — when enabled in settings, one system beep per notification.
+- **Sound** — when enabled in settings, one system beep per new notification. Merging into an existing notification plays no sound.
+
+During a remote attach, borders and badges depend on the server. See [Notifications during attach](#remote-attach-notifications).
 
 Notifications are not sent to the OS notification center (system notifications). To notice them while you use another app, turn on the sound.
 
@@ -189,8 +191,18 @@ sound = false         # sound
 coalesce_ms = 500     # notification coalescing interval (ms) — merges consecutive notifications from the same source into one
 
 [general]
-bell_notification = true   # show bell notifications (turning it off suppresses only the bell toast; bell hooks still fire)
+bell_notification = true   # show bell notifications (in the GUI, registered bell hooks still run when off)
 ```
+
+<a id="remote-attach-notifications"></a>
+
+### Notifications during attach
+
+When you attach from the GUI and both versions of Tasty support this feature, notification sounds for the attached workspace play on your computer. Your local `notification.sound` setting controls playback.
+
+- With a **GUI server**, your computer plays one sound per new server notification. If a connection issue or screen recovery causes you to miss a sound, the notification stays in the server's history. Reconnecting does not replay missed sounds. For an OSC notification or terminal bell to make a sound, the server has to create the corresponding notification. The server keeps its attention indicators and runs registered hooks. Your local notification settings also control whether OSC and bell notifications appear on your screen.
+- With a **headless server**, your local Tasty creates OSC and bell notifications. Turn on your local `notification.enabled` to receive them. Bell notifications also require `general.bell_notification`. These notifications appear in your notification panel. They do not add a border to the mirrored Surface or a badge to its Workspace row in the sidebar. OSC notifications and bells do not create server notifications or attention indicators or run server hooks. A notification the server creates from a separate request such as `tasty notify` stays in the server's history and can play a sound on your computer.
+- With a **CLI attach or an older GUI client**, a GUI server plays sounds according to its settings. A headless server itself stays silent.
 
 ### Waiting for a human decision (approval)
 

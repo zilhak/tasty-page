@@ -65,14 +65,20 @@ Tasty의 셸, 글꼴, 언어 등은 설정 윈도우에서 바꾸거나 `~/.tast
 
 **설정** <!-- en: Settings --> › **일반** <!-- en: General --> › **원격 Attach** <!-- en: Remote attach -->의 **재연결 시도 시간** <!-- en: Keep reconnecting for -->은 저장된 원격 행의 연결이 끊긴 뒤 자동 재연결을 시도하는 시간입니다. 기본 300초, 범위 0~3600초이며 0이면 자동 재연결을 끕니다. 직접 끊은 연결에는 적용하지 않습니다. 설정 파일의 키는 `[remote_attach] reconnect_timeout_secs`입니다.
 
+### 원격 연결의 클립보드와 알림 설정
+
+양쪽 Tasty가 이 기능을 지원하고 내 컴퓨터에서 GUI로 붙으면, 원격 프로그램의 OSC 52 읽기 요청에는 내 쪽 `config.toml`의 `[general]`에 있는 `allow_clipboard_read` 설정이 적용됩니다. 기본값은 꺼짐입니다. 알림 소리를 재생할지는 내 컴퓨터의 `notification.sound`만 따릅니다.
+
+GUI 서버에 붙었을 때는 서버의 `notification.enabled`가 켜져 있어야 OSC 알림이 소리로 이어집니다. 벨 알림에는 서버의 `general.bell_notification`도 필요합니다. 헤드리스 서버에 붙었을 때는 내 컴퓨터의 `notification.enabled`와 `general.bell_notification`에 따라 내 쪽 Tasty에서 OSC 알림과 벨 알림을 만듭니다. 자세한 동작은 [원격 연결 중 알림](../agents/hooks-notifications.md#remote-attach-notifications)을 참고하세요.
+
 ### 터미널
 
 | 섹션 | 항목 |
 |------|------|
-| **일반** | **셸** <!-- en: Shell --> · **시작 명령어** <!-- en: Startup command --> · **스크롤백 줄 수** <!-- en: Scrollback lines --> (기본 10000) · **실행 중 프로세스 닫기 확인** <!-- en: Confirm close running process --> · **작업 디렉토리 상속** <!-- en: Inherit working directory --> · **화면 반전 플래시 (DECSCNM)** <!-- en: Reverse-screen flash (DECSCNM) --> · **벨 알림 표시** <!-- en: Show bell notification --> · **링크 클릭 수식키** <!-- en: Link click modifier --> (Ctrl / Alt / 좌클릭 열기 끄기) · macOS: **Option 을 Meta 로 사용** <!-- en: Use Option as Meta --> |
+| **일반** | **셸** <!-- en: Shell --> · **시작 명령어** <!-- en: Startup command --> · **스크롤백 줄 수** <!-- en: Scrollback lines --> (기본 10000) · **실행 중 프로세스 닫기 확인** <!-- en: Confirm close running process --> · **작업 디렉토리 상속** <!-- en: Inherit working directory --> · **화면 반전 플래시 (DECSCNM)** <!-- en: Reverse-screen flash (DECSCNM) --> · **벨 알림 표시:** <!-- en: Show bell notification: --> · **링크 클릭 수식키** <!-- en: Link click modifier --> (Ctrl / Alt / 좌클릭 열기 끄기) · macOS: **Option 을 Meta 로 사용** <!-- en: Use Option as Meta --> |
 | **입력** <!-- en: Input --> | 터미널 앱별 **Shift+Enter로 줄바꿈 문자 보내기** <!-- en: Send a newline with Shift+Enter --> 규칙 — 실행 파일 이름(예: `claude`)을 추가하고 켜면 그 앱이 입력을 받는 동안 `Shift+Enter` 가 줄바꿈 문자(LF)를 보냅니다. 끄거나 규칙이 없으면 플랫폼 기본 방식으로 보냅니다 |
 | **마우스 캡처** <!-- en: Mouse Capture --> | **마우스 캡처 안내 표시** <!-- en: Show mouse-capture hint --> · **클릭을 Tasty가 처리할 프로그램** <!-- en: Let Tasty handle clicks in these programs --> · **캡처 안내를 다시 보지 않을 프로그램** <!-- en: Don't show the capture notice for these programs --> — 프로세스 이름 또는 `ht*` 같은 패턴 |
-| **TUI** | **클립보드 읽기 허용 (OSC 52)** <!-- en: Allow clipboard read (OSC 52) --> — 기본 꺼짐. 켜면 터미널 안 프로그램이 클립보드를 읽을 수 있습니다 |
+| **TUI** | **클립보드 읽기 허용 (OSC 52):** <!-- en: Allow clipboard read (OSC 52): --> — 기본 꺼짐. 켜면 터미널 안 프로그램이 클립보드를 읽을 수 있습니다 |
 | **성능** <!-- en: Performance --> | **선택적 PTY 폴링** <!-- en: Targeted PTY polling --> · **스크롤백 디스크 스왑** <!-- en: Scrollback disk swap --> (스크롤백 줄 수를 넘은 줄을 디스크로 옮김) · **디스크 보관 줄 수** <!-- en: Lines kept on disk --> (기본 10000, -1 은 무제한 — 스크롤백 줄 수와 별도이며 넘으면 오래된 줄부터 버림). 칸 뒤에 단위 **줄** <!-- en: lines --> 이 붙고, -1 이면 단위 대신 **무제한** <!-- en: no limit --> 이 표시됩니다. 범위를 벗어난 값을 쳐 두면 칸 아래에 "-1 또는 0부터 100000000까지의 수를 입력하세요." 가 나옵니다. 탭 맨 위 안내대로 세 설정 모두 저장 후 새로 여는 터미널부터 적용되며, 이미 열린 터미널은 바로 바뀌지 않습니다 |
 | **프레임 레이트** <!-- en: Frame rate --> | **출력 프레임 레이트** <!-- en: Output frame rate --> (기본 30 fps) · **입력 프레임 레이트** <!-- en: Input frame rate --> (기본 60 fps) |
 

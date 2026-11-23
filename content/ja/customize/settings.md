@@ -1,4 +1,4 @@
-<!-- source-hash: f9b6f2647380 -->
+<!-- source-hash: 45e0c0b7430e -->
 # 設定
 
 Tasty のシェル、フォント、言語などは、設定ウィンドウで変更するか、`~/.tasty/config.toml` を直接編集して設定できます。キーバインドとテーマは、それぞれのガイドで詳しく説明します。
@@ -66,14 +66,20 @@ Tasty のシェル、フォント、言語などは、設定ウィンドウで�
 
 **設定** <!-- en: Settings --> › **一般** <!-- en: General --> › **リモートアタッチ** <!-- en: Remote attach --> の **再接続の試行時間** <!-- en: Keep reconnecting for --> は、保存されたリモート行の接続が切れた後に自動再接続を試みる時間です。既定値は 300 秒、範囲は 0〜3600 秒で、0 は自動再接続を無効にします。手動で切断した接続には適用されません。設定ファイルのキーは `[remote_attach] reconnect_timeout_secs` です。
 
+### アタッチ中のクリップボードと通知の設定
+
+接続元とリモート側の Tasty がともにこの機能に対応し、GUI からアタッチしている場合、リモートプログラムの OSC 52 による読み取り要求には、手元の `config.toml` の `[general]` にある `allow_clipboard_read` 設定が適用されます。デフォルトはオフです。通知音を再生するかどうかは、手元の `notification.sound` 設定だけで決まります。
+
+GUI サーバーに接続している場合、OSC 通知で音が鳴るにはサーバーの `notification.enabled` がオンになっている必要があります。ベル通知には、サーバーの `general.bell_notification` も必要です。ヘッドレスサーバーに接続している場合は、手元の Tasty が、手元の `notification.enabled` と `general.bell_notification` に従って OSC 通知とベル通知を作成します。詳しくは [アタッチ中の通知](../agents/hooks-notifications.md#remote-attach-notifications)を参照してください。
+
 ### ターミナル
 
 | セクション | 項目 |
 |------|------|
-| **一般** | **シェル** <!-- en: Shell --> · **起動コマンド** <!-- en: Startup command --> · **スクロールバック行数** <!-- en: Scrollback lines --> （デフォルトは 10000） · **実行中のプロセスを閉じる前に確認** <!-- en: Confirm close running process --> · **作業ディレクトリを継承** <!-- en: Inherit working directory --> · **画面反転フラッシュ（DECSCNM）** <!-- en: Reverse-screen flash (DECSCNM) --> · **ベル通知を表示** <!-- en: Show bell notification --> · **リンククリックの修飾キー** <!-- en: Link click modifier --> （Ctrl / Alt / 左クリックで開く：オフ） · macOS: **Option を Meta として使用** <!-- en: Use Option as Meta --> |
+| **一般** | **シェル** <!-- en: Shell --> · **起動コマンド** <!-- en: Startup command --> · **スクロールバック行数** <!-- en: Scrollback lines --> （デフォルトは 10000） · **実行中のプロセスを閉じる前に確認** <!-- en: Confirm close running process --> · **作業ディレクトリを継承** <!-- en: Inherit working directory --> · **画面反転フラッシュ（DECSCNM）** <!-- en: Reverse-screen flash (DECSCNM) --> · **ベル通知を表示:** <!-- en: Show bell notification: --> · **リンククリックの修飾キー** <!-- en: Link click modifier --> （Ctrl / Alt / 左クリックで開く：オフ） · macOS: **Option を Meta として使用** <!-- en: Use Option as Meta --> |
 | **入力** <!-- en: Input --> | ターミナルアプリごとの **Shift+Enterで改行文字を送信** <!-- en: Send a newline with Shift+Enter --> ルール — 実行ファイル名（例: `claude`）を追加してオンにすると、そのアプリが入力を受け取っている間、`Shift+Enter` が改行文字（LF）を送信します。オフにするかルールがない場合は、プラットフォームのデフォルトの方式で送信します |
 | **マウスキャプチャ** <!-- en: Mouse Capture --> | **マウスキャプチャのヒントを表示** <!-- en: Show mouse-capture hint --> · **クリックを Tasty で処理するプログラム** <!-- en: Let Tasty handle clicks in these programs --> · **キャプチャ通知を表示しないプログラム** <!-- en: Don't show the capture notice for these programs --> — プロセス名または `ht*` のようなパターンです |
-| **TUI** | **クリップボードの読み取りを許可（OSC 52）** <!-- en: Allow clipboard read (OSC 52) --> — デフォルトはオフです。オンにすると、ターミナル内のプログラムがクリップボードを読み取れます |
+| **TUI** | **クリップボード読み取りを許可 (OSC 52):** <!-- en: Allow clipboard read (OSC 52): --> — デフォルトはオフです。オンにすると、ターミナル内のプログラムがクリップボードを読み取れます |
 | **パフォーマンス** <!-- en: Performance --> | **選択的PTYポーリング** <!-- en: Targeted PTY polling --> · **スクロールバックディスクスワップ** <!-- en: Scrollback disk swap --> （スクロールバック行数を超えた行をディスクに移動します） · **ディスク保持行数** <!-- en: Lines kept on disk --> （デフォルトは 10000、-1 は無制限 — スクロールバック行数とは別で、超えると古い行から破棄します）。欄の後ろに単位の **行** <!-- en: lines --> が付き、-1 の場合は単位の代わりに **無制限** <!-- en: no limit --> が表示されます。範囲外の値を入力すると、欄の下に「-1 または 0 から 100000000 までの数値を入力してください。」と表示されます。タブ最上部の案内どおり、3 つの設定はいずれも保存後に新しく開くターミナルから適用され、すでに開いているターミナルはすぐには変わりません |
 | **フレームレート** <!-- en: Frame rate --> | **出力フレームレート** <!-- en: Output frame rate -->（デフォルトは 30 fps） · **入力フレームレート** <!-- en: Input frame rate -->（デフォルトは 60 fps） |
 

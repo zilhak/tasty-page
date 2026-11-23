@@ -1,4 +1,4 @@
-<!-- source-hash: f9b6f2647380 -->
+<!-- source-hash: 45e0c0b7430e -->
 # Settings
 
 Tasty’s shell, fonts, language, and other preferences can be configured in the settings window or by editing `~/.tasty/config.toml` directly. Keybindings and themes have their own guides.
@@ -66,14 +66,20 @@ Change **Disconnect after** under **Settings** › **General** › **Remote atta
 
 **Keep reconnecting for** under **Settings** › **General** › **Remote attach** controls how long automatic retries continue after a saved remote row’s connection drops. The default is 300 seconds, with a range of 0–3600; 0 disables automatic reconnecting. It does not apply to connections you end yourself. The configuration key is `[remote_attach] reconnect_timeout_secs`.
 
+### Clipboard and notification settings during attach
+
+When you attach from the GUI and both versions of Tasty support this feature, OSC 52 read requests from remote programs follow `allow_clipboard_read` under `[general]` in your local `config.toml`. It is off by default. Only your local `notification.sound` setting controls whether a notification sound plays.
+
+With a GUI server, the server's `notification.enabled` must be on for OSC notifications to make a sound. Bell notifications also require the server's `general.bell_notification`. With a headless server, your local Tasty creates OSC and bell notifications according to your local `notification.enabled` and `general.bell_notification` settings. For details, see [Notifications during attach](../agents/hooks-notifications.md#remote-attach-notifications).
+
 ### Terminal
 
 | Section | Entries |
 |------|------|
-| **General** | **Shell** · **Startup command** · **Scrollback lines** (default 10000) · **Confirm close running process** · **Inherit working directory** · **Reverse-screen flash (DECSCNM)** · **Show bell notification** · **Link click modifier** (Ctrl / Alt / Disable left-click opening) · macOS: **Use Option as Meta** |
+| **General** | **Shell** · **Startup command** · **Scrollback lines** (default 10000) · **Confirm close running process** · **Inherit working directory** · **Reverse-screen flash (DECSCNM)** · **Show bell notification:** · **Link click modifier** (Ctrl / Alt / Disable left-click opening) · macOS: **Use Option as Meta** |
 | **Input** | Per-app **Send a newline with Shift+Enter** rules — add an executable name (for example `claude`) and turn it on, and `Shift+Enter` sends a newline (LF) while that app takes the input. Turned off, or with no rule, it uses the platform's default encoding |
 | **Mouse Capture** | **Show mouse-capture hint** · **Let Tasty handle clicks in these programs** · **Don't show the capture notice for these programs** — process names or patterns such as `ht*` |
-| **TUI** | **Allow clipboard read (OSC 52)** — off by default. When on, programs inside the terminal can read the clipboard |
+| **TUI** | **Allow clipboard read (OSC 52):** — off by default. When on, programs inside the terminal can read the clipboard |
 | **Performance** | **Targeted PTY polling** · **Scrollback disk swap** (moves lines past the scrollback line count to disk) · **Lines kept on disk** (default 10000, -1 = unlimited — separate from the scrollback line count; the oldest lines past it are dropped). The unit **lines** follows the field, and at -1 **no limit** takes its place. Type a value outside the range and "Use -1 or a number from 0 to 100000000." appears under the field. As the note at the top of the tab says, all three apply to terminals you open after saving, and terminals that are already open don't change right away |
 | **Frame rate** | **Output frame rate** (default 30 fps) · **Input frame rate** (default 60 fps) |
 

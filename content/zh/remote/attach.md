@@ -1,4 +1,4 @@
-<!-- source-hash: 41100d8a0532 -->
+<!-- source-hash: b5230a824bc6 -->
 <a id="远程附加"></a>
 
 # 继续远程工作（attach）
@@ -252,6 +252,18 @@ tasty remote connect --workspace 7
   - 远程 Tasty 重启后，不会传递重启前创建的子智能体的完成事件。远程 Tasty 为旧版本时，不会创建子智能体，并会报告错误。
 - 也会拒绝重新启动镜像 Surface 的 Shell（`tasty surface respawn-terminal`、`tasty terminal respawn`），或将后台 PTY 作为标签页附加到镜像中（`tasty pty attach-surface`）。因为这会将本地 Shell 混入远程终端所在位置。请直接在远程实例上执行。
 - 向镜像工作区应用标签页、窗格预设（预设弹窗、`tasty preset apply`）也会因同样原因被拒绝。工作区预设会新建工作区，因此仍可使用。
+
+<a id="osc-52-during-attach"></a>
+
+### 远程程序访问剪贴板（OSC 52）
+
+本地 GUI 和远程 Tasty 均支持此功能时，远程程序通过 OSC 52 复制的内容只会写入本机剪贴板。是否用本机剪贴板的内容回应读取请求，取决于本地 `config.toml` 中 `[general]` 节的 `allow_clipboard_read` 设置。此设置默认关闭。
+
+通过新版 GUI 附加到旧版服务器时，复制可能更新两台计算机的剪贴板。即使本地关闭了读取，只要服务器允许读取，仍可能用远程剪贴板的内容回应。通过 CLI 或旧版 GUI 附加时，由远程 Tasty 处理 OSC 52 请求。
+
+接收要复制的内容时，工作区域右上角会显示进度。复制较快时，可能在进度显示前就已完成。复制成功时会显示一次提示。写入失败、复制期间连接中断，或画面恢复期间丢失正在接收的内容时，会显示错误通知。如果正在查看其他标签页或工作区，看不到发起复制的 Surface，结果会显示在该 Surface 所在的窗口。主动关闭镜像，或远程端的来源 Surface 消失时，进行中的复制可能结束而不显示结果通知。
+
+远程任务的通知声音详见[附加期间的通知](../agents/hooks-notifications.md#remote-attach-notifications)。
 
 ## 关闭镜像和断开连接
 

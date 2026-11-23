@@ -1,4 +1,4 @@
-<!-- source-hash: f9b6f2647380 -->
+<!-- source-hash: 45e0c0b7430e -->
 # 设置
 
 Tasty 的 Shell、字体、语言等可在设置窗口中更改，也可直接编辑 `~/.tasty/config.toml` 进行配置。按键绑定和主题在各自的指南中详细说明。
@@ -66,14 +66,20 @@ Tasty 的 Shell、字体、语言等可在设置窗口中更改，也可直接�
 
 **设置** <!-- en: Settings --> › **常规** <!-- en: General --> › **远程附加** <!-- en: Remote attach --> 中的 **重新连接尝试时长** <!-- en: Keep reconnecting for --> 控制已保存远程行的连接中断后自动重新连接的持续时间。默认 300 秒，范围 0~3600 秒，0 禁用自动重新连接。不适用于手动断开的连接。配置键为 `[remote_attach] reconnect_timeout_secs`。
 
+### 附加期间的剪贴板和通知设置
+
+通过 GUI 附加且两端的 Tasty 均支持此功能时，远程程序发出的 OSC 52 读取请求由本地 `config.toml` 中 `[general]` 节的 `allow_clipboard_read` 设置控制。此设置默认关闭。是否播放通知声音仅取决于本地的 `notification.sound` 设置。
+
+连接 GUI 服务器时，服务器必须开启 `notification.enabled`，OSC 通知才会发出声音。响铃通知还需要开启服务器的 `general.bell_notification`。连接无界面服务器时，本地 Tasty 根据本地的 `notification.enabled` 和 `general.bell_notification` 设置创建 OSC 通知和响铃通知。详见[附加期间的通知](../agents/hooks-notifications.md#remote-attach-notifications)。
+
 ### 终端
 
 | 分区 | 设置项 |
 |------|------|
-| **常规** | **Shell** <!-- en: Shell --> · **启动命令** <!-- en: Startup command --> · **回滚缓冲区行数** <!-- en: Scrollback lines -->（默认 10000）· **关闭运行中进程前确认** <!-- en: Confirm close running process --> · **继承工作目录** <!-- en: Inherit working directory --> · **屏幕反色闪烁（DECSCNM）** <!-- en: Reverse-screen flash (DECSCNM) --> · **显示响铃通知** <!-- en: Show bell notification --> · **链接点击修饰键** <!-- en: Link click modifier -->（Ctrl / Alt / 禁用左键点击打开）· macOS：**将 Option 用作 Meta** <!-- en: Use Option as Meta --> |
+| **常规** | **Shell** <!-- en: Shell --> · **启动命令** <!-- en: Startup command --> · **回滚缓冲区行数** <!-- en: Scrollback lines -->（默认 10000）· **关闭运行中进程前确认** <!-- en: Confirm close running process --> · **继承工作目录** <!-- en: Inherit working directory --> · **屏幕反色闪烁（DECSCNM）** <!-- en: Reverse-screen flash (DECSCNM) --> · **显示响铃通知：** <!-- en: Show bell notification: --> · **链接点击修饰键** <!-- en: Link click modifier -->（Ctrl / Alt / 禁用左键点击打开）· macOS：**将 Option 用作 Meta** <!-- en: Use Option as Meta --> |
 | **输入** <!-- en: Input --> | 按终端应用设置的 **使用 Shift+Enter 发送换行符** <!-- en: Send a newline with Shift+Enter --> 规则——添加可执行文件名（例如 `claude`）并开启后，该应用接收输入期间，`Shift+Enter` 会发送换行符（LF）。关闭或没有规则时，按平台默认方式发送 |
 | **鼠标捕获** <!-- en: Mouse Capture --> | **显示鼠标捕获提示** <!-- en: Show mouse-capture hint --> · **让 Tasty 处理这些程序中的点击** <!-- en: Let Tasty handle clicks in these programs --> · **不为这些程序显示捕获通知** <!-- en: Don't show the capture notice for these programs -->——进程名或 `ht*` 等模式 |
-| **TUI** | **允许读取剪贴板（OSC 52）** <!-- en: Allow clipboard read (OSC 52) -->——默认关闭。开启后，终端内的程序可以读取剪贴板 |
+| **TUI** | **允许读取剪贴板（OSC 52）：** <!-- en: Allow clipboard read (OSC 52): -->——默认关闭。开启后，终端内的程序可以读取剪贴板 |
 | **性能** <!-- en: Performance --> | **定向 PTY 轮询** <!-- en: Targeted PTY polling --> · **回滚缓冲区磁盘交换** <!-- en: Scrollback disk swap -->（将超出回滚缓冲区行数的行移到磁盘）· **磁盘保留行数** <!-- en: Lines kept on disk -->（默认 10000，-1 表示无限制——独立于回滚缓冲区行数，超出后从最旧的行开始丢弃）。输入框后显示单位 **行** <!-- en: lines -->，值为 -1 时，单位会替换为 **无限制** <!-- en: no limit -->。输入超出范围的值时，框下会显示“请输入 -1 或 0 到 100000000 之间的数值。”。如标签页顶部说明所述，这三项设置均从保存后新打开的终端开始生效，已打开的终端不会立即更改 |
 | **帧率** <!-- en: Frame rate --> | **输出帧率** <!-- en: Output frame rate -->（默认 30 fps）· **输入帧率** <!-- en: Input frame rate -->（默认 60 fps） |
 

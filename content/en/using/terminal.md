@@ -1,4 +1,4 @@
-<!-- source-hash: 5a5a680afd3b -->
+<!-- source-hash: 1183ed88dda7 -->
 # Working with the terminal
 
 You can copy the output you need, search terminal history, and open file paths as you work. You can also select text without a mouse and receive notifications when work finishes.
@@ -104,7 +104,9 @@ If the compositor does not support the clipboard, neither the terminal nor text 
 
 ### Clipboard access by programs (OSC 52)
 
-A program inside the terminal (tmux, remote vim, and so on) can request a **write** to the clipboard. Tasty reports success only when the write succeeds and reports unavailable access or failure otherwise. **Reading** requires turning on **Settings** > **Terminal** > **Allow clipboard read (OSC 52)**. It is off by default; be aware that once on, a program on the far side of SSH can also take the clipboard contents.
+A program inside the terminal (tmux, remote vim, and so on) can request a **write** to the clipboard. Tasty reports success only when the write succeeds and reports unavailable access or failure otherwise. To allow programs to **read** the clipboard, go to **Settings** › **Terminal** › **TUI** and turn on **Allow clipboard read (OSC 52):**. It is off by default. Turning it on also lets programs on the far side of SSH read the clipboard.
+
+When you attach from the GUI and both versions of Tasty support this feature, [OSC 52 writes and reads from the remote terminal](../remote/attach.md#osc-52-during-attach) use your computer's clipboard, and reads follow your local setting.
 
 ### Writing to the clipboard from a script
 
