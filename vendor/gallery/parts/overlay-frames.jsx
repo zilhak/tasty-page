@@ -1206,11 +1206,11 @@ function FhGroup({ label, count, caption, tone }) {
 // Remote mark on the path line — the target is a path on a mirror's remote host. The
 // explorer host mark form: remote glyph + host, mono caption, remote hue, no fill. It
 // caps the host text (fh-remote-max-width) and end-elides inside it; the path keeps its
-// front elision in what is left. A local path has no mark. The host text is the attach
-// profile name and nothing else: a mirror always attaches through a profile (R-57).
-// With no connection info (before the first sync, or a mirror workspace left after its
-// session) host is empty and the slot holds attach.mirror_pill_label ("Remote") in the
-// label font and the same remote ink; it never pairs with reconnecting, which has a host.
+// front elision in what is left. A local path has no mark. The host text names the
+// remote machine: the attach profile name (R-57); with no profile name (--ssh) the SSH
+// destination as given; never 127.0.0.1:<port>, the local end of the tunnel. When no
+// name for the remote is known (--target-port) host is empty and the slot holds
+// attach.mirror_pill_label ("Remote") in the label font and the same remote ink.
 // state "reconnecting" takes the status bar's reconnecting form on the panel ground:
 // glyph glyph-dim, host text-muted, then the status word (status_bar.remote_reconnecting,
 // label font, text-muted). The word belongs to the mark, so the path box shrinks by it.

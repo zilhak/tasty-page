@@ -188,7 +188,8 @@ function ChildDetail({ node, isBase, lang = "en", onViewDags, onSetBase, onClose
   const ancestor = node.kind === "remote-ancestor";
   const st = ancestor ? null : childTone(node.state);
   const dags = (node.dags || []).map((id) => DAG_BY_ID[id]).filter(Boolean);
-  // attach profile name only: a mirror always attaches through a tasty-attach profile (R-57)
+  // host text rule (Dialogs › File handler › Remote path): the attach profile name (R-57);
+  // with no profile name, the SSH destination; never 127.0.0.1:<port>
   const attach = node.remote || ancestor ? node.profile : null;
   return (
     <GraphDrawer title={title} mono={mono} onClose={onClose} closeLabel={closeLabel} cover={cover}>
