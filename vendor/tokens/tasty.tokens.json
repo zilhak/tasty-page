@@ -4939,6 +4939,10 @@
       "$type": "dimension",
       "$value": "{primitive.size-24}"
     },
+    "titlebar-window-glyph-size": {
+      "$type": "dimension",
+      "$value": "calc(var(--tasty-titlebar-window-button-size) * 0.44)"
+    },
     "titlebar-csd-radius": {
       "$type": "dimension",
       "$value": "{primitive.radius-8}"

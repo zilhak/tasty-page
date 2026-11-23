@@ -46,7 +46,7 @@ const STAGE = { padding: "var(--tasty-space-md)", background: "var(--tasty-bg-pa
 
 function GalleryTitleBar() {
   return (
-    <Spec id="titlebar-states" title="Title bar: active and inactive, rest, hover, press, close" when="Use a title bar to show whether a window is active. Compare the title and buttons in active and inactive windows, including rest, hover, and press states and the close button's hover treatment.">
+    <Spec id="titlebar-states" title="Title bar: active and inactive, rest, hover, press, close" when="Use a title bar to show whether a window is active. Compare the title and buttons in active and inactive windows, including rest, hover, and press states and the close button's hover treatment. The demo draws Windows caption buttons (button). A round Linux window button (window button), on the main window and the settings window, keeps the title ink in every state; its cells are in the states grid, and the settings window specimen shows it in place.">
       <Stage variant="solo" eager style={STAGE}>
         {WINDOWS.map((w) => (
           <div key={w.label} style={{ width: "100%", minWidth: 0 }}>
@@ -59,14 +59,14 @@ function GalleryTitleBar() {
         ))}
       </Stage>
       <Meta
-        specs={[["height", "titlebar-height 36"], ["caption cell", "titlebar-caption-width by titlebar-height"], ["glyph", "icon-size-xs 12"], ["title", "body, ellipsis at the right end"]]}
+        specs={[["height", "titlebar-height 36"], ["caption cell", "titlebar-caption-width by titlebar-height"], ["glyph", "icon-size-xs 12"], ["title", "body, ellipsis at the right end"], ["Linux window button", "--tasty-titlebar-window-button-size"], ["Linux glyph extent", "--tasty-titlebar-window-glyph-size"]]}
         tokens={[
           { tok: "--tasty-titlebar-bg", use: "active ground, crust", color: "var(--tasty-titlebar-bg)" },
           { tok: "--tasty-titlebar-bg-inactive", use: "inactive ground, mantle", color: "var(--tasty-titlebar-bg-inactive)" },
-          { tok: "--tasty-titlebar-fg", use: "active title", color: "var(--tasty-titlebar-fg)" },
-          { tok: "--tasty-titlebar-fg-inactive", use: "inactive title", color: "var(--tasty-titlebar-fg-inactive)" },
-          { tok: "--tasty-titlebar-button-fg", use: "button at rest", color: "var(--tasty-titlebar-button-fg)" },
-          { tok: "--tasty-titlebar-button-fg-hover", use: "button under hover and press", color: "var(--tasty-titlebar-button-fg-hover)" },
+          { tok: "--tasty-titlebar-fg", use: "active title and Linux window button glyph", color: "var(--tasty-titlebar-fg)" },
+          { tok: "--tasty-titlebar-fg-inactive", use: "inactive title and Linux window button glyph", color: "var(--tasty-titlebar-fg-inactive)" },
+          { tok: "--tasty-titlebar-button-fg", use: "Windows caption button at rest", color: "var(--tasty-titlebar-button-fg)" },
+          { tok: "--tasty-titlebar-button-fg-hover", use: "Windows caption button under hover and press", color: "var(--tasty-titlebar-button-fg-hover)" },
           { tok: "--tasty-titlebar-close-hover-bg", use: "close fill", color: "var(--tasty-titlebar-close-hover-bg)" },
           { tok: "--tasty-titlebar-close-hover-fg", use: "close glyph", color: "var(--tasty-titlebar-close-hover-fg)" },
         ]} />

@@ -1934,11 +1934,15 @@ Sits on: `crust`, `mantle`, `base`
 
 Sits on: `crust`
 
+`button` is a Windows caption button. `window button` is a round Linux window button drawn by Tasty, on the main window and the settings window. Its glyph keeps the title ink at rest, hover and press, and only the hover or press fill changes. The Linux close button under the pointer is the Window close button.
+
 | Part | Token | States | Ground | Lowest, Mocha · Latte |
 |---|---|---|---|---|
 | title | `titlebar-fg` | rest | `crust` | 10.59 · 4.73 |
 | button | `titlebar-button-fg` | rest | `crust` | 8.42 · 4.73 |
 | button | `titlebar-button-fg-hover` | hover, press | `crust+hover`, `crust+press` | 9.31 · 4.62 |
+| window button | `titlebar-fg` | rest | `crust` | 10.59 · 4.73 |
+| window button | `titlebar-fg` | hover, press | `crust+hover`, `crust+press` | 7.60 · 3.62 |
 
 ### Title bar (inactive)
 
@@ -1949,6 +1953,8 @@ Sits on: `mantle`
 | title | `titlebar-fg-inactive` | rest | `mantle` | 7.89 · 5.14 |
 | button | `titlebar-button-fg` | rest | `mantle` | 7.89 · 5.14 |
 | button | `titlebar-button-fg-hover` | hover, press | `mantle+hover`, `mantle+press` | 8.50 · 5.01 |
+| window button | `titlebar-fg-inactive` | rest | `mantle` | 7.89 · 5.14 |
+| window button | `titlebar-fg-inactive` | hover, press | `mantle+hover`, `mantle+press` | 5.52 · 3.92 |
 
 ### Window close button
 
