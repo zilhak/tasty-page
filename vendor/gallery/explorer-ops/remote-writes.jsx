@@ -342,7 +342,7 @@ function RemoteWriteSection() {
               </K.CtxMenu>
             </div>
           </View>
-          <View name="mirror-disabled-reasons-languages" label="New reasons — ko, ja, zh-Hans at the tooltip width">
+          <View name="mirror-disabled-reasons-languages" label="New reasons — ko, ja, zh-Hans at the tooltip width" wide>
             <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-lg)", alignItems: "flex-start" }}>
               {["ko", "ja", "zh-Hans"].map((l) => (
                 <div key={l} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
