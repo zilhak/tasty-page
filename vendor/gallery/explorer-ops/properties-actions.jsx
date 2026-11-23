@@ -431,7 +431,7 @@ function PropsActionsSection() {
             </PProps>
           </XCol>
         </Stage>
-        <Note>Strings unchanged except the label case: <code>explorer.menu.open_in_system</code> “Open in system” / “시스템에서 열기” / “システムで開く” · <code>.reveal_macos</code> “Show in Finder” / “Finder에서 보기” / “Finder で表示” · <code>.reveal_windows</code> “Show in File Explorer” / “파일 탐색기에서 보기” / “エクスプローラーで表示” · <code>.reveal_linux</code> “Show in File Manager” / “파일 관리자에서 보기” / “ファイルマネージャーで表示” · <code>explorer.props.link_note</code> as requested.</Note>
+        <Note>Strings unchanged except the label case: <code>explorer.context_menu.open_in_system</code> “Open in system” / “시스템에서 열기” / “システムで開く” · <code>.reveal_finder</code> “Show in Finder” / “Finder에서 보기” / “Finder で表示” · <code>.reveal_explorer</code> “Show in File Explorer” / “파일 탐색기에서 보기” / “エクスプローラーで表示” · <code>.reveal_files</code> “Show in File Manager” / “파일 관리자에서 보기” / “ファイルマネージャーで表示” · <code>explorer.props.link_note</code> as requested.</Note>
       </Spec>
     </Section>
   );
