@@ -114,11 +114,9 @@ const otherSrcs = (d) => [...new Set(d.rules.map((r) => r.src).filter((s) => s !
 const strip = (x) => { const { pending, prev, ...rest } = x; return rest; };
 // Save applies the pending marks: a removed row goes, an unpatched detector keeps only its non-user rules and
 // takes the state without the user contribution (baseOn, the state its pending row shows), and every other row
-// drops its mark (settings_draft.jsx).
-const unpatched = (x) => {
-  const { baseOn, ...rest } = strip(x);
-  return { ...rest, rules: x.rules.filter((r) => r.src !== "user"), userMeta: false, on: baseOn ?? x.on };
-};
+// drops its mark (settings_draft.jsx). baseOn stays on the row: it belongs to the host and plugin contributions,
+// which are still there, so a user contribution added and removed again comes back to the same state.
+const unpatched = (x) => ({ ...strip(x), rules: x.rules.filter((r) => r.src !== "user"), userMeta: false, on: x.baseOn ?? x.on });
 const saveDetectors = (a) => a.filter((x) => x.pending !== "remove")
   .map((x) => (x.pending === "unpatch" ? unpatched(x) : x.pending ? strip(x) : x));
 const saveHandlers = (a) => a.filter((x) => x.pending !== "remove").map((x) => (x.pending ? strip(x) : x));
