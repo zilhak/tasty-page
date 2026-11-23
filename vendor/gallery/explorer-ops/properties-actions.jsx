@@ -248,7 +248,7 @@ function PermNarrowSpec() {
 function PropsActionsSection() {
   const L = PA.en, broken = "var(--tasty-explorer-link-broken-fg)", partial = "var(--tasty-explorer-props-partial-fg)";
   // mirror: the OS rows stay, disabled, reason in the tooltip (Remote explorer › D6)
-  const why = (mirror) => (mirror ? "Works only with files on this computer." : undefined);
+  const why = (mirror) => (mirror ? "This action is only available for files and folders on this computer." : undefined);
   const ctxTail = (show, mirror = false) => (
     <>
       <MenuItem label="Move to Trash" icon={K.ic.trash} danger />

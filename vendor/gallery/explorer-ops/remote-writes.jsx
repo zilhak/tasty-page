@@ -19,11 +19,11 @@ const REASON = {
   old: { en: "Update Tasty on build-eu to change remote files.", ko: "build-eu의 Tasty를 업데이트하면 원격 파일을 바꿀 수 있습니다.", ja: "build-eu の Tasty を更新すると、リモートのファイルを変更できます。" },
   headless: { en: "build-eu can't change files (server without a window).", ko: "build-eu는 파일을 바꿀 수 없습니다(화면 없는 서버).", ja: "build-eu はファイルを変更できません(画面のないサーバー)。" },
 };
-// D6 reasons: key + en / ko / ja / zh-Hans (zh-Hans written by Codex). The two paste reasons are today's toast strings.
+// D6 reasons: key + en / ko / ja / zh-Hans (all four languages written by Codex). The two paste reasons are today's toast strings.
 const MIRROR_REASON = {
-  localOnly: { key: "explorer.menu.local_only_reason", en: "Works only with files on this computer.", ko: "이 컴퓨터의 파일에서만 쓸 수 있습니다.", ja: "このコンピューターのファイルでのみ使えます。", "zh-Hans": "仅适用于此计算机上的文件。" },
-  newTab: { key: "explorer.menu.new_tab_remote_reason", en: "Folders in a mirrored remote explorer can't open in a new tab yet.", ko: "미러링된 원격 탐색기의 폴더는 아직 새 탭으로 열 수 없습니다.", ja: "ミラーされたリモートエクスプローラーのフォルダーはまだ新しいタブで開けません。", "zh-Hans": "远程文件浏览器镜像中的文件夹暂时无法在新标签页中打开。" },
-  undo: { key: "explorer.menu.undo_remote_reason", en: "Changes in a mirrored remote explorer aren't kept for undo.", ko: "미러링된 원격 탐색기에서 한 변경은 실행 취소 기록에 남지 않습니다.", ja: "ミラーされたリモートエクスプローラーでの変更は元に戻す履歴に残りません。", "zh-Hans": "在远程文件浏览器镜像中所做的更改不会写入撤销记录。" },
+  localOnly: { key: "explorer.menu.local_only_reason", en: "This action is only available for files and folders on this computer.", ko: "이 컴퓨터에 있는 파일과 폴더에만 이 작업을 수행할 수 있습니다.", ja: "この操作の対象は、このコンピューター上のファイルとフォルダーに限られます。", "zh-Hans": "此操作仅适用于此计算机上的文件和文件夹。" },
+  newTab: { key: "explorer.menu.new_tab_remote_reason", en: "Folders in a mirrored remote explorer can't be opened in a new tab yet.", ko: "미러링된 원격 탐색기의 폴더는 아직 새 탭으로 열 수 없습니다.", ja: "ミラーされたリモートエクスプローラーのフォルダーは、まだ新しいタブで開けません。", "zh-Hans": "暂时无法在新标签页中打开远程文件浏览器镜像中的文件夹。" },
+  undo: { key: "explorer.menu.undo_remote_reason", en: "Changes made in a mirrored remote explorer aren't recorded in the undo history, so there's nothing to undo or redo.", ko: "미러링된 원격 탐색기에서 변경한 내용은 실행 취소 기록에 남지 않아 실행 취소하거나 다시 실행할 수 없습니다.", ja: "ミラーされたリモートエクスプローラーでの変更は取り消し履歴に記録されないため、元に戻したりやり直したりできません。", "zh-Hans": "在远程文件浏览器镜像中所做的更改不会记入撤销历史，因此没有可撤销或重做的操作。" },
   pasteRemote: { key: "explorer.state.remote_paste_unsupported", en: "Files copied in a mirrored remote explorer can't be pasted yet." },
   pasteCross: { key: "explorer.state.cross_computer_paste_unsupported", en: "Files copied on this computer can't be pasted into a remote folder yet." },
 };
