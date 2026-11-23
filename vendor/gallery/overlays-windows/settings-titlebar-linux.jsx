@@ -52,16 +52,24 @@ function Demo() {
   const [instance, setInstance] = React.useState(0);
   const [last, setLast] = React.useState(null);
   const [at, setAt] = React.useState({ x: 0, y: 0 });
+  const atRef = React.useRef(at);
+  atRef.current = at;
   const base = React.useRef(null);
-  const drag = (dx, dy) => {
+  // The callbacks and the window element stay the same across this demo's own renders: the kit rebuilds its
+  // rows whenever it renders, which would reset what was typed, so only a new instance renders it again.
+  const drag = React.useCallback((dx, dy) => {
     if (dx === null) { base.current = null; return; }
-    if (!base.current) base.current = at;
+    if (!base.current) base.current = atRef.current;
     // The window stays at or right of and below where it opened, so the title bar never leaves the stage's
     // scrollable area: the stage scrolls right and down to reach it, never up or left.
     setAt({ x: Math.max(0, base.current.x + dx), y: Math.max(0, base.current.y + dy) });
-  };
-  const save = () => { setLast("saved"); setOpen(false); };
-  const drop = () => { setLast("dropped"); setOpen(false); setInstance((n) => n + 1); };
+  }, []);
+  const save = React.useCallback(() => { setLast("saved"); setOpen(false); }, []);
+  const drop = React.useCallback(() => { setLast("dropped"); setOpen(false); setInstance((n) => n + 1); }, []);
+  const win = React.useMemo(() => (
+    <Kit_SettingsWindow key={instance} os="linux" frame="bare" theme="mocha" onTheme={noop} uiScale={1} onUiScale={noop}
+      onClose={drop} onSave={save} onTitleBarDrag={drag} />
+  ), [instance, drop, save, drag]);
   return (
     <>
       {!open && (
@@ -72,8 +80,7 @@ function Demo() {
       )}
       {/* Kept mounted while closed, so a Save survives until the window opens again. */}
       <div style={{ display: open ? "block" : "none", transform: `translate(${at.x}px, ${at.y}px)`, flex: "none" }}>
-        <Kit_SettingsWindow key={instance} os="linux" frame="bare" theme="mocha" onTheme={noop} uiScale={1} onUiScale={noop}
-          onClose={drop} onSave={save} onTitleBarDrag={drag} />
+        {win}
       </div>
     </>
   );
