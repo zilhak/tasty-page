@@ -1195,13 +1195,13 @@ function SettingsWindow({ theme, onTheme, uiScale, onUiScale, onClose, os = DEFA
         {/* Linux only — the client-drawn title bar: drag area + close, no title (the L1 label names the window) */}
         {IS_LINUX && <SettingsTitleBarLinux active={windowActive} closeState={closeState} onClose={onClose} onDrag={onTitleBarDrag} />}
         {/* L1 — small fixed set of top tabs */}
-        <div style={{ display: "flex", alignItems: "center", height: 44, flex: "none", padding: "0 var(--tasty-space-md)", gap: 2,
+        <div style={{ display: "flex", alignItems: "center", height: "var(--tasty-settings-l1-height)", flex: "none", padding: "0 var(--tasty-space-md)", gap: 2,
           borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)", background: "var(--tasty-bg-sidebar)" }}>
           <span style={{ fontSize: 14, fontWeight: 700, color: "var(--tasty-text-primary)", letterSpacing: "var(--tasty-letter-spacing-ui)" }}>Settings</span>
           <span style={{ width: 1, height: 20, background: "var(--tasty-separator)", margin: "0 var(--tasty-size-14) 0 var(--tasty-space-sm)", flex: "none" }} />
           {L1_TABS.map((t) => (
             <button key={t} onClick={() => pickL1(t)} style={{ border: 0, background: "transparent", cursor: "pointer",
-              height: 43, padding: "0 var(--tasty-space-md)", fontFamily: "var(--tasty-font-ui)", fontSize: 13,
+              height: "calc(var(--tasty-settings-l1-height) - var(--tasty-border-width))", padding: "0 var(--tasty-space-md)", fontFamily: "var(--tasty-font-ui)", fontSize: 13,
               color: t === l1 ? "var(--tasty-text-primary)" : "var(--tasty-text-muted)", fontWeight: t === l1 ? 600 : 400,
               borderBottom: t === l1 ? "var(--tasty-focus-ring-width) solid var(--tasty-accent-primary)" : "var(--tasty-focus-ring-width) solid transparent" }}>{L1_LABEL[t]}</button>
           ))}

@@ -10,7 +10,8 @@ const noop = () => {};
 
 const CROP = {
   width: "100%", minWidth: 0, overflowX: "auto", overflowY: "hidden", flex: "none",
-  height: "calc(var(--tasty-titlebar-height) + var(--tasty-size-44) + var(--tasty-border-width))",
+  // the window's top border, the title bar and the L1 band, read from the tokens the kit draws them with
+  height: "calc(var(--tasty-border-width) + var(--tasty-titlebar-height) + var(--tasty-settings-l1-height))",
 };
 
 // A frame is a picture: the window inside is inert, so it takes no pointer and no keyboard focus, and its

@@ -5555,6 +5555,10 @@
       "$type": "dimension",
       "$value": "{primitive.size-700}"
     },
+    "settings-l1-height": {
+      "$type": "dimension",
+      "$value": "{primitive.size-44}"
+    },
     "settings-window-csd-height": {
       "$type": "dimension",
       "$value": "calc(var(--tasty-settings-window-height) + var(--tasty-titlebar-height))"
