@@ -16,8 +16,8 @@ import { Section, Spec, Stage, Meta, Note, Views, View } from "../parts/specimen
 const Y = () => ExplorerOpsY_ns;
 
 const REASON = {
-  old: { en: "Update Tasty on build-eu to change remote files.", ko: "build-eu의 Tasty를 업데이트하면 원격 파일을 바꿀 수 있습니다.", ja: "build-eu の Tasty を更新すると、リモートのファイルを変更できます。" },
-  headless: { en: "build-eu can't change files (server without a window).", ko: "build-eu는 파일을 바꿀 수 없습니다(화면 없는 서버).", ja: "build-eu はファイルを変更できません(画面のないサーバー)。" },
+  old: { key: "explorer.remote.write_needs_update", en: "Update Tasty on build-eu to change remote files.", ko: "build-eu의 Tasty를 업데이트하면 원격 파일을 바꿀 수 있습니다.", ja: "build-eu の Tasty を更新すると、リモートのファイルを変更できます。", "zh-Hans": "更新 build-eu 上的 Tasty 以更改远程文件。" },
+  unsupported: { key: "explorer.state.remote_write_unsupported", en: "This action isn't supported in a mirrored remote explorer yet.", ko: "미러링된 원격 탐색기에서는 이 작업을 아직 지원하지 않습니다.", ja: "ミラーされたリモートエクスプローラーではこの操作をまだサポートしていません。", "zh-Hans": "远程文件浏览器镜像暂不支持此操作。" },
 };
 // D6 reasons: key + en / ko / ja / zh-Hans (all four languages written by Codex). The two paste reasons are today's toast strings.
 const MIRROR_REASON = {
@@ -89,7 +89,7 @@ function RemoteWriteSection() {
   return (
     <Section id="remotewrite" title="Remote explorer — writes that differ from local">
       <Spec id="d1-a-remote-that-can-t-write-rows-shown-disabled-reason-in-the-t" title="D1 · A remote that can't write — rows shown disabled, reason in the tooltip and toast"
-        when={<>A remote running a new Tasty shows the write rows exactly like local. A remote that <b>can't</b> write (older Tasty, or a headless server) now <b>shows the rows disabled</b> (option b) instead of hiding them. Reason: the rows tell the user the command exists and where it went; hiding them made the menu look broken next to a writable remote in the next cell. The native menu can only grey a row and add a tooltip (Linux, macOS); Windows shows no tooltip, so the shortcut path keeps the <b>toast</b>, and the toast now names the reason. Two reasons, two strings. The toolbar create group follows the same rule (disabled, tooltip = reason), the same way a local folder without write access does.</>}>
+        when={<>A remote running a new Tasty shows the write rows exactly like local. A remote that <b>can't</b> write (its server doesn't announce remote writes, as an older Tasty, or the connection is gone) now <b>shows the rows disabled</b> (option b) instead of hiding them. Reason: the rows tell the user the command exists and where it went; hiding them made the menu look broken next to a writable remote in the next cell. The native menu can only grey a row and add a tooltip (Linux, macOS); Windows shows no tooltip, so the shortcut path keeps the <b>toast</b>, and the toast now names the reason. Two reasons, two strings: an older Tasty on the host gets the update hint, any other refusal (no connection details, a connection that is closing) the general “not supported in a mirror yet” line. The toolbar create group follows the same rule (disabled, tooltip = reason), the same way a local folder without write access does.</>}>
         <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 18, flexWrap: "wrap", alignItems: "flex-start" }}>
           <K.CtxMenu title="Writable remote (new Tasty)">
             <MenuItem label="Copy path" icon={K.ic.link} />
@@ -121,16 +121,16 @@ function RemoteWriteSection() {
             <XThemes gap="var(--tasty-space-sm)" render={() => (
               <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", width: "var(--tasty-toast-max-width)", maxWidth: "100%" }}>
                 <YResult variant="info" title={REASON.old.en} />
-                <YResult variant="info" title={REASON.headless.ko} />
-                <YResult variant="info" title={REASON.headless.ja} />
+                <YResult variant="info" title={REASON.unsupported.ko} />
+                <YResult variant="info" title={REASON.unsupported.ja} />
               </div>
             )} />
           </XCol>
         </Stage>
         <Meta
-          specs={[["choice", "(b) show disabled · tooltip = reason (Linux / macOS)"], ["rows", "Cut · Paste · New folder · New file · Rename · Move to Trash"], ["read rows", "Copy path · Copy · Open stay enabled"], ["toolbar", "create group disabled · tooltip = reason"], ["shortcut", "info toast in the cell · the same reason string"], ["reasons", "old Tasty → update hint · headless → can't change files"]]}
+          specs={[["choice", "(b) show disabled · tooltip = reason (Linux / macOS)"], ["rows", "Cut · Paste · New folder · New file · Rename · Move to Trash"], ["read rows", "Copy path · Copy · Open stay enabled"], ["toolbar", "create group disabled · tooltip = reason"], ["shortcut", "info toast in the cell · the same reason string"], ["reasons", "host doesn't announce remote writes (older Tasty) → explorer.remote.write_needs_update · any other refusal (no connection details, closing) → explorer.state.remote_write_unsupported"]]}
           tokens={[{ tok: "--tasty-state-disabled-fg", use: "disabled row / button", color: "var(--tasty-state-disabled-fg)" }, { tok: "--tasty-toast-accent-info", use: "reason toast", color: "var(--tasty-toast-accent-info)" }]} />
-        <Note>i18n: <code>explorer.remote.write_needs_update</code> “Update Tasty on {"{host}"} to change remote files.” / “{"{host}"}의 Tasty를 업데이트하면 원격 파일을 바꿀 수 있습니다.” / “{"{host}"} の Tasty を更新すると、リモートのファイルを変更できます。” · <code>explorer.remote.write_headless</code> “{"{host}"} can't change files (server without a window).” / “{"{host}"}는 파일을 바꿀 수 없습니다(화면 없는 서버).” / “{"{host}"} はファイルを変更できません(画面のないサーバー)。”. The old single “remote write not supported” toast key goes. Tooltip and toast share the key.</Note>
+        <Note>i18n: <code>explorer.remote.write_needs_update</code> “Update Tasty on {"{host}"} to change remote files.” / “{"{host}"}의 Tasty를 업데이트하면 원격 파일을 바꿀 수 있습니다.” / “{"{host}"} の Tasty を更新すると、リモートのファイルを変更できます。” / “更新 {"{host}"} 上的 Tasty 以更改远程文件。” · <code>explorer.state.remote_write_unsupported</code> “This action isn't supported in a mirrored remote explorer yet.” / “미러링된 원격 탐색기에서는 이 작업을 아직 지원하지 않습니다.” / “ミラーされたリモートエクスプローラーではこの操作をまだサポートしていません。” / “远程文件浏览器镜像暂不支持此操作。”. Both keys exist today; no new key. The general key stays as the fallback for every refusal that isn't an older Tasty. Tooltip and toast share the key, in the same order as D6's reason order.</Note>
       </Spec>
 
       <Spec id="d2-waiting-for-the-remote-the-input-row-stays-read-only-with-a-s" title="D2 · Waiting for the remote — the input row stays, read-only, with a spinner"
