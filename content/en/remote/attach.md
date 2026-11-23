@@ -1,4 +1,4 @@
-<!-- source-hash: 17ca1697b2c0 -->
+<!-- source-hash: 41100d8a0532 -->
 <a id="remote-attach"></a>
 
 # Working remotely (attach)
@@ -160,10 +160,10 @@ Common options:
 - A Workspace attach mirrors the terminals inside it, including the split structure.
 - Surfaces that a plugin draws itself, such as Image Surfaces, show their content as well, and clicks and key presses reach the remote. This includes Surfaces from plugins you installed yourself.
 - In the explorer you can change files on the remote computer (since 0.12.2). New folder, new file, rename, move to trash, and copy, cut, paste and drag-and-drop within the same connection are carried out by the remote Tasty, and the progress display, name-conflict popup and result card are the same as in a local explorer. The remote Tasty must also be 0.12.2 or later. The following limits apply.
-  - Remote operations are not added to the undo history. To revert one, use **Undo** on its result card.
-  - Pasting and drag-and-drop between local and remote, or between two different remotes, are refused.
-  - If the remote Tasty is an older version, the menu items and toolbar buttons that change files are greyed out, and their tooltip (or a notice, for a shortcut) asks you to update Tasty on that computer.
-  - **Open in system**, Show in file manager, **Add to Favorites** and **Open in New Tab** aren't available in a remote explorer.
+  - **Undo** and **Redo** are disabled in the empty-space menu. Remote operations are not recorded in the undo history. To revert one, use **Undo** on its result card.
+  - Pasting and drag-and-drop are unavailable between local and remote, or between separate remote connections. The paste item stays visible and disabled.
+  - When remote file changes are unavailable, their menu items and toolbar buttons are disabled. The reason asks you to update Tasty if the remote version is out of date. On Linux and macOS, hover over a disabled menu item to see its reason when one is available. Right-click menus on Windows have no tooltips. The paste shortcut shows the same reason in a notification.
+  - **Open in system**, the item for showing a file in the OS file manager, and **Open in New Tab** are disabled in their respective menus. Choosing **Add to Favorites** shows a notice that the action is not supported yet. See the [Explorer right-click menu](../using/files.md#right-click-menu) for individual items.
   - When you create a new folder or file or rename an item on the remote, the name you typed stays in place, greyed, with a spinner next to it until the remote answers. You can't edit or cancel it meanwhile. On success the new item is selected or the rename popup closes; on failure you can edit the same name again.
   - If the connection drops during an operation, the remote stops at the item it was on. The explorer on this side keeps a warning card saying the result is unknown until you close it, and reads the folder again once the connection is back. The card has no Retry or Undo button.
 - In the explorer, double-clicking a markdown file opens a markdown tab for it on the remote computer, and the tab appears in this window too; a file at the same path on this computer is not read. If the type's default handler can't be used remotely, only the handlers that can are offered. If no handler on the remote can open the file, a **Download and run** dialog opens within the requesting surface. Requesting it again from another surface while it is open closes the existing popup and reopens it within the new surface. After **Download and run** finishes downloading, Tasty opens the file according to your local handler settings. If the handler opens a Tasty tab, it always opens in a new local workspace, even if you switch to another local workspace during the download.
@@ -288,7 +288,7 @@ This differs from **Force detach** in the remote window, which removes someone e
 
 ## Releasing the occupation (on the remote side)
 
-When a Workspace in your Tasty has been attached from elsewhere and become read-only, a **Force detach** notice appears on the Surface. That notice only shows while you are looking at that Workspace, so you can also detach straight from the sidebar — right-click the occupied Workspace card > **Force detach**, and a confirmation appears; confirming releases it on the spot. You do not have to switch to that Workspace.
+When a Workspace in your Tasty becomes read-only because someone attached from elsewhere, a **Force detach** notice appears on the Surface while you are viewing that Workspace. **Force detach** is always visible below a separator in the right-click menu of a local Workspace card in the sidebar. It is enabled only while another client occupies that Workspace. Saved remote rows and agent mirrors have no such item. Select it and confirm to release the Workspace without switching to it.
 
 Run `tasty remote detach` on the computer hosting the occupied Workspace or Surface to disconnect remote clients occupying that Tasty instance. This also works on a server without a GUI. Choose exactly one of these options.
 

@@ -1,4 +1,4 @@
-<!-- source-hash: 15c0a01eeba0 -->
+<!-- source-hash: 597667b147ea -->
 # Workspaces
 
 Tasty’s workspaces group terminals and layouts by project or task, organized by name and category and switched from the sidebar.
@@ -74,9 +74,7 @@ When the sidebar is collapsed (**Collapse**, `Ctrl+B`) the cards become square i
 A workspace holding a terminal someone is using over a remote attach will not close; you
 get a notice instead. Someone is working in that terminal right now, and closing it would
 end their session without warning. To take it back, press **Force detach** on the occupancy
-badge, then close again. If you would rather not switch to that Workspace, right-click its
-sidebar card instead — a **Force detach** item appears only while it is occupied, and it
-opens a confirmation popup immediately in the center of the current window without switching to that workspace. The popup stays visible when you switch to another workspace. Requesting force detach for another workspace while the popup is open closes the existing popup and reopens it for the new target.
+badge, then close again. When you right-click a local Workspace card in the sidebar, **Force detach** is always visible. It is enabled only while another client occupies the Workspace. Selecting it opens a confirmation popup immediately in the center of the current window without switching to that Workspace. The popup stays visible when you switch to another workspace. Requesting force detach for another workspace while the popup is open closes the existing popup and reopens it for the new target.
 
 Press `Ctrl+Shift+T` to restore workspaces, panes, tabs, and surfaces you closed, starting with the most recent item. Tasty keeps up to 10 records and retains them when the same layout slot is resumed normally. Terminal history is restored according to the content restoration setting. Shells start again, and saved session resume commands run when present. Items closed through the CLI are not added to this list.
 

@@ -1,4 +1,4 @@
-<!-- source-hash: 91c8321238ab -->
+<!-- source-hash: 5a5a680afd3b -->
 # 使用终端
 
 介绍在终端运行命令时复制输出、搜索和打开文件路径的方法。还可使用无需鼠标的复制模式，以及任务完成通知。
@@ -61,7 +61,7 @@ Windows 版 Codex CLI 在默认按键发送方式下，使用 `Shift+Enter` 或 
 
 ### 选择
 
-拖动（字符）· 双击（单词）· 三击（行）。选区可延伸到回滚缓冲区。选择后右键点击，会显示 **复制** <!-- en: Copy --> · **复制时移除换行** <!-- en: Copy Without Line Breaks --> · **复制终端 ID** <!-- en: Copy Terminal ID --> 菜单。如果所选文本是实际存在的文件或文件夹路径，还会显示 **打开文件** <!-- en: Open File --> / **打开文件夹** <!-- en: Open Folder -->。
+拖动（字符）· 双击（单词）· 三击（行）。选区可延伸到回滚缓冲区。右键菜单的前两项是 **复制** <!-- en: Copy --> 和 **复制时移除换行** <!-- en: Copy Without Line Breaks -->。未选中文本时，这两项处于禁用状态。菜单中还有 **复制终端 ID** <!-- en: Copy Terminal ID -->。如果所选文本是实际存在的文件或文件夹路径，还会显示 **打开文件** <!-- en: Open File --> / **打开文件夹** <!-- en: Open Folder -->。
 
 在 Shell 中输入命令时，单击输入行可将光标移至该位置。在非 Shell 程序、向上查看回滚缓冲区时，或捕获鼠标的程序中，不会移动光标。要关闭此行为，在 `config.toml` 的 `[general]` 中添加 `click_to_move_cursor = false`（[设置](../customize/settings.md)）。
 

@@ -60,7 +60,7 @@ Windows용 Codex CLI는 기본 키 전송 방식에서 `Shift+Enter` 또는 `Ctr
 
 ### 선택
 
-드래그(문자) · 더블클릭(단어) · 트리플클릭(줄). 선택은 스크롤백까지 이어집니다. 선택 후 우클릭하면 **복사** <!-- en: Copy --> · **줄바꿈 없이 복사** <!-- en: Copy Without Line Breaks --> · **터미널 ID 복사** <!-- en: Copy Terminal ID --> 메뉴가 뜹니다. 선택한 글자가 실제 파일 · 폴더 경로면 **파일 열기** <!-- en: Open File --> / **폴더 열기** <!-- en: Open Folder --> 도 나타납니다.
+드래그(문자) · 더블클릭(단어) · 트리플클릭(줄). 선택은 스크롤백까지 이어집니다. 우클릭 메뉴 맨 앞에는 **복사** <!-- en: Copy -->와 **줄바꿈 없이 복사** <!-- en: Copy Without Line Breaks -->가 있습니다. 선택한 텍스트가 없으면 두 항목은 비활성으로 보입니다. 메뉴에는 **터미널 ID 복사** <!-- en: Copy Terminal ID -->도 있습니다. 선택한 글자가 실제 파일 · 폴더 경로면 **파일 열기** <!-- en: Open File --> / **폴더 열기** <!-- en: Open Folder --> 도 나타납니다.
 
 셸에서 명령을 입력하는 중에 입력 줄을 한 번 클릭하면 커서가 그 위치로 옮겨집니다. 셸이 아닌 프로그램, 스크롤백을 올려 본 상태, 마우스를 잡는 프로그램에서는 옮기지 않습니다. 이 동작을 끄려면 `config.toml`의 `[general]`에 `click_to_move_cursor = false`를 넣습니다([설정](../customize/settings.md)).
 

@@ -1,4 +1,4 @@
-<!-- source-hash: a39e4851261f -->
+<!-- source-hash: e352c9f2f97f -->
 # Panes, tabs, and splits
 
 Tasty’s pane splits create areas with independent tab switching, while surface splits divide views that stay together within one tab. Choose either level to build the layout you need.
@@ -71,10 +71,10 @@ When the layout is restored, the shells of Tabs not visible on screen are not la
 
 ## Moving Surfaces
 
-Moves a live Surface to another Tab · Pane · Workspace. For a terminal, the running program and the scrollback go with it.
+Moves a live Surface to another Tab · Pane · Workspace. For a terminal, the running program and the scrollback go with it. For both the source and destination, use a Surface with move items in its right-click menu, such as a terminal or Markdown Surface. Right-clicking in the explorer opens its file menu.
 
 1. Right-click an empty area of the Surface to move > **Move Surface**. A notice that the Surface was cut appears briefly over it.
-2. Right-click an empty area of the destination Surface > **Move Surface Here**. This item appears only while a Surface is cut.
+2. Right-click an empty area of the destination Surface > **Move Surface Here**. The item is visible before you cut a Surface and becomes enabled once you do. Choosing it on the cut Surface cancels the pending move.
 
 Only one cut item is remembered. Cutting something else replaces the earlier one.
 
@@ -85,7 +85,7 @@ The destination Surface is closed and the moved Surface takes its place. Create 
 Moves one Tab, together with its splits, to another Pane or Workspace. For a terminal, the running program and the scrollback go with it.
 
 1. Right-click the Tab to move > **Move Tab**. A notice that the Tab was cut appears briefly over its Pane.
-2. Right-click the destination Tab > **Move Tab Here**. This item appears only while another Tab is cut.
+2. Right-click the destination Tab > **Move Tab Here**. This item is always visible and becomes enabled when another Tab is cut. It is disabled in the cut Tab’s own menu.
 
 The destination Tab is closed together with its Surfaces and the moved Tab takes its place. If the moved Tab was the last Tab of its Pane, that Pane closes; if it was in the last Pane of the Workspace, the Workspace closes. Tabs in a remote Workspace (one connected with attach) cannot be moved. A cut item can only be moved within the same window.
 
@@ -94,7 +94,7 @@ The destination Tab is closed together with its Surfaces and the moved Tab takes
 Moves one Pane, with all of its Tabs, to another split position or another Workspace. For a terminal, the running program and the scrollback go with it.
 
 1. Right-click any Tab of the Pane to move > **Move Pane**. A notice that the Pane was cut appears briefly over it.
-2. Right-click a Tab of the destination Pane > **Move Pane Here**. This item appears only while another Pane is cut.
+2. Right-click a Tab of the destination Pane > **Move Pane Here**. This item is always visible and becomes enabled when another Pane is cut. It is disabled in the menus of Tabs in the cut Pane.
 
 The destination Pane is closed together with its Tabs, and the moved Pane takes its place at the same size. The neighboring Pane grows to fill the original spot. If the moved Pane was the last Pane of its Workspace, that Workspace closes. Panes in a remote Workspace cannot be moved, and a cut item can only be moved within the same window.
 
