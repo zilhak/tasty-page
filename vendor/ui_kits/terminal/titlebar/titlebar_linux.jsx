@@ -15,6 +15,9 @@ const BASE = `${import.meta.env.BASE_URL.replace(/\/$/, "")}/`;
 // `buttons` (subset/order of min·max·close) and `side` (left|right). On Wayland
 // the window draws rounded top corners + a 1px border + a soft shadow whose
 // margin holds the resize edges. All color/size from --tasty-* tokens.
+// The buttons are the window button part of the Title bar and Title bar (inactive) contracts (RULES.md
+// section 9, Layouts › Title bar): no fill at rest, the hover or press fill under the pointer, and the
+// title ink on the glyph throughout. Close under the pointer is the Window close button.
 
 const TB_LIN_CSS = `
 .tb-lin { display:flex; align-items:center; height:var(--tasty-titlebar-height); flex:none;
@@ -26,12 +29,15 @@ const TB_LIN_CSS = `
 .tb-lin__ctrls { display:flex; gap:var(--tasty-space-xs); flex:none; }
 .tb-lin__btn { width:var(--tasty-titlebar-window-button-size); height:var(--tasty-titlebar-window-button-size);
   border:0; border-radius:var(--tasty-radius-pill); display:grid; place-items:center;
-  background:var(--tasty-titlebar-button-hover-bg); color:var(--tasty-titlebar-button-fg); cursor:pointer;
+  background:transparent; color:var(--tasty-titlebar-fg); cursor:pointer;
   transition:background var(--tasty-motion-ui-fast) var(--tasty-ease-ui), color var(--tasty-motion-ui-fast) var(--tasty-ease-ui); }
 .tb-lin__btn svg { width:var(--tasty-icon-size-xs); height:var(--tasty-icon-size-xs); }
-.tb-lin__btn:hover { color:var(--tasty-titlebar-button-fg-hover); background:var(--tasty-surface-hover); }
-.tb-lin__btn--close:hover { background:var(--tasty-titlebar-close-hover-bg); color:var(--tasty-titlebar-close-hover-fg); }
+/* window button (Title bar contracts): the glyph keeps the title ink in every state, only the fill changes */
 .tb-lin[data-active="false"] .tb-lin__btn { color:var(--tasty-titlebar-fg-inactive); }
+.tb-lin__btn:hover { background:var(--tasty-titlebar-button-hover-bg); }
+.tb-lin__btn:active { background:var(--tasty-titlebar-button-active-bg); }
+/* close under the pointer is the Window close button; one step more specific than the inactive ink above */
+.tb-lin .tb-lin__btn--close:hover, .tb-lin .tb-lin__btn--close:active { background:var(--tasty-titlebar-close-hover-bg); color:var(--tasty-titlebar-close-hover-fg); }
 `;
 
 function TitlebarLinux({ active = true, variant = "split", title = "agents-prod",
