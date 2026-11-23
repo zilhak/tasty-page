@@ -1076,7 +1076,7 @@ function Page() {
           when={<>The largest dialog. <b>L1</b> = a small, fixed set of top tabs (General / Appearance / Keybindings / Plugins). <b>L2</b> = a growable, filterable left sidebar of sections (plugins contribute here). This split keeps top-level navigation stable while the content tree scales. Reuse it for any settings-like surface.</>}>
           <Stage variant="solo center"><Backdrop height={420}><SettingsFrame /></Backdrop></Stage>
           <Meta
-            specs={[["frame", "1100 × 700 (canonical)"], ["L1 tabs", "44px bar, accent underline"], ["L2 sidebar", "200px, filter + list"], ["footer", "Cancel / Save, right"]]}
+            specs={[["frame width", "--tasty-settings-window-width"], ["frame height: macOS, Windows, Linux with OS decorations", "--tasty-settings-window-height"], ["frame height: Linux with the title bar Tasty draws (see below)", "--tasty-settings-window-csd-height"], ["L1 tabs", "--tasty-settings-l1-height"], ["L1 active tab", "accent underline"], ["L2 sidebar", "200px, filter + list"], ["footer", "Cancel / Save, right"]]}
             tokens={[{ tok: "--tasty-bg-sidebar", use: "L1 + L2", color: "var(--tasty-bg-sidebar)" }, { tok: "--tasty-bg-panel", use: "content", color: "var(--tasty-bg-panel)" }, { tok: "--tasty-accent-primary", use: "active tab", color: "var(--tasty-accent-primary-raised)" }, { tok: "--tasty-surface-active", use: "active section", color: "var(--tasty-surface-active)" }]} />
           <Note>L1 stays small forever; growth happens only in L2. Plugins are their <b>own</b> L1 tab — never crammed into another group's sidebar.</Note>
         </Spec>

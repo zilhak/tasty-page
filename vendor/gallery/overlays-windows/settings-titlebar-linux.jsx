@@ -85,13 +85,18 @@ function SettingsTitleBarLinuxSpec() {
       </Views>
       <Meta
         specs={[
-          ["window", "settings-window-width × settings-window-csd-height (1100 × 736), inner and minimum, off the UI scale"],
-          ["title bar", "titlebar-height 36 · 1px titlebar-border below · padding-x space-sm 8"],
+          ["window width", "--tasty-settings-window-width"],
+          ["window height, inner and minimum", "--tasty-settings-window-csd-height"],
+          ["window height with OS decorations (no row)", "--tasty-settings-window-height"],
+          ["title bar height", "--tasty-titlebar-height"],
+          ["line below the title bar", "--tasty-border-width"],
+          ["title bar padding-x", "--tasty-space-sm"],
+          ["close button, round", "--tasty-titlebar-window-button-size"],
+          ["close X span, 1px stroke", "--tasty-titlebar-window-glyph-size"],
+          ["L1 band below", "--tasty-settings-l1-height"],
           ["title", "none — the L1 band keeps its Settings label and divider"],
-          ["buttons", "close only, right end · titlebar-window-button-size 24, round · close X titlebar-window-glyph-size 10.56, 1px stroke, centered on the 36 row"],
+          ["buttons", "close only, right end, centered on the title bar"],
           ["drag", "the rest of the row moves the window · double click does nothing (no maximize)"],
-          ["server-side decorations", "no row · settings-window-height 700"],
-          ["below", "L1 band 44, L2 sidebar, content and footer as on every OS"],
         ]}
         tokens={[
           { tok: "--tasty-titlebar-bg", use: "active ground, crust", color: "var(--tasty-titlebar-bg)" },

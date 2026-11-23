@@ -173,9 +173,21 @@ const bareNode = (node) => {
   return node;
 };
 
+// A length token that is a calc() resolves through a measured width, so the table shows its px value.
+function resolveLength(name) {
+  const raw = resolveToken(name);
+  if (!/calc\(/.test(raw)) return raw;
+  const el = document.createElement("div");
+  el.style.cssText = `position:absolute;visibility:hidden;width:var(--tasty-${name})`;
+  document.body.appendChild(el);
+  const px = getComputedStyle(el).width;
+  el.remove();
+  return px && px !== "auto" ? px : raw;
+}
+
 function ResolvedLength({ name }) {
   const [v, set] = useState("");
-  useEffect(() => { set(resolveToken(name)); }, [name]);
+  useEffect(() => { set(resolveLength(name)); }, [name]);
   return <>{v}</>;
 }
 
