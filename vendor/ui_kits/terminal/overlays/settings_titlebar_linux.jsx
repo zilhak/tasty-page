@@ -44,7 +44,7 @@ const CSS = `
   background:var(--tasty-titlebar-close-hover-bg); color:var(--tasty-titlebar-close-hover-fg); }
 /* Keyboard focus: the standard 2px focus ring around the round button, at rest colors. */
 .stl-lin__close:not([data-state]):focus-visible, .stl-lin__close[data-state="focus"] {
-  outline:var(--tasty-focus-ring-width) solid var(--tasty-border-focus); }
+  outline:var(--tasty-focus-ring-width) solid var(--tasty-border-focus); outline-offset:var(--tasty-focus-ring-offset); }
 `;
 
 (function ensure() {

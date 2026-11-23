@@ -1260,6 +1260,10 @@
       "$type": "dimension",
       "$value": "{primitive.size-2}"
     },
+    "focus-ring-offset": {
+      "$type": "dimension",
+      "$value": "{primitive.size-1}"
+    },
     "radius": {
       "$type": "dimension",
       "$value": "{primitive.radius-4}"

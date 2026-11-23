@@ -257,6 +257,7 @@
   /* ── Border width & radius (system-wide constants) ────────── */
   --tasty-border-width:     var(--tasty-size-1);   /* always 1px */
   --tasty-focus-ring-width: var(--tasty-size-2);   /* 2px accent ring */
+  --tasty-focus-ring-offset: var(--tasty-size-1);  /* gap between a control and its focus ring (base.css :focus-visible) */
   --tasty-radius:           var(--tasty-radius-4); /* default corner */
   --tasty-radius-sm:        var(--tasty-radius-2); /* tight inner elements */
   --tasty-radius-pill:      var(--tasty-radius-full);

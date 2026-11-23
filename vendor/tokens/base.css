@@ -51,7 +51,7 @@ samp {
 /* a thin, on-brand focus ring used across components */
 :where(button, a, input, select, textarea, [tabindex]):focus-visible {
   outline: var(--tasty-focus-ring-width) solid var(--tasty-border-focus);
-  outline-offset: 1px;
+  outline-offset: var(--tasty-focus-ring-offset);
 }
 
 /* scrollbars — subtle, surface-tinted */
