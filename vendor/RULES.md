@@ -1951,7 +1951,7 @@ Sits on: `mantle`
 | Part | Token | States | Ground | Lowest, Mocha · Latte |
 |---|---|---|---|---|
 | title | `titlebar-fg-inactive` | rest | `mantle` | 7.89 · 5.14 |
-| button | `titlebar-button-fg` | rest | `mantle` | 7.89 · 5.14 |
+| button | `titlebar-fg-inactive` | rest | `mantle` | 7.89 · 5.14 |
 | button | `titlebar-button-fg-hover` | hover, press | `mantle+hover`, `mantle+press` | 8.50 · 5.01 |
 | window button | `titlebar-fg-inactive` | rest | `mantle` | 7.89 · 5.14 |
 | window button | `titlebar-fg-inactive` | hover, press | `mantle+hover`, `mantle+press` | 5.52 · 3.92 |

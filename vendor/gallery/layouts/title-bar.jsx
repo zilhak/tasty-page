@@ -10,11 +10,11 @@ import { Spec, Stage, Meta } from "../parts/specimen.jsx";
 
 const CELL = { display: "grid", placeItems: "center", width: "var(--tasty-titlebar-caption-width)", height: "var(--tasty-titlebar-height)", flex: "none" };
 const STATE_BG = { rest: "transparent", hover: "var(--tasty-titlebar-button-hover-bg)", press: "var(--tasty-titlebar-button-active-bg)" };
-const STATE_FG = { rest: "var(--tasty-titlebar-button-fg)", hover: "var(--tasty-titlebar-button-fg-hover)", press: "var(--tasty-titlebar-button-fg-hover)" };
+const STATE_FG = { hover: "var(--tasty-titlebar-button-fg-hover)", press: "var(--tasty-titlebar-button-fg-hover)" };
 
 const WINDOWS = [
-  { label: "Active", contract: "Title bar", host: "crust", bg: "var(--tasty-titlebar-bg)", fg: "var(--tasty-titlebar-fg)" },
-  { label: "Inactive", contract: "Title bar (inactive)", host: "mantle", bg: "var(--tasty-titlebar-bg-inactive)", fg: "var(--tasty-titlebar-fg-inactive)" },
+  { label: "Active", contract: "Title bar", host: "crust", bg: "var(--tasty-titlebar-bg)", fg: "var(--tasty-titlebar-fg)", buttonRest: "var(--tasty-titlebar-button-fg)" },
+  { label: "Inactive", contract: "Title bar (inactive)", host: "mantle", bg: "var(--tasty-titlebar-bg-inactive)", fg: "var(--tasty-titlebar-fg-inactive)", buttonRest: "var(--tasty-titlebar-fg-inactive)" },
 ];
 
 function Band({ w, children }) {
@@ -28,7 +28,7 @@ function Band({ w, children }) {
 
 function CaptionCell({ w, state }) {
   return (
-    <span style={{ ...CELL, background: STATE_BG[state], color: STATE_FG[state] }}>
+    <span style={{ ...CELL, background: STATE_BG[state], color: state === "rest" ? w.buttonRest : STATE_FG[state] }}>
       <Icon name="chevronDown" size="var(--tasty-icon-size-xs)" data-part="button" />
     </span>
   );
@@ -64,8 +64,8 @@ function GalleryTitleBar() {
           { tok: "--tasty-titlebar-bg", use: "active ground, crust", color: "var(--tasty-titlebar-bg)" },
           { tok: "--tasty-titlebar-bg-inactive", use: "inactive ground, mantle", color: "var(--tasty-titlebar-bg-inactive)" },
           { tok: "--tasty-titlebar-fg", use: "active title and Linux window button glyph", color: "var(--tasty-titlebar-fg)" },
-          { tok: "--tasty-titlebar-fg-inactive", use: "inactive title and Linux window button glyph", color: "var(--tasty-titlebar-fg-inactive)" },
-          { tok: "--tasty-titlebar-button-fg", use: "Windows caption button at rest", color: "var(--tasty-titlebar-button-fg)" },
+          { tok: "--tasty-titlebar-fg-inactive", use: "inactive title, Windows caption button at rest, Linux window button glyph", color: "var(--tasty-titlebar-fg-inactive)" },
+          { tok: "--tasty-titlebar-button-fg", use: "Windows caption button at rest, active window", color: "var(--tasty-titlebar-button-fg)" },
           { tok: "--tasty-titlebar-button-fg-hover", use: "Windows caption button under hover and press", color: "var(--tasty-titlebar-button-fg-hover)" },
           { tok: "--tasty-titlebar-close-hover-bg", use: "close fill", color: "var(--tasty-titlebar-close-hover-bg)" },
           { tok: "--tasty-titlebar-close-hover-fg", use: "close glyph", color: "var(--tasty-titlebar-close-hover-fg)" },
