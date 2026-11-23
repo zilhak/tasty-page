@@ -4,7 +4,8 @@ import { Spinner } from "./Spinner";
 /**
  * Tasty PendingIndicator (2026-10-19) — the small "waiting for a response" chip shown
  * while an already-attached workspace waits on requests that create no new area
- * (close · move · restore closed · convert). View-only: it owns no timer, no request
+ * (close · move · restore closed · convert), and while a program on the attached host is still sending a
+ * clipboard write (label "Copying to clipboard", attach.pending.copy, shown at once). View-only: it owns no timer, no request
  * state, no cancel/retry. The caller passes the count and the OLDEST pending request's
  * elapsed seconds; it hides the chip on completion and hands failure/disconnect to the
  * existing error / reconnect notices.
