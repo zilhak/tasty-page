@@ -2383,7 +2383,7 @@ What carries over to a user theme is only the structure of token choice: each ce
 | `font-size-brand-*, font-size-prose-h1, font-size-term*` | not contrast | Brand, rendered content and terminal cell are outside the 14px UI cap. |
 | `control-height-tree 22` | not contrast | The tree row is the one off-grid height. It is the system constant. |
 
-Token classes in the file: 180 grounds, 378 foregrounds, 97 borders, 86 exceptions, 741 non-color. Exceptions include the primitive color values, which UI never reads.
+Every token has one class, ground, foreground, border, exception or non-color, in the `tokens` list of the file. That list is the count; this page does not repeat it. Exceptions include the primitive color values, which UI never reads.
 
 Disabled ink and ornaments are not exceptions. Their grade is none.
 
