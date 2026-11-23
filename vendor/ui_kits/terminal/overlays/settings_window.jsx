@@ -20,6 +20,7 @@ import { AnomalySubtab } from "./settings_anomaly.jsx";
 import { Scrim } from "./shared.jsx";
 import { SettingsTitleBarLinux } from "./settings_titlebar_linux.jsx";
 import { ChildGraphSettings } from "./child_graph.jsx";
+import { DraftContext, useDraft, useDraftStore } from "./settings_draft.jsx";
 
 // Tasty UI kit — Settings window (L1 top tabs + L2 sidebar + content).
 // Mirrors zilhak/tasty → src/view/settings/ui.rs (+ settings/ui/tabs/*, keybindings_tab.rs).
@@ -82,7 +83,7 @@ const PALETTE_GROUPS = [
 
 function ColorOverridePicker() {
   // overrides: { field: hex }. Seeded with a few to show the overridden state.
-  const [overrides, setOverrides] = React.useState({ base: "#181926", surface0: "#363a4f", blue: "#74c7ec" });
+  const [overrides, setOverrides] = useDraft("appearance.colors", { base: "#181926", surface0: "#363a4f", blue: "#74c7ec" });
   const [collapsed, setCollapsed] = React.useState(() => {
     const c = {}; PALETTE_GROUPS.forEach((g) => { c[g.name] = !g.open; }); return c;
   });
@@ -338,7 +339,7 @@ function ScriptRow({ s, renaming, confirming, onStartRename, onCommitRename, onC
 }
 
 function ScriptManager() {
-  const [scripts, setScripts] = React.useState(SEED_SCRIPTS);
+  const [scripts, setScripts] = useDraft("misc.scripts", SEED_SCRIPTS);
   const [adding, setAdding] = React.useState(false);
   const [renameId, setRenameId] = React.useState(null);
   const [confirmId, setConfirmId] = React.useState(null);
@@ -429,7 +430,7 @@ function ScriptManager() {
 // handled locally instead of sent to the capturing TUI. Mirrors the gallery
 // BlacklistEditorG specimen (Overlays › Banners › Capture blacklist).
 function CaptureBlacklist() {
-  const [items, setItems] = React.useState(["htop", "vim", "ht*"]);
+  const [items, setItems] = useDraft("terminal.mouseCapture.programs", ["htop", "vim", "ht*"]);
   const [draft, setDraft] = React.useState("");
   const [hover, setHover] = React.useState(null);
   const add = () => { const v = draft.trim(); if (!v) return; setItems((xs) => (xs.includes(v) ? xs : [...xs, v])); setDraft(""); };
@@ -510,7 +511,7 @@ function HookRow({ h, onToggle, onCmd, onDelete }) {
 }
 
 function HookHandlers() {
-  const [hooks, setHooks] = React.useState(SEED_HOOKS);
+  const [hooks, setHooks] = useDraft("handler.hooks", SEED_HOOKS);
   const [adding, setAdding] = React.useState(false);
   const [draftId, setDraftId] = React.useState("");
   const [draftCmd, setDraftCmd] = React.useState("");
@@ -644,7 +645,7 @@ function PresetDiffTable({ preset, presetName }) {
 }
 
 function PresetSubtab() {
-  const [activeId, setActiveId] = React.useState("default");
+  const [activeId, setActiveId] = useDraft("keybindings.preset", "default");
   const [view, setView] = React.useState("list");
   const [selId, setSelId] = React.useState(null);
   const sel = KB_PRESETS.find((p) => p.id === selId) || null;
@@ -704,7 +705,8 @@ function PresetSubtab() {
 // 2026-11-24: on Linux the window draws its own title bar (settings_titlebar_linux.jsx) above the
 // L1 band and grows by it (settings-window-csd-height), so the 1100 × 700 below stays. The L1 band
 // is the same on every OS. windowActive picks the active / inactive title bar, closeState freezes
-// the close button (closeTooltip holds its tooltip open), onSave lets Save keep the draft while Cancel and close (onClose) drop it, onTitleBarDrag(dx, dy) reports a title bar drag (null when it ends), and frame="bare" drops the scrim and shadow so a gallery frame can crop the window.
+// the close button (closeTooltip holds its tooltip open), onSave(values) lets Save keep the draft while Cancel and close (onClose) drop it,
+// saved opens the window on values an earlier onSave handed out (settings_draft.jsx), onTitleBarDrag(dx, dy) reports a title bar drag (null when it ends), and frame="bare" drops the scrim and shadow so a gallery frame can crop the window.
 const DEFAULT_OS = "windows";
 // Plugin-contributed Appearance pages are dynamic — present only when a plugin registers
 // one, inserted after Terminal / before HTML (mirrors the source push order). Shown with
@@ -765,7 +767,7 @@ const EXT_SEED = [
 // not-installed group (no enabled detector supports it), which has no rows. Both edit the draft; no confirm.
 function ExtensionMapping({ detectors = true }) {
 
-  const [map, setMap] = React.useState(EXT_SEED);
+  const [map, setMap] = useDraft("handler.extensionMapping", EXT_SEED);
   const [draft, setDraft] = React.useState("");
   const move = (gi, i, d) => setMap((m) => m.map((g, j) => {
     if (j !== gi) return g;
@@ -808,7 +810,84 @@ function ExtensionMapping({ detectors = true }) {
   );
 }
 
-function SettingsWindow({ theme, onTheme, uiScale, onUiScale, onClose, os = DEFAULT_OS, initialL1 = "Appearance", initialL2 = "Theme", windowActive = true, closeState, frame = "modal", onTitleBarDrag, onSave, closeTooltip = false }) {
+// ── Settings rows ──────────────────────────────────────────────────────
+// Defined once here, not inside SettingsWindow: a component defined in a render is a new type on every
+// render, so React would rebuild every row (and drop what was typed) whenever the window re-renders.
+// SettingsPage carries the subtab's id and label column to its rows. A Row names its field, l1/l2|label,
+// and the S* controls below keep their value in the window's draft under that name (settings_draft.jsx).
+const SettingsPage = React.createContext({ page: "", labelCol: "var(--tasty-settings-label-width)" });
+const RowField = React.createContext(null);
+
+// caption / callout that belongs to ONE row sits directly under it (gap --tasty-settings-row-caption-gap 4),
+// at the row's left edge, width measure-md — same as every settings Note.
+function Row({ label, hint, caption, children }) {
+  const { page, labelCol } = React.useContext(SettingsPage);
+  const row = (
+    <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-settings-label-gap)", minHeight: "var(--tasty-settings-row-min-height)" }}>
+      <span style={{ width: labelCol, flex: "none", fontSize: 13, color: "var(--tasty-text-secondary)", lineHeight: "var(--tasty-line-height-ui)",
+        display: "inline-flex", alignItems: "center", gap: "var(--tasty-help-hint-gap)" }}>
+        <span>{label}</span>{hint && <HelpHint label={hint} placement="bottom" />}
+      </span>
+      <RowField.Provider value={page + "|" + label}>{children}</RowField.Provider>
+    </div>
+  );
+  if (!caption) return row;
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-settings-row-caption-gap)" }}>
+      {row}
+      {caption}
+    </div>
+  );
+}
+// A row's control, its value in the draft under the row's field name. Outside a Row it keeps its own state.
+function useRowField(initial) {
+  const field = React.useContext(RowField);
+  const [own, setOwn] = React.useState(initial);
+  const [drafted, setDrafted] = useDraft(field || "", initial);
+  return field ? [drafted, setDrafted] : [own, setOwn];
+}
+function SInput({ defaultValue = "", ...rest }) {
+  const [v, set] = useRowField(defaultValue);
+  return <Input {...rest} value={v} onChange={(e) => set(e.target.value)} />;
+}
+function SSelect({ defaultValue = "", ...rest }) {
+  const [v, set] = useRowField(defaultValue);
+  return <Select {...rest} value={v} onChange={(e) => set(e.target.value)} />;
+}
+function SSwitch({ defaultChecked = false, ...rest }) {
+  const [v, set] = useRowField(!!defaultChecked);
+  return <Switch {...rest} checked={v} onChange={(e) => set(e.target.checked)} />;
+}
+function SRange({ defaultValue = "", ...rest }) {
+  const [v, set] = useRowField(defaultValue);
+  return <input type="range" {...rest} value={v} onChange={(e) => set(e.target.value)} />;
+}
+// inline code run inside a caption (backtick runs in the catalog) — the shared ui-code tokens.
+const KbCode = ({ children }) => (
+  <code style={{ fontFamily: "var(--tasty-ui-code-font)", fontSize: "1em", background: "var(--tasty-ui-code-bg)", color: "var(--tasty-ui-code-fg)", padding: "0 var(--tasty-ui-code-padding-x)", borderRadius: "var(--tasty-ui-code-radius)" }}>{children}</code>
+);
+const RowCaption = ({ children }) => (
+  <p style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)", margin: 0, maxWidth: "var(--tasty-measure-md)", lineHeight: "var(--tasty-line-height-ui)" }}>{children}</p>
+);
+const WarnCallout = ({ children }) => (
+  <div style={{ display: "flex", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-sm) var(--tasty-space-md)", borderRadius: "var(--tasty-radius)", maxWidth: "var(--tasty-measure-md)",
+    border: "var(--tasty-border-width) solid color-mix(in srgb, var(--tasty-accent-warning) 40%, transparent)",
+    background: "color-mix(in srgb, var(--tasty-accent-warning) 12%, transparent)" }}>
+    <span style={{ display: "inline-flex", flex: "none", marginTop: 1, color: "var(--tasty-accent-warning-raised)" }}>
+      <Icon name="alertTriangle" size={16} />
+    </span>
+    <p style={{ margin: 0, fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-secondary)", lineHeight: "var(--tasty-line-height-ui)" }}>{children}</p>
+  </div>
+);
+const Mono = ({ children }) => (
+  <div style={{ fontFamily: "var(--tasty-font-label)", fontSize: 10, textTransform: "uppercase",
+    letterSpacing: "var(--tasty-letter-spacing-caps)", color: "var(--tasty-text-muted)" }}>{children}</div>
+);
+const Note = ({ children }) => (
+  <p style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)", margin: 0, maxWidth: "var(--tasty-measure-md)", lineHeight: "var(--tasty-line-height-ui)" }}>{children}</p>
+);
+
+function SettingsWindow({ theme, onTheme, uiScale, onUiScale, onClose, os = DEFAULT_OS, initialL1 = "Appearance", initialL2 = "Theme", windowActive = true, closeState, frame = "modal", onTitleBarDrag, onSave, saved, closeTooltip = false }) {
   const IS_LINUX = os === "linux";
   const IS_WINDOWS = os === "windows";
   const IS_MAC = os === "macos";
@@ -818,6 +897,8 @@ function SettingsWindow({ theme, onTheme, uiScale, onUiScale, onClose, os = DEFA
   const [l2, setL2] = React.useState(initialL2);
   const [filter, setFilter] = React.useState("");
   const [toast, setToast] = React.useState(null);
+  // Every edit in the window goes to this draft. Save hands it to onSave; Cancel and close drop it with the window.
+  const [draft, saveDraft] = useDraftStore(saved);
   React.useEffect(() => {
     if (!toast) return;
     const t = setTimeout(() => setToast(null), 2000);
@@ -838,51 +919,7 @@ function SettingsWindow({ theme, onTheme, uiScale, onUiScale, onClose, os = DEFA
   // en result per subtab in LABEL_COL (General › General clamps to 240: the webhook label wraps).
   const LABEL_COL = { "General/General": "var(--tasty-settings-label-max-width)", "Terminal/TUI": "var(--tasty-settings-label-max-width)" };
   const labelCol = LABEL_COL[l1 + "/" + l2] || "var(--tasty-settings-label-width)";
-  // caption / callout that belongs to ONE row sits directly under it (gap --tasty-settings-row-caption-gap 4),
-  // at the row's left edge, width measure-md — same as every settings Note.
-  const Row = ({ label, hint, caption, children }) => {
-    const row = (
-      <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-settings-label-gap)", minHeight: "var(--tasty-settings-row-min-height)" }}>
-        <span style={{ width: labelCol, flex: "none", fontSize: 13, color: "var(--tasty-text-secondary)", lineHeight: "var(--tasty-line-height-ui)",
-          display: "inline-flex", alignItems: "center", gap: "var(--tasty-help-hint-gap)" }}>
-          <span>{label}</span>{hint && <HelpHint label={hint} placement="bottom" />}
-        </span>
-        {children}
-      </div>
-    );
-    if (!caption) return row;
-    return (
-      <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-settings-row-caption-gap)" }}>
-        {row}
-        {caption}
-      </div>
-    );
-  };
-  // inline code run inside a caption (backtick runs in the catalog) — the shared ui-code tokens.
-  const KbCode = ({ children }) => (
-    <code style={{ fontFamily: "var(--tasty-ui-code-font)", fontSize: "1em", background: "var(--tasty-ui-code-bg)", color: "var(--tasty-ui-code-fg)", padding: "0 var(--tasty-ui-code-padding-x)", borderRadius: "var(--tasty-ui-code-radius)" }}>{children}</code>
-  );
-  const RowCaption = ({ children }) => (
-    <p style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)", margin: 0, maxWidth: "var(--tasty-measure-md)", lineHeight: "var(--tasty-line-height-ui)" }}>{children}</p>
-  );
-  const WarnCallout = ({ children }) => (
-    <div style={{ display: "flex", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-sm) var(--tasty-space-md)", borderRadius: "var(--tasty-radius)", maxWidth: "var(--tasty-measure-md)",
-      border: "var(--tasty-border-width) solid color-mix(in srgb, var(--tasty-accent-warning) 40%, transparent)",
-      background: "color-mix(in srgb, var(--tasty-accent-warning) 12%, transparent)" }}>
-      <span style={{ display: "inline-flex", flex: "none", marginTop: 1, color: "var(--tasty-accent-warning-raised)" }}>
-        <Icon name="alertTriangle" size={16} />
-      </span>
-      <p style={{ margin: 0, fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-secondary)", lineHeight: "var(--tasty-line-height-ui)" }}>{children}</p>
-    </div>
-  );
-  const Mono = ({ children }) => (
-    <div style={{ fontFamily: "var(--tasty-font-label)", fontSize: 10, textTransform: "uppercase",
-      letterSpacing: "var(--tasty-letter-spacing-caps)", color: "var(--tasty-text-muted)" }}>{children}</div>
-  );
-  const Note = ({ children }) => (
-    <p style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)", margin: 0, maxWidth: "var(--tasty-measure-md)", lineHeight: "var(--tasty-line-height-ui)" }}>{children}</p>
-  );
-
+  const page = React.useMemo(() => ({ page: l1 + "/" + l2, labelCol }), [l1, l2, labelCol]);
   function body() {
     // ── Appearance ──
     if (l1 === "Appearance") {
@@ -932,21 +969,21 @@ function SettingsWindow({ theme, onTheme, uiScale, onUiScale, onClose, os = DEFA
       if (l2 === "General")
         return (
           <>
-            <Row label="Font family:"><Select options={["D2Coding", "JetBrains Mono", "Cascadia Code"]} style={{ width: "var(--tasty-field-width-lg)" }} /></Row>
-            <Row label="Font size:"><Input mono defaultValue="14" style={{ width: "var(--tasty-field-width-xs)" }} /><span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>px</span></Row>
-            <Row label="Line height:"><Input mono defaultValue="1.2" style={{ width: "var(--tasty-field-width-xs)" }} /></Row>
-            <Row label="Ligatures:"><Switch defaultChecked /></Row>
-            <Row label="Background opacity:"><input type="range" min="60" max="100" defaultValue="100" style={{ accentColor: "var(--tasty-accent-primary)", width: "var(--tasty-field-width-range)" }} /></Row>
+            <Row label="Font family:"><SSelect options={["D2Coding", "JetBrains Mono", "Cascadia Code"]} style={{ width: "var(--tasty-field-width-lg)" }} /></Row>
+            <Row label="Font size:"><SInput mono defaultValue="14" style={{ width: "var(--tasty-field-width-xs)" }} /><span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>px</span></Row>
+            <Row label="Line height:"><SInput mono defaultValue="1.2" style={{ width: "var(--tasty-field-width-xs)" }} /></Row>
+            <Row label="Ligatures:"><SSwitch defaultChecked /></Row>
+            <Row label="Background opacity:"><SRange min="60" max="100" defaultValue="100" style={{ accentColor: "var(--tasty-accent-primary)", width: "var(--tasty-field-width-range)" }} /></Row>
           </>
         );
       if (l2 === "Tasty")
         return (
           <>
             <Mono>Tasty chrome</Mono>
-            <Row label="Accent:"><Input mono defaultValue="#89b4fa" style={{ width: "var(--tasty-field-width-color)" }} /><span style={{ width: "var(--tasty-swatch-size)", height: "var(--tasty-swatch-size)", borderRadius: "var(--tasty-swatch-radius)", background: "#89b4fa", border: "var(--tasty-border-width) solid var(--tasty-border-strong)" }} /></Row>
-            <Row label="Sidebar background:"><Input mono defaultValue="#181825" style={{ width: "var(--tasty-field-width-color)" }} /><span style={{ width: "var(--tasty-swatch-size)", height: "var(--tasty-swatch-size)", borderRadius: "var(--tasty-swatch-radius)", background: "#181825", border: "var(--tasty-border-width) solid var(--tasty-border-strong)" }} /></Row>
-            <Row label="Active tab indicator:"><Select options={["Underline", "Fill", "Dot"]} defaultValue="Underline" style={{ width: "var(--tasty-field-width-md)" }} /></Row>
-            <Row label="Use theme defaults:"><Switch defaultChecked /></Row>
+            <Row label="Accent:"><SInput mono defaultValue="#89b4fa" style={{ width: "var(--tasty-field-width-color)" }} /><span style={{ width: "var(--tasty-swatch-size)", height: "var(--tasty-swatch-size)", borderRadius: "var(--tasty-swatch-radius)", background: "#89b4fa", border: "var(--tasty-border-width) solid var(--tasty-border-strong)" }} /></Row>
+            <Row label="Sidebar background:"><SInput mono defaultValue="#181825" style={{ width: "var(--tasty-field-width-color)" }} /><span style={{ width: "var(--tasty-swatch-size)", height: "var(--tasty-swatch-size)", borderRadius: "var(--tasty-swatch-radius)", background: "#181825", border: "var(--tasty-border-width) solid var(--tasty-border-strong)" }} /></Row>
+            <Row label="Active tab indicator:"><SSelect options={["Underline", "Fill", "Dot"]} defaultValue="Underline" style={{ width: "var(--tasty-field-width-md)" }} /></Row>
+            <Row label="Use theme defaults:"><SSwitch defaultChecked /></Row>
             <Note>Overrides the Tasty app chrome (sidebar, tabs, title bar) independently of the terminal surface. These map to the same theme overrides as the full <b style={{ color: "var(--tasty-text-secondary)" }}>Colors</b> palette — this is just a curated shortcut. Turn on “Use theme defaults” to follow the selected preset.</Note>
           </>
         );
@@ -954,10 +991,10 @@ function SettingsWindow({ theme, onTheme, uiScale, onUiScale, onClose, os = DEFA
         return (
           <>
             <Mono>HTML viewer</Mono>
-            <Row label="Default zoom:"><Input mono defaultValue="100" style={{ width: "var(--tasty-field-width-xs)" }} /><span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>%</span></Row>
-            <Row label="Color scheme:"><Select options={["Follow theme", "Light", "Dark"]} defaultValue="Follow theme" style={{ width: "var(--tasty-field-width-md)" }} /></Row>
-            <Row label="Allow remote content:"><Switch /></Row>
-            <Row label="Sandbox scripts:"><Switch defaultChecked /></Row>
+            <Row label="Default zoom:"><SInput mono defaultValue="100" style={{ width: "var(--tasty-field-width-xs)" }} /><span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>%</span></Row>
+            <Row label="Color scheme:"><SSelect options={["Follow theme", "Light", "Dark"]} defaultValue="Follow theme" style={{ width: "var(--tasty-field-width-md)" }} /></Row>
+            <Row label="Allow remote content:"><SSwitch /></Row>
+            <Row label="Sandbox scripts:"><SSwitch defaultChecked /></Row>
             <Note>Controls how the built-in HTML viewer renders previews opened from the terminal. Remote content is blocked by default.</Note>
           </>
         );
@@ -971,18 +1008,18 @@ function SettingsWindow({ theme, onTheme, uiScale, onUiScale, onClose, os = DEFA
             </div>
             <Note>Contributed by the <b style={{ color: "var(--tasty-text-secondary)" }}>git-helper</b> plugin — these controls appear only while the plugin is installed.</Note>
             <Mono>Diff palette</Mono>
-            <Row label="Added lines:"><Input mono defaultValue="#a6e3a1" style={{ width: "var(--tasty-field-width-color)" }} /><span style={{ width: "var(--tasty-swatch-size)", height: "var(--tasty-swatch-size)", borderRadius: "var(--tasty-swatch-radius)", background: "#a6e3a1", border: "var(--tasty-border-width) solid var(--tasty-border-strong)" }} /></Row>
-            <Row label="Removed lines:"><Input mono defaultValue="#f38ba8" style={{ width: "var(--tasty-field-width-color)" }} /><span style={{ width: "var(--tasty-swatch-size)", height: "var(--tasty-swatch-size)", borderRadius: "var(--tasty-swatch-radius)", background: "#f38ba8", border: "var(--tasty-border-width) solid var(--tasty-border-strong)" }} /></Row>
-            <Row label="Context dim:"><input type="range" min="0" max="100" defaultValue="40" style={{ accentColor: "var(--tasty-accent-primary)", width: "var(--tasty-field-width-range)" }} /></Row>
+            <Row label="Added lines:"><SInput mono defaultValue="#a6e3a1" style={{ width: "var(--tasty-field-width-color)" }} /><span style={{ width: "var(--tasty-swatch-size)", height: "var(--tasty-swatch-size)", borderRadius: "var(--tasty-swatch-radius)", background: "#a6e3a1", border: "var(--tasty-border-width) solid var(--tasty-border-strong)" }} /></Row>
+            <Row label="Removed lines:"><SInput mono defaultValue="#f38ba8" style={{ width: "var(--tasty-field-width-color)" }} /><span style={{ width: "var(--tasty-swatch-size)", height: "var(--tasty-swatch-size)", borderRadius: "var(--tasty-swatch-radius)", background: "#f38ba8", border: "var(--tasty-border-width) solid var(--tasty-border-strong)" }} /></Row>
+            <Row label="Context dim:"><SRange min="0" max="100" defaultValue="40" style={{ accentColor: "var(--tasty-accent-primary)", width: "var(--tasty-field-width-range)" }} /></Row>
           </>
         );
       // Terminal surface colors (fallback)
       return (
         <>
           <Mono>Surface colors — terminal</Mono>
-          <Row label="Focused background:"><Input mono defaultValue="#000000" style={{ width: "var(--tasty-field-width-color)" }} /><span style={{ width: "var(--tasty-swatch-size)", height: "var(--tasty-swatch-size)", borderRadius: "var(--tasty-swatch-radius)", background: "var(--tasty-surface-terminal-focused-bg)", border: "var(--tasty-border-width) solid var(--tasty-border-strong)" }} /></Row>
-          <Row label="Unfocused background:"><Input mono defaultValue="#1e1e2e" style={{ width: "var(--tasty-field-width-color)" }} /><span style={{ width: "var(--tasty-swatch-size)", height: "var(--tasty-swatch-size)", borderRadius: "var(--tasty-swatch-radius)", background: "#1e1e2e", border: "var(--tasty-border-width) solid var(--tasty-border-strong)" }} /></Row>
-          <Row label="Use default:"><Switch defaultChecked /></Row>
+          <Row label="Focused background:"><SInput mono defaultValue="#000000" style={{ width: "var(--tasty-field-width-color)" }} /><span style={{ width: "var(--tasty-swatch-size)", height: "var(--tasty-swatch-size)", borderRadius: "var(--tasty-swatch-radius)", background: "var(--tasty-surface-terminal-focused-bg)", border: "var(--tasty-border-width) solid var(--tasty-border-strong)" }} /></Row>
+          <Row label="Unfocused background:"><SInput mono defaultValue="#1e1e2e" style={{ width: "var(--tasty-field-width-color)" }} /><span style={{ width: "var(--tasty-swatch-size)", height: "var(--tasty-swatch-size)", borderRadius: "var(--tasty-swatch-radius)", background: "#1e1e2e", border: "var(--tasty-border-width) solid var(--tasty-border-strong)" }} /></Row>
+          <Row label="Use default:"><SSwitch defaultChecked /></Row>
           <Note>Per-kind surface backgrounds. Like the Tasty section, these write to the same theme overrides as the full <b style={{ color: "var(--tasty-text-secondary)" }}>Colors</b> palette.</Note>
         </>
       );
@@ -999,9 +1036,9 @@ function SettingsWindow({ theme, onTheme, uiScale, onUiScale, onClose, os = DEFA
               <span style={{ display: "inline-flex", flex: "none", height: "calc(var(--tasty-font-size-caption) * var(--tasty-line-height-ui))", alignItems: "center", color: "var(--tasty-settings-apply-note-glyph)" }}><Icon name="info" size={14} /></span>
               <p style={{ margin: 0, fontSize: "var(--tasty-font-size-caption)", lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-settings-apply-note-fg)" }}>Saved changes apply to terminals you open afterward. Terminals that are already open don't change right away.</p>
             </div>
-            <Row label="Targeted PTY polling:" hint="Checks a terminal for output only when it signals new output, instead of checking every terminal."><Switch defaultChecked /></Row>
-            <Row label="Scrollback disk swap:" hint="Keeps scrollback past the in-memory limit in a temporary file instead of dropping the oldest lines."><Switch defaultChecked /></Row>
-            <Row label="Disk scrollback lines:" hint="Lines kept on disk per terminal while disk swap is on. -1 keeps every line. Separate from Scrollback lines."><span style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-number-field-unit-gap)" }}><Input mono defaultValue="10000" style={{ width: "var(--tasty-number-field-min-width)" }} /><span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-number-field-unit-fg)" }}>lines</span></span></Row>
+            <Row label="Targeted PTY polling:" hint="Checks a terminal for output only when it signals new output, instead of checking every terminal."><SSwitch defaultChecked /></Row>
+            <Row label="Scrollback disk swap:" hint="Keeps scrollback past the in-memory limit in a temporary file instead of dropping the oldest lines."><SSwitch defaultChecked /></Row>
+            <Row label="Disk scrollback lines:" hint="Lines kept on disk per terminal while disk swap is on. -1 keeps every line. Separate from Scrollback lines."><span style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-number-field-unit-gap)" }}><SInput mono defaultValue="10000" style={{ width: "var(--tasty-number-field-min-width)" }} /><span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-number-field-unit-fg)" }}>lines</span></span></Row>
           </>
         );
       // Terminal › Frame rate (2026-11-19) — two redraw caps, one choice list (60 Hz monitor here); no apply note: saving applies at once
@@ -1010,8 +1047,8 @@ function SettingsWindow({ theme, onTheme, uiScale, onUiScale, onClose, os = DEFA
         return (
           <>
             <Mono>Frame rate</Mono>
-            <Row label="Output frame rate:" hint="The most frames per second Tasty draws when terminal output changes the screen."><Select options={fr} defaultValue="30" style={{ width: "var(--tasty-field-width-lg)" }} /></Row>
-            <Row label="Input frame rate:" hint="The most frames per second Tasty draws in response to your input, such as typing. When the screen has not drawn for a frame interval, the next input draws at once, and output the same terminal returns right after your input counts as input."><Select options={fr} defaultValue="60" style={{ width: "var(--tasty-field-width-lg)" }} /></Row>
+            <Row label="Output frame rate:" hint="The most frames per second Tasty draws when terminal output changes the screen."><SSelect options={fr} defaultValue="30" style={{ width: "var(--tasty-field-width-lg)" }} /></Row>
+            <Row label="Input frame rate:" hint="The most frames per second Tasty draws in response to your input, such as typing. When the screen has not drawn for a frame interval, the next input draws at once, and output the same terminal returns right after your input counts as input."><SSelect options={fr} defaultValue="60" style={{ width: "var(--tasty-field-width-lg)" }} /></Row>
             <Note>Both are maximums. Tasty never draws faster than the monitor each window is on. The list holds values up to your fastest monitor's refresh rate, plus any saved value above it.</Note>
           </>
         );
@@ -1020,7 +1057,7 @@ function SettingsWindow({ theme, onTheme, uiScale, onUiScale, onClose, os = DEFA
       if (l2 === "Mouse Capture")
         return (
           <>
-            <Row label="Show mouse capture hint:"><Switch defaultChecked /></Row>
+            <Row label="Show mouse capture hint:"><SSwitch defaultChecked /></Row>
             <Note>When a program turns on mouse tracking (DECSET 1000/1002/1003), a banner explains why drag-to-select stopped and how to bypass it by holding <b style={{ color: "var(--tasty-text-secondary)" }}>Shift</b>. Turn this off to suppress that banner.</Note>
             <div style={{ height: "var(--tasty-border-width)", background: "var(--tasty-separator)", margin: "var(--tasty-space-xs) 0" }} />
             <Mono>Let Tasty handle clicks in these programs</Mono>
@@ -1032,25 +1069,25 @@ function SettingsWindow({ theme, onTheme, uiScale, onUiScale, onClose, os = DEFA
         return (
           <>
             {/* 2026-10-08 (batch 8) — the OSC 52 row is ON the grid; its callout is the row's own (measure-md, gap 4). */}
-            <Row label="Allow clipboard read (OSC 52):" caption={<WarnCallout>Turning this on lets programs running in the terminal <b style={{ color: "var(--tasty-text-primary)" }}>read your system clipboard</b> via OSC 52. Leave it off unless you trust everything that runs here.</WarnCallout>}><Switch /></Row>
+            <Row label="Allow clipboard read (OSC 52):" caption={<WarnCallout>Turning this on lets programs running in the terminal <b style={{ color: "var(--tasty-text-primary)" }}>read your system clipboard</b> via OSC 52. Leave it off unless you trust everything that runs here.</WarnCallout>}><SSwitch /></Row>
           </>
         );
       // Terminal › General — behaviour
       return (
         <>
-          <Row label="Shell:"><Input mono defaultValue="/usr/bin/zsh" style={{ width: "var(--tasty-field-width-lg)" }} /></Row>
-          <Row label="Startup command:"><Input block mono placeholder="run on new session — optional" /></Row>
-          <Row label="Scrollback lines:"><Input mono defaultValue="10000" style={{ width: "var(--tasty-field-width-xs)" }} /></Row>
-          <Row label="Confirm close if running:"><Switch defaultChecked /></Row>
-          <Row label="Inherit working directory:"><Switch defaultChecked /></Row>
+          <Row label="Shell:"><SInput mono defaultValue="/usr/bin/zsh" style={{ width: "var(--tasty-field-width-lg)" }} /></Row>
+          <Row label="Startup command:"><SInput block mono placeholder="run on new session — optional" /></Row>
+          <Row label="Scrollback lines:"><SInput mono defaultValue="10000" style={{ width: "var(--tasty-field-width-xs)" }} /></Row>
+          <Row label="Confirm close if running:"><SSwitch defaultChecked /></Row>
+          <Row label="Inherit working directory:"><SSwitch defaultChecked /></Row>
           {/* 2026-11-10 (R-56): macOS choices are the physical keys, always as words (Ctrl · Option · Cmd) —
               a settings choice, not a shortcut rendering, so the key display settings do not apply.
               Windows / Linux offer Ctrl · Alt (no Win / Super). Every OS keeps "Disable left-click opening"
               and defaults to Ctrl. No caption on any OS. */}
           {IS_MAC
-            ? <Row label="Link click modifier:"><Select options={["Ctrl", "Option", "Cmd", "Disable left-click opening"]} defaultValue="Ctrl" style={{ width: "var(--tasty-field-width-md)" }} /></Row>
-            : <Row label="Link click modifier:"><Select options={["Ctrl", "Alt", "Disable left-click opening"]} defaultValue="Ctrl" style={{ width: "var(--tasty-field-width-md)" }} /></Row>}
-          {!IS_WINDOWS && <Row label="Option as Meta (macOS):"><Switch /></Row>}
+            ? <Row label="Link click modifier:"><SSelect options={["Ctrl", "Option", "Cmd", "Disable left-click opening"]} defaultValue="Ctrl" style={{ width: "var(--tasty-field-width-md)" }} /></Row>
+            : <Row label="Link click modifier:"><SSelect options={["Ctrl", "Alt", "Disable left-click opening"]} defaultValue="Ctrl" style={{ width: "var(--tasty-field-width-md)" }} /></Row>}
+          {!IS_WINDOWS && <Row label="Option as Meta (macOS):"><SSwitch /></Row>}
         </>
       );
     }
@@ -1073,7 +1110,7 @@ function SettingsWindow({ theme, onTheme, uiScale, onUiScale, onClose, os = DEFA
               settings.keybindings.alt_key_label / alt_key_cmd / alt_key_option / alt_key_desc. */}
           {l2 === "Alt key" &&
             <Row label="Alt key mapping:" caption={<RowCaption>Saved shortcuts stay the same; only the keys you press change. <KbCode>alt</KbCode> uses the selected key and <KbCode>extra</KbCode> the other.</RowCaption>}>
-              <Select options={["Cmd", "Option"]} defaultValue="Cmd" style={{ width: "var(--tasty-field-width-md)" }} />
+              <SSelect options={["Cmd", "Option"]} defaultValue="Cmd" style={{ width: "var(--tasty-field-width-md)" }} />
             </Row>}
           {l2 === "Import / Export" && KbImportExportSubtab &&
             <KbImportExportSubtab onFlash={setToast} />}
@@ -1112,8 +1149,8 @@ function SettingsWindow({ theme, onTheme, uiScale, onUiScale, onClose, os = DEFA
         return (
           <>
             <Mono>Report limits</Mono>
-            <Row label="Note size limit" caption={<RowCaption>One note longer than this is cut at a UTF-8 boundary and marked as truncated. Must be smaller than the attempt limit.</RowCaption>}><Input mono defaultValue="1024" style={{ width: "var(--tasty-field-width-xs)" }} /><span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-number-field-unit-fg)" }}>B</span></Row>
-            <Row label="Attempt report limit" caption={<RowCaption>Total note text kept for one task attempt. Notes past it are not stored, only counted.</RowCaption>}><Input mono defaultValue="16384" style={{ width: "var(--tasty-field-width-xs)" }} /><span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-number-field-unit-fg)" }}>B</span></Row>
+            <Row label="Note size limit" caption={<RowCaption>One note longer than this is cut at a UTF-8 boundary and marked as truncated. Must be smaller than the attempt limit.</RowCaption>}><SInput mono defaultValue="1024" style={{ width: "var(--tasty-field-width-xs)" }} /><span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-number-field-unit-fg)" }}>B</span></Row>
+            <Row label="Attempt report limit" caption={<RowCaption>Total note text kept for one task attempt. Notes past it are not stored, only counted.</RowCaption>}><SInput mono defaultValue="16384" style={{ width: "var(--tasty-field-width-xs)" }} /><span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-number-field-unit-fg)" }}>B</span></Row>
           </>
         );
       if (l2 === "Anomaly detection" && AnomalySubtab)
@@ -1133,14 +1170,14 @@ function SettingsWindow({ theme, onTheme, uiScale, onUiScale, onClose, os = DEFA
             <Tag variant="agent">plugin</Tag>
             <Tag variant="success" dot>running</Tag>
           </div>
-          <Row label="Enabled:"><Switch defaultChecked /></Row>
+          <Row label="Enabled:"><SSwitch defaultChecked /></Row>
           <Mono>Permissions</Mono>
           <div style={{ display: "flex", gap: "var(--tasty-space-sm)", flexWrap: "wrap" }}>
             <Tag mono>clipboard</Tag><Tag mono>fs:read</Tag><Tag mono>{"ipc:" + l2 + ".*"}</Tag>
           </div>
           <Mono>Keybindings</Mono>
           <KeyRow action={l2 + ": run"} keys="Ctrl+Alt+G" />
-          <Row label="Binding mode:"><Select options={["Inherit (manifest)", "Custom", "Disabled"]} style={{ width: "var(--tasty-field-width-lg)" }} /></Row>
+          <Row label="Binding mode:"><SSelect options={["Inherit (manifest)", "Custom", "Disabled"]} style={{ width: "var(--tasty-field-width-lg)" }} /></Row>
         </>
       );
 
@@ -1148,19 +1185,19 @@ function SettingsWindow({ theme, onTheme, uiScale, onUiScale, onClose, os = DEFA
     if (l2 === "Notifications")
       return (
         <>
-          <Row label="Enabled:"><Switch defaultChecked /></Row>
-          <Row label="Sound:"><Switch /></Row>
-          <Row label="Coalesce (ms):"><Input mono defaultValue="400" style={{ width: "var(--tasty-field-width-xs)" }} /></Row>
+          <Row label="Enabled:"><SSwitch defaultChecked /></Row>
+          <Row label="Sound:"><SSwitch /></Row>
+          <Row label="Coalesce (ms):"><SInput mono defaultValue="400" style={{ width: "var(--tasty-field-width-xs)" }} /></Row>
         </>
       );
     if (l2 === "Accessibility")
       return (
         <>
-          <Row label="Reduced motion:"><Switch /></Row>
+          <Row label="Reduced motion:"><SSwitch /></Row>
           <Note>Skip UI fade/slide animations. Terminal output animations are unaffected — they are always 0ms.</Note>
-          <Row label="Show modifier key hints:"><Switch defaultChecked /></Row>
+          <Row label="Show modifier key hints:"><SSwitch defaultChecked /></Row>
           <Note>Show a floating panel of the available shortcuts while you hold a modifier key (Ctrl / Alt / Shift — macOS adds Cmd / Option). It appears after a brief hold and dismisses the moment you release.</Note>
-          <Row label="High contrast:"><Switch disabled /></Row>
+          <Row label="High contrast:"><SSwitch disabled /></Row>
           <span style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>High contrast (coming soon)</span>
         </>
       );
@@ -1171,19 +1208,19 @@ function SettingsWindow({ theme, onTheme, uiScale, onUiScale, onClose, os = DEFA
     // General/General
     return (
       <>
-        <Row label="Restore layout:"><Switch defaultChecked /></Row>
-        <Row label="Close behavior:"><Select options={["Ask", "Minimize to background", "Quit"]} style={{ width: "var(--tasty-field-width-lg)" }} /></Row>
+        <Row label="Restore layout:"><SSwitch defaultChecked /></Row>
+        <Row label="Close behavior:"><SSelect options={["Ask", "Minimize to background", "Quit"]} style={{ width: "var(--tasty-field-width-lg)" }} /></Row>
         {/* 2026-10-08 (batch 8) — the app's two description lines sit under THEIR rows (Row caption), not under the webhook callout. */}
         <Row label="Wheel scroll distance:" caption={<RowCaption>Lines scrolled per wheel notch in the terminal. Trackpads scroll by distance and ignore this.</RowCaption>}>
-          <Input mono defaultValue="3" style={{ width: "var(--tasty-field-width-xs)" }} /><span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>lines</span>
+          <SInput mono defaultValue="3" style={{ width: "var(--tasty-field-width-xs)" }} /><span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>lines</span>
         </Row>
-        <Row label="Language:" caption={<RowCaption>Changing the language takes effect after Tasty restarts.</RowCaption>}><Select options={["English", "한국어", "日本語", "简体中文"]} style={{ width: "var(--tasty-field-width-md)" }} /></Row>
+        <Row label="Language:" caption={<RowCaption>Changing the language takes effect after Tasty restarts.</RowCaption>}><SSelect options={["English", "한국어", "日本語", "简体中文"]} style={{ width: "var(--tasty-field-width-md)" }} /></Row>
         {/* 2026-10-21 — explorer Properties time format. Applies on Save. */}
         <Row label="Time format in Properties:" caption={<RowCaption>Used for Modified, Created and Target modified in Explorer Properties, in this computer's time zone. Example: <span style={{ fontFamily: "var(--tasty-font-mono)", color: "var(--tasty-text-secondary)" }}>2026-10-21 12:12</span></RowCaption>}>
-          <Select options={[{ value: "minutes", label: "Minutes" }, { value: "seconds", label: "Seconds" }, { value: "seconds_offset", label: "Seconds and UTC offset" }]} defaultValue="minutes" style={{ width: "var(--tasty-field-width-lg)" }} />
+          <SSelect options={[{ value: "minutes", label: "Minutes" }, { value: "seconds", label: "Seconds" }, { value: "seconds_offset", label: "Seconds and UTC offset" }]} defaultValue="minutes" style={{ width: "var(--tasty-field-width-lg)" }} />
         </Row>
         {/* 2026-10-07 — [webhook] allow_external. On the row grid; the warning callout is the row's own and is ALWAYS shown. Save/Cancel flow. */}
-        <Row label="Accept webhook calls from other computers:" caption={<WarnCallout>When on, the webhook listener takes every network interface, so anyone who can reach its port can call your registered webhooks. When off, only programs on this computer can. Applies from the next start.</WarnCallout>}><Switch /></Row>
+        <Row label="Accept webhook calls from other computers:" caption={<WarnCallout>When on, the webhook listener takes every network interface, so anyone who can reach its port can call your registered webhooks. When off, only programs on this computer can. Applies from the next start.</WarnCallout>}><SSwitch /></Row>
       </>
     );
   }
@@ -1241,7 +1278,7 @@ function SettingsWindow({ theme, onTheme, uiScale, onUiScale, onClose, os = DEFA
           <div style={{ position: "relative", flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
             {fullBleed ? (
               <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}>
-                {body()}
+                <SettingsPage.Provider value={page}>{body()}</SettingsPage.Provider>
               </div>
             ) : (
               <div className="tasty-scroll" style={{ flex: 1, padding: "var(--tasty-space-lg)", overflow: "auto" }}>
@@ -1249,7 +1286,7 @@ function SettingsWindow({ theme, onTheme, uiScale, onUiScale, onClose, os = DEFA
                     non-full-bleed subtab inherits it and no block carries its own width.
                     Full-bleed subtabs replace this column with their own layout. */}
                 <div style={{ maxWidth: "var(--tasty-settings-content-max-width)", display: "flex", flexDirection: "column", gap: "var(--tasty-settings-row-gap)" }}>
-                  {body()}
+                  <SettingsPage.Provider value={page}>{body()}</SettingsPage.Provider>
                 </div>
               </div>
             )}
@@ -1268,14 +1305,15 @@ function SettingsWindow({ theme, onTheme, uiScale, onUiScale, onClose, os = DEFA
             <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, padding: "var(--tasty-space-md) var(--tasty-size-14)",
               borderTop: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
               <Button variant="ghost" onClick={onClose}>Cancel</Button>
-              <Button variant="primary" onClick={onSave || onClose}>Save</Button>
+              <Button variant="primary" onClick={onSave ? () => onSave(saveDraft()) : onClose}>Save</Button>
             </div>
           </div>
         </div>
       </div>
   );
-  if (frame === "bare") return windowBox;
-  return <Scrim onClose={onClose}>{windowBox}</Scrim>;
+  const drafted = <DraftContext.Provider value={draft}>{windowBox}</DraftContext.Provider>;
+  if (frame === "bare") return drafted;
+  return <Scrim onClose={onClose}>{drafted}</Scrim>;
 }
 
 export { SettingsWindow };

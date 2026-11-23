@@ -1,5 +1,6 @@
 import React from "react";
 import * as DSA from "../../../components/index.js";
+import { useDraft } from "./settings_draft.jsx";
 
 // Tasty UI kit — Settings › Misc › Anomaly detection (2026-10-27).
 // Mirrors zilhak/tasty → crates/tasty-settings/src/anomaly_detection.rs ([anomaly_detection], 9 fields).
@@ -125,7 +126,7 @@ function AnNumField({ text, unit, invalid, note, focused, onChange, onCommit }) 
 function AnomalySubtab({ lang = "en", values, texts, focusKey, stacked = false, labelCol = "var(--tasty-settings-label-width)", width, onDraft }) {
   const { Switch, Icon } = DSA;
   const L = ANOMALY_COPY[lang] || ANOMALY_COPY.en;
-  const [vals, setVals] = React.useState(() => Object.assign({}, ANOMALY_DEFAULTS, values));
+  const [vals, setVals] = useDraft("misc.anomaly", () => Object.assign({}, ANOMALY_DEFAULTS, values));
   const [txt, setTxt] = React.useState(() => Object.assign({}, texts));
   const setVal = (k, v) => setVals((s) => { const n = Object.assign({}, s, { [k]: v }); onDraft && onDraft(n); return n; });
   const textOf = (k) => (txt[k] !== undefined ? txt[k] : String(vals[k]));

@@ -12,6 +12,7 @@ import { DagCanvas, DagDetail, dagRowItems } from "./dag_surfaces.jsx";
 import { GraphCanvas, GraphDrawer, DrawerRow, DrawerRows, DrawerCaption, GraphStrip, GraphPush, CHILD_STATE, childTone, childColor, childLayout, childEdges, childVisible } from "./graph_view.jsx";
 import { gt } from "./graph_copy.js";
 import { BasePicker, PICKER_WINDOWS } from "./child_base_picker.jsx";
+import { useDraft } from "./settings_draft.jsx";
 
 // Tasty UI kit — the child graph (2026-11-10). One internal view, two frames:
 //   ChildGraphView     canvas + drawer (+ status blocks) — the part both frames share
@@ -424,7 +425,7 @@ function ChildGraphSurface({ nodes = CHILD_LARGE, baseId = CHILD_LARGE_BASE, lan
 // Its own L2 section, because the settings filter matches section labels only.
 function ChildGraphSettings({ lang = "en", checked = false }) {
   const c = { label: gt("settings.child_graph.show_full_tree", lang), desc: gt("settings.child_graph.show_full_tree_desc", lang) };
-  const [on, setOn] = React.useState(checked);
+  const [on, setOn] = useDraft("misc.childGraph.showFullTree", checked);
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-settings-row-caption-gap)" }}>
       <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-settings-label-gap)", minHeight: "var(--tasty-settings-row-min-height)" }}>
