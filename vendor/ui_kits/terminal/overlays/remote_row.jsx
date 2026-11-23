@@ -269,9 +269,9 @@ export function isSavedRemoteRow(ws) {
   return !!(ws && ws.mirror && ws.remoteProfile);
 }
 // onAct: called by every enabled item (the menu closes). categories: names to move the row to, or null when off.
-// forceDetach: this Tasty serves the workspace to another client. Force detach and its separator are always there;
-// the item is enabled only then, and otherwise disabled with no reason, like Disconnect (2026-11-23).
-export function RemoteRowMenuItems({ state = "connected", closed = false, lang = "en", categories = null, forceDetach = false, onAct }) {
+// No Force detach: a saved remote row is a mirror, and no other client can hold a mirror, so the item and its
+// separator are left out, not disabled (local workspace menus only, sidebar_context_menu.jsx).
+export function RemoteRowMenuItems({ state = "connected", closed = false, lang = "en", categories = null, onAct }) {
   const on = remoteMenuEnabled(state, closed);
   return (
     <>
@@ -291,8 +291,6 @@ export function RemoteRowMenuItems({ state = "connected", closed = false, lang =
           <MenuItem label="New category" onClick={onAct} />
         </>
       )}
-      <MenuItem separator />
-      <MenuItem label="Force detach" disabled={!forceDetach} onClick={forceDetach ? onAct : undefined} />
       <MenuItem separator />
       <MenuItem label={rt(HAS_SHAPE[state] ? "child_graph.reconnect" : "remote.row.popup.connect", lang)} disabled={!on.connect} onClick={on.connect ? onAct : undefined} />
       <MenuItem label={rt("remote.row.menu.disconnect", lang)} disabled={!on.disconnect} onClick={on.disconnect ? onAct : undefined} />

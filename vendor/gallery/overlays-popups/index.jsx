@@ -270,7 +270,7 @@ function Page() {
               <MenuItem separator />
               <MenuItem label="New category" icon={catIc.plus} />
             </CatMenu>
-            <CatMenu caption="target: workspace row">
+            <CatMenu caption="target: local workspace row">
               <MenuItem label="Move to category" icon={catIc.move} disabled />
               <MenuItem label="Workspaces" />
               <MenuItem label="Services" />
@@ -279,7 +279,7 @@ function Page() {
               <MenuItem separator />
               <MenuItem label="Force detach" disabled />
             </CatMenu>
-            <CatMenu caption="target: workspace row · served to another client">
+            <CatMenu caption="target: local workspace row · served to another client">
               <MenuItem label="Move to category" icon={catIc.move} disabled />
               <MenuItem label="Workspaces" />
               <MenuItem label="Services" />
@@ -290,7 +290,7 @@ function Page() {
             </CatMenu>
           </Stage>
           <Meta
-            specs={[["trigger", "right-click, no dedicated button"], ["width", "176px min"], ["background", "New category"], ["category", "Add ws · Rename · Delete · New"], ["reserved", "Add ws · New (additive-only) · Rename / Delete left out, not disabled"], ["workspace", "Move to category (inert header) · targets · New | Force detach (enabled only while this Tasty serves the workspace to another client, otherwise disabled, no reason)"], ["targets", "every category except the current one · normal = “Workspaces”"]]}
+            specs={[["trigger", "right-click, no dedicated button"], ["width", "176px min"], ["background", "New category"], ["category", "Add ws · Rename · Delete · New"], ["reserved", "Add ws · New (additive-only) · Rename / Delete left out, not disabled"], ["workspace", "Move to category (inert header) · targets · New | Force detach (enabled only while this Tasty serves the workspace to another client, otherwise disabled, no reason)"], ["Force detach", "local workspace menus only · not on a mirror (a saved remote row or an agent mirror): no other client can hold one, so the item and its separator are left out, not disabled"], ["targets", "every category except the current one · normal = “Workspaces”"]]}
             tokens={[{ tok: "--tasty-surface-raised", use: "menu fill", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-border-strong", use: "edge", color: "var(--tasty-border-strong)" }, { tok: "--tasty-accent-danger", use: "delete row", color: "var(--tasty-accent-danger-raised)" }, { tok: "--tasty-shadow-popover", use: "lift" }]} />
           <Note>“Move to category” is an <b>inert header</b> with the target categories listed <b>flat</b> beneath it (current category omitted) — no submenu, because the product draws this menu with the OS-native context menu (2026-10-07). Drag-and-drop reorder stays the primary path; this is the menu fallback. New strings: <code>workspace_category.add_workspace</code> · <code>collapse</code> · <code>expand</code>. Existing: <code>new_category</code> · <code>rename_category</code> · <code>delete_category</code> · <code>move_to_category</code>.</Note>
         </Spec>
@@ -313,7 +313,6 @@ function Page() {
             <CatMenu caption="disconnected (last screen kept)"><RemoteRowMenuItems state="disconnected" /></CatMenu>
             <CatMenu caption="not connected (after a restart)"><RemoteRowMenuItems state="not_connected" /></CatMenu>
             <CatMenu caption="closed elsewhere (this run) · Reconnect disabled"><RemoteRowMenuItems state="disconnected" closed /></CatMenu>
-            <CatMenu caption="connected · served to another client · Force detach enabled"><RemoteRowMenuItems state="connected" forceDetach /></CatMenu>
           </Stage>
           <Views>
             <View name="remote-row-menu-languages" label="ko, ja, zh-Hans — connected, disconnected and closed elsewhere">
@@ -327,7 +326,7 @@ function Page() {
             </View>
           </Views>
           <Meta
-            specs={[["order", "Rename · Change Subtitle | Move Up · Move Down | Save as workspace preset | (categories) | Force detach | Connect or Reconnect · Disconnect | Close locally · Close remote workspace…"], ["Connect / Reconnect", "enabled: disconnected, not connected · disabled: connected, connecting, reconnecting, and closed elsewhere in this run (disconnected, the popup's Remote workspace closed) · Reconnect when the row had a screen in this run · disabled keeps its place and its label, no reason line · closed elsewhere is not kept: after a restart the row is not connected and Connect is enabled, and a refused connect is Connection failed with Connect still enabled"], ["closed elsewhere", "Reconnect disabled · Disconnect disabled (already disconnected) · Close locally enabled, removes the row · Close remote workspace… disabled — the same as disconnected but for Reconnect"], ["Disconnect", "enabled: connected, connecting, reconnecting · disabled: disconnected, not connected · while connecting or reconnecting it cancels the attempt in progress and leaves the row disconnected by the user, the popup's user-disconnected form (decided, R-58 Q2; looked at again if L1 = b) · no automatic reconnect after it"], ["Close locally", "always · the remote workspace keeps running · no confirmation"], ["Close remote workspace…", "connected only · opens the confirmation (Dialogs › Close remote workspace)"], ["replaces", "Disconnect Workspace and Close Workspace on a saved remote row"], ["Force detach", "always there with its separator, on every workspace menu · enabled only while this Tasty serves the workspace to another client · otherwise disabled, keeps its place and label, no reason (as Disconnect)"], ["agent mirror", "today's menu, unchanged"]]}
+            specs={[["order", "Rename · Change Subtitle | Move Up · Move Down | Save as workspace preset | (categories) | Connect or Reconnect · Disconnect | Close locally · Close remote workspace…"], ["Connect / Reconnect", "enabled: disconnected, not connected · disabled: connected, connecting, reconnecting, and closed elsewhere in this run (disconnected, the popup's Remote workspace closed) · Reconnect when the row had a screen in this run · disabled keeps its place and its label, no reason line · closed elsewhere is not kept: after a restart the row is not connected and Connect is enabled, and a refused connect is Connection failed with Connect still enabled"], ["closed elsewhere", "Reconnect disabled · Disconnect disabled (already disconnected) · Close locally enabled, removes the row · Close remote workspace… disabled — the same as disconnected but for Reconnect"], ["Disconnect", "enabled: connected, connecting, reconnecting · disabled: disconnected, not connected · while connecting or reconnecting it cancels the attempt in progress and leaves the row disconnected by the user, the popup's user-disconnected form (decided, R-58 Q2; looked at again if L1 = b) · no automatic reconnect after it"], ["Close locally", "always · the remote workspace keeps running · no confirmation"], ["Close remote workspace…", "connected only · opens the confirmation (Dialogs › Close remote workspace)"], ["replaces", "Disconnect Workspace and Close Workspace on a saved remote row"], ["Force detach", "not on this menu · a saved remote row is a mirror and no other client can hold one, so the item and its separator are left out, not disabled (local workspace menus only)"], ["agent mirror", "today's menu, unchanged · no Force detach either"]]}
             tokens={[]} />
           <Note>Copy: <code>remote.row.popup.connect</code> · <code>child_graph.reconnect</code> · <code>remote.row.menu.disconnect</code> · <code>remote.row.menu.close_local</code> · <code>remote.row.menu.close_remote</code>. The other items keep their current keys and English, shown here as the app has them.</Note>
           <Dont><b>Don't</b> label the local one plain “Close”. On a remote row the word alone reads as closing the remote workspace, which is the other item.</Dont>
