@@ -704,7 +704,7 @@ function PresetSubtab() {
 // 2026-11-24: on Linux the window draws its own title bar (settings_titlebar_linux.jsx) above the
 // L1 band and grows by it (settings-window-csd-height), so the 1100 × 700 below stays. The L1 band
 // is the same on every OS. windowActive picks the active / inactive title bar, closeState freezes
-// the close button, and frame="bare" drops the scrim and shadow so a gallery frame can crop the window.
+// the close button, onTitleBarDrag(dx, dy) reports a title bar drag (null when it ends), and frame="bare" drops the scrim and shadow so a gallery frame can crop the window.
 const DEFAULT_OS = "windows";
 // Plugin-contributed Appearance pages are dynamic — present only when a plugin registers
 // one, inserted after Terminal / before HTML (mirrors the source push order). Shown with
@@ -808,7 +808,7 @@ function ExtensionMapping({ detectors = true }) {
   );
 }
 
-function SettingsWindow({ theme, onTheme, uiScale, onUiScale, onClose, os = DEFAULT_OS, initialL1 = "Appearance", initialL2 = "Theme", windowActive = true, closeState, frame = "modal" }) {
+function SettingsWindow({ theme, onTheme, uiScale, onUiScale, onClose, os = DEFAULT_OS, initialL1 = "Appearance", initialL2 = "Theme", windowActive = true, closeState, frame = "modal", onTitleBarDrag }) {
   const IS_LINUX = os === "linux";
   const IS_WINDOWS = os === "windows";
   const IS_MAC = os === "macos";
@@ -1193,7 +1193,7 @@ function SettingsWindow({ theme, onTheme, uiScale, onUiScale, onClose, os = DEFA
         border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", overflow: "hidden",
         boxShadow: frame === "bare" ? "none" : "var(--tasty-shadow-modal)" }}>
         {/* Linux only — the client-drawn title bar: drag area + close, no title (the L1 label names the window) */}
-        {IS_LINUX && <SettingsTitleBarLinux active={windowActive} closeState={closeState} onClose={onClose} />}
+        {IS_LINUX && <SettingsTitleBarLinux active={windowActive} closeState={closeState} onClose={onClose} onDrag={onTitleBarDrag} />}
         {/* L1 — small fixed set of top tabs */}
         <div style={{ display: "flex", alignItems: "center", height: 44, flex: "none", padding: "0 var(--tasty-space-md)", gap: 2,
           borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)", background: "var(--tasty-bg-sidebar)" }}>

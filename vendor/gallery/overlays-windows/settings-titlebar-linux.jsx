@@ -1,5 +1,6 @@
 import React from "react";
 import { Spec, Stage, Views, View, Meta, Note, Dont } from "../parts/specimen.jsx";
+import { Button } from "../../components/index.js";
 import { SettingsWindow as Kit_SettingsWindow } from "../../ui_kits/terminal/overlays/settings_window.jsx";
 
 // Settings window on Linux — the client-drawn title bar above the L1 band (2026-11-24).
@@ -21,6 +22,32 @@ function Crop({ theme, active, close }) {
   );
 }
 
+// The live demo: close closes the window, the title bar's empty area moves it, and Open settings brings it back.
+function Demo() {
+  const [open, setOpen] = React.useState(true);
+  const [at, setAt] = React.useState({ x: 0, y: 0 });
+  const base = React.useRef(null);
+  const drag = (dx, dy) => {
+    if (dx === null) { base.current = null; return; }
+    if (!base.current) base.current = at;
+    setAt({ x: base.current.x + dx, y: base.current.y + dy });
+  };
+  if (!open) {
+    return (
+      <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-md)", fontSize: "var(--tasty-font-size-body)", color: "var(--tasty-text-secondary)" }}>
+        <span>The settings window is closed and the draft is dropped.</span>
+        <Button variant="secondary" onClick={() => { setAt({ x: 0, y: 0 }); setOpen(true); }}>Open settings</Button>
+      </div>
+    );
+  }
+  return (
+    <div style={{ transform: `translate(${at.x}px, ${at.y}px)`, flex: "none" }}>
+      <Kit_SettingsWindow os="linux" frame="bare" theme="mocha" onTheme={noop} uiScale={1} onUiScale={noop}
+        onClose={() => setOpen(false)} onTitleBarDrag={drag} />
+    </div>
+  );
+}
+
 const FRAMES = [];
 for (const theme of ["mocha", "latte"]) {
   for (const active of [true, false]) {
@@ -34,8 +61,8 @@ function SettingsTitleBarLinuxSpec() {
   return (
     <Spec id="settings-titlebar-linux" title="Settings window on Linux — title bar"
       when={<>On Linux the settings window drops the OS decoration and draws its own title bar above the L1 band, the way the main window does. The row is the window's drag area and holds one button, <b>close</b>, at the right end. It shows no title: the L1 band's <b>Settings</b> label names the window, the same on every OS. The window grows by the row, so the 1100 × 700 below it does not change. When the compositor forces its own decorations, the row is not drawn.</>}>
-      <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", overflowX: "auto" }}>
-        <Kit_SettingsWindow os="linux" frame="bare" theme="mocha" onTheme={noop} uiScale={1} onUiScale={noop} onClose={noop} />
+      <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", overflow: "auto" }}>
+        <Demo />
       </Stage>
       <Views>
         {FRAMES.map(({ theme, active, close }) => {

@@ -17,6 +17,10 @@ import { Icon } from "../../../components/core/Icon.jsx";
 //
 // closeState forces the close button's look for frozen frames: "rest" · "hover" · "press".
 // Without it the button follows the pointer.
+// onClose: the close button (the app closes the settings window and drops the draft, like Cancel).
+// onDrag(dx, dy): the pointer moved by dx, dy since it went down on the drag area; the host moves the
+// window by that much. A double click on the drag area does nothing. The button's accessible name and
+// tooltip are the app's titlebar.close ("Close").
 
 const CSS = `
 .stl-lin { display:flex; align-items:center; justify-content:flex-end; flex:none;
@@ -24,7 +28,7 @@ const CSS = `
   background:var(--tasty-titlebar-bg); box-shadow:inset 0 calc(-1 * var(--tasty-border-width)) 0 var(--tasty-titlebar-border);
   -webkit-user-select:none; user-select:none; }
 .stl-lin[data-active="false"] { background:var(--tasty-titlebar-bg-inactive); }
-.stl-lin__drag { flex:1; align-self:stretch; min-width:0; }
+.stl-lin__drag { flex:1; align-self:stretch; min-width:0; cursor:default; touch-action:none; }
 .stl-lin__close { width:var(--tasty-titlebar-window-button-size); height:var(--tasty-titlebar-window-button-size); flex:none;
   display:grid; place-items:center; padding:0; border:0; border-radius:var(--tasty-radius-pill); cursor:pointer;
   background:transparent; color:var(--tasty-titlebar-fg);
@@ -47,11 +51,27 @@ const CSS = `
   }
 })();
 
-function SettingsTitleBarLinux({ active = true, closeState, onClose }) {
+function SettingsTitleBarLinux({ active = true, closeState, onClose, onDrag }) {
+  const start = React.useRef(null);
+  const down = (e) => {
+    if (e.button !== 0 || !onDrag) return;
+    start.current = { x: e.clientX, y: e.clientY };
+    e.currentTarget.setPointerCapture(e.pointerId);
+  };
+  const move = (e) => {
+    if (!start.current) return;
+    onDrag(e.clientX - start.current.x, e.clientY - start.current.y);
+  };
+  const up = (e) => {
+    if (!start.current) return;
+    start.current = null;
+    if (e.currentTarget.hasPointerCapture(e.pointerId)) e.currentTarget.releasePointerCapture(e.pointerId);
+    if (onDrag) onDrag(null);
+  };
   return (
     <div className="stl-lin" data-active={active} data-part="settings-titlebar">
-      <div className="stl-lin__drag" />
-      <button type="button" className="stl-lin__close" data-state={closeState} onClick={onClose}>
+      <div className="stl-lin__drag" onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={up} />
+      <button type="button" className="stl-lin__close" data-state={closeState} onClick={onClose} aria-label="Close" title="Close">
         <Icon name="close" data-part="glyph" />
       </button>
     </div>
