@@ -48,7 +48,7 @@ Tasty와 같은 `develop`·`release`·`main` 세 브랜치를 쓴다.
 - 토큰 CSS를 바꾸면 같은 커밋에서 `vendor/tokens/tasty.tokens.json`을 `scripts/design-tokens/gen_tokens_json.py`로 다시 만들고 `scripts/design-tokens/verify_tokens_json.py`로 대조한다. 값을 손으로 옮겨 적지 않는다.
 - Catppuccin Mocha(기본)와 Latte, 4px 그리드, 1px 보더, 4px radius, 14px UI 폰트 상한, 터미널 콘텐츠 0ms를 지킨다. 페이지 안의 표면에는 shadow를 쓰지 않는다. 떠 있는 표면만 `--tasty-shadow-popover`, `--tasty-shadow-modal` 중 하나를 쓴다.
 - 이모지는 쓰지 않는다. 아이콘은 `vendor/icons/<name>.svg`와 `Icon` 컴포넌트로만 쓴다.
-- 문구는 번역 키마다 en, ko, ja, zh-Hans를 모두 정한다. 영어는 sentence case로 쓴다. 앱 문구의 zh-Hans 값은 디자이너가 Codex로 쓰고, 용어는 `vendor/i18n/zh-Hans/glossary.json`을 따른다.
+- 문구는 번역 키마다 en, ko, ja, zh-Hans를 모두 정한다. 영어는 sentence case로 쓴다. 앱 문구의 번역 값은 모든 언어(새 언어를 일괄 번역할 때 포함)를 디자이너가 Codex로 쓴다. zh-Hans 용어는 `vendor/i18n/zh-Hans/glossary.json`을 따른다.
 - 대비는 텍스트 4.5:1, 테두리·포커스·아이콘 3:1을 Mocha와 Latte 양쪽에서 지킨다.
 - 창·모달·팝업·공용 위젯을 만들거나 바꾸면 같은 커밋에서 `vendor/gallery/`의 표본도 고친다. 표본에서 토큰이나 컴포넌트 시각을 다시 정의하지 않는다.
 - 갤러리 파일은 ES 모듈이다. `gallery/<페이지>/index.jsx`와 그 페이지 폴더, 공용 `gallery/parts/`에 두고 `import`로 연결한다. 형식은 [vendor/gallery/README.md](vendor/gallery/README.md)를 따른다.
