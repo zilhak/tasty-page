@@ -1208,6 +1208,9 @@ function FhGroup({ label, count, caption, tone }) {
 // caps the host text (fh-remote-max-width) and end-elides inside it; the path keeps its
 // front elision in what is left. A local path has no mark. The host text is the attach
 // profile name and nothing else: a mirror always attaches through a profile (R-57).
+// With no connection info (before the first sync, or a mirror workspace left after its
+// session) host is empty and the slot holds attach.mirror_pill_label ("Remote") in the
+// label font and the same remote ink; it never pairs with reconnecting, which has a host.
 // state "reconnecting" takes the status bar's reconnecting form on the panel ground:
 // glyph glyph-dim, host text-muted, then the status word (status_bar.remote_reconnecting,
 // label font, text-muted). The word belongs to the mark, so the path box shrinks by it.
@@ -1217,7 +1220,9 @@ function FhRemoteMark({ host, state = "connected" }) {
     <span data-fh-remote={state} style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-fh-remote-gap)", flex: "0 0 auto", minWidth: 0,
       color: live ? "var(--tasty-fh-remote-fg)" : "var(--tasty-text-muted)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)" }}>
       <span style={{ display: "inline-flex", flex: "none", color: live ? "inherit" : "var(--tasty-glyph-dim)" }}><Icon name="remote" size="var(--tasty-icon-size-xs)" /></span>
-      <span style={{ minWidth: 0, maxWidth: "var(--tasty-fh-remote-max-width)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{host}</span>
+      {host
+        ? <span style={{ minWidth: 0, maxWidth: "var(--tasty-fh-remote-max-width)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{host}</span>
+        : <span data-fh-remote-host="none" style={{ flex: "none", fontFamily: "var(--tasty-font-label)", whiteSpace: "nowrap" }}>Remote</span>}
       {!live && <span style={{ flex: "none", fontFamily: "var(--tasty-font-label)" }}>reconnecting</span>}
     </span>
   );
