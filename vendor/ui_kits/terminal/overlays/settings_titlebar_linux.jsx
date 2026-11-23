@@ -42,7 +42,8 @@ const CSS = `
 .stl-lin__close .tasty-icon { width:calc(var(--tasty-titlebar-window-glyph-size) * 2); height:calc(var(--tasty-titlebar-window-glyph-size) * 2);
   stroke-width:var(--tasty-border-width); }
 .stl-lin__close .tasty-icon path { vector-effect:non-scaling-stroke; }
-.stl-lin__tip > .tasty-tooltip__bubble { left:auto; right:0; transform:none; }
+/* one step more specific than Tooltip's placement rules, which are injected after this sheet */
+.stl-lin .stl-lin__tip > .tasty-tooltip__bubble { left:auto; right:0; transform:none; }
 .stl-lin .stl-lin__close:not([data-state]):hover, .stl-lin .stl-lin__close:not([data-state]):active,
 .stl-lin .stl-lin__close[data-state="hover"], .stl-lin .stl-lin__close[data-state="press"] {
   background:var(--tasty-titlebar-close-hover-bg); color:var(--tasty-titlebar-close-hover-fg); }
