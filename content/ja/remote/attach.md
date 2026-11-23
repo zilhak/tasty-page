@@ -1,4 +1,4 @@
-<!-- source-hash: 44ce8d16fd05 -->
+<!-- source-hash: 62acf446bc0f -->
 <a id="リモート-attach"></a>
 
 # リモートの作業を続ける（attach）
@@ -47,21 +47,21 @@ Passkey の inline ファイル、認証情報一覧、プロファイル参照�
 
 ```sh
 # ssh プロファイル
-tasty tool remote-profile add-ssh --name gx10 --host 10.0.0.5 --user me --port 22 --identity ~/.ssh/id_ed25519
+tasty tool remote-profile add-ssh --name host --host 10.0.0.5 --user me --port 22 --identity ~/.ssh/id_ed25519
 tasty tool remote-profile add-ssh --name win --host 10.0.0.9 --shell powershell --label "Windows ビルド PC"   # シェル・表示名を指定
 tasty tool remote-profile list-local                      # ~/.ssh/config の別名一覧
 tasty tool remote-profile import --from devbox --name devbox   # 別名を ssh プロファイルに
 
 # tasty-attach プロファイル（ssh プロファイルを参照）
-tasty tool remote-profile add-attach --name gx10-attach --ssh-ref gx10 \
+tasty tool remote-profile add-attach --name host-attach --ssh-ref host \
   --remote-tasty /home/me/tasty/target/release/tasty --port-mode auto
 
 # 確認・変更・削除
 tasty tool remote-profile list [--kind ssh|tasty-attach]
-tasty tool remote-profile show --name gx10-attach
-tasty tool remote-profile edit --name gx10-attach --port-mode file-unix
-tasty tool remote-profile detect --name gx10-attach       # リモートに実際に接続してポートを検証
-tasty tool remote-profile remove --name gx10-attach
+tasty tool remote-profile show --name host-attach
+tasty tool remote-profile edit --name host-attach --port-mode file-unix
+tasty tool remote-profile detect --name host-attach       # リモートに実際に接続してポートを検証
+tasty tool remote-profile remove --name host-attach
 ```
 
 ポートモード:
@@ -82,8 +82,8 @@ tasty tool remote-profile remove --name gx10-attach
 ## 2. リモート接続の確認
 
 ```sh
-tasty remote check --profile gx10-attach       # alive: gx10 (port 41234, version …, N workspaces)
-tasty remote workspaces --profile gx10-attach  # リモートワークスペース一覧（id・名前・占有の有無）
+tasty remote check --profile host-attach       # alive: host (port 41234, version …, N workspaces)
+tasty remote workspaces --profile host-attach  # リモートワークスペース一覧（id・名前・占有の有無）
 ```
 
 `remote check` はポートを見つけた後、実際に応答を受け取って初めて alive と判定します。プログラムが終了し、ポートファイルだけが残っている場合は `dead` と表示されます。失敗の原因は、SSH 接続失敗 / リモートインスタンス未起動 / 応答の解析失敗 / タイムアウトの 4 種類に分けて通知します。
@@ -103,12 +103,12 @@ tasty remote workspaces --profile gx10-attach  # リモートワークスペー�
 
 ```sh
 tasty tool attach --list                                   # tasty-attach プロファイル一覧
-tasty tool attach gx10-attach --workspace 3                # ワークスペース全体をミラー化（ターミナルで実行）
-tasty tool attach gx10-attach 57                           # サーフェス 1 つだけ
-tasty tool attach gx10-attach 57 --raw                     # 手元のターミナルをリモートサーフェスに直結（終了 Ctrl+\）
-tasty remote attach --profile gx10-attach --workspace 3    # tool attach と同じ処理の長い形式
+tasty tool attach host-attach --workspace 3                # ワークスペース全体をミラー化（ターミナルで実行）
+tasty tool attach host-attach 57                           # サーフェス 1 つだけ
+tasty tool attach host-attach 57 --raw                     # 手元のターミナルをリモートサーフェスに直結（終了 Ctrl+\）
+tasty remote attach --profile host-attach --workspace 3    # tool attach と同じ処理の長い形式
 tasty remote attach --ssh me@10.0.0.5 --workspace 3        # プロファイルなしで一度だけ
-tasty remote new-workspace --profile gx10-attach --name build --cwd /home/me/proj   # リモートにワークスペースを作成
+tasty remote new-workspace --profile host-attach --name build --cwd /home/me/proj   # リモートにワークスペースを作成
 ```
 
 ### 実行中の Tasty ウィンドウにアタッチする
@@ -116,7 +116,7 @@ tasty remote new-workspace --profile gx10-attach --name build --cwd /home/me/pro
 実行中の Tasty が SSH トンネルを直接開き、リモートワークスペースをこのウィンドウにミラーとしてアタッチします。フォーカスは移しません。既存のワークスペースをアタッチするには、リモート ID を `--workspace` で指定してください。`--profile` には `tasty-attach` プロファイル名を指定し、プロファイルなしで接続するには、代わりに `--ssh <接続先>` を使ってください。
 
 ```sh
-tasty remote attach --into-gui --workspace 3 --profile gx10-attach
+tasty remote attach --into-gui --workspace 3 --profile host-attach
 tasty remote attach --into-gui --workspace 3 --ssh me@10.0.0.5
 ```
 
@@ -125,7 +125,7 @@ tasty remote attach --into-gui --workspace 3 --ssh me@10.0.0.5
 リモートにワークスペースを新規作成し、すぐにミラーとしてアタッチするには、`--workspace` の代わりに `--new-workspace` を使ってください。`--name` と `--cwd` は任意で、`--cwd` はリモートコンピューターのパスです。この形式は作成結果を JSON 1 行で出力します。既存のワークスペースへの接続のように 2 行目の結果を待つ形式ではないため、ミラーが作成されたかは `tasty list workspaces` で確認してください。ミラーの行には `[mirror]` が付きます。
 
 ```sh
-tasty remote attach --into-gui --new-workspace --profile gx10-attach --name build --cwd /srv/project
+tasty remote attach --into-gui --new-workspace --profile host-attach --name build --cwd /srv/project
 tasty list workspaces
 ```
 
@@ -176,8 +176,8 @@ CLI から実行中の Tasty ウィンドウに直接アタッチするには、
 ローカルワークスペースにリモートの接続先をマッピングしておくと、そのワークスペースに切り替えるたびに Tasty が自動で SSH トンネルを確立してミラーをアタッチします。
 
 ```sh
-tasty new workspace --name gx10-dev --ssh-profile gx10-attach --remote-workspace 3
-tasty set workspace --id 5 --ssh-profile gx10-attach --remote-workspace 3
+tasty new workspace --name host-dev --ssh-profile host-attach --remote-workspace 3
+tasty set workspace --id 5 --ssh-profile host-attach --remote-workspace 3
 tasty set workspace --id 5 --ssh me@10.0.0.5 --remote-workspace 3      # プロファイルなし
 tasty set workspace --id 5 --clear-mapping                              # 解除
 ```

@@ -120,9 +120,9 @@ function App() {
     { id: "api", name: "api-gateway", description: "deploy to staging on every push to main",
       status: "agent", notif: 2, attached: true },
     // title + subtitle + description — MIRROR + running dot + notif (all three axes at once)
-    { id: "data", name: "data-pipeline", subtitle: "mirror → gb10",
+    { id: "data", name: "data-pipeline", subtitle: "mirror → host",
       description: "nightly ETL across the warehouse, last run 18m ago", status: "running", running: 3, notif: 1,
-      mirror: true, mirrorTarget: "gb10" },
+      mirror: true, mirrorTarget: "host" },
     // title only
     { id: "scratch", name: "scratch", status: "idle", notif: 0 },
   ];

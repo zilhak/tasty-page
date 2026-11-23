@@ -46,21 +46,21 @@ Passkey의 inline 파일, 자격증명 목록, 프로필 참조는 차례대로 
 
 ```sh
 # ssh 프로필
-tasty tool remote-profile add-ssh --name gx10 --host 10.0.0.5 --user me --port 22 --identity ~/.ssh/id_ed25519
+tasty tool remote-profile add-ssh --name host --host 10.0.0.5 --user me --port 22 --identity ~/.ssh/id_ed25519
 tasty tool remote-profile add-ssh --name win --host 10.0.0.9 --shell powershell --label "Windows 빌드 PC"   # 셸·표시 이름 지정
 tasty tool remote-profile list-local                      # ~/.ssh/config 별칭 목록
 tasty tool remote-profile import --from devbox --name devbox   # 별칭을 ssh 프로필로
 
 # tasty-attach 프로필 (ssh 프로필 참조)
-tasty tool remote-profile add-attach --name gx10-attach --ssh-ref gx10 \
+tasty tool remote-profile add-attach --name host-attach --ssh-ref host \
   --remote-tasty /home/me/tasty/target/release/tasty --port-mode auto
 
 # 확인·수정·삭제
 tasty tool remote-profile list [--kind ssh|tasty-attach]
-tasty tool remote-profile show --name gx10-attach
-tasty tool remote-profile edit --name gx10-attach --port-mode file-unix
-tasty tool remote-profile detect --name gx10-attach       # 원격에 실제로 접속해 포트 검증
-tasty tool remote-profile remove --name gx10-attach
+tasty tool remote-profile show --name host-attach
+tasty tool remote-profile edit --name host-attach --port-mode file-unix
+tasty tool remote-profile detect --name host-attach       # 원격에 실제로 접속해 포트 검증
+tasty tool remote-profile remove --name host-attach
 ```
 
 포트 모드:
@@ -81,8 +81,8 @@ tasty tool remote-profile remove --name gx10-attach
 ## 2. 원격 연결 확인
 
 ```sh
-tasty remote check --profile gx10-attach       # alive: gx10 (port 41234, version …, N workspaces)
-tasty remote workspaces --profile gx10-attach  # 원격 워크스페이스 목록 (id·이름·점유 여부)
+tasty remote check --profile host-attach       # alive: host (port 41234, version …, N workspaces)
+tasty remote workspaces --profile host-attach  # 원격 워크스페이스 목록 (id·이름·점유 여부)
 ```
 
 `remote check` 는 포트를 찾은 뒤 실제로 응답까지 받아야 alive 로 판정합니다. 프로그램은 종료되고 포트 파일만 남았다면 `dead`로 표시됩니다. 실패 원인은 SSH 연결 실패 / 원격 인스턴스 미실행 / 응답 해석 실패 / 타임아웃 네 가지로 구분해 알려 줍니다.
@@ -102,12 +102,12 @@ tasty remote workspaces --profile gx10-attach  # 원격 워크스페이스 목�
 
 ```sh
 tasty tool attach --list                                   # tasty-attach 프로필 목록
-tasty tool attach gx10-attach --workspace 3                # 워크스페이스째 mirror (터미널에서 실행)
-tasty tool attach gx10-attach 57                           # 서피스 하나만
-tasty tool attach gx10-attach 57 --raw                     # 내 터미널을 원격 서피스에 직결 (나가기 Ctrl+\)
-tasty remote attach --profile gx10-attach --workspace 3    # tool attach 와 같은 일의 긴 형태
+tasty tool attach host-attach --workspace 3                # 워크스페이스째 mirror (터미널에서 실행)
+tasty tool attach host-attach 57                           # 서피스 하나만
+tasty tool attach host-attach 57 --raw                     # 내 터미널을 원격 서피스에 직결 (나가기 Ctrl+\)
+tasty remote attach --profile host-attach --workspace 3    # tool attach 와 같은 일의 긴 형태
 tasty remote attach --ssh me@10.0.0.5 --workspace 3        # 프로필 없이 1회성
-tasty remote new-workspace --profile gx10-attach --name build --cwd /home/me/proj   # 원격에 워크스페이스 생성
+tasty remote new-workspace --profile host-attach --name build --cwd /home/me/proj   # 원격에 워크스페이스 생성
 ```
 
 ### 실행 중인 Tasty 윈도우에 붙이기
@@ -115,7 +115,7 @@ tasty remote new-workspace --profile gx10-attach --name build --cwd /home/me/pro
 실행 중인 Tasty가 SSH 터널을 직접 열어 원격 워크스페이스를 이 윈도우에 mirror로 붙입니다. 포커스는 옮기지 않습니다. 기존 워크스페이스를 붙이려면 원격 ID를 `--workspace`로 지정하세요. `--profile`에는 `tasty-attach` 프로필 이름을 주며, 프로필 없이 연결하려면 대신 `--ssh <대상>`을 사용합니다.
 
 ```sh
-tasty remote attach --into-gui --workspace 3 --profile gx10-attach
+tasty remote attach --into-gui --workspace 3 --profile host-attach
 tasty remote attach --into-gui --workspace 3 --ssh me@10.0.0.5
 ```
 
@@ -124,7 +124,7 @@ tasty remote attach --into-gui --workspace 3 --ssh me@10.0.0.5
 원격에 워크스페이스를 새로 만들고 바로 mirror로 붙이려면 `--workspace` 대신 `--new-workspace`를 사용합니다. `--name`과 `--cwd`는 선택 사항이며, `--cwd`는 원격 컴퓨터의 경로입니다. 이 형태는 생성 결과를 JSON 한 줄로 출력합니다. 기존 워크스페이스 연결처럼 둘째 결과 줄을 기다리는 형태가 아니므로, mirror가 생겼는지는 `tasty list workspaces`로 확인하세요. mirror 행에는 `[mirror]`가 붙습니다.
 
 ```sh
-tasty remote attach --into-gui --new-workspace --profile gx10-attach --name build --cwd /srv/project
+tasty remote attach --into-gui --new-workspace --profile host-attach --name build --cwd /srv/project
 tasty list workspaces
 ```
 
@@ -175,8 +175,8 @@ CLI에서 실행 중인 Tasty 윈도우에 바로 붙이려면 위의 `--into-gu
 로컬 워크스페이스에 원격 대상을 매핑해 두면, 그 워크스페이스로 전환할 때마다 Tasty 가 알아서 SSH 터널을 세우고 mirror 를 붙입니다.
 
 ```sh
-tasty new workspace --name gx10-dev --ssh-profile gx10-attach --remote-workspace 3
-tasty set workspace --id 5 --ssh-profile gx10-attach --remote-workspace 3
+tasty new workspace --name host-dev --ssh-profile host-attach --remote-workspace 3
+tasty set workspace --id 5 --ssh-profile host-attach --remote-workspace 3
 tasty set workspace --id 5 --ssh me@10.0.0.5 --remote-workspace 3      # 프로필 없이
 tasty set workspace --id 5 --clear-mapping                              # 해제
 ```

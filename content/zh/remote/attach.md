@@ -1,4 +1,4 @@
-<!-- source-hash: 44ce8d16fd05 -->
+<!-- source-hash: 62acf446bc0f -->
 <a id="远程附加"></a>
 
 # 继续远程工作（attach）
@@ -47,21 +47,21 @@ Passkey 的 inline 文件、凭据列表和配置档引用按顺序保存，不�
 
 ```sh
 # ssh 配置档
-tasty tool remote-profile add-ssh --name gx10 --host 10.0.0.5 --user me --port 22 --identity ~/.ssh/id_ed25519
+tasty tool remote-profile add-ssh --name host --host 10.0.0.5 --user me --port 22 --identity ~/.ssh/id_ed25519
 tasty tool remote-profile add-ssh --name win --host 10.0.0.9 --shell powershell --label "Windows 构建 PC"   # 指定 Shell 和显示名称
 tasty tool remote-profile list-local                      # ~/.ssh/config 别名列表
 tasty tool remote-profile import --from devbox --name devbox   # 将别名导入为 ssh 配置档
 
 # tasty-attach 配置档（引用 ssh 配置档）
-tasty tool remote-profile add-attach --name gx10-attach --ssh-ref gx10 \
+tasty tool remote-profile add-attach --name host-attach --ssh-ref host \
   --remote-tasty /home/me/tasty/target/release/tasty --port-mode auto
 
 # 查看、修改、删除
 tasty tool remote-profile list [--kind ssh|tasty-attach]
-tasty tool remote-profile show --name gx10-attach
-tasty tool remote-profile edit --name gx10-attach --port-mode file-unix
-tasty tool remote-profile detect --name gx10-attach       # 实际连接远程端并验证端口
-tasty tool remote-profile remove --name gx10-attach
+tasty tool remote-profile show --name host-attach
+tasty tool remote-profile edit --name host-attach --port-mode file-unix
+tasty tool remote-profile detect --name host-attach       # 实际连接远程端并验证端口
+tasty tool remote-profile remove --name host-attach
 ```
 
 端口模式：
@@ -82,8 +82,8 @@ tasty tool remote-profile remove --name gx10-attach
 ## 2. 检查远程连接
 
 ```sh
-tasty remote check --profile gx10-attach       # alive: gx10 (port 41234, version …, N workspaces)
-tasty remote workspaces --profile gx10-attach  # 远程工作区列表（id、名称、是否被占用）
+tasty remote check --profile host-attach       # alive: host (port 41234, version …, N workspaces)
+tasty remote workspaces --profile host-attach  # 远程工作区列表（id、名称、是否被占用）
 ```
 
 `remote check` 找到端口并实际收到响应后，才会判定为 alive。如果程序已退出，仅留下端口文件，则显示为 `dead`。失败原因分为四种：SSH 连接失败／远程实例未运行／响应解析失败／超时。
@@ -103,12 +103,12 @@ tasty remote workspaces --profile gx10-attach  # 远程工作区列表（id、�
 
 ```sh
 tasty tool attach --list                                   # tasty-attach 配置档列表
-tasty tool attach gx10-attach --workspace 3                # 镜像整个工作区（在终端中运行）
-tasty tool attach gx10-attach 57                           # 仅一个 Surface
-tasty tool attach gx10-attach 57 --raw                     # 将本地终端直连远程 Surface（退出 Ctrl+\）
-tasty remote attach --profile gx10-attach --workspace 3    # 与 tool attach 功能相同的长形式
+tasty tool attach host-attach --workspace 3                # 镜像整个工作区（在终端中运行）
+tasty tool attach host-attach 57                           # 仅一个 Surface
+tasty tool attach host-attach 57 --raw                     # 将本地终端直连远程 Surface（退出 Ctrl+\）
+tasty remote attach --profile host-attach --workspace 3    # 与 tool attach 功能相同的长形式
 tasty remote attach --ssh me@10.0.0.5 --workspace 3        # 不使用配置档的一次性连接
-tasty remote new-workspace --profile gx10-attach --name build --cwd /home/me/proj   # 在远程端创建工作区
+tasty remote new-workspace --profile host-attach --name build --cwd /home/me/proj   # 在远程端创建工作区
 ```
 
 ### 附加到正在运行的 Tasty 窗口
@@ -116,7 +116,7 @@ tasty remote new-workspace --profile gx10-attach --name build --cwd /home/me/pro
 正在运行的 Tasty 会自行打开 SSH 隧道，将远程工作区作为镜像附加到此窗口。不会移动焦点。要附加现有工作区，用 `--workspace` 指定远程 ID。`--profile` 接受 `tasty-attach` 配置档名称；若不使用配置档连接，则改用 `--ssh <目标>`。
 
 ```sh
-tasty remote attach --into-gui --workspace 3 --profile gx10-attach
+tasty remote attach --into-gui --workspace 3 --profile host-attach
 tasty remote attach --into-gui --workspace 3 --ssh me@10.0.0.5
 ```
 
@@ -125,7 +125,7 @@ tasty remote attach --into-gui --workspace 3 --ssh me@10.0.0.5
 要在远程端新建工作区并立即作为镜像附加，使用 `--new-workspace` 替代 `--workspace`。`--name` 和 `--cwd` 为可选项，`--cwd` 是远程计算机上的路径。此形式以一行 JSON 输出创建结果，不会像连接现有工作区时那样等待第二行结果，因此请通过 `tasty list workspaces` 检查镜像是否已出现。镜像行带有 `[mirror]` 标记。
 
 ```sh
-tasty remote attach --into-gui --new-workspace --profile gx10-attach --name build --cwd /srv/project
+tasty remote attach --into-gui --new-workspace --profile host-attach --name build --cwd /srv/project
 tasty list workspaces
 ```
 
@@ -176,8 +176,8 @@ tasty remote attach --into-gui --target-port 5555 --workspace 3
 将远程目标映射到本地工作区后，每次切换到该工作区时，Tasty 都会自动建立 SSH 隧道并附加镜像。
 
 ```sh
-tasty new workspace --name gx10-dev --ssh-profile gx10-attach --remote-workspace 3
-tasty set workspace --id 5 --ssh-profile gx10-attach --remote-workspace 3
+tasty new workspace --name host-dev --ssh-profile host-attach --remote-workspace 3
+tasty set workspace --id 5 --ssh-profile host-attach --remote-workspace 3
 tasty set workspace --id 5 --ssh me@10.0.0.5 --remote-workspace 3      # 不使用配置档
 tasty set workspace --id 5 --clear-mapping                              # 解除映射
 ```
