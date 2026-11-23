@@ -738,7 +738,7 @@ function RemoteFrame({ tab = "profiles", ssh = "hosts" }) {
           </div>
           <div style={{ flex: 1, minHeight: 0, overflow: "auto", padding: "0 14px 8px" }}>
             {[{ name: "ed25519-main", kind: "file", value: "~/.ssh/id_ed25519" },
-              { name: "deploy-key-with-a-very-long-name", kind: "file", value: "/Users/hyunjun/Library/Application Support/tasty/keys/deploy/ci-runner/id_ed25519_deploy", revealed: true },
+              { name: "deploy-key-with-a-very-long-name", kind: "file", value: "/Users/someone/Library/Application Support/tasty/keys/deploy/ci-runner/id_ed25519_deploy", revealed: true },
               { name: "vault-token", kind: "secret", value: "••••••••" },
               { name: "legacy", kind: "agent-x", value: "••••••••", unknown: true }].map((k) => (
               <div key={k.name} style={{ display: "flex", alignItems: "flex-start", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-space-xs)", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
@@ -2144,7 +2144,7 @@ function GitViewerFrame({ diff }) {
                       <span style={{ ...mono, fontSize: 11, color: "var(--tasty-accent-info-raised)" }}>{o}</span>
                       {refs.map((r) => gvPill(r, "info"))}
                       <span style={{ flex: 1, fontSize: 13, color: "var(--tasty-text-primary)", overflow: "hidden", textOverflow: "ellipsis" }}>{s}</span>
-                      <span style={{ fontSize: 12, color: "var(--tasty-text-muted)" }}>zilhak</span>
+                      <span style={{ fontSize: 12, color: "var(--tasty-text-muted)" }}>user</span>
                       <span style={{ ...mono, fontSize: 11, color: "var(--tasty-text-muted)" }}>{t} ago</span>
                     </div>
                   ))}

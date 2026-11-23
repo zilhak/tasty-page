@@ -37,7 +37,7 @@ const FICTIONAL_HOMES: &[(&str, &str)] = &[
     ),
     ("/Users/me", "UI 키트의 HTML 스크립트 배너 예시 경로다"),
     ("/Users/hana", "갤러리 로딩 화면의 예시 경로다"),
-    ("/Users/hyunjun", "갤러리 오버레이의 긴 키 파일 경로 예시다"),
+    ("/Users/someone", "갤러리 오버레이의 긴 키 파일 경로 예시다"),
     (
         "/Users/hyunjoon.kim",
         "갤러리 알림 열의 긴 경로 말줄임 예시다",

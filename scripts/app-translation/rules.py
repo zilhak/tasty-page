@@ -49,7 +49,7 @@ USER_CONFIG_PREFIXES = ("~/", "$HOME/")
 HOME_PREFIXES = ("/ho" + "me/", "/Us" + "ers/", "C:\\Us" + "ers\\")
 FICTIONAL_HOMES = (
     "/ho" + "me/me", "/ho" + "me/tasty", "/ho" + "me/deploy", "/Us" + "ers/me",
-    "/Us" + "ers/hana", "/Us" + "ers/hyunjun", "/Us" + "ers/hyunjoon.kim",
+    "/Us" + "ers/hana", "/Us" + "ers/someone", "/Us" + "ers/hyunjoon.kim",
 )
 
 # --- ported helpers ---
