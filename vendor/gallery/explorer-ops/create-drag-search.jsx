@@ -32,14 +32,15 @@ function XSep() { return <span style={{ width: "var(--tasty-border-width)", heig
 
 // Toolbar with the 2026-10-09 command groups: nav · PathField · [create] | [find · preview] · SegToggle.
 // narrow (cell < explorer-toolbar-compact-below 440): create + view groups fold into one More menu.
-function XToolbar({ narrow, remote, denied, preview, search, path = "~/Downloads", view = "detail" }) {
+// deniedReason: the disabled create buttons' tooltip; a remote sample passes its write refusal reason.
+function XToolbar({ narrow, remote, denied, deniedReason = "Can't write to this folder", preview, search, path = "~/Downloads", view = "detail" }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", flex: "none", height: 44, padding: "0 var(--tasty-space-sm)", background: "var(--tasty-bg-panel)", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 1 }}>{xtb("Back", XK.ic.back)}{xtb("Forward", XK.ic.fwd, { disabled: true })}{xtb("Up", XK.ic.up)}{xtb("Refresh", XK.ic.refresh)}</div>
       <XK.PathField icon={XK.ic.folderOpen} path={path} />
       {narrow ? xtb("More", <XIcon name="more" />) : (
         <div style={{ display: "flex", alignItems: "center", gap: 1 }}>
-          {!remote && <>{xtb(denied ? "Can't write to this folder" : "New folder", <XIcon name="folderPlus" />, { disabled: denied, key: "nf" })}{xtb(denied ? "Can't write to this folder" : "New file", <XIcon name="filePlus" />, { disabled: denied, key: "nfile" })}<XSep /></>}
+          {!remote && <>{xtb(denied ? deniedReason : "New folder", <XIcon name="folderPlus" />, { disabled: denied, key: "nf" })}{xtb(denied ? deniedReason : "New file", <XIcon name="filePlus" />, { disabled: denied, key: "nfile" })}<XSep /></>}
           {xtb("Find", <XIcon name="search" />, { active: search })}
           {xtb("Preview panel", <XIcon name="columns" />, { active: preview })}
         </div>
