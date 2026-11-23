@@ -285,11 +285,18 @@ function RemoteWriteSection() {
           <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
             <K.CtxMenu title="Local · empty area · a mirror's list held">
               <MenuItem label="Copy path" icon={K.ic.link} />
+              <MenuItem label="Add to favorites" icon={K.ic.star} />
+              <MenuItem separator />
               <MenuItem label="Paste" icon={K.ic.paste} shortcut={<Kbd keys="Ctrl+V" />} disabled title={MIRROR_REASON.pasteRemote.en} />
             </K.CtxMenu>
             <Tip>{MIRROR_REASON.pasteRemote.en}</Tip>
-            <K.CtxMenu title="Mirror · one folder · a local list held">
+            <K.CtxMenu title="Mirror · one folder · a local list held · top of the menu">
               <MenuItem label="Copy path" icon={K.ic.link} />
+              <MenuItem label="Add to favorites" icon={K.ic.star} />
+              <MenuItem label="Open in new tab" disabled title={MIRROR_REASON.newTab.en} />
+              <MenuItem label="Set as root" />
+              <MenuItem label="Copy" icon={K.ic.copy} shortcut={<Kbd keys="Ctrl+C" />} />
+              <MenuItem label="Cut" icon={K.ic.scissors} shortcut={<Kbd keys="Ctrl+X" />} />
               <MenuItem label="Paste into" icon={K.ic.paste} disabled title={MIRROR_REASON.pasteCross.en} />
             </K.CtxMenu>
             <Tip>{MIRROR_REASON.pasteCross.en}</Tip>
@@ -334,10 +341,17 @@ function RemoteWriteSection() {
               </K.CtxMenu>
               <K.CtxMenu title="Local · empty area · a mirror's list held">
                 <MenuItem label="Copy path" icon={K.ic.link} />
+                <MenuItem label="Add to favorites" icon={K.ic.star} />
+                <MenuItem separator />
                 <MenuItem label="Paste" icon={K.ic.paste} shortcut={<Kbd keys="Ctrl+V" />} disabled />
               </K.CtxMenu>
-              <K.CtxMenu title="Mirror · one folder · a local list held">
+              <K.CtxMenu title="Mirror · one folder · a local list held · top of the menu">
                 <MenuItem label="Copy path" icon={K.ic.link} />
+                <MenuItem label="Add to favorites" icon={K.ic.star} />
+                <MenuItem label="Open in new tab" disabled />
+                <MenuItem label="Set as root" />
+                <MenuItem label="Copy" icon={K.ic.copy} shortcut={<Kbd keys="Ctrl+C" />} />
+                <MenuItem label="Cut" icon={K.ic.scissors} shortcut={<Kbd keys="Ctrl+X" />} />
                 <MenuItem label="Paste into" icon={K.ic.paste} disabled />
               </K.CtxMenu>
             </div>
