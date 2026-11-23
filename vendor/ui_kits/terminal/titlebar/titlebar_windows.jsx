@@ -25,10 +25,13 @@ const TB_WIN_CSS = `
   border:0; background:transparent; color:var(--tasty-titlebar-button-fg); cursor:pointer;
   transition:background var(--tasty-motion-ui-fast) var(--tasty-ease-ui), color var(--tasty-motion-ui-fast) var(--tasty-ease-ui); }
 .tb-win__btn svg { width:var(--tasty-icon-size-xs); height:var(--tasty-icon-size-xs); }
-.tb-win__btn:hover { background:var(--tasty-titlebar-button-hover-bg); color:var(--tasty-titlebar-button-fg-hover); }
-.tb-win__btn:active { background:var(--tasty-titlebar-button-active-bg); }
-.tb-win__btn--close:hover { background:var(--tasty-titlebar-close-hover-bg); color:var(--tasty-titlebar-close-hover-fg); }
+/* Title bar contracts, button: the inactive ink is for rest only. Under the pointer the glyph takes
+   titlebar-button-fg-hover in an active or inactive window, and press changes only the fill. The hover rules
+   are as specific as the inactive one and come after it, so they win in an inactive window too. */
 .tb-win[data-active="false"] .tb-win__btn { color:var(--tasty-titlebar-fg-inactive); }
+.tb-win .tb-win__btn:hover { background:var(--tasty-titlebar-button-hover-bg); color:var(--tasty-titlebar-button-fg-hover); }
+.tb-win .tb-win__btn:active { background:var(--tasty-titlebar-button-active-bg); }
+.tb-win .tb-win__btn--close:hover { background:var(--tasty-titlebar-close-hover-bg); color:var(--tasty-titlebar-close-hover-fg); }
 `;
 
 function TitlebarWindows({ active = true, variant = "split", title = "agents-prod", maximized = false, tabs = ["build · cargo", "README.md", "scratch"] }) {
