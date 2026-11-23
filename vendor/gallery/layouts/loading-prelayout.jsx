@@ -17,7 +17,7 @@ const { LTab, LRow, TermSurface, LoadingOverlay, THEMES, mono } = P;
 const PendingIndicator = DS.PendingIndicator || (() => null);
 const Toast = DS.Toast || (() => null);
 const Tooltip = DS.Tooltip || (({ children }) => children);
-const SEC = { en: "s", ko: "초", ja: "秒", "zh-Hans": " 秒" };
+const sec = (lang, n) => acw("attach.pending.seconds", lang, n);
 const cap = { fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" };
 const step = (t) => <span style={{ ...mono, display: "block", marginBottom: "var(--tasty-space-xs)", whiteSpace: "normal" }}>{t}</span>;
 const Arrow = () => <span aria-hidden style={{ alignSelf: "center", ...mono, fontSize: "var(--tasty-font-size-body)" }}>→</span>;
@@ -153,7 +153,7 @@ function GalleryLoadingPrelayout() {
             <span style={cap}>Mocha · chip states</span>
             <div style={{ display: "flex", gap: "var(--tasty-space-lg)", alignItems: "center", flexWrap: "wrap" }}>
               {[["1 · 12s", { count: 1, elapsed: 12 }], ["3 · 1m 04s", { count: 3, elapsed: 64 }], ["1 · 1h 02m", { count: 1, elapsed: 3720 }], ["compact", { count: 2, elapsed: 9, compact: true }], ["reduced motion", { count: 1, elapsed: 30, reducedMotion: true }],
-                ["ko", { count: 3, elapsed: 64, label: "응답 3건 대기 중", time: "1분 04초" }], ["ja", { count: 1, elapsed: 12, label: "応答を待っています", time: "12秒" }]].map(([c, p]) => (
+                ["ko", { count: 3, elapsed: 64, label: acw("attach.pending.many", "ko", 3), time: "1분 04초" }], ["ja", { count: 1, elapsed: 12, label: acw("attach.pending.one", "ja"), time: sec("ja", 12) }]].map(([c, p]) => (
                 <div key={c} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-size-2)" }}><span style={mono}>{c}</span><PendingIndicator {...p} /></div>
               ))}
             </div>
@@ -174,7 +174,7 @@ function GalleryLoadingPrelayout() {
         <Views>
           <View name="pending-copy-only" label="clipboard copy wait only · attach.pending.copy · en · ko · ja · zh-Hans · then compact">
             <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "var(--tasty-space-sm)" }}>
-              {ATTACH_COPY_WAIT_LANGS.map((lang) => <PendingIndicator key={lang} count={1} label={acw("attach.pending.copy", lang)} time={"2" + SEC[lang]} reducedMotion />)}
+              {ATTACH_COPY_WAIT_LANGS.map((lang) => <PendingIndicator key={lang} count={1} label={acw("attach.pending.copy", lang)} time={sec(lang, 2)} reducedMotion />)}
               <PendingIndicator count={1} label={acw("attach.pending.copy")} time="2s" compact reducedMotion />
             </div>
           </View>
@@ -183,8 +183,8 @@ function GalleryLoadingPrelayout() {
           </View>
           <View name="pending-copy-mixed" label="copy mixed with another wait · chip keeps the count · detail lines (tooltip) list the copy as one kind">
             <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "var(--tasty-space-sm)", paddingBottom: "var(--tasty-size-64)" }}>
-              <Tooltip open placement="bottom" content={<>{"Close tab · 20s"}<br />{acw("attach.pending.copy") + " · 3s"}</>}>
-                <PendingIndicator count={2} elapsed={20} reducedMotion />
+              <Tooltip open placement="bottom" content={<>{"Close tab · " + sec("en", 20)}<br />{acw("attach.pending.copy") + " · " + sec("en", 3)}</>}>
+                <PendingIndicator count={2} label={acw("attach.pending.many", "en", 2)} time={sec("en", 20)} reducedMotion />
               </Tooltip>
             </div>
           </View>
@@ -196,7 +196,7 @@ function GalleryLoadingPrelayout() {
           </View>
         </Views>
         <Meta
-          specs={[["use for", "close · move · restore closed · convert (no new area) · clipboard copy from the attached host (OSC 52) — never instead of a pre-layout"], ["box", "24 · pad-x 8 · gap 8 · surface-raised · 1px border-strong · radius 4"], ["content", "spinner 14 (loading-overlay-indicator) · caption 12 label · · · mono tabular time"], ["copy", "Waiting for response · 12s / Waiting for 3 responses · 1m 04s · ko 응답 대기 중 · 12초 / 응답 3건 대기 중 · 1분 04초 · ja 応答を待っています · 12秒 / 3件の応答を待っています · 1分04秒"], ["time", "<60 s → 12s · <1 h → 1m 04s · else 1h 02m · the OLDEST pending request"], ["compact", "column < 200 → spinner + time; label in aria-label / tooltip"], ["tooltip", "one line per pending kind with its own time · never internal ids"], ["show / hide", "after 200 (loading-overlay-delay) · gone on completion · failure → existing error · disconnect → reconnect banner"], ["clipboard copy (2026-11-24)", "same chip, label only: attach.pending.copy (Copying to clipboard · 클립보드에 복사 중 · クリップボードにコピー中 · 正在复制到剪贴板) · no own icon, color or token · shows at once (delay 0), no minimum time: a write that lands in one piece may never draw the chip, the result toast still comes · mixed with other waits: label stays Waiting for N responses, the same attach.pending.copy value is the kind name in the detail lines · result once per write: toast.copied_osc52 info / toast.clipboard_failed danger (write failed, or connection / mirror ended mid-write; no attach-only copy, the reconnect banner names a disconnect) · toast scope: the source surface when it is shown, else the window · never on the tab strip or LNB"], ["scope", "per workspace · hidden while another workspace is shown"], ["never", "scrim · full-width bar · cancel / retry / resend · started by shell silence"]]}
+          specs={[["use for", "close · move · restore closed · convert (no new area) · clipboard copy from the attached host (OSC 52) — never instead of a pre-layout"], ["box", "24 · pad-x 8 · gap 8 · surface-raised · 1px border-strong · radius 4"], ["content", "spinner 14 (loading-overlay-indicator) · caption 12 label · · · mono tabular time"], ["copy", "Waiting for response · 12s / Waiting for 3 responses · 1m 04s · ko 응답 대기 중 · 12초 / 응답 3건 대기 중 · 1분 04초 · ja 応答待ち · 12秒 / 3件の応答待ち · 1分 04秒"], ["time", "<60 s → 12s · <1 h → 1m 04s · else 1h 02m · the OLDEST pending request"], ["compact", "column < 200 → spinner + time; label in aria-label / tooltip"], ["tooltip", "one line per pending kind with its own time · never internal ids"], ["show / hide", "after 200 (loading-overlay-delay) · gone on completion · failure → existing error · disconnect → reconnect banner"], ["clipboard copy (2026-11-24)", "same chip, label only: attach.pending.copy (Copying to clipboard · 클립보드에 복사 중 · クリップボードにコピー中 · 正在复制到剪贴板) · no own icon, color or token · shows at once (delay 0), no minimum time: a write that lands in one piece may never draw the chip, the result toast still comes · mixed with other waits: label stays Waiting for N responses, the same attach.pending.copy value is the kind name in the detail lines · result once per write: toast.copied_osc52 info / toast.clipboard_failed danger (write failed, or connection / mirror ended mid-write; no attach-only copy, the reconnect banner names a disconnect) · toast scope: the source surface when it is shown, else the window · never on the tab strip or LNB"], ["scope", "per workspace · hidden while another workspace is shown"], ["never", "scrim · full-width bar · cancel / retry / resend · started by shell silence"]]}
           tokens={[{ tok: "--tasty-pending-indicator-height", use: "→ size-24" }, { tok: "--tasty-pending-indicator-padding-x", use: "→ space-sm 8" }, { tok: "--tasty-pending-indicator-gap", use: "→ space-sm 8" }, { tok: "--tasty-pending-indicator-bg", use: "→ surface-raised", color: "var(--tasty-pending-indicator-bg)" }, { tok: "--tasty-pending-indicator-border", use: "→ border-strong", color: "var(--tasty-pending-indicator-border)" }, { tok: "--tasty-pending-indicator-fg", use: "→ text-secondary-raised", color: "var(--tasty-pending-indicator-fg)" }, { tok: "--tasty-pending-indicator-time-fg", use: "→ text-primary", color: "var(--tasty-pending-indicator-time-fg)" }, { tok: "--tasty-pending-indicator-sep-fg", use: "→ text-muted", color: "var(--tasty-pending-indicator-sep-fg)" }, { tok: "--tasty-pending-indicator-spinner-size", use: "→ icon-size-sm 14" }, { tok: "--tasty-pending-indicator-compact-below", use: "→ size-200" }, { tok: "--tasty-pending-indicator-delay", use: "→ loading-overlay-delay 200" }]} />
         <Note><b>Contrast</b> on surface-raised: label text-secondary-raised Mocha ≈ 7.1:1 · Latte n1100 5.17:1 · time text-primary Mocha ≈ 9.5:1 · Latte 5.17:1 · separator text-muted is decorative · spinner arc accent-primary Mocha ≈ 6.9:1 · Latte ≈ 3.6:1 (≥ 3). Chip edge border-strong is the same floating edge as Toast / Banner.</Note>
         <Dont><b>Don't</b> start the wait because a terminal has been silent, and don't use the chip in place of the pre-layout for a new tab or split.</Dont>
