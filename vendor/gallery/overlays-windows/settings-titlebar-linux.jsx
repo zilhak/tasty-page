@@ -53,7 +53,7 @@ function SettingsTitleBarLinuxSpec() {
           ["window", "settings-window-width × settings-window-csd-height (1100 × 736), inner and minimum, off the UI scale"],
           ["title bar", "titlebar-height 36 · 1px titlebar-border below · padding-x space-sm 8"],
           ["title", "none — the L1 band keeps its Settings label and divider"],
-          ["buttons", "close only, right end · titlebar-window-button-size 24, round · glyph close, icon-size-xs 12"],
+          ["buttons", "close only, right end · titlebar-window-button-size 24, round · close X titlebar-window-glyph-size 10.56, 1px stroke, centered on the 36 row"],
           ["drag", "the rest of the row moves the window · double click does nothing (no maximize)"],
           ["server-side decorations", "no row · settings-window-height 700"],
           ["below", "L1 band 44, L2 sidebar, content and footer as on every OS"],
@@ -62,13 +62,14 @@ function SettingsTitleBarLinuxSpec() {
           { tok: "--tasty-titlebar-bg", use: "active ground, crust", color: "var(--tasty-titlebar-bg)" },
           { tok: "--tasty-titlebar-bg-inactive", use: "inactive ground, mantle", color: "var(--tasty-titlebar-bg-inactive)" },
           { tok: "--tasty-titlebar-border", use: "1px line above the L1 band", color: "var(--tasty-titlebar-border)" },
-          { tok: "--tasty-titlebar-button-fg", use: "close glyph at rest", color: "var(--tasty-titlebar-button-fg)" },
+          { tok: "--tasty-titlebar-fg", use: "close glyph at rest, active", color: "var(--tasty-titlebar-fg)" },
+          { tok: "--tasty-titlebar-fg-inactive", use: "close glyph at rest, inactive", color: "var(--tasty-titlebar-fg-inactive)" },
           { tok: "--tasty-titlebar-close-hover-bg", use: "close fill on hover and press", color: "var(--tasty-titlebar-close-hover-bg)" },
           { tok: "--tasty-titlebar-close-hover-fg", use: "close glyph on hover and press", color: "var(--tasty-titlebar-close-hover-fg)" },
           { tok: "--tasty-titlebar-window-button-size", use: "24 button" },
           { tok: "--tasty-settings-window-csd-height", use: "736 window height on Linux" },
         ]} />
-      <Note>The row reads the Title bar, Title bar (inactive) and Window close button contracts, the same as the main window's title bar (Layouts › Title bar). Close discards the draft, like Cancel and the settings shortcut. macOS and Windows keep the OS title bar and the 1100 × 700 window.</Note>
+      <Note>The row reads the window button part of the Title bar and Title bar (inactive) contracts and the Window close button contract, the same as the main window's Linux title bar (Layouts › Title bar). Close discards the draft, like Cancel and the settings shortcut. macOS and Windows keep the OS title bar and the 1100 × 700 window.</Note>
       <Dont><b>Don't</b> put “Settings” in the title bar as well: the L1 band already says it one row below.</Dont>
     </Spec>
   );
