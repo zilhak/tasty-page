@@ -19,7 +19,8 @@ const Toast = DS.Toast || (() => null);
 const Tooltip = DS.Tooltip || (({ children }) => children);
 const sec = (lang, n) => acw("attach.pending.seconds", lang, n);
 // Room under a chip for an open two-line detail tooltip (placement bottom), from the tooltip's own tokens.
-const TIP2_ROOM = "calc(2 * var(--tasty-tooltip-font-size) * var(--tasty-tooltip-line-height) + 2 * var(--tasty-tooltip-padding-y) + 2 * var(--tasty-border-width) + var(--tasty-tooltip-offset))";
+const tipRoom = (lines) => "calc(" + lines + " * var(--tasty-tooltip-font-size) * var(--tasty-tooltip-line-height) + 2 * var(--tasty-tooltip-padding-y) + 2 * var(--tasty-border-width) + var(--tasty-tooltip-offset))";
+const TIP2_ROOM = tipRoom(2);
 const cap = { fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" };
 const step = (t) => <span style={{ ...mono, display: "block", marginBottom: "var(--tasty-space-xs)", whiteSpace: "normal" }}>{t}</span>;
 const Arrow = () => <span aria-hidden style={{ alignSelf: "center", ...mono, fontSize: "var(--tasty-font-size-body)" }}>→</span>;
@@ -174,10 +175,14 @@ function GalleryLoadingPrelayout() {
           </Themed>
         </Stage>
         <Views>
-          <View name="pending-copy-only" label="clipboard copy wait only · attach.pending.copy · en · ko · ja · zh-Hans · then compact">
+          <View name="pending-copy-only" label="clipboard copy wait only · attach.pending.copy · en · ko · ja · zh-Hans · then compact, label moved to the detail line">
             <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "var(--tasty-space-sm)" }}>
-              {ATTACH_COPY_WAIT_LANGS.map((lang) => <PendingIndicator key={lang} count={1} label={acw("attach.pending.copy", lang)} time={sec(lang, 2)} reducedMotion />)}
-              <PendingIndicator count={1} label={acw("attach.pending.copy")} time="2s" compact reducedMotion />
+              {ATTACH_COPY_WAIT_LANGS.map((lang) => <PendingIndicator key={lang} count={1} label={acw("attach.pending.copy", lang)} time={sec(lang, 2)} tooltip={acw("attach.pending.copy", lang) + " · " + sec(lang, 2)} reducedMotion />)}
+              <div style={{ alignSelf: "stretch", display: "flex", justifyContent: "center", paddingBottom: tipRoom(1) }}>
+                <Tooltip open placement="bottom" content={acw("attach.pending.copy") + " · " + sec("en", 2)}>
+                  <PendingIndicator count={1} label={acw("attach.pending.copy")} time={sec("en", 2)} tooltip={acw("attach.pending.copy") + " · " + sec("en", 2)} compact reducedMotion />
+                </Tooltip>
+              </div>
             </div>
           </View>
           <View name="pending-copy-in-window" wide label="clipboard copy wait in the notice column · same box, same place">
@@ -186,7 +191,7 @@ function GalleryLoadingPrelayout() {
           <View name="pending-copy-mixed" label="copy mixed with another wait · chip keeps the count · detail lines (tooltip) list the copy as one kind">
             <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "var(--tasty-space-sm)", paddingBottom: TIP2_ROOM }}>
               <Tooltip open placement="bottom" content={<>{"Close tab · " + sec("en", 20)}<br />{acw("attach.pending.copy") + " · " + sec("en", 3)}</>}>
-                <PendingIndicator count={2} label={acw("attach.pending.many", "en", 2)} time={sec("en", 20)} reducedMotion />
+                <PendingIndicator count={2} label={acw("attach.pending.many", "en", 2)} time={sec("en", 20)} tooltip={"Close tab · " + sec("en", 20) + "\n" + acw("attach.pending.copy") + " · " + sec("en", 3)} reducedMotion />
               </Tooltip>
             </div>
           </View>
