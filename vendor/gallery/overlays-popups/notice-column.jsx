@@ -133,7 +133,7 @@ function GalleryNoticeColumn() {
             </Themed>
           ))}
         </Stage>
-        <Meta specs={[["column", "work area top-right · inset 8 · width 360 · gap 8 · items right-aligned"], ["order", "restore / halt notice › PendingIndicator"], ["moves below", "window-scope banner · top-right pane's open search bar"], ["never covers", "the tab strip: the column starts under the top-right pane's tab strip (tab-height + 8), so close / scroll arrows stay reachable"], ["input", "column itself pointer-events none; only the notice / chip boxes take the pointer"]]}
+        <Meta specs={[["column", "work area top-right · inset 8 · width 360 · gap 8 · items right-aligned"], ["order", "restore / halt notice › PendingIndicator"], ["moves below", "window-scope banner · top-right pane's open search bar"], ["never covers", "the tab strip: the column starts under the top-right pane's tab strip (tab-height + 8), so close / scroll arrows stay reachable"], ["input", "column itself pointer-events none; only the restore / halt notice box takes the pointer · the response-wait chip (any wait, clipboard copy included) is not a keyboard or pointer target: clicks, drags and the wheel over it reach the terminal underneath; hover only shows its detail lines"]]}
           tokens={[{ tok: "--tasty-notice-column-inset", use: "→ space-sm 8" }, { tok: "--tasty-notice-column-gap", use: "→ space-sm 8" }, { tok: "--tasty-notice-column-width", use: "→ size-360" }]} />
       </Spec>
     </>
