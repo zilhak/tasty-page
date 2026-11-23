@@ -189,7 +189,7 @@ function ChildDetail({ node, isBase, lang = "en", onViewDags, onSetBase, onClose
   const st = ancestor ? null : childTone(node.state);
   const dags = (node.dags || []).map((id) => DAG_BY_ID[id]).filter(Boolean);
   // host text rule (Dialogs › File handler › Remote path): the attach profile name (R-57);
-  // with no profile name, the SSH destination; never 127.0.0.1:<port>
+  // with no profile name, the word Remote; never 127.0.0.1:<port>
   const attach = node.remote || ancestor ? node.profile : null;
   return (
     <GraphDrawer title={title} mono={mono} onClose={onClose} closeLabel={closeLabel} cover={cover}>

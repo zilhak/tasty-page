@@ -275,7 +275,7 @@ export function ChildGraphSection() {
             <Labelled label="A → B → C: this computer, then a remote child and its child; its drawer shows the attach profile" tag="decided"><Frame w={640} h={320}><ChildView nodes={CHILD_CROSS} baseId="s_L1" selected="s_R1" /></Frame></Labelled>
           </>)}
         </Stage>
-        <Meta specs={[["remote card", "remote glyph in accent-remote-raised · state as usual"], ["read-only ancestor", "dashed · Not mirrored · drawer: role, id, workspace, attach profile, read-only note"], ["attach profile", "the host text rule: profile name (R-57) · no profile name → SSH destination as given · no name known → Remote · never 127.0.0.1:<port>"], ["disconnected", "see graph-states: warning strip, remote states unknown"], ["across machines", "same parent → child line"], ["attach", "occupancy not drawn"]]}
+        <Meta specs={[["remote card", "remote glyph in accent-remote-raised · state as usual"], ["read-only ancestor", "dashed · Not mirrored · drawer: role, id, workspace, attach profile, read-only note"], ["attach profile", "the host text rule: profile name (R-57) · no profile name → Remote · never 127.0.0.1:<port>"], ["disconnected", "see graph-states: warning strip, remote states unknown"], ["across machines", "same parent → child line"], ["attach", "occupancy not drawn"]]}
           tokens={[{ tok: "--tasty-accent-remote-raised", use: "remote glyph", color: "var(--tasty-accent-remote-raised)" }]} />
       </Spec>
 
