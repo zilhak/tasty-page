@@ -5551,6 +5551,10 @@
       "$type": "dimension",
       "$value": "{primitive.size-700}"
     },
+    "settings-window-csd-height": {
+      "$type": "dimension",
+      "$value": "calc(var(--tasty-settings-window-height) + var(--tasty-titlebar-height))"
+    },
     "toast-stack-offset-bottom": {
       "$type": "dimension",
       "$value": "{primitive.size-36}"

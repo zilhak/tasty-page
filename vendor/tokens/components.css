@@ -1405,6 +1405,7 @@
   --tasty-palette-width:               var(--tasty-size-540);  /* command palette card; ON-SCALE (× UI zoom) */
   --tasty-settings-window-width:       var(--tasty-size-1100); /* settings window inner + min size — OFF-SCALE (2026-10-07) */
   --tasty-settings-window-height:      var(--tasty-size-700);
+  --tasty-settings-window-csd-height:  calc(var(--tasty-settings-window-height) + var(--tasty-titlebar-height)); /* 736 — Linux settings window inner + min height when Tasty draws its own title bar: the 1100 × 700 below the title bar stays. OFF-SCALE like both terms */
   --tasty-toast-stack-offset-bottom:   var(--tasty-size-36);   /* MAIN window-scope stack: status bar 24 + 12. OFF-SCALE — the status bar and the toast structural dims are outside the UI zoom (2026-10-07) */
   --tasty-loading-lockup-tracking:     var(--tasty-letter-spacing-n1px); /* "tasty." 38px loading lockup */
   --tasty-loading-lockup-font-size:    var(--tasty-font-size-brand-lockup); /* 38 — "tasty." loading lockup; BRANDING exception to the 14px UI cap */
