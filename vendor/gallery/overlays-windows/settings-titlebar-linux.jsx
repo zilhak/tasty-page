@@ -41,7 +41,9 @@ function Demo() {
   const drag = (dx, dy) => {
     if (dx === null) { base.current = null; return; }
     if (!base.current) base.current = at;
-    setAt({ x: base.current.x + dx, y: base.current.y + dy });
+    // The window stays at or right of and below where it opened, so the title bar never leaves the stage's
+    // scrollable area: the stage scrolls right and down to reach it, never up or left.
+    setAt({ x: Math.max(0, base.current.x + dx), y: Math.max(0, base.current.y + dy) });
   };
   if (!open) {
     return (
