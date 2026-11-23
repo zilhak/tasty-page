@@ -4941,7 +4941,7 @@
     },
     "titlebar-window-glyph-size": {
       "$type": "dimension",
-      "$value": "calc(var(--tasty-titlebar-window-button-size) * 0.44)"
+      "$value": "calc(0.44 * var(--tasty-titlebar-window-button-size))"
     },
     "titlebar-csd-radius": {
       "$type": "dimension",

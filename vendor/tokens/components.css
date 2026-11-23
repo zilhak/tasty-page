@@ -1176,7 +1176,7 @@
   /* Linux window button glyph: the span of its minimize line, maximize square or close X, centered in the
      button and stroked at border-width (1px). 0.44 of the button, which is the app's 0.22 × diameter from the
      center to each side (10.56 at 24). Off the UI zoom scale with the button. */
-  --tasty-titlebar-window-glyph-size: calc(var(--tasty-titlebar-window-button-size) * 0.44);
+  --tasty-titlebar-window-glyph-size: calc(0.44 * var(--tasty-titlebar-window-button-size)); /* coefficient first: the app reads calc terms as <number> * var(--tasty-…) */
 
   /* Wayland CSD framing — when Tasty draws its own decorations the client paints
      rounded top corners + a 1px outline + a soft drop shadow, and the shadow
