@@ -18,6 +18,8 @@ const PendingIndicator = DS.PendingIndicator || (() => null);
 const Toast = DS.Toast || (() => null);
 const Tooltip = DS.Tooltip || (({ children }) => children);
 const sec = (lang, n) => acw("attach.pending.seconds", lang, n);
+// Room under a chip for an open two-line detail tooltip (placement bottom), from the tooltip's own tokens.
+const TIP2_ROOM = "calc(2 * var(--tasty-tooltip-font-size) * var(--tasty-tooltip-line-height) + 2 * var(--tasty-tooltip-padding-y) + 2 * var(--tasty-border-width) + var(--tasty-tooltip-offset))";
 const cap = { fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" };
 const step = (t) => <span style={{ ...mono, display: "block", marginBottom: "var(--tasty-space-xs)", whiteSpace: "normal" }}>{t}</span>;
 const Arrow = () => <span aria-hidden style={{ alignSelf: "center", ...mono, fontSize: "var(--tasty-font-size-body)" }}>→</span>;
@@ -182,14 +184,14 @@ function GalleryLoadingPrelayout() {
             <Frame w={W} h={H} lnb={WS(false)} panes={[{ tabs: [T("vim", { active: true }), T("logs")], surfaces: [TERM()] }]} pending={{ count: 1, label: acw("attach.pending.copy"), time: "2s" }} rm />
           </View>
           <View name="pending-copy-mixed" label="copy mixed with another wait · chip keeps the count · detail lines (tooltip) list the copy as one kind">
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "var(--tasty-space-sm)", paddingBottom: "var(--tasty-size-64)" }}>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "var(--tasty-space-sm)", paddingBottom: TIP2_ROOM }}>
               <Tooltip open placement="bottom" content={<>{"Close tab · " + sec("en", 20)}<br />{acw("attach.pending.copy") + " · " + sec("en", 3)}</>}>
                 <PendingIndicator count={2} label={acw("attach.pending.many", "en", 2)} time={sec("en", 20)} reducedMotion />
               </Tooltip>
             </div>
           </View>
           <View name="pending-copy-result" label="result, once per write · success toast.copied_osc52 (info) · failure toast.clipboard_failed (danger) · en · ko · ja · zh-Hans">
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "var(--tasty-space-sm)", maxWidth: 380 }}>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "var(--tasty-space-sm)" }}>
               {ATTACH_COPY_WAIT_LANGS.map((lang) => <Toast key={"ok-" + lang} variant="info">{acw("toast.copied_osc52", lang)}</Toast>)}
               {ATTACH_COPY_WAIT_LANGS.map((lang) => <Toast key={"ng-" + lang} variant="danger">{acw("toast.clipboard_failed", lang)}</Toast>)}
             </div>
