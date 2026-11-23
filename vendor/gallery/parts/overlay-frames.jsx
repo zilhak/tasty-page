@@ -461,7 +461,7 @@ const DR_FOOT = { display: "flex", justifyContent: "flex-end", gap: "var(--tasty
 
 // server: "ready" — the connection announced the file-download capability; "old" — it did not,
 // so the action is drawn disabled and the reason line says why (always visible, never a tooltip).
-function DownloadRunFrame({ host = "gx10", path = "reports/q3-summary.xlsx", server = "ready", lang = "en" }) {
+function DownloadRunFrame({ host = "host", path = "reports/q3-summary.xlsx", server = "ready", lang = "en" }) {
   const c = DR_COPY[lang];
   return (
     <div data-download-run={server} style={DR_SHELL}>
@@ -1257,7 +1257,7 @@ function FhHeader({ state, path, remote }) {
           With a remote mark the path box is what the mark leaves: 390 − mark − 8 (gap),
           mark = 12 glyph + 4 + host text (6px per char, capped at 160). Measure that box;
           where measuring is not available the cap is floor((366 − min(6 × host chars, 160)) / 6):
-          gx10 → 57, mac-company-attach → 43, and 34 at the host cap — use 34 when the host width is not known either.
+          'host' → 57, 'work-laptop-attach' → 43, and 34 at the host cap — use 34 when the host width is not known either.
           Reconnecting: the status word is part of the mark, so subtract 4 + its width from 366 too;
           when its width is not known, take 6 per mono cell in en and ko (a Hangul syllable is two cells: reconnecting 72, 재연결 중 54) and 12 per character in ja and zh-Hans, one 11px em rounded up (再接続中 48, 重新连接中 60). */}
       <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", minWidth: 0 }}>

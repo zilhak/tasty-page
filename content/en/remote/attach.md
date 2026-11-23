@@ -1,4 +1,4 @@
-<!-- source-hash: ea02a3a05464 -->
+<!-- source-hash: 17ca1697b2c0 -->
 <a id="remote-attach"></a>
 
 # Working remotely (attach)
@@ -47,21 +47,21 @@ If setting file access permissions (ACLs) fails, the error message includes the 
 
 ```sh
 # ssh profile
-tasty tool remote-profile add-ssh --name gx10 --host 10.0.0.5 --user me --port 22 --identity ~/.ssh/id_ed25519
+tasty tool remote-profile add-ssh --name host --host 10.0.0.5 --user me --port 22 --identity ~/.ssh/id_ed25519
 tasty tool remote-profile add-ssh --name win --host 10.0.0.9 --shell powershell --label "Windows build PC"   # set the shell and display name
 tasty tool remote-profile list-local                      # list ~/.ssh/config aliases
 tasty tool remote-profile import --from devbox --name devbox   # alias → ssh profile
 
 # tasty-attach profile (references the ssh profile)
-tasty tool remote-profile add-attach --name gx10-attach --ssh-ref gx10 \
+tasty tool remote-profile add-attach --name host-attach --ssh-ref host \
   --remote-tasty /home/me/tasty/target/release/tasty --port-mode auto
 
 # inspect · edit · remove
 tasty tool remote-profile list [--kind ssh|tasty-attach]
-tasty tool remote-profile show --name gx10-attach
-tasty tool remote-profile edit --name gx10-attach --port-mode file-unix
-tasty tool remote-profile detect --name gx10-attach       # actually connect to the remote and verify the port
-tasty tool remote-profile remove --name gx10-attach
+tasty tool remote-profile show --name host-attach
+tasty tool remote-profile edit --name host-attach --port-mode file-unix
+tasty tool remote-profile detect --name host-attach       # actually connect to the remote and verify the port
+tasty tool remote-profile remove --name host-attach
 ```
 
 Port modes:
@@ -82,8 +82,8 @@ To read the IPC port of the instance currently running on the remote machine, ru
 ## 2. Check the remote connection
 
 ```sh
-tasty remote check --profile gx10-attach       # alive: gx10 (port 41234, version …, N workspaces)
-tasty remote workspaces --profile gx10-attach  # list of remote Workspaces (id · name · whether occupied)
+tasty remote check --profile host-attach       # alive: host (port 41234, version …, N workspaces)
+tasty remote workspaces --profile host-attach  # list of remote Workspaces (id · name · whether occupied)
 ```
 
 `remote check` only reports alive once it has found the port and actually received a response. If the program has stopped but its port file remains, the result is `dead`. The failure cause is reported as one of four kinds: SSH connection failure / remote instance not running / response could not be parsed / timeout.
@@ -106,12 +106,12 @@ A remote workspace that is itself a mirror from another Tasty is disabled with a
 
 ```sh
 tasty tool attach --list                                   # list tasty-attach profiles
-tasty tool attach gx10-attach --workspace 3                # mirror the whole Workspace (run in a terminal)
-tasty tool attach gx10-attach 57                           # a single Surface only
-tasty tool attach gx10-attach 57 --raw                     # wire my terminal directly to the remote Surface (exit with Ctrl+\)
-tasty remote attach --profile gx10-attach --workspace 3    # long form of the same thing as tool attach
+tasty tool attach host-attach --workspace 3                # mirror the whole Workspace (run in a terminal)
+tasty tool attach host-attach 57                           # a single Surface only
+tasty tool attach host-attach 57 --raw                     # wire my terminal directly to the remote Surface (exit with Ctrl+\)
+tasty remote attach --profile host-attach --workspace 3    # long form of the same thing as tool attach
 tasty remote attach --ssh me@10.0.0.5 --workspace 3        # one-off, without a profile
-tasty remote new-workspace --profile gx10-attach --name build --cwd /home/me/proj   # create a Workspace on the remote
+tasty remote new-workspace --profile host-attach --name build --cwd /home/me/proj   # create a Workspace on the remote
 ```
 
 ### Attach to a running Tasty window
@@ -119,7 +119,7 @@ tasty remote new-workspace --profile gx10-attach --name build --cwd /home/me/pro
 The running Tasty opens the SSH tunnel itself and adds the remote workspace to this window as a mirror, without moving focus. To attach an existing workspace, give its remote ID with `--workspace`. Use a `tasty-attach` profile name with `--profile`, or use `--ssh <target>` instead to connect without a profile.
 
 ```sh
-tasty remote attach --into-gui --workspace 3 --profile gx10-attach
+tasty remote attach --into-gui --workspace 3 --profile host-attach
 tasty remote attach --into-gui --workspace 3 --ssh me@10.0.0.5
 ```
 
@@ -130,7 +130,7 @@ If the remote force-detaches you while connecting, see the [connection result](#
 To create a remote workspace and immediately attach it as a mirror, use `--new-workspace` instead of `--workspace`. `--name` and `--cwd` are optional; `--cwd` is a path on the remote computer. This form prints the creation result as one JSON line. It does not wait for a second result line as the existing-workspace form does. Check `tasty list workspaces` for a row marked `[mirror]` to confirm that the mirror appeared.
 
 ```sh
-tasty remote attach --into-gui --new-workspace --profile gx10-attach --name build --cwd /srv/project
+tasty remote attach --into-gui --new-workspace --profile host-attach --name build --cwd /srv/project
 tasty list workspaces
 ```
 

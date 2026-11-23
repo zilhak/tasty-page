@@ -2,7 +2,7 @@
 // The status bar remote item and the terminal path link tooltip. The file handler
 // picker's remote mark lives with the picker on the Dialogs page.
 // Host text is the attach profile name and nothing else (decided 2026-11-10; R-57: a
-// mirror always attaches through a tasty-attach profile): gx10, mac-company-attach and
+// mirror always attaches through a tasty-attach profile): host, work-laptop-attach and
 // one long name.
 // Widths quoted in the specs use the 6px D2Coding advance at 11px.
 import React from "react";
@@ -23,8 +23,8 @@ export const REMOTE_COPY = {
 };
 
 // attach profile names (the decided host text)
-const HOST = "gx10";
-const MID = "mac-company-attach";
+const HOST = "host";
+const MID = "work-laptop-attach";
 const LONG = "build-runner-eu-west-07-staging-attach";
 
 const caption = { fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" };
@@ -88,8 +88,8 @@ function Labeled({ label, children }) {
 
 const BAR_ROWS = [
   ["local surface — no remote item", { w: 470, branch: "feat/dag-detail", shell: "zsh" }],
-  ["mirror · connected — profile gx10", { w: 470, remote: { host: HOST } }],
-  ["mirror · connected — profile mac-company-attach", { w: 470, remote: { host: MID } }],
+  ["mirror · connected — profile host", { w: 470, remote: { host: HOST } }],
+  ["mirror · connected — profile work-laptop-attach", { w: 470, remote: { host: MID } }],
   ["mirror · reconnecting — neutral ink + status word", { w: 470, remote: { host: MID, state: "reconnecting" } }],
   ["long profile name — capped at 160, end-elided", { w: 470, remote: { host: LONG } }],
   ["narrow — grid and surface id drop", { w: 320, drop: 3, remote: { host: LONG } }],
@@ -148,7 +148,7 @@ export function RemoteStatusBarSpec() {
         </View>
       </Views>
       <Meta
-        specs={[["shown", "focused surface is in a mirror workspace — local surface: absent"], ["position", "first in the left cluster, before branch"], ["connected", <>remote glyph 12 + host · both <span className="tok">--tasty-statusbar-remote-fg</span> (crust 12.06 · 5.67 · mantle 11.29 · 6.17)</>], ["reconnecting", <>glyph <span className="tok">--tasty-statusbar-glyph</span> · host <span className="tok">--tasty-text-muted</span> · then <i>reconnecting</i> in <span className="tok">--tasty-font-label</span>, text-muted</>], ["disconnected", <>a saved remote row that stopped retrying (R-58): the reconnecting form with the word <i>disconnected</i> (<code>status_bar.remote_disconnected</code>) · tooltip: the connected tooltip (what it is + host)</>], ["gap", <><span className="tok">--tasty-statusbar-remote-gap</span> 4 — glyph ↔ host ↔ word</>], ["host text", "attach profile name, as it was at connect time — the only host text (R-57)"], ["host font", "mono caption (a config name)"], ["host cap", <><span className="tok">--tasty-statusbar-remote-max-width</span> 160 on the host text · end-elided with …</>], ["widths", "6px advance: gx10 24 · mac-company-attach 108 · cap 160 = 26 chars (25 + …)"], ["drop order", "1 grid → 2 shell → 3 surface id → 4 palette cap → 5 branch text → 6 host text (remote glyph stays)"], ["reconnecting floor", "dim glyph + status word + theme glyph"], ["tooltip", <>bar tooltip, text only: <code>attach.mirror_workspace</code> or <code>attach.toast.mirror_reconnecting</code>, then the full host in mono</>], ["click", "none — read-only, like every item but the palette chip and theme"], ["refresh", "follows the session state on the next 1Hz read"]]}
+        specs={[["shown", "focused surface is in a mirror workspace — local surface: absent"], ["position", "first in the left cluster, before branch"], ["connected", <>remote glyph 12 + host · both <span className="tok">--tasty-statusbar-remote-fg</span> (crust 12.06 · 5.67 · mantle 11.29 · 6.17)</>], ["reconnecting", <>glyph <span className="tok">--tasty-statusbar-glyph</span> · host <span className="tok">--tasty-text-muted</span> · then <i>reconnecting</i> in <span className="tok">--tasty-font-label</span>, text-muted</>], ["disconnected", <>a saved remote row that stopped retrying (R-58): the reconnecting form with the word <i>disconnected</i> (<code>status_bar.remote_disconnected</code>) · tooltip: the connected tooltip (what it is + host)</>], ["gap", <><span className="tok">--tasty-statusbar-remote-gap</span> 4 — glyph ↔ host ↔ word</>], ["host text", "attach profile name, as it was at connect time — the only host text (R-57)"], ["host font", "mono caption (a config name)"], ["host cap", <><span className="tok">--tasty-statusbar-remote-max-width</span> 160 on the host text · end-elided with …</>], ["widths", "6px advance: 'host' 24 · 'work-laptop-attach' 108 · cap 160 = 26 chars (25 + …)"], ["drop order", "1 grid → 2 shell → 3 surface id → 4 palette cap → 5 branch text → 6 host text (remote glyph stays)"], ["reconnecting floor", "dim glyph + status word + theme glyph"], ["tooltip", <>bar tooltip, text only: <code>attach.mirror_workspace</code> or <code>attach.toast.mirror_reconnecting</code>, then the full host in mono</>], ["click", "none — read-only, like every item but the palette chip and theme"], ["refresh", "follows the session state on the next 1Hz read"]]}
         tokens={[{ tok: "--tasty-statusbar-remote-fg", use: "glyph + host, connected", color: "var(--tasty-statusbar-remote-fg)" }, { tok: "--tasty-statusbar-glyph", use: "glyph, reconnecting", color: "var(--tasty-statusbar-glyph)" }, { tok: "--tasty-text-muted", use: "host + word, reconnecting", color: "var(--tasty-text-muted)" }, { tok: "--tasty-statusbar-remote-gap", use: "4" }, { tok: "--tasty-statusbar-remote-max-width", use: "160 host cap" }]} />
       <Note>The remote hue is the only colour in the bar. That is deliberate: it is an <b>identity</b> (where this surface lives), not a status, so it is never a dot. Losing it on reconnect is the signal, and the word says why.</Note>
       <Dont><b>Don't</b> animate the reconnecting state (no spinner, no pulse). The bar reads once a second and carries nothing that changes faster.</Dont>
@@ -194,8 +194,8 @@ function Term({ children }) {
 
 const LINK_ROWS = [
   ["local surface — path link, no tooltip", null, "src/main.rs:42", false],
-  ["mirror — profile gx10, tooltip says where it lives", HOST, "src/main.rs:42", true],
-  ["mirror — profile mac-company-attach", MID, "src/main.rs:42", true],
+  ["mirror — profile host, tooltip says where it lives", HOST, "src/main.rs:42", true],
+  ["mirror — profile work-laptop-attach", MID, "src/main.rs:42", true],
   ["mirror — long profile name, end-elided in the tooltip", LONG, "src/main.rs:42", true],
   ["agent mirror · reconnecting (resync, or drop → cleanup) — neutral ink + status word, as the status bar", MID, "src/main.rs:42", true, "reconnecting"],
   ["agent mirror · reconnecting, long profile name — the host elides, the word stays", LONG, "src/main.rs:42", true, "reconnecting"],

@@ -128,7 +128,7 @@ export function RemoteRailMarks({ state = "connected", warn = false, title }) {
 // Workspace-scope popup, centred in the workspace content area, never takes focus on its own.
 // kind: connecting · idle · failed (empty workspace) · reconnecting · gave_up · user · server · failed · closed (over the last screen).
 // shape = the last screen is kept under the scrim → shadow-modal; the empty workspace has no scrim → shadow-popover.
-export function RemoteConnectionPopup({ lang = "en", name = "tasty-core", profile = "gx10", remote, kind = "connecting", reason, seconds = 300,
+export function RemoteConnectionPopup({ lang = "en", name = "tasty-core", profile = "host", remote, kind = "connecting", reason, seconds = 300,
   userVariant = "stay", shape = false, width = "var(--tasty-size-360)" }) {
   const remoteName = remote || name;
   const warn = kind === "failed" || kind === "gave_up" || kind === "closed";
@@ -223,7 +223,7 @@ export function RemoteWorkspaceContent({ shape = false, width = "var(--tasty-siz
 
 // ── Close the workspace on the remote — the confirmation ──
 // Window-scope centred confirm on the scrim, as Delete category. last = opened by closing the last tab or pane.
-export function CloseOnRemoteDialog({ lang = "en", name = "tasty-core", profile = "gx10", last = false }) {
+export function CloseOnRemoteDialog({ lang = "en", name = "tasty-core", profile = "host", last = false }) {
   return (
     <div role="alertdialog" lang={lang} aria-label={rt("remote.row.close_remote.title", lang, name)}
       style={{ width: "var(--tasty-info-modal-width)", maxWidth: "100%", boxSizing: "border-box", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-strong)",

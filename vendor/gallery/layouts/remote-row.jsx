@@ -23,7 +23,7 @@ const Labelled = ({ label, tag, children }) => (
 const col = (children) => <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-md)", minWidth: 0 }}>{children}</div>;
 const row = (children) => <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-lg)", alignItems: "flex-start" }}>{children}</div>;
 
-const WS = { name: "tasty-core", profile: "gx10", remote: "tasty-core" };
+const WS = { name: "tasty-core", profile: "host", remote: "tasty-core" };
 const Frame = ({ shape, children }) => <RemoteWorkspaceContent shape={shape} width="var(--tasty-size-480)" height="var(--tasty-size-288)">{children}</RemoteWorkspaceContent>;
 const Pop = (p) => <RemoteConnectionPopup name={WS.name} profile={WS.profile} remote={WS.remote} {...p} />;
 
@@ -41,7 +41,7 @@ export function RemoteRowEmptySpec() {
       </Stage>
       <Views>
         <View name="remote-row-popup-every-reason" label="Failed — every reason">
-          {row(REMOTE_REASONS.map((r) => <Labelled key={r} label={"reason: " + r}><Frame><Pop kind="failed" reason={r} profile={r === "profile_missing" ? "gx10-old" : WS.profile} /></Frame></Labelled>))}
+          {row(REMOTE_REASONS.map((r) => <Labelled key={r} label={"reason: " + r}><Frame><Pop kind="failed" reason={r} profile={r === "profile_missing" ? "host-old" : WS.profile} /></Frame></Labelled>))}
         </View>
         <View name="remote-row-popup-languages" label="Every language — connecting and the longest reason">
           {row(LANGS.flatMap((lang) => [
@@ -106,14 +106,14 @@ const ROWS = [
   ["disconnected (last screen kept)", { remoteState: "disconnected" }],
   ["not connected (after a restart)", { remoteState: "not_connected" }],
   ["disconnected + reason", { remoteState: "disconnected", remoteReason: "occupied" }],
-  ["not connected + reason", { remoteState: "not_connected", remoteReason: "profile_missing", remoteProfile: "gx10-old" }],
+  ["not connected + reason", { remoteState: "not_connected", remoteReason: "profile_missing", remoteProfile: "host-old" }],
 ];
 function Rows({ active, lang }) {
   return (
     <div style={{ width: "var(--tasty-size-240)", display: "flex", flexDirection: "column", background: "var(--tasty-bg-sidebar)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
       {ROWS.map(([label, o]) => (
         <div key={label} title={label}>
-          <WorkspaceRow ws={{ id: label, name: "tasty-core", mirror: true, status: "idle", remoteProfile: "gx10", remoteName: "tasty-core", ...o }} active={active} lang={lang} />
+          <WorkspaceRow ws={{ id: label, name: "tasty-core", mirror: true, status: "idle", remoteProfile: "host", remoteName: "tasty-core", ...o }} active={active} lang={lang} />
         </div>
       ))}
     </div>
@@ -122,7 +122,7 @@ function Rows({ active, lang }) {
 function RailAvatar({ o, active }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "var(--tasty-space-xs)", width: "var(--tasty-size-64)" }}>
-      <div title={remoteRowTip({ name: "tasty-core", remoteProfile: "gx10", remoteName: "tasty-core", ...o[1] })} style={{ position: "relative", width: "var(--tasty-size-36)", height: "var(--tasty-size-36)", display: "inline-flex", alignItems: "center", justifyContent: "center",
+      <div title={remoteRowTip({ name: "tasty-core", remoteProfile: "host", remoteName: "tasty-core", ...o[1] })} style={{ position: "relative", width: "var(--tasty-size-36)", height: "var(--tasty-size-36)", display: "inline-flex", alignItems: "center", justifyContent: "center",
         borderRadius: "var(--tasty-radius)", background: active ? "var(--tasty-overlay-active)" : "transparent",
         fontFamily: "var(--tasty-font-mono)", fontWeight: "var(--tasty-font-weight-bold)", fontSize: "var(--tasty-font-size-body)", color: active ? "var(--tasty-accent-primary-raised)" : "var(--tasty-text-muted)" }}>
         T

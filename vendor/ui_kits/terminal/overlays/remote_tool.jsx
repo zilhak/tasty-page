@@ -40,7 +40,7 @@ const SEED_PROFILES = [
     remoteTasty: "", shell: "bash", state: "ok", passkeyRef: "", fields: [] },
   { id: "p3", type: "ssh", name: "edge-cache", label: "staging", host: "edge.example.com", user: "root", port: "22",
     remoteTasty: "", shell: "auto", state: "detecting", passkeyRef: "edge-pem", fields: [] },
-  { id: "p4", type: "ssh", name: "legacy-box", label: "", host: "192.168.1.40", user: "admin", port: "22",
+  { id: "p4", type: "ssh", name: "legacy-box", label: "", host: "203.0.113.40", user: "admin", port: "22",
     remoteTasty: "", shell: "sh", state: "failed", passkeyRef: "old-rsa", fields: [] },
   { id: "p5", type: "smb", name: "media-nas", label: "lab", passkeyRef: "nas-cred", state: "ok",
     fields: [{ key: "host", value: "nas.local" }, { key: "share", value: "media" }] },
