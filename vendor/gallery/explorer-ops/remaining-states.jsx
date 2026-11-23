@@ -1,12 +1,24 @@
 import React from "react";
 import { XCol, XThemes, XToolbar, XCell } from "./create-drag-search.jsx";
 import * as ZK from "../parts/explorer-kit.jsx";
-import { Section as ZSection, Spec as ZSpec, Stage as ZStage, Meta as ZMeta, Note as ZNote } from "../parts/specimen.jsx";
+import { Section as ZSection, Spec as ZSpec, Stage as ZStage, Meta as ZMeta, Note as ZNote, Views as ZViews, View as ZView } from "../parts/specimen.jsx";
 import { ZInput, ZKIND_ROWS, ZBody, ZName, ZIcon, ZMenuItem } from "./results-and-refusals.jsx";
 import { Tip as ZTip } from "./remote-writes.jsx";
 
 // explorer.state.broken_link, reused as the tooltip of a broken link's disabled Show in enclosing folder.
 const ZBROKEN = "The link points to something that no longer exists: ~/archive/config.toml";
+// A broken link's menu from its top: Show in enclosing folder disabled, separator, the usual file rows. tip: Linux · macOS title.
+function ZBrokenMenu({ tip = false }) {
+  return (
+    <div style={zMenu}>
+      <ZMenuItem label="Show in enclosing folder" disabled title={tip ? ZBROKEN : undefined} />
+      <ZMenuItem separator />
+      <ZMenuItem label="Copy path" />
+      <ZMenuItem label="Copy" shortcut="Ctrl+C" />
+      <ZMenuItem label="Cut" shortcut="Ctrl+X" />
+    </div>
+  );
+}
 
 const zMenu = { width: "var(--tasty-size-240)", background: "var(--tasty-menu-bg)", border: "var(--tasty-border-width) solid var(--tasty-menu-border)", borderRadius: "var(--tasty-menu-radius)", padding: "var(--tasty-space-xs)", boxShadow: "var(--tasty-shadow-popover)" };
 function ZCursor({ children, on = true }) {
@@ -108,25 +120,16 @@ function RemainingSection() {
               <ZMenuItem label="Move to Trash" shortcut="Del" />
             </div>
           </XCol>
-          <XCol label="broken link — Linux · macOS (tooltip) · Windows (no tooltip)">
+          <XCol label="broken link — Linux · macOS (tooltip)">
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
-              <div style={zMenu}>
-                <ZMenuItem label="Show in enclosing folder" disabled title={ZBROKEN} />
-                <ZMenuItem separator />
-                <ZMenuItem label="Copy path" />
-                <ZMenuItem label="Copy" shortcut="Ctrl+C" />
-                <ZMenuItem label="Cut" shortcut="Ctrl+X" />
-              </div>
+              <ZBrokenMenu tip />
               <ZTip>{ZBROKEN}</ZTip>
             </div>
           </XCol>
-          <XCol label="broken link in search results — no Open">
-            <div style={zMenu}>
-              <ZMenuItem label="Show in enclosing folder" disabled title={ZBROKEN} />
-              <ZMenuItem separator />
-              <ZMenuItem label="Copy path" />
-              <ZMenuItem label="Copy" shortcut="Ctrl+C" />
-              <ZMenuItem label="Cut" shortcut="Ctrl+X" />
+          <XCol label="broken link in search results — Linux · macOS (tooltip) · no Open">
+            <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
+              <ZBrokenMenu tip />
+              <ZTip>{ZBROKEN}</ZTip>
             </div>
           </XCol>
           <XCol label="empty area — undo / redo">
@@ -138,6 +141,14 @@ function RemainingSection() {
             </div>
           </XCol>
         </ZStage>
+        <ZViews>
+          <ZView name="broken-link-windows" label="broken link — Windows: the same row, disabled, no tooltip, label kept">
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-lg)", alignItems: "flex-start" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}><span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>listing</span><ZBrokenMenu /></div>
+              <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}><span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>search results · no Open</span><ZBrokenMenu /></div>
+            </div>
+          </ZView>
+        </ZViews>
         <ZMeta
           specs={[["hidden toggle", "More row · action words · Ctrl+Shift+. / ⌘⇧. · default off · per explorer, remembered"], ["hidden shown", "name + glyph explorer-hidden-fg (→ text-muted) · no opacity"], ["hidden off", "status “{n} items · {h} hidden”"], ["show in folder", "opens the real parent · selects + current item · scrolls into view · no flash"], ["broken link", "local cell, one item: Show in enclosing folder disabled, separator kept · tooltip explorer.state.broken_link with the target path (Linux · macOS) · Windows: no tooltip, label kept · search result: no Open, the same disabled row first · permission error, loop: no row (unchanged) · mirror: no row (unchanged here)"], ["search result · native", "Open · Show in enclosing folder · separator · the item's usual file menu from Copy path on · no glyphs (OS menu) · Open = file → default handler, folder → navigate into it"], ["redo", "context menu beside Undo · Ctrl+Shift+Z · Ctrl+Y · ⌘⇧Z"], ["history", "10 steps per explorer · no list · stale step = disabled row + tooltip reason"], ["Undo card", "unchanged — one step, no Redo button"]]}
           tokens={[{ tok: "--tasty-explorer-hidden-fg", use: "→ text-muted", color: "var(--tasty-explorer-hidden-fg)" }]} />
