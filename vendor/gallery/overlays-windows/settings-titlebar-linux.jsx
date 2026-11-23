@@ -15,10 +15,16 @@ const CROP = {
 };
 
 // A frame is a picture: the window inside is inert, so it takes no pointer and no keyboard focus, and its
-// close button is frozen by closeState. Only the crop itself scrolls.
+// close button is frozen by closeState. Only the crop itself scrolls, and it opens scrolled to its right end,
+// so the close button is in view at any width; the Settings label is a scroll to the left.
 function Crop({ theme, active, close }) {
+  const ref = React.useRef(null);
+  React.useLayoutEffect(() => {
+    const el = ref.current;
+    if (el) el.scrollLeft = el.scrollWidth;
+  }, []);
   return (
-    <div data-theme={theme} style={{ ...CROP, background: "var(--tasty-bg-app)" }}>
+    <div ref={ref} data-theme={theme} style={{ ...CROP, background: "var(--tasty-bg-app)" }}>
       <div inert="" style={{ width: "max-content", pointerEvents: "none" }}>
         <Kit_SettingsWindow os="linux" frame="bare" windowActive={active} closeState={close}
           initialL1="Appearance" initialL2="Theme" theme={theme} onTheme={noop} uiScale={1} onUiScale={noop} onClose={noop} />
