@@ -1231,7 +1231,9 @@ function FhHeader({ state, path, remote }) {
   // chose the candidates. The link menu's open action runs no detector, so its
   // candidates are the fallback: state "fallback" with no remote.format draws the
   // neutral "format unknown" Tag, the All handlers group and the one-time strip, over
-  // the remote handlers only (FH_REMOTE).
+  // the remote handlers only (FH_REMOTE). A path link Ctrl+click opens the picker only
+  // when the first handler cannot open the file remotely and another candidate can, so
+  // its detector has always matched; no match opens the download-and-run dialog instead.
   const fmt = remote?.format ?? (state === "fallback" ? "unknown" : "markdown");
   const unknown = state === "fallback" || (!!remote && !remote.format);
   return (
