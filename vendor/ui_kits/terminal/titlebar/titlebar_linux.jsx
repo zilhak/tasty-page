@@ -29,7 +29,7 @@ const TB_LIN_CSS = `
 .tb-lin__drag { -webkit-app-region:drag; }
 .tb-lin__ctrls { display:flex; gap:var(--tasty-space-xs); flex:none; }
 .tb-lin__btn { width:var(--tasty-titlebar-window-button-size); height:var(--tasty-titlebar-window-button-size);
-  border:0; border-radius:var(--tasty-radius-pill); display:grid; place-items:center;
+  padding:0; border:0; border-radius:var(--tasty-radius-pill); display:grid; place-items:center;
   background:transparent; color:var(--tasty-titlebar-fg); cursor:pointer;
   transition:background var(--tasty-motion-ui-fast) var(--tasty-ease-ui), color var(--tasty-motion-ui-fast) var(--tasty-ease-ui); }
 /* The app's Linux glyphs: minimize a line, maximize a square outline stroked inside its extent, close an X,
