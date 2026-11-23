@@ -194,7 +194,7 @@ function LinkTip({ host, state = "connected", lang = "en" }) {
       <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-link-remote-gap)", minWidth: 0, fontFamily: "var(--tasty-font-mono)",
         color: live ? "var(--tasty-link-remote-fg)" : "var(--tasty-text-muted-raised)" }}>
         <span style={{ display: "inline-flex", flex: "none", color: live ? "inherit" : "var(--tasty-glyph-dim-raised)" }}><Icon name="remote" size="var(--tasty-icon-size-xs)" /></span>
-        <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis" }}>{host}</span>
+        {host && <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis" }}>{host}</span>}
         {!live && <span style={{ flex: "none", fontFamily: "var(--tasty-font-label)" }}>{word}</span>}
       </span>
     </span>
@@ -243,6 +243,17 @@ export function RemoteLinkSpec() {
         )} />
       </Stage>
       <Views>
+        <View name="terminal-link-remote-no-profile" label="No profile name (--ssh or --target-port from the CLI or IPC) — Remote, then the glyph alone, every language">
+          <div style={{ display: "flex", flexDirection: "column", gap: 12, minWidth: 300 }}>
+            {["en", "ko", "ja", "zh-Hans"].map((lang) => (
+              <Labeled key={lang} label={lang}>
+                <Term>
+                  <TermLine>{"error: mismatched types at "}<Tooltip open placement="bottom" content={<LinkTip host="" lang={lang} />}><LinkRun>src/main.rs:42</LinkRun></Tooltip></TermLine>
+                </Term>
+              </Labeled>
+            ))}
+          </div>
+        </View>
         <View name="terminal-link-remote-languages" label="Tooltip — every language">
           <div style={{ display: "flex", flexDirection: "column", gap: 12, minWidth: 300 }}>
             {["en", "ko", "ja", "zh-Hans"].flatMap((lang) => ["connected", "reconnecting"].map((state) => (
