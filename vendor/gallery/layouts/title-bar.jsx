@@ -2,6 +2,7 @@ import React from "react";
 import { Icon } from "../../components/index.js";
 import { Spec, Stage, Meta, Views, View, Note } from "../parts/specimen.jsx";
 import { TitlebarLinux } from "../../ui_kits/terminal/titlebar/titlebar_linux.jsx";
+import { TitlebarWindows } from "../../ui_kits/terminal/titlebar/titlebar_windows.jsx";
 
 // Tasty Gallery: Layouts, Title bar. Each cell is one row of the Title bar, Title bar (inactive) and Window close
 // button contracts, painted with the tokens the contract names.
@@ -134,4 +135,61 @@ function GalleryTitleBarLinux() {
   );
 }
 
-export { GalleryTitleBar, GalleryTitleBarLinux };
+// The main window's Windows title bar as the UI kit draws it: TitlebarWindows. The states grid above paints the
+// contract cells with tokens; this specimen renders the kit itself, so its own selectors are what the check reads,
+// including an inactive window under the pointer.
+const WIN_STATES = [
+  { key: "rest", label: "buttons at rest", states: {} },
+  { key: "hover", label: "minimize under hover", states: { min: "hover" } },
+  { key: "press", label: "minimize pressed", states: { min: "press" } },
+  { key: "close", label: "close under hover and press", states: { close: "hover" } },
+];
+const WIN_FRAMES = [];
+for (const theme of ["mocha", "latte"]) {
+  for (const active of [true, false]) {
+    for (const st of WIN_STATES) WIN_FRAMES.push({ theme, active, st });
+  }
+}
+
+function GalleryTitleBarWindows() {
+  return (
+    <Spec id="titlebar-windows" title="Title bar on Windows: caption buttons"
+      when={<>The Windows title bar with its three caption buttons, from the UI kit. At rest a button takes the caption ink, <b>titlebar-fg-inactive</b> in an inactive window. Under the pointer, in an active or an inactive window, the glyph takes the hover ink and the cell the hover fill; press changes only the fill. Close under the pointer is the Window close button.</>}>
+      <Stage variant="solo" style={{ ...STAGE, background: "var(--tasty-bg-app)" }}>
+        {[true, false].map((active) => (
+          <div key={String(active)} style={{ width: "100%", minWidth: 0 }}>
+            <div style={{ marginBottom: "var(--tasty-space-xs)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-secondary)" }}>{active ? "Active" : "Inactive"}</div>
+            <TitlebarWindows active={active} />
+          </div>
+        ))}
+      </Stage>
+      <Views>
+        {WIN_FRAMES.map(({ theme, active, st }) => {
+          const name = `titlebar-windows-${theme}-${active ? "active" : "inactive"}-${st.key}`;
+          const label = `${theme === "mocha" ? "Mocha" : "Latte"}, ${active ? "active" : "inactive"}, ${st.label}`;
+          return (
+            <View key={name} name={name} label={label} wide>
+              <div data-theme={theme} inert="" style={{ padding: "var(--tasty-space-sm)", background: "var(--tasty-bg-app)", pointerEvents: "none", overflowX: "auto" }}>
+                <TitlebarWindows active={active} states={st.states} />
+              </div>
+            </View>
+          );
+        })}
+      </Views>
+      <Meta
+        specs={[["height", "--tasty-titlebar-height"], ["caption cell width", "--tasty-titlebar-caption-width"], ["glyph", "--tasty-icon-size-xs"]]}
+        tokens={[
+          { tok: "--tasty-titlebar-button-fg", use: "caption glyph at rest, active", color: "var(--tasty-titlebar-button-fg)" },
+          { tok: "--tasty-titlebar-fg-inactive", use: "caption glyph at rest, inactive", color: "var(--tasty-titlebar-fg-inactive)" },
+          { tok: "--tasty-titlebar-button-fg-hover", use: "caption glyph under hover and press, active or inactive", color: "var(--tasty-titlebar-button-fg-hover)" },
+          { tok: "--tasty-titlebar-button-hover-bg", use: "caption fill on hover", color: "var(--tasty-titlebar-button-hover-bg)" },
+          { tok: "--tasty-titlebar-button-active-bg", use: "caption fill on press", color: "var(--tasty-titlebar-button-active-bg)" },
+          { tok: "--tasty-titlebar-close-hover-bg", use: "close fill under the pointer", color: "var(--tasty-titlebar-close-hover-bg)" },
+          { tok: "--tasty-titlebar-close-hover-fg", use: "close glyph under the pointer", color: "var(--tasty-titlebar-close-hover-fg)" },
+        ]} />
+      <Note>The buttons read the button part of the Title bar and Title bar (inactive) contracts and the Window close button contract, whose cells are in the states grid above.</Note>
+    </Spec>
+  );
+}
+
+export { GalleryTitleBar, GalleryTitleBarLinux, GalleryTitleBarWindows };

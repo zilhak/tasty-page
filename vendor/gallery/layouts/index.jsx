@@ -6,7 +6,7 @@ import { GalleryLoadingPrelayout } from "./loading-prelayout.jsx";
 import { GalleryLoadingOverlay } from "./loading-overlay.jsx";
 import { GalleryMoveSource } from "./move-source.jsx";
 import { GalleryTabStrip } from "./tab-strip.jsx";
-import { GalleryTitleBar, GalleryTitleBarLinux } from "./title-bar.jsx";
+import { GalleryTitleBar, GalleryTitleBarLinux, GalleryTitleBarWindows } from "./title-bar.jsx";
 import { RemoteStatusBarSpec, RemoteLinkSpec } from "./remote-location.jsx";
 import { RemoteRowEmptySpec, RemoteRowLastScreenSpec, RemoteRowMarksSpec } from "./remote-row.jsx";
 import { RunningCountSpec } from "./running-count.jsx";
@@ -1085,6 +1085,7 @@ function Layouts() {
       <Section id="titlebar" title="Title bar">
         {GalleryTitleBar && <GalleryTitleBar />}
         {GalleryTitleBarLinux && <GalleryTitleBarLinux />}
+        {GalleryTitleBarWindows && <GalleryTitleBarWindows />}
       </Section>
 
     </>

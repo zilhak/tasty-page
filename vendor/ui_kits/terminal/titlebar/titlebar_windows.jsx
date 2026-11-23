@@ -29,12 +29,18 @@ const TB_WIN_CSS = `
    titlebar-button-fg-hover in an active or inactive window, and press changes only the fill. The hover rules
    are as specific as the inactive one and come after it, so they win in an inactive window too. */
 .tb-win[data-active="false"] .tb-win__btn { color:var(--tasty-titlebar-fg-inactive); }
-.tb-win .tb-win__btn:hover { background:var(--tasty-titlebar-button-hover-bg); color:var(--tasty-titlebar-button-fg-hover); }
-.tb-win .tb-win__btn:active { background:var(--tasty-titlebar-button-active-bg); }
-.tb-win .tb-win__btn--close:hover { background:var(--tasty-titlebar-close-hover-bg); color:var(--tasty-titlebar-close-hover-fg); }
+/* A button with data-state is frozen for a gallery frame: it shows that state and ignores the pointer. A pressed
+   button is also under the pointer, so press keeps the hover ink and changes the fill. */
+.tb-win .tb-win__btn:not([data-state]):hover, .tb-win .tb-win__btn[data-state="hover"], .tb-win .tb-win__btn[data-state="press"] {
+  background:var(--tasty-titlebar-button-hover-bg); color:var(--tasty-titlebar-button-fg-hover); }
+.tb-win .tb-win__btn:not([data-state]):active, .tb-win .tb-win__btn[data-state="press"] { background:var(--tasty-titlebar-button-active-bg); }
+.tb-win .tb-win__btn--close:not([data-state]):hover, .tb-win .tb-win__btn--close[data-state="hover"], .tb-win .tb-win__btn--close[data-state="press"] {
+  background:var(--tasty-titlebar-close-hover-bg); color:var(--tasty-titlebar-close-hover-fg); }
 `;
 
-function TitlebarWindows({ active = true, variant = "split", title = "agents-prod", maximized = false, tabs = ["build · cargo", "README.md", "scratch"] }) {
+function TitlebarWindows({ active = true, variant = "split", title = "agents-prod", maximized = false, tabs = ["build · cargo", "README.md", "scratch"], states = {} }) {
+  // states freezes buttons for gallery frames: { min | max | close: "hover" | "press" }. A frozen button no
+  // longer follows the pointer; the others still do.
   const G = {
     min:     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14"/></svg>,
     max:     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="5" y="5" width="14" height="14" rx="1"/></svg>,
@@ -43,10 +49,10 @@ function TitlebarWindows({ active = true, variant = "split", title = "agents-pro
   };
   const caption = (
     <div className="tb-win__caption">
-      <button className="tb-win__btn" title="Minimize">{G.min}</button>
+      <button className="tb-win__btn" data-state={states.min} title="Minimize">{G.min}</button>
       {/* Snap Layouts: this rect is reported to the OS via WM_NCHITTEST → HTMAXBUTTON */}
-      <button className="tb-win__btn" data-snap-target="true" title="Maximize">{maximized ? G.restore : G.max}</button>
-      <button className="tb-win__btn tb-win__btn--close" title="Close">{G.close}</button>
+      <button className="tb-win__btn" data-snap-target="true" data-state={states.max} title="Maximize">{maximized ? G.restore : G.max}</button>
+      <button className="tb-win__btn tb-win__btn--close" data-state={states.close} title="Close">{G.close}</button>
     </div>
   );
   const fg = active ? "var(--tasty-titlebar-fg)" : "var(--tasty-titlebar-fg-inactive)";
