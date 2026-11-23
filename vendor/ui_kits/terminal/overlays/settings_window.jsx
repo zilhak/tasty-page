@@ -1231,7 +1231,8 @@ function SettingsWindow({ theme, onTheme, uiScale, onUiScale, onClose, os = DEFA
         boxShadow: frame === "bare" ? "none" : "var(--tasty-shadow-modal)" }}>
         {/* Linux only — the client-drawn title bar: drag area + close, no title (the L1 label names the window) */}
         {IS_LINUX && <SettingsTitleBarLinux active={windowActive} closeState={closeState} tooltipOpen={closeTooltip} onClose={onClose} onDrag={onTitleBarDrag} />}
-        {/* L1 — small fixed set of top tabs */}
+        {/* L1 — small fixed set of top tabs. The band is mantle (bg-sidebar), so its bottom line is the separator
+            cell for mantle (RULES.md section 6); border-strong is the line for a raised ground only. */}
         <div style={{ display: "flex", alignItems: "center", height: "var(--tasty-settings-l1-height)", flex: "none", padding: "0 var(--tasty-space-md)", gap: 2,
           borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)", background: "var(--tasty-bg-sidebar)" }}>
           <span style={{ fontSize: 14, fontWeight: 700, color: "var(--tasty-text-primary)", letterSpacing: "var(--tasty-letter-spacing-ui)" }}>Settings</span>
