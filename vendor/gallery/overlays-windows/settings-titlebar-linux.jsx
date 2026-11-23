@@ -26,7 +26,7 @@ function Crop({ theme, active, close }) {
   return (
     <div ref={ref} data-theme={theme} style={{ ...CROP, background: "var(--tasty-bg-app)" }}>
       <div inert="" style={{ width: "max-content", pointerEvents: "none" }}>
-        <Kit_SettingsWindow os="linux" frame="bare" windowActive={active} closeState={close}
+        <Kit_SettingsWindow os="linux" frame="bare" windowActive={active} closeState={close} closeTooltip={close !== "rest"}
           initialL1="Appearance" initialL2="Theme" theme={theme} onTheme={noop} uiScale={1} onUiScale={noop} onClose={noop} />
       </div>
     </div>
@@ -80,7 +80,8 @@ for (const theme of ["mocha", "latte"]) {
     }
   }
 }
-const CLOSE_LABEL = { rest: "close at rest", hover: "close under hover and press", focus: "close with keyboard focus" };
+// The Close tooltip opens under the pointer and with keyboard focus, so those frames hold it open.
+const CLOSE_LABEL = { rest: "close at rest", hover: "close under hover and press, Close tooltip open", focus: "close with keyboard focus, Close tooltip open" };
 
 function SettingsTitleBarLinuxSpec() {
   return (
@@ -114,6 +115,7 @@ function SettingsTitleBarLinuxSpec() {
           ["title", "none — the L1 band keeps its Settings label and divider"],
           ["buttons", "close only, right end, centered on the title bar"],
           ["drag", "the rest of the row moves the window · double click does nothing (no maximize)"],
+          ["close tooltip", "Tooltip, Close (titlebar.close), below the button, right edge on the button's right edge, on hover and keyboard focus"],
         ]}
         tokens={[
           { tok: "--tasty-titlebar-bg", use: "active ground, crust", color: "var(--tasty-titlebar-bg)" },

@@ -1,5 +1,6 @@
 import React from "react";
 import { Icon } from "../../../components/core/Icon.jsx";
+import { Tooltip } from "../../../components/feedback/Tooltip.jsx";
 
 // Tasty UI kit — the Linux settings window title bar (client-drawn).
 // ─────────────────────────────────────────────────────────────────────────
@@ -20,7 +21,9 @@ import { Icon } from "../../../components/core/Icon.jsx";
 // onClose: the close button (the app closes the settings window and drops the draft, like Cancel).
 // onDrag(dx, dy): the pointer moved by dx, dy since it went down on the drag area; the host moves the
 // window by that much. A double click on the drag area does nothing. The button's accessible name and
-// tooltip are the app's titlebar.close ("Close").
+// tooltip are the app's titlebar.close ("Close"). The tooltip is the Tooltip component, below the button with
+// its right edge on the button's right edge so it stays inside the window; tooltipOpen holds it open for
+// gallery frames.
 
 const CSS = `
 .stl-lin { display:flex; align-items:center; justify-content:flex-end; flex:none;
@@ -39,6 +42,7 @@ const CSS = `
 .stl-lin__close .tasty-icon { width:calc(var(--tasty-titlebar-window-glyph-size) * 2); height:calc(var(--tasty-titlebar-window-glyph-size) * 2);
   stroke-width:var(--tasty-border-width); }
 .stl-lin__close .tasty-icon path { vector-effect:non-scaling-stroke; }
+.stl-lin__tip > .tasty-tooltip__bubble { left:auto; right:0; transform:none; }
 .stl-lin .stl-lin__close:not([data-state]):hover, .stl-lin .stl-lin__close:not([data-state]):active,
 .stl-lin .stl-lin__close[data-state="hover"], .stl-lin .stl-lin__close[data-state="press"] {
   background:var(--tasty-titlebar-close-hover-bg); color:var(--tasty-titlebar-close-hover-fg); }
@@ -53,7 +57,7 @@ const CSS = `
   }
 })();
 
-function SettingsTitleBarLinux({ active = true, closeState, onClose, onDrag }) {
+function SettingsTitleBarLinux({ active = true, closeState, tooltipOpen = false, onClose, onDrag }) {
   const start = React.useRef(null);
   const down = (e) => {
     if (e.button !== 0 || !onDrag) return;
@@ -73,9 +77,11 @@ function SettingsTitleBarLinux({ active = true, closeState, onClose, onDrag }) {
   return (
     <div className="stl-lin" data-active={active} data-part="settings-titlebar">
       <div className="stl-lin__drag" onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={up} />
-      <button type="button" className="stl-lin__close" data-state={closeState} onClick={onClose} aria-label="Close" title="Close">
-        <Icon name="close" data-part="glyph" />
-      </button>
+      <Tooltip content="Close" placement="bottom" open={tooltipOpen} className="stl-lin__tip">
+        <button type="button" className="stl-lin__close" data-state={closeState} onClick={onClose} aria-label="Close">
+          <Icon name="close" data-part="glyph" />
+        </button>
+      </Tooltip>
     </div>
   );
 }
