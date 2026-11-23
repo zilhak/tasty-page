@@ -19,6 +19,7 @@ import { FontOverrideG, FontFileRejectedSpec, FontToastSpec, FontFamilyRejectedS
 import { TrustBox2 as OverlaysWindowsPluginTrust_TrustBox2, PluginTrustSpecs as OverlaysWindowsPluginTrust_PluginTrustSpecs } from "./plugin-trust.jsx";
 import { Section as PresetEditor_Section } from "./preset-editor.jsx";
 import { CaptureRegionSection } from "./capture-region.jsx";
+import { SettingsTitleBarLinuxSpec } from "./settings-titlebar-linux.jsx";
 import { Section, Spec, Stage, Meta, Note, Do, Dont } from "../parts/specimen.jsx";
 
 // Tasty Gallery — Overlays · Windows (large modal surfaces)
@@ -1079,6 +1080,7 @@ function Page() {
             tokens={[{ tok: "--tasty-bg-sidebar", use: "L1 + L2", color: "var(--tasty-bg-sidebar)" }, { tok: "--tasty-bg-panel", use: "content", color: "var(--tasty-bg-panel)" }, { tok: "--tasty-accent-primary", use: "active tab", color: "var(--tasty-accent-primary-raised)" }, { tok: "--tasty-surface-active", use: "active section", color: "var(--tasty-surface-active)" }]} />
           <Note>L1 stays small forever; growth happens only in L2. Plugins are their <b>own</b> L1 tab — never crammed into another group's sidebar.</Note>
         </Spec>
+        <SettingsTitleBarLinuxSpec />
 
         <Spec id="general-general-row-grid-row-captions-webhook-row" title="General › General — row grid, row captions, webhook row"
           when={<>Every settings subtab uses one <b>label column · control</b> grid. <b>Label column</b> = the subtab's longest label, clamped to <span className="tok">--tasty-settings-label-width</span> (150) … <span className="tok">--tasty-settings-label-max-width</span> (240); a label longer than 240 wraps. <b>Gap</b> 16 (<span className="tok">--tasty-settings-label-gap</span>). The app's own fit-to-longest measure is canonical with this clamp; the old 12 gap moves to 16. A description that belongs to <b>one row</b> sits directly under that row (<span className="tok">--tasty-settings-row-caption-gap</span> 4), at the row's left edge, measure-md: that is where the wheel-scroll and language-restart lines go. The webhook row keeps its always-shown warning callout the same way. Terminal › TUI's OSC 52 row follows the same rule (on the grid, callout measure-md).</>}>
