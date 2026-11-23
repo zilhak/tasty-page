@@ -247,10 +247,12 @@ function PermNarrowSpec() {
 
 function PropsActionsSection() {
   const L = PA.en, broken = "var(--tasty-explorer-link-broken-fg)", partial = "var(--tasty-explorer-props-partial-fg)";
-  const ctxTail = (show) => (
+  // mirror: the OS rows stay, disabled, reason in the tooltip (Remote explorer › D6)
+  const why = (mirror) => (mirror ? "Works only with files on this computer." : undefined);
+  const ctxTail = (show, mirror = false) => (
     <>
       <MenuItem label="Move to Trash" icon={K.ic.trash} danger />
-      {show !== false && <><MenuItem separator /><MenuItem label="Open in system" icon={K.ic.external} />{show && <MenuItem label={show} icon={<Icon name="folderOpen" />} />}</>}
+      <MenuItem separator /><MenuItem label="Open in system" icon={K.ic.external} disabled={mirror} title={why(mirror)} />{show && <MenuItem label={show} icon={<Icon name="folderOpen" />} disabled={mirror} title={why(mirror)} />}
       <MenuItem separator />
       <MenuItem label="Properties" icon={<Icon name="info" />} />
     </>
@@ -415,12 +417,12 @@ function PropsActionsSection() {
       <PermNarrowSpec />
 
       <Spec id="already-built-context-menu-os-rows-link-note-partial-read-check" title="Already built — context menu OS rows · link note · partial read (check)"
-        when={<>Confirmed with two changes. <b>Order</b>: Move to Trash · separator · <b>Open in system</b> · <b>Show in Finder / File Explorer / File Manager</b> (one item only) · separator · Properties — the OS rows get their own group so Properties stays the last row on its own. <b>Label</b>: “Open in system” in sentence case, as the existing menu row already reads (“Show in Finder” keeps the product name). Icons: <code>external</code> for Open in system, <code>folderOpen</code> for Show in …. Remote cells hide both rows and the group's separator. The <b>link note</b> wording and place (muted note under the fields, same as the remote note) are confirmed. <b>Some items couldn't be read</b> under Kinds and <b>—</b> for a remote Total size with folders are confirmed as built.</>}>
+        when={<>Confirmed with two changes. <b>Order</b>: Move to Trash · separator · <b>Open in system</b> · <b>Show in Finder / File Explorer / File Manager</b> (one item only) · separator · Properties — the OS rows get their own group so Properties stays the last row on its own. <b>Label</b>: “Open in system” in sentence case, as the existing menu row already reads (“Show in Finder” keeps the product name). Icons: <code>external</code> for Open in system, <code>folderOpen</code> for Show in …. A mirror (remote) cell shows both rows and the separator <b>disabled</b>, with the reason in the tooltip (Remote explorer › D6). The <b>link note</b> wording and place (muted note under the fields, same as the remote note) are confirmed. <b>Some items couldn't be read</b> under Kinds and <b>—</b> for a remote Total size with folders are confirmed as built.</>}>
         <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 18, flexWrap: "wrap", alignItems: "flex-start" }}>
           <K.CtxMenu title="One file · macOS">{ctxTail("Show in Finder")}</K.CtxMenu>
           <K.CtxMenu title="One folder · Windows">{ctxTail("Show in File Explorer")}</K.CtxMenu>
           <K.CtxMenu title="Several items · Linux">{ctxTail(null)}</K.CtxMenu>
-          <K.CtxMenu title="Remote cell">{ctxTail(false)}</K.CtxMenu>
+          <K.CtxMenu title="Mirror cell · one file · Linux — disabled">{ctxTail("Show in File Manager", true)}</K.CtxMenu>
           <XCol label="remote · several with a folder" w={360}>
             <PProps glyph={<Icon name="layers" />} name="4 items" note="Remote — only what the remote host lists is shown.">
               <PField k="Kinds" v="3 files, 1 folder" />

@@ -3,7 +3,7 @@ import { IconButton, Button, Input, MenuItem, Kbd, Spinner, Icon } from "../../c
 import { XCol, XThemes, XToolbar, XCell, XDetail, XROWS, XDragChip } from "./create-drag-search.jsx";
 import * as ExplorerOpsY_ns from "./index.jsx";
 import * as K from "../parts/explorer-kit.jsx";
-import { Section, Spec, Stage, Meta, Note } from "../parts/specimen.jsx";
+import { Section, Spec, Stage, Meta, Note, Views, View } from "../parts/specimen.jsx";
 
 // Tasty Gallery — Explorer file operations: remote (attach) explorer writes (2026-10-12, request explorer-remote-write).
 // D1 unsupported remote · D2 waiting for the remote reply · D3 connection lost · D4 remote progress / queue · D5 drag chip reasons.
@@ -18,6 +18,14 @@ const Y = () => ExplorerOpsY_ns;
 const REASON = {
   old: { en: "Update Tasty on build-eu to change remote files.", ko: "build-eu의 Tasty를 업데이트하면 원격 파일을 바꿀 수 있습니다.", ja: "build-eu の Tasty を更新すると、リモートのファイルを変更できます。" },
   headless: { en: "build-eu can't change files (server without a window).", ko: "build-eu는 파일을 바꿀 수 없습니다(화면 없는 서버).", ja: "build-eu はファイルを変更できません(画面のないサーバー)。" },
+};
+// D6 reasons: key + en / ko / ja / zh-Hans (zh-Hans written by Codex). The two paste reasons are today's toast strings.
+const MIRROR_REASON = {
+  localOnly: { key: "explorer.menu.local_only_reason", en: "Works only with files on this computer.", ko: "이 컴퓨터의 파일에서만 쓸 수 있습니다.", ja: "このコンピューターのファイルでのみ使えます。", "zh-Hans": "仅适用于此计算机上的文件。" },
+  newTab: { key: "explorer.menu.new_tab_remote_reason", en: "Folders in a mirrored remote explorer can't open in a new tab yet.", ko: "미러링된 원격 탐색기의 폴더는 아직 새 탭으로 열 수 없습니다.", ja: "ミラーされたリモートエクスプローラーのフォルダーはまだ新しいタブで開けません。", "zh-Hans": "远程文件浏览器镜像中的文件夹暂时无法在新标签页中打开。" },
+  undo: { key: "explorer.menu.undo_remote_reason", en: "Changes in a mirrored remote explorer aren't kept for undo.", ko: "미러링된 원격 탐색기에서 한 변경은 실행 취소 기록에 남지 않습니다.", ja: "ミラーされたリモートエクスプローラーでの変更は元に戻す履歴に残りません。", "zh-Hans": "在远程文件浏览器镜像中所做的更改不会写入撤销记录。" },
+  pasteRemote: { key: "explorer.state.remote_paste_unsupported", en: "Files copied in a mirrored remote explorer can't be pasted yet." },
+  pasteCross: { key: "explorer.state.cross_computer_paste_unsupported", en: "Files copied on this computer can't be pasted into a remote folder yet." },
 };
 function Tip({ children }) {
   return <div role="tooltip" style={{ maxWidth: "var(--tasty-size-240)", padding: "var(--tasty-space-xs) var(--tasty-space-sm)", background: "var(--tasty-menu-bg)", border: "var(--tasty-border-width) solid var(--tasty-menu-border)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-popover)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-primary)", lineHeight: "var(--tasty-line-height-ui)" }}>{children}</div>;
@@ -222,8 +230,91 @@ function RemoteWriteSection() {
           tokens={[{ tok: "--tasty-explorer-drag-refused-fg", use: "refused line", color: "var(--tasty-explorer-drag-refused-fg)" }]} />
         <Note>i18n: <code>explorer.drag.reason.other_computer</code> “different computer” / “다른 컴퓨터” / “別のコンピューター” · <code>explorer.drag.reason.remote</code> changes from “remote folders are read-only” to “this remote can't change files” / “이 원격은 파일을 바꿀 수 없음” / “このリモートはファイルを変更できません”.</Note>
       </Spec>
+
+      <Spec id="d6-rows-a-mirror-can-t-run-shown-disabled" title="D6 · Rows a mirror can't run — shown disabled, reason in the tooltip"
+        when={<>In a <b>mirror</b> (remote) cell, rows that work in a local cell but can't run here stay in their place, <b>disabled</b>, instead of being left out: <b>Open in system</b> and <b>Show in Finder / File Explorer / File Manager</b> with their separator, <b>Open in new tab</b> (folder and favorite rows), and <b>Undo · Redo</b> in the empty-area menu (bare labels, as with an empty history). <b>Paste</b> and <b>Paste into</b> are disabled when the clipboard list comes from another source (a mirror's list in a local cell or another connection, a local list in a mirror). One rule picks the reason: a disabled native row carries a <b>reason tooltip</b> (Linux, macOS) when the cause is not on screen, and stays <b>bare</b> when the cause is the plain absence of something (empty history, no selection, nothing held). Every row here is the first kind: a mirror cell looks like a local folder, so a grey row alone reads as broken. Windows popup menus have no item tooltips, and these labels are <b>not swapped</b> for the reason there: unlike a stale Undo (Undo / Redo rows › stale), a bare greyed “Open in system” or “Undo” does not name a step that looks runnable, so Windows shows the same rows without the tooltip, as in D1.</>}>
+        <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 18, flexWrap: "wrap", alignItems: "flex-start" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
+            <K.CtxMenu title="Mirror · one file · Linux">
+              <MenuItem label="Copy path" icon={K.ic.link} />
+              <MenuItem label="Copy" icon={K.ic.copy} shortcut={<Kbd keys="Ctrl+C" />} />
+              <MenuItem label="Cut" icon={K.ic.scissors} shortcut={<Kbd keys="Ctrl+X" />} />
+              <MenuItem separator />
+              <MenuItem label="Rename" icon={K.ic.rename} />
+              <MenuItem label="Move to Trash" icon={K.ic.trash} danger />
+              <MenuItem separator />
+              <MenuItem label="Open in system" icon={K.ic.external} disabled title={MIRROR_REASON.localOnly.en} />
+              <MenuItem label="Show in File Manager" icon={<Icon name="folderOpen" />} disabled title={MIRROR_REASON.localOnly.en} />
+              <MenuItem separator />
+              <MenuItem label="Properties" icon={<Icon name="info" />} />
+            </K.CtxMenu>
+            <Tip>{MIRROR_REASON.localOnly.en}</Tip>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
+            <K.CtxMenu title="Mirror · one folder (neighbours sketched)">
+              <MenuItem label="Open in new tab" disabled title={MIRROR_REASON.newTab.en} />
+              <MenuItem separator />
+              <MenuItem label="Copy path" icon={K.ic.link} />
+              <MenuItem label="Copy" icon={K.ic.copy} shortcut={<Kbd keys="Ctrl+C" />} />
+              <MenuItem label="Paste into" icon={K.ic.paste} />
+            </K.CtxMenu>
+            <Tip>{MIRROR_REASON.newTab.en}</Tip>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
+            <K.CtxMenu title="Mirror · empty area">
+              <MenuItem label="Copy path" icon={K.ic.link} />
+              <MenuItem label="Paste" icon={K.ic.paste} shortcut={<Kbd keys="Ctrl+V" />} />
+              <MenuItem separator />
+              <MenuItem label="Undo" shortcut={<Kbd keys="Ctrl+Z" />} disabled title={MIRROR_REASON.undo.en} />
+              <MenuItem label="Redo" shortcut={<Kbd keys="Ctrl+Shift+Z" />} disabled title={MIRROR_REASON.undo.en} />
+              <MenuItem separator />
+              <MenuItem label="Properties" icon={<Icon name="info" />} />
+            </K.CtxMenu>
+            <Tip>{MIRROR_REASON.undo.en}</Tip>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
+            <K.CtxMenu title="Local · empty area · a mirror's list held">
+              <MenuItem label="Copy path" icon={K.ic.link} />
+              <MenuItem label="Paste" icon={K.ic.paste} shortcut={<Kbd keys="Ctrl+V" />} disabled title={MIRROR_REASON.pasteRemote.en} />
+            </K.CtxMenu>
+            <Tip>{MIRROR_REASON.pasteRemote.en}</Tip>
+            <K.CtxMenu title="Mirror · one folder · a local list held">
+              <MenuItem label="Copy path" icon={K.ic.link} />
+              <MenuItem label="Paste into" icon={K.ic.paste} disabled title={MIRROR_REASON.pasteCross.en} />
+            </K.CtxMenu>
+            <Tip>{MIRROR_REASON.pasteCross.en}</Tip>
+          </div>
+          <K.CtxMenu title="Windows · mirror — no tooltip, labels kept">
+            <MenuItem label="Open in new tab" disabled />
+            <MenuItem separator />
+            <MenuItem label="Open in system" icon={K.ic.external} disabled />
+            <MenuItem label="Show in File Explorer" icon={<Icon name="folderOpen" />} disabled />
+            <MenuItem separator />
+            <MenuItem label="Undo" shortcut={<Kbd keys="Ctrl+Z" />} disabled />
+            <MenuItem label="Redo" shortcut={<Kbd keys="Ctrl+Shift+Z" />} disabled />
+          </K.CtxMenu>
+        </Stage>
+        <Views>
+          <View name="mirror-disabled-reasons-languages" label="New reasons — ko, ja, zh-Hans at the tooltip width">
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-lg)", alignItems: "flex-start" }}>
+              {["ko", "ja", "zh-Hans"].map((l) => (
+                <div key={l} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
+                  <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{l}</span>
+                  <Tip>{MIRROR_REASON.localOnly[l]}</Tip>
+                  <Tip>{MIRROR_REASON.newTab[l]}</Tip>
+                  <Tip>{MIRROR_REASON.undo[l]}</Tip>
+                </div>
+              ))}
+            </div>
+          </View>
+        </Views>
+        <Meta
+          specs={[["rule", "a row that waits on the cell's or the clipboard's state is disabled, never left out · a row the target's kind never takes is left out"], ["reason shown", "tooltip when the cause is off screen · bare when it is the plain absence of something (empty history, no selection, nothing held)"], ["Open in system · Show in …", "mirror: both disabled, separator kept · tooltip local_only_reason · several items: Open in system alone, the same"], ["Open in new tab", "mirror folder row and mirror favorite row: disabled · tooltip new_tab_remote_reason"], ["Undo · Redo", "mirror empty area: the group is always there · bare “Undo” / “Redo” disabled, shortcut column kept · both rows tooltip undo_remote_reason"], ["Paste · Paste into", "list from another source: disabled · tooltip = the toast the shortcut already shows (remote_paste_unsupported, cross_computer_paste_unsupported) · empty clipboard stays bare"], ["Windows", "no item tooltips · labels not swapped (the stale Undo keeps its label swap) · the shortcut path keeps its toast"], ["ink", "disabled rows only (OS-drawn) · no reason line in the menu"]]}
+          tokens={[{ tok: "--tasty-state-disabled-fg", use: "disabled row (kit; the OS draws it in the app)", color: "var(--tasty-state-disabled-fg)" }]} />
+        <Note>i18n (new, in <code>[explorer.menu]</code>): <code>local_only_reason</code> “{MIRROR_REASON.localOnly.en}” / “{MIRROR_REASON.localOnly.ko}” / “{MIRROR_REASON.localOnly.ja}” / “{MIRROR_REASON.localOnly["zh-Hans"]}” · <code>new_tab_remote_reason</code> “{MIRROR_REASON.newTab.en}” / “{MIRROR_REASON.newTab.ko}” / “{MIRROR_REASON.newTab.ja}” / “{MIRROR_REASON.newTab["zh-Hans"]}” · <code>undo_remote_reason</code> “{MIRROR_REASON.undo.en}” / “{MIRROR_REASON.undo.ko}” / “{MIRROR_REASON.undo.ja}” / “{MIRROR_REASON.undo["zh-Hans"]}”. Reused as is: <code>explorer.state.remote_paste_unsupported</code> and <code>explorer.state.cross_computer_paste_unsupported</code>; tooltip and toast share the key, as in D1. Undo and Redo share <code>undo_remote_reason</code>. Row labels keep their keys (<code>open_in_system</code>, <code>reveal_*</code>, <code>open_in_new_tab</code>, <code>undo_none</code>, <code>redo_none</code>).</Note>
+      </Spec>
     </Section>
   );
 }
 
-export { RemoteWriteSection };
+export { RemoteWriteSection, Tip };
