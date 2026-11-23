@@ -142,7 +142,10 @@ const WIN_STATES = [
   { key: "rest", label: "buttons at rest", states: {} },
   { key: "hover", label: "minimize under hover", states: { min: "hover" } },
   { key: "press", label: "minimize pressed", states: { min: "press" } },
-  { key: "close", label: "close under hover and press", states: { close: "hover" } },
+  { key: "close", label: "close under hover", states: { close: "hover" } },
+  { key: "close-press", label: "close pressed", states: { close: "press" } },
+  // A maximized window shows the restore glyph on the middle button (the app picks it from the maximized state).
+  { key: "maximized", label: "maximized, restore glyph at rest", states: {}, maximized: true },
 ];
 const WIN_FRAMES = [];
 for (const theme of ["mocha", "latte"]) {
@@ -170,7 +173,7 @@ function GalleryTitleBarWindows() {
           return (
             <View key={name} name={name} label={label} wide>
               <div data-theme={theme} inert="" style={{ padding: "var(--tasty-space-sm)", background: "var(--tasty-bg-app)", pointerEvents: "none", overflowX: "auto" }}>
-                <TitlebarWindows active={active} states={st.states} />
+                <TitlebarWindows active={active} states={st.states} maximized={!!st.maximized} />
               </div>
             </View>
           );
