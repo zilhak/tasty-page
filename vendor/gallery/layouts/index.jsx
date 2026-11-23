@@ -8,7 +8,7 @@ import { GalleryMoveSource } from "./move-source.jsx";
 import { GalleryTabStrip } from "./tab-strip.jsx";
 import { GalleryTitleBar } from "./title-bar.jsx";
 import { RemoteStatusBarSpec, RemoteLinkSpec } from "./remote-location.jsx";
-import { RemoteRowEmptySpec, RemoteRowLastScreenSpec, RemoteRowMarksSpec, RemoteRowPendingSpec } from "./remote-row.jsx";
+import { RemoteRowEmptySpec, RemoteRowLastScreenSpec, RemoteRowMarksSpec } from "./remote-row.jsx";
 import { RunningCountSpec } from "./running-count.jsx";
 import { WorkspaceRunningCount } from "../../ui_kits/terminal/chrome.jsx";
 import { GallerySurfaceFocus } from "./surface-focus.jsx";
@@ -1080,7 +1080,6 @@ function Layouts() {
         <RemoteRowMarksSpec />
         <RemoteRowEmptySpec />
         <RemoteRowLastScreenSpec />
-        <RemoteRowPendingSpec />
       </Section>
 
       <Section id="titlebar" title="Title bar">
