@@ -294,17 +294,54 @@ function RemoteWriteSection() {
             </K.CtxMenu>
             <Tip>{MIRROR_REASON.pasteCross.en}</Tip>
           </div>
-          <K.CtxMenu title="Windows · mirror — no tooltip, labels kept">
-            <MenuItem label="Open in new tab" disabled />
-            <MenuItem separator />
-            <MenuItem label="Open in system" icon={K.ic.external} disabled />
-            <MenuItem label="Show in File Explorer" icon={<Icon name="folderOpen" />} disabled />
-            <MenuItem separator />
-            <MenuItem label="Undo" shortcut={<Kbd keys="Ctrl+Z" />} disabled />
-            <MenuItem label="Redo" shortcut={<Kbd keys="Ctrl+Shift+Z" />} disabled />
-          </K.CtxMenu>
         </Stage>
         <Views>
+          <View name="mirror-disabled-windows" label="Windows — each menu as on Linux, same rows and separators, no tooltip, labels kept" wide>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-lg)", alignItems: "flex-start" }}>
+              <K.CtxMenu title="Mirror · one file">
+                <MenuItem label="Copy path" icon={K.ic.link} />
+                <MenuItem label="Copy" icon={K.ic.copy} shortcut={<Kbd keys="Ctrl+C" />} />
+                <MenuItem label="Cut" icon={K.ic.scissors} shortcut={<Kbd keys="Ctrl+X" />} />
+                <MenuItem separator />
+                <MenuItem label="Rename" icon={K.ic.rename} />
+                <MenuItem label="Move to Trash" icon={K.ic.trash} danger />
+                <MenuItem separator />
+                <MenuItem label="Open in system" icon={K.ic.external} disabled />
+                <MenuItem label="Show in File Explorer" icon={<Icon name="folderOpen" />} disabled />
+                <MenuItem separator />
+                <MenuItem label="Properties" icon={<Icon name="info" />} />
+              </K.CtxMenu>
+              <K.CtxMenu title="Mirror · one folder · top of the menu">
+                <MenuItem label="Copy path" icon={K.ic.link} />
+                <MenuItem label="Add to favorites" icon={K.ic.star} />
+                <MenuItem label="Open in new tab" disabled />
+                <MenuItem label="Set as root" />
+              </K.CtxMenu>
+              <K.CtxMenu title="Mirror · favorite row">
+                <MenuItem label="Open in new tab" disabled />
+                <MenuItem label="Set as root" />
+                <MenuItem separator />
+                <MenuItem label="Remove from favorites" />
+              </K.CtxMenu>
+              <K.CtxMenu title="Mirror · empty area">
+                <MenuItem label="Copy path" icon={K.ic.link} />
+                <MenuItem label="Paste" icon={K.ic.paste} shortcut={<Kbd keys="Ctrl+V" />} />
+                <MenuItem separator />
+                <MenuItem label="Undo" shortcut={<Kbd keys="Ctrl+Z" />} disabled />
+                <MenuItem label="Redo" shortcut={<Kbd keys="Ctrl+Shift+Z" />} disabled />
+                <MenuItem separator />
+                <MenuItem label="Properties" icon={<Icon name="info" />} />
+              </K.CtxMenu>
+              <K.CtxMenu title="Local · empty area · a mirror's list held">
+                <MenuItem label="Copy path" icon={K.ic.link} />
+                <MenuItem label="Paste" icon={K.ic.paste} shortcut={<Kbd keys="Ctrl+V" />} disabled />
+              </K.CtxMenu>
+              <K.CtxMenu title="Mirror · one folder · a local list held">
+                <MenuItem label="Copy path" icon={K.ic.link} />
+                <MenuItem label="Paste into" icon={K.ic.paste} disabled />
+              </K.CtxMenu>
+            </div>
+          </View>
           <View name="mirror-disabled-reasons-languages" label="New reasons — ko, ja, zh-Hans at the tooltip width">
             <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-lg)", alignItems: "flex-start" }}>
               {["ko", "ja", "zh-Hans"].map((l) => (
@@ -319,7 +356,7 @@ function RemoteWriteSection() {
           </View>
         </Views>
         <Meta
-          specs={[["rule", "a row that waits on the cell's or the clipboard's state is disabled, never left out · a row the target's kind never takes is left out"], ["reason shown", "tooltip when the cause is off screen · bare when it is the plain absence of something (empty history, no selection, nothing held)"], ["Open in system · Show in …", "mirror: both disabled, separator kept · tooltip local_only_reason · several items: Open in system alone, the same"], ["Open in new tab", "mirror folder row and mirror favorite row: disabled in its current place · folder: Copy path · Add to favorites · Open in new tab · Set as root · … · favorite: Open in new tab · Set as root | Remove from favorites · tooltip new_tab_remote_reason"], ["Undo · Redo", "mirror empty area: the group is always there · bare “Undo” / “Redo” disabled, shortcut column kept · both rows tooltip undo_remote_reason"], ["Paste · Paste into", "list from another source: disabled · tooltip = the toast the shortcut already shows (remote_paste_unsupported, cross_computer_paste_unsupported) · empty clipboard stays bare"], ["reason order", "one reason per row, in the shortcut path's order: a target remote that can't write → the D1 write reason (write_needs_update / write_headless) wins, even with a list from another source · else a list from another source → its paste reason · else an empty list → bare"], ["Windows", "no item tooltips · labels not swapped (the stale Undo keeps its label swap) · the shortcut path keeps its toast"], ["ink", "disabled rows only (OS-drawn) · no reason line in the menu"]]}
+          specs={[["rule", "a row that waits on the cell's or the clipboard's state is disabled, never left out · a row the target's kind never takes is left out"], ["reason shown", "tooltip when the cause is off screen · bare when it is the plain absence of something (empty history, no selection, nothing held)"], ["Open in system · Show in …", "mirror: both disabled, separator kept · tooltip local_only_reason · several items: Open in system alone, the same"], ["Open in new tab", "mirror folder row and mirror favorite row: disabled in its current place · folder: Copy path · Add to favorites · Open in new tab · Set as root · … · favorite: Open in new tab · Set as root | Remove from favorites · tooltip new_tab_remote_reason"], ["Undo · Redo", "mirror empty area: the group is always there · bare “Undo” / “Redo” disabled, shortcut column kept · both rows tooltip undo_remote_reason"], ["Paste · Paste into", "list from another source: disabled · tooltip = the toast the shortcut already shows (remote_paste_unsupported, cross_computer_paste_unsupported) · empty clipboard stays bare"], ["reason order", "one reason per row, in the shortcut path's order: a target remote that can't write → the D1 write reason (write_needs_update / write_headless) wins, even with a list from another source · else a list from another source → its paste reason · else an empty list → bare"], ["Windows", "the same menus, rows and separators (Views › Windows) · no item tooltips · labels not swapped (the stale Undo keeps its label swap) · the shortcut path keeps its toast"], ["ink", "disabled rows only (OS-drawn) · no reason line in the menu"]]}
           tokens={[{ tok: "--tasty-state-disabled-fg", use: "disabled row (kit; the OS draws it in the app)", color: "var(--tasty-state-disabled-fg)" }, { tok: "--tasty-tooltip-fg", use: "reason tooltip text (Tooltip contract; OS-drawn in the app)", color: "var(--tasty-tooltip-fg)" }, { tok: "--tasty-tooltip-border", use: "reason tooltip edge", color: "var(--tasty-tooltip-border)" }]} />
         <Note>i18n (new, in <code>[explorer.menu]</code>): <code>local_only_reason</code> “{MIRROR_REASON.localOnly.en}” / “{MIRROR_REASON.localOnly.ko}” / “{MIRROR_REASON.localOnly.ja}” / “{MIRROR_REASON.localOnly["zh-Hans"]}” · <code>new_tab_remote_reason</code> “{MIRROR_REASON.newTab.en}” / “{MIRROR_REASON.newTab.ko}” / “{MIRROR_REASON.newTab.ja}” / “{MIRROR_REASON.newTab["zh-Hans"]}” · <code>undo_remote_reason</code> “{MIRROR_REASON.undo.en}” / “{MIRROR_REASON.undo.ko}” / “{MIRROR_REASON.undo.ja}” / “{MIRROR_REASON.undo["zh-Hans"]}”. Reused as is: <code>explorer.state.remote_paste_unsupported</code> and <code>explorer.state.cross_computer_paste_unsupported</code>; tooltip and toast share the key, as in D1. Undo and Redo share <code>undo_remote_reason</code>. Row labels keep their keys (<code>open_in_system</code>, <code>reveal_*</code>, <code>open_in_new_tab</code>, <code>undo_none</code>, <code>redo_none</code>).</Note>
       </Spec>
