@@ -468,7 +468,7 @@ function DownloadRunFrame({ host = "host", path = "reports/q3-summary.xlsx", ser
       <div style={DR_HEAD}>
         <span style={{ fontSize: "var(--tasty-font-size-max)", fontWeight: "var(--tasty-font-weight-semibold)", color: "var(--tasty-text-primary)" }}>{c.title}</span>
         <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", minWidth: 0 }}>
-          <FhRemoteMark host={host} />
+          <FhRemoteMark host={host} lang={lang} />
           <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)",
             whiteSpace: "nowrap", overflow: "hidden", textOverflow: "clip", minWidth: 0 }}>{path}</span>
         </div>
@@ -1214,7 +1214,9 @@ function FhGroup({ label, count, caption, tone }) {
 // state "reconnecting" takes the status bar's reconnecting form on the panel ground:
 // glyph glyph-dim, host text-muted, then the status word (status_bar.remote_reconnecting,
 // label font, text-muted). The word belongs to the mark, so the path box shrinks by it.
-function FhRemoteMark({ host, state = "connected" }) {
+// attach.mirror_pill_label, the app catalog's values (tasty lang/*.toml)
+const MIRROR_PILL_LABEL = { en: "Remote", ko: "원격", ja: "リモート", "zh-Hans": "远程" };
+function FhRemoteMark({ host, state = "connected", lang = "en" }) {
   const live = state === "connected";
   return (
     <span data-fh-remote={state} style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-fh-remote-gap)", flex: "0 0 auto", minWidth: 0,
@@ -1222,7 +1224,7 @@ function FhRemoteMark({ host, state = "connected" }) {
       <span style={{ display: "inline-flex", flex: "none", color: live ? "inherit" : "var(--tasty-glyph-dim)" }}><Icon name="remote" size="var(--tasty-icon-size-xs)" /></span>
       {host
         ? <span style={{ minWidth: 0, maxWidth: "var(--tasty-fh-remote-max-width)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{host}</span>
-        : <span data-fh-remote-host="none" style={{ flex: "none", fontFamily: "var(--tasty-font-label)", whiteSpace: "nowrap" }}>Remote</span>}
+        : <span data-fh-remote-host="none" lang={lang} style={{ flex: "none", fontFamily: "var(--tasty-font-label)", whiteSpace: "nowrap" }}>{MIRROR_PILL_LABEL[lang] || MIRROR_PILL_LABEL.en}</span>}
       {!live && <span style={{ flex: "none", fontFamily: "var(--tasty-font-label)" }}>reconnecting</span>}
     </span>
   );
