@@ -15,13 +15,22 @@ const CROP = {
 };
 
 // A frame is a picture: the window inside is inert, so it takes no pointer and no keyboard focus, and its
-// close button is frozen by closeState. Only the crop itself scrolls, and it opens scrolled to its right end,
-// so the close button is in view at any width; the Settings label is a scroll to the left.
+// close button is frozen by closeState. Only the crop itself scrolls, and it keeps to its right end, so the
+// close button is in view at any width, also after the page is resized; the Settings label is a scroll to the left.
 function Crop({ theme, active, close }) {
   const ref = React.useRef(null);
-  React.useLayoutEffect(() => {
+  React.useEffect(() => {
     const el = ref.current;
-    if (el) el.scrollLeft = el.scrollWidth;
+    if (!el) return undefined;
+    // Stays on the right end while the reader has not scrolled away from it, also when the width changes.
+    let atEnd = true;
+    const toEnd = () => { if (atEnd) el.scrollLeft = el.scrollWidth; };
+    const onScroll = () => { atEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 1; };
+    toEnd();
+    el.addEventListener("scroll", onScroll, { passive: true });
+    const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(toEnd) : null;
+    if (ro) ro.observe(el);
+    return () => { el.removeEventListener("scroll", onScroll); if (ro) ro.disconnect(); };
   }, []);
   return (
     <div ref={ref} data-theme={theme} style={{ ...CROP, background: "var(--tasty-bg-app)" }}>
