@@ -144,7 +144,8 @@ export function RemoteConnectionPopup({ lang = "en", name = "tasty-core", profil
   if (kind === "server") { title = rt("remote.row.popup.user_title", lang); body = rt("remote.row.popup.server_body", lang); }
   // held: held by the remote workspace's force-detach mark without losing a connection of its own (another row of the
   // same remote workspace, or after a restart). Not connected, with a body that says why it does not connect on its own.
-  if (kind === "held") { title = rt("remote.row.popup.idle_title", lang); body = rt("remote.row.popup.held_body", lang); }
+  // Over a last screen (shape) the row did lose its connection, so the title is Disconnected; the body is the same.
+  if (kind === "held") { title = rt(shape ? "remote.row.popup.user_title" : "remote.row.popup.idle_title", lang); body = rt("remote.row.popup.held_body", lang); }
   if (kind === "idle") title = rt("remote.row.popup.idle_title", lang);
   if (kind === "failed") { title = rt("remote.row.popup.failed_title", lang); body = remoteReasonText({ remoteReason: reason, remoteProfile: profile, remoteName }, lang); }
   // closed: the remote workspace was closed elsewhere (another client, the remote Tasty) while this row was connected
