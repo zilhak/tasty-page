@@ -15,8 +15,8 @@ import { Icon } from "../../../components/core/Icon.jsx";
 // bottom. When the compositor forces
 // server-side decorations, this row is not drawn and the window keeps settings-window-height.
 //
-// closeState forces the close button's look for frozen frames: "rest" · "hover" · "press".
-// Without it the button follows the pointer.
+// closeState freezes the close button for gallery frames: "rest" · "hover" · "press" · "focus". With it set,
+// the pointer and the keyboard no longer change the look. Without it the button follows them.
 // onClose: the close button (the app closes the settings window and drops the draft, like Cancel).
 // onDrag(dx, dy): the pointer moved by dx, dy since it went down on the drag area; the host moves the
 // window by that much. A double click on the drag area does nothing. The button's accessible name and
@@ -39,10 +39,12 @@ const CSS = `
 .stl-lin__close .tasty-icon { width:calc(var(--tasty-titlebar-window-glyph-size) * 2); height:calc(var(--tasty-titlebar-window-glyph-size) * 2);
   stroke-width:var(--tasty-border-width); }
 .stl-lin__close .tasty-icon path { vector-effect:non-scaling-stroke; }
-.stl-lin .stl-lin__close:hover, .stl-lin .stl-lin__close:active,
+.stl-lin .stl-lin__close:not([data-state]):hover, .stl-lin .stl-lin__close:not([data-state]):active,
 .stl-lin .stl-lin__close[data-state="hover"], .stl-lin .stl-lin__close[data-state="press"] {
   background:var(--tasty-titlebar-close-hover-bg); color:var(--tasty-titlebar-close-hover-fg); }
-.stl-lin__close:focus-visible { outline:var(--tasty-focus-ring-width) solid var(--tasty-border-focus); }
+/* Keyboard focus: the standard 2px focus ring around the round button, at rest colors. */
+.stl-lin__close:not([data-state]):focus-visible, .stl-lin__close[data-state="focus"] {
+  outline:var(--tasty-focus-ring-width) solid var(--tasty-border-focus); }
 `;
 
 (function ensure() {

@@ -13,11 +13,15 @@ const CROP = {
   height: "calc(var(--tasty-titlebar-height) + var(--tasty-size-44) + var(--tasty-border-width))",
 };
 
+// A frame is a picture: the window inside is inert, so it takes no pointer and no keyboard focus, and its
+// close button is frozen by closeState. Only the crop itself scrolls.
 function Crop({ theme, active, close }) {
   return (
     <div data-theme={theme} style={{ ...CROP, background: "var(--tasty-bg-app)" }}>
-      <Kit_SettingsWindow os="linux" frame="bare" windowActive={active} closeState={close}
-        initialL1="Appearance" initialL2="Theme" theme={theme} onTheme={noop} uiScale={1} onUiScale={noop} onClose={noop} />
+      <div inert="" style={{ width: "max-content", pointerEvents: "none" }}>
+        <Kit_SettingsWindow os="linux" frame="bare" windowActive={active} closeState={close}
+          initialL1="Appearance" initialL2="Theme" theme={theme} onTheme={noop} uiScale={1} onUiScale={noop} onClose={noop} />
+      </div>
     </div>
   );
 }
@@ -48,14 +52,17 @@ function Demo() {
   );
 }
 
+// Hover and press look the same (Window close button fill), so one frame shows both. Keyboard focus exists
+// only in an active window.
 const FRAMES = [];
 for (const theme of ["mocha", "latte"]) {
   for (const active of [true, false]) {
-    for (const close of ["rest", "hover"]) {
+    for (const close of active ? ["rest", "hover", "focus"] : ["rest", "hover"]) {
       FRAMES.push({ theme, active, close });
     }
   }
 }
+const CLOSE_LABEL = { rest: "close at rest", hover: "close under hover and press", focus: "close with keyboard focus" };
 
 function SettingsTitleBarLinuxSpec() {
   return (
@@ -67,7 +74,7 @@ function SettingsTitleBarLinuxSpec() {
       <Views>
         {FRAMES.map(({ theme, active, close }) => {
           const name = `settings-titlebar-linux-${theme}-${active ? "active" : "inactive"}-close-${close}`;
-          const label = `${theme === "mocha" ? "Mocha" : "Latte"}, ${active ? "active" : "inactive"}, close ${close === "rest" ? "at rest" : "under hover and press"}`;
+          const label = `${theme === "mocha" ? "Mocha" : "Latte"}, ${active ? "active" : "inactive"}, ${CLOSE_LABEL[close]}`;
           return (
             <View key={name} name={name} label={label} wide>
               <Crop theme={theme} active={active} close={close} />
