@@ -34,8 +34,14 @@ function Crop({ theme, active, close }) {
 }
 
 // The live demo: close closes the window, the title bar's empty area moves it, and Open settings brings it back.
+// Save closes it and keeps what was changed: the same window instance comes back. The title bar close and
+// Cancel close it and drop the draft: a fresh instance comes back. The kit's controls keep their own state, so
+// a fresh instance starts from the kit's first values, which are the saved ones until a Save. After a Save,
+// dropping a later draft also returns to the first values: the demo has no store to restore the Save from.
 function Demo() {
   const [open, setOpen] = React.useState(true);
+  const [instance, setInstance] = React.useState(0);
+  const [last, setLast] = React.useState(null);
   const [at, setAt] = React.useState({ x: 0, y: 0 });
   const base = React.useRef(null);
   const drag = (dx, dy) => {
@@ -45,19 +51,22 @@ function Demo() {
     // scrollable area: the stage scrolls right and down to reach it, never up or left.
     setAt({ x: Math.max(0, base.current.x + dx), y: Math.max(0, base.current.y + dy) });
   };
-  if (!open) {
-    return (
-      <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-md)", fontSize: "var(--tasty-font-size-body)", color: "var(--tasty-text-secondary)" }}>
-        <span>The settings window is closed and the draft is dropped.</span>
-        <Button variant="secondary" onClick={() => { setAt({ x: 0, y: 0 }); setOpen(true); }}>Open settings</Button>
-      </div>
-    );
-  }
+  const save = () => { setLast("saved"); setOpen(false); };
+  const drop = () => { setLast("dropped"); setOpen(false); setInstance((n) => n + 1); };
   return (
-    <div style={{ transform: `translate(${at.x}px, ${at.y}px)`, flex: "none" }}>
-      <Kit_SettingsWindow os="linux" frame="bare" theme="mocha" onTheme={noop} uiScale={1} onUiScale={noop}
-        onClose={() => setOpen(false)} onTitleBarDrag={drag} />
-    </div>
+    <>
+      {!open && (
+        <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-md)", fontSize: "var(--tasty-font-size-body)", color: "var(--tasty-text-secondary)" }}>
+          <span>{last === "saved" ? "The settings window is closed and the changes are saved." : "The settings window is closed and the draft is dropped."}</span>
+          <Button variant="secondary" onClick={() => { setAt({ x: 0, y: 0 }); setOpen(true); }}>Open settings</Button>
+        </div>
+      )}
+      {/* Kept mounted while closed, so a Save survives until the window opens again. */}
+      <div style={{ display: open ? "block" : "none", transform: `translate(${at.x}px, ${at.y}px)`, flex: "none" }}>
+        <Kit_SettingsWindow key={instance} os="linux" frame="bare" theme="mocha" onTheme={noop} uiScale={1} onUiScale={noop}
+          onClose={drop} onSave={save} onTitleBarDrag={drag} />
+      </div>
+    </>
   );
 }
 

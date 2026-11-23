@@ -704,7 +704,7 @@ function PresetSubtab() {
 // 2026-11-24: on Linux the window draws its own title bar (settings_titlebar_linux.jsx) above the
 // L1 band and grows by it (settings-window-csd-height), so the 1100 × 700 below stays. The L1 band
 // is the same on every OS. windowActive picks the active / inactive title bar, closeState freezes
-// the close button, onTitleBarDrag(dx, dy) reports a title bar drag (null when it ends), and frame="bare" drops the scrim and shadow so a gallery frame can crop the window.
+// the close button, onSave lets Save keep the draft while Cancel and close (onClose) drop it, onTitleBarDrag(dx, dy) reports a title bar drag (null when it ends), and frame="bare" drops the scrim and shadow so a gallery frame can crop the window.
 const DEFAULT_OS = "windows";
 // Plugin-contributed Appearance pages are dynamic — present only when a plugin registers
 // one, inserted after Terminal / before HTML (mirrors the source push order). Shown with
@@ -808,7 +808,7 @@ function ExtensionMapping({ detectors = true }) {
   );
 }
 
-function SettingsWindow({ theme, onTheme, uiScale, onUiScale, onClose, os = DEFAULT_OS, initialL1 = "Appearance", initialL2 = "Theme", windowActive = true, closeState, frame = "modal", onTitleBarDrag }) {
+function SettingsWindow({ theme, onTheme, uiScale, onUiScale, onClose, os = DEFAULT_OS, initialL1 = "Appearance", initialL2 = "Theme", windowActive = true, closeState, frame = "modal", onTitleBarDrag, onSave }) {
   const IS_LINUX = os === "linux";
   const IS_WINDOWS = os === "windows";
   const IS_MAC = os === "macos";
@@ -1268,7 +1268,7 @@ function SettingsWindow({ theme, onTheme, uiScale, onUiScale, onClose, os = DEFA
             <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, padding: "var(--tasty-space-md) var(--tasty-size-14)",
               borderTop: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
               <Button variant="ghost" onClick={onClose}>Cancel</Button>
-              <Button variant="primary" onClick={onClose}>Save</Button>
+              <Button variant="primary" onClick={onSave || onClose}>Save</Button>
             </div>
           </div>
         </div>
