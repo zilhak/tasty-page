@@ -112,10 +112,15 @@ const userRules = (d) => d.rules.filter((r) => r.src === "user");
 const hasUser = (d) => userRules(d).length > 0 || !!d.userMeta;
 const otherSrcs = (d) => [...new Set(d.rules.map((r) => r.src).filter((s) => s !== "user"))];
 const strip = (x) => { const { pending, prev, ...rest } = x; return rest; };
-// Save applies the pending marks: a removed row goes, an unpatched detector keeps only its non-user rules,
-// and every other row drops its mark (settings_draft.jsx).
+// Save applies the pending marks: a removed row goes, an unpatched detector keeps only its non-user rules and
+// takes the state without the user contribution (baseOn, the state its pending row shows), and every other row
+// drops its mark (settings_draft.jsx).
+const unpatched = (x) => {
+  const { baseOn, ...rest } = strip(x);
+  return { ...rest, rules: x.rules.filter((r) => r.src !== "user"), userMeta: false, on: baseOn ?? x.on };
+};
 const saveDetectors = (a) => a.filter((x) => x.pending !== "remove")
-  .map((x) => (x.pending === "unpatch" ? { ...strip(x), rules: x.rules.filter((r) => r.src !== "user"), userMeta: false } : x.pending ? strip(x) : x));
+  .map((x) => (x.pending === "unpatch" ? unpatched(x) : x.pending ? strip(x) : x));
 const saveHandlers = (a) => a.filter((x) => x.pending !== "remove").map((x) => (x.pending ? strip(x) : x));
 
 const fhHead = { fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-micro)", textTransform: "uppercase",
