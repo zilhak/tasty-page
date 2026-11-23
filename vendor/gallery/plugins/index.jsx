@@ -866,6 +866,8 @@ function Page() {
                 <MenuItem separator />
                 <MenuItem label="Open in system" icon={ic.external} />
                 <MenuItem label="Show in File Manager" icon={<PIcon name="folderOpen" />} />
+                <MenuItem separator />
+                <MenuItem label="Properties" icon={<PIcon name="info" />} />
               </CtxMenu>
               <CtxMenu title="Single folder · a pasteable list held">
                 <MenuItem label="Copy path" icon={ic.link} />
@@ -879,6 +881,8 @@ function Page() {
                 <MenuItem separator />
                 <MenuItem label="Open in system" icon={ic.external} />
                 <MenuItem label="Show in File Manager" icon={<PIcon name="folderOpen" />} />
+                <MenuItem separator />
+                <MenuItem label="Properties" icon={<PIcon name="info" />} />
               </CtxMenu>
               <CtxMenu title="Multiple selected (3)">
                 <MenuItem label="Copy paths" icon={ic.link} />
@@ -888,11 +892,13 @@ function Page() {
                 <MenuItem label="Move to Trash" icon={ic.trash} danger shortcut={<Kbd keys="Del" />} />
                 <MenuItem separator />
                 <MenuItem label="Open in system" icon={ic.external} />
+                <MenuItem separator />
+                <MenuItem label="Properties" icon={<PIcon name="info" />} />
               </CtxMenu>
             </div>
           </Stage>
           <Meta
-            specs={[["target", "in-selection → all · out → that one · empty → cwd"], ["favorites", "folder + cwd only"], ["paste", "always on cwd and a single folder · enabled here: the samples hold a list that can be pasted · disabled when nothing can be pasted (Explorer file ops › Undo / Redo rows › empty history) or the list comes from another source (D6)"], ["open in system", "every item target (one file, one folder, several) · Show in Finder / File Explorer / File Manager one item only · mirror cell: both disabled with a reason (Explorer file ops › D6) · order and icons as Explorer file ops › Properties OS rows"], ["groups", "clipboard · file ops · system (dividers)"]]}
+            specs={[["target", "in-selection → all · out → that one · empty → cwd"], ["favorites", "folder + cwd only"], ["paste", "always on cwd and a single folder · enabled here: the samples hold a list that can be pasted · disabled when nothing can be pasted (Explorer file ops › Undo / Redo rows › empty history) or the list comes from another source (D6)"], ["open in system", "every item target (one file, one folder, several) · Show in Finder / File Explorer / File Manager one item only · mirror cell: both disabled with a reason (Explorer file ops › D6) · order and icons as Explorer file ops › Properties OS rows"], ["groups", "clipboard · file ops · system (dividers) · item menus end with a separator and Properties on its own"]]}
             tokens={[{ tok: "--tasty-menu-bg", use: "menu fill", color: "var(--tasty-menu-bg)" }, { tok: "--tasty-menu-border", use: "1px edge" }, { tok: "--tasty-shadow-popover", use: "float" }, { tok: "--tasty-accent-danger", use: "Trash (danger item)", color: "var(--tasty-accent-danger-raised)" }]} />
           <Note>Reuses the shared <span className="ic">MenuItem</span> / Popup visual language — no bespoke menu chrome. Shortcut hints are representative; real keys come from Keybindings settings.</Note>
         </Spec>
