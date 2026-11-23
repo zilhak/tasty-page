@@ -65,7 +65,7 @@ const Themed = ({ attr, children }) => (
   <div data-theme={attr || undefined} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-md)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", minWidth: 0 }}>{children}</div>
 );
 const RN = (p) => { const R = K().RestoreNotice; return R ? <R {...p} /> : null; };
-const LONG = "/Users/hyunjoon.kim/Library/Application Support/dev.zilhak.tasty/profiles/work-laptop-2026/session/layout.journal";
+const LONG = "/Users/alex.example/Library/Application Support/dev.zilhak.tasty/profiles/work-laptop-2026/session/layout.journal";
 
 function GalleryNoticeColumn() {
   return (
