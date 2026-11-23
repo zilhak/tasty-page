@@ -1,4 +1,4 @@
-<!-- source-hash: 1d40fa4873ab -->
+<!-- source-hash: 208db1198dea -->
 # 钩子、通知和 Webhook
 
 钩子按 Tasty 事件执行操作，通知在应用内显示待查看事项。Webhook 接收外部服务的 HTTP 请求。按需选择并配置。
@@ -36,9 +36,11 @@ tasty unset hook --hook <HOOK_ID>
 | `claude-error` | Claude Code 屏幕输出出现已知错误文本时 |
 | `claude-error-stalled` | Claude Code 输出默认 10 分钟（可配置）未变化时。轮次中最后一次输出有错误时，固定为 30 秒；排除仅剩 Monitor 的等待（[各类等待的阈值和接收条件](claude-codex.md#4-接收完成通知)） |
 
-- 加上 `--once` 后，执行一次即自动删除。默认持续保留。
-- 钩子命令在后台执行，不阻塞终端输入。
+- 加上 `--once` 后，首次匹配事件时会删除钩子，即使命令未能执行。默认保留注册。
+- 钩子命令在后台执行，不阻塞终端输入。标准输入、标准输出和标准错误均连接到空设备。要保留输出，可将输出重定向到文件，或用 `tasty notify` 发送消息。Shell 退出后，钩子执行结束。Shell 启动的后台任务仍可继续运行。
 - 没有 Shell 集成时，`command-completed` 绝不会触发。缺少 Shell 集成的本地 Surface 会显示一次提示横幅，10 秒后自动关闭。
+
+Surface 钩子的 Shell 命令（`tasty set hook --command` 或 Shell 命令处理器）、通过 `tasty hook-handler dispatch` 直接运行的 Shell 命令和全局钩子（`tasty set global-hook`）共用同一个执行器。并发执行和排队等待的命令数各有上限。执行名额和等待队列都满时，该命令不会执行，也不会自动重试。Tasty 退出时仍在排队的命令会被丢弃，不会执行或发送通知。
 
 事件信息通过环境变量传入命令。
 
@@ -56,7 +58,7 @@ tasty unset hook --hook <HOOK_ID>
 
 ## 全局钩子
 
-按时间条件执行，与 Surface 无关。
+全局钩子按时间或文件变更条件执行，无需绑定到特定 Surface。全局钩子命令继承 Tasty 的标准输入、标准输出和标准错误。
 
 ```sh
 tasty set global-hook --condition interval:60 --command "df -h > ~/disk.log" --label "磁盘记录"
@@ -67,8 +69,14 @@ tasty unset global-hook --hook <HOOK_ID>
 
 | 条件 | 含义 |
 |---|---|
-| `interval:<秒>` | 每 N 秒重复执行 |
-| `once:<秒>` | N 秒后执行一次并删除 |
+| `interval:<秒>` | 每 N 秒尝试执行 |
+| `once:<秒>` | N 秒后删除钩子并尝试执行一次 |
+| `file:<路径>` | 文件修改时间变化时尝试执行 |
+
+如果同一钩子的上一次命令仍在排队或运行，则跳过本轮。跳过记录只写入调试日志。
+
+- `interval` 钩子从跳过时起等待下一个完整周期。
+- `file` 钩子的上一次命令排队或运行期间，即使文件多次变化，也会在该命令结束后的下一次检查中检测到变化时只尝试执行一次。如果请求因 Shell 命令队列已满而被拒绝，钩子要等到文件修改时间再次变化才会尝试执行。
 
 ## 钩子处理器（可复用的操作）
 
@@ -82,7 +90,13 @@ tasty hook-handler dispatch --id user/my-handler            # 直接执行以测
 tasty hook-handler reload                                   # 重新读取 ~/.tasty/hook-handlers.toml
 ```
 
-`dispatch` 先输出表示已接收的一行（含 `run` 编号），然后等待执行结束并输出结果行。结果中的 `state` 在全部成功时为 `succeeded`，部分成功时为 `partial`，全部失败时为 `failed`，未收到响应、无法确定结果时为 `unknown`；`result` 和 `steps` 会说明哪个步骤因何失败。Shell 命令处理器在进程启动后即视为成功，结束时的退出码仅供参考。结果不是 `succeeded` 时，命令以退出码 1 结束。不想等待时，加上 `--no-wait`，之后通过 `tasty hook-handler result --run <编号>` 查看结果。
+`dispatch` 接收请求后，输出包含 `run` 编号的一行并等待结果。操作列表的最终 `state` 为 `succeeded`、`partial`、`failed` 或 `unknown`。在 `result` 中查看执行摘要，在 `steps` 中查看各步骤的状态和错误。状态为 `succeeded` 时退出码为 0，其他状态的退出码为 1。
+
+Shell 命令处理器排队期间显示 `running`。确认进程启动后，`dispatch` 返回 `succeeded` 并以退出码 0 结束。如果未能及时确认启动，则以退出码 1 结束，排队中的命令之后仍可能执行。确认进程退出码后，查询结果的 `exit_code` 会显示该值。在此之前，`exit_code` 为 `null`。如果无法确认进程是否退出，查询结果可能变为 `failed`。
+
+请求在接收前被拒绝时，`dispatch` 输出错误，不返回 `run` 编号，并以退出码 1 结束。加上 `--no-wait` 后，仅输出接收响应。可以用 `tasty hook-handler result --run <编号>` 查询结果。
+
+运行记录被淘汰后，即使命令仍在排队，查询也会失败。此时，正在等待结果的 `dispatch` 在标准输出中只保留接收行，向标准错误流输出消息，并以退出码 1 结束。排队中的命令之后仍可能执行。
 
 也可通过命令**修改或新建**处理器。未填写的项保持原样，因此，
 可保留名称，仅更改执行的操作（引用该处理器的钩子会随之更新）。
@@ -117,7 +131,13 @@ args = ["notify", "命令失败", "--title", "hook"]
 
 设为 `kind = "ipc_sequence"` 时，执行 Tasty 内部操作列表（`calls = [{ method = "...", params = {} }]`），代替 Shell。TOML 没有 null，因此，params 中需要 null 值时，使用 JSON 字符串代替 `params`，例如 `params_json = '{"a":null}'`。通过 `tasty hook-handler upsert` 保存时，会自动写为此格式。
 
-钩子自动执行失败时，会在通知列表中留下记录。因处理器已删除或无法启动命令而完全未执行时，记为**错误**；操作列表仅部分步骤失败，或未及时收到响应、无法确定结果时，记为**警告**。Surface 钩子的通知附属于该钩子所在的 Surface。Shell 命令以非 0 退出码结束不视为失败。相同失败在短时间内反复发生时，每 10 秒仅记录一次。
+Surface 钩子的通知附属于该钩子所在的 Surface。如果 Surface 在通知到达前已关闭，或通知来自全局钩子，通知会显示在当前活动的工作区。
+
+Surface 钩子或全局钩子的 Shell 命令无法进入队列或无法启动时，会在通知列表中留下**错误**。Surface 钩子的通知标题为 `钩子失败`，全局钩子的通知标题为 `全局钩子失败`。Shell 命令队列已满时，通知正文如下。
+
+> `“echo hello”未运行，因为已有 256 条钩子命令在等待启动。`
+
+Surface 钩子的处理器不存在或操作列表执行失败时，会记录**错误**。操作列表部分失败或结果未知时，会记录**警告**。操作列表被拒绝时，**错误**通知会显示处理器名称和原因。Shell 命令以非 0 退出码结束不视为失败。相同失败在短时间内反复发生时，每 10 秒仅记录一次。直接运行 `dispatch` 时，通过命令响应获取失败信息。
 
 ## 通知
 

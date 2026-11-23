@@ -1,4 +1,4 @@
-<!-- source-hash: 91ec00388bb6 -->
+<!-- source-hash: aceb653fc48b -->
 # CLI 命令参考
 
 按用途说明入门内容之外的命令，包括指定读取位置的 `read since-mark`、Surface 状态、消息队列和共享记忆。完整参数和选项可通过 `tasty help` 查看。
@@ -248,7 +248,7 @@ tasty surface html-script-allow --surface 42 --url <url> --fingerprint <hex>  # 
 tasty surface html-remote-allow --surface 42 --url <url> --fingerprint <hex>  # 仅允许所查询文档的远程内容 (网络上的样式表、图片、字体、框架、脚本) 并重新加载。与脚本允许设置独立。焦点不变
 tasty surface html-nav --surface 42    # HTML Surface 显示的文档地址及能否后退、前进 (仅查询)
 tasty surface html-back --surface 42   # 使 HTML Surface 后退 (html-forward：前进，html-reload：刷新)。焦点不变，通过 html-nav 查看结果
-tasty hook-handler dispatch --id user/my-handler  # 直接执行钩子处理器并等待最终结果
+tasty hook-handler dispatch --id user/my-handler  # 直接执行钩子处理器并等待结果
 tasty hook-handler result --run 7       # 按 dispatch 返回的 run 编号再次查看结果
 tasty file-handler dispatch 文件路径     # 通过与在文件浏览器中双击相同的路径打开文件 (等待结果)
 tasty file-handler result --run 7       # 按 dispatch 返回的 run 编号再次查看结果
@@ -258,9 +258,15 @@ tasty file-handler detectors            # 查看当前文件格式检测规则�
 
 `set cwd` 和 `set url` 分别仅对远程 Surface 和 WebView Surface 生效。对普通终端 Surface 使用时，会返回不支持该目标的错误。
 
-`hook-handler dispatch` 输出两行。第一行是接受请求的响应，包含 `run` 编号。第二行是等待后的最终结果。结果的 `state` 为 `succeeded` 时，以退出码 0 结束；为 `partial` · `failed` · `unknown`，或等待期间未完成（`running`）时，以退出码 1 结束。即使 Tasty 不响应结果查询，也会在等待上限到达时停止，此时第二行附带 `"timed_out": true`。失败的步骤和原因显示在 `result` 和 `steps` 中。接受前被拒绝的请求（处理器不存在、处理器已禁用、队列已满等）不输出第一行，而是输出错误并以退出码 1 结束。添加 `--no-wait` 时，仅输出第一行并以退出码 0 结束，之后可通过 `hook-handler result --run <编号>` 查看结果。等待结果时会发送多个请求，因此不接受根选项 `--response-timeout-ms`。添加此选项时，不发送任何内容，并以使用错误结束（退出码 2）。添加 `--no-wait` 时只有一个请求，此选项会应用于该请求。Shell 中设置的会话令牌（`TASTY_SESSION_TOKEN`）和智能体 ID（`TASTY_AGENT_ID`）也会原样附带在结果查询请求中。
+`hook-handler dispatch` 接收请求后，在第一行输出 `run` 编号。默认等待结果，收到后在第二行输出。操作列表的执行摘要显示在 `result` 中，各步骤的状态和错误显示在 `steps` 中。对 Shell 命令，确认进程启动后返回 `succeeded`。结果的 `state` 为 `succeeded` 时，退出码为 0。状态为 `partial`、`failed`、`unknown` 或仍在等待（`running`）时，退出码为 1。如果 Tasty 未及时响应结果查询，第二行会附带 `"timed_out": true`。
 
-`file-handler dispatch` 只接受文件路径。传入 `https://…` 等网址会返回错误。此命令打开的文件只会作为新标签页追加到后面，不会切换用户正在查看的标签页。若没有能打开此格式的处理器，不会在用户屏幕上显示**打开文件的方式…** <!-- en: Open file with… -->，也不会打开文件。此命令与 `hook-handler dispatch` 一样输出两行。第一行是接受请求的响应（包含 `run` 编号），第二行是最终结果。打开成功时，`state` 为 `succeeded`，通过 `surface_id` 返回新标签页，并以退出码 0 结束。若没有可用的打开处理器或处理器失败，`state` 为 `failed`，`result` 中显示原因，并以退出码 1 结束。基于远程工作区的标签页打开时，会等待远程 Tasty 实际打开。远程无法打开时，会返回 `failed` 和远程报告的原因。若收到远程响应前连接断开，则无法确定是否已打开，因此 `state` 为 `unknown`，退出码为 1。30 秒内未收到结果时，退出码也为 1。添加 `--no-wait` 时，仅输出第一行，之后可通过 `file-handler result --run <编号>` 查看结果。等待结果时不接受根选项 `--response-timeout-ms`（退出码 2）。在服务器上以无 GUI 方式运行的无界面构建无法打开文件，因此不会对该命令响应已接受请求，而是返回此构建不支持该操作的错误。
+手动运行的 Shell 命令与 Surface 钩子和全局钩子共用队列。因队列已满、处理器不存在或已禁用而在接收前被拒绝时，命令不输出第一行，只输出错误，并以退出码 1 结束。加上 `--no-wait` 时，仅输出接收响应并以退出码 0 结束。可以用 `hook-handler result --run <编号>` 查询结果。
+
+运行记录被淘汰后，即使命令仍在排队，查询也会失败。此时，正在等待结果的 `dispatch` 在标准输出中只保留接收行，向标准错误流输出消息，并以退出码 1 结束。即使未能及时确认启动，或运行记录已被淘汰，排队中的 Shell 命令之后仍可能执行。
+
+等待结果时会发送多个请求，因此不接受根选项 `--response-timeout-ms`。添加此选项时，不发送任何内容，并以使用错误结束（退出码 2）。加上 `--no-wait` 时只发送一次请求，此选项会应用于该请求。Shell 中设置的会话令牌（`TASTY_SESSION_TOKEN`）和智能体 ID（`TASTY_AGENT_ID`）也会原样附带在结果查询请求中。
+
+`file-handler dispatch` 只接受文件路径。传入 `https://…` 等网址会返回错误。此命令打开的文件只会作为新标签页追加到后面，不会切换用户正在查看的标签页。若没有能打开此格式的处理器，不会在用户屏幕上显示**打开文件的方式…** <!-- en: Open file with… -->，也不会打开文件。收到结果后，命令会输出两行。第一行是接受请求的响应（包含 `run` 编号），第二行是最终结果。打开成功时，`state` 为 `succeeded`，通过 `surface_id` 返回新标签页，并以退出码 0 结束。若没有可用的打开处理器或处理器失败，`state` 为 `failed`，`result` 中显示原因，并以退出码 1 结束。基于远程工作区的标签页打开时，会等待远程 Tasty 实际打开。远程无法打开时，会返回 `failed` 和远程报告的原因。若收到远程响应前连接断开，则无法确定是否已打开，因此 `state` 为 `unknown`，退出码为 1。30 秒内未收到结果时，退出码也为 1。添加 `--no-wait` 时，仅输出第一行，之后可通过 `file-handler result --run <编号>` 查看结果。等待结果时不接受根选项 `--response-timeout-ms`（退出码 2）。在服务器上以无 GUI 方式运行的无界面构建无法打开文件，因此不会对该命令响应已接受请求，而是返回此构建不支持该操作的错误。
 
 `file-handler reload` 的响应包含 `rejected` 列表。列表包含配置文件中当前未应用条目的 `id` 和原因（`reason`）；全部应用时为空列表。原因有三种。
 

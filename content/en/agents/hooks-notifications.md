@@ -1,4 +1,4 @@
-<!-- source-hash: 1d40fa4873ab -->
+<!-- source-hash: 208db1198dea -->
 # Hooks, notifications, and webhooks
 
 Hooks run actions in response to Tasty events, notifications show items to check in the app, and webhooks receive HTTP requests from external services. Choose the path that fits your task.
@@ -36,9 +36,11 @@ tasty unset hook --hook <HOOK_ID>
 | `claude-error` | When a known error message appears in Claude Code's screen output |
 | `claude-error-stalled` | When Claude Code output remains unchanged for 10 minutes by default (configurable). The threshold is fixed at 30 seconds for an error in the latest output during a turn; waits with only Monitor remaining are excluded ([wait-specific thresholds and receiving requirements](claude-codex.md#4-receiving-completion-notifications)) |
 
-- Add `--once` and the hook is removed automatically after firing once. By default it stays.
-- Hook commands run in the background and do not block terminal input.
+- With `--once`, the hook is removed when the first matching event occurs, even if the command cannot run. By default the hook stays registered.
+- Hook commands run in the background without blocking terminal input. Standard input, standard output, and standard error all go to the null device. To keep the output, redirect it to a file or send a message with `tasty notify`. The hook run ends when the shell exits. Background jobs started by the shell can keep running.
 - `command-completed` never fires without shell integration. A guidance banner appears once on local Surfaces that lack shell integration and closes on its own after 10 seconds.
+
+Surface hook shell commands (`tasty set hook --command` or a shell command handler), shell commands run directly with `tasty hook-handler dispatch`, and global hooks (`tasty set global-hook`) share one executor. There are separate limits on how many commands can run at once and how many can wait. If all execution slots are in use and the queue is full, the command does not run or retry automatically. Commands that are still queued when Tasty exits are discarded without running or sending a notification.
 
 Event information reaches the command through environment variables.
 
@@ -56,7 +58,7 @@ Apart from `TASTY_HOOK_EVENT`, `TASTY_HOOK_SOURCE` and `TASTY_HOOK_SURFACE_ID`, 
 
 ## Global hooks
 
-Run on a time condition, independent of any Surface.
+Global hooks run on a time or file change condition without being tied to a Surface. Global hook commands inherit Tasty's standard input, standard output, and standard error.
 
 ```sh
 tasty set global-hook --condition interval:60 --command "df -h > ~/disk.log" --label "Disk log"
@@ -67,8 +69,14 @@ tasty unset global-hook --hook <HOOK_ID>
 
 | Condition | Meaning |
 |---|---|
-| `interval:<secs>` | Repeat every N seconds |
-| `once:<secs>` | Run once after N seconds, then delete |
+| `interval:<secs>` | Try to run every N seconds |
+| `once:<secs>` | After N seconds, remove the hook and try to run its command once |
+| `file:<path>` | Try to run when the file's modification time changes |
+
+If the same hook's previous command is queued or still running, Tasty skips that occurrence. The skip is recorded only in the debug log.
+
+- An `interval` hook waits a full interval from the time it was skipped.
+- Even if the file changes several times while the previous command is queued or running, a `file` hook makes one attempt when the next check after that command ends detects a change. If the shell command queue is full and the request is refused, the hook waits for the file's modification time to change again before trying to run.
 
 ## Hook handlers (reusable actions)
 
@@ -82,7 +90,13 @@ tasty hook-handler dispatch --id user/my-handler            # run directly to te
 tasty hook-handler reload                                   # re-read ~/.tasty/hook-handlers.toml
 ```
 
-`dispatch` first prints a line saying the run was accepted (with its `run` number), then waits until it finishes and prints the result line. The result's `state` is `succeeded` when every step worked, `partial` when only some did, `failed` when none did, and `unknown` when no answer came back so the outcome is not known; `result` and `steps` say which step failed and why. A shell command handler counts as succeeded once its process starts, and its exit code is shown for reference only once it ends. Unless the result is `succeeded`, the command exits with code 1. To skip waiting, add `--no-wait` and check later with `tasty hook-handler result --run <number>`.
+When `dispatch` accepts a request, it prints a line with the `run` number and waits for a result. An action list's final `state` is `succeeded`, `partial`, `failed`, or `unknown`. Check `result` for a summary and `steps` for each step's status and any error. The command exits with code 0 for `succeeded` and code 1 for other states.
+
+For a shell command handler, the state is `running` while the command is queued. When `dispatch` confirms that the process started, it reports `succeeded` and exits with code 0. If it cannot confirm the start in time, it exits with code 1, and a queued command can still run later. The lookup result shows the process exit code in `exit_code` once the code is known. Until then, `exit_code` is `null`. If the process exit itself cannot be confirmed, a lookup can show `failed`.
+
+If a request is refused before acceptance, `dispatch` prints an error without a `run` number and exits with code 1. With `--no-wait`, it prints only the acceptance reply. Use `tasty hook-handler result --run <number>` to look up the result.
+
+If the run record is evicted, the lookup fails even if the command is still queued. A `dispatch` that was waiting for the result leaves only the acceptance line on standard output, writes a message to standard error, and exits with code 1. The queued command can still run later.
 
 You can also **change or create** a handler from the command line. Anything you leave out
 stays as it was, so a handler can keep its name while what it does changes (every hook
@@ -118,7 +132,13 @@ args = ["notify", "Command failed", "--title", "hook"]
 
 With `kind = "ipc_sequence"` it runs a list of Tasty-internal actions (`calls = [{ method = "...", params = {} }]`) instead of a shell. TOML has no null, so when params need a null value, write them as a JSON string instead of `params`, as in `params_json = '{"a":null}'`. Saving with `tasty hook-handler upsert` writes this form for you.
 
-When a hook runs by itself and fails, the failure is left in the notification list. If it did not run at all, because its handler is gone or its command could not start, that is an **error**. If only some steps of an action list failed, or a step gave no answer in time so its result is unknown, that is a **warning**. A surface hook's notification is attached to the surface the hook is on. A shell command ending with a non-zero exit code is not counted as a failure. When the same failure repeats quickly, it is left once every 10 seconds.
+A surface hook's notification is attached to its Surface. If the Surface closes before the notification arrives, or if the notification comes from a global hook, it appears in the active workspace.
+
+If a shell command from a surface or global hook cannot be queued or started, the notification list shows an **error**. The title is `Hook failed` for a surface hook and `Global hook failed` for a global hook. When the shell command queue is full, the message looks like this.
+
+> `'echo hello' did not run because 256 hook commands were already waiting to start.`
+
+A missing surface hook handler or a failed action list leaves an **error**. An action list that partially fails or has an unknown outcome leaves a **warning**. If an action list is refused, the **error** notification shows the handler name and the reason. A nonzero shell exit code does not count as a failure. When the same failure repeats quickly, it is recorded once every 10 seconds. For a manual `dispatch`, the command response reports the failure.
 
 ## Notifications
 
