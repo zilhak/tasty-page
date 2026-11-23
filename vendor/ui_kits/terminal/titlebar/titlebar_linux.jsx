@@ -40,21 +40,26 @@ const TB_LIN_CSS = `
 .tb-lin__btn .tasty-icon path { vector-effect:non-scaling-stroke; }
 /* window button (Title bar contracts): the glyph keeps the title ink in every state, only the fill changes */
 .tb-lin[data-active="false"] .tb-lin__btn { color:var(--tasty-titlebar-fg-inactive); }
-.tb-lin__btn:hover { background:var(--tasty-titlebar-button-hover-bg); }
-.tb-lin__btn:active { background:var(--tasty-titlebar-button-active-bg); }
-/* close under the pointer is the Window close button; one step more specific than the inactive ink above */
-.tb-lin .tb-lin__btn--close:hover, .tb-lin .tb-lin__btn--close:active { background:var(--tasty-titlebar-close-hover-bg); color:var(--tasty-titlebar-close-hover-fg); }
+/* A button with data-state is frozen for a gallery frame: it shows that state and ignores the pointer. */
+.tb-lin__btn:not([data-state]):hover, .tb-lin__btn[data-state="hover"] { background:var(--tasty-titlebar-button-hover-bg); }
+.tb-lin__btn:not([data-state]):active, .tb-lin__btn[data-state="press"] { background:var(--tasty-titlebar-button-active-bg); }
+/* close under the pointer is the Window close button; at least as specific as the inactive ink above, and after it */
+.tb-lin .tb-lin__btn--close:not([data-state]):hover, .tb-lin .tb-lin__btn--close:not([data-state]):active,
+.tb-lin .tb-lin__btn--close[data-state="hover"], .tb-lin .tb-lin__btn--close[data-state="press"] {
+  background:var(--tasty-titlebar-close-hover-bg); color:var(--tasty-titlebar-close-hover-fg); }
 `;
 
 function TitlebarLinux({ active = true, variant = "split", title = "agents-prod",
                          buttons = ["min", "max", "close"], side = "right",
-                         tabs = ["build · cargo", "README.md", "scratch"] }) {
+                         tabs = ["build · cargo", "README.md", "scratch"], states = {} }) {
+  // states freezes buttons for gallery frames: { min | max | close: "hover" | "press" }. A frozen button no
+  // longer follows the pointer; the others still do.
   const G = { min: "windowMinimize", max: "windowMaximize", close: "close" };
   const ctrls = (
     <div className="tb-lin__ctrls">
       {buttons.map((b) => (
         <button key={b} className={"tb-lin__btn" + (b === "close" ? " tb-lin__btn--close" : "")}
-          title={b[0].toUpperCase() + b.slice(1)}><Icon name={G[b]} /></button>
+          data-state={states[b]} title={b[0].toUpperCase() + b.slice(1)}><Icon name={G[b]} data-part="glyph" /></button>
       ))}
     </div>
   );
