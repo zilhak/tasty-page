@@ -267,7 +267,7 @@ export function ChildGraphSection() {
       </Spec>
 
       <Spec id="child-graph-mirror-scope-and-remote-ancestor" title="Across machines — one graph, read-only ancestors (decided 4-7 to 4-9)"
-        when={<><b>Decided</b>: parent and child relations that cross machines are <b>one graph</b> — this computer's surface <i>A</i>, its child <i>B</i> on a remote, and <i>B</i>'s child <i>C</i> read A → B → C with ordinary lines. Mirrored surfaces carry the remote glyph; the drawer adds the host text — the attach profile name (R-57), by the host text rule on Dialogs › File handler › Remote path. An ancestor in a remote workspace that is not mirrored here is drawn <b>read-only</b>: dashed card, <i>Not mirrored</i>, a drawer with rows and a note and no actions. Ancestors are followed to the root across workspaces and machines. Attach occupancy (which machine mirrors which) is never drawn.</>}>
+        when={<><b>Decided</b>: parent and child relations that cross machines are <b>one graph</b> — this computer's surface <i>A</i>, its child <i>B</i> on a remote, and <i>B</i>'s child <i>C</i> read A → B → C with ordinary lines. Mirrored surfaces carry the remote glyph; the drawer adds the attach profile name (R-57). An attach with no profile name has <b>no Attach profile row</b>: the card's remote glyph already says the surface is remote, and the word Remote under that key would read as a profile name. An ancestor in a remote workspace that is not mirrored here is drawn <b>read-only</b>: dashed card, <i>Not mirrored</i>, a drawer with rows and a note and no actions. Ancestors are followed to the root across workspaces and machines. Attach occupancy (which machine mirrors which) is never drawn.</>}>
         <Stage style={{ padding: 16, display: "block" }}>
           {row(<>
             <Labelled label="read-only ancestor in a workspace not mirrored here (drawer open on it)" tag="decided"><Frame w={640} h={320}><ChildView nodes={CHILD_MIRROR} baseId={CHILD_MIRROR_BASE} selected="s_m0" /></Frame></Labelled>
@@ -275,7 +275,12 @@ export function ChildGraphSection() {
             <Labelled label="A → B → C: this computer, then a remote child and its child; its drawer shows the attach profile" tag="decided"><Frame w={640} h={320}><ChildView nodes={CHILD_CROSS} baseId="s_L1" selected="s_R1" /></Frame></Labelled>
           </>)}
         </Stage>
-        <Meta specs={[["remote card", "remote glyph in accent-remote-raised · state as usual"], ["read-only ancestor", "dashed · Not mirrored · drawer: role, id, workspace, attach profile, read-only note"], ["attach profile", "the host text rule: profile name (R-57) · no profile name → Remote · never 127.0.0.1:<port>"], ["disconnected", "see graph-states: warning strip, remote states unknown"], ["across machines", "same parent → child line"], ["attach", "occupancy not drawn"]]}
+        <Views>
+          <View name="child-graph-remote-no-profile" label="A remote surface attached with no profile name — its drawer has no Attach profile row">
+            <Frame w={640} h={320}><ChildView nodes={CHILD_CROSS.map((n) => (n.id === "s_R1" ? { ...n, profile: "" } : n))} baseId="s_L1" selected="s_R1" /></Frame>
+          </View>
+        </Views>
+        <Meta specs={[["remote card", "remote glyph in accent-remote-raised · state as usual"], ["read-only ancestor", "dashed · Not mirrored · drawer: role, id, workspace, attach profile, read-only note"], ["attach profile", "profile name (R-57) · no profile name (--ssh, --target-port, a profile saved with an empty name) → no row, the remote glyph on the card says remote · never 127.0.0.1:<port>"], ["disconnected", "see graph-states: warning strip, remote states unknown"], ["across machines", "same parent → child line"], ["attach", "occupancy not drawn"]]}
           tokens={[{ tok: "--tasty-accent-remote-raised", use: "remote glyph", color: "var(--tasty-accent-remote-raised)" }]} />
       </Spec>
 
