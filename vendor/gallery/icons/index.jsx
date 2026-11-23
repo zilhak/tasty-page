@@ -27,6 +27,8 @@ const GROUPS = [
     icons: [
       { name: "plus", role: "create / add" },
       { name: "close", role: "dismiss overlay (header X)" },
+      { name: "windowMinimize", role: "Linux window button: minimize" },
+      { name: "windowMaximize", role: "Linux window button: maximize" },
       { name: "refresh", role: "re-scan / reload (ports, re-detect)" },
       { name: "edit", role: "edit a row / value" },
       { name: "trash", role: "delete / remove" },

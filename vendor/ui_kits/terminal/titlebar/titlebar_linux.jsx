@@ -1,4 +1,5 @@
 import React from "react";
+import { Icon } from "../../../components/core/Icon.jsx";
 const BASE = `${import.meta.env.BASE_URL.replace(/\/$/, "")}/`;
 
 // Tasty UI kit — CSD titlebar · Linux
@@ -31,7 +32,12 @@ const TB_LIN_CSS = `
   border:0; border-radius:var(--tasty-radius-pill); display:grid; place-items:center;
   background:transparent; color:var(--tasty-titlebar-fg); cursor:pointer;
   transition:background var(--tasty-motion-ui-fast) var(--tasty-ease-ui), color var(--tasty-motion-ui-fast) var(--tasty-ease-ui); }
-.tb-lin__btn svg { width:var(--tasty-icon-size-xs); height:var(--tasty-icon-size-xs); }
+/* The app's Linux glyphs: minimize a line, maximize a square outline stroked inside its extent, close an X,
+   each spanning titlebar-window-glyph-size (the path covers half the icon box) with a 1px stroke at any size.
+   There is no restore glyph on Linux. */
+.tb-lin__btn .tasty-icon { width:calc(var(--tasty-titlebar-window-glyph-size) * 2); height:calc(var(--tasty-titlebar-window-glyph-size) * 2);
+  stroke-width:var(--tasty-border-width); }
+.tb-lin__btn .tasty-icon path { vector-effect:non-scaling-stroke; }
 /* window button (Title bar contracts): the glyph keeps the title ink in every state, only the fill changes */
 .tb-lin[data-active="false"] .tb-lin__btn { color:var(--tasty-titlebar-fg-inactive); }
 .tb-lin__btn:hover { background:var(--tasty-titlebar-button-hover-bg); }
@@ -43,16 +49,12 @@ const TB_LIN_CSS = `
 function TitlebarLinux({ active = true, variant = "split", title = "agents-prod",
                          buttons = ["min", "max", "close"], side = "right",
                          tabs = ["build · cargo", "README.md", "scratch"] }) {
-  const G = {
-    min:   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M6 12h12"/></svg>,
-    max:   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="6" y="6" width="12" height="12" rx="1"/></svg>,
-    close: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M7 7l10 10M17 7 7 17"/></svg>,
-  };
+  const G = { min: "windowMinimize", max: "windowMaximize", close: "close" };
   const ctrls = (
     <div className="tb-lin__ctrls">
       {buttons.map((b) => (
         <button key={b} className={"tb-lin__btn" + (b === "close" ? " tb-lin__btn--close" : "")}
-          title={b[0].toUpperCase() + b.slice(1)}>{G[b]}</button>
+          title={b[0].toUpperCase() + b.slice(1)}><Icon name={G[b]} /></button>
       ))}
     </div>
   );

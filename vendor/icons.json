@@ -37,6 +37,24 @@
       "fill": false
     },
     {
+      "name": "windowMinimize",
+      "group": "actions",
+      "role": "Linux window button: minimize",
+      "paths": [
+        "<path d=\"M6 12h12\"/>"
+      ],
+      "fill": false
+    },
+    {
+      "name": "windowMaximize",
+      "group": "actions",
+      "role": "Linux window button: maximize",
+      "paths": [
+        "<path d=\"M6.5 6.5h11v11h-11z\"/>"
+      ],
+      "fill": false
+    },
+    {
       "name": "refresh",
       "group": "actions",
       "role": "re-scan / reload (ports, re-detect)",
