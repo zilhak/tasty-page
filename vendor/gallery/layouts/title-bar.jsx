@@ -120,7 +120,7 @@ function GalleryTitleBarLinux() {
         })}
       </Views>
       <Meta
-        specs={[["height", "titlebar-height 36"], ["window button, round", "--tasty-titlebar-window-button-size"], ["glyph extent, 1px stroke", "--tasty-titlebar-window-glyph-size"], ["glyphs", "windowMinimize · windowMaximize · close"], ["button gap", "--tasty-space-xs"], ["padding-x", "--tasty-space-sm"]]}
+        specs={[["height", "--tasty-titlebar-height"], ["window button, round", "--tasty-titlebar-window-button-size"], ["glyph extent, 1px stroke", "--tasty-titlebar-window-glyph-size"], ["glyphs", "windowMinimize · windowMaximize · close"], ["button gap", "--tasty-space-xs"], ["padding-x", "--tasty-space-sm"]]}
         tokens={[
           { tok: "--tasty-titlebar-fg", use: "window button glyph, active", color: "var(--tasty-titlebar-fg)" },
           { tok: "--tasty-titlebar-fg-inactive", use: "window button glyph, inactive", color: "var(--tasty-titlebar-fg-inactive)" },
