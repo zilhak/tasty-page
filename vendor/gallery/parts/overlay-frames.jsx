@@ -766,7 +766,7 @@ function RemoteFrame({ tab = "profiles", ssh = "hosts" }) {
             <Button variant="secondary" size="sm" leadingIcon={ic.plus}>Add attach</Button>
           </div>
           <div style={{ flex: 1, minHeight: 0, overflow: "auto", padding: "0 14px 8px" }}>
-            <AttachRow name="gb10" label="us-east" mode="profile" target="→ prod-web" tasty="tasty" port="auto" />
+            <AttachRow name="host" label="us-east" mode="profile" target="→ prod-web" tasty="tasty" port="auto" />
             <AttachRow name="edge-direct" mode="inline" target="root@edge.example.com" tasty="/opt/tasty/bin/tasty" port="file-unix" />
             <AttachRow name="legacy-attach" mode="profile" target="→ legacy-box" tasty="tasty" port="subcommand" inactive />
           </div>
@@ -831,7 +831,7 @@ function RemoteFrame({ tab = "profiles", ssh = "hosts" }) {
 // Static specimen of the kit component ui_kits/terminal/overlays/remote_tool.jsx › LocalSshSection (the definition).
 function LocalSshSection({ state = "hosts" }) {
   const hosts = [
-    { alias: "gb10", target: "maya@gb10.local:22" },
+    { alias: "host", target: "maya@host.local:22" },
     { alias: "prod-web", target: "deploy@10.0.4.12:22", have: true },
     { alias: "eu-west-build-farm-bastion-01", target: "ci-runner@bastion-01.eu-west.build.example.com:2222" },
   ];
@@ -2361,7 +2361,7 @@ function RemoteFormFrame({ variant = "ssh", error }) {
         )}
         {attach && (
           <>
-            <FRow label="Name"><Input block defaultValue="gb10" /></FRow>
+            <FRow label="Name"><Input block defaultValue="host" /></FRow>
             <FRow label="Label"><Input block placeholder="optional" defaultValue={attachInline ? "" : "us-east"} /></FRow>
             <FRow label="Connection"><div style={{ display: "flex", gap: 6 }}>{seg("SSH profile", !attachInline)}{seg("Direct (inline)", attachInline)}</div></FRow>
             {attachInline ? (
@@ -2920,7 +2920,7 @@ function RemoteAttachFrame({ state = "loaded", newPhase = "rest", newSelected, e
           <div style={{ ...caps, padding: "10px 12px 4px" }}>Attach profiles</div>
           <div style={{ flex: 1, minHeight: 0, overflow: "hidden" }}>
             <RaProfile name="prod-web" label="us-east" target="deploy@10.0.4.12" selected={state === "loaded"} />
-            <RaProfile name="gb10" target="→ prod-web" selected={state === "loading"} />
+            <RaProfile name="host" target="→ prod-web" selected={state === "loading"} />
             <RaProfile name="edge-direct" target="root@edge.example.com" />
             <RaProfile name="media-nas" label="lab" target="→ nas.local" selected={state === "empty"} />
             <RaProfile name="legacy-attach" target="→ legacy-box" inactive selected={errSel} />
@@ -2929,7 +2929,7 @@ function RemoteAttachFrame({ state = "loaded", newPhase = "rest", newSelected, e
         {/* right */}
         <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}>
           {state === "initial" && <CenterState variant="empty" glyph="remote" title="Select an attach profile" sub="Pick a profile on the left to connect and list the remote instance's workspaces." />}
-          {state === "loading" && <CenterState variant="loading" title="Connecting…" sub={<>Establishing the SSH tunnel to <span style={{ fontFamily: "var(--tasty-font-mono)" }}>gb10</span> and listing workspaces. This can take a few seconds.</>} />}
+          {state === "loading" && <CenterState variant="loading" title="Connecting…" sub={<>Establishing the SSH tunnel to <span style={{ fontFamily: "var(--tasty-font-mono)" }}>host</span> and listing workspaces. This can take a few seconds.</>} />}
           {state === "error" && <CenterState variant="error" title="Can't connect" sub="SSH authentication failed — passkey “old-rsa” was rejected by legacy-box." action={<Button variant="secondary" size="sm" leadingIcon={<Icon name="refresh" size="var(--tasty-icon-size-sm)" />}>Retry</Button>} />}
           {state === "loaded" && (<>
             <div style={{ ...caps, padding: "10px 12px 4px", display: "flex", alignItems: "center", gap: 8 }}>

@@ -54,7 +54,7 @@ const SEED_PROFILES = [
 // (mode:"inline" + host/user/port/shell/passkeyRef). remoteTasty + portMode +
 // portFile describe how to launch/find the remote instance.
 const SEED_ATTACHES = [
-  { id: "a1", name: "gb10", label: "us-east", mode: "ref", sshRef: "prod-web",
+  { id: "a1", name: "host", label: "us-east", mode: "ref", sshRef: "prod-web",
     remoteTasty: "tasty", portMode: "auto", portFile: "", state: "ok" },
   { id: "a2", name: "edge-direct", label: "", mode: "inline", host: "edge.example.com", user: "root",
     port: "22", shell: "auto", passkeyRef: "edge-pem", remoteTasty: "/opt/tasty/bin/tasty",
@@ -462,7 +462,7 @@ function AttachForm({ draft, isNew, error, sshProfiles, passkeys, onField, onSav
 
         <div style={{ display: "grid", gridTemplateColumns: "var(--tasty-remote-label-col) 1fr", columnGap: 12, rowGap: 8, alignItems: "center" }}>
           <label style={rtLabel}>Name</label>
-          <Input block placeholder="gb10" value={draft.name} onChange={(e) => onField("name", e.target.value)} />
+          <Input block placeholder="host" value={draft.name} onChange={(e) => onField("name", e.target.value)} />
           <label style={rtLabel}>Label</label>
           <Input block placeholder="us-east" value={draft.label} onChange={(e) => onField("label", e.target.value)} />
 
@@ -635,7 +635,7 @@ function ProtocolFilter({ protocols, hidden, onApply }) {
 //                  a muted "in profiles" Tag instead of the action
 //   onImport(host) the existing import action (one ghost button per row)
 const SSH_CONFIG_HOSTS = [
-  { alias: "gb10", target: "maya@gb10.local:22" },
+  { alias: "host", target: "maya@host.local:22" },
   { alias: "prod-web", target: "deploy@10.0.4.12:22" },
   { alias: "eu-west-build-farm-bastion-01", target: "ci-runner@bastion-01.eu-west.build.example.com:2222" },
 ];

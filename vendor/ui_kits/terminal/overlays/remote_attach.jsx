@@ -51,7 +51,7 @@ const RA_CREATE_ERROR = "Remote refused: workspace quota reached (8/8) on edge.e
 // `state:"inactive"` = last detection failed → connecting to it errors (demo).
 const RA_ATTACHES = [
   { id: "t1", name: "prod-web", label: "us-east", target: "deploy@10.0.4.12", via: "ref", state: "ok" },
-  { id: "t2", name: "gb10", label: "", target: "→ prod-web", via: "ref", state: "ok" },
+  { id: "t2", name: "host", label: "", target: "→ prod-web", via: "ref", state: "ok" },
   { id: "t3", name: "edge-direct", label: "", target: "root@edge.example.com", via: "inline", state: "ok" },
   { id: "t4", name: "media-nas", label: "lab", target: "→ nas.local", via: "ref", state: "ok" },
   { id: "t5", name: "legacy-attach", label: "", target: "→ legacy-box", via: "ref", state: "inactive" },
