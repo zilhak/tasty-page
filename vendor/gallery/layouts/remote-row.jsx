@@ -9,12 +9,9 @@ import { RemoteConnectionPopup, RemoteWorkspaceContent, RemoteRailMarks, REMOTE_
 
 const LANGS = ["en", "ko", "ja", "zh-Hans"];
 const cap = { fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" };
-const TagChip = ({ tag }) => (
-  <span style={{ ...cap, padding: "0 var(--tasty-space-xs)", borderRadius: "var(--tasty-radius-sm)", border: "var(--tasty-border-width) solid var(--tasty-border-strong)", color: "var(--tasty-text-secondary)" }}>{tag}</span>
-);
-const Labelled = ({ label, tag, children }) => (
+const Labelled = ({ label, children }) => (
   <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", minWidth: 0 }}>
-    <span style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "var(--tasty-space-sm)" }}>{[].concat(tag || []).map((t) => <TagChip key={t} tag={t} />)}<span style={cap}>{label}</span></span>
+    <span style={cap}>{label}</span>
     {children}
   </div>
 );
