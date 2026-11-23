@@ -252,7 +252,7 @@ function Page() {
 
       <Section id="categories" title="Workspace categories">
         <Spec id="sidebar-context-menu-target-resolves-under-the-cursor" title="Sidebar context menu — target resolves under the cursor"
-          when={<>Right-clicking anywhere in the sidebar workspace area opens this menu (no dedicated buttons) — only when <b>Settings › General › Workspace categories (folders)</b> is on. Items resolve to the <b>target under the cursor</b>: empty <b>background</b>, a <b>category header</b>, or a <b>workspace row</b>. The reserved <b>normal</b> category (“Workspaces”) is additive-only — no rename/delete. Same <span className="ic">MenuItem</span> + anchored-popup language as the Tools menu.</>}>
+          when={<>Right-clicking anywhere in the sidebar workspace area opens this menu (no dedicated buttons) — only when <b>Settings › General › Workspace categories (folders)</b> is on. Items resolve to the <b>target under the cursor</b>: empty <b>background</b>, a <b>category header</b>, or a <b>workspace row</b>. The reserved <b>normal</b> category (“Workspaces”) is additive-only — Rename category and Delete category are <b>left out</b>, not disabled: that category can never be renamed or deleted, so a disabled row would only promise a state that never comes. Same <span className="ic">MenuItem</span> + anchored-popup language as the Tools menu.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 22, flexWrap: "wrap", alignItems: "flex-start" }}>
             <CatMenu caption="target: background (cwd)">
               <MenuItem label="New category" icon={catIc.plus} />
@@ -268,9 +268,6 @@ function Page() {
             <CatMenu caption="target: reserved (normal)">
               <MenuItem label="Add workspace" icon={catIc.plus} />
               <MenuItem separator />
-              <MenuItem label="Rename category" icon={catIc.edit} disabled />
-              <MenuItem label="Delete category" icon={catIc.trash} disabled />
-              <MenuItem separator />
               <MenuItem label="New category" icon={catIc.plus} />
             </CatMenu>
             <CatMenu caption="target: workspace row">
@@ -282,7 +279,7 @@ function Page() {
             </CatMenu>
           </Stage>
           <Meta
-            specs={[["trigger", "right-click, no dedicated button"], ["width", "176px min"], ["background", "New category"], ["category", "Add ws · Rename · Delete · New"], ["reserved", "Add ws · New (additive-only)"], ["workspace", "Move to category (inert header) · targets · New"], ["targets", "every category except the current one · normal = “Workspaces”"]]}
+            specs={[["trigger", "right-click, no dedicated button"], ["width", "176px min"], ["background", "New category"], ["category", "Add ws · Rename · Delete · New"], ["reserved", "Add ws · New (additive-only) · Rename / Delete left out, not disabled"], ["workspace", "Move to category (inert header) · targets · New"], ["targets", "every category except the current one · normal = “Workspaces”"]]}
             tokens={[{ tok: "--tasty-surface-raised", use: "menu fill", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-border-strong", use: "edge", color: "var(--tasty-border-strong)" }, { tok: "--tasty-accent-danger", use: "delete row", color: "var(--tasty-accent-danger-raised)" }, { tok: "--tasty-shadow-popover", use: "lift" }]} />
           <Note>“Move to category” is an <b>inert header</b> with the target categories listed <b>flat</b> beneath it (current category omitted) — no submenu, because the product draws this menu with the OS-native context menu (2026-10-07). Drag-and-drop reorder stays the primary path; this is the menu fallback. New strings: <code>workspace_category.add_workspace</code> · <code>collapse</code> · <code>expand</code>. Existing: <code>new_category</code> · <code>rename_category</code> · <code>delete_category</code> · <code>move_to_category</code>.</Note>
         </Spec>
