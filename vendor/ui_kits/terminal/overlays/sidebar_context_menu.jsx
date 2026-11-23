@@ -85,7 +85,7 @@ function SidebarContextMenu({ x, y, target, onClose, categories = [] }) {
             Inert "Move to category" header, then every OTHER category as a plain item. */}
         {/* a saved remote row: its whole menu, in the app's order (remote_row.jsx RemoteRowMenuItems) */}
         {saved && (
-          <RemoteRowMenuItems state={t.ws.remoteState || "connected"} closed={!!t.ws.remoteClosed} onAct={act}
+          <RemoteRowMenuItems state={t.ws.remoteState || "connected"} closed={!!t.ws.remoteClosed} forceDetach={!!t.ws.attached} onAct={act}
             categories={categories && categories.length ? moveTargets.filter((c) => !(t.cat && c.id === t.cat.id)).map((c) => (c.reserved ? "Workspaces" : c.name)) : null} />
         )}
         {t.kind === "workspace" && !saved && (
@@ -114,6 +114,14 @@ function SidebarContextMenu({ x, y, target, onClose, categories = [] }) {
         )}
         {t.kind === "workspace" && !saved && <MenuItem separator />}
         {!saved && <MenuItem label="New category" icon={cx.plus} onClick={act} />}
+        {/* every workspace menu: Force detach with its separator, enabled only while this Tasty serves the workspace
+            to another client (ws.attached), otherwise disabled with no reason (2026-11-23) */}
+        {t.kind === "workspace" && !saved && (
+          <>
+            <MenuItem separator />
+            <MenuItem label="Force detach" disabled={!t.ws.attached} onClick={t.ws.attached ? act : undefined} />
+          </>
+        )}
       </div>
     </div>
   );

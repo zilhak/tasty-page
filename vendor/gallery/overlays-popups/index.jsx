@@ -276,10 +276,21 @@ function Page() {
               <MenuItem label="Services" />
               <MenuItem separator />
               <MenuItem label="New category" icon={catIc.plus} />
+              <MenuItem separator />
+              <MenuItem label="Force detach" disabled />
+            </CatMenu>
+            <CatMenu caption="target: workspace row · served to another client">
+              <MenuItem label="Move to category" icon={catIc.move} disabled />
+              <MenuItem label="Workspaces" />
+              <MenuItem label="Services" />
+              <MenuItem separator />
+              <MenuItem label="New category" icon={catIc.plus} />
+              <MenuItem separator />
+              <MenuItem label="Force detach" />
             </CatMenu>
           </Stage>
           <Meta
-            specs={[["trigger", "right-click, no dedicated button"], ["width", "176px min"], ["background", "New category"], ["category", "Add ws · Rename · Delete · New"], ["reserved", "Add ws · New (additive-only) · Rename / Delete left out, not disabled"], ["workspace", "Move to category (inert header) · targets · New"], ["targets", "every category except the current one · normal = “Workspaces”"]]}
+            specs={[["trigger", "right-click, no dedicated button"], ["width", "176px min"], ["background", "New category"], ["category", "Add ws · Rename · Delete · New"], ["reserved", "Add ws · New (additive-only) · Rename / Delete left out, not disabled"], ["workspace", "Move to category (inert header) · targets · New | Force detach (enabled only while this Tasty serves the workspace to another client, otherwise disabled, no reason)"], ["targets", "every category except the current one · normal = “Workspaces”"]]}
             tokens={[{ tok: "--tasty-surface-raised", use: "menu fill", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-border-strong", use: "edge", color: "var(--tasty-border-strong)" }, { tok: "--tasty-accent-danger", use: "delete row", color: "var(--tasty-accent-danger-raised)" }, { tok: "--tasty-shadow-popover", use: "lift" }]} />
           <Note>“Move to category” is an <b>inert header</b> with the target categories listed <b>flat</b> beneath it (current category omitted) — no submenu, because the product draws this menu with the OS-native context menu (2026-10-07). Drag-and-drop reorder stays the primary path; this is the menu fallback. New strings: <code>workspace_category.add_workspace</code> · <code>collapse</code> · <code>expand</code>. Existing: <code>new_category</code> · <code>rename_category</code> · <code>delete_category</code> · <code>move_to_category</code>.</Note>
         </Spec>
