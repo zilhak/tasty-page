@@ -23,8 +23,10 @@ const has = (o, k) => Object.prototype.hasOwnProperty.call(o, k);
 function useDraft(key, initial, commit) {
   const ctx = React.useContext(DraftContext);
   const [own, setOwn] = React.useState(initial);
+  // The initial value belongs to the key: a component React reuses at the same place for another field
+  // (a row of another subtab) starts from that field's initial value, not the one it was first given.
   const first = React.useRef(undefined);
-  if (first.current === undefined) first.current = { value: resolve(initial) };
+  if (first.current === undefined || first.current.key !== key) first.current = { key, value: resolve(initial) };
   const set = React.useCallback((next) => {
     if (ctx) ctx.set(key, next, first.current.value);
     else setOwn(next);
