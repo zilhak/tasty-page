@@ -126,7 +126,7 @@ export function RemoteRailMarks({ state = "connected", warn = false, title }) {
 
 // ── The remote connection popup (one per row: state, reason, the connect action) ──
 // Workspace-scope popup, centred in the workspace content area, never takes focus on its own.
-// kind: connecting · idle · failed (empty workspace) · reconnecting · gave_up · user · server · failed · closed (over the last screen).
+// kind: connecting · idle · held · failed (empty workspace) · reconnecting · gave_up · user · server · failed · closed (over the last screen).
 // shape = the last screen is kept under the scrim → shadow-modal; the empty workspace has no scrim → shadow-popover.
 export function RemoteConnectionPopup({ lang = "en", name = "tasty-core", profile = "host", remote, kind = "connecting", reason, seconds = 300,
   userVariant = "stay", shape = false, width = "var(--tasty-size-360)" }) {
@@ -142,6 +142,9 @@ export function RemoteConnectionPopup({ lang = "en", name = "tasty-core", profil
   // Same place and outcome as user: disconnected, no automatic reconnect, Reconnect enabled, no warning glyph.
   // Only the body says who; the client cannot tell a remote user from an agent, so it says the remote Tasty.
   if (kind === "server") { title = rt("remote.row.popup.user_title", lang); body = rt("remote.row.popup.server_body", lang); }
+  // held: held by the remote workspace's force-detach mark without losing a connection of its own (another row of the
+  // same remote workspace, or after a restart). Not connected, with a body that says why it does not connect on its own.
+  if (kind === "held") { title = rt("remote.row.popup.idle_title", lang); body = rt("remote.row.popup.held_body", lang); }
   if (kind === "idle") title = rt("remote.row.popup.idle_title", lang);
   if (kind === "failed") { title = rt("remote.row.popup.failed_title", lang); body = remoteReasonText({ remoteReason: reason, remoteProfile: profile, remoteName }, lang); }
   // closed: the remote workspace was closed elsewhere (another client, the remote Tasty) while this row was connected
