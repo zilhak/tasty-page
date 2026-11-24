@@ -133,14 +133,44 @@ const DETAIL_COLUMNS = "minmax(0, 1fr) var(--tasty-explorer-detail-size-col-widt
 // at their floor (plus the side inset). A width with a percentage counts as auto when an ancestor sizes to its
 // content, so the floor never widens the pane, a card or a stage around the table: they keep the width the table's
 // content gives them. DetailLine wraps each grid in a box that takes the pane's width and clips the overflow
-// on the right only (overflow-x clip), so a focus ring inside a row still shows above and below.
+// on the right only (overflow-x clip), so a focus ring inside a row still shows above and below. A row name
+// still ends in an ellipsis at that clip edge (DetailName).
 const DETAIL_MIN_WIDTH = "calc(var(--tasty-explorer-detail-name-col-min-width) + var(--tasty-explorer-detail-size-col-width) + var(--tasty-explorer-detail-date-col-width) + var(--tasty-explorer-detail-type-col-width) + 2 * var(--tasty-explorer-detail-padding-x))";
+const DetailClip = React.createContext(null);
 function DetailLine({ style, children }) {
+  const clip = React.useRef(null);
   return (
-    <div style={{ minWidth: 0, overflowX: "clip" }}>
-      <div style={{ display: "grid", gridTemplateColumns: DETAIL_COLUMNS, width: `max(100%, ${DETAIL_MIN_WIDTH})`, alignItems: "center", height: "var(--tasty-table-cell-height)", padding: "0 var(--tasty-explorer-detail-padding-x)", ...style }}>{children}</div>
+    <div ref={clip} style={{ minWidth: 0, overflowX: "clip" }}>
+      <DetailClip.Provider value={clip}>
+        <div style={{ display: "grid", gridTemplateColumns: DETAIL_COLUMNS, width: `max(100%, ${DETAIL_MIN_WIDTH})`, alignItems: "center", height: "var(--tasty-table-cell-height)", padding: "0 var(--tasty-explorer-detail-padding-x)", ...style }}>{children}</div>
+      </DetailClip.Provider>
     </div>
   );
+}
+// A row name ends in an ellipsis at whichever comes first: its Name cell's end or the line's clip edge. The app
+// measures the room the same way, from the name's left to the table's clip end (explorer detail_view, room =
+// clip right - cursor left). A narrow pane hides the Name cell's end, so without this the name was cut at the
+// pane edge with no ellipsis. Only a name that crosses the clip edge gets a max width; nothing else moves.
+function DetailName({ style, children }) {
+  const clip = React.useContext(DetailClip);
+  const ref = React.useRef(null);
+  React.useEffect(() => {
+    const el = ref.current;
+    const box = clip && clip.current;
+    if (!el || !box) return undefined;
+    const fit = () => {
+      el.style.maxWidth = "";
+      const edge = box.getBoundingClientRect().right;
+      const r = el.getBoundingClientRect();
+      if (r.right > edge + 0.5) el.style.maxWidth = `${Math.max(0, edge - r.left)}px`;
+    };
+    fit();
+    if (typeof ResizeObserver === "undefined") return undefined;
+    const ro = new ResizeObserver(fit);
+    ro.observe(box);
+    return () => ro.disconnect();
+  }, [clip]);
+  return <span ref={ref} style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", ...style }}>{children}</span>;
 }
 
 function DetailRow({ glyph, name, size, date, type, state, glyphColor }) {
@@ -150,7 +180,7 @@ function DetailRow({ glyph, name, size, date, type, state, glyphColor }) {
       color: state === "selected" ? "var(--tasty-text-on-active)" : state === "cut" ? "var(--tasty-cut-pending-fg)" : "var(--tasty-text-secondary)" }}>
       <span style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
         <span style={{ display: "inline-flex", flex: "none", color: state === "selected" ? "var(--tasty-text-on-active)" : glyphColor || "var(--tasty-text-secondary)" }}>{glyph}</span>
-        <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontStyle: state === "cut" ? "var(--tasty-cut-pending-font-style)" : undefined }}>{name}</span>
+        <DetailName style={{ fontStyle: state === "cut" ? "var(--tasty-cut-pending-font-style)" : undefined }}>{name}</DetailName>
       </span>
       <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: state === "selected" ? "var(--tasty-text-on-active)" : "var(--tasty-text-muted)", textAlign: "right", paddingRight: 8 }}>{size}</span>
       <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: state === "selected" ? "var(--tasty-text-on-active)" : "var(--tasty-text-muted)" }}>{date}</span>
