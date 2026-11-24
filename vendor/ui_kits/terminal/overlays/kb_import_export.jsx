@@ -22,8 +22,9 @@ import { useKbpDrafts, kbpLabel, KBP_PLUGINS } from "./kb_plugins_subtab.jsx";
 // Apply writes the selected rows into the settings window's draft (settings_draft.jsx), the same draft the
 // other Keybindings subtabs read: a general, quick-switch or script row under "keybindings.bindings" (action ->
 // combo, read by KeyRow), a plugin row as its imported override under "keybindings.plugins.drafts" (pluginId/cmdId,
-// read by the Plugins subtab). A plugin row's Current is the override in effect, Inherit shown as @source, and it
-// is changed only when that line differs from the imported one. The window footer's Save commits it and Cancel drops it (same 2-stage contract as
+// read by the Plugins subtab). A plugin row's Current shows the override in effect, Inherit as @source. It is
+// changed when its override value differs from the imported one: no override and an explicit override with the
+// same keys or source are different values. The window footer's Save commits it and Cancel drops it (same 2-stage contract as
 // Preset). The preview stays after Apply and the draft outlives a tab switch, so Current shows
 // the drafted combo and an applied row leaves the default Changed only view. Apply is disabled only when no row is
 // selected; a file that cannot be read shows no Apply. Rendered full-bleed — it owns its own scroll.
@@ -64,6 +65,15 @@ const IE_GROUPS = [
 // Quick-switch modifier combos (non-macOS now includes option = Win / Super: 15 combos).
 const MODIFIER_COMBOS = ["Ctrl", "Alt", "Shift", "Ctrl+Alt", "Ctrl+Shift", "Alt+Shift", "Ctrl+Alt+Shift"];
 
+// Two plugin overrides as values: absent equals only absent; otherwise the same mode and the same keys or source.
+const ieKeys = (k) => (k || "").split(",").map((c) => c.replace(/\s+/g, "").toLowerCase()).filter(Boolean).join(",");
+const ieSameOverride = (a, b) => {
+  if (!a || !b) return !a && !b;
+  if (a.mode !== b.mode) return false;
+  if (a.mode === "custom") return ieKeys(a.keys) === ieKeys(b.keys);
+  if (a.mode === "inherit") return a.source === b.source;
+  return true;
+};
 // A plugin row's command in the Plugins subtab's list, and its manifest default (what applies with no override).
 const ieManifest = (r) => KBP_PLUGINS.find((p) => p.id === r.plugin).commands.find((c) => c.id === r.cmd).manifest;
 IE_GROUPS.forEach((g) => g.rows.forEach((r) => { if (r.plugin) { r.next = kbpLabel(r.ov); r.cur = kbpLabel(ieManifest(r)); } }));
@@ -75,7 +85,7 @@ const microCaps = { fontFamily: "var(--tasty-font-label)", fontSize: 10, textTra
   letterSpacing: "var(--tasty-letter-spacing-caps)" };
 
 // ── Diff grid — 4 columns (select · action · current · imported) ─────────
-function IeDiffTable({ groups, changedOnly, collapsed, onToggleGroup, sel, onSel, cur = (g, r) => r.cur }) {
+function IeDiffTable({ groups, changedOnly, collapsed, onToggleGroup, sel, onSel, cur = (g, r) => r.cur, isChanged = (g, r) => cur(g, r) !== r.next }) {
   const head = { ...microCaps, color: "var(--tasty-text-muted)",
     padding: "0 var(--tasty-space-md) var(--tasty-space-sm)", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" };
   const cell = { padding: "var(--tasty-space-sm) var(--tasty-space-md)", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)",
@@ -87,7 +97,7 @@ function IeDiffTable({ groups, changedOnly, collapsed, onToggleGroup, sel, onSel
       <div style={{ ...head }}>Current</div>
       <div style={{ ...head }}>Imported</div>
       {groups.map((g) => {
-        const rows = changedOnly ? g.rows.filter((r) => cur(g, r) !== r.next) : g.rows;
+        const rows = changedOnly ? g.rows.filter((r) => isChanged(g, r)) : g.rows;
         const isOpen = !collapsed[g.id];
         const on = rows.length > 0 && rows.every((r) => sel[g.id + r.action] !== false);
         return (
@@ -107,11 +117,11 @@ function IeDiffTable({ groups, changedOnly, collapsed, onToggleGroup, sel, onSel
                 <span style={{ ...microCaps, color: "var(--tasty-text-secondary)" }}>{g.label}</span>
               </button>
               <span style={{ ...mono, fontSize: 11, color: "var(--tasty-text-muted)" }}>
-                {g.rows.filter((r) => cur(g, r) !== r.next).length} changed · {g.rows.length} total
+                {g.rows.filter((r) => isChanged(g, r)).length} changed · {g.rows.length} total
               </span>
             </div>
             {isOpen && rows.map((r) => {
-              const changed = cur(g, r) !== r.next;
+              const changed = isChanged(g, r);
               const key = g.id + r.action;
               return (
                 <React.Fragment key={key}>
@@ -224,11 +234,13 @@ function KbImportExportSubtab({ variant = "ready", onFlash, failLine = 1, failCa
   });
 
   const total = IE_GROUPS.reduce((n, g) => n + g.rows.length, 0);
-  const changed = IE_GROUPS.reduce((n, g) => n + g.rows.filter((r) => cur(g, r) !== r.next).length, 0);
+  // A plugin row compares override values, not lines: the draft's override (none when absent) against the imported one.
+  const isChanged = (g, r) => (r.plugin ? !ieSameOverride(pluginDrafts[pluginKey(r)], r.ov) : cur(g, r) !== r.next);
+  const changed = IE_GROUPS.reduce((n, g) => n + g.rows.filter((r) => isChanged(g, r)).length, 0);
   const picked = IE_GROUPS.reduce((n, g) => n + g.rows.filter((r) => sel[g.id + r.action] !== false).length, 0);
-  // Selected rows whose line changes. A selected row that already reads the same (a plugin row whose override shows
-  // the same combo or @source included) writes nothing, so it adds no override.
-  const toApply = IE_GROUPS.flatMap((g) => g.rows.filter((r) => sel[g.id + r.action] !== false && cur(g, r) !== r.next));
+  // Apply writes every selected row: a general row's imported combo, a plugin row's imported override as it is, so a
+  // plugin row with no override gains one even when its keys are the manifest's.
+  const toApply = IE_GROUPS.flatMap((g) => g.rows.filter((r) => sel[g.id + r.action] !== false));
   const apply = () => {
     setBindings((b) => ({ ...b, ...Object.fromEntries(toApply.filter((r) => !r.plugin).map((r) => [r.action, r.next])) }));
     setPluginDrafts((d) => ({ ...d, ...Object.fromEntries(toApply.filter((r) => r.plugin)
@@ -274,7 +286,7 @@ function KbImportExportSubtab({ variant = "ready", onFlash, failLine = 1, failCa
           (<span style={mono}>{IE_DISCARDED.join(", ")}</span>).</span>
       </div>
       <IeDiffTable groups={IE_GROUPS} changedOnly={changedOnly} collapsed={collapsed}
-        onToggleGroup={(id) => setCollapsed((c) => ({ ...c, [id]: !c[id] }))} sel={sel} onSel={onSel} cur={cur} />
+        onToggleGroup={(id) => setCollapsed((c) => ({ ...c, [id]: !c[id] }))} sel={sel} onSel={onSel} cur={cur} isChanged={isChanged} />
     </div>
   );
 
