@@ -19,7 +19,7 @@ const col = (children) => <div style={{ display: "flex", flexDirection: "column"
 const row = (children) => <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-lg)", alignItems: "flex-start" }}>{children}</div>;
 
 const WS = { name: "tasty-core", profile: "host", remote: "tasty-core" };
-const Frame = ({ shape, children }) => <RemoteWorkspaceContent shape={shape} width="var(--tasty-size-480)" height="var(--tasty-size-288)">{children}</RemoteWorkspaceContent>;
+const Frame = ({ shape, children }) => <RemoteWorkspaceContent shape={shape} width="var(--tasty-remote-row-specimen-width)" height="var(--tasty-remote-row-specimen-height)">{children}</RemoteWorkspaceContent>;
 const Pop = (p) => <RemoteConnectionPopup name={WS.name} profile={WS.profile} remote={WS.remote} {...p} />;
 
 // ── 1. Not connected yet: the bare workspace ──

@@ -4412,6 +4412,14 @@
       "$type": "dimension",
       "$value": "{primitive.size-96}"
     },
+    "remote-row-specimen-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-480}"
+    },
+    "remote-row-specimen-height": {
+      "$type": "dimension",
+      "$value": "{primitive.size-288}"
+    },
     "perm-granted-fg": {
       "$type": "color",
       "$value": "{semantic.accent-success-raised}"

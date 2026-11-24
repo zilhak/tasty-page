@@ -917,6 +917,9 @@
   /* Dialogs › Collapse (gallery specimen layout, not app chrome) — the tooltip and copy views */
   --tasty-collapsed-popup-specimen-width:        var(--tasty-size-440); /* width of the tooltip views and the cap of the copy views */
   --tasty-collapsed-popup-specimen-tooltip-room: var(--tasty-size-96);  /* space above the show or shrink button that holds the open tooltip */
+  /* Layouts › Saved remote workspace (gallery specimen layout, not app chrome) — the workspace content area each popup sits in */
+  --tasty-remote-row-specimen-width:  var(--tasty-size-480);
+  --tasty-remote-row-specimen-height: var(--tasty-size-288);
   /* Settings › General › Permissions (macOS) — four states, told apart by
      GLYPH + WORD, colour only as a third channel. Unknown and Not observable
      share the muted ink but never the glyph. */
