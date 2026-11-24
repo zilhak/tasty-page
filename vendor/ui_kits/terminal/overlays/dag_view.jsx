@@ -309,7 +309,7 @@ function DagNode({ node, lod = "full", selected = false, dimmed = false, onSelec
     border: `var(--tasty-border-width) solid ${node.status === "waiting" || node.status === "cancelled" || node.status === "skipped" ? "var(--tasty-dag-node-border)" : accent}`,
     background: st.bg,
     outline: selected ? `var(--tasty-dag-node-selected-ring-width) solid var(--tasty-dag-node-selected-ring)` : "none",
-    outlineOffset: "var(--tasty-size-1)",
+    outlineOffset: "var(--tasty-dag-node-selected-ring-offset)",
     opacity: dimmed ? "var(--tasty-dag-node-dim-opacity)" : 1,
     fontFamily: "var(--tasty-font-ui)", color: "var(--tasty-text-on-active)",
     ...style,

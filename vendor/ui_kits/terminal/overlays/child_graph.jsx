@@ -162,7 +162,7 @@ function GapNode({ node, lod, selected, lang, onSelect }) {
     display: "flex", alignItems: lod === "block" ? "center" : "stretch", justifyContent: lod === "block" ? "center" : "flex-start",
     borderRadius: "var(--tasty-dag-node-radius)", border: "var(--tasty-border-width) dashed var(--tasty-dag-node-border)",
     background: "var(--tasty-dag-node-bg)", color: "var(--tasty-dag-node-fg)",
-    outline: selected ? "var(--tasty-dag-node-selected-ring-width) solid var(--tasty-dag-node-selected-ring)" : "none", outlineOffset: "var(--tasty-border-width)",
+    outline: selected ? "var(--tasty-dag-node-selected-ring-width) solid var(--tasty-dag-node-selected-ring)" : "none", outlineOffset: "var(--tasty-dag-node-selected-ring-offset)",
   };
   return (
     <span style={{ position: "relative", display: "block" }}>
@@ -216,7 +216,7 @@ function ChildNode({ node, lod = "full", selected = false, base = false, hover, 
     border: `var(--tasty-border-width) ${special ? "dashed" : "solid"} ${special || st.plain ? "var(--tasty-dag-node-border)" : accent}`,
     background: special ? "var(--tasty-dag-node-bg)" : st.bg,
     outline: selected ? "var(--tasty-dag-node-selected-ring-width) solid var(--tasty-dag-node-selected-ring)" : "none",
-    outlineOffset: "var(--tasty-size-1)",
+    outlineOffset: "var(--tasty-dag-node-selected-ring-offset)",
     opacity: !special && st.dim ? "var(--tasty-dag-node-dim-opacity)" : 1,
     fontFamily: "var(--tasty-font-ui)", color: "var(--tasty-text-on-active)",
   };

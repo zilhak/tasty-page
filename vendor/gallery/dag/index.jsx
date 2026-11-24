@@ -138,7 +138,7 @@ function Page() {
             <NodeBox node={mk({ status: "succeeded" })} selected caption="selected (2px ring)" />
           </Stage>
           <Meta specs={[["full", "zoom ≥ 0.7"], ["compact", "0.4 – 0.7"], ["block", "< 0.4"], ["selection", "2px accent outline, 1px offset"], ["hover", "derived overlay-hover on the body"]]}
-            tokens={[{ tok: "--tasty-dag-node-selected-ring", use: "selection", color: "var(--tasty-dag-node-selected-ring)" }, { tok: "--tasty-dag-node-hover-bg", use: "hover wash" }, { tok: "--tasty-dag-node-dim-opacity", use: "skipped path" }]} />
+            tokens={[{ tok: "--tasty-dag-node-selected-ring", use: "selection", color: "var(--tasty-dag-node-selected-ring)" }, { tok: "--tasty-dag-node-selected-ring-offset", use: "1 between the card and the ring" }, { tok: "--tasty-dag-node-hover-bg", use: "hover wash" }, { tok: "--tasty-dag-node-dim-opacity", use: "skipped path" }]} />
           <Stage style={{ padding: 0, height: 360, display: "block" }}>
             <div style={{ height: 360, display: "flex" }}><DagCanvas dag={DAG_DENSE} dir="td" /></div>
           </Stage>

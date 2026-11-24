@@ -5219,6 +5219,10 @@
       "$type": "dimension",
       "$value": "{semantic.focus-ring-width}"
     },
+    "dag-node-selected-ring-offset": {
+      "$type": "dimension",
+      "$value": "{semantic.border-width}"
+    },
     "dag-node-dim-opacity": {
       "$type": "number",
       "$value": "{semantic.node-dim-opacity}"

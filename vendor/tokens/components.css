@@ -1290,6 +1290,7 @@
   --tasty-dag-node-hover-bg:         var(--tasty-overlay-hover);
   --tasty-dag-node-selected-ring:    var(--tasty-accent-primary);
   --tasty-dag-node-selected-ring-width: var(--tasty-focus-ring-width); /* 2 */
+  --tasty-dag-node-selected-ring-offset: var(--tasty-border-width);   /* 1 — gap between the card and its selection ring */
   --tasty-dag-node-dim-opacity:      var(--tasty-node-dim-opacity);      /* skipped / cancelled node — 0.75 Mocha, 1 Latte */
 
   /* Task status — the 8 execution states. Colour is ONE of two channels; the
