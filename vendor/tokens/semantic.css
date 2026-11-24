@@ -267,6 +267,7 @@
   --tasty-control-height-tree: var(--tasty-size-22); /* file-tree / sidebar rows */
   --tasty-control-height:      var(--tasty-size-28); /* buttons, inputs, menu rows */
   --tasty-control-height-tab:  var(--tasty-size-24); /* tab strip */
+  --tasty-chip-height:         var(--tasty-size-22); /* a non-interactive chip beside a header title (file picker host badge) */
   --tasty-tab-width:           var(--tasty-size-150);
   --tasty-titlebar-height:     var(--tasty-size-36); /* CSD window titlebar (4px grid) */
   --tasty-toolbar-height:      var(--tasty-size-32); /* in-surface CONTAINER toolbar (git diff bar, viewer toolbars) — a container role, NOT control-height 28 or button-height-lg */

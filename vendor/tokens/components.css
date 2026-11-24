@@ -989,7 +989,7 @@
   /* File picker host badge (remote mode, beside the header title): remote glyph + host text in an info tint box.
      Fill and edge are the tint pair (accent-info × tint-fill-alpha / tint-border-alpha) over the header (bg-panel = base).
      Ink is accent-remote-raised, the text-remote and glyph-remote ink allowed on tint-info@base (RULES.md section 6). */
-  --tasty-fp-host-badge-height:       var(--tasty-size-22);
+  --tasty-fp-host-badge-height:       var(--tasty-chip-height);  /* 22 */
   --tasty-fp-host-badge-padding-x:    var(--tasty-space-sm);        /* 8 */
   --tasty-fp-host-badge-gap:          var(--tasty-space-xs);        /* 4 — glyph to host text, same as the host mark (workspace-mirror-gap) */
   --tasty-fp-host-badge-icon-size:    var(--tasty-icon-size-xs);    /* 12 — same glyph step as the host mark (workspace-mirror-icon-size) */

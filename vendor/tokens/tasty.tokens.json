@@ -1292,6 +1292,10 @@
       "$type": "dimension",
       "$value": "{primitive.size-24}"
     },
+    "chip-height": {
+      "$type": "dimension",
+      "$value": "{primitive.size-22}"
+    },
     "tab-width": {
       "$type": "dimension",
       "$value": "{primitive.size-150}"
@@ -4582,7 +4586,7 @@
     },
     "fp-host-badge-height": {
       "$type": "dimension",
-      "$value": "{primitive.size-22}"
+      "$value": "{semantic.chip-height}"
     },
     "fp-host-badge-padding-x": {
       "$type": "dimension",
