@@ -3155,10 +3155,13 @@ function FilePickerFrame({ state = "loaded", remote = false, indicator = "badge"
   // The remote loading and connection-lost sentences below name the host; they are gallery-only
   // English. The app's keys (filepicker.loading_body_remote, filepicker.error_conn.title,
   // filepicker.error_conn.session_lost) carry no host, so an attach with no profile name (host
-  // empty) draws those values: no new key, no word Remote, never 127.0.0.1:<port>.
-  const errText = state === "error-conn" && !host
-    ? { title: "Connection lost", body: "The remote session is no longer attached." }
-    : state === "error-conn"
+  // empty) draws those values: no new key, no word Remote, never 127.0.0.1:<port>. The app's
+  // loading title is filepicker.loading, and its connection-lost body has two causes:
+  // session_lost (state "error-conn") and timeout (state "error-conn-timeout").
+  const connLost = state === "error-conn" || state === "error-conn-timeout";
+  const errText = connLost && !host
+    ? { title: "Connection lost", body: state === "error-conn-timeout" ? "The remote host did not respond in time." : "The remote session is no longer attached." }
+    : connLost
     ? { title: "Remote connection lost", body: <>The SSH tunnel to <span style={{ fontFamily: "var(--tasty-font-mono)" }}>{host}</span> dropped. Reconnect to resume browsing from the last folder.</> }
     : { title: "Permission denied", body: <>You don't have permission to read <span style={{ fontFamily: "var(--tasty-font-mono)" }}>/home/deploy/agents-prod</span>. Try a different folder or check access.</> };
   return (
@@ -3212,9 +3215,9 @@ function FilePickerFrame({ state = "loaded", remote = false, indicator = "badge"
             ))}
           </div>
         )}
-        {state === "loading" && <CenterState variant="loading" title="Loading folder…" sub={remote ? (host ? <>Reading <span style={{ fontFamily: "var(--tasty-font-mono)" }}>{host}</span> over SSH.</> : "Waiting for the remote directory listing.") : "Reading the directory contents."} />}
-        {(state === "error-perm" || state === "error-conn") && <CenterState variant="error" title={errText.title} sub={errText.body}
-          action={<Button variant="secondary" size="sm" leadingIcon={<Icon name="refresh" size="var(--tasty-icon-size-sm)" />}>{state === "error-conn" ? "Reconnect" : "Retry"}</Button>} />}
+        {state === "loading" && <CenterState variant="loading" title={remote && !host ? "Loading…" : "Loading folder…"} sub={remote ? (host ? <>Reading <span style={{ fontFamily: "var(--tasty-font-mono)" }}>{host}</span> over SSH.</> : "Waiting for the remote directory listing.") : "Reading the directory contents."} />}
+        {(state === "error-perm" || connLost) && <CenterState variant="error" title={errText.title} sub={errText.body}
+          action={<Button variant="secondary" size="sm" leadingIcon={<Icon name="refresh" size="var(--tasty-icon-size-sm)" />}>{connLost ? "Reconnect" : "Retry"}</Button>} />}
         {state === "empty" && <CenterState variant="empty" glyph="folderOpen" title={folderMode ? FC.empty : "This folder is empty"} />}
       </div>
       {/* footer */}
