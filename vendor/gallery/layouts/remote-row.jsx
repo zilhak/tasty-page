@@ -159,6 +159,8 @@ export function RemoteRowMarksSpec() {
           {row(LANGS.map((lang) => <Labelled key={lang} label={lang}><Rows lang={lang} /></Labelled>))}
         </View>
         <View name="remote-row-marks-closed" label="Remote workspace closed — the row and rail while the popup says Remote workspace closed">
+          {/* A view is not interactive: inert with no pointer events, so the row keeps its rest look (no hover fill, no pointer cursor). */}
+          <div inert="" style={{ pointerEvents: "none" }}>
           {row(<>
             <Labelled label="inactive rows"><Rows rows={CLOSED_ROWS} /></Labelled>
             <Labelled label="active rows"><Rows rows={CLOSED_ROWS} active /></Labelled>
@@ -168,6 +170,7 @@ export function RemoteRowMarksSpec() {
               </div>
             </Labelled>
           </>)}
+          </div>
         </View>
       </Views>
       <Meta
