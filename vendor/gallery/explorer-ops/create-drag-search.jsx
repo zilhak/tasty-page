@@ -387,7 +387,7 @@ function DragSection() {
           <XCol label="OS files over a local explorer" w={420}>
             <div style={{ position: "relative" }}>
               <XCell w={420} h={240} status="5 items">
-                <XRing radius="0" style={{ flex: 1, display: "flex" }}><XDetail bg="transparent" rows={xUnderTint(XROWS)} /></XRing>
+                <XRing radius="0" style={{ flex: 1, minWidth: 0, display: "flex" }}><XDetail bg="transparent" rows={xUnderTint(XROWS)} /></XRing>
               </XCell>
               <XDragChip glyph={<XIcon name="layers" />} label="2 items" op="copy" target="Downloads" style={{ position: "absolute", left: 140, top: 150 }} />
             </div>
