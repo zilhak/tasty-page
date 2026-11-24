@@ -112,15 +112,18 @@ const RD = {
 };
 
 // ── small warning pill (type-unknown / dangling-ref / unknown-kind) ──────
-function WarnBadge({ children, title }) {
+// A warning tint box, as the app draws it: tint-warning fill and edge over its host. The label reads
+// the text-warning cell; the glyph reads the glyph-warning cell, which differs by host
+// (accent-warning-glyph on base, accent-warning-raised on a raised menu: pass `raised`).
+function WarnBadge({ children, title, raised = false }) {
   return (
     <span title={title} style={{ display: "inline-flex", alignItems: "center", gap: 4, height: 16,
       padding: "0 var(--tasty-space-sm)", borderRadius: "var(--tasty-radius-sm)", whiteSpace: "nowrap",
       fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-micro)", fontWeight: 500, lineHeight: 1,
-      color: "var(--tasty-tag-warning-fg)",
-      border: "var(--tasty-border-width) solid var(--tasty-tag-warning-border)",
-      background: "var(--tasty-tag-bg)" }}>
-      <span style={{ display: "inline-flex" }}><Icon name={RD.warn} size={12} /></span>{children}
+      color: "var(--tasty-accent-warning-raised)",
+      border: "var(--tasty-border-width) solid var(--tasty-tint-warning-border)",
+      background: "var(--tasty-tint-warning-bg)" }}>
+      <span style={{ display: "inline-flex", color: raised ? "var(--tasty-accent-warning-raised)" : "var(--tasty-accent-warning-glyph)" }}><Icon name={RD.warn} size={12} /></span>{children}
     </span>
   );
 }
@@ -600,7 +603,7 @@ function ProtocolFilter({ protocols, hidden, onApply }) {
                 <div key={proto} style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)" }}>
                   <Checkbox checked={!draft.has(proto)} onChange={() => toggle(proto)}
                     label={proto} /* 2026-10-06: shared Checkbox label (body, UI font) */ />
-                  {isUnknownType(proto) && <WarnBadge title="Unknown type — no core feature or plugin handles it.">unknown</WarnBadge>}
+                  {isUnknownType(proto) && <WarnBadge raised title="Unknown type — no core feature or plugin handles it.">unknown</WarnBadge>}
                 </div>
               ))}
             </div>
