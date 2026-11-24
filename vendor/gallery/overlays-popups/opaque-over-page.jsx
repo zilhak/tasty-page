@@ -22,7 +22,7 @@ const COLS = [
 ];
 
 function MdPage() {
-  const cell = { padding: "4px 8px", borderBottom: "var(--tasty-border-width) solid var(--tasty-border-strong)", textAlign: "left" };
+  const cell = { padding: "4px 8px", borderBottom: "var(--tasty-border-width) solid var(--tasty-md-table-border)", textAlign: "left" };
   return (
     <div style={{ position: "absolute", inset: 0, overflow: "hidden", padding: "20px 24px", display: "flex", flexDirection: "column", gap: 10,
       background: "var(--tasty-surface-markdown-focused-bg)", color: "var(--tasty-surface-markdown-focused-fg)", fontFamily: "var(--tasty-font-ui)" }}>
