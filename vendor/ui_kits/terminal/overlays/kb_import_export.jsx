@@ -71,7 +71,7 @@ const microCaps = { fontFamily: "var(--tasty-font-label)", fontSize: 10, textTra
   letterSpacing: "var(--tasty-letter-spacing-caps)" };
 
 // ── Diff grid — 4 columns (select · action · current · imported) ─────────
-function IeDiffTable({ groups, changedOnly, collapsed, onToggleGroup, sel, onSel, cur }) {
+function IeDiffTable({ groups, changedOnly, collapsed, onToggleGroup, sel, onSel, cur = (g, r) => r.cur }) {
   const head = { ...microCaps, color: "var(--tasty-text-muted)",
     padding: "0 var(--tasty-space-md) var(--tasty-space-sm)", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" };
   const cell = { padding: "var(--tasty-space-sm) var(--tasty-space-md)", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)",
