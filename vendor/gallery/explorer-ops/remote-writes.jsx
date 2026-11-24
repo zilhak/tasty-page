@@ -77,7 +77,7 @@ function QueueHead({ name = "build-eu", lang = "en" }) {
 function PendingDetailRow({ glyph = K.ic.folder, value }) {
   return (
     <K.DetailLine style={{ background: "var(--tasty-surface-active)" }}>
-      <span style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", minWidth: 0 }}>
+      <span style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", minWidth: 0, paddingRight: "var(--tasty-space-sm)" }}>
         <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-text-secondary)" }}>{glyph}</span>
         <span style={{ flex: 1, minWidth: 0 }}><Input block readOnly defaultValue={value} /></span>
         <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-text-muted)" }} title="Waiting for build-eu"><Spinner size="var(--tasty-icon-size-sm)" /></span>
@@ -192,7 +192,7 @@ function RemoteWriteSection() {
           </View>
         </Views>
         <Meta
-          specs={[["input row", "stays in place · Input readOnly · text kept"], ["indicator", "Spinner icon-size-sm · trailing slot · tooltip “Waiting for {host}”"], ["Esc / blur", "ignored while waiting"], ["success", "row → item at its sorted place, selected"], ["failure", "field editable again, text kept · error toast (unchanged)"], ["Rename popup", "open · field readOnly · Spinner line in the line slot · Cancel + Rename disabled · closes on success"], ["no host", "no profile name (--ssh, --target-port, a profile saved with an empty name) → explorer.remote.waiting_no_host() · explorer.remote.renaming_no_host() · never 127.0.0.1:<port>"]]}
+          specs={[["input row", "stays in place · Input readOnly · text kept"], ["indicator", "Spinner icon-size-sm · trailing slot · tooltip “Waiting for {host}”"], ["field", "Name cell − glyph 16 − space-sm 8 − Spinner slot 22 (space-sm + icon-size-sm) − space-sm 8 at the cell end (140 → 86)"], ["Esc / blur", "ignored while waiting"], ["success", "row → item at its sorted place, selected"], ["failure", "field editable again, text kept · error toast (unchanged)"], ["Rename popup", "open · field readOnly · Spinner line in the line slot · Cancel + Rename disabled · closes on success"], ["no host", "no profile name (--ssh, --target-port, a profile saved with an empty name) → explorer.remote.waiting_no_host() · explorer.remote.renaming_no_host() · never 127.0.0.1:<port>"]]}
           tokens={[{ tok: "--tasty-input-readonly-fg", use: "sent text", color: "var(--tasty-input-readonly-fg)" }, { tok: "--tasty-spinner-indicator", use: "waiting", color: "var(--tasty-spinner-indicator)" }]} />
         <Note>i18n: <code>explorer.remote.waiting</code> “Waiting for {"{host}"}” / “{"{host}"} 응답 기다리는 중” / “{"{host}"} の応答を待っています” · <code>explorer.remote.renaming</code> “Renaming on {"{host}"}…” / “{"{host}"}에서 이름 바꾸는 중…” / “{"{host}"} で名前を変更中…”.</Note>
       </Spec>

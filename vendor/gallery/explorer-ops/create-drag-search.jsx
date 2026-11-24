@@ -118,7 +118,7 @@ function XDetailEdit({ glyph = XK.ic.folder, value = "New folder", error }) {
   return (
     <div style={{ position: "relative" }}>
       <XK.DetailLine style={{ background: "var(--tasty-surface-active)" }}>
-        <span style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", minWidth: 0 }}>
+        <span style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", minWidth: 0, paddingRight: "var(--tasty-space-sm)" }}>
           <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-text-secondary)" }}>{glyph}</span>
           <span style={{ flex: 1, minWidth: 0 }}><XInput block defaultValue={value} invalid={!!error} /></span>
         </span>
@@ -238,7 +238,7 @@ function CreateSection() {
           </XCol>
         </Stage>
         <Meta
-          specs={[["placement", "top of the listing while typing → sorted place after ↵"], ["editor", "Input (control-height 28) in the name slot · Detail row stays 28 · List row grows 22 → 28 while editing · Grid: 160 wide, centred under the glyph"], ["defaults", "“New folder” all selected · “untitled.txt” stem selected · taken → “… 2”"], ["↵ / Esc", "confirm / cancel (nothing on disk)"], ["blur", "valid → confirm · empty or invalid → cancel"], ["after", "sorted place, selected — only if the user still views that folder"], ["write fails", "error Toast + reload (unchanged)"]]}
+          specs={[["placement", "top of the listing while typing → sorted place after ↵"], ["editor", "Input (control-height 28) in the name slot · Detail row stays 28 · Detail field = Name cell − glyph 16 − space-sm 8 − space-sm 8 at the cell end (140 → 108) · List row grows 22 → 28 while editing · Grid: 160 wide, centred under the glyph"], ["defaults", "“New folder” all selected · “untitled.txt” stem selected · taken → “… 2”"], ["↵ / Esc", "confirm / cancel (nothing on disk)"], ["blur", "valid → confirm · empty or invalid → cancel"], ["after", "sorted place, selected — only if the user still views that folder"], ["write fails", "error Toast + reload (unchanged)"]]}
           tokens={[{ tok: "--tasty-surface-active", use: "editing row", color: "var(--tasty-surface-active)" }, { tok: "--tasty-input-border-focus", use: "editor focus", color: "var(--tasty-input-border-focus)" }, { tok: "--tasty-table-cell-height", use: "row 28" }]} />
       </Spec>
 
