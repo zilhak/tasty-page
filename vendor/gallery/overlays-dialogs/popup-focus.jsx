@@ -100,11 +100,11 @@ function PopupFocusSpec() {
           ["bar", <><span className="tok">--tasty-popup-focus-edge-focused</span> · <span className="tok">--tasty-popup-focus-edge-width</span> 2, zoom-exempt · full width across the top, inside the 1px border, clipped by the 4 radius</>],
           ["layout", "drawn over the content margin (popup-content-margin 4 ≥ 2) — no row is reserved, nothing moves on a focus change"],
           ["unfocused", "no bar · border, fill, shadow, scrim and content unchanged · nothing dims (a user still reads it)"],
-          ["one focus", "at most one thing in the window is lit: one popup's bar or one surface's bed or edge · a child popup takes the bar from its parent · a focused surface keeps its own focused bed or edge"],
+          ["one focus", "at most one thing in the window is lit: one popup's bar or one surface's bed or edge · none while a window-scope popup or one shown over the window holds key focus · a child popup takes the bar from its parent · a focused surface keeps its own focused bed or edge"],
           ["the surface under it", "unfocused while the popup holds key focus, scrim or none: a bed kind takes the unfocused bed, an edge kind the unfocused edge · lit again in the frame key focus lands back in it (popup closed, or a click into it) · a passive popup leaves it focused"],
           ["passive (agent-opened)", "unlit, no ring, until the user gives it focus"],
           ["scrim", "unchanged by focus — it marks the scope the popup covers (a click there still goes to the popup), not where keys go"],
-          ["window scope", "no bar — in scope everywhere, so focused while open, or passive"],
+          ["window scope", "no bar — in scope everywhere, so focused while open, or passive · while it holds key focus every surface is unfocused, so nothing in the window is lit · the same for a popup shown over the window and its child"],
           ["motion", "none — the bar appears and goes in the frame focus changes"],
           ["contrast", "role glyph, grade 3 · on base 9.26 Mocha · 5.53 Latte · on mantle (a title strip at the top) 9.91 · 5.14 · on raised (search bar) 7.10 · 4.05"],
         ]}
