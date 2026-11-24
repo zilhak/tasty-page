@@ -88,8 +88,9 @@ jobs:
       # No --locked: Cargo has to drop the Tasty workspace members from the copied lock file.
       # checks/ is its own workspace, so the Tasty [patch.crates-io] table does not reach it.
       # Tasty develop vendors vtparse and tasty-terminal calls the parser state that only
-      # that copy has. Older refs have no vendor/vtparse, and Cargo stops on a patch path
-      # that does not exist, so pass the patch only when the copy is there.
+      # that copy has. A ref without vendor/vtparse (Tasty release and v0.14.0 when this was
+      # written) builds against crates.io vtparse, and Cargo stops on a patch path that does
+      # not exist, so pass the patch only when the copy is there.
       - name: cargo test
         working-directory: checks
         run: |
