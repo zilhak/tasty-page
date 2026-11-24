@@ -507,7 +507,8 @@ function FlowScreens({ flow, lang, bed, still }) {
 }
 
 // ── Popup frame ─────────────────────────────────────────────────────
-// 600 × 460 (three columns at 100%), min 360 × 280 like the DAG popup. Title bar 28 (drag),
+// 600 × 460 (three columns at 100%), min 360 × 280 like the DAG popup. Title bar 28 (drag; its last button
+// sits popup-title-edge-inset 4 from the right edge, as every popup title bar),
 // toolbar 36 with the full tree checkbox — the same height as the back bar it trades places with.
 // Base = the surface the popup opened from; the chip on its card says so. No base selector here.
 // The popup is scoped to its base surface (10-3 b): it closes with it, and when its needed size is larger
@@ -534,7 +535,7 @@ function ChildGraphWindow({ nodes = CHILD_SMALL, baseId = CHILD_SMALL_BASE, lang
       flexDirection: "column", overflow: "hidden", boxSizing: "border-box", background: "var(--tasty-bg-panel)",
       borderRadius: "var(--tasty-radius)", border: "var(--tasty-border-width) solid var(--tasty-border-strong)", boxShadow: "var(--tasty-shadow-modal)" }}>
       <div style={{ flex: "none", display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", cursor: "move",
-        height: "var(--tasty-modhint-header-height)", padding: "0 var(--tasty-space-sm) 0 var(--tasty-space-md)",
+        height: "var(--tasty-modhint-header-height)", padding: "0 var(--tasty-popup-title-edge-inset) 0 var(--tasty-space-md)",
         background: "var(--tasty-bg-sidebar)", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
         <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-text-muted)" }}><Icon name="gitBranch" size="var(--tasty-icon-size-sm)" /></span>
         <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontFamily: "var(--tasty-font-ui)",
