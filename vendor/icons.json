@@ -68,8 +68,8 @@
       "group": "actions",
       "role": "Windows caption button: restore, on a maximized window",
       "paths": [
-        "<rect x=\"6.5\" y=\"8.5\" width=\"9\" height=\"9\" rx=\"1\"/>",
-        "<path d=\"M8.5 6.5h7a2 2 0 0 1 2 2v7\"/>"
+        "<rect x=\"6.6\" y=\"9\" width=\"8.4\" height=\"8.4\"/>",
+        "<path d=\"M9 6.6h8.4V9\"/>"
       ],
       "fill": false
     },
