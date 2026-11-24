@@ -1003,7 +1003,7 @@ function Page() {
                 ))}
               </div>
             </View>
-            <View name="file-picker-session-lost-navigation" label="Session lost — the path bar: Refresh, Up and the breadcrumb's root, ancestors and … are disabled; timeout keeps them enabled">
+            <View name="file-picker-session-lost-navigation" wide label="Session lost — the path bar: Refresh, Up and the breadcrumb's root, ancestors and … are disabled; timeout keeps them enabled">
               <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-lg)", alignItems: "flex-start" }}>
                 <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}><div style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>session lost · full path</div><FilePickerFrame remote state="error-conn" w={400} h={300} /></div>
                 <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}><div style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>session lost · elided path (… disabled)</div><FilePickerFrame remote state="error-conn" elideStage w={400} h={300} /></div>
