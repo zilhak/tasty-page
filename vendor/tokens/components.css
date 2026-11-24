@@ -587,6 +587,10 @@
   /* Git viewer diff toolbar — a CONTAINER height, deliberately not button-height
      (28): the toolbar is a 32px bar that holds 28px controls with 2px of air. */
   --tasty-git-toolbar-height:      var(--tasty-toolbar-height); /* 32 — re-pointed at the shared container-toolbar role (value unchanged) */
+  /* 2026-11-25 diff line fills: the tint fill of the line's hue (0.12). Line ink is the hue's -raised ink, allowed on tint-<hue>@base */
+  --tasty-git-diff-hunk-bg:        var(--tasty-tint-info-bg);    /* @@ hunk header line */
+  --tasty-git-diff-add-bg:         var(--tasty-tint-success-bg); /* + added line */
+  --tasty-git-diff-del-bg:         var(--tasty-tint-danger-bg);  /* - removed line */
 
   /* Workspace row — mirror (remote-linked) indicator. A small remote-link glyph
      leading the workspace name marks a row as a local MIRROR of a remote tasty

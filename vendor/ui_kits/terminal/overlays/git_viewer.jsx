@@ -142,9 +142,9 @@ function DiffLine({ d }) {
   const add = d.kind === "+";
   const del = d.kind === "-";
   const fg = hunk ? "var(--tasty-accent-info-raised)" : add ? "var(--tasty-accent-success-raised)" : del ? "var(--tasty-accent-danger-raised)" : "var(--tasty-text-primary)";
-  const bg = hunk ? "color-mix(in srgb, var(--tasty-accent-info) 9%, transparent)"
-    : add ? "color-mix(in srgb, var(--tasty-accent-success) 10%, transparent)"
-    : del ? "color-mix(in srgb, var(--tasty-accent-danger) 10%, transparent)" : "transparent";
+  const bg = hunk ? "var(--tasty-git-diff-hunk-bg)"
+    : add ? "var(--tasty-git-diff-add-bg)"
+    : del ? "var(--tasty-git-diff-del-bg)" : "transparent";
   return (
     <div style={{ display: "flex", fontFamily: "var(--tasty-font-mono)", fontSize: 11, lineHeight: 1.65, background: bg, color: fg }}>
       <span style={{ width: 34, textAlign: "right", flex: "none", color: "var(--tasty-text-disabled)", paddingRight: 6, userSelect: "none" }}>{hunk ? "" : d.old}</span>

@@ -3674,6 +3674,18 @@
       "$type": "dimension",
       "$value": "{semantic.toolbar-height}"
     },
+    "git-diff-hunk-bg": {
+      "$type": "color",
+      "$value": "{semantic.tint-info-bg}"
+    },
+    "git-diff-add-bg": {
+      "$type": "color",
+      "$value": "{semantic.tint-success-bg}"
+    },
+    "git-diff-del-bg": {
+      "$type": "color",
+      "$value": "{semantic.tint-danger-bg}"
+    },
     "workspace-mirror-fg": {
       "$type": "color",
       "$value": "{semantic.accent-remote-raised}"
