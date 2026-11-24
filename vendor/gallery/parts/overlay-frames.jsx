@@ -2349,10 +2349,11 @@ function RemoteFormFrame({ variant = "ssh", error }) {
       {hint && <div style={{ display: "grid", gridTemplateColumns: "var(--tasty-remote-label-col) 1fr", columnGap: 12 }}><span /><span style={{ fontSize: 11, color: "var(--tasty-text-muted)", lineHeight: 1.4 }}>{hint}</span></div>}
     </>
   );
-  const peach = (txt) => (
-    <span style={{ display: "inline-flex", alignItems: "center", height: 16, padding: "0 6px", borderRadius: "var(--tasty-radius-sm)",
-      fontFamily: "var(--tasty-font-mono)", fontSize: 10, fontWeight: 500, color: "var(--tasty-accent-warning-raised)",
-      border: "1px solid var(--tasty-tint-warning-border)", background: "var(--tasty-tint-warning-bg)" }}>{txt}</span>
+  // unknown type: an indented hint caption under the Type field, as the app draws it — not a badge.
+  // Copy: [remote_tool] type_unknown_hint.
+  const typeHint = (txt) => (
+    <div style={{ display: "grid", gridTemplateColumns: "var(--tasty-remote-label-col) 1fr", columnGap: 12 }}><span />
+      <span style={{ fontSize: 11, lineHeight: 1.4, color: "var(--tasty-accent-warning-raised)", overflowWrap: "anywhere" }}>{txt}</span></div>
   );
   const seg = (label, active) => (
     <div style={{ display: "flex", alignItems: "center", height: "var(--tasty-control-height)", padding: "0 12px", borderRadius: "var(--tasty-radius)", fontSize: 13, cursor: "pointer",
@@ -2385,7 +2386,7 @@ function RemoteFormFrame({ variant = "ssh", error }) {
         {!passkey && !attach && (
           <>
             <FRow label="Type"><div style={{ display: "flex", gap: 4 }}><Input block defaultValue={variant === "generic" ? "smb" : "ssh"} /><Select options={["ssh", "smb", "http"]} style={{ width: 64 }} /></div></FRow>
-            {variant === "generic" && error !== "type" && <div style={{ display: "grid", gridTemplateColumns: "var(--tasty-remote-label-col) 1fr", columnGap: 12 }}><span /><span>{peach("Unknown type")}</span></div>}
+            {variant === "generic" && error !== "type" && typeHint("This type is not supported yet. You can save it, but it cannot be used until Tasty or a plugin supports it.")}
             <FRow label="Name"><Input block defaultValue={variant === "generic" ? "fileshare" : "prod-web"} /></FRow>
             {variant === "ssh" ? (
               <>
