@@ -18,7 +18,7 @@ export function Frame({ label, w, h, children, style }) {
     <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", minWidth: 0, flex: "none" }}>
       {label && <span style={cap}>{label}</span>}
       <div style={{ position: "relative", width: w, height: h, maxWidth: "100%", display: "flex", flexDirection: "column", overflow: "hidden",
-        boxSizing: "border-box", border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)",
+        boxSizing: "border-box", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)",
         background: "var(--tasty-bg-panel)", ...style }}>{children}</div>
     </div>
   );

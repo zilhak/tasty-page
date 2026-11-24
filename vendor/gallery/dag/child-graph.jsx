@@ -20,7 +20,7 @@ import { BasePicker, PICKER_ONE_WINDOW } from "../../ui_kits/terminal/overlays/c
 
 const cap = { fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" };
 const Badge = ({ tag }) => (
-  <span style={{ ...cap, padding: "0 var(--tasty-space-xs)", borderRadius: "var(--tasty-radius-sm)", border: "var(--tasty-border-width) solid var(--tasty-border-strong)",
+  <span style={{ ...cap, padding: "0 var(--tasty-space-xs)", borderRadius: "var(--tasty-radius-sm)", border: "var(--tasty-border-width) solid var(--tasty-border-default)",
     color: "var(--tasty-text-secondary)" }}>{tag}</span>
 );
 const Labelled = ({ label, tag, children }) => (

@@ -346,11 +346,11 @@ function Page() {
         <Spec id="full-tab-surface-wide-and-narrow" title="Full-tab surface — wide and narrow"
           when={<>A whole terminal tab. Header: DAG name + <code>{"{done} / {total} done"}</code> (spaces around the slash in every language, 2026-10-09) (mono caption, <code>--tasty-dag-header-count-fg</code> = the list row counter, skip suffix after it, 2026-10-07), the DAG <code>Select</code>, the runner badge, refresh. Under <b>640px</b> the header wraps to two rows (identity above, controls below), the runner hint drops and the minimap goes. Node detail is the drawer over the canvas; below 480px of canvas it covers it (2026-11-10).</>}>
           <Stage style={{ padding: 16, display: "flex", gap: 16, alignItems: "stretch" }}>
-            <div style={{ flex: 1, minWidth: 0, height: 520, border: "var(--tasty-border-width) solid var(--tasty-border-strong)",
+            <div style={{ flex: 1, minWidth: 0, height: 520, border: "var(--tasty-border-width) solid var(--tasty-border-default)",
               borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
               <DagSurface dags={[DAG_BUILD, DAG_INDEX, DAG_DENSE, DAG_CYCLE]} />
             </div>
-            <div style={{ flex: "none", width: 320, height: 520, border: "var(--tasty-border-width) solid var(--tasty-border-strong)",
+            <div style={{ flex: "none", width: 320, height: 520, border: "var(--tasty-border-width) solid var(--tasty-border-default)",
               borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
               <DagSurface dags={[DAG_BUILD, DAG_INDEX]} narrow />
             </div>

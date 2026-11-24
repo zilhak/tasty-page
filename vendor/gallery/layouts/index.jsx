@@ -576,7 +576,7 @@ function DrillDownDemo({ initial = null }) {
   const cell = { padding: "6px 12px", borderBottom: "1px solid var(--tasty-separator)", fontSize: 13, display: "flex", alignItems: "center" };
   return (
     <div style={{ width: 560, height: 320, display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)",
-      border: "1px solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
+      border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
       <div style={{ flex: 1, minHeight: 0 }}>
         <DrillDown
           view={view}

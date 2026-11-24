@@ -224,7 +224,7 @@ function ChildNode({ node, lod = "full", selected = false, base = false, hover, 
     <span style={{ position: "absolute", left: 0, top: "calc(-1 * (var(--tasty-graph-base-chip-height) + var(--tasty-graph-base-chip-gap)))",
       height: "var(--tasty-graph-base-chip-height)", padding: "0 var(--tasty-graph-base-chip-padding-x)", boxSizing: "border-box",
       display: "inline-flex", alignItems: "center", borderRadius: "var(--tasty-radius-sm)", whiteSpace: "nowrap",
-      border: "var(--tasty-border-width) solid var(--tasty-border-strong)", background: "var(--tasty-bg-sidebar)",
+      border: "var(--tasty-border-width) solid var(--tasty-border-default)", background: "var(--tasty-bg-sidebar)",
       fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-secondary)" }}>
       {gt("child_graph.base_badge", lang)}
     </span>

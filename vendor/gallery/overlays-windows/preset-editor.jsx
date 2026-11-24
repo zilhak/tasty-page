@@ -753,7 +753,7 @@ import { Section, Spec, Stage, Meta, Note, Do, Dont } from "../parts/specimen.js
     return (
       <div style={{ display: "flex", flexDirection: "column", gap: 6, minWidth: 0 }}>
         <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
-        <div style={{ width, height, display: "flex", border: "1px solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
+        <div style={{ width, height, display: "flex", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
           <SurfaceSettings draft={draft} orig={base} path={path} bodyRef={bodyRef} onChange={setDraft}
             onConfirm={() => setBase(draft)} onCancel={() => setDraft(base)} />
         </div>
