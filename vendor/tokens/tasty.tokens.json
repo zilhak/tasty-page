@@ -1324,6 +1324,10 @@
       "$type": "dimension",
       "$value": "{primitive.size-24}"
     },
+    "icon-size-window-caption": {
+      "$type": "dimension",
+      "$value": "{primitive.size-10}"
+    },
     "state-disabled-fg": {
       "$type": "color",
       "$value": "{semantic.text-disabled}"
@@ -4941,7 +4945,7 @@
     },
     "titlebar-caption-glyph-size": {
       "$type": "dimension",
-      "$value": "{primitive.size-10}"
+      "$value": "{semantic.icon-size-window-caption}"
     },
     "titlebar-window-button-size": {
       "$type": "dimension",

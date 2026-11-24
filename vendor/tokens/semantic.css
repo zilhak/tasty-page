@@ -277,6 +277,7 @@
   --tasty-icon-size-sm: var(--tasty-size-14); /* tree / tab / menu icons */
   --tasty-icon-size-md: var(--tasty-size-16); /* toolbar / input / toast icons */
   --tasty-icon-size-lg: var(--tasty-size-24); /* centred state glyph (empty / loading / error blocks) — replaces the off-scale 22 and 26 */
+  --tasty-icon-size-window-caption: var(--tasty-size-10); /* span of a Windows caption glyph (minimize, maximize, restore, close), the app's 10 logical px; outside the UI zoom scale with the caption */
 
   /* ── Disabled state (2026-09-29) — ink, never opacity ──
      A DISABLED control (non-interactive) keeps a neutral box and drops its ink:
