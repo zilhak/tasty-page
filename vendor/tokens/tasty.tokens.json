@@ -5897,7 +5897,7 @@
     },
     "search-bar-border": {
       "$type": "color",
-      "$value": "{component.menu-border}"
+      "$value": "{semantic.border-strong}"
     },
     "popup-content-margin": {
       "$type": "dimension",
@@ -6702,7 +6702,7 @@
     },
     "select-placeholder": {
       "$type": "color",
-      "$value": "{component.input-placeholder}",
+      "$value": "{semantic.text-placeholder}",
       "$description": "Select(placeholder) trigger ink while no value is chosen"
     },
     "file-handler-form-bg": {

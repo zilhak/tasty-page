@@ -189,7 +189,7 @@
   --tasty-select-raised-disabled-bg:     var(--tasty-state-disabled-fill-raised);
   --tasty-select-raised-disabled-border: var(--tasty-state-disabled-border-raised);
   --tasty-select-chevron-offset:   var(--tasty-space-sm);
-  --tasty-select-placeholder:      var(--tasty-input-placeholder); /* 2026-10-19 — Select(placeholder): trigger ink while no value is chosen → text-placeholder */
+  --tasty-select-placeholder:      var(--tasty-text-placeholder); /* 2026-10-19 — Select(placeholder): trigger ink while no value is chosen. 2026-11-25 reads the role the Input placeholder reads; a Select is not an Input */
 
   /* MultiSelect — the Select sibling that holds many values. The closed
      trigger deliberately aliases the Select tokens (one family in a form);
@@ -1509,7 +1509,7 @@
   --tasty-codearea-max-height:         var(--tasty-size-200);  /* then scrolls */
 
   /* 2026-10-07 (batch 3) */
-  --tasty-search-bar-border:           var(--tasty-menu-border);   /* floating find band — same edge as menus (→ border-strong) */
+  --tasty-search-bar-border:           var(--tasty-border-strong); /* floating find band — the edge menus also read; 2026-11-25 reads the role, not menu-border */
   --tasty-popup-content-margin:        var(--tasty-space-xs);      /* inner ring of EVERY popup frame: anchored menus (Tools menu, rail category menu, banner more-menu, multiselect) AND dialog-type popups that share popup::content_margin() — 4 */
   --tasty-modhint-grip-size:           var(--tasty-icon-size-xs);  /* 12 corner resize grip */
   --tasty-modhint-grip-inset:          var(--tasty-size-2);        /* grip offset from the right / bottom edge; ON-SCALE */
