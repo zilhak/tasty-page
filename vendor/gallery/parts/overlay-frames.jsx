@@ -3209,25 +3209,25 @@ function FilePickerFrame({ state = "loaded", remote = false, indicator = "badge"
     : { title: FE.permTitle, body: FE.permReason, action: FE.permAction };
   return (
     <div style={{ position: "relative", width: w, height: h, display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)",
-      border: borderMode ? "1px solid var(--tasty-accent-info)" : "var(--tasty-border-width) solid var(--tasty-border-frame)",
+      border: borderMode ? "var(--tasty-border-width) solid var(--tasty-accent-info)" : "var(--tasty-border-width) solid var(--tasty-border-frame)",
       borderRadius: opaque ? "var(--tasty-webview-opaque-radius)" : "var(--tasty-radius)", overflow: "hidden", boxShadow: opaque ? "var(--tasty-webview-opaque-shadow)" : "var(--tasty-shadow-modal)" }}>
       {borderMode && <div style={{ height: 2, flex: "none", background: "var(--tasty-accent-info)" }} />}
       {/* the picker is scoped to its surface, so it lights the focus edge; in border mode the info row keeps the top and the edge sits under it */}
       <PopupFocusEdge top={borderMode ? 2 : 0} />
       {/* header */}
       {/* section insets (2026-09-29): every section starts on fp-inset-start (12) — header glyph, first crumb, Name, row icon and footer label share one column */}
-      <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-fp-section-gap)", padding: "var(--tasty-fp-header-pad-y) var(--tasty-fp-inset-end) var(--tasty-fp-header-pad-y) var(--tasty-fp-inset-start)", flex: "none", borderBottom: "1px solid var(--tasty-separator)" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-fp-section-gap)", padding: "var(--tasty-fp-header-pad-y) var(--tasty-fp-inset-end) var(--tasty-fp-header-pad-y) var(--tasty-fp-inset-start)", flex: "none", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
         <span style={{ display: "inline-flex", color: remote && indicator === "glyph" ? "var(--tasty-accent-info-raised)" : "var(--tasty-text-muted)" }}>
           {remote && (indicator === "glyph" || indicator === "border") ? <Icon name="remote" /> : <Icon name={folderMode ? "folder" : "file"} />}
         </span>
-        <span style={{ fontSize: 14, fontWeight: 600, color: "var(--tasty-text-primary)" }}>{folderMode ? FC.title : saving ? "Save file" : "Open file"}</span>
+        <span style={{ fontSize: "var(--tasty-font-size-max)", fontWeight: "var(--tasty-font-weight-semibold)", color: "var(--tasty-text-primary)" }}>{folderMode ? FC.title : saving ? "Save file" : "Open file"}</span>
         {remote && indicator === "badge" && <FpHostBadge host={host} lang={lang} />}
         {remote && indicator === "glyph" && <span style={{ fontSize: 12, fontFamily: "var(--tasty-font-mono)", color: "var(--tasty-accent-info-raised)" }}><FpHostText host={host} lang={lang} /></span>}
         <div style={{ flex: 1 }} />
         <IconButton size="sm" aria-label="Close">{ic.x}</IconButton>
       </div>
       {/* path bar */}
-      <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-fp-section-gap)", padding: "var(--tasty-fp-path-pad-y) var(--tasty-fp-inset-end) var(--tasty-fp-path-pad-y) var(--tasty-fp-inset-start)", flex: "none", position: "relative", borderBottom: "1px solid var(--tasty-separator)", background: "var(--tasty-bg-sidebar)" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-fp-section-gap)", padding: "var(--tasty-fp-path-pad-y) var(--tasty-fp-inset-end) var(--tasty-fp-path-pad-y) var(--tasty-fp-inset-start)", flex: "none", position: "relative", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)", background: "var(--tasty-bg-sidebar)" }}>
         <FpCrumbs items={crumbs} elide={elideStage ?? (deep || pathKind === "longtwo")} single={single} inert={sessionLost} />
         <IconButton size="sm" aria-label="Up one folder" disabled={sessionLost}><Icon name="chevronUp" size="var(--tasty-icon-size-sm)" /></IconButton>
         <IconButton size="sm" aria-label="Refresh" disabled={sessionLost}>{ic.refresh}</IconButton>
@@ -3235,7 +3235,7 @@ function FilePickerFrame({ state = "loaded", remote = false, indicator = "badge"
       </div>
       {/* list header */}
       {state === "loaded" && (
-        <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-fp-list-head-pad-y) var(--tasty-fp-inset-start)", flex: "none", borderBottom: "1px solid var(--tasty-separator)",
+        <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-fp-list-head-pad-y) var(--tasty-fp-inset-start)", flex: "none", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)",
           fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-micro)", textTransform: "uppercase", letterSpacing: ".06em", color: "var(--tasty-text-muted)" }}>
           {multi && <span style={{ width: 16, flex: "none" }} />}
           <span style={{ width: 16, flex: "none" }} /><span style={{ flex: 1 }}>Name</span>
@@ -3264,7 +3264,7 @@ function FilePickerFrame({ state = "loaded", remote = false, indicator = "badge"
         {state === "empty" && <CenterState variant="empty" glyph="folderOpen" title={folderMode ? FC.empty : "This folder is empty"} />}
       </div>
       {/* footer */}
-      <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-fp-section-gap)", flex: "none", padding: "var(--tasty-fp-footer-pad-y) var(--tasty-fp-inset-start)", borderTop: "1px solid var(--tasty-separator)" }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-fp-section-gap)", flex: "none", padding: "var(--tasty-fp-footer-pad-y) var(--tasty-fp-inset-start)", borderTop: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
         {folderMode && (() => {
           const cur = "/" + crumbs.slice(1).map((c) => c.label).join("/");
           const target = folderPick === "row" ? cur + "/configs" : cur;
