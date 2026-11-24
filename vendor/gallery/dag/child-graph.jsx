@@ -244,13 +244,13 @@ export function ChildGraphSection() {
           tokens={[{ tok: "--tasty-dag-row-height", use: "36 list row" }]} />
       </Spec>
 
-      <Spec id="child-graph-empty-and-base-closed" title="Empty and base closed (decided 4-4)"
-        when={<>A base with no parent and no children shows the child empty block. On the <b>surface</b> form the base can close. <b>Decided</b> (as the DAG surface does for a missing DAG): the canvas says <i>Base surface closed</i> with a <b>Select base surface</b> button that opens the base picker, and the picker shows its placeholder. A base that was a mirrored surface adds a banner with Reconnect (next spec). The <b>popup</b> form is still open; the popup closes with its surface as recommended.</>}>
+      <Spec id="child-graph-empty-and-base-closed" title="Empty and base closed (decided 4-4, 10-3 b)"
+        when={<>A base with no parent and no children shows the child empty block, in either form. <b>Only the surface form</b> has a base-closed state. <b>Decided 4-4</b> (as the DAG surface does for a missing DAG): the canvas says <i>Base surface closed</i> with a <b>Select base surface</b> button that opens the base picker, and the picker shows its placeholder. A base that was a mirrored surface adds a banner with Reconnect (next spec). <b>Decided 10-3 b</b>: the <b>popup</b> is scoped to its base surface, so it closes when that surface closes — like any popup whose scope is gone — and it has no base-closed screen. Nothing is drawn for it here.</>}>
         <Stage variant="grid" style={{ display: "flex", flexWrap: "wrap", gap: 16, padding: 20, alignItems: "flex-start" }}>
           <Labelled label="child empty — popup"><ChildGraphWindow nodes={CHILD_SMALL.slice(3).map((n) => ({ ...n, parent: undefined }))} baseId="s_01HXB2" width={420} height={280} /></Labelled>
           <Labelled label="base closed — pick another" tag="decided"><Frame w={480} h={300}><ChildGraphSurface status="base-closed" nodes={CHILD_SMALL} /></Frame></Labelled>
         </Stage>
-        <Meta specs={[["empty", "child_graph.empty.none + none_hint · gitBranch glyph"], ["base closed", "child_graph.empty.base_closed + _hint · paneEmpty glyph · Button secondary sm pick_base"], ["base picker", "placeholder child_graph.empty.pick_base"]]}
+        <Meta specs={[["empty", "child_graph.empty.none + none_hint · gitBranch glyph · popup and surface"], ["base closed", "surface only · child_graph.empty.base_closed + _hint · paneEmpty glyph · Button secondary sm pick_base"], ["base picker", "placeholder child_graph.empty.pick_base"], ["popup, base closed", "no state: the popup is scoped to its base surface and closes with it (decided 10-3 b)"]]}
           tokens={[]} />
       </Spec>
 
