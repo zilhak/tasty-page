@@ -781,7 +781,7 @@ function PluginsWindow({ onClose, onFlash, onConfigure, removedAttention, onRemo
         <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", height: 48, flex: "none", padding: "0 var(--tasty-size-14)",
           borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)", background: "var(--tasty-bg-sidebar)" }}>
           {/* the header ornament reads plugins-header-glyph (accent-decorative, no contrast target), as the app does */}
-          <span style={{ display: "inline-flex", color: "var(--tasty-plugins-header-glyph)" }}>
+          <span data-ink-grade="none" data-ink-why="ornament" style={{ display: "inline-flex", color: "var(--tasty-plugins-header-glyph)" }}>
             <Icon name="plug" size={16} />
           </span>
           <span style={{ fontSize: 14, fontWeight: 700, color: "var(--tasty-text-primary)", letterSpacing: "var(--tasty-letter-spacing-ui)" }}>Plugins</span>
