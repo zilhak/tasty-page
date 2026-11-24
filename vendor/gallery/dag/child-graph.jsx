@@ -204,12 +204,12 @@ export function ChildGraphSection() {
       </Spec>
 
       <Spec id="child-to-dag-push-and-back" title="Child graph → DAG — push right, back with the chevron"
-        when={<>Selecting a surface that <b>created</b> a DAG shows <b>View DAG</b> in its drawer. It <b>pushes</b> the whole area under the title bar (or the surface) to the left and the DAG screen comes in from the right, in <span className="tok">--tasty-motion-ui</span> (120); with reduced motion it switches at once. The DAG screen's top is a <b>DrillDown back bar</b>: the back chevron at the top left, the DAG name, <i>From builder</i> in muted text, the runner badge on the right. Back slides the other way and <b>restores</b> the child view as it was — zoom, pan, selection, open drawer — because the child graph is where the user was working; the DAG popup's list back still resets, since a list has no view to restore. The DAG screen is the DAG graph unchanged: its own zoom cluster on the canvas and its drawer.</>}>
+        when={<>Selecting a surface that <b>created</b> a DAG shows <b>View DAG</b> in its drawer. It <b>pushes</b> the whole area under the title bar (or the surface) to the left and the next screen comes in from the right, in <span className="tok">--tasty-motion-ui</span> (120); with reduced motion it switches at once. The next screen is always the <b>list step</b> (next spec), even for one DAG; picking the DAG there pushes again to the DAG screen. Each pushed screen's top is a <b>DrillDown back bar</b>: the back chevron at the top left and the title. The DAG screen's title is the DAG name, <i>From builder</i> in muted text, with the runner badge on the right. Back slides the other way and <b>restores</b> the child view as it was — zoom, pan, selection, open drawer — because the child graph is where the user was working; the DAG popup's list back still resets, since a list has no view to restore. The DAG screen is the DAG graph unchanged: its own zoom cluster on the canvas and its drawer.</>}>
         <Stage style={{ padding: 16, display: "block", background: "var(--tasty-bg-app)" }}>
           {row(<>
-            <Labelled label="1 · before — View DAG in the drawer"><ChildGraphWindow width={480} height={360} still push={0} initial={{ selected: "s_01HX7Q", owner: "s_01HX7Q", dagId: "build-and-deploy" }} /></Labelled>
-            <Labelled label="2 · middle frame — half way"><ChildGraphWindow width={480} height={360} still push={0.5} initial={{ selected: "s_01HX7Q", owner: "s_01HX7Q", dagId: "build-and-deploy" }} /></Labelled>
-            <Labelled label="3 · after — DAG, back chevron top left"><ChildGraphWindow width={480} height={360} still push={1} initial={{ selected: "s_01HX7Q", owner: "s_01HX7Q", dagId: "build-and-deploy" }} /></Labelled>
+            <Labelled label="1 · before — View DAG in the drawer"><ChildGraphWindow width={480} height={360} still push={0} initial={{ selected: "s_01HX7Q", owner: "s_01HX7Q" }} /></Labelled>
+            <Labelled label="2 · middle frame — half way to the list"><ChildGraphWindow width={480} height={360} still push={0.5} initial={{ selected: "s_01HX7Q", owner: "s_01HX7Q" }} /></Labelled>
+            <Labelled label="3 · after — the list step, back chevron top left"><ChildGraphWindow width={480} height={360} still push={1} initial={{ selected: "s_01HX7Q", owner: "s_01HX7Q" }} /></Labelled>
           </>)}
         </Stage>
         <Views>
@@ -217,21 +217,30 @@ export function ChildGraphSection() {
             <Frame w={760} h={380}><ChildGraphSurface nodes={CHILD_SMALL} baseId={CHILD_SMALL_BASE} initial={{ selected: "s_01HX7Q", owner: "s_01HX7Q", dagId: "build-and-deploy" }} /></Frame>
           </View>
         </Views>
-        <Meta specs={[["trigger", "View DAG — Button secondary sm, only when the surface created a DAG"], ["motion", "translateX of the whole area · motion-ui 120 · ease-ui · reduced motion: 0"], ["back", "DrillDown back bar 36 · chevron-left IconButton · tooltip child_graph.back"], ["title", "DAG name · “From {name}” muted (child_graph.from)"], ["actions", "runner badge, no hint"], ["return", "child view restored as left"], ["Esc on the DAG screen", "clears the DAG selection first, then goes back"]]}
+        <Meta specs={[["trigger", "View DAG — Button secondary sm, only when the surface created a DAG"], ["motion", "translateX of the whole area · motion-ui 120 · ease-ui · reduced motion: 0"], ["next screen", "the list step, one DAG or several (decided 10-2 a)"], ["back", "DrillDown back bar 36 · chevron-left IconButton · tooltip child_graph.back on the list, dag_list.back on the DAG"], ["title", "DAG name · “From {name}” muted (child_graph.from)"], ["actions", "runner badge, no hint"], ["return", "child view restored as left"], ["Esc on the DAG screen", "clears the DAG selection first, then goes back"]]}
           tokens={[{ tok: "--tasty-graph-push-motion", use: "120 → motion-ui" }, { tok: "--tasty-drilldown-backbar-height", use: "36" }]} />
         <Note>The back control is DrillDown's, so one back affordance serves the app. It draws <code>chevronLeft</code>; the request wrote <code>&lt;-</code>. See the question list if a literal arrow is wanted.</Note>
       </Spec>
 
-      <Spec id="child-several-dags-list-step" title="A surface that created several DAGs (decided 4-5)"
-        when={<><b>Decided</b>: the list of DAGs comes first. One button, <b>View DAGs (2)</b>. It pushes to a <b>list step</b> of the DAGs that surface created — the DAG list's own rows — titled <i>DAGs created by conductor-page</i>; picking one pushes to the graph. Three steps, one back bar each: the graph's back returns to the list (<i>Back to list</i>), the list's back returns to the child graph. With one DAG the list step is skipped — still open: whether one DAG also shows the list; the recommended skip is drawn.</>}>
+      <Spec id="child-several-dags-list-step" title="The list step — one DAG or several (decided 4-5, 10-2 a)"
+        when={<><b>Decided</b>: the list of DAGs comes first, <b>whatever their number</b>. One button: <b>View DAG</b> for one, <b>View DAGs (2)</b> for several — the label counts the DAGs, the press always does the same thing. It pushes to a <b>list step</b> of the DAGs that surface created — the DAG list's own rows — titled <i>DAGs created by builder</i>, one row or many; picking one pushes to the graph. Three steps, one back bar each: the graph's back returns to the list (<i>Back to list</i>), the list's back returns to the child graph, restored as it was left.</>}>
         <Stage style={{ padding: 16, display: "block", background: "var(--tasty-bg-app)" }}>
           {row(<>
-            <Labelled label="drawer — View DAGs (2)" tag="decided"><ChildGraphWindow nodes={CHILD_LARGE} baseId="s_c2" width={480} height={380} still push={0} initial={{ selected: "s_c2", owner: "s_c2", viaList: true }} /></Labelled>
-            <Labelled label="list step" tag="decided"><ChildGraphWindow nodes={CHILD_LARGE} baseId="s_c2" width={480} height={380} still push={1} initial={{ selected: "s_c2", owner: "s_c2", viaList: true }} /></Labelled>
-            <Labelled label="graph step — back to the list" tag="decided"><ChildGraphWindow nodes={CHILD_LARGE} baseId="s_c2" width={480} height={380} still push={2} initial={{ selected: "s_c2", owner: "s_c2", viaList: true, dagId: "docs-publish" }} /></Labelled>
+            <Labelled label="one DAG · 1 · drawer — View DAG" tag="decided"><ChildGraphWindow width={480} height={360} still push={0} initial={{ selected: "s_01HX7Q", owner: "s_01HX7Q" }} /></Labelled>
+            <Labelled label="one DAG · 2 · list step, one row" tag="decided"><ChildGraphWindow width={480} height={360} still push={1} initial={{ selected: "s_01HX7Q", owner: "s_01HX7Q" }} /></Labelled>
+            <Labelled label="one DAG · 3 · graph step — back to the list" tag="decided"><ChildGraphWindow width={480} height={360} still push={2} initial={{ selected: "s_01HX7Q", owner: "s_01HX7Q", dagId: "build-and-deploy" }} /></Labelled>
+            <Labelled label="one DAG · 4 · back once — the list again" tag="decided"><ChildGraphWindow width={480} height={360} still push={1} initial={{ selected: "s_01HX7Q", owner: "s_01HX7Q" }} /></Labelled>
+            <Labelled label="one DAG · 5 · back twice — the child graph as it was left, drawer open" tag="decided"><ChildGraphWindow width={480} height={360} still push={0} initial={{ selected: "s_01HX7Q" }} /></Labelled>
           </>)}
         </Stage>
-        <Meta specs={[["button", "child_graph.drawer.view_dag · view_dags({n}) when n > 1"], ["list title", "child_graph.dag_list_title({name})"], ["list rows", "the DAG list row (ListCtrl 36) — rollup + done/total"], ["back from graph", "existing dag_list.back “Back to list”"], ["back from list", "child_graph.back"], ["one DAG", "no list step (recommended; still open)"]]}
+        <Stage style={{ padding: 16, display: "block", background: "var(--tasty-bg-app)" }}>
+          {row(<>
+            <Labelled label="several · drawer — View DAGs (2)" tag="decided"><ChildGraphWindow nodes={CHILD_LARGE} baseId="s_c2" width={480} height={380} still push={0} initial={{ selected: "s_c2", owner: "s_c2" }} /></Labelled>
+            <Labelled label="several · list step" tag="decided"><ChildGraphWindow nodes={CHILD_LARGE} baseId="s_c2" width={480} height={380} still push={1} initial={{ selected: "s_c2", owner: "s_c2" }} /></Labelled>
+            <Labelled label="several · graph step — back to the list" tag="decided"><ChildGraphWindow nodes={CHILD_LARGE} baseId="s_c2" width={480} height={380} still push={2} initial={{ selected: "s_c2", owner: "s_c2", dagId: "docs-publish" }} /></Labelled>
+          </>)}
+        </Stage>
+        <Meta specs={[["button", "child_graph.drawer.view_dag for one DAG · view_dags({n}) when n > 1 · same press either way"], ["list title", "child_graph.dag_list_title({name}), one DAG or several"], ["list rows", "the DAG list row (ListCtrl 36) — rollup + done/total"], ["back from graph", "existing dag_list.back “Back to list”"], ["back from list", "child_graph.back"], ["one DAG", "the list step with one row (decided 10-2 a)"]]}
           tokens={[{ tok: "--tasty-dag-row-height", use: "36 list row" }]} />
       </Spec>
 

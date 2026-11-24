@@ -18,7 +18,7 @@ import { useDraft } from "./settings_draft.jsx";
 //   ChildGraphView     canvas + drawer (+ status blocks) — the part both frames share
 //   ChildGraphWindow   popup: title bar, 36 toolbar (full tree checkbox), base = the surface it opened from
 //   ChildGraphSurface  tab surface: header with the base picker (child_base_picker.jsx) and the checkbox, canvas on the surface bed
-// Inside either frame a surface that created DAGs pushes to them: child → (list of its DAGs) → DAG graph.
+// Inside either frame a surface that created DAGs pushes to them: child → list of its DAGs → DAG graph.
 // The back bars are DrillDown's (chevron + title, 36). Coming back restores the child view as it was.
 
 // ── Mock trees (shape is what matters; values are illustrative) ─────
@@ -173,7 +173,7 @@ function ChildNode({ node, lod = "full", selected = false, base = false, hover, 
 // Order: state line → actions → who (role, id, workspace, attach profile) → why this state
 // (evidence, last report) → where (working directory, wraps). The nickname is the drawer title;
 // with no nickname the title is the surface id in mono and the rows start at role.
-// DAGs (user decision 2026-11-10): one button; with several DAGs it opens the list of them first.
+// DAGs (user decisions 4-5, 10-2 a): one button, and it opens the list of them first, one DAG or several.
 function ChildDetail({ node, isBase, lang = "en", onViewDags, onSetBase, onClose, cover }) {
   const title = node.kind === "external" ? node.id : node.nickname || node.id;
   const mono = node.kind === "external" || !node.nickname;
@@ -277,21 +277,17 @@ function MirrorBanner({ cause = "detached", state = "idle", host = "lab-linux", 
 }
 
 // ── Push screens shared by both frames ──────────────────────────────
-// child → list (only when the surface created several DAGs, user decision) → DAG graph.
+// child → list of the DAGs that surface created → DAG graph (user decisions 4-5 and 10-2 a: the
+// list comes first even with one DAG). Back: graph → list → child graph.
 function useChildFlow({ nodes, initial = {} }) {
   const [owner, setOwner] = React.useState(initial.owner ? nodes.find((n) => n.id === initial.owner) : null);
   const [dagId, setDagId] = React.useState(initial.dagId || null);
-  const [viaList, setViaList] = React.useState(!!initial.viaList);
   const [dagSel, setDagSel] = React.useState(initial.dagSel || null);
   const ownerDags = owner ? (owner.dags || []).map((id) => DAG_BY_ID[id]).filter(Boolean) : [];
-  const viewDags = (node) => {
-    const ds = (node.dags || []).filter((id) => DAG_BY_ID[id]);
-    setOwner(node); setDagSel(null);
-    if (ds.length === 1) { setDagId(ds[0]); setViaList(false); } else { setDagId(null); setViaList(true); }
-  };
-  const back = () => { if (dagId && viaList) { setDagId(null); setDagSel(null); } else { setOwner(null); setDagId(null); setViaList(false); } };
-  const step = !owner ? 0 : viaList && !dagId ? 1 : viaList ? 2 : 1;
-  return { owner, ownerDags, dagId, viaList, dagSel, setDagSel, setDagId, viewDags, back, step };
+  const viewDags = (node) => { setOwner(node); setDagId(null); setDagSel(null); };
+  const back = () => { if (dagId) { setDagId(null); setDagSel(null); } else { setOwner(null); } };
+  const step = !owner ? 0 : !dagId ? 1 : 2;
+  return { owner, ownerDags, dagId, viaList: true, dagSel, setDagSel, setDagId, viewDags, back, step };
 }
 // Esc clears the selection of the screen in front, as the DAG surface does (dag_surfaces.jsx), and the
 // drawer closes with it. On a pushed step with nothing selected it goes back one step. On the child
@@ -313,9 +309,9 @@ function useEscDeselect(flow, sel, setSel, onIdle, enabled = true) {
   }, [enabled]);
 }
 function FlowScreens({ flow, lang, bed, still }) {
-  const { owner, ownerDags, dagId, viaList, dagSel, setDagSel, setDagId, back } = flow;
+  const { owner, ownerDags, dagId, dagSel, setDagSel, setDagId, back } = flow;
   const screens = [];
-  if (owner && viaList) {
+  if (owner) {
     screens.push(
       <DrillDown key="list" view="detail" title={gt("child_graph.dag_list_title", lang, nameOf(owner))} backLabel={gt("child_graph.back", lang)}
         onBack={() => back()} detail={<ListCtrl items={dagRowItems(ownerDags)} onSelect={(id) => { setDagId(id); setDagSel(null); }} />} />
@@ -324,7 +320,7 @@ function FlowScreens({ flow, lang, bed, still }) {
   const entry = dagId ? DAG_BY_ID[dagId] : null;
   if (owner && entry) {
     screens.push(
-      <DrillDown key="dag" view="detail" backLabel={viaList ? gt("dag_list.back", lang) : gt("child_graph.back", lang)} onBack={() => back()}
+      <DrillDown key="dag" view="detail" backLabel={gt("dag_list.back", lang)} onBack={() => back()}
         title={<>{entry.dag.name}<span style={{ fontWeight: "var(--tasty-font-weight-regular)", color: "var(--tasty-text-muted)" }}> {"·"} {gt("child_graph.from", lang, nameOf(owner))}</span></>}
         actions={<RunnerBadge runner={entry.dag.runner} hint={false} />}
         detail={
