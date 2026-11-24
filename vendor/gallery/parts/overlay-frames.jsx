@@ -893,6 +893,14 @@ function ShellMock({ scope = "none", split = "v", child = false, narrow = false,
   const [liveAt, setLiveAt] = React.useState("left");
   const onFocusChange = live ? (has) => setLiveAt((at) => (has ? "popup" : at === "popup" ? "left" : at)) : undefined;
   const popupFocused = live ? liveAt === "popup" : focus === "popup" && !agent;
+  // A press on the surface scrim, outside the show button, belongs to the popup that covers its scope and does not
+  // close: it keeps or takes back key focus, so the button holds DOM focus and Enter or Space still show the popup.
+  const scrimPress = (e) => {
+    if (e.target.closest("button")) return;
+    e.preventDefault();
+    const b = e.currentTarget.querySelector("[data-collapsed-popup] button");
+    if (b) b.focus();
+  };
   const edgeLit = scope === "surface" && popupFocused;
   // Key focus is in one place (RULES.md "Surface focus"): while the popup holds it, no surface paints focused. A passive
   // popup leaves the surface under it focused, and focus "other" lights the other surface.
@@ -987,7 +995,7 @@ function ShellMock({ scope = "none", split = "v", child = false, narrow = false,
             ))}
           </div>
           <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: split === "v" ? "row" : "column" }}>
-            <div style={{ position: "relative", minWidth: 0, minHeight: 0, display: "flex", overflow: collapsed ? "hidden" : undefined,
+            <div onMouseDown={live && surfaceScrim ? scrimPress : undefined} style={{ position: "relative", minWidth: 0, minHeight: 0, display: "flex", overflow: collapsed ? "hidden" : undefined,
               ...(leftWidth ? { flex: "none", width: leftWidth } : { flex: 1 }) }}>
               <Term focused={leftFocused} lines={"$ tail -f deploy.log\n[12:04] applied 3 manifests\n[12:05] waiting for rollout…"} />
               {/* the scrim — surface scope: this rect, nothing else */}
