@@ -201,7 +201,7 @@ class VerifyGroundInkTokens(unittest.TestCase):
             {"name": name, "tier": "primitive", "kind": "non-color"}
             for name in ("space", "legacy", "size")
         ]
-        for fallback in ("--site-size", "--tasty-legacy"):
+        for fallback in ("--site-size", "--tasty-legacy", r"\2d -site-size", r"--escaped\)name"):
             with self.subTest(fallback=fallback):
                 self.css["primitives"] = f"""
                     :root {{
@@ -212,6 +212,34 @@ class VerifyGroundInkTokens(unittest.TestCase):
                     }}
                 """
                 self.assert_success()
+
+    def test_invalid_var_in_an_unused_fallback_rejects_the_declaration(self):
+        self.css = {"primitives": "", "semantic": "", "components": ""}
+        self.entries = [
+            color_entry("paint", "primitive", "#123456"),
+            color_entry("ink", "primitive", "#abcdef", "#123456"),
+        ]
+        invalid_fallbacks = {
+            f"var({reference})": f"invalid var() reference: {reference!r}"
+            for reference in ("red", "", "--", '"--site-size"', "--site-size extra")
+        }
+        invalid_fallbacks[r"v\61 r(red)"] = "invalid var() reference: 'red'"
+        for fallback in ("var(--site-size, [red)", "var(--site-size, !)"):
+            value = f"var(--tasty-paint, {fallback})"
+            error = "unbalanced var()" if "[" in fallback else "invalid var() fallback"
+            invalid_fallbacks[fallback] = f"{error} in {value!r}"
+        for fallback, error in invalid_fallbacks.items():
+            with self.subTest(fallback=fallback):
+                self.css["primitives"] = f"""
+                    :root {{
+                        --tasty-paint: #123456;
+                        --tasty-ink: #abcdef;
+                    }}
+                    :root[data-theme="latte"] {{
+                        --tasty-ink: var(--tasty-paint, {fallback});
+                    }}
+                """
+                self.assert_failure(f"R3 ink [latte]: {error}")
 
     def test_var_resolves_nested_and_embedded_fallbacks(self):
         self.css["primitives"] = self.css["primitives"].replace(

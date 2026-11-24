@@ -17,9 +17,16 @@ from gen_tokens_json import collect, tier_of
 THEMES = ("mocha", "latte")
 KINDS = {"ground", "foreground", "border", "exception", "non-color"}
 CSS_STRING = r"""(?:'(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*")"""
-VAR_OR_STRING = re.compile(rf"{CSS_STRING}|(?<![\w-])(?i:var)\(")
-PAREN_OR_STRING = re.compile(rf"{CSS_STRING}|[()]")
-TOKEN_NAME = re.compile(r"\s*--tasty-([\w-]+)\s*")
+CSS_ESCAPE = r"\\(?:[0-9a-fA-F]{1,6}[ \t\r\n\f]?|[^\r\n\f])"
+CSS_NAME_CHAR = rf"(?:[a-zA-Z0-9_\x80-\U0010ffff-]|{CSS_ESCAPE})"
+ESCAPE = re.compile(CSS_ESCAPE)
+FUNCTION_OR_STRING = re.compile(
+    rf"{CSS_STRING}|(?<![a-zA-Z0-9_\x80-\U0010ffff#@-])({CSS_NAME_CHAR}+)\("
+)
+VAR_ARGUMENT = re.compile(rf"\s*({CSS_NAME_CHAR}+)\s*(?=[,)])")
+BLOCK_TOKEN = re.compile(rf"""{CSS_STRING}|{CSS_ESCAPE}|[()[\]{{}}!"']""")
+BLOCK_END = {"(": ")", "[": "]", "{": "}"}
+TOKEN_NAME = re.compile(r"--tasty-([\w-]+)")
 NUMBER = r"[+-]?(?:[0-9]*\.)?[0-9]+(?:e[+-]?[0-9]+)?"
 CSS_HEX = re.compile(r"#(?:[0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})", re.I)
 RULE_HEX = re.compile(rf"#([0-9a-f]{{6}})(?:([0-9a-f]{{2}})|@({NUMBER}))?", re.I)
@@ -61,33 +68,70 @@ COLOR_KEYWORDS = set("""
 """.split())
 
 
+def css_name(value):
+    def unescape(match):
+        escaped = match[0][1:]
+        if escaped[0] not in "0123456789abcdefABCDEF":
+            return escaped
+        codepoint = int(escaped.strip(), 16)
+        if not 0 < codepoint <= 0x10ffff or 0xd800 <= codepoint <= 0xdfff:
+            return "\ufffd"
+        return chr(codepoint)
+
+    return ESCAPE.sub(unescape, value)
+
+
+def var_functions(value):
+    for match in FUNCTION_OR_STRING.finditer(value):
+        if match[1] and css_name(match[1]).lower() == "var":
+            yield match
+
+
 def var_end(value, start):
-    depth = 1
-    for match in PAREN_OR_STRING.finditer(value, start):
-        if match[0] == "(":
-            depth += 1
-        elif match[0] == ")":
-            depth -= 1
-            if depth == 0:
+    closing = [")"]
+    for match in BLOCK_TOKEN.finditer(value, start):
+        token = match[0]
+        if token in BLOCK_END:
+            closing.append(BLOCK_END[token])
+        elif token in (")", "]", "}"):
+            if token != closing.pop():
+                raise ValueError(f"unbalanced var() in {value!r}")
+            if not closing:
                 return match.start()
+        elif token in ('"', "'") or (token == "!" and len(closing) == 1):
+            raise ValueError(f"invalid var() fallback in {value!r}")
     raise ValueError(f"unclosed var() in {value!r}")
 
 
+def var_arguments(value, start):
+    end = var_end(value, start)
+    argument = VAR_ARGUMENT.match(value, start)
+    name = css_name(argument[1]) if argument else ""
+    if not name.startswith("--") or name == "--":
+        reference = value[start:end].partition(",")[0].strip()
+        raise ValueError(f"invalid var() reference: {reference!r}")
+    fallback = value[argument.end() + 1:end] if value[argument.end()] == "," else None
+    return name, fallback, end
+
+
 def token_references(value):
-    for match in VAR_OR_STRING.finditer(value):
-        if not match[0].endswith("("):
-            continue
-        token = TOKEN_NAME.match(value, match.end())
-        if token and value[token.end():token.end() + 1] in (",", ")"):
+    for match in var_functions(value):
+        reference, _, _ = var_arguments(value, match.end())
+        if token := TOKEN_NAME.fullmatch(reference):
             yield token[1]
 
 
-def cyclic_tokens(values):
-    # Scan every reference, including those in fallbacks, for paths back to each token.
-    dependencies = {
-        name: {target for target in token_references(value) if target in values}
-        for name, value in values.items()
-    }
+def inspect_variables(values):
+    # Validate every reference, including fallbacks, before substituting any values.
+    syntax_errors = {}
+    dependencies = {}
+    for name, value in values.items():
+        try:
+            dependencies[name] = {target for target in token_references(value) if target in values}
+        except ValueError as error:
+            syntax_errors[name] = str(error)
+            dependencies[name] = set()
+
     cyclic = set()
     for name, targets in dependencies.items():
         pending = list(targets)
@@ -100,7 +144,7 @@ def cyclic_tokens(values):
             if target not in visited:
                 visited.add(target)
                 pending.extend(dependencies[target])
-    return cyclic
+    return cyclic, syntax_errors
 
 
 def resolve_aliases(value, values, cyclic):
@@ -108,16 +152,13 @@ def resolve_aliases(value, values, cyclic):
     parts = []
     cursor = 0
     unresolved = False
-    while match := VAR_OR_STRING.search(value, cursor):
-        if match[0][0] in "\"'":
-            parts.append(value[cursor:match.end()])
-            cursor = match.end()
+    for match in var_functions(value):
+        if match.start() < cursor:
             continue
-        end = var_end(value, match.end())
-        reference, comma, fallback = value[match.end():end].partition(",")
+        reference, fallback, end = var_arguments(value, match.end())
         token = TOKEN_NAME.fullmatch(reference)
         if not token:
-            raise ValueError(f"unsupported token reference: {reference.strip()!r}")
+            raise ValueError(f"unsupported token reference: {reference!r}")
         name = token[1]
         replacement = None
         if name in values and name not in cyclic:
@@ -127,7 +168,7 @@ def resolve_aliases(value, values, cyclic):
                 raise ValueError(f"cannot resolve --tasty-{name} with CSS-wide value {target!r}")
             if keyword != "initial":
                 replacement = resolve_aliases(target, values, cyclic)
-        if replacement is None and comma:
+        if replacement is None and fallback is not None:
             replacement = resolve_aliases(fallback, values, cyclic)
         parts.append(value[cursor:match.start()])
         if replacement is None:
@@ -290,13 +331,16 @@ def compare_color(color, value):
     return tuple(map(half_up, color[:3])) == hex_channels(digits) and alpha_ok
 
 
-def verify_value(name, theme, values, cyclic, is_color_kind, expected):
+def verify_value(name, theme, values, variable_info, is_color_kind, expected):
     label = f"{name} [{theme}]"
     errors = []
     has_expected = isinstance(expected, dict) and theme in expected
     if is_color_kind and not has_expected:
         errors.append(f"R3 {label}: missing rules color")
     try:
+        cyclic, syntax_errors = variable_info
+        if name in syntax_errors:
+            raise ValueError(syntax_errors[name])
         if name in cyclic:
             raise ValueError(f"cyclic alias: --tasty-{name}")
         raw = values[name]
@@ -330,7 +374,7 @@ def verify_tokens(tiers, owners, entries):
         base, latte = tiers[tier]
         theme_values["mocha"][name] = base[name]
         theme_values["latte"][name] = latte.get(name, base[name])
-    theme_cycles = {theme: cyclic_tokens(values) for theme, values in theme_values.items()}
+    theme_variables = {theme: inspect_variables(values) for theme, values in theme_values.items()}
 
     for index, entry in enumerate(entries, start=1):
         if not isinstance(entry, dict) or not isinstance(entry.get("name"), str) or not entry["name"]:
@@ -353,7 +397,7 @@ def verify_tokens(tiers, owners, entries):
             continue
 
         for theme, values in theme_values.items():
-            errors.extend(verify_value(name, theme, values, theme_cycles[theme],
+            errors.extend(verify_value(name, theme, values, theme_variables[theme],
                                        kind != "non-color", entry.get("values")))
 
     errors.extend(f"R1 {name}: missing from rules" for name in sorted(owners.keys() - names))
