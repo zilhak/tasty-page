@@ -59,7 +59,7 @@ function CopyTable() {
   return (
     <div className="tasty-scroll" style={{ overflow: "auto", maxHeight: 520 }}>
       <Table dense hover={false} rowKey="key" rows={rows}
-        columns={[{ key: "key", header: "Key", mono: true }, ...GRAPH_LANGS.map((l) => ({ key: l, header: l, render: (v) => <span lang={l}>{v}</span> }))]} />
+        columns={[{ key: "key", header: "Key", mono: true }, ...GRAPH_LANGS.map((l) => ({ key: l, header: l, render: (v) => <span lang={l} title={typeof v === "string" ? v : undefined}>{v}</span> }))]} />
     </div>
   );
 }
