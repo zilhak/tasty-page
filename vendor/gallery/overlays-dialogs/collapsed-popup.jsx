@@ -55,7 +55,7 @@ function CollapsedPopupSpec() {
       </Stage>
       <Views>
         <View name="tooltip" label="tooltip — pointer hover or key focus">
-          <div style={{ padding: "96px 16px 16px", background: "var(--tasty-surface-terminal-focused-bg)", borderRadius: "var(--tasty-radius)", display: "flex", justifyContent: "center", width: 440 }}>
+          <div style={{ padding: "var(--tasty-collapsed-popup-specimen-tooltip-room) var(--tasty-space-lg) var(--tasty-space-lg)", background: "var(--tasty-surface-terminal-focused-bg)", borderRadius: "var(--tasty-radius)", display: "flex", justifyContent: "center", width: "var(--tasty-collapsed-popup-specimen-width)" }}>
             <Tooltip open placement="top" content={COLLAPSED_COPY.en[1]}>
               <CollapsedPopupButton kind="label" ring scrim={false} label={COLLAPSED_COPY.en[0]} />
             </Tooltip>
@@ -63,23 +63,23 @@ function CollapsedPopupSpec() {
         </View>
         {Object.entries(COLLAPSED_COPY).map(([lang, [label]]) => (
           <View key={lang} name={`label-${lang}`} label={`label — ${lang}`}>
-            <div lang={lang} style={{ padding: 16, background: "var(--tasty-surface-terminal-focused-bg)", borderRadius: "var(--tasty-radius)", display: "flex", gap: 12, alignItems: "center" }}>
+            <div lang={lang} style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-surface-terminal-focused-bg)", borderRadius: "var(--tasty-radius)", display: "flex", gap: "var(--tasty-space-md)", alignItems: "center" }}>
               <CollapsedPopupButton kind="label" scrim={false} label={label} />
               <CollapsedPopupButton kind="icon" scrim={false} label={label} />
             </div>
           </View>
         ))}
         <View name="expanded-title-bar" label="expanded — the shrink button: headless popup (host bar, no title) and a popup with its own title bar">
-          <div style={{ padding: 16, background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)", display: "flex", gap: 16, alignItems: "flex-start", flexWrap: "wrap" }}>
+          <div style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)", display: "flex", gap: "var(--tasty-space-lg)", alignItems: "flex-start", flexWrap: "wrap" }}>
             <div style={{ width: 280, background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", overflow: "hidden" }}>
               <PopupTitleBar title={null} closable={false} collapse={COLLAPSE_COPY.en[0]} collapseTip={COLLAPSE_COPY.en[1]} />
-              <div style={{ padding: "10px 12px", fontSize: 12, color: "var(--tasty-text-secondary)" }}>plugin content</div>
+              <div style={{ padding: "var(--tasty-space-sm) var(--tasty-space-md)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-secondary)" }}>plugin content</div>
             </div>
             <ConvertSurfacePopup focused={false} collapse={COLLAPSE_COPY.en[0]} />
           </div>
         </View>
         <View name="collapse-tooltip" label="shrink tooltip — pointer hover or key focus">
-          <div style={{ padding: "96px 16px 16px", background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)", display: "flex", justifyContent: "center", width: 440 }}>
+          <div style={{ padding: "var(--tasty-collapsed-popup-specimen-tooltip-room) var(--tasty-space-lg) var(--tasty-space-lg)", background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)", display: "flex", justifyContent: "center", width: "var(--tasty-collapsed-popup-specimen-width)" }}>
             <Tooltip open placement="top" content={COLLAPSE_COPY.en[1]}>
               <span style={{ display: "inline-flex", width: 280 }}><span style={{ flex: 1, background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
                 <PopupTitleBar title={null} closable={false} collapse={COLLAPSE_COPY.en[0]} />
@@ -89,9 +89,9 @@ function CollapsedPopupSpec() {
         </View>
         {Object.entries(COLLAPSE_COPY).map(([lang, [label, tip]]) => (
           <View key={"collapse-" + lang} name={`collapse-copy-${lang}`} label={`shrink button copy — ${lang}`}>
-            <div lang={lang} style={{ padding: 16, background: "var(--tasty-bg-panel)", borderRadius: "var(--tasty-radius)", display: "flex", flexDirection: "column", gap: 4, maxWidth: 440, fontSize: 12 }}>
-              <span style={{ color: "var(--tasty-text-primary)" }}>{label}</span>
-              <span style={{ color: "var(--tasty-text-secondary)" }}>{tip}</span>
+            <div lang={lang} style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-panel)", borderRadius: "var(--tasty-radius)", display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", maxWidth: "var(--tasty-collapsed-popup-specimen-width)" }}>
+              <span style={{ fontSize: "var(--tasty-font-size-body)", color: "var(--tasty-text-primary)" }}>{label}</span>
+              <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-secondary)" }}>{tip}</span>
             </div>
           </View>
         ))}

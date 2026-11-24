@@ -4404,6 +4404,14 @@
       "$type": "dimension",
       "$value": "{primitive.size-620}"
     },
+    "collapsed-popup-specimen-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-440}"
+    },
+    "collapsed-popup-specimen-tooltip-room": {
+      "$type": "dimension",
+      "$value": "{primitive.size-96}"
+    },
     "perm-granted-fg": {
       "$type": "color",
       "$value": "{semantic.accent-success-raised}"
