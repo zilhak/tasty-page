@@ -16,7 +16,6 @@ export const GRAPH_COPY = {
   "child_graph.picker.no_match": {"en": "No matching surfaces", "ko": "일치하는 서피스 없음", "ja": "一致するサーフェスがありません", "zh-Hans": "无匹配的 Surface"},
   "child_graph.picker.window": {"en": "Window {}", "ko": "윈도우 {}", "ja": "ウィンドウ {}", "zh-Hans": "窗口 {}"},
   "child_graph.picker.this_window": {"en": "This window", "ko": "이 윈도우", "ja": "このウィンドウ", "zh-Hans": "此窗口"},
-  "child_graph.picker.closed_window": {"en": "Closed window {}", "ko": "닫힌 윈도우 {}", "ja": "閉じたウィンドウ {}", "zh-Hans": "已关闭窗口 {}"},
   "child_graph.picker.pane": {"en": "Pane {}", "ko": "페인 {}", "ja": "ペイン {}", "zh-Hans": "窗格 {}"},
   "child_graph.state.active": {"en": "Working", "ko": "작업 중", "ja": "作業中", "zh-Hans": "工作中"},
   "child_graph.state.idle": {"en": "Idle", "ko": "유휴", "ja": "アイドル", "zh-Hans": "空闲"},
