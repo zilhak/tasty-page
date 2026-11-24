@@ -76,14 +76,14 @@ function QueueHead({ name = "build-eu", lang = "en" }) {
 }
 function PendingDetailRow({ glyph = K.ic.folder, value }) {
   return (
-    <div style={{ display: "grid", gridTemplateColumns: K.DETAIL_COLUMNS, overflow: K.DETAIL_CLIP, alignItems: "center", height: "var(--tasty-table-cell-height)", padding: "0 var(--tasty-explorer-detail-padding-x)", background: "var(--tasty-surface-active)" }}>
+    <K.DetailLine style={{ background: "var(--tasty-surface-active)" }}>
       <span style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", minWidth: 0 }}>
         <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-text-secondary)" }}>{glyph}</span>
         <span style={{ flex: 1, minWidth: 0 }}><Input block readOnly defaultValue={value} /></span>
         <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-text-muted)" }} title="Waiting for build-eu"><Spinner size="var(--tasty-icon-size-sm)" /></span>
       </span>
       <span /><span /><span />
-    </div>
+    </K.DetailLine>
   );
 }
 // The explorer Rename popup (parts/explorer-kit.jsx) on a remote item, with

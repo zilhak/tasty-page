@@ -117,13 +117,13 @@ function XNameError({ text, left = 34 }) {
 function XDetailEdit({ glyph = XK.ic.folder, value = "New folder", error }) {
   return (
     <div style={{ position: "relative" }}>
-      <div style={{ display: "grid", gridTemplateColumns: XK.DETAIL_COLUMNS, overflow: XK.DETAIL_CLIP, alignItems: "center", height: "var(--tasty-table-cell-height)", padding: "0 var(--tasty-explorer-detail-padding-x)", background: "var(--tasty-surface-active)" }}>
+      <XK.DetailLine style={{ background: "var(--tasty-surface-active)" }}>
         <span style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", minWidth: 0 }}>
           <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-text-secondary)" }}>{glyph}</span>
           <span style={{ flex: 1, minWidth: 0 }}><XInput block defaultValue={value} invalid={!!error} /></span>
         </span>
         <span /><span /><span />
-      </div>
+      </XK.DetailLine>
       {error && <XNameError text={error} />}
     </div>
   );

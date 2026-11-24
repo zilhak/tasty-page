@@ -127,16 +127,26 @@ function FavRow({ name, active }) {
 // Detail columns, one track list for the header and every row, as the app's Detail table draws them. Size, Date
 // modified and Type are fixed (the app's table is not resizable). Name takes what is left and stops at
 // explorer-detail-name-col-min-width (140); a narrower pane clips the table on the right, with no horizontal
-// scroll, so each header and row grid clips its own overflow (DETAIL_CLIP). Header labels and row names still
-// end in an ellipsis inside their cell.
-const DETAIL_COLUMNS = "minmax(var(--tasty-explorer-detail-name-col-min-width), 1fr) var(--tasty-explorer-detail-size-col-width) var(--tasty-explorer-detail-date-col-width) var(--tasty-explorer-detail-type-col-width)";
-const DETAIL_CLIP = "hidden";
+// scroll. Header labels and row names still end in an ellipsis inside their cell.
+const DETAIL_COLUMNS = "minmax(0, 1fr) var(--tasty-explorer-detail-size-col-width) var(--tasty-explorer-detail-date-col-width) var(--tasty-explorer-detail-type-col-width)";
+// The Name floor is held by the line's width, not by the track: the grid is never narrower than the four columns
+// at their floor (plus the side inset). A width with a percentage counts as auto when an ancestor sizes to its
+// content, so the floor never widens the pane, a card or a stage around the table: they keep the width the table's
+// content gives them. DetailLine wraps each grid in a box that takes the pane's width and clips the overflow
+// on the right only (overflow-x clip), so a focus ring inside a row still shows above and below.
+const DETAIL_MIN_WIDTH = "calc(var(--tasty-explorer-detail-name-col-min-width) + var(--tasty-explorer-detail-size-col-width) + var(--tasty-explorer-detail-date-col-width) + var(--tasty-explorer-detail-type-col-width) + 2 * var(--tasty-explorer-detail-padding-x))";
+function DetailLine({ style, children }) {
+  return (
+    <div style={{ minWidth: 0, overflowX: "clip" }}>
+      <div style={{ display: "grid", gridTemplateColumns: DETAIL_COLUMNS, width: `max(100%, ${DETAIL_MIN_WIDTH})`, alignItems: "center", height: "var(--tasty-table-cell-height)", padding: "0 var(--tasty-explorer-detail-padding-x)", ...style }}>{children}</div>
+    </div>
+  );
+}
 
 function DetailRow({ glyph, name, size, date, type, state, glyphColor }) {
   const bg = state === "selected" ? "var(--tasty-surface-active)" : state === "hover" ? "var(--tasty-overlay-hover)" : "transparent";
   return (
-    <div style={{ display: "grid", gridTemplateColumns: DETAIL_COLUMNS, overflow: DETAIL_CLIP, alignItems: "center", height: "var(--tasty-table-cell-height)", padding: "0 var(--tasty-explorer-detail-padding-x)",
-      fontSize: 13, background: bg, cursor: "default",
+    <DetailLine style={{ fontSize: 13, background: bg, cursor: "default",
       color: state === "selected" ? "var(--tasty-text-on-active)" : state === "cut" ? "var(--tasty-cut-pending-fg)" : "var(--tasty-text-secondary)" }}>
       <span style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
         <span style={{ display: "inline-flex", flex: "none", color: state === "selected" ? "var(--tasty-text-on-active)" : glyphColor || "var(--tasty-text-secondary)" }}>{glyph}</span>
@@ -145,15 +155,14 @@ function DetailRow({ glyph, name, size, date, type, state, glyphColor }) {
       <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: state === "selected" ? "var(--tasty-text-on-active)" : "var(--tasty-text-muted)", textAlign: "right", paddingRight: 8 }}>{size}</span>
       <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: state === "selected" ? "var(--tasty-text-on-active)" : "var(--tasty-text-muted)" }}>{date}</span>
       <span style={{ fontSize: 12, color: state === "selected" ? "var(--tasty-text-on-active)" : "var(--tasty-text-muted)" }}>{type}</span>
-    </div>
+    </DetailLine>
   );
 }
 
 function DetailHeader() {
   const cols = [["Name", true], ["Size", false], ["Date modified", false], ["Type", false]];
   return (
-    <div style={{ display: "grid", gridTemplateColumns: DETAIL_COLUMNS, overflow: DETAIL_CLIP, alignItems: "center", height: "var(--tasty-table-cell-height)", padding: "0 var(--tasty-explorer-detail-padding-x)",
-      background: "var(--tasty-table-header-bg)", borderBottom: "1px solid var(--tasty-separator)",
+    <DetailLine style={{ background: "var(--tasty-table-header-bg)", borderBottom: "1px solid var(--tasty-separator)",
       fontFamily: "var(--tasty-font-ui)", fontSize: "var(--tasty-table-header-font-size)", fontWeight: "var(--tasty-table-header-font-weight)", textTransform: "uppercase", letterSpacing: "var(--tasty-table-header-tracking)", color: "var(--tasty-table-header-fg)" }}>
       {cols.map(([c, sorted], i) => (
         <span key={c} style={{ display: "flex", alignItems: "center", gap: 3, justifyContent: i === 1 ? "flex-end" : "flex-start", minWidth: 0, overflow: "hidden",
@@ -161,7 +170,7 @@ function DetailHeader() {
           <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c}</span>{sorted && <span style={{ flex: "none", fontSize: 9 }}>▲</span>}
         </span>
       ))}
-    </div>
+    </DetailLine>
   );
 }
 
@@ -257,4 +266,4 @@ function ExplorerRenamePopup({ lang = "en", value, error = null, waitingText = n
     </div>
   );
 }
-export { DetailHeader, DETAIL_COLUMNS, DETAIL_CLIP, ic, DetailRow, SegToggle, CtxMenu, PathField, GridCell, SideHead, TreeNode, FavRow, ExpState, ExplorerRenamePopup, EXPLORER_RENAME_COPY };
+export { DetailHeader, DetailLine, DETAIL_COLUMNS, ic, DetailRow, SegToggle, CtxMenu, PathField, GridCell, SideHead, TreeNode, FavRow, ExpState, ExplorerRenamePopup, EXPLORER_RENAME_COPY };
