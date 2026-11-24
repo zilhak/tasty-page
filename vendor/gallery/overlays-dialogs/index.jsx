@@ -393,7 +393,7 @@ function Page() {
               ["rejected (c) — an affordance that does nothing", "disabled"]].map(([label, v], i) => (
               <div key={v} style={{ display: "flex", flexDirection: "column", gap: 6, width: 420 }}>
                 <div style={{ fontSize: 11, color: i === 0 ? "var(--tasty-accent-success-raised)" : "var(--tasty-text-muted)" }}>{label}</div>
-                <div style={{ border: "1px solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", background: "var(--tasty-bg-panel)", overflow: "hidden" }}>
+                <div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", background: "var(--tasty-bg-panel)", overflow: "hidden" }}>
                   <FhFooter variant={v} />
                 </div>
               </div>

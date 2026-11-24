@@ -877,7 +877,7 @@ function Components() {
                 <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{host}</span>
                 <div style={{ display: "flex", gap: "var(--tasty-space-md)", flexWrap: "wrap" }}>
                   {[["loading"], ["empty"], ["error"], ["error", true]].map(([v, act]) => (
-                    <div key={v + (act ? "-a" : "")} style={{ width: "var(--tasty-size-288)", height: k === "fp" ? "var(--tasty-size-220)" : "var(--tasty-size-160)", display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
+                    <div key={v + (act ? "-a" : "")} style={{ width: "var(--tasty-size-288)", height: k === "fp" ? "var(--tasty-size-220)" : "var(--tasty-size-160)", display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
                       <div style={{ height: "var(--tasty-control-height)", flex: "none", display: "flex", alignItems: "center", padding: "0 var(--tasty-space-sm)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)", borderBottom: "var(--tasty-border-width) solid var(--tasty-border-default)" }}>{k === "fp" ? "~/work/tasty/assets" : "Scripts · " + v + (act ? " + action" : "")}</div>
                       <CenterStateG variant={v} host={k} action={act} />
                     </div>
@@ -897,7 +897,7 @@ function Components() {
             {[["Mocha", "mocha"], ["Latte", "latte"]].map(([label, attr]) => (
               <div key={label} {...(attr ? { "data-theme": attr } : {})} style={{ display: "flex", gap: "var(--tasty-space-md)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
                 {[false, true].map((act) => (
-                  <div key={String(act)} style={{ width: "var(--tasty-size-220)", height: "var(--tasty-size-220)", display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
+                  <div key={String(act)} style={{ width: "var(--tasty-size-220)", height: "var(--tasty-size-220)", display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
                     <CenterStateG variant="error" host="fp" action={act} />
                   </div>
                 ))}
@@ -917,7 +917,7 @@ function Components() {
                 {[["empty", false], ["error + action", true]].map(([capt, act]) => (
                   <div key={capt} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
                     <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" }}>{label} · {capt}</span>
-                    <div style={{ width: "var(--tasty-size-220)", display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
+                    <div style={{ width: "var(--tasty-size-220)", display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
                       <CenterState natural variant={act ? "error" : "empty"} glyph="scriptFile" title={CS_COPY.scripts[act ? "error" : "empty"][0]} sub={CS_COPY.scripts[act ? "error" : "empty"][1]}
                         action={act ? <Button variant="secondary" size="sm" leadingIcon={<CIcon name="refresh" size="var(--tasty-icon-size-sm)" />}>Retry</Button> : null} />
                       <div style={{ height: "var(--tasty-control-height)", flex: "none", display: "flex", alignItems: "center", padding: "0 var(--tasty-space-sm)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)", borderTop: "var(--tasty-border-width) solid var(--tasty-border-default)" }}>next widget</div>

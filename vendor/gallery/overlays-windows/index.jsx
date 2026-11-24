@@ -119,7 +119,7 @@ function HookOverrideG() {
     { ev: "on_exit", act: "ipc: focus → save → close", origin: "host", on: true },
   ];
   return (
-    <div style={{ width: "var(--tasty-size-560)", maxWidth: "100%", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
+    <div style={{ width: "var(--tasty-size-560)", maxWidth: "100%", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
       {rows.map((r, i) => {
         const plugin = r.origin !== "host";
         const shownOn = r.pending ? true : r.on;
@@ -737,7 +737,7 @@ function Page() {
             {[["860 — wider than the column budget: Process takes ALL the spare width, Address stays at 140", 860], ["660 — popup width, under the budget (836): the body scrolls sideways; nothing shrinks or hides", 660]].map(([label, tw]) => (
               <div key={label} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
                 <div style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label}</div>
-                <div className="tasty-scroll" style={{ width: tw, overflowX: "auto", border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", background: "var(--tasty-bg-panel)" }}>
+                <div className="tasty-scroll" style={{ width: tw, overflowX: "auto", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", background: "var(--tasty-bg-panel)" }}>
                   <WTable columns={PORTS_COLUMNS} rowKey="port" rows={[
                     { port: 3000, proto: "tcp", addr: "127.0.0.1", proc: "node /usr/local/bin/vite --host --strictPort", pid: 41822, ws: "Project A", state: "LISTEN" },
                     { port: 5432, proto: "tcp", addr: "127.0.0.1", proc: "postgres: checkpointer", pid: 913, ws: null, state: "LISTEN" },
@@ -844,7 +844,7 @@ function Page() {
               {[["no hosts", "empty"], ["no file", "missing"], ["unreadable config (any open error · directory · not UTF-8)", "unreadable"]].map(([label, st]) => (
                 <div key={st} style={{ display: "flex", flexDirection: "column", gap: 6, width: 300 }}>
                   <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
-                  <div style={{ padding: "8px 12px", background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)" }}>
+                  <div style={{ padding: "8px 12px", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
                     <LocalSshSection state={st} />
                   </div>
                 </div>
@@ -898,7 +898,7 @@ function Page() {
             {[["rest", {}], ["hover", { hover: true }], ["selected", { selected: true }], ["creating (list muted, Connect disabled)", { selected: true, phase: "creating" }], ["create failed — inline, list kept", { selected: true, phase: "failed" }]].map(([label, p]) => (
               <div key={label} style={{ display: "flex", flexDirection: "column", gap: 6, width: 440 }}>
                 <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
-                <div style={{ background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
+                <div style={{ background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
                   <RaNewRow {...p} />
                   <RaWsPeek muted={p.phase === "creating"} />
                 </div>
@@ -953,7 +953,7 @@ function Page() {
                 <FilePickerFrame remote indicator="badge" host="" />
                 <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-md)" }}>
                   {["en", "ko", "ja", "zh-Hans"].map((l) => (
-                    <div key={l} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}><div style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{l}</div><div style={{ padding: "var(--tasty-space-sm)", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)" }}><FpHostBadge host="" lang={l} /></div></div>
+                    <div key={l} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}><div style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{l}</div><div style={{ padding: "var(--tasty-space-sm)", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}><FpHostBadge host="" lang={l} /></div></div>
                   ))}
                 </div>
               </div>
@@ -1331,7 +1331,7 @@ function Page() {
         <Spec id="hook-handlers-origin-decides-whether-a-row-can-be-removed" title="Hook Handlers — origin decides whether a row can be removed"
           when={<>The registry <b>re-seeds host and plugin defaults on every start</b>, so a remove button on those rows promises something the system undoes. Rows now carry their <b>origin</b> as a Tag — <b>host</b> / <b>you</b> / the <b>plugin</b> in mauve — and only <b>user</b> rows get the trash affordance. Host and plugin rows show a <b>lock glyph</b> in the same slot (not a disabled button: nothing is pending) with the tooltip “Provided by host — can't be removed”. <b>IpcSequence</b> stays a <b>one-line mono summary</b> with an <b>Edit</b> button that opens the sequence editor; editing a multi-step sequence inline inside a settings row has nowhere to put the steps.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)" }}>
-            <div style={{ width: 520, background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
+            <div style={{ width: 520, background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
               <div style={{ padding: "8px 12px", borderBottom: "1px solid var(--tasty-separator)", fontSize: 11, letterSpacing: ".06em", textTransform: "uppercase", color: "var(--tasty-text-secondary)" }}>Hook handlers</div>
               {[{ ev: "on_open", act: "open_markdown_preview", origin: "host" },
                 { ev: "on_open", act: "run: code -g {path}:{line}", origin: "you" },
@@ -1738,7 +1738,7 @@ function Page() {
         <Spec id="diff-toolbar-a-container-height-not-a-button-height" title="Diff toolbar — a container height, not a button height"
           when={<>The diff toolbar is <b>32px</b> tall and holds 28px controls with 2px of air above and below. It now has its own name — <span className="tok">--tasty-git-toolbar-height</span> — rather than borrowing <span className="tok">--tasty-control-height</span>: the two are different roles and, as it happens, different numbers (32 vs 28), so aliasing them would have been wrong in value as well as in meaning. The value does not change.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)" }}>
-            <div style={{ width: 460, background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
+            <div style={{ width: 460, background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
               <div style={{ height: "var(--tasty-git-toolbar-height)", display: "flex", alignItems: "center", gap: 6, padding: "0 8px",
                 background: "var(--tasty-bg-sidebar)", borderBottom: "1px solid var(--tasty-separator)" }}>
                 <Button variant="ghost" size="sm">Unified</Button>

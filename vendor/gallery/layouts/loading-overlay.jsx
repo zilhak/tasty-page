@@ -164,7 +164,7 @@ function DocSurface({ loading, boxes, rm }) {
 function WebViewSurface() {
   return (
     <div style={{ width: "var(--tasty-size-288)", height: "var(--tasty-size-140)", boxSizing: "border-box", display: "flex", alignItems: "center", justifyContent: "center", textAlign: "center", padding: "var(--tasty-space-md)",
-      background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) dashed var(--tasty-border-strong)", ...mono }}>WebView (native, drawn above Tasty) · no in-surface spinner · the tab and the LNB card carry it</div>
+      background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) dashed var(--tasty-border-default)", ...mono }}>WebView (native, drawn above Tasty) · no in-surface spinner · the tab and the LNB card carry it</div>
   );
 }
 
