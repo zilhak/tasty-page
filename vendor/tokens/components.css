@@ -651,8 +651,8 @@
                       glyph. Static — no motion, so no reduced-motion variant. */
   --tasty-move-source-ring:        var(--tasty-accent-move-raised); /* 2026-11-05 ground-ink rules */
   --tasty-move-source-ring-width:  var(--tasty-focus-ring-width);  /* 2 — the "pointing ring" weight */
-  --tasty-move-source-dash:        var(--tasty-border-dash);                /* 4 on */
-  --tasty-move-source-dash-gap:    var(--tasty-border-dash-gap);            /* 4 off */
+  --tasty-move-source-dash:        var(--tasty-size-4);            /* 4 on — zooms with the 2px ring; border-dash is the zoom-exempt 1px-border dash */
+  --tasty-move-source-dash-gap:    var(--tasty-size-4);            /* 4 off — same */
   --tasty-move-source-glyph:       var(--tasty-accent-move-raised); /* 2026-11-05 ground-ink rules */
   --tasty-move-source-glyph-size:  var(--tasty-icon-size-xs);      /* 12 — tab cell · workspace row */
   --tasty-move-source-chip-size:   var(--tasty-size-12);           /* rail avatar corner chip (bottom-left) */

@@ -3792,11 +3792,11 @@
     },
     "move-source-dash": {
       "$type": "dimension",
-      "$value": "{semantic.border-dash}"
+      "$value": "{primitive.size-4}"
     },
     "move-source-dash-gap": {
       "$type": "dimension",
-      "$value": "{semantic.border-dash-gap}"
+      "$value": "{primitive.size-4}"
     },
     "move-source-glyph": {
       "$type": "color",
