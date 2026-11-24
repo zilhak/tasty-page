@@ -450,7 +450,8 @@ function useChildFlow({ nodes, initial = {} }) {
 }
 // Esc clears the selection of the screen in front, as the DAG surface does (dag_surfaces.jsx), and the
 // drawer closes with it. On a pushed step with nothing selected it goes back one step. On the child
-// graph with nothing selected the popup passes onIdle (close), as its Meta says; the surface stays.
+// graph with nothing selected the popup passes onIdle: close when it is fitted in its surface, collapse
+// (back to the fit judgement, everything kept) when it is shown over the window; the surface stays.
 // A frozen gallery frame (still, or a pinned push step) does not listen: one Esc anywhere on the page
 // would otherwise step every such frame back to an empty screen.
 function useEscDeselect(flow, sel, setSel, onIdle, enabled = true) {
@@ -501,20 +502,23 @@ function FlowScreens({ flow, lang, bed, still }) {
 // than the popup it collapses to the common show button (Dialogs › Collapse). collapse = the form shown
 // over the window after the show button: the shrink button comes first in the title bar, before close.
 // Collapsing and expanding change nothing inside: selection, zoom, pan, drawer and push step stay.
+// folded: the popup is collapsed to its show button — nothing of it is drawn and it hears no Esc, but it stays
+// mounted, so selection, zoom, pan, drawer and push step are where they were when it is shown again; a push
+// in progress ends where it was going, with no motion replayed.
 // cut = { w, h }: the frame fitted to a window smaller than the popup (user decision 11-19). The title
 // bar takes the fitted width with its buttons whole; the content below keeps the popup's size
 // (width × height) and is cut at the right and the bottom, as the app does for every popup.
 function ChildGraphWindow({ nodes = CHILD_SMALL, baseId = CHILD_SMALL_BASE, lang = "en", width, height, initial = {},
-  status = "ready", banner, push, still, onClose, collapse = false, onCollapse, cut = null }) {
+  status = "ready", banner, push, still, onClose, collapse = false, onCollapse, folded = false, cut = null }) {
   const [full, setFull] = React.useState(!!initial.full);
   const [sel, setSel] = React.useState(initial.selected || null);
   const [base, setBase] = React.useState(baseId);
   const flow = useChildFlow({ nodes, initial });
-  useEscDeselect(flow, sel, setSel, onClose, !still && push == null);
+  useEscDeselect(flow, sel, setSel, collapse ? onCollapse : onClose, !still && push == null && !folded);
   const screens = FlowScreens({ flow, lang, still });
   return (
-    <div style={{ width: cut ? cut.w : width || "var(--tasty-graph-child-popup-width)", height: cut ? cut.h : height || "var(--tasty-graph-child-popup-height)", maxWidth: "100%",
-      display: "flex", flexDirection: "column", overflow: "hidden", boxSizing: "border-box", background: "var(--tasty-bg-panel)",
+    <div style={{ display: folded ? "none" : "flex", width: cut ? cut.w : width || "var(--tasty-graph-child-popup-width)", height: cut ? cut.h : height || "var(--tasty-graph-child-popup-height)", maxWidth: "100%",
+      flexDirection: "column", overflow: "hidden", boxSizing: "border-box", background: "var(--tasty-bg-panel)",
       borderRadius: "var(--tasty-radius)", border: "var(--tasty-border-width) solid var(--tasty-border-strong)", boxShadow: "var(--tasty-shadow-modal)" }}>
       <div style={{ flex: "none", display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", cursor: "move",
         height: "var(--tasty-modhint-header-height)", padding: "0 var(--tasty-space-sm) 0 var(--tasty-space-md)",

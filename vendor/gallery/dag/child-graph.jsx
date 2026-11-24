@@ -3,7 +3,7 @@ import { Section, Spec, Stage, Meta, Note, Do, Dont, Views, View } from "../part
 import { ThemePair } from "../parts/theme-frame.jsx";
 import { focusViews } from "../parts/surface-focus-views.jsx";
 import { ToolsMenuFrame, ShellMock } from "../parts/overlay-frames.jsx";
-import { Kbd, MenuItem, Table, Tab } from "../../components/index.js";
+import { Kbd, MenuItem, Table, Tab, Button } from "../../components/index.js";
 import { DagNode, elbow } from "../../ui_kits/terminal/dag.js";
 import { GraphStrip, CHILD_STATE, CHILD_STATE_ORDER } from "../../ui_kits/terminal/overlays/graph_view.jsx";
 import { ChildNode, ChildGraphWindow, ChildGraphSurface, ChildGraphSettings, MirrorBanner, RestartNotice, CHILD_SMALL, CHILD_SMALL_BASE, CHILD_LARGE, CHILD_LARGE_BASE,
@@ -72,6 +72,31 @@ function OverWindow({ w = 760, h = 560, fitted = false, children }) {
       <div data-audit-exempt="under-scrim"><ShellMock size={[w, h]} /></div>
       <div style={{ position: "absolute", inset: 0, background: "var(--tasty-scrim-bg)", borderRadius: "var(--tasty-radius)" }} />
       <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: fitted ? "flex-start" : "center", justifyContent: fitted ? "flex-start" : "center" }}>{children}</div>
+    </div>
+  );
+}
+
+// The collapse round trip, live: the surface is too small, so the popup stands as the show button; pressing it
+// shows the popup over the window, and the shrink button or an Esc the body does not use folds it back. The
+// popup stays mounted while folded, so whatever was selected, opened or pushed is there when it is shown again.
+function CollapseRoundTrip() {
+  const [open, setOpen] = React.useState(false);
+  const [closed, setClosed] = React.useState(false);
+  if (closed) {
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", alignItems: "flex-start" }}>
+        <ShellMock size={[760, 560]} />
+        <Button size="sm" variant="secondary" onClick={() => { setClosed(false); setOpen(false); }}>Open the popup again</Button>
+      </div>
+    );
+  }
+  return (
+    <div style={{ position: "relative", width: 760, height: 560 }}
+      onClick={(e) => { if (!open && e.target.closest && e.target.closest("[data-collapsed-popup]")) setOpen(true); }}>
+      {!open && <ShellMock scope="surface" size={[760, 560]} collapsed="label" ring />}
+      <div style={{ display: open ? "block" : "none" }}>
+        <OverWindow><ChildGraphWindow collapse folded={!open} onCollapse={() => setOpen(false)} onClose={() => setClosed(true)} /></OverWindow>
+      </div>
     </div>
   );
 }
@@ -213,7 +238,24 @@ export function ChildGraphSection() {
             <Labelled label="round trip · 3 · show pressed — the same DAG graph step, no motion" tag="decided"><OverWindow><ChildGraphWindow collapse still push={2} initial={{ selected: "s_01HX7Q", owner: "s_01HX7Q", dagId: "build-and-deploy" }} /></OverWindow></Labelled>
           </>)}
         </Stage>
+        <Stage style={{ padding: 16, display: "block", background: "var(--tasty-bg-app)" }}>
+          <Labelled label="try it — press Show popup; select builder, View DAG, then the shrink button or Esc (with nothing selected on the child graph) and Show popup again: the step and the selection are where they were" tag="decided"><CollapseRoundTrip /></Labelled>
+        </Stage>
         <Views>
+          <View name="child-popup-round-trip-list" label="Round trip on the DAG list step — shrink pressed, collapsed, shown again on the same list" wide>
+            {row(<>
+              <Labelled label="1 · on the DAG list step, shrink pressed"><OverWindow><ChildGraphWindow collapse still push={1} initial={{ selected: "s_01HX7Q", owner: "s_01HX7Q" }} /></OverWindow></Labelled>
+              <Labelled label="2 · collapsed — the same button; the step is kept, not drawn"><ShellMock scope="surface" narrow collapsed="label" ring /></Labelled>
+              <Labelled label="3 · show pressed — the same list step, no motion"><OverWindow><ChildGraphWindow collapse still push={1} initial={{ selected: "s_01HX7Q", owner: "s_01HX7Q" }} /></OverWindow></Labelled>
+            </>)}
+          </View>
+          <View name="child-popup-round-trip-mid-push" label="Collapsed during a push — the push ends at once, shown again on the step it was going to" wide>
+            {row(<>
+              <Labelled label="1 · View DAG pressed, the push half way, shrink pressed"><OverWindow><ChildGraphWindow collapse still push={0.5} initial={{ selected: "s_01HX7Q", owner: "s_01HX7Q" }} /></OverWindow></Labelled>
+              <Labelled label="2 · collapsed — the push has ended where it was going"><ShellMock scope="surface" narrow collapsed="label" ring /></Labelled>
+              <Labelled label="3 · show pressed — the list step, complete, no motion replayed"><OverWindow><ChildGraphWindow collapse still push={1} initial={{ selected: "s_01HX7Q", owner: "s_01HX7Q" }} /></OverWindow></Labelled>
+            </>)}
+          </View>
           <View name="child-popup-over-window-locales" label="ko, ja, zh-Hans — over the window">
             <div style={{ display: "flex", flexWrap: "wrap", gap: 16 }}>
               {["ko", "ja", "zh-Hans"].map((l) => <OverWindow key={l}><ChildGraphWindow collapse lang={l} initial={{ selected: "s_01HX7Q" }} /></OverWindow>)}
