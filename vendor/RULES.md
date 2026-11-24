@@ -93,7 +93,7 @@ Translucent layers are measured over each parent they can sit on. Each result is
 | Drag over | `drop-target@<parent>`, `file-drop@<parent>` | Primary tint over the parent. |
 | Drag select | `marquee@<parent>` | |
 | Preset split zone | `split-zone@<parent>` | |
-| Tint box | `tint-<hue>@<parent>` | Parent is `mantle`, `base` or `raised`. |
+| Tint box | `tint-<hue>@<parent>` | Parent is `mantle`, `base` or `raised`. The info, success and danger tints also sit on `crust` in the git diff. |
 | Surface focus | `term`, unfocused `term-unfocused` | See [section 4](#4-location-map). Html and plugin surfaces keep their ground and show the focus edge. |
 | Unfocused terminal | `term-unfocused` | Default ink `surface-terminal-unfocused-fg`. |
 | Dimmed item | the parent | `state-dim-opacity` over an item that is inert and comes back. No target, see section 12. An item the user still reads or selects is not dimmed: a pending cut reads `cut-pending-fg`, a disabled plugin row reads `text-muted`, a route not taken reads `dag-edge-dim`. |
@@ -210,7 +210,7 @@ Each location has one ground. It may hold only the listed children, to the liste
 | Explorer, unfocused | `term-unfocused` | 2 | `mantle`, `term-unfocused+hover`, `term-unfocused+press`, `mantle+hover`, `mantle+press`, `active`, `active+hover`, `active+press`, `raised`, `field`, `drop-target@term-unfocused`, `drop-target@mantle`, `marquee@term-unfocused`, `marquee@mantle`, `file-drop@term-unfocused`, `file-drop@mantle`, `drop-target@raised`, `track`, `track-raised`, filled controls, tint boxes over `mantle` | The file area takes the bed. Selected row is active. Drag chip is raised. A drop target tint paints under the row, as section 3 says. |
 | Modal dialog | `base` | 2 | `raised`, `field`, `mantle`, `crust`, `active`, `approval`, `base+hover`, `base+press`, `track`, `track-raised`, filled controls, tint boxes over `base`, `raised` | Sits on scrim. Depth counts from the dialog. |
 | Scrim | `scrim@base` | 1 | `base` | Only a modal frame sits on it. |
-| Popup | `base` | 2 | `raised`, `field`, `mantle`, `crust`, `active`, `base+hover`, `base+press`, `track`, `track-raised`, filled controls, tint boxes over `raised` | Port popup, file picker and DAG popup share this. |
+| Popup | `base` | 2 | `raised`, `field`, `mantle`, `crust`, `tint-info@crust`, `tint-success@crust`, `tint-danger@crust`, `active`, `base+hover`, `base+press`, `track`, `track-raised`, filled controls, tint boxes over `raised` | Port popup, file picker, DAG popup and git viewer share this. The git viewer diff body is crust, see Git diff. |
 | Menu | `raised` | 1 | `raised+hover`, `raised+press`, `active`, `active+hover`, `active+press`, `base` | Search field in the menu is base. |
 | Tooltip | `raised` | 0 | none | Text only. |
 | Toast | `raised` | 1 | `raised+hover`, `raised+press`, filled controls |  |
@@ -228,6 +228,7 @@ Each location has one ground. It may hold only the listed children, to the liste
 | Plugin UI through host widgets | `base` | 2 | `mantle`, `raised`, `field`, `active`, `base+hover`, `base+press`, `track`, filled controls, tint boxes over `raised` | Same as any panel. Widgets read by role. |
 | Startup and boot error | `crust` | 1 | `base`, `raised` |  |
 | Code area | `field` | 1 | `mantle` | Gutter is mantle. |
+| Git diff | `crust` | 1 | `tint-info@crust`, `tint-success@crust`, `tint-danger@crust` | The git viewer diff body. Hunk, added and removed lines fill their row with the tint over crust; context rows stay crust. Line ink reads the row's cell. |
 | Scrim over crust | `scrim@crust` | 1 | `base` | Only a modal or popup frame sits on it. |
 | Scrim over mantle | `scrim@mantle` | 1 | `base` | Only a modal or popup frame sits on it. |
 | Scrim over raised | `scrim@raised` | 1 | `base` | Only a modal or popup frame sits on it. |
