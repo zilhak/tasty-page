@@ -45,10 +45,10 @@ function CollapsedPopupSpec() {
   return (
     <Spec id="collapse-a-surface-popup-that-does-not-fit-leaves-a-show-button" title="Collapse — a surface popup that does not fit leaves a show button"
       when={<>A popup scoped <b>narrower than the window</b> (surface, tab or pane: the kind of scope does not matter, the frames draw a surface) that does not fit inside its scope's bounds is <b>not shrunk</b>. The one exception is a popup made to shrink to its scope, today only the <b>search bar</b> (O1): it never collapses and takes the scope's width instead. In its place the surface keeps <b>one button</b> in the popup's own frame, and nothing else. The popup is still open: the button takes key focus, and pressing it (click, <b>Enter</b> or <b>Space</b>) shows the popup <b>centered over the window</b> with the window scrim, where it stays until it is collapsed again or closes. Its logical scope is still the surface, but it is shown in window scope: the scrim covers the whole window and nothing else in the window takes a press, the sidebar's workspace rows included, until it is collapsed again or closed. A <b>shrink</b> button in its title bar, or <b>Esc</b>, collapses it back to the show button: collapsing is not closing, the popup keeps its state and the rest of the window is usable again. Host and plugin popups take the same path: collapsed first, over the window only once pressed. The collapsed form is the popup itself, drawn small: it keeps the popup's scope, its scrim if it covers the scope, its outside-click and Esc rules and its key focus, and the other surfaces stay usable as they would beside the full popup. The check runs every frame, so when the surface grows back the popup returns to its expanded form in the surface. If the window is smaller than the popup too, its left and top sit on the window's edge and its frame is fitted to the window: the title bar and its buttons stay whole, and the content below is cut at the bottom. The button never names the popup: headless popups have no title, and a title would widen the button and make it collapse sooner.</>}>
-      <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 18, flexWrap: "wrap", alignItems: "flex-start" }}>
+      <Stage variant="solo center" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
         {FRAMES.map(([label, props]) => (
-          <div key={label} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-            <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
+          <div key={label} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
+            <div style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label}</div>
             <ShellMock {...props} />
           </div>
         ))}
@@ -138,10 +138,10 @@ function CollapseFlowSpec() {
   return (
     <Spec id="collapse-and-expand-a-round-trip-that-keeps-the-popup" title="Collapse and expand — a round trip that keeps the popup"
       when={<>The show button and the shrink button (or Esc) move one open popup between two forms, which change how it is shown and nothing else. Collapsed, it sits in its own scope with all of its own rules, and the rest of the window works as it would beside the full popup. Expanded, it covers the window in window scope and takes every press until it is collapsed again or closed. Its logical scope, the thing it acts on, is always its own surface, tab or pane. Collapsing never closes it: what the user typed is still there when it expands again.</>}>
-      <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 18, flexWrap: "wrap", alignItems: "flex-start" }}>
+      <Stage variant="solo center" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
         {FLOW.map(([label, props]) => (
-          <div key={label} style={{ display: "flex", flexDirection: "column", gap: 6, maxWidth: 560 }}>
-            <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
+          <div key={label} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", maxWidth: 560 }}>
+            <div style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label}</div>
             <ShellMock {...props} />
           </div>
         ))}
