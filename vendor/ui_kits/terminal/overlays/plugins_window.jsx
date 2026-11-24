@@ -415,12 +415,7 @@ function AttentionPanel({ items, onFlash, onConfigure, onRemove }) {
     return (
       <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center",
         justifyContent: "center", gap: 12, color: "var(--tasty-text-muted)", padding: 24 }}>
-        <span style={{ display: "inline-flex", width: 46, height: 46, borderRadius: "var(--tasty-radius)",
-          alignItems: "center", justifyContent: "center", color: "var(--tasty-accent-success-raised)",
-          background: "var(--tasty-tint-success-bg)",
-          border: "var(--tasty-border-width) solid var(--tasty-tint-success-border)" }}>
-          <Icon name="shieldCheck" size={20} />
-        </span>
+        {/* The app draws two lines of text and no glyph: [plugins] attn_empty_title, attn_empty_body. */}
         <div style={{ fontSize: "var(--tasty-font-size-body)", color: "var(--tasty-text-secondary)" }}>No plugins need attention</div>
         <div style={{ fontSize: 12, maxWidth: "var(--tasty-measure-sm)", textAlign: "center", lineHeight: "var(--tasty-line-height-ui)" }}>
           Rejected or failing plugins show up here with the reason and what to do next.
