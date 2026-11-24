@@ -91,8 +91,12 @@ for (const theme of ["mocha", "latte"]) {
   }
 }
 
-function LinuxBar({ active, states }) {
-  return <TitlebarLinux active={active} states={states} title="agents-prod" />;
+// A frame whose close button is under the pointer marks it as a Window close button cell, so the check reads its
+// glyph against the contract. The contract's one state is rest (close under the pointer); its host is the window's ground.
+const closeCell = (active) => ({ close: { contract: "Window close button", state: "rest", host: active ? "crust" : "mantle" } });
+
+function LinuxBar({ active, states, cells }) {
+  return <TitlebarLinux active={active} states={states} cells={cells} title="agents-prod" />;
 }
 
 function GalleryTitleBarLinux() {
@@ -114,7 +118,7 @@ function GalleryTitleBarLinux() {
           return (
             <View key={name} name={name} label={label} wide>
               <div data-theme={theme} inert="" style={{ padding: "var(--tasty-space-sm)", background: "var(--tasty-bg-app)", pointerEvents: "none" }}>
-                <LinuxBar active={active} states={st.states} />
+                <LinuxBar active={active} states={st.states} cells={st.states.close ? closeCell(active) : undefined} />
               </div>
             </View>
           );
@@ -173,7 +177,7 @@ function GalleryTitleBarWindows() {
           return (
             <View key={name} name={name} label={label} wide>
               <div data-theme={theme} inert="" style={{ padding: "var(--tasty-space-sm)", background: "var(--tasty-bg-app)", pointerEvents: "none", overflowX: "auto" }}>
-                <TitlebarWindows active={active} states={st.states} maximized={!!st.maximized} />
+                <TitlebarWindows active={active} states={st.states} maximized={!!st.maximized} cells={st.states.close ? closeCell(active) : undefined} />
               </div>
             </View>
           );

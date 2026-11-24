@@ -49,17 +49,26 @@ const TB_LIN_CSS = `
   background:var(--tasty-titlebar-close-hover-bg); color:var(--tasty-titlebar-close-hover-fg); }
 `;
 
+// cells marks frozen buttons as contract cells for the gallery check: { min | max | close: { contract, state, host } }.
+// The mark is a display:contents wrapper, so the button's layout and its own data-state are untouched.
+function ContractCell({ cell, children }) {
+  if (!cell) return children;
+  return <span style={{ display: "contents" }} data-contract={cell.contract} data-state={cell.state} data-host={cell.host}>{children}</span>;
+}
+
 function TitlebarLinux({ active = true, variant = "split", title = "agents-prod",
                          buttons = ["min", "max", "close"], side = "right",
-                         tabs = ["build · cargo", "README.md", "scratch"], states = {} }) {
+                         tabs = ["build · cargo", "README.md", "scratch"], states = {}, cells = {} }) {
   // states freezes buttons for gallery frames: { min | max | close: "hover" | "press" }. A frozen button no
   // longer follows the pointer; the others still do.
   const G = { min: "windowMinimize", max: "windowMaximize", close: "close" };
   const ctrls = (
     <div className="tb-lin__ctrls">
       {buttons.map((b) => (
-        <button key={b} className={"tb-lin__btn" + (b === "close" ? " tb-lin__btn--close" : "")}
-          data-state={states[b]} title={b[0].toUpperCase() + b.slice(1)}><Icon name={G[b]} data-part="glyph" /></button>
+        <ContractCell key={b} cell={cells[b]}>
+          <button className={"tb-lin__btn" + (b === "close" ? " tb-lin__btn--close" : "")}
+            data-state={states[b]} title={b[0].toUpperCase() + b.slice(1)}><Icon name={G[b]} data-part="glyph" /></button>
+        </ContractCell>
       ))}
     </div>
   );

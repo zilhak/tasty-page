@@ -39,7 +39,14 @@ const TB_WIN_CSS = `
   background:var(--tasty-titlebar-close-hover-bg); color:var(--tasty-titlebar-close-hover-fg); }
 `;
 
-function TitlebarWindows({ active = true, variant = "split", title = "agents-prod", maximized = false, tabs = ["build · cargo", "README.md", "scratch"], states = {} }) {
+// cells marks frozen buttons as contract cells for the gallery check: { min | max | close: { contract, state, host } }.
+// The mark is a display:contents wrapper, so the button's layout and its own data-state are untouched.
+function ContractCell({ cell, children }) {
+  if (!cell) return children;
+  return <span style={{ display: "contents" }} data-contract={cell.contract} data-state={cell.state} data-host={cell.host}>{children}</span>;
+}
+
+function TitlebarWindows({ active = true, variant = "split", title = "agents-prod", maximized = false, tabs = ["build · cargo", "README.md", "scratch"], states = {}, cells = {} }) {
   // states freezes buttons for gallery frames: { min | max | close: "hover" | "press" }. A frozen button no
   // longer follows the pointer; the others still do.
   // Glyphs come from the icon set at icon-size-xs (the .tb-win__btn svg rule). Minimize and close are shared with
@@ -50,7 +57,9 @@ function TitlebarWindows({ active = true, variant = "split", title = "agents-pro
       <button className="tb-win__btn" data-state={states.min} title="Minimize"><Icon name={G.min} /></button>
       {/* Snap Layouts: this rect is reported to the OS via WM_NCHITTEST → HTMAXBUTTON */}
       <button className="tb-win__btn" data-snap-target="true" data-state={states.max} title="Maximize"><Icon name={maximized ? G.restore : G.max} /></button>
-      <button className="tb-win__btn tb-win__btn--close" data-state={states.close} title="Close"><Icon name={G.close} /></button>
+      <ContractCell cell={cells.close}>
+        <button className="tb-win__btn tb-win__btn--close" data-state={states.close} title="Close"><Icon name={G.close} data-part="glyph" /></button>
+      </ContractCell>
     </div>
   );
   const fg = active ? "var(--tasty-titlebar-fg)" : "var(--tasty-titlebar-fg-inactive)";
