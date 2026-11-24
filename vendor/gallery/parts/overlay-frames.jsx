@@ -3113,7 +3113,7 @@ const FP_FOLDER_COPY = {
     hintSel: (n) => <><span style={{ fontFamily: "var(--tasty-font-mono)" }}>{n}</span> を開くにはダブルクリックします。</>, fileTip: "選択できるのはフォルダーだけです。", empty: "サブフォルダーはありません" },
 };
 function FilePickerFrame({ state = "loaded", remote = false, indicator = "badge", multi = false, filters = [], mode = "open", save = "new", deep = false, crumbMenu = false, folderSel = false, w = 640, h = 480, pathKind, single = false, elideStage,
-  folderPick = "none", fileHover = false, lang = "en", opaque = false, host = "work-laptop-attach" }) {
+  folderPick = "none", fileHover = false, lang = "en", opaque = false, host = "work-laptop-attach", noProjection = false }) {
   const saving = mode === "save";
   const folderMode = mode === "folder";
   const FC = FP_FOLDER_COPY[lang] || FP_FOLDER_COPY.en;
@@ -3153,17 +3153,18 @@ function FilePickerFrame({ state = "loaded", remote = false, indicator = "badge"
     <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
       textAlign: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-xl) var(--tasty-space-lg)" }}>{kids}</div>
   );
-  // The remote loading and connection-lost sentences below name the host; they are gallery-only
-  // English. The app's keys (filepicker.loading_body_remote, filepicker.error_conn.title,
-  // filepicker.error_conn.session_lost) carry no host, so an attach with no profile name (host
-  // empty) draws those values: no new key, no word Remote, never 127.0.0.1:<port>. The app's
-  // loading title is filepicker.loading, and its connection-lost body has two causes:
-  // session_lost (state "error-conn") and timeout (state "error-conn-timeout").
+  // The remote loading sentence below names the host; it is gallery-only English. The app's key
+  // (filepicker.loading_body_remote) carries no host, so an attach with no profile name (host
+  // empty) draws that value: no new key, no word Remote, never 127.0.0.1:<port>. The app's
+  // loading title is filepicker.loading. Connection lost draws the app's values with or without
+  // a host: filepicker.error_conn.title, and a body with two causes, session_lost (state
+  // "error-conn") and timeout (state "error-conn-timeout").
+  // Its action is Refresh: it reads the current folder again, as the path bar's Refresh does.
+  // There is no reconnect action. noProjection: there is no mirror projection to send the read
+  // through, so nothing can be sent, and both Refresh buttons are disabled.
   const connLost = state === "error-conn" || state === "error-conn-timeout";
-  const errText = connLost && !host
+  const errText = connLost
     ? { title: "Connection lost", body: state === "error-conn-timeout" ? "The remote host did not respond in time." : "The remote session is no longer attached." }
-    : connLost
-    ? { title: "Remote connection lost", body: <>The SSH tunnel to <span style={{ fontFamily: "var(--tasty-font-mono)" }}>{host}</span> dropped. Reconnect to resume browsing from the last folder.</> }
     : { title: "Permission denied", body: <>You don't have permission to read <span style={{ fontFamily: "var(--tasty-font-mono)" }}>/home/deploy/agents-prod</span>. Try a different folder or check access.</> };
   return (
     <div style={{ position: "relative", width: w, height: h, display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)",
@@ -3188,7 +3189,7 @@ function FilePickerFrame({ state = "loaded", remote = false, indicator = "badge"
       <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-fp-section-gap)", padding: "var(--tasty-fp-path-pad-y) var(--tasty-fp-inset-end) var(--tasty-fp-path-pad-y) var(--tasty-fp-inset-start)", flex: "none", position: "relative", borderBottom: "1px solid var(--tasty-separator)", background: "var(--tasty-bg-sidebar)" }}>
         <FpCrumbs items={crumbs} elide={elideStage ?? (deep || pathKind === "longtwo")} single={single} />
         <IconButton size="sm" aria-label="Up one folder"><Icon name="chevronUp" size="var(--tasty-icon-size-sm)" /></IconButton>
-        <IconButton size="sm" aria-label="Refresh">{ic.refresh}</IconButton>
+        <IconButton size="sm" aria-label="Refresh" disabled={noProjection}>{ic.refresh}</IconButton>
         {crumbMenu && <FpCrumbMenu items={crumbs.slice(1, -2).map((c) => c.label)} />}
       </div>
       {/* list header */}
@@ -3218,7 +3219,7 @@ function FilePickerFrame({ state = "loaded", remote = false, indicator = "badge"
         )}
         {state === "loading" && <CenterState variant="loading" title={remote && !host ? "Loading…" : "Loading folder…"} sub={remote ? (host ? <>Reading <span style={{ fontFamily: "var(--tasty-font-mono)" }}>{host}</span> over SSH.</> : "Waiting for the remote directory listing.") : "Reading the directory contents."} />}
         {(state === "error-perm" || connLost) && <CenterState variant="error" title={errText.title} sub={errText.body}
-          action={<Button variant="secondary" size="sm" leadingIcon={<Icon name="refresh" size="var(--tasty-icon-size-sm)" />}>{connLost ? "Reconnect" : "Retry"}</Button>} />}
+          action={<Button variant="secondary" size="sm" disabled={noProjection} leadingIcon={<Icon name="refresh" size="var(--tasty-icon-size-sm)" />}>{connLost ? "Refresh" : "Retry"}</Button>} />}
         {state === "empty" && <CenterState variant="empty" glyph="folderOpen" title={folderMode ? FC.empty : "This folder is empty"} />}
       </div>
       {/* footer */}
