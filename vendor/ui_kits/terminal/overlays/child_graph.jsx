@@ -265,13 +265,21 @@ function ChildGraphView({ nodes, baseId, full = false, selected, onSelect, lang 
 // state "idle" → Reconnect · "trying" → disabled Reconnecting… with a spinner · "failed" → the failure
 // sentence (warning) and Reconnect again. On success the graph comes back with that base.
 // host follows the host text rule (Dialogs › File handler › Remote path): the attach profile
-// name (R-57). The banner has no form for an attach with no profile name: Reconnect attaches
-// again with the same profile, and a mirror with no profile name is closed when it drops.
-function MirrorBanner({ cause = "detached", state = "idle", host = "lab-linux", name = "worker-a", profile = "lab-linux", lang = "en", onReconnect }) {
-  const text = state === "failed" ? gt("child_graph.reconnect_failed", lang, host)
-    : gt(cause === "lost" ? "child_graph.mirror_lost" : "child_graph.mirror_detached", lang, host, name);
-  const tip = gt("child_graph.reconnect_tooltip", lang, name, profile);
-  const action = state === "trying"
+// name (R-57). An empty host (no profile name) takes the _no_host sentences, which leave the
+// host out. saved = the attach has a saved row (a saved profile, its name empty or not), so
+// Reconnect attaches again with it; an empty profile name takes reconnect_tooltip_no_host.
+// saved = false (--ssh or --target-port, no saved row): nothing to reattach with, so Reconnect
+// stays in place, disabled, with the reason child_graph.reconnect_unavailable as its tooltip,
+// and "trying" / "failed" never occur. Never 127.0.0.1:<port>. Proposal: the app has no
+// mirror banner yet; these keys go in with it.
+function MirrorBanner({ cause = "detached", state = "idle", host = "lab-linux", name = "worker-a", profile = "lab-linux", saved = true, lang = "en", onReconnect }) {
+  const nh = host ? "" : "_no_host";
+  const text = state === "failed" ? gt("child_graph.reconnect_failed" + nh, lang, ...(host ? [host] : []))
+    : gt((cause === "lost" ? "child_graph.mirror_lost" : "child_graph.mirror_detached") + nh, lang, ...(host ? [host] : []), name);
+  const tip = profile ? gt("child_graph.reconnect_tooltip", lang, name, profile) : gt("child_graph.reconnect_tooltip_no_host", lang, name);
+  const action = !saved
+    ? <span title={gt("child_graph.reconnect_unavailable", lang)} style={{ display: "inline-flex" }}><Button size="sm" variant="secondary" disabled>{gt("child_graph.reconnect", lang)}</Button></span>
+    : state === "trying"
     ? <Button size="sm" variant="secondary" disabled leadingIcon={<Spinner size={12} />}>{gt("child_graph.reconnecting", lang)}</Button>
     : <Button size="sm" variant="secondary" title={tip} onClick={onReconnect}>{gt("child_graph.reconnect", lang)}</Button>;
   return <GraphStrip tone={cause === "lost" || state === "failed" ? "warning" : "info"} action={action}>{text}</GraphStrip>;
