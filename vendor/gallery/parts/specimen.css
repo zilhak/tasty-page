@@ -55,7 +55,9 @@
 }
 .stage.tight { padding: 0; overflow: hidden; overflow-x: auto; }
 .stage.column { flex-direction: column; }
-.stage.center { justify-content: center; align-items: center; }
+/* Safe: content wider than the stage starts at its left edge and scrolls inside it, instead of
+   overflowing to both sides with the left part out of scroll reach. */
+.stage.center { justify-content: safe center; align-items: safe center; }
 .stage.checker {
   background-image:
     linear-gradient(45deg, var(--tasty-separator) 25%, transparent 25%),
