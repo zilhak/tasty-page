@@ -679,7 +679,7 @@ function Page() {
             tokens={[{ tok: "--tasty-surface-raised", use: "frame", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-surface-active", use: "highlight", color: "var(--tasty-surface-active)" }, { tok: "--tasty-font-mono", use: "hints" }]} />
         </Spec>
         <Spec id="search-field-ground-normal-focused" title="Search field ground — normal · focused"
-          when={<>The palette shell is <span className="tok">--tasty-surface-raised</span>, so its search field is an <b>Input ground="raised"</b> (the 10-14 rule, no exception). The box steps down to <code>bg-panel</code> with a <code>border-strong</code> edge, so it reads against the shell before it takes focus. The field opens focused (autoFocus); <b>normal</b> is the box after focus moves away. Width, icon, placeholder, list and footer are unchanged; no copy changes.</>}>
+          when={<>The palette shell is <span className="tok">--tasty-surface-raised</span>, so its search field is an <b>Input ground="raised"</b> (the 10-14 rule, no exception). The box steps down to <code>bg-panel</code> with a <code>border-control-raised</code> edge, so it reads against the shell before it takes focus. The field opens focused (autoFocus); <b>normal</b> is the box after focus moves away. Width, icon, placeholder, list and footer are unchanged; no copy changes.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)" }}>
             <WGroundThemes render={() => (
               <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-md)" }}>
@@ -689,7 +689,7 @@ function Page() {
             )} />
           </Stage>
           <Meta
-            specs={[["field ground", <>ground="raised" · no exception</>], ["normal", <>input-raised-bg → bg-panel · input-raised-border → border-strong</>], ["focused", <>bg unchanged · border-focus edge + 1px border-focus ring</>], ["Mocha", "bg-panel = base · border-strong = surface1 · shell surface-raised = surface0"], ["Latte", "bg-panel = base · border-strong = surface1 · shell surface-raised = surface0"], ["ink", "text-primary · placeholder text-placeholder · icon text-muted (unchanged)"]]}
+            specs={[["field ground", <>ground="raised" · no exception</>], ["normal", <>input-raised-bg → bg-panel · input-raised-border → border-control-raised</>], ["focused", <>bg unchanged · border-focus edge + 1px border-focus ring</>], ["Mocha", "bg-panel = base · border-control-raised = overlay1 · shell surface-raised = surface0"], ["Latte", "bg-panel = base · border-control-raised = subtext0 · shell surface-raised = surface0"], ["ink", "text-primary · placeholder text-placeholder · icon text-muted (unchanged)"]]}
             tokens={[{ tok: "--tasty-input-raised-bg", use: "field fill", color: "var(--tasty-input-raised-bg)" }, { tok: "--tasty-input-raised-border", use: "field edge", color: "var(--tasty-input-raised-border)" }, { tok: "--tasty-border-focus", use: "focused edge + ring", color: "var(--tasty-border-focus)" }, { tok: "--tasty-surface-raised", use: "shell", color: "var(--tasty-surface-raised)" }]} />
         </Spec>
       </Section>

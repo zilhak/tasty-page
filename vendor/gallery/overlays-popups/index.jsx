@@ -113,7 +113,7 @@ function Page() {
           <Note>Sticky-focus popover: the input keeps focus and the bar persists through clicks in the terminal — it closes only on <span className="ic">Esc</span> or its × button.</Note>
         </Spec>
         <Spec id="query-field-ground-normal-focused-invalid" title="Query field ground — normal · focused · invalid"
-          when={<>The bar is <span className="tok">--tasty-surface-raised</span>, so the query field is an <b>Input ground="raised"</b> (the 10-14 rule, no exception): <code>bg-panel</code> fill, <code>border-strong</code> edge. <b>normal</b> is the box after a shortcut hands focus back to the terminal; the bar stays open. <b>invalid</b> is a regex error with <code>.*</code> on: the edge is <code>accent-danger</code> in both focus states, and focused adds the danger ring. Behaviour (Enter, Shift+Enter, Esc, filtering) and copy are unchanged.</>}>
+          when={<>The bar is <span className="tok">--tasty-surface-raised</span>, so the query field is an <b>Input ground="raised"</b> (the 10-14 rule, no exception): <code>bg-panel</code> fill, <code>border-control-raised</code> edge. <b>normal</b> is the box after a shortcut hands focus back to the terminal; the bar stays open. <b>invalid</b> is a regex error with <code>.*</code> on: the edge is <code>accent-danger</code> in both focus states, and focused adds the danger ring. Behaviour (Enter, Shift+Enter, Esc, filtering) and copy are unchanged.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)" }}>
             <PGroundThemes render={() => (
               <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", width: 400, maxWidth: "100%" }}>
@@ -125,7 +125,7 @@ function Page() {
             )} />
           </Stage>
           <Meta
-            specs={[["field ground", <>ground="raised" · no exception</>], ["normal", <>input-raised-bg → bg-panel · input-raised-border → border-strong</>], ["focused", <>border-focus edge + 1px border-focus ring</>], ["invalid", <>accent-danger edge · focused adds 1px accent-danger ring · counter 0/0 accent-danger</>], ["Mocha / Latte", "bg-panel = base · border-strong = surface1 · bar surface-raised = surface0"]]}
+            specs={[["field ground", <>ground="raised" · no exception</>], ["normal", <>input-raised-bg → bg-panel · input-raised-border → border-control-raised</>], ["focused", <>border-focus edge + 1px border-focus ring</>], ["invalid", <>accent-danger edge · focused adds 1px accent-danger ring · counter 0/0 accent-danger</>], ["Mocha / Latte", "bg-panel = base · border-control-raised = overlay1 in Mocha, subtext0 in Latte · bar surface-raised = surface0"]]}
             tokens={[{ tok: "--tasty-input-raised-bg", use: "field fill", color: "var(--tasty-input-raised-bg)" }, { tok: "--tasty-input-raised-border", use: "field edge", color: "var(--tasty-input-raised-border)" }, { tok: "--tasty-border-focus", use: "focused", color: "var(--tasty-border-focus)" }, { tok: "--tasty-accent-danger", use: "invalid", color: "var(--tasty-accent-danger-raised)" }]} />
         </Spec>
       </Section>

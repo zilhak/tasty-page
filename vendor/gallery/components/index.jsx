@@ -391,7 +391,7 @@ function Components() {
               <Input mono readOnly defaultValue="#89b4fa" style={{ width: "var(--tasty-field-width-xs)" }} />
               <Input mono disabled defaultValue="#89b4fa" style={{ width: "var(--tasty-field-width-xs)" }} />
             </Cluster>
-            <Cluster label={'ground="raised" — on surface-raised, box steps down to bg-panel + border-strong (2026-10-14)'}>
+            <Cluster label={'ground="raised" — on surface-raised, box steps down to bg-panel + border-control-raised (2026-10-14)'}>
               <div style={{ display: "flex", gap: 12, padding: 12, background: "var(--tasty-surface-raised)", borderRadius: "var(--tasty-radius)" }}>
                 <Input ground="raised" placeholder="Editable" style={{ width: 140 }} />
                 <Input ground="raised" mono readOnly defaultValue="#89b4fa" style={{ width: "var(--tasty-field-width-xs)" }} />
@@ -440,7 +440,7 @@ function Components() {
           <Stage variant="column" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-md)" }}>
             {[["Mocha", "mocha"], ["Latte", "latte"]].map(([label, t]) => (
               <div key={label} {...(t ? { "data-theme": t } : {})} style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-md)", alignItems: "flex-end", padding: "var(--tasty-space-md)", background: "var(--tasty-surface-raised)", borderRadius: "var(--tasty-radius)" }}>
-                <span style={{ width: "100%", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-secondary-raised)" }}>{label} — Select ground="raised" (2026-10-21): box bg-panel + border-strong in every state; ink and focus unchanged</span>
+                <span style={{ width: "100%", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-secondary-raised)" }}>{label} — Select ground="raised" (2026-10-21): box bg-panel + border-control-raised in every state; ink and focus unchanged</span>
                 {[["value", { defaultValue: "Tasty rc" }], ["focus / open", { defaultValue: "Tasty rc", style: { borderColor: "var(--tasty-border-focus)", boxShadow: "0 0 0 var(--tasty-border-width) var(--tasty-border-focus)" } }],
                   ["no value", { placeholder: "Select a profile…" }], ["disabled", { disabled: true, defaultValue: "Tasty rc" }], ["panel ground (vanishes)", { defaultValue: "Tasty rc", ground: "panel" }]].map(([k, p]) => (
                   <div key={k} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", width: "var(--tasty-field-width-lg)" }}>

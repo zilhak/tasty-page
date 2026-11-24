@@ -51,7 +51,7 @@ const CONTRAST_SPECS = [
   ["error line", "file-handler-form-error-fg → accent-danger-raised: Mocha = accent-danger 5.43:1 on surface0 · Latte = color-mix(red 60%, neutral-1100) 4.79:1 (was 3.52). Glyph takes the same ink (≥ 3:1)"],
   ["invalid edge", "unchanged — input-border-invalid → accent-danger (non-text, 3.52 ≥ 3 in Latte)"],
   ["Cancel", "Button ground=\"raised\" → button-ghost-raised-fg → text-secondary-raised: Mocha 7.10 · Latte 5.17 (was 4.05) · hover button-ghost-raised-fg-hover → text-primary"],
-  ["Input / Select box", "ground=\"raised\" in every card field: bg → bg-panel, edge → border-strong (input-raised-* · select-raised-*). Focus: edge border-focus (Input keeps its ring rule). Invalid: accent-danger edge. Disabled: state-disabled-fill-raised + state-disabled-border-raised. Ink per state unchanged"],
+  ["Input / Select box", "ground=\"raised\" in every card field: bg → bg-panel, edge → border-control-raised (input-raised-* · select-raised-*). Focus: edge border-focus (Input keeps its ring rule). Invalid: accent-danger edge. Disabled: state-disabled-fill-raised + state-disabled-border-raised. Ink per state unchanged"],
   ["scope", "same fix on the Hook Handlers add card (labels text-secondary-raised, Inputs raised, Cancel raised) · card background unchanged (surface-raised)"],
 ];
 const NARROW_SPECS = [
