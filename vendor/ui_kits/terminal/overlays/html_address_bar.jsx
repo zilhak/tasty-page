@@ -85,7 +85,7 @@ function HtmlAddressField({ kind = "local", address = "", state = "idle", skippe
     <div style={{ flex: 1, minWidth: "var(--tasty-html-address-field-min-width)", display: "flex", alignItems: "center", gap: "var(--tasty-input-gap)",
       height: "var(--tasty-input-height)", padding: "0 var(--tasty-space-sm)", borderRadius: "var(--tasty-input-radius)",
       background: readOnly ? "var(--tasty-input-readonly-bg)" : "var(--tasty-input-bg)", border: "var(--tasty-border-width) solid " + border,
-      boxShadow: editing ? "0 0 0 var(--tasty-focus-ring-width) " + (state === "error" ? "var(--tasty-address-field-invalid-halo)" : "var(--tasty-address-field-focus-halo)") : "none" }}>
+      boxShadow: editing ? "0 0 0 var(--tasty-border-width) " + border : "none" }}>
       <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-input-icon-fg)" }}><HaIcon name={glyph} size="var(--tasty-icon-size-sm)" /></span>
       <span style={{ flex: 1, minWidth: 0, fontFamily: empty ? "var(--tasty-font-ui)" : "var(--tasty-font-mono)", fontSize: "var(--tasty-input-font-size)",
         color: empty ? "var(--tasty-input-placeholder)" : editing ? "var(--tasty-input-fg)" : readOnly ? "var(--tasty-input-readonly-fg)" : "var(--tasty-html-address-value-fg)",

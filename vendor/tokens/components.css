@@ -477,7 +477,9 @@
   --tasty-html-address-bar-nav-gap:   var(--tasty-space-xs);          /* 4 — back · forward · reload */
   --tasty-html-address-field-min-width: var(--tasty-size-96);         /* field floor before the band drops Forward */
   /* 2026-11-25 editing address field (HTML, Markdown, explorer path): a soft halo outside the 1px focus or invalid edge.
-     The edge carries focus and error; the halo has no contrast target */
+     The edge carries focus and error; the halo has no contrast target.
+     No consumer since the same day: the address fields take the Input focus shape (edge + 1px flush ring, no halo).
+     Kept because tokens are only added. */
   --tasty-address-field-focus-halo:   color-mix(in srgb, var(--tasty-border-focus) 35%, transparent);
   --tasty-address-field-invalid-halo: color-mix(in srgb, var(--tasty-accent-danger) 35%, transparent);
   --tasty-html-address-error-height:  var(--tasty-size-24);           /* inline error row under the band (part of the band) */
