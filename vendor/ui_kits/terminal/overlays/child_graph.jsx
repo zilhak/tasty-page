@@ -66,8 +66,6 @@ const CHILD_MIRROR = [
   R("s_m4", { parent: "s_m2", nickname: "checker", role: "checker", state: "needs_input", evidence: "hook_needs_input" }),
 ];
 const CHILD_MIRROR_BASE = "s_m2";
-// disconnected: the last graph stays, every remote state reads unknown
-const CHILD_MIRROR_LOST = CHILD_MIRROR.map((n) => (n.kind === "surface" ? { ...n, state: "unknown", confidence: "unobserved", evidence: "remote_disconnected" } : n));
 // across machines (user decision 4-7 to 4-9): A on this computer → B on a remote → C, one graph, ordinary lines
 const CHILD_CROSS = [
   S("s_L1", { nickname: "conductor", role: "conductor", workspace: "tasty" }),
@@ -93,6 +91,15 @@ const GAP = (id, reason, over) => ({ id, kind: "gap", reason, ...over });
 const CHILD_CHAIN_CUT = [
   CHILD_CHAIN[0], CHILD_CHAIN[1],
   GAP("g_C", "disconnected", { parent: "s_B1", host: "gpu-box", via: ["lab-build"], lastReached: "linux-build · s_B1" }),
+];
+// disconnected (a mirror with a saved row whose transport dropped; the app keeps it and reconnects): the
+// mirrored cards stay, since they are still here, with every state unknown. What lay beyond the mirror —
+// the read-only ancestor s_m0, reached only by asking lab-linux — cannot be followed now, so it is dropped
+// and folded into one gap node above the mirror's top, on a dashed line (the gap rule).
+const CHILD_MIRROR_LOST = [
+  GAP("g_m0", "disconnected", { host: "lab-linux", lastReached: "conductor · s_m1" }),
+  ...CHILD_MIRROR.filter((n) => n.kind === "surface").map((n) => ({ ...n, state: "unknown", confidence: "unobserved", evidence: "remote_disconnected",
+    ...(n.parent === "s_m0" ? { parent: "g_m0" } : {}) })),
 ];
 // a gap on each side: the base's parent cannot be verified (ancestor side), and one child does not answer
 const CHILD_GAP_SIDES = [
@@ -386,7 +393,8 @@ function ChildGraphView({ nodes, baseId, full = false, selected, onSelect, lang 
 //     attach.toast.mirror_disconnected). A mirror with a saved row never ends this way — the app keeps
 //     it and reconnects — so "lost" always has Reconnect disabled, whatever `saved` says.
 // Not this banner: a drop of a mirror with a saved row (the app reconnects with no toast; the graph
-// keeps its cards with the graph.remote_disconnected strip), a resync reattach still in progress
+// keeps the mirrored cards, state unknown, under the graph.remote_disconnected strip and folds what lay
+// beyond the mirror into a disconnected gap node: CHILD_MIRROR_LOST), a resync reattach still in progress
 // (nothing of its own; it ends as the graph was or as "lost"), and a workspace the server closed (the
 // app's own toast; the base surface is closed, so the surface form shows its base-closed state, 4-4).
 // The surface shows this strip over the "pick a base surface" state. Reconnect attaches again through
