@@ -56,9 +56,10 @@ function WindowTabFocusSpec() {
               <Kit_SettingsWindow frame="bare" initialL1="Appearance" initialL2="Theme" theme="mocha" onTheme={noop} uiScale={1} onUiScale={noop} onClose={noop} />
             </FocusOn></div>
         </View>
-        <View name="remote-tab-focus" wide label="Remote connections — a tab in the tab strip with keyboard focus (Attach)">
+        <View name="remote-tab-focus" wide label="Remote connections — a tab in the tab strip with keyboard focus (Remote profiles, while Passkeys is open)">
           <div style={col}><span style={cap}>remote · tab strip</span>
-            <FocusOn pick={byText("span", "Attach")}><RemoteFrame /></FocusOn></div>
+            {/* the focused tab is not next to the open one, so no part of its ring lies on the open tab's accent underline */}
+            <FocusOn pick={byText("span", "Remote profiles")}><RemoteFrame tab="passkeys" /></FocusOn></div>
         </View>
         <View name="remote-segment-focus" wide label="Remote connections — a segment with keyboard focus (Direct (inline))">
           <div style={col}><span style={cap}>remote · segmented</span>

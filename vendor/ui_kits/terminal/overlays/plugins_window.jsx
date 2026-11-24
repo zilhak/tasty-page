@@ -634,7 +634,10 @@ function PluginsWindow({ onClose, onFlash, onConfigure, removedAttention, onRemo
         alignItems: "center", gap: "var(--tasty-space-sm)", fontFamily: "var(--tasty-font-ui)", fontSize: "var(--tasty-font-size-term-sm)",
         fontWeight: on ? 600 : 400, color: on ? "var(--tasty-text-primary)" : "var(--tasty-text-on-active)",
         background: on ? "var(--tasty-surface-raised)" : "transparent",
-        boxShadow: on ? "inset 0 0 0 var(--tasty-border-width) var(--tasty-border-default)" : "none" }}>
+        boxShadow: on ? "inset 0 0 0 var(--tasty-border-width) var(--tasty-border-default)" : "none",
+        /* keyboard focus: the tabs sit on the surface-active pill, and on the active ground the focus ring reads
+           accent-primary-raised (RULES focus-ring); border-focus there is under 3:1 in Latte */
+        outlineColor: "var(--tasty-accent-primary-raised)" }}>
         {label}
         {count != null && !danger && <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)",
           color: on ? "var(--tasty-text-secondary-raised)" : "var(--tasty-text-on-active)" }}>{count}</span>}
