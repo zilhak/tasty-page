@@ -4580,6 +4580,38 @@
       "$type": "dimension",
       "$value": "{semantic.field-width-md}"
     },
+    "fp-host-badge-height": {
+      "$type": "dimension",
+      "$value": "{primitive.size-22}"
+    },
+    "fp-host-badge-padding-x": {
+      "$type": "dimension",
+      "$value": "{semantic.space-sm}"
+    },
+    "fp-host-badge-gap": {
+      "$type": "dimension",
+      "$value": "{semantic.space-xs}"
+    },
+    "fp-host-badge-icon-size": {
+      "$type": "dimension",
+      "$value": "{semantic.icon-size-xs}"
+    },
+    "fp-host-badge-font-size": {
+      "$type": "dimension",
+      "$value": "{semantic.font-size-caption}"
+    },
+    "fp-host-badge-bg": {
+      "$type": "color",
+      "$value": "{semantic.tint-info-bg}"
+    },
+    "fp-host-badge-border": {
+      "$type": "color",
+      "$value": "color-mix(in srgb, var(--tasty-accent-info) calc(var(--tasty-tint-border-alpha) * 100%), transparent)"
+    },
+    "fp-host-badge-fg": {
+      "$type": "color",
+      "$value": "{semantic.accent-remote-raised}"
+    },
     "popup-title-btn-size": {
       "$type": "dimension",
       "$value": "{component.icon-button-size-sm}"

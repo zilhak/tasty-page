@@ -3081,7 +3081,8 @@ function FpCrumbMenu({ items, opaque = false, style }) {
     </div>
   );
 }
-// host indicator chip shown in the header on remote mode (indicator="badge").
+// host indicator chip shown in the header on remote mode (indicator="badge"). Every part reads a
+// --tasty-fp-host-badge-* token: tint pair fill and edge over bg-panel, accent-remote-raised ink.
 // The host text follows the host text rule (Dialogs › File handler › Remote path): the
 // attach profile name (R-57). With no profile name (--ssh or --target-port from the CLI or
 // IPC, a profile saved with an empty name) host is empty and the chip holds
@@ -3092,10 +3093,10 @@ function FpHostText({ host, lang = "en" }) {
 }
 function FpHostBadge({ host, lang = "en" }) {
   return (
-    <span style={{ display: "inline-flex", alignItems: "center", gap: 5, height: 22, padding: "0 8px", borderRadius: "var(--tasty-radius)",
-      background: "color-mix(in srgb, var(--tasty-accent-info) 14%, transparent)", border: "1px solid color-mix(in srgb, var(--tasty-accent-info) 45%, transparent)",
-      color: "var(--tasty-accent-info-raised)", fontFamily: "var(--tasty-font-mono)", fontSize: 11, whiteSpace: "nowrap" }}>
-      <span style={{ display: "inline-flex" }}><Icon name="remote" size={13} /></span><FpHostText host={host} lang={lang} />
+    <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-fp-host-badge-gap)", height: "var(--tasty-fp-host-badge-height)", padding: "0 var(--tasty-fp-host-badge-padding-x)", borderRadius: "var(--tasty-radius)",
+      background: "var(--tasty-fp-host-badge-bg)", border: "var(--tasty-border-width) solid var(--tasty-fp-host-badge-border)",
+      color: "var(--tasty-fp-host-badge-fg)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-fp-host-badge-font-size)", whiteSpace: "nowrap" }}>
+      <span style={{ display: "inline-flex" }}><Icon name="remote" size="var(--tasty-fp-host-badge-icon-size)" /></span><FpHostText host={host} lang={lang} />
     </span>
   );
 }

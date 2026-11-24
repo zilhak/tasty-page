@@ -986,6 +986,17 @@
   --tasty-fp-folder-path-fg:          var(--tasty-input-readonly-fg); /* folder mode — target path readout ink (text-secondary) in the read-only box */
   --tasty-fp-folder-hint-fg:          var(--tasty-text-muted);        /* folder mode — footer hint line under the Folder row */
   --tasty-fp-filter-max-width:        var(--tasty-field-width-md); /* 160 — READ-ONLY filter chip: content width up to this, then front-kept ellipsis + tooltip with the full list (2026-10-06) */
+  /* File picker host badge (remote mode, beside the header title): remote glyph + host text in an info tint box.
+     Fill and edge are the tint pair (accent-info × tint-fill-alpha / tint-border-alpha) over the header (bg-panel = base).
+     Ink is accent-remote-raised, the text-remote and glyph-remote ink allowed on tint-info@base (RULES.md section 6). */
+  --tasty-fp-host-badge-height:       var(--tasty-size-22);
+  --tasty-fp-host-badge-padding-x:    var(--tasty-space-sm);        /* 8 */
+  --tasty-fp-host-badge-gap:          var(--tasty-space-xs);        /* 4 — glyph to host text, same as the host mark (workspace-mirror-gap) */
+  --tasty-fp-host-badge-icon-size:    var(--tasty-icon-size-xs);    /* 12 — same glyph step as the host mark (workspace-mirror-icon-size) */
+  --tasty-fp-host-badge-font-size:    var(--tasty-font-size-caption); /* 11 — host text, mono (or the label font for the word Remote) */
+  --tasty-fp-host-badge-bg:           var(--tasty-tint-info-bg);
+  --tasty-fp-host-badge-border:       color-mix(in srgb, var(--tasty-accent-info) calc(var(--tasty-tint-border-alpha) * 100%), transparent);
+  --tasty-fp-host-badge-fg:           var(--tasty-accent-remote-raised); /* host text and glyph on tint-info@base: Mocha 7.95 · Latte 5.93 */
 
   /* Popup over a WebView page in OPAQUE mode (2026-10-21).
      The host can paint only inside the popup rect and each dropdown rect; those pixels are fully opaque.
