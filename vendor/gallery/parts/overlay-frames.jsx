@@ -2113,10 +2113,12 @@ function GitViewerFrame({ diff }) {
     const hunk = kind === "@", add = kind === "+", del = kind === "-";
     const fg = hunk ? "var(--tasty-accent-info-raised)" : add ? "var(--tasty-accent-success-raised)" : del ? "var(--tasty-accent-danger-raised)" : "var(--tasty-text-primary)";
     const bg = hunk ? "var(--tasty-git-diff-hunk-bg)" : add ? "var(--tasty-git-diff-add-bg)" : del ? "var(--tasty-git-diff-del-bg)" : "transparent";
+    // line numbers take the text-muted cell of the row: crust on a context row, tint-<hue>@crust on a filled row
+    const num = add || del ? "var(--tasty-text-muted-raised)" : "var(--tasty-text-muted)";
     return (
       <div style={{ display: "flex", ...mono, fontSize: 11, lineHeight: 1.65, background: bg, color: fg }}>
-        <span style={{ width: 30, textAlign: "right", color: "var(--tasty-text-muted-raised)", paddingRight: 6 }}>{hunk ? "" : oldn}</span>
-        <span style={{ width: 30, textAlign: "right", color: "var(--tasty-text-muted-raised)", paddingRight: 8 }}>{hunk ? "" : newn}</span>
+        <span style={{ width: 30, textAlign: "right", color: num, paddingRight: 6 }}>{hunk ? "" : oldn}</span>
+        <span style={{ width: 30, textAlign: "right", color: num, paddingRight: 8 }}>{hunk ? "" : newn}</span>
         <span style={{ width: 12, textAlign: "center" }}>{hunk || kind === " " ? "" : kind}</span>
         <span style={{ whiteSpace: "pre" }}>{content}</span>
       </div>
