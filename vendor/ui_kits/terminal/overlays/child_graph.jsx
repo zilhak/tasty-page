@@ -231,6 +231,7 @@ function ChildDetail({ node, isBase, lang = "en", onViewDags, onSetBase, onClose
 // status: "ready" | "loading" | "empty" | "base-closed" | "unsupported" (remote Tasty too old)
 // host: the host text rule (attach profile name); empty for an attach with no profile name, which
 // takes the _no_host hint (the word Remote is not put in the sentence; never 127.0.0.1:<port>).
+// Proposal: the app has no remote strip or hint yet; the _no_host keys go in with them.
 function ChildGraphView({ nodes, baseId, full = false, selected, onSelect, lang = "en", bed, banner, status = "ready",
   onViewDags, onSetBase, onPickBase, host = "lab-linux", still, initialZoom }) {
   const shown = React.useMemo(() => childVisible(nodes, baseId, full), [nodes, baseId, full]);
