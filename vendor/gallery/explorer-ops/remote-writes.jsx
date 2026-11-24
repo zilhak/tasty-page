@@ -81,11 +81,12 @@ function PendingDetailRow({ glyph = K.ic.folder, value }) {
     </div>
   );
 }
+// zh-Hans: the app's explorer.popup.rename.title / .rename, button.cancel, explorer.remote.renaming (tasty lang/zh-Hans.toml).
 function RenamePending({ lang = "en", idle = false, noHost = false }) {
-  const t = [...{ en: ["Rename", "Renaming on build-eu…", "Cancel", "Rename"], ko: ["이름 바꾸기", "build-eu에서 이름 바꾸는 중…", "취소", "이름 바꾸기"], ja: ["名前の変更", "build-eu で名前を変更中…", "キャンセル", "名前を変更"] }[lang]];
+  const t = [...{ en: ["Rename", "Renaming on build-eu…", "Cancel", "Rename"], ko: ["이름 바꾸기", "build-eu에서 이름 바꾸는 중…", "취소", "이름 바꾸기"], ja: ["名前の変更", "build-eu で名前を変更中…", "キャンセル", "名前を変更"], "zh-Hans": ["重命名", "正在 build-eu 上重命名…", "取消", "重命名"] }[lang]];
   if (noHost) t[1] = NO_HOST.renaming[lang];
   return (
-    <div style={{ width: "var(--tasty-size-360)", maxWidth: "100%", background: "var(--tasty-dialog-bg)", border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", padding: "var(--tasty-space-md) var(--tasty-size-14)", display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
+    <div lang={lang} style={{ width: "var(--tasty-size-360)", maxWidth: "100%", background: "var(--tasty-dialog-bg)", border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", padding: "var(--tasty-space-md) var(--tasty-size-14)", display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
       <span style={{ fontSize: "var(--tasty-font-size-body)", fontWeight: "var(--tasty-font-weight-semibold)", color: "var(--tasty-text-primary)" }}>{t[0]}</span>
       <Input block readOnly={!idle} defaultValue="report-final.pdf" />
       <span style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", minHeight: "var(--tasty-icon-size-sm)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{idle ? <>Press <Kbd keys="↵" /> to confirm, <Kbd keys="Esc" /> to cancel.</> : <><Spinner size="var(--tasty-icon-size-sm)" />{t[1]}</>}</span>
@@ -187,7 +188,7 @@ function RemoteWriteSection() {
               <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>{NH_LANGS.map((l) => <Tip key={l}><span lang={l}>{NO_HOST.waiting[l]}</span></Tip>)}</div>
               <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
                 <RenamePending noHost /><RenamePending lang="ko" noHost /><RenamePending lang="ja" noHost />
-                <span lang="zh-Hans" style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}><Spinner size="var(--tasty-icon-size-sm)" />{NO_HOST.renaming["zh-Hans"]}</span>
+                <RenamePending lang="zh-Hans" noHost />
               </div>
             </div>
           </View>
