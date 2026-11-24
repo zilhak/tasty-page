@@ -99,9 +99,16 @@ function XDetail({ rows = XROWS, states = {}, before, ring = {}, bg = "var(--tas
     </div>
   );
 }
-// Drop target — 1px inset accent ring + tint fill. Never moves layout.
+// Drop target — 1px inset accent ring + tint fill. Never moves layout. The tint is the box's own fill, under the
+// rows; the ring is a last child laid over them, so an opaque header or row fill never hides it (RULES section 3, State grounds:
+// parent, tint, row fill, ink, then the ring), as the app paints the ring after the table.
 function XRing({ children, radius = "var(--tasty-radius-sm)", style }) {
-  return <div style={{ background: "var(--tasty-explorer-drop-target-bg)", boxShadow: "inset 0 0 0 var(--tasty-border-width) var(--tasty-explorer-drop-target-border)", borderRadius: radius, ...style }}>{children}</div>;
+  return (
+    <div style={{ position: "relative", background: "var(--tasty-explorer-drop-target-bg)", borderRadius: radius, ...style }}>
+      {children}
+      <span aria-hidden="true" style={{ position: "absolute", inset: 0, borderRadius: radius, pointerEvents: "none", boxShadow: "inset 0 0 0 var(--tasty-border-width) var(--tasty-explorer-drop-target-border)" }} />
+    </div>
+  );
 }
 
 // Rows under a body tint: a kind glyph reads the neutral glyph cell, because glyph-info is forbidden on the tint.
