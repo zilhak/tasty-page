@@ -75,6 +75,16 @@ const CHILD_CROSS = [
   R("s_R3", { parent: "s_R1", nickname: "linux-check", role: "checker", state: "needs_input", profile: "lab-build", evidence: "hook_needs_input" }),
   R("s_R2", { parent: "s_L1", nickname: "linux-test", role: "tester", state: "idle", profile: "lab-build", evidence: "hook_idle" }),
 ];
+// a chain across three machines: A on this computer → B on lab-build (attached from here) → C and D on
+// gpu-box, a machine lab-build attached to: their machine name is lab-build's profile name for it, and the
+// query reached them through lab-build (via)
+const G = (id, over) => S(id, { remote: true, workspace: "train", profile: "gpu-box", via: ["lab-build"], ...over });
+const CHILD_CHAIN = [
+  S("s_A1", { nickname: "conductor", role: "conductor", workspace: "tasty" }),
+  R("s_B1", { parent: "s_A1", nickname: "linux-build", role: "worker", profile: "lab-build", workspace: "ci" }),
+  G("s_C1", { parent: "s_B1", nickname: "trainer", role: "worker", state: "idle", evidence: "hook_idle" }),
+  G("s_D1", { parent: "s_C1", nickname: "eval", role: "checker", state: "needs_input", evidence: "hook_needs_input" }),
+];
 // external parent (user decision 2026-11-10): its own card at the root, nothing traced beyond the key
 const CHILD_EXTERNAL = [
   { id: "codex:019a5c2e-7f3b", kind: "external" },
@@ -88,7 +98,9 @@ const nameOf = (n) => (n.kind === "external" ? n.id : n.nickname || n.role || n.
 // ── Card ────────────────────────────────────────────────────────────
 // The DAG card's box (168 × 48, bar, two rows, LOD tiers, ring, hover wash) with child content:
 //   name row  terminal glyph (remote glyph on a mirrored surface) · nickname, else role, else id
-//   meta row  state glyph · STATE · surface id (mono, right)
+//   meta row  state glyph · STATE · surface id (mono, right); on a card from another machine the machine's
+//             name takes the id's place (the host text: the profile name, else the Remote word in the
+//             label font), at most half the row, so B and C of A → B → C read apart at full LOD
 // base: a chip ABOVE the card, outside the box, so it never competes with the state colour or the
 // selection ring and survives every LOD tier. external / remote-ancestor: dashed border, no bar.
 function ChildNode({ node, lod = "full", selected = false, base = false, hover, lang = "en", onSelect }) {
@@ -102,7 +114,9 @@ function ChildNode({ node, lod = "full", selected = false, base = false, hover, 
   const icon = node.kind === "external" ? "link" : node.remote || node.kind === "remote-ancestor" ? "remote" : "terminal";
   const iconInk = node.remote || node.kind === "remote-ancestor" ? "var(--tasty-accent-remote-raised)" : special ? "var(--tasty-dag-node-meta-fg)" : "var(--tasty-dag-node-meta-status-fg)";
   const label = special ? (node.kind === "external" ? gt("child_graph.card.external", lang) : node.kind === "remote-ancestor" ? gt("child_graph.card.not_attached", lang) : null) : gt(st.key, lang);
-  const tip = [name, label].filter(Boolean).join(" — ");
+  const other = node.remote || node.kind === "remote-ancestor";
+  const host = other ? (node.profile || null) : null;
+  const tip = [name, label, other ? host || gt("attach.mirror_pill_label", lang) : null].filter(Boolean).join(" — ");
   const box = {
     position: "absolute", boxSizing: "border-box", textAlign: "left",
     width: "var(--tasty-dag-node-width)", height: "var(--tasty-dag-node-height)",
@@ -157,9 +171,15 @@ function ChildNode({ node, lod = "full", selected = false, base = false, hover, 
               {!special && <span aria-hidden="true" style={{ flex: "none", color: st.lbl, fontFamily: "var(--tasty-font-mono)" }}>{st.glyph}</span>}
               <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
                 textTransform: "uppercase", color: special ? "var(--tasty-dag-node-meta-fg)" : st.lbl }}>{label}</span>
-              {node.kind !== "external" && (
+              {node.kind !== "external" && !other && (
                 <span style={{ flex: "none", fontFamily: "var(--tasty-font-mono)", letterSpacing: "var(--tasty-letter-spacing-ui)",
                   color: special ? "var(--tasty-dag-node-meta-fg)" : "var(--tasty-dag-node-meta-status-fg)" }}>{node.id.replace(/^s_/, "s_").slice(0, 8)}</span>
+              )}
+              {other && (
+                <span style={{ flex: "0 0 auto", maxWidth: "50%", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                  textTransform: "none", letterSpacing: host ? "var(--tasty-letter-spacing-ui)" : "normal",
+                  fontFamily: host ? "var(--tasty-font-mono)" : "var(--tasty-font-label)",
+                  color: special ? "var(--tasty-dag-node-meta-fg)" : "var(--tasty-dag-node-meta-status-fg)" }}>{host || gt("attach.mirror_pill_label", lang)}</span>
               )}
             </span>
           )}
@@ -219,6 +239,7 @@ function ChildDetail({ node, isBase, lang = "en", onViewDags, onSetBase, onClose
         {node.parentExternal && <DrawerRow k={gt("child_graph.drawer.external_key", lang)} v={node.parentExternal} mono />}
         <DrawerRow k={gt("child_graph.drawer.workspace", lang)} v={node.workspace} />
         {attach && <DrawerRow k={gt("child_graph.drawer.attach_profile", lang)} v={attach} mono />}
+        {node.via && node.via.length > 0 && <DrawerRow k={gt("child_graph.drawer.via", lang)} v={node.via.join(" › ")} mono />}
         {!ancestor && <DrawerRow k={gt("child_graph.drawer.evidence", lang)} v={node.evidence} mono />}
         {!ancestor && <DrawerRow k={gt("child_graph.drawer.last_report", lang)} v={node.lastReport} mono />}
         {!ancestor && <DrawerRow k={gt("child_graph.drawer.cwd", lang)} v={node.cwd} mono wrap />}
@@ -473,4 +494,4 @@ function ChildGraphSettings({ lang = "en", checked = false }) {
 
 export { ChildNode, ChildDetail, ChildGraphView, MirrorBanner, RestartNotice, ChildGraphWindow, ChildGraphSurface, ChildGraphSettings, nameOf,
   CHILD_SMALL, CHILD_SMALL_BASE, CHILD_LARGE, CHILD_LARGE_BASE, CHILD_MIRROR, CHILD_MIRROR_BASE, CHILD_MIRROR_LOST,
-  CHILD_CROSS, CHILD_EXTERNAL };
+  CHILD_CROSS, CHILD_CHAIN, CHILD_EXTERNAL };

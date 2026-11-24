@@ -7,7 +7,7 @@ import { Kbd, MenuItem, Table, Tab } from "../../components/index.js";
 import { DagNode, elbow } from "../../ui_kits/terminal/dag.js";
 import { GraphStrip, CHILD_STATE, CHILD_STATE_ORDER } from "../../ui_kits/terminal/overlays/graph_view.jsx";
 import { ChildNode, ChildGraphWindow, ChildGraphSurface, ChildGraphSettings, MirrorBanner, RestartNotice, CHILD_SMALL, CHILD_SMALL_BASE, CHILD_LARGE, CHILD_LARGE_BASE,
-  CHILD_MIRROR, CHILD_MIRROR_BASE, CHILD_MIRROR_LOST, CHILD_CROSS, CHILD_EXTERNAL } from "../../ui_kits/terminal/overlays/child_graph.jsx";
+  CHILD_MIRROR, CHILD_MIRROR_BASE, CHILD_MIRROR_LOST, CHILD_CROSS, CHILD_CHAIN, CHILD_EXTERNAL } from "../../ui_kits/terminal/overlays/child_graph.jsx";
 import { GRAPH_COPY, GRAPH_LANGS, gt } from "../../ui_kits/terminal/overlays/graph_copy.js";
 import { Frame, ChildView } from "./graph-shared.jsx";
 import { BasePicker, PICKER_ONE_WINDOW } from "../../ui_kits/terminal/overlays/child_base_picker.jsx";
@@ -68,16 +68,18 @@ export function ChildGraphSection() {
   return (
     <Section id="child" title="Child graph">
       <Spec id="child-card-every-state" title="Child card — six states, base, remote, external, read-only ancestor"
-        when={<>The DAG card's box with a surface in it. <b>Name row</b>: terminal glyph (the <b>remote</b> glyph in the remote ink on a mirrored surface) and the nickname, else the role, else the surface id in mono. <b>Meta row</b>: state glyph, STATE in caps, surface id in mono on the right; the state label yields first. Each state <b>borrows a DAG state look</b>, so colour, bar, border and contrast are the DAG node's: <code>active</code> ◑ running · <code>idle</code> ❯ ready (the prompt glyph) · <code>needs_input</code> ! awaiting input · <code>stale</code> ◦ waiting (a guess, so neutral, not a warning) · <code>exited</code> − cancelled, dimmed · <code>unknown</code> ? unknown. Claude and Codex are not told apart: no provider glyph (R-01). Confidence is not on the card; the drawer carries it. The <b>base surface</b> gets a chip <b>above</b> the card, outside its box, so it never fights the state colour or the selection ring and still reads at every LOD tier and when the base is selected.</>}>
+        when={<>The DAG card's box with a surface in it. <b>Name row</b>: terminal glyph (the <b>remote</b> glyph in the remote ink on a mirrored surface) and the nickname, else the role, else the surface id in mono. <b>Meta row</b>: state glyph, STATE in caps, surface id in mono on the right; the state label yields first. On a card from <b>another machine</b> (a mirrored surface or a read-only ancestor) the right slot holds that <b>machine's name</b> instead of the id — the host text: the attach profile name in mono, or the word <i>Remote</i> in the label font when there is none — capped at half the row; the id stays in the drawer and the tooltip. A card on this computer shows no machine name: no remote glyph already means here. Each state <b>borrows a DAG state look</b>, so colour, bar, border and contrast are the DAG node's: <code>active</code> ◑ running · <code>idle</code> ❯ ready (the prompt glyph) · <code>needs_input</code> ! awaiting input · <code>stale</code> ◦ waiting (a guess, so neutral, not a warning) · <code>exited</code> − cancelled, dimmed · <code>unknown</code> ? unknown. Claude and Codex are not told apart: no provider glyph (R-01). Confidence is not on the card; the drawer carries it. The <b>base surface</b> gets a chip <b>above</b> the card, outside its box, so it never fights the state colour or the selection ring and still reads at every LOD tier and when the base is selected.</>}>
         <Stage variant="grid" style={{ display: "block", padding: 20 }}>
           <CardGrid />
           <div style={{ display: "flex", flexWrap: "wrap", gap: 16, marginTop: 24, alignItems: "flex-end" }}>
             <Labelled label="base"><Card node={S("active")} base /></Labelled>
             <Labelled label="base + selected"><Card node={S("idle")} base selected /></Labelled>
-            <Labelled label="mirrored remote surface"><Card node={S("active", { remote: true, nickname: "gradle" })} /></Labelled>
+            <Labelled label="mirrored remote surface — machine name in the id's slot"><Card node={S("active", { remote: true, nickname: "gradle", profile: "lab-mac" })} /></Labelled>
+            <Labelled label="mirrored, no profile name — Remote in the label font"><Card node={S("idle", { remote: true, nickname: "gradle", profile: "" })} /></Labelled>
+            <Labelled label="long profile name — capped at half the row"><Card node={S("needs_input", { remote: true, nickname: "reviewer", profile: "build-farm-eu-west-2" })} /></Labelled>
             <Labelled label="no nickname, no role → id"><Card node={S("idle", { nickname: null, role: null })} /></Labelled>
             <Labelled label="external parent (4-6)" tag="decided"><Card node={{ id: "codex:019a5c2e-7f3b", kind: "external" }} /></Labelled>
-            <Labelled label="remote ancestor, not mirrored (4-9)" tag="decided"><Card node={{ id: "s_m0", kind: "remote-ancestor", nickname: "orchestrator" }} /></Labelled>
+            <Labelled label="remote ancestor, not mirrored (4-9)" tag="decided"><Card node={{ id: "s_m0", kind: "remote-ancestor", nickname: "orchestrator", profile: "lab-linux" }} /></Labelled>
           </div>
         </Stage>
         <Views>
@@ -93,17 +95,20 @@ export function ChildGraphSection() {
           </View>
         </Views>
         <Meta
-          specs={[["box", "168 × 48 · the DAG card (dag-node-*)"], ["name", "nickname → role → id (mono 11)"], ["meta", "glyph · STATE caps 10 · id mono right"], ["dimmed", "exited only, dag-node-dim-opacity (the rest column shows it)"], ["base chip", "16 tall · 4 above the card · label micro · text-secondary on bg-sidebar · border-strong"], ["selection", "the DAG ring, 2px accent, 1px offset"], ["hover", "the DAG hover wash — not shown, see the note"], ["external", "dashed border · link glyph · key in mono · no state"], ["read-only ancestor", "dashed border · remote glyph · “Not mirrored”"]]}
+          specs={[["box", "168 × 48 · the DAG card (dag-node-*)"], ["name", "nickname → role → id (mono 11)"], ["meta", "glyph · STATE caps 10 · id mono right · another machine: its host text in the id's slot (profile name mono, else attach.mirror_pill_label in the label font), max 50% of the row, ellipsis"], ["dimmed", "exited only, dag-node-dim-opacity (the rest column shows it)"], ["base chip", "16 tall · 4 above the card · label micro · text-secondary on bg-sidebar · border-strong"], ["selection", "the DAG ring, 2px accent, 1px offset"], ["hover", "the DAG hover wash — not shown, see the note"], ["external", "dashed border · link glyph · key in mono · no state"], ["read-only ancestor", "dashed border · remote glyph · “Not mirrored” · its machine's host text"], ["this computer", "no machine name — the terminal glyph and the id"]]}
           tokens={[{ tok: "--tasty-graph-base-chip-height", use: "16" }, { tok: "--tasty-graph-base-chip-gap", use: "4" }, { tok: "--tasty-dag-status-running", use: "active", color: "var(--tasty-dag-status-running)" }, { tok: "--tasty-dag-status-ready", use: "idle", color: "var(--tasty-dag-status-ready)" }, { tok: "--tasty-dag-phase-awaiting", use: "needs_input", color: "var(--tasty-dag-phase-awaiting)" }, { tok: "--tasty-dag-status-waiting", use: "stale", color: "var(--tasty-dag-status-waiting)" }, { tok: "--tasty-dag-status-cancelled", use: "exited", color: "var(--tasty-dag-status-cancelled)" }, { tok: "--tasty-dag-status-unknown", use: "unknown", color: "var(--tasty-dag-status-unknown)" }, { tok: "--tasty-accent-remote-raised", use: "remote glyph", color: "var(--tasty-accent-remote-raised)" }]} />
         <Note>Hover is the DAG card's <code>dag-node-hover-bg</code> wash, unchanged. Measured over every state it drops the state label below 4.5:1 on active, idle, stale and exited in Mocha and Latte, and the DAG card has the same gap. The grid leaves hover out until that token is settled for both graphs; see the question list.</Note>
         <Dont>Do not mark the base with the accent border or a second ring: the accent border already means <i>active</i> and the ring means <i>selected</i>, and the base can be both.</Dont>
       </Spec>
 
       <Spec id="child-card-and-dag-card-lod" title="Level of detail — child card and DAG card"
-        when={<>Both cards change content, never size, at the same zoom tiers: <b>full</b> (≥ 70%) both rows · <b>compact</b> (≥ 40%) glyph + name · <b>block</b> (&lt; 40%) state fill only. The base chip stays at every tier.</>}>
+        when={<>Both cards change content, never size, at the same zoom tiers: <b>full</b> (≥ 70%) both rows · <b>compact</b> (≥ 40%) glyph + name · <b>block</b> (&lt; 40%) state fill only. The base chip stays at every tier. A card from another machine shows the machine's name at <b>full</b> only; at <b>compact</b> the remote glyph says <i>another machine</i>, at <b>block</b> nothing does, and at every tier the tooltip ends with the machine's name and the drawer names it.</>}>
         <Stage variant="grid" style={{ display: "flex", flexDirection: "column", gap: 16, padding: 20 }}>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 16 }}>
             {["full", "compact", "block"].map((l) => <Labelled key={l} label={`child · ${l}`}><Card node={S("needs_input", { nickname: "reviewer" })} lod={l} base={l !== "full"} /></Labelled>)}
+          </div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 16 }}>
+            {["full", "compact", "block"].map((l) => <Labelled key={l} label={`another machine · ${l}`}><Card node={S("idle", { nickname: "trainer", remote: true, profile: "gpu-box" })} lod={l} /></Labelled>)}
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 16 }}>
             {["full", "compact", "block"].map((l) => (
@@ -115,7 +120,7 @@ export function ChildGraphSection() {
             ))}
           </div>
         </Stage>
-        <Meta specs={[["full", "zoom ≥ 0.7"], ["compact", "0.4 – 0.7"], ["block", "< 0.4"], ["LOD chip", "existing dag.lod.* copy, both graphs"]]}
+        <Meta specs={[["full", "zoom ≥ 0.7"], ["compact", "0.4 – 0.7"], ["block", "< 0.4"], ["machine name", "full only · compact: remote glyph · block: none · tooltip and drawer at every tier"], ["LOD chip", "existing dag.lod.* copy, both graphs"]]}
           tokens={[{ tok: "--tasty-dag-node-width", use: "168 at every tier" }]} />
       </Spec>
 
@@ -133,7 +138,7 @@ export function ChildGraphSection() {
       </Spec>
 
       <Spec id="child-edges-one-relation" title="Edges — one relation"
-        when={<>A child graph has one relation, parent → child, so it takes the DAG's <code>depends_on</code> line: solid, neutral, elbowed with a 4px corner, an arrow at the child. Edges that touch the selected card take the accent, as in the DAG. No dashes, no relation colours. <b>Decided 4-7 to 4-9</b>: a parent and child on different machines are joined by this <b>same line</b> — the relation is the same; the remote glyph on the card already says which machine. Attach occupancy is never a line.</>}>
+        when={<>A child graph has one relation, parent → child, so it takes the DAG's <code>depends_on</code> line: solid, neutral, elbowed with a 4px corner, an arrow at the child. Edges that touch the selected card take the accent, as in the DAG. No dashes, no relation colours. <b>Decided 4-7 to 4-9</b>: a parent and child on different machines are joined by this <b>same line</b> — the relation is the same; the card says which machine (its remote glyph, and at full LOD the machine's name). Attach occupancy is never a line.</>}>
         <Stage variant="grid" style={{ display: "flex", gap: 32, padding: 20, flexWrap: "wrap" }}>
           {[["parent → child", "var(--tasty-dag-edge-depends)", null, false], ["touching the selection", "var(--tasty-dag-edge-highlight)", null, false], ["between machines (4-7 to 4-9)", "var(--tasty-dag-edge-depends)", null, "decided"]].map(([l, c, d, tag]) => (
             <Labelled key={l} label={l} tag={tag || null}>
@@ -299,22 +304,33 @@ export function ChildGraphSection() {
         <Note>Why a strip and not a toast for the restart: the toast is window-wide and leaves on a timer, while the restart concerns this graph, whose content may have changed with the restart; the strip stays with the graph until it is read. Why the reason replaces the cause on failure: the user pressed Reconnect after reading the cause, so the next sentence answers that press. The one-line strip ellipsizes the end, so each reason sentence starts with the failure.</Note>
       </Spec>
 
-      <Spec id="child-graph-mirror-scope-and-remote-ancestor" title="Across machines — one graph, read-only ancestors (decided 4-7 to 4-9)"
-        when={<><b>Decided</b>: parent and child relations that cross machines are <b>one graph</b> — this computer's surface <i>A</i>, its child <i>B</i> on a remote, and <i>B</i>'s child <i>C</i> read A → B → C with ordinary lines. Mirrored surfaces carry the remote glyph; the drawer adds the attach profile name (R-57). An attach with no profile name has <b>no Attach profile row</b>: the card's remote glyph already says the surface is remote, and the word Remote under that key would read as a profile name. An ancestor in a remote workspace that is not mirrored here is drawn <b>read-only</b>: dashed card, <i>Not mirrored</i>, a drawer with rows and a note and no actions. Ancestors are followed to the root across workspaces and machines. Attach occupancy (which machine mirrors which) is never drawn.</>}>
+      <Spec id="child-graph-mirror-scope-and-remote-ancestor" title="Across machines — one graph, the machine on the card, read-only ancestors (decided 4-7 to 4-9, 9-2)"
+        when={<><b>Decided</b>: parent and child relations that cross machines are <b>one graph</b> — this computer's surface <i>A</i>, its child <i>B</i> on a remote, and <i>B</i>'s child <i>C</i> on a machine <i>B</i> attached to read A → B → C with ordinary lines. Cards from another machine carry the remote glyph and, at full LOD, the <b>machine's name</b> in the id's slot, so <i>B</i> and <i>C</i> read apart; cards on this computer carry no name. The machine's name is its attach profile name (9-2): for a machine two or more hops away, the profile name the machine before it gave it. The drawer names the machine in <b>Attach profile</b>, and a surface reached through other machines adds <b>Reached through</b> with them in order. An attach with no profile name has <b>no Attach profile row</b> (the word Remote under that key would read as a profile name); its card shows <i>Remote</i> in the label font, as the host text rule says. An ancestor in a remote workspace that is not mirrored here is drawn <b>read-only</b>: dashed card, <i>Not mirrored</i>, its machine's name like any other card from there, a drawer with rows and a note and no actions. Ancestors are followed to the root across workspaces and machines. Attach occupancy (which machine mirrors which) is never drawn.</>}>
         <Stage style={{ padding: 16, display: "block" }}>
           {row(<>
+            <Labelled label="A → B → C → D over three machines; C's drawer: Attach profile gpu-box, Reached through lab-build" tag="decided"><Frame w={760} h={320}><ChildView nodes={CHILD_CHAIN} baseId="s_A1" selected="s_C1" /></Frame></Labelled>
             <Labelled label="read-only ancestor in a workspace not mirrored here (drawer open on it)" tag="decided"><Frame w={640} h={320}><ChildView nodes={CHILD_MIRROR} baseId={CHILD_MIRROR_BASE} selected="s_m0" /></Frame></Labelled>
             <Labelled label="a remote surface's drawer — attach profile" tag="decided"><Frame w={640} h={320}><ChildView nodes={CHILD_MIRROR} baseId={CHILD_MIRROR_BASE} selected="s_m2" /></Frame></Labelled>
-            <Labelled label="A → B → C: this computer, then a remote child and its child; its drawer shows the attach profile" tag="decided"><Frame w={640} h={320}><ChildView nodes={CHILD_CROSS} baseId="s_L1" selected="s_R1" /></Frame></Labelled>
+            <Labelled label="A → B → C: this computer, then a remote child and its child on the same machine" tag="decided"><Frame w={640} h={320}><ChildView nodes={CHILD_CROSS} baseId="s_L1" selected="s_R1" /></Frame></Labelled>
           </>)}
         </Stage>
         <Views>
-          <View name="child-graph-remote-no-profile" label="A remote surface attached with no profile name — its drawer has no Attach profile row">
+          <View name="child-graph-remote-no-profile" label="A remote surface attached with no profile name — Remote on its card, no Attach profile row in its drawer">
             <Frame w={640} h={320}><ChildView nodes={CHILD_CROSS.map((n) => (n.id === "s_R1" ? { ...n, profile: "" } : n))} baseId="s_L1" selected="s_R1" /></Frame>
           </View>
+          <View name="child-graph-chain-lod" label="The three-machine chain at compact and block — the remote glyph, then the state fill">
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 16 }}>
+              {[0.55, 0.3].map((z) => <Frame key={z} label={`zoom ${z}`} w={520} h={220}><ChildView nodes={CHILD_CHAIN} baseId="s_A1" initialZoom={z} /></Frame>)}
+            </div>
+          </View>
+          <View name="child-graph-chain-locales" label="ko, ja, zh-Hans — C's drawer">
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 16 }}>
+              {["ko", "ja", "zh-Hans"].map((l) => <Frame key={l} label={l} w={640} h={320}><ChildView nodes={CHILD_CHAIN} baseId="s_A1" selected="s_C1" lang={l} /></Frame>)}
+            </div>
+          </View>
         </Views>
-        <Meta specs={[["remote card", "remote glyph in accent-remote-raised · state as usual"], ["read-only ancestor", "dashed · Not mirrored · drawer: role, id, workspace, attach profile, read-only note"], ["attach profile", "profile name (R-57) · no profile name (--ssh, --target-port, a profile saved with an empty name) → no row, the remote glyph on the card says remote · never 127.0.0.1:<port>"], ["disconnected", "see graph-states: warning strip, remote states unknown"], ["across machines", "same parent → child line"], ["attach", "occupancy not drawn"]]}
-          tokens={[{ tok: "--tasty-accent-remote-raised", use: "remote glyph", color: "var(--tasty-accent-remote-raised)" }]} />
+        <Meta specs={[["remote card", "remote glyph in accent-remote-raised · full LOD: the machine's host text in the id's slot · state as usual"], ["this computer", "no machine name on the card or in the drawer"], ["machine name", "attach profile name (9-2) · two or more hops: the profile name the previous machine gave it · no profile name → attach.mirror_pill_label on the card (label font), no Attach profile row · never 127.0.0.1:<port>"], ["drawer", "Attach profile (the machine's name) · Reached through (child_graph.drawer.via): the machines in between, “ › ” between them, mono · only when there is one"], ["read-only ancestor", "dashed · Not mirrored · its machine's host text · drawer: role, id, workspace, attach profile, read-only note"], ["disconnected", "see graph-states: warning strip, remote states unknown"], ["across machines", "same parent → child line"], ["attach", "occupancy not drawn"]]}
+          tokens={[{ tok: "--tasty-accent-remote-raised", use: "remote glyph", color: "var(--tasty-accent-remote-raised)" }, { tok: "--tasty-dag-node-meta-status-fg", use: "machine name on the card", color: "var(--tasty-dag-node-meta-status-fg)" }]} />
       </Spec>
 
       <Spec id="child-graph-external-parent" title="External parent (decided 4-6)"
