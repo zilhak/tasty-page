@@ -24,6 +24,36 @@ function Row({ label, caption, children }) {
   return <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-settings-row-caption-gap)" }}>{row}{caption}</div>;
 }
 
+// A settings Row that stacks the way the canon's narrow rule says (Settings rows at narrow widths): side by side
+// while the control fits beside the label, stacked when it does not, and back only with settings-row-stack-hysteresis
+// to spare. The link click card uses it so its rows fit a 390 page instead of scrolling.
+function FitRow({ label, children }) {
+  const ref = React.useRef(null);
+  const need = React.useRef(0);
+  const [stacked, setStacked] = React.useState(false);
+  React.useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === "undefined") return undefined;
+    const check = () => {
+      const row = el.firstElementChild;
+      if (!row) return;
+      const spare = parseFloat(getComputedStyle(el).getPropertyValue("--tasty-settings-row-stack-hysteresis")) || 0;
+      setStacked((was) => {
+        if (!was) {
+          if (row.scrollWidth > el.clientWidth) { need.current = row.scrollWidth; return true; }
+          return false;
+        }
+        return el.clientWidth < need.current + spare;
+      });
+    };
+    check();
+    const ro = new ResizeObserver(check);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  return <div ref={ref} style={{ minWidth: 0 }}><WRow label={label} stacked={stacked}>{children}</WRow></div>;
+}
+
 const ALT_MAP = [
   ["alt", "Cmd", "Option"],
   ["extra", "Option", "Cmd"],
@@ -100,12 +130,12 @@ function AltKeySection() {
         when={<>The link click modifier is a <b>physical key</b> and ignores the Alt key mapping. On macOS the choices name the keys you press — <b>Ctrl · Option · Cmd</b> — which ends the old “Alt” label for what is really Option. On Windows and Linux the choices are <b>Ctrl · Alt</b>; the Win / Super key is not offered. Every OS keeps <b>“Disable left-click opening”</b> as the last choice, and the default is <b>Ctrl</b> on every OS. The choices are always <b>words</b>: this is a settings choice, not a rendered shortcut, so the Cmd / Option display settings do not apply (U3 covers shortcut display only). No caption on the row on any OS: the list itself shows which keys can be used, so the missing Win / Super key needs no note.</>}>
         <WStage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-xl)", flexWrap: "wrap", alignItems: "flex-start" }}>
           {LINK_LIVE.map(({ os, options }) => (
-            <div key={os} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
+            <div key={os} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", flex: "1 1 auto", minWidth: 0, maxWidth: "var(--tasty-settings-content-max-width)" }}>
               <span style={wLbl}>{os} — live</span>
-              <div style={{ ...wPanel, width: "var(--tasty-settings-content-max-width)", maxWidth: "100%" }}>
-                <Row label="Link click modifier:">
+              <div style={wPanel}>
+                <FitRow label="Link click modifier:">
                   <WSelect options={options} defaultValue="ctrl" style={{ width: "var(--tasty-field-width-md)" }} />
-                </Row>
+                </FitRow>
               </div>
             </div>
           ))}
@@ -113,10 +143,10 @@ function AltKeySection() {
         <WViews>
           {LINK_CLOSED.map(({ name, label, value, shown }) => (
             <WView key={name} name={name} label={label} wide>
-              <div inert="" style={{ width: "var(--tasty-settings-content-max-width)", pointerEvents: "none" }}>
-                <Row label="Link click modifier:">
+              <div inert="" style={{ width: "100%", maxWidth: "var(--tasty-settings-content-max-width)", pointerEvents: "none" }}>
+                <FitRow label="Link click modifier:">
                   <WSelect options={[{ value, label: shown }]} value={value} style={{ width: "var(--tasty-field-width-md)" }} />
-                </Row>
+                </FitRow>
               </div>
             </WView>
           ))}
@@ -129,7 +159,7 @@ function AltKeySection() {
           ))}
         </WViews>
         <WMeta
-          specs={[["place", "unchanged — Terminal › General, Option as Meta stays right below"], ["macOS choices", "Ctrl · Option · Cmd · Disable left-click opening — words, every language"], ["Windows / Linux choices", "Ctrl · Alt · Disable left-click opening — words, every language; no Win / Super"], ["default", "Ctrl on every OS"], ["saved alt on macOS", "the stored value alt stays the physical Option key and shows Option (link_modifier_option) in the closed trigger and the list · no migration of saved alt"], ["frame width", "settings-content-max-width 620 — the settings content column the row sits in"], ["width", "field-width-md 160 — unchanged; every key word is shorter than the existing off choice"], ["off choice", "open list wraps it (MenuItem wrap) when wider than the list; closed trigger unchanged"], ["caption", "none on any OS — no note for the missing Win / Super key"]]}
+          specs={[["place", "unchanged — Terminal › General, Option as Meta stays right below"], ["macOS choices", "Ctrl · Option · Cmd · Disable left-click opening — words, every language"], ["Windows / Linux choices", "Ctrl · Alt · Disable left-click opening — words, every language; no Win / Super"], ["default", "Ctrl on every OS"], ["saved alt on macOS", "the stored value alt stays the physical Option key and shows Option (link_modifier_option) in the closed trigger and the list · no migration of saved alt"], ["frame width", "settings-content-max-width 620 cap — the settings content column the row sits in; narrower pages fit the row to the space and stack it when the control does not fit"], ["width", "field-width-md 160 — unchanged; every key word is shorter than the existing off choice"], ["off choice", "open list wraps it (MenuItem wrap) when wider than the list; closed trigger unchanged"], ["caption", "none on any OS — no note for the missing Win / Super key"]]}
           tokens={[{ tok: "--tasty-field-width-md", use: "Select + list width" }, { tok: "--tasty-menu-item-selected-fg", use: "current value", color: "var(--tasty-menu-item-selected-fg)" }]} />
         <WNote>i18n — the app catalog has neither <code>settings.terminal.link_modifier_option</code> nor <code>settings.terminal.link_modifier_cmd</code> yet, in any of the four languages; add both with the R-56 values: “Option” and “Cmd” in every language. <code>settings.terminal.link_modifier_ctrl</code>, <code>_alt</code>, <code>_none</code> and <code>_label</code> keep their values. On macOS the stored <code>alt</code> value shows <code>link_modifier_option</code>; <code>link_modifier_alt</code> stays for Windows / Linux. Behaviour — the app's settings row and its saved-value normalisation handle only <code>ctrl</code>, <code>alt</code> and <code>none</code> today. A saved <code>alt</code> is not migrated: it is already the physical Option key. The macOS Cmd choice is new behaviour, and the name of its saved value is the implementing side's to choose.</WNote>
       </WSpec>
