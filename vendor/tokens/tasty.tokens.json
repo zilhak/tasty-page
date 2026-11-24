@@ -4416,6 +4416,14 @@
       "$type": "dimension",
       "$value": "{primitive.size-96}"
     },
+    "collapsed-popup-specimen-frame-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-288}"
+    },
+    "collapsed-popup-specimen-flow-max-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-560}"
+    },
     "remote-row-specimen-width": {
       "$type": "dimension",
       "$value": "{primitive.size-480}"

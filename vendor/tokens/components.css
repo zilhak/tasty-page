@@ -917,6 +917,8 @@
   /* Dialogs › Collapse (gallery specimen layout, not app chrome) — the tooltip and copy views */
   --tasty-collapsed-popup-specimen-width:        var(--tasty-size-440); /* width of the tooltip views and the cap of the copy views */
   --tasty-collapsed-popup-specimen-tooltip-room: var(--tasty-size-96);  /* space above the show or shrink button that holds the open tooltip */
+  --tasty-collapsed-popup-specimen-frame-width:  var(--tasty-size-288); /* 2026-11-24 — the headless plugin popup in the shrink views (was literal 280) */
+  --tasty-collapsed-popup-specimen-flow-max-width: var(--tasty-size-560); /* 2026-11-24 — cap of each step of the collapse and expand round trip (was literal 560) */
   /* Layouts › Saved remote workspace (gallery specimen layout, not app chrome) — the workspace content area each popup sits in */
   --tasty-remote-row-specimen-width:  var(--tasty-size-480);
   --tasty-remote-row-specimen-height: var(--tasty-size-288);

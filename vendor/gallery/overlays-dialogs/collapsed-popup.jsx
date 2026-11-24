@@ -71,7 +71,7 @@ function CollapsedPopupSpec() {
         ))}
         <View name="expanded-title-bar" label="expanded — the shrink button: headless popup (host bar, no title) and a popup with its own title bar">
           <div style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)", display: "flex", gap: "var(--tasty-space-lg)", alignItems: "flex-start", flexWrap: "wrap" }}>
-            <div style={{ width: 280, background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", overflow: "hidden" }}>
+            <div style={{ width: "var(--tasty-collapsed-popup-specimen-frame-width)", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", overflow: "hidden" }}>
               <PopupTitleBar title={null} closable={false} collapse={COLLAPSE_COPY.en[0]} collapseTip={COLLAPSE_COPY.en[1]} />
               <div style={{ padding: "var(--tasty-space-sm) var(--tasty-space-md)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-secondary)" }}>plugin content</div>
             </div>
@@ -81,7 +81,7 @@ function CollapsedPopupSpec() {
         <View name="collapse-tooltip" label="shrink tooltip — pointer hover or key focus">
           <div style={{ padding: "var(--tasty-collapsed-popup-specimen-tooltip-room) var(--tasty-space-lg) var(--tasty-space-lg)", background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)", display: "flex", justifyContent: "center", width: "var(--tasty-collapsed-popup-specimen-width)" }}>
             <Tooltip open placement="top" content={COLLAPSE_COPY.en[1]}>
-              <span style={{ display: "inline-flex", width: 280 }}><span style={{ flex: 1, background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
+              <span style={{ display: "inline-flex", width: "var(--tasty-collapsed-popup-specimen-frame-width)" }}><span style={{ flex: 1, background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
                 <PopupTitleBar title={null} closable={false} collapse={COLLAPSE_COPY.en[0]} />
               </span></span>
             </Tooltip>
@@ -140,7 +140,7 @@ function CollapseFlowSpec() {
       when={<>The show button and the shrink button (or Esc) move one open popup between two forms, which change how it is shown and nothing else. Collapsed, it sits in its own scope with all of its own rules, and the rest of the window works as it would beside the full popup. Expanded, it covers the window in window scope and takes every press until it is collapsed again or closed. Its logical scope, the thing it acts on, is always its own surface, tab or pane. Collapsing never closes it: what the user typed is still there when it expands again.</>}>
       <Stage variant="solo center" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
         {FLOW.map(([label, props]) => (
-          <div key={label} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", maxWidth: 560 }}>
+          <div key={label} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", maxWidth: "var(--tasty-collapsed-popup-specimen-flow-max-width)" }}>
             <div style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label}</div>
             <ShellMock {...props} />
           </div>
