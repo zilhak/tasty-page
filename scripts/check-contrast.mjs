@@ -6,8 +6,8 @@
  *   npm run build && npm run check-contrast [-- --json <file>] [-- --page <key>] [-- --site-only] [-- --gallery-only]
  *
  * On a gallery page, fails on: a contract row with no frozen cell, a part that cannot be found, an ink that is not the row's
- * token, an ink below its grade, other text below 4.5, any painted shape of another glyph below 3, an unknown exempt id,
- * or nothing measured. An ink inside a disabled ancestor is measured at its grade unless it is a no-grade token.
+ * token, an ink below its grade, invalid data-parts, other text below 4.5, any painted shape of another glyph below 3,
+ * an unknown exempt id, or nothing measured. An ink inside a disabled ancestor is measured at its grade unless it is a no-grade token.
  * Shapes composite through their own fill or stroke opacity and every opacity above them, a g inside the svg included.
  * --page names one gallery page and leaves the site pages out.
  * Browser: CHROMIUM_PATH, else the Playwright browser, else /snap/bin/chromium.
@@ -20,7 +20,7 @@ import { chromium } from "playwright-core";
 import { BASE } from "../src/lib/base.mjs";
 import { DEFAULT_LANG, LANGS } from "../src/lib/langs.mjs";
 import { PART_MAP } from "../vendor/gallery/parts/part-map.js";
-import { installPageLib, stylesSettled } from "./contrast-page.mjs";
+import { contractRowKey, installPageLib, missingCellRows, stylesSettled } from "./contrast-page.mjs";
 import { emptySiteTally, measureRest, runSite, sitePages, siteRules } from "./contrast-site.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -92,7 +92,7 @@ async function launch() {
 
 // Runs in the page. Colors round per channel to 8 bits and a translucent layer composites source-over, as RULES.md says.
 function measure({ rows, tokens, grades, partMap, exemptIds, noGradeTokens, theme }) {
-  const { parse, over, ratio, hex, near, overlays, opacityOf, visible, inkOn } = window.__contrast;
+  const { selectParts, validateParts, expectedTheme, parse, over, ratio, hex, near, overlays, visible, inkOn } = window.__contrast;
   // The ground under an element: its own fill and overlays, then each ancestor's, down to the first opaque fill.
   const groundOf = (el, includeSelf = true) => {
     const stack = [];
@@ -108,7 +108,7 @@ function measure({ rows, tokens, grades, partMap, exemptIds, noGradeTokens, them
     for (let i = stack.length - 1; i >= 0; i -= 1) base = over(stack[i], base);
     return { color: base, picture };
   };
-  const out = { cells: 0, rows: [], text: 0, svgs: 0, emptySvgs: 0, glyph: 0, inputs: 0, below: [], exemptUses: {}, badExempt: [], gradeNone: [], picture: 0, paintServer: 0, keys: [] };
+  const out = { cells: 0, rows: [], diagnostics: [], text: 0, svgs: 0, emptySvgs: 0, glyph: 0, inputs: 0, below: [], exemptUses: {}, badExempt: [], gradeNone: [], picture: 0, paintServer: 0 };
   const svgInks = (svg) => window.__contrast.svgInks(svg, () => { out.paintServer += 1; });
 
   const label = (el) => {
@@ -121,14 +121,24 @@ function measure({ rows, tokens, grades, partMap, exemptIds, noGradeTokens, them
   out.cells = cells.length;
   cells.forEach((cell) => {
     const { contract, state, host } = cell.dataset;
-    out.keys.push(contract + "|" + state + "|" + host);
-    rows.filter((r) => r.component === contract && r.state === state && r.host === host).forEach((r) => {
+    const spec = label(cell);
+    const view = cell.closest("[data-view]")?.getAttribute("data-view") ?? "";
+    const location = { contract, state, host, spec, view };
+    const matching = rows.filter((r) => r.component === contract && r.state === state && r.host === host);
+    const value = cell.getAttribute("data-parts");
+    const { parts, error } = validateParts(value, matching);
+    if (error) {
+      out.diagnostics.push({ ...location, value, error });
+      return;
+    }
+    const name = expectedTheme(cell, theme);
+    selectParts(matching, parts).forEach((r) => {
       const map = (partMap[contract] && partMap[contract][r.part]) || {};
       const sel = map.sel || `[data-part="${r.part}"]`;
       const el = sel === ":cell" ? cell : cell.querySelector(sel);
-      const want = tokens[r.token] && tokens[r.token][theme];
+      const want = tokens[r.token] && tokens[r.token][name];
       const role = grades[r.role] || {};
-      const base = { contract, state, host, part: r.part, token: r.token, role: r.role, grade: role.grade };
+      const base = { ...location, part: r.part, token: r.token, role: r.role, grade: role.grade };
       if (!el) { out.rows.push({ ...base, status: "unlocated" }); return; }
       const cs = getComputedStyle(el, map.pseudo);
       let prop = map.prop;
@@ -173,8 +183,7 @@ function measure({ rows, tokens, grades, partMap, exemptIds, noGradeTokens, them
   });
   // A specimen can pin the other theme on its own box, so the no-grade values follow the nearest data-theme.
   const noGradeValues = (el) => {
-    const scoped = el.closest("[data-theme]");
-    const name = scoped && scoped !== document.documentElement ? (scoped.getAttribute("data-theme") === "latte" ? "latte" : "mocha") : theme;
+    const name = expectedTheme(el, theme);
     return noGradeTokens.map((t) => tokens[t] && tokens[t][name]).filter(Boolean).map((v) => parse(v)).filter(Boolean);
   };
   const judge = (kind, el, ink, grade, text) => {
@@ -247,7 +256,7 @@ async function run() {
     }
     if (siteOnly) continue;
     const seen = new Set();
-    const t = { cells: 0, rows: 0, ok: 0, unlocated: [], mismatch: [], below: [], text: 0, svgs: 0, emptySvgs: 0, glyph: 0, inputs: 0, other: [], exemptUses: {}, badExempt: [], gradeNone: {}, picture: 0, paintServer: 0, hscroll: [], errors: [], passes: {} };
+    const t = { cells: 0, rows: 0, ok: 0, unlocated: [], mismatch: [], below: [], diagnostics: [], text: 0, svgs: 0, emptySvgs: 0, glyph: 0, inputs: 0, other: [], exemptUses: {}, badExempt: [], gradeNone: {}, picture: 0, paintServer: 0, hscroll: [], errors: [], passes: {} };
     const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
     await context.addInitScript((name) => localStorage.setItem("tasty-theme", name), theme);
     for (const page of pages) {
@@ -266,14 +275,15 @@ async function run() {
       await stylesSettled(tab);
       await installPageLib(tab);
       const m = await tab.evaluate(measure, { rows: data.components, tokens, grades, partMap: PART_MAP, exemptIds, noGradeTokens: noGrade, theme });
-      m.keys.forEach((k) => seen.add(k));
       t.passes[page.key] = { cells: m.cells, rows: m.rows.length, text: m.text, glyph: m.glyph, inputs: m.inputs };
       t.cells += m.cells;
       t.rows += m.rows.length;
       for (const r of m.rows) {
+        seen.add(contractRowKey(r));
         if (r.status === "ok") t.ok += 1;
         else t[r.status].push({ ...r, page: page.key });
       }
+      m.diagnostics.forEach((d) => t.diagnostics.push({ ...d, page: page.key }));
       t.text += m.text; t.svgs += m.svgs; t.emptySvgs += m.emptySvgs; t.glyph += m.glyph; t.inputs += m.inputs; t.picture += m.picture; t.paintServer += m.paintServer;
       m.below.forEach((b) => t.other.push({ ...b, page: page.key }));
       for (const [id, n] of Object.entries(m.exemptUses)) t.exemptUses[id] = (t.exemptUses[id] || 0) + n;
@@ -289,21 +299,22 @@ async function run() {
     console.log(`${theme} gallery chrome: pages ${chrome.pages}, text ${chrome.text}, shapes ${chrome.glyph}, below ${chrome.below.length}`);
     chrome.below.slice(0, 100).forEach((b) => console.log(`  chrome ${b.page} ${b.at}: ${b.kind} "${b.text}" ${b.got} on ${b.ground} ${b.ratio} < ${b.grade}`));
     if (chromeBad > 0) failed = true;
-    const missing = [...new Set(data.components.map((r) => `${r.component}|${r.state}|${r.host}`))].filter((k) => !seen.has(k));
-    t.missingCells = argOf("--page") ? [] : missing;
+    t.missingCells = argOf("--page") ? [] : missingCellRows(data.components, seen);
     report.themes[theme] = { ...t, chromePasses: chrome.passes };
     const measured = t.rows + t.text + t.glyph + t.inputs;
-    const bad = t.unlocated.length + t.mismatch.length + t.below.length + t.other.length + t.badExempt.length + t.missingCells.length + t.errors.length;
+    const bad = t.unlocated.length + t.mismatch.length + t.below.length + t.diagnostics.length + t.other.length + t.badExempt.length + t.missingCells.length + t.errors.length;
     console.log(`${theme}: cells ${t.cells}, rows ${t.rows} (ok ${t.ok}, unlocated ${t.unlocated.length}, mismatch ${t.mismatch.length}, below ${t.below.length}), text ${t.text}, svgs ${t.svgs} (${t.glyph} painted shapes, ${t.emptySvgs} svgs painting nothing, ${t.paintServer} gradient or pattern paints not measured), inputs ${t.inputs}, below on page ${t.other.length}, on a picture ${t.picture}, missing cells ${t.missingCells.length}, page errors ${t.errors.length}`);
     console.log(`  exempt: ${Object.entries(t.exemptUses).map(([k, v]) => `${k} ${v}`).join(", ") || "none"}`);
     console.log(`  no grade: ${Object.entries(t.gradeNone).map(([k, v]) => `${k} ${v}`).join(", ") || "none"}`);
     if (measured === 0) { console.error(`${theme}: nothing measured`); failed = true; }
     if (bad > 0) failed = true;
+    const at = (b) => `${b.page}${b.spec ? `#${b.spec}` : ""}${b.view ? ` (data-view=${b.view})` : ""}`;
     const pairs = new Map();
-    for (const b of [...t.mismatch, ...t.below]) pairs.set(`${b.contract} ${b.part}: got ${b.got} want ${b.token} (${b.expect}) on ${b.ground}`, b);
+    for (const b of [...t.mismatch, ...t.below]) pairs.set(`${b.contract} ${b.part}: got ${b.got} want ${b.token} (${b.expect}) on ${b.ground} at ${at(b)}`, b);
     for (const b of t.other) pairs.set(`${b.page}#${b.spec}: ${b.kind} ${b.text} ${b.got} on ${b.ground} ${b.ratio} < ${b.grade}`, b);
     [...pairs.keys()].slice(0, 400).forEach((p) => console.log(`  ${p}`));
-    t.unlocated.slice(0, 200).forEach((b) => console.log(`  unlocated ${b.contract} ${b.part}`));
+    t.unlocated.slice(0, 200).forEach((b) => console.log(`  unlocated ${b.contract} ${b.part} at ${at(b)}`));
+    t.diagnostics.forEach((d) => console.log(`  invalid data-parts ${JSON.stringify(d.value)} for ${d.contract}|${d.state}|${d.host} at ${at(d)}: ${d.error}`));
     t.badExempt.forEach((b) => console.log(`  unknown exempt id ${b.id} at ${b.page}#${b.spec}`));
     t.missingCells.slice(0, 500).forEach((k) => console.log(`  no cell ${k}`));
     t.errors.forEach((e) => console.log(`  page error ${e}`));

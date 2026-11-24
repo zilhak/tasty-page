@@ -3,6 +3,28 @@
  * Colors round per channel to 8 bits and a translucent layer composites source-over, as RULES.md says.
  */
 export function pageLib() {
+  const selectParts = (rows, parts) => parts === null ? rows : rows.filter((row) => parts.includes(row.part));
+  const validateParts = (value, rows) => {
+    if (value === null) return { parts: null };
+    const invalidFormat = "expected a JSON array of part names";
+    let parts;
+    try {
+      parts = JSON.parse(value);
+    } catch {
+      return { error: invalidFormat };
+    }
+    if (!Array.isArray(parts) || parts.some((part) => typeof part !== "string")) return { error: invalidFormat };
+    if (parts.length === 0) return { error: "expected at least one part name" };
+    const unknown = parts.filter((part) => !rows.some((row) => row.part === part));
+    if (unknown.length > 0) return { error: `unknown parts ${JSON.stringify(unknown)}` };
+    return { parts };
+  };
+  const expectedTheme = (el, theme) => {
+    const scoped = el.closest("[data-theme]");
+    if (scoped === null || scoped === el.ownerDocument.documentElement) return theme;
+    return scoped.getAttribute("data-theme") === "latte" ? "latte" : "mocha";
+  };
+
   const parse = (s) => {
     let m = /rgba?\(([^)]+)\)/.exec(s);
     if (m) { const p = m[1].split(/[ ,/]+/).filter(Boolean).map(Number); return [p[0], p[1], p[2], p[3] === undefined ? 1 : p[3]]; }
@@ -291,10 +313,14 @@ export function pageLib() {
     return judgeRow(row, el, null, tokens, theme);
   };
 
-  return { parse, over, ratio, hex, near, overlays, opacityOf, visible, svgInks, inkOn, measureRows, scan, alternatives, pseudoOf, bare, pick, aim, measureAimed, measureFocus };
+  return { selectParts, validateParts, expectedTheme, parse, over, ratio, hex, near, overlays, opacityOf, visible, svgInks, inkOn, measureRows, scan, alternatives, pseudoOf, bare, pick, aim, measureAimed, measureFocus };
 }
 
 export const installPageLib = (tab) => tab.addScriptTag({ content: `window.__contrast = (${pageLib})();` });
+
+// The Node runner indexes contract definitions and browser results by the same row identity.
+export const contractRowKey = ({ component, contract, state, host, part }) => `${component ?? contract}|${state}|${host}|${part}`;
+export const missingCellRows = (rows, seen) => [...new Set(rows.map(contractRowKey))].filter((key) => !seen.has(key));
 
 const SETTLE_LIMIT_MS = 30000;
 
