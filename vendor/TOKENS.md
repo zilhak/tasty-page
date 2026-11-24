@@ -132,7 +132,7 @@ A component token may read another component token in two cases:
 Not allowed:
 
 - **Peer sharing.** Two parts need the same value for the same reason, but they are not one component and neither is drawn as the other. Neither owns the value, so neither reads the other. Both read the semantic role, and if none exists, add one, as under Part-only measures. A Select placeholder is not an Input, so it reads `--tasty-text-placeholder` as the Input does. It does not read `--tasty-input-placeholder`.
-- A `var()` naming a token that `components.css` does not declare, and any cycle.
+- A `var()` naming a token that none of `primitives.css`, `semantic.css` and `components.css` declares, and a cycle among component tokens that read each other.
 
 A chain may pass through several component tokens (`--tasty-notification-item-unread-dot-size` → `--tasty-badge-dot-size` → `--tasty-status-dot-size`). Every link follows these rules, and the last component token in the chain follows the tier rules above. Inside `calc()`, each `var()` follows the rule for its own tier.
 
