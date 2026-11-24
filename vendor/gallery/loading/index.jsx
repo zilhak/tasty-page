@@ -53,7 +53,7 @@ function BootFrame({ w, h, z = 1, phase, showPhase = true, theme }) {
   };
   const wrap = {
     display: "inline-block", border: "var(--tasty-border-width) solid var(--tasty-titlebar-csd-border)",
-    borderRadius: "var(--tasty-radius-8)", overflow: "hidden",
+    borderRadius: "var(--tasty-titlebar-csd-radius)", overflow: "hidden",
   };
   const vp = { position: "relative", overflow: "hidden", width: w * z, height: h * z };
   const content = (
@@ -110,7 +110,7 @@ function ShellSetupFrame({ check = "valid", os = "mac", notice = "missing", foun
   const win = os === "win";
   const value = valueProp ?? { empty: "", missing: win ? "C:/Program Files/Git/bin/bash.exe" : "/usr/local/bin/zsh", notShell: "C:/Windows/System32/cmd.exe", valid: win ? "D:/Tools/Git/bin/bash.exe" : "/bin/zsh" }[check];
   return (
-    <div style={{ display: "inline-block", border: "var(--tasty-border-width) solid var(--tasty-titlebar-csd-border)", borderRadius: "var(--tasty-radius-8)", overflow: "hidden" }}>
+    <div style={{ display: "inline-block", border: "var(--tasty-border-width) solid var(--tasty-titlebar-csd-border)", borderRadius: "var(--tasty-titlebar-csd-radius)", overflow: "hidden" }}>
       <div {...(theme ? { "data-theme": theme } : {})} style={{ width: 640, height: 480, background: "var(--tasty-bg-app)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
         <Lockup />
         <div style={{ marginTop: "var(--tasty-space-xl)", width: "var(--tasty-size-360)", display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
@@ -148,7 +148,7 @@ const BOOT_ERRORS = {
 function BootErrorFrame({ kind = "engine", theme, h = 480 }) {
   const e = BOOT_ERRORS[kind];
   return (
-    <div style={{ display: "inline-block", border: "var(--tasty-border-width) solid var(--tasty-titlebar-csd-border)", borderRadius: "var(--tasty-radius-8)", overflow: "hidden" }}>
+    <div style={{ display: "inline-block", border: "var(--tasty-border-width) solid var(--tasty-titlebar-csd-border)", borderRadius: "var(--tasty-titlebar-csd-radius)", overflow: "hidden" }}>
       <div {...(theme ? { "data-theme": theme } : {})} style={{ width: 640, height: h, background: "var(--tasty-bg-app)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
         <Lockup />
         <div style={{ marginTop: "var(--tasty-space-xl)", width: "var(--tasty-boot-form-width)", display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", minHeight: 0 }}>
