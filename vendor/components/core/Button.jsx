@@ -67,7 +67,7 @@ const CSS = `
 .tasty-btn--secondary.tasty-btn--on-raised:hover { border-color: var(--tasty-border-frame); color: var(--tasty-text-primary); }
 .tasty-btn--secondary.tasty-btn--on-raised:active { border-color: var(--tasty-border-frame); color: var(--tasty-text-on-active-hover); }
 .tasty-btn--ghost.tasty-btn--on-raised { color: var(--tasty-button-ghost-raised-fg); }
-.tasty-btn--ghost.tasty-btn--on-raised:hover { color: var(--tasty-button-ghost-raised-fg-hover); }
+.tasty-btn--ghost.tasty-btn--on-raised:hover, .tasty-btn--ghost.tasty-btn--on-raised:active { color: var(--tasty-button-ghost-raised-fg-hover); }
 .tasty-btn--ghost.tasty-btn--on-active { color: var(--tasty-button-ghost-active-fg); }
 .tasty-btn--ghost.tasty-btn--on-active:hover, .tasty-btn--ghost.tasty-btn--on-active:active { color: var(--tasty-text-on-active-hover); }
 .tasty-btn--ghost.tasty-btn--on-active svg { color: var(--tasty-text-on-active); }
