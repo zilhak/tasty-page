@@ -3,12 +3,11 @@
 import React from "react";
 import { Views, View } from "./specimen.jsx";
 
-export function focusViews(name, render, style, extra) {
+export function focusViews(name, render, style) {
   return (
     <Views>
       <View name={`${name}-focused`} label="Focused"><div style={style}>{render(true)}</div></View>
       <View name={`${name}-unfocused`} label="Unfocused"><div style={style}>{render(false)}</div></View>
-      {extra}
     </Views>
   );
 }

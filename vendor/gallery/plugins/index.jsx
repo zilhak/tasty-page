@@ -719,22 +719,28 @@ function Page() {
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)" }}>
             <ExplorerFrame />
           </Stage>
-          {focusViews("explorer-full-layout", (focused) => <ExplorerFrame focused={focused} />, undefined, (
-            <View name="explorer-detail-narrow-pane" wide label="Narrow pane — Name stops at 140, Size · Date modified · Type stay 80 · 132 · 92, the table is clipped on the right (no horizontal scroll)">
-              <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-md)" }}>
-                {[["var(--tasty-size-460)", "460 — Name at its 140 floor, every column whole"], ["var(--tasty-size-320)", "320 — Name stays 140, Date modified and Type clipped"]].map(([w, cap]) => (
-                  <div key={w} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}><div style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</div>
-                  <div style={{ width: w, maxWidth: "100%", height: "var(--tasty-size-200)", display: "flex", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
-                    <ExpDetail />
-                  </div></div>
-                ))}
-              </div>
-            </View>
-          ))}
+          {focusViews("explorer-full-layout", (focused) => <ExplorerFrame focused={focused} />)}
           <Meta
             specs={[["focus", <>the file area takes the bed, <span className="tok">--tasty-surface-bed-focused</span> or <span className="tok">--tasty-surface-bed-unfocused</span>; tabs, toolbar, sidebar, header and status line stay</>], ["surface", "fills a work-area tile"], ["internal tabs", <>28px · per-cwd, with <span className="ic">×</span> + <span className="ic">＋</span></>], ["toolbar", "44px · nav · path field · view toggle"], ["sidebar", <>196px — Files tree + Favorites</>], ["splitter", <>1px <span className="tok">--tasty-separator</span>, drag to resize</>], ["row height", <>28 (Detail) · <span className="tok">--tasty-table-cell-height</span> — the shared Table</>], ["detail columns", <>Size 80 · Date modified 132 · Type 92, fixed (not resizable) · Name takes the rest, floor 140 <span className="tok">--tasty-explorer-detail-name-col-min-width</span> · narrower pane → the table is clipped on the right, no horizontal scroll · header and rows share one track list</>], ["detail header", "shared Table header — UI font · table-header-font-size 11 · weight medium · caps"], ["min height", <>180 · <span className="tok">--tasty-explorer-min-height</span> — the split drag stops here (tabs 28 + toolbar 44 + header 28 + 2 rows + status 24)</>], ["selected row", <span className="tok">--tasty-surface-active</span>]]}
             tokens={[{ tok: "--tasty-bg-panel", use: "toolbar + active tab", color: "var(--tasty-bg-panel)" }, { tok: "--tasty-surface-bed-focused", use: "file area, focused", color: "var(--tasty-surface-bed-focused)" }, { tok: "--tasty-surface-bed-unfocused", use: "file area, unfocused", color: "var(--tasty-surface-bed-unfocused)" }, { tok: "--tasty-bg-sidebar", use: "tabs + sidebar + header", color: "var(--tasty-bg-sidebar)" }, { tok: "--tasty-surface-raised", use: "view toggle container", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-segtoggle-on-bg", use: "view toggle — selected segment", color: "var(--tasty-segtoggle-on-bg)" }, { tok: "--tasty-input-bg", use: "path field", color: "var(--tasty-input-bg)" }, { tok: "--tasty-surface-active", use: "selected row (rows only)", color: "var(--tasty-surface-active)" }, { tok: "--tasty-accent-warning", use: "favorite star", color: "var(--tasty-accent-warning-raised)" }, { tok: "--tasty-accent-primary", use: "active tab bar", color: "var(--tasty-accent-primary-raised)" }]} />
           <Note>Defaults chosen (briefs left these open): <b>Detail</b> is the default view; the right-hand preview panel is <b>dropped</b> in favour of a wider content area (re-add later as a toggle if needed); no in-toolbar filter search in this pass; the tree is rooted at <b>Home</b>. Favorites are global across surfaces.</Note>
+        </Spec>
+
+        <Spec id="explorer-detail-narrow-pane" title="Explorer Detail — narrow pane"
+          when={<>The Detail table in a pane narrower than its columns, as the app draws it. Size, Date modified and Type keep 80, 132 and 92 (the table is not resizable). Name takes the rest and stops at 140. Below that the table is clipped on the right, with no horizontal scroll. The pane keeps its own width: the floor never widens what holds the table.</>}>
+          <Stage variant="solo" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 16, flexWrap: "wrap", alignItems: "flex-start" }}>
+            {[["var(--tasty-size-460)", "460 — Name at its 140 floor, every column whole"], ["var(--tasty-size-320)", "320 — Name stays 140, Date modified and Type clipped"]].map(([w, cap]) => (
+              <div key={w} style={{ flex: "none", display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
+                <div style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</div>
+                <div style={{ width: w, height: "var(--tasty-size-200)", display: "flex", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
+                  <ExpDetail />
+                </div>
+              </div>
+            ))}
+          </Stage>
+          <Meta
+            specs={[["columns", <>Size 80 · Date modified 132 · Type 92, fixed · Name the rest, floor 140 <span className="tok">--tasty-explorer-detail-name-col-min-width</span></>], ["narrower pane", "the table is clipped on the right · no horizontal scroll · header and rows clip on the same lines"], ["pane width", "set by the layout, never by the table"], ["460 box", "1px edge each side, so the table has 458: the side inset loses 2, every column whole"]]}
+            tokens={[{ tok: "--tasty-explorer-detail-name-col-min-width", use: "Name floor → size-140" }, { tok: "--tasty-explorer-detail-size-col-width", use: "Size → size-80" }, { tok: "--tasty-explorer-detail-date-col-width", use: "Date modified → size-132" }, { tok: "--tasty-explorer-detail-type-col-width", use: "Type → size-92" }]} />
         </Spec>
 
         <Spec id="view-toggle-segtoggle-a-segment-so-it-fills-settled" title="View toggle (SegToggle) — a segment, so it fills (settled)"
