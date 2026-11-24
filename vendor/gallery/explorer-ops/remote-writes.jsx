@@ -81,9 +81,9 @@ function PendingDetailRow({ glyph = K.ic.folder, value }) {
     </div>
   );
 }
-// zh-Hans: the app's explorer.popup.rename.title / .rename, button.cancel, explorer.remote.renaming (tasty lang/zh-Hans.toml).
+// Every language: the app's explorer.popup.rename.title, explorer.remote.renaming, button.cancel, explorer.popup.rename.rename (tasty lang/*.toml).
 function RenamePending({ lang = "en", idle = false, noHost = false }) {
-  const t = [...{ en: ["Rename", "Renaming on build-eu…", "Cancel", "Rename"], ko: ["이름 바꾸기", "build-eu에서 이름 바꾸는 중…", "취소", "이름 바꾸기"], ja: ["名前の変更", "build-eu で名前を変更中…", "キャンセル", "名前を変更"], "zh-Hans": ["重命名", "正在 build-eu 上重命名…", "取消", "重命名"] }[lang]];
+  const t = [...{ en: ["Rename", "Renaming on build-eu…", "Cancel", "Rename"], ko: ["이름 변경", "build-eu에서 이름 바꾸는 중…", "취소", "이름 변경"], ja: ["名前を変更", "build-eu で名前を変更中…", "キャンセル", "名前を変更"], "zh-Hans": ["重命名", "正在 build-eu 上重命名…", "取消", "重命名"] }[lang]];
   if (noHost) t[1] = NO_HOST.renaming[lang];
   return (
     <div lang={lang} style={{ width: "var(--tasty-size-360)", maxWidth: "100%", background: "var(--tasty-dialog-bg)", border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", padding: "var(--tasty-space-md) var(--tasty-size-14)", display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
