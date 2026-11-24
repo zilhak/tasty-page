@@ -1026,7 +1026,14 @@ function CollapsedPopupButton({ kind = "label", ring = false, edge = ring, scrim
   const ringStyle = (live ? hasFocus : ring) ? { outline: "var(--tasty-focus-ring-width) solid var(--tasty-border-focus)", outlineOffset: "var(--tasty-border-width)" } : undefined;
   const press = live ? {
     onFocus: () => setHasFocus(true), onBlur: () => setHasFocus(false),
-    onClick: onShow,
+    // a pointer press (detail > 0) and a bare Enter or Space show the popup; with a modifier they do nothing
+    onClick: (e) => { if (e.detail > 0) onShow(); },
+    onKeyDown: (e) => {
+      if (e.key !== "Enter" && e.key !== " ") return;
+      e.preventDefault();
+      if (!e.shiftKey && !e.ctrlKey && !e.altKey && !e.metaKey) onShow();
+    },
+    onKeyUp: (e) => { if (e.key === " ") e.preventDefault(); },
   } : { tabIndex: -1 };
   return (
     <div data-collapsed-popup={kind} style={{ position: "relative", overflow: "hidden", flex: "none", display: "flex", padding: "var(--tasty-popup-content-margin)",
