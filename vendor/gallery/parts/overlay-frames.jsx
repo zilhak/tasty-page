@@ -1071,7 +1071,7 @@ function SearchBarFrame({ value = "tasty", focused = false, invalid = false, hei
         <div><span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-color-green)" }}>~/tasty</span> $ cargo build --release</div>
         <div>   Compiling tasty-core v0.5.0</div>
         <div>   Compiling <mark style={{ background: "var(--tasty-accent-warning)", color: "#000" }}>tasty</mark>-ui-widgets v0.5.0</div>
-        <div>   Compiling <mark style={{ background: "var(--tasty-search-match-active-bg)", color: "var(--tasty-search-match-active-fg)" }}>tasty</mark>-gallery v0.5.0</div>
+        <div>   Compiling <mark style={{ background: "var(--tasty-search-match-active-bg)", color: focused ? "var(--tasty-search-match-active-unfocused-fg)" : "var(--tasty-search-match-active-fg)" }}>tasty</mark>-gallery v0.5.0</div>
         <div>    Finished release [optimized] target(s)</div>
       </div>
       {/* the search bar */}
