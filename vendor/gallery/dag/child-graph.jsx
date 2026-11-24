@@ -69,7 +69,7 @@ function CopyTable() {
 function OverWindow({ w = 760, h = 560, fitted = false, children }) {
   return (
     <div style={{ position: "relative", width: w, height: h, flex: "none" }}>
-      <div data-audit-exempt="under-scrim"><ShellMock size={[w, h]} /></div>
+      <div data-audit-exempt="under-scrim"><ShellMock size={[w, h]} under /></div>
       <div style={{ position: "absolute", inset: 0, background: "var(--tasty-scrim-bg)", borderRadius: "var(--tasty-radius)" }} />
       <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: fitted ? "flex-start" : "center", justifyContent: fitted ? "flex-start" : "center" }}>{children}</div>
     </div>

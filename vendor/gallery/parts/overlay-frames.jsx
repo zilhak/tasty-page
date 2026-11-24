@@ -884,23 +884,30 @@ function LocalSshSection({ state = "hosts" }) {
 //   onShow: a live frame — the collapsed show button takes part in Tab order and presses call onShow.
 function ShellMock({ scope = "none", split = "v", child = false, narrow = false, clamp = false,
   collapsed = null, ring = false, leftWidth = null, size = null, pin = false, label = "Show popup",
-  focus = "popup", agent = false, expanded = false, onShow }) {
+  focus = "popup", agent = false, expanded = false, under = false, onShow }) {
   const [W, H] = size || [narrow ? 560 : 760, 380];
   const surfaceScrim = scope === "surface";
-  const popupFocused = focus === "popup" && !agent;
+  // Live (onShow): key focus follows the page. The show button holding DOM focus is the popup holding key focus; a
+  // press on the right surface moves it there; any other blur hands it back to the surface under the popup.
+  const live = !!onShow;
+  const [liveAt, setLiveAt] = React.useState("left");
+  const onFocusChange = live ? (has) => setLiveAt((at) => (has ? "popup" : at === "popup" ? "left" : at)) : undefined;
+  const popupFocused = live ? liveAt === "popup" : focus === "popup" && !agent;
   const edgeLit = scope === "surface" && popupFocused;
   // Key focus is in one place (RULES.md "Surface focus"): while the popup holds it, no surface paints focused. A passive
   // popup leaves the surface under it focused, and focus "other" lights the other surface.
+  // under: the caller draws a popup over this window that holds key focus, so no surface here is focused.
   const popupHoldsKeys = (scope === "surface" || scope === "window") && popupFocused;
-  const leftFocused = focus !== "other" && !popupHoldsKeys;
+  const leftFocused = !under && (live ? liveAt === "left" : focus !== "other" && !popupHoldsKeys);
+  const rightFocused = !under && (live ? liveAt === "right" : focus === "other");
   // The popup surface's rect in this mock: the window less its 1px border (top and bottom), the titlebar (28),
   // the pane tab strip (24) and the status bar (24) — border-box, so each bar's height already holds its 1px rule;
   // a stacked split takes the 1px divider and halves the rest. Its width is leftWidth when set, else wide enough
   // that the width term does not bind. spacing_sm is 8 at scale 1, and the mock computes with 8.
   const surfaceH = (H - 2 - 28 - 24 - 24 - (split === "h" ? 1 : 0)) / (split === "h" ? 2 : 1);
   const surfaceInset = Math.max(0, Math.min(8, leftWidth ? leftWidth / 2 : Infinity, surfaceH / 2));
-  const Term = ({ lines, focused, children, label }) => (
-    <div style={{ position: "relative", flex: 1, minWidth: 0, minHeight: 0, overflow: "hidden",
+  const Term = ({ lines, focused, children, label, onPointerDown }) => (
+    <div onPointerDown={onPointerDown} style={{ position: "relative", flex: 1, minWidth: 0, minHeight: 0, overflow: "hidden",
       background: focused ? "var(--tasty-surface-terminal-focused-bg)" : "var(--tasty-surface-terminal-unfocused-bg)" }}>
       <div style={{ padding: "8px 10px", fontFamily: "var(--tasty-font-mono)", fontSize: 11, lineHeight: 1.6,
         color: focused ? "var(--tasty-text-secondary)" : "var(--tasty-text-muted)", whiteSpace: "pre" }}>{lines}</div>
@@ -943,7 +950,7 @@ function ShellMock({ scope = "none", split = "v", child = false, narrow = false,
     </div>
   );
   const collapsedFrame = collapsed && (
-    <CollapsedPopupButton kind={collapsed === "label" ? "label" : "icon"} ring={ring && popupFocused} edge={edgeLit} scrim={surfaceScrim} label={label} onShow={onShow} />
+    <CollapsedPopupButton kind={collapsed === "label" ? "label" : "icon"} ring={ring && popupFocused} edge={edgeLit} scrim={surfaceScrim} label={label} onShow={onShow} onFocusChange={onFocusChange} />
   );
   return (
     <div style={{ width: W, height: H, display: "flex", flexDirection: "column", overflow: "hidden",
@@ -993,7 +1000,7 @@ function ShellMock({ scope = "none", split = "v", child = false, narrow = false,
               )}
             </div>
             <div style={{ flex: "none", ...(split === "v" ? { width: 1 } : { height: 1 }), background: "var(--tasty-border-frame)" }} />
-            <Term focused={focus === "other"} lines={"$ git status\nOn branch feat/dag-detail\nnothing to commit"} />
+            <Term focused={rightFocused} onPointerDown={live ? () => setLiveAt("right") : undefined} lines={"$ git status\nOn branch feat/dag-detail\nnothing to commit"} />
           </div>
         </div>
       </div>
@@ -1024,12 +1031,14 @@ function ShellMock({ scope = "none", split = "v", child = false, narrow = false,
 // ring: the button holds key focus (the base.css :focus-visible pair, drawn static).
 // edge: the popup holds key focus, so its frame lights the popup focus edge (a surface popup; follows ring).
 // onShow: live — the button is in Tab order and draws the ring whenever it holds key focus.
-function CollapsedPopupButton({ kind = "label", ring = false, edge = ring, scrim = true, label = "Show popup", onShow }) {
+// onFocusChange: live — told when the button gains or loses DOM focus, so the shell can light the bar and the beds from it.
+function CollapsedPopupButton({ kind = "label", ring = false, edge = ring, scrim = true, label = "Show popup", onShow, onFocusChange }) {
   const live = !!onShow;
   const [hasFocus, setHasFocus] = React.useState(false);
   const ringStyle = (live ? hasFocus : ring) ? { outline: "var(--tasty-focus-ring-width) solid var(--tasty-border-focus)", outlineOffset: "var(--tasty-border-width)" } : undefined;
   const press = live ? {
-    onFocus: () => setHasFocus(true), onBlur: () => setHasFocus(false),
+    onFocus: () => { setHasFocus(true); if (onFocusChange) onFocusChange(true); },
+    onBlur: () => { setHasFocus(false); if (onFocusChange) onFocusChange(false); },
     // a pointer press (detail > 0) and a bare Enter or Space show the popup; with a modifier they do nothing
     onClick: (e) => { if (e.detail > 0) onShow(); },
     onKeyDown: (e) => {
