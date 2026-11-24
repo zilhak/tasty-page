@@ -61,7 +61,7 @@ function GalleryTitleBar() {
         ))}
       </Stage>
       <Meta
-        specs={[["height", "titlebar-height 36"], ["caption cell", "titlebar-caption-width by titlebar-height"], ["glyph", "icon-size-xs 12"], ["title", "body, ellipsis at the right end"], ["Linux window button", "--tasty-titlebar-window-button-size"], ["Linux glyph extent", "--tasty-titlebar-window-glyph-size"]]}
+        specs={[["height", "--tasty-titlebar-height"], ["caption cell", "titlebar-caption-width by titlebar-height"], ["glyph", "icon-size-xs 12"], ["title", "body, ellipsis at the right end"], ["Linux window button", "--tasty-titlebar-window-button-size"], ["Linux glyph extent", "--tasty-titlebar-window-glyph-size"]]}
         tokens={[
           { tok: "--tasty-titlebar-bg", use: "active ground, crust", color: "var(--tasty-titlebar-bg)" },
           { tok: "--tasty-titlebar-bg-inactive", use: "inactive ground, mantle", color: "var(--tasty-titlebar-bg-inactive)" },
