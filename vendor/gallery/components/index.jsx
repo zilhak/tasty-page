@@ -973,11 +973,15 @@ function Components() {
 
         <Spec id="tooltip" title="Tooltip"
           when={<>The hover bubble itself — opaque raised card, 1px edge, popover lift, <b>no arrow</b> (calm, low-chrome). Wraps any anchor; shows on hover or keyboard focus after a short delay. Reusable beyond HelpHint. Shown here forced-open via <code>open</code>.</>}>
-          <Stage style={{ gap: 56, alignItems: "center", justifyContent: "center", paddingTop: 46, paddingBottom: 46, minHeight: 150 }}>
+          <Stage style={{ alignItems: "center", justifyContent: "safe center", minHeight: 150 }}>
+            {/* Each anchor sits centered in a cell as wide as the bubble's max width, with room above and below for a
+                top or bottom bubble, so every open bubble stays inside the stage when the cells wrap at a narrow width. */}
             {["top", "bottom", "left", "right"].map((p) => (
-              <Tooltip key={p} open placement={p} content={p === "left" || p === "right" ? "Terse hint." : "A short hint that wraps to two or three lines when the copy is longer."}>
-                <Tag>{p}</Tag>
-              </Tooltip>
+              <div key={p} style={{ display: "flex", justifyContent: "center", width: "var(--tasty-tooltip-max-width)", paddingTop: 46, paddingBottom: 46 }}>
+                <Tooltip open placement={p} content={p === "left" || p === "right" ? "Terse hint." : "A short hint that wraps to two or three lines when the copy is longer."}>
+                  <Tag>{p}</Tag>
+                </Tooltip>
+              </div>
             ))}
           </Stage>
           <Meta
