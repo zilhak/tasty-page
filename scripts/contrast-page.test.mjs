@@ -86,6 +86,16 @@ test("a closest match on the document root uses the run theme", () => {
   assert.equal(expectedTheme(themedElement(undefined, root), "mocha"), "mocha");
 });
 
+test("a null closest match preserves a Latte run theme", () => {
+  const root = themedElement(undefined);
+  assert.equal(expectedTheme(themedElement(undefined, root), "latte"), "latte");
+});
+
+test("a closest match on a Mocha document root preserves a Latte run theme", () => {
+  const root = themedElement("mocha");
+  assert.equal(expectedTheme(themedElement(undefined, root), "latte"), "latte");
+});
+
 test("a cell can inherit Latte from its nearest themed ancestor", () => {
   const root = themedElement("mocha");
   const frame = themedElement("latte", root);
