@@ -996,7 +996,7 @@ function Page() {
                 <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}><div style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>connection lost — timeout (remote, no profile name)</div><FilePickerFrame remote host="" state="error-conn-timeout" /></div>
               </div>
             </View>
-            <View name="file-picker-remote-loading-languages" label="Remote loading in every language — the app's filepicker.loading and loading_body_remote">
+            <View name="file-picker-remote-loading-languages" wide label="Remote loading in every language — the app's filepicker.loading and loading_body_remote">
               <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-lg)", alignItems: "flex-start" }}>
                 {["en", "ko", "ja", "zh-Hans"].map((l) => (
                   <div key={l} lang={l} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}><div style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{l}</div><FilePickerFrame remote state="loading" lang={l} w="var(--tasty-fp-specimen-view-width)" h="var(--tasty-fp-specimen-view-height)" /></div>
