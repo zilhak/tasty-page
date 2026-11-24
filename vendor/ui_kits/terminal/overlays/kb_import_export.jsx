@@ -20,8 +20,9 @@ import { useDraft } from "./settings_draft.jsx";
 //    option binding matches on every OS and nothing needs migrating.)
 // Apply writes the selected rows into the settings window's draft (settings_draft.jsx, key
 // "keybindings.bindings": row key -> combo); the window footer's Save commits it and Cancel drops it (same
-// 2-stage contract as Preset). The draft outlives a tab switch, so Current shows the drafted combo once a row is
-// applied. Rendered full-bleed — it owns its own scroll.
+// 2-stage contract as Preset). The preview stays after Apply and the draft outlives a tab switch, so Current shows
+// the drafted combo and an applied row leaves the default Changed only view. Apply is disabled only when no row is
+// selected; a file that cannot be read shows no Apply. Rendered full-bleed — it owns its own scroll.
 
 
 
@@ -204,8 +205,8 @@ function KbImportExportSubtab({ variant = "ready", onFlash, failLine = 1, failCa
   const total = IE_GROUPS.reduce((n, g) => n + g.rows.length, 0);
   const changed = IE_GROUPS.reduce((n, g) => n + g.rows.filter((r) => cur(g, r) !== r.next).length, 0);
   const picked = IE_GROUPS.reduce((n, g) => n + g.rows.filter((r) => sel[g.id + r.action] !== false).length, 0);
-  // Selected rows whose imported combo differs from the draft: what Apply would write.
-  const toApply = IE_GROUPS.flatMap((g) => g.rows.filter((r) => sel[g.id + r.action] !== false && cur(g, r) !== r.next)
+  // Apply writes every selected row's imported combo; a row that already matches writes the same value.
+  const toApply = IE_GROUPS.flatMap((g) => g.rows.filter((r) => sel[g.id + r.action] !== false)
     .map((r) => [g.id + r.action, r.next]));
   const apply = () => {
     setBindings((b) => ({ ...b, ...Object.fromEntries(toApply) }));
@@ -266,7 +267,7 @@ function KbImportExportSubtab({ variant = "ready", onFlash, failLine = 1, failCa
               {changedOnly ? "Show all " + total : "Changed only"}
             </Button>
 
-            <Button variant="primary" size="sm" disabled={toApply.length === 0} onClick={apply}>Apply</Button>
+            <Button variant="primary" size="sm" disabled={picked === 0} onClick={apply}>Apply</Button>
           </div>
         )}
         detail={detail}
