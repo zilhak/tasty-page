@@ -270,7 +270,7 @@ The picture keeps its ratio and scales down to fit the bed. It is never scaled a
 
 ### Surface focus
 
-The bed shows focus, as the terminal's always has: **`term` focused, `term-unfocused` unfocused**, on every surface whose bed belongs to Tasty. Where the bed belongs to someone else, the host paints the **surface focus edge** instead. Focus means host model focus. An inactive OS window keeps its focused look, and with no focused surface nothing looks focused.
+The bed shows focus, as the terminal's always has: **`term` focused, `term-unfocused` unfocused**, on every surface whose bed belongs to Tasty. Where the bed belongs to someone else, the host paints the **surface focus edge** instead. Focus means host model key focus: where keys go, not which pane or tab is selected. An inactive OS window keeps its focused look, and with no focused surface nothing looks focused.
 
 | Kind | Bed that follows focus | What stays | Edge |
 |---|---|---|---|
@@ -299,6 +299,13 @@ The bed shows focus, as the terminal's always has: **`term` focused, `term-unfoc
 
 **Explorer state screens.** An error screen reads `explorer-error-fg` for its glyph and title, on `term` and `term-unfocused`, as the image state screens read `image-error-fg`. A state screen has no hover or press, so the token is not listed on those grounds. The table keeps those cells, because every ground and role has one. If a state screen ever gains a press, it reads the cell: `accent-danger-strong` on `term-unfocused+press`, where `explorer-error-fg` is 4.29 in Latte.
 
+**Key focus, not selection.** A surface is focused while host key focus is in it, a field or control in the surface's own chrome included. Its pane and tab being selected is not enough.
+
+- **Under a popup that holds key focus.** Whatever the popup's scope, with or without a scrim, the surface under it and every other surface paint unfocused: a bed kind takes `term-unfocused`, an edge kind its unfocused edge. Only the popup's bar is lit, so keys show going to one place.
+- **When the popup lets go.** The surface key focus lands in paints focused in the same frame. A popup that closes and gives key focus back to the selected surface lights that surface again. A click into another surface lights that one, and the popup stays open and unlit.
+- **A popup without focus.** A popup opened without key focus, such as one an agent opens, leaves the focused surface focused.
+- **The same rules.** The bed and edge rules below hold as they are: one frame, no motion, nothing moves, hard occupied and mirror unchanged.
+
 **Rules for the bed.**
 
 - **No motion.** The color changes in one frame on every kind.
@@ -325,7 +332,7 @@ A click or key outside a popup's scope does not close it or take its focus. So a
 - **Lit edge.** While the popup holds key focus, its shell paints `popup-focus-edge-focused` across the top of the frame, `popup-focus-edge-width` 2px, zoom-exempt, inside the 1px border and clipped by the radius. It sits over the content margin, so no content moves. Role `glyph`, grade 3: on `base` (dialog shells) 9.26 · 5.53, on `mantle` (a popup title strip at the top) 9.91 · 5.14, on `raised` (search bar) 7.10 · 4.05, Mocha · Latte. Where a frame's top row is already taken by its own mark (the file picker's remote border mode), the bar sits directly under it.
 - **Unfocused.** No bar. The frame keeps its border, shadow and fill, and the scrim keeps its value: the scrim marks the scope the popup covers, where a click still goes to the popup, not where keys go. Nothing dims, because a user still reads an unfocused popup ([section 12](#12-exceptions), `dimmed`).
 - **Host and plugin alike.** The host draws the shell around a plugin's content, so a plugin cannot drop or recolor the bar. The plugin's own focus cues, such as a caret, come on top.
-- **One focus.** Key focus is in one place, so at most one popup in the window is lit. A child popup takes the bar from its parent. A surface that holds focus keeps its own focused bed or edge, and the popup beside it is unlit.
+- **One focus.** Key focus is in one place, so at most one thing in the window is lit: one popup's bar, or one surface's focused bed or edge. A child popup takes the bar from its parent. A surface that holds focus keeps its own focused bed or edge, and the popup beside it is unlit. A popup that holds focus leaves every surface unfocused, the one under it included, as Surface focus says.
 - **Window scope draws none.** Every click in the window is in its scope, so while open it holds focus or is passive, which has its own rule (no ring).
 - **Shown over the window.** A host or plugin popup scoped narrower than the window (surface, tab or pane, whatever the kind) that does not fit its scope first collapses to its show button, and the rest of the window stays usable while it is collapsed. A popup made to shrink to its scope, today only the search bar, is not under this rule: it never collapses and fits itself to its scope's width. Pressed, it expands over the window. Its logical scope, what it acts on, stays its own, but it is shown in window scope: the whole window takes `scrim-bg`, the same value as every scrim, with `shadow-modal`, and nothing else in the window takes a press, the sidebar's workspace rows included. It draws no focus edge, as window scope does. The `shrink` button first in its title bar, or Esc, collapses it back to the show button, and Esc never closes it there; a headless popup gets the host title bar with no title for it. Collapsing keeps the popup and its state: only its own controls close it. A child popup it opens, such as a picker, takes its scope and its form: over the window while the parent is, never starting as a show button of its own. No shortcut collapses it: over the window the way back is the shrink button or Esc. Collapsed and over the window are ways of showing one popup and change none of its rules: collapsed, it keeps its scope, its scrim if it covers the scope, its outside-click and Esc rules and its key focus. In a window smaller than the expanded popup, its left and top sit on the window's inner edge and its frame is fitted to the window: the title bar, or the host bar, keeps its buttons whole at its right end, and the content below is cut at the bottom.
 

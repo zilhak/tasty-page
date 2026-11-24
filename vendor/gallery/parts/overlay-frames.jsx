@@ -889,6 +889,10 @@ function ShellMock({ scope = "none", split = "v", child = false, narrow = false,
   const surfaceScrim = scope === "surface";
   const popupFocused = focus === "popup" && !agent;
   const edgeLit = scope === "surface" && popupFocused;
+  // Key focus is in one place (RULES.md "Surface focus"): while the popup holds it, no surface paints focused. A passive
+  // popup leaves the surface under it focused, and focus "other" lights the other surface.
+  const popupHoldsKeys = (scope === "surface" || scope === "window") && popupFocused;
+  const leftFocused = focus !== "other" && !popupHoldsKeys;
   // The popup surface's rect in this mock: the window less its 1px border (top and bottom), the titlebar (28),
   // the pane tab strip (24) and the status bar (24) — border-box, so each bar's height already holds its 1px rule;
   // a stacked split takes the 1px divider and halves the rest. Its width is leftWidth when set, else wide enough
@@ -978,7 +982,7 @@ function ShellMock({ scope = "none", split = "v", child = false, narrow = false,
           <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: split === "v" ? "row" : "column" }}>
             <div style={{ position: "relative", minWidth: 0, minHeight: 0, display: "flex", overflow: collapsed ? "hidden" : undefined,
               ...(leftWidth ? { flex: "none", width: leftWidth } : { flex: 1 }) }}>
-              <Term focused={focus !== "other"} lines={"$ tail -f deploy.log\n[12:04] applied 3 manifests\n[12:05] waiting for rollout…"} />
+              <Term focused={leftFocused} lines={"$ tail -f deploy.log\n[12:04] applied 3 manifests\n[12:05] waiting for rollout…"} />
               {/* the scrim — surface scope: this rect, nothing else */}
               {surfaceScrim && <div style={{ position: "absolute", inset: 0, background: "var(--tasty-scrim-bg)", zIndex: 1 }} />}
               {scope === "surface" && (
@@ -1057,11 +1061,13 @@ function SearchBarFrame({ value = "tasty", focused = false, invalid = false, hei
         color: active ? "var(--tasty-text-on-active)" : "var(--tasty-text-muted-raised)" }}>{label}</span>
     </IconButton>
   );
+  // The bar holding key focus leaves the terminal unfocused (RULES.md "Surface focus"); focus back in the terminal lights it.
+  const term = focused ? "unfocused" : "focused";
   return (
     <div style={{ position: "relative", width: "100%", height, borderRadius: "var(--tasty-radius)", overflow: "hidden",
-      border: "1px solid var(--tasty-border-default)", background: "var(--tasty-surface-terminal-focused-bg)" }}>
+      border: "1px solid var(--tasty-border-default)", background: `var(--tasty-surface-terminal-${term}-bg)` }}>
       {/* faux terminal text */}
-      <div style={{ padding: "12px 14px", fontFamily: "var(--tasty-font-mono)", fontSize: 12.5, lineHeight: 1.7, color: "var(--tasty-surface-terminal-focused-fg)" }}>
+      <div style={{ padding: "12px 14px", fontFamily: "var(--tasty-font-mono)", fontSize: 12.5, lineHeight: 1.7, color: `var(--tasty-surface-terminal-${term}-fg)` }}>
         <div><span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-color-green)" }}>~/tasty</span> $ cargo build --release</div>
         <div>   Compiling tasty-core v0.5.0</div>
         <div>   Compiling <mark style={{ background: "var(--tasty-accent-warning)", color: "#000" }}>tasty</mark>-ui-widgets v0.5.0</div>

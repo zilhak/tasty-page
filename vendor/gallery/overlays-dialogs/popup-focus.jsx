@@ -1,17 +1,52 @@
 import React from "react";
 import { Spec, Stage, Meta, Note, Dont, Views, View } from "../parts/specimen.jsx";
 import { ShellMock, CollapsedPopupButton, GroundThemes, GroundCap } from "../parts/overlay-frames.jsx";
+import { PopupFocusEdge } from "../../ui_kits/terminal/overlays/shared.jsx";
+import { SurfaceFocusEdge, surfaceBed } from "../../ui_kits/terminal/surface_focus.jsx";
 
 // Tasty Gallery: Dialogs, which open popup holds key focus. A click or key outside a popup's scope leaves it open and
 // does not take its focus, so a surface popup can sit open beside the surface the user types in. The shell lights the
 // popup focus edge while it holds key focus (RULES.md "Popup focus").
 
 const FOCUS_FRAMES = [
-  ["popup holds key focus — edge lit", { scope: "surface" }],
+  ["popup holds key focus — edge lit, both surfaces unfocused", { scope: "surface" }],
   ["the user clicked the other surface and types there — popup open, unlit", { scope: "surface", focus: "other" }],
   ["parent + child picker — the child holds focus, the parent is unlit", { scope: "surface", child: true }],
   ["opened by an agent (passive) — no focus, unlit", { scope: "surface", agent: true }],
   ["window scope — no edge in any state", { scope: "window" }],
+];
+
+// A leaf with an anchored popup over it (no scrim, so shadow-popover). keys: "popup" while the popup holds key focus,
+// "leaf" once focus is back in the leaf. The leaf paints focused only when keys go to it (RULES.md "Surface focus").
+const mono = { fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", whiteSpace: "nowrap", overflow: "hidden" };
+const LEAF_KINDS = {
+  html: (f) => (
+    <>
+      <SurfaceFocusEdge focused={f} />
+      <div style={{ ...mono, flex: "none", display: "flex", alignItems: "center", height: "var(--tasty-size-20)", padding: "0 var(--tasty-space-sm)", background: "var(--tasty-html-address-bar-bg)", color: "var(--tasty-text-secondary)" }}>example.com</div>
+      <div data-audit-exempt="html-page" style={{ ...mono, flex: 1, padding: "var(--tasty-space-xs) var(--tasty-space-sm)", background: "var(--tasty-bg-panel)", color: "var(--tasty-text-muted)" }}>The page paints itself</div>
+    </>
+  ),
+  terminal: (f) => (
+    <div style={{ ...mono, flex: 1, padding: "var(--tasty-space-xs) var(--tasty-space-sm)", background: surfaceBed(f), color: f ? "var(--tasty-surface-terminal-focused-fg)" : "var(--tasty-surface-terminal-unfocused-fg)" }}>$ cargo test</div>
+  ),
+};
+function LeafUnderPopup({ kind, keys }) {
+  const popupLit = keys === "popup";
+  return (
+    <div data-leaf-focus={popupLit ? "unfocused" : "focused"} style={{ position: "relative", display: "flex", flexDirection: "column", width: "var(--tasty-size-240)", height: "var(--tasty-size-112)", overflow: "hidden", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
+      {LEAF_KINDS[kind](!popupLit)}
+      <div style={{ position: "absolute", top: "var(--tasty-size-28)", right: "var(--tasty-space-sm)", width: "var(--tasty-size-140)", overflow: "hidden", padding: "var(--tasty-space-sm)", display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-popover)" }}>
+        <PopupFocusEdge lit={popupLit} />
+        <span style={{ fontSize: "var(--tasty-font-size-caption)", fontWeight: "var(--tasty-font-weight-semibold)", color: "var(--tasty-text-primary)" }}>Plugin popover</span>
+        <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>surface scope, no scrim</span>
+      </div>
+    </div>
+  );
+}
+const UNDER_POPUP = [
+  ["html", "edge kind (html)"],
+  ["terminal", "bed kind (terminal)"],
 ];
 
 function PopupFocusSpec() {
@@ -41,6 +76,22 @@ function PopupFocusSpec() {
             </div>
           )} />
         </View>
+        {UNDER_POPUP.map(([kind, label]) => (
+          <View key={kind} name={`popup-focus-leaf-under-${kind}`} label={`the surface under a popup, ${label} — popup holds key focus, then focus back in the leaf`}>
+            <GroundThemes render={() => (
+              <div style={{ display: "flex", gap: "var(--tasty-space-lg)", alignItems: "flex-start", flexWrap: "wrap" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
+                  <GroundCap>popup holds key focus · leaf unfocused</GroundCap>
+                  <LeafUnderPopup kind={kind} keys="popup" />
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
+                  <GroundCap>focus back in the leaf · popup unlit</GroundCap>
+                  <LeafUnderPopup kind={kind} keys="leaf" />
+                </div>
+              </div>
+            )} />
+          </View>
+        ))}
       </Views>
       <Meta
         specs={[
@@ -49,7 +100,8 @@ function PopupFocusSpec() {
           ["bar", <><span className="tok">--tasty-popup-focus-edge-focused</span> · <span className="tok">--tasty-popup-focus-edge-width</span> 2, zoom-exempt · full width across the top, inside the 1px border, clipped by the 4 radius</>],
           ["layout", "drawn over the content margin (popup-content-margin 4 ≥ 2) — no row is reserved, nothing moves on a focus change"],
           ["unfocused", "no bar · border, fill, shadow, scrim and content unchanged · nothing dims (a user still reads it)"],
-          ["one focus", "at most one popup in the window is lit · a child popup takes the bar from its parent · a focused surface keeps its own focused bed or edge"],
+          ["one focus", "at most one thing in the window is lit: one popup's bar or one surface's bed or edge · a child popup takes the bar from its parent · a focused surface keeps its own focused bed or edge"],
+          ["the surface under it", "unfocused while the popup holds key focus, scrim or none: a bed kind takes the unfocused bed, an edge kind the unfocused edge · lit again in the frame key focus lands back in it (popup closed, or a click into it) · a passive popup leaves it focused"],
           ["passive (agent-opened)", "unlit, no ring, until the user gives it focus"],
           ["scrim", "unchanged by focus — it marks the scope the popup covers (a click there still goes to the popup), not where keys go"],
           ["window scope", "no bar — in scope everywhere, so focused while open, or passive"],
