@@ -4,8 +4,9 @@ import { Spec, Stage, Meta, Views, View, Note } from "../parts/specimen.jsx";
 import { TitlebarLinux } from "../../ui_kits/terminal/titlebar/titlebar_linux.jsx";
 import { TitlebarWindows } from "../../ui_kits/terminal/titlebar/titlebar_windows.jsx";
 
-// Tasty Gallery: Layouts, Title bar. Each cell is one row of the Title bar, Title bar (inactive) and Window close
-// button contracts, painted with the tokens the contract names.
+// Tasty Gallery: Layouts, Title bar. The states grid paints each row of the Title bar, Title bar (inactive) and Window
+// close button contracts with the tokens the contract names. The Linux and Windows specimens below render the UI kits,
+// and their frozen frames mark the kits' own title and buttons as contract cells.
 
 
 
@@ -48,7 +49,7 @@ const STAGE = { padding: "var(--tasty-space-md)", background: "var(--tasty-bg-pa
 
 function GalleryTitleBar() {
   return (
-    <Spec id="titlebar-states" title="Title bar: active and inactive, rest, hover, press, close" when="Use a title bar to show whether a window is active. Compare the title and buttons in active and inactive windows, including rest, hover, and press states and the close button's hover treatment. The demo draws Windows caption buttons (button). A round Linux window button (window button), on the main window and the settings window, keeps the title ink in every state; its cells are in the states grid, and the settings window specimen shows it in place.">
+    <Spec id="titlebar-states" title="Title bar: active and inactive, rest, hover, press, close" when="Use a title bar to show whether a window is active. Compare the title and buttons in active and inactive windows, including rest, hover, and press states and the close button's hover treatment. The demo draws Windows caption buttons (button). A round Linux window button (window button), on the main window and the settings window, keeps the title ink in every state. The grid paints the contract rows with their tokens; the Linux and Windows title bar frames below mark the kits' own title and buttons as contract cells, and the settings window specimen shows the window button in place.">
       <Stage variant="solo" eager style={STAGE}>
         {WINDOWS.map((w) => (
           <div key={w.label} style={{ width: "100%", minWidth: 0 }}>
@@ -146,14 +147,14 @@ function GalleryTitleBarLinux() {
           { tok: "--tasty-titlebar-close-hover-bg", use: "close fill under the pointer", color: "var(--tasty-titlebar-close-hover-bg)" },
           { tok: "--tasty-titlebar-close-hover-fg", use: "close glyph under the pointer", color: "var(--tasty-titlebar-close-hover-fg)" },
         ]} />
-      <Note>The buttons read the window button part of the Title bar and Title bar (inactive) contracts and the Window close button contract, whose cells are in the states grid above. The settings window's Linux title bar draws the same close button.</Note>
+      <Note>The title and buttons read the title and window button parts of the Title bar and Title bar (inactive) contracts, and close under the pointer the Window close button contract. Their contract cells are in two places: the states grid above paints each row with its tokens, and each frame here marks the kit's own title and buttons. The settings window's Linux title bar draws the same close button.</Note>
     </Spec>
   );
 }
 
 // The main window's Windows title bar as the UI kit draws it: TitlebarWindows. The states grid above paints the
-// contract cells with tokens; this specimen renders the kit itself, so its own selectors are what the check reads,
-// including an inactive window under the pointer.
+// contract cells with tokens; this specimen renders the kit itself, and its frames mark the kit's title and buttons
+// as contract cells, so the check reads the kit's own inks, including an inactive window under the pointer.
 const WIN_STATES = [
   { key: "rest", label: "buttons at rest", states: {} },
   { key: "hover", label: "minimize under hover", states: { min: "hover" } },
@@ -206,7 +207,7 @@ function GalleryTitleBarWindows() {
           { tok: "--tasty-titlebar-close-hover-bg", use: "close fill under the pointer", color: "var(--tasty-titlebar-close-hover-bg)" },
           { tok: "--tasty-titlebar-close-hover-fg", use: "close glyph under the pointer", color: "var(--tasty-titlebar-close-hover-fg)" },
         ]} />
-      <Note>The buttons read the button part of the Title bar and Title bar (inactive) contracts and the Window close button contract, whose cells are in the states grid above.</Note>
+      <Note>The title and buttons read the title and button parts of the Title bar and Title bar (inactive) contracts, and close under the pointer the Window close button contract. Their contract cells are in two places: the states grid above paints each row with its tokens, and each frame here marks the kit's own title and buttons.</Note>
     </Spec>
   );
 }
