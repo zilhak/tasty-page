@@ -139,7 +139,7 @@ const nameOf = (n) => (n.kind === "external" ? n.id : n.kind === "gap" ? gt(`chi
 // ── Card ────────────────────────────────────────────────────────────
 // The DAG card's box (168 × 48, bar, two rows, LOD tiers, ring, hover wash) with child content:
 //   name row  terminal glyph (remote glyph on a mirrored surface) · nickname, else role, else id
-//   meta row  state glyph · STATE · surface id (mono, right); on a card from another machine the machine's
+//   meta row  state glyph (mono) · STATE (font-label, a status word) · surface id (mono, right); on a card from another machine the machine's
 //             name takes the id's place (the host text: the profile name, else the Remote word in the
 //             label font), at most half the row, so B and C of A → B → C read apart at full LOD
 // base: a chip ABOVE the card, outside the box, so it never competes with the state colour or the
@@ -261,7 +261,7 @@ function ChildNode({ node, lod = "full", selected = false, base = false, hover, 
               fontSize: "var(--tasty-dag-node-meta-font-size)", letterSpacing: "var(--tasty-letter-spacing-caps)" }}>
               {!special && <span aria-hidden="true" style={{ flex: "none", color: st.lbl, fontFamily: "var(--tasty-font-mono)" }}>{st.glyph}</span>}
               <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-                textTransform: "uppercase", color: special ? "var(--tasty-dag-node-meta-fg)" : st.lbl }}>{label}</span>
+                textTransform: "uppercase", fontFamily: "var(--tasty-font-label)", color: special ? "var(--tasty-dag-node-meta-fg)" : st.lbl }}>{label}</span>
               {node.kind !== "external" && !other && (
                 <span style={{ flex: "none", fontFamily: "var(--tasty-font-mono)", letterSpacing: "var(--tasty-letter-spacing-ui)",
                   color: special ? "var(--tasty-dag-node-meta-fg)" : "var(--tasty-dag-node-meta-status-fg)" }}>{node.id.replace(/^s_/, "s_").slice(0, 8)}</span>

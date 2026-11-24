@@ -345,7 +345,7 @@ function DagNode({ node, lod = "full", selected = false, dimmed = false, onSelec
             fontSize: "var(--tasty-dag-node-meta-font-size)", letterSpacing: "var(--tasty-letter-spacing-caps)" }}>
             <span aria-hidden="true" style={{ flex: "none", color: st.lbl, fontFamily: "var(--tasty-font-mono)" }}>{st.glyph}</span>
             <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-              textTransform: "uppercase", color: st.lbl }}>{st.label}</span>
+              textTransform: "uppercase", fontFamily: "var(--tasty-font-label)", color: st.lbl }}>{st.label}</span>
             {node.dur && (
               <span style={{ flex: "none", fontFamily: "var(--tasty-font-mono)", letterSpacing: "var(--tasty-letter-spacing-ui)",
                 color: "var(--tasty-dag-node-meta-status-fg)" }}>{node.dur}</span>
