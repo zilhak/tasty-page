@@ -1,6 +1,6 @@
 import React from "react";
 import * as WDS from "../../components/index.js";
-import { Section as WSection, Spec as WSpec, Stage as WStage, Meta as WMeta, Note as WNote } from "../parts/specimen.jsx";
+import { Section as WSection, Spec as WSpec, Stage as WStage, Views as WViews, View as WView, Meta as WMeta, Note as WNote } from "../parts/specimen.jsx";
 import { wLbl, WRow } from "./settings-narrow.jsx";
 import { SettingsWindow as Kit_SettingsWindow } from "../../ui_kits/terminal/overlays/settings_window.jsx";
 
@@ -91,14 +91,6 @@ function AltKeySection() {
             </div>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
-            <span style={wLbl}>macOS — closed, saved value alt (Option)</span>
-            <div style={{ ...wPanel, width: 520 }}>
-              <Row label="Link click modifier:">
-                <WSelect options={[{ value: "alt", label: "Option" }]} value="alt" style={{ width: "var(--tasty-field-width-md)" }} />
-              </Row>
-            </div>
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
             <span style={wLbl}>macOS — open list</span>
             <div style={wMenu}>
               <WMenuItem label="Ctrl" selected />
@@ -124,10 +116,19 @@ function AltKeySection() {
             </div>
           </div>
         </WStage>
+        <WViews>
+          <WView name="link-click-modifier-macos-saved-alt" label="macOS — closed, saved value alt (Option)" wide>
+            <div inert="" style={{ width: "var(--tasty-settings-content-max-width)", pointerEvents: "none" }}>
+              <Row label="Link click modifier:">
+                <WSelect options={[{ value: "alt", label: "Option" }]} value="alt" style={{ width: "var(--tasty-field-width-md)" }} />
+              </Row>
+            </div>
+          </WView>
+        </WViews>
         <WMeta
-          specs={[["place", "unchanged — Terminal › General, Option as Meta stays right below"], ["macOS choices", "Ctrl · Option · Cmd · Disable left-click opening — words, every language"], ["Windows / Linux choices", "Ctrl · Alt · Disable left-click opening — words, every language; no Win / Super"], ["default", "Ctrl on every OS"], ["saved alt on macOS", "the same stored value alt, the physical Option key, shows Option (link_modifier_option) in the closed trigger and the list · no migration, no other wording"], ["width", "field-width-md 160 — unchanged; every key word is shorter than the existing off choice"], ["off choice", "open list wraps it (MenuItem wrap) when wider than the list; closed trigger unchanged"], ["caption", "none on any OS — no note for the missing Win / Super key"]]}
+          specs={[["place", "unchanged — Terminal › General, Option as Meta stays right below"], ["macOS choices", "Ctrl · Option · Cmd · Disable left-click opening — words, every language"], ["Windows / Linux choices", "Ctrl · Alt · Disable left-click opening — words, every language; no Win / Super"], ["default", "Ctrl on every OS"], ["saved alt on macOS", "the stored value alt stays the physical Option key and shows Option (link_modifier_option) in the closed trigger and the list · no migration of saved alt"], ["frame width", "settings-content-max-width 620 — the settings content column the row sits in"], ["width", "field-width-md 160 — unchanged; every key word is shorter than the existing off choice"], ["off choice", "open list wraps it (MenuItem wrap) when wider than the list; closed trigger unchanged"], ["caption", "none on any OS — no note for the missing Win / Super key"]]}
           tokens={[{ tok: "--tasty-field-width-md", use: "Select + list width" }, { tok: "--tasty-menu-item-selected-fg", use: "current value", color: "var(--tasty-menu-item-selected-fg)" }]} />
-        <WNote>i18n — new <code>settings.terminal.link_modifier_option</code> “Option” and <code>settings.terminal.link_modifier_cmd</code> “Cmd” (all languages). <code>settings.terminal.link_modifier_ctrl</code>, <code>_none</code> and <code>_label</code> unchanged. On macOS the stored <code>alt</code> value shows <code>link_modifier_option</code>; <code>link_modifier_alt</code> stays for Windows / Linux. Windows / Linux reuse <code>link_modifier_ctrl</code>, <code>_alt</code> and <code>_none</code> as they are; no new key.</WNote>
+        <WNote>i18n — the app catalog has neither <code>settings.terminal.link_modifier_option</code> nor <code>settings.terminal.link_modifier_cmd</code> yet, in any of the four languages; add both with the R-56 values: “Option” and “Cmd” in every language. <code>settings.terminal.link_modifier_ctrl</code>, <code>_alt</code>, <code>_none</code> and <code>_label</code> keep their values. On macOS the stored <code>alt</code> value shows <code>link_modifier_option</code>; <code>link_modifier_alt</code> stays for Windows / Linux. Behaviour — the app's settings row and its saved-value normalisation handle only <code>ctrl</code>, <code>alt</code> and <code>none</code> today. A saved <code>alt</code> is not migrated: it is already the physical Option key. The macOS Cmd choice is new behaviour, and the name of its saved value is the implementing side's to choose.</WNote>
       </WSpec>
     </WSection>
   );
