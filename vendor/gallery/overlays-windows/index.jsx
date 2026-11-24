@@ -1843,7 +1843,7 @@ function Page() {
           <Dont><b>Don't</b> flash a warning color (peach/red) when a popup hits min size or the scope edge — the limit is communicated by simply <b>not moving</b>. Reserve danger tones for actual errors.</Dont>
         </Spec>
       </Section>
-      <style>{`.rz-zone:hover{background:color-mix(in srgb,var(--tasty-accent-info) 14%,transparent);} .faux-close:hover{color:var(--tasty-titlebar-close-hover-fg);background:var(--tasty-titlebar-close-hover-bg);}`}</style>
+      <style>{`.rz-zone:hover{background:var(--tasty-tint-info-bg);} .faux-close:hover{color:var(--tasty-titlebar-close-hover-fg);background:var(--tasty-titlebar-close-hover-bg);}`}</style>
     </>
   );
 }
