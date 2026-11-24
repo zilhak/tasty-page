@@ -83,24 +83,36 @@ const gapChain = (reason) => [CHILD_CHAIN[0], CHILD_CHAIN[1], { id: "g_x", kind:
 // The collapse round trip, live: the surface is too small, so the popup stands as the show button; pressing it
 // shows the popup over the window, and the shrink button or an Esc the body does not use folds it back. The
 // popup stays mounted while folded, so whatever was selected, opened or pushed is there when it is shown again.
+// Key focus follows the app: folding hands it to the show button, so Enter shows the popup again, and showing
+// hands it to the popup, so Esc reaches it; Esc after a click outside the popup does nothing to it.
 function CollapseRoundTrip() {
   const [open, setOpen] = React.useState(false);
   const [closed, setClosed] = React.useState(false);
-  if (closed) {
-    return (
-      <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", alignItems: "flex-start" }}>
-        <ShellMock size={[760, 560]} />
-        <Button size="sm" variant="secondary" onClick={() => { setClosed(false); setOpen(false); }}>Open the popup again</Button>
-      </div>
-    );
-  }
+  const root = React.useRef(null);
+  const wasOpen = React.useRef(false);
+  React.useEffect(() => {
+    if (wasOpen.current && !open && root.current) {
+      const b = root.current.querySelector("[data-collapsed-popup] button");
+      if (b) b.focus();
+    }
+    wasOpen.current = open;
+  }, [open]);
+  if (closed) return <ClosedPopupFrame onReopen={() => { setClosed(false); setOpen(false); }} />;
   return (
-    <div style={{ position: "relative", width: 760, height: 560 }}
-      onClick={(e) => { if (!open && e.target.closest && e.target.closest("[data-collapsed-popup]")) setOpen(true); }}>
-      {!open && <ShellMock scope="surface" size={[760, 560]} collapsed="label" ring label={gt("popup.collapsed_button.label", "en")} />}
+    <div ref={root} style={{ position: "relative", width: 760, height: 560 }}>
+      {!open && <ShellMock scope="surface" size={[760, 560]} collapsed="label" ring label={gt("popup.collapsed_button.label", "en")} onShow={() => setOpen(true)} />}
       <div style={{ display: open ? "block" : "none" }}>
         <OverWindow><ChildGraphWindow collapse folded={!open} onCollapse={() => setOpen(false)} onClose={() => setClosed(true)} /></OverWindow>
       </div>
+    </div>
+  );
+}
+// After × in the live popup: the popup is gone and the window is as it was; the gallery adds a button to start again.
+function ClosedPopupFrame({ onReopen }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", alignItems: "flex-start" }}>
+      <ShellMock size={[760, 560]} />
+      <Button size="sm" variant="secondary" onClick={onReopen}>Open the popup again</Button>
     </div>
   );
 }
@@ -286,7 +298,7 @@ export function ChildGraphSection() {
             </div>
           </View>
         </Views>
-        <Meta specs={[["collapses when", "the popup's needed size (600 × 460, or the user's size) is larger than the base surface's bounds on either axis · bounds = the surface rect less max(0, min(space-sm 8, width / 2, height / 2)) on every side: a 600 × 460 surface gives 584 × 444, so it collapses · the common rule, nothing child-graph specific"], ["collapsed", "the common frame and show button (popup.collapsed_button.label, glyph fit) · label or icon by the common rule · no title, no base mark"], ["over the window", "the common window-scope form: scrim, shadow-modal, centred · the popup's own title bar with the shrink button first (popup.collapse_button.label, glyph shrink, tooltip popup.collapse_button.tooltip), gap popup-title-btn-gap 4, then close, popup-title-edge-inset 4 from the right edge"], ["window smaller", "the common rule (11-19), nothing graph-specific · frame fitted to the window from its top left · title bar with shrink and close whole · content laid out at the popup's size, cut at the right and bottom · the zoom cluster, minimap and a drawer's right part are cut with it · drag, wheel pan, Ctrl+wheel zoom and Esc still work on what shows"], ["kept", "selection · zoom · pan · drawer · push step · full tree checkbox"], ["motion", "collapse and expand are instant · a push in progress finishes at once · no replay on expand"], ["Esc", "1 clear the selection (drawer closes) · 2 step back (DAG graph → list → child graph) · 3 over the window: collapse · fitted in its surface: close (nothing selected, child graph step) · collapsed: drops the popup's focus, as its outside click does (the common collapsed rule)"], ["closes", "the base surface closes, in either form (10-3 b) · the × in the title bar"]]}
+        <Meta specs={[["collapses when", "the popup's needed size (600 × 460, or the user's size) is larger than the base surface's bounds on either axis · bounds = the surface rect less max(0, min(space-sm 8, width / 2, height / 2)) on every side: a 600 × 460 surface gives 584 × 444, so it collapses · the common rule, nothing child-graph specific"], ["collapsed", "the common frame and show button (popup.collapsed_button.label, glyph fit) · label or icon by the common rule · no title, no base mark"], ["over the window", "the common window-scope form: scrim, shadow-modal, centred · the popup's own title bar with the shrink button first (popup.collapse_button.label, glyph shrink, tooltip popup.collapse_button.tooltip), gap popup-title-btn-gap 4, then close, popup-title-edge-inset 4 from the right edge"], ["window smaller", "the common rule (11-19), nothing graph-specific · frame fitted to the window from its top left · title bar with shrink and close whole · content laid out at the popup's size, cut at the right and bottom · the zoom cluster, minimap and a drawer's right part are cut with it · drag, wheel pan, Ctrl+wheel zoom and Esc still work on what shows"], ["kept", "selection · zoom · pan · drawer · push step · full tree checkbox"], ["motion", "collapse and expand are instant · a push in progress finishes at once · no replay on expand"], ["Esc", "1 clear the selection (drawer closes) · 2 step back (DAG graph → list → child graph) · 3 over the window: collapse · fitted in its surface: close (nothing selected, child graph step) · collapsed: drops the popup's focus, as its outside click does (the common collapsed rule)"], ["focus", "the common rule: Esc goes only to the popup that holds key focus (a press or focus outside it takes it away) · collapsing hands key focus to the show button, so Enter or Space shows it again · showing hands key focus back to the popup · the show button is in Tab order"], ["closes", "the base surface closes, in either form (10-3 b) · the × in the title bar"]]}
           tokens={[{ tok: "--tasty-graph-child-popup-width", use: "600 — the needed width" }, { tok: "--tasty-graph-child-popup-height", use: "460 — the needed height" }, { tok: "--tasty-space-sm", use: "8 — the surface bounds inset (at most)" }, { tok: "--tasty-popup-title-btn-gap", use: "4 between shrink and close" }, { tok: "--tasty-popup-title-edge-inset", use: "4, close ↔ right edge" }, { tok: "--tasty-scrim-bg", use: "over the window", color: "var(--tasty-scrim-bg)" }, { tok: "--tasty-shadow-modal", use: "the expanded frame" }]} />
         <Note>The collapsed frames are the common <code>ShellMock</code> of Dialogs › Collapse, because the collapsed child graph popup draws nothing of its own. The DAG list popup is Workspace-scoped (the tab bar and panes), so it collapses only when the window itself is small, by the same rule; it needs no specimen of its own.</Note>
       </Spec>

@@ -466,9 +466,11 @@ function useChildFlow({ nodes, initial = {} }) {
 // (back to the fit judgement, everything kept) when it is shown over the window; the surface stays.
 // A frozen gallery frame (still, or a pinned push step) does not listen: one Esc anywhere on the page
 // would otherwise step every such frame back to an empty screen.
-function useEscDeselect(flow, sel, setSel, onIdle, enabled = true) {
+// gate (optional): Esc reaches this screen only while gate() is true — the popup passes "holds key focus".
+function useEscDeselect(flow, sel, setSel, onIdle, enabled = true, gate) {
   const ref = React.useRef(null);
   ref.current = () => {
+    if (gate && !gate()) return;
     if (flow.dagId && flow.dagSel) { flow.setDagSel(null); return; }
     if (flow.owner) { flow.back(); return; }
     if (sel) setSel(null); else if (onIdle) onIdle();
@@ -528,10 +530,27 @@ function ChildGraphWindow({ nodes = CHILD_SMALL, baseId = CHILD_SMALL_BASE, lang
   const [sel, setSel] = React.useState(initial.selected || null);
   const [base, setBase] = React.useState(baseId);
   const flow = useChildFlow({ nodes, initial });
-  useEscDeselect(flow, sel, setSel, collapse ? onCollapse : onClose, !still && push == null && !folded);
+  // Key focus, as the app routes it: Esc goes only to the popup that holds focus. A press or focus inside the
+  // frame gives it focus, one outside takes it away; showing the popup again from its show button moves key
+  // focus into it (the button had it), so the next Esc reaches it.
+  const rootRef = React.useRef(null);
+  const focused = React.useRef(false);
+  React.useEffect(() => {
+    if (still || push != null) return undefined;
+    const h = (e) => { focused.current = !!(rootRef.current && rootRef.current.contains(e.target)); };
+    document.addEventListener("mousedown", h, true);
+    document.addEventListener("focusin", h, true);
+    return () => { document.removeEventListener("mousedown", h, true); document.removeEventListener("focusin", h, true); };
+  }, [still, push]);
+  const wasFolded = React.useRef(folded);
+  React.useEffect(() => {
+    if (wasFolded.current && !folded && rootRef.current) rootRef.current.focus();
+    wasFolded.current = folded;
+  }, [folded]);
+  useEscDeselect(flow, sel, setSel, collapse ? onCollapse : onClose, !still && push == null && !folded, () => focused.current);
   const screens = FlowScreens({ flow, lang, still });
   return (
-    <div style={{ display: folded ? "none" : "flex", width: cut ? cut.w : width || "var(--tasty-graph-child-popup-width)", height: cut ? cut.h : height || "var(--tasty-graph-child-popup-height)", maxWidth: "100%",
+    <div ref={rootRef} tabIndex={-1} style={{ outline: "none", display: folded ? "none" : "flex", width: cut ? cut.w : width || "var(--tasty-graph-child-popup-width)", height: cut ? cut.h : height || "var(--tasty-graph-child-popup-height)", maxWidth: "100%",
       flexDirection: "column", overflow: "hidden", boxSizing: "border-box", background: "var(--tasty-bg-panel)",
       borderRadius: "var(--tasty-radius)", border: "var(--tasty-border-width) solid var(--tasty-border-strong)", boxShadow: "var(--tasty-shadow-modal)" }}>
       <div style={{ flex: "none", display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", cursor: "move",

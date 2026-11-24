@@ -881,9 +881,10 @@ function LocalSshSection({ state = "hosts" }) {
 //   expanded: a collapsed popup the user pressed, drawn over the window (use with scope "window"). The popup here is
 //     headless, so the host adds its title bar with no title and only the shrink button that collapses it back.
 //   agent: the popup was opened by an agent (passive): no focus anywhere in it, so no ring and no edge.
+//   onShow: a live frame — the collapsed show button takes part in Tab order and presses call onShow.
 function ShellMock({ scope = "none", split = "v", child = false, narrow = false, clamp = false,
   collapsed = null, ring = false, leftWidth = null, size = null, pin = false, label = "Show popup",
-  focus = "popup", agent = false, expanded = false }) {
+  focus = "popup", agent = false, expanded = false, onShow }) {
   const [W, H] = size || [narrow ? 560 : 760, 380];
   const surfaceScrim = scope === "surface";
   const popupFocused = focus === "popup" && !agent;
@@ -938,7 +939,7 @@ function ShellMock({ scope = "none", split = "v", child = false, narrow = false,
     </div>
   );
   const collapsedFrame = collapsed && (
-    <CollapsedPopupButton kind={collapsed === "label" ? "label" : "icon"} ring={ring && popupFocused} edge={edgeLit} scrim={surfaceScrim} label={label} />
+    <CollapsedPopupButton kind={collapsed === "label" ? "label" : "icon"} ring={ring && popupFocused} edge={edgeLit} scrim={surfaceScrim} label={label} onShow={onShow} />
   );
   return (
     <div style={{ width: W, height: H, display: "flex", flexDirection: "column", overflow: "hidden",
@@ -1018,16 +1019,19 @@ function ShellMock({ scope = "none", split = "v", child = false, narrow = false,
 // scrim: the popup's own scrim entry — shadow-modal on a scrim, shadow-popover without one.
 // ring: the button holds key focus (the base.css :focus-visible pair, drawn static).
 // edge: the popup holds key focus, so its frame lights the popup focus edge (a surface popup; follows ring).
-function CollapsedPopupButton({ kind = "label", ring = false, edge = ring, scrim = true, label = "Show popup" }) {
-  const ringStyle = ring ? { outline: "var(--tasty-focus-ring-width) solid var(--tasty-border-focus)", outlineOffset: "var(--tasty-border-width)" } : undefined;
+// onShow: live — the button is in Tab order and its own :focus-visible ring shows real focus (ring is then not drawn).
+function CollapsedPopupButton({ kind = "label", ring = false, edge = ring, scrim = true, label = "Show popup", onShow }) {
+  const live = !!onShow;
+  const ringStyle = ring && !live ? { outline: "var(--tasty-focus-ring-width) solid var(--tasty-border-focus)", outlineOffset: "var(--tasty-border-width)" } : undefined;
+  const press = live ? { onClick: onShow } : { tabIndex: -1 };
   return (
     <div data-collapsed-popup={kind} style={{ position: "relative", overflow: "hidden", flex: "none", display: "flex", padding: "var(--tasty-popup-content-margin)",
       background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)",
       boxShadow: scrim ? "var(--tasty-shadow-modal)" : "var(--tasty-shadow-popover)" }}>
       <PopupFocusEdge lit={edge} />
       {kind === "label"
-        ? <Button variant="secondary" leadingIcon={<Icon name="fit" size={14} />} style={ringStyle} tabIndex={-1}>{label}</Button>
-        : <IconButton variant="solid" aria-label={label} style={ringStyle} tabIndex={-1}><Icon name="fit" size={14} /></IconButton>}
+        ? <Button variant="secondary" leadingIcon={<Icon name="fit" size={14} />} style={ringStyle} {...press}>{label}</Button>
+        : <IconButton variant="solid" aria-label={label} style={ringStyle} {...press}><Icon name="fit" size={14} /></IconButton>}
     </div>
   );
 }
