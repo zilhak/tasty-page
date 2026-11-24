@@ -13,7 +13,7 @@ Every token is namespaced `--tasty-*`. The canonical source lives in `tokens/`:
 |------|------|-------|
 | `tokens/primitives.css` | 1 · primitive | The **only** literal values. Numeric scales: `--tasty-color-*`, `--tasty-size-*`, `--tasty-radius-*`, `--tasty-font-*`, `--tasty-duration-*`. Theme (Mocha/Latte) lives here. |
 | `tokens/semantic.css`   | 2 · semantic  | Roles. Each is `var(--tasty-<primitive>)`. `--tasty-bg-*`, `--tasty-text-*`, `--tasty-accent-*`, `--tasty-space-*`, `--tasty-control-height*`, … |
-| `tokens/components.css` | 3 · component | One token per styled part of one component. Each is `var(--tasty-<semantic>)`. `--tasty-button-primary-bg`, `--tasty-input-border-focus`, … |
+| `tokens/components.css` | 3 · component | One token per styled part of one component. Each is `var(--tasty-<semantic>)`, or a part-only measure on the size, radius or duration scale (see [Part-only measures](#part-only-measures)). `--tasty-button-primary-bg`, `--tasty-input-border-focus`, … |
 
 Load order is fixed in `styles.css`: `fonts → primitives → semantic → components → base`. Each layer references the one above it, so order matters. Every consumer references `--tasty-*` directly — the pre-3-tier names (`--ctp-*`, `--bg-*`, `--space-*`…) have been fully migrated out and the legacy shim removed.
 
@@ -91,7 +91,7 @@ Sizes, type, and motion are theme-invariant and never repeated.
 .x { color: var(--ctp-text); }                     /* legacy name — use --tasty-text-primary */
 ```
 
-**Rule of thumb:** components and app code read **semantic** or **component** tokens. Primitives are referenced *only* by the semantic layer. If you find yourself reaching for `--tasty-color-*` or `--tasty-size-*` in a UI rule, there is almost certainly a role token you should use instead.
+**Rule of thumb:** components and app code read **semantic** or **component** tokens. Primitives are referenced by the semantic layer, and by component tokens only for the part-only measures below. If you find yourself reaching for `--tasty-color-*` or `--tasty-size-*` in a UI rule, there is almost certainly a role token you should use instead.
 
 ---
 
@@ -99,11 +99,28 @@ Sizes, type, and motion are theme-invariant and never repeated.
 
 1. **New raw value?** Add a primitive on the right numeric scale in `primitives.css` (and its Latte counterpart if it is a color).
 2. **New role?** Add a semantic token in `semantic.css` as `var(--tasty-<primitive>)`. Never a literal.
-3. **New component part?** Add a component token in `components.css` as `var(--tasty-<semantic>)`.
+3. **New component part?** Add a component token in `components.css` as `var(--tasty-<semantic>)`. A part-only measure may read its size, radius or duration primitive instead (see below).
 4. Regenerate `tokens/tasty.tokens.json` with `scripts/design-tokens/gen_tokens_json.py`, then run `scripts/design-tokens/verify_tokens_json.py` and confirm the token count rises and it reports no errors. Non-color/size tokens (durations, easings, unitless multipliers) need a trailing `/* @kind other */`.
 5. Run `scripts/design-tokens/verify_ground_ink_tokens.py` to check the ground-ink rules' token list against the token CSS.
 
-Never skip a tier. A component token that points straight at a primitive (or a literal) breaks the contract — the next person who re-themes via the semantic layer will be surprised it didn't follow.
+Never skip a tier for color, type, opacity, easing or UI scale. A component token that points straight at one of those primitives breaks the contract — the next person who re-themes via the semantic layer will be surprised it didn't follow.
+
+### Part-only measures
+
+A component token may read a primitive directly when all of these hold:
+
+- The primitive is on the **size** (`--tasty-size-*`), **radius** (`--tasty-radius-*`) or **duration** (`--tasty-duration-*`) scale. These are theme-invariant, so the semantic layer has nothing to re-point for them.
+- The value belongs to that one part: a column width, a dot diameter, a popup's fixed width, a spinner period. No other component reads it for the same reason.
+- No semantic role already names that meaning. Spacing reads `--tasty-space-*`, control and bar heights read `--tasty-control-height*`, `--tasty-toolbar-height` and the other height roles, icon boxes read `--tasty-icon-size-*`, and hairlines, rings, dashes and edges read `--tasty-border-*`, `--tasty-focus-ring-*`, `--tasty-selection-edge-width` and `--tasty-tint-edge-width`. A corner reads `--tasty-radius*` unless it is a fixed platform shape.
+
+When a second component starts reading the same value for the same reason, add a semantic role and point both at it. The role name says what the value is for (`--tasty-titlebar-height`), never what it measures (`--tasty-size-36` already does that).
+
+These families always go through a semantic role, with no part-only exception:
+
+- color and alpha (`--tasty-color-*`, `--tasty-alpha-*`): theme lives there, and the ground-ink rules classify the roles.
+- type (`--tasty-font-*`, `--tasty-line-height-*`, `--tasty-letter-spacing-*`): the type roles carry the 14px UI cap and its branding exceptions.
+- opacity (`--tasty-opacity-*`): the dim, disabled and tint coefficients have rules of their own.
+- easing and UI scale (`--tasty-easing-*`, `--tasty-scale-*`): one system-wide value each.
 
 ---
 

@@ -5,7 +5,9 @@
    colors / pixels / ms. Numeric scales, no roles, no opinions.
 
    • DO read these from the SEMANTIC layer.
-   • DO NOT reference these directly from components or app code.
+   • DO NOT reference these directly from app code. A component token
+     reads one only for a part-only size, radius or duration measure
+     (TOKENS.md, "Part-only measures").
 
    Theme: Catppuccin. Mocha (dark) is the :root baseline; Latte
    (light) re-points the theme-scoped primitives under

@@ -1,8 +1,11 @@
 /* ============================================================
    Tasty — TIER 3 · COMPONENT tokens
    ------------------------------------------------------------
-   Per-component knobs. Every value references a SEMANTIC token
-   (never a primitive, never a literal). This is the contract an
+   Per-component knobs. Every value references a SEMANTIC token.
+   A measure that belongs to one part may read the size, radius or
+   duration primitive instead (TOKENS.md, "Part-only measures").
+   Color, type, opacity, easing and scale always go through a
+   semantic role. This is the contract an
    implementer reads: "Button background = --tasty-button-primary-bg".
    Re-theme a component by overriding only its tokens; the whole
    chain (primitive → semantic → component) keeps it consistent.

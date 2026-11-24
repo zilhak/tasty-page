@@ -97,7 +97,7 @@ How Tasty writes. Match this voice in any copy you produce.
 - `tokens/` — a **3-tier** system, all namespaced `--tasty-*`:
   - `primitives.css` (tier 1) — the only literals: numeric color/size/radius/font/duration scales; Mocha baseline + Latte re-points under `[data-theme="latte"]`.
   - `semantic.css` (tier 2) — roles (`--tasty-bg-*`, `--tasty-text-*`, `--tasty-accent-*`, `--tasty-space-*`, `--tasty-control-height*`…), each `var(--tasty-<primitive>)`.
-  - `components.css` (tier 3) — one token per styled part of each component (`--tasty-button-*`, `--tasty-input-*`, `--tasty-tab-*`…), each `var(--tasty-<semantic>)`.
+  - `components.css` (tier 3) — one token per styled part of each component (`--tasty-button-*`, `--tasty-input-*`, `--tasty-tab-*`…), each `var(--tasty-<semantic>)`. A measure that belongs to one part may read the size, radius or duration primitive instead (`TOKENS.md`, "Part-only measures").
   - `base.css` — element defaults, scrollbars, focus.
   - `ground-ink-rules.json` — the rules as data: grounds, roles, every ground × role cell, locations, component contracts, the class of every token, exceptions.
   - `tasty.tokens.json` — W3C DTCG export of all three tiers (alias chain + Latte mode) for Style Dictionary / Tokens Studio. The app takes its tokens from this file.
