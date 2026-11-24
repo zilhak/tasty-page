@@ -141,7 +141,7 @@ const nameOf = (n) => (n.kind === "external" ? n.id : n.kind === "gap" ? gt(`chi
 //   name row  reason glyph (a spinner while pending) · reason label
 //   meta row  the machine the broken link leads to (host text), muted
 //   compact: name row only · block: the dashed box with the glyph centred. Selectable: its drawer
-//   says why and what is around it, and has no actions.
+//   says why and what is around it, and has no actions (user decision 11-24: no Retry).
 function GapNode({ node, lod, selected, lang, onSelect }) {
   const look = gapLook(node.reason);
   const label = gt(`child_graph.gap.${look.key}`, lang);
