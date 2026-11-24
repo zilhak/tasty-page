@@ -81,7 +81,7 @@ function Page() {
             </Backdrop>
           </Stage>
           <Meta
-            specs={[["scrim", <><span className="tok">--tasty-scrim-bg</span> (black 50%) + blur(<span className="tok">--tasty-scrim-blur</span>, 1px)</>], ["frame fill", <span className="tok">--tasty-bg-panel</span>], ["border", <>1px <span className="tok">--tasty-border-frame</span> · not border-strong, the partition edge for raised only · the app's shared popup shell already draws border_frame</>], ["shadow", <><span className="tok">--tasty-shadow-modal</span> on a scrim · <span className="tok">--tasty-shadow-popover</span> when the frame has no scrim · in the app the saved remote row popup already picks this way (modal over a screen, popover on a workspace with no screen) · not every app popup follows it yet: the app draws Approval with no scrim and keeps the modal shadow</>], ["dismiss", <>scrim click · <span className="ic">Esc</span></>]]}
+            specs={[["scrim", <><span className="tok">--tasty-scrim-bg</span> (black 50%) + blur(<span className="tok">--tasty-scrim-blur</span>, 1px)</>], ["frame fill", <span className="tok">--tasty-bg-panel</span>], ["border", <>1px <span className="tok">--tasty-border-frame</span> · not border-strong, the partition edge for raised only · the app's shared popup shell already draws border_frame</>], ["shadow", <><span className="tok">--tasty-shadow-modal</span> on a scrim · <span className="tok">--tasty-shadow-popover</span> when the frame has no scrim · in the app the saved remote row popup already picks this way (modal over a screen, popover on a workspace with no screen) · Approval has no scrim, so it takes the popover shadow · not every app popup follows it yet: the app draws Approval with no scrim and still keeps the modal shadow</>], ["dismiss", <>scrim click · <span className="ic">Esc</span></>]]}
             tokens={[{ tok: "--tasty-scrim-bg", use: "scrim" }, { tok: "--tasty-bg-panel", use: "frame", color: "var(--tasty-bg-panel)" }, { tok: "--tasty-border-frame", use: "edge", color: "var(--tasty-border-frame)" }, { tok: "--tasty-shadow-modal", use: "lift on a scrim" }, { tok: "--tasty-shadow-popover", use: "lift with no scrim" }, { tok: "--tasty-radius", use: "4px corners" }]} />
           <Note>The two anchor positions: <b>centered</b> (dialogs, settings) and <b>top-aligned</b> (command palette, ~40px from top). Nothing else.</Note>
         </Spec>
@@ -137,10 +137,10 @@ function Page() {
       <Section id="approval" title="Agent approval">
         <Spec id="approval-popup-the-mauve-gate" title="Approval popup — the mauve gate"
           when={<>Shown when an agent requests a privileged or destructive action. The <b>mauve agent accent</b> in the header and tag makes it unmistakable. Show the <b>exact command</b>, the requesting plugin, the target surface ID, and the permission tags. Three responses: deny / allow once / always.</>}>
-          <Stage variant="solo center"><Backdrop height={420}><ApprovalFrame /></Backdrop></Stage>
+          <Stage variant="solo center"><Backdrop height={420} scrim={false}><ApprovalFrame /></Backdrop></Stage>
           <Meta
-            specs={[["width", "440px"], ["header dot", <span className="tok">--tasty-accent-agent</span>], ["command", "mono on #000"], ["actions", "ghost / secondary / agent"]]}
-            tokens={[{ tok: "--tasty-accent-agent", use: "agent gate", color: "var(--tasty-accent-agent-raised)" }, { tok: "--tasty-accent-danger", use: "destructive tag", color: "var(--tasty-accent-danger-raised)" }, { tok: "--tasty-bg-panel", use: "frame", color: "var(--tasty-bg-panel)" }]} />
+            specs={[["width", "440px"], ["scrim", "none · the window under it keeps taking input"], ["shadow", <span className="tok">--tasty-shadow-popover</span>], ["header dot", <span className="tok">--tasty-accent-agent</span>], ["command", "mono on #000"], ["actions", "ghost / secondary / agent"]]}
+            tokens={[{ tok: "--tasty-accent-agent", use: "agent gate", color: "var(--tasty-accent-agent-raised)" }, { tok: "--tasty-accent-danger", use: "destructive tag", color: "var(--tasty-accent-danger-raised)" }, { tok: "--tasty-bg-panel", use: "frame", color: "var(--tasty-bg-panel)" }, { tok: "--tasty-shadow-popover", use: "lift with no scrim" }]} />
           <Do><b>Do</b> name the actor and show the literal command. The user is granting authority — make the stakes legible.</Do>
         </Spec>
         <Spec id="danger-choice-tinted-fill-with-readable-ink" title="Danger choice — tinted fill with readable ink"

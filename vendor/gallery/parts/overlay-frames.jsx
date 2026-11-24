@@ -65,8 +65,9 @@ const ic = {
   folder: <Icon name="folder" />,
 };
 
-// a faux app backdrop so the scrim reads correctly
-function Backdrop({ height = 360, blur = false, children }) {
+// a faux app backdrop so the scrim reads correctly. scrim={false} keeps the backdrop and drops the scrim, for a
+// centered popup that does not cover its scope (Approval).
+function Backdrop({ height = 360, blur = false, scrim = true, children }) {
   return (
     <div style={{ position: "relative", width: "100%", height, borderRadius: "var(--tasty-radius)", overflow: "hidden",
       border: "1px solid var(--tasty-border-default)", background: "var(--tasty-bg-app)" }}>
@@ -80,7 +81,7 @@ function Backdrop({ height = 360, blur = false, children }) {
       </div>
       {/* scrim — flat fill by default; the 1px blur (documented recipe) is opt-in
           so only the canonical Scrim spec pays the per-frame compositing cost */}
-      <div style={{ position: "absolute", inset: 0, background: "var(--tasty-scrim-bg)", backdropFilter: blur ? "blur(var(--tasty-scrim-blur))" : undefined,
+      <div style={{ position: "absolute", inset: 0, background: scrim ? "var(--tasty-scrim-bg)" : undefined, backdropFilter: scrim && blur ? "blur(var(--tasty-scrim-blur))" : undefined,
         display: "flex", alignItems: children.props.align === "top" ? "flex-start" : "center", justifyContent: "center",
         paddingTop: children.props.align === "top" ? 40 : 0 }}>
         {children}
@@ -118,10 +119,12 @@ function PaletteFrame({ opaque = false, focused = false, value = "", rows = 4 } 
   );
 }
 
+// Approval does not cover its scope (no scrim), so the window under it keeps taking input and the frame takes the
+// popover shadow, the lift of a floating surface with no scrim.
 function ApprovalFrame() {
   return (
     <div style={{ width: 440, background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)",
-      borderRadius: "var(--tasty-radius)", overflow: "hidden", boxShadow: "var(--tasty-shadow-modal)" }}>
+      borderRadius: "var(--tasty-radius)", overflow: "hidden", boxShadow: "var(--tasty-shadow-popover)" }}>
       <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-transfer-header-pad-y) var(--tasty-transfer-pad-x)", borderBottom: "1px solid var(--tasty-separator)" }}>
         <span style={{ width: 7, height: 7, borderRadius: "50%", background: "var(--tasty-accent-agent)" }} />
         <span style={{ fontSize: 14, fontWeight: 600 }}>Approve agent action</span>
