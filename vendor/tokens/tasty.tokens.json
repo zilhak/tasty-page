@@ -4632,6 +4632,14 @@
       "$type": "color",
       "$value": "{semantic.accent-remote-raised}"
     },
+    "fp-specimen-view-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-400}"
+    },
+    "fp-specimen-view-height": {
+      "$type": "dimension",
+      "$value": "{primitive.size-300}"
+    },
     "popup-title-btn-size": {
       "$type": "dimension",
       "$value": "{component.icon-button-size-sm}"
@@ -6067,6 +6075,14 @@
       "$type": "dimension",
       "$value": "{primitive.size-240}",
       "$description": "name error message box max width (new item / rename)"
+    },
+    "explorer-name-error-specimen-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-560}"
+    },
+    "explorer-name-error-specimen-row-room": {
+      "$type": "dimension",
+      "$value": "{primitive.size-56}"
     },
     "explorer-list-min-width": {
       "$type": "dimension",
