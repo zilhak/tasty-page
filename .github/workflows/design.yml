@@ -34,6 +34,9 @@ jobs:
         with:
           python-version: "3.x"
 
+      - name: Test the ground-ink token verifier
+        run: python3 -B scripts/design-tokens/test_verify_ground_ink_tokens.py -v
+
       - run: npm ci
 
       - run: npm run build
