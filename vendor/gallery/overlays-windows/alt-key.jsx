@@ -29,6 +29,23 @@ const ALT_MAP = [
   ["extra", "Option", "Cmd"],
 ];
 
+// Link click modifier card: the live demo has one Select per OS; Views draw the closed and open states as inert frames.
+// The demo value cmd is a gallery name only: the saved value name of the macOS Cmd choice is the implementing side's.
+const LINK_OFF = "Disable left-click opening";
+const LINK_LIVE = [
+  { os: "macOS", options: [{ value: "ctrl", label: "Ctrl" }, { value: "alt", label: "Option" }, { value: "cmd", label: "Cmd" }, { value: "none", label: LINK_OFF }] },
+  { os: "Windows · Linux", options: [{ value: "ctrl", label: "Ctrl" }, { value: "alt", label: "Alt" }, { value: "none", label: LINK_OFF }] },
+];
+const LINK_CLOSED = [
+  { name: "link-click-modifier-macos-default", label: "macOS — closed (default Ctrl)", value: "ctrl", shown: "Ctrl" },
+  { name: "link-click-modifier-macos-saved-alt", label: "macOS — closed, saved value alt (Option)", value: "alt", shown: "Option" },
+  { name: "link-click-modifier-winlinux-default", label: "Windows · Linux — closed (default Ctrl)", value: "ctrl", shown: "Ctrl" },
+];
+const LINK_LISTS = [
+  { name: "link-click-modifier-macos-open", label: "macOS — open list", items: ["Ctrl", "Option", "Cmd", LINK_OFF] },
+  { name: "link-click-modifier-winlinux-open", label: "Windows · Linux — open list", items: ["Ctrl", "Alt", LINK_OFF] },
+];
+
 function AltKeySection() {
   return (
     <WSection id="altkey" title="Alt key (macOS) — mapping and link click keys">
@@ -81,49 +98,35 @@ function AltKeySection() {
 
       <WSpec id="terminal-link-click-modifier-choices-macos" title="Terminal › General · link click modifier choices per OS"
         when={<>The link click modifier is a <b>physical key</b> and ignores the Alt key mapping. On macOS the choices name the keys you press — <b>Ctrl · Option · Cmd</b> — which ends the old “Alt” label for what is really Option. On Windows and Linux the choices are <b>Ctrl · Alt</b>; the Win / Super key is not offered. Every OS keeps <b>“Disable left-click opening”</b> as the last choice, and the default is <b>Ctrl</b> on every OS. The choices are always <b>words</b>: this is a settings choice, not a rendered shortcut, so the Cmd / Option display settings do not apply (U3 covers shortcut display only). No caption on the row on any OS: the list itself shows which keys can be used, so the missing Win / Super key needs no note.</>}>
-        <WStage variant="solo" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 24, flexWrap: "wrap", alignItems: "flex-start" }}>
-          <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
-            <span style={wLbl}>macOS — closed (default Ctrl)</span>
-            <div style={{ ...wPanel, width: 520 }}>
-              <Row label="Link click modifier:">
-                <WSelect options={[{ value: "ctrl", label: "Ctrl" }]} value="ctrl" style={{ width: "var(--tasty-field-width-md)" }} />
-              </Row>
+        <WStage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-xl)", flexWrap: "wrap", alignItems: "flex-start" }}>
+          {LINK_LIVE.map(({ os, options }) => (
+            <div key={os} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
+              <span style={wLbl}>{os} — live</span>
+              <div style={{ ...wPanel, width: "var(--tasty-settings-content-max-width)", maxWidth: "100%" }}>
+                <Row label="Link click modifier:">
+                  <WSelect options={options} defaultValue="ctrl" style={{ width: "var(--tasty-field-width-md)" }} />
+                </Row>
+              </div>
             </div>
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
-            <span style={wLbl}>macOS — open list</span>
-            <div style={wMenu}>
-              <WMenuItem label="Ctrl" selected />
-              <WMenuItem label="Option" />
-              <WMenuItem label="Cmd" />
-              <WMenuItem label="Disable left-click opening" wrap />
-            </div>
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
-            <span style={wLbl}>Windows · Linux — closed (default Ctrl)</span>
-            <div style={{ ...wPanel, width: 520 }}>
-              <Row label="Link click modifier:">
-                <WSelect options={[{ value: "ctrl", label: "Ctrl" }]} value="ctrl" style={{ width: "var(--tasty-field-width-md)" }} />
-              </Row>
-            </div>
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
-            <span style={wLbl}>Windows · Linux — open list</span>
-            <div style={wMenu}>
-              <WMenuItem label="Ctrl" selected />
-              <WMenuItem label="Alt" />
-              <WMenuItem label="Disable left-click opening" wrap />
-            </div>
-          </div>
+          ))}
         </WStage>
         <WViews>
-          <WView name="link-click-modifier-macos-saved-alt" label="macOS — closed, saved value alt (Option)" wide>
-            <div inert="" style={{ width: "var(--tasty-settings-content-max-width)", pointerEvents: "none" }}>
-              <Row label="Link click modifier:">
-                <WSelect options={[{ value: "alt", label: "Option" }]} value="alt" style={{ width: "var(--tasty-field-width-md)" }} />
-              </Row>
-            </div>
-          </WView>
+          {LINK_CLOSED.map(({ name, label, value, shown }) => (
+            <WView key={name} name={name} label={label} wide>
+              <div inert="" style={{ width: "var(--tasty-settings-content-max-width)", pointerEvents: "none" }}>
+                <Row label="Link click modifier:">
+                  <WSelect options={[{ value, label: shown }]} value={value} style={{ width: "var(--tasty-field-width-md)" }} />
+                </Row>
+              </div>
+            </WView>
+          ))}
+          {LINK_LISTS.map(({ name, label, items }) => (
+            <WView key={name} name={name} label={label}>
+              <div inert="" style={{ ...wMenu, pointerEvents: "none" }}>
+                {items.map((it, i) => <WMenuItem key={it} label={it} selected={i === 0} wrap={i === items.length - 1} />)}
+              </div>
+            </WView>
+          ))}
         </WViews>
         <WMeta
           specs={[["place", "unchanged — Terminal › General, Option as Meta stays right below"], ["macOS choices", "Ctrl · Option · Cmd · Disable left-click opening — words, every language"], ["Windows / Linux choices", "Ctrl · Alt · Disable left-click opening — words, every language; no Win / Super"], ["default", "Ctrl on every OS"], ["saved alt on macOS", "the stored value alt stays the physical Option key and shows Option (link_modifier_option) in the closed trigger and the list · no migration of saved alt"], ["frame width", "settings-content-max-width 620 — the settings content column the row sits in"], ["width", "field-width-md 160 — unchanged; every key word is shorter than the existing off choice"], ["off choice", "open list wraps it (MenuItem wrap) when wider than the list; closed trigger unchanged"], ["caption", "none on any OS — no note for the missing Win / Super key"]]}
