@@ -142,7 +142,7 @@ function ShellSetupFrame({ check = "valid", os = "mac", notice = "missing", foun
 const lCode = { fontFamily: "var(--tasty-ui-code-font)", fontSize: "1em", background: "var(--tasty-ui-code-bg)", color: "var(--tasty-ui-code-fg)", padding: "0 var(--tasty-ui-code-padding-x)", borderRadius: "var(--tasty-ui-code-radius)", whiteSpace: "nowrap" };
 const BOOT_ERRORS = {
   engine: { title: "Could not start the terminal", body: <>Tasty could not start a terminal. Details: No such file or directory (os error 2)</>, hint: <>Check <code style={lCode}>general.shell</code> in your config.toml and make sure the shell exists, then start Tasty again.</> },
-  datadir: { title: "Data folder already in use", body: <>Another Tasty is already using this data folder: /Users/hana/Library/Application Support/tasty-workspaces/personal/profile-default</>, hint: <>Use the Tasty that is already running, or start this one with a different <code style={lCode}>TASTY_HOME</code>.</> },
+  datadir: { title: "Data folder already in use", body: <>Another Tasty is already using this data folder: /home/me/.local/share/tasty-workspaces/personal/profile-default</>, hint: <>Use the Tasty that is already running, or start this one with a different <code style={lCode}>TASTY_HOME</code>.</> },
   webhook: { title: "Webhook port in use", body: <>The webhook port 7420 could not be opened: Address already in use (os error 48)</>, hint: <>Stop the app that is using port 7420, or start Tasty with <code style={lCode}>--webhook-port 7421</code>. <code style={lCode}>tasty --help</code> lists the other start options.</> },
 };
 function BootErrorFrame({ kind = "engine", theme, h = 480 }) {
