@@ -60,7 +60,10 @@ const CSS = `
 .tasty-btn--ghost svg { color: var(--tasty-text-secondary); }
 .tasty-btn--ghost:hover, .tasty-btn--ghost:active { color: var(--tasty-button-ghost-fg-hover); }
 /* 2026-10-21 — ghost on a raised ground (ground="raised"): Latte text-secondary on surface0 is 4.05:1 */
+/* 2026-11-25 — secondary on a raised ground draws its own box on on-raised, the ground its contract names
+   (Button.secondary (on raised)); surface-raised would make it the card's own colour (Latte hover 4.34). */
 .tasty-btn--secondary.tasty-btn--on-raised { border-color: var(--tasty-banner-button-border); }
+.tasty-btn--secondary.tasty-btn--on-raised:not([disabled]) { background: var(--tasty-surface-on-raised); }
 .tasty-btn--secondary.tasty-btn--on-raised:hover { border-color: var(--tasty-border-frame); color: var(--tasty-text-primary); }
 .tasty-btn--secondary.tasty-btn--on-raised:active { border-color: var(--tasty-border-frame); color: var(--tasty-text-on-active-hover); }
 .tasty-btn--ghost.tasty-btn--on-raised { color: var(--tasty-button-ghost-raised-fg); }
