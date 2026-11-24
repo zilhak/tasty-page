@@ -5,8 +5,8 @@
    A measure that belongs to one part may read the size, radius or
    duration primitive instead (TOKENS.md, "Part-only measures").
    A part may read another component token of its own component or of
-   the component it is drawn as, never a peer's (TOKENS.md, "Component
-   references"). A count, coefficient, dash pattern or keyword may be a
+   the component it is drawn as, belongs to the family of, or whose slot
+   it fills; never a peer's (TOKENS.md, "Component references"). A count, coefficient, dash pattern or keyword may be a
    literal (TOKENS.md, "Literal parameters").
    Color, type, opacity, easing and scale always go through a
    semantic role. This is the contract an
