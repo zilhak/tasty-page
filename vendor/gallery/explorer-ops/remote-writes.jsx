@@ -24,8 +24,12 @@ const REASON = {
 // empty name). New keys next to the explorer.remote ones; all four languages written by Codex.
 // The host-free sentence is picked when the host text is empty; the word Remote is not put in
 // the sentence and 127.0.0.1:<port> is never shown.
-// explorer.remote.lost_body filled with op_copy, as the app fills it (tasty lang/*.toml).
-const LOST_BODY_COPY = {"en": "The copy stopped at the item it was on. Some items may already have changed. The folder reloads when the connection is back.", "ko": "복사은(는) 하던 항목에서 멈췄습니다. 일부 항목은 이미 바뀌었을 수 있습니다. 다시 연결되면 폴더를 다시 읽습니다.", "ja": "コピーは処理中の項目で止まりました。一部の項目はすでに変更されている可能性があります。再接続するとフォルダーを再読み込みします。", "zh-Hans": "复制 已在当前处理的项目处停止。部分项目可能已更改。连接恢复后会重新加载文件夹。"};
+// explorer.remote.lost_body: one {} for the operation (explorer.remote.op_*). No particle or article sits on the {}
+// itself, so every operation word reads (ko "복사 작업은", not "복사은(는)"). All four languages written by Codex.
+// LOST_BODY_COPY is the value filled with op_copy, as the app fills it.
+const LOST_BODY = {"key": "explorer.remote.lost_body", "en": "The “{}” operation stopped at the item it was processing. Some items may already have changed. The folder reloads when the connection is back.", "ko": "{} 작업은 처리 중이던 항목에서 멈췄습니다. 일부 항목은 이미 바뀌었을 수 있습니다. 다시 연결되면 폴더를 다시 읽습니다.", "ja": "「{}」の操作は処理中の項目で止まりました。一部の項目はすでに変更されている可能性があります。再接続するとフォルダーを再読み込みします。", "zh-Hans": "{} 操作在处理当前项目时停止。部分项目可能已更改。连接恢复后会重新加载文件夹。"};
+const OP_COPY = { "en": "copy", "ko": "복사", "ja": "コピー", "zh-Hans": "复制" };
+const LOST_BODY_COPY = Object.fromEntries(["en", "ko", "ja", "zh-Hans"].map((l) => [l, LOST_BODY[l].replace("{}", OP_COPY[l])]));
 const NO_HOST = {
   "write_needs_update": { key: "explorer.remote.write_needs_update_no_host", "en": "Update remote Tasty to change remote files.", "ko": "원격 Tasty를 업데이트하면 원격 파일을 바꿀 수 있습니다.", "ja": "リモートの Tasty を更新すると、リモートのファイルを変更できます。", "zh-Hans": "更新远程 Tasty 以更改远程文件。" },
   "waiting": { key: "explorer.remote.waiting_no_host", "en": "Waiting for remote Tasty", "ko": "원격 Tasty 응답 기다리는 중", "ja": "リモートの Tasty の応答を待っています", "zh-Hans": "正在等待远程 Tasty" },
@@ -234,19 +238,19 @@ function RemoteWriteSection() {
         when={<>When the link drops mid-job or while a conflict question is open, the remote stops at the item it was on and this side never gets the report. The result card says exactly that: <b>warning</b> tone, it <b>stays until dismissed</b>, and it does <b>not</b> claim that nothing changed. There is no Retry and no Undo (the current state is unknown, so neither can be offered honestly); the only control is ×. A second line says the folder will be read again on reconnect, because that is when the user can see what happened. An open conflict popup for that job closes with it.</>}>
         <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 18, flexWrap: "wrap", alignItems: "flex-start" }}>
           <XCol label="in place" w={480}>
-            <XCell w={480} h={230} toolbar={remoteTb} status="5 items" overlay={<YToastAt><YResult variant="warning" title={<><div>Connection to build-eu lost · result unknown</div><div style={{ marginTop: "var(--tasty-space-xs)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-secondary)" }}>The copy stopped at the item it was on. Some items may already have changed. The folder reloads when the connection is back.</div></>} /></YToastAt>}><XDetail /></XCell>
+            <XCell w={480} h={230} toolbar={remoteTb} status="5 items" overlay={<YToastAt><YResult variant="warning" title={<><div>Connection to build-eu lost · result unknown</div><div style={{ marginTop: "var(--tasty-space-xs)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-secondary)" }}>{LOST_BODY_COPY.en}</div></>} /></YToastAt>}><XDetail /></XCell>
           </XCol>
           <XThemes gap="var(--tasty-space-md)" render={() => (
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", width: "var(--tasty-toast-max-width)", maxWidth: "100%" }}>
-              <YResult variant="warning" title={<><div>build-eu 연결이 끊겨 결과를 알 수 없음</div><div style={{ marginTop: "var(--tasty-space-xs)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-secondary)" }}>복사는 하던 항목에서 멈췄습니다. 일부 항목은 이미 바뀌었을 수 있습니다. 다시 연결되면 폴더를 다시 읽습니다.</div></>} />
-              <YResult variant="warning" title={<><div>build-eu との接続が切れたため結果が不明です</div><div style={{ marginTop: "var(--tasty-space-xs)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-secondary)" }}>コピーは処理中の項目で止まりました。一部の項目はすでに変更されている可能性があります。再接続するとフォルダーを再読み込みします。</div></>} />
+              <YResult variant="warning" title={<><div>build-eu 연결이 끊겨 결과를 알 수 없음</div><div style={{ marginTop: "var(--tasty-space-xs)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-secondary)" }}>{LOST_BODY_COPY.ko}</div></>} />
+              <YResult variant="warning" title={<><div>build-eu との接続が切れたため結果が不明です</div><div style={{ marginTop: "var(--tasty-space-xs)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-secondary)" }}>{LOST_BODY_COPY.ja}</div></>} />
             </div>
           )} />
         </Stage>
         <Views>
           <View name="remote-lost-no-profile" label="No profile name (--ssh or --target-port from the CLI or IPC) — the title with no host and the unchanged body, every language">
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", width: "var(--tasty-toast-max-width)", maxWidth: "100%" }}>
-              <YResult variant="warning" title={<><div>{NO_HOST.lost_title.en}</div><div style={{ marginTop: "var(--tasty-space-xs)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-secondary)" }}>The copy stopped at the item it was on. Some items may already have changed. The folder reloads when the connection is back.</div></>} />
+              <YResult variant="warning" title={<><div>{NO_HOST.lost_title.en}</div><div style={{ marginTop: "var(--tasty-space-xs)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-secondary)" }}>{LOST_BODY_COPY.en}</div></>} />
               {NH_LANGS.slice(1).map((l) => <YResult key={l} variant="warning" title={<div lang={l}><div>{NO_HOST.lost_title[l]}</div><div style={{ marginTop: "var(--tasty-space-xs)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-secondary)" }}>{LOST_BODY_COPY[l]}</div></div>} />)}
             </div>
           </View>
@@ -254,7 +258,7 @@ function RemoteWriteSection() {
         <Meta
           specs={[["tone", "warning · stays until dismissed"], ["title", "“Connection to {host} lost · result unknown”"], ["no host", "no profile name (--ssh, --target-port, a profile saved with an empty name) → explorer.remote.lost_title_no_host() · body unchanged (its {} is the operation) · never 127.0.0.1:<port> · the card is the remote file operation's result-unknown card, kept until dismissed · whether it stays depends on the mirror's saved row, not on the name or on a saved profile: a mirror with a saved row goes to reconnect on a drop, so its card stays as usual; a mirror with no saved row is cleaned up after a drop, so its card shows only for the few frames before that cleanup, when the link fails while a result is awaited · no saved row: --ssh, --target-port, and a remote.attach whose saved profile (its name empty or not) matched no saved row and was installed by hand · an empty profile name with a matching saved row keeps that row"], ["body", "caption · text-secondary · stopped at the item · may have changed · reload on reconnect"], ["actions", "× only — no Retry, no Undo"], ["status line", "not part of D3 · drawn as the ordinary item count (explorer.status.items) · the card alone tells the user that the link dropped · this specimen does not set what the status line shows while disconnected"], ["conflict popup", "closes with the job"], ["verb", "{op} = copy / move / move to Trash / rename / new folder / new file"]]}
           tokens={[{ tok: "--tasty-toast-accent-warning", use: "card", color: "var(--tasty-toast-accent-warning)" }]} />
-        <Note>i18n: <code>explorer.remote.lost_title</code> “Connection to {"{host}"} lost · result unknown” / “{"{host}"} 연결이 끊겨 결과를 알 수 없음” / “{"{host}"} との接続が切れたため結果が不明です” · <code>explorer.remote.lost_body</code> “The {"{op}"} stopped at the item it was on. Some items may already have changed. The folder reloads when the connection is back.” / “{"{op}"}은(는) 하던 항목에서 멈췄습니다. 일부 항목은 이미 바뀌었을 수 있습니다. 다시 연결되면 폴더를 다시 읽습니다.” / “{"{op}"}は処理中の項目で止まりました。一部の項目はすでに変更されている可能性があります。再接続するとフォルダーを再読み込みします。”</Note>
+        <Note>i18n: <code>explorer.remote.lost_title</code> “Connection to {"{host}"} lost · result unknown” / “{"{host}"} 연결이 끊겨 결과를 알 수 없음” / “{"{host}"} との接続が切れたため結果が不明です” · <code>explorer.remote.lost_body</code> “The “{"{op}"}” operation stopped at the item it was processing. Some items may already have changed. The folder reloads when the connection is back.” / “{"{op}"} 작업은 처리 중이던 항목에서 멈췄습니다. 일부 항목은 이미 바뀌었을 수 있습니다. 다시 연결되면 폴더를 다시 읽습니다.” / “「{"{op}"}」の操作は処理中の項目で止まりました。一部の項目はすでに変更されている可能性があります。再接続するとフォルダーを再読み込みします。” / “{"{op}"} 操作在处理当前项目时停止。部分项目可能已更改。连接恢复后会重新加载文件夹。”</Note>
       </Spec>
 
       <Spec id="d4-remote-progress-line-and-queue-host-shown" title="D4 · Remote progress line and queue — host shown"
