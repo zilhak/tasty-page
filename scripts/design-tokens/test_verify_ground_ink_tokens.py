@@ -134,6 +134,26 @@ class VerifyGroundInkTokens(unittest.TestCase):
             "R3 half-up [mocha]: rules '#0a1a2e4d', CSS evaluates to #0b1a2e@3/10",
         )
 
+    def test_r3_six_digit_hex_requires_opaque_color(self):
+        self.entry("mix")["values"]["mocha"] = "#123456"
+        self.assert_failure(
+            "R3 mix [mocha]: rules '#123456', CSS evaluates to #123456@3/10"
+        )
+
+    def test_r3_mix_complements_an_omitted_left_weight(self):
+        self.css["components"] = self.css["components"].replace(
+            "#ff0000, rgba(0, 0, 255, 0.5) 50%", "#ff0000, #0000ff 25%"
+        )
+        self.entry("mix-premultiplied")["values"] = {"mocha": "#bf0040", "latte": "#bf0040"}
+        self.assert_success()
+
+    def test_r3_mix_premultiplies_the_left_alpha(self):
+        self.css["components"] = self.css["components"].replace(
+            "#ff0000, rgba(0, 0, 255, 0.5) 50%", "rgba(255, 0, 0, 0.5), #0000ff 25%"
+        )
+        self.entry("mix-premultiplied")["values"] = {"mocha": "#990066@0.625", "latte": "#990066@0.625"}
+        self.assert_success()
+
     def test_r3_clamps_calculated_weights_to_percentage_range(self):
         self.css["primitives"] = self.css["primitives"].replace(
             "--tasty-alpha: 0.30", "--tasty-alpha: -0.20"
