@@ -96,7 +96,8 @@ class VerifyGroundInkTokens(unittest.TestCase):
     def assert_success(self):
         result = self.run_verifier()
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
-        self.assertEqual(result.stdout.strip(), "ground-ink tokens: CSS 12, rules 12, errors 0")
+        count = len(self.entries)
+        self.assertEqual(result.stdout.strip(), f"ground-ink tokens: CSS {count}, rules {count}, errors 0")
 
     def test_valid_tokens(self):
         self.assert_success()
@@ -193,6 +194,24 @@ class VerifyGroundInkTokens(unittest.TestCase):
             "8px", "var(--tasty-alpha, #000)"
         ).replace("12px", "var(--tasty-paint, #000)")
         self.assert_failure("R4 size [latte]: expected a non-color value, CSS has '#abcdef'")
+
+    def test_valid_primary_skips_nested_fallback_substitution(self):
+        self.css = {"primitives": "", "semantic": "", "components": ""}
+        self.entries = [
+            {"name": name, "tier": "primitive", "kind": "non-color"}
+            for name in ("space", "legacy", "size")
+        ]
+        for fallback in ("--site-size", "--tasty-legacy"):
+            with self.subTest(fallback=fallback):
+                self.css["primitives"] = f"""
+                    :root {{
+                        --tasty-space: 8px;
+                        --site-size: 16px;
+                        --tasty-legacy: inherit;
+                        --tasty-size: var(--tasty-space, var({fallback}));
+                    }}
+                """
+                self.assert_success()
 
     def test_var_resolves_nested_and_embedded_fallbacks(self):
         self.css["primitives"] = self.css["primitives"].replace(

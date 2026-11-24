@@ -119,16 +119,16 @@ def resolve_aliases(value, values, cyclic):
         if not token:
             raise ValueError(f"unsupported token reference: {reference.strip()!r}")
         name = token[1]
-        replacement = resolve_aliases(fallback, values, cyclic) if comma else None
+        replacement = None
         if name in values and name not in cyclic:
             target = values[name]
             keyword = target.lower()
             if keyword in {"inherit", "unset", "revert", "revert-layer"}:
                 raise ValueError(f"cannot resolve --tasty-{name} with CSS-wide value {target!r}")
             if keyword != "initial":
-                primary = resolve_aliases(target, values, cyclic)
-                if primary is not None:
-                    replacement = primary
+                replacement = resolve_aliases(target, values, cyclic)
+        if replacement is None and comma:
+            replacement = resolve_aliases(fallback, values, cyclic)
         parts.append(value[cursor:match.start()])
         if replacement is None:
             unresolved = True
