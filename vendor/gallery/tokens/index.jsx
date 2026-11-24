@@ -153,14 +153,14 @@ const TYPE = [
 ];
 
 const TIERS = [
-  { n: 1, tier: "Primitive", title: "The only literals", good: false,
+  { n: 1, tier: "Primitive", title: "Raw values", good: false,
     body: "Context-free raw values on numeric scales. No roles, no opinions. Theme lives here (Mocha / Latte re-point the same names).",
-    examples: [["color-blue", "value"], ["size-4", "value"], ["font-size-13", "value"]], rule: "never referenced by components or app code" },
+    examples: [["color-blue", "value"], ["size-4", "value"], ["font-size-13", "value"]], rule: "App code and UI read only semantic or component tokens. Semantic roles read primitives. Component tokens read them directly only for a part-only size, radius or duration." },
   { n: 2, tier: "Semantic", title: "Roles & intent", good: true,
-    body: "Every value points at a primitive — never a literal. This is what app code and the component layer read.",
+    body: "Semantic roles read primitives or other semantic roles, with literal values only for shadows and attention ranks. This is what app code and the component layer read.",
     examples: [["accent-primary", "ref"], ["space-md", "ref"]], rule: "read these in app code" },
   { n: 3, tier: "Component", title: "Per-component knobs", good: true,
-    body: "One token per styled part of one component, usually pointing at a semantic role. The contract an implementer copies. A token for a part-only size, radius or duration can read the primitive scale directly if no semantic role names its meaning. When another part uses the same value for the same reason, add a semantic role for both.",
+    body: "One token per styled part of one component, usually pointing at a semantic role. The contract an implementer copies. A token for a part-only size, radius or duration can read the primitive scale directly if no semantic role names its meaning. A part can read tokens from its own component or from the component it is drawn as. When unrelated parts need the same value for the same reason, give them a shared semantic role. Counts, coefficients, dash patterns and keywords can be literals.",
     examples: [["button-primary-bg", "ref"]], rule: "re-theme a component by overriding only its tokens" },
 ];
 
@@ -268,7 +268,7 @@ export const page = {
   ],
   head: {
     title: "Design tokens",
-    intro: "Tasty’s design tokens connect primitive values to semantic roles and component parts. References run in one direction from component tokens through semantic roles to primitives. A part-only measure with no semantic role can read a primitive directly. Colour, alpha, type, opacity, easing and UI scale always go through semantic roles. Specimen rows show names, references and values for colours, spacing, sizing, radius, typography and motion, with Mocha and Latte shown together.",
+    intro: "Tasty’s design tokens connect primitive values to semantic roles and component parts. References run in one direction from component tokens through semantic roles to primitives. Within a tier, semantic roles can read other roles, and component tokens can read other component tokens in the cases below. A part-only measure with no semantic role can read a primitive directly. Colour, alpha, type, opacity, easing and UI scale always go through semantic roles. Specimen rows show names, references and values for colours, spacing, sizing, radius, typography and motion, with Mocha and Latte shown together.",
   },
   content: <TokenSystem />,
 };
