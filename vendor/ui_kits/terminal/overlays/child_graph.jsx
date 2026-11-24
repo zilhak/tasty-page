@@ -377,20 +377,29 @@ function ChildGraphView({ nodes, baseId, full = false, selected, onSelect, lang 
 }
 
 // ── Mirror banner (user decisions 2026-11-10, 13-2 to 13-5 of 2026-11-11) ──
-// The banner is for a base that is GONE here: the mirror was detached (cause "detached", the user's
-// act, neutral band) or its mirror workspace was closed after the connection dropped (cause "lost",
-// warning band). A transport drop that keeps the mirror is not this banner: that is the
-// graph.remote_disconnected strip over the kept graph. The surface shows this strip over the
-// "pick a base surface" state. Reconnect attaches again with the same saved profile to the same
-// remote surface:
+// The banner is for a base that is GONE here, and only for the two ways the app ends a mirror while
+// the base was on it:
+//   "detached" — the user closed the mirror or disconnected it (neutral band; the app shows no toast).
+//     With a saved row, Reconnect attaches again; with none, it is disabled.
+//   "lost" — a mirror with NO saved row ended for a remote reason: transport drop, forced disconnect,
+//     a failed resync or a failed resync reattach (warning band; the app also shows the window toast
+//     attach.toast.mirror_disconnected). A mirror with a saved row never ends this way — the app keeps
+//     it and reconnects — so "lost" always has Reconnect disabled, whatever `saved` says.
+// Not this banner: a drop of a mirror with a saved row (the app reconnects with no toast; the graph
+// keeps its cards with the graph.remote_disconnected strip), a resync reattach still in progress
+// (nothing of its own; it ends as the graph was or as "lost"), and a workspace the server closed (the
+// app's own toast; the base surface is closed, so the surface form shows its base-closed state, 4-4).
+// The surface shows this strip over the "pick a base surface" state. Reconnect attaches again with
+// the same saved profile to the same remote surface:
 //   state "idle" → Reconnect · "trying" → disabled Reconnecting… with a spinner ·
 //   "failed" → the reason sentence (warning) and Reconnect again (13-4 a). reason:
 //   "unreachable" (could not reach Tasty there) · "surface_gone" (closed there, or moved to another
 //   workspace there, 13-3 a) · "held" (another client holds it, 13-5 a: the reason only, no force
 //   detach button or prompt).
 // saved = the attach came from a saved row. With none (--ssh, --target-port, a hand-installed
-// attach) there is nothing to reattach with: Reconnect stays in place, disabled, its tooltip
-// child_graph.reconnect_unavailable, and trying / failed never occur.
+// attach) there is nothing to reattach with — the app's reconnect state is keyed by the saved row —
+// so Reconnect stays in place, disabled, its tooltip child_graph.reconnect_unavailable, and trying /
+// failed never occur.
 // host follows the host text rule: the attach profile name; empty (no profile name) takes the
 // _no_host sentence, which leaves the host out, and an empty saved profile name takes
 // reconnect_tooltip_no_host. Never 127.0.0.1:<port>. A proposal: the app has no banner yet.
@@ -398,12 +407,13 @@ function MirrorBanner({ cause = "detached", state = "idle", reason = "unreachabl
   saved = true, lang = "en", onReconnect }) {
   const nh = host ? "" : "_no_host";
   const H = host ? [host] : [];
-  const failed = saved && state === "failed";
+  const canReconnect = saved && cause !== "lost";
+  const failed = canReconnect && state === "failed";
   const text = failed
     ? (reason === "unreachable" ? gt(`child_graph.reconnect_failed.unreachable${nh}`, lang, ...H) : gt(`child_graph.reconnect_failed.${reason}${nh}`, lang, name, ...H))
     : gt((cause === "lost" ? "child_graph.mirror_lost" : "child_graph.mirror_detached") + nh, lang, ...H, name);
   const tip = profile ? gt("child_graph.reconnect_tooltip", lang, name, profile) : gt("child_graph.reconnect_tooltip_no_host", lang, name);
-  const action = !saved
+  const action = !canReconnect
     ? <span title={gt("child_graph.reconnect_unavailable", lang)} style={{ display: "inline-flex" }}><Button size="sm" variant="secondary" disabled>{gt("child_graph.reconnect", lang)}</Button></span>
     : state === "trying"
       ? <Button size="sm" variant="secondary" disabled leadingIcon={<Spinner size={12} />}>{gt("child_graph.reconnecting", lang)}</Button>
