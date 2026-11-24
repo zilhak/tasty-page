@@ -91,6 +91,14 @@ function AltKeySection() {
             </div>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
+            <span style={wLbl}>macOS — closed, saved value alt (Option)</span>
+            <div style={{ ...wPanel, width: 520 }}>
+              <Row label="Link click modifier:">
+                <WSelect options={[{ value: "alt", label: "Option" }]} value="alt" style={{ width: "var(--tasty-field-width-md)" }} />
+              </Row>
+            </div>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
             <span style={wLbl}>macOS — open list</span>
             <div style={wMenu}>
               <WMenuItem label="Ctrl" selected />
@@ -117,7 +125,7 @@ function AltKeySection() {
           </div>
         </WStage>
         <WMeta
-          specs={[["place", "unchanged — Terminal › General, Option as Meta stays right below"], ["macOS choices", "Ctrl · Option · Cmd · Disable left-click opening — words, every language"], ["Windows / Linux choices", "Ctrl · Alt · Disable left-click opening — words, every language; no Win / Super"], ["default", "Ctrl on every OS"], ["width", "field-width-md 160 — unchanged; every key word is shorter than the existing off choice"], ["off choice", "open list wraps it (MenuItem wrap) when wider than the list; closed trigger unchanged"], ["caption", "none on any OS — no note for the missing Win / Super key"]]}
+          specs={[["place", "unchanged — Terminal › General, Option as Meta stays right below"], ["macOS choices", "Ctrl · Option · Cmd · Disable left-click opening — words, every language"], ["Windows / Linux choices", "Ctrl · Alt · Disable left-click opening — words, every language; no Win / Super"], ["default", "Ctrl on every OS"], ["saved alt on macOS", "the same stored value alt, the physical Option key, shows Option (link_modifier_option) in the closed trigger and the list · no migration, no other wording"], ["width", "field-width-md 160 — unchanged; every key word is shorter than the existing off choice"], ["off choice", "open list wraps it (MenuItem wrap) when wider than the list; closed trigger unchanged"], ["caption", "none on any OS — no note for the missing Win / Super key"]]}
           tokens={[{ tok: "--tasty-field-width-md", use: "Select + list width" }, { tok: "--tasty-menu-item-selected-fg", use: "current value", color: "var(--tasty-menu-item-selected-fg)" }]} />
         <WNote>i18n — new <code>settings.terminal.link_modifier_option</code> “Option” and <code>settings.terminal.link_modifier_cmd</code> “Cmd” (all languages). <code>settings.terminal.link_modifier_ctrl</code>, <code>_none</code> and <code>_label</code> unchanged. On macOS the stored <code>alt</code> value shows <code>link_modifier_option</code>; <code>link_modifier_alt</code> stays for Windows / Linux. Windows / Linux reuse <code>link_modifier_ctrl</code>, <code>_alt</code> and <code>_none</code> as they are; no new key.</WNote>
       </WSpec>
