@@ -157,10 +157,11 @@ function Page() {
         <Spec id="callout-title-body-progress-back-next-skip-4-way-tail" title="Callout — title · body · progress · Back/Next/Skip · 4-way tail"
           when={<>The guidance bubble pinned to a marker. Fixed <b>244px</b> wide (i18n growth absorbed vertically), a <b>tail</b> points at the marker in one of 4 directions, and edge-avoidance flips the tail + clamps the body into the 8px safe area while the tail keeps aiming at the marker corner.</>}>
           <Stage variant="solo" style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 24, padding: 24, background: "var(--tasty-bg-app)", placeItems: "center" }}>
-            <div style={{ position: "relative" }}><Callout tail="up" step={2} title="탭 헤더" body="패인 상단의 이 띠에서 탭을 전환·추가·닫습니다." style={{ position: "relative" }} /></div>
-            <div style={{ position: "relative" }}><Callout tail="down" step={3} title="패인" body="탭 하나가 열리는 이 사각 영역이 패인입니다." style={{ position: "relative" }} /></div>
-            <div style={{ position: "relative" }}><Callout tail="left" step={4} title="서피스" body="패인 안에서 실제 터미널·마크다운이 그려지는 면." style={{ position: "relative" }} /></div>
-            <div style={{ position: "relative" }}><Callout tail="right" step={1} first title="워크스페이스" body="이 전체 영역이 하나의 워크스페이스입니다." style={{ position: "relative" }} /></div>
+            {/* The basics topic in the app's order (workspace, pane, tab, surface, summary), with its ko copy as written. */}
+            <div style={{ position: "relative" }}><Callout tail="up" step={2} title="페인" body="각 페인은 자기 탭 바를 갖습니다. 페인을 나누면 서로 다른 탭을 나란히 볼 수 있어요." style={{ position: "relative" }} /></div>
+            <div style={{ position: "relative" }}><Callout tail="down" step={3} title="탭" body="페인 안에서 작업을 전환하는 단위입니다. 탭마다 서피스 배치를 따로 가질 수 있어요." style={{ position: "relative" }} /></div>
+            <div style={{ position: "relative" }}><Callout tail="left" step={4} title="서피스" body="터미널이나 문서가 표시되는 작업 영역입니다. 한 탭 안에 여러 서피스를 나눠 놓을 수 있어요." style={{ position: "relative" }} /></div>
+            <div style={{ position: "relative" }}><Callout tail="right" step={1} first title="워크스페이스" body="작업에 필요한 페인과 탭을 묶는 공간입니다. 사이드바에서 다른 워크스페이스로 전환할 수 있어요." style={{ position: "relative" }} /></div>
           </Stage>
           <Meta
             specs={[["width", "244px fixed"], ["tail", "up · down · left · right (12px diamond)"], ["progress", "2/5 label + dot rail"], ["buttons", "Skip (link) · Back (secondary) · Next (primary)"], ["first step", "Back hidden"], ["last step", "Next → 'Done', reopens topic popup"], ["placement", "below → above → right → left; flip on overflow; clamp to 8px safe area"]]}
@@ -187,7 +188,7 @@ function Page() {
       </Section>
 
       <Section id="composite" title="Composite — a tutorial step in place">
-        <Spec id="step-1-4" title="Step 1 / 4 — 워크스페이스"
+        <Spec id="step-1-4" title="Step 1 / 5 — 워크스페이스"
           when={<>Popup closed: marker (glow ring) + spotlight dim + callout only. Per <b>Decision 2</b>, step 1 wraps the whole content area (tabs + surface + status, sidebar excluded); later steps shrink the marker to tab → pane → surface, revealing containment.</>}>
           <Stage variant="solo" style={{ padding: 0, background: "var(--tasty-bg-app)" }} minHeight={340}>
             {/* Every part inside is absolutely placed, so the frame takes the stage's width itself (it shrank to its 2px
@@ -196,8 +197,9 @@ function Page() {
               <App />
               <Scrim />
               <Marker kind="glow" style={{ left: 124, top: 8, right: 10, bottom: 8 }} />
-              <Callout tail="right" step={1} total={4} first title="워크스페이스"
-                body={<>탭·패인·서피스를 담는 이 전체 영역이 하나의 <b>워크스페이스</b>입니다. 사이드바에서 여러 워크스페이스를 오갈 수 있어요.</>}
+              {/* step 1 of the basics topic's 5 (the app's topic.steps.len()), its ko copy as written */}
+              <Callout tail="right" step={1} total={5} first title="워크스페이스"
+                body="작업에 필요한 페인과 탭을 묶는 공간입니다. 사이드바에서 다른 워크스페이스로 전환할 수 있어요."
                 style={{ left: 150, top: 120 }} />
             </div>
           </Stage>
