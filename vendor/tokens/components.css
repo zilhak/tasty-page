@@ -922,6 +922,8 @@
   /* Layouts › Saved remote workspace (gallery specimen layout, not app chrome) — the workspace content area each popup sits in */
   --tasty-remote-row-specimen-width:  var(--tasty-size-480);
   --tasty-remote-row-specimen-height: var(--tasty-size-288);
+  --tasty-remote-row-specimen-narrow-width: var(--tasty-size-320); /* 2026-11-24 — the narrow workspace view: the popup takes the width less space-md each side */
+  --tasty-remote-row-specimen-rail-width:   var(--tasty-size-288); /* 2026-11-24 — the wrapping rail of avatars beside the rows */
   /* Gallery annotation (specimen layout, not app chrome) — a dashed outline that marks an implementer's box or a scope
      rectangle. It has no fill, so the edge alone shows it: border-control role, 3:1 on crust and base (2026-11-24) */
   --tasty-specimen-annotation-border: var(--tasty-border-control);
@@ -1046,6 +1048,8 @@
   --tasty-swatch-size:              var(--tasty-size-16);
   --tasty-swatch-radius:            var(--tasty-radius-sm);
   --tasty-swatch-border:            var(--tasty-border-control); /* 2026-11-24 — a swatch can paint the ground's own colour, and then its edge alone shows it is there: border-control role, 3:1 on crust · mantle · base. Dashed = a reserved, empty swatch */
+  /* Saved remote workspace popup (app chrome) */
+  --tasty-remote-row-popup-width:   var(--tasty-size-360); /* 2026-11-24 — Workspace-scope popup width; at most the content area less space-md each side */
   /* Remote tool */
   --tasty-remote-label-col:         var(--tasty-size-112); /* form label grid column */
   --tasty-remote-filter-menu-width: var(--tasty-size-240); /* protocol-filter menu — BORDER-BOX width (outer edge to outer edge). Content = this minus the frame the popup crate draws (14 total at scale 1 → 226). The mock's 236 was a raw literal, snapped to the existing 240 primitive (same measure as tooltip max-width). All widths in this family read as border box. */

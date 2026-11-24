@@ -4432,6 +4432,14 @@
       "$type": "dimension",
       "$value": "{primitive.size-288}"
     },
+    "remote-row-specimen-narrow-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-320}"
+    },
+    "remote-row-specimen-rail-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-288}"
+    },
     "specimen-annotation-border": {
       "$type": "color",
       "$value": "{semantic.border-control}"
@@ -4707,6 +4715,10 @@
     "swatch-border": {
       "$type": "color",
       "$value": "{semantic.border-control}"
+    },
+    "remote-row-popup-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-360}"
     },
     "remote-label-col": {
       "$type": "dimension",

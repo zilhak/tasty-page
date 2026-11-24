@@ -129,7 +129,7 @@ export function RemoteRailMarks({ state = "connected", warn = false, title }) {
 // kind: connecting · idle · held · failed · closed (empty workspace) · reconnecting · gave_up · user · server · failed · closed (over the last screen).
 // shape = the last screen is kept under the scrim → shadow-modal; the empty workspace has no scrim → shadow-popover.
 export function RemoteConnectionPopup({ lang = "en", name = "tasty-core", profile = "host", remote, kind = "connecting", reason, seconds = 300,
-  userVariant = "stay", shape = false, width = "var(--tasty-size-360)" }) {
+  userVariant = "stay", shape = false, width = "var(--tasty-remote-row-popup-width)" }) {
   const remoteName = remote || name;
   const warn = kind === "failed" || kind === "gave_up" || kind === "closed";
   const trying = kind === "connecting" || kind === "reconnecting";
@@ -199,7 +199,7 @@ export function RemoteConnectionPopup({ lang = "en", name = "tasty-core", profil
 // shape = true: the last tab bar and panes as they were under the workspace-clipped scrim, the popup on it.
 // The scrim takes the pointer (user decision, R-58 Q1), so they are inert like anything under a scrim:
 // no selection, copy or scroll, no link is caught and no picker opens there.
-export function RemoteWorkspaceContent({ shape = false, width = "var(--tasty-size-560)", height = "var(--tasty-size-320)", children }) {
+export function RemoteWorkspaceContent({ shape = false, width = "var(--tasty-remote-row-specimen-width)", height = "var(--tasty-remote-row-specimen-height)", children }) {
   const line = (t, c) => <div style={{ whiteSpace: "pre", color: c || "var(--tasty-surface-terminal-focused-fg)" }}>{t}</div>;
   return (
     <div style={{ position: "relative", width, maxWidth: "100%", height, overflow: "hidden", boxSizing: "border-box",

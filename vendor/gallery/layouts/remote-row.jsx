@@ -51,7 +51,7 @@ export function RemoteRowEmptySpec() {
           ]))}
         </View>
         <View name="remote-row-popup-narrow" label="Narrow workspace — the popup takes the width less space-md each side">
-          <RemoteWorkspaceContent width="var(--tasty-size-320)" height="var(--tasty-size-288)"><Pop kind="closed" remote="release-pipeline-watch-eu-west" /></RemoteWorkspaceContent>
+          <RemoteWorkspaceContent width="var(--tasty-remote-row-specimen-narrow-width)" height="var(--tasty-remote-row-specimen-height)"><Pop kind="closed" remote="release-pipeline-watch-eu-west" /></RemoteWorkspaceContent>
         </View>
       </Views>
       <Meta
@@ -142,7 +142,7 @@ export function RemoteRowMarksSpec() {
           <Labelled label="inactive rows"><Rows /></Labelled>
           <Labelled label="active rows"><Rows active /></Labelled>
           <Labelled label="rail">
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-sm)", width: "var(--tasty-size-288)", padding: "var(--tasty-space-sm)", background: "var(--tasty-bg-sidebar)", borderRadius: "var(--tasty-radius)" }}>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-sm)", width: "var(--tasty-remote-row-specimen-rail-width)", padding: "var(--tasty-space-sm)", background: "var(--tasty-bg-sidebar)", borderRadius: "var(--tasty-radius)" }}>
               {ROWS.map((o) => <RailAvatar key={o[0]} o={o} />)}
             </div>
           </Labelled>
