@@ -221,36 +221,36 @@ export function ChildGraphSection() {
       <Spec id="child-graph-popup-collapsed" title="Popup on a small surface — collapsed, shown over the window, and back (decided 10-3 b, popup scope)"
         when={<>The popup is <b>scoped to its base surface</b> (10-3 b), so it follows the rule for every popup narrower than the window (Dialogs › Collapse): when the popup's needed size — 600 × 460, or the size the user resized it to — is larger than the <b>surface bounds</b> on either axis, it <b>collapses</b>. The bounds are the surface rect less an inset of min(8, width / 2, height / 2) on every side, so a surface exactly 600 × 460 gives 584 × 444 and the popup collapses there too. Collapsed, it is the common show button in its own frame, with nothing added: no title and no mark of which base it is for. It sits on the base surface, which already says which; a mark would also widen the frame and make it collapse to the icon sooner. Pressing it shows the popup <b>over the window</b>: the same popup, with the <b>shrink</b> button first in its title bar before close, the 36 toolbar, the canvas and the drawer laid over it. When the window is smaller than the popup too, the common rule (11-19) holds with <b>no graph-specific handling</b>: the frame is fitted to the window from its top left, the title bar with its shrink and close buttons stays whole, and the content keeps the popup's size and is <b>cut at the right and the bottom</b>. What lies past the cut — the zoom cluster and minimap at the bottom right, the right part of an open drawer — is cut with it. The canvas still pans by drag and wheel and zooms with Ctrl and the wheel on the part that shows, Esc still closes the drawer and steps back, and a larger window or a smaller popup size brings the rest back. Moving the zoom cluster to a place that is never cut would change where every popup graph keeps it for a window smaller than the popup, which is the special handling of a narrow space that is not done (same rule, no special case). Collapsing and expanding <b>change nothing inside</b>: the selection, zoom, pan, drawer and the push step (child graph, DAG list, DAG graph) are where they were. A push in progress when the popup collapses finishes at once (the collapsed form draws no content), and expanding shows the step it ended on, with no motion replayed. <b>Esc</b> is used by the body first: it clears the selection, then steps back (DAG graph → list → child graph); only an Esc the body does not use collapses the expanded popup; fitted in its surface it closes the popup, as before, and collapsed it drops the popup's focus like its outside click. The base surface closing closes the popup in either form.</>}>
         <Stage style={{ padding: 16, display: "block", background: "var(--tasty-bg-app)" }}>
-          {row(<>
-            <Labelled label="collapsed — the common show button, nothing added" tag="decided"><ShellMock scope="surface" narrow collapsed="label" ring /></Labelled>
-            <Labelled label="collapsed, very narrow — icon only" tag="decided"><ShellMock scope="surface" narrow collapsed="icon" ring leftWidth={64} /></Labelled>
-          </>)}
-        </Stage>
-        <Stage style={{ padding: 16, display: "block", background: "var(--tasty-bg-app)" }}>
-          {row(<>
-            <Labelled label="shown over the window — shrink button before close" tag="decided"><OverWindow><ChildGraphWindow collapse /></OverWindow></Labelled>
-            <Labelled label="over the window — a card selected, the drawer over the canvas" tag="decided"><OverWindow><ChildGraphWindow collapse initial={{ selected: "s_01HX7Q" }} /></OverWindow></Labelled>
-            <Labelled label="over the window — the DAG list step" tag="decided"><OverWindow><ChildGraphWindow collapse still push={1} initial={{ selected: "s_01HX7Q", owner: "s_01HX7Q" }} /></OverWindow></Labelled>
-            <Labelled label="over the window — the DAG graph step" tag="decided"><OverWindow><ChildGraphWindow collapse still push={2} initial={{ selected: "s_01HX7Q", owner: "s_01HX7Q", dagId: "build-and-deploy" }} /></OverWindow></Labelled>
-          </>)}
-        </Stage>
-        <Stage style={{ padding: 16, display: "block", background: "var(--tasty-bg-app)" }}>
-          {row(<>
-            <Labelled label="window smaller than the popup — fitted from the top left, title bar whole, the content cut at the right and bottom (zoom cluster cut)" tag="decided"><OverWindow w={520} h={380} fitted><ChildGraphWindow collapse cut={{ w: 520, h: 380 }} /></OverWindow></Labelled>
-            <Labelled label="window smaller, drawer open — the drawer sits at the popup's right edge, so its right part is cut too" tag="decided"><OverWindow w={520} h={380} fitted><ChildGraphWindow collapse cut={{ w: 520, h: 380 }} initial={{ selected: "s_01HX9A" }} /></OverWindow></Labelled>
-          </>)}
-        </Stage>
-        <Stage style={{ padding: 16, display: "block", background: "var(--tasty-bg-app)" }}>
-          {row(<>
-            <Labelled label="round trip · 1 · on the DAG graph step, shrink pressed" tag="decided"><OverWindow><ChildGraphWindow collapse still push={2} initial={{ selected: "s_01HX7Q", owner: "s_01HX7Q", dagId: "build-and-deploy" }} /></OverWindow></Labelled>
-            <Labelled label="round trip · 2 · collapsed — the same button; the step is kept, not drawn" tag="decided"><ShellMock scope="surface" narrow collapsed="label" ring /></Labelled>
-            <Labelled label="round trip · 3 · show pressed — the same DAG graph step, no motion" tag="decided"><OverWindow><ChildGraphWindow collapse still push={2} initial={{ selected: "s_01HX7Q", owner: "s_01HX7Q", dagId: "build-and-deploy" }} /></OverWindow></Labelled>
-          </>)}
-        </Stage>
-        <Stage style={{ padding: 16, display: "block", background: "var(--tasty-bg-app)" }}>
           <Labelled label="try it — press Show popup; select builder, View DAG, then the shrink button or Esc (with nothing selected on the child graph) and Show popup again: the step and the selection are where they were" tag="decided"><CollapseRoundTrip /></Labelled>
         </Stage>
         <Views>
+          <View name="child-popup-collapsed" label="Collapsed — the common show button, label or icon only" wide>
+            {row(<>
+              <Labelled label="collapsed — the common show button, nothing added" tag="decided"><ShellMock scope="surface" narrow collapsed="label" ring /></Labelled>
+              <Labelled label="collapsed, very narrow — icon only" tag="decided"><ShellMock scope="surface" narrow collapsed="icon" ring leftWidth={64} /></Labelled>
+            </>)}
+          </View>
+          <View name="child-popup-over-window" label="Shown over the window — plain, a card selected, the DAG list step, the DAG graph step" wide>
+            {row(<>
+              <Labelled label="shown over the window — shrink button before close" tag="decided"><OverWindow><ChildGraphWindow collapse /></OverWindow></Labelled>
+              <Labelled label="over the window — a card selected, the drawer over the canvas" tag="decided"><OverWindow><ChildGraphWindow collapse initial={{ selected: "s_01HX7Q" }} /></OverWindow></Labelled>
+              <Labelled label="over the window — the DAG list step" tag="decided"><OverWindow><ChildGraphWindow collapse still push={1} initial={{ selected: "s_01HX7Q", owner: "s_01HX7Q" }} /></OverWindow></Labelled>
+              <Labelled label="over the window — the DAG graph step" tag="decided"><OverWindow><ChildGraphWindow collapse still push={2} initial={{ selected: "s_01HX7Q", owner: "s_01HX7Q", dagId: "build-and-deploy" }} /></OverWindow></Labelled>
+            </>)}
+          </View>
+          <View name="child-popup-fitted" label="Window smaller than the popup — fitted, content cut; with the drawer open" wide>
+            {row(<>
+              <Labelled label="window smaller than the popup — fitted from the top left, title bar whole, the content cut at the right and bottom (zoom cluster cut)" tag="decided"><OverWindow w={520} h={380} fitted><ChildGraphWindow collapse cut={{ w: 520, h: 380 }} /></OverWindow></Labelled>
+              <Labelled label="window smaller, drawer open — the drawer sits at the popup's right edge, so its right part is cut too" tag="decided"><OverWindow w={520} h={380} fitted><ChildGraphWindow collapse cut={{ w: 520, h: 380 }} initial={{ selected: "s_01HX9A" }} /></OverWindow></Labelled>
+            </>)}
+          </View>
+          <View name="child-popup-round-trip-graph" label="Round trip on the DAG graph step — shrink pressed, collapsed, shown again on the same step" wide>
+            {row(<>
+              <Labelled label="round trip · 1 · on the DAG graph step, shrink pressed" tag="decided"><OverWindow><ChildGraphWindow collapse still push={2} initial={{ selected: "s_01HX7Q", owner: "s_01HX7Q", dagId: "build-and-deploy" }} /></OverWindow></Labelled>
+              <Labelled label="round trip · 2 · collapsed — the same button; the step is kept, not drawn" tag="decided"><ShellMock scope="surface" narrow collapsed="label" ring /></Labelled>
+              <Labelled label="round trip · 3 · show pressed — the same DAG graph step, no motion" tag="decided"><OverWindow><ChildGraphWindow collapse still push={2} initial={{ selected: "s_01HX7Q", owner: "s_01HX7Q", dagId: "build-and-deploy" }} /></OverWindow></Labelled>
+            </>)}
+          </View>
           <View name="child-popup-round-trip-list" label="Round trip on the DAG list step — shrink pressed, collapsed, shown again on the same list" wide>
             {row(<>
               <Labelled label="1 · on the DAG list step, shrink pressed"><OverWindow><ChildGraphWindow collapse still push={1} initial={{ selected: "s_01HX7Q", owner: "s_01HX7Q" }} /></OverWindow></Labelled>
@@ -285,22 +285,22 @@ export function ChildGraphSection() {
           <Frame label="wide" w={760} h={420}><ChildGraphSurface /></Frame>
           <Frame label="narrow 360" w={360} h={420}><ChildGraphSurface narrow nodes={CHILD_SMALL} baseId={CHILD_SMALL_BASE} /></Frame>
         </Stage>
-        <Stage style={{ padding: 16, display: "block" }}>
-          {row(<>
-            <Labelled label="three windows, categories on · the path to the base open, base selected · Window 3 · This window · Window 2 parked, unmarked" tag="decided"><div style={{ minHeight: 440, width: "var(--tasty-graph-base-picker-width)" }}><BasePicker value="s_w23" open inline /></div></Labelled>
-            <Labelled label="every row open — one pane (notes, nightly) and two panes (tasty) · a tab with one surface keeps its tab row" tag="decided"><div style={{ minHeight: 440, width: "var(--tasty-graph-base-picker-width)" }}><BasePicker value="s_w23" open inline openAll /></div></Labelled>
-            <Labelled label="categories off — no band, workspaces straight under the window (14-1)" tag="decided"><div style={{ minHeight: 440, width: "var(--tasty-graph-base-picker-width)" }}><BasePicker value="s_01HX7Q" open inline categoriesOn={false} /></div></Labelled>
-          </>)}
-        </Stage>
-        <Stage style={{ padding: 16, display: "block" }}>
-          {row(<>
-            <Labelled label="one window — no window level (14-2)" tag="decided"><div style={{ minHeight: 440, width: "var(--tasty-graph-base-picker-width)" }}><BasePicker windows={PICKER_ONE_WINDOW} value="s_w23" open inline /></div></Labelled>
-            <Labelled label="filter “work” — matches with their path" tag="decided"><div style={{ minHeight: 440, width: "var(--tasty-graph-base-picker-width)" }}><BasePicker value="s_w23" open inline query="work" /></div></Labelled>
-            <Labelled label="filter with no match" tag="decided"><div style={{ minHeight: 140, width: "var(--tasty-graph-base-picker-width)" }}><BasePicker value="s_w23" open inline query="zzz" /></div></Labelled>
-          </>)}
-        </Stage>
         {focusViews("child-graph-surface", (focused) => <div style={{ height: 300, minWidth: 320 }}><ChildGraphSurface nodes={CHILD_SMALL} baseId={CHILD_SMALL_BASE} focused={focused} /></div>)}
         <Views>
+          <View name="child-picker-open" label="The open picker — three windows, every row open, categories off" wide>
+            {row(<>
+              <Labelled label="three windows, categories on · the path to the base open, base selected · Window 3 · This window · Window 2 parked, unmarked" tag="decided"><div style={{ minHeight: 440, width: "var(--tasty-graph-base-picker-width)" }}><BasePicker value="s_w23" open inline /></div></Labelled>
+              <Labelled label="every row open — one pane (notes, nightly) and two panes (tasty) · a tab with one surface keeps its tab row" tag="decided"><div style={{ minHeight: 440, width: "var(--tasty-graph-base-picker-width)" }}><BasePicker value="s_w23" open inline openAll /></div></Labelled>
+              <Labelled label="categories off — no band, workspaces straight under the window (14-1)" tag="decided"><div style={{ minHeight: 440, width: "var(--tasty-graph-base-picker-width)" }}><BasePicker value="s_01HX7Q" open inline categoriesOn={false} /></div></Labelled>
+            </>)}
+          </View>
+          <View name="child-picker-open-more" label="The open picker — one window, a filter with matches, a filter with none" wide>
+            {row(<>
+              <Labelled label="one window — no window level (14-2)" tag="decided"><div style={{ minHeight: 440, width: "var(--tasty-graph-base-picker-width)" }}><BasePicker windows={PICKER_ONE_WINDOW} value="s_w23" open inline /></div></Labelled>
+              <Labelled label="filter “work” — matches with their path" tag="decided"><div style={{ minHeight: 440, width: "var(--tasty-graph-base-picker-width)" }}><BasePicker value="s_w23" open inline query="work" /></div></Labelled>
+              <Labelled label="filter with no match" tag="decided"><div style={{ minHeight: 140, width: "var(--tasty-graph-base-picker-width)" }}><BasePicker value="s_w23" open inline query="zzz" /></div></Labelled>
+            </>)}
+          </View>
           <View name="child-surface-selector-empty" label="No terminal surface in any window — the picker is disabled">
             <Frame w={560} h={200}><ChildGraphSurface nodes={[]} baseId="" status="empty" windows={[]} /></Frame>
           </View>
@@ -312,7 +312,7 @@ export function ChildGraphSection() {
         </Views>
         <Meta specs={[["header", "bg-sidebar · 8 / 12 · wraps < 640"], ["label", "Base surface · caption muted"], ["trigger", "the Select trigger · field-width-lg · “workspace / name · id” · placeholder child_graph.empty.pick_base"], ["popover", "menu shell · graph-base-picker-width 360 · max graph-base-picker-height 400 · filter field + separator + tree (only the tree scrolls)"], ["levels", "window (TreeRow, child_graph.picker.window) › category (sidebar category band, count) › workspace (status dot + name, remote glyph + host) › pane (child_graph.picker.pane) › tab (title) › surface (terminal or remote glyph · name · id mono)"], ["window row", "child_graph.picker.window({n}) · the graph's window adds “ · ” + child_graph.picker.this_window in text-muted, in the label, same line, ellipsis with the label · no meta"], ["numbers", "open order, one sequence · a parked window keeps its number and its place · no closed mark (14-6)"], ["kinds", "terminal surfaces only (decided, Q14) · markdown, explorer, html and graph surfaces are not listed"], ["scope", "every window, parked ones included · mirrors included · no relation filter"], ["levels kept", "every level, even with one item: pane row with one pane, tab row + surface row with one surface (14-4)"], ["levels left out", "category level when categories are off (14-1) · window level with one window (14-2) · split groups never (14-3)"], ["open state", "windows and categories open · the path to the base open, base selected · the rest closed"], ["height", "max graph-base-picker-height 400, the tree scrolls · the deeper tree adds pane and tab rows only on the open path"], ["filter", "surface name, id or workspace · child_graph.picker.search · none: picker.no_match"], ["disabled", "no terminal surface in any window · child_graph.base_empty"], ["checkbox", "child_graph.show_full_tree"], ["canvas", "surface bed, focused or unfocused"]]}
           tokens={[{ tok: "--tasty-graph-base-picker-width", use: "360" }, { tok: "--tasty-graph-base-picker-height", use: "400" }, { tok: "--tasty-sidebar-category-header-bg", use: "category band", color: "var(--tasty-sidebar-category-header-bg)" }, { tok: "--tasty-tree-row-indent", use: "12 per level" }, { tok: "--tasty-field-width-lg", use: "trigger" }]} />
-        <Note>In the app the picker opens as a floating layer over the surface. Here the open picker is drawn on its own beside the frames, because the gallery frame would clip it.</Note>
+        <Note>In the app the picker opens as a floating layer over the surface. Here the open picker is drawn on its own in the views below, because the gallery frame would clip it.</Note>
       </Spec>
 
       <Spec id="child-to-dag-push-and-back" title="Child graph → DAG — push right, back with the chevron"
@@ -337,21 +337,26 @@ export function ChildGraphSection() {
       <Spec id="child-several-dags-list-step" title="The list step — one DAG or several (decided 4-5, 10-2 a)"
         when={<><b>Decided</b>: the list of DAGs comes first, <b>whatever their number</b>. One button: <b>View DAG</b> for one, <b>View DAGs (2)</b> for several — the label counts the DAGs, the press always does the same thing. It pushes to a <b>list step</b> of the DAGs that surface created — the DAG list's own rows — titled <i>DAGs created by builder</i>, one row or many; picking one pushes to the graph. Three steps, one back bar each: the graph's back returns to the list (<i>Back to list</i>), the list's back returns to the child graph, restored as it was left.</>}>
         <Stage style={{ padding: 16, display: "block", background: "var(--tasty-bg-app)" }}>
-          {row(<>
-            <Labelled label="one DAG · 1 · drawer — View DAG" tag="decided"><ChildGraphWindow width={480} height={360} still push={0} initial={{ selected: "s_01HX7Q", owner: "s_01HX7Q" }} /></Labelled>
-            <Labelled label="one DAG · 2 · list step, one row" tag="decided"><ChildGraphWindow width={480} height={360} still push={1} initial={{ selected: "s_01HX7Q", owner: "s_01HX7Q" }} /></Labelled>
-            <Labelled label="one DAG · 3 · graph step — back to the list" tag="decided"><ChildGraphWindow width={480} height={360} still push={2} initial={{ selected: "s_01HX7Q", owner: "s_01HX7Q", dagId: "build-and-deploy" }} /></Labelled>
-            <Labelled label="one DAG · 4 · back once — the list again" tag="decided"><ChildGraphWindow width={480} height={360} still push={1} initial={{ selected: "s_01HX7Q", owner: "s_01HX7Q" }} /></Labelled>
-            <Labelled label="one DAG · 5 · back twice — the child graph as it was left, drawer open" tag="decided"><ChildGraphWindow width={480} height={360} still push={0} initial={{ selected: "s_01HX7Q" }} /></Labelled>
-          </>)}
+          <Labelled label="try it — select conductor-page, View DAGs (2), pick a DAG, then back twice" tag="decided"><ChildGraphWindow nodes={CHILD_LARGE} baseId="s_c2" width={480} height={380} /></Labelled>
         </Stage>
-        <Stage style={{ padding: 16, display: "block", background: "var(--tasty-bg-app)" }}>
-          {row(<>
-            <Labelled label="several · drawer — View DAGs (2)" tag="decided"><ChildGraphWindow nodes={CHILD_LARGE} baseId="s_c2" width={480} height={380} still push={0} initial={{ selected: "s_c2", owner: "s_c2" }} /></Labelled>
-            <Labelled label="several · list step" tag="decided"><ChildGraphWindow nodes={CHILD_LARGE} baseId="s_c2" width={480} height={380} still push={1} initial={{ selected: "s_c2", owner: "s_c2" }} /></Labelled>
-            <Labelled label="several · graph step — back to the list" tag="decided"><ChildGraphWindow nodes={CHILD_LARGE} baseId="s_c2" width={480} height={380} still push={2} initial={{ selected: "s_c2", owner: "s_c2", dagId: "docs-publish" }} /></Labelled>
-          </>)}
-        </Stage>
+        <Views>
+          <View name="child-list-step-one" label="One DAG — drawer, list step, graph step, back once, back twice" wide>
+            {row(<>
+              <Labelled label="one DAG · 1 · drawer — View DAG" tag="decided"><ChildGraphWindow width={480} height={360} still push={0} initial={{ selected: "s_01HX7Q", owner: "s_01HX7Q" }} /></Labelled>
+              <Labelled label="one DAG · 2 · list step, one row" tag="decided"><ChildGraphWindow width={480} height={360} still push={1} initial={{ selected: "s_01HX7Q", owner: "s_01HX7Q" }} /></Labelled>
+              <Labelled label="one DAG · 3 · graph step — back to the list" tag="decided"><ChildGraphWindow width={480} height={360} still push={2} initial={{ selected: "s_01HX7Q", owner: "s_01HX7Q", dagId: "build-and-deploy" }} /></Labelled>
+              <Labelled label="one DAG · 4 · back once — the list again" tag="decided"><ChildGraphWindow width={480} height={360} still push={1} initial={{ selected: "s_01HX7Q", owner: "s_01HX7Q" }} /></Labelled>
+              <Labelled label="one DAG · 5 · back twice — the child graph as it was left, drawer open" tag="decided"><ChildGraphWindow width={480} height={360} still push={0} initial={{ selected: "s_01HX7Q" }} /></Labelled>
+            </>)}
+          </View>
+          <View name="child-list-step-several" label="Several DAGs — drawer, list step, graph step" wide>
+            {row(<>
+              <Labelled label="several · drawer — View DAGs (2)" tag="decided"><ChildGraphWindow nodes={CHILD_LARGE} baseId="s_c2" width={480} height={380} still push={0} initial={{ selected: "s_c2", owner: "s_c2" }} /></Labelled>
+              <Labelled label="several · list step" tag="decided"><ChildGraphWindow nodes={CHILD_LARGE} baseId="s_c2" width={480} height={380} still push={1} initial={{ selected: "s_c2", owner: "s_c2" }} /></Labelled>
+              <Labelled label="several · graph step — back to the list" tag="decided"><ChildGraphWindow nodes={CHILD_LARGE} baseId="s_c2" width={480} height={380} still push={2} initial={{ selected: "s_c2", owner: "s_c2", dagId: "docs-publish" }} /></Labelled>
+            </>)}
+          </View>
+        </Views>
         <Meta specs={[["button", "child_graph.drawer.view_dag for one DAG · view_dags({n}) when n > 1 · same press either way"], ["list title", "child_graph.dag_list_title({name}), one DAG or several"], ["list rows", "the DAG list row (ListCtrl 36) — rollup + done/total"], ["back from graph", "existing dag_list.back “Back to list”"], ["back from list", "child_graph.back"], ["one DAG", "the list step with one row (decided 10-2 a)"]]}
           tokens={[{ tok: "--tasty-dag-row-height", use: "36 list row" }]} />
       </Spec>
@@ -369,23 +374,25 @@ export function ChildGraphSection() {
       <Spec id="child-graph-mirror-base-detached" title="Base was a mirrored surface — detached or closed, Reconnect, the reason, the restart notice (decided 13, 13-2 to 13-5)"
         when={<>A child graph surface whose base is a <b>mirrored remote surface</b> loses it when the mirror is <b>detached</b> (the user's act) or its <b>mirror workspace is closed</b> after the connection dropped. It covers the two ways the app ends a mirror while the base was on it. <b>Detached</b>: the user closed or disconnected the mirror (the app shows no toast). <b>Closed after a drop</b>: a mirror with <b>no saved row</b> ended for a remote reason — a transport drop, a forced disconnect, a failed resync or a failed resync reattach — and the app closed it and showed its window toast <code>attach.toast.mirror_disconnected</code>; a mirror with a saved row never ends this way, since the app keeps it and reconnects, so this cause always has Reconnect disabled. Not this banner: a <b>workspace the server closed</b> (the app shows its own toast, and the base surface is closed, so the surface shows the base-closed state of 4-4), and a <b>resync reattach in progress</b> (nothing of its own; it ends with the graph as it was, or closed after a drop). <b>Decided</b>: a banner across the top says which, and the rest is the <b>pick a base surface</b> state of 4-4 (the picker shows its placeholder; the canvas offers <i>Select base surface</i>). Detached takes the neutral band; closed after a drop, or a failed try, takes the warning band, as the refresh error does. A <b>transport drop that keeps the mirror</b> is not this banner: the base is still here, so the mirrored cards stay with their states unknown under the warning strip, and what lay beyond the mirror — here the read-only ancestor — is folded into one <i>Disconnected</i> gap node on a dashed line (last frame; Graph view › Status; the gap node spec). The banner ends in <b>Reconnect</b>: it attaches again through the mirror's <b>saved remote workspace row</b> — its attach profile — to the <b>same remote surface</b> (its tooltip names both). While it tries, the button is disabled with a spinner and reads <i>Reconnecting…</i>. <b>On failure</b> (13-4 a) the banner stays, turns to the warning band and <b>leads with the reason</b> in one sentence — <i>could not reach Tasty there</i>, <i>the surface is no longer in its workspace there</i> (closed, or moved to another workspace: 13-3 a), or <i>another client holds it</i> (13-5 a: the reason only, with no force-detach button and no prompt) — and Reconnect stays live for another try; the sentence replaces the cause, which the user already read. <b>On success</b> the banner goes and the graph returns with that base. If the remote Tasty had <b>restarted</b> and restored the same surface id (13-2 a), an <b>info strip</b> takes the banner's place — the same 28 strip, so the canvas does not move — and says so until it is dismissed, another base is picked or the base is lost again. Picking another base also clears the banner. The machine is named by the <b>host text rule</b> (Dialogs › File handler › Remote path): the attach profile name (R-57). With <b>no profile name</b> every sentence takes its <b>no-host</b> form, which leaves the host out (the word Remote there would read as a machine name; <code>127.0.0.1:&lt;port&gt;</code> is never shown). What Reconnect can do depends on the <b>saved remote workspace row</b>, not on the profile name: a row saved with an empty name has one, so Reconnect works and its tooltip leaves the empty name out; a mirror with <b>no saved row</b> (<code>--ssh</code>, <code>--target-port</code>, a hand-installed attach) has nothing to reattach with, so Reconnect stays in place, <b>disabled</b>, with that reason as its tooltip (an impossible action is shown disabled, not hidden). A hand-installed attach can keep a <b>profile name</b> and still have no saved row: the sentences name its host, and Reconnect is disabled all the same. This banner is a <b>proposal</b>: the app has no mirror banner and no Reconnect in its graphs yet.</>}>
         <Stage style={{ padding: 16, display: "block" }}>
-          {row(<>
-            <Labelled label="mirror detached — Reconnect" tag="decided"><Frame w={560} h={280}><ChildGraphSurface nodes={CHILD_SMALL} status="base-closed" banner={<MirrorBanner cause="detached" />} /></Frame></Labelled>
-            <Labelled label="Reconnect — trying" tag="decided"><Frame w={560} h={280}><ChildGraphSurface nodes={CHILD_SMALL} status="base-closed" banner={<MirrorBanner cause="detached" state="trying" />} /></Frame></Labelled>
-            <Labelled label="failed — could not reach Tasty there; Reconnect again" tag="decided"><Frame w={560} h={280}><ChildGraphSurface nodes={CHILD_SMALL} status="base-closed" banner={<MirrorBanner state="failed" reason="unreachable" />} /></Frame></Labelled>
-            <Labelled label="failed — the surface is gone or moved to another workspace there (13-3 a)" tag="decided"><Frame w={560} h={280}><ChildGraphSurface nodes={CHILD_SMALL} status="base-closed" banner={<MirrorBanner state="failed" reason="surface_gone" />} /></Frame></Labelled>
-            <Labelled label="failed — another client holds it; no force detach (13-5 a)" tag="decided"><Frame w={560} h={280}><ChildGraphSurface nodes={CHILD_SMALL} status="base-closed" banner={<MirrorBanner state="failed" reason="held" />} /></Frame></Labelled>
-            <Labelled label="reconnected after a remote restart — the info strip in the banner's place (13-2 a)" tag="decided"><Frame w={560} h={280}><ChildGraphSurface nodes={CHILD_MIRROR} baseId={CHILD_MIRROR_BASE} banner={<RestartNotice />} /></Frame></Labelled>
-          </>)}
-        </Stage>
-        <Stage style={{ padding: 16, display: "block" }}>
-          {row(<>
-            <Labelled label="mirror closed after a drop (no saved row only) — the banner and the app's warning toast together; Reconnect disabled, reason as tooltip" tag="decided"><WithToast variant="warning" text={gt("attach.toast.mirror_disconnected", "en")}><Frame w={560} h={280}><ChildGraphSurface nodes={CHILD_SMALL} status="base-closed" banner={<MirrorBanner cause="lost" saved={false} />} /></Frame></WithToast></Labelled>
-            <Labelled label="not this banner — the server closed the workspace: the base-closed state (4-4) and the app's success toast, no banner" tag="decided"><WithToast variant="success" text={gt("attach.toast.workspace_closed_on_server", "en")}><Frame w={560} h={280}><ChildGraphSurface nodes={CHILD_SMALL} status="base-closed" /></Frame></WithToast></Labelled>
-            <Labelled label="not this banner — a drop that keeps the mirror: the mirrored cards stay, states unknown, under the warning strip; the ancestor beyond the mirror folded into a gap node" tag="decided"><Frame w={560} h={280}><ChildGraphSurface nodes={CHILD_MIRROR_LOST} baseId={CHILD_MIRROR_BASE} banner={<GraphStrip>{gt("graph.remote_disconnected", "en", "lab-linux")}</GraphStrip>} /></Frame></Labelled>
-          </>)}
+          <Labelled label="mirror detached — Reconnect" tag="decided"><Frame w={560} h={280}><ChildGraphSurface nodes={CHILD_SMALL} status="base-closed" banner={<MirrorBanner cause="detached" />} /></Frame></Labelled>
         </Stage>
         <Views>
+          <View name="child-mirror-reconnect-results" label="After Reconnect is pressed — trying, the three failure reasons, back after a remote restart" wide>
+            {row(<>
+              <Labelled label="Reconnect — trying" tag="decided"><Frame w={560} h={280}><ChildGraphSurface nodes={CHILD_SMALL} status="base-closed" banner={<MirrorBanner cause="detached" state="trying" />} /></Frame></Labelled>
+              <Labelled label="failed — could not reach Tasty there; Reconnect again" tag="decided"><Frame w={560} h={280}><ChildGraphSurface nodes={CHILD_SMALL} status="base-closed" banner={<MirrorBanner state="failed" reason="unreachable" />} /></Frame></Labelled>
+              <Labelled label="failed — the surface is gone or moved to another workspace there (13-3 a)" tag="decided"><Frame w={560} h={280}><ChildGraphSurface nodes={CHILD_SMALL} status="base-closed" banner={<MirrorBanner state="failed" reason="surface_gone" />} /></Frame></Labelled>
+              <Labelled label="failed — another client holds it; no force detach (13-5 a)" tag="decided"><Frame w={560} h={280}><ChildGraphSurface nodes={CHILD_SMALL} status="base-closed" banner={<MirrorBanner state="failed" reason="held" />} /></Frame></Labelled>
+              <Labelled label="reconnected after a remote restart — the info strip in the banner's place (13-2 a)" tag="decided"><Frame w={560} h={280}><ChildGraphSurface nodes={CHILD_MIRROR} baseId={CHILD_MIRROR_BASE} banner={<RestartNotice />} /></Frame></Labelled>
+            </>)}
+          </View>
+          <View name="child-mirror-ends" label="How the mirror ended — closed after a drop with the app's toast, a server-closed workspace, a drop that keeps the mirror" wide>
+            {row(<>
+              <Labelled label="mirror closed after a drop (no saved row only) — the banner and the app's warning toast together; Reconnect disabled, reason as tooltip" tag="decided"><WithToast variant="warning" text={gt("attach.toast.mirror_disconnected", "en")}><Frame w={560} h={280}><ChildGraphSurface nodes={CHILD_SMALL} status="base-closed" banner={<MirrorBanner cause="lost" saved={false} />} /></Frame></WithToast></Labelled>
+              <Labelled label="not this banner — the server closed the workspace: the base-closed state (4-4) and the app's success toast, no banner" tag="decided"><WithToast variant="success" text={gt("attach.toast.workspace_closed_on_server", "en")}><Frame w={560} h={280}><ChildGraphSurface nodes={CHILD_SMALL} status="base-closed" /></Frame></WithToast></Labelled>
+              <Labelled label="not this banner — a drop that keeps the mirror: the mirrored cards stay, states unknown, under the warning strip; the ancestor beyond the mirror folded into a gap node" tag="decided"><Frame w={560} h={280}><ChildGraphSurface nodes={CHILD_MIRROR_LOST} baseId={CHILD_MIRROR_BASE} banner={<GraphStrip>{gt("graph.remote_disconnected", "en", "lab-linux")}</GraphStrip>} /></Frame></Labelled>
+            </>)}
+          </View>
           <View name="child-mirror-banner-named-no-row" label="A profile name with no saved row (a hand-installed attach) — the host is named, Reconnect disabled with the no-saved-row tooltip" wide>
             {row(<>
               <Frame label="detached — named, no saved row" w={560} h={280}><ChildGraphSurface nodes={CHILD_SMALL} status="base-closed" banner={<MirrorBanner cause="detached" saved={false} />} /></Frame>
@@ -421,14 +428,17 @@ export function ChildGraphSection() {
       <Spec id="child-graph-mirror-scope-and-remote-ancestor" title="Across machines — one graph, the machine on the card, read-only ancestors (decided 4-7 to 4-9, 9-2)"
         when={<><b>Decided</b>: parent and child relations that cross machines are <b>one graph</b> — this computer's surface <i>A</i>, its child <i>B</i> on a remote, and <i>B</i>'s child <i>C</i> on a machine <i>B</i> attached to read A → B → C with ordinary lines. Cards from another machine carry the remote glyph and, at full LOD, the <b>machine's name</b> in the id's slot, so <i>B</i> and <i>C</i> read apart; cards on this computer carry no name. The machine's name is its attach profile name (9-2): for a machine two or more hops away, the profile name the machine before it gave it. The drawer names the machine in <b>Attach profile</b>, and a surface reached through other machines adds <b>Reached through</b> with them in order. An attach with no profile name has <b>no Attach profile row</b> (the word Remote under that key would read as a profile name); its card shows <i>Remote</i> in the label font, as the host text rule says. An ancestor in a remote workspace that is not mirrored here is drawn <b>read-only</b>: dashed card, <i>Not mirrored</i>, its machine's name like any other card from there, a drawer with rows and a note and no actions. Ancestors are followed to the root across workspaces and machines. Attach occupancy (which machine mirrors which) is never drawn.</>}>
         <Stage style={{ padding: 16, display: "block" }}>
-          {row(<>
-            <Labelled label="A → B → C → D over three machines; C's drawer: Attach profile gpu-box, Reached through lab-build" tag="decided"><Frame w={760} h={320}><ChildView nodes={CHILD_CHAIN} baseId="s_A1" selected="s_C1" /></Frame></Labelled>
-            <Labelled label="read-only ancestor in a workspace not mirrored here (drawer open on it)" tag="decided"><Frame w={640} h={320}><ChildView nodes={CHILD_MIRROR} baseId={CHILD_MIRROR_BASE} selected="s_m0" /></Frame></Labelled>
-            <Labelled label="a remote surface's drawer — attach profile" tag="decided"><Frame w={640} h={320}><ChildView nodes={CHILD_MIRROR} baseId={CHILD_MIRROR_BASE} selected="s_m2" /></Frame></Labelled>
-            <Labelled label="A → B → C: this computer, then a remote child and its child on the same machine" tag="decided"><Frame w={640} h={320}><ChildView nodes={CHILD_CROSS} baseId="s_L1" selected="s_R1" /></Frame></Labelled>
-          </>)}
+          <Labelled label="A → B → C → D over three machines — select a card for its drawer" tag="decided"><Frame w={760} h={320}><ChildView nodes={CHILD_CHAIN} baseId="s_A1" /></Frame></Labelled>
         </Stage>
         <Views>
+          <View name="child-graph-chain-drawers" label="Drawers open — C of the three-machine chain, the read-only ancestor, a remote surface, a remote child" wide>
+            {row(<>
+              <Labelled label="A → B → C → D over three machines; C's drawer: Attach profile gpu-box, Reached through lab-build" tag="decided"><Frame w={760} h={320}><ChildView nodes={CHILD_CHAIN} baseId="s_A1" selected="s_C1" /></Frame></Labelled>
+              <Labelled label="read-only ancestor in a workspace not mirrored here (drawer open on it)" tag="decided"><Frame w={640} h={320}><ChildView nodes={CHILD_MIRROR} baseId={CHILD_MIRROR_BASE} selected="s_m0" /></Frame></Labelled>
+              <Labelled label="a remote surface's drawer — attach profile" tag="decided"><Frame w={640} h={320}><ChildView nodes={CHILD_MIRROR} baseId={CHILD_MIRROR_BASE} selected="s_m2" /></Frame></Labelled>
+              <Labelled label="A → B → C: this computer, then a remote child and its child on the same machine" tag="decided"><Frame w={640} h={320}><ChildView nodes={CHILD_CROSS} baseId="s_L1" selected="s_R1" /></Frame></Labelled>
+            </>)}
+          </View>
           <View name="child-graph-remote-no-profile" label="A remote surface attached with no profile name — Remote on its card, no Attach profile row in its drawer">
             <Frame w={640} h={320}><ChildView nodes={CHILD_CROSS.map((n) => (n.id === "s_R1" ? { ...n, profile: "" } : n))} baseId="s_L1" selected="s_R1" /></Frame>
           </View>
@@ -450,12 +460,12 @@ export function ChildGraphSection() {
       <Spec id="child-graph-gap-nodes" title="Across machines — a gap node where the chain cannot be followed"
         when={<>The graph follows only the attach connections already open, relaying the query machine to machine. Where a link cannot be followed, nothing beyond it is guessed: <b>one gap node</b> stands where the chain breaks, on either side — a child that cannot be reached, or a parent that cannot be. It is the card's box (168 × 48, so layout and LOD stay the card's), <b>dashed</b> like the other cards that are not a surface here, with <b>no bar and no state colour</b> — it is not a surface state, and the strip, not the card, carries a warning. Its name row is a <b>reason glyph</b> and the <b>reason</b>; its meta row is the machine the broken link leads to, by the host text rule. One shape for all reasons, each with its own label and a glyph from a small set, so the graph does not grow a second legend: <i>Disconnected</i> and <i>No response</i> share the unreachable glyph; <i>stale</i> and <i>malformed</i> share one label, <i>Parent unverified</i> — the user acts on them the same way. <i>Checking…</i> spins while Tasty asks. Its line is the one <b>dashed</b> edge. It is <b>selectable</b>: its drawer says why in a sentence and names what is around it — the last surface reached, the machine, the machines in between, and for <i>No response</i> the next try — with no actions. <b>What was seen beyond the break is dropped</b> and folded into the gap node, not kept dimmed: a dimmed card would still read as a surface that exists, and the chain past the break may have changed. A surface mirrored here stays, with its state unknown, since it is still here (Graph view › Status). A <b>loop in the parents</b> (a diagnostic state, not a normal one) is cut the same way: a <i>Parent loop</i> gap node at the top, whose drawer names the surface the loop returns to, instead of a line back that the left-to-right tree cannot draw.</>}>
         <Stage variant="grid" style={{ display: "block", padding: 20 }}>
-          <div style={{ display: "grid", gridTemplateColumns: "96px repeat(2, 168px)", columnGap: 16, rowGap: 8, alignItems: "end" }}>
-            <span /><span style={cap}>rest</span><span style={cap}>selected</span>
+          <div style={{ display: "grid", gridTemplateColumns: "96px 168px", columnGap: 16, rowGap: 8, alignItems: "end" }}>
+            <span /><span style={cap}>rest</span>
             {GAP_REASONS.map((r) => (
               <React.Fragment key={r}>
                 <span style={{ ...cap, alignSelf: "center" }}>{r}</span>
-                {[false, true].map((sel) => <div key={String(sel)} style={{ position: "relative", width: 168, height: 48, marginTop: 20 }}><ChildNode node={{ id: `g_${r}`, kind: "gap", reason: r, host: "gpu-box" }} selected={sel} /></div>)}
+                {[false].map((sel) => <div key={String(sel)} style={{ position: "relative", width: 168, height: 48, marginTop: 20 }}><ChildNode node={{ id: `g_${r}`, kind: "gap", reason: r, host: "gpu-box" }} selected={sel} /></div>)}
               </React.Fragment>
             ))}
           </div>
@@ -467,12 +477,26 @@ export function ChildGraphSection() {
         <Stage style={{ padding: 16, display: "block" }}>
           {row(<>
             <Frame label="before — A → B → C → D, every link answering" w={760} h={300}><ChildView nodes={CHILD_CHAIN} baseId="s_A1" /></Frame>
-            <Frame label="after lab-build loses gpu-box — C and D dropped, one gap node under B (drawer open)" w={760} h={300}><ChildView nodes={CHILD_CHAIN_CUT} baseId="s_A1" selected="g_C" /></Frame>
-            <Frame label="a gap on each side — the base's parent unverified, a child with no response (drawer: next try)" w={760} h={320}><ChildView nodes={CHILD_GAP_SIDES} baseId="s_B1" selected="g_dn" /></Frame>
-            <Frame label="a loop in the parents — cut with a Parent loop gap at the top (drawer: the surface it returns to)" w={760} h={300}><ChildView nodes={CHILD_GAP_CYCLE} baseId="s_m2" selected="g_loop" /></Frame>
           </>)}
         </Stage>
         <Views>
+          <View name="child-gap-selected" label="Every reason selected — the card's selection ring" wide>
+            <div style={{ display: "grid", gridTemplateColumns: "96px 168px", columnGap: 16, rowGap: 8, alignItems: "end" }}>
+              {GAP_REASONS.map((r) => (
+                <React.Fragment key={r}>
+                  <span style={{ ...cap, alignSelf: "center" }}>{r}</span>
+                  <div style={{ position: "relative", width: 168, height: 48, marginTop: 20 }}><ChildNode node={{ id: `g_${r}`, kind: "gap", reason: r, host: "gpu-box" }} selected /></div>
+                </React.Fragment>
+              ))}
+            </div>
+          </View>
+          <View name="child-gap-drawers" label="Gap nodes selected — the drawer of a cut chain, of a gap on each side, of a parent loop" wide>
+            {row(<>
+              <Frame label="after lab-build loses gpu-box — C and D dropped, one gap node under B (drawer open)" w={760} h={300}><ChildView nodes={CHILD_CHAIN_CUT} baseId="s_A1" selected="g_C" /></Frame>
+              <Frame label="a gap on each side — the base's parent unverified, a child with no response (drawer: next try)" w={760} h={320}><ChildView nodes={CHILD_GAP_SIDES} baseId="s_B1" selected="g_dn" /></Frame>
+              <Frame label="a loop in the parents — cut with a Parent loop gap at the top (drawer: the surface it returns to)" w={760} h={300}><ChildView nodes={CHILD_GAP_CYCLE} baseId="s_m2" selected="g_loop" /></Frame>
+            </>)}
+          </View>
           <View name="child-gap-themes" label="Mocha and Latte — every reason">
             <ThemePair render={() => (
               <div style={{ display: "flex", flexWrap: "wrap", gap: 16, background: "var(--tasty-dag-canvas-bg)", padding: 12 }}>
