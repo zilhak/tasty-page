@@ -20,6 +20,17 @@ const REASON = {
   old: { key: "explorer.remote.write_needs_update", en: "Update Tasty on build-eu to change remote files.", ko: "build-eu의 Tasty를 업데이트하면 원격 파일을 바꿀 수 있습니다.", ja: "build-eu の Tasty を更新すると、リモートのファイルを変更できます。", "zh-Hans": "更新 build-eu 上的 Tasty 以更改远程文件。" },
   unsupported: { key: "explorer.state.remote_write_unsupported", en: "This action isn't supported in a mirrored remote explorer yet.", ko: "미러링된 원격 탐색기에서는 이 작업을 아직 지원하지 않습니다.", ja: "ミラーされたリモートエクスプローラーではこの操作をまだサポートしていません。", "zh-Hans": "远程文件浏览器镜像暂不支持此操作。" },
 };
+// No-host sentences (attach with no profile name: --ssh, --target-port, a profile saved with an
+// empty name). New keys next to the explorer.remote ones; all four languages written by Codex.
+// The host-free sentence is picked when the host text is empty; the word Remote is not put in
+// the sentence and 127.0.0.1:<port> is never shown.
+const NO_HOST = {
+  "write_needs_update": { key: "explorer.remote.write_needs_update_no_host", "en": "Update remote Tasty to change remote files.", "ko": "원격 Tasty를 업데이트하면 원격 파일을 바꿀 수 있습니다.", "ja": "リモートの Tasty を更新すると、リモートのファイルを変更できます。", "zh-Hans": "更新远程 Tasty 以更改远程文件。" },
+  "waiting": { key: "explorer.remote.waiting_no_host", "en": "Waiting for remote Tasty", "ko": "원격 Tasty 응답 기다리는 중", "ja": "リモートの Tasty の応答を待っています", "zh-Hans": "正在等待远程 Tasty" },
+  "renaming": { key: "explorer.remote.renaming_no_host", "en": "Renaming remotely…", "ko": "원격에서 이름 바꾸는 중…", "ja": "リモートで名前を変更中…", "zh-Hans": "正在远程重命名…" },
+  "lost_title": { key: "explorer.remote.lost_title_no_host", "en": "Connection to remote Tasty lost · result unknown", "ko": "원격 Tasty 연결이 끊겨 결과를 알 수 없음", "ja": "リモートの Tasty との接続が切れたため結果が不明です", "zh-Hans": "与远程 Tasty 的连接已断开 · 结果未知" },
+};
+const NH_LANGS = ["en", "ko", "ja", "zh-Hans"];
 // D6 reasons: key + en / ko / ja / zh-Hans (all four languages written by Codex). The two paste reasons are today's toast strings.
 const MIRROR_REASON = {
   localOnly: { key: "explorer.menu.local_only_reason", en: "This action is only available for files and folders on this computer.", ko: "이 컴퓨터에 있는 파일과 폴더에만 이 작업을 수행할 수 있습니다.", ja: "この操作の対象は、このコンピューター上のファイルとフォルダーに限られます。", "zh-Hans": "此操作仅适用于此计算机上的文件和文件夹。" },
@@ -68,8 +79,9 @@ function PendingDetailRow({ glyph = K.ic.folder, value }) {
     </div>
   );
 }
-function RenamePending({ lang = "en", idle = false }) {
-  const t = { en: ["Rename", "Renaming on build-eu…", "Cancel", "Rename"], ko: ["이름 바꾸기", "build-eu에서 이름 바꾸는 중…", "취소", "이름 바꾸기"], ja: ["名前の変更", "build-eu で名前を変更中…", "キャンセル", "名前を変更"] }[lang];
+function RenamePending({ lang = "en", idle = false, noHost = false }) {
+  const t = [...{ en: ["Rename", "Renaming on build-eu…", "Cancel", "Rename"], ko: ["이름 바꾸기", "build-eu에서 이름 바꾸는 중…", "취소", "이름 바꾸기"], ja: ["名前の変更", "build-eu で名前を変更中…", "キャンセル", "名前を変更"] }[lang]];
+  if (noHost) t[1] = NO_HOST.renaming[lang];
   return (
     <div style={{ width: "var(--tasty-size-360)", maxWidth: "100%", background: "var(--tasty-dialog-bg)", border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", padding: "var(--tasty-space-md) var(--tasty-size-14)", display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
       <span style={{ fontSize: "var(--tasty-font-size-body)", fontWeight: "var(--tasty-font-weight-semibold)", color: "var(--tasty-text-primary)" }}>{t[0]}</span>
@@ -143,8 +155,16 @@ function RemoteWriteSection() {
             )} />
           </XCol>
         </Stage>
+        <Views>
+          <View name="remote-write-reason-no-profile" label="No profile name (--ssh or --target-port from the CLI or IPC) — the older-Tasty reason with no host, as tooltip and toast, every language">
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-md)", alignItems: "flex-start" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>{NH_LANGS.map((l) => <Tip key={l}><span lang={l}>{NO_HOST.write_needs_update[l]}</span></Tip>)}</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", width: "var(--tasty-toast-max-width)", maxWidth: "100%" }}>{NH_LANGS.map((l) => <YResult key={l} variant="info" title={<span lang={l}>{NO_HOST.write_needs_update[l]}</span>} />)}</div>
+            </div>
+          </View>
+        </Views>
         <Meta
-          specs={[["choice", "(b) show disabled · tooltip = reason (Linux / macOS)"], ["rows", "Cut · Paste · New folder · New file · Rename · Move to Trash"], ["read rows", "Copy path · Copy · Open stay enabled"], ["toolbar", "create group disabled · tooltip = reason"], ["shortcut", "info toast in the cell · the same reason string"], ["reasons", "host doesn't announce remote writes (older Tasty) → explorer.remote.write_needs_update · any other refusal (no connection details, closing) → explorer.state.remote_write_unsupported"]]}
+          specs={[["choice", "(b) show disabled · tooltip = reason (Linux / macOS)"], ["rows", "Cut · Paste · New folder · New file · Rename · Move to Trash"], ["read rows", "Copy path · Copy · Open stay enabled"], ["toolbar", "create group disabled · tooltip = reason"], ["shortcut", "info toast in the cell · the same reason string"], ["reasons", "host doesn't announce remote writes (older Tasty) → explorer.remote.write_needs_update · any other refusal (no connection details, closing) → explorer.state.remote_write_unsupported"], ["no host", "no profile name (--ssh, --target-port, a profile saved with an empty name) → explorer.remote.write_needs_update_no_host() · never 127.0.0.1:<port>"]]}
           tokens={[{ tok: "--tasty-state-disabled-fg", use: "disabled row / button", color: "var(--tasty-state-disabled-fg)" }, { tok: "--tasty-toast-accent-info", use: "reason toast", color: "var(--tasty-toast-accent-info)" }]} />
         <Note>i18n: <code>explorer.remote.write_needs_update</code> “Update Tasty on {"{host}"} to change remote files.” / “{"{host}"}의 Tasty를 업데이트하면 원격 파일을 바꿀 수 있습니다.” / “{"{host}"} の Tasty を更新すると、リモートのファイルを変更できます。” / “更新 {"{host}"} 上的 Tasty 以更改远程文件。” · <code>explorer.state.remote_write_unsupported</code> “This action isn't supported in a mirrored remote explorer yet.” / “미러링된 원격 탐색기에서는 이 작업을 아직 지원하지 않습니다.” / “ミラーされたリモートエクスプローラーではこの操作をまだサポートしていません。” / “远程文件浏览器镜像暂不支持此操作。”. Both keys exist today; no new key. The general key stays as the fallback for every refusal that isn't an older Tasty. Tooltip and toast share the key, in the same order as D6's reason order.</Note>
       </Spec>
@@ -159,8 +179,19 @@ function RemoteWriteSection() {
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}><RenamePending /><RenamePending lang="ko" /><RenamePending lang="ja" /></div>
           </XCol>
         </Stage>
+        <Views>
+          <View name="remote-waiting-no-profile" label="No profile name (--ssh or --target-port from the CLI or IPC) — the spinner tooltip and the Rename popup line with no host, every language">
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-md)", alignItems: "flex-start" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>{NH_LANGS.map((l) => <Tip key={l}><span lang={l}>{NO_HOST.waiting[l]}</span></Tip>)}</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
+                <RenamePending noHost /><RenamePending lang="ko" noHost /><RenamePending lang="ja" noHost />
+                <span lang="zh-Hans" style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}><Spinner size="var(--tasty-icon-size-sm)" />{NO_HOST.renaming["zh-Hans"]}</span>
+              </div>
+            </div>
+          </View>
+        </Views>
         <Meta
-          specs={[["input row", "stays in place · Input readOnly · text kept"], ["indicator", "Spinner icon-size-sm · trailing slot · tooltip “Waiting for {host}”"], ["Esc / blur", "ignored while waiting"], ["success", "row → item at its sorted place, selected"], ["failure", "field editable again, text kept · error toast (unchanged)"], ["Rename popup", "open · field readOnly · Spinner line · Cancel + Rename disabled · closes on success"]]}
+          specs={[["input row", "stays in place · Input readOnly · text kept"], ["indicator", "Spinner icon-size-sm · trailing slot · tooltip “Waiting for {host}”"], ["Esc / blur", "ignored while waiting"], ["success", "row → item at its sorted place, selected"], ["failure", "field editable again, text kept · error toast (unchanged)"], ["Rename popup", "open · field readOnly · Spinner line · Cancel + Rename disabled · closes on success"], ["no host", "no profile name (--ssh, --target-port, a profile saved with an empty name) → explorer.remote.waiting_no_host() · explorer.remote.renaming_no_host() · never 127.0.0.1:<port>"]]}
           tokens={[{ tok: "--tasty-input-readonly-fg", use: "sent text", color: "var(--tasty-input-readonly-fg)" }, { tok: "--tasty-spinner-indicator", use: "waiting", color: "var(--tasty-spinner-indicator)" }]} />
         <Note>i18n: <code>explorer.remote.waiting</code> “Waiting for {"{host}"}” / “{"{host}"} 응답 기다리는 중” / “{"{host}"} の応答を待っています” · <code>explorer.remote.renaming</code> “Renaming on {"{host}"}…” / “{"{host}"}에서 이름 바꾸는 중…” / “{"{host}"} で名前を変更中…”.</Note>
       </Spec>
@@ -209,8 +240,16 @@ function RemoteWriteSection() {
             </div>
           )} />
         </Stage>
+        <Views>
+          <View name="remote-lost-no-profile" label="No profile name (--ssh or --target-port from the CLI or IPC) — the title with no host, every language (body unchanged)">
+            <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", width: "var(--tasty-toast-max-width)", maxWidth: "100%" }}>
+              <YResult variant="warning" title={<><div>{NO_HOST.lost_title.en}</div><div style={{ marginTop: "var(--tasty-space-xs)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-secondary)" }}>The copy stopped at the item it was on. Some items may already have changed. The folder reloads when the connection is back.</div></>} />
+              {NH_LANGS.slice(1).map((l) => <YResult key={l} variant="warning" title={<div lang={l}>{NO_HOST.lost_title[l]}</div>} />)}
+            </div>
+          </View>
+        </Views>
         <Meta
-          specs={[["tone", "warning · stays until dismissed"], ["title", "“Connection to {host} lost · result unknown”"], ["body", "caption · text-secondary · stopped at the item · may have changed · reload on reconnect"], ["actions", "× only — no Retry, no Undo"], ["conflict popup", "closes with the job"], ["verb", "{op} = copy / move / move to Trash / rename / new folder / new file"]]}
+          specs={[["tone", "warning · stays until dismissed"], ["title", "“Connection to {host} lost · result unknown”"], ["no host", "no profile name (--ssh, --target-port, a profile saved with an empty name) → explorer.remote.lost_title_no_host() · body unchanged (its {} is the operation) · never 127.0.0.1:<port>"], ["body", "caption · text-secondary · stopped at the item · may have changed · reload on reconnect"], ["actions", "× only — no Retry, no Undo"], ["conflict popup", "closes with the job"], ["verb", "{op} = copy / move / move to Trash / rename / new folder / new file"]]}
           tokens={[{ tok: "--tasty-toast-accent-warning", use: "card", color: "var(--tasty-toast-accent-warning)" }]} />
         <Note>i18n: <code>explorer.remote.lost_title</code> “Connection to {"{host}"} lost · result unknown” / “{"{host}"} 연결이 끊겨 결과를 알 수 없음” / “{"{host}"} との接続が切れたため結果が不明です” · <code>explorer.remote.lost_body</code> “The {"{op}"} stopped at the item it was on. Some items may already have changed. The folder reloads when the connection is back.” / “{"{op}"}은(는) 하던 항목에서 멈췄습니다. 일부 항목은 이미 바뀌었을 수 있습니다. 다시 연결되면 폴더를 다시 읽습니다.” / “{"{op}"}は処理中の項目で止まりました。一部の項目はすでに変更されている可能性があります。再接続するとフォルダーを再読み込みします。”</Note>
       </Spec>
