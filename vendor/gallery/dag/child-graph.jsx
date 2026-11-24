@@ -7,7 +7,7 @@ import { Kbd, MenuItem, Table, Tab } from "../../components/index.js";
 import { DagNode, elbow } from "../../ui_kits/terminal/dag.js";
 import { GraphStrip, CHILD_STATE, CHILD_STATE_ORDER } from "../../ui_kits/terminal/overlays/graph_view.jsx";
 import { ChildNode, ChildGraphWindow, ChildGraphSurface, ChildGraphSettings, MirrorBanner, RestartNotice, CHILD_SMALL, CHILD_SMALL_BASE, CHILD_LARGE, CHILD_LARGE_BASE,
-  CHILD_MIRROR, CHILD_MIRROR_BASE, CHILD_MIRROR_LOST, CHILD_CROSS, CHILD_CHAIN, CHILD_EXTERNAL } from "../../ui_kits/terminal/overlays/child_graph.jsx";
+  CHILD_MIRROR, CHILD_MIRROR_BASE, CHILD_MIRROR_LOST, CHILD_CROSS, CHILD_CHAIN, CHILD_CHAIN_CUT, CHILD_GAP_SIDES, CHILD_GAP_CYCLE, GAP_REASONS, CHILD_EXTERNAL } from "../../ui_kits/terminal/overlays/child_graph.jsx";
 import { GRAPH_COPY, GRAPH_LANGS, gt } from "../../ui_kits/terminal/overlays/graph_copy.js";
 import { Frame, ChildView } from "./graph-shared.jsx";
 import { BasePicker, PICKER_ONE_WINDOW } from "../../ui_kits/terminal/overlays/child_base_picker.jsx";
@@ -138,9 +138,9 @@ export function ChildGraphSection() {
       </Spec>
 
       <Spec id="child-edges-one-relation" title="Edges — one relation"
-        when={<>A child graph has one relation, parent → child, so it takes the DAG's <code>depends_on</code> line: solid, neutral, elbowed with a 4px corner, an arrow at the child. Edges that touch the selected card take the accent, as in the DAG. No dashes, no relation colours. <b>Decided 4-7 to 4-9</b>: a parent and child on different machines are joined by this <b>same line</b> — the relation is the same; the card says which machine (its remote glyph, and at full LOD the machine's name). Attach occupancy is never a line.</>}>
+        when={<>A child graph has one relation, parent → child, so it takes the DAG's <code>depends_on</code> line: solid, neutral, elbowed with a 4px corner, an arrow at the child. Edges that touch the selected card take the accent, as in the DAG. No relation colours, and one dash only: the line to or from a <b>gap node</b> (next specs) is dashed in the dashed-edge rule's 4 / 4, because the chain is cut there and what lies beyond is not known; colour and arrow stay. <b>Decided 4-7 to 4-9</b>: a parent and child on different machines are joined by this <b>same line</b> — the relation is the same; the card says which machine (its remote glyph, and at full LOD the machine's name). Attach occupancy is never a line.</>}>
         <Stage variant="grid" style={{ display: "flex", gap: 32, padding: 20, flexWrap: "wrap" }}>
-          {[["parent → child", "var(--tasty-dag-edge-depends)", null, false], ["touching the selection", "var(--tasty-dag-edge-highlight)", null, false], ["between machines (4-7 to 4-9)", "var(--tasty-dag-edge-depends)", null, "decided"]].map(([l, c, d, tag]) => (
+          {[["parent → child", "var(--tasty-dag-edge-depends)", null, false], ["touching the selection", "var(--tasty-dag-edge-highlight)", null, false], ["between machines (4-7 to 4-9)", "var(--tasty-dag-edge-depends)", null, "decided"], ["to or from a gap node — dashed", "var(--tasty-dag-edge-depends)", "var(--tasty-border-dash) var(--tasty-border-dash-gap)", false]].map(([l, c, d, tag]) => (
             <Labelled key={l} label={l} tag={tag || null}>
               <svg width="120" height="56" viewBox="0 0 120 56" aria-hidden="true">
                 <path d={elbow({ x: 8, y: 8 }, { x: 112, y: 48 }, false, 4)} fill="none" stroke={c} strokeWidth="1" style={d ? { strokeDasharray: d } : undefined} />
@@ -149,8 +149,8 @@ export function ChildGraphSection() {
             </Labelled>
           ))}
         </Stage>
-        <Meta specs={[["line", "1px solid dag-edge-depends · arrow 8 at the child"], ["selection", "dag-edge-highlight"], ["between machines", "the same line · no own colour or dash"]]}
-          tokens={[{ tok: "--tasty-dag-edge-depends", use: "parent → child", color: "var(--tasty-dag-edge-depends)" }, { tok: "--tasty-dag-edge-highlight", use: "selected", color: "var(--tasty-dag-edge-highlight)" }]} />
+        <Meta specs={[["line", "1px solid dag-edge-depends · arrow 8 at the child"], ["selection", "dag-edge-highlight"], ["between machines", "the same line · no own colour or dash"], ["gap node", "the same line dashed border-dash / border-dash-gap (4 / 4) · same colour, arrow and selection accent"]]}
+          tokens={[{ tok: "--tasty-dag-edge-depends", use: "parent → child", color: "var(--tasty-dag-edge-depends)" }, { tok: "--tasty-dag-edge-highlight", use: "selected", color: "var(--tasty-dag-edge-highlight)" }, { tok: "--tasty-border-dash", use: "4 on, gap line (reused)" }, { tok: "--tasty-border-dash-gap", use: "4 off (reused)" }]} />
       </Spec>
 
       <Spec id="child-graph-popup" title="Popup — the current surface as base"
@@ -331,6 +331,56 @@ export function ChildGraphSection() {
         </Views>
         <Meta specs={[["remote card", "remote glyph in accent-remote-raised · full LOD: the machine's host text in the id's slot · state as usual"], ["this computer", "no machine name on the card or in the drawer"], ["machine name", "attach profile name (9-2) · two or more hops: the profile name the previous machine gave it · no profile name → attach.mirror_pill_label on the card (label font), no Attach profile row · never 127.0.0.1:<port>"], ["drawer", "Attach profile (the machine's name) · Reached through (child_graph.drawer.via): the machines in between, “ › ” between them, mono · only when there is one"], ["read-only ancestor", "dashed · Not mirrored · its machine's host text · drawer: role, id, workspace, attach profile, read-only note"], ["disconnected", "see graph-states: warning strip, remote states unknown"], ["across machines", "same parent → child line"], ["attach", "occupancy not drawn"]]}
           tokens={[{ tok: "--tasty-accent-remote-raised", use: "remote glyph", color: "var(--tasty-accent-remote-raised)" }, { tok: "--tasty-dag-node-meta-status-fg", use: "machine name on the card", color: "var(--tasty-dag-node-meta-status-fg)" }]} />
+      </Spec>
+
+      <Spec id="child-graph-gap-nodes" title="Across machines — a gap node where the chain cannot be followed"
+        when={<>The graph follows only the attach connections already open, relaying the query machine to machine. Where a link cannot be followed, nothing beyond it is guessed: <b>one gap node</b> stands where the chain breaks, on either side — a child that cannot be reached, or a parent that cannot be. It is the card's box (168 × 48, so layout and LOD stay the card's), <b>dashed</b> like the other cards that are not a surface here, with <b>no bar and no state colour</b> — it is not a surface state, and the strip, not the card, carries a warning. Its name row is a <b>reason glyph</b> and the <b>reason</b>; its meta row is the machine the broken link leads to, by the host text rule. One shape for all reasons, each with its own label and a glyph from a small set, so the graph does not grow a second legend: <i>Disconnected</i> and <i>No response</i> share the unreachable glyph; <i>stale</i> and <i>malformed</i> share one label, <i>Parent unverified</i> — the user acts on them the same way. <i>Checking…</i> spins while Tasty asks. Its line is the one <b>dashed</b> edge. It is <b>selectable</b>: its drawer says why in a sentence and names what is around it — the last surface reached, the machine, the machines in between, and for <i>No response</i> the next try — with no actions. <b>What was seen beyond the break is dropped</b> and folded into the gap node, not kept dimmed: a dimmed card would still read as a surface that exists, and the chain past the break may have changed. A surface mirrored here stays, with its state unknown, since it is still here (Graph view › Status). A <b>loop in the parents</b> (a diagnostic state, not a normal one) is cut the same way: a <i>Parent loop</i> gap node at the top, whose drawer names the surface the loop returns to, instead of a line back that the left-to-right tree cannot draw.</>}>
+        <Stage variant="grid" style={{ display: "block", padding: 20 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "96px repeat(2, 168px)", columnGap: 16, rowGap: 8, alignItems: "end" }}>
+            <span /><span style={cap}>rest</span><span style={cap}>selected</span>
+            {GAP_REASONS.map((r) => (
+              <React.Fragment key={r}>
+                <span style={{ ...cap, alignSelf: "center" }}>{r}</span>
+                {[false, true].map((sel) => <div key={String(sel)} style={{ position: "relative", width: 168, height: 48, marginTop: 20 }}><ChildNode node={{ id: `g_${r}`, kind: "gap", reason: r, host: "gpu-box" }} selected={sel} /></div>)}
+              </React.Fragment>
+            ))}
+          </div>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 16, marginTop: 24, alignItems: "flex-end" }}>
+            {["full", "compact", "block"].map((l) => <Labelled key={l} label={`gap · ${l}`}><Card node={{ id: "g_l", kind: "gap", reason: "disconnected", host: "gpu-box" }} lod={l} /></Labelled>)}
+            <Labelled label="no profile name — Remote in the label font"><Card node={{ id: "g_n", kind: "gap", reason: "timeout", host: "" }} /></Labelled>
+          </div>
+        </Stage>
+        <Stage style={{ padding: 16, display: "block" }}>
+          {row(<>
+            <Frame label="before — A → B → C → D, every link answering" w={760} h={300}><ChildView nodes={CHILD_CHAIN} baseId="s_A1" /></Frame>
+            <Frame label="after lab-build loses gpu-box — C and D dropped, one gap node under B (drawer open)" w={760} h={300}><ChildView nodes={CHILD_CHAIN_CUT} baseId="s_A1" selected="g_C" /></Frame>
+            <Frame label="a gap on each side — the base's parent unverified, a child with no response (drawer: next try)" w={760} h={320}><ChildView nodes={CHILD_GAP_SIDES} baseId="s_B1" selected="g_dn" /></Frame>
+            <Frame label="a loop in the parents — cut with a Parent loop gap at the top (drawer: the surface it returns to)" w={760} h={300}><ChildView nodes={CHILD_GAP_CYCLE} baseId="s_m2" selected="g_loop" /></Frame>
+          </>)}
+        </Stage>
+        <Views>
+          <View name="child-gap-themes" label="Mocha and Latte — every reason">
+            <ThemePair render={() => (
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 16, background: "var(--tasty-dag-canvas-bg)", padding: 12 }}>
+                {GAP_REASONS.map((r) => <div key={r} style={{ position: "relative", width: 168, height: 48, marginTop: 4 }}><ChildNode node={{ id: `g_${r}`, kind: "gap", reason: r, host: "gpu-box" }} /></div>)}
+              </div>
+            )} />
+          </View>
+          <View name="child-gap-locales" label="ko, ja, zh-Hans — every label and a drawer">
+            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              {["ko", "ja", "zh-Hans"].map((l) => (
+                <div key={l} style={{ display: "flex", flexWrap: "wrap", gap: 16, alignItems: "flex-start" }}>
+                  {GAP_REASONS.filter((r) => r !== "malformed").map((r) => <Labelled key={r} label={`${l} · ${r}`}><Card node={{ id: `g_${r}`, kind: "gap", reason: r, host: "gpu-box" }} lang={l} /></Labelled>)}
+                  <Frame label={`${l} · drawer`} w={640} h={300}><ChildView nodes={CHILD_GAP_SIDES} baseId="s_B1" selected="g_dn" lang={l} /></Frame>
+                </div>
+              ))}
+            </div>
+          </View>
+        </Views>
+        <Meta specs={[["box", "168 × 48 · dashed 1px dag-node-border · dag-node-bg · no bar, no state colour · selection ring as a card"], ["name row", "reason glyph sm in dag-node-meta-fg · reason label 13 medium dag-node-fg"], ["meta row", "the machine the link leads to: host text (profile name mono, else attach.mirror_pill_label in the label font) · dag-node-meta-fg"], ["LOD", "full: both rows · compact: glyph + reason · block: the dashed box, glyph centred · tooltip “reason — machine” at every tier"], ["reasons", "disconnected (globeOff) · timeout (globeOff) · unsupported (alertCircle) · refused (lock) · limit (more) · stale, malformed → unverified (helpCircle) · gone (paneEmpty) · pending (Spinner 12) · cycle (alertTriangle)"], ["labels", "child_graph.gap.<reason> · ≤ 18 en characters"], ["edge", "dashed 4 / 4, see Edges"], ["drawer", "title = the label · caption child_graph.gap.<reason>_note · rows: last_reached, points_back_to (cycle), attach_profile (the machine; none with no profile name), via, next_try (timeout) · no actions"], ["beyond the break", "dropped and folded into the one gap node · mirrored surfaces stay (state unknown, Graph view › Status)"], ["cycle", "diagnostic only · cut with a cycle gap at the top, never a line back"], ["minimap", "dag-minimap-node-dim, as the other cards that are not a surface"]]}
+          tokens={[{ tok: "--tasty-dag-node-border", use: "dashed edge", color: "var(--tasty-dag-node-border)" }, { tok: "--tasty-dag-node-bg", use: "fill", color: "var(--tasty-dag-node-bg)" }, { tok: "--tasty-dag-node-fg", use: "reason", color: "var(--tasty-dag-node-fg)" }, { tok: "--tasty-dag-node-meta-fg", use: "glyph, machine", color: "var(--tasty-dag-node-meta-fg)" }]} />
+        <Note>A gap node has no Retry: the product decisions do not give it one. <i>No response</i> retries by itself on the next refresh, and the other reasons are settled elsewhere (the connection, the remote's version, its permissions), so the drawer says where. See the question list.</Note>
+        <Dont>Do not keep the cards seen before the break, dimmed or not: they would read as surfaces that are still there. Do not draw a line back for a loop.</Dont>
       </Spec>
 
       <Spec id="child-graph-external-parent" title="External parent (decided 4-6)"

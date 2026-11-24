@@ -402,13 +402,17 @@ function childLayout(nodes) {
 }
 // One relation, parent → child: the DAG's depends_on edge (solid neutral, arrow at the child),
 // accent when it touches the selected card. A parent and child on different machines take the same line.
+// The one dashed line: to or from a gap node (the chain is cut there, so the relation is not known),
+// in the dashed-edge rule's 4 / 4 (border-dash), same colour, same arrow.
+const GAP_DASH = "var(--tasty-border-dash) var(--tasty-border-dash-gap)";
 function childEdges(nodes, g) {
   const ids = new Set(nodes.map((n) => n.id));
+  const gaps = new Set(nodes.filter((n) => n.kind === "gap").map((n) => n.id));
   return nodes.filter((n) => n.parent && ids.has(n.parent) && g.pos[n.parent] && g.pos[n.id]).map((n) => {
     const a = g.pos[n.parent], b = g.pos[n.id];
     return { key: `${n.parent}->${n.id}`, from: n.parent, to: n.id, td: false,
       s: { x: a.x + NODE_W, y: a.y + NODE_H / 2 }, t: { x: b.x, y: b.y + NODE_H / 2 },
-      color: "var(--tasty-dag-edge-depends)", dash: null };
+      color: "var(--tasty-dag-edge-depends)", dash: gaps.has(n.id) || gaps.has(n.parent) ? GAP_DASH : null };
   });
 }
 // Base line only (checkbox off): ancestors to the root + every descendant of the base.

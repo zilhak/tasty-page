@@ -85,6 +85,40 @@ const CHILD_CHAIN = [
   G("s_C1", { parent: "s_B1", nickname: "trainer", role: "worker", state: "idle", evidence: "hook_idle" }),
   G("s_D1", { parent: "s_C1", nickname: "eval", role: "checker", state: "needs_input", evidence: "hook_needs_input" }),
 ];
+// gap nodes (cross-machine chain, 2026-11-24): where a link of the chain cannot be followed, one gap node
+// stands for everything beyond it, with the reason. Nothing past it is guessed, and what was seen beyond it
+// before the break is dropped, not kept dimmed. host = the machine the broken link leads to (host text rule).
+const GAP = (id, reason, over) => ({ id, kind: "gap", reason, ...over });
+// the chain above after lab-build's link to gpu-box dropped: C and D are gone, one gap under B
+const CHILD_CHAIN_CUT = [
+  CHILD_CHAIN[0], CHILD_CHAIN[1],
+  GAP("g_C", "disconnected", { parent: "s_B1", host: "gpu-box", via: ["lab-build"], lastReached: "linux-build · s_B1" }),
+];
+// a gap on each side: the base's parent cannot be verified (ancestor side), and one child does not answer
+const CHILD_GAP_SIDES = [
+  GAP("g_up", "unverified", { host: "lab-build", lastReached: "linux-build · s_B1" }),
+  R("s_B1", { parent: "g_up", nickname: "linux-build", role: "worker", profile: "lab-build", workspace: "ci" }),
+  R("s_B2", { parent: "s_B1", nickname: "linux-test", role: "tester", state: "idle", profile: "lab-build", workspace: "ci", evidence: "hook_idle" }),
+  GAP("g_dn", "timeout", { parent: "s_B1", host: "gpu-box", via: ["lab-build"], lastReached: "linux-build · s_B1", nextTry: "in 8s" }),
+];
+// a loop in the parents (diagnostic only): following worker-a's parents comes back to worker-a, so the
+// chain is cut with a cycle gap at the top instead of a line back
+const CHILD_GAP_CYCLE = [
+  GAP("g_loop", "cycle", { host: "lab-linux", pointsBack: "worker-a · s_m2", lastReached: "orchestrator · s_m0" }),
+  R("s_m0", { parent: "g_loop", nickname: "orchestrator", role: "director" }),
+  R("s_m1", { parent: "s_m0", nickname: "conductor", role: "conductor" }),
+  R("s_m2", { parent: "s_m1", nickname: "worker-a", role: "worker" }),
+];
+// reasons, in the order the specs list them; stale and malformed share one label
+const GAP_REASONS = ["disconnected", "timeout", "unsupported", "refused", "limit", "stale", "malformed", "gone", "pending", "cycle"];
+const GAP_LOOK = {
+  disconnected: { key: "disconnected", glyph: "globeOff" }, timeout: { key: "timeout", glyph: "globeOff" },
+  unsupported: { key: "unsupported", glyph: "alertCircle" }, refused: { key: "refused", glyph: "lock" },
+  limit: { key: "limit", glyph: "more" }, stale: { key: "unverified", glyph: "helpCircle" }, malformed: { key: "unverified", glyph: "helpCircle" },
+  unverified: { key: "unverified", glyph: "helpCircle" }, gone: { key: "gone", glyph: "paneEmpty" }, pending: { key: "pending", glyph: null },
+  cycle: { key: "cycle", glyph: "alertTriangle" },
+};
+const gapLook = (reason) => GAP_LOOK[reason] || GAP_LOOK.disconnected;
 // external parent (user decision 2026-11-10): its own card at the root, nothing traced beyond the key
 const CHILD_EXTERNAL = [
   { id: "codex:019a5c2e-7f3b", kind: "external" },
@@ -93,7 +127,7 @@ const CHILD_EXTERNAL = [
 ];
 
 const DAG_BY_ID = Object.fromEntries(DAG_LIST.map((e) => [e.dag.id, e]));
-const nameOf = (n) => (n.kind === "external" ? n.id : n.nickname || n.role || n.id);
+const nameOf = (n) => (n.kind === "external" ? n.id : n.kind === "gap" ? gt(`child_graph.gap.${gapLook(n.reason).key}`) : n.nickname || n.role || n.id);
 
 // ── Card ────────────────────────────────────────────────────────────
 // The DAG card's box (168 × 48, bar, two rows, LOD tiers, ring, hover wash) with child content:
@@ -103,9 +137,57 @@ const nameOf = (n) => (n.kind === "external" ? n.id : n.nickname || n.role || n.
 //             label font), at most half the row, so B and C of A → B → C read apart at full LOD
 // base: a chip ABOVE the card, outside the box, so it never competes with the state colour or the
 // selection ring and survives every LOD tier. external / remote-ancestor: dashed border, no bar.
+// gap: the same box, dashed like the other cards that are not a surface here, no bar, no state colour.
+//   name row  reason glyph (a spinner while pending) · reason label
+//   meta row  the machine the broken link leads to (host text), muted
+//   compact: name row only · block: the dashed box with the glyph centred. Selectable: its drawer
+//   says why and what is around it, and has no actions.
+function GapNode({ node, lod, selected, lang, onSelect }) {
+  const look = gapLook(node.reason);
+  const label = gt(`child_graph.gap.${look.key}`, lang);
+  const host = node.host || gt("attach.mirror_pill_label", lang);
+  const ink = "var(--tasty-dag-node-meta-fg)";
+  const glyph = look.glyph ? <Icon name={look.glyph} size="var(--tasty-icon-size-sm)" /> : <Spinner size={12} label={label} />;
+  const tip = `${label} — ${host}`;
+  const box = {
+    position: "absolute", boxSizing: "border-box", textAlign: "left", cursor: "pointer", fontFamily: "var(--tasty-font-ui)",
+    width: "var(--tasty-dag-node-width)", height: "var(--tasty-dag-node-height)", padding: 0,
+    display: "flex", alignItems: lod === "block" ? "center" : "stretch", justifyContent: lod === "block" ? "center" : "flex-start",
+    borderRadius: "var(--tasty-dag-node-radius)", border: "var(--tasty-border-width) dashed var(--tasty-dag-node-border)",
+    background: "var(--tasty-dag-node-bg)", color: "var(--tasty-dag-node-fg)",
+    outline: selected ? "var(--tasty-dag-node-selected-ring-width) solid var(--tasty-dag-node-selected-ring)" : "none", outlineOffset: "var(--tasty-size-1)",
+  };
+  return (
+    <span style={{ position: "relative", display: "block" }}>
+      <button type="button" aria-label={tip} title={tip} onClick={() => onSelect && onSelect(node.id)} style={box}>
+        {lod === "block" ? (
+          <span style={{ display: "inline-flex", alignItems: "center", color: ink }}>{glyph}</span>
+        ) : (
+          <>
+            <span style={{ flex: "none", width: "var(--tasty-dag-node-bar-width)" }} />
+            <span style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", justifyContent: "center",
+              gap: "var(--tasty-dag-node-row-gap)", padding: "var(--tasty-dag-node-padding-y) var(--tasty-dag-node-padding-x)" }}>
+              <span style={{ display: "flex", alignItems: "center", gap: "var(--tasty-dag-node-gap)", minWidth: 0 }}>
+                <span style={{ flex: "none", display: "inline-flex", color: ink }}>{glyph}</span>
+                <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                  fontSize: "var(--tasty-dag-node-name-font-size)", fontWeight: "var(--tasty-font-weight-medium)" }}>{label}</span>
+              </span>
+              {lod === "full" && (
+                <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: ink,
+                  fontSize: "var(--tasty-dag-node-meta-font-size)", fontFamily: node.host ? "var(--tasty-font-mono)" : "var(--tasty-font-label)" }}>{host}</span>
+              )}
+            </span>
+          </>
+        )}
+      </button>
+    </span>
+  );
+}
+
 function ChildNode({ node, lod = "full", selected = false, base = false, hover, lang = "en", onSelect }) {
   const [hotState, setHot] = React.useState(false);
   const hot = hover != null ? hover : hotState;
+  if (node.kind === "gap") return <GapNode node={node} lod={lod} selected={selected} lang={lang} onSelect={onSelect} />;
   const special = node.kind && node.kind !== "surface";
   const st = special ? null : childTone(node.state);
   const accent = special ? "var(--tasty-dag-node-border)" : st.tok;
@@ -198,6 +280,21 @@ function ChildDetail({ node, isBase, lang = "en", onViewDags, onSetBase, onClose
   const title = node.kind === "external" ? node.id : node.nickname || node.id;
   const mono = node.kind === "external" || !node.nickname;
   const closeLabel = gt("dag.detail.close", lang);
+  if (node.kind === "gap") {
+    const key = gapLook(node.reason).key;
+    return (
+      <GraphDrawer title={gt(`child_graph.gap.${key}`, lang)} onClose={onClose} closeLabel={closeLabel} cover={cover}>
+        <DrawerCaption>{gt(`child_graph.gap.${key}_note`, lang)}</DrawerCaption>
+        <DrawerRows>
+          {node.lastReached && <DrawerRow k={gt("child_graph.drawer.last_reached", lang)} v={node.lastReached} mono />}
+          {node.pointsBack && <DrawerRow k={gt("child_graph.drawer.points_back_to", lang)} v={node.pointsBack} mono />}
+          {node.host && <DrawerRow k={gt("child_graph.drawer.attach_profile", lang)} v={node.host} mono />}
+          {node.via && node.via.length > 0 && <DrawerRow k={gt("child_graph.drawer.via", lang)} v={node.via.join(" › ")} mono />}
+          {node.nextTry && <DrawerRow k={gt("child_graph.drawer.next_try", lang)} v={node.nextTry} mono />}
+        </DrawerRows>
+      </GraphDrawer>
+    );
+  }
   if (node.kind === "external") {
     return (
       <GraphDrawer title={title} mono onClose={onClose} closeLabel={closeLabel} cover={cover}>
@@ -494,4 +591,4 @@ function ChildGraphSettings({ lang = "en", checked = false }) {
 
 export { ChildNode, ChildDetail, ChildGraphView, MirrorBanner, RestartNotice, ChildGraphWindow, ChildGraphSurface, ChildGraphSettings, nameOf,
   CHILD_SMALL, CHILD_SMALL_BASE, CHILD_LARGE, CHILD_LARGE_BASE, CHILD_MIRROR, CHILD_MIRROR_BASE, CHILD_MIRROR_LOST,
-  CHILD_CROSS, CHILD_CHAIN, CHILD_EXTERNAL };
+  CHILD_CROSS, CHILD_CHAIN, CHILD_CHAIN_CUT, CHILD_GAP_SIDES, CHILD_GAP_CYCLE, GAP_REASONS, CHILD_EXTERNAL };
