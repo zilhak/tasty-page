@@ -1042,7 +1042,7 @@ function Page() {
               border: "1px solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
               <MdAddressBar path="~/work/tasty/docs/CHANGELOG-full.md" />
               <div data-audit-exempt="under-scrim" style={{ padding: "14px 18px" }}><div style={{ ...MD_H[1], margin: 0 }}>Changelog</div><div style={mdBody}>A very long history…</div></div>
-              <div style={{ position: "absolute", inset: "40px 0 0 0", background: "rgba(0,0,0,.5)", display: "flex", alignItems: "center", justifyContent: "center", padding: 12 }}>
+              <div style={{ position: "absolute", inset: "40px 0 0 0", background: "var(--tasty-scrim-bg)", display: "flex", alignItems: "center", justifyContent: "center", padding: 12 }}>
                 <MdLargeFilePopup />
               </div>
             </div>
