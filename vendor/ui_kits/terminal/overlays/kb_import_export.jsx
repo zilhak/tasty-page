@@ -127,7 +127,7 @@ function IeDiffTable({ groups, changedOnly, collapsed, onToggleGroup, sel, onSel
                   </div>
                   <div style={{ ...cell, ...mono, color: "var(--tasty-text-muted)" }}>{cur(g, r)}</div>
                   <div style={{ ...cell, ...mono,
-                    color: r.blocked ? "var(--tasty-accent-warning-raised)" : changed ? "var(--tasty-accent-primary)" : "var(--tasty-text-muted)" }}>{r.next}</div>
+                    color: r.blocked ? "var(--tasty-accent-warning-raised)" : changed ? "var(--tasty-accent-primary-raised)" : "var(--tasty-text-muted)" }}>{r.next}</div>
                 </React.Fragment>
               );
             })}
