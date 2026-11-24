@@ -1248,7 +1248,7 @@ function SettingsWindow({ theme, onTheme, uiScale, onUiScale, onClose, os = DEFA
               borderBottom: t === l1 ? "var(--tasty-focus-ring-width) solid var(--tasty-accent-primary)" : "var(--tasty-focus-ring-width) solid transparent",
               /* keyboard focus: the L1 tab fills its band at the top of the window, so a ring off its box would lose its
                  top edge to the window edge. Its 2px ring sits inside the tab, as the pane tab's does. */
-              outlineOffset: "calc(-1 * var(--tasty-focus-ring-width))" }}>{L1_LABEL[t]}</button>
+              outlineOffset: "calc(-1 * var(--tasty-focus-ring-width))", borderRadius: "var(--tasty-radius-none)" }}>{L1_LABEL[t]}</button>
           ))}
         </div>
 
@@ -1273,6 +1273,8 @@ function SettingsWindow({ theme, onTheme, uiScale, onUiScale, onClose, os = DEFA
                   onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setL2(s); } }}
                   style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)",
                   padding: "var(--tasty-space-xs) var(--tasty-space-sm)", borderRadius: "var(--tasty-radius-sm)", fontSize: 13, cursor: "pointer",
+                  /* the control ring's gap, set here so a host page's own focus rule cannot widen it */
+                  outlineOffset: "var(--tasty-focus-ring-offset)",
                   color: s === l2 ? "var(--tasty-text-on-active)" : "var(--tasty-text-muted)",
                   background: s === l2 ? "var(--tasty-surface-active)" : "transparent" }}>
                   {isPluginSection(s) && <span style={{ width: "var(--tasty-status-dot-size)", height: "var(--tasty-status-dot-size)", borderRadius: "50%",
