@@ -479,7 +479,7 @@
   /* 2026-11-25 editing address field (HTML, Markdown, explorer path): a soft halo outside the 1px focus or invalid edge.
      The edge carries focus and error; the halo has no contrast target */
   --tasty-address-field-focus-halo:   color-mix(in srgb, var(--tasty-border-focus) 35%, transparent);
-  --tasty-address-field-invalid-halo: color-mix(in srgb, var(--tasty-input-border-invalid) 35%, transparent);
+  --tasty-address-field-invalid-halo: color-mix(in srgb, var(--tasty-accent-danger) 35%, transparent);
   --tasty-html-address-error-height:  var(--tasty-size-24);           /* inline error row under the band (part of the band) */
   --tasty-html-address-error-glyph:   var(--tasty-accent-danger);
   --tasty-html-address-value-fg:      var(--tasty-text-secondary-raised); /* 2026-10-21 idle real address on input-bg (surface0) — Mocha 7.10 · Latte 5.17 (was text-secondary 4.05) */
@@ -1356,17 +1356,18 @@
   --tasty-dag-phase-awaiting:       var(--tasty-accent-warning-strong); /* 2026-11-05 ground-ink rules */
   --tasty-dag-phase-awaiting-bg:    color-mix(in srgb, var(--tasty-attention-needs-input) 12%, var(--tasty-surface-raised));
   --tasty-dag-phase-awaiting-label: var(--tasty-accent-warning-strong); /* 2026-11-05 ground-ink rules */
-  /* 2026-11-25 block tier (zoom < 0.4): the card is a status fill only, no ink — the status color at 55% over the card ground */
-  --tasty-dag-status-waiting-block-bg:        color-mix(in srgb, var(--tasty-dag-status-waiting) 55%, var(--tasty-surface-raised));
-  --tasty-dag-status-ready-block-bg:          color-mix(in srgb, var(--tasty-dag-status-ready) 55%, var(--tasty-surface-raised));
-  --tasty-dag-status-running-block-bg:        color-mix(in srgb, var(--tasty-dag-status-running) 55%, var(--tasty-surface-raised));
-  --tasty-dag-status-succeeded-block-bg:      color-mix(in srgb, var(--tasty-dag-status-succeeded) 55%, var(--tasty-surface-raised));
-  --tasty-dag-status-failed-block-bg:         color-mix(in srgb, var(--tasty-dag-status-failed) 55%, var(--tasty-surface-raised));
-  --tasty-dag-status-cancelled-block-bg:      color-mix(in srgb, var(--tasty-dag-status-cancelled) 55%, var(--tasty-surface-raised));
-  --tasty-dag-status-skipped-block-bg:        color-mix(in srgb, var(--tasty-dag-status-skipped) 55%, var(--tasty-surface-raised));
-  --tasty-dag-status-unknown-block-bg:        color-mix(in srgb, var(--tasty-dag-status-unknown) 55%, var(--tasty-surface-raised));
-  --tasty-dag-status-partially-failed-block-bg:color-mix(in srgb, var(--tasty-dag-status-partially-failed) 55%, var(--tasty-surface-raised));
-  --tasty-dag-phase-awaiting-block-bg:          color-mix(in srgb, var(--tasty-dag-phase-awaiting) 55%, var(--tasty-surface-raised));
+  /* 2026-11-25 block tier (zoom < 0.4): the card is a status fill only, no ink — the status color at 55% over the card ground.
+     Each reads the semantic role its dag-status-<s> (or dag-phase-awaiting) color points at, so the pair stays one color */
+  --tasty-dag-status-waiting-block-bg:        color-mix(in srgb, var(--tasty-glyph-dim-raised) 55%, var(--tasty-surface-raised));
+  --tasty-dag-status-ready-block-bg:          color-mix(in srgb, var(--tasty-accent-info-raised) 55%, var(--tasty-surface-raised));
+  --tasty-dag-status-running-block-bg:        color-mix(in srgb, var(--tasty-accent-primary-raised) 55%, var(--tasty-surface-raised));
+  --tasty-dag-status-succeeded-block-bg:      color-mix(in srgb, var(--tasty-accent-success-raised) 55%, var(--tasty-surface-raised));
+  --tasty-dag-status-failed-block-bg:         color-mix(in srgb, var(--tasty-accent-danger-raised) 55%, var(--tasty-surface-raised));
+  --tasty-dag-status-cancelled-block-bg:      color-mix(in srgb, var(--tasty-glyph-dim-raised) 55%, var(--tasty-surface-raised));
+  --tasty-dag-status-skipped-block-bg:        color-mix(in srgb, var(--tasty-glyph-dim-raised) 55%, var(--tasty-surface-raised));
+  --tasty-dag-status-unknown-block-bg:        color-mix(in srgb, var(--tasty-accent-warning-raised) 55%, var(--tasty-surface-raised));
+  --tasty-dag-status-partially-failed-block-bg:color-mix(in srgb, var(--tasty-accent-attention-raised) 55%, var(--tasty-surface-raised));
+  --tasty-dag-phase-awaiting-block-bg:          color-mix(in srgb, var(--tasty-accent-warning-strong) 55%, var(--tasty-surface-raised));
   --tasty-dag-header-count-fg:      var(--tasty-dag-row-count-fg); /* 2026-10-07 — tab header "6/8 done" = list row counter */
 
   /* Graph geometry — layer depth + sibling gap (4px grid). */
