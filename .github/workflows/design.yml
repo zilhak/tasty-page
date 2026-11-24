@@ -37,6 +37,9 @@ jobs:
       - name: Test the ground-ink token verifier
         run: python3 -B scripts/design-tokens/test_verify_ground_ink_tokens.py -v
 
+      - name: Test the contrast checker
+        run: node --test scripts/contrast-page.test.mjs
+
       - run: npm ci
 
       - run: npm run build
