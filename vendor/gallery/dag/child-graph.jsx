@@ -112,7 +112,8 @@ function ClosedPopupFrame({ onReopen }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", alignItems: "flex-start" }}>
       <ShellMock size={[760, 560]} />
-      <Button size="sm" variant="secondary" onClick={onReopen}>Open the popup again</Button>
+      {/* the fixed view (no onReopen) is not interactive, so its button stays out of Tab order */}
+      <Button size="sm" variant="secondary" onClick={onReopen} {...(onReopen ? {} : { tabIndex: -1 })}>Open the popup again</Button>
     </div>
   );
 }
