@@ -8,8 +8,11 @@ export function pageLib() {
     if (m) { const p = m[1].split(/[ ,/]+/).filter(Boolean).map(Number); return [p[0], p[1], p[2], p[3] === undefined ? 1 : p[3]]; }
     m = /color\(srgb ([^)]+)\)/.exec(s);
     if (m) { const q = m[1].split(/[ /]+/).filter(Boolean).map(Number); return [q[0] * 255, q[1] * 255, q[2] * 255, q[3] === undefined ? 1 : q[3]]; }
-    m = /^#([0-9a-f]{6})([0-9a-f]{2})?$/i.exec(s);
-    if (m) return [parseInt(m[1].slice(0, 2), 16), parseInt(m[1].slice(2, 4), 16), parseInt(m[1].slice(4, 6), 16), m[2] ? parseInt(m[2], 16) / 255 : 1];
+    m = /^#([0-9a-f]{6})(?:([0-9a-f]{2})|@([+-]?(?:[0-9]*\.)?[0-9]+(?:e[+-]?[0-9]+)?))?$/i.exec(s);
+    if (m) {
+      const alpha = m[3] !== undefined ? Number(m[3]) : m[2] ? parseInt(m[2], 16) / 255 : 1;
+      if (alpha >= 0 && alpha <= 1) return [parseInt(m[1].slice(0, 2), 16), parseInt(m[1].slice(2, 4), 16), parseInt(m[1].slice(4, 6), 16), alpha];
+    }
     return null;
   };
   const over = (t, u) => [0, 1, 2].map((i) => Math.floor(t[i] * t[3] + u[i] * (1 - t[3]) + 0.5)).concat(1);
