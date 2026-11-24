@@ -479,7 +479,8 @@ function SearchSection() {
               <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
                 <XK.DetailHeader />
                 <XK.DetailRow glyph={XK.ic.file} name={<XHi text="report.pdf" q="re" selected />} size="2.4 MB" date="2026-06-24 09:12" type="PDF" state="selected" />
-                <XK.DetailRow glyph={XK.ic.folder} name={<XHi text="mockup-exports" q="re" />} size="—" date="2026-06-20 14:30" type="Folder" />
+                {/* an unselected row that matches, so the resting match run shows beside the selected one */}
+                <XK.DetailRow glyph={XK.ic.folder} name={<XHi text="screenshots" q="re" />} size="—" date="2026-06-20 14:30" type="Folder" />
               </div>
             </XCell>
           )} />
