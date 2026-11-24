@@ -47,11 +47,11 @@ function HtmlAddressContrastSpec() {
           <HcCase label="local · idle"><Bar kind="local" address="~/work/tasty/target/report.html" /></HcCase>
           <HcCase label="local · editing (unchanged: input-fg)"><Bar kind="local" address="~/work/tasty/target/report.html" state="editing" /></HcCase>
           <HcCase label="web · idle"><Bar kind="web" address="https://docs.example.com/guide/getting-started#install" canForward /></HcCase>
-          <HcCase label="mirror · read-only, selectable (input-readonly-fg)"><Bar kind="remote" address="build-eu:~/work/site/index.html" /></HcCase>
+          <HcCase label="mirror · read-only, selectable (input-readonly-fg)"><Bar kind="remote" address="/home/me/work/site/index.html" /></HcCase>
           <HcCase label="empty · placeholder (unchanged)"><Bar kind="empty" canBack={false} /></HcCase>
           <HcCase label="loading (unchanged)"><Bar kind="web" address="https://docs.example.com/guide/getting-started#install" state="loading" /></HcCase>
           <HcCase label="input error (unchanged)"><Bar kind="local" address="/tmp/x/missing.html" state="error" error="File not found: /tmp/x/missing.html" /></HcCase>
-          <HcCase label="mirror · disconnected (Reload disabled; value stays read-only ink)"><Bar kind="remote" address="build-eu:~/work/site/index.html" disconnected /></HcCase>
+          <HcCase label="mirror · disconnected (Reload disabled; value stays read-only ink)"><Bar kind="remote" address="/home/me/work/site/index.html" disconnected /></HcCase>
         </HcPair>
       </Stage>
       <Meta

@@ -1180,7 +1180,7 @@ function Page() {
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
               <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>9 · mirror — read-only field, Reload only</span>
               <div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
-                <HtmlAddressSurfaceG width="var(--tasty-size-460)" height={240} bar={{ kind: "remote", address: "build-eu:~/work/site/index.html" }} />
+                <HtmlAddressSurfaceG width="var(--tasty-size-460)" height={240} bar={{ kind: "remote", address: "/home/me/work/site/index.html" }} />
               </div>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
@@ -1199,7 +1199,7 @@ function Page() {
             ))}
           </Stage>
           <Meta
-            specs={[["band", "40 · bg-sidebar · 1px separator below · padding-x 8"], ["nav", "Back · Forward · Reload — IconButton sm 24, gap 4 · disabled at history ends"], ["field", "PathField box (input tokens, 28, mono) · no Go · leading glyph file / link / html / remote"], ["address", "local = path (~ for home) · web = full URL · typed and shown the same"], ["loading", "Spinner in the Reload cell, not clickable"], ["error", "danger edge + 24 row in the band · clears on keystroke / Esc / successful open"], ["stack", "band → size banner → script banner → page · 8 / 8 / 8"], ["narrow", "< banner-narrow-below 440 → Forward hidden · field floor 96"], ["mirror", "read-only field + Reload only · band hidden while mirror HTML is a placeholder"], ["tooltips", "top — never down into the WebView"], ["empty", "keep glyph + 'No page loaded' · add hint + Alt+L / ⌘L"]]}
+            specs={[["band", "40 · bg-sidebar · 1px separator below · padding-x 8"], ["nav", "Back · Forward · Reload — IconButton sm 24, gap 4 · disabled at history ends"], ["field", "PathField box (input tokens, 28, mono) · no Go · leading glyph file / link / html / remote"], ["address", "local = path (~ for home) · mirror = the remote absolute path as it is, no host prefix and no ~ · web = full URL · typed and shown the same"], ["loading", "Spinner in the Reload cell, not clickable"], ["error", "danger edge + 24 row in the band · clears on keystroke / Esc / successful open"], ["stack", "band → size banner → script banner → page · 8 / 8 / 8"], ["narrow", "< banner-narrow-below 440 → Forward hidden · field floor 96"], ["mirror", "read-only field + Reload only · band hidden while mirror HTML is a placeholder"], ["tooltips", "top — never down into the WebView"], ["empty", "keep glyph + 'No page loaded' · add hint + Alt+L / ⌘L"]]}
             tokens={[{ tok: "--tasty-html-address-bar-height", use: "→ size-40" }, { tok: "--tasty-html-address-bar-bg", use: "→ bg-sidebar", color: "var(--tasty-html-address-bar-bg)" }, { tok: "--tasty-html-address-bar-border", use: "→ separator", color: "var(--tasty-html-address-bar-border)" }, { tok: "--tasty-html-address-bar-padding-x", use: "→ space-sm" }, { tok: "--tasty-html-address-bar-gap", use: "→ space-sm" }, { tok: "--tasty-html-address-bar-nav-gap", use: "→ space-xs" }, { tok: "--tasty-html-address-field-min-width", use: "→ size-96" }, { tok: "--tasty-html-address-error-height", use: "→ size-24" }, { tok: "--tasty-html-address-error-glyph", use: "→ accent-danger", color: "var(--tasty-html-address-error-glyph)" }, { tok: "--tasty-input-border-invalid", use: "field edge on error", color: "var(--tasty-input-border-invalid)" }]} />
           <Note>An agent changing the address while the user edits does not touch the typed text or focus, and gets no extra marker — Esc reverts to whatever the current address is by then.</Note>
         </Spec>
@@ -1219,21 +1219,21 @@ function Page() {
               <div key={cap} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
                 <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
                 <div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
-                  <HtmlAddressSurfaceG width="var(--tasty-size-560)" height={o.height || 280} label={`${BASE}design/gallery/`} bar={{ kind: "remote", address: o.address || "build-eu:~/work/site/index.html", skipped: o.skipped, disconnected: o.disconnected }} banners={o.banners} page={o.page} progress={o.progress} />
+                  <HtmlAddressSurfaceG width="var(--tasty-size-560)" height={o.height || 280} label={`${BASE}design/gallery/`} bar={{ kind: "remote", address: o.address || "/home/me/work/site/index.html", skipped: o.skipped, disconnected: o.disconnected }} banners={o.banners} page={o.page} progress={o.progress} />
                 </div>
               </div>
             ))}
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
               <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>8 · narrow (360) — actions wrap under the body</span>
               <div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
-                <HtmlAddressSurfaceG width="var(--tasty-size-360)" height={320} narrow label={`${BASE}design/gallery/`} bar={{ kind: "remote", address: "build-eu:~/work/site/index.html" }} banners={["size"]} page="paused" />
+                <HtmlAddressSurfaceG width="var(--tasty-size-360)" height={320} narrow label={`${BASE}design/gallery/`} bar={{ kind: "remote", address: "/home/me/work/site/index.html" }} banners={["size"]} page="paused" />
               </div>
             </div>
             {[["Latte · large file", ["size"]], ["Latte · limit", ["limit"]]].map(([cap, b]) => (
               <div key={cap} data-theme="latte" style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", padding: "var(--tasty-space-sm)", background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)" }}>
                 <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
                 <div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
-                  <HtmlAddressSurfaceG width="var(--tasty-size-560)" height={260} label={`${BASE}design/gallery/`} bar={{ kind: "remote", address: "build-eu:~/work/site/index.html" }} banners={b} page="paused" />
+                  <HtmlAddressSurfaceG width="var(--tasty-size-560)" height={260} label={`${BASE}design/gallery/`} bar={{ kind: "remote", address: "/home/me/work/site/index.html" }} banners={b} page="paused" />
                 </div>
               </div>
             ))}

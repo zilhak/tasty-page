@@ -158,7 +158,7 @@ function HtmlRemoteSurfaceG({ width, height = 300, narrow = false, remote = null
     script && <HtmlScriptBanner key="script" state={script} remote={!!remote} narrow={narrow} web={web} />,
   ].filter(Boolean);
   const kind = web ? "web" : mirror ? "remote" : "local";
-  const address = web ? RC_WEB.address : mirror ? "build-eu:~/reports/q3/report.html" : "~/reports/q3/report.html";
+  const address = web ? RC_WEB.address : mirror ? "/home/me/reports/q3/report.html" : "~/reports/q3/report.html";
   return (
     <div style={{ width, height, flex: width ? "none" : 1, minWidth: 0, display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)", overflow: "hidden" }}>
       <div style={{ display: "flex", flex: "none", background: "var(--tasty-bg-sidebar)", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
