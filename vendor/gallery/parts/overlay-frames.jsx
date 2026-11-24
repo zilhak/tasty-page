@@ -2349,7 +2349,8 @@ function RemoteFormFrame({ variant = "ssh", error }) {
   );
   const peach = (txt) => (
     <span style={{ display: "inline-flex", alignItems: "center", height: 16, padding: "0 6px", borderRadius: "var(--tasty-radius-sm)",
-      fontFamily: "var(--tasty-font-mono)", fontSize: 10, fontWeight: 500, color: "var(--tasty-accent-warning-raised)", border: "1px solid var(--tasty-accent-warning)" }}>{txt}</span>
+      fontFamily: "var(--tasty-font-mono)", fontSize: 10, fontWeight: 500, color: "var(--tasty-accent-warning-raised)",
+      border: "1px solid var(--tasty-tint-warning-border)", background: "var(--tasty-tint-warning-bg)" }}>{txt}</span>
   );
   const seg = (label, active) => (
     <div style={{ display: "flex", alignItems: "center", height: "var(--tasty-control-height)", padding: "0 12px", borderRadius: "var(--tasty-radius)", fontSize: 13, cursor: "pointer",
