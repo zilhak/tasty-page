@@ -99,7 +99,7 @@ function PaletteFrame({ opaque = false, focused = false, value = "", rows = 4 } 
     { label: "Settings", sc: "Ctrl+,", icon: ic.settings },
   ];
   return (
-    <div align="top" style={{ width: 480, background: "var(--tasty-surface-raised)", border: "1px solid var(--tasty-border-strong)",
+    <div align="top" style={{ width: 480, background: "var(--tasty-surface-raised)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)",
       borderRadius: opaque ? "var(--tasty-webview-opaque-radius)" : "var(--tasty-radius)", overflow: "hidden", boxShadow: opaque ? "var(--tasty-webview-opaque-shadow)" : "var(--tasty-shadow-modal)" }}>
       <div style={{ padding: 10, borderBottom: "1px solid var(--tasty-separator)" }}>
         <Input block ground="raised" focused={focused} icon={ic.search} placeholder="Type to search commands…" defaultValue={value} />

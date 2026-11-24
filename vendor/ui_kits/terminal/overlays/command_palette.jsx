@@ -45,7 +45,7 @@ function CommandPalette({ onClose, onRun }) {
   const items = all.filter((i) => i.label.toLowerCase().includes(q.toLowerCase()));
   return (
     <Scrim onClose={onClose} align="top">
-      <div style={{ width: "var(--tasty-palette-width)", background: "var(--tasty-surface-raised)", border: "var(--tasty-border-width) solid var(--tasty-border-strong)",
+      <div style={{ width: "var(--tasty-palette-width)", background: "var(--tasty-surface-raised)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)",
         borderRadius: "var(--tasty-radius)", overflow: "hidden", boxShadow: "var(--tasty-shadow-modal)" }}>
         <div style={{ padding: "var(--tasty-space-md)", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
           <Input block ground="raised" autoFocus icon={ic.search} placeholder="Type to search commands…"

@@ -552,7 +552,7 @@ function IeModifierSelectG({ chosen = false }) {
 // A faux popup: mantle titlebar (drag handle) over a surface0 body.
 function FauxPopup({ title = "Listening ports", w = 240, h = 150, titlebar = true, region = false, grab = true, children, style }) {
   return (
-    <div style={{ width: w, background: "var(--tasty-surface-raised)", border: "1px solid var(--tasty-border-strong)",
+    <div style={{ width: w, background: "var(--tasty-surface-raised)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)",
       borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", overflow: "hidden", ...style }}>
       {titlebar && (
         <div style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "center", height: "var(--tasty-titlebar-height)",
@@ -675,8 +675,8 @@ function Page() {
           when={<>Top-anchored launcher. A search Input header, a scrollable MenuItem list with the first row pre-highlighted, and a monospace hint footer. The fastest path to any command — every action should be reachable here.</>}>
           <Stage variant="solo center"><Backdrop height={400}><PaletteFrame /></Backdrop></Stage>
           <Meta
-            specs={[["width", "480–540px"], ["anchor", "top, ~40–90px"], ["header", <>Input + <span className="tok">--tasty-separator</span></>], ["rows", <>28px MenuItem · first active</>], ["footer", "mono hints ↑↓ ↵ esc"]]}
-            tokens={[{ tok: "--tasty-surface-raised", use: "frame", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-surface-active", use: "highlight", color: "var(--tasty-surface-active)" }, { tok: "--tasty-font-mono", use: "hints" }]} />
+            specs={[["width", "480–540px"], ["anchor", "top, ~40–90px"], ["header", <>Input + <span className="tok">--tasty-separator</span></>], ["rows", <>28px MenuItem · first active</>], ["footer", "mono hints ↑↓ ↵ esc"], ["frame edge", <>1px <span className="tok">--tasty-border-frame</span> — the popup frame, on the raised shell as on a base one</>]]}
+            tokens={[{ tok: "--tasty-surface-raised", use: "frame", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-border-frame", use: "frame edge", color: "var(--tasty-border-frame)" }, { tok: "--tasty-surface-active", use: "highlight", color: "var(--tasty-surface-active)" }, { tok: "--tasty-font-mono", use: "hints" }]} />
         </Spec>
         <Spec id="search-field-ground-normal-focused" title="Search field ground — normal · focused"
           when={<>The palette shell is <span className="tok">--tasty-surface-raised</span>, so its search field is an <b>Input ground="raised"</b> (the 10-14 rule, no exception). The box steps down to <code>bg-panel</code> with a <code>border-control-raised</code> edge, so it reads against the shell before it takes focus. The field opens focused (autoFocus); <b>normal</b> is the box after focus moves away. Width, icon, placeholder, list and footer are unchanged; no copy changes.</>}>
