@@ -1004,7 +1004,7 @@ function Page() {
               </div>
             </View>
             <View name="file-picker-session-lost-navigation" wide label="Session lost — the path bar: Refresh, Up and the breadcrumb's root, ancestors and … are disabled; timeout keeps them enabled">
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-lg)", alignItems: "flex-start" }}>
+              <div inert="" style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-lg)", alignItems: "flex-start", pointerEvents: "none" }}>
                 <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}><div style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>session lost · full path</div><FilePickerFrame remote state="error-conn" w="var(--tasty-fp-specimen-view-width)" h="var(--tasty-fp-specimen-view-height)" /></div>
                 <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}><div style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>session lost · elided path (… disabled)</div><FilePickerFrame remote state="error-conn" elideStage w="var(--tasty-fp-specimen-view-width)" h="var(--tasty-fp-specimen-view-height)" /></div>
                 <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}><div style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>timeout · elided path (all enabled)</div><FilePickerFrame remote state="error-conn-timeout" elideStage w="var(--tasty-fp-specimen-view-width)" h="var(--tasty-fp-specimen-view-height)" /></div>
