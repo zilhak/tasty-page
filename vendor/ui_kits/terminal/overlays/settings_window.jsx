@@ -1245,7 +1245,10 @@ function SettingsWindow({ theme, onTheme, uiScale, onUiScale, onClose, os = DEFA
             <button key={t} onClick={() => pickL1(t)} style={{ border: 0, background: "transparent", cursor: "pointer",
               height: "calc(var(--tasty-settings-l1-height) - var(--tasty-border-width))", padding: "0 var(--tasty-space-md)", fontFamily: "var(--tasty-font-ui)", fontSize: 13,
               color: t === l1 ? "var(--tasty-text-primary)" : "var(--tasty-text-muted)", fontWeight: t === l1 ? 600 : 400,
-              borderBottom: t === l1 ? "var(--tasty-focus-ring-width) solid var(--tasty-accent-primary)" : "var(--tasty-focus-ring-width) solid transparent" }}>{L1_LABEL[t]}</button>
+              borderBottom: t === l1 ? "var(--tasty-focus-ring-width) solid var(--tasty-accent-primary)" : "var(--tasty-focus-ring-width) solid transparent",
+              /* keyboard focus: the L1 tab fills its band at the top of the window, so a ring off its box would lose its
+                 top edge to the window edge. Its 2px ring sits inside the tab, as the pane tab's does. */
+              outlineOffset: "calc(-1 * var(--tasty-focus-ring-width))" }}>{L1_LABEL[t]}</button>
           ))}
         </div>
 
@@ -1265,7 +1268,10 @@ function SettingsWindow({ theme, onTheme, uiScale, onUiScale, onClose, os = DEFA
                     <div style={{ height: "var(--tasty-border-width)", background: "var(--tasty-separator)",
                       margin: "var(--tasty-space-sm) var(--tasty-space-sm)" }} />
                   )}
-                  <div onClick={() => setL2(s)} style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)",
+                  {/* a keyboard stop, as in the app: Tab / Shift+Tab reach it, Space / Enter open the section */}
+                  <div data-settings-l2="" tabIndex={0} onClick={() => setL2(s)}
+                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setL2(s); } }}
+                  style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)",
                   padding: "var(--tasty-space-xs) var(--tasty-space-sm)", borderRadius: "var(--tasty-radius-sm)", fontSize: 13, cursor: "pointer",
                   color: s === l2 ? "var(--tasty-text-on-active)" : "var(--tasty-text-muted)",
                   background: s === l2 ? "var(--tasty-surface-active)" : "transparent" }}>

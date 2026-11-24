@@ -387,7 +387,7 @@ function Foundations() {
               demo={null} />
           </Stage>
           <Meta
-            specs={[["fill text", <span className="tok">--tasty-text-on-accent</span>], ["focus ring", <>2px <span className="tok">--tasty-accent-primary</span> in two shapes: a text field turns its 1px edge <span className="tok">--tasty-border-focus</span> and adds a 1px ring flush outside it (<span className="tok">--tasty-border-width</span>, no gap); any other control takes a 2px outline 1px off its box (<span className="tok">--tasty-focus-ring-offset</span>), the switch 2px off its track; a pane tab, a Tab stop only in a web host, takes it 2px inside its box</>], ["agent rule", "mauve = always agent"]]}
+            specs={[["fill text", <span className="tok">--tasty-text-on-accent</span>], ["focus ring", <>2px <span className="tok">--tasty-accent-primary</span> in two shapes: a text field turns its 1px edge <span className="tok">--tasty-border-focus</span> and adds a 1px ring flush outside it (<span className="tok">--tasty-border-width</span>, no gap); any other control takes a 2px outline 1px off its box (<span className="tok">--tasty-focus-ring-offset</span>), the switch 2px off its track; a pane tab, a Tab stop only in a web host, and the settings L1 tab, which fills its band at the window top, take it 2px inside the box</>], ["agent rule", "mauve = always agent"]]}
             tokens={[
               { tok: "--tasty-accent-primary", use: "blue", color: "var(--tasty-accent-primary-raised)" },
               { tok: "--tasty-accent-info", use: "sky", color: "var(--tasty-accent-info-raised)" },
@@ -599,7 +599,7 @@ function Foundations() {
             </Cluster>
           </Stage>
           <Meta
-            specs={[["radius", <>4px (<span className="tok">--tasty-radius</span>)</>], ["border", <>1px (<span className="tok">--tasty-border-width</span>)</>], ["field focus", <>edge <span className="tok">--tasty-border-focus</span> + ring <span className="tok">--tasty-border-width</span> 1px flush outside · no gap · no halo</>], ["control focus", <>outline <span className="tok">--tasty-focus-ring-width</span> 2px · <span className="tok">--tasty-focus-ring-offset</span> 1px off · switch 2px off · pane tab 2px inside (web host only)</>], ["UI motion", <>90–120ms <span className="tok">--tasty-ease-ui</span></>], ["terminal motion", "0ms — always"]]}
+            specs={[["radius", <>4px (<span className="tok">--tasty-radius</span>)</>], ["border", <>1px (<span className="tok">--tasty-border-width</span>)</>], ["field focus", <>edge <span className="tok">--tasty-border-focus</span> + ring <span className="tok">--tasty-border-width</span> 1px flush outside · no gap · no halo</>], ["control focus", <>outline <span className="tok">--tasty-focus-ring-width</span> 2px · <span className="tok">--tasty-focus-ring-offset</span> 1px off · switch 2px off · pane tab (web host only) and settings L1 tab 2px inside</>], ["UI motion", <>90–120ms <span className="tok">--tasty-ease-ui</span></>], ["terminal motion", "0ms — always"]]}
             tokens={[
               { tok: "--tasty-radius", use: "4px everywhere" },
               { tok: "--tasty-radius-sm", use: "2px inner" },
