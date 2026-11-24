@@ -85,18 +85,11 @@ function PendingDetailRow({ glyph = K.ic.folder, value }) {
     </div>
   );
 }
-// Every language: the app's explorer.popup.rename.title, explorer.remote.renaming, button.cancel, explorer.popup.rename.rename (tasty lang/*.toml).
+// The explorer Rename popup (parts/explorer-kit.jsx) on a remote item: the remote absolute path, and
+// explorer.remote.renaming (or its no-host sentence) in the line slot while waiting.
+const RENAMING = { en: "Renaming on build-eu…", ko: "build-eu에서 이름 바꾸는 중…", ja: "build-eu で名前を変更中…", "zh-Hans": "正在 build-eu 上重命名…" };
 function RenamePending({ lang = "en", idle = false, noHost = false }) {
-  const t = [...{ en: ["Rename", "Renaming on build-eu…", "Cancel", "Rename"], ko: ["이름 변경", "build-eu에서 이름 바꾸는 중…", "취소", "이름 변경"], ja: ["名前を変更", "build-eu で名前を変更中…", "キャンセル", "名前を変更"], "zh-Hans": ["重命名", "正在 build-eu 上重命名…", "取消", "重命名"] }[lang]];
-  if (noHost) t[1] = NO_HOST.renaming[lang];
-  return (
-    <div lang={lang} style={{ width: "var(--tasty-size-360)", maxWidth: "100%", background: "var(--tasty-dialog-bg)", border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", padding: "var(--tasty-space-md) var(--tasty-size-14)", display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
-      <span style={{ fontSize: "var(--tasty-font-size-body)", fontWeight: "var(--tasty-font-weight-semibold)", color: "var(--tasty-text-primary)" }}>{t[0]}</span>
-      <Input block readOnly={!idle} defaultValue="report-final.pdf" />
-      <span style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", minHeight: "var(--tasty-icon-size-sm)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{idle ? <>Press <Kbd keys="↵" /> to confirm, <Kbd keys="Esc" /> to cancel.</> : <><Spinner size="var(--tasty-icon-size-sm)" />{t[1]}</>}</span>
-      <div style={{ display: "flex", justifyContent: "flex-end", gap: "var(--tasty-space-sm)" }}><Button variant="ghost" size="sm" disabled={!idle}>{t[2]}</Button><Button variant="primary" size="sm" disabled={!idle}>{t[3]}</Button></div>
-    </div>
-  );
+  return <K.ExplorerRenamePopup lang={lang} path="/home/me/reports/report-final.pdf" value="report-final.pdf" waitingText={idle ? null : (noHost ? NO_HOST.renaming[lang] : RENAMING[lang])} />;
 }
 function RemoteQueue({ host = "build-eu" }) {
   const row = (title, sub, run) => (
@@ -182,8 +175,8 @@ function RemoteWriteSection() {
           <XCol label="new folder · waiting for build-eu" w={480}>
             <XCell w={480} h={210} toolbar={remoteTb} status="5 items"><XDetail rows={XROWS.slice(1)} before={<PendingDetailRow value="New folder" />} /></XCell>
           </XCol>
-          <XCol label="Rename popup · waiting (en · ko · ja)" w={360}>
-            <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}><RenamePending /><RenamePending lang="ko" /><RenamePending lang="ja" /></div>
+          <XCol label="Rename popup · waiting (en · ko · ja · zh-Hans)" w={360}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}><RenamePending /><RenamePending lang="ko" /><RenamePending lang="ja" /><RenamePending lang="zh-Hans" /></div>
           </XCol>
         </Stage>
         <Views>
@@ -198,7 +191,7 @@ function RemoteWriteSection() {
           </View>
         </Views>
         <Meta
-          specs={[["input row", "stays in place · Input readOnly · text kept"], ["indicator", "Spinner icon-size-sm · trailing slot · tooltip “Waiting for {host}”"], ["Esc / blur", "ignored while waiting"], ["success", "row → item at its sorted place, selected"], ["failure", "field editable again, text kept · error toast (unchanged)"], ["Rename popup", "open · field readOnly · Spinner line · Cancel + Rename disabled · closes on success"], ["no host", "no profile name (--ssh, --target-port, a profile saved with an empty name) → explorer.remote.waiting_no_host() · explorer.remote.renaming_no_host() · never 127.0.0.1:<port>"]]}
+          specs={[["input row", "stays in place · Input readOnly · text kept"], ["indicator", "Spinner icon-size-sm · trailing slot · tooltip “Waiting for {host}”"], ["Esc / blur", "ignored while waiting"], ["success", "row → item at its sorted place, selected"], ["failure", "field editable again, text kept · error toast (unchanged)"], ["Rename popup", "open · path line shows the remote absolute path · field readOnly · Spinner line in the line slot · Cancel + Rename disabled · closes on success"], ["no host", "no profile name (--ssh, --target-port, a profile saved with an empty name) → explorer.remote.waiting_no_host() · explorer.remote.renaming_no_host() · never 127.0.0.1:<port>"]]}
           tokens={[{ tok: "--tasty-input-readonly-fg", use: "sent text", color: "var(--tasty-input-readonly-fg)" }, { tok: "--tasty-spinner-indicator", use: "waiting", color: "var(--tasty-spinner-indicator)" }]} />
         <Note>i18n: <code>explorer.remote.waiting</code> “Waiting for {"{host}"}” / “{"{host}"} 응답 기다리는 중” / “{"{host}"} の応答を待っています” · <code>explorer.remote.renaming</code> “Renaming on {"{host}"}…” / “{"{host}"}에서 이름 바꾸는 중…” / “{"{host}"} で名前を変更中…”.</Note>
       </Spec>

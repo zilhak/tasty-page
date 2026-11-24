@@ -1,5 +1,5 @@
 import React from "react";
-import { IconButton, AutoComplete } from "../../components/index.js";
+import { IconButton, AutoComplete, Button, Input, Spinner } from "../../components/index.js";
 import { GIcon } from "./specimen.jsx";
 
 const ic = {
@@ -221,4 +221,30 @@ function ExpState({ glyph, glyphColor, title, sub, reason, actions, compact, bod
   );
 }
 
-export { DetailHeader, ic, DetailRow, SegToggle, CtxMenu, PathField, GridCell, SideHead, TreeNode, FavRow, ExpState };
+// Explorer Rename popup, shared by Plugin surfaces and Explorer file ops. Its words are the app's
+// explorer.popup.rename keys (title, path, rename) and button.cancel, quoted from tasty lang/*.toml in
+// every language. Parts: title, the path line (path = "Path: {}", the {} drawn in mono), the field,
+// one line slot, Cancel + Rename. The slot holds the remote waiting line (Spinner + explorer.remote.renaming,
+// passed in as waitingText) and stays empty, at the same height, while idle, so nothing moves when the
+// popup starts waiting. There is no hint line: the app has no key for one.
+const EXPLORER_RENAME_COPY = {
+  en: { title: "Rename", path: "Path: {}", cancel: "Cancel", rename: "Rename" },
+  ko: { title: "이름 변경", path: "경로: {}", cancel: "취소", rename: "이름 변경" },
+  ja: { title: "名前を変更", path: "パス: {}", cancel: "キャンセル", rename: "名前を変更" },
+  "zh-Hans": { title: "重命名", path: "路径：{}", cancel: "取消", rename: "重命名" },
+};
+function ExplorerRenamePopup({ lang = "en", path, value, waitingText = null }) {
+  const t = EXPLORER_RENAME_COPY[lang] || EXPLORER_RENAME_COPY.en;
+  const waiting = waitingText != null;
+  const [before, after] = t.path.split("{}");
+  return (
+    <div lang={lang} style={{ width: "var(--tasty-size-360)", maxWidth: "100%", background: "var(--tasty-dialog-bg)", border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", padding: "var(--tasty-space-md) var(--tasty-size-14)", display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
+      <span style={{ fontSize: "var(--tasty-font-size-body)", fontWeight: "var(--tasty-font-weight-semibold)", color: "var(--tasty-text-primary)" }}>{t.title}</span>
+      <span title={path} style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{before}<span style={{ fontFamily: "var(--tasty-font-mono)" }}>{path}</span>{after}</span>
+      <Input block readOnly={waiting} defaultValue={value} />
+      <span style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", minHeight: "var(--tasty-icon-size-sm)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{waiting && <><Spinner size="var(--tasty-icon-size-sm)" />{waitingText}</>}</span>
+      <div style={{ display: "flex", justifyContent: "flex-end", gap: "var(--tasty-space-sm)" }}><Button variant="ghost" size="sm" disabled={waiting}>{t.cancel}</Button><Button variant="primary" size="sm" disabled={waiting}>{t.rename}</Button></div>
+    </div>
+  );
+}
+export { DetailHeader, ic, DetailRow, SegToggle, CtxMenu, PathField, GridCell, SideHead, TreeNode, FavRow, ExpState, ExplorerRenamePopup, EXPLORER_RENAME_COPY };

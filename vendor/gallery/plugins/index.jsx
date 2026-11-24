@@ -9,7 +9,7 @@ import { MdAddressBar as B, MdAddressSpecs as PluginsMdAddress_MdAddressSpecs } 
 import { Section, Spec, Stage, Meta, Note, Dont, GIcon, Views, View } from "../parts/specimen.jsx";
 import { focusViews } from "../parts/surface-focus-views.jsx";
 import { SurfaceLeaf, surfaceBed } from "../../ui_kits/terminal/surface_focus.jsx";
-import { ic, PathField, SegToggle, SideHead, TreeNode, FavRow, DetailHeader, DetailRow, GridCell, ExpState, CtxMenu } from "../parts/explorer-kit.jsx";
+import { ic, PathField, SegToggle, SideHead, TreeNode, FavRow, DetailHeader, DetailRow, GridCell, ExpState, CtxMenu, ExplorerRenamePopup } from "../parts/explorer-kit.jsx";
 
 const BASE = `${import.meta.env.BASE_URL.replace(/\/$/, "")}/`;
 
@@ -926,22 +926,20 @@ function Page() {
                   <Button variant="ghost" size="sm">Cancel</Button><Button variant="primary" size="sm">Add</Button>
                 </div>
               </div>
-              <div style={{ width: 300, background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", overflow: "hidden" }}>
-                <div style={{ padding: "12px 14px 10px" }}>
-                  <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 2 }}>Rename</div>
-                  <div style={{ fontSize: 12, color: "var(--tasty-text-muted)", marginBottom: 10 }}>Press <Kbd keys="↵" /> to confirm, <Kbd keys="Esc" /> to cancel.</div>
-                  <Input block autoFocus defaultValue="diagram.png" />
-                  <div style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginTop: 6 }}>Extension <b style={{ color: "var(--tasty-text-secondary)" }}>.png</b> preserved.</div>
-                </div>
-                <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, padding: "0 14px 12px" }}>
-                  <Button variant="ghost" size="sm">Cancel</Button><Button variant="primary" size="sm">Rename</Button>
-                </div>
-              </div>
+              <ExplorerRenamePopup path="~/Downloads/diagram.png" value="diagram.png" />
             </div>
           </Stage>
-          {focusViews("explorer-read-error", (focused) => <ExpState glyph={<PIcon name="alertTriangle" size="var(--tasty-icon-size-md)" />} glyphColor="var(--tasty-explorer-error-fg)" title="Can't read this folder" reason="No such file or directory (os error 2)" bg={surfaceBed(focused)} />, { display: "flex", width: "100%", maxWidth: 420 })}
+          <Views>
+            <View name="explorer-rename-popup-languages" label="Rename popup in every language — the app's explorer.popup.rename title, path line and button, and button.cancel">
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-md)", alignItems: "flex-start" }}>
+                {["en", "ko", "ja", "zh-Hans"].map((l) => <ExplorerRenamePopup key={l} lang={l} path="~/Downloads/diagram.png" value="diagram.png" />)}
+              </div>
+            </View>
+            <View name="explorer-read-error-focused" label="Focused"><div style={{ display: "flex", width: "100%", maxWidth: 420 }}><ExpState glyph={<PIcon name="alertTriangle" size="var(--tasty-icon-size-md)" />} glyphColor="var(--tasty-explorer-error-fg)" title="Can't read this folder" reason="No such file or directory (os error 2)" bg={surfaceBed(true)} /></div></View>
+            <View name="explorer-read-error-unfocused" label="Unfocused"><div style={{ display: "flex", width: "100%", maxWidth: 420 }}><ExpState glyph={<PIcon name="alertTriangle" size="var(--tasty-icon-size-md)" />} glyphColor="var(--tasty-explorer-error-fg)" title="Can't read this folder" reason="No such file or directory (os error 2)" bg={surfaceBed(false)} /></div></View>
+          </Views>
           <Meta
-            specs={[["empty", "centered glyph + line"], ["permission", "warning (peach) tone"], ["loading", <>Spinner — busy-indicator policy</>], ["popups", "Popup language · ghost + primary footer"]]}
+            specs={[["empty", "centered glyph + line"], ["permission", "warning (peach) tone"], ["loading", <>Spinner — busy-indicator policy</>], ["popups", "Popup language · ghost + primary footer"], ["rename popup", "title explorer.popup.rename.title · path line explorer.popup.rename.path (caption, text-muted, the path in mono, one line, end ellipsis) · field · one line slot, empty while idle (the remote waiting line takes it) · Cancel (button.cancel) + Rename (explorer.popup.rename.rename) · no hint line, no extension line: the app has no key for either"]]}
             tokens={[{ tok: "--tasty-accent-warning", use: "permission tone", color: "var(--tasty-accent-warning-raised)" }, { tok: "--tasty-spinner-indicator", use: "loading", color: "var(--tasty-spinner-indicator)" }, { tok: "--tasty-shadow-modal", use: "popup lift" }]} />
           <Note>Explorer font (family + size, 14px cap) gets an <b>Appearance › Explorer</b> sub-tab mirroring the Terminal/Markdown font sections — same control layout, deferred to the Settings specimen.</Note>
         </Spec>
