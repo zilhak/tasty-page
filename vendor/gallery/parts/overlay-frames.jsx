@@ -2990,8 +2990,8 @@ function RemoteAttachFrame({ state = "loaded", newPhase = "rest", newSelected, e
 // ── Native file picker — 640×480 modal "Open file" dialog ──────────────
 // A select-and-confirm dialog (NOT the Explorer surface): browse a dir,
 // pick a path, hand it back, close. One component, two modes — local vs.
-// a remote attach host — differing only in the header host indicator and
-// the breadcrumb root. Popup language: Scrim · content-drawn header ·
+// a remote attach host — differing only in the header host indicator (the
+// breadcrumb root is the path root, / or C:\, in both). Popup language: Scrim · content-drawn header ·
 // --tasty-bg-panel frame, same as remote_tool / Add remote workspace.
 // inert (2026-10-21, folder mode): a file row that is listed for orientation but can't be selected —
 // ink state-disabled-fg (never opacity), no hover overlay, skipped by ↑↓, tooltip "Only folders can be selected."
@@ -3053,8 +3053,8 @@ function FpCrumbs({ items, elide = false, single = false }) {
       {shown.map((it, i) => (
         <React.Fragment key={i}>
           {i > 0 && <span style={{ flex: "none", display: "inline-flex", color: "var(--tasty-text-disabled)" }}><Icon name="chevronRight" size={13} /></span>}
-          <span lang={it.word ? it.lang : undefined} title={it.hidden ? "Show " + it.hidden + (it.hidden === 1 ? " hidden folder" : " hidden folders") : undefined} style={{ ...alloc(it, i, shown.length), overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-            fontSize: "var(--tasty-font-size-caption)", fontFamily: it.word ? "var(--tasty-font-label)" : it.root ? "var(--tasty-font-mono)" : "var(--tasty-font-ui)",
+          <span title={it.hidden ? "Show " + it.hidden + (it.hidden === 1 ? " hidden folder" : " hidden folders") : undefined} style={{ ...alloc(it, i, shown.length), overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+            fontSize: "var(--tasty-font-size-caption)", fontFamily: it.root ? "var(--tasty-font-mono)" : "var(--tasty-font-ui)",
             cursor: it.current ? "default" : "pointer",
             color: it.current ? "var(--tasty-text-primary)" : "var(--tasty-accent-primary-raised)" }}>{it.label}</span>
         </React.Fragment>
@@ -3124,7 +3124,7 @@ function FilePickerFrame({ state = "loaded", remote = false, indicator = "badge"
     : pathKind === "longroot"
       ? [{ label: "\\\\build-farm-eu-west\\releases$", root: true }, { label: "2026" }, { label: "09" }, { label: "nightly", current: true }]
       : remote
-    ? [{ label: host || MIRROR_PILL_LABEL[lang] || MIRROR_PILL_LABEL.en, root: true, word: !host, lang }, { label: "home" }, { label: "deploy" }, { label: "agents-prod", current: true }]
+    ? [{ label: "/", root: true }, { label: "home" }, { label: "deploy" }, { label: "agents-prod", current: true }]
     : deep
       ? [{ label: "/", root: true }, { label: "Users" }, { label: "maya" }, ...deepTail]
       : [{ label: "/", root: true }, { label: "Users" }, { label: "maya" }, { label: "projects", current: true }];
