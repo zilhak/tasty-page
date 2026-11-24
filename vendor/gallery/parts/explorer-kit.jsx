@@ -127,7 +127,7 @@ function FavRow({ name, active }) {
 function DetailRow({ glyph, name, size, date, type, state, glyphColor }) {
   const bg = state === "selected" ? "var(--tasty-surface-active)" : state === "hover" ? "var(--tasty-overlay-hover)" : "transparent";
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 80px 132px 92px", alignItems: "center", height: "var(--tasty-table-cell-height)", padding: "0 10px",
+    <div style={{ display: "grid", gridTemplateColumns: "1fr var(--tasty-explorer-detail-size-col-width) var(--tasty-explorer-detail-date-col-width) var(--tasty-explorer-detail-type-col-width)", alignItems: "center", height: "var(--tasty-table-cell-height)", padding: "0 var(--tasty-explorer-detail-padding-x)",
       fontSize: 13, background: bg, cursor: "default",
       color: state === "selected" ? "var(--tasty-text-on-active)" : state === "cut" ? "var(--tasty-cut-pending-fg)" : "var(--tasty-text-secondary)" }}>
       <span style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
@@ -144,7 +144,7 @@ function DetailRow({ glyph, name, size, date, type, state, glyphColor }) {
 function DetailHeader() {
   const cols = [["Name", true], ["Size", false], ["Date modified", false], ["Type", false]];
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 80px 132px 92px", alignItems: "center", height: "var(--tasty-table-cell-height)", padding: "0 10px",
+    <div style={{ display: "grid", gridTemplateColumns: "1fr var(--tasty-explorer-detail-size-col-width) var(--tasty-explorer-detail-date-col-width) var(--tasty-explorer-detail-type-col-width)", alignItems: "center", height: "var(--tasty-table-cell-height)", padding: "0 var(--tasty-explorer-detail-padding-x)",
       background: "var(--tasty-table-header-bg)", borderBottom: "1px solid var(--tasty-separator)",
       fontFamily: "var(--tasty-font-ui)", fontSize: "var(--tasty-table-header-font-size)", fontWeight: "var(--tasty-table-header-font-weight)", textTransform: "uppercase", letterSpacing: "var(--tasty-table-header-tracking)", color: "var(--tasty-table-header-fg)" }}>
       {cols.map(([c, sorted], i) => (

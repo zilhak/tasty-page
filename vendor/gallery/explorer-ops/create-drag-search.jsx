@@ -117,8 +117,8 @@ function XNameError({ text, left = 34 }) {
 function XDetailEdit({ glyph = XK.ic.folder, value = "New folder", error }) {
   return (
     <div style={{ position: "relative" }}>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 80px 132px 92px", alignItems: "center", height: "var(--tasty-table-cell-height)", padding: "0 10px", background: "var(--tasty-surface-active)" }}>
-        <span style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr var(--tasty-explorer-detail-size-col-width) var(--tasty-explorer-detail-date-col-width) var(--tasty-explorer-detail-type-col-width)", alignItems: "center", height: "var(--tasty-table-cell-height)", padding: "0 var(--tasty-explorer-detail-padding-x)", background: "var(--tasty-surface-active)" }}>
+        <span style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", minWidth: 0 }}>
           <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-text-secondary)" }}>{glyph}</span>
           <span style={{ flex: 1, minWidth: 0 }}><XInput block defaultValue={value} invalid={!!error} /></span>
         </span>

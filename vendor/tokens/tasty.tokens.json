@@ -397,6 +397,10 @@
       "$type": "dimension",
       "$value": "90px"
     },
+    "size-92": {
+      "$type": "dimension",
+      "$value": "92px"
+    },
     "size-110": {
       "$type": "dimension",
       "$value": "110px"
@@ -404,6 +408,10 @@
     "size-112": {
       "$type": "dimension",
       "$value": "112px"
+    },
+    "size-132": {
+      "$type": "dimension",
+      "$value": "132px"
     },
     "size-140": {
       "$type": "dimension",
@@ -668,6 +676,10 @@
     "size-64": {
       "$type": "dimension",
       "$value": "64px"
+    },
+    "size-80": {
+      "$type": "dimension",
+      "$value": "80px"
     },
     "size-96": {
       "$type": "dimension",
@@ -6083,6 +6095,22 @@
       "$type": "dimension",
       "$value": "{primitive.size-36}",
       "$description": "filter / search bar under the toolbar"
+    },
+    "explorer-detail-size-col-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-80}"
+    },
+    "explorer-detail-date-col-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-132}"
+    },
+    "explorer-detail-type-col-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-92}"
+    },
+    "explorer-detail-padding-x": {
+      "$type": "dimension",
+      "$value": "{semantic.space-sm}"
     },
     "explorer-search-folder-col-width": {
       "$type": "dimension",

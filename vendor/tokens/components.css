@@ -1551,6 +1551,10 @@
   --tasty-explorer-delete-list-max-height: var(--tasty-size-160); /* 2026-10-12 Delete permanently confirm: target list scrolls past ~4 two-line rows; frame = info-modal-width / max-height */
   --tasty-explorer-props-label-width: var(--tasty-size-96); /* Properties field label column */
   --tasty-explorer-search-bar-height: var(--tasty-size-36); /* filter / search bar under the toolbar */
+  --tasty-explorer-detail-size-col-width: var(--tasty-size-80);  /* 2026-11-24 — Detail Size column (was literal 80) */
+  --tasty-explorer-detail-date-col-width: var(--tasty-size-132); /* 2026-11-24 — Detail Date modified column (was literal 132) */
+  --tasty-explorer-detail-type-col-width: var(--tasty-size-92);  /* 2026-11-24 — Detail Type column (was literal 92) */
+  --tasty-explorer-detail-padding-x:      var(--tasty-space-sm); /* 2026-11-24 — Detail row and header side inset, 8 (was literal 10, off the 4px grid) */
   --tasty-explorer-search-folder-col-width: var(--tasty-size-160); /* Detail “Folder” column in recursive results */
   --tasty-explorer-match-fg: var(--tasty-autocomplete-match-fg); /* matched part of a name while filtering */
   --tasty-explorer-match-fg-active: var(--tasty-autocomplete-part-fg-active); /* 2026-11-05 the same run on a selected row, with autocomplete-match-underline-* */

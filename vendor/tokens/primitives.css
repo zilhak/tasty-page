@@ -115,11 +115,14 @@
   /* layout / form-control / measure widths (fixed product dimensions; like 22/46
      above, some are off the 4px grid — real control widths, not spacing rhythm) */
   --tasty-size-64:  64px;  /* file-picker ancestor-crumb floor */
+  --tasty-size-80:  80px;  /* explorer Detail Size column */
   --tasty-size-88:  88px;
   --tasty-size-90:  90px;
+  --tasty-size-92:  92px;  /* explorer Detail Type column */
   --tasty-size-96:  96px;  /* file-picker current-folder crumb floor */
   --tasty-size-110: 110px;
   --tasty-size-112: 112px;
+  --tasty-size-132: 132px; /* explorer Detail Date modified column */
   --tasty-size-140: 140px; /* keybinding replacement-slot min width */
   --tasty-size-160: 160px;
   --tasty-size-168: 168px; /* DAG node card width */
