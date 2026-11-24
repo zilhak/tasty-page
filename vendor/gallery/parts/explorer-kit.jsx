@@ -225,7 +225,8 @@ function ExpState({ glyph, glyphColor, title, sub, reason, actions, compact, bod
 // others: title (explorer.popup.rename.title), the field, a validation line under the field when the
 // pre-check refuses the name (explorer.name.empty / invalid_char / edge_space / reserved,
 // explorer-name-error-fg) with Rename disabled until the name passes, one line slot, Cancel (button.cancel) + Rename
-// (explorer.popup.rename.rename). Words are quoted from tasty lang/*.toml in every language. The slot holds
+// (explorer.popup.rename.rename). The confirm is the popup's own verb, not button.save (Save / 저장): a button
+// names what it does, and the popup renames, it does not save a file. Words are quoted from tasty lang/*.toml in every language. The slot holds
 // the remote waiting line (Spinner + explorer.remote.renaming, passed in as waitingText) and stays empty,
 // at the same height, while idle, so nothing moves when the popup starts waiting. No hint line and no path
 // line: the app draws neither (explorer.popup.rename.path is in the catalog but unused).
