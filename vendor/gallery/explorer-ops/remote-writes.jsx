@@ -24,6 +24,8 @@ const REASON = {
 // empty name). New keys next to the explorer.remote ones; all four languages written by Codex.
 // The host-free sentence is picked when the host text is empty; the word Remote is not put in
 // the sentence and 127.0.0.1:<port> is never shown.
+// explorer.remote.lost_body filled with op_copy, as the app fills it (tasty lang/*.toml).
+const LOST_BODY_COPY = {"en": "The copy stopped at the item it was on. Some items may already have changed. The folder reloads when the connection is back.", "ko": "복사은(는) 하던 항목에서 멈췄습니다. 일부 항목은 이미 바뀌었을 수 있습니다. 다시 연결되면 폴더를 다시 읽습니다.", "ja": "コピーは処理中の項目で止まりました。一部の項目はすでに変更されている可能性があります。再接続するとフォルダーを再読み込みします。", "zh-Hans": "复制 已在当前处理的项目处停止。部分项目可能已更改。连接恢复后会重新加载文件夹。"};
 const NO_HOST = {
   "write_needs_update": { key: "explorer.remote.write_needs_update_no_host", "en": "Update remote Tasty to change remote files.", "ko": "원격 Tasty를 업데이트하면 원격 파일을 바꿀 수 있습니다.", "ja": "リモートの Tasty を更新すると、リモートのファイルを変更できます。", "zh-Hans": "更新远程 Tasty 以更改远程文件。" },
   "waiting": { key: "explorer.remote.waiting_no_host", "en": "Waiting for remote Tasty", "ko": "원격 Tasty 응답 기다리는 중", "ja": "リモートの Tasty の応答を待っています", "zh-Hans": "正在等待远程 Tasty" },
@@ -241,10 +243,10 @@ function RemoteWriteSection() {
           )} />
         </Stage>
         <Views>
-          <View name="remote-lost-no-profile" label="No profile name (--ssh or --target-port from the CLI or IPC) — the title with no host, every language (body unchanged)">
+          <View name="remote-lost-no-profile" label="No profile name (--ssh or --target-port from the CLI or IPC) — the title with no host and the unchanged body, every language">
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", width: "var(--tasty-toast-max-width)", maxWidth: "100%" }}>
               <YResult variant="warning" title={<><div>{NO_HOST.lost_title.en}</div><div style={{ marginTop: "var(--tasty-space-xs)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-secondary)" }}>The copy stopped at the item it was on. Some items may already have changed. The folder reloads when the connection is back.</div></>} />
-              {NH_LANGS.slice(1).map((l) => <YResult key={l} variant="warning" title={<div lang={l}>{NO_HOST.lost_title[l]}</div>} />)}
+              {NH_LANGS.slice(1).map((l) => <YResult key={l} variant="warning" title={<div lang={l}><div>{NO_HOST.lost_title[l]}</div><div style={{ marginTop: "var(--tasty-space-xs)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-secondary)" }}>{LOST_BODY_COPY[l]}</div></div>} />)}
             </div>
           </View>
         </Views>
