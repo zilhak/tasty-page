@@ -109,10 +109,16 @@ const ROWS = [
   ["disconnected + reason", { remoteState: "disconnected", remoteReason: "occupied" }],
   ["not connected + reason", { remoteState: "not_connected", remoteReason: "profile_missing", remoteProfile: "host-old" }],
 ];
-function Rows({ active, lang }) {
+// The remote workspace is gone in this run (closed elsewhere, or a connect found it missing): the workspace_missing
+// reason on the row's own state. Only the popup and the row menu change (closed); the row draws as any reason.
+const CLOSED_ROWS = [
+  ["closed — had a screen in this run", { remoteState: "disconnected", remoteReason: "workspace_missing", remoteClosed: true }],
+  ["closed — no screen in this run", { remoteState: "not_connected", remoteReason: "workspace_missing", remoteClosed: true }],
+];
+function Rows({ active, lang, rows = ROWS }) {
   return (
     <div style={{ width: "var(--tasty-size-240)", display: "flex", flexDirection: "column", background: "var(--tasty-bg-sidebar)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
-      {ROWS.map(([label, o]) => (
+      {rows.map(([label, o]) => (
         <div key={label} title={label}>
           <WorkspaceRow ws={{ id: label, name: "tasty-core", mirror: true, status: "idle", remoteProfile: "host", remoteName: "tasty-core", ...o }} active={active} lang={lang} />
         </div>
@@ -152,9 +158,20 @@ export function RemoteRowMarksSpec() {
         <View name="remote-row-marks-languages" label="Status words — every language">
           {row(LANGS.map((lang) => <Labelled key={lang} label={lang}><Rows lang={lang} /></Labelled>))}
         </View>
+        <View name="remote-row-marks-closed" label="Remote workspace closed — the row and rail while the popup says Remote workspace closed">
+          {row(<>
+            <Labelled label="inactive rows"><Rows rows={CLOSED_ROWS} /></Labelled>
+            <Labelled label="active rows"><Rows rows={CLOSED_ROWS} active /></Labelled>
+            <Labelled label="rail">
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-sm)", background: "var(--tasty-bg-sidebar)", borderRadius: "var(--tasty-radius)" }}>
+                {CLOSED_ROWS.map((o) => <RailAvatar key={o[0]} o={o} />)}
+              </div>
+            </Labelled>
+          </>)}
+        </View>
       </Views>
       <Meta
-        specs={[["connected", "REMOTE info Tag in the remote hue + the workspace's own dot and running count — unchanged"], ["off the live state", "REMOTE default Tag (tag-fg on its own fill) + status word: font-label caption, text-muted (text-on-active on the active row), end-elided"], ["words", "connecting · reconnecting (status_bar.remote_reconnecting) · disconnected (status_bar.remote_disconnected) · not connected"], ["dot slot", "trying: Spinner 14 (the LNB loading spinner) · otherwise not live: idle dot · running count hidden"], ["reason", "alertTriangle 14 in attach-refusal-glyph after the name, space-sm before it · tooltip: what it is, profile → remote workspace, the reason"], ["tooltip", "attach.mirror_workspace · profile → remote workspace (mono in the app) · the status word or the reason"], ["rail BR chip", "live: unchanged · not live: 1px border-control, glyph-dim remote glyph on workspace-mirror-chip-bg"], ["rail trying", "the 28 loading ring around the initial; corner chips draw above it"], ["rail TL chip", "the refusal chip — alertTriangle 8 on bg-sidebar"], ["agent use (N2)", "the row goes to connecting and back; focus stays where it is · a row not connected yet: the request starts connecting and waits up to 35 s, then answers with the result; a failure or refusal is an error with its reason (L2) · list queries do not connect a row, its mark stays as it is (L3) · a row the user disconnected: refused, mark unchanged, until an explicit connect request (L1)"], ["new tokens", "none — tag-fg, text-muted, border-control and glyph-dim are existing roles on bg-sidebar (glyph-dim 3.59 · 4.64, border-control 3.59 · 3.58)"]]}
+        specs={[["connected", "REMOTE info Tag in the remote hue + the workspace's own dot and running count — unchanged"], ["off the live state", "REMOTE default Tag (tag-fg on its own fill) + status word: font-label caption, text-muted (text-on-active on the active row), end-elided"], ["words", "connecting · reconnecting (status_bar.remote_reconnecting) · disconnected (status_bar.remote_disconnected) · not connected"], ["dot slot", "trying: Spinner 14 (the LNB loading spinner) · otherwise not live: idle dot · running count hidden"], ["reason", "alertTriangle 14 in attach-refusal-glyph after the name, space-sm before it · tooltip: what it is, profile → remote workspace, the reason"], ["remote workspace closed", "the workspace_missing reason on the row's own state: disconnected when it had a screen in this run, not connected when it had none · the same reason mark, rail chip and tooltip as any reason, no word of its own · Connect or Reconnect is disabled in the popup and the row menu, not here · in this run only: after a restart the row is not connected with no reason until a connect finds the workspace missing again (view remote-row-marks-closed)"], ["tooltip", "attach.mirror_workspace · profile → remote workspace (mono in the app) · the status word or the reason"], ["rail BR chip", "live: unchanged · not live: 1px border-control, glyph-dim remote glyph on workspace-mirror-chip-bg"], ["rail trying", "the 28 loading ring around the initial; corner chips draw above it"], ["rail TL chip", "the refusal chip — alertTriangle 8 on bg-sidebar"], ["agent use (N2)", "the row goes to connecting and back; focus stays where it is · a row not connected yet: the request starts connecting and waits up to 35 s, then answers with the result; a failure or refusal is an error with its reason (L2) · list queries do not connect a row, its mark stays as it is (L3) · a row the user disconnected: refused, mark unchanged, until an explicit connect request (L1)"], ["new tokens", "none — tag-fg, text-muted, border-control and glyph-dim are existing roles on bg-sidebar (glyph-dim 3.59 · 4.64, border-control 3.59 · 3.58)"]]}
         tokens={[{ tok: "--tasty-tag-info-fg", use: "REMOTE, connected", color: "var(--tasty-tag-info-fg)" }, { tok: "--tasty-tag-fg", use: "REMOTE, not live", color: "var(--tasty-tag-fg)" }, { tok: "--tasty-text-muted", use: "status word", color: "var(--tasty-text-muted)" }, { tok: "--tasty-attach-refusal-glyph", use: "reason mark", color: "var(--tasty-attach-refusal-glyph)" }, { tok: "--tasty-border-control", use: "rail chip edge, not live", color: "var(--tasty-border-control)" }, { tok: "--tasty-glyph-dim", use: "rail chip glyph, not live", color: "var(--tasty-glyph-dim)" }]} />
       <Note>The auto-attach refusal <b>banner</b> does not show on a saved remote row; the popup carries the reason. The row mark and rail chip are the refusal's, so a mapped workspace and a saved remote row warn in the same place.</Note>
       <Note><b>Glyph.</b> The REMOTE tag and the rail chip now draw the <code>remote</code> glyph through <code>Icon</code>, at the icon set's 2px stroke. They used to inline the same path at a 2.4 stroke. That is deliberate: the rules allow glyphs only through <code>Icon</code>, and the set has one stroke. At 10 and 8 px the thinner line is the only visible change; size, colour and position are unchanged.</Note>
