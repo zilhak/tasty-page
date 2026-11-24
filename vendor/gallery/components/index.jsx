@@ -425,7 +425,7 @@ function Components() {
             {[["Mocha", "mocha"], ["Latte", "latte"]].map(([label, t]) => (
               <div key={label} {...(t ? { "data-theme": t } : {})} style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-md)", alignItems: "flex-end", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-panel)", borderRadius: "var(--tasty-radius)" }}>
                 <span style={{ width: "100%", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} — Select states (2026-10-21): hover / focus are pinned with the same border values the CSS applies</span>
-                {[["value", { defaultValue: "Tasty rc" }], ["hover", { defaultValue: "Tasty rc", style: { borderColor: "var(--tasty-border-strong)" } }],
+                {[["value", { defaultValue: "Tasty rc" }], ["hover", { defaultValue: "Tasty rc", style: { borderColor: "var(--tasty-border-control)" } }],
                   ["focus / open", { defaultValue: "Tasty rc", style: { borderColor: "var(--tasty-border-focus)", boxShadow: "0 0 0 var(--tasty-border-width) var(--tasty-border-focus)" } }],
                   ["no value → select-placeholder", { placeholder: "Select a profile…" }], ["disabled + value → state-disabled-fg", { disabled: true, defaultValue: "Tasty rc" }],
                   ["disabled + no value → state-disabled-fg", { disabled: true, placeholder: "Select a profile…" }]].map(([k, p]) => (
