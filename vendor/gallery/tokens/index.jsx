@@ -157,10 +157,10 @@ const TIERS = [
     body: "Context-free raw values on numeric scales. No roles, no opinions. Theme lives here (Mocha / Latte re-point the same names).",
     examples: [["color-blue", "value"], ["size-4", "value"], ["font-size-13", "value"]], rule: "App code and UI read only semantic or component tokens. Semantic roles read primitives. Component tokens read them directly only for a part-only size, radius or duration." },
   { n: 2, tier: "Semantic", title: "Roles & intent", good: true,
-    body: "Semantic roles read primitives or other semantic roles, with literal values only for shadows and attention ranks. This is what app code and the component layer read.",
+    body: "Semantic roles read primitives or other semantic roles, with literal values only for shadows, attention ranks and Latte's node dim opacity. This is what app code and the component layer read.",
     examples: [["accent-primary", "ref"], ["space-md", "ref"]], rule: "read these in app code" },
   { n: 3, tier: "Component", title: "Per-component knobs", good: true,
-    body: "One token per styled part of one component, usually pointing at a semantic role. The contract an implementer copies. A token for a part-only size, radius or duration can read the primitive scale directly if no semantic role names its meaning. A part can read tokens from its own component or from the component it is drawn as. When unrelated parts need the same value for the same reason, give them a shared semantic role. Counts, coefficients, dash patterns and keywords can be literals.",
+    body: "One token per styled part of one component, usually pointing at a semantic role. The contract an implementer copies. A token for a part-only size, radius or duration can read the primitive scale directly if no semantic role names its meaning. A part can read tokens from its own component or from another component it is drawn as, whose family it belongs to (tab and badge dots use the StatusDot size), or whose slot it fills (a tab loading overlay uses the icon slot size). When unrelated parts need the same value for the same reason, give them a shared semantic role. Counts, coefficients, dash patterns, keywords and the window frame shadow can be literals.",
     examples: [["button-primary-bg", "ref"]], rule: "re-theme a component by overriding only its tokens" },
 ];
 
