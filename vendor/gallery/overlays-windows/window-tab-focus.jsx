@@ -22,6 +22,27 @@ function FocusOn({ pick, crop, children }) {
     if (!el.hasAttribute("tabindex")) el.setAttribute("tabindex", "-1");
     el.setAttribute("data-force", "focus");
   });
+  // The ring is what the frame shows, so the view box that scrolls a wide window opens on it: when the ring
+  // does not fit the box's visible width, the box scrolls until its far edge is in view, on first paint and
+  // whenever the box changes width.
+  React.useEffect(() => {
+    const box = ref.current && ref.current.closest("figure") && ref.current.closest("figure").querySelector(":scope > div");
+    const el = ref.current && ref.current.querySelector('[data-force~="focus"]');
+    if (!box || !el) return undefined;
+    const reveal = () => {
+      const cs = getComputedStyle(el);
+      const reach = parseFloat(cs.outlineOffset) + parseFloat(cs.outlineWidth);
+      const r = el.getBoundingClientRect(), b = box.getBoundingClientRect();
+      const left = b.left + box.clientLeft, right = left + box.clientWidth;
+      const pad = parseFloat(getComputedStyle(box).paddingRight) || 0;
+      if (r.right + reach > right) box.scrollLeft += r.right + reach - right + pad;
+      else if (r.left - reach < left) box.scrollLeft -= left - (r.left - reach) + pad;
+    };
+    reveal();
+    const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(reveal) : null;
+    if (ro) ro.observe(box);
+    return () => { if (ro) ro.disconnect(); };
+  }, []);
   return (
     <div style={{ overflow: "hidden", height: crop, flex: "none", width: "max-content" }}>
       <div ref={ref} inert="" style={{ pointerEvents: "none", position: "relative" }}>{children}</div>
