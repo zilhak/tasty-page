@@ -163,7 +163,7 @@ export function RemoteConnectionPopup({ lang = "en", name = "tasty-core", profil
   return (
     <div role="dialog" aria-label={name} lang={lang} data-remote-popup={kind}
       style={{ width, maxWidth: "calc(100% - 2 * var(--tasty-space-md))", boxSizing: "border-box", display: "flex", flexDirection: "column", gap: "var(--tasty-space-md)",
-        padding: "var(--tasty-space-md)", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-strong)",
+        padding: "var(--tasty-space-md)", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)",
         borderRadius: "var(--tasty-radius)", boxShadow: shape ? "var(--tasty-shadow-modal)" : "var(--tasty-shadow-popover)" }}>
       <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", minWidth: 0 }}>
         <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-accent-remote-raised)" }}><Icon name="remote" size="var(--tasty-icon-size-md)" /></span>

@@ -70,19 +70,19 @@ function Page() {
     <>
 <Section id="scrim" title="Scrim & frame — the shared recipe">
         <Spec id="every-overlay-sits-on-the-same-scrim" title="Every overlay sits on the same scrim"
-          when={<>Modals are the <b>one place</b> the system uses shadow. The recipe: a <b>50% black scrim</b> (+1px blur) over the app, a frame of <b>--tasty-bg-panel</b> (or <b>--tasty-surface-raised</b> for the palette) with a <b>1px --tasty-border-strong</b> edge and a soft drop shadow. Click-scrim or <Kbd keys="Esc" /> dismisses.</>}>
+          when={<>Modals are the <b>one place</b> the system uses shadow. The recipe: a <b>50% black scrim</b> (+1px blur) over the app, a frame of <b>--tasty-bg-panel</b> (or <b>--tasty-surface-raised</b> for the palette) with a <b>1px --tasty-border-frame</b> edge (the popup frame outline, on base and on raised alike) and a soft drop shadow. Click-scrim or <Kbd keys="Esc" /> dismisses.</>}>
           <Stage variant="solo center">
             <Backdrop height={300} blur>
-              <div align="center" style={{ width: 320, background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-strong)",
+              <div align="center" style={{ width: 320, background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)",
                 borderRadius: "var(--tasty-radius)", padding: 18, boxShadow: "var(--tasty-shadow-modal)", textAlign: "center" }}>
                 <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 6 }}>This is the frame</div>
-                <div style={{ fontSize: 12.5, color: "var(--tasty-text-muted)" }}>--tasty-bg-panel · 1px --tasty-border-strong · soft shadow · sits on a 50% scrim</div>
+                <div style={{ fontSize: 12.5, color: "var(--tasty-text-muted)" }}>--tasty-bg-panel · 1px --tasty-border-frame · soft shadow · sits on a 50% scrim</div>
               </div>
             </Backdrop>
           </Stage>
           <Meta
-            specs={[["scrim", "rgba(0,0,0,.5) + blur(1px)"], ["frame fill", <span className="tok">--tasty-bg-panel</span>], ["border", <>1px <span className="tok">--tasty-border-strong</span></>], ["shadow", "0 20px 60px / .55 (modals only)"], ["dismiss", <>scrim click · <span className="ic">Esc</span></>]]}
-            tokens={[{ tok: "--tasty-bg-panel", use: "frame", color: "var(--tasty-bg-panel)" }, { tok: "--tasty-border-strong", use: "edge", color: "var(--tasty-border-strong)" }, { tok: "--tasty-radius", use: "4px corners" }]} />
+            specs={[["scrim", "rgba(0,0,0,.5) + blur(1px)"], ["frame fill", <span className="tok">--tasty-bg-panel</span>], ["border", <>1px <span className="tok">--tasty-border-frame</span> · not border-strong, the partition edge for raised only</>], ["shadow", "0 20px 60px / .55 (modals only)"], ["dismiss", <>scrim click · <span className="ic">Esc</span></>]]}
+            tokens={[{ tok: "--tasty-bg-panel", use: "frame", color: "var(--tasty-bg-panel)" }, { tok: "--tasty-border-frame", use: "edge", color: "var(--tasty-border-frame)" }, { tok: "--tasty-radius", use: "4px corners" }]} />
           <Note>The two anchor positions: <b>centered</b> (dialogs, settings) and <b>top-aligned</b> (command palette, ~40px from top). Nothing else.</Note>
         </Spec>
 
