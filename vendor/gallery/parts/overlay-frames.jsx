@@ -80,7 +80,7 @@ function Backdrop({ height = 360, blur = false, children }) {
       </div>
       {/* scrim — flat fill by default; the 1px blur (documented recipe) is opt-in
           so only the canonical Scrim spec pays the per-frame compositing cost */}
-      <div style={{ position: "absolute", inset: 0, background: "var(--tasty-scrim-bg)", backdropFilter: blur ? "blur(1px)" : undefined,
+      <div style={{ position: "absolute", inset: 0, background: "var(--tasty-scrim-bg)", backdropFilter: blur ? "blur(var(--tasty-scrim-blur))" : undefined,
         display: "flex", alignItems: children.props.align === "top" ? "flex-start" : "center", justifyContent: "center",
         paddingTop: children.props.align === "top" ? 40 : 0 }}>
         {children}

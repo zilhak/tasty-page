@@ -40,7 +40,7 @@ function PopupFocusEdge({ lit = true, top = 0 }) {
 function Scrim({ onClose, children, align = "center" }) {
   return (
     <div onClick={onClose} style={{ position: "absolute", inset: 0, background: "var(--tasty-scrim-bg)",
-      backdropFilter: "blur(var(--tasty-size-1))", display: "flex", alignItems: align === "top" ? "flex-start" : "center",
+      backdropFilter: "blur(var(--tasty-scrim-blur))", display: "flex", alignItems: align === "top" ? "flex-start" : "center",
       justifyContent: "center", paddingTop: align === "top" ? "var(--tasty-overlay-top-offset)" : 0, zIndex: 50 }}>
       <div onClick={(e) => e.stopPropagation()}>{children}</div>
     </div>

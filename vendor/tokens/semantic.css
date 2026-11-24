@@ -229,6 +229,7 @@
 
   /* ── Scrim — dim layer behind centered modals/palette ─────── */
   --tasty-scrim-bg:          var(--tasty-alpha-black-50);
+  --tasty-scrim-blur:        var(--tasty-size-1); /* 2026-11-24 — backdrop blur radius of the scrim recipe (blur(1px)) */
   --tasty-overlay-top-offset: var(--tasty-size-88); /* top-aligned spawn gap (command palette) */
 
   /* ── Capture region select — paints on a picture of arbitrary color, so all three hold one value in both themes. RULES section 4 ── */

@@ -1180,6 +1180,10 @@
       "$type": "color",
       "$value": "{primitive.alpha-black-50}"
     },
+    "scrim-blur": {
+      "$type": "dimension",
+      "$value": "{primitive.size-1}"
+    },
     "overlay-top-offset": {
       "$type": "dimension",
       "$value": "{primitive.size-88}"
