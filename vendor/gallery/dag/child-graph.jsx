@@ -76,6 +76,10 @@ function OverWindow({ w = 760, h = 560, fitted = false, children }) {
   );
 }
 
+// A → B and a gap under B for one reason, so each reason's drawer can be drawn (timeout adds the next try).
+const gapChain = (reason) => [CHILD_CHAIN[0], CHILD_CHAIN[1], { id: "g_x", kind: "gap", reason, parent: "s_B1", host: "gpu-box", via: ["lab-build"],
+  lastReached: "linux-build · s_B1", ...(reason === "timeout" ? { nextTry: "in 8s" } : {}) }];
+
 // The collapse round trip, live: the surface is too small, so the popup stands as the show button; pressing it
 // shows the popup over the window, and the shrink button or an Esc the body does not use folds it back. The
 // popup stays mounted while folded, so whatever was selected, opened or pushed is there when it is shown again.
@@ -93,7 +97,7 @@ function CollapseRoundTrip() {
   return (
     <div style={{ position: "relative", width: 760, height: 560 }}
       onClick={(e) => { if (!open && e.target.closest && e.target.closest("[data-collapsed-popup]")) setOpen(true); }}>
-      {!open && <ShellMock scope="surface" size={[760, 560]} collapsed="label" ring />}
+      {!open && <ShellMock scope="surface" size={[760, 560]} collapsed="label" ring label={gt("popup.collapsed_button.label", "en")} />}
       <div style={{ display: open ? "block" : "none" }}>
         <OverWindow><ChildGraphWindow collapse folded={!open} onCollapse={() => setOpen(false)} onClose={() => setClosed(true)} /></OverWindow>
       </div>
@@ -226,8 +230,8 @@ export function ChildGraphSection() {
         <Views>
           <View name="child-popup-collapsed" label="Collapsed — the common show button, label or icon only" wide>
             {row(<>
-              <Labelled label="collapsed — the common show button, nothing added" tag="decided"><ShellMock scope="surface" narrow collapsed="label" ring /></Labelled>
-              <Labelled label="collapsed, very narrow — icon only" tag="decided"><ShellMock scope="surface" narrow collapsed="icon" ring leftWidth={64} /></Labelled>
+              <Labelled label="collapsed — the common show button, nothing added" tag="decided"><ShellMock scope="surface" narrow collapsed="label" ring label={gt("popup.collapsed_button.label", "en")} /></Labelled>
+              <Labelled label="collapsed, very narrow — icon only" tag="decided"><ShellMock scope="surface" narrow collapsed="icon" ring leftWidth={64} label={gt("popup.collapsed_button.label", "en")} /></Labelled>
             </>)}
           </View>
           <View name="child-popup-over-window" label="Shown over the window — plain, a card selected, the DAG list step, the DAG graph step" wide>
@@ -247,26 +251,34 @@ export function ChildGraphSection() {
           <View name="child-popup-round-trip-graph" label="Round trip on the DAG graph step — shrink pressed, collapsed, shown again on the same step" wide>
             {row(<>
               <Labelled label="round trip · 1 · on the DAG graph step, shrink pressed" tag="decided"><OverWindow><ChildGraphWindow collapse still push={2} initial={{ selected: "s_01HX7Q", owner: "s_01HX7Q", dagId: "build-and-deploy" }} /></OverWindow></Labelled>
-              <Labelled label="round trip · 2 · collapsed — the same button; the step is kept, not drawn" tag="decided"><ShellMock scope="surface" narrow collapsed="label" ring /></Labelled>
+              <Labelled label="round trip · 2 · collapsed — the same button; the step is kept, not drawn" tag="decided"><ShellMock scope="surface" narrow collapsed="label" ring label={gt("popup.collapsed_button.label", "en")} /></Labelled>
               <Labelled label="round trip · 3 · show pressed — the same DAG graph step, no motion" tag="decided"><OverWindow><ChildGraphWindow collapse still push={2} initial={{ selected: "s_01HX7Q", owner: "s_01HX7Q", dagId: "build-and-deploy" }} /></OverWindow></Labelled>
             </>)}
           </View>
           <View name="child-popup-round-trip-list" label="Round trip on the DAG list step — shrink pressed, collapsed, shown again on the same list" wide>
             {row(<>
               <Labelled label="1 · on the DAG list step, shrink pressed"><OverWindow><ChildGraphWindow collapse still push={1} initial={{ selected: "s_01HX7Q", owner: "s_01HX7Q" }} /></OverWindow></Labelled>
-              <Labelled label="2 · collapsed — the same button; the step is kept, not drawn"><ShellMock scope="surface" narrow collapsed="label" ring /></Labelled>
+              <Labelled label="2 · collapsed — the same button; the step is kept, not drawn"><ShellMock scope="surface" narrow collapsed="label" ring label={gt("popup.collapsed_button.label", "en")} /></Labelled>
               <Labelled label="3 · show pressed — the same list step, no motion"><OverWindow><ChildGraphWindow collapse still push={1} initial={{ selected: "s_01HX7Q", owner: "s_01HX7Q" }} /></OverWindow></Labelled>
             </>)}
           </View>
           <View name="child-popup-round-trip-mid-push" label="Collapsed during a push — the push ends at once, shown again on the step it was going to" wide>
             {row(<>
               <Labelled label="1 · View DAG pressed, the push half way, shrink pressed"><OverWindow><ChildGraphWindow collapse still push={0.5} initial={{ selected: "s_01HX7Q", owner: "s_01HX7Q" }} /></OverWindow></Labelled>
-              <Labelled label="2 · collapsed — the push has ended where it was going"><ShellMock scope="surface" narrow collapsed="label" ring /></Labelled>
+              <Labelled label="2 · collapsed — the push has ended where it was going"><ShellMock scope="surface" narrow collapsed="label" ring label={gt("popup.collapsed_button.label", "en")} /></Labelled>
               <Labelled label="3 · show pressed — the list step, complete, no motion replayed"><OverWindow><ChildGraphWindow collapse still push={1} initial={{ selected: "s_01HX7Q", owner: "s_01HX7Q" }} /></OverWindow></Labelled>
             </>)}
           </View>
           <View name="child-popup-fitted-resized" label="Resized to 640 × 480, window smaller — the content keeps the resized body (638 × 450) and is cut at the right and bottom" wide>
             <OverWindow w={520} h={380} fitted><ChildGraphWindow collapse width={640} height={480} cut={{ w: 520, h: 380 }} /></OverWindow>
+          </View>
+          <View name="child-popup-collapsed-locales" label="ko, ja, zh-Hans — collapsed, the common show button with its label, and icon only" wide>
+            {row(["ko", "ja", "zh-Hans"].map((l) => (
+              <React.Fragment key={l}>
+                <Labelled label={`${l} · label`}><ShellMock scope="surface" narrow collapsed="label" ring label={gt("popup.collapsed_button.label", l)} /></Labelled>
+                <Labelled label={`${l} · icon only`}><ShellMock scope="surface" narrow collapsed="icon" ring leftWidth={64} label={gt("popup.collapsed_button.label", l)} /></Labelled>
+              </React.Fragment>
+            )))}
           </View>
           <View name="child-popup-over-window-locales" label="ko, ja, zh-Hans — over the window">
             <div style={{ display: "flex", flexWrap: "wrap", gap: 16 }}>
@@ -407,6 +419,19 @@ export function ChildGraphSection() {
               <Frame label="restart notice — no-host form" w={560} h={280}><ChildGraphSurface nodes={CHILD_MIRROR} baseId={CHILD_MIRROR_BASE} banner={<RestartNotice host="" />} /></Frame>
             </div>
           </View>
+          <View name="child-mirror-banner-no-host-locales" label="ko, ja, zh-Hans — the no-host sentences: detached, the three failures, closed after a drop, the restart notice (the strip alone)" wide>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-lg)" }}>
+              {["ko", "ja", "zh-Hans"].map((l) => (
+                <div key={l} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", width: 560, background: "var(--tasty-bg-panel)" }}>
+                  <span style={cap}>{l}</span>
+                  <MirrorBanner host="" profile="" cause="detached" lang={l} />
+                  {["unreachable", "surface_gone", "held"].map((r) => <MirrorBanner key={r} host="" profile="" state="failed" reason={r} lang={l} />)}
+                  <MirrorBanner host="" profile="" cause="lost" saved={false} lang={l} />
+                  <RestartNotice host="" lang={l} />
+                </div>
+              ))}
+            </div>
+          </View>
           <View name="child-mirror-banner-locales" label="ko, ja, zh-Hans — the three reasons, the closed mirror and the restart notice">
             <div style={{ display: "flex", flexWrap: "wrap", gap: 16 }}>
               {["ko", "ja", "zh-Hans"].map((l) => (
@@ -504,12 +529,14 @@ export function ChildGraphSection() {
               </div>
             )} />
           </View>
-          <View name="child-gap-locales" label="ko, ja, zh-Hans — every label and a drawer">
+          <View name="child-gap-locales" label="ko, ja, zh-Hans — every label and every reason's drawer" wide>
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               {["ko", "ja", "zh-Hans"].map((l) => (
                 <div key={l} style={{ display: "flex", flexWrap: "wrap", gap: 16, alignItems: "flex-start" }}>
                   {GAP_REASONS.filter((r) => r !== "malformed").map((r) => <Labelled key={r} label={`${l} · ${r}`}><Card node={{ id: `g_${r}`, kind: "gap", reason: r, host: "gpu-box" }} lang={l} /></Labelled>)}
-                  <Frame label={`${l} · drawer`} w={640} h={300}><ChildView nodes={CHILD_GAP_SIDES} baseId="s_B1" selected="g_dn" lang={l} /></Frame>
+                  {GAP_REASONS.filter((r) => r !== "malformed").map((r) => (r === "cycle"
+                    ? <Frame key={r} label={`${l} · drawer · cycle (points back to)`} w={640} h={300}><ChildView nodes={CHILD_GAP_CYCLE} baseId="s_m2" selected="g_loop" lang={l} /></Frame>
+                    : <Frame key={r} label={`${l} · drawer · ${r}`} w={640} h={300}><ChildView nodes={gapChain(r)} baseId="s_A1" selected="g_x" lang={l} /></Frame>))}
                 </div>
               ))}
             </div>
