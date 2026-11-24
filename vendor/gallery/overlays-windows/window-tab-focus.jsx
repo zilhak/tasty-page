@@ -42,7 +42,7 @@ const SETTINGS_CROP = "calc(var(--tasty-border-width) + var(--tasty-settings-l1-
 function WindowTabFocusSpec() {
   return (
     <Spec id="window-tabs-keyboard-focus" title="Window tabs — keyboard focus"
-      when={<>The tabs inside the settings, remote and plugins windows take keyboard focus: <span className="ic">Tab</span> and <span className="ic">Shift+Tab</span> move it, <span className="ic">Space</span> and <span className="ic">Enter</span> press the tab. A focused tab shows the control ring, except the settings L1 tab, which fills its band at the top of the window and takes the ring inside its box, as the pane tab does. The pane tab strip is not one of these: it takes no keyboard focus (Components › Tab).</>}>
+      when={<>The tabs inside the settings, remote and plugins windows take keyboard focus: <span className="ic">Tab</span> and <span className="ic">Shift+Tab</span> move it, <span className="ic">Space</span> and <span className="ic">Enter</span> press the tab. A focused tab shows the control ring, except the settings L1 tab, which fills its band at the top of the window and takes the ring inside its box, as the pane tab does. The pane tab strip is not one of these: it is no keyboard stop and draws no ring (Components › Tab).</>}>
       <Views>
         <View name="settings-l1-tab-focus" wide label="Settings — an L1 tab with keyboard focus (General, while Appearance is open)">
           <div style={col}><span style={cap}>settings · L1 tab</span>
@@ -75,7 +75,7 @@ function WindowTabFocusSpec() {
         </View>
       </Views>
       <Meta
-        specs={[["tabs", "Settings L1 tabs and L2 rows · Remote tab strip and segments · Plugins tab bar"], ["keys", "Tab / Shift+Tab move focus · Space / Enter press"], ["focus", <>control ring: outline <span className="tok">--tasty-focus-ring-width</span> 2px · <span className="tok">--tasty-border-focus</span> · <span className="tok">--tasty-focus-ring-offset</span> 1px off the tab</>], ["settings L1 tab", <>the same 2px ring inside the tab (offset minus <span className="tok">--tasty-focus-ring-width</span>): the tab fills its band at the window's top edge</>], ["not here", "pane tab strip: no keyboard focus"]]}
+        specs={[["tabs", "Settings L1 tabs and L2 rows · Remote tab strip and segments · Plugins tab bar"], ["keys", "Tab / Shift+Tab move focus · Space / Enter press"], ["focus", <>control ring: outline <span className="tok">--tasty-focus-ring-width</span> 2px · <span className="tok">--tasty-border-focus</span> · <span className="tok">--tasty-focus-ring-offset</span> 1px off the tab</>], ["settings L1 tab", <>the same 2px ring inside the tab (offset minus <span className="tok">--tasty-focus-ring-width</span>): the tab fills its band at the window's top edge</>], ["not here", "pane tab strip: no keyboard stop, no ring"]]}
         tokens={[{ tok: "--tasty-border-focus", use: "focus ring", color: "var(--tasty-border-focus)" }, { tok: "--tasty-focus-ring-width", use: "→ 2px" }, { tok: "--tasty-focus-ring-offset", use: "→ 1px" }]} />
     </Spec>
   );

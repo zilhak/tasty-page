@@ -27,9 +27,12 @@ import React from "react";
  * Right cluster: busy dot · close, tab-status-gap (4) apart; label → cluster
  * is tab-gap (8).
  *
- * Keyboard focus: the app's tab strip never takes it. Keys go to the window's
- * focus node, and tabs move by shortcut (next/prev tab, quick switch, switch
- * numbers). So neither the tab nor its close button is a Tab stop here. A web
+ * Keyboard focus: the canon is that the pane tab strip is no keyboard stop and
+ * draws no ring. Tabs move by shortcut (next/prev tab, quick switch, switch
+ * numbers). The app does not hold to this yet: egui focus can still reach a
+ * pane tab and its close button, and taking them out of the focus order is
+ * the app's pending work. Neither the tab nor its close button is a Tab stop
+ * here. A web
  * host that adds one for page keyboard access (the landing demo) gets the 2px
  * ring INSIDE the tab: tabs abut and the strip clips, so a ring off the box
  * would be cut or would cover a neighbour. The app draws its tab context-menu
