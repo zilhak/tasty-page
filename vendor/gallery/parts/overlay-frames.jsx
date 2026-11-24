@@ -1215,7 +1215,7 @@ function FhGroup({ label, count, caption, tone }) {
 // glyph glyph-dim, host text-muted, then the status word (status_bar.remote_reconnecting,
 // label font, text-muted). The word belongs to the mark, so the path box shrinks by it.
 // attach.mirror_pill_label, the app catalog's values (tasty lang/*.toml)
-const MIRROR_PILL_LABEL = { en: "Remote", ko: "원격", ja: "リモート", "zh-Hans": "远程" };
+export const MIRROR_PILL_LABEL = { en: "Remote", ko: "원격", ja: "リモート", "zh-Hans": "远程" };
 function FhRemoteMark({ host, state = "connected", lang = "en" }) {
   const live = state === "connected";
   return (
@@ -3053,8 +3053,8 @@ function FpCrumbs({ items, elide = false, single = false }) {
       {shown.map((it, i) => (
         <React.Fragment key={i}>
           {i > 0 && <span style={{ flex: "none", display: "inline-flex", color: "var(--tasty-text-disabled)" }}><Icon name="chevronRight" size={13} /></span>}
-          <span title={it.hidden ? "Show " + it.hidden + (it.hidden === 1 ? " hidden folder" : " hidden folders") : undefined} style={{ ...alloc(it, i, shown.length), overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-            fontSize: "var(--tasty-font-size-caption)", fontFamily: it.root ? "var(--tasty-font-mono)" : "var(--tasty-font-ui)",
+          <span lang={it.word ? it.lang : undefined} title={it.hidden ? "Show " + it.hidden + (it.hidden === 1 ? " hidden folder" : " hidden folders") : undefined} style={{ ...alloc(it, i, shown.length), overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+            fontSize: "var(--tasty-font-size-caption)", fontFamily: it.word ? "var(--tasty-font-label)" : it.root ? "var(--tasty-font-mono)" : "var(--tasty-font-ui)",
             cursor: it.current ? "default" : "pointer",
             color: it.current ? "var(--tasty-text-primary)" : "var(--tasty-accent-primary-raised)" }}>{it.label}</span>
         </React.Fragment>
@@ -3081,13 +3081,21 @@ function FpCrumbMenu({ items, opaque = false, style }) {
     </div>
   );
 }
-// host indicator chip shown in the header on remote mode (indicator="badge")
-function FpHostBadge({ host }) {
+// host indicator chip shown in the header on remote mode (indicator="badge").
+// The host text follows the host text rule (Dialogs › File handler › Remote path): the
+// attach profile name (R-57). With no profile name (--ssh or --target-port from the CLI or
+// IPC, a profile saved with an empty name) host is empty and the chip holds
+// attach.mirror_pill_label ("Remote") in the label font, same ink; never 127.0.0.1:<port>.
+function FpHostText({ host, lang = "en" }) {
+  return host ? host
+    : <span data-fp-remote-host="none" lang={lang} style={{ fontFamily: "var(--tasty-font-label)" }}>{MIRROR_PILL_LABEL[lang] || MIRROR_PILL_LABEL.en}</span>;
+}
+function FpHostBadge({ host, lang = "en" }) {
   return (
     <span style={{ display: "inline-flex", alignItems: "center", gap: 5, height: 22, padding: "0 8px", borderRadius: "var(--tasty-radius)",
       background: "color-mix(in srgb, var(--tasty-accent-info) 14%, transparent)", border: "1px solid color-mix(in srgb, var(--tasty-accent-info) 45%, transparent)",
       color: "var(--tasty-accent-info-raised)", fontFamily: "var(--tasty-font-mono)", fontSize: 11, whiteSpace: "nowrap" }}>
-      <span style={{ display: "inline-flex" }}><Icon name="remote" size={13} /></span>{host}
+      <span style={{ display: "inline-flex" }}><Icon name="remote" size={13} /></span><FpHostText host={host} lang={lang} />
     </span>
   );
 }
@@ -3104,8 +3112,7 @@ const FP_FOLDER_COPY = {
     hintSel: (n) => <><span style={{ fontFamily: "var(--tasty-font-mono)" }}>{n}</span> を開くにはダブルクリックします。</>, fileTip: "選択できるのはフォルダーだけです。", empty: "サブフォルダーはありません" },
 };
 function FilePickerFrame({ state = "loaded", remote = false, indicator = "badge", multi = false, filters = [], mode = "open", save = "new", deep = false, crumbMenu = false, folderSel = false, w = 640, h = 480, pathKind, single = false, elideStage,
-  folderPick = "none", fileHover = false, lang = "en", opaque = false }) {
-  const host = "deploy@10.0.4.12";
+  folderPick = "none", fileHover = false, lang = "en", opaque = false, host = "work-laptop-attach" }) {
   const saving = mode === "save";
   const folderMode = mode === "folder";
   const FC = FP_FOLDER_COPY[lang] || FP_FOLDER_COPY.en;
@@ -3117,7 +3124,7 @@ function FilePickerFrame({ state = "loaded", remote = false, indicator = "badge"
     : pathKind === "longroot"
       ? [{ label: "\\\\build-farm-eu-west\\releases$", root: true }, { label: "2026" }, { label: "09" }, { label: "nightly", current: true }]
       : remote
-    ? [{ label: host, root: true }, { label: "home" }, { label: "deploy" }, { label: "agents-prod", current: true }]
+    ? [{ label: host || MIRROR_PILL_LABEL[lang] || MIRROR_PILL_LABEL.en, root: true, word: !host, lang }, { label: "home" }, { label: "deploy" }, { label: "agents-prod", current: true }]
     : deep
       ? [{ label: "/", root: true }, { label: "Users" }, { label: "maya" }, ...deepTail]
       : [{ label: "/", root: true }, { label: "Users" }, { label: "maya" }, { label: "projects", current: true }];
@@ -3162,8 +3169,8 @@ function FilePickerFrame({ state = "loaded", remote = false, indicator = "badge"
           {remote && (indicator === "glyph" || indicator === "border") ? <Icon name="remote" /> : <Icon name={folderMode ? "folder" : "file"} />}
         </span>
         <span style={{ fontSize: 14, fontWeight: 600, color: "var(--tasty-text-primary)" }}>{folderMode ? FC.title : saving ? "Save file" : "Open file"}</span>
-        {remote && indicator === "badge" && <FpHostBadge host={host} />}
-        {remote && indicator === "glyph" && <span style={{ fontSize: 12, fontFamily: "var(--tasty-font-mono)", color: "var(--tasty-accent-info-raised)" }}>{host}</span>}
+        {remote && indicator === "badge" && <FpHostBadge host={host} lang={lang} />}
+        {remote && indicator === "glyph" && <span style={{ fontSize: 12, fontFamily: "var(--tasty-font-mono)", color: "var(--tasty-accent-info-raised)" }}><FpHostText host={host} lang={lang} /></span>}
         <div style={{ flex: 1 }} />
         <IconButton size="sm" aria-label="Close">{ic.x}</IconButton>
       </div>
@@ -3275,4 +3282,4 @@ function FilePickerFrame({ state = "loaded", remote = false, indicator = "badge"
   );
 }
 
-export { PopupFocusEdge, TOOLS_MENU_BUILTIN, ic, Backdrop, GroundThemes, GroundCap, PaletteFrame, ApprovalFrame, RenameFrame, SettingsFrame, SettingsGeneralOverlayFrame, SettingsRemoteTransferFrame, SettingsRemoteAttachFrame, TransferProgressFrame, TransferErrorFrame, DownloadRunFrame, DownloadRunLargeFrame, ToastDragValue, ToolsMenuFrame, PortsFrame, PORTS_COLUMNS, PortsFavoritesG, PortStarG, RemoteFrame, LocalSshSection, SearchBarFrame, FileHandlerFrame, FhFooter, PresetFrame, MarkdownOpenFrame, HeldLabel, TabStripMock, SidebarMock, RailMock, CatSwitchSidebarMock, CatSwitchRailMock, BannerShellG, BannerScope, MouseCaptureBannerG, MouseCaptureHitZone, BlacklistEditorG, TtlBannerG, StackDemoG, BannerMoreMenuG, BannerMoreDemoG, GitViewerFrame, ClipboardFrame, RemoteFormFrame, ScriptManagerFrame, ShellMock, CollapsedPopupButton, RemoteAttachFrame, RaNewRow, RaWsPeek, FilePickerFrame, FpCrumbMenu, ModifierHintPanelG, MH_CAT_SECTIONS, MH_MIXED_SECTIONS, MH_EMPTY_SECTIONS, catIc, CatMenu, RailCategoryFrame, CategoryEditFrame, CategoryDeleteFrame };
+export { PopupFocusEdge, TOOLS_MENU_BUILTIN, ic, Backdrop, GroundThemes, GroundCap, PaletteFrame, ApprovalFrame, RenameFrame, SettingsFrame, SettingsGeneralOverlayFrame, SettingsRemoteTransferFrame, SettingsRemoteAttachFrame, TransferProgressFrame, TransferErrorFrame, DownloadRunFrame, DownloadRunLargeFrame, ToastDragValue, ToolsMenuFrame, PortsFrame, PORTS_COLUMNS, PortsFavoritesG, PortStarG, RemoteFrame, LocalSshSection, SearchBarFrame, FileHandlerFrame, FhFooter, PresetFrame, MarkdownOpenFrame, HeldLabel, TabStripMock, SidebarMock, RailMock, CatSwitchSidebarMock, CatSwitchRailMock, BannerShellG, BannerScope, MouseCaptureBannerG, MouseCaptureHitZone, BlacklistEditorG, TtlBannerG, StackDemoG, BannerMoreMenuG, BannerMoreDemoG, GitViewerFrame, ClipboardFrame, RemoteFormFrame, ScriptManagerFrame, ShellMock, CollapsedPopupButton, RemoteAttachFrame, RaNewRow, RaWsPeek, FilePickerFrame, FpCrumbMenu, FpHostBadge, ModifierHintPanelG, MH_CAT_SECTIONS, MH_MIXED_SECTIONS, MH_EMPTY_SECTIONS, catIc, CatMenu, RailCategoryFrame, CategoryEditFrame, CategoryDeleteFrame };

@@ -6,7 +6,7 @@ import { Icon as WIcon, Checkbox as WCheckbox, Select as WSelect, Tag as WTag, T
 import { KbPluginsSubtab as Kit_KbPluginsSubtab, KbPluginsSubtab } from "../../ui_kits/terminal/overlays/kb_plugins_subtab.jsx";
 import { MacPermissionsPane } from "../../ui_kits/terminal/overlays/macos_permissions.jsx";
 import { Popup as GalleryNotifications_Popup } from "../parts/notifications.jsx";
-import { GroundThemes as WGroundThemes, GroundCap as WGroundCap, Backdrop, PaletteFrame, LocalSshSection, PortsFrame, PORTS_COLUMNS, PortsFavoritesG, PortStarG, RemoteFrame, SettingsFrame, SettingsGeneralOverlayFrame, SettingsRemoteTransferFrame, SettingsRemoteAttachFrame, ToastDragValue, GitViewerFrame, ClipboardFrame, RemoteFormFrame, RemoteAttachFrame, RaNewRow, RaWsPeek, FilePickerFrame, ScriptManagerFrame, ic } from "../parts/overlay-frames.jsx";
+import { GroundThemes as WGroundThemes, GroundCap as WGroundCap, Backdrop, PaletteFrame, LocalSshSection, PortsFrame, PORTS_COLUMNS, PortsFavoritesG, PortStarG, RemoteFrame, SettingsFrame, SettingsGeneralOverlayFrame, SettingsRemoteTransferFrame, SettingsRemoteAttachFrame, ToastDragValue, GitViewerFrame, ClipboardFrame, RemoteFormFrame, RemoteAttachFrame, RaNewRow, RaWsPeek, FilePickerFrame, FpHostBadge, ScriptManagerFrame, ic } from "../parts/overlay-frames.jsx";
 import { AnomalySection as OverlaysWindowsAnomaly_AnomalySection } from "./settings-anomaly.jsx";
 import { KbPluginsRecordSpec as OverlaysWindowsB12_KbPluginsRecordSpec } from "./kb-plugin-records.jsx";
 import { SettingsNarrowSection as OverlaysWindowsB12_SettingsNarrowSection } from "./settings-narrow.jsx";
@@ -20,7 +20,7 @@ import { TrustBox2 as OverlaysWindowsPluginTrust_TrustBox2, PluginTrustSpecs as 
 import { Section as PresetEditor_Section } from "./preset-editor.jsx";
 import { CaptureRegionSection } from "./capture-region.jsx";
 import { SettingsTitleBarLinuxSpec } from "./settings-titlebar-linux.jsx";
-import { Section, Spec, Stage, Meta, Note, Do, Dont } from "../parts/specimen.jsx";
+import { Section, Spec, Stage, Meta, Note, Do, Dont, Views, View } from "../parts/specimen.jsx";
 
 // Tasty Gallery — Overlays · Windows (large modal surfaces)
 // One of the five Overlays sub-pages (dialogs · windows · popups · banners · tutorial). Frame components are shared from
@@ -928,15 +928,27 @@ function Page() {
 
       <Section id="filepicker" title="File picker">
         <Spec id="native-file-picker-local-remote-one-component" title="Native file picker — local & remote, one component"
-          when={<>Tasty's own <b>Open file</b> dialog, replacing the OS-native picker so it can browse a <b>remote attach host</b> over the <b>same SSH mechanism</b> as attach — the OS picker only ever sees the local disk. It's a <b>select-and-confirm</b> dialog (pick a path, hand it back, close), <b>not</b> the Explorer surface (that's a free-roam tab). A <b>640×480</b> modal in the <b>remote_tool</b> popup language: Scrim · content-drawn header · <span className="tok">--tasty-bg-panel</span> frame. <b>Local and remote are the same component</b> — they differ only in the header host indicator and the breadcrumb root. Rows reuse the <span className="ic">folder</span>/<span className="ic">file</span> list language; folder <b>double-click</b> descends, file <b>click</b> fills the name field, file <b>double-click</b> = Open.</>}>
+          when={<>Tasty's own <b>Open file</b> dialog, replacing the OS-native picker so it can browse a <b>remote attach host</b> over the <b>same SSH mechanism</b> as attach — the OS picker only ever sees the local disk. It's a <b>select-and-confirm</b> dialog (pick a path, hand it back, close), <b>not</b> the Explorer surface (that's a free-roam tab). A <b>640×480</b> modal in the <b>remote_tool</b> popup language: Scrim · content-drawn header · <span className="tok">--tasty-bg-panel</span> frame. <b>Local and remote are the same component</b> — they differ only in the header host indicator and the breadcrumb root. Both hold the <b>host text</b> and follow the <b>host text rule</b> (Dialogs › File handler › Remote path): the attach profile name (R-57); for an attach with <b>no profile name</b> (<code>--ssh</code> or <code>--target-port</code> from the CLI or IPC, a profile saved with an empty name) the word <b>Remote</b> (<code>attach.mirror_pill_label</code>) in the label font and the same ink, never <code>127.0.0.1:&lt;port&gt;</code>. Rows reuse the <span className="ic">folder</span>/<span className="ic">file</span> list language; folder <b>double-click</b> descends, file <b>click</b> fills the name field, file <b>double-click</b> = Open.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 16, flexWrap: "wrap", alignItems: "flex-start" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>local</div><FilePickerFrame /></div>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>remote (host badge — recommended)</div><FilePickerFrame remote indicator="badge" /></div>
           </Stage>
+          <Views>
+            <View name="file-picker-remote-no-profile" label="No profile name (--ssh or --target-port from the CLI or IPC) — the word Remote in the host badge and the breadcrumb root, then the badge in every language">
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 16, alignItems: "flex-start" }}>
+                <FilePickerFrame remote indicator="badge" host="" />
+                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                  {["en", "ko", "ja", "zh-Hans"].map((l) => (
+                    <div key={l} style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{l}</div><div style={{ padding: "var(--tasty-space-sm)", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)" }}><FpHostBadge host="" lang={l} /></div></div>
+                  ))}
+                </div>
+              </div>
+            </View>
+          </Views>
           <Meta
-            specs={[["frame", "640 × 480 · PopupDef"], ["header", "glyph · title · host indicator · ✕"], ["path bar", "breadcrumb + refresh · bg-sidebar"], ["row", "checkbox? · icon · name · size · modified"], ["footer", "name field · type filter · Cancel / Open"], ["open", "enabled only with a selection"], ["dismiss", <>×/Cancel/<span className="ic">Esc</span> · Open = <span className="ic">Enter</span></>]]}
+            specs={[["frame", "640 × 480 · PopupDef"], ["header", "glyph · title · host indicator · ✕"], ["host text", "badge and remote breadcrumb root: the host text rule (Dialogs › File handler › Remote path) — attach profile name (R-57), mono · never 127.0.0.1:<port>, the local end of the tunnel"], ["no host", "no profile name (--ssh, --target-port, a profile saved with an empty name) → attach.mirror_pill_label in --tasty-font-label, same ink, in the badge and the breadcrumb root · glyph and chip unchanged · never elides"], ["path bar", "breadcrumb + refresh · bg-sidebar"], ["row", "checkbox? · icon · name · size · modified"], ["footer", "name field · type filter · Cancel / Open"], ["open", "enabled only with a selection"], ["dismiss", <>×/Cancel/<span className="ic">Esc</span> · Open = <span className="ic">Enter</span></>]]}
             tokens={[{ tok: "--tasty-bg-panel", use: "frame", color: "var(--tasty-bg-panel)" }, { tok: "--tasty-bg-sidebar", use: "path / list-header bar", color: "var(--tasty-bg-sidebar)" }, { tok: "--tasty-surface-active", use: "selected row", color: "var(--tasty-surface-active)" }, { tok: "--tasty-accent-primary", use: "selected bar · folder glyph · Open · crumb link", color: "var(--tasty-accent-primary-raised)" }, { tok: "--tasty-accent-info", use: "remote host indicator", color: "var(--tasty-accent-info-raised)" }, { tok: "--tasty-accent-danger", use: "error glyph", color: "var(--tasty-accent-danger-raised)" }]} />
-          <Do><b>Do</b> keep local and remote a single component with a single set of states — the target only changes the <b>host indicator</b> and the <b>breadcrumb root</b> (<span className="tok">--tasty-font-mono</span> <span className="ic">user@host</span> vs. <span className="ic">/</span>), never the layout.</Do>
+          <Do><b>Do</b> keep local and remote a single component with a single set of states — the target only changes the <b>host indicator</b> and the <b>breadcrumb root</b> (the host text — <span className="tok">--tasty-font-mono</span> profile name, or the word Remote in <span className="tok">--tasty-font-label</span> — vs. <span className="ic">/</span>), never the layout.</Do>
           <Note>Out of scope this pass (deferred, not designed): a favorites/recent-locations rail and per-host history. Multi-select is spec'd below but ships behind single-select by default.</Note>
         </Spec>
 
