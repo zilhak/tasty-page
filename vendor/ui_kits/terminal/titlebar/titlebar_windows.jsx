@@ -43,11 +43,16 @@ const TB_WIN_CSS = `
   background:var(--tasty-titlebar-close-hover-bg); color:var(--tasty-titlebar-close-hover-fg); }
 `;
 
-// cells marks frozen buttons as contract cells for the gallery check: { min | max | close: { contract, state, host } }.
-// The mark is a display:contents wrapper, so the button's layout and its own data-state are untouched.
+// cells marks parts of a gallery frame as contract cells for the gallery check:
+// { title | min | max | close: { contract, state, host, parts } }. parts, a list of part names, becomes data-parts, so
+// the cell measures only those rows of its contract. Each cell wraps one element: the title text or one button, so
+// '— tasty' and the unmarked buttons stay in the general check. The mark is a display:contents wrapper, so the
+// layout and the button's own data-state are untouched. The data-part attributes only locate parts for the check.
+// The tabs variant has no title text, so it ignores cells.title.
 function ContractCell({ cell, children }) {
   if (!cell) return children;
-  return <span style={{ display: "contents" }} data-contract={cell.contract} data-state={cell.state} data-host={cell.host}>{children}</span>;
+  return <span style={{ display: "contents" }} data-contract={cell.contract} data-state={cell.state} data-host={cell.host}
+    data-parts={cell.parts ? JSON.stringify(cell.parts) : undefined}>{children}</span>;
 }
 
 function TitlebarWindows({ active = true, variant = "split", title = "agents-prod", maximized = false, tabs = ["build · cargo", "README.md", "scratch"], states = {}, cells = {} }) {
@@ -58,11 +63,15 @@ function TitlebarWindows({ active = true, variant = "split", title = "agents-pro
   const G = { min: "windowMinimize", max: "captionMaximize", restore: "captionRestore", close: "close" };
   const caption = (
     <div className="tb-win__caption">
-      <button className="tb-win__btn" data-state={states.min} title="Minimize"><Icon name={G.min} /></button>
+      <ContractCell cell={cells.min}>
+        <button className="tb-win__btn" data-part="button" data-state={states.min} title="Minimize"><Icon name={G.min} /></button>
+      </ContractCell>
       {/* Snap Layouts: this rect is reported to the OS via WM_NCHITTEST → HTMAXBUTTON */}
-      <button className="tb-win__btn" data-snap-target="true" data-state={states.max} title="Maximize"><Icon name={maximized ? G.restore : G.max} /></button>
+      <ContractCell cell={cells.max}>
+        <button className="tb-win__btn" data-part="button" data-snap-target="true" data-state={states.max} title="Maximize"><Icon name={maximized ? G.restore : G.max} /></button>
+      </ContractCell>
       <ContractCell cell={cells.close}>
-        <button className="tb-win__btn tb-win__btn--close" data-state={states.close} title="Close"><Icon name={G.close} data-part="glyph" /></button>
+        <button className="tb-win__btn tb-win__btn--close" data-part="button" data-state={states.close} title="Close"><Icon name={G.close} data-part="glyph" /></button>
       </ContractCell>
     </div>
   );
@@ -93,7 +102,9 @@ function TitlebarWindows({ active = true, variant = "split", title = "agents-pro
     <div className="tb-win" data-active={active}>
       <div className="tb-win__title" style={{ flex: 1, minWidth: 0 }}>
         <img src={`${BASE}tasty-icon.png`} width="16" height="16" alt="" />
-        <span style={{ fontSize: "var(--tasty-font-size-term-sm)", color: fg }}>{title}</span>
+        <ContractCell cell={cells.title}>
+          <span data-part="title" style={{ fontSize: "var(--tasty-font-size-term-sm)", color: fg }}>{title}</span>
+        </ContractCell>
         <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>— tasty</span>
       </div>
       {caption}

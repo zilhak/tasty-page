@@ -49,11 +49,16 @@ const TB_LIN_CSS = `
   background:var(--tasty-titlebar-close-hover-bg); color:var(--tasty-titlebar-close-hover-fg); }
 `;
 
-// cells marks frozen buttons as contract cells for the gallery check: { min | max | close: { contract, state, host } }.
-// The mark is a display:contents wrapper, so the button's layout and its own data-state are untouched.
+// cells marks parts of a gallery frame as contract cells for the gallery check:
+// { title | min | max | close: { contract, state, host, parts } }. parts, a list of part names, becomes data-parts, so
+// the cell measures only those rows of its contract. Each cell wraps one element: the title text or one button, so
+// '— tasty' and the unmarked buttons stay in the general check. The mark is a display:contents wrapper, so the
+// layout and the button's own data-state are untouched. The data-part attributes only locate parts for the check.
+// The tabs variant has no title text, so it ignores cells.title; a button not in buttons ignores its cell.
 function ContractCell({ cell, children }) {
   if (!cell) return children;
-  return <span style={{ display: "contents" }} data-contract={cell.contract} data-state={cell.state} data-host={cell.host}>{children}</span>;
+  return <span style={{ display: "contents" }} data-contract={cell.contract} data-state={cell.state} data-host={cell.host}
+    data-parts={cell.parts ? JSON.stringify(cell.parts) : undefined}>{children}</span>;
 }
 
 function TitlebarLinux({ active = true, variant = "split", title = "agents-prod",
@@ -66,7 +71,7 @@ function TitlebarLinux({ active = true, variant = "split", title = "agents-prod"
     <div className="tb-lin__ctrls">
       {buttons.map((b) => (
         <ContractCell key={b} cell={cells[b]}>
-          <button className={"tb-lin__btn" + (b === "close" ? " tb-lin__btn--close" : "")}
+          <button className={"tb-lin__btn" + (b === "close" ? " tb-lin__btn--close" : "")} data-part="window button"
             data-state={states[b]} title={b[0].toUpperCase() + b.slice(1)}><Icon name={G[b]} data-part="glyph" /></button>
         </ContractCell>
       ))}
@@ -91,7 +96,9 @@ function TitlebarLinux({ active = true, variant = "split", title = "agents-prod"
     <div className="tb-lin__drag" style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", flex: 1, minWidth: 0,
       justifyContent: "center" }}>
       <img src={`${BASE}tasty-icon.png`} width="16" height="16" alt="" />
-      <span style={{ fontSize: "var(--tasty-font-size-term-sm)", color: fg }}>{title}</span>
+      <ContractCell cell={cells.title}>
+        <span data-part="title" style={{ fontSize: "var(--tasty-font-size-term-sm)", color: fg }}>{title}</span>
+      </ContractCell>
       <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>— tasty</span>
     </div>
   );
