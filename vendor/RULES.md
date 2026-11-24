@@ -2269,6 +2269,8 @@ Sits on: `term`, `term-unfocused`
 |---|---|---|---|---|
 | cell | `md-table-cell-fg` | rest | `base`, `mantle` | 9.26 · 5.14 |
 
+The grid and the outer edge read `md-table-border`, a partition with no grade. A line sits on a row fill (`base`, `mantle`), on the header (`raised`), or on the bed (`term`, `term-unfocused`) where a row has no fill and at the table's outer edge. The file lists all six grounds for this token.
+
 ### Markdown table header
 
 Sits on: `term`, `term-unfocused`
