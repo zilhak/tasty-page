@@ -1010,7 +1010,7 @@ function Page() {
                 <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}><div style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>timeout · elided path (all enabled)</div><FilePickerFrame remote state="error-conn-timeout" elideStage w="var(--tasty-fp-specimen-view-width)" h="var(--tasty-fp-specimen-view-height)" /></div>
               </div>
             </View>
-            <View name="file-picker-conn-lost-causes-languages" label="Connection lost in every language — timeout (Retry enabled) and session lost (no mirror projection: Retry and the path bar actions disabled)">
+            <View name="file-picker-conn-lost-causes-languages" wide label="Connection lost in every language — timeout (Retry enabled) and session lost (no mirror projection: Retry and the path bar actions disabled)">
               <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-lg)", alignItems: "flex-start" }}>
                 {["en", "ko", "ja", "zh-Hans"].map((l) => (
                   <div key={l} lang={l} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
