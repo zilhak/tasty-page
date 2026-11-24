@@ -3051,7 +3051,9 @@ function FpRow({ kind, name, size, mod, selected, focus, multi, checked, dim, in
 // Growing back needs 8px more than the floor (--tasty-fp-bar-hysteresis) so a
 // drag-resize cannot flap. The current folder elides at the FRONT ("…-bbbb"):
 // its tail is what tells two sibling folders apart. Ancestors elide at the tail.
-function FpCrumbs({ items, elide = false, single = false }) {
+// inert (session_lost): no folder can be read, so the root, the ancestors and the … menu are not
+// links. They take state-disabled-fg, no pointer and no tooltip; the current folder stays text-primary.
+function FpCrumbs({ items, elide = false, single = false, inert = false }) {
   const shown = single
     ? [{ label: "…", hidden: items.length - 1 }, items[items.length - 1]]
     : elide && items.length > 3
@@ -3068,10 +3070,12 @@ function FpCrumbs({ items, elide = false, single = false }) {
       {shown.map((it, i) => (
         <React.Fragment key={i}>
           {i > 0 && <span style={{ flex: "none", display: "inline-flex", color: "var(--tasty-text-disabled)" }}><Icon name="chevronRight" size={13} /></span>}
-          <span title={it.hidden ? "Show " + it.hidden + (it.hidden === 1 ? " hidden folder" : " hidden folders") : undefined} style={{ ...alloc(it, i, shown.length), overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+          <span title={it.hidden && !inert ? "Show " + it.hidden + (it.hidden === 1 ? " hidden folder" : " hidden folders") : undefined}
+            aria-disabled={inert && !it.current ? true : undefined} data-ink-grade={inert && !it.current ? "none" : undefined} data-ink-why={inert && !it.current ? "disabled" : undefined}
+            style={{ ...alloc(it, i, shown.length), overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
             fontSize: "var(--tasty-font-size-caption)", fontFamily: it.root ? "var(--tasty-font-mono)" : "var(--tasty-font-ui)",
-            cursor: it.current ? "default" : "pointer",
-            color: it.current ? "var(--tasty-text-primary)" : "var(--tasty-accent-primary-raised)" }}>{it.label}</span>
+            cursor: it.current || inert ? "default" : "pointer",
+            color: it.current ? "var(--tasty-text-primary)" : inert ? "var(--tasty-state-disabled-fg)" : "var(--tasty-accent-primary-raised)" }}>{it.label}</span>
         </React.Fragment>
       ))}
     </div>
@@ -3193,7 +3197,8 @@ function FilePickerFrame({ state = "loaded", remote = false, indicator = "badge"
   // a host. Connection lost has two causes: session_lost (state "error-conn") and timeout (state
   // "error-conn-timeout"). Its button, like Permission denied's, reads the current folder again.
   // session_lost means there is no mirror projection, so the read is never sent: the action
-  // cannot happen, and both the block's button and the path bar's Refresh are disabled.
+  // cannot happen, and the block's button and every path bar action are disabled: Refresh, Up and
+  // the breadcrumb's root, ancestors and … menu (the app's NavigateUp and NavigateTo send no read either).
   const FE = FP_ERROR_COPY[lang] || FP_ERROR_COPY.en;
   const connLost = state === "error-conn" || state === "error-conn-timeout";
   const sessionLost = remote && state === "error-conn";
@@ -3221,8 +3226,8 @@ function FilePickerFrame({ state = "loaded", remote = false, indicator = "badge"
       </div>
       {/* path bar */}
       <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-fp-section-gap)", padding: "var(--tasty-fp-path-pad-y) var(--tasty-fp-inset-end) var(--tasty-fp-path-pad-y) var(--tasty-fp-inset-start)", flex: "none", position: "relative", borderBottom: "1px solid var(--tasty-separator)", background: "var(--tasty-bg-sidebar)" }}>
-        <FpCrumbs items={crumbs} elide={elideStage ?? (deep || pathKind === "longtwo")} single={single} />
-        <IconButton size="sm" aria-label="Up one folder"><Icon name="chevronUp" size="var(--tasty-icon-size-sm)" /></IconButton>
+        <FpCrumbs items={crumbs} elide={elideStage ?? (deep || pathKind === "longtwo")} single={single} inert={sessionLost} />
+        <IconButton size="sm" aria-label="Up one folder" disabled={sessionLost}><Icon name="chevronUp" size="var(--tasty-icon-size-sm)" /></IconButton>
         <IconButton size="sm" aria-label="Refresh" disabled={sessionLost}>{ic.refresh}</IconButton>
         {crumbMenu && <FpCrumbMenu items={crumbs.slice(1, -2).map((c) => c.label)} />}
       </div>
