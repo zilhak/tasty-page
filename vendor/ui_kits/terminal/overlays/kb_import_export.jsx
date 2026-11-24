@@ -319,10 +319,10 @@ function KbImportExportSubtab({ variant = "ready", onFlash, failLine = 1, failCa
               <div style={{ borderRadius: "var(--tasty-radius)", padding: "var(--tasty-kb-ie-notice-inset)",
                 background: "var(--tasty-tint-danger-bg)",
                 border: "var(--tasty-border-width) solid var(--tasty-tint-danger-border)" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", color: "var(--tasty-accent-danger-raised)", fontSize: 13, fontWeight: 600 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", color: "var(--tasty-accent-danger-strong)", fontSize: 13, fontWeight: 600 }}>
                   <Icon name="alertCircle" size={16} /><span>The export wasn't written</span>
                 </div>
-                <p style={{ margin: "4px 0 0", fontSize: 12, color: "var(--tasty-text-secondary)", maxWidth: "var(--tasty-measure-md)", lineHeight: "var(--tasty-line-height-ui)" }}>
+                <p style={{ margin: "4px 0 0", fontSize: 12, color: "var(--tasty-text-on-active)", maxWidth: "var(--tasty-measure-md)", lineHeight: "var(--tasty-line-height-ui)" }}>
                   {/* The middle clause comes from a FIXED set; an unknown cause falls
                       back to "the write didn't finish." and the OS string goes on its
                       own muted line below — never spliced into the sentence. */}
@@ -332,12 +332,12 @@ function KbImportExportSubtab({ variant = "ready", onFlash, failLine = 1, failCa
                         : "the write didn't finish."} Nothing was written.
                 </p>
                 {failCause === "other" && osError && (
-                  <div style={{ ...mono, marginTop: "var(--tasty-space-xs)", fontSize: 11, color: "var(--tasty-text-muted)",
+                  <div style={{ ...mono, marginTop: "var(--tasty-space-xs)", fontSize: 11, color: "var(--tasty-text-on-active)",
                     overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "var(--tasty-measure-md)" }} title={osError}>{osError}</div>
                 )}
                 <div style={{ marginTop: "var(--tasty-space-sm)", display: "flex", gap: "var(--tasty-space-sm)" }}>
                   <Button variant="secondary" size="sm" onClick={() => setExportError(null)}>Try again</Button>
-                  <Button variant="ghost" size="sm" onClick={() => { setExportError(null); setPicker("export"); }}>Choose another location…</Button>
+                  <Button variant="ghost" ground="active" size="sm" onClick={() => { setExportError(null); setPicker("export"); }}>Choose another location…</Button>
                 </div>
               </div>
             )} />
