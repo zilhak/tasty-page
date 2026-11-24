@@ -46,7 +46,7 @@ function App({ children, activeWs = 0 }) {
 }
 
 const ring = { position: "absolute", borderRadius: "var(--tasty-radius)", pointerEvents: "none", border: "var(--tasty-focus-ring-width) solid var(--tasty-accent-primary)" };
-const glowShadow = "0 0 0 3px color-mix(in srgb, var(--tasty-accent-primary) 22%, transparent), 0 0 16px 2px color-mix(in srgb, var(--tasty-accent-primary) 45%, transparent)";
+const glowShadow = "0 0 0 3px var(--tasty-tutorial-marker-glow-inner), 0 0 16px 2px var(--tasty-tutorial-marker-glow-outer)";
 
 function Marker({ style, kind = "ring" }) {
   const s = { ...ring, ...style };
@@ -94,7 +94,7 @@ function Callout({ tail = "up", step, total = 5, title, body, first, style }) {
 function Topic({ n, title, desc, sel, done }) {
   return (
     <div style={{ display: "flex", gap: 10, padding: "10px 10px", borderRadius: "var(--tasty-radius)", alignItems: "flex-start", cursor: "pointer",
-      border: "var(--tasty-border-width) solid " + (sel ? "color-mix(in srgb, var(--tasty-accent-primary) 40%, transparent)" : "transparent"),
+      border: "var(--tasty-border-width) solid " + (sel ? "var(--tasty-tutorial-topic-selected-border)" : "transparent"),
       background: sel ? "var(--tasty-surface-active)" : "transparent" }}>
       <div style={{ width: 20, height: 20, flex: "none", borderRadius: "var(--tasty-radius-sm)", fontFamily: "var(--tasty-font-mono)", fontSize: 10, display: "grid", placeItems: "center", marginTop: 1,
         background: sel ? "var(--tasty-accent-primary)" : "var(--tasty-surface-raised)", color: sel ? "var(--tasty-text-on-accent)" : "var(--tasty-text-muted)" }}>{n}</div>
@@ -148,7 +148,7 @@ function Page() {
           </Stage>
           <Meta
             specs={[["family", "Modal · Popup · Toast · Banner · Modifier-hint · Marker"], ["z-layer", "top — above all content"], ["pointer", "none (clicks pass through)"], ["ring width", "2px (--tasty-focus-ring-width)"], ["radius", "4px (--tasty-radius)"], ["highlight", "static glow default · pulse opt (reduced-motion → static)"], ["fires on", "Tools → Tutorial only"]]}
-            tokens={[{ tok: "--tasty-accent-primary", use: "ring + halo", color: "var(--tasty-accent-primary-raised)" }, { tok: "--tasty-focus-ring-width", use: "2px stroke" }, { tok: "--tasty-scrim-bg", use: "spotlight dim", color: "var(--tasty-scrim-bg)" }, { tok: "--tasty-radius", use: "corner" }]} />
+            tokens={[{ tok: "--tasty-accent-primary", use: "ring", color: "var(--tasty-accent-primary-raised)" }, { tok: "--tasty-tutorial-marker-glow-inner", use: "halo, 3px spread" }, { tok: "--tasty-tutorial-marker-glow-outer", use: "halo, 16px blur" }, { tok: "--tasty-focus-ring-width", use: "2px stroke" }, { tok: "--tasty-scrim-bg", use: "spotlight dim", color: "var(--tasty-scrim-bg)" }, { tok: "--tasty-radius", use: "corner" }]} />
           <Note><b>Decision 3 (강조):</b> default = 2px solid ring + static glow; <b>pulse</b> is opt-in only and falls back to a static ring under <code>prefers-reduced-motion</code>. <b>Decision 1 (딤):</b> spotlight scrim ON by default, user-disableable.</Note>
         </Spec>
       </Section>

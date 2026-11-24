@@ -4524,6 +4524,18 @@
       "$type": "dimension",
       "$value": "{primitive.size-288}"
     },
+    "tutorial-marker-glow-inner": {
+      "$type": "color",
+      "$value": "color-mix(in srgb, var(--tasty-accent-primary) 22%, transparent)"
+    },
+    "tutorial-marker-glow-outer": {
+      "$type": "color",
+      "$value": "color-mix(in srgb, var(--tasty-accent-primary) 45%, transparent)"
+    },
+    "tutorial-topic-selected-border": {
+      "$type": "color",
+      "$value": "color-mix(in srgb, var(--tasty-accent-primary) 40%, transparent)"
+    },
     "tutorial-step-specimen-min-width": {
       "$type": "dimension",
       "$value": "{primitive.size-440}"

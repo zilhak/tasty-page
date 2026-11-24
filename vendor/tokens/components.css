@@ -940,6 +940,10 @@
   --tasty-remote-row-specimen-narrow-width: var(--tasty-size-320); /* 2026-11-24 — the narrow workspace view: the popup takes the width less space-md each side */
   --tasty-remote-row-specimen-rail-width:   var(--tasty-size-288); /* 2026-11-24 — the wrapping rail of avatars beside the rows */
   /* Overlays › Tutorial (gallery specimen layout, not app chrome) — the composite step's faux window */
+  /* 2026-11-25 tutorial marker glow (around the 2px accent ring) and the topic list's selected-row edge */
+  --tasty-tutorial-marker-glow-inner:      color-mix(in srgb, var(--tasty-accent-primary) 22%, transparent); /* 3px spread right outside the ring */
+  --tasty-tutorial-marker-glow-outer:      color-mix(in srgb, var(--tasty-accent-primary) 45%, transparent); /* 16px blur, 2px spread */
+  --tasty-tutorial-topic-selected-border:  color-mix(in srgb, var(--tasty-accent-primary) 40%, transparent); /* edge of the selected topic row on surface-active */
   --tasty-tutorial-step-specimen-min-width: var(--tasty-size-440); /* 2026-11-25 — floor of the composite step frame: it holds the callout (left 150 + 244 + tail) beside the sidebar, so a narrower column scrolls the stage instead of cutting the callout */
   /* Gallery annotation (specimen layout, not app chrome) — a dashed outline that marks an implementer's box or a scope
      rectangle. It has no fill, so the edge alone shows it: border-control role, 3:1 on crust and base (2026-11-24) */
