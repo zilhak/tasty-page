@@ -538,21 +538,23 @@ function ChildGraphWindow({ nodes = CHILD_SMALL, baseId = CHILD_SMALL_BASE, lang
   // focus into it (the button had it), so the next Esc reaches it.
   const rootRef = React.useRef(null);
   const focused = React.useRef(false);
+  const gone = status === "base-closed"; // closed with its base surface: no Esc, no focus tracking
   React.useEffect(() => {
-    if (still || push != null) return undefined;
+    if (gone) focused.current = false;
+    if (still || push != null || gone) return undefined;
     const h = (e) => { focused.current = !!(rootRef.current && rootRef.current.contains(e.target)); };
     document.addEventListener("mousedown", h, true);
     document.addEventListener("focusin", h, true);
     return () => { document.removeEventListener("mousedown", h, true); document.removeEventListener("focusin", h, true); };
-  }, [still, push]);
+  }, [still, push, gone]);
   const wasFolded = React.useRef(folded);
   React.useEffect(() => {
     if (wasFolded.current && !folded && rootRef.current) rootRef.current.focus();
     wasFolded.current = folded;
   }, [folded]);
-  useEscDeselect(flow, sel, setSel, collapse ? onCollapse : onClose, !still && push == null && !folded, () => focused.current);
+  useEscDeselect(flow, sel, setSel, collapse ? onCollapse : onClose, !still && push == null && !folded && !gone, () => focused.current);
   const screens = FlowScreens({ flow, lang, still });
-  if (status === "base-closed") return null;
+  if (gone) return null;
   return (
     <div ref={rootRef} tabIndex={-1} style={{ outline: "none", display: folded ? "none" : "flex", width: cut ? cut.w : width || "var(--tasty-graph-child-popup-width)", height: cut ? cut.h : height || "var(--tasty-graph-child-popup-height)", maxWidth: "100%",
       flexDirection: "column", overflow: "hidden", boxSizing: "border-box", background: "var(--tasty-bg-panel)",
