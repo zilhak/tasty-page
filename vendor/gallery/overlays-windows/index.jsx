@@ -549,14 +549,15 @@ function IeModifierSelectG({ chosen = false }) {
 }
 
 // ── Move & resize — interaction spec helpers ──────────────────
-// A faux popup: mantle titlebar (drag handle) over a surface0 body.
+// A faux popup: crust titlebar (drag handle) over a surface0 body. The titlebar underline is part of the
+// popup frame (Foundations C1), so it reads border-frame like the outline.
 function FauxPopup({ title = "Listening ports", w = 240, h = 150, titlebar = true, region = false, grab = true, children, style }) {
   return (
     <div style={{ width: w, background: "var(--tasty-surface-raised)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)",
       borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", overflow: "hidden", ...style }}>
       {titlebar && (
         <div style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "center", height: "var(--tasty-titlebar-height)",
-          background: "var(--tasty-bg-app)", borderBottom: "1px solid var(--tasty-separator)", cursor: grab ? "grab" : "default" }}>
+          background: "var(--tasty-bg-app)", borderBottom: "var(--tasty-border-width) solid var(--tasty-border-frame)", cursor: grab ? "grab" : "default" }}>
           <span style={{ fontSize: 12, color: "var(--tasty-titlebar-fg)" }}>{title}</span>
           <span style={{ position: "absolute", right: 4, top: "50%", transform: "translateY(-50%)", cursor: "default" }}>
             <IconButton size="sm" aria-label="Close" className="faux-close">{ic.x}</IconButton>
@@ -565,7 +566,7 @@ function FauxPopup({ title = "Listening ports", w = 240, h = 150, titlebar = tru
       )}
       {region && (
         <div style={{ display: "flex", alignItems: "center", gap: 6, height: "var(--tasty-titlebar-height)", padding: "0 6px",
-          background: "var(--tasty-bg-app)", borderBottom: "1px solid var(--tasty-separator)" }}>
+          background: "var(--tasty-bg-app)", borderBottom: "var(--tasty-border-width) solid var(--tasty-border-frame)" }}>
           <span style={{ display: "inline-flex", alignItems: "center", gap: 6, height: "100%", paddingRight: 8, cursor: "grab", color: "var(--tasty-text-secondary)" }}>
             <span style={{ display: "inline-flex", color: "var(--tasty-text-muted)" }}>{ic.port}</span><span style={{ fontSize: 12 }}>Ports</span>
           </span>
