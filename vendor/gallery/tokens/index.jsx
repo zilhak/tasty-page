@@ -160,7 +160,7 @@ const TIERS = [
     body: "Every value points at a primitive — never a literal. This is what app code and the component layer read.",
     examples: [["accent-primary", "ref"], ["space-md", "ref"]], rule: "read these in app code" },
   { n: 3, tier: "Component", title: "Per-component knobs", good: true,
-    body: "One token per styled part of one component, pointing at a semantic role. The contract an implementer copies.",
+    body: "One token per styled part of one component, usually pointing at a semantic role. The contract an implementer copies. A token for a part-only size, radius or duration can read the primitive scale directly if no semantic role names its meaning. When another part uses the same value for the same reason, add a semantic role for both.",
     examples: [["button-primary-bg", "ref"]], rule: "re-theme a component by overriding only its tokens" },
 ];
 
@@ -268,7 +268,7 @@ export const page = {
   ],
   head: {
     title: "Design tokens",
-    intro: "Tasty’s design tokens connect primitive values to semantic roles and component parts. References run in one direction: semantic tokens reference primitives, and component tokens reference semantic tokens. Specimen rows show names, references and values for colours, spacing, sizing, radius, typography and motion, with Mocha and Latte shown together.",
+    intro: "Tasty’s design tokens connect primitive values to semantic roles and component parts. References run in one direction from component tokens through semantic roles to primitives. A part-only measure with no semantic role can read a primitive directly. Colour, alpha, type, opacity, easing and UI scale always go through semantic roles. Specimen rows show names, references and values for colours, spacing, sizing, radius, typography and motion, with Mocha and Latte shown together.",
   },
   content: <TokenSystem />,
 };
