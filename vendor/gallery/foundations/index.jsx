@@ -387,7 +387,7 @@ function Foundations() {
               demo={null} />
           </Stage>
           <Meta
-            specs={[["fill text", <span className="tok">--tasty-text-on-accent</span>], ["focus ring", <>2px <span className="tok">--tasty-accent-primary</span></>], ["agent rule", "mauve = always agent"]]}
+            specs={[["fill text", <span className="tok">--tasty-text-on-accent</span>], ["focus ring", <>2px <span className="tok">--tasty-accent-primary</span> in two shapes: a text field turns its 1px edge <span className="tok">--tasty-border-focus</span> and adds a 1px ring flush outside it (<span className="tok">--tasty-border-width</span>, no gap); any other control takes a 2px outline 1px off its box (<span className="tok">--tasty-focus-ring-offset</span>), the switch 2px off its track</>], ["agent rule", "mauve = always agent"]]}
             tokens={[
               { tok: "--tasty-accent-primary", use: "blue", color: "var(--tasty-accent-primary-raised)" },
               { tok: "--tasty-accent-info", use: "sky", color: "var(--tasty-accent-info-raised)" },
@@ -599,14 +599,16 @@ function Foundations() {
             </Cluster>
           </Stage>
           <Meta
-            specs={[["radius", <>4px (<span className="tok">--tasty-radius</span>)</>], ["border", <>1px (<span className="tok">--tasty-border-width</span>)</>], ["UI motion", <>90–120ms <span className="tok">--tasty-ease-ui</span></>], ["terminal motion", "0ms — always"]]}
+            specs={[["radius", <>4px (<span className="tok">--tasty-radius</span>)</>], ["border", <>1px (<span className="tok">--tasty-border-width</span>)</>], ["field focus", <>edge <span className="tok">--tasty-border-focus</span> + ring <span className="tok">--tasty-border-width</span> 1px flush outside · no gap · no halo</>], ["control focus", <>outline <span className="tok">--tasty-focus-ring-width</span> 2px · <span className="tok">--tasty-focus-ring-offset</span> 1px off · switch 2px off</>], ["UI motion", <>90–120ms <span className="tok">--tasty-ease-ui</span></>], ["terminal motion", "0ms — always"]]}
             tokens={[
               { tok: "--tasty-radius", use: "4px everywhere" },
               { tok: "--tasty-radius-sm", use: "2px inner" },
               { tok: "--tasty-border-strong", use: "1px, divider and partition on raised", color: "var(--tasty-border-strong)" },
               { tok: "--tasty-motion-ui", use: "120ms feedback" },
               { tok: "--tasty-motion-term", use: "0ms — terminal" },
-              { tok: "--tasty-focus-ring-width", use: "2px ring" },
+              { tok: "--tasty-border-width", use: "1px border; also the text field focus ring, flush outside the edge" },
+              { tok: "--tasty-focus-ring-width", use: "2px control focus outline" },
+              { tok: "--tasty-focus-ring-offset", use: "1px gap between a control and its outline" },
             ]} />
           <Note>Inside the page, surface tint communicates elevation. Nothing casts a shadow. Shadow tokens belong only to floating surfaces (Elevation — floating surfaces).</Note>
         </Spec>
