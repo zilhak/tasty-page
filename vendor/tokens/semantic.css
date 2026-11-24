@@ -183,8 +183,10 @@
   --tasty-border-strong:  var(--tasty-color-neutral-400);
   /* structural FRAME edge — one step above border-strong: pane dividers, the
      popup frame outline + its titlebar underline, the border of a surface whose
-     GPU layer is inactive. FOUR places, closed list. A card outline or divider
-     INSIDE a panel is a partition → border-strong, never this.
+     GPU layer is inactive. FOUR places, closed list. Never a line INSIDE a
+     surface: a divider there is separator (border-strong on raised), and a
+     card or region outline is a partition (border-default, border-strong on
+     raised).
      Same ramp step as surface-active, a different role (that one is a FILL). */
   --tasty-border-frame:   var(--tasty-color-neutral-500);
   --tasty-border-focus:   var(--tasty-color-blue);
