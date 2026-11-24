@@ -86,6 +86,15 @@ jobs:
 
       # rustup reads rust-toolchain.toml from the working directory, so run from checks/.
       # No --locked: Cargo has to drop the Tasty workspace members from the copied lock file.
+      # checks/ is its own workspace, so the Tasty [patch.crates-io] table does not reach it.
+      # Tasty develop vendors vtparse and tasty-terminal calls the parser state that only
+      # that copy has. Older refs have no vendor/vtparse, and Cargo stops on a patch path
+      # that does not exist, so pass the patch only when the copy is there.
       - name: cargo test
         working-directory: checks
-        run: cargo test --manifest-path Cargo.toml --no-fail-fast
+        run: |
+          patch=()
+          if [ -f ../.tasty-src/vendor/vtparse/Cargo.toml ]; then
+            patch=(--config 'patch.crates-io.vtparse.path="../.tasty-src/vendor/vtparse"')
+          fi
+          cargo test "${patch[@]}" --manifest-path Cargo.toml --no-fail-fast

@@ -27,6 +27,8 @@
   Tasty hotfix 릴리스는 Tasty가 `main`을 `release`에 역병합한 뒤에 승격한다. 그 전에 승격하면 `release`가 hotfix가 빠진 Tasty `release`와 대조된다. 매일 한 번 `develop`으로도 실행한다. 세 브랜치 모두 `design.yml`이 `vendor/` 디자인 정본을 검사한다(아래 "vendor 검사").
   `checks/Cargo.lock`은 추적하지 않는다. `checks/`의 의존성은 받은 Tasty 소스를 따라 움직이므로, CI는 실행할 때
   `.tasty-src/Cargo.lock`을 복사해 쓴다. 로컬에서 돌릴 때도 `cargo test` 전에 같은 복사를 한다.
+  `checks/`는 따로 선 workspace라 Tasty의 `[patch.crates-io]`를 받지 못한다. 받은 Tasty 소스에 `vendor/vtparse`가 있으면
+  `cargo test` 단계가 그 패치를 `--config`로 넘긴다. 로컬에서도 같은 인자를 준다. 정확한 조건과 인자는 `checks.yml`의 `cargo test` 단계에 있다.
 
 **`docs/` 는 발행하지 않는다.** 이 레포의 `docs/`는 사이트를 고치는 사람과 에이전트를 위한 개발 문서(`docs/dev/`)와
 기획서(`docs/plan/`)이고, 사이트는 Tasty 를 받아서 쓰는 사람을 위한 것이라 독자가 다르다. Tasty의 명세·설계·ADR은
