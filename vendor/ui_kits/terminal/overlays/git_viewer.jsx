@@ -52,7 +52,7 @@ function GBadge({ tone, dot, width, title, children }) {
   if (!c) return <span title={title} style={{ ...base, color: "var(--tasty-tag-fg)",
     borderColor: "var(--tasty-border-default)", background: "var(--tasty-tag-bg)" }}>{children}</span>;
   return (
-    <span title={title} style={{ ...base, color: GV_TONE_FG[tone], borderColor: `color-mix(in srgb, ${c} 40%, transparent)`,
+    <span title={title} style={{ ...base, color: GV_TONE_FG[tone], borderColor: `var(--tasty-tint-${tone}-border)`,
       background: "var(--tasty-tag-bg)" }}>
       {dot && <span style={{ width: 5, height: 5, borderRadius: "var(--tasty-radius-pill)", background: "currentColor", flex: "none" }} />}
       {children}

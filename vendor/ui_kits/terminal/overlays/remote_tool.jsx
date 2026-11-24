@@ -118,7 +118,7 @@ function WarnBadge({ children, title }) {
       padding: "0 var(--tasty-space-sm)", borderRadius: "var(--tasty-radius-sm)", whiteSpace: "nowrap",
       fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-micro)", fontWeight: 500, lineHeight: 1,
       color: "var(--tasty-tag-warning-fg)",
-      border: "var(--tasty-border-width) solid color-mix(in srgb, var(--tasty-accent-warning) 40%, transparent)",
+      border: "var(--tasty-border-width) solid var(--tasty-tag-warning-border)",
       background: "var(--tasty-tag-bg)" }}>
       <span style={{ display: "inline-flex" }}><Icon name={RD.warn} size={12} /></span>{children}
     </span>

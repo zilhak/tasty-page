@@ -697,8 +697,8 @@ function RemoteFrame({ tab = "profiles", ssh = "hosts" }) {
           <Tag>{mode}</Tag>
           {inactive && <span style={{ display: "inline-flex", alignItems: "center", gap: 3, height: 16, padding: "0 6px", borderRadius: "var(--tasty-radius-sm)",
             fontFamily: "var(--tasty-font-mono)", fontSize: 10, fontWeight: 500, color: "var(--tasty-accent-warning-raised)",
-            border: "1px solid color-mix(in srgb, var(--tasty-accent-warning) 40%, transparent)",
-            background: "color-mix(in srgb, var(--tasty-accent-warning) 12%, transparent)" }}>inactive</span>}
+            border: "1px solid var(--tasty-tint-warning-border)",
+            background: "var(--tasty-tint-warning-bg)" }}>inactive</span>}
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: "var(--tasty-text-muted)" }}>{target}</span>
@@ -746,7 +746,7 @@ function RemoteFrame({ tab = "profiles", ssh = "hosts" }) {
                   <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", minWidth: 0 }}>
                     <span style={{ fontSize: 13, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{k.name}</span>
                     {k.unknown
-                      ? <span title="Unknown kind." style={{ flex: "none", display: "inline-flex", alignItems: "center", gap: 3, height: 16, padding: "0 6px", borderRadius: "var(--tasty-radius-sm)", fontFamily: "var(--tasty-font-mono)", fontSize: 10, fontWeight: 500, color: "var(--tasty-accent-warning-raised)", border: "1px solid color-mix(in srgb, var(--tasty-accent-warning) 40%, transparent)", background: "color-mix(in srgb, var(--tasty-accent-warning) 12%, transparent)" }}>{k.kind}</span>
+                      ? <span title="Unknown kind." style={{ flex: "none", display: "inline-flex", alignItems: "center", gap: 3, height: 16, padding: "0 6px", borderRadius: "var(--tasty-radius-sm)", fontFamily: "var(--tasty-font-mono)", fontSize: 10, fontWeight: 500, color: "var(--tasty-accent-warning-raised)", border: "1px solid var(--tasty-tint-warning-border)", background: "var(--tasty-tint-warning-bg)" }}>{k.kind}</span>
                       : <span style={{ flex: "none", display: "inline-flex" }}><Tag>{k.kind}</Tag></span>}
                   </div>
                   <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: "var(--tasty-text-muted)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{k.kind} · {k.revealed ? k.value : "••••••••"}</span>
@@ -788,8 +788,8 @@ function RemoteFrame({ tab = "profiles", ssh = "hosts" }) {
                   <Checkbox checked={on} readOnly label={p} />
                   {unknown && <span style={{ display: "inline-flex", alignItems: "center", gap: 3, height: 16, padding: "0 6px", borderRadius: "var(--tasty-radius-sm)",
                     fontFamily: "var(--tasty-font-mono)", fontSize: 10, fontWeight: 500, color: "var(--tasty-accent-warning-raised)",
-                    border: "1px solid color-mix(in srgb, var(--tasty-accent-warning) 40%, transparent)",
-                    background: "color-mix(in srgb, var(--tasty-accent-warning) 12%, transparent)" }}>unknown</span>}
+                    border: "1px solid var(--tasty-tint-warning-border)",
+                    background: "var(--tasty-tint-warning-bg)" }}>unknown</span>}
                 </div>
               ))}
             </div>
@@ -2062,7 +2062,7 @@ function StackDemoG() {
 }
 
 // ── Git worktree viewer — 960×640 read-only popup (status/log + diff) ──
-// token-colored pill — mirrors the Tag visual (outlined, color-mix tint); `info`
+// token-colored pill — mirrors the Tag visual (outlined, tint fill and edge tokens); `info`
 // is the tone Tag variants don't ship (main / oid / refs / hunk = sky).
 const GV_TONE = { info: "var(--tasty-accent-info)", success: "var(--tasty-accent-success)",
   warning: "var(--tasty-accent-warning)", danger: "var(--tasty-accent-danger)", primary: "var(--tasty-accent-primary)" };
@@ -2074,7 +2074,8 @@ function gvPill(txt, tone, dot, width) {
     fontFamily: "var(--tasty-font-mono)", fontSize: 10, fontWeight: 500, lineHeight: 1, whiteSpace: "nowrap", border: "1px solid" };
   const dotEl = dot ? <span style={{ width: 5, height: 5, borderRadius: "var(--tasty-radius-pill)", background: "currentColor" }} /> : null;
   if (!c) return <span key={txt} style={{ ...base, color: "var(--tasty-text-secondary)", borderColor: "var(--tasty-border-default)", background: "var(--tasty-surface-raised)" }}>{txt}</span>;
-  return <span key={txt} style={{ ...base, color: ink, borderColor: `color-mix(in srgb, ${c} 40%, transparent)`, background: `color-mix(in srgb, ${c} 12%, var(--sg-chip-base, transparent))` }}>{dotEl}{txt}</span>;
+  return <span key={txt} style={{ ...base, color: ink, borderColor: `var(--tasty-tint-${tone}-border)`,
+    backgroundColor: "var(--sg-chip-base, transparent)", backgroundImage: `linear-gradient(var(--tasty-tint-${tone}-bg), var(--tasty-tint-${tone}-bg))` }}>{dotEl}{txt}</span>;
 }
 const gvStrip = { display: "flex", alignItems: "center", gap: 8, height: 26, flex: "none", padding: "0 12px",
   background: "var(--tasty-bg-sidebar)", borderBottom: "1px solid var(--tasty-separator)",
@@ -2456,8 +2457,8 @@ function ScriptManagerFrame({ empty }) {
   const changedBadge = (
     <span style={{ display: "inline-flex", alignItems: "center", gap: 3, height: 16, padding: "0 6px", borderRadius: "var(--tasty-radius-sm)",
       fontFamily: "var(--tasty-font-mono)", fontSize: 10, fontWeight: 500, color: "var(--tasty-accent-warning-raised)",
-      border: "1px solid color-mix(in srgb, var(--tasty-accent-warning) 40%, transparent)",
-      background: "color-mix(in srgb, var(--tasty-accent-warning) 12%, transparent)" }}>changed</span>
+      border: "1px solid var(--tasty-tint-warning-border)",
+      background: "var(--tasty-tint-warning-bg)" }}>changed</span>
   );
   const xIcon = <Icon name="close" size={12} />;
   const caretIcon = <Icon name="chevronDown" size={12} />;

@@ -198,8 +198,8 @@ function ScriptChangedBadge() {
       style={{ display: "inline-flex", alignItems: "center", gap: 4, height: 16, padding: "0 var(--tasty-space-sm)",
         borderRadius: "var(--tasty-radius-sm)", whiteSpace: "nowrap", fontFamily: "var(--tasty-font-label)",
         fontSize: "var(--tasty-font-size-micro)", fontWeight: 500, lineHeight: 1, color: "var(--tasty-accent-warning-raised)",
-        border: "var(--tasty-border-width) solid color-mix(in srgb, var(--tasty-accent-warning) 40%, transparent)",
-        background: "color-mix(in srgb, var(--tasty-accent-warning) 12%, transparent)" }}>
+        border: "var(--tasty-border-width) solid var(--tasty-tint-warning-border)",
+        background: "var(--tasty-tint-warning-bg)" }}>
       <span style={{ display: "inline-flex" }}><Icon name={SD.warn} size={12} /></span>changed
     </span>
   );
