@@ -3454,6 +3454,14 @@
       "$type": "dimension",
       "$value": "{primitive.size-96}"
     },
+    "address-field-focus-halo": {
+      "$type": "color",
+      "$value": "color-mix(in srgb, var(--tasty-border-focus) 35%, transparent)"
+    },
+    "address-field-invalid-halo": {
+      "$type": "color",
+      "$value": "color-mix(in srgb, var(--tasty-input-border-invalid) 35%, transparent)"
+    },
     "html-address-error-height": {
       "$type": "dimension",
       "$value": "{primitive.size-24}"

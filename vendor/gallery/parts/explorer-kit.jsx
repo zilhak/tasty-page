@@ -58,7 +58,7 @@ function PathField({ icon, path, editing = false, candidates = null, open = fals
       <div style={{ flex: 1, minWidth: 0, display: "flex", alignItems: "center", gap: 6, height: 28, padding: "0 8px",
         background: "var(--tasty-input-bg)", borderRadius: "var(--tasty-radius)",
         border: "1px solid " + (editing ? "var(--tasty-input-border-focus)" : "var(--tasty-input-border)"),
-        boxShadow: editing ? "0 0 0 2px color-mix(in srgb, var(--tasty-border-focus) 35%, transparent)" : "none" }}>
+        boxShadow: editing ? "0 0 0 2px var(--tasty-address-field-focus-halo)" : "none" }}>
         <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-input-icon-fg)" }}>{icon}</span>
         <span style={{ flex: 1, minWidth: 0, fontFamily: "var(--tasty-font-mono)", fontSize: 12,
           color: editing ? "var(--tasty-text-primary)" : "var(--tasty-text-secondary)",
