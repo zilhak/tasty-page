@@ -1549,6 +1549,10 @@
       "$type": "duration",
       "$value": "{primitive.duration-500}"
     },
+    "motion-busy-delay": {
+      "$type": "duration",
+      "$value": "{primitive.duration-200}"
+    },
     "ease-ui": {
       "$type": "cubicBezier",
       "$value": "{primitive.easing-standard}"
@@ -3853,7 +3857,7 @@
     },
     "loading-overlay-delay": {
       "$type": "duration",
-      "$value": "{semantic.motion-ui-fade}",
+      "$value": "{semantic.motion-busy-delay}",
       "$description": "show only if still loading after 200ms; hide is immediate"
     },
     "loading-overlay-surface-size": {
@@ -6497,7 +6501,7 @@
     },
     "explorer-address-pending-delay": {
       "$type": "duration",
-      "$value": "{semantic.motion-ui-fade}",
+      "$value": "{semantic.motion-busy-delay}",
       "$description": "remote address check: spinner appears only after 200ms (no flash on a fast round trip)"
     },
     "explorer-remote-queue-head-gap": {
@@ -6701,7 +6705,7 @@
     },
     "pending-indicator-delay": {
       "$type": "duration",
-      "$value": "{component.loading-overlay-delay}",
+      "$value": "{semantic.motion-busy-delay}",
       "$description": "show only if still pending after 200ms (same as LoadingOverlay)"
     },
     "select-placeholder": {

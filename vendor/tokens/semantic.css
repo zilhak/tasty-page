@@ -358,6 +358,7 @@
   --tasty-motion-ui-med:  var(--tasty-duration-150); /* tooltip show delay, unhurried UI reveals */
   --tasty-motion-ui-fade: var(--tasty-duration-200); /* opacity fade-in for discoverability overlays (modifier-hint panel) */
   --tasty-motion-hold-reveal: var(--tasty-duration-500); /* hold-a-key dwell before a discoverability overlay appears */
+  --tasty-motion-busy-delay: var(--tasty-duration-200); /* a busy indicator appears only if the work is still running after this, so a fast answer never flashes it (2026-11-25) */
   --tasty-ease-ui:        var(--tasty-easing-standard);
 
   /* ── UI scale (sidebar zoom) — one multiplier, read in one place ── */

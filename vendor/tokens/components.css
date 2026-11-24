@@ -676,7 +676,7 @@
   /* Loading overlay — a Spinner laid over EXISTING content (surface · tab · LNB card · rail avatar),
      never a new slot. Non-blocking, no dim mask; a bed only as big as the slot it covers. 2026-10-16 */
   --tasty-loading-overlay-indicator:        var(--tasty-spinner-indicator);   /* arc ink, every placement (track = arc ink @ 22%, Spinner's own) */
-  --tasty-loading-overlay-delay:            var(--tasty-motion-ui-fade);      /* 200 — show only if still loading after this; hide is immediate */
+  --tasty-loading-overlay-delay:            var(--tasty-motion-busy-delay);   /* 200 — show only if still loading after this; hide is immediate */
   --tasty-loading-overlay-surface-size:     var(--tasty-spinner-size);        /* 16 */
   --tasty-loading-overlay-surface-bed-size: var(--tasty-size-24);             /* square bed, bottom-right of the surface rect */
   --tasty-loading-overlay-surface-bed-bg:   var(--tasty-surface-raised);
@@ -1651,7 +1651,7 @@
   --tasty-approval-danger-bg: color-mix(in srgb, var(--tasty-accent-danger) calc(var(--tasty-tint-fill-alpha) * 100%), var(--tasty-bg-panel)); /* agent approval danger choice fill — OPAQUE mix over bg-panel (Mocha 56,43,61 · Latte 236,214,222) */
   --tasty-approval-danger-border: var(--tasty-accent-danger); /* agent approval danger choice 1px border (vs surface-raised: Mocha 5.43 · Latte 3.52) */
   --tasty-approval-danger-fg: var(--tasty-text-primary); /* agent approval danger choice label (on fill: Mocha 9.18 · Latte 5.80) */
-  --tasty-explorer-address-pending-delay: var(--tasty-motion-ui-fade);
+  --tasty-explorer-address-pending-delay: var(--tasty-motion-busy-delay);
   --tasty-explorer-remote-queue-head-gap: var(--tasty-space-xs); /* 2026-10-14 — remote queue head “On ‹host› · one at a time”: gap between text pieces and host mark = a word space */ /* remote address check: spinner appears only after 200ms (no flash on a fast round trip) */
   --tasty-explorer-address-pending-size: var(--tasty-icon-size-sm); /* remote address check spinner in the address field trailing slot */
   --tasty-explorer-create-field-max-width: var(--tasty-size-240); /* create-in-folder / new item name field max width; caption follows at space-sm */
@@ -1693,7 +1693,7 @@
   --tasty-pending-indicator-sep-fg: var(--tasty-text-muted-raised); /* 2026-11-05 ground-ink rules */
   --tasty-pending-indicator-spinner-size: var(--tasty-icon-size-sm); /* chip spinner 14 */
   --tasty-pending-indicator-compact-below: var(--tasty-size-200); /* notice column narrower than this → spinner + time only */
-  --tasty-pending-indicator-delay: var(--tasty-loading-overlay-delay); /* show only if still pending after 200ms (same as LoadingOverlay) */
+  --tasty-pending-indicator-delay: var(--tasty-motion-busy-delay); /* show only if still pending after 200ms (the delay LoadingOverlay also reads) */
   /* 2026-10-19 — Settings › Handler › File Detectors / File Handlers: registered rows + user add card */
   --tasty-file-handler-form-bg: var(--tasty-surface-raised); /* add card fill (= Hook Handlers add card) */
   --tasty-file-handler-form-border: var(--tasty-border-default); /* add card 1px edge */

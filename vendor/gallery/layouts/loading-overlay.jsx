@@ -310,8 +310,8 @@ function GalleryLoadingOverlay() {
           </Themed>
         </Stage>
         <Meta
-          specs={[["switching", "per placement, by its caller"], ["delay", "200 · loading-overlay-delay (same role as explorer-address-pending-delay)"], ["in / out", "no fade · gone immediately on finish or failure"], ["rotation", "spinner-duration 900"], ["reduced motion", "still arc + track (Spinner reducedMotion=\"arc\")"], ["scale", "token sizes × ui-scale; stroke 2px at 1×"], ["hidden placements", "off-screen tab / collapsed card not drawn → no repaint"]]}
-          tokens={[{ tok: "--tasty-loading-overlay-delay", use: "→ motion-ui-fade 200" }, { tok: "--tasty-spinner-duration", use: "→ duration-900" }]} />
+          specs={[["switching", "per placement, by its caller"], ["delay", "200 · loading-overlay-delay → motion-busy-delay (as explorer-address-pending-delay and pending-indicator-delay)"], ["in / out", "no fade · gone immediately on finish or failure"], ["rotation", "spinner-duration 900"], ["reduced motion", "still arc + track (Spinner reducedMotion=\"arc\")"], ["scale", "token sizes × ui-scale; stroke 2px at 1×"], ["hidden placements", "off-screen tab / collapsed card not drawn → no repaint"]]}
+          tokens={[{ tok: "--tasty-loading-overlay-delay", use: "→ motion-busy-delay 200" }, { tok: "--tasty-spinner-duration", use: "→ duration-900" }]} />
       </Spec>
 
       <Spec id="labels-and-tooltips" title="Labels and tooltips">
