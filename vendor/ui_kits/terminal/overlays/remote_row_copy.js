@@ -34,7 +34,7 @@ export const REMOTE_ROW_COPY = {
   "remote.row.menu.disconnect": {"en": "Disconnect", "ko": "연결 끊기", "ja": "接続を切る", "zh-Hans": "断开连接"},
   "remote.row.menu.close_local": {"en": "Close locally", "ko": "로컬에서 닫기", "ja": "ローカルで閉じる", "zh-Hans": "在本地关闭"},
   "remote.row.menu.close_remote": {"en": "Close remote workspace…", "ko": "원격 워크스페이스 닫기…", "ja": "リモートワークスペースを閉じる…", "zh-Hans": "关闭远程工作区…"},
-  "remote.row.close_remote.title": {"en": "Close remote workspace {}?", "ko": "원격 워크스페이스 {}을(를) 닫으시겠습니까?", "ja": "リモートワークスペース {} を閉じますか？", "zh-Hans": "关闭远程工作区 {}？"},
+  "remote.row.close_remote.title": {"en": "Close remote workspace {}?", "ko": "{} 원격 워크스페이스를 닫으시겠습니까?", "ja": "リモートワークスペース {} を閉じますか？", "zh-Hans": "关闭远程工作区 {}？"},
   "remote.row.close_remote.body": {"en": "The workspace and all its processes will end on the remote Tasty for profile {}. This cannot be undone.", "ko": "{} 프로필의 원격 Tasty에서 워크스페이스와 그 안의 모든 프로세스를 종료합니다. 되돌릴 수 없습니다.", "ja": "プロファイル {} のリモート Tasty で、ワークスペースとその中の全プロセスを終了します。取り消せません。", "zh-Hans": "将终止配置档 {} 对应的远程 Tasty 上的工作区及其中的所有进程。此操作无法撤销。"},
   "remote.row.close_remote.last": {"en": "Closing the last tab also closes the workspace on the remote Tasty.", "ko": "마지막 탭을 닫으면 원격 Tasty의 워크스페이스도 닫힙니다.", "ja": "最後のタブを閉じると、リモートの Tasty でもワークスペースが閉じます。", "zh-Hans": "关闭最后一个标签页也会关闭远程 Tasty 上的工作区。"},
   "remote.row.close_remote.confirm": {"en": "Close remote workspace", "ko": "원격 워크스페이스 닫기", "ja": "リモートワークスペースを閉じる", "zh-Hans": "关闭远程工作区"},
