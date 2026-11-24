@@ -101,7 +101,7 @@ function PaletteFrame({ opaque = false, focused = false, value = "", rows = 4 } 
   return (
     <div align="top" style={{ width: 480, background: "var(--tasty-surface-raised)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)",
       borderRadius: opaque ? "var(--tasty-webview-opaque-radius)" : "var(--tasty-radius)", overflow: "hidden", boxShadow: opaque ? "var(--tasty-webview-opaque-shadow)" : "var(--tasty-shadow-modal)" }}>
-      <div style={{ padding: 10, borderBottom: "1px solid var(--tasty-separator)" }}>
+      <div style={{ padding: 10, borderBottom: "var(--tasty-border-width) solid var(--tasty-border-strong)" }}>
         <Input block ground="raised" focused={focused} icon={ic.search} placeholder="Type to search commands…" defaultValue={value} />
       </div>
       <div style={{ padding: 6 }}>
@@ -110,7 +110,7 @@ function PaletteFrame({ opaque = false, focused = false, value = "", rows = 4 } 
             shortcut={i.sc ? <Kbd keys={i.sc} /> : null} />
         ))}
       </div>
-      <div style={{ display: "flex", gap: 14, padding: "8px 12px", borderTop: "1px solid var(--tasty-separator)",
+      <div style={{ display: "flex", gap: 14, padding: "8px 12px", borderTop: "var(--tasty-border-width) solid var(--tasty-border-strong)",
         fontFamily: "var(--tasty-font-mono)", fontSize: 10.5, color: "var(--tasty-text-muted-raised)" }}>
         <span>↑↓ navigate</span><span>↵ run</span><span>esc close</span>
       </div>
