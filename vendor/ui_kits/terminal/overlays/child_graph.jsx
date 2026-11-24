@@ -205,7 +205,9 @@ function ChildNode({ node, lod = "full", selected = false, base = false, hover, 
   const label = special ? (node.kind === "external" ? gt("child_graph.card.external", lang) : node.kind === "remote-ancestor" ? gt("child_graph.card.not_attached", lang) : null) : gt(st.key, lang);
   const other = node.remote || node.kind === "remote-ancestor";
   const host = other ? (node.profile || null) : null;
-  const tip = [name, label, other ? host || gt("attach.mirror_pill_label", lang) : null].filter(Boolean).join(" — ");
+  // On a card from another machine the id leaves the meta row for the machine's name, so the tooltip and the
+  // accessible name carry both: name — STATE — machine — id.
+  const tip = [name, label, other ? host || gt("attach.mirror_pill_label", lang) : null, other && node.id !== name ? node.id : null].filter(Boolean).join(" — ");
   const box = {
     position: "absolute", boxSizing: "border-box", textAlign: "left",
     width: "var(--tasty-dag-node-width)", height: "var(--tasty-dag-node-height)",
