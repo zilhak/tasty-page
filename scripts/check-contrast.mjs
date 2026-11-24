@@ -20,7 +20,7 @@ import { chromium } from "playwright-core";
 import { BASE } from "../src/lib/base.mjs";
 import { DEFAULT_LANG, LANGS } from "../src/lib/langs.mjs";
 import { PART_MAP } from "../vendor/gallery/parts/part-map.js";
-import { contractRowKey, installPageLib, missingCellRows, stylesSettled } from "./contrast-page.mjs";
+import { installPageLib, missingCellRows, stylesSettled } from "./contrast-page.mjs";
 import { emptySiteTally, measureRest, runSite, sitePages, siteRules } from "./contrast-site.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -255,7 +255,7 @@ async function run() {
       if (!(await runSite({ browser, origin, dist, rules, theme, report }))) failed = true;
     }
     if (siteOnly) continue;
-    const seen = new Set();
+    const measuredRows = [];
     const t = { cells: 0, rows: 0, ok: 0, unlocated: [], mismatch: [], below: [], diagnostics: [], text: 0, svgs: 0, emptySvgs: 0, glyph: 0, inputs: 0, other: [], exemptUses: {}, badExempt: [], gradeNone: {}, picture: 0, paintServer: 0, hscroll: [], errors: [], passes: {} };
     const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
     await context.addInitScript((name) => localStorage.setItem("tasty-theme", name), theme);
@@ -279,7 +279,7 @@ async function run() {
       t.cells += m.cells;
       t.rows += m.rows.length;
       for (const r of m.rows) {
-        seen.add(contractRowKey(r));
+        measuredRows.push(r);
         if (r.status === "ok") t.ok += 1;
         else t[r.status].push({ ...r, page: page.key });
       }
@@ -299,7 +299,7 @@ async function run() {
     console.log(`${theme} gallery chrome: pages ${chrome.pages}, text ${chrome.text}, shapes ${chrome.glyph}, below ${chrome.below.length}`);
     chrome.below.slice(0, 100).forEach((b) => console.log(`  chrome ${b.page} ${b.at}: ${b.kind} "${b.text}" ${b.got} on ${b.ground} ${b.ratio} < ${b.grade}`));
     if (chromeBad > 0) failed = true;
-    t.missingCells = argOf("--page") ? [] : missingCellRows(data.components, seen);
+    t.missingCells = argOf("--page") ? [] : missingCellRows(data.components, measuredRows);
     report.themes[theme] = { ...t, chromePasses: chrome.passes };
     const measured = t.rows + t.text + t.glyph + t.inputs;
     const bad = t.unlocated.length + t.mismatch.length + t.below.length + t.diagnostics.length + t.other.length + t.badExempt.length + t.missingCells.length + t.errors.length;

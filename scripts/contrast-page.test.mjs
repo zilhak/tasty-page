@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { contractRowKey, missingCellRows, pageLib } from "./contrast-page.mjs";
+import { missingCellRows, pageLib } from "./contrast-page.mjs";
 
 const { selectParts, validateParts, expectedTheme } = pageLib();
 const key = { component: "Title bar", state: "rest", host: "crust" };
@@ -38,26 +38,25 @@ test("a list on a cell with no matching rows is invalid", () => {
   assert.deepEqual(validateParts('["title"]', []), { error: 'unknown parts ["title"]' });
 });
 
-function resultKeys(selected, status = "ok") {
-  const results = selected.map(({ component, ...row }) => ({ ...row, contract: component, status }));
-  return results.map(contractRowKey);
+function measurementResults(selected, status = "ok") {
+  return selected.map(({ component, ...row }) => ({ ...row, contract: component, status }));
 }
 
 test("one cell leaves the unselected parts of the same contract key missing", () => {
-  const seen = new Set(resultKeys(selectParts(rows, ["title"])));
-  assert.deepEqual(missingCellRows(rows, seen), ["Title bar|rest|crust|button", "Title bar|rest|crust|window button"]);
+  const measured = measurementResults(selectParts(rows, ["title"]));
+  assert.deepEqual(missingCellRows(rows, measured), ["Title bar|rest|crust|button", "Title bar|rest|crust|window button"]);
 });
 
 test("two cells can cover different parts of one contract key", () => {
   const first = selectParts(rows, ["title", "button"]);
   const second = selectParts(rows, ["window button"]);
-  const seen = new Set([...resultKeys(first), ...resultKeys(second)]);
-  assert.deepEqual(missingCellRows(rows, seen), []);
+  const measured = [...measurementResults(first), ...measurementResults(second)];
+  assert.deepEqual(missingCellRows(rows, measured), []);
 });
 
-test("an unlocated result still covers its row", () => {
-  const seen = new Set(resultKeys(selectParts(rows, ["window button"]), "unlocated"));
-  assert.deepEqual(missingCellRows(rows, seen), ["Title bar|rest|crust|title", "Title bar|rest|crust|button"]);
+test("an unlocated result is not also reported as a missing cell", () => {
+  const measured = measurementResults(selectParts(rows, ["window button"]), "unlocated");
+  assert.deepEqual(missingCellRows(rows, measured), ["Title bar|rest|crust|title", "Title bar|rest|crust|button"]);
 });
 
 function themedElement(theme, parent = null) {

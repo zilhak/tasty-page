@@ -319,8 +319,13 @@ export function pageLib() {
 export const installPageLib = (tab) => tab.addScriptTag({ content: `window.__contrast = (${pageLib})();` });
 
 // The Node runner indexes contract definitions and browser results by the same row identity.
-export const contractRowKey = ({ component, contract, state, host, part }) => `${component ?? contract}|${state}|${host}|${part}`;
-export const missingCellRows = (rows, seen) => [...new Set(rows.map(contractRowKey))].filter((key) => !seen.has(key));
+const contractRowKey = ({ component, contract, state, host, part }) => `${component ?? contract}|${state}|${host}|${part}`;
+
+export function missingCellRows(contractRows, measuredRows) {
+  // Every measurement result covers the row, including an unlocated part.
+  const seen = new Set(measuredRows.map(contractRowKey));
+  return [...new Set(contractRows.map(contractRowKey))].filter((key) => !seen.has(key));
+}
 
 const SETTLE_LIMIT_MS = 30000;
 
