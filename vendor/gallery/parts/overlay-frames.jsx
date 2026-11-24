@@ -3160,14 +3160,14 @@ function FilePickerFrame({ state = "loaded", remote = false, indicator = "badge"
   const LONG_PARENT = "long-folder-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
   const LONG_CURRENT = "current-folder-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
   const crumbs = pathKind === "longtwo"
-    ? [{ label: "/", root: true }, { label: "Users" }, { label: "maya" }, { label: LONG_PARENT }, { label: LONG_CURRENT, current: true }]
+    ? [{ label: "/", root: true }, { label: "home" }, { label: "me" }, { label: LONG_PARENT }, { label: LONG_CURRENT, current: true }]
     : pathKind === "longroot"
       ? [{ label: "\\\\build-farm-eu-west\\releases$", root: true }, { label: "2026" }, { label: "09" }, { label: "nightly", current: true }]
       : remote
     ? [{ label: "/", root: true }, { label: "home" }, { label: "deploy" }, { label: "agents-prod", current: true }]
     : deep
-      ? [{ label: "/", root: true }, { label: "Users" }, { label: "maya" }, ...deepTail]
-      : [{ label: "/", root: true }, { label: "Users" }, { label: "maya" }, { label: "projects", current: true }];
+      ? [{ label: "/", root: true }, { label: "home" }, { label: "me" }, ...deepTail]
+      : [{ label: "/", root: true }, { label: "home" }, { label: "me" }, { label: "projects", current: true }];
   const borderMode = remote && indicator === "border";
   const files = [
     { kind: "folder", name: "configs", size: "—", mod: "Jul 12 09:14" },

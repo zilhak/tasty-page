@@ -138,7 +138,7 @@ function SceneD({ mode }) {
         <FilePickerFrame w={440} h={188} deep opaque={op} />
       </Host>
       <Host on={op} style={{ position: "absolute", left: PX + 44, top: PY + PATH_BOTTOM + 4 }}>
-        <FpCrumbMenu items={["Users", "maya", "tasty", "config", "keybindings", "exports"]} opaque={op} style={{ position: "static", marginTop: 0 }} />
+        <FpCrumbMenu items={["home", "me", "tasty", "config", "keybindings", "exports"]} opaque={op} style={{ position: "static", marginTop: 0 }} />
       </Host>
     </Frame>
   );
