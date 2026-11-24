@@ -154,7 +154,7 @@ function GapNode({ node, lod, selected, lang, onSelect }) {
   const label = gt(`child_graph.gap.${look.key}`, lang);
   const host = node.host || gt("attach.mirror_pill_label", lang);
   const ink = "var(--tasty-dag-node-meta-fg)";
-  const glyph = look.glyph ? <Icon name={look.glyph} size="var(--tasty-icon-size-sm)" /> : <Spinner size={12} label={label} />;
+  const glyph = look.glyph ? <Icon name={look.glyph} size="var(--tasty-icon-size-sm)" /> : <Spinner size="var(--tasty-icon-size-xs)" label={label} />;
   const tip = `${label} — ${host}`;
   const box = {
     position: "absolute", boxSizing: "border-box", textAlign: "left", cursor: "pointer", fontFamily: "var(--tasty-font-ui)",
@@ -162,7 +162,7 @@ function GapNode({ node, lod, selected, lang, onSelect }) {
     display: "flex", alignItems: lod === "block" ? "center" : "stretch", justifyContent: lod === "block" ? "center" : "flex-start",
     borderRadius: "var(--tasty-dag-node-radius)", border: "var(--tasty-border-width) dashed var(--tasty-dag-node-border)",
     background: "var(--tasty-dag-node-bg)", color: "var(--tasty-dag-node-fg)",
-    outline: selected ? "var(--tasty-dag-node-selected-ring-width) solid var(--tasty-dag-node-selected-ring)" : "none", outlineOffset: "var(--tasty-size-1)",
+    outline: selected ? "var(--tasty-dag-node-selected-ring-width) solid var(--tasty-dag-node-selected-ring)" : "none", outlineOffset: "var(--tasty-border-width)",
   };
   return (
     <span style={{ position: "relative", display: "block" }}>
@@ -428,7 +428,7 @@ function MirrorBanner({ cause = "detached", state = "idle", reason = "unreachabl
   const action = !canReconnect
     ? <span title={gt("child_graph.reconnect_unavailable", lang)} style={{ display: "inline-flex" }}><Button size="sm" variant="secondary" disabled>{gt("child_graph.reconnect", lang)}</Button></span>
     : state === "trying"
-      ? <Button size="sm" variant="secondary" disabled leadingIcon={<Spinner size={12} />}>{gt("child_graph.reconnecting", lang)}</Button>
+      ? <Button size="sm" variant="secondary" disabled leadingIcon={<Spinner size="var(--tasty-icon-size-xs)" />}>{gt("child_graph.reconnecting", lang)}</Button>
       : <Button size="sm" variant="secondary" title={tip} onClick={onReconnect}>{gt("child_graph.reconnect", lang)}</Button>;
   return <GraphStrip tone={cause === "lost" || failed ? "warning" : "info"} action={action}>{text}</GraphStrip>;
 }

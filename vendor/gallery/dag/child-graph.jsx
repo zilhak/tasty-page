@@ -485,16 +485,16 @@ export function ChildGraphSection() {
       <Spec id="child-graph-gap-nodes" title="Across machines — a gap node where the chain cannot be followed"
         when={<>The graph follows only the attach connections already open, relaying the query machine to machine. Where a link cannot be followed, nothing beyond it is guessed: <b>one gap node</b> stands where the chain breaks, on either side — a child that cannot be reached, or a parent that cannot be. It is the card's box (168 × 48, so layout and LOD stay the card's), <b>dashed</b> like the other cards that are not a surface here, with <b>no bar and no state colour</b> — it is not a surface state, and the strip, not the card, carries a warning. Its name row is a <b>reason glyph</b> and the <b>reason</b>; its meta row is the machine the broken link leads to, by the host text rule. One shape for all reasons, each with its own label and a glyph from a small set, so the graph does not grow a second legend: <i>Disconnected</i> and <i>No response</i> share the unreachable glyph; <i>stale</i> and <i>malformed</i> share one label, <i>Parent unverified</i> — the user acts on them the same way. <i>Checking…</i> spins while Tasty asks. Its line is the one <b>dashed</b> edge. It is <b>selectable</b>: its drawer says why in a sentence and names what is around it — the last surface reached, the machine, the machines in between, and for <i>No response</i> the next try — with no actions. <b>What was seen beyond the break is dropped</b> and folded into the gap node, not kept dimmed: a dimmed card would still read as a surface that exists, and the chain past the break may have changed. A surface mirrored here stays, with its state unknown, since it is still here (Graph view › Status). A <b>loop in the parents</b> (a diagnostic state, not a normal one) is cut the same way: a <i>Parent loop</i> gap node at the top, whose drawer names the surface the loop returns to, instead of a line back that the left-to-right tree cannot draw.</>}>
         <Stage variant="grid" style={{ display: "block", padding: 20 }}>
-          <div style={{ display: "grid", gridTemplateColumns: "96px 168px", columnGap: 16, rowGap: 8, alignItems: "end" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "max-content var(--tasty-dag-node-width)", columnGap: "var(--tasty-space-lg)", rowGap: "var(--tasty-space-sm)", alignItems: "center" }}>
             <span /><span style={cap}>rest</span>
             {GAP_REASONS.map((r) => (
               <React.Fragment key={r}>
-                <span style={{ ...cap, alignSelf: "center" }}>{r}</span>
-                {[false].map((sel) => <div key={String(sel)} style={{ position: "relative", width: 168, height: 48, marginTop: 20 }}><ChildNode node={{ id: `g_${r}`, kind: "gap", reason: r, host: "gpu-box" }} selected={sel} /></div>)}
+                <span style={cap}>{r}</span>
+                <div style={{ position: "relative", width: "var(--tasty-dag-node-width)", height: "var(--tasty-dag-node-height)" }}><ChildNode node={{ id: `g_${r}`, kind: "gap", reason: r, host: "gpu-box" }} /></div>
               </React.Fragment>
             ))}
           </div>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 16, marginTop: 24, alignItems: "flex-end" }}>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-lg)", marginTop: "var(--tasty-space-xl)", alignItems: "flex-end" }}>
             {["full", "compact", "block"].map((l) => <Labelled key={l} label={`gap · ${l}`}><Card node={{ id: "g_l", kind: "gap", reason: "disconnected", host: "gpu-box" }} lod={l} /></Labelled>)}
             <Labelled label="no profile name — Remote in the label font"><Card node={{ id: "g_n", kind: "gap", reason: "timeout", host: "" }} /></Labelled>
           </div>
@@ -506,11 +506,11 @@ export function ChildGraphSection() {
         </Stage>
         <Views>
           <View name="child-gap-selected" label="Every reason selected — the card's selection ring" wide>
-            <div style={{ display: "grid", gridTemplateColumns: "96px 168px", columnGap: 16, rowGap: 8, alignItems: "end" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "max-content var(--tasty-dag-node-width)", columnGap: "var(--tasty-space-lg)", rowGap: "var(--tasty-space-sm)", alignItems: "center" }}>
               {GAP_REASONS.map((r) => (
                 <React.Fragment key={r}>
-                  <span style={{ ...cap, alignSelf: "center" }}>{r}</span>
-                  <div style={{ position: "relative", width: 168, height: 48, marginTop: 20 }}><ChildNode node={{ id: `g_${r}`, kind: "gap", reason: r, host: "gpu-box" }} selected /></div>
+                  <span style={cap}>{r}</span>
+                  <div style={{ position: "relative", width: "var(--tasty-dag-node-width)", height: "var(--tasty-dag-node-height)" }}><ChildNode node={{ id: `g_${r}`, kind: "gap", reason: r, host: "gpu-box" }} selected /></div>
                 </React.Fragment>
               ))}
             </div>
@@ -525,7 +525,7 @@ export function ChildGraphSection() {
           <View name="child-gap-themes" label="Mocha and Latte — every reason">
             <ThemePair render={() => (
               <div style={{ display: "flex", flexWrap: "wrap", gap: 16, background: "var(--tasty-dag-canvas-bg)", padding: 12 }}>
-                {GAP_REASONS.map((r) => <div key={r} style={{ position: "relative", width: 168, height: 48, marginTop: 4 }}><ChildNode node={{ id: `g_${r}`, kind: "gap", reason: r, host: "gpu-box" }} /></div>)}
+                {GAP_REASONS.map((r) => <div key={r} style={{ position: "relative", width: "var(--tasty-dag-node-width)", height: "var(--tasty-dag-node-height)" }}><ChildNode node={{ id: `g_${r}`, kind: "gap", reason: r, host: "gpu-box" }} /></div>)}
               </div>
             )} />
           </View>
