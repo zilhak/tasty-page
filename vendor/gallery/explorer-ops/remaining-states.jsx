@@ -71,7 +71,7 @@ function RemainingSection() {
         when={<>Arrow keys, Home / End and PageUp / Down move a <b>current item</b> separate from the selection. It is a 1px <b>inset</b> ring in <span className="tok">--tasty-explorer-cursor-ring</span> (border-focus) and is drawn only after keyboard movement; a mouse click hides it until the next key. On a selected row it sits on top of the selection fill. <b>Drag-select</b> from empty space draws a rectangle with <span className="tok">--tasty-explorer-marquee-bg</span> and a 1px <span className="tok">--tasty-explorer-marquee-border</span> (the drop-target tint pair). Near the top or bottom edge, inside <span className="tok">--tasty-explorer-autoscroll-zone</span> 24, the list scrolls faster the closer the pointer gets; nothing extra is drawn.</>}>
         <ZStage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)" }}>
           <XThemes render={(l) => (
-            <XCell w={560} h={200} status={l === "Mocha" ? "2 of 5 selected" : "3 of 5 selected"}><ZBody>
+            <XCell w={560} h={240} status={l === "Mocha" ? "2 of 5 selected" : "3 of 5 selected"}><ZBody>
               {rows.slice(0, 5).map((r, i) => {
                 const sel = l === "Mocha" ? i === 2 || i === 3 : i >= 1 && i <= 3;
                 const row = <ZK.DetailRow {...r} state={sel ? "selected" : undefined} />;
