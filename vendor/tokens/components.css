@@ -1551,9 +1551,10 @@
   --tasty-explorer-delete-list-max-height: var(--tasty-size-160); /* 2026-10-12 Delete permanently confirm: target list scrolls past ~4 two-line rows; frame = info-modal-width / max-height */
   --tasty-explorer-props-label-width: var(--tasty-size-96); /* Properties field label column */
   --tasty-explorer-search-bar-height: var(--tasty-size-36); /* filter / search bar under the toolbar */
-  --tasty-explorer-detail-size-col-width: var(--tasty-size-80);  /* 2026-11-24 — Detail Size column default width (was literal 80). Same as the app's column default; the app's floor is 64 */
-  --tasty-explorer-detail-date-col-width: var(--tasty-size-132); /* 2026-11-24 — Detail Date modified column default width (was literal 132). App floor 108 */
-  --tasty-explorer-detail-type-col-width: var(--tasty-size-92);  /* 2026-11-24 — Detail Type column default width (was literal 92). App floor 72; the Name column floor is 140 */
+  --tasty-explorer-detail-size-col-width: var(--tasty-size-80);  /* 2026-11-24 — Detail Size column default width (was literal 80). Same as the app's column default; the app's table is not resizable, so the column stays 80 (its 64 floor is never used) */
+  --tasty-explorer-detail-date-col-width: var(--tasty-size-132); /* 2026-11-24 — Detail Date modified column default width (was literal 132). Fixed: the app's table is not resizable, so its 108 floor is never used */
+  --tasty-explorer-detail-type-col-width: var(--tasty-size-92);  /* 2026-11-24 — Detail Type column default width (was literal 92). Fixed: the app's table is not resizable, so its 72 floor is never used; the Name floor is explorer-detail-name-col-min-width */
+  --tasty-explorer-detail-name-col-min-width: var(--tasty-size-140); /* 2026-11-25 — Detail Name column floor. Name takes the width left after the fixed Size, Date modified and Type columns and stops at 140; a narrower pane clips the table on the right, with no horizontal scroll (the app's Detail table) */
   --tasty-explorer-detail-padding-x:      var(--tasty-space-sm); /* 2026-11-24 — GALLERY SPECIMEN ONLY: side inset of the web Detail header and rows, 8 (was literal 10, off the 4px grid). The app's Detail header and rows have no outer inset (0): it separates the columns with item_spacing 8 and adds spacing_sm 8 to the right of the Size cell. The app reads nothing from this token */
   --tasty-explorer-search-folder-col-width: var(--tasty-size-160); /* Detail “Folder” column in recursive results */
   --tasty-explorer-match-fg: var(--tasty-autocomplete-match-fg); /* matched part of a name while filtering */

@@ -124,16 +124,18 @@ function FavRow({ name, active }) {
   );
 }
 
-// Detail columns, one track list for the header and every row. Name is minmax(0, 1fr) so it can shrink to 0
-// in a narrow pane; a bare 1fr has an auto floor, which is the header label's min-content but 0 in a row
-// whose Name cell has min-width 0, so the two tracks parted (45.6 vs 0 at 314). Header labels clip with an
-// ellipsis like the row names.
-const DETAIL_COLUMNS = "minmax(0, 1fr) var(--tasty-explorer-detail-size-col-width) var(--tasty-explorer-detail-date-col-width) var(--tasty-explorer-detail-type-col-width)";
+// Detail columns, one track list for the header and every row, as the app's Detail table draws them. Size, Date
+// modified and Type are fixed (the app's table is not resizable). Name takes what is left and stops at
+// explorer-detail-name-col-min-width (140); a narrower pane clips the table on the right, with no horizontal
+// scroll, so each header and row grid clips its own overflow (DETAIL_CLIP). Header labels and row names still
+// end in an ellipsis inside their cell.
+const DETAIL_COLUMNS = "minmax(var(--tasty-explorer-detail-name-col-min-width), 1fr) var(--tasty-explorer-detail-size-col-width) var(--tasty-explorer-detail-date-col-width) var(--tasty-explorer-detail-type-col-width)";
+const DETAIL_CLIP = "hidden";
 
 function DetailRow({ glyph, name, size, date, type, state, glyphColor }) {
   const bg = state === "selected" ? "var(--tasty-surface-active)" : state === "hover" ? "var(--tasty-overlay-hover)" : "transparent";
   return (
-    <div style={{ display: "grid", gridTemplateColumns: DETAIL_COLUMNS, alignItems: "center", height: "var(--tasty-table-cell-height)", padding: "0 var(--tasty-explorer-detail-padding-x)",
+    <div style={{ display: "grid", gridTemplateColumns: DETAIL_COLUMNS, overflow: DETAIL_CLIP, alignItems: "center", height: "var(--tasty-table-cell-height)", padding: "0 var(--tasty-explorer-detail-padding-x)",
       fontSize: 13, background: bg, cursor: "default",
       color: state === "selected" ? "var(--tasty-text-on-active)" : state === "cut" ? "var(--tasty-cut-pending-fg)" : "var(--tasty-text-secondary)" }}>
       <span style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
@@ -150,7 +152,7 @@ function DetailRow({ glyph, name, size, date, type, state, glyphColor }) {
 function DetailHeader() {
   const cols = [["Name", true], ["Size", false], ["Date modified", false], ["Type", false]];
   return (
-    <div style={{ display: "grid", gridTemplateColumns: DETAIL_COLUMNS, alignItems: "center", height: "var(--tasty-table-cell-height)", padding: "0 var(--tasty-explorer-detail-padding-x)",
+    <div style={{ display: "grid", gridTemplateColumns: DETAIL_COLUMNS, overflow: DETAIL_CLIP, alignItems: "center", height: "var(--tasty-table-cell-height)", padding: "0 var(--tasty-explorer-detail-padding-x)",
       background: "var(--tasty-table-header-bg)", borderBottom: "1px solid var(--tasty-separator)",
       fontFamily: "var(--tasty-font-ui)", fontSize: "var(--tasty-table-header-font-size)", fontWeight: "var(--tasty-table-header-font-weight)", textTransform: "uppercase", letterSpacing: "var(--tasty-table-header-tracking)", color: "var(--tasty-table-header-fg)" }}>
       {cols.map(([c, sorted], i) => (
@@ -255,4 +257,4 @@ function ExplorerRenamePopup({ lang = "en", value, error = null, waitingText = n
     </div>
   );
 }
-export { DetailHeader, DETAIL_COLUMNS, ic, DetailRow, SegToggle, CtxMenu, PathField, GridCell, SideHead, TreeNode, FavRow, ExpState, ExplorerRenamePopup, EXPLORER_RENAME_COPY };
+export { DetailHeader, DETAIL_COLUMNS, DETAIL_CLIP, ic, DetailRow, SegToggle, CtxMenu, PathField, GridCell, SideHead, TreeNode, FavRow, ExpState, ExplorerRenamePopup, EXPLORER_RENAME_COPY };

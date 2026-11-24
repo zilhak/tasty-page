@@ -6108,6 +6108,10 @@
       "$type": "dimension",
       "$value": "{primitive.size-92}"
     },
+    "explorer-detail-name-col-min-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-140}"
+    },
     "explorer-detail-padding-x": {
       "$type": "dimension",
       "$value": "{semantic.space-sm}"
