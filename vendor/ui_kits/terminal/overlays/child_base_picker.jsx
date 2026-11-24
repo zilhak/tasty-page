@@ -177,9 +177,20 @@ function PickerTree({ windows = PICKER_WINDOWS, value, onPick, query = "", categ
   const match = q ? new Set(surfacesOf(windows).filter((s) => [s.name, s.id, s.ws.name].some((v) => String(v).toLowerCase().includes(q))).map((s) => s.id)) : null;
   const rows = rowsOf(windows, { open, match, categoriesOn });
   const toggle = (k) => setOpen((o) => { const n = new Set(o); n.has(k) ? n.delete(k) : n.add(k); return n; });
+  // On open the base row is scrolled into the tree's scroll area (centred when it was outside it); only the
+  // tree moves, the filter field stays put. Later toggles and filtering do not scroll.
+  const treeRef = React.useRef(null);
+  React.useLayoutEffect(() => {
+    const el = treeRef.current && treeRef.current.querySelector('[aria-selected="true"]');
+    const box = el && el.closest(".tasty-scroll");
+    if (!box) return;
+    const d = el.getBoundingClientRect().top - box.getBoundingClientRect().top;
+    if (d < 0 || d + el.offsetHeight > box.clientHeight) box.scrollTop += d - (box.clientHeight - el.offsetHeight) / 2;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   if (match && !match.size) return <div style={{ ...muted, fontSize: "var(--tasty-select-font-size)", padding: "0 var(--tasty-menu-item-padding-x)", height: "var(--tasty-menu-item-height)", display: "flex", alignItems: "center" }}>{gt("child_graph.picker.no_match", lang)}</div>;
   return (
-    <div role="tree" style={{ display: "flex", flexDirection: "column" }}>
+    <div ref={treeRef} role="tree" style={{ display: "flex", flexDirection: "column" }}>
       {rows.map((r) => {
         if (r.kind === "category") return <CategoryBand key={r.key} level={r.level} open={r.open} count={r.count} label={r.c.reserved ? "Workspaces" : r.c.name} onToggle={() => toggle(r.key)} />;
         if (r.kind === "window") {
