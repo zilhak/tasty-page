@@ -80,7 +80,7 @@
   font-size: var(--tasty-font-size-micro);
   cursor: pointer;
 }
-.stage-overlay-toggle[aria-pressed="true"] { color: var(--tasty-text-primary); border-color: var(--tasty-border-strong); }
+.stage-overlay-toggle[aria-pressed="true"] { color: var(--tasty-text-primary); border-color: var(--tasty-border-control); }
 .cluster { display: flex; flex-direction: column; gap: var(--tasty-space-sm); }
 .cluster > .lbl {
   font-family: var(--tasty-font-mono);
