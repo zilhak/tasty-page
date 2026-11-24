@@ -300,6 +300,30 @@ function AttnList({ lang = "en", selected = 0 }) {
   );
 }
 
+// Needs attention with nothing in it: the list panel stays, the detail panel draws two labels
+// 2 × space-xl below its top, space-xs apart. Copy is the app's [plugins] attn_empty_title and
+// attn_empty_body in each language, letter for letter.
+const ATTN_EMPTY = {
+  en: ["No plugins need attention", "Rejected or failing plugins show up here with the reason and what to do next."],
+  ko: ["확인이 필요한 플러그인이 없습니다", "등록이나 실행에 실패한 플러그인과 그 원인, 해결 방법을 표시합니다."],
+  ja: ["確認が必要なプラグインはありません", "登録や実行に失敗したプラグインを、原因と対処方法とともに表示します。"],
+  "zh-Hans": ["没有待处理的插件", "被拒绝或运行失败的插件会显示在此处，并附上原因和后续操作。"],
+};
+function AttnEmpty({ lang = "en", width = "var(--tasty-size-560)" }) {
+  const [title, body] = ATTN_EMPTY[lang];
+  return (
+    <div lang={lang} style={{ width, maxWidth: "100%", height: "var(--tasty-size-240)", display: "flex", borderRadius: "var(--tasty-radius)", overflow: "hidden",
+      border: "var(--tasty-border-width) solid var(--tasty-border-default)" }}>
+      <div style={{ width: "var(--tasty-plugins-list-width)", flex: "none", background: "var(--tasty-bg-sidebar)", borderRight: "var(--tasty-border-width) solid var(--tasty-separator)" }} />
+      <div style={{ flex: 1, minWidth: 0, background: "var(--tasty-bg-panel)", padding: "calc(2 * var(--tasty-space-xl)) var(--tasty-space-lg) 0",
+        display: "flex", flexDirection: "column", alignItems: "center", gap: "var(--tasty-space-xs)", textAlign: "center" }}>
+        <div style={{ fontSize: "var(--tasty-font-size-body)", color: "var(--tasty-text-secondary)" }}>{title}</div>
+        <div style={{ fontSize: 12, color: "var(--tasty-text-muted)", lineHeight: "var(--tasty-line-height-ui)", maxWidth: "var(--tasty-measure-sm)" }}>{body}</div>
+      </div>
+    </div>
+  );
+}
+
 const Themed = ({ attr, children }) => (
   <div data-theme={attr || undefined} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-md)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", minWidth: 0 }}>{children}</div>
 );
@@ -391,6 +415,30 @@ function PluginTrustSpecs() {
           specs={[["reasons", "signature not trusted · signature invalid · not an official plugin (danger, not registered) · runtime error (warning, registered)"], ["order", "not registered first, then failing — the kit list order"], ["row", "avatar sm · name 13 · label micro in the reason ink · status dot · selected = surface-active + selection edge in the plain accent"], ["label ink", "accent-danger-raised / accent-warning-raised for every reason; text-on-active when selected"], ["status text", "Not registered (three danger reasons) · Needs review (runtime error) — same -raised ink"], ["action", "Register anyway · Remove · Configure — one per reason, no Re-approve"], ["badges", "the tab and sidebar badges count all four reasons"]]}
           tokens={[{ tok: "--tasty-accent-danger-raised", use: "danger label · status text", color: "var(--tasty-accent-danger-raised)" }, { tok: "--tasty-accent-warning-raised", use: "warning label · status text · runtime error banner title", color: "var(--tasty-accent-warning-raised)" }, { tok: "--tasty-accent-danger", use: "dot · selection edge", color: "var(--tasty-accent-danger)" }, { tok: "--tasty-accent-warning", use: "dot · selection edge", color: "var(--tasty-accent-warning)" }]} />
         <Note>Labels are the existing keys (<code>plugins.attn_unknown_key_label</code> · <code>attn_sig_invalid_label</code> · <code>attn_reserved_id_label</code> · <code>attn_health_label</code>); ko / ja above are the meaning reference. No new key.</Note>
+      </Spec>
+
+      <Spec id="plugin-attention-empty" title="Needs attention — empty"
+        when={<>With no plugin to show, the Attention tab keeps its <b>list panel</b> (empty) and the detail panel draws <b>two lines of text</b>, no glyph: the title in text-secondary at body size and one line of explanation in text-muted. They start <b>2 × space-xl</b> below the panel top, <b>space-xs</b> apart.</>}>
+        <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
+          {THEMES.map(([label, attr]) => (
+            <Themed key={label} attr={attr}>
+              <span style={cap}>{label} · en</span>
+              <AttnEmpty />
+            </Themed>
+          ))}
+          <Themed>
+            <span style={cap}>Mocha · ko / ja / zh-Hans</span>
+            <AttnEmpty lang="ko" /><AttnEmpty lang="ja" /><AttnEmpty lang="zh-Hans" />
+          </Themed>
+          <Themed attr="latte">
+            <span style={cap}>Latte · ko / ja / zh-Hans</span>
+            <AttnEmpty lang="ko" /><AttnEmpty lang="ja" /><AttnEmpty lang="zh-Hans" />
+          </Themed>
+        </Stage>
+        <Meta
+          specs={[["list panel", "stays, empty · plugins-list-width on bg-sidebar"], ["offset", "2 × space-xl from the detail panel top"], ["gap", "space-xs between the two lines"], ["title", "body size · text-secondary"], ["body", "12 · text-muted · measure-sm · centred"], ["glyph", "none"]]}
+          tokens={[{ tok: "--tasty-text-secondary", use: "title", color: "var(--tasty-text-secondary)" }, { tok: "--tasty-text-muted", use: "body", color: "var(--tasty-text-muted)" }]} />
+        <Note>Copy is the app's <code>plugins.attn_empty_title</code> and <code>plugins.attn_empty_body</code> in en, ko, ja and zh-Hans. No new key.</Note>
       </Spec>
 
       <Spec id="plugin-reserved-id" title="Needs attention › reserved id — not an official plugin, remove only"
