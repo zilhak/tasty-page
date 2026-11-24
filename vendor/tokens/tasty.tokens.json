@@ -5435,6 +5435,46 @@
       "$type": "color",
       "$value": "{semantic.accent-warning-strong}"
     },
+    "dag-status-waiting-block-bg": {
+      "$type": "color",
+      "$value": "color-mix(in srgb, var(--tasty-dag-status-waiting) 55%, var(--tasty-surface-raised))"
+    },
+    "dag-status-ready-block-bg": {
+      "$type": "color",
+      "$value": "color-mix(in srgb, var(--tasty-dag-status-ready) 55%, var(--tasty-surface-raised))"
+    },
+    "dag-status-running-block-bg": {
+      "$type": "color",
+      "$value": "color-mix(in srgb, var(--tasty-dag-status-running) 55%, var(--tasty-surface-raised))"
+    },
+    "dag-status-succeeded-block-bg": {
+      "$type": "color",
+      "$value": "color-mix(in srgb, var(--tasty-dag-status-succeeded) 55%, var(--tasty-surface-raised))"
+    },
+    "dag-status-failed-block-bg": {
+      "$type": "color",
+      "$value": "color-mix(in srgb, var(--tasty-dag-status-failed) 55%, var(--tasty-surface-raised))"
+    },
+    "dag-status-cancelled-block-bg": {
+      "$type": "color",
+      "$value": "color-mix(in srgb, var(--tasty-dag-status-cancelled) 55%, var(--tasty-surface-raised))"
+    },
+    "dag-status-skipped-block-bg": {
+      "$type": "color",
+      "$value": "color-mix(in srgb, var(--tasty-dag-status-skipped) 55%, var(--tasty-surface-raised))"
+    },
+    "dag-status-unknown-block-bg": {
+      "$type": "color",
+      "$value": "color-mix(in srgb, var(--tasty-dag-status-unknown) 55%, var(--tasty-surface-raised))"
+    },
+    "dag-status-partially-failed-block-bg": {
+      "$type": "color",
+      "$value": "color-mix(in srgb, var(--tasty-dag-status-partially-failed) 55%, var(--tasty-surface-raised))"
+    },
+    "dag-phase-awaiting-block-bg": {
+      "$type": "color",
+      "$value": "color-mix(in srgb, var(--tasty-dag-phase-awaiting) 55%, var(--tasty-surface-raised))"
+    },
     "dag-header-count-fg": {
       "$type": "color",
       "$value": "{component.dag-row-count-fg}"

@@ -1,7 +1,7 @@
 import React from "react";
 import { Icon } from "../../../components/core/Icon.jsx";
 import { IconButton } from "../../../components/core/IconButton.jsx";
-import { elbow, ZoomCluster, Minimap, NODE_W, NODE_H, sTok, sBg, sLabel } from "./dag_view.jsx";
+import { elbow, ZoomCluster, Minimap, NODE_W, NODE_H, sTok, sBg, sBlock, sLabel } from "./dag_view.jsx";
 
 // Tasty UI kit — the shared graph component (2026-11-10).
 // The child graph and the Task DAG are ONE graph component with two contents:
@@ -370,8 +370,8 @@ const CHILD_STATE = {
 const CHILD_STATE_ORDER = ["active", "idle", "needs_input", "stale", "exited", "unknown"];
 function childTone(state) {
   const s = CHILD_STATE[state] || CHILD_STATE.unknown;
-  if (s.tone === "awaiting") return { ...s, tok: "var(--tasty-dag-phase-awaiting)", bg: "var(--tasty-dag-phase-awaiting-bg)", lbl: "var(--tasty-dag-phase-awaiting-label)", plain: false };
-  return { ...s, tok: sTok(s.tone), bg: sBg(s.tone), lbl: sLabel(s.tone), plain: s.tone === "waiting" || s.tone === "cancelled" };
+  if (s.tone === "awaiting") return { ...s, tok: "var(--tasty-dag-phase-awaiting)", bg: "var(--tasty-dag-phase-awaiting-bg)", blk: "var(--tasty-dag-phase-awaiting-block-bg)", lbl: "var(--tasty-dag-phase-awaiting-label)", plain: false };
+  return { ...s, tok: sTok(s.tone), bg: sBg(s.tone), blk: sBlock(s.tone), lbl: sLabel(s.tone), plain: s.tone === "waiting" || s.tone === "cancelled" };
 }
 const childColor = (n) => (n.kind && n.kind !== "surface" ? "var(--tasty-dag-minimap-node-dim)" : CHILD_STATE[n.state]?.dim ? "var(--tasty-dag-minimap-node-dim)" : childTone(n.state).tok);
 

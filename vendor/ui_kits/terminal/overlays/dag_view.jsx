@@ -95,11 +95,11 @@ const DAG_PHASE = {
 function nodeLook(node) {
   const st = DAG_STATUS[node.status];
   const ph = node.status === "running" && node.phase ? DAG_PHASE[node.phase] : null;
-  if (!ph) return { glyph: st.glyph, label: st.label, tone: node.status, tok: sTok(node.status), bg: sBg(node.status), lbl: sLabel(node.status) };
+  if (!ph) return { glyph: st.glyph, label: st.label, tone: node.status, tok: sTok(node.status), bg: sBg(node.status), blk: sBlock(node.status), lbl: sLabel(node.status) };
   const label = ph.showRun && node.run ? `${ph.label} \u00b7 run ${node.run}` : ph.label;
   const t = ph.tone === "awaiting"
-    ? { tok: "var(--tasty-dag-phase-awaiting)", bg: "var(--tasty-dag-phase-awaiting-bg)", lbl: "var(--tasty-dag-phase-awaiting-label)" }
-    : { tok: sTok("running"), bg: sBg("running"), lbl: sLabel("running") };
+    ? { tok: "var(--tasty-dag-phase-awaiting)", bg: "var(--tasty-dag-phase-awaiting-bg)", blk: "var(--tasty-dag-phase-awaiting-block-bg)", lbl: "var(--tasty-dag-phase-awaiting-label)" }
+    : { tok: sTok("running"), bg: sBg("running"), blk: sBlock("running"), lbl: sLabel("running") };
   return { glyph: ph.glyph, label, tone: ph.tone, ...t };
 }
 // Hover text: "name — label", then the why-line for skipped / unknown / awaiting.
@@ -129,6 +129,8 @@ const DAG_REL = {
 const tk = (s) => String(s).replace(/_/g, "-");
 const sTok = (s) => `var(--tasty-dag-status-${tk(s)})`;
 const sBg = (s) => `var(--tasty-dag-status-${tk(s)}-bg)`;
+// Block tier fill — the status color mixed into the card ground (no ink on it).
+const sBlock = (s) => `var(--tasty-dag-status-${tk(s)}-block-bg)`;
 // Text tone — readable at 10px even for the weak states (see components.css).
 const sLabel = (s) => `var(--tasty-dag-status-${tk(s)}-label)`;
 
@@ -318,7 +320,7 @@ function DagNode({ node, lod = "full", selected = false, dimmed = false, onSelec
     return (
       <button type="button" aria-label={`${node.name} — ${st.label}`} title={tip}
         onClick={() => onSelect && onSelect(node.id)} onMouseEnter={() => setHot(true)} onMouseLeave={() => setHot(false)}
-        style={{ ...base, background: `color-mix(in srgb, ${accent} 55%, var(--tasty-surface-raised))`, borderColor: accent }} />
+        style={{ ...base, background: st.blk, borderColor: accent }} />
     );
   }
   return (
@@ -495,4 +497,4 @@ function DagEmpty({ variant = "surface", query = "", copy: own, loading = false,
   );
 }
 
-export { DAG_STATUS, DAG_STATUS_ORDER, DAG_ROLLUP_ORDER, DAG_PHASE, dagRollup, nodeLook, nodeTitle, DAG_KIND, DAG_REL, DIM_STATUS, sTok, sBg, sLabel, DAG_BUILD, DAG_INDEX, DAG_CYCLE, DAG_DENSE, DAG_PARTIAL, DAG_LIST, ERR_TAIL, dagLayout, elbow, DagNode, RunnerBadge, ZoomCluster, Minimap, CycleBanner, DagEmpty, NODE_W, NODE_H };
+export { DAG_STATUS, DAG_STATUS_ORDER, DAG_ROLLUP_ORDER, DAG_PHASE, dagRollup, nodeLook, nodeTitle, DAG_KIND, DAG_REL, DIM_STATUS, sTok, sBg, sBlock, sLabel, DAG_BUILD, DAG_INDEX, DAG_CYCLE, DAG_DENSE, DAG_PARTIAL, DAG_LIST, ERR_TAIL, dagLayout, elbow, DagNode, RunnerBadge, ZoomCluster, Minimap, CycleBanner, DagEmpty, NODE_W, NODE_H };

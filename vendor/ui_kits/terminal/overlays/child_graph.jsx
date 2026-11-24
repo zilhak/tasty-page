@@ -235,7 +235,7 @@ function ChildNode({ node, lod = "full", selected = false, base = false, hover, 
       <span style={{ position: "relative", display: "block" }}>
         {chip}
         <button type="button" aria-label={tip} title={tip} {...handlers}
-          style={{ ...box, background: special ? "var(--tasty-dag-node-bg)" : `color-mix(in srgb, ${accent} 55%, var(--tasty-surface-raised))`, borderColor: accent }} />
+          style={{ ...box, background: special ? "var(--tasty-dag-node-bg)" : st.blk, borderColor: accent }} />
       </span>
     );
   }
