@@ -280,7 +280,7 @@ function GitViewer({ onClose, onFlash, repo }) {
         {Header}
         {r.error && (
           <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-sm) var(--tasty-size-14)", flex: "none",
-            background: "color-mix(in srgb, var(--tasty-accent-danger) 10%, transparent)",
+            background: "var(--tasty-tint-danger-bg)",
             borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)", fontSize: 12, color: "var(--tasty-accent-danger-raised)" }}>
             <Icon name={GV.warn} size={14} />{r.error}
           </div>
