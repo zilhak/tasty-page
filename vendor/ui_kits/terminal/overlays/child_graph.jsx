@@ -558,7 +558,7 @@ function ChildGraphWindow({ nodes = CHILD_SMALL, baseId = CHILD_SMALL_BASE, lang
   const screens = FlowScreens({ flow, lang, still });
   if (gone) return null;
   return (
-    <div ref={rootRef} tabIndex={-1} style={{ outline: "none", display: folded ? "none" : "flex", width: cut ? cut.w : width || "var(--tasty-graph-child-popup-width)", height: cut ? cut.h : height || "var(--tasty-graph-child-popup-height)", maxWidth: "100%",
+    <div ref={rootRef} tabIndex={-1} lang={lang} style={{ outline: "none", display: folded ? "none" : "flex", width: cut ? cut.w : width || "var(--tasty-graph-child-popup-width)", height: cut ? cut.h : height || "var(--tasty-graph-child-popup-height)", maxWidth: "100%",
       flexDirection: "column", overflow: "hidden", boxSizing: "border-box", background: "var(--tasty-bg-panel)",
       borderRadius: "var(--tasty-radius)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", boxShadow: "var(--tasty-shadow-modal)" }}>
       <div style={{ flex: "none", display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", cursor: "move",

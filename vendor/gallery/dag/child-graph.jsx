@@ -237,7 +237,7 @@ export function ChildGraphSection() {
           </View>
           <View name="child-popup-locales" label="ko, ja, zh-Hans">
             <div style={{ display: "flex", flexWrap: "wrap", gap: 16 }}>
-              {["ko", "ja", "zh-Hans"].map((l) => <div key={l} lang={l}><ChildGraphWindow lang={l} width={480} height={360} initial={{ selected: "s_01HX7Q" }} /></div>)}
+              {["ko", "ja", "zh-Hans"].map((l) => <ChildGraphWindow key={l} lang={l} width={480} height={360} initial={{ selected: "s_01HX7Q" }} />)}
             </div>
           </View>
         </Views>
