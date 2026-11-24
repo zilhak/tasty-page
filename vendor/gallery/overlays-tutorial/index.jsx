@@ -60,10 +60,10 @@ function Scrim() { return <div style={{ position: "absolute", inset: 0, backgrou
 function Callout({ tail = "up", step, total = 5, title, body, first, style }) {
   const base = {
     position: "absolute", width: 244, background: "var(--tasty-surface-raised)",
-    border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)",
+    border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)",
     boxShadow: "var(--tasty-shadow-modal)", padding: "var(--tasty-space-md) var(--tasty-space-lg)", zIndex: 3, ...style,
   };
-  const tailBase = { position: "absolute", width: 12, height: 12, background: "var(--tasty-surface-raised)", border: "var(--tasty-border-width) solid var(--tasty-border-strong)", transform: "rotate(45deg)" };
+  const tailBase = { position: "absolute", width: 12, height: 12, background: "var(--tasty-surface-raised)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", transform: "rotate(45deg)" };
   const tailPos = {
     up:    { top: -7, left: 28, borderRight: 0, borderBottom: 0 },
     down:  { bottom: -7, left: 28, borderLeft: 0, borderTop: 0 },
@@ -164,7 +164,7 @@ function Page() {
           </Stage>
           <Meta
             specs={[["width", "244px fixed"], ["tail", "up · down · left · right (12px diamond)"], ["progress", "2/5 label + dot rail"], ["buttons", "Skip (link) · Back (secondary) · Next (primary)"], ["first step", "Back hidden"], ["last step", "Next → 'Done', reopens topic popup"], ["placement", "below → above → right → left; flip on overflow; clamp to 8px safe area"]]}
-            tokens={[{ tok: "--tasty-surface-raised", use: "bubble fill", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-border-strong", use: "1px edge + tail", color: "var(--tasty-border-strong)" }, { tok: "--tasty-shadow-modal", use: "floating lift" }, { tok: "--tasty-accent-primary", use: "step · active dot · Next", color: "var(--tasty-accent-primary-raised)" }]} />
+            tokens={[{ tok: "--tasty-surface-raised", use: "bubble fill", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-border-frame", use: "1px edge + tail — the popup frame", color: "var(--tasty-border-frame)" }, { tok: "--tasty-shadow-modal", use: "floating lift" }, { tok: "--tasty-accent-primary", use: "step · active dot · Next", color: "var(--tasty-accent-primary-raised)" }]} />
           <Do><b>Do</b> reuse the DS <b>Button</b> (primary Next / secondary Back) and keep Skip as a low-emphasis link — the callout is guidance, not a decision surface.</Do>
         </Spec>
       </Section>
