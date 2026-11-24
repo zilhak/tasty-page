@@ -515,8 +515,10 @@ function FlowScreens({ flow, lang, bed, still }) {
 // sits popup-title-edge-inset 4 from the right edge, as every popup title bar),
 // toolbar 36 with the full tree checkbox — the same height as the back bar it trades places with.
 // Base = the surface the popup opened from; the chip on its card says so. No base selector here.
-// The popup is scoped to its base surface (10-3 b): it closes with it, so it has no base-closed state. Given
-// status="base-closed" it draws nothing, as the app has closed it by then. When its needed size is larger
+// The popup is scoped to its base surface (10-3 b): it closes with it, so it has no base-closed state. This is
+// the app's common popup rule: before each frame it looks up the popup's target surface and closes a popup whose
+// target is gone (TargetGone). Given status="base-closed" the kit stands for that closed popup: it draws nothing
+// and hears no key, holds no key focus and tracks none. When its needed size is larger
 // than the surface bounds (the rect less min(space-sm, w/2, h/2) on every side) it collapses to the common
 // show button (Dialogs › Collapse). collapse = the form shown
 // over the window after the show button: the shrink button comes first in the title bar, before close.
