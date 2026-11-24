@@ -99,7 +99,7 @@ Sizes, type, and motion are theme-invariant and never repeated.
 
 1. **New raw value?** Add a primitive on the right numeric scale in `primitives.css` (and its Latte counterpart if it is a color).
 2. **New role?** Add a semantic token in `semantic.css` as `var(--tasty-<primitive>)`. Never a literal.
-3. **New component part?** Add a component token in `components.css` as `var(--tasty-<semantic>)`. A part-only measure may read its size, radius or duration primitive instead (see below).
+3. **New component part?** Add a component token in `components.css` as `var(--tasty-<semantic>)`. A part-only measure may read its size, radius or duration primitive instead. A part of the same component, or a part drawn as another component, may read that component's token. A count, coefficient, dash pattern or keyword may be a literal. See the three sections below.
 4. Regenerate `tokens/tasty.tokens.json` with `scripts/design-tokens/gen_tokens_json.py`, then run `scripts/design-tokens/verify_tokens_json.py` and confirm the token count rises and it reports no errors. Non-color/size tokens (durations, easings, unitless multipliers) need a trailing `/* @kind other */`.
 5. Run `scripts/design-tokens/verify_ground_ink_tokens.py` to check the ground-ink rules' token list against the token CSS.
 
@@ -121,6 +121,34 @@ These families always go through a semantic role, with no part-only exception:
 - type (`--tasty-font-*`, `--tasty-line-height-*`, `--tasty-letter-spacing-*`): the type roles carry the 14px UI cap and its branding exceptions.
 - opacity (`--tasty-opacity-*`): the dim, disabled and tint coefficients have rules of their own.
 - easing and UI scale (`--tasty-easing-*`, `--tasty-scale-*`): one system-wide value each.
+
+### Component references
+
+A component token may read another component token in two cases:
+
+- **Same component.** A state or variant reads its base part (`--tasty-menu-item-selected-fg` reads `--tasty-menu-item-fg-hover`, the DAG status fills read `--tasty-dag-node-bg`). A part can also be derived from another part (`--tasty-titlebar-window-glyph-size` is `calc(0.44 * var(--tasty-titlebar-window-button-size))`), or two parts of one component can line up (`--tasty-kb-record-height` reads `--tasty-kb-ie-slot-height`). A component is one name prefix, or a family that its comment in `components.css` declares as one component: the `graph-*` tokens extend the shared `dag-*` graph.
+- **Composition.** The part is drawn as the other component, belongs to its family, or fills its slot, so it must change when that component changes. The MultiSelect trigger reads the Select tokens, the AutoComplete dropdown reads the menu tokens, the Select search field reads the Input tokens, the switch overlay keycap reads the Kbd tokens, the tab dot reads the compact StatusDot size, the loading overlay on a tab reads the tab icon slot, and the graph toolbar reads the drill-down back bar height so a push never moves the canvas.
+
+Not allowed:
+
+- **Peer sharing.** Two parts need the same value for the same reason, but they are not one component and neither is drawn as the other. Neither owns the value, so neither reads the other. Both read the semantic role, and if none exists, add one, as under Part-only measures. A Select placeholder is not an Input, so it reads `--tasty-text-placeholder` as the Input does. It does not read `--tasty-input-placeholder`.
+- A `var()` naming a token that `components.css` does not declare, and any cycle.
+
+A chain may pass through several component tokens (`--tasty-notification-item-unread-dot-size` → `--tasty-badge-dot-size` → `--tasty-status-dot-size`). Every link follows these rules, and the last component token in the chain follows the tier rules above. Inside `calc()`, each `var()` follows the rule for its own tier.
+
+### Literal parameters
+
+A component token may hold a literal (no `var()`) only in the kinds below. Each is theme-invariant and has no scale in `primitives.css` to read.
+
+| Kind | Example | Why no scale fits |
+|------|---------|-------------------|
+| Count or clamp: a unitless integer | `--tasty-notification-badge-max` (99), `--tasty-notification-item-body-lines` (2) | A number of items or lines, not a measure. |
+| Coefficient: a unitless factor in the part's own layout formula | `--tasty-explorer-favorites-pin-ratio` (0.4) | It scales a measure the part computes at run time. Opacity is not a coefficient: it goes through its role. |
+| Dash pattern: an SVG `stroke-dasharray` list | `--tasty-dag-edge-dash-binding` (`8 2 2 2`) | A list. The size scale holds single values. |
+| Keyword | `--tasty-cut-pending-font-style` (`italic`) | A keyword is not on any scale. |
+| Window frame shadow | `--tasty-titlebar-csd-shadow` | OS window-frame chrome, outside the two UI shadows in `semantic.css`. It is the only component shadow. |
+
+Every kind except the shadow carries `/* @kind other */`. A literal is never a color, alpha, size, radius, duration, font size, font weight, opacity, easing or scale, because each of those has a scale or a role. When a second component needs the same literal for the same reason, add a semantic role, as under Part-only measures.
 
 ---
 
