@@ -13,8 +13,13 @@ const { IconButton: XIconButton, Button: XButton, Input: XInput, MenuItem: XMenu
 
 const xCap = { fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" };
 function XLbl({ children }) { return <div style={xCap}>{children}</div>; }
-function XCol({ label, children, w }) {
-  return <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", width: w, maxWidth: "100%", minWidth: 0 }}><XLbl>{label}</XLbl>{children}</div>;
+// A cell that shows the preview panel never draws narrower than the panel at its default width plus the
+// listing's minimum and the cell's two border lines: the panel hides under preview-min + list-min, so a narrower
+// cell with the panel open is a state the explorer never shows. On a narrow page such a cell scrolls inside its
+// stage instead of squeezing the listing (390: the Detail pane was 18px).
+const xPreviewCellMin = "calc(var(--tasty-explorer-preview-width) + var(--tasty-explorer-list-min-width) + 2 * var(--tasty-border-width))";
+function XCol({ label, children, w, preview }) {
+  return <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", width: w, maxWidth: "100%", minWidth: preview ? xPreviewCellMin : 0 }}><XLbl>{label}</XLbl>{children}</div>;
 }
 function XThemes({ render, gap = "var(--tasty-space-lg)" }) {
   return (
@@ -57,9 +62,9 @@ function XStatus({ children, right }) {
     </div>
   );
 }
-function XCell({ w = 640, h = 300, toolbar, bar, status, statusRight, children, overlay }) {
+function XCell({ w = 640, h = 300, toolbar, bar, status, statusRight, children, overlay, preview }) {
   return (
-    <div style={{ position: "relative", width: "100%", maxWidth: w, height: h, display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
+    <div style={{ position: "relative", width: "100%", maxWidth: w, minWidth: preview ? xPreviewCellMin : undefined, height: h, display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
       {toolbar || <XToolbar />}
       {bar}
       <div style={{ flex: 1, minHeight: 0, display: "flex", position: "relative" }}>{children}</div>

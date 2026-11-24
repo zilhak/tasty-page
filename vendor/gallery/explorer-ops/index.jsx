@@ -328,12 +328,12 @@ function PropertiesSection() {
 
       <YSpec id="preview-panel-text-image-other-loading-too-large-unreadable" title="Preview panel — text · image · other · loading · too large · unreadable"
         when={<>The preview panel <b>comes back as a toggle</b> (toolbar view group). It docks on the right of the listing at <span className="tok">--tasty-explorer-preview-width</span> (288), resizable by a splitter between 200 and 460; the width is remembered per explorer. A 40 header shows the name and “kind · size” (image: pixel size). <b>Text</b> files (UTF-8, by extension or content) show their first 64 KB in mono; <b>images</b> fit the panel; anything else, folders included, shows “No preview for this file type” and leaves the facts to the header. A new selection clears the old preview at once and shows <b>Loading preview…</b> until the read ends. Over 1 MB or unreadable shows a state, never content. Remote explorers preview text and images the host returns.</>}>
-        <YStage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 16, flexWrap: "wrap", alignItems: "flex-start" }}>
-          <XCol label="text" w={640}>
-            <XCell w={640} h={250} toolbar={<XToolbar preview />} status="5 items · 1 selected"><XDetail states={{ 4: "selected" }} /><YPreview kind="text" /></XCell>
+        <YStage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 16, flexWrap: "wrap", alignItems: "flex-start", justifyContent: "safe center" }}>
+          <XCol label="text" w={640} preview>
+            <XCell w={640} h={250} preview toolbar={<XToolbar preview />} status="5 items · 1 selected"><XDetail states={{ 4: "selected" }} /><YPreview kind="text" /></XCell>
           </XCol>
-          <XCol label="image" w={640}>
-            <XCell w={640} h={250} toolbar={<XToolbar preview />} status="5 items · 1 selected"><XDetail states={{ 3: "selected" }} /><YPreview kind="image" /></XCell>
+          <XCol label="image" w={640} preview>
+            <XCell w={640} h={250} preview toolbar={<XToolbar preview />} status="5 items · 1 selected"><XDetail states={{ 3: "selected" }} /><YPreview kind="image" /></XCell>
           </XCol>
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
             {["none", "loading", "large", "error"].map((k) => (
