@@ -247,7 +247,7 @@ function ExplorerRenamePopup({ lang = "en", value, error = null, waitingText = n
   const waiting = waitingText != null;
   return (
     <div lang={lang} style={{ width: "var(--tasty-size-360)", maxWidth: "100%", background: "var(--tasty-dialog-bg)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", padding: "var(--tasty-space-md) var(--tasty-explorer-props-padding-x)", display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
-      <span style={{ fontSize: "var(--tasty-font-size-body)", fontWeight: "var(--tasty-font-weight-semibold)", color: "var(--tasty-text-primary)" }}>{t.title}</span>
+      <span style={{ fontSize: "var(--tasty-font-size-max)", fontWeight: "var(--tasty-font-weight-semibold)", color: "var(--tasty-text-primary)" }}>{t.title}</span>
       <Input block readOnly={waiting} invalid={!!error} defaultValue={value} />
       {error && <span role="alert" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-explorer-name-error-fg)" }}>{error}</span>}
       <span style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", minHeight: "var(--tasty-icon-size-sm)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{waiting && <><Spinner size="var(--tasty-icon-size-sm)" />{waitingText}</>}</span>
