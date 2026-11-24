@@ -2,7 +2,7 @@ import React from "react";
 import * as QDS from "../../components/index.js";
 import { XCol, XThemes, XCell } from "./create-drag-search.jsx";
 import * as QK from "../parts/explorer-kit.jsx";
-import { Section as QSection, Spec as QSpec, Stage as QStage, Meta as QMeta, Note as QNote, Views as QViews, View as QView } from "../parts/specimen.jsx";
+import { Section as QSection, Spec as QSpec, Stage as QStage, Meta as QMeta, Note as QNote } from "../parts/specimen.jsx";
 
 // Tasty Gallery — Explorer file operations, part 4 (2026-10-10, batch 12):
 // address takes file paths + remote check · hidden toggle on wide toolbars · create field width · auto-scroll and drag
@@ -69,7 +69,7 @@ function FollowupsB12Section() {
   return (
     <QSection id="followups12" title="Follow-ups — address · hidden toggle · create field · auto-scroll · Undo / Redo menu">
       <QSpec id="address-field-folders-and-files-remote-check-pending" title="Address field — folders and files · remote check pending"
-        when={<>The address field now takes <b>a folder or a file</b>; a file opens its folder and selects it. The placeholder and the not-found toast say <b>path</b>, not folder. <b>Remote</b> explorers must ask the remote whether the path is a file, so on Enter the field <b>keeps the typed path</b> (it does not snap back to the current folder), stays in its focus border and, if the answer has not come after <span className="tok">--tasty-explorer-address-pending-delay</span> 200 ms, shows a <b>Spinner</b> in the trailing slot. The list and the status line do not change: nothing has moved yet. The answer navigates; after 8 s without one the explorer goes to the typed path, as today. <b>Esc</b> during the check cancels it and restores the current path. Local explorers answer at once and never show the pending state. The field holds a <b>path</b> the user edits and confirms. For an attach with <b>no profile name</b> (<code>--ssh</code> or <code>--target-port</code> from the CLI or IPC, a profile saved with an empty name) it is the remote path alone: the word Remote is not put in an editable value, and <code>127.0.0.1:&lt;port&gt;</code> is never shown.</>}>
+        when={<>The address field now takes <b>a folder or a file</b>; a file opens its folder and selects it. The placeholder and the not-found toast say <b>path</b>, not folder. <b>Remote</b> explorers must ask the remote whether the path is a file, so on Enter the field <b>keeps the typed path</b> (it does not snap back to the current folder), stays in its focus border and, if the answer has not come after <span className="tok">--tasty-explorer-address-pending-delay</span> 200 ms, shows a <b>Spinner</b> in the trailing slot. The list and the status line do not change: nothing has moved yet. The answer navigates; after 8 s without one the explorer goes to the typed path, as today. <b>Esc</b> during the check cancels it and restores the current path. Local explorers answer at once and never show the pending state. The field holds a <b>path</b> the user edits and confirms: on a remote, the remote absolute path as it is, with no host prefix and no <span className="ic">~</span>. So an attach with <b>no profile name</b> (<code>--ssh</code> or <code>--target-port</code> from the CLI or IPC, a profile saved with an empty name) changes nothing here: the word Remote is not put in an editable value, and <code>127.0.0.1:&lt;port&gt;</code> is never shown.</>}>
         <QStage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)" }}>
           <XThemes render={(l) => (
             l === "Mocha"
@@ -77,13 +77,8 @@ function FollowupsB12Section() {
               : <XCell w={560} h={200} toolbar={<QToolbar address={<QAddress placeholder="Go to folder or file…" />} />} status="5 items" overlay={qToastAt(<QToast variant="danger">Path not found: ~/Downloads/report-final.pdf</QToast>)}><QBody>{QROWS.slice(0, 3).map((r, i) => <QK.DetailRow key={i} {...r} />)}</QBody></XCell>
           )} />
         </QStage>
-        <QViews>
-          <QView name="address-field-remote-no-profile" label="No profile name (--ssh or --target-port from the CLI or IPC) — the address is the remote path alone">
-            <XCell w={560} h={170} toolbar={<QToolbar address={<QAddress path="~/logs" />} />} status="5 items"><QBody>{QROWS.slice(0, 3).map((r, i) => <QK.DetailRow key={i} {...r} />)}</QBody></XCell>
-          </QView>
-        </QViews>
         <QMeta
-          specs={[["pending", "remote only · field keeps the typed path + focus border · Spinner 12 in the trailing slot after 200 ms · list + status unchanged · Esc cancels"], ["end", "answer → navigate (file: open folder + select) · 8 s → go to the typed path"], ["not found", "error toast, explorer scope · path = the confirmed absolute path"], ["placeholder", "“Go to folder or file…”"], ["remote value", "the remote path, as drawn here · no profile name (--ssh, --target-port, a profile saved with an empty name) → the path alone: no host prefix, no word Remote · never 127.0.0.1:<port> · other specimens show build-eu:~/logs as a sample value; whether the app prefixes a named host is not settled here"]]}
+          specs={[["pending", "remote only · field keeps the typed path + focus border · Spinner 12 in the trailing slot after 200 ms · list + status unchanged · Esc cancels"], ["end", "answer → navigate (file: open folder + select) · 8 s → go to the typed path"], ["not found", "error toast, explorer scope · path = the confirmed absolute path"], ["placeholder", "“Go to folder or file…”"], ["remote value", "the remote absolute path as it is (e.g. /home/alice/logs) · no host prefix, no ~ · no profile name: the same, no word Remote · never 127.0.0.1:<port>"]]}
           tokens={[{ tok: "--tasty-explorer-address-pending-delay", use: "→ motion-ui-fade 200" }, { tok: "--tasty-explorer-address-pending-size", use: "→ icon-size-sm 12" }, { tok: "--tasty-spinner-indicator", use: "spinner", color: "var(--tasty-spinner-indicator)" }]} />
         <QNote>i18n — <code>explorer.address.not_found</code> “Path not found: {"{}"}” / “경로를 찾을 수 없습니다: {"{}"}” / “パスが見つかりません: {"{}"}” · <code>explorer.address.placeholder</code> “Go to folder or file…” / “폴더나 파일로 이동…” / “フォルダーまたはファイルへ移動…” · spinner tooltip <code>explorer.address.checking</code> “Checking the remote path…” / “원격 경로 확인 중…” / “リモートのパスを確認しています…”.</QNote>
       </QSpec>

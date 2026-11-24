@@ -333,7 +333,7 @@ function PropsActionsSection() {
               <PField k="Kind" v="File" />
               <PField k="Size" v="2.1 MB" />
               <PField k="Modified" v="2026-10-09 08:12" time />
-              <PField k="Location" v="build-eu:~/logs" mono copy />
+              <PField k="Path" v="/home/alice/logs/build-0412.log" mono copy />
             </PProps>
           </XCol>
           <XCol label="several items — no footer" w={360}>
@@ -427,7 +427,7 @@ function PropsActionsSection() {
             <PProps glyph={<Icon name="layers" />} name="4 items" note="Remote — only what the remote host lists is shown.">
               <PField k="Kinds" v="3 files, 1 folder" />
               <PField k="Total size" v="—" />
-              <PField k="Location" v="build-eu:~/logs" mono copy />
+              <PField k="Location" v="/home/alice/logs" mono copy />
             </PProps>
           </XCol>
         </Stage>

@@ -159,7 +159,7 @@ function CreateSection() {
         <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", flexDirection: "column", gap: 14, alignItems: "stretch" }}>
           <XCol label="wide · local"><div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden", maxWidth: 640 }}><XToolbar /></div></XCol>
           <XCol label="wide · preview on · find on"><div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden", maxWidth: 640 }}><XToolbar preview search /></div></XCol>
-          <XCol label="remote (mirror) — create group hidden"><div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden", maxWidth: 640 }}><XToolbar remote path="build-eu:~/logs" /></div></XCol>
+          <XCol label="remote (mirror) — create group hidden"><div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden", maxWidth: 640 }}><XToolbar remote path="/home/alice/logs" /></div></XCol>
           <XCol label="permission denied — create disabled"><div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden", maxWidth: 640 }}><XToolbar denied path="/usr/share" /></div></XCol>
           <div style={{ display: "flex", gap: 18, flexWrap: "wrap", alignItems: "flex-start" }}>
             <XCol label="narrow cell (< 440) — More" w={400}><div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}><XToolbar narrow /></div></XCol>
@@ -375,7 +375,7 @@ function DragSection() {
           </XCol>
           <XCol label="OS files over a remote explorer" w={420}>
             <div style={{ position: "relative" }}>
-              <XCell w={420} h={240} toolbar={<XToolbar remote path="build-eu:~/logs" />} status="5 items"><XDetail /></XCell>
+              <XCell w={420} h={240} toolbar={<XToolbar remote path="/home/alice/logs" />} status="5 items"><XDetail /></XCell>
               <XDragChip glyph={<XIcon name="layers" />} label="2 items" op="refused" reason="remote folders are read-only" style={{ position: "absolute", left: 120, top: 150 }} />
             </div>
           </XCol>

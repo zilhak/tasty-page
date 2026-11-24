@@ -11,7 +11,7 @@ import { PropsActionsSection as ExplorerOpsPropsActions_PropsActionsSection } fr
 import { RemoteWriteSection as ExplorerOpsRemote_RemoteWriteSection } from "./remote-writes.jsx";
 import { StagingLeftSection as ExplorerOpsStaging_StagingLeftSection } from "./staging-left.jsx";
 import * as YK from "../parts/explorer-kit.jsx";
-import { Section as YSection, Spec as YSpec, Stage as YStage, Meta as YMeta, Note as YNote, Views as YViews, View as YView } from "../parts/specimen.jsx";
+import { Section as YSection, Spec as YSpec, Stage as YStage, Meta as YMeta, Note as YNote } from "../parts/specimen.jsx";
 
 // Tasty Gallery — Explorer file operations (2026-10-09, batch 9), part 2:
 // Progress / conflicts / results · Properties / preview / thumbnails · page mount.
@@ -278,7 +278,7 @@ function PropertiesSection() {
   return (
     <YSection id="properties" title="Properties · preview panel · Grid thumbnails">
       <YSpec id="properties-popup-for-one-item-folder-several-remote" title="Properties — popup for one item · folder · several · remote"
-        when={<>Opened from the <b>Properties</b> context-menu row or the app's properties action, as a popup scoped to the explorer cell (same family as Rename; no scrim needed, <span className="ic">Esc</span> or × closes). It shows the item it was <b>opened for</b> and does not follow later selection changes. Fields are a two-column list: caption label (96) and value; paths and permissions are mono and wrap anywhere, with a Copy button on Location and Link target. Sizes that take time (folders, several items) show a Spinner and fill in when the background count ends; the popup never blocks the list. A <b>remote</b> item shows only what the host lists (name, kind, size, modified, location) and says so. Its Location leads with the <b>host text</b> (Dialogs › File handler › Remote path: the attach profile name, R-57). With <b>no profile name</b> (<code>--ssh</code> or <code>--target-port</code> from the CLI or IPC, a profile saved with an empty name) Location is the <b>path alone</b>: it is a value the Copy button hands out, so the word Remote is not put in it, and <code>127.0.0.1:&lt;port&gt;</code> is never shown. The note already says the item is remote.</>}>
+        when={<>Opened from the <b>Properties</b> context-menu row or the app's properties action, as a popup scoped to the explorer cell (same family as Rename; no scrim needed, <span className="ic">Esc</span> or × closes). It shows the item it was <b>opened for</b> and does not follow later selection changes. Fields are a two-column list: caption label (96) and value; paths and permissions are mono and wrap anywhere, with a Copy button on Location and Link target. Sizes that take time (folders, several items) show a Spinner and fill in when the background count ends; the popup never blocks the list. A <b>remote</b> item shows only what the host lists (name, kind, size, modified, path) and says so. Its Path is the <b>remote absolute path</b> as it is (one item: the full path; several: Location, the common parent), with no host prefix and no <span className="ic">~</span>. It is a value the Copy button hands out, so an attach with <b>no profile name</b> (<code>--ssh</code> or <code>--target-port</code> from the CLI or IPC, a profile saved with an empty name) changes nothing here: no word Remote is added, and <code>127.0.0.1:&lt;port&gt;</code> is never shown. The note already says the item is remote.</>}>
         <YStage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 16, flexWrap: "wrap", alignItems: "flex-start" }}>
           <XThemes render={() => (
             <YProps glyph={YK.ic.image} name="diagram.png">
@@ -317,24 +317,12 @@ function PropertiesSection() {
               <YField k="Kind" v="File" />
               <YField k="Size" v="2.1 MB" />
               <YField k="Modified" v="2026-10-09 08:12" mono />
-              <YField k="Location" v="build-eu:~/logs" mono copy />
+              <YField k="Path" v="/home/alice/logs/build-0412.log" mono copy />
             </YProps>
           </XCol>
         </YStage>
-        <YViews>
-          <YView name="props-remote-item-no-profile" label="No profile name (--ssh or --target-port from the CLI or IPC) — Location is the path alone">
-            <XCol label="remote item · no profile name" w={360}>
-              <YProps name="build-0412.log" note="Remote — only what the remote host lists is shown.">
-                <YField k="Kind" v="File" />
-                <YField k="Size" v="2.1 MB" />
-                <YField k="Modified" v="2026-10-09 08:12" mono />
-                <YField k="Location" v="~/logs" mono copy />
-              </YProps>
-            </XCol>
-          </YView>
-        </YViews>
         <YMeta
-          specs={[["open", "context menu Properties (every shape) · keybinding action explorer.properties"], ["popup", "explorer-props-width 360 · scoped to the cell · shadow-modal · Esc / ×"], ["title", "glyph + name · 14 semibold · ellipsis"], ["fields", "label explorer-props-label-width 96 · caption muted · value body 13 (mono caption for paths / dates / mode) · wrap anywhere"], ["local file", "Kind · Size (with bytes) · Modified · Created · Location · Permissions"], ["folder", "Size counts in the background (Spinner) · item count"], ["symlink", "Link target + Copy"], ["several", "“{n} items” · Kinds · Total size · Location (common parent)"], ["remote", "Kind · Size · Modified · Location · muted note"], ["remote Location", "host text + : + path (attach profile name, R-57) · no profile name (--ssh, --target-port, a profile saved with an empty name) → the path alone, no prefix, no word Remote — Copy gives a path · never 127.0.0.1:<port>"], ["selection change", "popup keeps its item"]]}
+          specs={[["open", "context menu Properties (every shape) · keybinding action explorer.properties"], ["popup", "explorer-props-width 360 · scoped to the cell · shadow-modal · Esc / ×"], ["title", "glyph + name · 14 semibold · ellipsis"], ["fields", "label explorer-props-label-width 96 · caption muted · value body 13 (mono caption for paths / dates / mode) · wrap anywhere"], ["local file", "Kind · Size (with bytes) · Modified · Created · Location · Permissions"], ["folder", "Size counts in the background (Spinner) · item count"], ["symlink", "Link target + Copy"], ["several", "“{n} items” · Kinds · Total size · Location (common parent)"], ["remote", "Kind · Size · Modified · Path · muted note"], ["remote Path", "the remote absolute path as it is — one item: Path (full path) · several: Location (common parent) · no host prefix, no ~ · no profile name: the same, no word Remote — Copy gives a path · never 127.0.0.1:<port>"], ["selection change", "popup keeps its item"]]}
           tokens={[{ tok: "--tasty-explorer-props-width", use: "→ size-360" }, { tok: "--tasty-explorer-props-label-width", use: "→ size-96" }, { tok: "--tasty-shadow-modal", use: "popup" }, { tok: "--tasty-spinner-indicator", use: "counting", color: "var(--tasty-spinner-indicator)" }]} />
       </YSpec>
 
