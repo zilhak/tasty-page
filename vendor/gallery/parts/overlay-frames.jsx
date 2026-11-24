@@ -2333,7 +2333,7 @@ function RemoteFormFrame({ variant = "ssh", error }) {
          Apply-preset scope and the clipboard type segment). surface-active is the
          row-selection fill and is not used here. Tab STRIPS keep the underline. */
       background: active ? "var(--tasty-accent-primary)" : "var(--tasty-surface-raised)", color: active ? "var(--tasty-text-on-accent)" : "var(--tasty-text-secondary)",
-      border: "1px solid " + (active ? "var(--tasty-border-strong)" : "var(--tasty-border-default)") }}>{label}</div>
+      border: "var(--tasty-border-width) solid " + (active ? "var(--tasty-accent-primary)" : "var(--tasty-border-default)") }}>{label}</div>
   );
   return (
     <div style={{ width: "100%", maxWidth: 460, height: 408, display: "flex", flexDirection: "column",
