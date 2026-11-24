@@ -1513,6 +1513,10 @@
       "$type": "dimension",
       "$value": "{primitive.letter-spacing-07}"
     },
+    "letter-spacing-brand-lockup": {
+      "$type": "dimension",
+      "$value": "{primitive.letter-spacing-n1px}"
+    },
     "motion-term": {
       "$type": "duration",
       "$value": "{primitive.duration-0}"
@@ -5821,7 +5825,7 @@
     },
     "loading-lockup-tracking": {
       "$type": "dimension",
-      "$value": "{primitive.letter-spacing-n1px}"
+      "$value": "{semantic.letter-spacing-brand-lockup}"
     },
     "loading-lockup-font-size": {
       "$type": "dimension",
