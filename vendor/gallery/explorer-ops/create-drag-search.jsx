@@ -432,7 +432,7 @@ function DragSection() {
 function XHi({ text, q, selected }) {
   const i = text.toLowerCase().indexOf(q.toLowerCase());
   if (!q || i < 0) return text;
-  return <>{text.slice(0, i)}<span style={{ color: selected ? "var(--tasty-explorer-match-fg-active)" : "var(--tasty-accent-primary-raised)" }}>{text.slice(i, i + q.length)}</span>{text.slice(i + q.length)}</>;
+  return <>{text.slice(0, i)}<span style={{ color: selected ? "var(--tasty-explorer-match-fg-active)" : "var(--tasty-explorer-match-fg)" }}>{text.slice(i, i + q.length)}</span>{text.slice(i + q.length)}</>;
 }
 function XFindBar({ value = "", deep = false, right, remote }) {
   return (

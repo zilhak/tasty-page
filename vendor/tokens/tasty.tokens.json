@@ -6287,7 +6287,7 @@
     },
     "explorer-match-fg": {
       "$type": "color",
-      "$value": "{component.autocomplete-match-fg}",
+      "$value": "{semantic.accent-primary-raised}",
       "$description": "matched part of a name while filtering"
     },
     "explorer-match-fg-active": {
