@@ -254,12 +254,12 @@ function CreateSection() {
           )} />
         </Stage>
         <Views>
-          <View name="explorer-name-exists-languages" wide label="Already exists in every language — ko puts its particle on 항목, so a name ending in a vowel or a consonant reads the same">
+          <View name="explorer-name-exists-languages" wide label="Already exists in every language, on the list edit row — ko puts its particle on 항목, so a name ending in a vowel or a consonant reads the same">
             <div inert="" style={{ pointerEvents: "none", display: "flex", flexDirection: "column", gap: "var(--tasty-explorer-name-error-specimen-row-room)", width: "var(--tasty-explorer-name-error-specimen-width)", maxWidth: "100%", paddingBottom: "var(--tasty-space-xl)" }}>
               {[["en", "Documents"], ["ko", "Documents"], ["ko", "사진"], ["ko", "노트"], ["ja", "Documents"], ["zh-Hans", "Documents"]].map(([l, n]) => (
                 <div key={l + n} lang={l} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
                   <div style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{l} · {n}</div>
-                  <div style={{ position: "relative", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}><XDetailEdit value={n} error={NAME_EXISTS[l].replace("{}", n)} /></div>
+                  <XListEdit value={n} error={NAME_EXISTS[l].replace("{}", n)} />
                 </div>
               ))}
             </div>
