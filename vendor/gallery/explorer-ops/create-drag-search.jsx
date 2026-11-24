@@ -79,7 +79,10 @@ function XDetail({ rows = XROWS, states = {}, before, ring = {}, bg = "var(--tas
   return (
     <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", background: bg }}>
       <XK.DetailHeader />
-      <div style={{ flex: 1, overflow: "hidden" }}>
+      {/* The body clip starts one border-width above the first row, over the header's last line, as the app
+          draws the name editor after the table with the surface's clip: an editing first row keeps its whole
+          focus ring. The negative margin and the padding cancel, so no row moves. */}
+      <div style={{ flex: 1, overflow: "hidden", marginTop: "calc(-1 * var(--tasty-border-width))", paddingTop: "var(--tasty-border-width)" }}>
         {before}
         {rows.map((r, i) => ring[i] ? <XRing key={i}><XK.DetailRow {...r} /></XRing> : <XK.DetailRow key={i} {...r} state={states[i]} />)}
       </div>
@@ -238,7 +241,7 @@ function CreateSection() {
           </XCol>
         </Stage>
         <Meta
-          specs={[["placement", "top of the listing while typing → sorted place after ↵"], ["editor", "Input (control-height 28) in the name slot · Detail row stays 28 · Detail field = Name cell − glyph 16 − space-sm 8 − space-sm 8 at the cell end (140 → 108) · List row grows 22 → 28 while editing · Grid: 160 wide, centred under the glyph"], ["defaults", "“New folder” all selected · “untitled.txt” stem selected · taken → “… 2”"], ["↵ / Esc", "confirm / cancel (nothing on disk)"], ["blur", "valid → confirm · empty or invalid → cancel"], ["after", "sorted place, selected — only if the user still views that folder"], ["write fails", "error Toast + reload (unchanged)"]]}
+          specs={[["placement", "top of the listing while typing → sorted place after ↵"], ["editor", "Input (control-height 28) in the name slot · Detail row stays 28 · Detail field = Name cell − glyph 16 − space-sm 8 − space-sm 8 at the cell end (140 → 108) · List row grows 22 → 28 while editing · Grid: 160 wide, centred under the glyph"], ["defaults", "“New folder” all selected · “untitled.txt” stem selected · taken → “… 2”"], ["↵ / Esc", "confirm / cancel (nothing on disk)"], ["blur", "valid → confirm · empty or invalid → cancel"], ["after", "sorted place, selected — only if the user still views that folder"], ["focus ring, first row", "whole ring shows: drawn over the header's last line, never clipped by the list body"], ["write fails", "error Toast + reload (unchanged)"]]}
           tokens={[{ tok: "--tasty-surface-active", use: "editing row", color: "var(--tasty-surface-active)" }, { tok: "--tasty-input-border-focus", use: "editor focus", color: "var(--tasty-input-border-focus)" }, { tok: "--tasty-table-cell-height", use: "row 28" }]} />
       </Spec>
 
