@@ -429,7 +429,7 @@ function PluginTrustSpecs() {
               <AttnEmpty />
             </Themed>
           ))}
-          <Themed>
+          <Themed attr="mocha">
             <span style={cap}>Mocha · ko / ja / zh-Hans</span>
             <AttnEmpty lang="ko" /><AttnEmpty lang="ja" /><AttnEmpty lang="zh-Hans" />
           </Themed>
