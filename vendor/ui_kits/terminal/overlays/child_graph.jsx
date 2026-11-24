@@ -548,15 +548,20 @@ function ChildGraphWindow({ nodes = CHILD_SMALL, baseId = CHILD_SMALL_BASE, lang
     </div>
   );
 }
-// The content under the title bar: as it is, or (cut) laid out at the popup's size inside a box that
-// cuts it at the frame's right and bottom edges.
+// The content under the title bar: as it is, or (cut) laid out at the body size the popup has when it is
+// not fitted — its frame (width × height, else the default 600 × 460) less the two borders and the title
+// bar — inside a box that cuts it at the fitted frame's right and bottom edges. The app does the same: the
+// fitted content rect plus what the frame lost (draw.rs expanded_overflow) is the original body.
+const px = (v) => (typeof v === "number" ? `${v}px` : v);
 function CutBody({ cut, width, height, children }) {
   if (!cut) return children;
+  const frameW = width != null ? px(width) : "var(--tasty-graph-child-popup-width)";
+  const frameH = height != null ? px(height) : "var(--tasty-graph-child-popup-height)";
   return (
     <div style={{ flex: 1, minHeight: 0, overflow: "hidden", display: "flex" }}>
       <div style={{ flex: "none", display: "flex", flexDirection: "column", boxSizing: "border-box",
-        width: width || "calc(var(--tasty-graph-child-popup-width) - 2 * var(--tasty-border-width))",
-        height: height || "calc(var(--tasty-graph-child-popup-height) - var(--tasty-modhint-header-height) - 2 * var(--tasty-border-width))" }}>{children}</div>
+        width: `calc(${frameW} - 2 * var(--tasty-border-width))`,
+        height: `calc(${frameH} - var(--tasty-modhint-header-height) - 2 * var(--tasty-border-width))` }}>{children}</div>
     </div>
   );
 }

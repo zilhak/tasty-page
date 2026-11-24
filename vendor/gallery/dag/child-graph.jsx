@@ -256,6 +256,9 @@ export function ChildGraphSection() {
               <Labelled label="3 · show pressed — the list step, complete, no motion replayed"><OverWindow><ChildGraphWindow collapse still push={1} initial={{ selected: "s_01HX7Q", owner: "s_01HX7Q" }} /></OverWindow></Labelled>
             </>)}
           </View>
+          <View name="child-popup-fitted-resized" label="Resized to 640 × 480, window smaller — the content keeps the resized body (638 × 450) and is cut at the right and bottom" wide>
+            <OverWindow w={520} h={380} fitted><ChildGraphWindow collapse width={640} height={480} cut={{ w: 520, h: 380 }} /></OverWindow>
+          </View>
           <View name="child-popup-over-window-locales" label="ko, ja, zh-Hans — over the window">
             <div style={{ display: "flex", flexWrap: "wrap", gap: 16 }}>
               {["ko", "ja", "zh-Hans"].map((l) => <OverWindow key={l}><ChildGraphWindow collapse lang={l} initial={{ selected: "s_01HX7Q" }} /></OverWindow>)}
