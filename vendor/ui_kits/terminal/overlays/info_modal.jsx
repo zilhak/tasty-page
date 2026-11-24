@@ -44,7 +44,9 @@ const TITLE_RESERVE = (n) => `calc(var(--tasty-popup-title-edge-inset) + ${n} * 
 // collapse: the popup is expanded over the window from its show button; this label names the shrink button that puts it
 // back (it stays open). It sits first in the cluster, before fullscreen and close. closable: false for a popup with no
 // close of its own (a headless plugin popup): the host then draws this bar with no title and the shrink button only.
-function PopupTitleBar({ title, id, fullscreen = false, edge = "var(--tasty-info-modal-title-edge)", onClose, closeLabel = "Close",
+// edge: the rule under the bar. It is part of the popup frame (Foundations C1), so every popup reads border-frame;
+// the info modal shell alone passes info-modal-title-edge (border-default), as the app's InfoPanel does.
+function PopupTitleBar({ title, id, fullscreen = false, edge = "var(--tasty-border-frame)", onClose, closeLabel = "Close",
   collapse = null, collapseTip = null, closable = true }) {
   const n = (fullscreen ? 1 : 0) + (collapse ? 1 : 0) + (closable ? 1 : 0);
   const tRef = React.useRef(null);
@@ -87,7 +89,7 @@ function InfoModalShell({ title, children, actions, scroll = "fits", id = "info-
       minHeight: "var(--tasty-info-modal-min-height)", maxHeight: "var(--tasty-info-modal-max-height)",
       display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)",
       borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", overflow: "hidden" }}>
-      <PopupTitleBar title={title} id={id + "-title"} />
+      <PopupTitleBar title={title} id={id + "-title"} edge="var(--tasty-info-modal-title-edge)" />
       <div ref={ref} className="tasty-scroll" style={{ flex: 1, minHeight: 0, overflow: "auto", padding: "var(--tasty-space-md) var(--tasty-space-lg)",
         display: "flex", flexDirection: "column", gap: "var(--tasty-info-modal-para-gap)",
         fontSize: "var(--tasty-font-size-body)", lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-text-secondary)" }}>
