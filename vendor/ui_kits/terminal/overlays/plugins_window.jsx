@@ -413,14 +413,19 @@ function AttentionPanel({ items, onFlash, onConfigure, onRemove }) {
 
   if (items.length === 0)
     return (
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center",
-        justifyContent: "center", gap: 12, color: "var(--tasty-text-muted)", padding: 24 }}>
-        {/* The app draws two lines of text and no glyph: [plugins] attn_empty_title, attn_empty_body. */}
-        <div style={{ fontSize: "var(--tasty-font-size-body)", color: "var(--tasty-text-secondary)" }}>No plugins need attention</div>
-        <div style={{ fontSize: 12, maxWidth: "var(--tasty-measure-sm)", textAlign: "center", lineHeight: "var(--tasty-line-height-ui)" }}>
-          Rejected or failing plugins show up here with the reason and what to do next.
+      <React.Fragment>
+        {/* The app keeps the (empty) list panel and draws two lines of text, no glyph, 2 × space-xl
+            below the detail panel top, space-xs apart: [plugins] attn_empty_title, attn_empty_body. */}
+        <div style={{ width: "var(--tasty-plugins-list-width)", flex: "none", background: "var(--tasty-bg-sidebar)",
+          borderRight: "var(--tasty-border-width) solid var(--tasty-separator)" }} />
+        <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", alignItems: "center",
+          gap: "var(--tasty-space-xs)", color: "var(--tasty-text-muted)", padding: "calc(2 * var(--tasty-space-xl)) var(--tasty-space-lg) 0" }}>
+          <div style={{ fontSize: "var(--tasty-font-size-body)", color: "var(--tasty-text-secondary)" }}>No plugins need attention</div>
+          <div style={{ fontSize: 12, maxWidth: "var(--tasty-measure-sm)", textAlign: "center", lineHeight: "var(--tasty-line-height-ui)" }}>
+            Rejected or failing plugins show up here with the reason and what to do next.
+          </div>
         </div>
-      </div>
+      </React.Fragment>
     );
 
   const meta = sel && ATTN[sel.reason];
