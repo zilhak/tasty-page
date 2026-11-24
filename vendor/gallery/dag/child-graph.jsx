@@ -536,7 +536,7 @@ export function ChildGraphSection() {
           </View>
           <View name="child-gap-themes" label="Mocha and Latte — every reason">
             <ThemePair render={() => (
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 16, background: "var(--tasty-dag-canvas-bg)", padding: 12 }}>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-lg)", background: "var(--tasty-dag-canvas-bg)", padding: "var(--tasty-space-md)" }}>
                 {GAP_REASONS.map((r) => <div key={r} style={{ position: "relative", width: "var(--tasty-dag-node-width)", height: "var(--tasty-dag-node-height)" }}><ChildNode node={{ id: `g_${r}`, kind: "gap", reason: r, host: "gpu-box" }} /></div>)}
               </div>
             )} />
