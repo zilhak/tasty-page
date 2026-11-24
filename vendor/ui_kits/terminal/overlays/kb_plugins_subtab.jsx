@@ -125,8 +125,10 @@ function KbpCommandRow({ cmd, value, draft, last, onChange, onReset }) {
 const KBP_SAVED = { "clipboard-viewer/clear": { mode: "custom", keys: "ctrl+alt+x" } };
 
 // An override as one line: Custom as its combos ("Ctrl+Shift+H, Ctrl+Alt+V"), Inherit as @source, None as None.
+// A Custom override with no key recorded reads None too, as its slot does.
 const kbpLabel = (ov) => {
-  if (!ov || ov.mode === "none") return "None";
+  if (!ov || ov.mode === "none" || (ov.mode === "custom" && !(ov.keys || "").replace(/[\s,]/g, ""))) return "None";
+  if (ov.mode === "custom") ov = { ...ov, keys: ov.keys.split(",").map((c) => c.trim()).filter(Boolean).join(",") };
   if (ov.mode === "inherit") return "@" + ov.source;
   return ov.keys.split(",").map((c) => c.trim().split("+").map((k) => k.charAt(0).toUpperCase() + k.slice(1)).join("+")).join(", ");
 };
