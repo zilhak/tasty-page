@@ -930,17 +930,17 @@ function Page() {
             </div>
           </Stage>
           <Views>
-            <View name="explorer-rename-popup-languages" label="Rename popup in every language — the app's explorer.popup.rename title and button and button.cancel, idle and with a refused name (explorer.name.exists)">
+            <View name="explorer-rename-popup-languages" label="Rename popup in every language — the app's explorer.popup.rename title and button and button.cancel, idle and with a name the pre-check refuses (explorer.name.invalid_char, Rename disabled)">
               <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-md)", alignItems: "flex-start" }}>
                 {["en", "ko", "ja", "zh-Hans"].map((l) => <ExplorerRenamePopup key={l} lang={l} value="diagram.png" />)}
-                {["en", "ko", "ja", "zh-Hans"].map((l) => <ExplorerRenamePopup key={`${l}-error`} lang={l} value="report.pdf" error={RENAME_EXISTS[l]} />)}
+                {["en", "ko", "ja", "zh-Hans"].map((l) => <ExplorerRenamePopup key={`${l}-error`} lang={l} value="report/final.pdf" error={RENAME_INVALID_CHAR[l]} />)}
               </div>
             </View>
             <View name="explorer-read-error-focused" label="Focused"><div style={{ display: "flex", width: "100%", maxWidth: 420 }}><ExpState glyph={<PIcon name="alertTriangle" size="var(--tasty-icon-size-md)" />} glyphColor="var(--tasty-explorer-error-fg)" title="Can't read this folder" reason="No such file or directory (os error 2)" bg={surfaceBed(true)} /></div></View>
             <View name="explorer-read-error-unfocused" label="Unfocused"><div style={{ display: "flex", width: "100%", maxWidth: 420 }}><ExpState glyph={<PIcon name="alertTriangle" size="var(--tasty-icon-size-md)" />} glyphColor="var(--tasty-explorer-error-fg)" title="Can't read this folder" reason="No such file or directory (os error 2)" bg={surfaceBed(false)} /></div></View>
           </Views>
           <Meta
-            specs={[["empty", "centered glyph + line"], ["permission", "warning (peach) tone"], ["loading", <>Spinner — busy-indicator policy</>], ["popups", "Popup language · ghost + primary footer"], ["rename popup", "the app's parts only: title explorer.popup.rename.title · field · validation line when the name is refused (explorer.name.*, caption, explorer-name-error-fg, Input invalid) · one line slot, empty while idle (the remote waiting line takes it) · Cancel (button.cancel) + Rename (explorer.popup.rename.rename) · no hint line, no extension line, no path line: the app draws none of them"]]}
+            specs={[["empty", "centered glyph + line"], ["permission", "warning (peach) tone"], ["loading", <>Spinner — busy-indicator policy</>], ["popups", "Popup language · ghost + primary footer"], ["rename popup", "the app's parts only: title explorer.popup.rename.title · field · validation line when the pre-check refuses the name (explorer.name.empty / invalid_char / edge_space / reserved, caption, explorer-name-error-fg, Input invalid, Rename disabled) · a name that exists is found only when the rename runs · one line slot, empty while idle (the remote waiting line takes it) · Cancel (button.cancel) + Rename (explorer.popup.rename.rename) · no hint line, no extension line, no path line: the app draws none of them"]]}
             tokens={[{ tok: "--tasty-accent-warning", use: "permission tone", color: "var(--tasty-accent-warning-raised)" }, { tok: "--tasty-spinner-indicator", use: "loading", color: "var(--tasty-spinner-indicator)" }, { tok: "--tasty-shadow-modal", use: "popup lift" }]} />
           <Note>Explorer font (family + size, 14px cap) gets an <b>Appearance › Explorer</b> sub-tab mirroring the Terminal/Markdown font sections — same control layout, deferred to the Settings specimen.</Note>
         </Spec>
@@ -1352,8 +1352,10 @@ export const page = {
   content: <Page />,
 };
 
-// explorer.name.exists filled with report.pdf, quoted from tasty lang/*.toml.
-const RENAME_EXISTS = { en: "“report.pdf” already exists in this folder.", ko: "이 폴더에 “report.pdf” 이(가) 이미 있습니다.", ja: "このフォルダーには「report.pdf」がすでにあります。", "zh-Hans": "此文件夹中已存在“report.pdf”。" };
+// explorer.name.invalid_char filled with /, quoted from tasty lang/*.toml. The pre-check refuses an empty
+// name, a forbidden character, an edge space and a reserved name; a name that already exists is only
+// found when the rename runs, so it is not drawn here.
+const RENAME_INVALID_CHAR = { en: "A name can't contain “/”.", ko: "이름에 “/” 문자를 쓸 수 없습니다.", ja: "名前に「/」は使えません。", "zh-Hans": "名称不能包含“/”。" };
 export default function GalleryRoute() {
   return <PageStates value={STATES}>{page.content}</PageStates>;
 }

@@ -222,8 +222,9 @@ function ExpState({ glyph, glyphColor, title, sub, reason, actions, compact, bod
 }
 
 // Explorer Rename popup, shared by Plugin surfaces and Explorer file ops. It has the app's parts and no
-// others: title (explorer.popup.rename.title), the field, a validation line under the field when the name
-// is refused (explorer.name.*, explorer-name-error-fg), one line slot, Cancel (button.cancel) + Rename
+// others: title (explorer.popup.rename.title), the field, a validation line under the field when the
+// pre-check refuses the name (explorer.name.empty / invalid_char / edge_space / reserved,
+// explorer-name-error-fg) with Rename disabled until the name passes, one line slot, Cancel (button.cancel) + Rename
 // (explorer.popup.rename.rename). Words are quoted from tasty lang/*.toml in every language. The slot holds
 // the remote waiting line (Spinner + explorer.remote.renaming, passed in as waitingText) and stays empty,
 // at the same height, while idle, so nothing moves when the popup starts waiting. No hint line and no path
@@ -243,7 +244,7 @@ function ExplorerRenamePopup({ lang = "en", value, error = null, waitingText = n
       <Input block readOnly={waiting} invalid={!!error} defaultValue={value} />
       {error && <span role="alert" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-explorer-name-error-fg)" }}>{error}</span>}
       <span style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", minHeight: "var(--tasty-icon-size-sm)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{waiting && <><Spinner size="var(--tasty-icon-size-sm)" />{waitingText}</>}</span>
-      <div style={{ display: "flex", justifyContent: "flex-end", gap: "var(--tasty-space-sm)" }}><Button variant="ghost" size="sm" disabled={waiting}>{t.cancel}</Button><Button variant="primary" size="sm" disabled={waiting}>{t.rename}</Button></div>
+      <div style={{ display: "flex", justifyContent: "flex-end", gap: "var(--tasty-space-sm)" }}><Button variant="ghost" size="sm" disabled={waiting}>{t.cancel}</Button><Button variant="primary" size="sm" disabled={waiting || !!error}>{t.rename}</Button></div>
     </div>
   );
 }
