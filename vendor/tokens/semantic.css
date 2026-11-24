@@ -1,9 +1,10 @@
 /* ============================================================
    Tasty — TIER 2 · SEMANTIC tokens
    ------------------------------------------------------------
-   Roles & intent. Every value is a reference to a PRIMITIVE —
-   never a literal (the two exceptions are color-mix derivations
-   and a handful of role-remaps under Latte, both flagged inline).
+   Roles & intent. A value reads a PRIMITIVE or another role. The
+   only literals are the shadows, the attention ranks and the Latte
+   node-dim-opacity. Color-mix derivations and the role-remaps under
+   Latte are flagged inline.
 
    • DO read these from components / app code / the COMPONENT layer.
    • DO NOT hardcode a primitive where a semantic role exists.

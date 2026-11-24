@@ -15,7 +15,7 @@ Every token is namespaced `--tasty-*`. The canonical source lives in `tokens/`:
 | `tokens/semantic.css`   | 2 · semantic  | Roles. Each reads a primitive or another role. The shadows and attention ranks are literals. `--tasty-bg-*`, `--tasty-text-*`, `--tasty-accent-*`, `--tasty-space-*`, `--tasty-control-height*`, … |
 | `tokens/components.css` | 3 · component | One token per styled part of one component. Each is `var(--tasty-<semantic>)`, a part-only measure on the size, radius or duration scale ([Part-only measures](#part-only-measures)), another component token ([Component references](#component-references)), or a literal parameter ([Literal parameters](#literal-parameters)). `--tasty-button-primary-bg`, `--tasty-input-border-focus`, … |
 
-Load order is fixed in `styles.css`: `fonts → primitives → semantic → components → base`. A token reads tokens of its own tier or of an earlier tier, never of a later one. A semantic role may read another role, and a component token may read a primitive or another component token only where the sections below allow it. Every consumer references `--tasty-*` directly — the pre-3-tier names (`--ctp-*`, `--bg-*`, `--space-*`…) have been fully migrated out and the legacy shim removed.
+Load order is fixed in `styles.css`: `primitives → semantic → components → base`. Fonts are not part of it: the site serves them, and `styles.css` alone falls back to the system stacks. A token reads tokens of its own tier or of an earlier tier, never of a later one. A semantic role may read another role, and a component token may read a primitive or another component token only where the sections below allow it. Every consumer references `--tasty-*` directly — the pre-3-tier names (`--ctp-*`, `--bg-*`, `--space-*`…) have been fully migrated out and the legacy shim removed.
 
 ---
 
@@ -98,7 +98,7 @@ Sizes, type, and motion are theme-invariant and never repeated.
 ## Adding a token
 
 1. **New raw value?** Add a primitive on the right numeric scale in `primitives.css` (and its Latte counterpart if it is a color).
-2. **New role?** Add a semantic token in `semantic.css` as `var(--tasty-<primitive>)`. Never a literal.
+2. **New role?** Add a semantic token in `semantic.css` as `var(--tasty-<primitive>)`, or as another role's `var()` when it is that role in a narrower use. Never a literal: the only literal roles are the shadows, the attention ranks and the Latte value of `--tasty-node-dim-opacity`.
 3. **New component part?** Add a component token in `components.css` as `var(--tasty-<semantic>)`. A part-only measure may read its size, radius or duration primitive instead. A part of the same component may read that component's token, and so may a part drawn as another component, a member of its family, or a part that fills its slot. A count, coefficient, dash pattern or keyword may be a literal. See the three sections below.
 4. Regenerate `tokens/tasty.tokens.json` with `scripts/design-tokens/gen_tokens_json.py`, then run `scripts/design-tokens/verify_tokens_json.py` and confirm the token count rises and it reports no errors. Non-color/size tokens (durations, easings, unitless multipliers) need a trailing `/* @kind other */`.
 5. Run `scripts/design-tokens/verify_ground_ink_tokens.py` to check the ground-ink rules' token list against the token CSS.

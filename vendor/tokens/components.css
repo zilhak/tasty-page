@@ -1,7 +1,8 @@
 /* ============================================================
    Tasty — TIER 3 · COMPONENT tokens
    ------------------------------------------------------------
-   Per-component knobs. Every value references a SEMANTIC token.
+   Per-component knobs. A value references a SEMANTIC token unless
+   one of the cases below applies.
    A measure that belongs to one part may read the size, radius or
    duration primitive instead (TOKENS.md, "Part-only measures").
    A part may read another component token of its own component or of
