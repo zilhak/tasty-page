@@ -375,11 +375,13 @@ function Page() {
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 18, flexWrap: "wrap", alignItems: "flex-start" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
               <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>list — full header</div>
-              <DagWindow />
+              {/* the window's own 560 x 460 box: its scrim fills the nearest positioned box, so without one both
+                  windows filled the stage and were cut to its height */}
+              <div style={{ position: "relative", flex: "none", width: "var(--tasty-dag-popup-width)", height: "var(--tasty-dag-popup-height)" }}><DagWindow /></div>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>detail — open a row above: the back bar carries zoom + runner badge</div>
-              <DagWindow />
+              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>detail — the back bar carries zoom + runner badge</div>
+              <div style={{ position: "relative", flex: "none", width: "var(--tasty-dag-popup-width)", height: "var(--tasty-dag-popup-height)" }}><DagWindow initialOpen="build-and-deploy" /></div>
             </div>
           </Stage>
           <Meta
