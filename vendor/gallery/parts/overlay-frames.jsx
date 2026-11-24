@@ -3112,11 +3112,19 @@ const FP_FOLDER_COPY = {
   ja: { title: "フォルダーを選択", label: "フォルダー", confirm: "フォルダーを選択", cancel: "キャンセル", hintCur: "現在のフォルダーを使用します。サブフォルダーを選ぶとそのフォルダーを使用します。",
     hintSel: (n) => <><span style={{ fontFamily: "var(--tasty-font-mono)" }}>{n}</span> を開くにはダブルクリックします。</>, fileTip: "選択できるのはフォルダーだけです。", empty: "サブフォルダーはありません" },
 };
+// Loading copy: the app's filepicker.loading, loading_body_remote and loading_body_local (tasty lang/*.toml).
+const FP_LOADING_COPY = {
+  en: { title: "Loading…", remote: "Waiting for the remote directory listing.", local: "Reading the local directory." },
+  ko: { title: "불러오는 중…", remote: "원격 디렉토리 목록을 기다리는 중입니다.", local: "로컬 디렉토리를 읽는 중입니다." },
+  ja: { title: "読み込み中…", remote: "リモートディレクトリの一覧を待っています。", local: "ローカルディレクトリを読み込んでいます。" },
+  "zh-Hans": { title: "正在加载…", remote: "正在等待远程目录列表。", local: "正在读取本地目录。" },
+};
 function FilePickerFrame({ state = "loaded", remote = false, indicator = "badge", multi = false, filters = [], mode = "open", save = "new", deep = false, crumbMenu = false, folderSel = false, w = 640, h = 480, pathKind, single = false, elideStage,
   folderPick = "none", fileHover = false, lang = "en", opaque = false, host = "work-laptop-attach", noProjection = false }) {
   const saving = mode === "save";
   const folderMode = mode === "folder";
   const FC = FP_FOLDER_COPY[lang] || FP_FOLDER_COPY.en;
+  const FPL = FP_LOADING_COPY[lang] || FP_LOADING_COPY.en;
   const deepTail = [{ label: "tasty" }, { label: "config" }, { label: "keybindings" }, { label: "exports" }, { label: "2026-09", current: true }];
   const LONG_PARENT = "long-folder-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
   const LONG_CURRENT = "current-folder-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
@@ -3153,11 +3161,10 @@ function FilePickerFrame({ state = "loaded", remote = false, indicator = "badge"
     <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
       textAlign: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-xl) var(--tasty-space-lg)" }}>{kids}</div>
   );
-  // The remote loading sentence below names the host; it is gallery-only English. The app's key
-  // (filepicker.loading_body_remote) carries no host, so an attach with no profile name (host
-  // empty) draws that value: no new key, no word Remote, never 127.0.0.1:<port>. The app's
-  // loading title is filepicker.loading. Connection lost draws the app's values with or without
-  // a host: filepicker.error_conn.title, and a body with two causes, session_lost (state
+  // Loading draws the app's values, quoted from tasty lang/*.toml: title filepicker.loading, body
+  // filepicker.loading_body_remote (remote) or loading_body_local (local). Neither names the host,
+  // so a host and an attach with no profile name draw the same text: no new key, no word Remote,
+  // never 127.0.0.1:<port>. Connection lost draws the app's values with or without a host: filepicker.error_conn.title, and a body with two causes, session_lost (state
   // "error-conn") and timeout (state "error-conn-timeout").
   // Its action is Refresh: it reads the current folder again, as the path bar's Refresh does.
   // There is no reconnect action. noProjection: there is no mirror projection to send the read
@@ -3217,7 +3224,7 @@ function FilePickerFrame({ state = "loaded", remote = false, indicator = "badge"
             ))}
           </div>
         )}
-        {state === "loading" && <CenterState variant="loading" title={remote && !host ? "Loading…" : "Loading folder…"} sub={remote ? (host ? <>Reading <span style={{ fontFamily: "var(--tasty-font-mono)" }}>{host}</span> over SSH.</> : "Waiting for the remote directory listing.") : "Reading the directory contents."} />}
+        {state === "loading" && <CenterState variant="loading" title={FPL.title} sub={remote ? FPL.remote : FPL.local} />}
         {(state === "error-perm" || connLost) && <CenterState variant="error" title={errText.title} sub={errText.body}
           action={<Button variant="secondary" size="sm" disabled={noProjection} leadingIcon={<Icon name="refresh" size="var(--tasty-icon-size-sm)" />}>{connLost ? "Refresh" : "Retry"}</Button>} />}
         {state === "empty" && <CenterState variant="empty" glyph="folderOpen" title={folderMode ? FC.empty : "This folder is empty"} />}
