@@ -317,6 +317,8 @@ The bed shows focus, as the terminal's always has: **`term` focused, `term-unfoc
 
 **Rules for the edge.** `surface-focus-edge-focused` and `surface-focus-edge-unfocused`, `surface-focus-edge-width` 2px, zoom-exempt, across the top of the leaf above any address band. The row stays reserved in both states, and a webview starts below it.
 
+- **Unfocused reads as no mark.** `surface-focus-edge-unfocused` is the chrome tone, `mantle`. On `html` the address band below is `mantle` too, so the unfocused edge runs into it and the band looks 2px taller. That is meant: only the lit edge is a signal, as only the lit bar is on a popup. The unfocused value has no grade of its own. It is held only to the pair's ΔE and 3:1 in [section 7](#7-meaning).
+
 - **Paint order.** Unfocused edge, then ring (needs input, occupancy, completion), then lit edge. With a ring on the leaf, the lit edge takes only the lower row, `border-width` tall, and the ring keeps the upper row. Both stay visible, and the content does not move.
 - **Ring against edge.** Where the host surface shows on all four sides, a ring has four sides and the edge one, so position tells them apart as well as color. A native webview sits above the host surface and covers the ring, so an `html` or plugin webview leaf shows only the ring's top side, in the edge's own row. An inset on a pane's outer side can show a little more on macOS and Windows. On such a leaf:
   - Focused: the ring's upper row over the lit lower row. They are told apart by row and by hue, ΔE 0.135 or more. Completion clears on focus, so it never meets the lit edge on one leaf.
