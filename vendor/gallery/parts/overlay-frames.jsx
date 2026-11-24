@@ -3119,8 +3119,18 @@ const FP_LOADING_COPY = {
   ja: { title: "読み込み中…", remote: "リモートディレクトリの一覧を待っています。", local: "ローカルディレクトリを読み込んでいます。" },
   "zh-Hans": { title: "正在加载…", remote: "正在等待远程目录列表。", local: "正在读取本地目录。" },
 };
+// Error copy, quoted from tasty lang/*.toml: filepicker.error_perm.title / reason_permission / retry and
+// filepicker.error_conn.title / session_lost / timeout. connAction is filepicker.error_conn.reconnect with
+// its new value (written by Codex): the button reads the folder again and does not reconnect, so it says
+// what Permission denied's button says. The app still ships "Reconnect" / "재연결" / "再接続" / "重新连接".
+const FP_ERROR_COPY = {
+  en: { permTitle: "Permission denied", permReason: "You don't have permission to read this directory.", permAction: "Retry", connTitle: "Connection lost", sessionLost: "The remote session is no longer attached.", timeout: "The remote host did not respond in time.", connAction: "Retry" },
+  ko: { permTitle: "권한 거부됨", permReason: "이 디렉토리를 읽을 권한이 없습니다.", permAction: "재시도", connTitle: "연결 끊김", sessionLost: "원격 세션이 더 이상 연결되어 있지 않습니다.", timeout: "원격 호스트가 제시간에 응답하지 않았습니다.", connAction: "재시도" },
+  ja: { permTitle: "権限がありません", permReason: "このディレクトリを読み取る権限がありません。", permAction: "再試行", connTitle: "接続が切断されました", sessionLost: "リモートセッションは既に切断されています。", timeout: "リモートホストが時間内に応答しませんでした。", connAction: "再試行" },
+  "zh-Hans": { permTitle: "权限被拒绝", permReason: "没有读取此目录的权限。", permAction: "重试", connTitle: "连接已断开", sessionLost: "远程会话已不再附加。", timeout: "远程主机未及时响应。", connAction: "重试" },
+};
 function FilePickerFrame({ state = "loaded", remote = false, indicator = "badge", multi = false, filters = [], mode = "open", save = "new", deep = false, crumbMenu = false, folderSel = false, w = 640, h = 480, pathKind, single = false, elideStage,
-  folderPick = "none", fileHover = false, lang = "en", opaque = false, host = "work-laptop-attach", noProjection = false }) {
+  folderPick = "none", fileHover = false, lang = "en", opaque = false, host = "work-laptop-attach" }) {
   const saving = mode === "save";
   const folderMode = mode === "folder";
   const FC = FP_FOLDER_COPY[lang] || FP_FOLDER_COPY.en;
@@ -3164,15 +3174,17 @@ function FilePickerFrame({ state = "loaded", remote = false, indicator = "badge"
   // Loading draws the app's values, quoted from tasty lang/*.toml: title filepicker.loading, body
   // filepicker.loading_body_remote (remote) or loading_body_local (local). Neither names the host,
   // so a host and an attach with no profile name draw the same text: no new key, no word Remote,
-  // never 127.0.0.1:<port>. Connection lost draws the app's values with or without a host: filepicker.error_conn.title, and a body with two causes, session_lost (state
-  // "error-conn") and timeout (state "error-conn-timeout").
-  // Its action is Refresh: it reads the current folder again, as the path bar's Refresh does.
-  // There is no reconnect action. noProjection: there is no mirror projection to send the read
-  // through, so nothing can be sent, and both Refresh buttons are disabled.
+  // never 127.0.0.1:<port>. The error blocks draw the app's values (FP_ERROR_COPY), with or without
+  // a host. Connection lost has two causes: session_lost (state "error-conn") and timeout (state
+  // "error-conn-timeout"). Its button, like Permission denied's, reads the current folder again.
+  // session_lost means there is no mirror projection, so the read is never sent: the action
+  // cannot happen, and both the block's button and the path bar's Refresh are disabled.
+  const FE = FP_ERROR_COPY[lang] || FP_ERROR_COPY.en;
   const connLost = state === "error-conn" || state === "error-conn-timeout";
+  const sessionLost = remote && state === "error-conn";
   const errText = connLost
-    ? { title: "Connection lost", body: state === "error-conn-timeout" ? "The remote host did not respond in time." : "The remote session is no longer attached." }
-    : { title: "Permission denied", body: <>You don't have permission to read <span style={{ fontFamily: "var(--tasty-font-mono)" }}>/home/deploy/agents-prod</span>. Try a different folder or check access.</> };
+    ? { title: FE.connTitle, body: state === "error-conn-timeout" ? FE.timeout : FE.sessionLost, action: FE.connAction }
+    : { title: FE.permTitle, body: FE.permReason, action: FE.permAction };
   return (
     <div style={{ position: "relative", width: w, height: h, display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)",
       border: borderMode ? "1px solid var(--tasty-accent-info)" : "1px solid var(--tasty-border-strong)",
@@ -3196,7 +3208,7 @@ function FilePickerFrame({ state = "loaded", remote = false, indicator = "badge"
       <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-fp-section-gap)", padding: "var(--tasty-fp-path-pad-y) var(--tasty-fp-inset-end) var(--tasty-fp-path-pad-y) var(--tasty-fp-inset-start)", flex: "none", position: "relative", borderBottom: "1px solid var(--tasty-separator)", background: "var(--tasty-bg-sidebar)" }}>
         <FpCrumbs items={crumbs} elide={elideStage ?? (deep || pathKind === "longtwo")} single={single} />
         <IconButton size="sm" aria-label="Up one folder"><Icon name="chevronUp" size="var(--tasty-icon-size-sm)" /></IconButton>
-        <IconButton size="sm" aria-label="Refresh" disabled={noProjection}>{ic.refresh}</IconButton>
+        <IconButton size="sm" aria-label="Refresh" disabled={sessionLost}>{ic.refresh}</IconButton>
         {crumbMenu && <FpCrumbMenu items={crumbs.slice(1, -2).map((c) => c.label)} />}
       </div>
       {/* list header */}
@@ -3226,7 +3238,7 @@ function FilePickerFrame({ state = "loaded", remote = false, indicator = "badge"
         )}
         {state === "loading" && <CenterState variant="loading" title={FPL.title} sub={remote ? FPL.remote : FPL.local} />}
         {(state === "error-perm" || connLost) && <CenterState variant="error" title={errText.title} sub={errText.body}
-          action={<Button variant="secondary" size="sm" disabled={noProjection} leadingIcon={<Icon name="refresh" size="var(--tasty-icon-size-sm)" />}>{connLost ? "Refresh" : "Retry"}</Button>} />}
+          action={<Button variant="secondary" size="sm" disabled={connLost && sessionLost} leadingIcon={<Icon name="refresh" size="var(--tasty-icon-size-sm)" />}>{errText.action}</Button>} />}
         {state === "empty" && <CenterState variant="empty" glyph="folderOpen" title={folderMode ? FC.empty : "This folder is empty"} />}
       </div>
       {/* footer */}
