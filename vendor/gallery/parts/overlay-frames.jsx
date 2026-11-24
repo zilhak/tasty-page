@@ -3106,6 +3106,8 @@ function FpCrumbMenu({ items, opaque = false, style }) {
 // attach profile name (R-57). With no profile name (--ssh or --target-port from the CLI or
 // IPC, a profile saved with an empty name) host is empty and the chip holds
 // attach.mirror_pill_label ("Remote") in the label font, same ink; never 127.0.0.1:<port>.
+// Two steps for an empty host, both required: pick the catalog word instead of the empty host string
+// (the chip never holds the glyph alone), and set that word in font-label, not mono caption.
 function FpHostText({ host, lang = "en" }) {
   return host ? host
     : <span data-fp-remote-host="none" lang={lang} style={{ fontFamily: "var(--tasty-font-label)" }}>{MIRROR_PILL_LABEL[lang] || MIRROR_PILL_LABEL.en}</span>;
