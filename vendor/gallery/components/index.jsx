@@ -569,7 +569,7 @@ function Components() {
             </div>
           </Stage>
           <Meta
-            specs={[["height", <>24px <span className="tok">--tasty-control-height-tab</span></>], ["width", <>150px <span className="tok">--tasty-tab-width</span></>], ["active", "accent top bar + panel fill"], ["close", "hover-revealed"], ["title", "needs-input › completion › active › rest"], ["cluster", <>busy dot · close, 4 apart · <span className="tok">--tasty-tab-status-gap</span></>]]}
+            specs={[["height", <>24px <span className="tok">--tasty-control-height-tab</span></>], ["width", <>150px <span className="tok">--tasty-tab-width</span></>], ["active", "accent top bar + panel fill"], ["close", "hover-revealed"], ["title", "needs-input › completion › active › rest"], ["cluster", <>busy dot · close, 4 apart · <span className="tok">--tasty-tab-status-gap</span></>], ["keyboard focus", "none in the app: the strip is no Tab stop, tabs move by shortcut"], ["web host Tab stop", <>ring <span className="tok">--tasty-focus-ring-width</span> 2px inside the tab · close keeps <span className="tok">--tasty-focus-ring-offset</span> 1px off</>]]}
             tokens={[{ tok: "--tasty-bg-panel", use: "active fill", color: "var(--tasty-bg-panel)" }, { tok: "--tasty-accent-primary", use: "active bar", color: "var(--tasty-accent-primary-raised)" }, { tok: "--tasty-tab-fg-needs-input", use: "needs-input title", color: "var(--tasty-tab-fg-needs-input)" }, { tok: "--tasty-tab-fg-completion", use: "completion title", color: "var(--tasty-tab-fg-completion)" }, { tok: "--tasty-tab-status-gap", use: "→ space-xs 4" }, { tok: "--tasty-separator", use: "dividers" }]} />
         </Spec>
 

@@ -26,6 +26,15 @@ import React from "react";
  *
  * Right cluster: busy dot · close, tab-status-gap (4) apart; label → cluster
  * is tab-gap (8).
+ *
+ * Keyboard focus: the app's tab strip never takes it. Keys go to the window's
+ * focus node, and tabs move by shortcut (next/prev tab, quick switch, switch
+ * numbers). So neither the tab nor its close button is a Tab stop here. A web
+ * host that adds one for page keyboard access (the landing demo) gets the 2px
+ * ring INSIDE the tab: tabs abut and the strip clips, so a ring off the box
+ * would be cut or would cover a neighbour. The app draws its tab context-menu
+ * stroke inside the tab the same way. The close button keeps the control ring,
+ * focus-ring-offset (1px) off its 16px box, which stays inside the 24px tab.
  */
 
 const CSS = `
@@ -48,6 +57,8 @@ const CSS = `
 }
 .tasty-tab:hover { background: var(--tasty-tab-bg-hover); color: var(--tasty-tab-fg-hover); }
 .tasty-tab--active { background: var(--tasty-bg-panel); color: var(--tasty-text-primary); }
+/* only when a host makes the tab a Tab stop: the ring sits inside the box (see the note above) */
+.tasty-tab:focus-visible { outline-offset: calc(-1 * var(--tasty-focus-ring-width)); }
 .tasty-tab--active::before {
   content: ""; position: absolute; left: 0; right: 0; top: 0; height: var(--tasty-tab-indicator-width); background: var(--tasty-accent-primary);
 }
@@ -98,6 +109,7 @@ export function Tab({ label, icon = null, active = false, status = "idle", atten
       <button
         className="tasty-tab__close"
         aria-label="Close tab"
+        tabIndex={-1}
         onClick={(e) => { e.stopPropagation(); onClose && onClose(e); }}
       >
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
