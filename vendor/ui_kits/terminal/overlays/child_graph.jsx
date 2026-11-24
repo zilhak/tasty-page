@@ -264,13 +264,11 @@ function ChildGraphView({ nodes, baseId, full = false, selected, onSelect, lang 
 // state "idle" → Reconnect · "trying" → disabled Reconnecting… with a spinner · "failed" → the failure
 // sentence (warning) and Reconnect again. On success the graph comes back with that base.
 // host follows the host text rule (Dialogs › File handler › Remote path): the attach profile
-// name (R-57). With no profile name (--ssh, --target-port, a profile saved with an empty name)
-// host is empty and each sentence takes its _no_host key, which leaves the host out; the word
-// Remote is not put in the sentence and 127.0.0.1:<port> is never shown.
+// name (R-57). The banner has no form for an attach with no profile name: Reconnect attaches
+// again with the same profile, and a mirror with no profile name is closed when it drops.
 function MirrorBanner({ cause = "detached", state = "idle", host = "lab-linux", name = "worker-a", profile = "lab-linux", lang = "en", onReconnect }) {
-  const nh = host ? "" : "_no_host";
-  const text = state === "failed" ? gt("child_graph.reconnect_failed" + nh, lang, ...(host ? [host] : []))
-    : gt((cause === "lost" ? "child_graph.mirror_lost" : "child_graph.mirror_detached") + nh, lang, ...(host ? [host] : []), name);
+  const text = state === "failed" ? gt("child_graph.reconnect_failed", lang, host)
+    : gt(cause === "lost" ? "child_graph.mirror_lost" : "child_graph.mirror_detached", lang, host, name);
   const tip = gt("child_graph.reconnect_tooltip", lang, name, profile);
   const action = state === "trying"
     ? <Button size="sm" variant="secondary" disabled leadingIcon={<Spinner size={12} />}>{gt("child_graph.reconnecting", lang)}</Button>
