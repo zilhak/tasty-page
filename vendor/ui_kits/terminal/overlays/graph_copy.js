@@ -110,6 +110,8 @@ export const APP_COPY = {
   "popup.collapsed_button.label": {"en": "Show popup", "ko": "팝업 보기", "ja": "ポップアップを表示", "zh-Hans": "查看弹窗"},
   "popup.collapse_button.label": {"en": "Collapse popup", "ko": "팝업 접기", "ja": "ポップアップを折りたたむ", "zh-Hans": "折叠弹窗"},
   "popup.collapse_button.tooltip": {"en": "Collapse the popup to its show button to use the rest of the window. The popup stays open and keeps your input.", "ko": "팝업을 보기 버튼으로 접어 윈도우의 다른 영역을 사용합니다. 팝업은 열린 상태로 유지되며 입력 내용도 보존됩니다.", "ja": "ポップアップを表示ボタンに折りたたみ、ウィンドウの他の領域を操作できるようにします。ポップアップは開いたまま、入力内容も保持されます。", "zh-Hans": "将弹窗折叠为查看按钮，以使用窗口的其他区域。弹窗保持打开，并保留输入内容。"},
+  "attach.toast.mirror_disconnected": {"en": "The remote connection was lost. The mirror workspace has been closed.", "ko": "원격 연결이 끊어졌습니다. 미러 워크스페이스를 닫았습니다.", "ja": "リモート接続が切断されました。ミラーワークスペースを閉じました。", "zh-Hans": "远程连接已断开。镜像工作区已关闭。"},
+  "attach.toast.workspace_closed_on_server": {"en": "Closed the workspace on the remote Tasty.", "ko": "원격 Tasty에서 워크스페이스를 닫았습니다.", "ja": "リモートの Tasty でワークスペースを閉じました。", "zh-Hans": "已关闭远程 Tasty 上的工作区。"},
   "attach.mirror_pill_label": {"en": "Remote", "ko": "원격", "ja": "リモート", "zh-Hans": "远程"},
   "settings.keybindings.toggle_dag_list_label": {"en": "Toggle DAG list:", "ko": "DAG 목록 열기/닫기:", "ja": "DAG 一覧の切替:", "zh-Hans": "打开/关闭 DAG 列表："},
 };
