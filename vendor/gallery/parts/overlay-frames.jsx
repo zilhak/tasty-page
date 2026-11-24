@@ -149,7 +149,7 @@ git push --force origin main</pre>
 
 function RenameFrame() {
   return (
-    <div style={{ width: 360, background: "var(--tasty-dialog-bg)", border: "1px solid var(--tasty-border-strong)",
+    <div style={{ width: 360, background: "var(--tasty-dialog-bg)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)",
       borderRadius: "var(--tasty-radius)", overflow: "hidden", boxShadow: "var(--tasty-shadow-modal)" }}>
       <div style={{ padding: "14px 14px 0" }}>
         <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 2 }}>Rename workspace</div>
@@ -169,7 +169,7 @@ function SettingsFrame() {
   const L2 = ["Theme", "General", "Terminal"];
   return (
     <div style={{ width: 620, height: 380, display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)",
-      border: "1px solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", overflow: "hidden", boxShadow: "var(--tasty-shadow-modal)" }}>
+      border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden", boxShadow: "var(--tasty-shadow-modal)" }}>
       {/* L1 top tabs */}
       <div style={{ display: "flex", alignItems: "center", height: 44, flex: "none", padding: "0 12px", gap: 2,
         borderBottom: "1px solid var(--tasty-separator)", background: "var(--tasty-bg-sidebar)" }}>
@@ -240,7 +240,7 @@ function SettingsGeneralOverlayFrame() {
   const active = 3;
   return (
     <div style={{ width: 620, height: 380, display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)",
-      border: "1px solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", overflow: "hidden", boxShadow: "var(--tasty-shadow-modal)" }}>
+      border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden", boxShadow: "var(--tasty-shadow-modal)" }}>
       <div style={{ display: "flex", alignItems: "center", height: 44, flex: "none", padding: "0 12px", gap: 2,
         borderBottom: "1px solid var(--tasty-separator)", background: "var(--tasty-bg-sidebar)" }}>
         <span style={{ fontSize: 14, fontWeight: 700 }}>Settings</span>
@@ -286,7 +286,7 @@ function SettingsRemoteFrameShell({ active, children }) {
   const L2 = ["General", "Notifications", "Accessibility", "Overlay", "Remote transfer", "Remote attach"];
   return (
     <div style={{ width: 620, height: 380, display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)",
-      border: "1px solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", overflow: "hidden", boxShadow: "var(--tasty-shadow-modal)" }}>
+      border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden", boxShadow: "var(--tasty-shadow-modal)" }}>
       <div style={{ display: "flex", alignItems: "center", height: 44, flex: "none", padding: "0 12px", gap: 2,
         borderBottom: "1px solid var(--tasty-separator)", background: "var(--tasty-bg-sidebar)" }}>
         <span style={{ fontSize: 14, fontWeight: 700 }}>Settings</span>
@@ -639,7 +639,7 @@ function PortsFrame({ favorites = "mixed" }) {
   const columns = PORTS_COLUMNS;
   return (
     <div style={{ width: "100%", maxWidth: 640, height: 460, display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)",
-      border: "1px solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", overflow: "hidden", boxShadow: "var(--tasty-shadow-modal)" }}>
+      border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden", boxShadow: "var(--tasty-shadow-modal)" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 14px", flex: "none", borderBottom: "1px solid var(--tasty-separator)" }}>
         <span style={{ display: "inline-flex", color: "var(--tasty-text-muted)" }}>{ic.port}</span>
         <span style={{ fontSize: 14, fontWeight: 600 }}>Listening ports</span>
@@ -721,7 +721,7 @@ function RemoteFrame({ tab = "profiles", ssh = "hosts" }) {
   );
   return (
     <div style={{ width: 520, height: 440, display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)",
-      border: "1px solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", overflow: "hidden", boxShadow: "var(--tasty-shadow-modal)" }}>
+      border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden", boxShadow: "var(--tasty-shadow-modal)" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 14px", flex: "none", borderBottom: "1px solid var(--tasty-separator)" }}>
         <span style={{ display: "inline-flex", color: "var(--tasty-text-muted)" }}>{ic.remote}</span>
         <span style={{ fontSize: 14, fontWeight: 600 }}>Remote connections</span>
@@ -2198,7 +2198,7 @@ tasty read screen --surface 3 --json
   const clipGlyph = <Icon name="clipboard" size={28} />;
   const Frame = ({ children }) => (
     <div style={{ width: "100%", maxWidth: 460, height: 320, display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)",
-      border: "1px solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", overflow: "hidden" }}>
+      border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", overflow: "hidden" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 14px", flex: "none", borderBottom: "1px solid var(--tasty-separator)" }}>
         <span style={{ display: "inline-flex", color: "var(--tasty-text-muted)" }}><Icon name="clipboard" size={16} /></span>
         <span style={{ fontSize: 14, fontWeight: 600 }}>Clipboard</span>
@@ -2928,7 +2928,7 @@ function RemoteAttachFrame({ state = "loaded", newPhase = "rest", newSelected, e
   const errSel = state === "error";
   return (
     <div style={{ width: 680, height: 460, display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)",
-      border: "1px solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", overflow: "hidden", boxShadow: "var(--tasty-shadow-modal)" }}>
+      border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden", boxShadow: "var(--tasty-shadow-modal)" }}>
       {/* header */}
       {/* section insets (2026-09-29): every section starts on fp-inset-start (12) — header glyph, first crumb, Name, row icon and footer label share one column */}
       <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-fp-section-gap)", padding: "var(--tasty-fp-header-pad-y) var(--tasty-fp-inset-end) var(--tasty-fp-header-pad-y) var(--tasty-fp-inset-start)", flex: "none", borderBottom: "1px solid var(--tasty-separator)" }}>
@@ -3202,7 +3202,7 @@ function FilePickerFrame({ state = "loaded", remote = false, indicator = "badge"
     : { title: FE.permTitle, body: FE.permReason, action: FE.permAction };
   return (
     <div style={{ position: "relative", width: w, height: h, display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)",
-      border: borderMode ? "1px solid var(--tasty-accent-info)" : "1px solid var(--tasty-border-strong)",
+      border: borderMode ? "1px solid var(--tasty-accent-info)" : "var(--tasty-border-width) solid var(--tasty-border-frame)",
       borderRadius: opaque ? "var(--tasty-webview-opaque-radius)" : "var(--tasty-radius)", overflow: "hidden", boxShadow: opaque ? "var(--tasty-webview-opaque-shadow)" : "var(--tasty-shadow-modal)" }}>
       {borderMode && <div style={{ height: 2, flex: "none", background: "var(--tasty-accent-info)" }} />}
       {/* the picker is scoped to its surface, so it lights the focus edge; in border mode the info row keeps the top and the edge sits under it */}

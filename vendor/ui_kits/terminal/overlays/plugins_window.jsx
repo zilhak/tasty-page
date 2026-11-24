@@ -775,7 +775,7 @@ function PluginsWindow({ onClose, onFlash, onConfigure, removedAttention, onRemo
   return (
     <Scrim onClose={onClose}>
       <div style={{ width: 820, height: 540, display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)",
-        border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", overflow: "hidden",
+        border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden",
         boxShadow: "var(--tasty-shadow-modal)" }}>
         {/* header */}
         <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", height: 48, flex: "none", padding: "0 var(--tasty-size-14)",

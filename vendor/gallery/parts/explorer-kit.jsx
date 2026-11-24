@@ -239,7 +239,7 @@ function ExplorerRenamePopup({ lang = "en", value, error = null, waitingText = n
   const t = EXPLORER_RENAME_COPY[lang] || EXPLORER_RENAME_COPY.en;
   const waiting = waitingText != null;
   return (
-    <div lang={lang} style={{ width: "var(--tasty-size-360)", maxWidth: "100%", background: "var(--tasty-dialog-bg)", border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", padding: "var(--tasty-space-md) var(--tasty-size-14)", display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
+    <div lang={lang} style={{ width: "var(--tasty-size-360)", maxWidth: "100%", background: "var(--tasty-dialog-bg)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", padding: "var(--tasty-space-md) var(--tasty-size-14)", display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
       <span style={{ fontSize: "var(--tasty-font-size-body)", fontWeight: "var(--tasty-font-weight-semibold)", color: "var(--tasty-text-primary)" }}>{t.title}</span>
       <Input block readOnly={waiting} invalid={!!error} defaultValue={value} />
       {error && <span role="alert" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-explorer-name-error-fg)" }}>{error}</span>}

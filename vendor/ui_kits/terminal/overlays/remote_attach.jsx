@@ -269,7 +269,7 @@ function RemoteAttach({ onClose, onFlash }) {
   return (
     <Scrim onClose={() => {}}>
       <div style={{ width: 680, height: 460, display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)",
-        border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", overflow: "hidden",
+        border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden",
         boxShadow: "var(--tasty-shadow-modal)" }}>
 
         {/* header (headless / content-drawn — matches remote_tool) */}

@@ -156,7 +156,7 @@ function DiffLine({ d }) {
 }
 
 const gvFrame = { width: 960, height: 640, display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)",
-  border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)",
+  border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)",
   overflow: "hidden", boxShadow: "var(--tasty-shadow-modal)" };
 
 function GitViewer({ onClose, onFlash, repo }) {

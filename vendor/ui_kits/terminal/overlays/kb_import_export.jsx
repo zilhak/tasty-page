@@ -183,7 +183,7 @@ function IePickerPopup({ mode, onClose, onPick }) {
     <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center",
       background: "var(--tasty-scrim-bg)", zIndex: 3 }}>
       <div style={{ width: 420, background: "var(--tasty-bg-panel)", borderRadius: "var(--tasty-radius)",
-        border: "var(--tasty-border-width) solid var(--tasty-border-strong)", boxShadow: "var(--tasty-shadow-modal)", overflow: "hidden" }}>
+        border: "var(--tasty-border-width) solid var(--tasty-border-frame)", boxShadow: "var(--tasty-shadow-modal)", overflow: "hidden" }}>
         <div style={{ display: "flex", alignItems: "center", height: "var(--tasty-titlebar-height)", padding: "0 var(--tasty-space-sm) 0 var(--tasty-space-md)",
           background: "var(--tasty-bg-app)", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
           <span style={{ fontSize: 12, color: "var(--tasty-titlebar-fg)" }}>{mode === "export" ? "Export to…" : "Open keybinding file"}</span>

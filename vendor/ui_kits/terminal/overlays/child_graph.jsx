@@ -552,7 +552,7 @@ function ChildGraphWindow({ nodes = CHILD_SMALL, baseId = CHILD_SMALL_BASE, lang
   return (
     <div ref={rootRef} tabIndex={-1} style={{ outline: "none", display: folded ? "none" : "flex", width: cut ? cut.w : width || "var(--tasty-graph-child-popup-width)", height: cut ? cut.h : height || "var(--tasty-graph-child-popup-height)", maxWidth: "100%",
       flexDirection: "column", overflow: "hidden", boxSizing: "border-box", background: "var(--tasty-bg-panel)",
-      borderRadius: "var(--tasty-radius)", border: "var(--tasty-border-width) solid var(--tasty-border-strong)", boxShadow: "var(--tasty-shadow-modal)" }}>
+      borderRadius: "var(--tasty-radius)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", boxShadow: "var(--tasty-shadow-modal)" }}>
       <div style={{ flex: "none", display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", cursor: "move",
         height: "var(--tasty-modhint-header-height)", padding: "0 var(--tasty-popup-title-edge-inset) 0 var(--tasty-space-md)",
         background: "var(--tasty-bg-sidebar)", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" }}>

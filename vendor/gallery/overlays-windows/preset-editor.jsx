@@ -653,7 +653,7 @@ import { Section, Spec, Stage, Meta, Note, Do, Dont } from "../parts/specimen.js
     return (
       <EditCtx.Provider value={ctx}>
       <div style={{ width: "100%", maxWidth: 680, minWidth: 0, height: 452, display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)",
-        border: "1px solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", overflow: "hidden", boxShadow: "var(--tasty-shadow-modal)" }}>
+        border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden", boxShadow: "var(--tasty-shadow-modal)" }}>
         {/* title bar */}
         <div style={{ display: "flex", alignItems: "center", gap: 8, height: 36, flex: "none", padding: "0 12px", borderBottom: "1px solid var(--tasty-separator)", background: "var(--tasty-bg-sidebar)" }}>
           <span style={{ display: "inline-flex", color: "var(--tasty-text-muted)" }}>{I.layers}</span>

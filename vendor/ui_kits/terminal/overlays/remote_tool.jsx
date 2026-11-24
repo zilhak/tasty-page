@@ -811,7 +811,7 @@ function RemoteTool({ onClose, onFlash }) {
   return (
     <Scrim onClose={() => {}}>
       <div style={{ width: 520, height: 460, display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)",
-        border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", overflow: "hidden",
+        border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden",
         boxShadow: "var(--tasty-shadow-modal)" }}>
         {/* common header */}
         <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-space-md) var(--tasty-space-md) var(--tasty-size-14)", flex: "none",

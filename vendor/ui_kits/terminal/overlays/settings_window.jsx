@@ -1231,7 +1231,7 @@ function SettingsWindow({ theme, onTheme, uiScale, onUiScale, onClose, os = DEFA
 
   const windowBox = (
       <div style={{ width: "var(--tasty-settings-window-width)", height: IS_LINUX ? "var(--tasty-settings-window-csd-height)" : "var(--tasty-settings-window-height)", flex: "none", display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)",
-        border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", overflow: "hidden",
+        border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden",
         boxShadow: frame === "bare" ? "none" : "var(--tasty-shadow-modal)" }}>
         {/* Linux only — the client-drawn title bar: drag area + close, no title (the L1 label names the window) */}
         {IS_LINUX && <SettingsTitleBarLinux active={windowActive} closeState={closeState} tooltipOpen={closeTooltip} onClose={onClose} onDrag={onTitleBarDrag} />}

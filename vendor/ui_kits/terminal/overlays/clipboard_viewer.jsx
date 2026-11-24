@@ -185,7 +185,7 @@ function TypeBody({ t, pretty }) {
 }
 
 const cbFrame = { width: 480, height: 360, display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)",
-  border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)",
+  border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)",
   overflow: "hidden", boxShadow: "var(--tasty-shadow-modal)" };
 
 function ClipboardViewer({ onClose, snapshot }) {

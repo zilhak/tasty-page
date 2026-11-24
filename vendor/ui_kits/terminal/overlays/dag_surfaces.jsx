@@ -297,7 +297,7 @@ function DagWindow({ onClose, entries = DAG_LIST, scope = "tasty", initialOpen =
     <Scrim onClose={onClose}>
       <div style={{ width: "var(--tasty-dag-popup-width)", height: "var(--tasty-dag-popup-height)", display: "flex",
         flexDirection: "column", overflow: "hidden", background: "var(--tasty-bg-panel)", borderRadius: "var(--tasty-radius)",
-        border: "var(--tasty-border-width) solid var(--tasty-border-strong)", boxShadow: "var(--tasty-shadow-modal)" }}>
+        border: "var(--tasty-border-width) solid var(--tasty-border-frame)", boxShadow: "var(--tasty-shadow-modal)" }}>
         {/* titlebar — draggable strip; the popup is movable + resizable */}
         <div style={{ flex: "none", display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", cursor: "move",
           height: "var(--tasty-modhint-header-height)", padding: "0 var(--tasty-space-sm) 0 var(--tasty-space-md)",
