@@ -4452,6 +4452,10 @@
       "$type": "dimension",
       "$value": "{primitive.size-288}"
     },
+    "tutorial-step-specimen-min-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-440}"
+    },
     "specimen-annotation-border": {
       "$type": "color",
       "$value": "{semantic.border-control}"

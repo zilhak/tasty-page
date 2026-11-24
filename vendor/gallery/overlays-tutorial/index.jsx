@@ -190,7 +190,9 @@ function Page() {
         <Spec id="step-1-4" title="Step 1 / 4 — 워크스페이스"
           when={<>Popup closed: marker (glow ring) + spotlight dim + callout only. Per <b>Decision 2</b>, step 1 wraps the whole content area (tabs + surface + status, sidebar excluded); later steps shrink the marker to tab → pane → surface, revealing containment.</>}>
           <Stage variant="solo" style={{ padding: 0, background: "var(--tasty-bg-app)" }} minHeight={340}>
-            <div style={{ position: "relative", height: 340, borderRadius: "var(--tasty-radius)", overflow: "hidden", border: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
+            {/* Every part inside is absolutely placed, so the frame takes the stage's width itself (it shrank to its 2px
+                border before) and keeps a floor that holds the callout and its tail; a narrower column scrolls the stage. */}
+            <div style={{ position: "relative", flex: "1 1 100%", minWidth: "var(--tasty-tutorial-step-specimen-min-width)", height: 340, borderRadius: "var(--tasty-radius)", overflow: "hidden", border: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
               <App />
               <Scrim />
               <Marker kind="glow" style={{ left: 124, top: 8, right: 10, bottom: 8 }} />
