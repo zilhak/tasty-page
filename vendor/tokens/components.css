@@ -1040,6 +1040,7 @@
   /* Color swatch (settings color editor) */
   --tasty-swatch-size:              var(--tasty-size-16);
   --tasty-swatch-radius:            var(--tasty-radius-sm);
+  --tasty-swatch-border:            var(--tasty-border-control); /* 2026-11-24 — a swatch can paint the ground's own colour, and then its edge alone shows it is there: border-control role, 3:1 on crust · mantle · base. Dashed = a reserved, empty swatch */
   /* Remote tool */
   --tasty-remote-label-col:         var(--tasty-size-112); /* form label grid column */
   --tasty-remote-filter-menu-width: var(--tasty-size-240); /* protocol-filter menu — BORDER-BOX width (outer edge to outer edge). Content = this minus the frame the popup crate draws (14 total at scale 1 → 226). The mock's 236 was a raw literal, snapped to the existing 240 primitive (same measure as tooltip max-width). All widths in this family read as border box. */

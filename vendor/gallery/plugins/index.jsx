@@ -670,7 +670,7 @@ function ImgSurface({ mode, panned, floating, focused = true }) {
           <span style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>Brush</span>
           <span style={{ width: 60, height: 4, borderRadius: 2, background: "var(--tasty-surface-active)", position: "relative" }}><span style={{ position: "absolute", left: "40%", top: -3, width: 10, height: 10, borderRadius: "50%", background: "var(--tasty-text-muted)" }} /></span>
           <span style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>Color</span>
-          <span style={{ width: 16, height: 16, borderRadius: "var(--tasty-radius-sm)", background: "var(--tasty-accent-danger)", border: "1px solid var(--tasty-border-strong)" }} />
+          <span style={{ width: 16, height: 16, borderRadius: "var(--tasty-radius-sm)", background: "var(--tasty-accent-danger)", border: "var(--tasty-border-width) solid var(--tasty-swatch-border)" }} />
           <span style={{ flex: 1 }} />
           <ZoomGroup />
         </ImgBar>

@@ -126,7 +126,7 @@ function AccentRow({ tok, color, role, demo }) {
     <div style={{ display: "grid", gridTemplateColumns: "16px 150px 1fr", alignItems: "center", gap: 13,
       padding: "9px 0", borderBottom: "1px solid var(--tasty-separator)" }}>
       <span style={{ width: 16, height: 16, borderRadius: "var(--tasty-radius-sm)", background: color,
-        border: "1px solid var(--tasty-border-strong)" }} />
+        border: "var(--tasty-border-width) solid var(--tasty-swatch-border)" }} />
       <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 12, color: "var(--tasty-text-primary)" }}>{tok}</span>
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
         <span style={{ fontSize: 12.5, color: "var(--tasty-text-secondary)", width: 168, flex: "none" }}>{role}</span>
@@ -186,7 +186,7 @@ function AnsiRow({ tok, sgr }) {
     <div style={{ display: "grid", gridTemplateColumns: "16px 1fr auto", alignItems: "center", gap: 10,
       padding: "7px 2px", borderBottom: "1px solid var(--tasty-separator)" }}>
       <span style={{ width: 16, height: 16, borderRadius: "var(--tasty-radius-sm)", background: `var(${tok})`,
-        border: "1px solid var(--tasty-border-strong)" }} />
+        border: "var(--tasty-border-width) solid var(--tasty-swatch-border)" }} />
       <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 11.5, color: "var(--tasty-text-primary)",
         overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{tok.replace("--tasty-", "")}</span>
       <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 10.5, color: "var(--tasty-text-muted)" }}>SGR {sgr}</span>
@@ -271,7 +271,7 @@ function SemRow({ tok, role }) {
     <div style={{ display: "grid", gridTemplateColumns: "16px 1fr", alignItems: "center", gap: 10, padding: "6px 0",
       borderBottom: "1px solid var(--tasty-separator)" }}>
       <span style={{ width: 16, height: 16, borderRadius: "var(--tasty-radius-sm)", background: `var(${tok})`,
-        border: "1px solid var(--tasty-border-strong)" }} />
+        border: "var(--tasty-border-width) solid var(--tasty-swatch-border)" }} />
       <div style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
         <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 11.5, color: "var(--tasty-text-primary)" }}>{tok.replace("--tasty-", "")}</span>
         <span style={{ fontSize: 11.5, color: "var(--tasty-text-muted)" }}>{role}</span>

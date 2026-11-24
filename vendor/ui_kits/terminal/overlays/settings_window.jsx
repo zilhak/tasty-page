@@ -139,7 +139,7 @@ function ColorOverridePicker() {
                       {/* Default (no override) = readOnly, not disabled: the base hex is information (2026-09-29) */}
                       <Input mono value={val} readOnly={!ov} onChange={(e) => setField(field, e.target.value)} style={{ width: "var(--tasty-field-width-xs)" }} />
                       <span style={{ width: "var(--tasty-swatch-size)", height: "var(--tasty-swatch-size)", borderRadius: "var(--tasty-swatch-radius)", flex: "none", background: val,
-                        border: "var(--tasty-border-width) solid var(--tasty-border-strong)" }} />
+                        border: "var(--tasty-border-width) solid var(--tasty-swatch-border)" }} />
                       <Checkbox label="Default" checked={!ov} onChange={() => toggle(field, base)} />
                     </div>
                   );
@@ -984,8 +984,8 @@ function SettingsWindow({ theme, onTheme, uiScale, onUiScale, onClose, os = DEFA
         return (
           <>
             <Mono>Tasty chrome</Mono>
-            <Row label="Accent:"><SInput mono defaultValue="#89b4fa" style={{ width: "var(--tasty-field-width-color)" }} /><span style={{ width: "var(--tasty-swatch-size)", height: "var(--tasty-swatch-size)", borderRadius: "var(--tasty-swatch-radius)", background: "#89b4fa", border: "var(--tasty-border-width) solid var(--tasty-border-strong)" }} /></Row>
-            <Row label="Sidebar background:"><SInput mono defaultValue="#181825" style={{ width: "var(--tasty-field-width-color)" }} /><span style={{ width: "var(--tasty-swatch-size)", height: "var(--tasty-swatch-size)", borderRadius: "var(--tasty-swatch-radius)", background: "#181825", border: "var(--tasty-border-width) solid var(--tasty-border-strong)" }} /></Row>
+            <Row label="Accent:"><SInput mono defaultValue="#89b4fa" style={{ width: "var(--tasty-field-width-color)" }} /><span style={{ width: "var(--tasty-swatch-size)", height: "var(--tasty-swatch-size)", borderRadius: "var(--tasty-swatch-radius)", background: "#89b4fa", border: "var(--tasty-border-width) solid var(--tasty-swatch-border)" }} /></Row>
+            <Row label="Sidebar background:"><SInput mono defaultValue="#181825" style={{ width: "var(--tasty-field-width-color)" }} /><span style={{ width: "var(--tasty-swatch-size)", height: "var(--tasty-swatch-size)", borderRadius: "var(--tasty-swatch-radius)", background: "#181825", border: "var(--tasty-border-width) solid var(--tasty-swatch-border)" }} /></Row>
             <Row label="Active tab indicator:"><SSelect options={["Underline", "Fill", "Dot"]} defaultValue="Underline" style={{ width: "var(--tasty-field-width-md)" }} /></Row>
             <Row label="Use theme defaults:"><SSwitch defaultChecked /></Row>
             <Note>Overrides the Tasty app chrome (sidebar, tabs, title bar) independently of the terminal surface. These map to the same theme overrides as the full <b style={{ color: "var(--tasty-text-secondary)" }}>Colors</b> palette — this is just a curated shortcut. Turn on “Use theme defaults” to follow the selected preset.</Note>
@@ -1012,8 +1012,8 @@ function SettingsWindow({ theme, onTheme, uiScale, onUiScale, onClose, os = DEFA
             </div>
             <Note>Contributed by the <b style={{ color: "var(--tasty-text-secondary)" }}>git-helper</b> plugin — these controls appear only while the plugin is installed.</Note>
             <Mono>Diff palette</Mono>
-            <Row label="Added lines:"><SInput mono defaultValue="#a6e3a1" style={{ width: "var(--tasty-field-width-color)" }} /><span style={{ width: "var(--tasty-swatch-size)", height: "var(--tasty-swatch-size)", borderRadius: "var(--tasty-swatch-radius)", background: "#a6e3a1", border: "var(--tasty-border-width) solid var(--tasty-border-strong)" }} /></Row>
-            <Row label="Removed lines:"><SInput mono defaultValue="#f38ba8" style={{ width: "var(--tasty-field-width-color)" }} /><span style={{ width: "var(--tasty-swatch-size)", height: "var(--tasty-swatch-size)", borderRadius: "var(--tasty-swatch-radius)", background: "#f38ba8", border: "var(--tasty-border-width) solid var(--tasty-border-strong)" }} /></Row>
+            <Row label="Added lines:"><SInput mono defaultValue="#a6e3a1" style={{ width: "var(--tasty-field-width-color)" }} /><span style={{ width: "var(--tasty-swatch-size)", height: "var(--tasty-swatch-size)", borderRadius: "var(--tasty-swatch-radius)", background: "#a6e3a1", border: "var(--tasty-border-width) solid var(--tasty-swatch-border)" }} /></Row>
+            <Row label="Removed lines:"><SInput mono defaultValue="#f38ba8" style={{ width: "var(--tasty-field-width-color)" }} /><span style={{ width: "var(--tasty-swatch-size)", height: "var(--tasty-swatch-size)", borderRadius: "var(--tasty-swatch-radius)", background: "#f38ba8", border: "var(--tasty-border-width) solid var(--tasty-swatch-border)" }} /></Row>
             <Row label="Context dim:"><SRange min="0" max="100" defaultValue="40" style={{ accentColor: "var(--tasty-accent-primary)", width: "var(--tasty-field-width-range)" }} /></Row>
           </>
         );
@@ -1021,8 +1021,8 @@ function SettingsWindow({ theme, onTheme, uiScale, onUiScale, onClose, os = DEFA
       return (
         <>
           <Mono>Surface colors — terminal</Mono>
-          <Row label="Focused background:"><SInput mono defaultValue="#000000" style={{ width: "var(--tasty-field-width-color)" }} /><span style={{ width: "var(--tasty-swatch-size)", height: "var(--tasty-swatch-size)", borderRadius: "var(--tasty-swatch-radius)", background: "var(--tasty-surface-terminal-focused-bg)", border: "var(--tasty-border-width) solid var(--tasty-border-strong)" }} /></Row>
-          <Row label="Unfocused background:"><SInput mono defaultValue="#1e1e2e" style={{ width: "var(--tasty-field-width-color)" }} /><span style={{ width: "var(--tasty-swatch-size)", height: "var(--tasty-swatch-size)", borderRadius: "var(--tasty-swatch-radius)", background: "#1e1e2e", border: "var(--tasty-border-width) solid var(--tasty-border-strong)" }} /></Row>
+          <Row label="Focused background:"><SInput mono defaultValue="#000000" style={{ width: "var(--tasty-field-width-color)" }} /><span style={{ width: "var(--tasty-swatch-size)", height: "var(--tasty-swatch-size)", borderRadius: "var(--tasty-swatch-radius)", background: "var(--tasty-surface-terminal-focused-bg)", border: "var(--tasty-border-width) solid var(--tasty-swatch-border)" }} /></Row>
+          <Row label="Unfocused background:"><SInput mono defaultValue="#1e1e2e" style={{ width: "var(--tasty-field-width-color)" }} /><span style={{ width: "var(--tasty-swatch-size)", height: "var(--tasty-swatch-size)", borderRadius: "var(--tasty-swatch-radius)", background: "#1e1e2e", border: "var(--tasty-border-width) solid var(--tasty-swatch-border)" }} /></Row>
           <Row label="Use default:"><SSwitch defaultChecked /></Row>
           <Note>Per-kind surface backgrounds. Like the Tasty section, these write to the same theme overrides as the full <b style={{ color: "var(--tasty-text-secondary)" }}>Colors</b> palette.</Note>
         </>

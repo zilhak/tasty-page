@@ -427,7 +427,7 @@ function AttentionScale() {
           <span className="tok" style={{ fontSize: 11 }}>--tasty-{k.role}</span>
           <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <span style={{ width: 18, height: 18, borderRadius: "var(--tasty-radius-sm)", background: swatch(k),
-              border: k.live ? "none" : "1px dashed var(--tasty-border-strong)" }} />
+              border: k.live ? "none" : "var(--tasty-border-width) dashed var(--tasty-swatch-border)" }} />
             {k.live && <Badge variant={k.id === "needs-input" ? "warning" : "primary"}>3</Badge>}
           </span>
         </div>

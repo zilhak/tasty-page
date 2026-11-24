@@ -1405,7 +1405,7 @@ function Page() {
                     <span style={{ width: "var(--tasty-status-dot-size)", height: "var(--tasty-status-dot-size)", borderRadius: "var(--tasty-radius-pill)", flex: "none", background: ov ? "var(--tasty-accent-primary)" : "transparent" }} />
                     <span style={{ flex: 1, fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-term-sm)", color: ov ? "var(--tasty-text-primary)" : "var(--tasty-text-muted)" }}>{field}</span>
                     <span style={{ flex: "none", display: "flex", width: "var(--tasty-field-width-xs)" }}><Input block mono readOnly={!ov} defaultValue={ov || base} /></span>
-                    <span style={{ width: "var(--tasty-swatch-size)", height: "var(--tasty-swatch-size)", borderRadius: "var(--tasty-swatch-radius)", flex: "none", background: ov || base, border: "var(--tasty-border-width) solid var(--tasty-border-strong)" }} />
+                    <span style={{ width: "var(--tasty-swatch-size)", height: "var(--tasty-swatch-size)", borderRadius: "var(--tasty-swatch-radius)", flex: "none", background: ov || base, border: "var(--tasty-border-width) solid var(--tasty-swatch-border)" }} />
                     <WCheckbox label="Default" checked={!ov} />
                   </div>
                 ))}
@@ -1413,7 +1413,7 @@ function Page() {
             ))}
           </Stage>
           <Meta
-            specs={[["Default hex", "Input readOnly"], ["box", "state-disabled fill + border (same as disabled)"], ["value ink", "input-readonly-fg → text-secondary-raised (2026-10-21; Latte 5.17)"], ["select · copy", "allowed; focusable"], ["override", "normal Input"], ["disabled", "reserved for an unavailable control"]]}
+            specs={[["Default hex", "Input readOnly"], ["box", "state-disabled fill + border (same as disabled)"], ["value ink", "input-readonly-fg → text-secondary-raised (2026-10-21; Latte 5.17)"], ["select · copy", "allowed; focusable"], ["override", "normal Input"], ["disabled", "reserved for an unavailable control"], ["swatch edge", "swatch-border → border-control, 3:1 on the panel. A colour equal to the panel (surface_bg) leaves the edge as the only sign of the swatch"]]}
             tokens={[{ tok: "--tasty-input-readonly-bg", use: "→ state-disabled-fill", color: "var(--tasty-input-readonly-bg)" }, { tok: "--tasty-input-readonly-border", use: "→ state-disabled-border", color: "var(--tasty-input-readonly-border)" }, { tok: "--tasty-input-readonly-fg", use: "→ text-secondary-raised", color: "var(--tasty-input-readonly-fg)" }]} />
         </Spec>
         <Spec id="appearance-colors-terminal-specific-5-rows-active-match-ink-afte" title="Appearance › Colors › Terminal-specific — 5 rows, active match ink after its fill"
@@ -1427,7 +1427,7 @@ function Page() {
                     <span style={{ width: "var(--tasty-status-dot-size)", height: "var(--tasty-status-dot-size)", borderRadius: "var(--tasty-radius-pill)", flex: "none" }} />
                     <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-term-sm)", color: field === "search_match_active_fg" ? "var(--tasty-text-primary)" : "var(--tasty-text-muted)" }}>{field}</span>
                     <span style={{ flex: "none", display: "flex", width: "var(--tasty-field-width-xs)" }}><Input block mono readOnly defaultValue={base} /></span>
-                    <span style={{ width: "var(--tasty-swatch-size)", height: "var(--tasty-swatch-size)", borderRadius: "var(--tasty-swatch-radius)", flex: "none", background: base, border: "var(--tasty-border-width) solid var(--tasty-border-strong)" }} />
+                    <span style={{ width: "var(--tasty-swatch-size)", height: "var(--tasty-swatch-size)", borderRadius: "var(--tasty-swatch-radius)", flex: "none", background: base, border: "var(--tasty-border-width) solid var(--tasty-swatch-border)" }} />
                     <WCheckbox label="Default" checked />
                   </div>
                 ))}

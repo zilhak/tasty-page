@@ -4688,6 +4688,10 @@
       "$type": "dimension",
       "$value": "{semantic.radius-sm}"
     },
+    "swatch-border": {
+      "$type": "color",
+      "$value": "{semantic.border-control}"
+    },
     "remote-label-col": {
       "$type": "dimension",
       "$value": "{primitive.size-112}"
