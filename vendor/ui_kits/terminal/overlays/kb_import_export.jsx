@@ -8,7 +8,7 @@ import { Select } from "../../../components/forms/Select.jsx";
 import { DrillDown } from "../../../components/navigation/DrillDown.jsx";
 import { Icon } from "../chrome.jsx";
 import { useDraft } from "./settings_draft.jsx";
-import { KBP_SAVED } from "./kb_plugins_subtab.jsx";
+import { useKbpDrafts } from "./kb_plugins_subtab.jsx";
 
 // Tasty UI kit — Settings › Keybindings › Import / Export.
 // Borrows the Preset
@@ -205,7 +205,8 @@ function KbImportExportSubtab({ variant = "ready", onFlash, failLine = 1, failCa
   // The window's keybinding draft, shared with the other Keybindings subtabs. Outside a SettingsWindow (a gallery
   // specimen on its own) it is the subtab's own state.
   const [bindings, setBindings] = useDraft("keybindings.bindings", seedBindings || {});
-  const [pluginDrafts, setPluginDrafts] = useDraft("keybindings.plugins.drafts", KBP_SAVED);
+  // The Plugins subtab's draft, with its Save step, so Save keeps an applied plugin row without that subtab opened.
+  const [, pluginDrafts, setPluginDrafts] = useKbpDrafts();
   const pluginKey = (r) => r.plugin + "/" + r.cmd;
   const cur = (g, r) => {
     if (!r.plugin) return bindings[r.action] ?? r.cur;

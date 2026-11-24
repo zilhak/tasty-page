@@ -124,10 +124,17 @@ function KbpCommandRow({ cmd, value, draft, last, onChange, onReset }) {
 // What Save last wrote in the kit, by pluginId/cmdId. Keybinding import starts the same draft from it.
 const KBP_SAVED = { "clipboard-viewer/clear": { mode: "custom", keys: "ctrl+alt+x" } };
 
-function KbPluginsSubtab({ plugins = KBP_PLUGINS, saved: saved0 = KBP_SAVED, seedDrafts = null, initial = null }) {
-  const [pid, setPid] = React.useState(initial || (plugins[0] && plugins[0].id));
+// The plugin overrides' saved values and draft, and the Save step that makes the draft the saved values. Every
+// subtab that edits the draft calls it, so Save moves an edit even when the Plugins subtab was never opened.
+function useKbpDrafts(saved0 = KBP_SAVED, seedDrafts = null) {
   const [saved] = useDraft("keybindings.plugins.saved", saved0, (v, get) => get("keybindings.plugins.drafts"));
   const [drafts, setDrafts] = useDraft("keybindings.plugins.drafts", () => ({ ...saved0, ...(seedDrafts || {}) }));
+  return [saved, drafts, setDrafts];
+}
+
+function KbPluginsSubtab({ plugins = KBP_PLUGINS, saved: saved0 = KBP_SAVED, seedDrafts = null, initial = null }) {
+  const [pid, setPid] = React.useState(initial || (plugins[0] && plugins[0].id));
+  const [saved, drafts, setDrafts] = useKbpDrafts(saved0, seedDrafts);
   if (!plugins.length)
     return <p style={{ margin: 0, fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>No plugins have registered shortcuts.</p>;
   const sorted = plugins.slice().sort((a, b) => a.name.localeCompare(b.name));
@@ -150,4 +157,4 @@ function KbPluginsSubtab({ plugins = KBP_PLUGINS, saved: saved0 = KBP_SAVED, see
   );
 }
 
-export { KbPluginsSubtab, KBP_PLUGINS, KBP_SAVED };
+export { KbPluginsSubtab, KBP_PLUGINS, KBP_SAVED, useKbpDrafts };
