@@ -4420,6 +4420,10 @@
       "$type": "dimension",
       "$value": "{primitive.size-288}"
     },
+    "plugins-attention-list-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-240}"
+    },
     "plugins-header-glyph": {
       "$type": "color",
       "$value": "{semantic.accent-decorative}"

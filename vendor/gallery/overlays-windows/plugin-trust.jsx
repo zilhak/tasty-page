@@ -189,7 +189,7 @@ function ReservedRow({ p = RESERVED_SAMPLE, lang = "en", selected = false }) {
   const c = RESERVED[lang] || RESERVED.en;
   const on = selected;
   return (
-    <div style={{ width: "var(--tasty-plugins-list-width)", maxWidth: "100%", padding: "var(--tasty-space-sm)", background: "var(--tasty-bg-sidebar)", borderRadius: "var(--tasty-radius)" }}>
+    <div style={{ width: "var(--tasty-plugins-attention-list-width)", maxWidth: "100%", padding: "var(--tasty-space-sm)", background: "var(--tasty-bg-sidebar)", borderRadius: "var(--tasty-radius)" }}>
       <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-sm)", borderRadius: "var(--tasty-radius)",
         background: on ? "var(--tasty-surface-active)" : "transparent", boxShadow: on ? "inset var(--tasty-selection-edge-width) 0 0 var(--tasty-accent-danger)" : "none" }}>
         <ReservedAvatar name={p.folder} />
@@ -294,31 +294,34 @@ function AttnRow({ r, lang = "en", selected = false }) {
 }
 function AttnList({ lang = "en", selected = 0 }) {
   return (
-    <div style={{ width: "var(--tasty-plugins-list-width)", maxWidth: "100%", padding: "var(--tasty-space-sm)", background: "var(--tasty-bg-sidebar)", borderRadius: "var(--tasty-radius)", display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
+    <div style={{ width: "var(--tasty-plugins-attention-list-width)", maxWidth: "100%", padding: "var(--tasty-space-sm)", background: "var(--tasty-bg-sidebar)", borderRadius: "var(--tasty-radius)", display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
       {ATTN_REASONS.map((r, i) => <AttnRow key={r.key} r={r} lang={lang} selected={i === selected} />)}
     </div>
   );
 }
 
-// Needs attention with nothing in it: the list panel stays, the detail panel draws two labels
-// 2 × space-xl below its top, space-xs apart. Copy is the app's [plugins] attn_empty_title and
-// attn_empty_body in each language, letter for letter.
+// Needs attention with nothing in it: the list panel stays, the detail panel is the app's default
+// panel (mantle) and draws two labels, the title 8 + 2 × space-xl (56) below the panel edge, the lines
+// 8 apart (item spacing 4 + space-xs 4), no width cap. The frame is the app's default 880 window, so
+// the detail is 640 wide. Copy is the app's [plugins] attn_empty_title and attn_empty_body in each
+// language, letter for letter.
 const ATTN_EMPTY = {
   en: ["No plugins need attention", "Rejected or failing plugins show up here with the reason and what to do next."],
   ko: ["확인이 필요한 플러그인이 없습니다", "등록이나 실행에 실패한 플러그인과 그 원인, 해결 방법을 표시합니다."],
   ja: ["確認が必要なプラグインはありません", "登録や実行に失敗したプラグインを、原因と対処方法とともに表示します。"],
   "zh-Hans": ["没有待处理的插件", "被拒绝或运行失败的插件会显示在此处，并附上原因和后续操作。"],
 };
-function AttnEmpty({ lang = "en", width = "var(--tasty-size-560)" }) {
+const ATTN_EMPTY_WIDTH = "calc(var(--tasty-plugins-attention-list-width) + var(--tasty-size-400) + var(--tasty-size-240))"; // 240 + 640 = 880
+function AttnEmpty({ lang = "en" }) {
   const [title, body] = ATTN_EMPTY[lang];
   return (
-    <div lang={lang} style={{ width, maxWidth: "100%", height: "var(--tasty-size-240)", display: "flex", borderRadius: "var(--tasty-radius)", overflow: "hidden",
+    <div lang={lang} style={{ width: ATTN_EMPTY_WIDTH, maxWidth: "100%", height: "var(--tasty-size-240)", display: "flex", borderRadius: "var(--tasty-radius)", overflow: "hidden",
       border: "var(--tasty-border-width) solid var(--tasty-border-default)" }}>
-      <div style={{ width: "var(--tasty-plugins-list-width)", flex: "none", background: "var(--tasty-bg-sidebar)", borderRight: "var(--tasty-border-width) solid var(--tasty-separator)" }} />
-      <div style={{ flex: 1, minWidth: 0, background: "var(--tasty-bg-panel)", padding: "calc(2 * var(--tasty-space-xl)) var(--tasty-space-lg) 0",
-        display: "flex", flexDirection: "column", alignItems: "center", gap: "var(--tasty-space-xs)", textAlign: "center" }}>
+      <div style={{ width: "var(--tasty-plugins-attention-list-width)", flex: "none", background: "var(--tasty-bg-sidebar)", borderRight: "var(--tasty-border-width) solid var(--tasty-separator)" }} />
+      <div style={{ flex: 1, minWidth: 0, background: "var(--tasty-bg-sidebar)", padding: "calc(var(--tasty-space-sm) + 2 * var(--tasty-space-xl)) var(--tasty-space-sm) 0",
+        display: "flex", flexDirection: "column", alignItems: "center", gap: "var(--tasty-space-sm)", textAlign: "center" }}>
         <div style={{ fontSize: "var(--tasty-font-size-body)", color: "var(--tasty-text-secondary)" }}>{title}</div>
-        <div style={{ fontSize: 12, color: "var(--tasty-text-muted)", lineHeight: "var(--tasty-line-height-ui)", maxWidth: "var(--tasty-measure-sm)" }}>{body}</div>
+        <div style={{ fontSize: 12, color: "var(--tasty-text-muted)", lineHeight: "var(--tasty-line-height-ui)" }}>{body}</div>
       </div>
     </div>
   );
@@ -418,7 +421,7 @@ function PluginTrustSpecs() {
       </Spec>
 
       <Spec id="plugin-attention-empty" title="Needs attention — empty"
-        when={<>With no plugin to show, the Attention tab keeps its <b>list panel</b> (empty) and the detail panel draws <b>two lines of text</b>, no glyph: the title in text-secondary at body size and one line of explanation in text-muted. They start <b>2 × space-xl</b> below the panel top, <b>space-xs</b> apart.</>}>
+        when={<>With no plugin to show, the Attention tab keeps its <b>list panel</b> (empty) and the detail panel draws <b>two lines of text</b>, no glyph: the title in text-secondary at body size and one line of explanation in text-muted. The detail panel is the default panel (<b>mantle</b>). The title starts <b>56</b> below the panel edge (panel inset 8 + 2 × space-xl), the lines are <b>8</b> apart (item spacing 4 + space-xs 4), and the body has no width cap. The frame is the app's default 880 window.</>}>
         <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
           {THEMES.map(([label, attr]) => (
             <Themed key={label} attr={attr}>
@@ -436,7 +439,7 @@ function PluginTrustSpecs() {
           </Themed>
         </Stage>
         <Meta
-          specs={[["list panel", "stays, empty · plugins-list-width on bg-sidebar"], ["offset", "2 × space-xl from the detail panel top"], ["gap", "space-xs between the two lines"], ["title", "body size · text-secondary"], ["body", "12 · text-muted · measure-sm · centred"], ["glyph", "none"]]}
+          specs={[["list panel", "stays, empty · plugins-attention-list-width 240 on bg-sidebar"], ["detail panel", "default panel · bg-sidebar (mantle)"], ["offset", "56 = panel inset 8 + 2 × space-xl"], ["gap", "8 = item spacing 4 + space-xs 4"], ["title", "body size · text-secondary"], ["body", "12 · text-muted · no width cap · centred"], ["frame", "880 window · 640 detail"], ["glyph", "none"]]}
           tokens={[{ tok: "--tasty-text-secondary", use: "title", color: "var(--tasty-text-secondary)" }, { tok: "--tasty-text-muted", use: "body", color: "var(--tasty-text-muted)" }]} />
         <Note>Copy is the app's <code>plugins.attn_empty_title</code> and <code>plugins.attn_empty_body</code> in en, ko, ja and zh-Hans. No new key.</Note>
       </Spec>

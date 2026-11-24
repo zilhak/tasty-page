@@ -414,14 +414,15 @@ function AttentionPanel({ items, onFlash, onConfigure, onRemove }) {
   if (items.length === 0)
     return (
       <React.Fragment>
-        {/* The app keeps the (empty) list panel and draws two lines of text, no glyph, 2 × space-xl
-            below the detail panel top, space-xs apart: [plugins] attn_empty_title, attn_empty_body. */}
-        <div style={{ width: "var(--tasty-plugins-list-width)", flex: "none", background: "var(--tasty-bg-sidebar)",
+        {/* The app keeps the (empty) list panel and draws two lines of text, no glyph, on the default
+            panel (mantle): the title 8 + 2 × space-xl (56) below the detail panel edge, the lines
+            8 apart (item spacing 4 + space-xs 4), no width cap: [plugins] attn_empty_title, attn_empty_body. */}
+        <div style={{ width: "var(--tasty-plugins-attention-list-width)", flex: "none", background: "var(--tasty-bg-sidebar)",
           borderRight: "var(--tasty-border-width) solid var(--tasty-separator)" }} />
-        <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", alignItems: "center",
-          gap: "var(--tasty-space-xs)", color: "var(--tasty-text-muted)", padding: "calc(2 * var(--tasty-space-xl)) var(--tasty-space-lg) 0" }}>
+        <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", alignItems: "center", background: "var(--tasty-bg-sidebar)",
+          gap: "var(--tasty-space-sm)", color: "var(--tasty-text-muted)", padding: "calc(var(--tasty-space-sm) + 2 * var(--tasty-space-xl)) var(--tasty-space-sm) 0" }}>
           <div style={{ fontSize: "var(--tasty-font-size-body)", color: "var(--tasty-text-secondary)" }}>No plugins need attention</div>
-          <div style={{ fontSize: 12, maxWidth: "var(--tasty-measure-sm)", textAlign: "center", lineHeight: "var(--tasty-line-height-ui)" }}>
+          <div style={{ fontSize: 12, textAlign: "center", lineHeight: "var(--tasty-line-height-ui)" }}>
             Rejected or failing plugins show up here with the reason and what to do next.
           </div>
         </div>
@@ -434,7 +435,7 @@ function AttentionPanel({ items, onFlash, onConfigure, onRemove }) {
   return (
     <React.Fragment>
       {/* list */}
-      <div className="tasty-scroll" style={{ width: "var(--tasty-plugins-list-width)", flex: "none", overflow: "auto", padding: 8,
+      <div className="tasty-scroll" style={{ width: "var(--tasty-plugins-attention-list-width)", flex: "none", overflow: "auto", padding: 8,
         background: "var(--tasty-bg-sidebar)", borderRight: "var(--tasty-border-width) solid var(--tasty-separator)",
         display: "flex", flexDirection: "column", gap: 3 }}>
         {items.map((p) => {
