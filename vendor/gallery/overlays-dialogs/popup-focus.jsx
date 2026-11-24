@@ -4,8 +4,8 @@ import { ShellMock, CollapsedPopupButton, GroundThemes, GroundCap } from "../par
 import { PopupFocusEdge } from "../../ui_kits/terminal/overlays/shared.jsx";
 import { SurfaceFocusEdge, surfaceBed } from "../../ui_kits/terminal/surface_focus.jsx";
 
-// Tasty Gallery: Dialogs, which open popup holds key focus. A click outside a popup's scope leaves it open and
-// takes key focus to the surface it presses, so a surface popup can sit open beside the surface the user types in. The shell lights the
+// Tasty Gallery: Dialogs, which open popup holds key focus. A click outside a popup's scope leaves it open, unless it
+// is declared to close on an outside click, and takes key focus to the surface it presses, so a surface popup can sit open beside the surface the user types in. The shell lights the
 // popup focus edge while it holds key focus (RULES.md "Popup focus").
 
 const FOCUS_FRAMES = [
@@ -52,7 +52,7 @@ const UNDER_POPUP = [
 function PopupFocusSpec() {
   return (
     <Spec id="focus-an-open-popup-shows-whether-keys-go-to-it" title="Focus — an open popup shows whether keys go to it"
-      when={<>A click outside a popup's scope does not close it, and key focus goes to the surface it presses. So a <b>surface</b> popup (or a tab, pane or workspace one) stays open while the user clicks the next surface and types there. Key focus is in one place, and the popup's shell says whether it is that place: while it holds key focus it lights a <b>2px neutral bar across the top of its frame</b>, the same signal as the surface focus edge on an html or plugin leaf. Unfocused, the frame is what it always was. The shell draws the bar, so host and plugin popups read the same, and a plugin cannot drop it. <b>Window-scope</b> popups draw none: every click in the window is in their scope.</>}>
+      when={<>A click outside a popup's scope does not close it, unless the popup is declared to close on an outside click (convert surface), and key focus goes to the surface it presses. So a <b>surface</b> popup (or a tab, pane or workspace one) stays open while the user clicks the next surface and types there. Key focus is in one place, and the popup's shell says whether it is that place: while it holds key focus it lights a <b>2px neutral bar across the top of its frame</b>, the same signal as the surface focus edge on an html or plugin leaf. Unfocused, the frame is what it always was. The shell draws the bar, so host and plugin popups read the same, and a plugin cannot drop it. <b>Window-scope</b> popups draw none: every click in the window is in their scope.</>}>
       <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 18, flexWrap: "wrap", alignItems: "flex-start" }}>
         {FOCUS_FRAMES.map(([label, props]) => (
           <div key={label} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
