@@ -920,6 +920,9 @@
   /* Layouts › Saved remote workspace (gallery specimen layout, not app chrome) — the workspace content area each popup sits in */
   --tasty-remote-row-specimen-width:  var(--tasty-size-480);
   --tasty-remote-row-specimen-height: var(--tasty-size-288);
+  /* Gallery annotation (specimen layout, not app chrome) — a dashed outline that marks an implementer's box or a scope
+     rectangle. It has no fill, so the edge alone shows it: border-control role, 3:1 on crust and base (2026-11-24) */
+  --tasty-specimen-annotation-border: var(--tasty-border-control);
   /* Settings › General › Permissions (macOS) — four states, told apart by
      GLYPH + WORD, colour only as a third channel. Unknown and Not observable
      share the muted ink but never the glyph. */

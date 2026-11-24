@@ -4420,6 +4420,10 @@
       "$type": "dimension",
       "$value": "{primitive.size-288}"
     },
+    "specimen-annotation-border": {
+      "$type": "color",
+      "$value": "{semantic.border-control}"
+    },
     "perm-granted-fg": {
       "$type": "color",
       "$value": "{semantic.accent-success-raised}"

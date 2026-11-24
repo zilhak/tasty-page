@@ -11,7 +11,7 @@ const { Select: WSelect, Input: WInput, Kbd: WKbd, Icon: WIcon } = WDS;
 const wRec = { height: "var(--tasty-kb-record-height)", minWidth: "var(--tasty-kb-record-width)", display: "inline-flex", alignItems: "center", justifyContent: "center", boxSizing: "border-box", border: "var(--tasty-border-width) solid var(--tasty-kb-record-border)", borderRadius: "var(--tasty-radius)", background: "var(--tasty-surface-raised)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-primary)", padding: "0 var(--tasty-space-sm)" };
 const wAdd = { ...wRec, minWidth: 0, width: "var(--tasty-kb-record-add-width)", padding: 0, background: "transparent", color: "var(--tasty-text-muted)" };
 const wLbl = { fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" };
-const wBox = "var(--tasty-border-width) dashed var(--tasty-border-strong)";
+const wBox = "var(--tasty-border-width) dashed var(--tasty-specimen-annotation-border)";
 
 // One settings Row. stacked = label on its own line, control at the row start (box outlines = implementer boundaries).
 function WRow({ label, stacked, boxes, children }) {

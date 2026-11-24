@@ -638,7 +638,7 @@ function CursorMatrix() {
 function ClampDemo() {
   return (
     <div style={{ position: "relative", width: 300, height: 200, background: "var(--tasty-bg-app)",
-      border: "1px dashed var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
+      border: "var(--tasty-border-width) dashed var(--tasty-specimen-annotation-border)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
       <span style={{ position: "absolute", top: 4, left: 6, fontFamily: "var(--tasty-font-mono)", fontSize: 9, color: "var(--tasty-text-muted)" }}>scope rect</span>
       <div style={{ position: "absolute", right: 0, bottom: 0 }}>
         <FauxPopup w={188} h={70} title="popup" grab>
