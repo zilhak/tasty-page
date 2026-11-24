@@ -403,13 +403,15 @@ function IeNotices() {
 // ── Import / Export — the six values the spec left open ───────────
 // Shared notice block recipe: tone + glyph + title + lines. Same geometry as
 // the parse-failure block, so failure / warning / info differ only in tone.
-function IeBlockG({ hue, tone, glyph, title, count, children, action }) {
+// tone colours the title and count (the text-<hue> cell of the host tint); glyphTone colours the glyph
+// (the glyph-<hue> cell). They differ on tint-danger@raised: strong for text, raised for the glyph.
+function IeBlockG({ hue, tone, glyphTone = tone, glyph, title, count, children, action }) {
   return (
     <div style={{ width: "100%", maxWidth: "var(--tasty-settings-content-max-width)", borderRadius: "var(--tasty-radius)",
       padding: "var(--tasty-kb-ie-notice-inset)", background: "var(--tasty-tint-" + hue + "-bg)",
       border: "1px solid var(--tasty-tint-" + hue + "-border)" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, color: tone, fontSize: 13, fontWeight: 600 }}>
-        <WIcon name={glyph} size={16} /><span>{title}</span>
+        <span style={{ display: "inline-flex", color: glyphTone }}><WIcon name={glyph} size={16} /></span><span>{title}</span>
         {count && <span style={{ marginLeft: "auto", ...ieMono, fontSize: 11, color: tone }}>{count}</span>}
       </div>
       <div style={{ margin: "4px 0 0", fontSize: 12, color: "var(--tasty-text-on-active)", lineHeight: "var(--tasty-line-height-ui)" }}>{children}</div>
@@ -441,7 +443,7 @@ function IeExportFailG({ reason = "readonly" }) {
         </div>
         <span style={{ flex: "none" }}><Button variant="secondary" size="sm" disabled>Export…</Button></span>
       </div>
-      <IeBlockG hue="danger" tone="var(--tasty-accent-danger-strong)" glyph="alertCircle" title="The export wasn't written"
+      <IeBlockG hue="danger" tone="var(--tasty-accent-danger-strong)" glyphTone="var(--tasty-accent-danger-raised)" glyph="alertCircle" title="The export wasn't written"
         action={<><Button variant="secondary" size="sm">Try again</Button><Button variant="ghost" ground="active" size="sm">Choose another location…</Button></>}>
         <span style={ieMono}>~/tasty/tasty-keybindings-2026-09-14.toml</span> — {clause} Nothing was written.
         {reason === "other" && (

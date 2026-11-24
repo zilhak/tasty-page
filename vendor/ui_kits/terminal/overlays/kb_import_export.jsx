@@ -320,7 +320,7 @@ function KbImportExportSubtab({ variant = "ready", onFlash, failLine = 1, failCa
                 background: "var(--tasty-tint-danger-bg)",
                 border: "var(--tasty-border-width) solid var(--tasty-tint-danger-border)" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", color: "var(--tasty-accent-danger-strong)", fontSize: 13, fontWeight: 600 }}>
-                  <Icon name="alertCircle" size={16} /><span>The export wasn't written</span>
+                  <span style={{ display: "inline-flex", color: "var(--tasty-accent-danger-raised)" }}><Icon name="alertCircle" size={16} /></span><span>The export wasn't written</span>
                 </div>
                 <p style={{ margin: "4px 0 0", fontSize: 12, color: "var(--tasty-text-on-active)", maxWidth: "var(--tasty-measure-md)", lineHeight: "var(--tasty-line-height-ui)" }}>
                   {/* The middle clause comes from a FIXED set; an unknown cause falls
