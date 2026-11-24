@@ -1467,7 +1467,7 @@
      every ink and fill is an existing dag-* or semantic role. */
   --tasty-graph-drawer-width:        var(--tasty-dag-detail-width);           /* 288 — drawer laid OVER the canvas, flush right, full canvas height */
   --tasty-graph-drawer-cover-below:  var(--tasty-size-480);                   /* canvas narrower than this: the drawer covers the whole canvas (288 + one 168 card + 2 × 12 does not fit) */
-  --tasty-graph-drawer-head-height:  var(--tasty-drilldown-backbar-height);   /* 36 — title + close, pinned while the body scrolls */
+  --tasty-graph-drawer-head-height:  var(--tasty-graph-toolbar-height);       /* 36 — title + close, pinned while the body scrolls; one band height with the graph toolbar */
   --tasty-graph-drawer-motion:       var(--tasty-motion-ui);                  /* 120 slide in / out from the right edge; reduced motion → instant */
   --tasty-graph-reveal-margin:       var(--tasty-space-lg);                   /* 16 — a selected card under the drawer pans this far left of its edge */
   --tasty-graph-push-motion:         var(--tasty-motion-ui);                  /* 120 child graph → DAG push to the left, back slides right; reduced motion → instant */

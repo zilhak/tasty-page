@@ -5769,7 +5769,7 @@
     },
     "graph-drawer-head-height": {
       "$type": "dimension",
-      "$value": "{component.drilldown-backbar-height}"
+      "$value": "{component.graph-toolbar-height}"
     },
     "graph-drawer-motion": {
       "$type": "duration",
