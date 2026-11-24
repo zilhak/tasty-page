@@ -7,6 +7,7 @@ import { Input } from "../../../components/forms/Input.jsx";
 import { Select } from "../../../components/forms/Select.jsx";
 import { DrillDown } from "../../../components/navigation/DrillDown.jsx";
 import { Icon } from "../chrome.jsx";
+import { useDraft } from "./settings_draft.jsx";
 
 // Tasty UI kit — Settings › Keybindings › Import / Export.
 // Borrows the Preset
@@ -17,8 +18,10 @@ import { Icon } from "../chrome.jsx";
 //   • A per-row SELECT column (partial apply — user decision §6-2).
 //   (The OPTION MIGRATION card was removed 2026-10-10 b12: Win / Super now record as `option`, so an
 //    option binding matches on every OS and nothing needs migrating.)
-// Apply writes the draft; the window footer's Save commits it (same 2-stage
-// contract as Preset). Rendered full-bleed — it owns its own scroll.
+// Apply writes the selected rows into the settings window's draft (settings_draft.jsx, key
+// "keybindings.bindings": row key -> combo); the window footer's Save commits it and Cancel drops it (same
+// 2-stage contract as Preset). The draft outlives a tab switch, so Current shows the drafted combo once a row is
+// applied. Rendered full-bleed — it owns its own scroll.
 
 
 
@@ -60,7 +63,7 @@ const microCaps = { fontFamily: "var(--tasty-font-label)", fontSize: 10, textTra
   letterSpacing: "var(--tasty-letter-spacing-caps)" };
 
 // ── Diff grid — 4 columns (select · action · current · imported) ─────────
-function IeDiffTable({ groups, changedOnly, collapsed, onToggleGroup, sel, onSel }) {
+function IeDiffTable({ groups, changedOnly, collapsed, onToggleGroup, sel, onSel, cur }) {
   const head = { ...microCaps, color: "var(--tasty-text-muted)",
     padding: "0 var(--tasty-space-md) var(--tasty-space-sm)", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" };
   const cell = { padding: "var(--tasty-space-sm) var(--tasty-space-md)", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)",
@@ -72,7 +75,7 @@ function IeDiffTable({ groups, changedOnly, collapsed, onToggleGroup, sel, onSel
       <div style={{ ...head }}>Current</div>
       <div style={{ ...head }}>Imported</div>
       {groups.map((g) => {
-        const rows = changedOnly ? g.rows.filter((r) => r.cur !== r.next) : g.rows;
+        const rows = changedOnly ? g.rows.filter((r) => cur(g, r) !== r.next) : g.rows;
         const isOpen = !collapsed[g.id];
         const on = rows.length > 0 && rows.every((r) => sel[g.id + r.action] !== false);
         return (
@@ -92,11 +95,11 @@ function IeDiffTable({ groups, changedOnly, collapsed, onToggleGroup, sel, onSel
                 <span style={{ ...microCaps, color: "var(--tasty-text-secondary)" }}>{g.label}</span>
               </button>
               <span style={{ ...mono, fontSize: 11, color: "var(--tasty-text-muted)" }}>
-                {g.rows.filter((r) => r.cur !== r.next).length} changed · {g.rows.length} total
+                {g.rows.filter((r) => cur(g, r) !== r.next).length} changed · {g.rows.length} total
               </span>
             </div>
             {isOpen && rows.map((r) => {
-              const changed = r.cur !== r.next;
+              const changed = cur(g, r) !== r.next;
               const key = g.id + r.action;
               return (
                 <React.Fragment key={key}>
@@ -114,7 +117,7 @@ function IeDiffTable({ groups, changedOnly, collapsed, onToggleGroup, sel, onSel
                     )}
                     {r.note && <span style={{ fontSize: 10, color: "var(--tasty-text-muted)" }}>{r.note}</span>}
                   </div>
-                  <div style={{ ...cell, ...mono, color: "var(--tasty-text-muted)" }}>{r.cur}</div>
+                  <div style={{ ...cell, ...mono, color: "var(--tasty-text-muted)" }}>{cur(g, r)}</div>
                   <div style={{ ...cell, ...mono,
                     color: r.blocked ? "var(--tasty-accent-warning-raised)" : changed ? "var(--tasty-accent-primary)" : "var(--tasty-text-muted)" }}>{r.next}</div>
                 </React.Fragment>
@@ -188,6 +191,10 @@ function KbImportExportSubtab({ variant = "ready", onFlash, failLine = 1, failCa
   const [sel, setSel] = React.useState({});
   const [failed, setFailed] = React.useState(variant === "failed");
   const [exportError, setExportError] = React.useState(variant === "exportfailed" ? "~/tasty/" + IE_FILE : null);
+  // The window's keybinding draft: combos applied but not yet saved, by row key. Outside a SettingsWindow
+  // (a gallery specimen on its own) it is the subtab's own state.
+  const [bindings, setBindings] = useDraft("keybindings.bindings", {});
+  const cur = (g, r) => bindings[g.id + r.action] ?? r.cur;
   const onSel = (g, next, row) => setSel((s) => {
     const c = { ...s };
     (row ? [row] : g.rows).forEach((r) => { c[g.id + r.action] = next; });
@@ -195,8 +202,15 @@ function KbImportExportSubtab({ variant = "ready", onFlash, failLine = 1, failCa
   });
 
   const total = IE_GROUPS.reduce((n, g) => n + g.rows.length, 0);
-  const changed = IE_GROUPS.reduce((n, g) => n + g.rows.filter((r) => r.cur !== r.next).length, 0);
+  const changed = IE_GROUPS.reduce((n, g) => n + g.rows.filter((r) => cur(g, r) !== r.next).length, 0);
   const picked = IE_GROUPS.reduce((n, g) => n + g.rows.filter((r) => sel[g.id + r.action] !== false).length, 0);
+  // Selected rows whose imported combo differs from the draft: what Apply would write.
+  const toApply = IE_GROUPS.flatMap((g) => g.rows.filter((r) => sel[g.id + r.action] !== false && cur(g, r) !== r.next)
+    .map((r) => [g.id + r.action, r.next]));
+  const apply = () => {
+    setBindings((b) => ({ ...b, ...Object.fromEntries(toApply) }));
+    onFlash && onFlash("Applied to draft — press Save to commit");
+  };
 
   const detail = failed ? (
     // §6-6 — a broken file is a fact about the thing you were looking at, so it
@@ -236,7 +250,7 @@ function KbImportExportSubtab({ variant = "ready", onFlash, failLine = 1, failCa
           (<span style={mono}>{IE_DISCARDED.join(", ")}</span>).</span>
       </div>
       <IeDiffTable groups={IE_GROUPS} changedOnly={changedOnly} collapsed={collapsed}
-        onToggleGroup={(id) => setCollapsed((c) => ({ ...c, [id]: !c[id] }))} sel={sel} onSel={onSel} />
+        onToggleGroup={(id) => setCollapsed((c) => ({ ...c, [id]: !c[id] }))} sel={sel} onSel={onSel} cur={cur} />
     </div>
   );
 
@@ -252,8 +266,7 @@ function KbImportExportSubtab({ variant = "ready", onFlash, failLine = 1, failCa
               {changedOnly ? "Show all " + total : "Changed only"}
             </Button>
 
-            <Button variant="primary" size="sm" disabled={picked === 0}
-              onClick={() => onFlash && onFlash("Applied to draft — press Save to commit")}>Apply</Button>
+            <Button variant="primary" size="sm" disabled={toApply.length === 0} onClick={apply}>Apply</Button>
           </div>
         )}
         detail={detail}
