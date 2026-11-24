@@ -541,9 +541,9 @@ export function ChildGraphSection() {
               </div>
             )} />
           </View>
-          <View name="child-gap-locales" label="ko, ja, zh-Hans — every label and every reason's drawer" wide>
+          <View name="child-gap-locales" label="en, ko, ja, zh-Hans — every label and every reason's drawer, the same states in each language" wide>
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-              {["ko", "ja", "zh-Hans"].map((l) => (
+              {["en", "ko", "ja", "zh-Hans"].map((l) => (
                 <div key={l} style={{ display: "flex", flexWrap: "wrap", gap: 16, alignItems: "flex-start" }}>
                   {GAP_REASONS.filter((r) => r !== "malformed").map((r) => <Labelled key={r} label={`${l} · ${r}`}><Card node={{ id: `g_${r}`, kind: "gap", reason: r, host: "gpu-box" }} lang={l} /></Labelled>)}
                   {GAP_REASONS.filter((r) => r !== "malformed").map((r) => (r === "cycle"
