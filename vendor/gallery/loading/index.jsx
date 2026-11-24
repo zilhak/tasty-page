@@ -183,6 +183,7 @@ function Page() {
               ["lockup", "64px mark · space-sm 8 · tasty. mono 38px · melon dot (no overlap — 2026-10-07)"],
               ["spinner", "32px · stroke 3 · accent-primary · track 0.22 · 900ms linear"],
               ["phase slot", "fixed --tasty-size-16 · font-size-body · text-muted"],
+              ["window outline", "the mock's 1px outline reads --tasty-titlebar-csd-border, the crust-ground window outline in the rules · the app draws no such outline on the startup or boot error window today"],
             ]}
             tokens={[
               { tok: "--tasty-bg-app", use: "full surface", color: "var(--tasty-bg-app)" },
