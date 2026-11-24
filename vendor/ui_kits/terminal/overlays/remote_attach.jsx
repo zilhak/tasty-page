@@ -93,7 +93,7 @@ const raCaption = { fontSize: 11, color: "var(--tasty-text-muted)" };
 function RaInUseBadge() {
   return (
     <Tag variant="attached" title="Already attached on another client — can't mirror it here."
-      style={{ color: "var(--tasty-tag-attached-fg)", borderColor: "color-mix(in srgb, var(--tasty-accent-attached) 40%, transparent)" }}>in use</Tag>
+      style={{ color: "var(--tasty-tag-attached-fg)", borderColor: "var(--tasty-tag-attached-border)" }}>in use</Tag>
   );
 }
 

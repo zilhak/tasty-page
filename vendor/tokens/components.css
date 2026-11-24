@@ -107,6 +107,13 @@
   --tasty-tag-info-fg:             var(--tasty-accent-info-raised);    /* 2026-11-05 Mocha 8.08 · Latte 4.87 (was 1.81) */
   --tasty-tag-attached-fg:         var(--tasty-accent-attached-raised); /* 2026-11-05 claimed by another client: Mocha 7.03 · Latte 5.29. The Tag keeps its own fill, so a selected row changes nothing */
   --tasty-tag-border:              var(--tasty-border-default);
+  /* 2026-11-25 hue Tag edges: the tint edge (0.36) of the variant's accent; the drawn 40% literal drifted from the tint pair */
+  --tasty-tag-success-border:      var(--tasty-tint-success-border);
+  --tasty-tag-warning-border:      var(--tasty-tint-warning-border);
+  --tasty-tag-attention-border:    var(--tasty-tint-attention-border);
+  --tasty-tag-danger-border:       var(--tasty-tint-danger-border);
+  --tasty-tag-info-border:         var(--tasty-tint-info-border);
+  --tasty-tag-attached-border:     var(--tasty-tint-attached-border);
   /* disabled (own prop or a disabled ListCtrl row) — neutral box + disabled ink; accent fill and tint edge drop out (2026-09-29) */
   --tasty-tag-disabled-bg:         var(--tasty-state-disabled-fill);
   --tasty-tag-disabled-border:     var(--tasty-state-disabled-border);

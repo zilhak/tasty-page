@@ -2859,7 +2859,7 @@ function RaBadge({ tone, children, title }) {
   // The Tag recipe: its own fill keeps the ink readable on a selected row.
   const attached = tone === "attached";
   const style = attached
-    ? { color: "var(--tasty-tag-attached-fg)", borderColor: "color-mix(in srgb, var(--tasty-accent-attached) 40%, transparent)" }
+    ? { color: "var(--tasty-tag-attached-fg)", borderColor: "var(--tasty-tag-attached-border)" }
     : { color: "var(--tasty-tag-warning-fg)" };
   return (
     <Tag variant={attached ? "attached" : "warning"} title={title} style={style}>

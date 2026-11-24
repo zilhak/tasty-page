@@ -2061,6 +2061,34 @@
       "$type": "color",
       "$value": "color-mix(in srgb, var(--tasty-accent-agent) calc(var(--tasty-tint-fill-alpha) * 100%), transparent)"
     },
+    "tint-primary-border": {
+      "$type": "color",
+      "$value": "color-mix(in srgb, var(--tasty-accent-primary) calc(var(--tasty-tint-border-alpha) * 100%), transparent)"
+    },
+    "tint-info-border": {
+      "$type": "color",
+      "$value": "color-mix(in srgb, var(--tasty-accent-info) calc(var(--tasty-tint-border-alpha) * 100%), transparent)"
+    },
+    "tint-success-border": {
+      "$type": "color",
+      "$value": "color-mix(in srgb, var(--tasty-accent-success) calc(var(--tasty-tint-border-alpha) * 100%), transparent)"
+    },
+    "tint-warning-border": {
+      "$type": "color",
+      "$value": "color-mix(in srgb, var(--tasty-accent-warning) calc(var(--tasty-tint-border-alpha) * 100%), transparent)"
+    },
+    "tint-attention-border": {
+      "$type": "color",
+      "$value": "color-mix(in srgb, var(--tasty-accent-attention) calc(var(--tasty-tint-border-alpha) * 100%), transparent)"
+    },
+    "tint-danger-border": {
+      "$type": "color",
+      "$value": "color-mix(in srgb, var(--tasty-accent-danger) calc(var(--tasty-tint-border-alpha) * 100%), transparent)"
+    },
+    "tint-attached-border": {
+      "$type": "color",
+      "$value": "color-mix(in srgb, var(--tasty-accent-attached) calc(var(--tasty-tint-border-alpha) * 100%), transparent)"
+    },
     "vi-cursor-fg": {
       "$type": "color",
       "$value": "{primitive.color-neutral-0}",
@@ -2360,6 +2388,30 @@
     "tag-border": {
       "$type": "color",
       "$value": "{semantic.border-default}"
+    },
+    "tag-success-border": {
+      "$type": "color",
+      "$value": "{semantic.tint-success-border}"
+    },
+    "tag-warning-border": {
+      "$type": "color",
+      "$value": "{semantic.tint-warning-border}"
+    },
+    "tag-attention-border": {
+      "$type": "color",
+      "$value": "{semantic.tint-attention-border}"
+    },
+    "tag-danger-border": {
+      "$type": "color",
+      "$value": "{semantic.tint-danger-border}"
+    },
+    "tag-info-border": {
+      "$type": "color",
+      "$value": "{semantic.tint-info-border}"
+    },
+    "tag-attached-border": {
+      "$type": "color",
+      "$value": "{semantic.tint-attached-border}"
     },
     "tag-disabled-bg": {
       "$type": "color",

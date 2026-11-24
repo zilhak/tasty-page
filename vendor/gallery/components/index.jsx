@@ -36,7 +36,7 @@ function SelRow({ active, children }) {
   );
 }
 const SelGlyph = ({ name, color }) => <span style={{ display: "inline-flex", flex: "none", color }}><CIcon name={name} size="var(--tasty-icon-size-sm)" /></span>;
-const SelTag = ({ variant, children }) => <Tag variant={variant} style={{ flex: "none", color: "var(--tasty-tag-" + variant + "-fg)", ...(variant === "attached" ? { borderColor: "color-mix(in srgb, var(--tasty-accent-attached) 40%, transparent)" } : null) }}>{children}</Tag>;
+const SelTag = ({ variant, children }) => <Tag variant={variant} style={{ flex: "none", color: "var(--tasty-tag-" + variant + "-fg)", ...(variant === "attached" ? { borderColor: "var(--tasty-tag-attached-border)" } : null) }}>{children}</Tag>;
 const SEL_CASES = [
   ["Port popup · favorite star", (a) => <><SelGlyph name="starFill" color={a ? "var(--tasty-port-star-on-active)" : "var(--tasty-port-star-on)"} /><SelGlyph name="star" color={a ? "var(--tasty-port-star-off-active)" : "var(--tasty-port-star-off)"} /><span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)" }}>127.0.0.1:5173</span></>],
   ["Settings list · plugin dot", (a) => <><span style={{ flex: "none", width: "var(--tasty-size-6)", height: "var(--tasty-size-6)", borderRadius: "var(--tasty-radius-pill)", background: a ? "var(--tasty-accent-agent-on-active)" : "var(--tasty-accent-agent)" }} /><span>git-helper</span></>],

@@ -473,6 +473,14 @@
   --tasty-tint-warning-bg: color-mix(in srgb, var(--tasty-accent-warning) calc(var(--tasty-tint-fill-alpha) * 100%), transparent);
   --tasty-tint-danger-bg: color-mix(in srgb, var(--tasty-accent-danger) calc(var(--tasty-tint-fill-alpha) * 100%), transparent);
   --tasty-tint-agent-bg: color-mix(in srgb, var(--tasty-accent-agent) calc(var(--tasty-tint-fill-alpha) * 100%), transparent);
+  /* 2026-11-25 the same idiom's edge: accent × tint-border-alpha, for a tint box, a tinted chip or an outlined hue tag */
+  --tasty-tint-primary-border: color-mix(in srgb, var(--tasty-accent-primary) calc(var(--tasty-tint-border-alpha) * 100%), transparent);
+  --tasty-tint-info-border: color-mix(in srgb, var(--tasty-accent-info) calc(var(--tasty-tint-border-alpha) * 100%), transparent);
+  --tasty-tint-success-border: color-mix(in srgb, var(--tasty-accent-success) calc(var(--tasty-tint-border-alpha) * 100%), transparent);
+  --tasty-tint-warning-border: color-mix(in srgb, var(--tasty-accent-warning) calc(var(--tasty-tint-border-alpha) * 100%), transparent);
+  --tasty-tint-attention-border: color-mix(in srgb, var(--tasty-accent-attention) calc(var(--tasty-tint-border-alpha) * 100%), transparent);
+  --tasty-tint-danger-border: color-mix(in srgb, var(--tasty-accent-danger) calc(var(--tasty-tint-border-alpha) * 100%), transparent);
+  --tasty-tint-attached-border: color-mix(in srgb, var(--tasty-accent-attached) calc(var(--tasty-tint-border-alpha) * 100%), transparent);
   --tasty-vi-cursor-fg: var(--tasty-color-neutral-0);
 
 }
