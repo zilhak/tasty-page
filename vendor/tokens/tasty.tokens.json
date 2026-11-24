@@ -3792,11 +3792,11 @@
     },
     "move-source-dash": {
       "$type": "dimension",
-      "$value": "{primitive.size-4}"
+      "$value": "{semantic.border-dash}"
     },
     "move-source-dash-gap": {
       "$type": "dimension",
-      "$value": "{primitive.size-4}"
+      "$value": "{semantic.border-dash-gap}"
     },
     "move-source-glyph": {
       "$type": "color",
@@ -3986,7 +3986,7 @@
     },
     "notification-item-line-gap": {
       "$type": "dimension",
-      "$value": "{primitive.size-2}"
+      "$value": "{semantic.label-detail-gap}"
     },
     "notification-item-glyph-size": {
       "$type": "dimension",
