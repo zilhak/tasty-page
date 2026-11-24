@@ -443,14 +443,18 @@ function IeExportFailG({ reason = "readonly" }) {
         </div>
         <span style={{ flex: "none" }}><Button variant="secondary" size="sm" disabled>Export…</Button></span>
       </div>
-      <IeBlockG hue="danger" tone="var(--tasty-accent-danger-strong)" glyphTone="var(--tasty-accent-danger-raised)" glyph="alertCircle" title="The export wasn't written"
-        action={<><Button variant="secondary" size="sm">Try again</Button><Button variant="ghost" ground="active" size="sm">Choose another location…</Button></>}>
+      <IeBlockG hue="danger" tone="var(--tasty-accent-danger-strong)" glyphTone="var(--tasty-accent-danger-raised)" glyph="alertCircle" title="The export wasn't written">
         <span style={ieMono}>~/tasty/tasty-keybindings-2026-09-14.toml</span> — {clause} Nothing was written.
         {reason === "other" && (
           <div style={{ ...ieMono, marginTop: 4, fontSize: 11, color: "var(--tasty-text-on-active)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
             title="os error 28: No space left on device (os reported)">os error 28: No space left on device</div>
         )}
       </IeBlockG>
+      {/* actions under the tint, on the card's raised ground — Button has no tint-host contract */}
+      <div style={{ display: "flex", gap: 8 }}>
+        <Button variant="secondary" ground="raised" size="sm">Try again</Button>
+        <Button variant="ghost" ground="raised" size="sm">Choose another location…</Button>
+      </div>
     </div>
   );
 }
@@ -1690,7 +1694,7 @@ function Page() {
             </div>
           </Stage>
           <Meta
-            specs={[["export success", "toast with the resolved path"], ["export failure", "inline danger block in the Export row"], ["failure actions", "Try again · Choose another location…"], ["info line", "dropped overrides — muted, unchanged"], ["warning block", "one block, 1 line per notice, count in header"], ["notice order", "schema → unknown actions → empty groups"], ["fold", "3 lines, then “Show {n} more”"], ["parse copy", "line clause replaced by “the file isn't TOML.”"], ["conflicts", "count-first line from 2 up; row lines always"], ["placeholder", "“Select a modifier” · text-placeholder"]]}
+            specs={[["export success", "toast with the resolved path"], ["export failure", "inline danger block in the Export row"], ["failure actions", "Try again (secondary) · Choose another location… (ghost) · under the tint, on the raised card, ground=raised"], ["info line", "dropped overrides — muted, unchanged"], ["warning block", "one block, 1 line per notice, count in header"], ["notice order", "schema → unknown actions → empty groups"], ["fold", "3 lines, then “Show {n} more”"], ["parse copy", "line clause replaced by “the file isn't TOML.”"], ["conflicts", "count-first line from 2 up; row lines always"], ["placeholder", "“Select a modifier” · text-placeholder"]]}
             tokens={[{ tok: "--tasty-settings-content-max-width", use: "620 — content column cap (NEW)" }, { tok: "--tasty-kb-ie-select-column-width", use: "32 — diff select column (NEW)" }, { tok: "--tasty-kb-ie-action-column-width", use: "288 — action label column + sub-line indent (NEW)" }, { tok: "--tasty-kb-ie-from-column-width", use: "120 — original shortcut column (NEW)" }, { tok: "--tasty-kb-ie-slot-height", use: "24 — replacement slot chip (NEW)" }, { tok: "--tasty-kb-ie-slot-min-width", use: "140 — slot chip min width (NEW)" }, { tok: "--tasty-kb-ie-notice-inset", use: "12 — notice / card inset, both axes (NEW, was off-grid 14)" }, { tok: "--tasty-accent-warning", use: "warning block + Not set", color: "var(--tasty-accent-warning-raised)" }, { tok: "--tasty-accent-danger", use: "failure blocks + conflict count", color: "var(--tasty-accent-danger-raised)" }]} />
           <Note><b>Why the notices are one block and the info line is not in it.</b> Tone is the sorting key, not topic: a reader scans for "is anything wrong". Merging an unactionable fact into a warning-toned block makes the whole block unactionable-looking; splitting the four warnings into four blocks makes a wall where one thing is needed — read it, then go look at the table.</Note>
           <Dont><b>Don't</b> toast an export failure. A toast auto-dismisses and carries no retry, so the one case where the user must act is the one case that disappears on its own.</Dont>

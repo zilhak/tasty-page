@@ -315,7 +315,7 @@ function KbImportExportSubtab({ variant = "ready", onFlash, failLine = 1, failCa
           <IeActionRow glyph="download" title="Export"
             desc="Writes every binding — general, quick switch, script bindings and plugin overrides — to one file."
             action={<Button variant="secondary" size="sm" disabled={!!exportError} onClick={() => setPicker("export")}>Export…</Button>}
-            notice={exportError && (
+            notice={exportError && (<>
               <div style={{ borderRadius: "var(--tasty-radius)", padding: "var(--tasty-kb-ie-notice-inset)",
                 background: "var(--tasty-tint-danger-bg)",
                 border: "var(--tasty-border-width) solid var(--tasty-tint-danger-border)" }}>
@@ -335,12 +335,14 @@ function KbImportExportSubtab({ variant = "ready", onFlash, failLine = 1, failCa
                   <div style={{ ...mono, marginTop: "var(--tasty-space-xs)", fontSize: 11, color: "var(--tasty-text-on-active)",
                     overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "var(--tasty-measure-md)" }} title={osError}>{osError}</div>
                 )}
-                <div style={{ marginTop: "var(--tasty-space-sm)", display: "flex", gap: "var(--tasty-space-sm)" }}>
-                  <Button variant="secondary" size="sm" onClick={() => setExportError(null)}>Try again</Button>
-                  <Button variant="ghost" ground="active" size="sm" onClick={() => { setExportError(null); setPicker("export"); }}>Choose another location…</Button>
-                </div>
               </div>
-            )} />
+              {/* The actions sit under the tint, on the card's own raised ground: Button has
+                  contracts for raised (ground="raised"), none for a tint host. */}
+              <div style={{ display: "flex", gap: "var(--tasty-space-sm)" }}>
+                <Button variant="secondary" ground="raised" size="sm" onClick={() => setExportError(null)}>Try again</Button>
+                <Button variant="ghost" ground="raised" size="sm" onClick={() => { setExportError(null); setPicker("export"); }}>Choose another location…</Button>
+              </div>
+            </>)} />
           <IeActionRow glyph="file" title="Import"
             desc="Reads a keybinding file and shows the changes against your current bindings before anything is written."
             action={<Button variant="primary" size="sm" onClick={() => setPicker("import")}>Import…</Button>} />
