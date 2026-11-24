@@ -95,9 +95,9 @@ How Tasty writes. Match this voice in any copy you produce.
 - `TOKENS.md` — the token-system guide: naming rules, how theming resolves, do/don't, how to add a token, migration table.
 - `tokens.css` — tier 1 values (Mocha / Latte colors, size, radius, type scale, opacity, scale).
 - `tokens/` — a **3-tier** system, all namespaced `--tasty-*`:
-  - `primitives.css` (tier 1) — the only literals: numeric color/size/radius/font/duration scales; Mocha baseline + Latte re-points under `[data-theme="latte"]`.
-  - `semantic.css` (tier 2) — roles (`--tasty-bg-*`, `--tasty-text-*`, `--tasty-accent-*`, `--tasty-space-*`, `--tasty-control-height*`…), each `var(--tasty-<primitive>)`.
-  - `components.css` (tier 3) — one token per styled part of each component (`--tasty-button-*`, `--tasty-input-*`, `--tasty-tab-*`…), each `var(--tasty-<semantic>)`. A measure that belongs to one part may read the size, radius or duration primitive instead (`TOKENS.md`, "Part-only measures").
+  - `primitives.css` (tier 1) — the raw values: numeric color/size/radius/font/duration scales; Mocha baseline + Latte re-points under `[data-theme="latte"]`.
+  - `semantic.css` (tier 2) — roles (`--tasty-bg-*`, `--tasty-text-*`, `--tasty-accent-*`, `--tasty-space-*`, `--tasty-control-height*`…), each reading a primitive or another role; the shadows and attention ranks are literals.
+  - `components.css` (tier 3) — one token per styled part of each component (`--tasty-button-*`, `--tasty-input-*`, `--tasty-tab-*`…), each `var(--tasty-<semantic>)`. A measure that belongs to one part may read the size, radius or duration primitive instead, a part may read another component token of its own component or of the component it is drawn as, and a count, coefficient, dash pattern or keyword may be a literal (`TOKENS.md`, "Part-only measures", "Component references", "Literal parameters").
   - `base.css` — element defaults, scrollbars, focus.
   - `ground-ink-rules.json` — the rules as data: grounds, roles, every ground × role cell, locations, component contracts, the class of every token, exceptions.
   - `tasty.tokens.json` — W3C DTCG export of all three tiers (alias chain + Latte mode) for Style Dictionary / Tokens Studio. The app takes its tokens from this file.

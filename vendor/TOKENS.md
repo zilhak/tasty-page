@@ -11,11 +11,11 @@ Every token is namespaced `--tasty-*`. The canonical source lives in `tokens/`:
 
 | File | Tier | Holds |
 |------|------|-------|
-| `tokens/primitives.css` | 1 · primitive | The **only** literal values. Numeric scales: `--tasty-color-*`, `--tasty-size-*`, `--tasty-radius-*`, `--tasty-font-*`, `--tasty-duration-*`. Theme (Mocha/Latte) lives here. |
-| `tokens/semantic.css`   | 2 · semantic  | Roles. Each is `var(--tasty-<primitive>)`. `--tasty-bg-*`, `--tasty-text-*`, `--tasty-accent-*`, `--tasty-space-*`, `--tasty-control-height*`, … |
-| `tokens/components.css` | 3 · component | One token per styled part of one component. Each is `var(--tasty-<semantic>)`, or a part-only measure on the size, radius or duration scale (see [Part-only measures](#part-only-measures)). `--tasty-button-primary-bg`, `--tasty-input-border-focus`, … |
+| `tokens/primitives.css` | 1 · primitive | The raw values. Numeric scales: `--tasty-color-*`, `--tasty-size-*`, `--tasty-radius-*`, `--tasty-font-*`, `--tasty-duration-*`. Theme (Mocha/Latte) lives here. |
+| `tokens/semantic.css`   | 2 · semantic  | Roles. Each reads a primitive or another role. The shadows and attention ranks are literals. `--tasty-bg-*`, `--tasty-text-*`, `--tasty-accent-*`, `--tasty-space-*`, `--tasty-control-height*`, … |
+| `tokens/components.css` | 3 · component | One token per styled part of one component. Each is `var(--tasty-<semantic>)`, a part-only measure on the size, radius or duration scale ([Part-only measures](#part-only-measures)), another component token ([Component references](#component-references)), or a literal parameter ([Literal parameters](#literal-parameters)). `--tasty-button-primary-bg`, `--tasty-input-border-focus`, … |
 
-Load order is fixed in `styles.css`: `fonts → primitives → semantic → components → base`. Each layer references the one above it, so order matters. Every consumer references `--tasty-*` directly — the pre-3-tier names (`--ctp-*`, `--bg-*`, `--space-*`…) have been fully migrated out and the legacy shim removed.
+Load order is fixed in `styles.css`: `fonts → primitives → semantic → components → base`. A token reads tokens of its own tier or of an earlier tier, never of a later one. A semantic role may read another role, and a component token may read a primitive or another component token only where the sections below allow it. Every consumer references `--tasty-*` directly — the pre-3-tier names (`--ctp-*`, `--bg-*`, `--space-*`…) have been fully migrated out and the legacy shim removed.
 
 ---
 
