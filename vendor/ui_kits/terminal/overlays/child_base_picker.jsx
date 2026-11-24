@@ -28,6 +28,10 @@ import { gt } from "./graph_copy.js";
 // pane still has its pane row, a tab with one surface still has its tab row and its surface row. Only two levels are
 // left out: the category level when workspace categories are off (14-1; the reserved one reads "Workspaces", empty
 // ones hide), and the window level when the app has one window (14-2).
+// Categories on or off is one value for every window, `categoriesOn`: the app's setting
+// (general.workspace_categories_enabled) is app-wide, and a change to it reaches every window and every parked
+// window at once, so no two windows in the picker can differ. 14-1 reads per window; with one app-wide value that
+// is every window or none.
 // Windows (14-2, 14-2b, 14-6): numbered in the order they were opened (Window 1, 2, …), listed in that order; a
 // parked window keeps its number and its place, with no mark of its own. The window the graph is in adds
 // " · This window" after its number, in the muted ink, on the same line.
