@@ -72,7 +72,7 @@ function FloatModal() {
   return (
     <div style={{ position: "relative", width: 300, height: 148, background: "var(--tasty-scrim-bg)",
       borderRadius: "var(--tasty-radius)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-      <div style={{ width: 220, background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-strong)",
+      <div style={{ width: 220, background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)",
         borderRadius: "var(--tasty-radius)", overflow: "hidden", boxShadow: "var(--tasty-shadow-modal)" }}>
         <div style={{ padding: "12px 14px", borderBottom: "1px solid var(--tasty-separator)", fontSize: 13, fontWeight: 600 }}>Delete workspace</div>
         <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, padding: "8px 14px" }}>

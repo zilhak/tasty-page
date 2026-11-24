@@ -354,7 +354,7 @@ function MdAddressBar({ editing = false, path = "~/work/tasty/docs/architecture.
 // Large-file (>1MB) confirm — surface-scoped popup, same 360px shell as markdown_open.
 function MdLargeFilePopup() {
   return (
-    <div style={{ position: "relative", width: 360, maxWidth: "100%", background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-strong)",
+    <div style={{ position: "relative", width: 360, maxWidth: "100%", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)",
       borderRadius: "var(--tasty-radius)", overflow: "hidden", boxShadow: "var(--tasty-shadow-modal)" }}>
       <PopupFocusEdge />
       <div style={{ padding: "14px 14px 0" }}>
@@ -914,7 +914,7 @@ function Page() {
                 actions={<><Button variant="secondary" size="sm">Retry</Button><Button variant="ghost" size="sm">Go up</Button></>} />
             </div>
             <div style={{ display: "flex", gap: 18, flexWrap: "wrap", justifyContent: "center" }}>
-              <div style={{ width: 300, background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", overflow: "hidden" }}>
+              <div style={{ width: 300, background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", overflow: "hidden" }}>
                 <div style={{ padding: "12px 14px 10px" }}>
                   <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 10 }}>Add to favorites</div>
                   <div style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 4 }}>Path</div>
@@ -1269,7 +1269,7 @@ function Page() {
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 16, flexWrap: "wrap" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>edit · floating selection</div><ImgSurface mode="edit" floating /></div>
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              <div style={{ width: "var(--tasty-image-popup-width)", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", overflow: "hidden" }}>
+              <div style={{ width: "var(--tasty-image-popup-width)", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", overflow: "hidden" }}>
                 <div style={{ padding: "var(--tasty-image-popup-pad-top) var(--tasty-image-popup-pad-x) var(--tasty-image-popup-gap)" }}>
                   <div style={{ fontSize: "var(--tasty-image-popup-title-font-size)", fontWeight: "var(--tasty-image-popup-title-weight)", marginBottom: "var(--tasty-image-popup-gap)" }}>New Image</div>
                   <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-image-popup-btn-gap)", fontSize: 13, color: "var(--tasty-text-secondary)" }}>
@@ -1278,7 +1278,7 @@ function Page() {
                 </div>
                 <div style={{ display: "flex", justifyContent: "flex-end", gap: "var(--tasty-image-popup-btn-gap)", padding: "0 var(--tasty-image-popup-pad-x) var(--tasty-image-popup-pad-top)" }}><Button variant="ghost" size="sm">Cancel</Button><Button variant="primary" size="sm">OK</Button></div>
               </div>
-              <div style={{ width: "var(--tasty-image-popup-width)", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", overflow: "hidden" }}>
+              <div style={{ width: "var(--tasty-image-popup-width)", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", overflow: "hidden" }}>
                 <div style={{ padding: "var(--tasty-image-popup-pad-top) var(--tasty-image-popup-pad-x) var(--tasty-image-popup-gap)" }}>
                   <div style={{ fontSize: "var(--tasty-image-popup-title-font-size)", fontWeight: "var(--tasty-image-popup-title-weight)", marginBottom: "var(--tasty-image-popup-gap)" }}>Save As</div>
                   <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-image-path-row-gap)" }}>
@@ -1305,7 +1305,7 @@ function Page() {
               <div style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 10, color: "var(--tasty-text-muted)" }}>canvas under 120 → compact row</div>
               <ImgState state="decode" focused compact />
             </div>
-            <div style={{ width: "var(--tasty-image-popup-width)", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", overflow: "hidden" }}>
+            <div style={{ width: "var(--tasty-image-popup-width)", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", overflow: "hidden" }}>
               <div style={{ padding: "var(--tasty-image-popup-pad-top) var(--tasty-image-popup-pad-x) var(--tasty-image-popup-gap)" }}>
                 <div style={{ fontSize: "var(--tasty-image-popup-title-font-size)", fontWeight: "var(--tasty-image-popup-title-weight)", marginBottom: "var(--tasty-image-popup-gap)" }}>Save As</div>
                 <div style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-accent-warning-raised)", marginBottom: "var(--tasty-space-xs)" }}>diagram.png already exists. Save the PNG under another name.</div>

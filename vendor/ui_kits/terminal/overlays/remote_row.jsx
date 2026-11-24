@@ -233,7 +233,7 @@ export function RemoteWorkspaceContent({ shape = false, width = "var(--tasty-siz
 export function CloseOnRemoteDialog({ lang = "en", name = "tasty-core", profile = "host", last = false }) {
   return (
     <div role="alertdialog" lang={lang} aria-label={rt("remote.row.close_remote.title", lang, name)}
-      style={{ width: "var(--tasty-info-modal-width)", maxWidth: "100%", boxSizing: "border-box", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-strong)",
+      style={{ width: "var(--tasty-info-modal-width)", maxWidth: "100%", boxSizing: "border-box", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)",
         borderRadius: "var(--tasty-radius)", overflow: "hidden", boxShadow: "var(--tasty-shadow-modal)", textAlign: "left" }}>
       <div style={{ display: "flex", alignItems: "flex-start", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-space-md) 0" }}>
         <span style={{ display: "inline-flex", flex: "none", marginTop: "var(--tasty-size-1)", color: "var(--tasty-accent-danger-raised)" }}><Icon name="alertTriangle" size="var(--tasty-icon-size-md)" /></span>

@@ -109,7 +109,7 @@ function Topic({ n, title, desc, sel, done }) {
 
 function TopicPopup({ scaled }) {
   return (
-    <div style={{ position: "relative", zIndex: 2, width: 360, background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius-8)", boxShadow: "var(--tasty-shadow-modal)", overflow: "hidden" }}>
+    <div style={{ position: "relative", zIndex: 2, width: 360, background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius-8)", boxShadow: "var(--tasty-shadow-modal)", overflow: "hidden" }}>
       <div style={{ padding: "var(--tasty-space-md) var(--tasty-space-lg)", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)", display: "flex", alignItems: "center" }}>
         <b style={{ fontSize: 13, color: "var(--tasty-text-primary)", fontWeight: 600 }}>튜토리얼</b>
         <div style={{ marginLeft: "auto", color: "var(--tasty-text-muted)", cursor: "pointer" }}>✕</div>

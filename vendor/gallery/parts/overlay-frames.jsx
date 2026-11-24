@@ -120,7 +120,7 @@ function PaletteFrame({ opaque = false, focused = false, value = "", rows = 4 } 
 
 function ApprovalFrame() {
   return (
-    <div style={{ width: 440, background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-strong)",
+    <div style={{ width: 440, background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)",
       borderRadius: "var(--tasty-radius)", overflow: "hidden", boxShadow: "var(--tasty-shadow-modal)" }}>
       <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-transfer-header-pad-y) var(--tasty-transfer-pad-x)", borderBottom: "1px solid var(--tasty-separator)" }}>
         <span style={{ width: 7, height: 7, borderRadius: "50%", background: "var(--tasty-accent-agent)" }} />
@@ -368,7 +368,7 @@ function SettingsRemoteAttachFrame({ attachText }) {
 function TransferProgressFrame({ name = "sprint-42-demo.mp4", pct = 27, done = "34.6 MiB", total = "128.0 MiB", rate = "2.1 MiB/s",
   title = "Receiving file", action = "Cancel" }) {
   return (
-    <div style={{ width: "var(--tasty-transfer-popup-width)", background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-strong)",
+    <div style={{ width: "var(--tasty-transfer-popup-width)", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)",
       borderRadius: "var(--tasty-radius)", overflow: "hidden", boxShadow: "var(--tasty-shadow-modal)" }}>
       <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-transfer-header-pad-y) var(--tasty-transfer-pad-x)", borderBottom: "1px solid var(--tasty-separator)" }}>
         <span style={{ display: "inline-flex", color: "var(--tasty-text-muted)" }}>{ic.download}</span>
@@ -404,7 +404,7 @@ function TransferErrorFrame({ retry = false, name = "sprint-42-demo.mp4", reason
     ? { fontFamily: "var(--tasty-font-ui)", fontSize: "var(--tasty-font-size-body)", lineHeight: "var(--tasty-line-height-ui)" }
     : { fontFamily: "var(--tasty-font-mono)", fontSize: 12 };
   return (
-    <div style={{ width: "var(--tasty-transfer-popup-width)", background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-strong)",
+    <div style={{ width: "var(--tasty-transfer-popup-width)", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)",
       borderRadius: "var(--tasty-radius)", overflow: "hidden", boxShadow: "var(--tasty-shadow-modal)" }}>
       <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-transfer-header-pad-y) var(--tasty-transfer-pad-x)", borderBottom: "1px solid var(--tasty-separator)" }}>
         <span style={{ display: "inline-flex", color: "var(--tasty-accent-danger-raised)" }}>{ic.warn}</span>
@@ -452,7 +452,7 @@ const DR_COPY = {
     largeBody: (size) => `파일 크기는 ${size}이며 1 MiB를 초과합니다. 다운로드에 시간이 걸릴 수 있습니다.`,
   },
 };
-const DR_SHELL = { width: "var(--tasty-transfer-popup-width)", background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-strong)",
+const DR_SHELL = { width: "var(--tasty-transfer-popup-width)", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)",
   borderRadius: "var(--tasty-radius)", overflow: "hidden", boxShadow: "var(--tasty-shadow-modal)", textAlign: "left" };
 const DR_HEAD = { padding: "var(--tasty-transfer-header-pad-y) var(--tasty-transfer-pad-x)", borderBottom: "1px solid var(--tasty-separator)",
   display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" };
@@ -1334,7 +1334,7 @@ function FileHandlerFrame({ state = "default", headless = true, footer = "action
   const allRows = remote ? FH_REMOTE.all : FH_ROWS.all;
   const listStyle = { padding: 6, ...(long ? { maxHeight: 264, overflow: "auto" } : null) };
   return (
-    <div style={{ width: 420, background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-strong)",
+    <div style={{ width: 420, background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)",
       borderRadius: "var(--tasty-radius)", overflow: "hidden", boxShadow: "var(--tasty-shadow-modal)" }}>
       {!headless && <FhTitlebar />}
       <FhHeader state={state} path={path} remote={remote} />
@@ -1404,7 +1404,7 @@ function PresetFrame() {
     { name: "Single shell", meta: "1 pane · zsh" },
   ];
   return (
-    <div style={{ width: 440, background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-strong)",
+    <div style={{ width: 440, background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)",
       borderRadius: "var(--tasty-radius)", overflow: "hidden", boxShadow: "var(--tasty-shadow-modal)" }}>
       <div style={{ padding: "14px 14px 12px", borderBottom: "1px solid var(--tasty-separator)", display: "flex", alignItems: "center", gap: 12 }}>
         <span style={{ fontSize: 14, fontWeight: 600 }}>Apply preset</span>
@@ -1445,7 +1445,7 @@ function MarkdownOpenFrame() {
     </button>
   );
   return (
-    <div style={{ position: "relative", width: 420, background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-strong)",
+    <div style={{ position: "relative", width: 420, background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)",
       borderRadius: "var(--tasty-radius)", overflow: "hidden", boxShadow: "var(--tasty-shadow-modal)" }}>
       <PopupFocusEdge />
       <div style={{ padding: "14px 14px 0" }}>
@@ -2100,7 +2100,7 @@ function GitViewerFrame({ diff }) {
   };
   return (
     <div style={{ width: "100%", maxWidth: 640, height: 412, display: "flex", flexDirection: "column",
-      background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", overflow: "hidden" }}>
+      background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", overflow: "hidden" }}>
       {/* header */}
       <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", flex: "none", borderBottom: "1px solid var(--tasty-separator)" }}>
         <span style={{ display: "inline-flex", color: "var(--tasty-text-muted)" }}><Icon name="gitBranch" size={16} /></span>
@@ -2337,7 +2337,7 @@ function RemoteFormFrame({ variant = "ssh", error }) {
   );
   return (
     <div style={{ width: "100%", maxWidth: 460, height: 408, display: "flex", flexDirection: "column",
-      background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", overflow: "hidden" }}>
+      background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", overflow: "hidden" }}>
       {/* header */}
       <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 14px", flex: "none", borderBottom: "1px solid var(--tasty-separator)" }}>
         <span style={{ display: "inline-flex", color: "var(--tasty-text-muted)" }}>{ic.remote}</span>
@@ -2486,7 +2486,7 @@ function ScriptManagerFrame({ empty }) {
   );
   return (
     <div style={{ width: "100%", maxWidth: 560, display: "flex", flexDirection: "column", gap: 14, padding: 18,
-      background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)" }}>
+      background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)" }}>
       <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
         <div style={{ flex: 1 }}>
           <div style={{ fontSize: 16, fontWeight: 600, color: "var(--tasty-text-primary)" }}>Scripts</div>
@@ -2611,7 +2611,7 @@ function RailCategoryFrame() {
 function CategoryEditFrame({ mode = "new", error }) {
   const errText = error === "empty" ? "Enter a category name." : error === "reserved" ? "\u201Cnormal\u201D is reserved." : error === "duplicate" ? "A category named \u201CServices\u201D already exists." : null;
   return (
-    <div style={{ width: 360, background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-strong)",
+    <div style={{ width: 360, background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)",
       borderRadius: "var(--tasty-radius)", overflow: "hidden", boxShadow: "var(--tasty-shadow-modal)" }}>
       <div style={{ padding: "14px 14px 0" }}>
         <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 2 }}>{mode === "new" ? "New category" : "Rename category"}</div>
@@ -2631,7 +2631,7 @@ function CategoryEditFrame({ mode = "new", error }) {
 // Delete category — destructive confirm; the category's workspaces move to normal.
 function CategoryDeleteFrame() {
   return (
-    <div style={{ width: 380, background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-strong)",
+    <div style={{ width: 380, background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)",
       borderRadius: "var(--tasty-radius)", overflow: "hidden", boxShadow: "var(--tasty-shadow-modal)" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "14px 14px 0" }}>
         <span style={{ display: "inline-flex", color: "var(--tasty-accent-danger-raised)" }}>{catIc.trash}</span>
