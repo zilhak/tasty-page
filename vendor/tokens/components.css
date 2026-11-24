@@ -1602,7 +1602,7 @@
   /* Explorer file ops › Name errors (gallery specimen layout, not app chrome) — the languages view */
   --tasty-explorer-name-error-specimen-width:    var(--tasty-size-560); /* cap of each edit row; narrower pages shrink the row, never the name below the input's own floor */
   --tasty-explorer-name-error-specimen-row-room: var(--tasty-size-56);  /* space from one edit row to the next sample's label: holds a two-line message box under the row */
-  --tasty-explorer-list-min-width: var(--tasty-size-200); /* listing min width beside the preview panel; panel hides under preview-min + this (400) */
+  --tasty-explorer-list-min-width: var(--tasty-size-200); /* listing min width beside the preview panel; panel hides under this + 1px separator + preview-min (401) */
   --tasty-explorer-props-padding-x: var(--tasty-space-md); /* 2026-11-05 ground-ink rules */
   --tasty-explorer-props-row-min-height: var(--tasty-size-24); /* Properties field row min height */
   --tasty-explorer-props-row-line: var(--tasty-size-20); /* Properties field label / value line height */

@@ -102,7 +102,7 @@ function RemainingB12Section() {
       </QSpec>
 
       <QSpec id="preview-panel-in-a-low-cell-header-only" title="Preview panel in a low cell — header only"
-        when={<>When the body under the preview header would be shorter than <span className="tok">--tasty-explorer-preview-body-min-height</span> 120, the body is <b>hidden</b> and only the header stays (name + kind · size), without its bottom rule. A 30 px thumbnail says nothing; the header still tells the user what is selected. The panel keeps its width, and the width rules (hide under preview-min + list-min) are unchanged.</>}>
+        when={<>When the body under the preview header would be shorter than <span className="tok">--tasty-explorer-preview-body-min-height</span> 120, the body is <b>hidden</b> and only the header stays (name + kind · size), without its bottom rule. A 30 px thumbnail says nothing; the header still tells the user what is selected. The panel keeps its width, and the width rules (hide under list-min + separator + preview-min) are unchanged.</>}>
         <QStage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 16, flexWrap: "wrap", alignItems: "flex-start", justifyContent: "safe center" }}>
           <XCol label="tall cell — body shown" w={640} preview>
             <XCell w={640} h={300} preview status="5 items"><QBody>{QROWS.map((r, i) => <QK.DetailRow key={i} {...r} state={i === 3 ? "selected" : undefined} />)}</QBody><QPreview /></XCell>

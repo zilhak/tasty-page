@@ -13,10 +13,12 @@ const { IconButton: XIconButton, Button: XButton, Input: XInput, MenuItem: XMenu
 
 const xCap = { fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" };
 function XLbl({ children }) { return <div style={xCap}>{children}</div>; }
-// A cell that shows the preview panel never draws narrower than the panel at its default width plus the
-// listing's minimum and the cell's two border lines: the panel hides under preview-min + list-min, so a narrower
-// cell with the panel open is a state the explorer never shows. On a narrow page such a cell scrolls inside its
-// stage instead of squeezing the listing (390: the Detail pane was 18px).
+// Preview panel width in the app: inside a cell narrower than list-min 200 + separator 1 + preview-min 200 (401)
+// the panel hides. From 401 to 489 the listing stays at 200 and the panel takes what is left (200 to 288). Above
+// 489 the panel is 288 (or its remembered width, 200 to 460) and the listing takes the rest. The specimen cells
+// that show the panel open at its default 288 therefore never draw narrower than 490: that is only the specimen's
+// outer width (488 inside + two border lines), not an app threshold. On a narrow page such a cell scrolls inside
+// its stage instead of squeezing the listing (390: the Detail pane was 18px).
 const xPreviewCellMin = "calc(var(--tasty-explorer-preview-width) + var(--tasty-explorer-list-min-width) + 2 * var(--tasty-border-width))";
 function XCol({ label, children, w, preview }) {
   return <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", width: w, maxWidth: "100%", minWidth: preview ? xPreviewCellMin : 0 }}><XLbl>{label}</XLbl>{children}</div>;
