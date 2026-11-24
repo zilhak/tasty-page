@@ -2350,7 +2350,8 @@ function RemoteFormFrame({ variant = "ssh", error }) {
     </>
   );
   // unknown type: an indented hint caption under the Type field, as the app draws it — not a badge.
-  // Copy: [remote_tool] type_unknown_hint.
+  // Copy: [remote_tool] type_unknown_hint. The app shows it only for a type it does not know (ssh, smb and http
+  // are known), so the generic form types "snb", the same unknown value as the protocol filter above.
   const typeHint = (txt) => (
     <div style={{ display: "grid", gridTemplateColumns: "var(--tasty-remote-label-col) 1fr", columnGap: 12 }}><span />
       <span style={{ fontSize: 11, lineHeight: 1.4, color: "var(--tasty-accent-warning-raised)", overflowWrap: "anywhere" }}>{txt}</span></div>
@@ -2385,7 +2386,7 @@ function RemoteFormFrame({ variant = "ssh", error }) {
         <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 2 }}>{passkey ? "New passkey" : attach ? "New attach" : "New profile"}</div>
         {!passkey && !attach && (
           <>
-            <FRow label="Type"><div style={{ display: "flex", gap: 4 }}><Input block defaultValue={variant === "generic" ? "smb" : "ssh"} /><Select options={["ssh", "smb", "http"]} style={{ width: 64 }} /></div></FRow>
+            <FRow label="Type"><div style={{ display: "flex", gap: 4 }}><Input block defaultValue={variant === "generic" ? "snb" : "ssh"} /><Select options={["ssh", "smb", "http"]} style={{ width: 64 }} /></div></FRow>
             {variant === "generic" && error !== "type" && typeHint("This type is not supported yet. You can save it, but it cannot be used until Tasty or a plugin supports it.")}
             <FRow label="Name"><Input block defaultValue={variant === "generic" ? "fileshare" : "prod-web"} /></FRow>
             {variant === "ssh" ? (
