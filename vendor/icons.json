@@ -39,7 +39,7 @@
     {
       "name": "windowMinimize",
       "group": "actions",
-      "role": "Linux window button: minimize",
+      "role": "Linux window button and Windows caption button: minimize",
       "paths": [
         "<path d=\"M6 12h12\"/>"
       ],
@@ -51,6 +51,25 @@
       "role": "Linux window button: maximize",
       "paths": [
         "<path d=\"M6.5 6.5h11v11h-11z\"/>"
+      ],
+      "fill": false
+    },
+    {
+      "name": "captionMaximize",
+      "group": "actions",
+      "role": "Windows caption button: maximize",
+      "paths": [
+        "<rect x=\"5\" y=\"5\" width=\"14\" height=\"14\" rx=\"1\"/>"
+      ],
+      "fill": false
+    },
+    {
+      "name": "captionRestore",
+      "group": "actions",
+      "role": "Windows caption button: restore, on a maximized window",
+      "paths": [
+        "<rect x=\"7\" y=\"7\" width=\"11\" height=\"11\" rx=\"1\"/>",
+        "<path d=\"M8 5h9a2 2 0 0 1 2 2v9\"/>"
       ],
       "fill": false
     },

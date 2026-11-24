@@ -1,4 +1,5 @@
 import React from "react";
+import { Icon } from "../../../components/core/Icon.jsx";
 const BASE = `${import.meta.env.BASE_URL.replace(/\/$/, "")}/`;
 
 // Tasty UI kit — CSD titlebar · Windows
@@ -41,18 +42,15 @@ const TB_WIN_CSS = `
 function TitlebarWindows({ active = true, variant = "split", title = "agents-prod", maximized = false, tabs = ["build · cargo", "README.md", "scratch"], states = {} }) {
   // states freezes buttons for gallery frames: { min | max | close: "hover" | "press" }. A frozen button no
   // longer follows the pointer; the others still do.
-  const G = {
-    min:     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14"/></svg>,
-    max:     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="5" y="5" width="14" height="14" rx="1"/></svg>,
-    restore: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="7" y="7" width="11" height="11" rx="1"/><path d="M7 5h10a2 2 0 0 1 2 2v10"/></svg>,
-    close:   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>,
-  };
+  // Glyphs come from the icon set at icon-size-xs (the .tb-win__btn svg rule). Minimize and close are shared with
+  // the Linux title bar; maximize and restore are the Windows caption shapes.
+  const G = { min: "windowMinimize", max: "captionMaximize", restore: "captionRestore", close: "close" };
   const caption = (
     <div className="tb-win__caption">
-      <button className="tb-win__btn" data-state={states.min} title="Minimize">{G.min}</button>
+      <button className="tb-win__btn" data-state={states.min} title="Minimize"><Icon name={G.min} /></button>
       {/* Snap Layouts: this rect is reported to the OS via WM_NCHITTEST → HTMAXBUTTON */}
-      <button className="tb-win__btn" data-snap-target="true" data-state={states.max} title="Maximize">{maximized ? G.restore : G.max}</button>
-      <button className="tb-win__btn tb-win__btn--close" data-state={states.close} title="Close">{G.close}</button>
+      <button className="tb-win__btn" data-snap-target="true" data-state={states.max} title="Maximize"><Icon name={maximized ? G.restore : G.max} /></button>
+      <button className="tb-win__btn tb-win__btn--close" data-state={states.close} title="Close"><Icon name={G.close} /></button>
     </div>
   );
   const fg = active ? "var(--tasty-titlebar-fg)" : "var(--tasty-titlebar-fg-inactive)";
