@@ -501,8 +501,11 @@ function FlowScreens({ flow, lang, bed, still }) {
 // than the popup it collapses to the common show button (Dialogs › Collapse). collapse = the form shown
 // over the window after the show button: the shrink button comes first in the title bar, before close.
 // Collapsing and expanding change nothing inside: selection, zoom, pan, drawer and push step stay.
+// cut = { w, h }: the frame fitted to a window smaller than the popup (user decision 11-19). The title
+// bar takes the fitted width with its buttons whole; the content below keeps the popup's size
+// (width × height) and is cut at the right and the bottom, as the app does for every popup.
 function ChildGraphWindow({ nodes = CHILD_SMALL, baseId = CHILD_SMALL_BASE, lang = "en", width, height, initial = {},
-  status = "ready", banner, push, still, onClose, collapse = false, onCollapse }) {
+  status = "ready", banner, push, still, onClose, collapse = false, onCollapse, cut = null }) {
   const [full, setFull] = React.useState(!!initial.full);
   const [sel, setSel] = React.useState(initial.selected || null);
   const [base, setBase] = React.useState(baseId);
@@ -510,7 +513,7 @@ function ChildGraphWindow({ nodes = CHILD_SMALL, baseId = CHILD_SMALL_BASE, lang
   useEscDeselect(flow, sel, setSel, onClose, !still && push == null);
   const screens = FlowScreens({ flow, lang, still });
   return (
-    <div style={{ width: width || "var(--tasty-graph-child-popup-width)", height: height || "var(--tasty-graph-child-popup-height)", maxWidth: "100%",
+    <div style={{ width: cut ? cut.w : width || "var(--tasty-graph-child-popup-width)", height: cut ? cut.h : height || "var(--tasty-graph-child-popup-height)", maxWidth: "100%",
       display: "flex", flexDirection: "column", overflow: "hidden", boxSizing: "border-box", background: "var(--tasty-bg-panel)",
       borderRadius: "var(--tasty-radius)", border: "var(--tasty-border-width) solid var(--tasty-border-strong)", boxShadow: "var(--tasty-shadow-modal)" }}>
       <div style={{ flex: "none", display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", cursor: "move",
@@ -524,6 +527,7 @@ function ChildGraphWindow({ nodes = CHILD_SMALL, baseId = CHILD_SMALL_BASE, lang
           <IconButton size="sm" aria-label="Close" title="Close" onClick={onClose}><Icon name="close" /></IconButton>
         </span>
       </div>
+      <CutBody cut={cut} width={width} height={height}>
       <GraphPush index={push != null ? push : flow.step} still={still}>
         <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}>
           <div style={{ flex: "none", display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", boxSizing: "border-box",
@@ -535,6 +539,19 @@ function ChildGraphWindow({ nodes = CHILD_SMALL, baseId = CHILD_SMALL_BASE, lang
         </div>
         {screens}
       </GraphPush>
+      </CutBody>
+    </div>
+  );
+}
+// The content under the title bar: as it is, or (cut) laid out at the popup's size inside a box that
+// cuts it at the frame's right and bottom edges.
+function CutBody({ cut, width, height, children }) {
+  if (!cut) return children;
+  return (
+    <div style={{ flex: 1, minHeight: 0, overflow: "hidden", display: "flex" }}>
+      <div style={{ flex: "none", display: "flex", flexDirection: "column", boxSizing: "border-box",
+        width: width || "calc(var(--tasty-graph-child-popup-width) - 2 * var(--tasty-border-width))",
+        height: height || "calc(var(--tasty-graph-child-popup-height) - var(--tasty-modhint-header-height) - 2 * var(--tasty-border-width))" }}>{children}</div>
     </div>
   );
 }
