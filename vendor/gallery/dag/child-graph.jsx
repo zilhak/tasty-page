@@ -267,6 +267,9 @@ export function ChildGraphSection() {
               <Labelled label="round trip · 3 · show pressed — the same DAG graph step, no motion" tag="decided"><OverWindow><ChildGraphWindow collapse still push={2} initial={{ selected: "s_01HX7Q", owner: "s_01HX7Q", dagId: "build-and-deploy" }} /></OverWindow></Labelled>
             </>)}
           </View>
+          <View name="child-popup-closed" label="After × — the popup is closed, nothing of it stays (the live demo adds a button to start again)" wide>
+            <ClosedPopupFrame />
+          </View>
           <View name="child-popup-round-trip-list" label="Round trip on the DAG list step — shrink pressed, collapsed, shown again on the same list" wide>
             {row(<>
               <Labelled label="1 · on the DAG list step, shrink pressed"><OverWindow><ChildGraphWindow collapse still push={1} initial={{ selected: "s_01HX7Q", owner: "s_01HX7Q" }} /></OverWindow></Labelled>
