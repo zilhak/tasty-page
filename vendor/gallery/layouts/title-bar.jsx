@@ -91,9 +91,21 @@ for (const theme of ["mocha", "latte"]) {
   }
 }
 
-// A frame whose close button is under the pointer marks it as a Window close button cell, so the check reads its
-// glyph against the contract. The contract's one state is rest (close under the pointer); its host is the window's ground.
-const closeCell = (active) => ({ close: { contract: "Window close button", state: "rest", host: active ? "crust" : "mantle" } });
+// Contract cells for a frozen frame, so the check reads the kit's own inks against the contract tokens. The title is
+// a Title bar (or Title bar (inactive)) cell at rest; each button is a cell in the state the frame freezes it in, rest
+// when the frame leaves it alone. A close button under the pointer is a Window close button cell instead: that
+// contract's one state is rest (close under the pointer), and its host is the window's ground.
+function frameCells(active, states, part, buttons) {
+  const host = active ? "crust" : "mantle";
+  const contract = active ? "Title bar" : "Title bar (inactive)";
+  const cells = { title: { contract, state: "rest", host, parts: ["title"] } };
+  for (const b of buttons) {
+    cells[b] = b === "close" && states.close
+      ? { contract: "Window close button", state: "rest", host }
+      : { contract, state: states[b] || "rest", host, parts: [part] };
+  }
+  return cells;
+}
 
 function LinuxBar({ active, states, cells }) {
   return <TitlebarLinux active={active} states={states} cells={cells} title="agents-prod" />;
@@ -118,7 +130,7 @@ function GalleryTitleBarLinux() {
           return (
             <View key={name} name={name} label={label} wide>
               <div data-theme={theme} inert="" style={{ padding: "var(--tasty-space-sm)", background: "var(--tasty-bg-app)", pointerEvents: "none" }}>
-                <LinuxBar active={active} states={st.states} cells={st.states.close ? closeCell(active) : undefined} />
+                <LinuxBar active={active} states={st.states} cells={frameCells(active, st.states, "window button", ["min", "max", "close"])} />
               </div>
             </View>
           );
@@ -177,7 +189,7 @@ function GalleryTitleBarWindows() {
           return (
             <View key={name} name={name} label={label} wide>
               <div data-theme={theme} inert="" style={{ padding: "var(--tasty-space-sm)", background: "var(--tasty-bg-app)", pointerEvents: "none", overflowX: "auto" }}>
-                <TitlebarWindows active={active} states={st.states} maximized={!!st.maximized} cells={st.states.close ? closeCell(active) : undefined} />
+                <TitlebarWindows active={active} states={st.states} maximized={!!st.maximized} cells={frameCells(active, st.states, "button", ["min", "max", "close"])} />
               </div>
             </View>
           );
