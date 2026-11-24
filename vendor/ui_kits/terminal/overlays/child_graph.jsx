@@ -356,6 +356,8 @@ function ChildDetail({ node, isBase, lang = "en", onViewDags, onSetBase, onClose
 
 // ── Shared view ─────────────────────────────────────────────────────
 // status: "ready" | "loading" | "empty" | "base-closed" | "unsupported" (remote Tasty too old)
+// base-closed is the surface form's state only (4-4); its Select base surface button opens the picker through
+// onPickBase and is drawn disabled when no onPickBase is given, so it never reads as a live button with no action.
 // host: the host text rule (attach profile name); empty for an attach with no profile name, which
 // takes the _no_host hint (the word Remote is not put in the sentence; never 127.0.0.1:<port>).
 // Proposal: the app has no remote strip or hint yet; the _no_host keys go in with them.
@@ -368,7 +370,7 @@ function ChildGraphView({ nodes, baseId, full = false, selected, onSelect, lang 
   if (status === "loading") return wrap(<DagEmpty loading copy={{ title: gt("graph.loading", lang) }} />);
   if (status === "unsupported") return wrap(<DagEmpty copy={{ icon: "remote", title: gt("graph.remote_unsupported", lang), body: host ? gt("graph.remote_unsupported_hint", lang, host) : gt("graph.remote_unsupported_hint_no_host", lang) }} />);
   if (status === "base-closed") return wrap(<DagEmpty copy={{ icon: "paneEmpty", title: gt("child_graph.empty.base_closed", lang), body: gt("child_graph.empty.base_closed_hint", lang) }}
-    action={<Button size="sm" variant="secondary" onClick={onPickBase}>{gt("child_graph.empty.pick_base", lang)}</Button>} />);
+    action={<Button size="sm" variant="secondary" disabled={!onPickBase} onClick={onPickBase}>{gt("child_graph.empty.pick_base", lang)}</Button>} />);
   if (status === "empty" || shown.length <= 1) return wrap(<DagEmpty copy={{ icon: "gitBranch", title: gt("child_graph.empty.none", lang), body: gt("child_graph.empty.none_hint", lang) }} />);
   const sel = shown.find((n) => n.id === selected);
   return (
@@ -513,7 +515,8 @@ function FlowScreens({ flow, lang, bed, still }) {
 // sits popup-title-edge-inset 4 from the right edge, as every popup title bar),
 // toolbar 36 with the full tree checkbox — the same height as the back bar it trades places with.
 // Base = the surface the popup opened from; the chip on its card says so. No base selector here.
-// The popup is scoped to its base surface (10-3 b): it closes with it, and when its needed size is larger
+// The popup is scoped to its base surface (10-3 b): it closes with it, so it has no base-closed state. Given
+// status="base-closed" it draws nothing, as the app has closed it by then. When its needed size is larger
 // than the surface bounds (the rect less min(space-sm, w/2, h/2) on every side) it collapses to the common
 // show button (Dialogs › Collapse). collapse = the form shown
 // over the window after the show button: the shrink button comes first in the title bar, before close.
@@ -549,6 +552,7 @@ function ChildGraphWindow({ nodes = CHILD_SMALL, baseId = CHILD_SMALL_BASE, lang
   }, [folded]);
   useEscDeselect(flow, sel, setSel, collapse ? onCollapse : onClose, !still && push == null && !folded, () => focused.current);
   const screens = FlowScreens({ flow, lang, still });
+  if (status === "base-closed") return null;
   return (
     <div ref={rootRef} tabIndex={-1} style={{ outline: "none", display: folded ? "none" : "flex", width: cut ? cut.w : width || "var(--tasty-graph-child-popup-width)", height: cut ? cut.h : height || "var(--tasty-graph-child-popup-height)", maxWidth: "100%",
       flexDirection: "column", overflow: "hidden", boxSizing: "border-box", background: "var(--tasty-bg-panel)",
