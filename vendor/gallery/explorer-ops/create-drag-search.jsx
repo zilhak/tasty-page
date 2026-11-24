@@ -13,12 +13,15 @@ const { IconButton: XIconButton, Button: XButton, Input: XInput, MenuItem: XMenu
 
 const xCap = { fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" };
 function XLbl({ children }) { return <div style={xCap}>{children}</div>; }
-// Preview panel width in the app: inside a cell narrower than list-min 200 + separator 1 + preview-min 200 (401)
-// the panel hides. From 401 to 489 the listing stays at 200 and the panel takes what is left (200 to 288). Above
-// 489 the panel is 288 (or its remembered width, 200 to 460) and the listing takes the rest. The specimen cells
-// that show the panel open at its default 288 therefore never draw narrower than 490: that is only the specimen's
-// outer width (488 inside + two border lines), not an app threshold. On a narrow page such a cell scrolls inside
-// its stage instead of squeezing the listing (390: the Detail pane was 18px).
+// Preview panel width in the app: inside a cell narrower than preview-min 200 + separator 1 + list-min 200 (401)
+// the panel hides. Otherwise the wanted width is the remembered width x UI scale, or 288 when none is remembered.
+// The panel takes the wanted width clamped to 200..460, then cut to at most (cell - 1 - 200), and never under 200.
+// The listing takes cell - panel - 1. So the remembered width applies at every cell width, not only wide ones:
+// cell 450, remembered 220 -> panel 220, listing 229; cell 500, remembered 460 -> panel 299, listing 200;
+// cell 450, none remembered -> panel 249, listing 200. The specimen cells show the default width with the listing
+// at its minimum or more, so they never draw narrower than 490: that is only the specimen's outer width
+// (488 inside + two border lines), not an app threshold. On a narrow page such a cell scrolls inside its stage
+// instead of squeezing the listing (390: the Detail pane was 18px).
 const xPreviewCellMin = "calc(var(--tasty-explorer-preview-width) + var(--tasty-explorer-list-min-width) + 2 * var(--tasty-border-width))";
 function XCol({ label, children, w, preview }) {
   return <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", width: w, maxWidth: "100%", minWidth: preview ? xPreviewCellMin : 0 }}><XLbl>{label}</XLbl>{children}</div>;
