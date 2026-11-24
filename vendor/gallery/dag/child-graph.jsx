@@ -2,7 +2,7 @@ import React from "react";
 import { Section, Spec, Stage, Meta, Note, Do, Dont, Views, View } from "../parts/specimen.jsx";
 import { ThemePair } from "../parts/theme-frame.jsx";
 import { focusViews } from "../parts/surface-focus-views.jsx";
-import { ToolsMenuFrame } from "../parts/overlay-frames.jsx";
+import { ToolsMenuFrame, ShellMock } from "../parts/overlay-frames.jsx";
 import { Kbd, MenuItem, Table, Tab } from "../../components/index.js";
 import { DagNode, elbow } from "../../ui_kits/terminal/dag.js";
 import { GraphStrip, CHILD_STATE, CHILD_STATE_ORDER } from "../../ui_kits/terminal/overlays/graph_view.jsx";
@@ -60,6 +60,18 @@ function CopyTable() {
     <div className="tasty-scroll" style={{ overflow: "auto", maxHeight: 520 }}>
       <Table dense hover={false} rowKey="key" rows={rows}
         columns={[{ key: "key", header: "Key", mono: true }, ...GRAPH_LANGS.map((l) => ({ key: l, header: l }))]} />
+    </div>
+  );
+}
+
+// The child graph popup shown over the window after its show button (Dialogs › Collapse): the window under
+// the scrim, the popup centred, or fitted to the window's top left when the window is smaller than the popup.
+function OverWindow({ w = 760, h = 560, fitted = false, children }) {
+  return (
+    <div style={{ position: "relative", width: w, height: h, flex: "none" }}>
+      <div data-audit-exempt="under-scrim"><ShellMock size={[w, h]} /></div>
+      <div style={{ position: "absolute", inset: 0, background: "var(--tasty-scrim-bg)", borderRadius: "var(--tasty-radius)" }} />
+      <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: fitted ? "flex-start" : "center", justifyContent: fitted ? "flex-start" : "center" }}>{children}</div>
     </div>
   );
 }
@@ -170,6 +182,47 @@ export function ChildGraphSection() {
         </Views>
         <Meta specs={[["frame", "600 × 460 · min 360 × 280 · resizable · title-bar drag"], ["toolbar", "36 · checkbox · separator below"], ["canvas", "dag-canvas-bg (a popup is not a surface)"], ["base", "the surface it opened from · chip only"], ["dismiss", "× · Esc with nothing selected — outside click does not close (pan drags end outside), as the DAG popup"]]}
           tokens={[{ tok: "--tasty-graph-child-popup-width", use: "600" }, { tok: "--tasty-graph-child-popup-height", use: "460 → dag-popup-height" }, { tok: "--tasty-graph-toolbar-height", use: "36 → back bar" }, { tok: "--tasty-shadow-modal", use: "popup lift" }]} />
+      </Spec>
+
+      <Spec id="child-graph-popup-collapsed" title="Popup on a small surface — collapsed, shown over the window, and back (decided 10-3 b, popup scope)"
+        when={<>The popup is <b>scoped to its base surface</b> (10-3 b), so it follows the rule for every popup narrower than the window (Dialogs › Collapse): when the surface is smaller than the popup's size — 600 × 460, or the size the user resized it to — on either axis, it <b>collapses</b> to the common show button in its own frame, with nothing added: no title and no mark of which base it is for. It sits on the base surface, which already says which; a mark would also widen the frame and make it collapse to the icon sooner. Pressing it shows the popup <b>over the window</b>: the same popup, with the <b>shrink</b> button first in its title bar before close, the 36 toolbar, the canvas and the drawer laid over it. When the window is smaller than the popup too, the frame is fitted to the window from its top left; the title bar stays whole, and since the canvas is a viewport and not a fixed picture, it takes the height that is left — the zoom cluster, the minimap rule and the drawer work as on any smaller canvas, the drawer on the frame's right edge, which is the window's. Collapsing and expanding <b>change nothing inside</b>: the selection, zoom, pan, drawer and the push step (child graph, DAG list, DAG graph) are where they were. A push in progress when the popup collapses finishes at once (the collapsed form draws no content), and expanding shows the step it ended on, with no motion replayed. <b>Esc</b> is used by the body first: it clears the selection, then steps back (DAG graph → list → child graph); only an Esc the body does not use collapses the expanded popup; fitted in its surface it closes the popup, as before, and collapsed it drops the popup's focus like its outside click. The base surface closing closes the popup in either form.</>}>
+        <Stage style={{ padding: 16, display: "block", background: "var(--tasty-bg-app)" }}>
+          {row(<>
+            <Labelled label="collapsed — the common show button, nothing added" tag="decided"><ShellMock scope="surface" narrow collapsed="label" ring /></Labelled>
+            <Labelled label="collapsed, very narrow — icon only" tag="decided"><ShellMock scope="surface" narrow collapsed="icon" ring leftWidth={64} /></Labelled>
+          </>)}
+        </Stage>
+        <Stage style={{ padding: 16, display: "block", background: "var(--tasty-bg-app)" }}>
+          {row(<>
+            <Labelled label="shown over the window — shrink button before close" tag="decided"><OverWindow><ChildGraphWindow collapse /></OverWindow></Labelled>
+            <Labelled label="over the window — a card selected, the drawer over the canvas" tag="decided"><OverWindow><ChildGraphWindow collapse initial={{ selected: "s_01HX7Q" }} /></OverWindow></Labelled>
+            <Labelled label="over the window — the DAG list step" tag="decided"><OverWindow><ChildGraphWindow collapse still push={1} initial={{ selected: "s_01HX7Q", owner: "s_01HX7Q" }} /></OverWindow></Labelled>
+            <Labelled label="over the window — the DAG graph step" tag="decided"><OverWindow><ChildGraphWindow collapse still push={2} initial={{ selected: "s_01HX7Q", owner: "s_01HX7Q", dagId: "build-and-deploy" }} /></OverWindow></Labelled>
+          </>)}
+        </Stage>
+        <Stage style={{ padding: 16, display: "block", background: "var(--tasty-bg-app)" }}>
+          {row(<>
+            <Labelled label="window smaller than the popup — fitted from the top left, the canvas takes what is left" tag="decided"><OverWindow w={520} h={380} fitted><ChildGraphWindow collapse width={520} height={380} /></OverWindow></Labelled>
+            <Labelled label="window smaller, drawer open — on the frame's right edge, the window's" tag="decided"><OverWindow w={520} h={380} fitted><ChildGraphWindow collapse width={520} height={380} initial={{ selected: "s_01HX9A" }} /></OverWindow></Labelled>
+          </>)}
+        </Stage>
+        <Stage style={{ padding: 16, display: "block", background: "var(--tasty-bg-app)" }}>
+          {row(<>
+            <Labelled label="round trip · 1 · on the DAG graph step, shrink pressed" tag="decided"><OverWindow><ChildGraphWindow collapse still push={2} initial={{ selected: "s_01HX7Q", owner: "s_01HX7Q", dagId: "build-and-deploy" }} /></OverWindow></Labelled>
+            <Labelled label="round trip · 2 · collapsed — the same button; the step is kept, not drawn" tag="decided"><ShellMock scope="surface" narrow collapsed="label" ring /></Labelled>
+            <Labelled label="round trip · 3 · show pressed — the same DAG graph step, no motion" tag="decided"><OverWindow><ChildGraphWindow collapse still push={2} initial={{ selected: "s_01HX7Q", owner: "s_01HX7Q", dagId: "build-and-deploy" }} /></OverWindow></Labelled>
+          </>)}
+        </Stage>
+        <Views>
+          <View name="child-popup-over-window-locales" label="ko, ja, zh-Hans — over the window">
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 16 }}>
+              {["ko", "ja", "zh-Hans"].map((l) => <OverWindow key={l}><ChildGraphWindow collapse lang={l} initial={{ selected: "s_01HX7Q" }} /></OverWindow>)}
+            </div>
+          </View>
+        </Views>
+        <Meta specs={[["collapses when", "the base surface's bounds are smaller than the popup's needed size on either axis (600 × 460, or the user's size) · the common rule, nothing child-graph specific"], ["collapsed", "the common frame and show button (popup.collapsed_button.label, glyph fit) · label or icon by the common rule · no title, no base mark"], ["over the window", "the common window-scope form: scrim, shadow-modal, centred · the popup's own title bar with the shrink button first (popup.collapse_button.label, glyph shrink, tooltip popup.collapse_button.tooltip), gap popup-title-btn-gap 4, then close"], ["window smaller", "fitted to the window from its top left · title bar whole · toolbar 36 · the canvas takes the rest of the height (a viewport) · the drawer on the frame's right edge · the zoom cluster and minimap by their own rules"], ["kept", "selection · zoom · pan · drawer · push step · full tree checkbox"], ["motion", "collapse and expand are instant · a push in progress finishes at once · no replay on expand"], ["Esc", "1 clear the selection (drawer closes) · 2 step back (DAG graph → list → child graph) · 3 over the window: collapse · fitted in its surface: close (nothing selected, child graph step) · collapsed: drops the popup's focus, as its outside click does (the common collapsed rule)"], ["closes", "the base surface closes, in either form (10-3 b) · the × in the title bar"]]}
+          tokens={[{ tok: "--tasty-graph-child-popup-width", use: "600 — the needed width" }, { tok: "--tasty-graph-child-popup-height", use: "460 — the needed height" }, { tok: "--tasty-popup-title-btn-gap", use: "4 between shrink and close" }, { tok: "--tasty-scrim-bg", use: "over the window", color: "var(--tasty-scrim-bg)" }, { tok: "--tasty-shadow-modal", use: "the expanded frame" }]} />
+        <Note>The collapsed frames are the common <code>ShellMock</code> of Dialogs › Collapse, because the collapsed child graph popup draws nothing of its own. The DAG list popup is Workspace-scoped (the tab bar and panes), so it collapses only when the window itself is small, by the same rule; it needs no specimen of its own.</Note>
       </Spec>
 
       <Spec id="child-graph-surface-header" title="Surface — base picker and checkbox in the header (decided R-51 14, Q14, 14-1 to 14-6)"

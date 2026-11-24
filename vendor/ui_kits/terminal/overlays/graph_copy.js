@@ -107,6 +107,9 @@ export const GRAPH_COPY = {
 export const APP_COPY = {
   "dag.detail.close": {"en": "Close details", "ko": "상세 닫기", "ja": "詳細を閉じる", "zh-Hans": "关闭详情"},
   "dag_list.back": {"en": "Back to list", "ko": "목록으로", "ja": "一覧に戻る", "zh-Hans": "返回列表"},
+  "popup.collapsed_button.label": {"en": "Show popup", "ko": "팝업 보기", "ja": "ポップアップを表示", "zh-Hans": "查看弹窗"},
+  "popup.collapse_button.label": {"en": "Collapse popup", "ko": "팝업 접기", "ja": "ポップアップを折りたたむ", "zh-Hans": "折叠弹窗"},
+  "popup.collapse_button.tooltip": {"en": "Collapse the popup to its show button to use the rest of the window. The popup stays open and keeps your input.", "ko": "팝업을 보기 버튼으로 접어 윈도우의 다른 영역을 사용합니다. 팝업은 열린 상태로 유지되며 입력 내용도 보존됩니다.", "ja": "ポップアップを表示ボタンに折りたたみ、ウィンドウの他の領域を操作できるようにします。ポップアップは開いたまま、入力内容も保持されます。", "zh-Hans": "将弹窗折叠为查看按钮，以使用窗口的其他区域。弹窗保持打开，并保留输入内容。"},
   "attach.mirror_pill_label": {"en": "Remote", "ko": "원격", "ja": "リモート", "zh-Hans": "远程"},
   "settings.keybindings.toggle_dag_list_label": {"en": "Toggle DAG list:", "ko": "DAG 목록 열기/닫기:", "ja": "DAG 一覧の切替:", "zh-Hans": "打开/关闭 DAG 列表："},
 };

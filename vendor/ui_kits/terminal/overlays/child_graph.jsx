@@ -487,8 +487,12 @@ function FlowScreens({ flow, lang, bed, still }) {
 // 600 × 460 (three columns at 100%), min 360 × 280 like the DAG popup. Title bar 28 (drag),
 // toolbar 36 with the full tree checkbox — the same height as the back bar it trades places with.
 // Base = the surface the popup opened from; the chip on its card says so. No base selector here.
+// The popup is scoped to its base surface (10-3 b): it closes with it, and when the surface is smaller
+// than the popup it collapses to the common show button (Dialogs › Collapse). collapse = the form shown
+// over the window after the show button: the shrink button comes first in the title bar, before close.
+// Collapsing and expanding change nothing inside: selection, zoom, pan, drawer and push step stay.
 function ChildGraphWindow({ nodes = CHILD_SMALL, baseId = CHILD_SMALL_BASE, lang = "en", width, height, initial = {},
-  status = "ready", banner, push, still, onClose }) {
+  status = "ready", banner, push, still, onClose, collapse = false, onCollapse }) {
   const [full, setFull] = React.useState(!!initial.full);
   const [sel, setSel] = React.useState(initial.selected || null);
   const [base, setBase] = React.useState(baseId);
@@ -505,7 +509,10 @@ function ChildGraphWindow({ nodes = CHILD_SMALL, baseId = CHILD_SMALL_BASE, lang
         <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-text-muted)" }}><Icon name="gitBranch" size="var(--tasty-icon-size-sm)" /></span>
         <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontFamily: "var(--tasty-font-ui)",
           fontSize: "var(--tasty-font-size-body)", fontWeight: "var(--tasty-font-weight-semibold)", color: "var(--tasty-text-primary)" }}>{gt("child_graph.title", lang)}</span>
-        <IconButton size="sm" aria-label="Close" title="Close" onClick={onClose}><Icon name="close" /></IconButton>
+        <span style={{ flex: "none", display: "inline-flex", alignItems: "center", gap: "var(--tasty-popup-title-btn-gap)" }}>
+          {collapse && <IconButton size="sm" aria-label={gt("popup.collapse_button.label", lang)} title={gt("popup.collapse_button.tooltip", lang)} data-popup-collapse="" onClick={onCollapse}><Icon name="shrink" /></IconButton>}
+          <IconButton size="sm" aria-label="Close" title="Close" onClick={onClose}><Icon name="close" /></IconButton>
+        </span>
       </div>
       <GraphPush index={push != null ? push : flow.step} still={still}>
         <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}>
