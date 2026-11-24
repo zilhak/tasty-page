@@ -147,8 +147,8 @@ function DiffLine({ d }) {
     : del ? "var(--tasty-git-diff-del-bg)" : "transparent";
   return (
     <div style={{ display: "flex", fontFamily: "var(--tasty-font-mono)", fontSize: 11, lineHeight: 1.65, background: bg, color: fg }}>
-      <span style={{ width: 34, textAlign: "right", flex: "none", color: "var(--tasty-text-disabled)", paddingRight: 6, userSelect: "none" }}>{hunk ? "" : d.old}</span>
-      <span style={{ width: 34, textAlign: "right", flex: "none", color: "var(--tasty-text-disabled)", paddingRight: 8, userSelect: "none" }}>{hunk ? "" : d.new}</span>
+      <span style={{ width: 34, textAlign: "right", flex: "none", color: "var(--tasty-text-muted-raised)", paddingRight: 6, userSelect: "none" }}>{hunk ? "" : d.old}</span>
+      <span style={{ width: 34, textAlign: "right", flex: "none", color: "var(--tasty-text-muted-raised)", paddingRight: 8, userSelect: "none" }}>{hunk ? "" : d.new}</span>
       <span style={{ width: 14, flex: "none", textAlign: "center", userSelect: "none", opacity: 0.8 }}>{hunk ? "" : d.kind === " " ? "" : d.kind}</span>
       <span style={{ whiteSpace: "pre", paddingRight: 12 }}>{d.text}</span>
     </div>
