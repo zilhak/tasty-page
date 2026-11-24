@@ -718,7 +718,7 @@ function Page() {
           </Stage>
           <Meta
             specs={[["rail chip", "top-left · 12 · alertTriangle 8 · accent-warning on bg-sidebar"], ["rail corners", "TR attention dot · BR mirror · BL move · TL refusal — no priority"], ["row order", "name · move · refusal · badges"], ["row gap", "space-sm (row item spacing)"], ["tooltip", "same as the row · not clickable"]]}
-            tokens={[{ tok: "--tasty-attach-refusal-glyph", use: "→ accent-warning", color: "var(--tasty-attach-refusal-glyph)" }, { tok: "--tasty-attach-refusal-chip-size", use: "→ move-source-chip-size 12" }, { tok: "--tasty-attach-refusal-chip-glyph-size", use: "→ move-source-chip-glyph-size 8" }]} />
+            tokens={[{ tok: "--tasty-attach-refusal-glyph", use: "→ accent-warning", color: "var(--tasty-attach-refusal-glyph)" }, { tok: "--tasty-attach-refusal-chip-size", use: "→ avatar-chip-size 12" }, { tok: "--tasty-attach-refusal-chip-glyph-size", use: "→ avatar-chip-glyph-size 8" }]} />
         </Spec>
       </Section>
       <Section id="attachsizesync" title="Attach mirror — terminal size sync failed">

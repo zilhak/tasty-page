@@ -200,7 +200,7 @@ function GalleryMoveSource() {
         )}
         <Meta
           specs={[["row", "trailing, before the badge group"], ["tab cell", "after the title (title truncates)"], ["rail", "12px chip bottom-left — top-right = attention dot, bottom-right = mirror chip"], ["text", "none — glyph only, no i18n length"]]}
-          tokens={[{ tok: "--tasty-move-source-glyph", use: "glyph (→ accent-move)", color: "var(--tasty-move-source-glyph)" }, { tok: "--tasty-move-source-glyph-size", use: "12 — row · tab" }, { tok: "--tasty-move-source-chip-size", use: "12 — rail chip" }, { tok: "--tasty-move-source-chip-glyph-size", use: "8 — glyph in chip" }]} />
+          tokens={[{ tok: "--tasty-move-source-glyph", use: "glyph (→ accent-move)", color: "var(--tasty-move-source-glyph)" }, { tok: "--tasty-move-source-glyph-size", use: "12 — row · tab" }, { tok: "--tasty-move-source-chip-size", use: "→ avatar-chip-size 12 — rail chip" }, { tok: "--tasty-move-source-chip-glyph-size", use: "→ avatar-chip-glyph-size 8 — glyph in chip" }]} />
         <Dont><b>Don't</b> ring a container. A ringed tab means "this tab moves"; a ringed workspace row would read as "this workspace moves", which is not an action.</Dont>
       </Spec>
 

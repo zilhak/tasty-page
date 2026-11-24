@@ -1348,6 +1348,14 @@
       "$type": "dimension",
       "$value": "{primitive.size-24}"
     },
+    "avatar-chip-size": {
+      "$type": "dimension",
+      "$value": "{primitive.size-12}"
+    },
+    "avatar-chip-glyph-size": {
+      "$type": "dimension",
+      "$value": "{primitive.size-8}"
+    },
     "icon-size-window-caption": {
       "$type": "dimension",
       "$value": "{primitive.size-10}"
@@ -3816,11 +3824,11 @@
     },
     "move-source-chip-size": {
       "$type": "dimension",
-      "$value": "{primitive.size-12}"
+      "$value": "{semantic.avatar-chip-size}"
     },
     "move-source-chip-glyph-size": {
       "$type": "dimension",
-      "$value": "{primitive.size-8}"
+      "$value": "{semantic.avatar-chip-glyph-size}"
     },
     "attach-refusal-glyph": {
       "$type": "color",
@@ -3828,11 +3836,11 @@
     },
     "attach-refusal-chip-size": {
       "$type": "dimension",
-      "$value": "{component.move-source-chip-size}"
+      "$value": "{semantic.avatar-chip-size}"
     },
     "attach-refusal-chip-glyph-size": {
       "$type": "dimension",
-      "$value": "{component.move-source-chip-glyph-size}"
+      "$value": "{semantic.avatar-chip-glyph-size}"
     },
     "spinner-size": {
       "$type": "dimension",
