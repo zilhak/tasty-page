@@ -317,7 +317,7 @@ function PropertiesSection() {
               <YField k="Kind" v="File" />
               <YField k="Size" v="2.1 MB" />
               <YField k="Modified" v="2026-10-09 08:12" mono />
-              <YField k="Path" v="/home/alice/logs/build-0412.log" mono copy />
+              <YField k="Path" v="/home/me/logs/build-0412.log" mono copy />
             </YProps>
           </XCol>
         </YStage>

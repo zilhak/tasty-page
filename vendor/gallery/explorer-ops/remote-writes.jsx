@@ -116,7 +116,7 @@ function RemoteQueue({ host = "build-eu" }) {
 
 function RemoteWriteSection() {
   const { YResult, YProgressStatus, YStatusRight, YToastAt } = Y();
-  const remoteTb = <XToolbar path="/home/alice/logs" />;
+  const remoteTb = <XToolbar path="/home/me/logs" />;
   return (
     <Section id="remotewrite" title="Remote explorer — writes that differ from local">
       <Spec id="d1-a-remote-that-can-t-write-rows-shown-disabled-reason-in-the-t" title="D1 · A remote that can't write — rows shown disabled, reason in the tooltip and toast"
@@ -147,7 +147,7 @@ function RemoteWriteSection() {
             </K.CtxMenu>
             <Tip>{REASON.old.en}</Tip>
           </div>
-          <XCol label="toolbar · can't write — create disabled" w={560}><div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}><XToolbar denied deniedReason={REASON.old.en} path="/home/alice/logs" /></div></XCol>
+          <XCol label="toolbar · can't write — create disabled" w={560}><div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}><XToolbar denied deniedReason={REASON.old.en} path="/home/me/logs" /></div></XCol>
           <XCol label="shortcut on a remote that can't write — toast (en · ko · ja)" w={340}>
             <XThemes gap="var(--tasty-space-sm)" render={() => (
               <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", width: "var(--tasty-toast-max-width)", maxWidth: "100%" }}>
