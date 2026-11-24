@@ -185,11 +185,11 @@ def mix_stop(stop):
         scalar = calc[1]
         if scalar.endswith("%"):
             raise ValueError(f"expected a unitless weight in {stop}")
-        fraction = number(scalar)
-    elif weight.endswith("%"):
-        fraction = number(weight)
-    else:
+        # CSS clamps calculated percentages to the allowed range.
+        return color, min(max(number(scalar), Fraction(0)), Fraction(1))
+    if not weight.endswith("%"):
         raise ValueError(f"unsupported weight: {weight}")
+    fraction = number(weight)
     if not 0 <= fraction <= 1:
         raise ValueError(f"weight outside 0–100%: {weight}")
     return color, fraction

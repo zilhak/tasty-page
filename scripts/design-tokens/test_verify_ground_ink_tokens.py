@@ -134,6 +134,23 @@ class VerifyGroundInkTokens(unittest.TestCase):
             "R3 half-up [mocha]: rules '#0a1a2e4d', CSS evaluates to #0b1a2e@3/10",
         )
 
+    def test_r3_clamps_calculated_weights_to_percentage_range(self):
+        self.css["primitives"] = self.css["primitives"].replace(
+            "--tasty-alpha: 0.30", "--tasty-alpha: -0.20"
+        ).replace("--tasty-alpha: 0.60", "--tasty-alpha: 1.20")
+        self.entry("tint")["values"] = {"mocha": "#000000@0", "latte": "#abcdef"}
+        self.assert_success()
+
+    def test_r3_rejects_out_of_range_literal_weights(self):
+        css = self.css["semantic"]
+        for weight in ("-20%", "120%"):
+            with self.subTest(weight=weight):
+                self.css["semantic"] = css.replace("30%, transparent", f"{weight}, transparent")
+                self.assert_failure(*(
+                    f"R3 mix [{theme}]: weight outside 0–100%: {weight}"
+                    for theme in ("mocha", "latte")
+                ))
+
     def test_r3_reports_unsupported_color_separately_from_kind(self):
         self.css["primitives"] = self.css["primitives"].replace("#abcdef", "oklch(0.5 0.2 30)")
         self.assert_failure(*(
