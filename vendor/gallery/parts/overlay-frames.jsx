@@ -1019,11 +1019,15 @@ function ShellMock({ scope = "none", split = "v", child = false, narrow = false,
 // scrim: the popup's own scrim entry — shadow-modal on a scrim, shadow-popover without one.
 // ring: the button holds key focus (the base.css :focus-visible pair, drawn static).
 // edge: the popup holds key focus, so its frame lights the popup focus edge (a surface popup; follows ring).
-// onShow: live — the button is in Tab order and its own :focus-visible ring shows real focus (ring is then not drawn).
+// onShow: live — the button is in Tab order and draws the ring whenever it holds key focus.
 function CollapsedPopupButton({ kind = "label", ring = false, edge = ring, scrim = true, label = "Show popup", onShow }) {
   const live = !!onShow;
-  const ringStyle = ring && !live ? { outline: "var(--tasty-focus-ring-width) solid var(--tasty-border-focus)", outlineOffset: "var(--tasty-border-width)" } : undefined;
-  const press = live ? { onClick: onShow } : { tabIndex: -1 };
+  const [hasFocus, setHasFocus] = React.useState(false);
+  const ringStyle = (live ? hasFocus : ring) ? { outline: "var(--tasty-focus-ring-width) solid var(--tasty-border-focus)", outlineOffset: "var(--tasty-border-width)" } : undefined;
+  const press = live ? {
+    onFocus: () => setHasFocus(true), onBlur: () => setHasFocus(false),
+    onClick: onShow,
+  } : { tabIndex: -1 };
   return (
     <div data-collapsed-popup={kind} style={{ position: "relative", overflow: "hidden", flex: "none", display: "flex", padding: "var(--tasty-popup-content-margin)",
       background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)",
