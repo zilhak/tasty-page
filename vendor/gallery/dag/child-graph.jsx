@@ -66,12 +66,22 @@ function CopyTable() {
 
 // The child graph popup shown over the window after its show button (Dialogs › Collapse): the window under
 // the scrim, the popup centred, or fitted to the window's top left when the window is smaller than the popup.
+// Over the window the whole window is the popup's scope, so a press on the scrim outside the frame belongs to the
+// popup: it keeps key focus there (blurring and refocusing the frame so its key routing hears it), and Esc still reaches it.
 function OverWindow({ w = 760, h = 560, fitted = false, children }) {
+  const layer = React.useRef(null);
+  const scrimPress = (e) => {
+    const frame = layer.current && layer.current.firstElementChild;
+    if (!frame || frame.contains(e.target)) return;
+    e.preventDefault();
+    if (document.activeElement === frame) frame.blur();
+    frame.focus();
+  };
   return (
-    <div style={{ position: "relative", width: w, height: h, flex: "none" }}>
+    <div onMouseDown={scrimPress} style={{ position: "relative", width: w, height: h, flex: "none" }}>
       <div data-audit-exempt="under-scrim"><ShellMock size={[w, h]} under /></div>
       <div style={{ position: "absolute", inset: 0, background: "var(--tasty-scrim-bg)", borderRadius: "var(--tasty-radius)" }} />
-      <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: fitted ? "flex-start" : "center", justifyContent: fitted ? "flex-start" : "center" }}>{children}</div>
+      <div ref={layer} style={{ position: "absolute", inset: 0, display: "flex", alignItems: fitted ? "flex-start" : "center", justifyContent: fitted ? "flex-start" : "center" }}>{children}</div>
     </div>
   );
 }
