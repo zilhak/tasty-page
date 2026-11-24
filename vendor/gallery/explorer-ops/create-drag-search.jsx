@@ -1,7 +1,7 @@
 import React from "react";
 import * as XDS from "../../components/index.js";
 import * as XK from "../parts/explorer-kit.jsx";
-import { Section, Spec, Stage, Meta, Note } from "../parts/specimen.jsx";
+import { Section, Spec, Stage, Meta, Note, Views, View } from "../parts/specimen.jsx";
 
 // Tasty Gallery — Explorer file operations (2026-10-09, batch 9), part 1:
 // shared cell frame + Create / Drag & drop / Search sections.
@@ -105,6 +105,10 @@ function XBedDrop({ focused, body }) {
 }
 
 // ── Create ────────────────────────────────────────────────
+// explorer.name.exists in four languages. {} is the typed name, verbatim. The ko value puts its particle on
+// 항목, never on the name, so it reads for a name ending in a vowel or a consonant (was “{}” 이(가)).
+// ko written by Codex; en, ja and zh-Hans are tasty lang/*.toml as they stand.
+const NAME_EXISTS = { key: "explorer.name.exists", en: "“{}” already exists in this folder.", ko: "이 폴더에 “{}” 항목이 이미 있습니다.", ja: "このフォルダーには「{}」がすでにあります。", "zh-Hans": "此文件夹中已存在“{}”。" };
 function XNameError({ text, left = 34 }) {
   return (
     <div role="alert" style={{ position: "absolute", top: "100%", left, zIndex: 2, marginTop: 2, maxWidth: "var(--tasty-explorer-name-error-max-width)", padding: "var(--tasty-space-xs) var(--tasty-space-sm)", background: "var(--tasty-menu-bg)", border: "var(--tasty-border-width) solid var(--tasty-explorer-name-error-fg)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-popover)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-primary)", lineHeight: "var(--tasty-line-height-ui)" }}>{text}</div>
@@ -249,10 +253,22 @@ function CreateSection() {
             </div>
           )} />
         </Stage>
+        <Views>
+          <View name="explorer-name-exists-languages" label="Already exists in every language — ko puts its particle on 항목, so a name ending in a vowel or a consonant reads the same">
+            <div style={{ display: "flex", flexDirection: "column", gap: 44, width: 400, paddingBottom: 32 }}>
+              {[["en", "Documents"], ["ko", "Documents"], ["ko", "사진"], ["ko", "노트"], ["ja", "Documents"], ["zh-Hans", "Documents"]].map(([l, n]) => (
+                <div key={l + n} lang={l} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
+                  <div style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{l} · {n}</div>
+                  <div style={{ position: "relative", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}><XDetailEdit value={n} error={NAME_EXISTS[l].replace("{}", n)} /></div>
+                </div>
+              ))}
+            </div>
+          </View>
+        </Views>
         <Meta
           specs={[["input", "Input invalid (danger border)"], ["message", "under the field · menu-bg · 1px explorer-name-error-fg · caption 11 · text-primary · max explorer-name-error-max-width 240 · overlaps rows below"], ["empty", "“Enter a name.”"], ["invalid", "“A name can't contain “{char}”.” · also reserved names on Windows: “This name is reserved by the system.”"], ["exists", "“{name}” already exists in this folder. — checked on ↵"], ["after an error", "input stays open, text kept"]]}
           tokens={[{ tok: "--tasty-explorer-name-error-fg", use: "→ accent-danger", color: "var(--tasty-explorer-name-error-fg)" }, { tok: "--tasty-menu-bg", use: "message box", color: "var(--tasty-menu-bg)" }, { tok: "--tasty-shadow-popover", use: "message lift" }]} />
-        <Note>i18n: <code>explorer.new.folder_default</code> “New folder” · <code>explorer.new.file_default</code> “untitled.txt” · <code>explorer.name.empty</code> · <code>explorer.name.invalid_char</code> · <code>explorer.name.reserved</code> · <code>explorer.name.exists</code>. The default names are translated; the extension of the file default is not.</Note>
+        <Note>i18n: <code>explorer.new.folder_default</code> “New folder” · <code>explorer.new.file_default</code> “untitled.txt” · <code>explorer.name.empty</code> · <code>explorer.name.invalid_char</code> · <code>explorer.name.reserved</code> · <code>explorer.name.exists</code>. The default names are translated; the extension of the file default is not. <code>explorer.name.exists</code> ko is “{NAME_EXISTS.ko}” (was “이 폴더에 “{"{}"}” 이(가) 이미 있습니다.”); en, ja and zh-Hans are unchanged.</Note>
       </Spec>
     </Section>
   );
