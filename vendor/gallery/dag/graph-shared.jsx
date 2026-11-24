@@ -94,7 +94,7 @@ export function GraphSharedSection() {
       </Spec>
 
       <Spec id="graph-states-loading-error-remote-empty" title="Status — loading, refresh error, remote, empty"
-        when={<>Both graphs use one status block (the DAG empty part: glyph, title, hint, centred) and one strip pinned to the canvas top. <b>Loading</b>: a spinner in the glyph slot, so loading → empty never moves the block. <b>Refresh failed</b>: the last graph stays and a warning strip says so (the cycle notice's recipe). <b>Remote disconnected</b>: the last graph stays, every remote card reads <i>unknown</i>, and the strip names the host. <b>Remote Tasty too old</b>: a status block in place of the graph. <b>DAG empty</b> keeps its two branches (no DAG in the workspace, the named DAG is gone); the child graph has its own empty.</>}>
+        when={<>Both graphs use one status block (the DAG empty part: glyph, title, hint, centred) and one strip pinned to the canvas top. <b>Loading</b>: a spinner in the glyph slot, so loading → empty never moves the block. <b>Refresh failed</b>: the last graph stays and a warning strip says so (the cycle notice's recipe). <b>Remote disconnected</b>: the last graph stays, every remote card reads <i>unknown</i>, and the strip names the host. <b>Remote Tasty too old</b>: a status block in place of the graph, its hint naming the host. The host is the <b>host text</b> (Dialogs › File handler › Remote path): the attach profile name (R-57). With <b>no profile name</b> (<code>--ssh</code> or <code>--target-port</code> from the CLI or IPC, a profile saved with an empty name) the strip and the hint take a <b>no-host sentence</b> that leaves the host out; the word Remote is not put in the sentence and <code>127.0.0.1:&lt;port&gt;</code> is never shown. <b>DAG empty</b> keeps its two branches (no DAG in the workspace, the named DAG is gone); the child graph has its own empty.</>}>
         <Stage variant="grid" style={{ display: "flex", flexWrap: "wrap", gap: 16, padding: 20, alignItems: "flex-start" }}>
           <Frame label="loading" w={320} h={200}><ChildView nodes={CHILD_SMALL} baseId={CHILD_SMALL_BASE} status="loading" /></Frame>
           <Frame label="refresh failed — last graph kept" w={420} h={200}><ChildView nodes={CHILD_SMALL} baseId={CHILD_SMALL_BASE} banner={<GraphStrip>{gt("graph.error_refresh")}</GraphStrip>} /></Frame>
@@ -115,9 +115,19 @@ export function GraphSharedSection() {
               ))}
             </div>
           </View>
+          <View name="graph-states-remote-no-profile" label="No profile name (--ssh or --target-port from the CLI or IPC) — the no-host strip and hint, every language">
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 16 }}>
+              {["en", "ko", "ja", "zh-Hans"].map((l) => (
+                <Frame key={l} label={`${l} — disconnected`} w={460} h={240}><ChildView nodes={CHILD_MIRROR_LOST} baseId={CHILD_MIRROR_BASE} lang={l} banner={<GraphStrip>{gt("graph.remote_disconnected_no_host", l)}</GraphStrip>} /></Frame>
+              ))}
+              {["en", "ko", "ja", "zh-Hans"].map((l) => (
+                <Frame key={l + "u"} label={`${l} — too old`} w={320} h={200}><ChildView nodes={CHILD_SMALL} baseId={CHILD_SMALL_BASE} status="unsupported" lang={l} host="" /></Frame>
+              ))}
+            </div>
+          </View>
         </Views>
         <Meta
-          specs={[["block", "DagEmpty — glyph 24 glyph-dim · title 13 semibold · hint 11 · centred both axes"], ["loading", "Spinner 24 in the glyph slot · graph.loading"], ["strip", "28 · pinned to the canvas top · one line, ellipsis · under the drawer"], ["refresh failed", "warning strip · graph.error_refresh · the graph stays"], ["disconnected", "warning strip · graph.remote_disconnected(host) · remote cards → unknown"], ["unsupported", "remote glyph · graph.remote_unsupported + _hint(host)"], ["child empty", "child_graph.empty.none + _hint"], ["DAG empty", "existing: dag.empty.none · dag.empty.missing"]]}
+          specs={[["block", "DagEmpty — glyph 24 glyph-dim · title 13 semibold · hint 11 · centred both axes"], ["loading", "Spinner 24 in the glyph slot · graph.loading"], ["strip", "28 · pinned to the canvas top · one line, ellipsis · under the drawer"], ["refresh failed", "warning strip · graph.error_refresh · the graph stays"], ["disconnected", "warning strip · graph.remote_disconnected(host) · remote cards → unknown"], ["unsupported", "remote glyph · graph.remote_unsupported + _hint(host)"], ["no host", "no profile name (--ssh, --target-port, a profile saved with an empty name) → graph.remote_disconnected_no_host() · graph.remote_unsupported_hint_no_host() · same strip, same block · never 127.0.0.1:<port>"], ["child empty", "child_graph.empty.none + _hint"], ["DAG empty", "existing: dag.empty.none · dag.empty.missing"]]}
           tokens={[{ tok: "--tasty-dag-cycle-bg", use: "warning strip wash", color: "var(--tasty-dag-cycle-bg)" }, { tok: "--tasty-dag-cycle-fg", use: "warning strip text", color: "var(--tasty-dag-cycle-fg)" }, { tok: "--tasty-glyph-dim", use: "status glyph", color: "var(--tasty-glyph-dim)" }]} />
       </Spec>
     </Section>

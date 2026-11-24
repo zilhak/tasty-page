@@ -229,6 +229,8 @@ function ChildDetail({ node, isBase, lang = "en", onViewDags, onSetBase, onClose
 
 // ── Shared view ─────────────────────────────────────────────────────
 // status: "ready" | "loading" | "empty" | "base-closed" | "unsupported" (remote Tasty too old)
+// host: the host text rule (attach profile name); empty for an attach with no profile name, which
+// takes the _no_host hint (the word Remote is not put in the sentence; never 127.0.0.1:<port>).
 function ChildGraphView({ nodes, baseId, full = false, selected, onSelect, lang = "en", bed, banner, status = "ready",
   onViewDags, onSetBase, onPickBase, host = "lab-linux", still, initialZoom }) {
   const shown = React.useMemo(() => childVisible(nodes, baseId, full), [nodes, baseId, full]);
@@ -236,7 +238,7 @@ function ChildGraphView({ nodes, baseId, full = false, selected, onSelect, lang 
   const edges = React.useMemo(() => childEdges(shown, g), [shown, g]);
   const wrap = (child) => <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", background: bed || "var(--tasty-dag-canvas-bg)" }}>{banner}{child}</div>;
   if (status === "loading") return wrap(<DagEmpty loading copy={{ title: gt("graph.loading", lang) }} />);
-  if (status === "unsupported") return wrap(<DagEmpty copy={{ icon: "remote", title: gt("graph.remote_unsupported", lang), body: gt("graph.remote_unsupported_hint", lang, host) }} />);
+  if (status === "unsupported") return wrap(<DagEmpty copy={{ icon: "remote", title: gt("graph.remote_unsupported", lang), body: host ? gt("graph.remote_unsupported_hint", lang, host) : gt("graph.remote_unsupported_hint_no_host", lang) }} />);
   if (status === "base-closed") return wrap(<DagEmpty copy={{ icon: "paneEmpty", title: gt("child_graph.empty.base_closed", lang), body: gt("child_graph.empty.base_closed_hint", lang) }}
     action={<Button size="sm" variant="secondary" onClick={onPickBase}>{gt("child_graph.empty.pick_base", lang)}</Button>} />);
   if (status === "empty" || shown.length <= 1) return wrap(<DagEmpty copy={{ icon: "gitBranch", title: gt("child_graph.empty.none", lang), body: gt("child_graph.empty.none_hint", lang) }} />);
