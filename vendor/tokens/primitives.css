@@ -130,7 +130,7 @@
   --tasty-size-168: 168px; /* DAG node card width */
   --tasty-size-180: 180px;
   --tasty-size-200: 200px;
-  --tasty-size-220: 220px; /* autocomplete dropdown default max-height (~7 rows) */
+  --tasty-size-220: 220px; /* dropdown-max-height (~7 rows) */
   --tasty-size-288: 288px;
   --tasty-size-300: 300px;
   --tasty-size-360: 360px; /* info modal max height (boot notice queue) */

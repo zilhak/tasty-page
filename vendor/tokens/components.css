@@ -216,7 +216,7 @@
   --tasty-multiselect-menu-shadow:      var(--tasty-shadow-popover);         /* popover lift */
   --tasty-multiselect-menu-padding:     var(--tasty-space-xs);               /* 4 inner ring around the rows */
   --tasty-multiselect-menu-gap:         var(--tasty-space-xs);               /* 4 trigger → menu gap */
-  --tasty-multiselect-menu-max-height:  var(--tasty-autocomplete-max-height);/* → 220 (~7 rows), then scrolls */
+  --tasty-multiselect-menu-max-height:  var(--tasty-dropdown-max-height);    /* → 220 (~7 rows), then scrolls */
   --tasty-multiselect-menu-max-width:   var(--tasty-size-320);               /* menu may outgrow the trigger up to this */
   --tasty-multiselect-row-height:       var(--tasty-menu-item-height);       /* → control-height 28 */
   --tasty-multiselect-row-padding-x:    var(--tasty-menu-item-padding-x);    /* → space-md 12, matches the trigger */
@@ -348,7 +348,7 @@
      (a step stronger); keyboard-active wins when a row is both. Overflow past
      --tasty-autocomplete-max-height scrolls inside the dropdown via the shared
      .tasty-scroll bar (neutral-400 thumb) — no new scrollbar token. */
-  --tasty-autocomplete-max-height:      var(--tasty-size-220);        /* default dropdown cap (~7 rows) — caller overrides via maxDropdownHeight */
+  --tasty-autocomplete-max-height:      var(--tasty-dropdown-max-height); /* default dropdown cap (~7 rows) — caller overrides via maxDropdownHeight */
   --tasty-autocomplete-menu-bg:         var(--tasty-menu-bg);         /* → surface-raised */
   --tasty-autocomplete-menu-border:     var(--tasty-menu-border);     /* → border-strong (2026-10-07) */
   --tasty-autocomplete-menu-radius:     var(--tasty-menu-radius);     /* → radius */
@@ -1518,7 +1518,7 @@
   --tasty-modhint-empty-row-min-height: var(--tasty-size-20);     /* empty-chord placeholder row */
   --tasty-modhint-row-gap:             var(--tasty-space-sm); /* 2026-11-05 ground-ink rules */
   --tasty-trigger-menu-min-width:      var(--tasty-field-width-lg);      /* Scripts "Add trigger…" menu — 200 */
-  --tasty-trigger-menu-max-height:     var(--tasty-autocomplete-max-height); /* → 220, then scrolls */
+  --tasty-trigger-menu-max-height:     var(--tasty-dropdown-max-height); /* → 220, then scrolls */
   --tasty-image-handle-size:           var(--tasty-size-6);        /* floating-selection corner handle; ON-SCALE; centred on the corner (offset = −size/2) */
   --tasty-image-popup-width:           var(--tasty-size-300);      /* New Image · Save As card */
   --tasty-image-popup-pad-top:         var(--tasty-space-md);      /* 12 */

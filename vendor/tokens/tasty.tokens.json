@@ -1268,6 +1268,10 @@
       "$type": "dimension",
       "$value": "{primitive.size-200}"
     },
+    "dropdown-max-height": {
+      "$type": "dimension",
+      "$value": "{primitive.size-220}"
+    },
     "border-width": {
       "$type": "dimension",
       "$value": "{primitive.size-1}"
@@ -2688,7 +2692,7 @@
     },
     "multiselect-menu-max-height": {
       "$type": "dimension",
-      "$value": "{component.autocomplete-max-height}"
+      "$value": "{semantic.dropdown-max-height}"
     },
     "multiselect-menu-max-width": {
       "$type": "dimension",
@@ -3072,7 +3076,7 @@
     },
     "autocomplete-max-height": {
       "$type": "dimension",
-      "$value": "{primitive.size-220}"
+      "$value": "{semantic.dropdown-max-height}"
     },
     "autocomplete-menu-bg": {
       "$type": "color",
@@ -5933,7 +5937,7 @@
     },
     "trigger-menu-max-height": {
       "$type": "dimension",
-      "$value": "{component.autocomplete-max-height}"
+      "$value": "{semantic.dropdown-max-height}"
     },
     "image-handle-size": {
       "$type": "dimension",
