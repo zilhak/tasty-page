@@ -136,11 +136,11 @@
 
 ### 렌더링 대비 검사
 
-`npm run check-contrast`는 빌드 결과를 띄워 갤러리 페이지와 사이트 페이지를 Mocha와 Latte로 렌더링한다. `--site-only`와 `--gallery-only`로 한쪽만 실행하고, `--page <키>`는 갤러리 한 페이지만 잰다. 코드는 `scripts/check-contrast.mjs`(갤러리), `contrast-site.mjs`(사이트), `contrast-page.mjs`(페이지 안에서 실행하는 측정)에 있다.
+`npm run check-contrast`는 빌드 결과를 띄워 갤러리 페이지와 사이트 페이지를 Mocha와 Latte로 렌더링한다. `--site-only`와 `--gallery-only`로 한쪽만 실행하고, `--page <키>`는 갤러리 한 페이지만 잰다. 갤러리 측정과 결과 집계는 [`scripts/check-contrast.mjs`](../../scripts/check-contrast.mjs)의 `measure()`와 `run()`에 있다. 사이트 측정은 `scripts/contrast-site.mjs`가 맡는다.
 
 갤러리 페이지와 토큰 페이지(`design/tokens/`)에서는 다음을 잰다. 토큰 페이지는 갤러리 수에 넣지 않고 `SPECIMEN_ROUTES`로 더한다. 기본 언어 경로에서 한 번만 잰다. 다른 언어 경로의 표본은 같은 소스라 다시 재지 않는다.
 
-- 고정 셀: `vendor/tokens/ground-ink-rules.json`의 행마다 부품의 잉크가 지정 토큰인지(채널당 1/255 허용), 합성 바탕에서 등급을 넘는지 본다. 행에 셀이 없거나 부품을 찾지 못해도 실패한다. 부품 위치는 `vendor/gallery/parts/part-map.js`에 있다.
+- 고정 셀은 `vendor/tokens/ground-ink-rules.json`의 계약에서 선택한 부품을 재고, 행별 측정 여부와 셀의 테마에서 기대하는 잉크 및 대비 등급을 확인한다. 부품 선택과 `data-parts` 검증, 기대 테마 판정은 [`scripts/contrast-page.mjs`](../../scripts/contrast-page.mjs)의 `pageLib()`에 있는 `selectParts()`, `validateParts()`, `expectedTheme()`가 맡는다. 부품 위치는 `vendor/gallery/parts/part-map.js`에 있다.
 - 나머지 글자·글리프·입력: 글자는 4.5, 글리프는 3을 기준으로 잰다. `data-audit-exempt`와 `data-ink-grade`의 규칙은 `vendor/RULES.md` 14절을 따르고, 쓰인 예외 id와 횟수를 출력한다. 완전히 투명한 요소만 화면에 없는 것으로 보며 그 밖의 opacity는 합성해 잰다.
 - SVG: 보이는 도형의 stroke와 fill을 각각 재고 도형 수를 출력한다. 도형 자신의 `stroke-opacity`·`fill-opacity`와 SVG 안 `<g>`를 포함한 모든 조상의 opacity를 곱한다. SVG 안 `<text>`는 fill을 글자 기준으로 잰다. 아무것도 칠하지 않는 SVG의 수도 출력한다. 바탕은 DOM 조상에서 읽으므로 같은 SVG 안에서 도형 아래 깔린 다른 도형은 바탕으로 보지 않는다. `<use>`의 대상 내부와 그라데이션·패턴 칠은 재지 않으며 그라데이션·패턴 칠의 수를 출력한다.
 - 비활성 조상(`:disabled`, `aria-disabled="true"`, `data-ink-why="disabled"`) 안: 등급 없는 비활성 토큰만 등급을 면제한다. 그 밖의 잉크는 일반 기준으로 잰다.

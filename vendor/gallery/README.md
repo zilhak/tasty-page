@@ -54,9 +54,11 @@ Every specimen has a stable `id` on its `Spec`, because the Rust gallery and the
 
 **`StateGrid` draws one contract: a row per host, a column per state, from the `components` rows of `tokens/ground-ink-rules.json`.** Column order is `rest`, `hover`, `press`, `focus`, `selected`, `selected+hover`, `selected+press`, `keyboard-active`, `disabled`, `invalid`, `readonly`. A state or host the contract does not have gets no column or row. An empty intersection stays blank. Each cell paints the host ground and carries `data-contract`, `data-state` and `data-host`, spelled as in the file.
 
+Fixed views can also place contract cells around rendered kit parts. Use `data-parts`, a JSON array of part names, to select the contract rows a cell measures. The general contrast scan skips the whole cell subtree, so wrap only the selected ink.
+
 **How a cell freezes.** `mirrorPseudoStates` copies each `:hover`, `:active`, `:focus`, `:focus-visible` and `:focus-within` rule right after its original, with the pseudo-class replaced by `[data-force~="hover"]`, `[data-force~="press"]` or `[data-force~="focus"]`. The specificity and the order stay, so a cell shows what the component's own CSS shows and nothing is restyled. `hover` is forced alone, `press` as `hover press` because a pressed control is also hovered, and `selected`, `disabled`, `invalid` and `readonly` come from the component's real props. Inside a cell, `pointer-events`, `transition` and `animation` are off, and the control takes `tabindex="-1"`.
 
-**The mirror has three limits.** A rule on a pseudo-element, such as `::-webkit-scrollbar-thumb:hover`, takes no attribute, so draw that part plainly. A component that holds hover in JS state takes a prop instead: `SearchableSelect` does, with `hoverIndex`. A part with no component, such as a title bar or a DAG node, is written with the contract's tokens directly.
+**The mirror has three limits.** A rule on a pseudo-element, such as `::-webkit-scrollbar-thumb:hover`, takes no attribute, so draw that part plainly. A component that holds hover in JS state takes a prop instead: `SearchableSelect` does, with `hoverIndex`. Some grid specimens, such as the title bar states and DAG nodes, draw directly with the contract's tokens. The Layouts title bar views mount the UI kits and carry their own close button cells.
 
 **Renderers.** `render(state, host)` for each contract lives in the owner page's folder. `coverage.md` names the owner of each contract.
 
@@ -86,15 +88,14 @@ The toggle goes. Specs are always on, because they are what the app is built fro
 
 ### The check
 
-The rules are in `RULES.md` section 14. `contract-audit.js` is a reference for the frozen-cell part and covers the Button family's parts. When this was decided, it ran on the same mock at 113 cells and 241 rows, with no mismatch in either theme against the sources, and the ratios it computed matched the file's to 0.03. Those figures are a record.
+The rules are in `RULES.md` section 14. `measure()` and `run()` implement the rendered gallery check in [`scripts/check-contrast.mjs`](../../scripts/check-contrast.mjs). The browser uses `selectParts()`, `validateParts()` and `expectedTheme()` from `pageLib()` in [`scripts/contrast-page.mjs`](../../scripts/contrast-page.mjs).
 
-| What | Rule |
+`contract-audit.js` is a historical reference for the Button family's frozen cells. The original mock run measured 113 cells and 241 rows in each theme, with zero token mismatches and ratios within 0.03 of those in the rule file.
+
+| What | Check |
 |---|---|
-| Every row of `components` | Has a frozen cell on some page, or the check fails |
-| A cell's part | Its ink equals the row's token within 1/255 per channel, because `color-mix` rounds |
-| A cell's part with a grade | Meets the grade |
-| Other text on the page | 4.5, composited through any opacity |
-| Other glyphs | 3 |
+| Contract cells | Part selection, row coverage, and each part's expected token and grade |
+| Text and glyphs outside cells | Contrast on the composited ground |
 | `data-audit-exempt="<id>"` | Skips its subtree. The id must be in `exceptions[].id` with `audit: "subtree"`. Each use is listed in the output |
 | `data-ink-grade="none" data-ink-why="disabled\|ornament"` | Outside a cell, marks an ink with no grade. It is not an exception, as `RULES.md` section 12 says |
 | Scope | `[data-gallery-page]`. Site header, sidebar and footer carry `data-site-chrome` and are not part of these rules |
@@ -114,7 +115,7 @@ The check walks ancestors for the ground, so a specimen paints its ground on an 
 | `shell.jsx` | `parts/specimen.jsx` (Section, Spec, Stage, Cluster, Meta, Note, Do, Dont). Page shell goes to the site layout |
 | `gallery.css` | `parts/specimen.css`, with the shell, top bar and nav rules removed |
 | `state-grid.jsx` | `parts/state-grid.jsx` |
-| `contract-audit.js` | The check. Not shipped |
+| `contract-audit.js` | Historical frozen-cell reference |
 | `foundations.jsx` | `foundations/index.jsx` |
 | `icons.jsx` | `icons/index.jsx` |
 | `rules.jsx` | `rules/index.jsx` |

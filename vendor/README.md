@@ -120,7 +120,7 @@ How Tasty writes. Match this voice in any copy you produce.
 
 **Gallery** (`gallery/`)
 
-- The catalog of the system, rendered by the site's gallery pages: foundations, icons, rules, location map, components, overlays (dialogs · windows · popups · banners · tutorial), layouts, the Task DAG surface, startup chrome, and plugin surfaces. One folder per page with `index.jsx`; shared parts in `parts/`. See [`gallery/README.md`](gallery/README.md), [`gallery/coverage.md`](gallery/coverage.md) and `gallery/contract-audit.js`.
+- The catalog of the system, rendered by the site's gallery pages: foundations, icons, rules, location map, components, overlays (dialogs · windows · popups · banners · tutorial), layouts, the Task DAG surface, startup chrome, and plugin surfaces. One folder per page with `index.jsx`; shared parts in `parts/`. See [`gallery/coverage.md`](gallery/coverage.md) and the gallery README for [the rendered contrast check](gallery/README.md#the-check).
 
 **Screens** (`screens/`) — Mocha screenshots of the app UI. There are no Latte counterparts.
 
