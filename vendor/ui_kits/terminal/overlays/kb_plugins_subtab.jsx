@@ -124,6 +124,13 @@ function KbpCommandRow({ cmd, value, draft, last, onChange, onReset }) {
 // What Save last wrote in the kit, by pluginId/cmdId. Keybinding import starts the same draft from it.
 const KBP_SAVED = { "clipboard-viewer/clear": { mode: "custom", keys: "ctrl+alt+x" } };
 
+// An override as one line: Custom as its combos ("Ctrl+Shift+H, Ctrl+Alt+V"), Inherit as @source, None as None.
+const kbpLabel = (ov) => {
+  if (!ov || ov.mode === "none") return "None";
+  if (ov.mode === "inherit") return "@" + ov.source;
+  return ov.keys.split(",").map((c) => c.trim().split("+").map((k) => k.charAt(0).toUpperCase() + k.slice(1)).join("+")).join(", ");
+};
+
 // The plugin overrides' saved values and draft, and the Save step that makes the draft the saved values. Every
 // subtab that edits the draft calls it, so Save moves an edit even when the Plugins subtab was never opened.
 function useKbpDrafts(saved0 = KBP_SAVED, seedDrafts = null) {
@@ -157,4 +164,4 @@ function KbPluginsSubtab({ plugins = KBP_PLUGINS, saved: saved0 = KBP_SAVED, see
   );
 }
 
-export { KbPluginsSubtab, KBP_PLUGINS, KBP_SAVED, useKbpDrafts };
+export { KbPluginsSubtab, KBP_PLUGINS, KBP_SAVED, useKbpDrafts, kbpLabel };
