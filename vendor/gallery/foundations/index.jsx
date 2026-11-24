@@ -581,10 +581,10 @@ function Foundations() {
           when={<>Radius is <b>always 4px</b>, with 2px for tiny inner chips. Borders are <b>always 1px</b>. Motion is short UI feedback only. <b>Terminal content never animates (0ms, always).</b></>}>
           <Stage variant="solo" style={{ gap: 26 }}>
             <Cluster label="--tasty-radius · 4px (default)">
-              <div style={{ width: 88, height: 48, background: "var(--tasty-surface-raised)", border: "1px solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }} />
+              <div style={{ width: 88, height: 48, background: "var(--tasty-surface-raised)", border: "1px solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)" }} />
             </Cluster>
             <Cluster label="--tasty-radius-sm · 2px (inner)">
-              <div style={{ width: 88, height: 48, background: "var(--tasty-surface-raised)", border: "1px solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius-sm)" }} />
+              <div style={{ width: 88, height: 48, background: "var(--tasty-surface-raised)", border: "1px solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius-sm)" }} />
             </Cluster>
             <Cluster label="--tasty-border-strong · 1px">
               <div style={{ width: 88, height: 48, background: "var(--tasty-surface-raised)", border: "1px solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)" }} />
