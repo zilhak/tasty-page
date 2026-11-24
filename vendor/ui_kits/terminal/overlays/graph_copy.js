@@ -61,7 +61,7 @@ export const GRAPH_COPY = {
   "child_graph.reconnect": {"en": "Reconnect", "ko": "재연결", "ja": "再接続する", "zh-Hans": "重新连接"},
   "child_graph.reconnect_tooltip": {"en": "Reattach to surface {} using the same attach profile {}.", "ko": "서피스 {}에 동일한 Attach 프로필 {}을(를) 사용해 다시 연결합니다.", "ja": "サーフェス {} に同じアタッチプロファイル {} で再アタッチします。", "zh-Hans": "使用相同的附加配置档重新附加到 Surface {}，配置档为 {}。"},
   "child_graph.reconnect_tooltip_no_host": {"en": "Reattach to surface {} using the same attach profile.", "ko": "서피스 {}에 동일한 Attach 프로필을 사용해 다시 연결합니다.", "ja": "サーフェス {} に同じアタッチプロファイルで再アタッチします。", "zh-Hans": "使用相同的附加配置档重新附加到 Surface {}。"},
-  "child_graph.reconnect_unavailable": {"en": "Reconnect is unavailable because this connection did not use a saved attach profile.", "ko": "저장된 Attach 프로필로 연결한 것이 아니어서 재연결할 수 없습니다.", "ja": "保存済みのアタッチプロファイルで接続していないため、再接続できません。", "zh-Hans": "此连接未使用已保存的附加配置档，无法重新连接。"},
+  "child_graph.reconnect_unavailable": {"en": "Reconnect is unavailable because this mirror has no saved remote workspace row.", "ko": "이 미러에 해당하는 저장된 원격 워크스페이스 행이 없어 재연결할 수 없습니다.", "ja": "このミラーに対応する保存済みのリモートワークスペース行がないため、再接続できません。", "zh-Hans": "此镜像没有已保存的远程工作区行，无法重新连接。"},
   "child_graph.reconnecting": {"en": "Reconnecting…", "ko": "재연결 중…", "ja": "再接続中…", "zh-Hans": "正在重新连接…"},
   "child_graph.reconnect_failed.unreachable": {"en": "Reconnect failed. Tasty on {} could not be reached.", "ko": "재연결에 실패했습니다. {}의 Tasty에 연결할 수 없습니다.", "ja": "再接続に失敗しました。{} の Tasty に接続できませんでした。", "zh-Hans": "重新连接失败。无法连接到 {} 上的 Tasty。"},
   "child_graph.reconnect_failed.unreachable_no_host": {"en": "Reconnect failed. Remote Tasty could not be reached.", "ko": "재연결에 실패했습니다. 원격 Tasty에 연결할 수 없습니다.", "ja": "再接続に失敗しました。リモートの Tasty に接続できませんでした。", "zh-Hans": "重新连接失败。无法连接到远程 Tasty。"},

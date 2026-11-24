@@ -389,17 +389,19 @@ function ChildGraphView({ nodes, baseId, full = false, selected, onSelect, lang 
 // keeps its cards with the graph.remote_disconnected strip), a resync reattach still in progress
 // (nothing of its own; it ends as the graph was or as "lost"), and a workspace the server closed (the
 // app's own toast; the base surface is closed, so the surface form shows its base-closed state, 4-4).
-// The surface shows this strip over the "pick a base surface" state. Reconnect attaches again with
-// the same saved profile to the same remote surface:
+// The surface shows this strip over the "pick a base surface" state. Reconnect attaches again through
+// the saved remote workspace row (its profile) to the same remote surface:
 //   state "idle" → Reconnect · "trying" → disabled Reconnecting… with a spinner ·
 //   "failed" → the reason sentence (warning) and Reconnect again (13-4 a). reason:
 //   "unreachable" (could not reach Tasty there) · "surface_gone" (closed there, or moved to another
 //   workspace there, 13-3 a) · "held" (another client holds it, 13-5 a: the reason only, no force
 //   detach button or prompt).
-// saved = the attach came from a saved row. With none (--ssh, --target-port, a hand-installed
-// attach) there is nothing to reattach with — the app's reconnect state is keyed by the saved row —
-// so Reconnect stays in place, disabled, its tooltip child_graph.reconnect_unavailable, and trying /
-// failed never occur.
+// saved = the mirror belongs to a saved remote workspace row. With none (--ssh, --target-port, a
+// hand-installed attach) there is nothing to reattach with — the app's reconnect state is keyed by the
+// saved row — so Reconnect stays in place, disabled, its tooltip child_graph.reconnect_unavailable, and
+// trying / failed never occur. The row, not the profile name, decides: a hand-installed attach keeps its
+// profile name with no saved row (the host is named, Reconnect still disabled), and a row saved with an
+// empty name has Reconnect with the no-host sentences.
 // host follows the host text rule: the attach profile name; empty (no profile name) takes the
 // _no_host sentence, which leaves the host out, and an empty saved profile name takes
 // reconnect_tooltip_no_host. Never 127.0.0.1:<port>. A proposal: the app has no banner yet.
