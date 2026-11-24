@@ -258,22 +258,53 @@ function ChildGraphView({ nodes, baseId, full = false, selected, onSelect, lang 
   );
 }
 
-// ── Mirror banner (user decision 2026-11-10) ────────────────────────
-// A graph whose base is a mirrored surface loses it when the mirror is detached (cause "detached",
-// neutral) or the connection drops (cause "lost", warning). The surface shows this strip over the
-// "pick a base surface" state. Reconnect attaches again with the same profile to the same remote surface:
-// state "idle" → Reconnect · "trying" → disabled Reconnecting… with a spinner · "failed" → the failure
-// sentence (warning) and Reconnect again. On success the graph comes back with that base.
-// Its form for an attach with no profile name (empty host) is decided with the graph view
-// banner redesign; this banner is a proposal the app does not have yet.
-function MirrorBanner({ cause = "detached", state = "idle", host = "lab-linux", name = "worker-a", profile = "lab-linux", lang = "en", onReconnect }) {
-  const text = state === "failed" ? gt("child_graph.reconnect_failed", lang, host)
-    : gt(cause === "lost" ? "child_graph.mirror_lost" : "child_graph.mirror_detached", lang, host, name);
-  const tip = gt("child_graph.reconnect_tooltip", lang, name, profile);
-  const action = state === "trying"
-    ? <Button size="sm" variant="secondary" disabled leadingIcon={<Spinner size={12} />}>{gt("child_graph.reconnecting", lang)}</Button>
-    : <Button size="sm" variant="secondary" title={tip} onClick={onReconnect}>{gt("child_graph.reconnect", lang)}</Button>;
-  return <GraphStrip tone={cause === "lost" || state === "failed" ? "warning" : "info"} action={action}>{text}</GraphStrip>;
+// ── Mirror banner (user decisions 2026-11-10, 13-2 to 13-5 of 2026-11-11) ──
+// The banner is for a base that is GONE here: the mirror was detached (cause "detached", the user's
+// act, neutral band) or its mirror workspace was closed after the connection dropped (cause "lost",
+// warning band). A transport drop that keeps the mirror is not this banner: that is the
+// graph.remote_disconnected strip over the kept graph. The surface shows this strip over the
+// "pick a base surface" state. Reconnect attaches again with the same saved profile to the same
+// remote surface:
+//   state "idle" → Reconnect · "trying" → disabled Reconnecting… with a spinner ·
+//   "failed" → the reason sentence (warning) and Reconnect again (13-4 a). reason:
+//   "unreachable" (could not reach Tasty there) · "surface_gone" (closed there, or moved to another
+//   workspace there, 13-3 a) · "held" (another client holds it, 13-5 a: the reason only, no force
+//   detach button or prompt).
+// saved = the attach came from a saved row. With none (--ssh, --target-port, a hand-installed
+// attach) there is nothing to reattach with: Reconnect stays in place, disabled, its tooltip
+// child_graph.reconnect_unavailable, and trying / failed never occur.
+// host follows the host text rule: the attach profile name; empty (no profile name) takes the
+// _no_host sentence, which leaves the host out, and an empty saved profile name takes
+// reconnect_tooltip_no_host. Never 127.0.0.1:<port>. A proposal: the app has no banner yet.
+function MirrorBanner({ cause = "detached", state = "idle", reason = "unreachable", host = "lab-linux", name = "worker-a", profile = "lab-linux",
+  saved = true, lang = "en", onReconnect }) {
+  const nh = host ? "" : "_no_host";
+  const H = host ? [host] : [];
+  const failed = saved && state === "failed";
+  const text = failed
+    ? (reason === "unreachable" ? gt(`child_graph.reconnect_failed.unreachable${nh}`, lang, ...H) : gt(`child_graph.reconnect_failed.${reason}${nh}`, lang, name, ...H))
+    : gt((cause === "lost" ? "child_graph.mirror_lost" : "child_graph.mirror_detached") + nh, lang, ...H, name);
+  const tip = profile ? gt("child_graph.reconnect_tooltip", lang, name, profile) : gt("child_graph.reconnect_tooltip_no_host", lang, name);
+  const action = !saved
+    ? <span title={gt("child_graph.reconnect_unavailable", lang)} style={{ display: "inline-flex" }}><Button size="sm" variant="secondary" disabled>{gt("child_graph.reconnect", lang)}</Button></span>
+    : state === "trying"
+      ? <Button size="sm" variant="secondary" disabled leadingIcon={<Spinner size={12} />}>{gt("child_graph.reconnecting", lang)}</Button>
+      : <Button size="sm" variant="secondary" title={tip} onClick={onReconnect}>{gt("child_graph.reconnect", lang)}</Button>;
+  return <GraphStrip tone={cause === "lost" || failed ? "warning" : "info"} action={action}>{text}</GraphStrip>;
+}
+
+// ── Remote restarted notice (user decision 13-2 a) ──────────────────
+// Reconnect found Tasty on the remote restarted (another instance) with the same surface id
+// restored: the banner goes, the graph comes back on that base, and this info strip takes the
+// banner's place at the canvas top, so nothing moves. It stays until dismissed (×), another base
+// is picked, or the base is lost again; it is not timed, since the graph under it may have
+// changed with the restart and the user should be able to read why.
+function RestartNotice({ host = "lab-linux", name = "worker-a", lang = "en", onDismiss }) {
+  const text = host ? gt("child_graph.remote_restarted", lang, host, name) : gt("child_graph.remote_restarted_no_host", lang, name);
+  const dismiss = gt("child_graph.notice_dismiss", lang);
+  return (
+    <GraphStrip tone="info" action={<IconButton size="sm" aria-label={dismiss} title={dismiss} onClick={onDismiss}><Icon name="close" /></IconButton>}>{text}</GraphStrip>
+  );
 }
 
 // ── Push screens shared by both frames ──────────────────────────────
@@ -440,6 +471,6 @@ function ChildGraphSettings({ lang = "en", checked = false }) {
   );
 }
 
-export { ChildNode, ChildDetail, ChildGraphView, MirrorBanner, ChildGraphWindow, ChildGraphSurface, ChildGraphSettings, nameOf,
+export { ChildNode, ChildDetail, ChildGraphView, MirrorBanner, RestartNotice, ChildGraphWindow, ChildGraphSurface, ChildGraphSettings, nameOf,
   CHILD_SMALL, CHILD_SMALL_BASE, CHILD_LARGE, CHILD_LARGE_BASE, CHILD_MIRROR, CHILD_MIRROR_BASE, CHILD_MIRROR_LOST,
   CHILD_CROSS, CHILD_EXTERNAL };

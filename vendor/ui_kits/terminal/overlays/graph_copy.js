@@ -63,7 +63,6 @@ export const GRAPH_COPY = {
   "child_graph.reconnect_tooltip_no_host": {"en": "Reattach to surface {} using the same attach profile.", "ko": "서피스 {}에 동일한 Attach 프로필을 사용해 다시 연결합니다.", "ja": "サーフェス {} に同じアタッチプロファイルで再アタッチします。", "zh-Hans": "使用相同的附加配置档重新附加到 Surface {}。"},
   "child_graph.reconnect_unavailable": {"en": "Reconnect is unavailable because this connection did not use a saved attach profile.", "ko": "저장된 Attach 프로필로 연결한 것이 아니어서 재연결할 수 없습니다.", "ja": "保存済みのアタッチプロファイルで接続していないため、再接続できません。", "zh-Hans": "此连接未使用已保存的附加配置档，无法重新连接。"},
   "child_graph.reconnecting": {"en": "Reconnecting…", "ko": "재연결 중…", "ja": "再接続中…", "zh-Hans": "正在重新连接…"},
-  "child_graph.reconnect_failed": {"en": "Failed to reconnect to {}.", "ko": "{} 재연결에 실패했습니다.", "ja": "{} への再接続に失敗しました。", "zh-Hans": "重新连接到 {} 失败。"},
   "child_graph.reconnect_failed.unreachable": {"en": "Reconnect failed. Tasty on {} could not be reached.", "ko": "재연결에 실패했습니다. {}의 Tasty에 연결할 수 없습니다.", "ja": "再接続に失敗しました。{} の Tasty に接続できませんでした。", "zh-Hans": "重新连接失败。无法连接到 {} 上的 Tasty。"},
   "child_graph.reconnect_failed.unreachable_no_host": {"en": "Reconnect failed. Remote Tasty could not be reached.", "ko": "재연결에 실패했습니다. 원격 Tasty에 연결할 수 없습니다.", "ja": "再接続に失敗しました。リモートの Tasty に接続できませんでした。", "zh-Hans": "重新连接失败。无法连接到远程 Tasty。"},
   "child_graph.reconnect_failed.surface_gone": {"en": "Reconnect failed. Base surface {} is no longer in its workspace on {}.", "ko": "재연결에 실패했습니다. 기준 서피스 {}은(는) {}의 기존 워크스페이스에 없습니다.", "ja": "再接続に失敗しました。基準サーフェス {} は {} 上の元のワークスペースにありません。", "zh-Hans": "重新连接失败。基准 Surface {} 已不在 {} 上的原工作区中。"},
