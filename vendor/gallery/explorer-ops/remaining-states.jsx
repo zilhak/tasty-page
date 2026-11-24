@@ -21,8 +21,15 @@ function ZBrokenMenu({ tip = false }) {
 }
 
 const zMenu = { width: "var(--tasty-size-240)", background: "var(--tasty-menu-bg)", border: "var(--tasty-border-width) solid var(--tasty-menu-border)", borderRadius: "var(--tasty-menu-radius)", padding: "var(--tasty-space-xs)", boxShadow: "var(--tasty-shadow-popover)" };
+// The keyboard ring is a layer after the row, as the app paints it after the list body: it sits on top of a
+// selected row's opaque fill instead of under it. Inset, so it never moves layout.
 function ZCursor({ children, on = true }) {
-  return <div style={{ boxShadow: on ? "inset 0 0 0 var(--tasty-explorer-cursor-ring-width) var(--tasty-explorer-cursor-ring)" : "none", borderRadius: "var(--tasty-radius-sm)" }}>{children}</div>;
+  return (
+    <div style={{ position: "relative" }}>
+      {children}
+      {on && <span aria-hidden="true" style={{ position: "absolute", inset: 0, pointerEvents: "none", boxShadow: "inset 0 0 0 var(--tasty-explorer-cursor-ring-width) var(--tasty-explorer-cursor-ring)", borderRadius: "var(--tasty-radius-sm)" }} />}
+    </div>
+  );
 }
 
 function ZMarquee() {
@@ -75,8 +82,8 @@ function RemainingSection() {
           )} />
         </ZStage>
         <ZMeta
-          specs={[["current item", "1px inset ring · explorer-cursor-ring → border-focus · keyboard only · over selection"], ["marquee", "fill explorer-marquee-bg (tint-fill 0.12) · 1px explorer-marquee-border (tint-border 0.36) · no radius"], ["auto-scroll", "explorer-autoscroll-zone 24 at top / bottom · speed grows toward the edge · no indicator"], ["samples", "Mocha = keyboard ring on a selected row · Latte = drag-select"]]}
-          tokens={[{ tok: "--tasty-explorer-cursor-ring", use: "→ border-focus", color: "var(--tasty-explorer-cursor-ring)" }, { tok: "--tasty-explorer-cursor-ring-width", use: "→ border-width 1" }, { tok: "--tasty-explorer-marquee-bg", use: "fill", color: "var(--tasty-explorer-marquee-bg)" }, { tok: "--tasty-explorer-marquee-border", use: "edge", color: "var(--tasty-explorer-marquee-border)" }, { tok: "--tasty-explorer-autoscroll-zone", use: "→ size-24" }]} />
+          specs={[["current item", "1px inset ring · explorer-cursor-ring → accent-primary-raised · keyboard only · painted after the row, over the selection fill (3.17 · 3.84 on surface-active)"], ["marquee", "fill explorer-marquee-bg (tint-fill 0.12) · 1px explorer-marquee-border (tint-border 0.36) · no radius"], ["auto-scroll", "explorer-autoscroll-zone 24 at top / bottom · speed grows toward the edge · no indicator"], ["samples", "Mocha = keyboard ring on a selected row · Latte = drag-select"]]}
+          tokens={[{ tok: "--tasty-explorer-cursor-ring", use: "→ accent-primary-raised", color: "var(--tasty-explorer-cursor-ring)" }, { tok: "--tasty-explorer-cursor-ring-width", use: "→ border-width 1" }, { tok: "--tasty-explorer-marquee-bg", use: "fill", color: "var(--tasty-explorer-marquee-bg)" }, { tok: "--tasty-explorer-marquee-border", use: "edge", color: "var(--tasty-explorer-marquee-border)" }, { tok: "--tasty-explorer-autoscroll-zone", use: "→ size-24" }]} />
       </ZSpec>
 
       <ZSpec id="hidden-files-show-in-enclosing-folder-undo-redo" title="Hidden files · show in enclosing folder · undo / redo"
