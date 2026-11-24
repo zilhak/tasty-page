@@ -16,7 +16,10 @@ from gen_tokens_json import collect, tier_of
 
 THEMES = ("mocha", "latte")
 KINDS = {"ground", "foreground", "border", "exception", "non-color"}
-ALIAS = re.compile(r"(?i:var)\(\s*--tasty-([\w-]+)\s*\)")
+CSS_STRING = r"""(?:'(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*")"""
+VAR_OR_STRING = re.compile(rf"{CSS_STRING}|(?<![\w-])(?i:var)\(")
+PAREN_OR_STRING = re.compile(rf"{CSS_STRING}|[()]")
+TOKEN_NAME = re.compile(r"--tasty-([\w-]+)")
 NUMBER = r"[+-]?(?:[0-9]*\.)?[0-9]+(?:e[+-]?[0-9]+)?"
 CSS_HEX = re.compile(r"#(?:[0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})", re.I)
 RULE_HEX = re.compile(rf"#([0-9a-f]{{6}})(?:([0-9a-f]{{2}})|@({NUMBER}))?", re.I)
@@ -58,20 +61,58 @@ COLOR_KEYWORDS = set("""
 """.split())
 
 
-def resolve_aliases(value, values, *, embedded=False, stack=()):
-    def resolve(match):
-        name = match[1]
-        if name in stack:
-            raise ValueError(f"cyclic alias: {match[0]}")
-        if name not in values:
-            raise ValueError(f"alias of a missing token: {match[0]}")
-        return resolve_aliases(values[name], values, embedded=embedded, stack=(*stack, name))
+def var_end(value, start):
+    depth = 1
+    for match in PAREN_OR_STRING.finditer(value, start):
+        if match[0] == "(":
+            depth += 1
+        elif match[0] == ")":
+            depth -= 1
+            if depth == 0:
+                return match.start()
+    raise ValueError(f"unclosed var() in {value!r}")
 
-    if embedded:
-        return ALIAS.sub(resolve, value)
-    if match := ALIAS.fullmatch(value):
-        return resolve(match)
-    return value
+
+def resolve_aliases(value, values, stack):
+    """Substitute token references. None represents a guaranteed-invalid value."""
+    parts = []
+    cursor = 0
+    unresolved = False
+    while match := VAR_OR_STRING.search(value, cursor):
+        if match[0][0] in "\"'":
+            parts.append(value[cursor:match.end()])
+            cursor = match.end()
+            continue
+        end = var_end(value, match.end())
+        reference, comma, fallback = value[match.end():end].partition(",")
+        token = TOKEN_NAME.fullmatch(reference.strip())
+        if not token:
+            raise ValueError(f"unsupported token reference: {reference.strip()!r}")
+        name = token[1]
+        if name in stack:
+            raise ValueError(f"cyclic alias: --tasty-{name}")
+        # References in a fallback also participate in cycle detection.
+        replacement = resolve_aliases(fallback, values, stack) if comma else None
+        if name in values:
+            target = values[name]
+            keyword = target.lower()
+            if keyword in {"inherit", "unset", "revert", "revert-layer"}:
+                raise ValueError(f"cannot resolve --tasty-{name} with CSS-wide value {target!r}")
+            if keyword != "initial":
+                primary = resolve_aliases(target, values, (*stack, name))
+                if primary is not None:
+                    replacement = primary
+        parts.append(value[cursor:match.start()])
+        if replacement is None:
+            unresolved = True
+        else:
+            # A var() replacement cannot merge its tokens with adjacent tokens.
+            parts.append(f" {replacement} ")
+        cursor = end + 1
+    if unresolved:
+        return None
+    parts.append(value[cursor:])
+    return "".join(parts)
 
 
 def split_top_level(value, separator):
@@ -229,7 +270,11 @@ def verify_value(name, theme, values, is_color_kind, expected):
     if is_color_kind and not has_expected:
         errors.append(f"R3 {label}: missing rules color")
     try:
-        value = resolve_aliases(values[name], values)
+        raw = values[name]
+        resolved = resolve_aliases(raw, values, (name,))
+        if resolved is None:
+            raise ValueError(f"unresolved var() in {raw!r}")
+        value = re.sub(r"\s+", " ", resolved).strip()
     except ValueError as error:
         rule = "R3" if is_color_kind else "R4"
         return [*errors, f"{rule} {label}: {error}"]
@@ -239,7 +284,7 @@ def verify_value(name, theme, values, is_color_kind, expected):
         return [*errors, f"R4 {label}: expected {requirement}, CSS has {value!r}"]
     if is_color_kind:
         try:
-            color = evaluate_color(resolve_aliases(value, values, embedded=True))
+            color = evaluate_color(value)
             if has_expected and not compare_color(color, expected[theme]):
                 digits = "".join(f"{half_up(channel):02x}" for channel in color[:3])
                 errors.append(f"R3 {label}: rules {expected[theme]!r}, CSS evaluates to #{digits}@{color[3]}")

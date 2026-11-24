@@ -93,10 +93,13 @@ class VerifyGroundInkTokens(unittest.TestCase):
         self.assertTrue(summary.endswith(f"errors {len(errors)}"), summary)
         self.assertCountEqual([line.strip() for line in reported], errors)
 
-    def test_valid_tokens(self):
+    def assert_success(self):
         result = self.run_verifier()
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertEqual(result.stdout.strip(), "ground-ink tokens: CSS 12, rules 12, errors 0")
+
+    def test_valid_tokens(self):
+        self.assert_success()
 
     def test_r1_checks_names_in_both_directions_and_tier(self):
         self.entries.remove(self.entry("size"))
@@ -146,6 +149,38 @@ class VerifyGroundInkTokens(unittest.TestCase):
             "R4 size [latte]: expected a non-color value, CSS has '#abcdef'",
             "R4 shadow [mocha]: expected a single color, CSS has '0 6px 18px rgba(0, 0, 0, .5)'",
             "R4 shadow [latte]: expected a single color, CSS has '0 6px 18px rgba(0, 0, 0, .5)'",
+        )
+
+    def test_r4_var_uses_the_primary_value_in_each_theme(self):
+        self.css["primitives"] = self.css["primitives"].replace(
+            "8px", "var(--tasty-alpha, #000)"
+        ).replace("12px", "var(--tasty-paint, #000)")
+        self.assert_failure("R4 size [latte]: expected a non-color value, CSS has '#abcdef'")
+
+    def test_var_resolves_nested_and_embedded_fallbacks(self):
+        self.css["primitives"] = self.css["primitives"].replace(
+            "12px", "var(--tasty-missing, var(--tasty-also-missing, 12px))"
+        )
+        self.css["semantic"] = self.css["semantic"].replace(
+            "var(--tasty-paint)", "var(--tasty-missing, var(--tasty-paint, #000))"
+        ).replace(
+            "30%, transparent", "30%, var(--tasty-missing, rgba(0, 0, 0, 0))"
+        )
+        self.assert_success()
+
+    def test_r4_classifies_a_value_after_empty_fallback_substitution(self):
+        self.css["primitives"] = self.css["primitives"].replace(
+            "12px", "#abcdef var(--tasty-missing,)"
+        )
+        self.assert_failure("R4 size [latte]: expected a non-color value, CSS has '#abcdef'")
+
+    def test_r4_fails_on_unresolved_and_cyclic_variables(self):
+        self.css["primitives"] = self.css["primitives"].replace(
+            "8px", "var(--tasty-missing, var(--tasty-also-missing))"
+        ).replace("12px", "var(--tasty-paint, var(--tasty-size))")
+        self.assert_failure(
+            "R4 size [mocha]: unresolved var() in 'var(--tasty-missing, var(--tasty-also-missing))'",
+            "R4 size [latte]: cyclic alias: --tasty-size",
         )
 
     def test_r4_recognizes_unsupported_colors(self):
