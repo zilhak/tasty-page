@@ -554,7 +554,10 @@ function ChildGraphWindow({ nodes = CHILD_SMALL, baseId = CHILD_SMALL_BASE, lang
     if (wasFolded.current && !folded && rootRef.current) rootRef.current.focus();
     wasFolded.current = folded;
   }, [folded]);
-  useEscDeselect(flow, sel, setSel, collapse ? onCollapse : onClose, !still && push == null && !folded && !gone, () => focused.current);
+  useEscDeselect(flow, sel, setSel, collapse ? onCollapse : onClose, !still && push == null && !folded && !gone,
+    // checked when Esc arrives: the frame must still be on the page, since the effects that drop the listener
+    // and the focus flag run only after the commit that removed it
+    () => focused.current && !!rootRef.current && rootRef.current.isConnected);
   const screens = FlowScreens({ flow, lang, still });
   if (gone) return null;
   return (
