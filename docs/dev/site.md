@@ -176,6 +176,7 @@
 - `npm run build`와 `npm run check-contrast`(위 "렌더링 대비 검사").
 - 토큰 JSON: `scripts/design-tokens/gen_tokens_json.py`로 `vendor/tokens/tasty.tokens.json`을 다시 만들어 차이가 없는지,
   `scripts/design-tokens/verify_tokens_json.py`로 토큰 CSS와 대조한다. JSON은 손으로 고치지 않는다.
+- `scripts/design-tokens/verify_ground_ink_tokens.py`로 `vendor/tokens/ground-ink-rules.json`의 토큰 목록을 토큰 CSS와 대조한다.
 - `npm run check-tokens-copy`: `vendor/tokens.css`가 되풀이하는 1단계 값이 `vendor/tokens/primitives.css`와 같은지 본다.
 - `npm run check-icons`: `vendor/icons/*.svg`와 `vendor/components/core/Icon.jsx`가 같은 글리프를 그리는지 원문으로 비교한다.
 

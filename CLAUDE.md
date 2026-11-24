@@ -55,6 +55,7 @@ Tasty와 같은 `develop`·`release`·`main` 세 브랜치를 쓴다.
 - 계약 행을 더하면 페이지의 `states.jsx`에 계약 이름을, 부품 위치가 필요하면 `parts/part-map.js`에 넣는다.
 - 숨은 상태는 클릭하지 않아도 보이도록 프레임으로 둔다. `data-audit-exempt`와 `data-ink-grade`는 `vendor/RULES.md` 14절대로 표시한다.
 - 디자인을 바꾼 뒤 `npm run build`, `npm run check-contrast`, `npm run check-icons`, `npm run check-tokens-copy`를 통과시킨다.
+- `scripts/design-tokens/verify_ground_ink_tokens.py`로 바탕·잉크 규칙의 토큰 목록을 토큰 CSS와 대조한다.
 
 ## 기획서
 

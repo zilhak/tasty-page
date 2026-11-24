@@ -2395,7 +2395,7 @@ When a new UI needs a cell that is forbidden or missing:
 
 1. Do not pick a value in the widget. Ask for the change with a design request.
 2. The designer adds the ground, role or cell. New values are new tokens. A token is never renamed or removed.
-3. The designer updates `ground-ink-rules.json` in the same commit as the tokens. Every new token gets a class.
+3. The designer updates `ground-ink-rules.json` in the same commit as the tokens. Every new token gets a class. Run `scripts/design-tokens/verify_ground_ink_tokens.py` to check the rules' token list against the token CSS.
 4. Recompute every cell in both themes. Below grade or unclassified means it is not finished.
 5. Add the case to `gallery/rules/index.jsx` if it is a new ground, and to `gallery/rules-map/index.jsx` if it is a new nesting.
 6. Record it in the commit message.

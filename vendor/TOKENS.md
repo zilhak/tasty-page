@@ -101,6 +101,7 @@ Sizes, type, and motion are theme-invariant and never repeated.
 2. **New role?** Add a semantic token in `semantic.css` as `var(--tasty-<primitive>)`. Never a literal.
 3. **New component part?** Add a component token in `components.css` as `var(--tasty-<semantic>)`.
 4. Regenerate `tokens/tasty.tokens.json` with `scripts/design-tokens/gen_tokens_json.py`, then run `scripts/design-tokens/verify_tokens_json.py` and confirm the token count rises and it reports no errors. Non-color/size tokens (durations, easings, unitless multipliers) need a trailing `/* @kind other */`.
+5. Run `scripts/design-tokens/verify_ground_ink_tokens.py` to check the ground-ink rules' token list against the token CSS.
 
 Never skip a tier. A component token that points straight at a primitive (or a literal) breaks the contract — the next person who re-themes via the semantic layer will be surprised it didn't follow.
 
