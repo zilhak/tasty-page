@@ -190,18 +190,21 @@ function IePickerPopup({ mode, onClose, onPick }) {
   );
 }
 
-// `variant` drives the specimen states: "ready" (entry), "detail", "failed", "exportfailed".
-function KbImportExportSubtab({ variant = "ready", onFlash, failLine = 1, failCause = "readonly", osError = "os error 28: No space left on device" }) {
+// `variant` drives the specimen states: "ready" (entry), "detail", "failed", "exportfailed". Gallery frames outside a
+// SettingsWindow seed the rest: seedBindings (keybindings.bindings already applied), seedSel (row selection by
+// group id + action, false = unselected) and changedOnly (the filter's first value).
+function KbImportExportSubtab({ variant = "ready", onFlash, failLine = 1, failCause = "readonly", osError = "os error 28: No space left on device",
+                                seedBindings = null, seedSel = null, changedOnly: changedOnly0 = true }) {
   const [view, setView] = React.useState(variant === "ready" || variant === "exportfailed" ? "list" : "detail");
   const [picker, setPicker] = React.useState(null);
-  const [changedOnly, setChangedOnly] = React.useState(true);
+  const [changedOnly, setChangedOnly] = React.useState(changedOnly0);
   const [collapsed, setCollapsed] = React.useState({});
-  const [sel, setSel] = React.useState({});
+  const [sel, setSel] = React.useState(seedSel || {});
   const [failed, setFailed] = React.useState(variant === "failed");
   const [exportError, setExportError] = React.useState(variant === "exportfailed" ? "~/tasty/" + IE_FILE : null);
   // The window's keybinding draft, shared with the other Keybindings subtabs. Outside a SettingsWindow (a gallery
   // specimen on its own) it is the subtab's own state.
-  const [bindings, setBindings] = useDraft("keybindings.bindings", {});
+  const [bindings, setBindings] = useDraft("keybindings.bindings", seedBindings || {});
   const [pluginDrafts, setPluginDrafts] = useDraft("keybindings.plugins.drafts", KBP_SAVED);
   const pluginKey = (r) => r.plugin + "/" + r.cmd;
   const cur = (g, r) => {

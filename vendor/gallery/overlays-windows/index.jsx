@@ -21,6 +21,7 @@ import { Section as PresetEditor_Section } from "./preset-editor.jsx";
 import { CaptureRegionSection } from "./capture-region.jsx";
 import { SettingsTitleBarLinuxSpec } from "./settings-titlebar-linux.jsx";
 import { Section, Spec, Stage, Meta, Note, Do, Dont, Views, View } from "../parts/specimen.jsx";
+import { KbImportExportSubtab as Kit_KbImportExportSubtab, IE_GROUPS as KIT_IE_GROUPS } from "../../ui_kits/terminal/overlays/kb_import_export.jsx";
 
 // Tasty Gallery — Overlays · Windows (large modal surfaces)
 // One of the five Overlays sub-pages (dialogs · windows · popups · banners · tutorial). Frame components are shared from
@@ -343,6 +344,19 @@ function IeGrid() {
     </div>
   );
 }
+
+// The kit's import preview in the states the demo above does not show, rendered by the kit itself.
+const IE_NONE_SELECTED = Object.fromEntries(KIT_IE_GROUPS.flatMap((g) => g.rows.map((r) => [g.id + r.action, false])));
+const IE_FRAMES = [
+  { name: "import-applied-changed-only", label: "After Apply of Command palette: it leaves Changed only",
+    props: { seedBindings: { "Command palette": "Ctrl+Shift+P" } } },
+  { name: "import-applied-show-all", label: "After Apply, Show all: Current shows the drafted combo",
+    props: { seedBindings: { "Command palette": "Ctrl+Shift+P" }, changedOnly: false } },
+  { name: "import-unchanged-selected", label: "Only an unchanged row selected: Apply stays enabled",
+    props: { seedSel: { ...IE_NONE_SELECTED, generalCopy: true }, changedOnly: false } },
+  { name: "import-none-selected", label: "No row selected: Apply is disabled",
+    props: { seedSel: IE_NONE_SELECTED } },
+];
 
 function IeBackBarG({ unresolved }) {
   return (
@@ -1614,6 +1628,16 @@ function Page() {
               <IeGrid />
             </div>
           </Stage>
+          <Views>
+            {IE_FRAMES.map((f) => (
+              <View key={f.name} name={f.name} label={f.label} wide>
+                <div inert="" style={{ display: "flex", flexDirection: "column", width: "100%", maxWidth: "var(--tasty-settings-content-max-width)",
+                  background: "var(--tasty-bg-panel)", pointerEvents: "none" }}>
+                  <Kit_KbImportExportSubtab variant="detail" {...f.props} />
+                </div>
+              </View>
+            ))}
+          </Views>
           <Meta
             specs={[["columns", "32px select · 1.6fr action · 1fr current · 1fr imported"], ["group header", "spans all columns, on surface-raised"], ["group content", "select-all · name (label 10 caps) · counts · chevron"], ["groups", "general · quick switch · scripts · plugin overrides"], ["default view", "changed only"], ["toggle", "“Show all {n}” in the back bar"], ["quick switch", "1 row per axis (3), slot count as sub-line"], ["plugin row", "command name + agent-dot plugin name, two lines"], ["changed cell", "accent-primary, colour only (no bold)"]]}
             tokens={[{ tok: "--tasty-surface-raised", use: "group header bed", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-accent-primary", use: "changed imported value", color: "var(--tasty-accent-primary-raised)" }, { tok: "--tasty-accent-agent", use: "plugin dot", color: "var(--tasty-accent-agent-raised)" }, { tok: "--tasty-separator", use: "cell rules" }, { tok: "--tasty-letter-spacing-caps", use: "header + group name tracking" }]} />
