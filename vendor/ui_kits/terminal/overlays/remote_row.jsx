@@ -126,7 +126,7 @@ export function RemoteRailMarks({ state = "connected", warn = false, title }) {
 
 // ── The remote connection popup (one per row: state, reason, the connect action) ──
 // Workspace-scope popup, centred in the workspace content area, never takes focus on its own.
-// kind: connecting · idle · held · failed (empty workspace) · reconnecting · gave_up · user · server · failed · closed (over the last screen).
+// kind: connecting · idle · held · failed · closed (empty workspace) · reconnecting · gave_up · user · server · failed · closed (over the last screen).
 // shape = the last screen is kept under the scrim → shadow-modal; the empty workspace has no scrim → shadow-popover.
 export function RemoteConnectionPopup({ lang = "en", name = "tasty-core", profile = "host", remote, kind = "connecting", reason, seconds = 300,
   userVariant = "stay", shape = false, width = "var(--tasty-size-360)" }) {
@@ -148,8 +148,9 @@ export function RemoteConnectionPopup({ lang = "en", name = "tasty-core", profil
   if (kind === "held") { title = rt(shape ? "remote.row.popup.user_title" : "remote.row.popup.idle_title", lang); body = rt("remote.row.popup.held_body", lang); }
   if (kind === "idle") title = rt("remote.row.popup.idle_title", lang);
   if (kind === "failed") { title = rt("remote.row.popup.failed_title", lang); body = remoteReasonText({ remoteReason: reason, remoteProfile: profile, remoteName }, lang); }
-  // closed: the remote workspace was closed elsewhere (another client, the remote Tasty) while this row was connected
-  // in this run. Nothing failed, so the title says it was closed; the body is the workspace-missing reason.
+  // closed: the remote workspace is gone. It was closed elsewhere (another client, the remote Tasty) while this row
+  // was connected in this run, or a connect or Reconnect found it missing (after a restart too). The failed kind never
+  // carries workspace_missing: that reason is always this kind. The title says it was closed; the body is the reason.
   if (kind === "closed") { title = rt("remote.row.popup.closed_title", lang); body = remoteReasonText({ remoteReason: "workspace_missing", remoteProfile: profile, remoteName }, lang); }
   // closed: Reconnect stays in its place, disabled (2026-11-11, director: an action that cannot succeed is shown
   // disabled, never hidden). The remote workspace is gone, so it would always fail. The body above it is the reason;
@@ -251,14 +252,14 @@ export function CloseOnRemoteDialog({ lang = "en", name = "tasty-core", profile 
 // ── The saved remote row's menu (the OS menu in the app: order, wording, separators and disabled only) ──
 // What each state allows:
 //   Connect / Reconnect — disconnected, not connected (a row with a screen in this run says Reconnect)
-//                         · not when closed elsewhere
+//                         · not when the remote workspace is gone (closed)
 //   Disconnect          — connected, connecting, reconnecting
 //   Close locally       — always
 //   Close remote …      — connected only
-// closed = the remote workspace was closed elsewhere while this row was connected in this run (the popup's
-// kind "closed", ws.remoteClosed): disconnected, and Reconnect stays in its place, disabled (2026-11-11, director:
-// an action that cannot succeed is shown disabled, never hidden). It is not saved, so after a restart the row is
-// not connected again and Connect is enabled.
+// closed = the remote workspace is gone in this run: closed elsewhere while this row was connected, or a connect or
+// Reconnect found it missing (the popup's kind "closed", ws.remoteClosed). Connect or Reconnect stays in its place,
+// disabled (2026-11-11, director: an action that cannot succeed is shown disabled, never hidden). It is not saved, so
+// after a restart the row is not connected again and Connect is enabled until a connect finds it missing again.
 export function remoteMenuEnabled(state, closed = false) {
   return {
     connect: (state === "disconnected" || state === "not_connected") && !closed,
