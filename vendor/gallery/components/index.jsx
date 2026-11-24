@@ -77,7 +77,7 @@ const SEL_INK = [
   ["Kbd + on selected row", "surface-active", null, "kbd-plus-fg-active", "+", "4.62", "5.39"],
   ["Match run at rest, menu", "surface-raised", null, "autocomplete-match-fg", "gram", "5.97", "5.37"],
   ["Match run, pointer hover", "surface-raised", "overlay-hover", "autocomplete-match-fg", "gram", "4.66", "4.52"],
-  ["Match run at rest, panel", "bg-panel", null, "explorer-match-fg", "gram", "7.79", "7.32"],
+  ["Match run at rest, panel", "bg-panel", null, "explorer-match-fg", "gram", "7.79", "7.34"],
   ["Match run at rest, focused bed", "surface-bed-focused", null, "accent-primary-raised", "gram", "9.97", "8.30"],
   ["Match run at rest, unfocused bed", "surface-bed-unfocused", null, "accent-primary-raised", "gram", "7.79", "6.28"],
   ["Match run under press, unfocused bed", "surface-bed-unfocused", "overlay-active", "accent-primary-raised", "gram", "5.39", "4.81"],
