@@ -267,7 +267,7 @@ function RemoteWriteSection() {
         </Stage>
         <Views>
           <View name="explorer-remote-progress-no-profile" label="No profile name (--ssh or --target-port from the CLI or IPC) — the word Remote in the progress line's mark and the queue header, then the header in every language">
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 16, alignItems: "flex-start" }}>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-lg)", alignItems: "flex-start" }}>
               <XCell w={520} h={290} toolbar={remoteTb} status={<><Host name="" /><YProgressStatus pct={27} text="Copying 2 of 6 · nginx-access-2026-10-11.log.gz" /></>} statusRight={<YStatusRight bytes="14 / 52 MB" queued={1} />} overlay={<RemoteQueue host="" />}>
                 <XDetail />
               </XCell>

@@ -935,11 +935,11 @@ function Page() {
           </Stage>
           <Views>
             <View name="file-picker-remote-no-profile" label="No profile name (--ssh or --target-port from the CLI or IPC) — the word Remote in the host badge, then the badge in every language">
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 16, alignItems: "flex-start" }}>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-lg)", alignItems: "flex-start" }}>
                 <FilePickerFrame remote indicator="badge" host="" />
-                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-md)" }}>
                   {["en", "ko", "ja", "zh-Hans"].map((l) => (
-                    <div key={l} style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{l}</div><div style={{ padding: "var(--tasty-space-sm)", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)" }}><FpHostBadge host="" lang={l} /></div></div>
+                    <div key={l} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}><div style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{l}</div><div style={{ padding: "var(--tasty-space-sm)", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)" }}><FpHostBadge host="" lang={l} /></div></div>
                   ))}
                 </div>
               </div>
@@ -976,10 +976,10 @@ function Page() {
           </Stage>
           <Views>
             <View name="file-picker-remote-states-no-profile" label="No profile name (--ssh or --target-port from the CLI or IPC) — loading and both connection-lost causes with the app's host-free values">
-              <div style={{ display: "flex", flexWrap: "wrap", gap: 16, alignItems: "flex-start" }}>
-                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>loading (remote, no profile name)</div><FilePickerFrame remote host="" state="loading" /></div>
-                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>connection lost — session lost (remote, no profile name)</div><FilePickerFrame remote host="" state="error-conn" /></div>
-                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>connection lost — timeout (remote, no profile name)</div><FilePickerFrame remote host="" state="error-conn-timeout" /></div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-lg)", alignItems: "flex-start" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}><div style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>loading (remote, no profile name)</div><FilePickerFrame remote host="" state="loading" /></div>
+                <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}><div style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>connection lost — session lost (remote, no profile name)</div><FilePickerFrame remote host="" state="error-conn" /></div>
+                <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}><div style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>connection lost — timeout (remote, no profile name)</div><FilePickerFrame remote host="" state="error-conn-timeout" /></div>
               </div>
             </View>
           </Views>

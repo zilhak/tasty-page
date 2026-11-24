@@ -116,7 +116,7 @@ export function GraphSharedSection() {
             </div>
           </View>
           <View name="graph-states-remote-no-profile" label="No profile name (--ssh or --target-port from the CLI or IPC) — the no-host strip and hint, every language">
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 16 }}>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-lg)" }}>
               {["en", "ko", "ja", "zh-Hans"].map((l) => (
                 <Frame key={l} label={`${l} — disconnected`} w={460} h={240}><ChildView nodes={CHILD_MIRROR_LOST} baseId={CHILD_MIRROR_BASE} lang={l} banner={<GraphStrip>{gt("graph.remote_disconnected_no_host", l)}</GraphStrip>} /></Frame>
               ))}
