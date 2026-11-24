@@ -910,6 +910,7 @@
   --tasty-plugins-list-width:       var(--tasty-size-288); /* left installed-list column */
   --tasty-plugins-attention-list-width: var(--tasty-size-240); /* 2026-11-25 left list column of the Attention tab (the app's 240 at 100%), empty or not */
   --tasty-plugins-header-glyph:     var(--tasty-accent-decorative); /* window-header ornament — peach, but decorative: NOT accent-attention */
+  --tasty-plugins-tab-focus-ring:   var(--tasty-accent-primary-raised); /* 2026-11-25 keyboard focus ring of a tab on the tab bar's surface-active pill (RULES focus-ring: active ground) */
   /* Plugin avatar — the square initial mark that stands in for a plugin icon
      (a plugin manifest carries no image). TWO sizes only: sm on list rows,
      lg on a detail/preview identity block. The tint is mixed into

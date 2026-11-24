@@ -636,8 +636,9 @@ function PluginsWindow({ onClose, onFlash, onConfigure, removedAttention, onRemo
         background: on ? "var(--tasty-surface-raised)" : "transparent",
         boxShadow: on ? "inset 0 0 0 var(--tasty-border-width) var(--tasty-border-default)" : "none",
         /* keyboard focus: the tabs sit on the surface-active pill, and on the active ground the focus ring reads
-           accent-primary-raised (RULES focus-ring); border-focus there is under 3:1 in Latte */
-        outlineColor: "var(--tasty-accent-primary-raised)", outlineOffset: "var(--tasty-focus-ring-offset)" }}>
+           accent-primary-raised (RULES focus-ring); border-focus there is under 3:1 in Latte. The ring reads it through
+           plugins-tab-focus-ring, which resolves at the theme root, so no ink swap for the pill's own content reaches it. */
+        outlineColor: "var(--tasty-plugins-tab-focus-ring)", outlineOffset: "var(--tasty-focus-ring-offset)" }}>
         {label}
         {count != null && !danger && <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)",
           color: on ? "var(--tasty-text-secondary-raised)" : "var(--tasty-text-on-active)" }}>{count}</span>}
