@@ -8,6 +8,7 @@ import { Select } from "../../../components/forms/Select.jsx";
 import { DrillDown } from "../../../components/navigation/DrillDown.jsx";
 import { Icon } from "../chrome.jsx";
 import { useDraft } from "./settings_draft.jsx";
+import { KBP_SAVED } from "./kb_plugins_subtab.jsx";
 
 // Tasty UI kit — Settings › Keybindings › Import / Export.
 // Borrows the Preset
@@ -18,9 +19,11 @@ import { useDraft } from "./settings_draft.jsx";
 //   • A per-row SELECT column (partial apply — user decision §6-2).
 //   (The OPTION MIGRATION card was removed 2026-10-10 b12: Win / Super now record as `option`, so an
 //    option binding matches on every OS and nothing needs migrating.)
-// Apply writes the selected rows into the settings window's draft (settings_draft.jsx, key
-// "keybindings.bindings": row key -> combo); the window footer's Save commits it and Cancel drops it (same
-// 2-stage contract as Preset). The preview stays after Apply and the draft outlives a tab switch, so Current shows
+// Apply writes the selected rows into the settings window's draft (settings_draft.jsx), the same draft the
+// other Keybindings subtabs read: a general, quick-switch or script row under "keybindings.bindings" (action ->
+// combo, read by KeyRow), a plugin row as a Custom override under "keybindings.plugins.drafts" (pluginId/cmdId,
+// read by the Plugins subtab). The window footer's Save commits it and Cancel drops it (same 2-stage contract as
+// Preset). The preview stays after Apply and the draft outlives a tab switch, so Current shows
 // the drafted combo and an applied row leaves the default Changed only view. Apply is disabled only when no row is
 // selected; a file that cannot be read shows no Apply. Rendered full-bleed — it owns its own scroll.
 
@@ -49,13 +52,17 @@ const IE_GROUPS = [
     { action: "rotate-logs.lua", cur: "None", next: "Ctrl+Alt+2" },
   ] },
   { id: "plugins", label: "Plugin overrides", rows: [
-    { action: "open panel", plugin: "git-helper", cur: "Ctrl+Alt+G", next: "Ctrl+Alt+G" },
-    { action: "review staged", plugin: "ai-review", cur: "Ctrl+Alt+R", next: "Ctrl+Shift+R" },
+    // Commands of the Plugins subtab's kit plugins (kb_plugins_subtab.jsx), so an applied row shows there.
+    { action: "Stage hunk", plugin: "git-helper", cmd: "stage", cur: "Ctrl+Alt+G", next: "Ctrl+Alt+G" },
+    { action: "Open clipboard viewer", plugin: "clipboard-viewer", cmd: "open", cur: "Ctrl+Shift+H", next: "Ctrl+Shift+Y" },
   ] },
 ];
 
 // Quick-switch modifier combos (non-macOS now includes option = Win / Super: 15 combos).
 const MODIFIER_COMBOS = ["Ctrl", "Alt", "Shift", "Ctrl+Alt", "Ctrl+Shift", "Alt+Shift", "Ctrl+Alt+Shift"];
+
+// A Plugins subtab record ("ctrl+shift+h") as this table spells it ("Ctrl+Shift+H").
+const ieCombo = (keys) => keys.split(",")[0].split("+").map((k) => k.charAt(0).toUpperCase() + k.slice(1)).join("+");
 
 const IE_DISCARDED = ["k8s-lens", "s3-browser"];
 
@@ -192,10 +199,17 @@ function KbImportExportSubtab({ variant = "ready", onFlash, failLine = 1, failCa
   const [sel, setSel] = React.useState({});
   const [failed, setFailed] = React.useState(variant === "failed");
   const [exportError, setExportError] = React.useState(variant === "exportfailed" ? "~/tasty/" + IE_FILE : null);
-  // The window's keybinding draft: combos applied but not yet saved, by row key. Outside a SettingsWindow
-  // (a gallery specimen on its own) it is the subtab's own state.
+  // The window's keybinding draft, shared with the other Keybindings subtabs. Outside a SettingsWindow (a gallery
+  // specimen on its own) it is the subtab's own state.
   const [bindings, setBindings] = useDraft("keybindings.bindings", {});
-  const cur = (g, r) => bindings[g.id + r.action] ?? r.cur;
+  const [pluginDrafts, setPluginDrafts] = useDraft("keybindings.plugins.drafts", KBP_SAVED);
+  const pluginKey = (r) => r.plugin + "/" + r.cmd;
+  const cur = (g, r) => {
+    if (!r.plugin) return bindings[r.action] ?? r.cur;
+    const d = pluginDrafts[pluginKey(r)];
+    if (!d) return r.cur;
+    return d.mode === "custom" ? ieCombo(d.keys) : d.mode === "none" ? "None" : r.cur;
+  };
   const onSel = (g, next, row) => setSel((s) => {
     const c = { ...s };
     (row ? [row] : g.rows).forEach((r) => { c[g.id + r.action] = next; });
@@ -206,10 +220,11 @@ function KbImportExportSubtab({ variant = "ready", onFlash, failLine = 1, failCa
   const changed = IE_GROUPS.reduce((n, g) => n + g.rows.filter((r) => cur(g, r) !== r.next).length, 0);
   const picked = IE_GROUPS.reduce((n, g) => n + g.rows.filter((r) => sel[g.id + r.action] !== false).length, 0);
   // Apply writes every selected row's imported combo; a row that already matches writes the same value.
-  const toApply = IE_GROUPS.flatMap((g) => g.rows.filter((r) => sel[g.id + r.action] !== false)
-    .map((r) => [g.id + r.action, r.next]));
+  const toApply = IE_GROUPS.flatMap((g) => g.rows.filter((r) => sel[g.id + r.action] !== false));
   const apply = () => {
-    setBindings((b) => ({ ...b, ...Object.fromEntries(toApply) }));
+    setBindings((b) => ({ ...b, ...Object.fromEntries(toApply.filter((r) => !r.plugin).map((r) => [r.action, r.next])) }));
+    setPluginDrafts((d) => ({ ...d, ...Object.fromEntries(toApply.filter((r) => r.plugin)
+      .map((r) => [pluginKey(r), { mode: "custom", keys: r.next.toLowerCase() }])) }));
     onFlash && onFlash("Applied to draft — press Save to commit");
   };
 

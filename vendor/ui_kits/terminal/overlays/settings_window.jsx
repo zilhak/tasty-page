@@ -40,7 +40,11 @@ function ThemeSwatch({ id, label, colors, active, onClick }) {
   );
 }
 
+// keys is the binding as the kit seeds it. Inside a SettingsWindow a combo applied from Import / Export is in the
+// window's draft under keybindings.bindings and shows instead, until Save or Cancel.
 function KeyRow({ action, keys }) {
+  const [bindings] = useDraft("keybindings.bindings", {});
+  keys = bindings[action] ?? keys;
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 16, minHeight: "var(--tasty-settings-row-min-height)",
       /* b10: no divider — rows sit kb-row-gap (8) apart in the parent */ }}>

@@ -121,7 +121,10 @@ function KbpCommandRow({ cmd, value, draft, last, onChange, onReset }) {
 
 // saved: { [pluginId/cmdId]: override } (what Save last wrote) · drafts start equal to saved.
 // In a SettingsWindow both live in the window's draft (settings_draft.jsx): Save makes the drafts the saved values.
-function KbPluginsSubtab({ plugins = KBP_PLUGINS, saved: saved0 = { "clipboard-viewer/clear": { mode: "custom", keys: "ctrl+alt+x" } }, seedDrafts = null, initial = null }) {
+// What Save last wrote in the kit, by pluginId/cmdId. Keybinding import starts the same draft from it.
+const KBP_SAVED = { "clipboard-viewer/clear": { mode: "custom", keys: "ctrl+alt+x" } };
+
+function KbPluginsSubtab({ plugins = KBP_PLUGINS, saved: saved0 = KBP_SAVED, seedDrafts = null, initial = null }) {
   const [pid, setPid] = React.useState(initial || (plugins[0] && plugins[0].id));
   const [saved] = useDraft("keybindings.plugins.saved", saved0, (v, get) => get("keybindings.plugins.drafts"));
   const [drafts, setDrafts] = useDraft("keybindings.plugins.drafts", () => ({ ...saved0, ...(seedDrafts || {}) }));
@@ -147,4 +150,4 @@ function KbPluginsSubtab({ plugins = KBP_PLUGINS, saved: saved0 = { "clipboard-v
   );
 }
 
-export { KbPluginsSubtab, KBP_PLUGINS };
+export { KbPluginsSubtab, KBP_PLUGINS, KBP_SAVED };
