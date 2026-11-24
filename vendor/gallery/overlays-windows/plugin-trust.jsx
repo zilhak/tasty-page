@@ -54,9 +54,8 @@ function FpLine({ value }) {
 
 function TrustBox2({ kind, lang = "en", attention = false }) {
   const k = KIND[kind]; const c = COPY[lang] || COPY.en;
-  const acc = "var(--tasty-accent-" + k.tone + ")";
   const box = { display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-size-14)", borderRadius: "var(--tasty-radius)",
-    background: "color-mix(in srgb, " + acc + " calc(var(--tasty-tint-fill-alpha) * 100%), transparent)", border: "var(--tasty-border-width) solid color-mix(in srgb, " + acc + " calc(var(--tasty-tint-border-alpha) * 100%), transparent)" };
+    background: "var(--tasty-tint-" + k.tone + "-bg)", border: "var(--tasty-border-width) solid var(--tasty-tint-" + k.tone + "-border)" };
   if (kind === "trusted") return (
     <div style={{ ...box, flexDirection: "row", alignItems: "center", fontSize: "var(--tasty-font-size-term-sm)" }}>
       <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-plugin-trust-glyph-success)" }}><Icon name="shieldCheck" size={16} /></span>
@@ -225,7 +224,7 @@ function ReservedDetail({ p = RESERVED_SAMPLE, lang = "en", state = "rest", widt
         </div>
         <p style={{ margin: 0, fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{c.descHidden}</p>
         <div role="alert" style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-size-14)", borderRadius: "var(--tasty-radius)",
-          background: "color-mix(in srgb, " + acc + " calc(var(--tasty-tint-fill-alpha) * 100%), transparent)", border: "var(--tasty-border-width) solid color-mix(in srgb, " + acc + " calc(var(--tasty-tint-border-alpha) * 100%), transparent)" }}>
+          background: "var(--tasty-tint-danger-bg)", border: "var(--tasty-border-width) solid var(--tasty-tint-danger-border)" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", color: "var(--tasty-plugin-trust-title-fg)", fontSize: 13, fontWeight: 600 }}>
             <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-plugin-trust-glyph-danger)" }}><Icon name="alertCircle" size={16} /></span>
             <span>{c.label}</span>

@@ -209,11 +209,10 @@ const trustKindOf = (m) => m.trust || (m.trusted ? "trusted" : "unknown-key");
 function TrustBox({ manifest }) {
   const kind = trustKindOf(manifest);
   const k = TRUST_KIND[kind];
-  const acc = "var(--tasty-accent-" + k.tone + ")";
   const box = { display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-size-14)",
     borderRadius: "var(--tasty-radius)", color: "var(--tasty-text-secondary)",
-    background: "color-mix(in srgb, " + acc + " calc(var(--tasty-tint-fill-alpha) * 100%), transparent)",
-    border: "var(--tasty-border-width) solid color-mix(in srgb, " + acc + " calc(var(--tasty-tint-border-alpha) * 100%), transparent)" };
+    background: "var(--tasty-tint-" + k.tone + "-bg)",
+    border: "var(--tasty-border-width) solid var(--tasty-tint-" + k.tone + "-border)" };
   if (kind === "trusted") return (
     <div style={{ ...box, flexDirection: "row", alignItems: "center", fontSize: "var(--tasty-font-size-term-sm)" }}>
       {/* 2026-10-27: inks split from the tone — glyph + body → accent-success-ink (Latte ≥ 5.5:1 on mantle/base+tint); fill/border keep accent-success */}
@@ -418,8 +417,8 @@ function AttentionPanel({ items, onFlash, onConfigure, onRemove }) {
         justifyContent: "center", gap: 12, color: "var(--tasty-text-muted)", padding: 24 }}>
         <span style={{ display: "inline-flex", width: 46, height: 46, borderRadius: "var(--tasty-radius)",
           alignItems: "center", justifyContent: "center", color: "var(--tasty-accent-success-raised)",
-          background: "color-mix(in srgb, var(--tasty-accent-success) 12%, transparent)",
-          border: "var(--tasty-border-width) solid color-mix(in srgb, var(--tasty-accent-success) 30%, transparent)" }}>
+          background: "var(--tasty-tint-success-bg)",
+          border: "var(--tasty-border-width) solid var(--tasty-tint-success-border)" }}>
           <Icon name="shieldCheck" size={20} />
         </span>
         <div style={{ fontSize: "var(--tasty-font-size-body)", color: "var(--tasty-text-secondary)" }}>No plugins need attention</div>
@@ -496,8 +495,8 @@ function AttentionPanel({ items, onFlash, onConfigure, onRemove }) {
           {meta.unverified ? <TrustBox manifest={{ trust: meta.unverified, fingerprint: null }} /> :
           meta.removeOnly ? (
           <div role="alert" style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-size-14)", borderRadius: "var(--tasty-radius)",
-            background: "color-mix(in srgb, var(--tasty-accent-danger) calc(var(--tasty-tint-fill-alpha) * 100%), transparent)",
-            border: "var(--tasty-border-width) solid color-mix(in srgb, var(--tasty-accent-danger) calc(var(--tasty-tint-border-alpha) * 100%), transparent)" }}>
+            background: "var(--tasty-tint-danger-bg)",
+            border: "var(--tasty-border-width) solid var(--tasty-tint-danger-border)" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", color: "var(--tasty-plugin-trust-title-fg)", fontSize: 13, fontWeight: 600 }}>
               <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-plugin-trust-glyph-danger)" }}><Icon name="alertCircle" size={16} /></span>
               <span>{meta.label}</span>
@@ -506,8 +505,8 @@ function AttentionPanel({ items, onFlash, onConfigure, onRemove }) {
           </div>) :
           <div style={{ display: "flex", flexDirection: "column", gap: 8, padding: "var(--tasty-space-md) var(--tasty-size-14)",
             borderRadius: "var(--tasty-radius)", color: "var(--tasty-text-secondary)",
-            background: `color-mix(in srgb, ${c} 11%, transparent)`,
-            border: `1px solid color-mix(in srgb, ${c} 36%, transparent)` }}>
+            background: `var(--tasty-tint-${meta.sev}-bg)`,
+            border: `1px solid var(--tasty-tint-${meta.sev}-border)` }}>
             <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", color: ink, fontSize: 13, fontWeight: 600 }}>
               <Icon name={meta.sev === "danger" ? "alertCircle" : "alertTriangle"} size={16} />
               <span>{meta.label}</span>
@@ -689,8 +688,8 @@ function PluginsWindow({ onClose, onFlash, onConfigure, removedAttention, onRemo
           {sel.status === "error" && isInstalled && isOn && (
             <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "var(--tasty-space-sm) var(--tasty-space-md)",
               borderRadius: "var(--tasty-radius)", fontSize: "var(--tasty-font-size-term-sm)", color: "var(--tasty-accent-danger-raised)",
-              background: "color-mix(in srgb, var(--tasty-accent-danger) 12%, transparent)",
-              border: "var(--tasty-border-width) solid color-mix(in srgb, var(--tasty-accent-danger) 35%, transparent)" }}>
+              background: "var(--tasty-tint-danger-bg)",
+              border: "var(--tasty-border-width) solid var(--tasty-tint-danger-border)" }}>
               <Icon name="alertCircle" size={16} />
               <span>Failed to connect. Check the plugin's configuration in Settings.</span>
             </div>

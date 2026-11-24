@@ -253,8 +253,8 @@ function KbImportExportSubtab({ variant = "ready", onFlash, failLine = 1, failCa
     // is told INLINE in the detail area, not as a toast or a popup.
     <div style={{ padding: "var(--tasty-space-lg)" }}>
       <div style={{ borderRadius: "var(--tasty-radius)", padding: "var(--tasty-kb-ie-notice-inset)",
-        background: "color-mix(in srgb, var(--tasty-accent-danger) 12%, transparent)",
-        border: "var(--tasty-border-width) solid color-mix(in srgb, var(--tasty-accent-danger) 35%, transparent)" }}>
+        background: "var(--tasty-tint-danger-bg)",
+        border: "var(--tasty-border-width) solid var(--tasty-tint-danger-border)" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", color: "var(--tasty-accent-danger-raised)", fontSize: 13, fontWeight: 600 }}>
           <Icon name="alertCircle" size={16} /><span>This file can't be read as keybindings</span>
         </div>
@@ -317,8 +317,8 @@ function KbImportExportSubtab({ variant = "ready", onFlash, failLine = 1, failCa
             action={<Button variant="secondary" size="sm" disabled={!!exportError} onClick={() => setPicker("export")}>Export…</Button>}
             notice={exportError && (
               <div style={{ borderRadius: "var(--tasty-radius)", padding: "var(--tasty-kb-ie-notice-inset)",
-                background: "color-mix(in srgb, var(--tasty-accent-danger) 12%, transparent)",
-                border: "var(--tasty-border-width) solid color-mix(in srgb, var(--tasty-accent-danger) 35%, transparent)" }}>
+                background: "var(--tasty-tint-danger-bg)",
+                border: "var(--tasty-border-width) solid var(--tasty-tint-danger-border)" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", color: "var(--tasty-accent-danger-raised)", fontSize: 13, fontWeight: 600 }}>
                   <Icon name="alertCircle" size={16} /><span>The export wasn't written</span>
                 </div>

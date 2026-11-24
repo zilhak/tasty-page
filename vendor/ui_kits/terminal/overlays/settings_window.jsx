@@ -875,8 +875,8 @@ const RowCaption = ({ children }) => (
 );
 const WarnCallout = ({ children }) => (
   <div style={{ display: "flex", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-sm) var(--tasty-space-md)", borderRadius: "var(--tasty-radius)", maxWidth: "var(--tasty-measure-md)",
-    border: "var(--tasty-border-width) solid color-mix(in srgb, var(--tasty-accent-warning) 40%, transparent)",
-    background: "color-mix(in srgb, var(--tasty-accent-warning) 12%, transparent)" }}>
+    border: "var(--tasty-border-width) solid var(--tasty-tint-warning-border)",
+    background: "var(--tasty-tint-warning-bg)" }}>
     <span style={{ display: "inline-flex", flex: "none", marginTop: 1, color: "var(--tasty-accent-warning-raised)" }}>
       <Icon name="alertTriangle" size={16} />
     </span>

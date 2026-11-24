@@ -385,8 +385,8 @@ function IeNotices() {
         {" "}No <span style={ieMono}>option</span> bindings to migrate.
       </div>
       <div style={{ borderRadius: "var(--tasty-radius)", padding: "12px 14px",
-        background: "color-mix(in srgb, var(--tasty-accent-danger) 12%, transparent)",
-        border: "1px solid color-mix(in srgb, var(--tasty-accent-danger) 35%, transparent)" }}>
+        background: "var(--tasty-tint-danger-bg)",
+        border: "1px solid var(--tasty-tint-danger-border)" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, color: "var(--tasty-accent-danger-raised)", fontSize: 13, fontWeight: 600 }}>
           <WIcon name="alertCircle" size={16} /><span>This file can't be read as keybindings</span>
         </div>
@@ -403,11 +403,11 @@ function IeNotices() {
 // ── Import / Export — the six values the spec left open ───────────
 // Shared notice block recipe: tone + glyph + title + lines. Same geometry as
 // the parse-failure block, so failure / warning / info differ only in tone.
-function IeBlockG({ tone, glyph, title, count, children, action }) {
+function IeBlockG({ hue, tone, glyph, title, count, children, action }) {
   return (
     <div style={{ width: "100%", maxWidth: "var(--tasty-settings-content-max-width)", borderRadius: "var(--tasty-radius)",
-      padding: "var(--tasty-kb-ie-notice-inset)", background: "color-mix(in srgb, " + tone + " 12%, transparent)",
-      border: "1px solid color-mix(in srgb, " + tone + " 35%, transparent)" }}>
+      padding: "var(--tasty-kb-ie-notice-inset)", background: "var(--tasty-tint-" + hue + "-bg)",
+      border: "1px solid var(--tasty-tint-" + hue + "-border)" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, color: tone, fontSize: 13, fontWeight: 600 }}>
         <WIcon name={glyph} size={16} /><span>{title}</span>
         {count && <span style={{ marginLeft: "auto", ...ieMono, fontSize: 11, color: tone }}>{count}</span>}
@@ -441,7 +441,7 @@ function IeExportFailG({ reason = "readonly" }) {
         </div>
         <span style={{ flex: "none" }}><Button variant="secondary" size="sm" disabled>Export…</Button></span>
       </div>
-      <IeBlockG tone="var(--tasty-accent-danger-strong)" glyph="alertCircle" title="The export wasn't written"
+      <IeBlockG hue="danger" tone="var(--tasty-accent-danger-strong)" glyph="alertCircle" title="The export wasn't written"
         action={<><Button variant="secondary" size="sm">Try again</Button><Button variant="ghost" ground="active" size="sm">Choose another location…</Button></>}>
         <span style={ieMono}>~/tasty/tasty-keybindings-2026-09-14.toml</span> — {clause} Nothing was written.
         {reason === "other" && (
@@ -468,7 +468,7 @@ function IeBundleNoticesG({ one = false }) {
         <span style={{ display: "inline-flex", flex: "none", marginTop: 1 }}><WIcon name="helpCircle" size={14} /></span>
         <span>2 plugin overrides were dropped — those plugins aren't installed here (<span style={ieMono}>k8s-lens, s3-browser</span>).</span>
       </div>
-      <IeBlockG tone="var(--tasty-accent-warning-raised)" glyph="alertTriangle" title="Read with warnings" count={one ? "1 notice" : "4 notices"}
+      <IeBlockG hue="warning" tone="var(--tasty-accent-warning-raised)" glyph="alertTriangle" title="Read with warnings" count={one ? "1 notice" : "4 notices"}
         action={one ? null : <Button variant="ghost" size="sm">Show 1 more</Button>}>
         {one
           ? line(<>1 unknown action was skipped (<span style={ieMono}>tab.pin</span>).</>)
@@ -485,7 +485,7 @@ function IeBundleNoticesG({ one = false }) {
 // §3 — parsing failure with and without a line number.
 function IeParseFailG({ line = true }) {
   return (
-    <IeBlockG tone="var(--tasty-accent-danger-strong)" glyph="alertCircle" title="This file can't be read as keybindings"
+    <IeBlockG hue="danger" tone="var(--tasty-accent-danger-strong)" glyph="alertCircle" title="This file can't be read as keybindings"
       action={<Button variant="secondary" size="sm">Choose another file</Button>}>
       <span style={ieMono}>~/Downloads/settings.json</span> — expected a keybinding export (TOML, a <span style={ieMono}>[keybindings]</span> table);
       {line ? <> parsing stopped at line 1.</> : <> the file isn't TOML.</>} Nothing was changed.
@@ -514,8 +514,8 @@ function IeConflictSummaryG() {
   );
   return (
     <div style={{ width: "100%", maxWidth: "var(--tasty-settings-content-max-width)", borderRadius: "var(--tasty-radius)", padding: "var(--tasty-kb-ie-notice-inset)",
-      background: "color-mix(in srgb, var(--tasty-accent-warning) 11%, transparent)",
-      border: "1px solid color-mix(in srgb, var(--tasty-accent-warning) 36%, transparent)" }}>
+      background: "var(--tasty-tint-warning-bg)",
+      border: "1px solid var(--tasty-tint-warning-border)" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, color: "var(--tasty-accent-warning-raised)", fontSize: 13, fontWeight: 600 }}>
         <WIcon name="alertTriangle" size={16} /><span>Option bindings need a replacement</span>
         <span style={{ marginLeft: "auto", ...ieMono, fontSize: 11 }}>3 of 4 unresolved</span>
@@ -1156,7 +1156,7 @@ function Page() {
                   </div>
                   {cap && <p style={{ margin: 0, fontSize: 12, color: "var(--tasty-text-muted)", maxWidth: "var(--tasty-measure-md)", lineHeight: "var(--tasty-line-height-ui)" }}>{cap}</p>}
                   {warn && <div style={{ display: "flex", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-sm) var(--tasty-space-md)", borderRadius: "var(--tasty-radius)", maxWidth: "var(--tasty-measure-md)",
-                    border: "var(--tasty-border-width) solid color-mix(in srgb, var(--tasty-accent-warning) 40%, transparent)", background: "color-mix(in srgb, var(--tasty-accent-warning) 12%, transparent)" }}>
+                    border: "var(--tasty-border-width) solid var(--tasty-tint-warning-border)", background: "var(--tasty-tint-warning-bg)" }}>
                     <span style={{ display: "inline-flex", flex: "none", marginTop: 1, color: "var(--tasty-accent-warning-raised)" }}><WIcon name="alertTriangle" size={16} /></span>
                     <p style={{ margin: 0, fontSize: 12, color: "var(--tasty-text-secondary)", lineHeight: "var(--tasty-line-height-ui)" }}>When on, the webhook listener takes every network interface, so anyone who can reach its port can call your registered webhooks. When off, only programs on this computer can. Applies from the next start.</p>
                   </div>}

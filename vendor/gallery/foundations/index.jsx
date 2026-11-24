@@ -761,16 +761,16 @@ function Foundations() {
                   {[["info", "var(--tasty-accent-info)"], ["warning", "var(--tasty-accent-warning)"], ["danger", "var(--tasty-accent-danger)"], ["success", "var(--tasty-accent-success)"]].map(([name, col]) => (
                     <span key={name} style={{ display: "inline-flex", alignItems: "center", height: 24, padding: "0 10px", borderRadius: "var(--tasty-radius)",
                       fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: col.replace(")", "-strong)"),
-                      background: fill ? `color-mix(in srgb, ${col} calc(var(--tasty-tint-fill-alpha) * 100%), transparent)` : "transparent",
-                      border: border ? `1px solid color-mix(in srgb, ${col} calc(var(--tasty-tint-border-alpha) * 100%), transparent)` : "1px solid transparent" }}>{name}</span>
+                      background: fill ? `var(--tasty-tint-${name}-bg)` : "transparent",
+                      border: border ? `1px solid var(--tasty-tint-${name}-border)` : "1px solid transparent" }}>{name}</span>
                   ))}
                 </div>
               </div>
             ))}
           </Stage>
           <Meta
-            specs={[["fill", <>0.12 — <span className="tok">--tasty-tint-fill-alpha</span></>], ["edge", <>0.36 — <span className="tok">--tasty-tint-border-alpha</span></>], ["retired", "0.14/0.45 · 0.12/0.35 · 0.11/0.36"], ["partial uses", "fill-only · border-only (same coefficients)"], ["affected", "file-picker info badge · keybinding IE notice & migrate card · Plugins error box / Installed badge / Attention banner · warning callout · remote & script badges · chip remote tag"], ["clipboard inset (I1)", "14 → 12 (--tasty-space-md) — the 4px grid wins; no 14 semantic is opened"]]}
-            tokens={[{ tok: "--tasty-tint-fill-alpha", use: "every tinted fill" }, { tok: "--tasty-tint-border-alpha", use: "every tinted edge" }, { tok: "--tasty-space-md", use: "clipboard header / type-bar / footer inset" }]} />
+            specs={[["fill", <>0.12 — <span className="tok">--tasty-tint-fill-alpha</span></>], ["edge", <>0.36 — <span className="tok">--tasty-tint-border-alpha</span></>], ["retired", "0.14/0.45 · 0.12/0.35 · 0.11/0.36 · 0.12/0.30 · 0.12/0.40 · 0.40 edge-only (2026-11-25)"], ["partial uses", "fill-only · border-only (same coefficients)"], ["affected", "file-picker info badge · keybinding IE notice & migrate card · Plugins error box / Installed badge / Attention banner · warning callout · remote & script badges · chip remote tag"], ["clipboard inset (I1)", "14 → 12 (--tasty-space-md) — the 4px grid wins; no 14 semantic is opened"]]}
+            tokens={[{ tok: "--tasty-tint-fill-alpha", use: "every tinted fill" }, { tok: "--tasty-tint-border-alpha", use: "every tinted edge" }, { tok: "--tasty-tint-info-bg", use: "the fill per accent (tint-<hue>-bg), what UI reads" }, { tok: "--tasty-tint-info-border", use: "the edge per accent (tint-<hue>-border), what UI reads" }, { tok: "--tasty-space-md", use: "clipboard header / type-bar / footer inset" }]} />
           <Note>Opacity coefficients are <b>primitives</b> (<span className="tok">--tasty-opacity-tint-fill</span> / <span className="tok">-border</span>) with semantic aliases, so a per-role override stays possible later without re-scattering literals.</Note>
         </Spec>
         <Spec id="disabled-ink-no-contrast-target-latte-one-step-up" title="Disabled ink — no contrast target, Latte one step up"
