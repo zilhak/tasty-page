@@ -13,11 +13,12 @@ import { gt } from "../../ui_kits/terminal/overlays/graph_copy.js";
 
 const cap = { fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" };
 
-export function Frame({ label, w, h, children, style }) {
+// lang: the UI language of a locale frame, set on the box so :lang() picks font-label as the app does.
+export function Frame({ label, w, h, lang, children, style }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", minWidth: 0, flex: "none" }}>
       {label && <span style={cap}>{label}</span>}
-      <div style={{ position: "relative", width: w, height: h, maxWidth: "100%", display: "flex", flexDirection: "column", overflow: "hidden",
+      <div lang={lang} style={{ position: "relative", width: w, height: h, maxWidth: "100%", display: "flex", flexDirection: "column", overflow: "hidden",
         boxSizing: "border-box", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)",
         background: "var(--tasty-bg-panel)", ...style }}>{children}</div>
     </div>
@@ -108,20 +109,20 @@ export function GraphSharedSection() {
           <View name="graph-states-ko" label="ko, ja, zh-Hans — longest strip and hint">
             <div style={{ display: "flex", flexWrap: "wrap", gap: 16 }}>
               {["ko", "ja", "zh-Hans"].map((l) => (
-                <Frame key={l} label={l} w={420} h={200}><ChildView nodes={CHILD_MIRROR_LOST} baseId={CHILD_MIRROR_BASE} lang={l} banner={<GraphStrip>{gt("graph.remote_disconnected", l, "lab-linux")}</GraphStrip>} /></Frame>
+                <Frame key={l} lang={l} label={l} w={420} h={200}><ChildView nodes={CHILD_MIRROR_LOST} baseId={CHILD_MIRROR_BASE} lang={l} banner={<GraphStrip>{gt("graph.remote_disconnected", l, "lab-linux")}</GraphStrip>} /></Frame>
               ))}
               {["ko", "ja", "zh-Hans"].map((l) => (
-                <Frame key={l + "u"} label={l} w={320} h={200}><ChildView nodes={CHILD_SMALL} baseId={CHILD_SMALL_BASE} status="unsupported" lang={l} /></Frame>
+                <Frame key={l + "u"} lang={l} label={l} w={320} h={200}><ChildView nodes={CHILD_SMALL} baseId={CHILD_SMALL_BASE} status="unsupported" lang={l} /></Frame>
               ))}
             </div>
           </View>
           <View name="graph-states-remote-no-profile" label="No profile name (--ssh or --target-port from the CLI or IPC) — the no-host strip and hint, every language">
             <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-lg)" }}>
               {["en", "ko", "ja", "zh-Hans"].map((l) => (
-                <Frame key={l} label={`${l} — disconnected`} w={460} h={240}><ChildView nodes={CHILD_MIRROR_LOST} baseId={CHILD_MIRROR_BASE} lang={l} banner={<GraphStrip>{gt("graph.remote_disconnected_no_host", l)}</GraphStrip>} /></Frame>
+                <Frame key={l} lang={l} label={`${l} — disconnected`} w={460} h={240}><ChildView nodes={CHILD_MIRROR_LOST} baseId={CHILD_MIRROR_BASE} lang={l} banner={<GraphStrip>{gt("graph.remote_disconnected_no_host", l)}</GraphStrip>} /></Frame>
               ))}
               {["en", "ko", "ja", "zh-Hans"].map((l) => (
-                <Frame key={l + "u"} label={`${l} — too old`} w={320} h={200}><ChildView nodes={CHILD_SMALL} baseId={CHILD_SMALL_BASE} status="unsupported" lang={l} host="" /></Frame>
+                <Frame key={l + "u"} lang={l} label={`${l} — too old`} w={320} h={200}><ChildView nodes={CHILD_SMALL} baseId={CHILD_SMALL_BASE} status="unsupported" lang={l} host="" /></Frame>
               ))}
             </div>
           </View>

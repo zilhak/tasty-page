@@ -31,7 +31,7 @@ const Labelled = ({ label, tag, children }) => (
 );
 const row = (children) => <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-lg)", alignItems: "flex-start" }}>{children}</div>;
 // one card outside the canvas, with room above it for the base chip
-const Card = (props) => <div style={{ position: "relative", width: 168, height: 48, marginTop: 20 }}><ChildNode {...props} /></div>;
+const Card = (props) => <div lang={props.lang} style={{ position: "relative", width: 168, height: 48, marginTop: 20 }}><ChildNode {...props} /></div>;
 const S = (state, over) => ({ id: "s_01HX7Q", kind: "surface", nickname: "builder", role: "worker", state, ...over });
 
 function CardGrid({ lang = "en" }) {
@@ -59,7 +59,7 @@ function CopyTable() {
   return (
     <div className="tasty-scroll" style={{ overflow: "auto", maxHeight: 520 }}>
       <Table dense hover={false} rowKey="key" rows={rows}
-        columns={[{ key: "key", header: "Key", mono: true }, ...GRAPH_LANGS.map((l) => ({ key: l, header: l }))]} />
+        columns={[{ key: "key", header: "Key", mono: true }, ...GRAPH_LANGS.map((l) => ({ key: l, header: l, render: (v) => <span lang={l}>{v}</span> }))]} />
     </div>
   );
 }
@@ -68,7 +68,7 @@ function CopyTable() {
 // the scrim, the popup centred, or fitted to the window's top left when the window is smaller than the popup.
 // Over the window the whole window is the popup's scope, so a press on the scrim outside the frame belongs to the
 // popup: it keeps key focus there (blurring and refocusing the frame so its key routing hears it), and Esc still reaches it.
-function OverWindow({ w = 760, h = 560, fitted = false, children }) {
+function OverWindow({ w = 760, h = 560, fitted = false, lang, children }) {
   const layer = React.useRef(null);
   const scrimPress = (e) => {
     const frame = layer.current && layer.current.firstElementChild;
@@ -78,7 +78,7 @@ function OverWindow({ w = 760, h = 560, fitted = false, children }) {
     frame.focus();
   };
   return (
-    <div onMouseDown={scrimPress} style={{ position: "relative", width: w, height: h, flex: "none" }}>
+    <div lang={lang} onMouseDown={scrimPress} style={{ position: "relative", width: w, height: h, flex: "none" }}>
       <div data-audit-exempt="under-scrim"><ShellMock size={[w, h]} under /></div>
       <div style={{ position: "absolute", inset: 0, background: "var(--tasty-scrim-bg)", borderRadius: "var(--tasty-radius)" }} />
       <div ref={layer} style={{ position: "absolute", inset: 0, display: "flex", alignItems: fitted ? "flex-start" : "center", justifyContent: fitted ? "flex-start" : "center" }}>{children}</div>
@@ -130,8 +130,8 @@ function ClosedPopupFrame({ onReopen }) {
 
 // A frame with the app's window toast in its bottom right corner (the toast stack's corner, space-md in),
 // standing for the window corner, so the strip and the toast that come together can be read together.
-const WithToast = ({ variant, text, children }) => (
-  <div style={{ position: "relative", flex: "none", width: "fit-content", alignSelf: "flex-start" }}>
+const WithToast = ({ variant, text, lang, children }) => (
+  <div lang={lang} style={{ position: "relative", flex: "none", width: "fit-content", alignSelf: "flex-start" }}>
     {children}
     <div style={{ position: "absolute", right: "var(--tasty-space-md)", bottom: "var(--tasty-space-md)", display: "flex" }}><Toast variant={variant}>{text}</Toast></div>
   </div>
@@ -237,7 +237,7 @@ export function ChildGraphSection() {
           </View>
           <View name="child-popup-locales" label="ko, ja, zh-Hans">
             <div style={{ display: "flex", flexWrap: "wrap", gap: 16 }}>
-              {["ko", "ja", "zh-Hans"].map((l) => <ChildGraphWindow key={l} lang={l} width={480} height={360} initial={{ selected: "s_01HX7Q" }} />)}
+              {["ko", "ja", "zh-Hans"].map((l) => <div key={l} lang={l}><ChildGraphWindow lang={l} width={480} height={360} initial={{ selected: "s_01HX7Q" }} /></div>)}
             </div>
           </View>
         </Views>
@@ -301,14 +301,14 @@ export function ChildGraphSection() {
           <View name="child-popup-collapsed-locales" label="ko, ja, zh-Hans — collapsed, the common show button with its label, and icon only" wide>
             {row(["ko", "ja", "zh-Hans"].map((l) => (
               <React.Fragment key={l}>
-                <Labelled label={`${l} · label`}><ShellMock scope="surface" narrow collapsed="label" ring label={gt("popup.collapsed_button.label", l)} /></Labelled>
-                <Labelled label={`${l} · icon only`}><ShellMock scope="surface" narrow collapsed="icon" ring leftWidth={64} label={gt("popup.collapsed_button.label", l)} /></Labelled>
+                <Labelled label={`${l} · label`}><div lang={l}><ShellMock scope="surface" narrow collapsed="label" ring label={gt("popup.collapsed_button.label", l)} /></div></Labelled>
+                <Labelled label={`${l} · icon only`}><div lang={l}><ShellMock scope="surface" narrow collapsed="icon" ring leftWidth={64} label={gt("popup.collapsed_button.label", l)} /></div></Labelled>
               </React.Fragment>
             )))}
           </View>
           <View name="child-popup-over-window-locales" label="ko, ja, zh-Hans — over the window">
             <div style={{ display: "flex", flexWrap: "wrap", gap: 16 }}>
-              {["ko", "ja", "zh-Hans"].map((l) => <OverWindow key={l}><ChildGraphWindow collapse lang={l} initial={{ selected: "s_01HX7Q" }} /></OverWindow>)}
+              {["ko", "ja", "zh-Hans"].map((l) => <OverWindow key={l} lang={l}><ChildGraphWindow collapse lang={l} initial={{ selected: "s_01HX7Q" }} /></OverWindow>)}
             </div>
           </View>
         </Views>
@@ -344,7 +344,7 @@ export function ChildGraphSection() {
           </View>
           <View name="child-surface-picker-locales" label="ko, ja, zh-Hans — the open picker">
             <div style={{ display: "flex", flexWrap: "wrap", gap: 16 }}>
-              {["ko", "ja", "zh-Hans"].map((l) => <div key={l} style={{ minHeight: 440, width: "var(--tasty-graph-base-picker-width)" }}><BasePicker lang={l} value="s_m2" open inline /></div>)}
+              {["ko", "ja", "zh-Hans"].map((l) => <div key={l} lang={l} style={{ minHeight: 440, width: "var(--tasty-graph-base-picker-width)" }}><BasePicker lang={l} value="s_m2" open inline /></div>)}
             </div>
           </View>
         </Views>
@@ -448,7 +448,7 @@ export function ChildGraphSection() {
           <View name="child-mirror-banner-no-host-locales" label="ko, ja, zh-Hans — the no-host sentences: detached, the three failures, closed after a drop, the restart notice (the strip alone)" wide>
             <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-lg)" }}>
               {["ko", "ja", "zh-Hans"].map((l) => (
-                <div key={l} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", width: 560, background: "var(--tasty-bg-panel)" }}>
+                <div key={l} lang={l} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", width: 560, background: "var(--tasty-bg-panel)" }}>
                   <span style={cap}>{l}</span>
                   <MirrorBanner host="" profile="" cause="detached" lang={l} />
                   {["unreachable", "surface_gone", "held"].map((r) => <MirrorBanner key={r} host="" profile="" state="failed" reason={r} lang={l} />)}
@@ -462,10 +462,10 @@ export function ChildGraphSection() {
             <div style={{ display: "flex", flexWrap: "wrap", gap: 16 }}>
               {["ko", "ja", "zh-Hans"].map((l) => (
                 <React.Fragment key={l}>
-                  {["unreachable", "surface_gone", "held"].map((r) => <Frame key={l + r} label={`${l} · failed, ${r}`} w={560} h={280}><ChildGraphSurface lang={l} nodes={CHILD_SMALL} status="base-closed" banner={<MirrorBanner state="failed" reason={r} lang={l} />} /></Frame>)}
-                  <WithToast variant="warning" text={gt("attach.toast.mirror_disconnected", l)}><Frame label={`${l} · mirror workspace closed, no saved row, with the app's toast`} w={560} h={280}><ChildGraphSurface lang={l} nodes={CHILD_SMALL} status="base-closed" banner={<MirrorBanner cause="lost" saved={false} lang={l} />} /></Frame></WithToast>
-                  <WithToast variant="success" text={gt("attach.toast.workspace_closed_on_server", l)}><Frame label={`${l} · the server closed the workspace — base closed, the app's toast`} w={560} h={280}><ChildGraphSurface lang={l} nodes={CHILD_SMALL} status="base-closed" /></Frame></WithToast>
-                  <Frame label={`${l} · restart notice`} w={560} h={280}><ChildGraphSurface lang={l} nodes={CHILD_MIRROR} baseId={CHILD_MIRROR_BASE} banner={<RestartNotice lang={l} />} /></Frame>
+                  {["unreachable", "surface_gone", "held"].map((r) => <Frame key={l + r} lang={l} label={`${l} · failed, ${r}`} w={560} h={280}><ChildGraphSurface lang={l} nodes={CHILD_SMALL} status="base-closed" banner={<MirrorBanner state="failed" reason={r} lang={l} />} /></Frame>)}
+                  <WithToast variant="warning" lang={l} text={gt("attach.toast.mirror_disconnected", l)}><Frame label={`${l} · mirror workspace closed, no saved row, with the app's toast`} w={560} h={280}><ChildGraphSurface lang={l} nodes={CHILD_SMALL} status="base-closed" banner={<MirrorBanner cause="lost" saved={false} lang={l} />} /></Frame></WithToast>
+                  <WithToast variant="success" lang={l} text={gt("attach.toast.workspace_closed_on_server", l)}><Frame label={`${l} · the server closed the workspace — base closed, the app's toast`} w={560} h={280}><ChildGraphSurface lang={l} nodes={CHILD_SMALL} status="base-closed" /></Frame></WithToast>
+                  <Frame lang={l} label={`${l} · restart notice`} w={560} h={280}><ChildGraphSurface lang={l} nodes={CHILD_MIRROR} baseId={CHILD_MIRROR_BASE} banner={<RestartNotice lang={l} />} /></Frame>
                 </React.Fragment>
               ))}
             </div>
@@ -500,7 +500,7 @@ export function ChildGraphSection() {
           </View>
           <View name="child-graph-chain-locales" label="ko, ja, zh-Hans — C's drawer">
             <div style={{ display: "flex", flexWrap: "wrap", gap: 16 }}>
-              {["ko", "ja", "zh-Hans"].map((l) => <Frame key={l} label={l} w={640} h={320}><ChildView nodes={CHILD_CHAIN} baseId="s_A1" selected="s_C1" lang={l} /></Frame>)}
+              {["ko", "ja", "zh-Hans"].map((l) => <Frame key={l} lang={l} label={l} w={640} h={320}><ChildView nodes={CHILD_CHAIN} baseId="s_A1" selected="s_C1" lang={l} /></Frame>)}
             </div>
           </View>
         </Views>
@@ -558,7 +558,7 @@ export function ChildGraphSection() {
           <View name="child-gap-locales" label="en, ko, ja, zh-Hans — every label and every reason's drawer, the same states in each language" wide>
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
               {["en", "ko", "ja", "zh-Hans"].map((l) => (
-                <div key={l} style={{ display: "flex", flexWrap: "wrap", gap: 16, alignItems: "flex-start" }}>
+                <div key={l} lang={l} style={{ display: "flex", flexWrap: "wrap", gap: 16, alignItems: "flex-start" }}>
                   {GAP_REASONS.filter((r) => r !== "malformed").map((r) => <Labelled key={r} label={`${l} · ${r}`}><Card node={{ id: `g_${r}`, kind: "gap", reason: r, host: "gpu-box" }} lang={l} /></Labelled>)}
                   {GAP_REASONS.filter((r) => r !== "malformed").map((r) => (r === "cycle"
                     ? <Frame key={r} label={`${l} · drawer · cycle (points back to)`} w={640} h={300}><ChildView nodes={CHILD_GAP_CYCLE} baseId="s_m2" selected="g_loop" lang={l} /></Frame>
@@ -630,7 +630,7 @@ export function ChildGraphSection() {
         when={<>A new <b>Settings › Misc › Child graph</b> section after Anomaly detection, holding one switch row: the initial state of the full tree checkbox in newly opened child graph popups and surfaces, <b>off</b> by default. It is a section of its own because the settings filter matches section labels only, so <i>child</i> or <i>graph</i> finds it. The checkbox in an open graph changes only that graph.</>}>
         <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start", background: "var(--tasty-bg-app)" }}>
           {GRAPH_LANGS.map((l) => (
-            <div key={l} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
+            <div key={l} lang={l} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
               <span style={cap}>{l} · Misc › {gt("settings.misc.subtab.child_graph", l)}</span>
               <div style={{ width: 520, maxWidth: "100%", boxSizing: "border-box", padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)" }}>
                 <ChildGraphSettings lang={l} />
