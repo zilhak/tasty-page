@@ -3,6 +3,7 @@ import { IconButton, Button, Input, MenuItem, Kbd, Spinner, Icon } from "../../c
 import { XCol, XThemes, XToolbar, XCell, XDetail, XROWS, XDragChip } from "./create-drag-search.jsx";
 import * as ExplorerOpsY_ns from "./index.jsx";
 import * as K from "../parts/explorer-kit.jsx";
+import { MIRROR_PILL_LABEL } from "../parts/overlay-frames.jsx";
 import { Section, Spec, Stage, Meta, Note, Views, View } from "../parts/specimen.jsx";
 
 // Tasty Gallery — Explorer file operations: remote (attach) explorer writes (2026-10-12, request explorer-remote-write).
@@ -33,11 +34,26 @@ function Tip({ children }) {
   return <div role="tooltip" style={{ width: "max-content", maxWidth: "var(--tasty-tooltip-max-width)", padding: "var(--tasty-tooltip-padding-y) var(--tasty-tooltip-padding-x)", background: "var(--tasty-tooltip-bg)", border: "var(--tasty-border-width) solid var(--tasty-tooltip-border)", borderRadius: "var(--tasty-tooltip-radius)", boxShadow: "var(--tasty-tooltip-shadow)", fontFamily: "var(--tasty-font-ui)", fontSize: "var(--tasty-tooltip-font-size)", color: "var(--tasty-tooltip-fg)", lineHeight: "var(--tasty-tooltip-line-height)" }}>{children}</div>;
 }
 // Remote host mark for the progress line + queue: remote glyph + host, workspace-mirror-fg (accent-remote).
-function Host({ name = "build-eu" }) {
+// The host text follows the host text rule (Dialogs › File handler › Remote path): the attach
+// profile name (R-57). With no profile name (--ssh or --target-port from the CLI or IPC, a
+// profile saved with an empty name) name is empty and the mark holds attach.mirror_pill_label
+// ("Remote") in the label font, same ink; never 127.0.0.1:<port>.
+function Host({ name = "build-eu", lang = "en" }) {
   return (
     <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-workspace-mirror-gap)", flex: "none", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-workspace-mirror-fg)" }}>
-      <Icon name="remote" size="var(--tasty-workspace-mirror-icon-size)" />{name}
+      <Icon name="remote" size="var(--tasty-workspace-mirror-icon-size)" />
+      {name || <span data-explorer-remote-host="none" lang={lang} style={{ fontFamily: "var(--tasty-font-label)" }}>{MIRROR_PILL_LABEL[lang] || MIRROR_PILL_LABEL.en}</span>}
     </span>
+  );
+}
+// explorer.remote.queue_title, the app catalog's values (tasty lang/*.toml); the {} is the host mark.
+const QUEUE_TITLE = { en: "On {} · one at a time", ko: "{} · 한 번에 하나씩", ja: "{} · 一度に 1 件", "zh-Hans": "在 {} 上 · 每次一项" };
+function QueueHead({ name = "build-eu", lang = "en" }) {
+  const [before, after] = (QUEUE_TITLE[lang] || QUEUE_TITLE.en).split("{}");
+  return (
+    <div lang={lang} style={{ display: "flex", alignItems: "center", gap: "var(--tasty-explorer-remote-queue-head-gap)", padding: "var(--tasty-space-xs) var(--tasty-space-sm)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>
+      {before.trim() && <span>{before.trim()}</span>}<Host name={name} lang={lang} />{after.trim() && <span>{after.trim()}</span>}
+    </div>
   );
 }
 function PendingDetailRow({ glyph = K.ic.folder, value }) {
@@ -63,7 +79,7 @@ function RenamePending({ lang = "en", idle = false }) {
     </div>
   );
 }
-function RemoteQueue() {
+function RemoteQueue({ host = "build-eu" }) {
   const row = (title, sub, run) => (
     <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", minHeight: "var(--tasty-menu-item-height)", padding: "var(--tasty-space-xs) var(--tasty-space-sm)" }}>
       <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-text-muted)" }}>{run ? <Spinner size="var(--tasty-icon-size-sm)" /> : <Icon name="layers" size="var(--tasty-icon-size-sm)" />}</span>
@@ -76,7 +92,7 @@ function RemoteQueue() {
   );
   return (
     <div style={{ position: "absolute", right: "var(--tasty-space-sm)", bottom: "calc(var(--tasty-status-bar-height) + var(--tasty-space-xs))", width: "var(--tasty-size-288)", background: "var(--tasty-menu-bg)", border: "var(--tasty-border-width) solid var(--tasty-menu-border)", borderRadius: "var(--tasty-menu-radius)", boxShadow: "var(--tasty-shadow-popover)", padding: "var(--tasty-space-xs)" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-explorer-remote-queue-head-gap)", padding: "var(--tasty-space-xs) var(--tasty-space-sm)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}><span>On</span><Host /><span>· one at a time</span></div>
+      <QueueHead name={host} />
       {row("Copy 6 items to logs/archive", "2 of 6 · 14 / 52 MB", true)}
       {row("Move to Trash 3 items", "Queued", false)}
     </div>
@@ -200,7 +216,7 @@ function RemoteWriteSection() {
       </Spec>
 
       <Spec id="d4-remote-progress-line-and-queue-host-shown" title="D4 · Remote progress line and queue — host shown"
-        when={<>A remote job uses the same status line, bar and Cancel. The host is shown at the <b>start of the line</b> (remote glyph + host, <span className="tok">--tasty-workspace-mirror-fg</span>), because remote work waits in its own queue and runs one job at a time per connection; without the mark a slow job looks stuck behind nothing. “+n queued” counts <b>only this cell's remote queue</b>. The queue popover gets a header line “On {"{host}"} · one at a time” and otherwise the same rows.</>}>
+        when={<>A remote job uses the same status line, bar and Cancel. The host is shown at the <b>start of the line</b> (remote glyph + host, <span className="tok">--tasty-workspace-mirror-fg</span>), because remote work waits in its own queue and runs one job at a time per connection; without the mark a slow job looks stuck behind nothing. “+n queued” counts <b>only this cell's remote queue</b>. The queue popover gets a header line “On {"{host}"} · one at a time” and otherwise the same rows. The host in both is the <b>host text</b> and follows the <b>host text rule</b> (Dialogs › File handler › Remote path): the attach profile name (R-57); for an attach with <b>no profile name</b> (<code>--ssh</code> or <code>--target-port</code> from the CLI or IPC, a profile saved with an empty name) the word <b>Remote</b> (<code>attach.mirror_pill_label</code>) in the label font and the same ink, glyph unchanged, never <code>127.0.0.1:&lt;port&gt;</code>. The queue header keeps its key: the word sits in the mark, so the line reads as the glyph-marked remote, not as a machine name.</>}>
         <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)" }}>
           <XThemes render={(l) => (
             <XCell w={520} h={l === "Mocha" ? 290 : 200} toolbar={remoteTb} status={<><Host /><YProgressStatus pct={27} text="Copying 2 of 6 · nginx-access-2026-10-11.log.gz" /></>} statusRight={<YStatusRight bytes="14 / 52 MB" queued={1} />} overlay={l === "Mocha" ? <RemoteQueue /> : null}>
@@ -208,8 +224,20 @@ function RemoteWriteSection() {
             </XCell>
           )} />
         </Stage>
+        <Views>
+          <View name="explorer-remote-progress-no-profile" label="No profile name (--ssh or --target-port from the CLI or IPC) — the word Remote in the progress line's mark and the queue header, then the header in every language">
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 16, alignItems: "flex-start" }}>
+              <XCell w={520} h={290} toolbar={remoteTb} status={<><Host name="" /><YProgressStatus pct={27} text="Copying 2 of 6 · nginx-access-2026-10-11.log.gz" /></>} statusRight={<YStatusRight bytes="14 / 52 MB" queued={1} />} overlay={<RemoteQueue host="" />}>
+                <XDetail />
+              </XCell>
+              <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", width: "var(--tasty-size-288)", padding: "var(--tasty-space-xs)", background: "var(--tasty-menu-bg)", border: "var(--tasty-border-width) solid var(--tasty-menu-border)", borderRadius: "var(--tasty-menu-radius)" }}>
+                {["en", "ko", "ja", "zh-Hans"].map((l) => <QueueHead key={l} name="" lang={l} />)}
+              </div>
+            </div>
+          </View>
+        </Views>
         <Meta
-          specs={[["host mark", "remote glyph (workspace-mirror-icon-size) + host · mono caption · workspace-mirror-fg · first on the line"], ["queued", "“+n queued” = this cell's remote queue"], ["queue header", "“On {host} · one at a time” · caption · muted"], ["rest", "same bar · Cancel · rows as local"]]}
+          specs={[["host mark", "remote glyph (workspace-mirror-icon-size) + host · mono caption · workspace-mirror-fg · first on the line"], ["host text", "the host text rule (Dialogs › File handler › Remote path): attach profile name (R-57) · never 127.0.0.1:<port>, the local end of the tunnel"], ["no host", "no profile name (--ssh, --target-port, a profile saved with an empty name) → attach.mirror_pill_label in --tasty-font-label, same ink, glyph unchanged · in the progress line's mark and the queue header's mark · queue_title unchanged · the address bar's host prefix in the frame is the specimen's; its no-host form is not settled here"], ["queued", "“+n queued” = this cell's remote queue"], ["queue header", "“On {host} · one at a time” · caption · muted"], ["rest", "same bar · Cancel · rows as local"]]}
           tokens={[{ tok: "--tasty-workspace-mirror-fg", use: "host mark", color: "var(--tasty-workspace-mirror-fg)" }, { tok: "--tasty-workspace-mirror-gap", use: "glyph ↔ host" }]} />
         <Note>i18n: <code>explorer.remote.queue_title</code> “On {"{host}"} · one at a time” / “{"{host}"} · 한 번에 하나씩” / “{"{host}"} · 一度に 1 件”. The host mark has no string of its own (it is the host name).</Note>
       </Spec>
