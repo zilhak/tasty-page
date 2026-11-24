@@ -448,7 +448,7 @@
   --tasty-banner-countdown-font:      var(--tasty-font-mono);         /* TTL seconds, top-right */
   --tasty-banner-countdown-font-size: var(--tasty-font-size-micro);   /* 10 */
   --tasty-banner-countdown-fg:        var(--tasty-text-muted-raised); /* 2026-11-05 TTL seconds on banner-bg — Mocha 5.65 · Latte 5.17 (was text-muted: Latte 3.65) */
-  --tasty-banner-recessed-opacity:    var(--tasty-opacity-recessed);  /* lower-scope banner dimmed behind a higher one (≈60% transparent) */
+  --tasty-banner-recessed-opacity:    var(--tasty-state-recessed-opacity);  /* lower-scope banner dimmed behind a higher one (≈60% transparent) */
   --tasty-banner-fade:                var(--tasty-motion-ui);         /* 120ms alpha appear / dismiss — position never moves (non-terminal, so fade is allowed) */
   /* INSET placement — for a scope whose content is a native layer tasty cannot
      paint over (the HTML WebView). The banner keeps its shell but the content
@@ -1394,7 +1394,7 @@
   --tasty-dag-edge-dash-reduce:      2 3; /* @kind other */
   --tasty-dag-edge-corner-radius:    var(--tasty-radius);   /* orthogonal elbow */
   --tasty-dag-edge-arrow-size:       var(--tasty-size-8);
-  --tasty-dag-edge-dim-opacity:      var(--tasty-opacity-recessed); /* DEPRECATED 2026-11-05: no reader. A dim edge reads dag-edge-dim */
+  --tasty-dag-edge-dim-opacity:      var(--tasty-state-recessed-opacity); /* DEPRECATED 2026-11-05: no reader. A dim edge reads dag-edge-dim */
   --tasty-dag-edge-dim:              var(--tasty-border-control); /* 2026-11-05 not selected, dead path. Solid, 3:1 floor. Hue drops, the dash keeps the relation */
   --tasty-dag-minimap-node-dim:      var(--tasty-border-control); /* 2026-11-05 skipped and cancelled nodes on the minimap. Solid, 3:1 floor */
   --tasty-dag-edge-highlight:        var(--tasty-accent-primary); /* edges of the selected node */

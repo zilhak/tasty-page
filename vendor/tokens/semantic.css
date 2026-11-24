@@ -299,6 +299,7 @@
   --tasty-state-disabled-border-raised: var(--tasty-border-strong);
   --tasty-node-dim-opacity:       var(--tasty-opacity-dimmed);     /* 2026-11-05 finished DAG node. Latte: 1, see below */
   --tasty-state-dim-opacity:      var(--tasty-opacity-disabled);   /* 0.5 — dimmed ITEMS, not disabled controls */
+  --tasty-state-recessed-opacity: var(--tasty-opacity-recessed);   /* 0.4 — an item held back behind a higher-scope one of its kind (lower banner behind a higher banner) (2026-11-25) */
   --tasty-state-disabled-opacity: var(--tasty-opacity-disabled);   /* DEPRECATED alias (2026-09-29): no control reads it; migrate readers to state-dim-opacity or to the ink rule */
 
   /* ── Stacked text + one-edge marks ── */

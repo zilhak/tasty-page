@@ -1381,6 +1381,10 @@
       "$type": "number",
       "$value": "{primitive.opacity-disabled}"
     },
+    "state-recessed-opacity": {
+      "$type": "number",
+      "$value": "{primitive.opacity-recessed}"
+    },
     "state-disabled-opacity": {
       "$type": "number",
       "$value": "{primitive.opacity-disabled}"
@@ -3364,7 +3368,7 @@
     },
     "banner-recessed-opacity": {
       "$type": "number",
-      "$value": "{primitive.opacity-recessed}"
+      "$value": "{semantic.state-recessed-opacity}"
     },
     "banner-fade": {
       "$type": "duration",
@@ -5549,7 +5553,7 @@
     },
     "dag-edge-dim-opacity": {
       "$type": "number",
-      "$value": "{primitive.opacity-recessed}"
+      "$value": "{semantic.state-recessed-opacity}"
     },
     "dag-edge-dim": {
       "$type": "color",
