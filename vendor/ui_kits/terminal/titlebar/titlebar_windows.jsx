@@ -25,7 +25,11 @@ const TB_WIN_CSS = `
 .tb-win__btn { width:var(--tasty-titlebar-caption-width); display:grid; place-items:center;
   border:0; background:transparent; color:var(--tasty-titlebar-button-fg); cursor:pointer;
   transition:background var(--tasty-motion-ui-fast) var(--tasty-ease-ui), color var(--tasty-motion-ui-fast) var(--tasty-ease-ui); }
-.tb-win__btn svg { width:var(--tasty-icon-size-xs); height:var(--tasty-icon-size-xs); }
+/* The app's Windows caption glyphs: each spans titlebar-caption-glyph-size (the shapes cover half the icon box)
+   with a 1px stroke at any size, as the Linux window button glyphs do. */
+.tb-win__btn .tasty-icon { width:calc(2 * var(--tasty-titlebar-caption-glyph-size)); height:calc(2 * var(--tasty-titlebar-caption-glyph-size));
+  stroke-width:var(--tasty-border-width); }
+.tb-win__btn .tasty-icon > * { vector-effect:non-scaling-stroke; }
 /* Title bar contracts, button: the inactive ink is for rest only. Under the pointer the glyph takes
    titlebar-button-fg-hover in an active or inactive window, and press changes only the fill. The hover rules
    are as specific as the inactive one and come after it, so they win in an inactive window too. */
@@ -49,8 +53,8 @@ function ContractCell({ cell, children }) {
 function TitlebarWindows({ active = true, variant = "split", title = "agents-prod", maximized = false, tabs = ["build · cargo", "README.md", "scratch"], states = {}, cells = {} }) {
   // states freezes buttons for gallery frames: { min | max | close: "hover" | "press" }. A frozen button no
   // longer follows the pointer; the others still do.
-  // Glyphs come from the icon set at icon-size-xs (the .tb-win__btn svg rule). Minimize and close are shared with
-  // the Linux title bar; maximize and restore are the Windows caption shapes.
+  // Glyphs come from the icon set at titlebar-caption-glyph-size (the .tb-win__btn .tasty-icon rule). Minimize and
+  // close are shared with the Linux title bar; maximize and restore are the Windows caption shapes.
   const G = { min: "windowMinimize", max: "captionMaximize", restore: "captionRestore", close: "close" };
   const caption = (
     <div className="tb-win__caption">

@@ -1169,6 +1169,10 @@
 
   /* Windows caption-button hit width (Snap Layouts target on maximize) */
   --tasty-titlebar-caption-width:    var(--tasty-size-46);
+  /* Windows caption glyph: the span of its minimize line, maximize or restore squares, or close X, centered in the
+     caption cell and stroked at border-width (1px). The app draws it at 10 logical px as a fixed constant. Off the
+     UI zoom scale with the caption cell. */
+  --tasty-titlebar-caption-glyph-size: var(--tasty-size-10);
 
   /* Linux DE circular window buttons (min/max/close) — 24px, like caption-width
      this sits OUTSIDE the UI zoom scale (a fixed OS-affordance dimension). */

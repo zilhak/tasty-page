@@ -4939,6 +4939,10 @@
       "$type": "dimension",
       "$value": "{primitive.size-46}"
     },
+    "titlebar-caption-glyph-size": {
+      "$type": "dimension",
+      "$value": "{primitive.size-10}"
+    },
     "titlebar-window-button-size": {
       "$type": "dimension",
       "$value": "{primitive.size-24}"

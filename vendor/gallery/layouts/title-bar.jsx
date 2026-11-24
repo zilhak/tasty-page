@@ -184,7 +184,7 @@ function GalleryTitleBarWindows() {
         })}
       </Views>
       <Meta
-        specs={[["height", "--tasty-titlebar-height"], ["caption cell width", "--tasty-titlebar-caption-width"], ["glyph", "--tasty-icon-size-xs"]]}
+        specs={[["height", "--tasty-titlebar-height"], ["caption cell width", "--tasty-titlebar-caption-width"], ["glyph extent, 1px stroke", "--tasty-titlebar-caption-glyph-size"], ["glyphs", "windowMinimize · captionMaximize · captionRestore · close"]]}
         tokens={[
           { tok: "--tasty-titlebar-button-fg", use: "caption glyph at rest, active", color: "var(--tasty-titlebar-button-fg)" },
           { tok: "--tasty-titlebar-fg-inactive", use: "caption glyph at rest, inactive", color: "var(--tasty-titlebar-fg-inactive)" },
