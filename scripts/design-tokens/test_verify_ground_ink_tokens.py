@@ -220,6 +220,28 @@ class VerifyGroundInkTokens(unittest.TestCase):
             "R4 size [latte]: cyclic alias: --tasty-size",
         )
 
+    def test_consumers_use_fallbacks_for_a_cyclic_token(self):
+        self.css = {
+            "primitives": """
+                :root {
+                    --tasty-loop: var(--tasty-missing, var(--tasty-loop));
+                    --tasty-size: var(--tasty-loop, 8px);
+                    --tasty-ink: var(--tasty-loop, #abcdef);
+                }
+            """,
+            "semantic": "",
+            "components": "",
+        }
+        self.entries = [
+            {"name": "loop", "tier": "primitive", "kind": "non-color"},
+            {"name": "size", "tier": "primitive", "kind": "non-color"},
+            color_entry("ink", "primitive", "#abcdef"),
+        ]
+        self.assert_failure(
+            "R4 loop [mocha]: cyclic alias: --tasty-loop",
+            "R4 loop [latte]: cyclic alias: --tasty-loop",
+        )
+
     def test_r4_recognizes_unsupported_colors(self):
         self.css["primitives"] = self.css["primitives"].replace("12px", "rebeccapurple")
         self.css["semantic"] = self.css["semantic"].replace("0 6px 18px rgba(0, 0, 0, .5)", "hsl(240 100% 50%)")
