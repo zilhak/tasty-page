@@ -138,7 +138,7 @@
 
 ### 렌더링 대비 검사
 
-`npm run check-contrast`는 빌드 결과를 띄워 갤러리 페이지와 사이트 페이지를 Mocha와 Latte로 렌더링한다. `--site-only`와 `--gallery-only`로 한쪽만 실행하고, `--page <키>`는 갤러리 한 페이지만 잰다. 갤러리 측정과 결과 집계는 [`scripts/check-contrast.mjs`](../../scripts/check-contrast.mjs)의 `measure()`와 `run()`에 있다. 사이트 측정은 `scripts/contrast-site.mjs`가 맡는다. 검사 전체 시간과 [진행](../../scripts/contrast-watchdog.mjs)(브라우저 호출 시작이나 `listen`·`launch`·컨텍스트 생성·닫기 등 실행 단계 표시)이 없는 시간(정체)의 상한은 `scripts/check-contrast.mjs`의 `TOTAL_S`와 `STALL_S`에 두며, 환경 변수 `CONTRAST_TIMEOUT_S`와 `CONTRAST_STALL_S`로 각각 초 단위로 바꿀 수 있고 정체 상한은 전체 상한보다 작아야 한다. 어느 상한이든 넘으면 브라우저 닫기를 시작하고 진행 중이던 작업을 출력한 뒤, 닫기와 `--json` 보고서 쓰기를 `scripts/check-contrast.mjs`의 `CLOSE_GRACE_MS`로 정한 유예 시간까지만 기다리고, 닫기가 실패하거나 늦어도 종료 코드 3으로 끝나며, 검사 프로세스가 동기 작업에 갇히면 이 제한은 작동하지 않는다.
+`npm run check-contrast`는 빌드 결과를 띄워 갤러리 페이지와 사이트 페이지를 Mocha와 Latte로 렌더링한다. `--site-only`와 `--gallery-only`로 한쪽만 실행하고, `--page <키>`는 갤러리 한 페이지만 잰다. 갤러리 측정과 결과 집계는 [`scripts/check-contrast.mjs`](../../scripts/check-contrast.mjs)의 `measure()`와 `run()`에 있다. 사이트 측정은 `scripts/contrast-site.mjs`가 맡는다. 갤러리 페이지마다 연 탭은 측정이 실패해도 닫는다(`scripts/contrast-watchdog.mjs`의 `closingTab()`). 검사 전체 시간과 [진행](../../scripts/contrast-watchdog.mjs)(브라우저 호출 시작이나 `listen`·`launch`·컨텍스트 생성·닫기 등 실행 단계 표시)이 없는 시간(정체)의 상한은 `scripts/check-contrast.mjs`의 `TOTAL_S`와 `STALL_S`에 두며, 환경 변수 `CONTRAST_TIMEOUT_S`와 `CONTRAST_STALL_S`로 각각 초 단위로 바꿀 수 있고 정체 상한은 전체 상한보다 작아야 한다. 어느 상한이든 넘으면 브라우저 닫기를 시작하고 진행 중이던 작업을 출력한 뒤, 닫기와 `--json` 보고서 쓰기를 `scripts/check-contrast.mjs`의 `CLOSE_GRACE_MS`로 정한 유예 시간까지만 기다리고, 닫기가 실패하거나 늦어도 종료 코드 3으로 끝나며, 검사 프로세스가 동기 작업에 갇히면 이 제한은 작동하지 않는다.
 
 갤러리 페이지와 토큰 페이지(`design/tokens/`)에서는 다음을 잰다. 토큰 페이지는 갤러리 수에 넣지 않고 `SPECIMEN_ROUTES`로 더한다. 기본 언어 경로에서 한 번만 잰다. 다른 언어 경로의 표본은 같은 소스라 다시 재지 않는다.
 
@@ -151,14 +151,14 @@
 
 사이트 페이지는 기본 언어의 갤러리 밖에 있는 빌드된 페이지 전부(랜딩, 가이드, 디자인, privacy, 모든 언어)다. 다른 언어의 `design/gallery/*`도 여기에 들어가며, 사이트 패스는 `[data-gallery-page]` 안을 재지 않으므로 그 페이지에서는 표본을 뺀 공통 부분만 잰다. 기본 언어가 아닌 언어마다 갤러리 페이지 수가 맞지 않거나, 표본 페이지에 `[data-gallery-page]`가 정확히 1개가 아니면 실패한다. 언어 하나당 15페이지 × 2폭 × 2테마가 는다. 기준은 `vendor/tokens/ground-ink-rules.json`의 `site.places`이고 `vendor/RULES.md` 15절이 같은 내용을 설명한다.
 
-- 패스: 각 페이지를 넓은 화면(1440px)과 좁은 화면(390px)에서 잰다. 넓은 화면에서는 랜딩 창의 나머지 탭, 포인터 올림과 누름, 키보드 포커스, 검색 결과도 잰다.
+- 패스: 각 페이지를 넓은 화면(1440px)과 좁은 화면(390px)에서 잰다. 넓은 화면에서는 랜딩 창의 나머지 탭, 포인터 올림과 누름, 키보드 포커스, 검색 결과도 잰다. 포인터 패스는 행의 선택자 대안마다 그 대안이 나타나는 페이지 중 사이트 페이지 목록에서 가장 앞선 페이지를 고른다. 같은 목록에서는 실행마다 같은 페이지를 쓴다(`scripts/contrast-site.mjs`의 `recordFound()`·`orderFound()`).
 - 행: 선택자가 어느 페이지에서도 요소를 찾지 못하면 실패한다. 요소를 하나도 재지 못해도, 등급에 못 미쳐도, 어떤 행도 지정하지 않은 잉크를 보여도 실패한다.
 - 여러 잉크를 묶는 행: 한 선택자를 여러 행이 나눠 쓰거나 `a`처럼 범위가 넓거나 `.shell`처럼 창 그림 전체를 가리키는 행이다. 해당 잉크가 한 번 이상 나타나면 되고, 요소마다 등급은 그대로 잰다.
 - 행이 없는 것: 보이는 글자, 생성 내용(`::before`, `::after`), 입력값, placeholder는 4.5로 잰다. 24px 이상 또는 18.66px 이상 굵은 글자는 3이다. SVG 도형은 3이다.
 - 바탕: 불투명한 칠까지 조상을 합성한다. 그라데이션은 색 지점마다 재서 가장 낮은 값을 쓰고, 그림 바탕 위 글자는 값을 잴 수 없어 실패한다. 재는 값은 바탕의 실제 값이며 행의 `grounds`와 대조하지는 않는다.
 - 예외: 규칙 파일의 `exceptions` id를 쓴 `data-audit-exempt`와 `data-ink-grade="none"`만 인정한다. 쓰인 횟수를 출력한다.
 - 고정 마크업: 릴리스 버전, 번역 상태, 가이드 본문에 따라 달라 빌드 결과에 없는 행(메모, 작은 제목, 링크 속 코드, 인용 속 링크, 버전 칩)은 `contrast-site.mjs`의 `FIXTURES`로 넣어 재고, 출력에 행 이름을 적는다. 규칙이 깨지면 다른 잉크가 나와 실패한다. 실제 페이지에 그 요소가 있다는 뜻은 아니다.
-- 재지 않는 것: 데모의 오버레이(설정 창, 명령 팔레트 등)는 갤러리에서 잰다. 포인터 패스는 행마다 첫 요소 하나만 잰다.
+- 재지 않는 것: 데모의 오버레이(설정 창, 명령 팔레트 등)는 갤러리에서 잰다. 포인터 패스는 넓은 화면의 기본 측정에서 발견한 선택자 대안마다 앞서 정한 페이지에서 대상 하나의 측정을 시도한다. 대상은 `scripts/contrast-page.mjs`의 `aim()`이 고르며, `aria-current`가 없는 후보를 우선한다.
 
 측정은 시간이 아니라 조건을 기다린다. 스타일 변경은 transition의 프레임을 거쳐야 계산값에 나타난다. `global.css`의 reduced motion 규칙은 `transition-duration`만 0.01ms로 바꾸므로 기본값 `transition-property: all`과 합쳐져 모든 속성의 변경이 transition을 거친다. 그래서 탭 클릭, 포인터, 포커스, 검색 뒤의 모든 측정 전에 `contrast-page.mjs`의 `stylesSettled`가 끝이 있는 애니메이션이 모두 끝나기를 기다린다. 30초 안에 끝나지 않으면 실패한다. 고정 시간을 기다리면 부하가 걸렸을 때 옛 잉크를 읽고, `color-mix` 토큰의 진행 중 값은 `oklab()`이라 `parse`가 읽지 못해 그 요소나 바탕을 건너뛴다.
 
