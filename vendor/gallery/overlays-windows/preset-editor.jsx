@@ -652,7 +652,7 @@ import { Section, Spec, Stage, Meta, Note, Do, Dont } from "../parts/specimen.js
 
     return (
       <EditCtx.Provider value={ctx}>
-      <div style={{ width: "100%", maxWidth: 680, minWidth: 0, height: 452, display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)",
+      <div style={{ width: 680, flex: "none", height: 452, display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)",
         border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden", boxShadow: "var(--tasty-shadow-modal)" }}>
         {/* title bar */}
         <div style={{ display: "flex", alignItems: "center", gap: 8, height: 36, flex: "none", padding: "0 12px", borderBottom: "1px solid var(--tasty-separator)", background: "var(--tasty-bg-sidebar)" }}>
@@ -769,7 +769,7 @@ import { Section, Spec, Stage, Meta, Note, Do, Dont } from "../parts/specimen.js
           when={<>The modeless window behind <b>Tools › Presets</b>. <b>L1 tabs</b> pick the scope (Workspace / Tab / Pane); a <b>left list</b> of saved presets for that scope feeds a <b>right detail</b> = a toolbar (rename · duplicate · delete · <b>Edit</b>) over a <b>live demo-layout preview</b>. The selected row uses the surface-fill + 2px accent left-bar (the file-handler / sidebar idiom). Click a preset, switch its mini tabs, then hit <b>Edit</b> — structure edits happen on the preview, a leaf's gear opens its settings screen in this same column.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)" }}><PresetWindow /></Stage>
           <Meta
-            specs={[["frame", "up to 680 × 452 (adaptive)"], ["L1 tabs", "40px, accent underline"], ["list", "196px, fill + 2px bar"], ["toolbar", "44px, Edit on the right"], ["preview", "flex, on --tasty-bg-app"]]}
+            specs={[["frame", "680 × 452"], ["L1 tabs", "40px, accent underline"], ["list", "196px, fill + 2px bar"], ["toolbar", "44px, Edit on the right"], ["preview", "flex, on --tasty-bg-app"]]}
             tokens={[{ tok: "--tasty-bg-sidebar", use: "L1 + list", color: "var(--tasty-bg-sidebar)" }, { tok: "--tasty-bg-panel", use: "detail", color: "var(--tasty-bg-panel)" }, { tok: "--tasty-surface-active", use: "selected preset", color: "var(--tasty-surface-active)" }, { tok: "--tasty-accent-primary", use: "active tab / select bar", color: "var(--tasty-accent-primary-raised)" }]} />
           <Note>This is the <b>2-depth idiom</b> (L1 fixed scope tabs → growable L2 list → detail), reused from Settings — not a new shell. The detail column has two fillings: the demo-layout preview (below) and, while a surface is being configured, the <b>surface settings screen</b> (last spec). Try <b>six</b> › Edit › select a small cell › gear.</Note>
         </Spec>
