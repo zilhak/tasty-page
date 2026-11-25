@@ -1088,7 +1088,7 @@ function SearchBarFrame({ value = "tasty", focused = false, invalid = false, hei
       border: "1px solid var(--tasty-border-default)", background: `var(--tasty-surface-terminal-${term}-bg)` }}>
       {/* faux terminal text */}
       <div data-terminal-content="" style={{ padding: "12px 14px", fontFamily: "var(--tasty-font-mono)", fontSize: 12.5, lineHeight: 1.7, color: `var(--tasty-surface-terminal-${term}-fg)` }}>
-        <div><span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-color-green)" }}>~/tasty</span> $ cargo build --release</div>
+        <div><span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-ansi-green)" }}>~/tasty</span> $ cargo build --release</div>
         <div>   Compiling tasty-core v0.5.0</div>
         <div>   Compiling <mark style={{ background: "var(--tasty-search-match-bg)", color: "var(--tasty-text-primary)" }}>tasty</mark>-ui-widgets v0.5.0</div>
         <div>   Compiling <mark style={{ background: "var(--tasty-search-match-active-bg)", color: focused ? "var(--tasty-search-match-active-unfocused-fg)" : "var(--tasty-search-match-active-fg)" }}>tasty</mark>-gallery v0.5.0</div>
@@ -1708,7 +1708,7 @@ function BannerScope({ height = 240, tab = "vim", children }) {
         ))}
       </div>
       <div data-terminal-content="" style={{ padding: "12px 14px", fontFamily: "var(--tasty-font-mono)", fontSize: 12, lineHeight: 1.7, color: "var(--tasty-surface-terminal-focused-fg)" }}>
-        <div><span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-color-green)" }}>~/tasty</span> $ vim src/main.rs</div>
+        <div><span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-ansi-green)" }}>~/tasty</span> $ vim src/main.rs</div>
         <div>-- VISUAL --   1,1   Top</div>
       </div>
       <div style={{ position: "absolute", top: "calc(28px + var(--tasty-banner-margin))",
