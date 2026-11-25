@@ -139,11 +139,12 @@ const urlOf = (origin, page) => `${origin}/${page}`;
 // landing, so without it the check would measure the browser's language there instead of the default one.
 export const CHECK_LOCALE = "en-US";
 
-// Opens page and fails when the document that loads has another path, so a page that sends the browser elsewhere is
-// never counted under its own name.
+// Opens page, waits for it to settle, then fails when the document it settled on has another path, so a page that sends
+// the browser elsewhere, at load or later, is never counted under its own name. Every pass opens its pages through here.
 async function openPage(tab, origin, page) {
   const asked = urlOf(origin, page);
   await tab.goto(asked, { waitUntil: "load", timeout: 120000 });
+  await settle(tab);
   const got = new URL(tab.url()).pathname;
   if (got !== new URL(asked).pathname) throw new Error(`asked for ${new URL(asked).pathname}, the page went to ${got}`);
 }
@@ -214,7 +215,6 @@ async function restPass(env, origin, pages, t, rules, theme, viewport) {
         tab.on("pageerror", (e) => t.errors.push(`${page}: ${String(e).slice(0, 200)}`));
         try {
           await openPage(tab, origin, page);
-          await settle(tab);
           if (SPECIMEN_PAGE.test(page)) {
             const found = await tab.locator("[data-gallery-page]").count();
             if (found !== 1) t.errors.push(`${page}: expected one [data-gallery-page], found ${found}`);
@@ -254,7 +254,6 @@ async function pointerPass(env, origin, t, rules, theme) {
         where.at = `pointer ${placeOf(page)} ${row.id} alt ${n + 1}`;
         if (at !== page) {
           await openPage(tab, origin, page);
-          await settle(tab);
           await injectFixtures(tab, page);
           await installPageLib(tab);
           at = page;
@@ -286,7 +285,6 @@ async function focusPass(env, origin, t, rules, theme) {
   for (const page of FOCUS_PAGES) {
     const opened = await withTab(env, `focus ${placeOf(page)}`, async (tab, where) => {
       await openPage(tab, origin, page);
-      await settle(tab);
       await installPageLib(tab);
       for (let i = 0; i < TAB_STOPS; i += 1) {
         where.at = `focus ${placeOf(page)} ${row.id} Tab ${i + 1}`;
@@ -314,7 +312,6 @@ async function drawerPass(env, origin, t, rules, theme) {
   for (const page of DRAWER_PAGES) {
     const opened = await withTab(env, `drawer ${placeOf(page)}`, async (tab, where) => {
       await openPage(tab, origin, page);
-      await settle(tab);
       await installPageLib(tab);
       await tab.click(".menu-btn");
       await tab.mouse.move(0, 0);
@@ -351,8 +348,7 @@ async function drawerPass(env, origin, t, rules, theme) {
 async function searchPass(env, origin, t, rules, theme) {
   const rows = rules.rows.filter((r) => r.selector.includes(".search__results"));
   await withTab(env, `search ${SEARCH_PAGE}`, async (tab, where) => {
-    await tab.goto(urlOf(origin, SEARCH_PAGE), { waitUntil: "load", timeout: 120000 });
-    await settle(tab);
+    await openPage(tab, origin, SEARCH_PAGE);
     await installPageLib(tab);
     const measure = async (list) => {
       await stylesSettled(tab);
@@ -385,8 +381,7 @@ async function langPass(env, origin, t, rules, theme) {
   const held = (r) => r.selector.includes(".lang-switch__menu") || r.selector.includes("[open]");
   const rows = rules.rows.filter(held);
   await withTab(env, `language list ${placeOf(LANGS[0].landing)}`, async (tab, where) => {
-    await tab.goto(urlOf(origin, LANGS[0].landing), { waitUntil: "load" });
-    await settle(tab);
+    await openPage(tab, origin, LANGS[0].landing);
     await installPageLib(tab);
     await tab.click(".lang-switch__toggle");
     await tab.mouse.move(0, 0);
