@@ -11,6 +11,7 @@ import { existsSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { LANGS } from "../src/lib/langs.mjs";
 import { installPageLib, stylesSettled } from "./contrast-page.mjs";
+import { NO_WATCHDOG, tracked } from "./contrast-watchdog.mjs";
 
 const VIEWPORTS = [{ name: "wide", width: 1440, height: 1000 }, { name: "narrow", width: 390, height: 844 }];
 const CONCURRENT_TABS = 6;
@@ -133,6 +134,24 @@ async function settle(tab) {
 }
 
 const urlOf = (origin, page) => `${origin}/${page}`;
+const placeOf = (page) => page || "/";
+
+// Opens a tab as one in-flight entry of the watchdog, from before newPage until the pass is done with it. The pass sets
+// where.at as it moves, so the entry names the page and step it is on. Returns false, opening nothing, once the
+// watchdog has expired.
+async function withTab(env, at, fn) {
+  if (env.watchdog.check()) return false;
+  const where = { at };
+  const label = () => `${env.base} ${where.at}`;
+  const handle = env.watchdog.begin(`${label()} newPage`);
+  try {
+    const tab = tracked(await env.context.newPage(), env.watchdog, handle, label);
+    await fn(tab, where);
+  } finally {
+    handle.end();
+  }
+  return true;
+}
 
 // Records which page first shows each pointer row's element, since most pages do not have all of them.
 async function recordAlts(tab, t, rules, page) {
@@ -145,58 +164,203 @@ async function recordAlts(tab, t, rules, page) {
   found.forEach((key) => { if (!t.altsFound[key]) t.altsFound[key] = page; });
 }
 
-async function restPass(context, origin, pages, t, rules, theme, viewport) {
+async function restPass(env, origin, pages, t, rules, theme, viewport) {
   const queue = [...pages];
   const worker = async () => {
     for (;;) {
+      if (env.watchdog.check()) return;
       const page = queue.shift();
       if (page === undefined) return;
-      const tab = await context.newPage();
-      tab.on("pageerror", (e) => t.errors.push(`${page}: ${String(e).slice(0, 200)}`));
-      try {
-        await tab.goto(urlOf(origin, page), { waitUntil: "load", timeout: 120000 });
-        await settle(tab);
-        if (SPECIMEN_PAGE.test(page)) {
-          const found = await tab.locator("[data-gallery-page]").count();
-          if (found !== 1) t.errors.push(`${page}: expected one [data-gallery-page], found ${found}`);
-        }
-        await injectFixtures(tab, page);
-        await measureRest(tab, t, rules, theme, page, viewport);
-        if (viewport === "wide") await recordAlts(tab, t, rules, page);
-        if (viewport === "wide" && LANDING_PAGES.includes(page)) {
-          for (const title of LANDING_TABS) {
-            await tab.getByText(title, { exact: true }).first().click();
-            await measureRest(tab, t, rules, theme, page, `${viewport}, tab ${title}`);
+      await withTab(env, `rest ${placeOf(page)}`, async (tab, where) => {
+        tab.on("pageerror", (e) => t.errors.push(`${page}: ${String(e).slice(0, 200)}`));
+        try {
+          await tab.goto(urlOf(origin, page), { waitUntil: "load", timeout: 120000 });
+          await settle(tab);
+          if (SPECIMEN_PAGE.test(page)) {
+            const found = await tab.locator("[data-gallery-page]").count();
+            if (found !== 1) t.errors.push(`${page}: expected one [data-gallery-page], found ${found}`);
           }
+          await injectFixtures(tab, page);
+          await measureRest(tab, t, rules, theme, page, viewport);
+          if (viewport === "wide") await recordAlts(tab, t, rules, page);
+          if (viewport === "wide" && LANDING_PAGES.includes(page)) {
+            for (const title of LANDING_TABS) {
+              where.at = `rest ${placeOf(page)} tab ${title}`;
+              await tab.getByText(title, { exact: true }).first().click();
+              await measureRest(tab, t, rules, theme, page, `${viewport}, tab ${title}`);
+            }
+          }
+        } catch (e) {
+          t.errors.push(`${page}: ${String(e).slice(0, 200)}`);
         }
-      } catch (e) {
-        t.errors.push(`${page}: ${String(e).slice(0, 200)}`);
-      }
-      await tab.close();
+        await tab.close();
+      });
     }
   };
   await Promise.all(Array.from({ length: CONCURRENT_TABS }, worker));
 }
 
-async function pointerPass(context, origin, t, rules, theme) {
+async function pointerPass(env, origin, t, rules, theme) {
   const rows = rules.rows.filter((r) => r.state === "hover" || r.state === "press");
-  const tab = await context.newPage();
-  let at = null;
-  for (const row of rows) {
-    if (row.selector.includes(".search__results") || row.selector.includes(".lang-switch__menu")) continue;
-    const rec = t.rows[row.id];
-    const alts = Object.keys(t.altsFound).filter((k) => k.startsWith(`${row.id}\n`));
-    for (const key of alts) {
-      const alt = key.split("\n")[1];
-      const page = t.altsFound[key];
-      if (at !== page) {
-        await tab.goto(urlOf(origin, page), { waitUntil: "load", timeout: 120000 });
-        await settle(tab);
-        await injectFixtures(tab, page);
-        await installPageLib(tab);
-        at = page;
+  await withTab(env, "pointer (no page)", async (tab, where) => {
+    let at = null;
+    for (const row of rows) {
+      if (row.selector.includes(".search__results") || row.selector.includes(".lang-switch__menu")) continue;
+      const rec = t.rows[row.id];
+      const alts = Object.keys(t.altsFound).filter((k) => k.startsWith(`${row.id}\n`));
+      for (const key of alts) {
+        const alt = key.split("\n")[1];
+        const page = t.altsFound[key];
+        where.at = `pointer ${placeOf(page)} ${row.id}`;
+        if (at !== page) {
+          await tab.goto(urlOf(origin, page), { waitUntil: "load", timeout: 120000 });
+          await settle(tab);
+          await injectFixtures(tab, page);
+          await installPageLib(tab);
+          at = page;
+        }
+        const point = await tab.evaluate((a) => window.__contrast.aim(a), alt);
+        if (!point) continue;
+        rec.found += 1;
+        await tab.mouse.move(point.x, point.y);
+        if (row.state === "press") await tab.mouse.down();
+        await stylesSettled(tab);
+        const r = await tab.evaluate(({ row: x, tokens, name }) => window.__contrast.measureAimed(x, tokens, name), { row, tokens: rules.tokens, name: theme });
+        if (row.state === "press") { await tab.mouse.move(0, 0); await tab.mouse.up(); }
+        if (!r.reached) rec.notes.push(`pointer did not reach ${alt} on ${page}`);
+        if (!r.measured) continue;
+        rec.measured += 1;
+        if (r.inkOk) rec.inkHits += 1;
+        if (r.below) rec.below.push({ ...r, page, viewport: row.state });
+        if (!r.inkOk) rec.mismatch.push({ ...r, page, viewport: row.state });
       }
-      const point = await tab.evaluate((a) => window.__contrast.aim(a), alt);
+    }
+    await tab.close();
+  });
+}
+
+async function focusPass(env, origin, t, rules, theme) {
+  const row = rules.rows.find((r) => r.state === "focus");
+  if (!row) return;
+  const rec = t.rows[row.id];
+  for (const page of FOCUS_PAGES) {
+    const opened = await withTab(env, `focus ${placeOf(page)}`, async (tab, where) => {
+      await tab.goto(urlOf(origin, page), { waitUntil: "load", timeout: 120000 });
+      await settle(tab);
+      await installPageLib(tab);
+      for (let i = 0; i < TAB_STOPS; i += 1) {
+        where.at = `focus ${placeOf(page)} Tab ${i + 1}`;
+        await tab.keyboard.press("Tab");
+        await stylesSettled(tab);
+        const r = await tab.evaluate(({ row: x, tokens, name }) => window.__contrast.measureFocus(x, tokens, name), { row, tokens: rules.tokens, name: theme });
+        if (!r) continue;
+        rec.found += 1;
+        rec.measured += 1;
+        if (r.inkOk) rec.inkHits += 1;
+        if (r.below) rec.below.push({ ...r, page, viewport: "focus" });
+        if (!r.inkOk) rec.mismatch.push({ ...r, page, viewport: "focus" });
+      }
+      await tab.close();
+    });
+    if (!opened) return;
+  }
+}
+
+// The narrow drawer is hidden until the menu button opens it, so its rows and its mantle ground are measured open.
+async function drawerPass(env, origin, t, rules, theme) {
+  const held = (r) => r.selector.includes(".site-menu") || r.selector.includes(".menu-btn[aria-expanded");
+  const rows = rules.rows.filter(held);
+  const sidebarRows = restRows(rules).filter((r) => !held(r) && /\.nav-(section|list|desc)/.test(r.selector));
+  for (const page of DRAWER_PAGES) {
+    const opened = await withTab(env, `drawer ${placeOf(page)}`, async (tab, where) => {
+      await tab.goto(urlOf(origin, page), { waitUntil: "load", timeout: 120000 });
+      await settle(tab);
+      await installPageLib(tab);
+      await tab.click(".menu-btn");
+      await tab.mouse.move(0, 0);
+      await tab.waitForFunction(() => getComputedStyle(document.querySelector("#site-drawer")).visibility === "visible");
+      await stylesSettled(tab);
+      const m = await tab.evaluate(({ rows: x, allRows, family, tokens, name, scanArgs }) => {
+        const lib = window.__contrast;
+        return { rows: lib.measureRows(x, allRows, family, tokens, name), scan: lib.scan(document.querySelector("#site-drawer"), scanArgs) };
+      }, { rows: [...rows.filter((r) => r.state === "rest" || r.state === "selected"), ...sidebarRows], allRows: rules.rows, family: [...rules.family], tokens: rules.tokens, name: theme, scanArgs: needsScanArgs(rules, theme) });
+      mergeScan(t, m.scan, page, "drawer");
+      m.rows.forEach((res) => mergeRow(t, rules, res, page, "drawer"));
+      for (const row of rows.filter((r) => r.state === "hover")) {
+        const rec = t.rows[row.id];
+        where.at = `drawer ${placeOf(page)} ${row.id}`;
+        const point = await tab.evaluate((a) => window.__contrast.aim(a), row.selector);
+        if (!point) continue;
+        rec.found += 1;
+        await tab.mouse.move(point.x, point.y);
+        await stylesSettled(tab);
+        const r = await tab.evaluate(({ row: x, tokens, name }) => window.__contrast.measureAimed(x, tokens, name), { row, tokens: rules.tokens, name: theme });
+        if (!r.reached) rec.notes.push(`pointer did not reach ${row.selector}`);
+        if (!r.measured) continue;
+        rec.measured += 1;
+        if (r.inkOk) rec.inkHits += 1;
+        if (r.below) rec.below.push({ ...r, page, viewport: "drawer, pointer over" });
+        if (!r.inkOk) rec.mismatch.push({ ...r, page, viewport: "drawer, pointer over" });
+      }
+      await tab.close();
+    });
+    if (!opened) return;
+  }
+}
+
+async function searchPass(env, origin, t, rules, theme) {
+  const rows = rules.rows.filter((r) => r.selector.includes(".search__results"));
+  await withTab(env, `search ${SEARCH_PAGE}`, async (tab, where) => {
+    await tab.goto(urlOf(origin, SEARCH_PAGE), { waitUntil: "load", timeout: 120000 });
+    await settle(tab);
+    await installPageLib(tab);
+    const measure = async (list) => {
+      await stylesSettled(tab);
+      const m = await tab.evaluate(({ rows: x, allRows, family, tokens, name, scanArgs }) => {
+        const lib = window.__contrast;
+        return { rows: lib.measureRows(x, allRows, family, tokens, name), scan: lib.scan(document.querySelector(".search__results"), scanArgs) };
+      }, { rows: list, allRows: rules.rows, family: [...rules.family], tokens: rules.tokens, name: theme, scanArgs: needsScanArgs(rules, theme) });
+      mergeScan(t, m.scan, SEARCH_PAGE, "search");
+      m.rows.forEach((res) => mergeRow(t, rules, res, SEARCH_PAGE, "search"));
+    };
+    where.at = `search ${SEARCH_PAGE} results`;
+    await tab.click(".search input");
+    await tab.fill(".search input", "tasty");
+    await tab.waitForSelector(".search__results[data-open] a", { timeout: 20000 });
+    await measure(rows.filter((r) => !r.selector.includes("[data-active]")));
+    where.at = `search ${SEARCH_PAGE} active`;
+    await tab.keyboard.press("ArrowDown");
+    await tab.waitForSelector(".search__results a[data-active]", { timeout: 5000 });
+    await measure(rows.filter((r) => r.selector.includes("[data-active]")));
+    where.at = `search ${SEARCH_PAGE} empty`;
+    await tab.fill(".search input", "zzzzqqqq");
+    await tab.waitForSelector(".search__empty", { timeout: 5000 });
+    await measure([]);
+    await tab.close();
+  });
+}
+
+// The list is closed in every other pass, so its rows and the open button are measured here, with the list open.
+async function langPass(env, origin, t, rules, theme) {
+  const held = (r) => r.selector.includes(".lang-switch__menu") || r.selector.includes("[open]");
+  const rows = rules.rows.filter(held);
+  await withTab(env, `language list ${placeOf(LANGS[0].landing)}`, async (tab, where) => {
+    await tab.goto(urlOf(origin, LANGS[0].landing), { waitUntil: "load" });
+    await settle(tab);
+    await installPageLib(tab);
+    await tab.click(".lang-switch__toggle");
+    await tab.mouse.move(0, 0);
+    await stylesSettled(tab);
+    const m = await tab.evaluate(({ rows: x, allRows, family, tokens, name, scanArgs }) => {
+      const lib = window.__contrast;
+      return { rows: lib.measureRows(x, allRows, family, tokens, name), scan: lib.scan(document.querySelector(".lang-switch"), scanArgs) };
+    }, { rows: rows.filter((r) => r.state === "rest" || r.state === "selected"), allRows: rules.rows, family: [...rules.family], tokens: rules.tokens, name: theme, scanArgs: needsScanArgs(rules, theme) });
+    mergeScan(t, m.scan, LANGS[0].landing, "language list");
+    m.rows.forEach((res) => mergeRow(t, rules, res, LANGS[0].landing, "language list"));
+    for (const row of rows.filter((r) => r.state === "hover" || r.state === "press")) {
+      const rec = t.rows[row.id];
+      where.at = `language list ${placeOf(LANGS[0].landing)} ${row.id}`;
+      const point = await tab.evaluate((a) => window.__contrast.aim(a), row.selector);
       if (!point) continue;
       rec.found += 1;
       await tab.mouse.move(point.x, point.y);
@@ -204,161 +368,44 @@ async function pointerPass(context, origin, t, rules, theme) {
       await stylesSettled(tab);
       const r = await tab.evaluate(({ row: x, tokens, name }) => window.__contrast.measureAimed(x, tokens, name), { row, tokens: rules.tokens, name: theme });
       if (row.state === "press") { await tab.mouse.move(0, 0); await tab.mouse.up(); }
-      if (!r.reached) rec.notes.push(`pointer did not reach ${alt} on ${page}`);
-      if (!r.measured) continue;
-      rec.measured += 1;
-      if (r.inkOk) rec.inkHits += 1;
-      if (r.below) rec.below.push({ ...r, page, viewport: row.state });
-      if (!r.inkOk) rec.mismatch.push({ ...r, page, viewport: row.state });
-    }
-  }
-  await tab.close();
-}
-
-async function focusPass(context, origin, t, rules, theme) {
-  const row = rules.rows.find((r) => r.state === "focus");
-  if (!row) return;
-  const rec = t.rows[row.id];
-  for (const page of FOCUS_PAGES) {
-    const tab = await context.newPage();
-    await tab.goto(urlOf(origin, page), { waitUntil: "load", timeout: 120000 });
-    await settle(tab);
-    await installPageLib(tab);
-    for (let i = 0; i < TAB_STOPS; i += 1) {
-      await tab.keyboard.press("Tab");
-      await stylesSettled(tab);
-      const r = await tab.evaluate(({ row: x, tokens, name }) => window.__contrast.measureFocus(x, tokens, name), { row, tokens: rules.tokens, name: theme });
-      if (!r) continue;
-      rec.found += 1;
-      rec.measured += 1;
-      if (r.inkOk) rec.inkHits += 1;
-      if (r.below) rec.below.push({ ...r, page, viewport: "focus" });
-      if (!r.inkOk) rec.mismatch.push({ ...r, page, viewport: "focus" });
-    }
-    await tab.close();
-  }
-}
-
-// The narrow drawer is hidden until the menu button opens it, so its rows and its mantle ground are measured open.
-async function drawerPass(context, origin, t, rules, theme) {
-  const held = (r) => r.selector.includes(".site-menu") || r.selector.includes(".menu-btn[aria-expanded");
-  const rows = rules.rows.filter(held);
-  const sidebarRows = restRows(rules).filter((r) => !held(r) && /\.nav-(section|list|desc)/.test(r.selector));
-  for (const page of DRAWER_PAGES) {
-    const tab = await context.newPage();
-    await tab.goto(urlOf(origin, page), { waitUntil: "load", timeout: 120000 });
-    await settle(tab);
-    await installPageLib(tab);
-    await tab.click(".menu-btn");
-    await tab.mouse.move(0, 0);
-    await tab.waitForFunction(() => getComputedStyle(document.querySelector("#site-drawer")).visibility === "visible");
-    await stylesSettled(tab);
-    const m = await tab.evaluate(({ rows: x, allRows, family, tokens, name, scanArgs }) => {
-      const lib = window.__contrast;
-      return { rows: lib.measureRows(x, allRows, family, tokens, name), scan: lib.scan(document.querySelector("#site-drawer"), scanArgs) };
-    }, { rows: [...rows.filter((r) => r.state === "rest" || r.state === "selected"), ...sidebarRows], allRows: rules.rows, family: [...rules.family], tokens: rules.tokens, name: theme, scanArgs: needsScanArgs(rules, theme) });
-    mergeScan(t, m.scan, page, "drawer");
-    m.rows.forEach((res) => mergeRow(t, rules, res, page, "drawer"));
-    for (const row of rows.filter((r) => r.state === "hover")) {
-      const rec = t.rows[row.id];
-      const point = await tab.evaluate((a) => window.__contrast.aim(a), row.selector);
-      if (!point) continue;
-      rec.found += 1;
-      await tab.mouse.move(point.x, point.y);
-      await stylesSettled(tab);
-      const r = await tab.evaluate(({ row: x, tokens, name }) => window.__contrast.measureAimed(x, tokens, name), { row, tokens: rules.tokens, name: theme });
       if (!r.reached) rec.notes.push(`pointer did not reach ${row.selector}`);
       if (!r.measured) continue;
       rec.measured += 1;
       if (r.inkOk) rec.inkHits += 1;
-      if (r.below) rec.below.push({ ...r, page, viewport: "drawer, pointer over" });
-      if (!r.inkOk) rec.mismatch.push({ ...r, page, viewport: "drawer, pointer over" });
+      if (r.below) rec.below.push({ ...r, page: LANGS[0].landing, viewport: row.state });
+      if (!r.inkOk) rec.mismatch.push({ ...r, page: LANGS[0].landing, viewport: row.state });
     }
     await tab.close();
-  }
+  });
 }
 
-async function searchPass(context, origin, t, rules, theme) {
-  const rows = rules.rows.filter((r) => r.selector.includes(".search__results"));
-  const tab = await context.newPage();
-  await tab.goto(urlOf(origin, SEARCH_PAGE), { waitUntil: "load", timeout: 120000 });
-  await settle(tab);
-  await installPageLib(tab);
-  const measure = async (list) => {
-    await stylesSettled(tab);
-    const m = await tab.evaluate(({ rows: x, allRows, family, tokens, name, scanArgs }) => {
-      const lib = window.__contrast;
-      return { rows: lib.measureRows(x, allRows, family, tokens, name), scan: lib.scan(document.querySelector(".search__results"), scanArgs) };
-    }, { rows: list, allRows: rules.rows, family: [...rules.family], tokens: rules.tokens, name: theme, scanArgs: needsScanArgs(rules, theme) });
-    mergeScan(t, m.scan, SEARCH_PAGE, "search");
-    m.rows.forEach((res) => mergeRow(t, rules, res, SEARCH_PAGE, "search"));
-  };
-  await tab.click(".search input");
-  await tab.fill(".search input", "tasty");
-  await tab.waitForSelector(".search__results[data-open] a", { timeout: 20000 });
-  await measure(rows.filter((r) => !r.selector.includes("[data-active]")));
-  await tab.keyboard.press("ArrowDown");
-  await tab.waitForSelector(".search__results a[data-active]", { timeout: 5000 });
-  await measure(rows.filter((r) => r.selector.includes("[data-active]")));
-  await tab.fill(".search input", "zzzzqqqq");
-  await tab.waitForSelector(".search__empty", { timeout: 5000 });
-  await measure([]);
-  await tab.close();
-}
-
-// The list is closed in every other pass, so its rows and the open button are measured here, with the list open.
-async function langPass(context, origin, t, rules, theme) {
-  const held = (r) => r.selector.includes(".lang-switch__menu") || r.selector.includes("[open]");
-  const rows = rules.rows.filter(held);
-  const tab = await context.newPage();
-  await tab.goto(urlOf(origin, LANGS[0].landing), { waitUntil: "load" });
-  await settle(tab);
-  await installPageLib(tab);
-  await tab.click(".lang-switch__toggle");
-  await tab.mouse.move(0, 0);
-  await stylesSettled(tab);
-  const m = await tab.evaluate(({ rows: x, allRows, family, tokens, name, scanArgs }) => {
-    const lib = window.__contrast;
-    return { rows: lib.measureRows(x, allRows, family, tokens, name), scan: lib.scan(document.querySelector(".lang-switch"), scanArgs) };
-  }, { rows: rows.filter((r) => r.state === "rest" || r.state === "selected"), allRows: rules.rows, family: [...rules.family], tokens: rules.tokens, name: theme, scanArgs: needsScanArgs(rules, theme) });
-  mergeScan(t, m.scan, LANGS[0].landing, "language list");
-  m.rows.forEach((res) => mergeRow(t, rules, res, LANGS[0].landing, "language list"));
-  for (const row of rows.filter((r) => r.state === "hover" || r.state === "press")) {
-    const rec = t.rows[row.id];
-    const point = await tab.evaluate((a) => window.__contrast.aim(a), row.selector);
-    if (!point) continue;
-    rec.found += 1;
-    await tab.mouse.move(point.x, point.y);
-    if (row.state === "press") await tab.mouse.down();
-    await stylesSettled(tab);
-    const r = await tab.evaluate(({ row: x, tokens, name }) => window.__contrast.measureAimed(x, tokens, name), { row, tokens: rules.tokens, name: theme });
-    if (row.state === "press") { await tab.mouse.move(0, 0); await tab.mouse.up(); }
-    if (!r.reached) rec.notes.push(`pointer did not reach ${row.selector}`);
-    if (!r.measured) continue;
-    rec.measured += 1;
-    if (r.inkOk) rec.inkHits += 1;
-    if (r.below) rec.below.push({ ...r, page: LANGS[0].landing, viewport: row.state });
-    if (!r.inkOk) rec.mismatch.push({ ...r, page: LANGS[0].landing, viewport: row.state });
-  }
-  await tab.close();
-}
-
-export async function runSite({ browser, origin, dist, rules, theme, report }) {
+// The watchdog, when given, sees every browser call (see contrast-watchdog.mjs). It returns null, measuring nothing more,
+// once the watchdog has expired.
+export async function runSite({ browser, origin, dist, rules, theme, report, watchdog = NO_WATCHDOG }) {
   const pages = sitePages(dist);
   const t = emptySiteTally(rules);
   for (const vp of VIEWPORTS) {
-    const context = await browser.newContext({ viewport: { width: vp.width, height: vp.height }, reducedMotion: "reduce" });
-    await context.addInitScript((name) => localStorage.setItem("tasty-theme", name), theme);
-    if (vp.name === "narrow") await drawerPass(context, origin, t, rules, theme);
-    await restPass(context, origin, pages, t, rules, theme, vp.name);
-    if (vp.name === "wide") {
-      await pointerPass(context, origin, t, rules, theme);
-      await focusPass(context, origin, t, rules, theme);
-      await searchPass(context, origin, t, rules, theme);
-      await langPass(context, origin, t, rules, theme);
+    if (watchdog.check()) return null;
+    const base = `${theme} site ${vp.name}`;
+    const handle = watchdog.begin(`${base} newContext`);
+    try {
+      const context = tracked(await tracked(browser, watchdog, handle, () => base).newContext({ viewport: { width: vp.width, height: vp.height }, reducedMotion: "reduce" }), watchdog, handle, () => base);
+      await context.addInitScript((name) => localStorage.setItem("tasty-theme", name), theme);
+      const env = { context, watchdog, base };
+      if (vp.name === "narrow") await drawerPass(env, origin, t, rules, theme);
+      await restPass(env, origin, pages, t, rules, theme, vp.name);
+      if (vp.name === "wide") {
+        await pointerPass(env, origin, t, rules, theme);
+        await focusPass(env, origin, t, rules, theme);
+        await searchPass(env, origin, t, rules, theme);
+        await langPass(env, origin, t, rules, theme);
+      }
+      await context.close();
+    } finally {
+      handle.end();
     }
-    await context.close();
   }
+  if (watchdog.check()) return null;
   return summarize(t, rules, theme, pages.length, report);
 }
 
