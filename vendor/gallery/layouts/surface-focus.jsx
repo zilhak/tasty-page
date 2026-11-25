@@ -15,7 +15,7 @@ const fill = (bg, color) => ({ flex: 1, minHeight: 0, padding: "var(--tasty-spac
 const mdStrip = (bg) => ({ height: "var(--tasty-size-4)", background: bg, marginTop: "var(--tasty-border-width)" });
 const KINDS = [
   { id: "terminal", label: "terminal", body: (f) => (
-    <div style={fill(surfaceBed(f), f ? "var(--tasty-surface-terminal-focused-fg)" : "var(--tasty-surface-terminal-unfocused-fg)")}>$ cargo test</div>
+    <div data-terminal-content="" style={fill(surfaceBed(f), f ? "var(--tasty-surface-terminal-focused-fg)" : "var(--tasty-surface-terminal-unfocused-fg)")}>$ cargo test</div>
   ) },
   { id: "markdown", label: "markdown", body: (f) => (
     <>

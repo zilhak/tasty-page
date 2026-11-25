@@ -35,7 +35,7 @@ function App({ children, activeWs = 0 }) {
               background: i === 0 ? "var(--tasty-surface-terminal-focused-bg)" : "transparent", color: i === 0 ? "var(--tasty-text-primary)" : "var(--tasty-text-muted)" }}>{t}</div>
           ))}
         </div>
-        <div style={{ flex: 1, background: "var(--tasty-surface-terminal-focused-bg)", color: "var(--tasty-text-muted)", fontFamily: "var(--tasty-font-mono)", fontSize: 11, padding: "10px 12px" }}>
+        <div data-terminal-content="" style={{ flex: 1, background: "var(--tasty-surface-terminal-focused-bg)", color: "var(--tasty-text-muted)", fontFamily: "var(--tasty-font-mono)", fontSize: 11, padding: "10px 12px" }}>
           <div data-audit-exempt="terminal-attributes" style={{ opacity: 0.5 }}>$ kubectl get pods -n prod</div>
         </div>
         <div style={{ height: 20, flex: "none", background: "var(--tasty-bg-sidebar)", borderTop: "var(--tasty-border-width) solid var(--tasty-separator)" }} />

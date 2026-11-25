@@ -28,7 +28,7 @@ const LEAF_KINDS = {
     </>
   ),
   terminal: (f) => (
-    <div style={{ ...mono, flex: 1, padding: "var(--tasty-space-xs) var(--tasty-space-sm)", background: surfaceBed(f), color: f ? "var(--tasty-surface-terminal-focused-fg)" : "var(--tasty-surface-terminal-unfocused-fg)" }}>$ cargo test</div>
+    <div data-terminal-content="" style={{ ...mono, flex: 1, padding: "var(--tasty-space-xs) var(--tasty-space-sm)", background: surfaceBed(f), color: f ? "var(--tasty-surface-terminal-focused-fg)" : "var(--tasty-surface-terminal-unfocused-fg)" }}>$ cargo test</div>
   ),
 };
 // completed: the leaf finished a task before the popup took key focus. The completion ring stays while the popup holds

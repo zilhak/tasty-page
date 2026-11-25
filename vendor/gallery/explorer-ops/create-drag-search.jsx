@@ -417,9 +417,9 @@ function DragSection() {
           </XCol>
           <XCol label="elsewhere — window file-drop overlay (tokens b10)" w={420}>
             <XThemes gap="var(--tasty-space-sm)" render={() => (
-              <div style={{ position: "relative", width: 420, maxWidth: "100%", height: 160, background: "var(--tasty-surface-terminal-focused-bg)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)", padding: "var(--tasty-space-sm)", boxSizing: "border-box" }}>
+              <div data-terminal-content="" style={{ position: "relative", width: 420, maxWidth: "100%", height: 160, background: "var(--tasty-surface-terminal-focused-bg)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)", padding: "var(--tasty-space-sm)", boxSizing: "border-box" }}>
                 ~/work/tasty ❯
-                <div style={{ position: "absolute", inset: "var(--tasty-space-sm)", display: "flex", alignItems: "center", justifyContent: "center", gap: "var(--tasty-space-sm)", background: "var(--tasty-file-drop-overlay-bg)", border: "var(--tasty-border-width) solid var(--tasty-file-drop-overlay-border)", borderRadius: "var(--tasty-radius)", color: "var(--tasty-file-drop-overlay-fg)", fontFamily: "var(--tasty-font-ui)", fontSize: "var(--tasty-font-size-body)" }}>
+                <div data-terminal-ui="" style={{ position: "absolute", inset: "var(--tasty-space-sm)", display: "flex", alignItems: "center", justifyContent: "center", gap: "var(--tasty-space-sm)", background: "var(--tasty-file-drop-overlay-bg)", border: "var(--tasty-border-width) solid var(--tasty-file-drop-overlay-border)", borderRadius: "var(--tasty-radius)", color: "var(--tasty-file-drop-overlay-fg)", fontFamily: "var(--tasty-font-ui)", fontSize: "var(--tasty-font-size-body)" }}>
                   <XIcon name="download" size="var(--tasty-icon-size-md)" />Drop to open
                 </div>
               </div>
