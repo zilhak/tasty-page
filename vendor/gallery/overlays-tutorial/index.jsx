@@ -140,11 +140,13 @@ function Page() {
         <Spec id="marker-an-independent-shape-drawn-over-a-target" title="Marker — an independent shape drawn over a target"
           when={<>After Modal / Popup / Toast / Banner / Modifier-hint, <b>Marker</b> is the 6th overlay concept — and the only one carrying <b>no message</b>. It is a pure geometric ring/leader drawn at a rect on the <b>top z-layer</b>, <b>never</b> touching the target widget's own border, <b>pointer-events:none</b> so clicks pass through. Fired only by the <b>Tools → Tutorial</b> flow.</>}>
           <Stage variant="solo" style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 16, padding: 16, background: "var(--tasty-bg-app)" }}>
-            <div style={{ position: "relative", height: 150, background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)", overflow: "hidden", border: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
+            {/* The faux app inside is absolutely placed and has no width of its own, so each window keeps a floor that holds
+                the sidebar, the tab row and the terminal line; a narrower column scrolls the stage. */}
+            <div style={{ position: "relative", height: 150, minWidth: "var(--tasty-tutorial-marker-specimen-min-width)", background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)", overflow: "hidden", border: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
               <App /><Marker kind="ring" style={{ left: 34, top: 38, right: 16, bottom: 22 }} />
               <span style={{ position: "absolute", left: 8, bottom: 6, fontSize: 10, fontFamily: "var(--tasty-font-mono)", color: "var(--tasty-text-muted)" }}>ring — solid 2px</span>
             </div>
-            <div style={{ position: "relative", height: 150, background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)", overflow: "hidden", border: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
+            <div style={{ position: "relative", height: 150, minWidth: "var(--tasty-tutorial-marker-specimen-min-width)", background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)", overflow: "hidden", border: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
               <App /><Scrim /><Marker kind="glow" style={{ left: 34, top: 38, right: 16, bottom: 22 }} />
               <span style={{ position: "absolute", left: 8, bottom: 6, fontSize: 10, fontFamily: "var(--tasty-font-mono)", color: "var(--tasty-text-primary)" }}>glow + spotlight — default</span>
             </div>
