@@ -74,23 +74,26 @@ function SyncNameG({ n }) {
 // The app's narrow rule for a banner whose scope is the box it sits in: narrow when that box's content width is under
 // --tasty-banner-narrow-below. The ink table passes narrow="auto", so at 390 the action wraps under the text as in the
 // app and the names line keeps its fixed pieces (", ", " ×k", " +n") inside the line instead of past its clip.
-function useScopeNarrow(on) {
+// scope: a selector for an ancestor that stands for the app's surface. The judged width is then that box's outer width,
+// as the app measures the surface before the banner inset.
+function useScopeNarrow(on, scope) {
   const ref = React.useRef(null);
   const [narrow, setNarrow] = React.useState(false);
   React.useLayoutEffect(() => {
     const el = ref.current; if (!on || !el) return undefined;
+    const box = (scope && el.closest(scope)) || el;
     // The fractional box width, not clientWidth: clientWidth rounds, so 439.5 would read 440 and stay wide.
-    const judge = () => setNarrow(el.getBoundingClientRect().width < parseFloat(getComputedStyle(el).getPropertyValue("--tasty-banner-narrow-below")));
+    const judge = () => setNarrow(box.getBoundingClientRect().width < parseFloat(getComputedStyle(el).getPropertyValue("--tasty-banner-narrow-below")));
     judge();
-    const ro = new ResizeObserver(judge); ro.observe(el);
+    const ro = new ResizeObserver(judge); ro.observe(box);
     return () => ro.disconnect();
-  }, [on]);
+  }, [on, scope]);
   return [ref, narrow];
 }
 // The same narrow rule for the other banners in the ink tables that have a narrow layout (HTML script, remote content,
 // size, auto-attach refusal): children is a function of the judged narrow value.
-function ScopeNarrowG({ children }) {
-  const [ref, narrow] = useScopeNarrow(true);
+function ScopeNarrowG({ children, scope }) {
+  const [ref, narrow] = useScopeNarrow(true, scope);
   return <div ref={ref} style={{ minWidth: 0 }}>{children(narrow)}</div>;
 }
 // b11 (attach-sync-duplicate-names): equal display names collapse into one entry + a muted “×k” that never shrinks.
@@ -823,11 +826,11 @@ function Page() {
           when={<>When the global <b>Allow remote content</b> is off and the document references <code>http(s)</code> stylesheets, images, fonts, frames, media or scripts, the HTML surface shows a second inset notice. Same shell, life rules and state names as the script notice; it is told apart by its glyph, <b>globeOff</b> (new), in the same informational tone (<span className="tok">--tasty-html-remote-banner-glyph</span> → accent-info). The title states the policy (“…is blocked”), which is true whether the reference was found by the static scan or seen blocked by the OS, so the copy never has to tell those apart. The body names the <b>kinds</b>, not counts: a static count can differ from what the page actually loads. Title and body wrap and never clamp (Tasty-owned copy, b12). One action <b>[Allow remote content]</b>, Secondary / Sm — distinct from the script notice's “Allow for this document” so two stacked notices never show the same button label.</>}>
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
             {[["Mocha", "mocha"], ["Latte", "latte"]].map(([label, attr]) => (
-              <div key={label} {...(attr ? { "data-theme": attr } : {})} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", width: "var(--tasty-size-560)", maxWidth: "100%", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
+              <div key={label} data-banner-scope {...(attr ? { "data-theme": attr } : {})} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", width: "var(--tasty-size-560)", maxWidth: "100%", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
                 {[["blocked", {}], ["hover — × revealed", { hover: true }], ["loading — Allow disabled until commit", { state: "loading" }], ["reloading — spinner, no ×", { state: "reloading" }]].map(([cap, p]) => (
                   <React.Fragment key={cap}>
                     <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · {cap}</span>
-                    <ScopeNarrowG>{(n) => <HtmlRemoteBanner {...p} narrow={n} />}</ScopeNarrowG>
+                    <ScopeNarrowG scope="[data-banner-scope]">{(n) => <HtmlRemoteBanner {...p} narrow={n} />}</ScopeNarrowG>
                   </React.Fragment>
                 ))}
               </div>
