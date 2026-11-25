@@ -189,7 +189,7 @@ function Page() {
 
       <Section id="composite" title="Composite — a tutorial step in place">
         <Spec id="step-1-4" title="Step 1 / 5 — 워크스페이스"
-          when={<>Popup closed: marker (glow ring) + spotlight dim + callout only. Per <b>Decision 2</b>, step 1 wraps the whole content area (tabs + surface + status, sidebar excluded); later steps shrink the marker to tab → pane → surface, revealing containment.</>}>
+          when={<>Popup closed: marker (glow ring) + spotlight dim + callout only. Per <b>Decision 2</b>, step 1 wraps the whole workspace content area (tabs + surface + status, sidebar excluded), and the marker then shrinks to the pane, tab and surface before the summary highlights the whole area again.</>}>
           <Stage variant="solo" style={{ padding: 0, background: "var(--tasty-bg-app)" }} minHeight={340}>
             {/* Every part inside is absolutely placed, so the frame takes the stage's width itself (it shrank to its 2px
                 border before) and keeps a floor that holds the callout and its tail; a narrower column scrolls the stage. */}
@@ -203,7 +203,7 @@ function Page() {
                 style={{ left: 150, top: 120 }} />
             </div>
           </Stage>
-          <Note><b>동작:</b> Next → step 2 (탭 헤더로 마커 축소) · Back → 이전 · Skip/Esc → 주제 목록 팝업 복귀 · 마지막 step Next → 목록 팝업 재open. 마커·딤은 <code>pointer-events:none</code>.</Note>
+          <Note><b>동작:</b> Next → step 2 (페인으로 마커 축소) · Back → 이전 · Skip/Esc → 주제 목록 팝업 복귀 · 마지막 step Next → 목록 팝업 재open. 마커·딤은 <code>pointer-events:none</code>.</Note>
         </Spec>
       </Section>
     </>

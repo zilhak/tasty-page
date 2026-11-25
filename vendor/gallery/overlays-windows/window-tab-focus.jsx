@@ -63,7 +63,7 @@ const SETTINGS_CROP = "calc(var(--tasty-border-width) + var(--tasty-settings-l1-
 function WindowTabFocusSpec() {
   return (
     <Spec id="window-tabs-keyboard-focus" title="Window tabs — keyboard focus"
-      when={<>The tabs inside the settings, remote and plugins windows take keyboard focus: <span className="ic">Tab</span> and <span className="ic">Shift+Tab</span> move it, <span className="ic">Space</span> and <span className="ic">Enter</span> press the tab. A focused tab shows the control ring, except the settings L1 tab, which fills its band at the top of the window and takes the ring inside its box, as the pane tab does. The pane tab strip is not one of these: it is no keyboard stop and draws no ring (Components › Tab).</>}>
+      when={<>The tabs inside the settings, remote and plugins windows take keyboard focus: <span className="ic">Tab</span> and <span className="ic">Shift+Tab</span> move it, <span className="ic">Space</span> and <span className="ic">Enter</span> press the tab. A focused tab shows the control ring, inset on the settings L1 tab because it fills the top band and an outer ring would lose its top edge (−5px offset with 1px clearance from the active underline, compared with a 2px pane tab inset). The pane tab strip is not one of these: it is no keyboard stop and draws no ring (Components › Tab).</>}>
       <Views>
         <View name="settings-l1-tab-focus" wide label="Settings — an L1 tab with keyboard focus (General, while Appearance is open)">
           <div style={col}><span style={cap}>settings · L1 tab</span>
