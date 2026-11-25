@@ -27,7 +27,7 @@
   font-weight: 400;
   font-style: normal;
   font-display: swap;
-  unicode-range: U+0000-2E7F, U+3130-318F, U+3200-33FF, U+4DC0-4DFF, U+A000-F8FF, U+FB00-FE0F, U+FE20-FE2F, U+FE50-FEFF, U+FFA0-FFDF, U+FFE7-FFFF, U+10000-1AFEF, U+1B170-1FFFF, U+40000-10FFFF;
+  unicode-range: U+0000-2E7F, U+3130-318F, U+3200-33FF, U+4DC0-4DFF, U+A000-F8FF, U+FB00-FE0F, U+FE20-FE2F, U+FE70-FEFF, U+FFA0-FFDF, U+FFE7-FFFF, U+10000-1AFEF, U+1B170-1FFFF, U+40000-10FFFF;
 }
 @font-face {
   font-family: "D2Coding Hangul Latin";
@@ -35,7 +35,7 @@
   font-weight: 700;
   font-style: normal;
   font-display: swap;
-  unicode-range: U+0000-2E7F, U+3130-318F, U+3200-33FF, U+4DC0-4DFF, U+A000-F8FF, U+FB00-FE0F, U+FE20-FE2F, U+FE50-FEFF, U+FFA0-FFDF, U+FFE7-FFFF, U+10000-1AFEF, U+1B170-1FFFF, U+40000-10FFFF;
+  unicode-range: U+0000-2E7F, U+3130-318F, U+3200-33FF, U+4DC0-4DFF, U+A000-F8FF, U+FB00-FE0F, U+FE20-FE2F, U+FE70-FEFF, U+FFA0-FFDF, U+FFE7-FFFF, U+10000-1AFEF, U+1B170-1FFFF, U+40000-10FFFF;
 }
 
 [data-site-chrome] { --font-mono: var(--tasty-font-family-mono-system), monospace; }
