@@ -3,15 +3,17 @@
  * vendor/RULES.md section 14 and vendor/gallery/README.md "The check" say, and the site's own pages against
  * vendor/RULES.md section 15, in contrast-site.mjs.
  *
- *   npm run build && npm run check-contrast [-- --json <file>] [-- --page <key>] [-- --site-only] [-- --gallery-only]
+ *   npm run build && npm run check-contrast -- [--json <file>] [--site-only | --gallery-only] [--page <key>]
  *
  * On a gallery page, fails on: a contract row with no frozen cell, a part that cannot be found, an ink that is not the row's
  * token, an ink below its grade, invalid data-parts, other text below 4.5, any painted shape of another glyph below 3,
  * an unknown exempt id, or nothing measured. An ink inside a disabled ancestor is measured at its grade unless it is a no-grade token.
  * Shapes composite through their own fill or stroke opacity and every opacity above them, a g inside the svg included.
- * --page names one gallery page and leaves the site pages out.
+ * --page names one gallery page and leaves the site pages out, as --gallery-only does. An unknown or repeated option, a
+ * missing or empty value, --site-only with --gallery-only or --page, and a page key the build lacks exit 2 before the
+ * browser starts (parseArgs() in contrast-args.mjs).
  * Browser: CHROMIUM_PATH, else the Playwright browser, else /snap/bin/chromium.
- * Time limit: the whole run, and any span with no progress (a browser call starting, or a step of the run such as
+ * Time limit: from after the built pages are listed, the whole run, and any span with no progress (a browser call starting, or a step of the run such as
  * listen, launch or a context), are limited (TOTAL_S and STALL_S below, or CONTRAST_TIMEOUT_S and CONTRAST_STALL_S in
  * seconds). Past either it starts closing the browser, prints what was in flight, waits up to CLOSE_GRACE_MS for the
  * close and the --json report, and exits 3, also when the close fails or runs late. It cannot stop a run held by
@@ -26,6 +28,7 @@ import { chromium } from "playwright-core";
 import { BASE } from "../src/lib/base.mjs";
 import { DEFAULT_LANG, LANGS } from "../src/lib/langs.mjs";
 import { PART_MAP } from "../vendor/gallery/parts/part-map.js";
+import { USAGE, parseArgs } from "./contrast-args.mjs";
 import { measureGallery } from "./contrast-gallery.mjs";
 import { installPageLib, missingCellRows, stylesSettled } from "./contrast-page.mjs";
 import { CHECK_LOCALE, emptySiteTally, measureRest, reportChrome, runSite, sitePages, siteRules } from "./contrast-site.mjs";
@@ -33,8 +36,8 @@ import { closingTab, createWatchdog, tracked } from "./contrast-watchdog.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const dist = join(root, "dist");
-const args = process.argv.slice(2);
-const argOf = (name) => (args.includes(name) ? args[args.indexOf(name) + 1] : null);
+// Set first thing in run(), before anything that can time out.
+let opts = null;
 const THEMES = ["mocha", "latte"];
 const EXPECTED_PAGES = 15;
 // Specimen pages outside design/gallery. They are measured like a gallery page and do not count as one.
@@ -126,24 +129,30 @@ async function launch() {
 }
 
 async function run() {
+  try {
+    opts = parseArgs(process.argv.slice(2));
+  } catch (error) {
+    fail(`${error.message}\n${USAGE}`);
+    return;
+  }
   const totalS = seconds("CONTRAST_TIMEOUT_S", TOTAL_S);
   const stallS = seconds("CONTRAST_STALL_S", STALL_S);
   if (stallS >= totalS) fail(`The stall limit (${stallS}s) must be below the total limit (${totalS}s).`);
+  // The built pages are listed, and a wrong page key refused, before the time limit starts: no exit here can meet a timeout.
+  const { siteOnly, galleryOnly } = opts;
+  const built = siteOnly ? [] : galleryPages();
+  if (opts.page !== null && !built.some((p) => p.key === opts.page)) fail(`No gallery page ${JSON.stringify(opts.page)}. Pages: ${built.map((p) => p.key).join(", ")}.\n${USAGE}`);
+  const pages = opts.page === null ? built : built.filter((p) => p.key === opts.page);
+  if (!siteOnly && opts.page === null && pages.length !== EXPECTED_PAGES + SPECIMEN_ROUTES.length) fail(`Expected ${EXPECTED_PAGES} gallery pages and ${SPECIMEN_ROUTES.length} specimen routes, found ${pages.length} in all.`);
+  const galleries = galleryOnly ? [] : languageGalleries();
   // Made before the first wait, so a run that times out at any point can still write what it finished.
-  const report = { themes: {}, languageGalleries: [] };
+  const report = { themes: {}, languageGalleries: galleries };
   const doneThemes = [];
   let current = null;
   const watchdog = createWatchdog({ totalMs: totalS * 1000, stallMs: stallS * 1000, onExpire: (e) => timedOut(e, report, doneThemes, current) });
   held.watchdog = watchdog;
-  const startHandle = watchdog.begin("start: list built pages");
-  const siteOnly = args.includes("--site-only");
-  const galleryOnly = args.includes("--gallery-only") || argOf("--page") !== null;
-  const pages = siteOnly ? [] : galleryPages().filter((p) => !argOf("--page") || p.key === argOf("--page"));
-  if (!siteOnly && !argOf("--page") && pages.length !== EXPECTED_PAGES + SPECIMEN_ROUTES.length) fail(`Expected ${EXPECTED_PAGES} gallery pages and ${SPECIMEN_ROUTES.length} specimen routes, found ${pages.length} in all.`);
-  const galleries = galleryOnly ? [] : languageGalleries();
-  report.languageGalleries = galleries;
   if (!galleryOnly) console.log(`gallery pages per language path, shared parts only: ${galleries.map((c) => `${c.code} ${c.pages}`).join(", ") || "no other language"}`);
-  startHandle.update("start: listen");
+  const startHandle = watchdog.begin("start: listen");
   if (watchdog.check()) return;
   const server = await serve();
   held.server = server;
@@ -236,7 +245,7 @@ async function run() {
     // A row's below and wrong ink records fail here as on the site (reportChrome in contrast-site.mjs).
     const chromeResult = reportChrome(chrome, rules, theme);
     if (chromeResult.bad > 0) failed = true;
-    t.missingCells = argOf("--page") ? [] : missingCellRows(data.components, measuredRows);
+    t.missingCells = opts.page !== null ? [] : missingCellRows(data.components, measuredRows);
     report.themes[theme] = { ...t, chromePasses: chrome.passes, chromeRows: chromeResult.chromeRows };
     const measured = t.rows + t.text + t.glyph + t.inputs;
     const bad = t.unlocated.length + t.mismatch.length + t.below.length + t.diagnostics.length + t.other.length + t.badExempt.length + t.missingCells.length + t.errors.length;
@@ -266,7 +275,7 @@ async function run() {
   }
   // The last look at the deadlines. Past one, the timeout path owns the exit and this run writes nothing more.
   if (!watchdog.stop()) return;
-  if (argOf("--json")) writeFileSync(argOf("--json"), JSON.stringify(report, null, 1));
+  if (opts.json !== null) writeFileSync(opts.json, JSON.stringify(report, null, 1));
   console.log(failed ? "check-contrast: FAILED" : "check-contrast: passed");
   finish(failed ? 1 : 0);
 }
@@ -306,12 +315,12 @@ async function timedOut({ reason, elapsedMs, inFlight }, report, doneThemes, cur
   const s = (ms) => (ms / 1000).toFixed(0);
   console.error(`check-contrast: TIMED OUT (${reason}) after ${s(elapsedMs)}s`);
   inFlight.forEach((e) => console.error(`  in flight ${s(e.ageMs)}s (step ${s(e.stepAgeMs)}s): ${e.label}`));
-  const writing = argOf("--json") ? writeFile(argOf("--json"), JSON.stringify(snapshot, null, 1)) : null;
+  const writing = opts.json !== null ? writeFile(opts.json, JSON.stringify(snapshot, null, 1)) : null;
   const [closed, wrote] = await Promise.all([settleWithin(closing, CLOSE_GRACE_MS), settleWithin(writing, CLOSE_GRACE_MS)]);
   if (closed.late) console.error(`  the browser did not close within ${CLOSE_GRACE_MS / 1000}s`);
   if (closed.error) console.error(`  closing the browser failed: ${String(closed.error).slice(0, 200)}`);
-  if (wrote.late) console.error(`  writing ${argOf("--json")} did not finish within ${CLOSE_GRACE_MS / 1000}s`);
-  if (wrote.error) console.error(`  writing ${argOf("--json")} failed: ${String(wrote.error).slice(0, 200)}`);
+  if (wrote.late) console.error(`  writing ${opts.json} did not finish within ${CLOSE_GRACE_MS / 1000}s`);
+  if (wrote.error) console.error(`  writing ${opts.json} failed: ${String(wrote.error).slice(0, 200)}`);
   await settleWithin(new Promise((done) => process.stderr.write("", done)), FLUSH_GRACE_MS);
   finish(3);
 }
