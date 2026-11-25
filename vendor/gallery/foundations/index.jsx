@@ -49,7 +49,7 @@ function Tile({ bg, name, role, dark }) {
     <div style={{ background: bg, border: "1px solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)",
       padding: "11px 13px", minWidth: 168 }}>
       <div style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 11.5, color: "var(--tasty-text-primary)" }}>{name}</div>
-      <div style={{ fontSize: 11.5, color: "var(--tasty-text-muted)", marginTop: 3 }}>{role}</div>
+      <div className="g-cap" style={{ fontSize: 11.5, color: "var(--tasty-text-muted)", marginTop: 3 }}>{role}</div>
     </div>
   );
 }
@@ -115,7 +115,7 @@ function Lbl({ tok, raised, children }) {
   return (
     <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
       <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 11.5, color: "var(--tasty-text-primary)" }}>{tok}</span>
-      <span style={{ fontSize: 11, color: raised ? "var(--tasty-text-muted-raised)" : "var(--tasty-text-muted)" }}>{children}</span>
+      <span className="g-cap" style={{ fontSize: 11, color: raised ? "var(--tasty-text-muted-raised)" : "var(--tasty-text-muted)" }}>{children}</span>
     </div>
   );
 }
@@ -129,7 +129,7 @@ function AccentRow({ tok, color, role, demo }) {
         border: "var(--tasty-border-width) solid var(--tasty-swatch-border)" }} />
       <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 12, color: "var(--tasty-text-primary)" }}>{tok}</span>
       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-        <span style={{ fontSize: 12.5, color: "var(--tasty-text-secondary)", width: 168, flex: "none" }}>{role}</span>
+        <span className="g-cap" style={{ fontSize: 12.5, color: "var(--tasty-text-secondary)", width: 168, flex: "none" }}>{role}</span>
         <span style={{ display: "inline-flex", gap: 8, alignItems: "center" }}>{demo}</span>
       </div>
     </div>
@@ -143,7 +143,7 @@ function SpaceUse({ token, px, usedFor, children }) {
       <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 10 }}>
         <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 12.5, color: "var(--tasty-text-primary)" }}>{token}</span>
         <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: "var(--tasty-accent-info-raised)" }}>{px}</span>
-        <span style={{ fontSize: 12, color: "var(--tasty-text-muted)" }}>used for {usedFor}</span>
+        <span className="g-cap" style={{ fontSize: 12, color: "var(--tasty-text-muted)" }}>used for {usedFor}</span>
       </div>
       <div style={{ position: "relative" }}>
         <div className="gridover" style={{ borderRadius: 2 }} />
@@ -163,7 +163,7 @@ function typeScaleRow(size, tok, weight, role, sample) {
       </div>
       <div>
         <div style={{ fontSize: size, fontWeight: weight, color: "var(--tasty-text-primary)", lineHeight: 1.3 }}>{sample}</div>
-        <div style={{ fontSize: 11.5, color: "var(--tasty-text-muted)", marginTop: 3 }}>{role}</div>
+        <div className="g-cap" style={{ fontSize: 11.5, color: "var(--tasty-text-muted)", marginTop: 3 }}>{role}</div>
       </div>
     </div>
   );
@@ -212,12 +212,12 @@ const HIDDEN_RUN = "\u00a0".repeat(6);
 function CellLinesFrame({ label, th, focused, kinds, sgr, overlap, hidden }) {
   const bed = focused ? "var(--tasty-surface-bed-focused)" : "var(--tasty-surface-bed-unfocused)";
   const ink = focused ? "var(--tasty-surface-terminal-focused-fg)" : "var(--tasty-surface-terminal-unfocused-fg)";
-  const cap = { fontFamily: "var(--tasty-font-ui)", fontSize: 11, color: "var(--tasty-text-muted)", marginTop: 6 };
+  const cap = { fontSize: 11, color: "var(--tasty-text-muted)", marginTop: 6 };
   const row = { display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-md)" };
   return (
     <div data-theme={th} style={{ flex: "1 1 40%", minWidth: 0, padding: "8px 12px", background: bed, borderRadius: "var(--tasty-radius)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-term)", lineHeight: "var(--tasty-line-height-term)", color: ink }}>
-      <div style={{ ...cap, marginTop: 0 }}>{label}</div>
-      <div style={cap}>{kinds}</div>
+      <div className="g-cap" style={{ ...cap, marginTop: 0 }}>{label}</div>
+      <div className="g-cap" style={cap}>{kinds}</div>
       <div style={row}>
         <CellLine>single</CellLine>
         <CellLine kind="double">double</CellLine>
@@ -227,7 +227,7 @@ function CellLinesFrame({ label, th, focused, kinds, sgr, overlap, hidden }) {
         <CellLine line="line-through">strike</CellLine>
         <CellLine line="overline">over</CellLine>
       </div>
-      <div style={cap}>{sgr}</div>
+      <div className="g-cap" style={cap}>{sgr}</div>
       <div style={row} data-audit-exempt="terminal-attributes">
         <CellLine color="var(--tasty-ansi-red)">default</CellLine>
         <CellLine color="var(--tasty-ansi-red)" style={{ background: "var(--tasty-selection-bg)", color: "var(--tasty-text-on-active)" }}>selected</CellLine>
@@ -236,7 +236,7 @@ function CellLinesFrame({ label, th, focused, kinds, sgr, overlap, hidden }) {
         <CellLine color="var(--tasty-ansi-red)" style={{ color: `color-mix(in srgb, ${ink} 50%, ${bed})` }}>dim</CellLine>
         <CellLine color="var(--tasty-ansi-red)" style={{ background: ink, color: bed }}>reverse</CellLine>
       </div>
-      <div style={cap}>{overlap}</div>
+      <div className="g-cap" style={cap}>{overlap}</div>
       <div style={row}>
         <CellLine style={{ background: "var(--tasty-selection-bg)", color: "var(--tasty-text-on-active)" }}>selected</CellLine>
         <CellLine style={{ background: "var(--tasty-search-match-bg)", color: "var(--tasty-text-primary)" }}>match</CellLine>
@@ -249,7 +249,7 @@ function CellLinesFrame({ label, th, focused, kinds, sgr, overlap, hidden }) {
         {focused && <span style={{ background: ink }}><CellLine style={{ background: "var(--tasty-search-match-active-bg)", color: "var(--tasty-search-match-selected-fg)" }}>active block</CellLine></span>}
         <CellLine color="var(--tasty-accent-primary-raised)" style={{ background: "var(--tasty-selection-bg)", color: "var(--tasty-text-on-active)" }}>link</CellLine>
       </div>
-      <div style={cap}>{hidden}</div>
+      <div className="g-cap" style={cap}>{hidden}</div>
       <div style={row}>
         <span>selected <span style={{ background: "var(--tasty-selection-bg)" }}>{HIDDEN_RUN}</span></span>
         <span>match <span style={{ background: "var(--tasty-search-match-bg)" }}>{HIDDEN_RUN}</span></span>
@@ -274,7 +274,7 @@ function SemRow({ tok, role }) {
         border: "var(--tasty-border-width) solid var(--tasty-swatch-border)" }} />
       <div style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
         <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 11.5, color: "var(--tasty-text-primary)" }}>{tok.replace("--tasty-", "")}</span>
-        <span style={{ fontSize: 11.5, color: "var(--tasty-text-muted)" }}>{role}</span>
+        <span className="g-cap" style={{ fontSize: 11.5, color: "var(--tasty-text-muted)" }}>{role}</span>
       </div>
     </div>
   );
@@ -503,7 +503,7 @@ function Foundations() {
               <div style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 11.5, color: "var(--tasty-text-primary)" }}>--tasty-font-mono</div>
               <div>
                 <div data-terminal-content="" style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 14, color: "var(--tasty-text-primary)" }}>D2Coding — git diff --stat  →  !=  ==&gt;  </div>
-                <div style={{ fontSize: 11.5, color: "var(--tasty-text-muted)", marginTop: 3 }}>terminal cells — ligatures on · code runs, IDs, shortcuts in UI — none</div>
+                <div className="g-cap" style={{ fontSize: 11.5, color: "var(--tasty-text-muted)", marginTop: 3 }}>terminal cells — ligatures on · code runs, IDs, shortcuts in UI — none</div>
               </div>
             </div>
           </Stage>
@@ -659,7 +659,7 @@ function Foundations() {
               <div key={id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "8px 10px", background: "var(--tasty-bg-panel)",
                 border: "1px solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
                 <span style={{ flex: "none", width: 26, fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: "var(--tasty-text-muted)" }}>{id}</span>
-                <span style={{ flex: 1, minWidth: 0, fontSize: 12, color: "var(--tasty-text-secondary)" }}>{place}</span>
+                <span className="g-cap" style={{ flex: 1, minWidth: 0, fontSize: 12, color: "var(--tasty-text-secondary)" }}>{place}</span>
                 <span style={{ flex: "none", width: 190, fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: "var(--tasty-text-muted)" }}>{was}</span>
                 <span style={{ flex: "none", width: 20, height: 20, borderRadius: "var(--tasty-radius-sm)", background: color, border: "1px solid var(--tasty-border-default)" }} />
                 <span style={{ flex: "none", width: 210, fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: "var(--tasty-text-primary)" }}>{now}</span>
@@ -680,11 +680,11 @@ function Foundations() {
               <div key={label} {...(attr ? { "data-theme": attr } : {})}
                 style={{ display: "flex", flexDirection: "column", gap: 8, padding: 14, background: "var(--tasty-bg-app)",
                   border: "1px solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
-                <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
+                <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
                 <div style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
                   {[["settled — border-frame", "var(--tasty-border-frame)", true], ["rejected — border-strong", "var(--tasty-border-strong)", false]].map(([cap, edge, on]) => (
                     <div key={cap} style={{ display: "flex", flexDirection: "column", gap: 5 }}>
-                      <div style={{ fontSize: 11, color: on ? "var(--tasty-accent-success-raised)" : "var(--tasty-text-muted)" }}>{cap}</div>
+                      <div className="g-cap" style={{ fontSize: 11, color: on ? "var(--tasty-accent-success-raised)" : "var(--tasty-text-muted)" }}>{cap}</div>
                       <div style={{ width: 216, background: "var(--tasty-bg-panel)", border: "1px solid " + edge, borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
                         <div style={{ height: 28, display: "flex", alignItems: "center", padding: "0 10px", fontSize: 12,
                           color: "var(--tasty-text-secondary)", background: "var(--tasty-bg-sidebar)", borderBottom: "1px solid " + edge }}>Listening ports</div>
@@ -695,14 +695,14 @@ function Foundations() {
                     </div>
                   ))}
                   <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
-                    <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>appearance cards — inactive → border-strong</div>
+                    <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>appearance cards — inactive → border-strong</div>
                     <div style={{ display: "flex", gap: 8, padding: 10, width: 150, background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
                       <div style={{ flex: 1, height: 64, borderRadius: "var(--tasty-radius)", background: "var(--tasty-surface-raised)", border: "2px solid var(--tasty-accent-primary)" }} />
                       <div style={{ flex: 1, height: 64, borderRadius: "var(--tasty-radius)", background: "var(--tasty-surface-raised)", border: "1px solid var(--tasty-border-strong)" }} />
                     </div>
                   </div>
                   <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
-                    <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>pane divider — unchanged</div>
+                    <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>pane divider — unchanged</div>
                     <div style={{ display: "flex", height: 104, width: 150, background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
                       <div style={{ flex: 1, background: "var(--tasty-bg-app)" }} />
                       <div style={{ width: 1, background: "var(--tasty-border-frame)" }} />
@@ -732,7 +732,7 @@ function Foundations() {
               <div key={id} style={{ display: "flex", alignItems: "baseline", gap: 12, padding: "8px 10px", background: "var(--tasty-bg-panel)",
                 border: "1px solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
                 <span style={{ flex: "none", width: 26, fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: "var(--tasty-text-muted)" }}>{id}</span>
-                <span style={{ flex: 1, minWidth: 0, fontSize: 12, color: "var(--tasty-text-secondary)" }}>{place}</span>
+                <span className="g-cap" style={{ flex: 1, minWidth: 0, fontSize: 12, color: "var(--tasty-text-secondary)" }}>{place}</span>
                 <span style={{ flex: "none", width: 200, fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: "var(--tasty-text-muted)" }}>{was}</span>
                 <span style={{ flex: "none", width: 330, fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: "var(--tasty-text-primary)" }}>{now}</span>
               </div>
@@ -758,7 +758,7 @@ function Foundations() {
           <Stage variant="solo" style={{ padding: 20, background: "var(--tasty-bg-app)", flexDirection: "column", gap: 14, alignItems: "flex-start" }}>
             {[["fill + border — the default", true, true], ["fill only — warning callout", true, false], ["border only — remote chip", false, true]].map(([label, fill, border]) => (
               <div key={label} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                <span style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</span>
+                <span className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</span>
                 <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
                   {[["info", "var(--tasty-accent-info)"], ["warning", "var(--tasty-accent-warning)"], ["danger", "var(--tasty-accent-danger)"], ["success", "var(--tasty-accent-success)"]].map(([name, col]) => (
                     <span key={name} style={{ display: "inline-flex", alignItems: "center", height: 24, padding: "0 10px", borderRadius: "var(--tasty-radius)",
@@ -780,7 +780,7 @@ function Foundations() {
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
             {[["Mocha", "mocha", { c3: "3.40", c4: "3.40", en: "5.65" }, { c3: "3.40 (n700, unchanged)", c4: "3.40", en: "4.45 (n800)" }], ["Latte", "latte", { c3: "2.56", c4: "2.56", en: "4.05" }, { c3: "2.07 (n700)", c4: "2.07", en: "2.56 (n800)" }]].map(([label, attr, now, was]) => (
               <div key={label} {...(attr ? { "data-theme": attr } : {})} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-md)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
-                <div style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label}</div>
+                <div className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label}</div>
                 <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
                   <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" }}>C3 · port scanner footer (ink example; the footer stays Close + Copy address) — disabled {now.c3}:1 (was {was.c3})</span>
                   <div style={{ display: "flex", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-panel)", borderRadius: "var(--tasty-radius)" }}>

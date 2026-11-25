@@ -60,7 +60,7 @@ function Pair({ mode }) {
     <div style={{ display: "flex", gap: "var(--tasty-space-md)", flexWrap: "wrap" }}>
       {["Mocha", "Latte"].map((t) => (
         <div key={t} data-theme={t.toLowerCase()} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", padding: "var(--tasty-space-sm)", background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)" }}>
-          <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{t}</span>
+          <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{t}</span>
           <div style={{ zoom: ZOOM }}><Scene mode={mode} /></div>
         </div>
       ))}

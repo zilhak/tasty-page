@@ -187,7 +187,7 @@ function CaptureDemo() {
           <CapturePicture tone="dark" rect={s && s.rect} style={{ width: "100%", height: "100%" }} />
         </div>
       </CaptureFrame>
-      <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{last}</span>
+      <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{last}</span>
     </div>
   );
 }

@@ -27,7 +27,7 @@ function Scrimmed({ children, h = 340 }) {
 
 function PermanentDeleteSection() {
   const { YResult, YProgressStatus, YStatusRight, YToastAt } = Y();
-  const cap = (t) => <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-secondary)" }}>{t}</span>;
+  const cap = (t) => <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-secondary)" }}>{t}</span>;
   return (
     <Section id="permdelete" title="Delete permanently — confirm and results">
       <Spec id="context-menu-delete-permanently-right-after-move-to-trash" title="Context menu — “Delete permanently…” right after Move to Trash"

@@ -75,7 +75,7 @@ function GalleryNoticeColumn() {
         <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
           {THEMES.map(([label, attr]) => (
             <Themed key={label} attr={attr}>
-              <span style={cap}>{label} · one flow</span>
+              <span className="g-cap" style={cap}>{label} · one flow</span>
               <span style={mono}>1 · boot, store unreadable → default workspace opens (nothing restored)</span>
               <Win />
               <span style={mono}>2 · notice shown — terminal keeps focus (dashed = input passes through)</span>
@@ -96,7 +96,7 @@ function GalleryNoticeColumn() {
         <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
           {THEMES.map(([label, attr]) => (
             <Themed key={label} attr={attr}>
-              <span style={cap}>{label}</span>
+              <span className="g-cap" style={cap}>{label}</span>
               <span style={mono}>narrow window (work area ≈ 260) · long path · corrupt</span>
               <Win w={380} h={420}><RN cause="corrupt" path={LONG} /></Win>
               <span style={mono}>split · search bar open in the top-right pane → column below it</span>
@@ -106,10 +106,10 @@ function GalleryNoticeColumn() {
             </Themed>
           ))}
           <Themed>
-            <span style={cap}>Mocha · ko / ja length</span>
+            <span className="g-cap" style={cap}>Mocha · ko / ja length</span>
             <RN lang="ko" cause="corrupt" path={LONG} />
             <RN lang="ja" variant="halt" cause="write" />
-            <span style={cap}>Notifications › the error record (existing NotificationItem)</span>
+            <span className="g-cap" style={cap}>Notifications › the error record (existing NotificationItem)</span>
             <div style={{ width: "var(--tasty-notifications-popup-width)", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
               {NotificationItem && <NotificationItem level="error" title="Couldn't restore your last session" body={"Tasty doesn't have permission to read the saved layout.\n" + LONG} source="Tasty" time="1m" unread expanded />}
             </div>
@@ -123,7 +123,7 @@ function GalleryNoticeColumn() {
         <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
           {THEMES.map(([label, attr]) => (
             <Themed key={label} attr={attr}>
-              <span style={cap}>{label}</span>
+              <span className="g-cap" style={cap}>{label}</span>
               <span style={mono}>notice + waiting chip</span>
               <Win w={640} h={360} notifErr><RN cause="denied" /><PendingIndicator count={1} elapsed={12} tooltip="Close tab · 12s" /></Win>
               <span style={mono}>window banner (resize failed) → column under it · 3 pending, oldest 1m 04s</span>

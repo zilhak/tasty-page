@@ -173,11 +173,11 @@ function RailMarksBoard({ theme }) {
     <div {...(theme ? { "data-theme": theme } : {})} style={{ display: "flex", gap: "var(--tasty-space-lg)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-sidebar)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", flexWrap: "wrap", alignItems: "flex-start" }}>
       {rail}
       <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-lg)", minWidth: 0 }}>
-        <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-secondary)" }}>{theme ? "Latte" : "Mocha"} — category line</span>
+        <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-secondary)" }}>{theme ? "Latte" : "Mocha"} — category line</span>
         <div style={{ display: "flex", gap: "var(--tasty-space-md)", flexWrap: "wrap" }}>
           {col("idle", <RailCatLine />)}{col("hover", <RailCatLine state="hover" />)}{col("pressed", <RailCatLine state="pressed" />)}{col("modifier held", <RailCatLine cap="2" />)}
         </div>
-        <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-secondary)" }}>{theme ? "Latte" : "Mocha"} — mirror chip</span>
+        <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-secondary)" }}>{theme ? "Latte" : "Mocha"} — mirror chip</span>
         <div style={{ display: "flex", gap: "var(--tasty-space-md)", flexWrap: "wrap" }}>
           {col("idle", <RailAv ch="E" />)}{col("active", <RailAv ch="T" state="active" />)}{col("hover", <RailAv ch="E" state="hover" />)}{col("+ notif", <RailAv ch="E" notif />)}{col("+ attached ring", <RailAv ch="E" ring />)}
         </div>
@@ -1008,7 +1008,7 @@ function Layouts() {
               ["not a repo — the branch item is absent", 470, { branch: null, drop: 2 }],
               ["detached HEAD — short sha in the branch slot", 470, { branch: "@ 4f9c1ab", drop: 2 }]].map(([label, w, o]) => (
               <div key={label} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
+                <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
                 <div style={{ width: w, height: "var(--tasty-status-bar-height)", display: "flex", alignItems: "center", gap: 10, padding: "0 10px",
                   background: "var(--tasty-bg-sidebar)", border: "1px solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius-sm)",
                   fontSize: 11, color: "var(--tasty-text-muted)", overflow: "hidden" }}>
@@ -1040,7 +1040,7 @@ function Layouts() {
           <Stage variant="solo" style={{ padding: 20, background: "var(--tasty-bg-app)", flexDirection: "column", gap: 16, alignItems: "stretch" }}>
             {[["Mocha", "mocha"], ["Latte", "latte"]].map(([label, attr]) => (
               <div key={label} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
+                <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
                 <div {...(attr ? { "data-theme": attr } : {})} style={{ display: "flex", gap: 14, flexWrap: "wrap", alignItems: "flex-end",
                   background: "var(--tasty-bg-app)", padding: 12, borderRadius: "var(--tasty-radius)", border: "1px solid var(--tasty-border-default)" }}>
                   {[0.85, 1, 1.2].map((s) => (

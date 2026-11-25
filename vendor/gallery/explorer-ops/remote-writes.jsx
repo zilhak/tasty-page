@@ -428,7 +428,7 @@ function RemoteWriteSection() {
             <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-lg)", alignItems: "flex-start" }}>
               {["ko", "ja", "zh-Hans"].map((l) => (
                 <div key={l} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
-                  <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{l}</span>
+                  <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{l}</span>
                   <Tip>{MIRROR_REASON.localOnly[l]}</Tip>
                   <Tip>{MIRROR_REASON.newTab[l]}</Tip>
                   <Tip>{MIRROR_REASON.undo[l]}</Tip>

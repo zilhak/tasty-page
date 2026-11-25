@@ -9,14 +9,14 @@ const HcPair = ({ children }) => (
   <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-lg)", alignItems: "flex-start" }}>
     {[["Mocha", "mocha"], ["Latte", "latte"]].map(([label, t]) => (
       <div key={label} {...(t ? { "data-theme": t } : {})} style={{ flex: "1 1 var(--tasty-size-440)", minWidth: 0, maxWidth: "100%", display: "flex", flexDirection: "column", gap: "var(--tasty-space-md)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)" }}>
-        <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label}</span>{children}
+        <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label}</span>{children}
       </div>
     ))}
   </div>
 );
 const HcCase = ({ label, children }) => (
   <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", minWidth: 0 }}>
-    <span style={{ fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" }}>{label}</span>
+    <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" }}>{label}</span>
     <div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>{children}</div>
   </div>
 );
@@ -24,7 +24,7 @@ const HcCase = ({ label, children }) => (
 function HcInk({ tok, label }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", minWidth: 0, flex: "1 1 var(--tasty-size-200)" }}>
-      <span style={{ fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" }}>{label}</span>
+      <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" }}>{label}</span>
       <span style={{ display: "flex", alignItems: "center", height: "var(--tasty-input-height)", padding: "0 var(--tasty-space-sm)", background: "var(--tasty-input-bg)", border: "var(--tasty-border-width) solid var(--tasty-input-border)", borderRadius: "var(--tasty-input-radius)",
         fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-input-font-size)", color: "var(" + tok + ")", overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis" }}>~/work/tasty/target/report.html</span>
     </div>

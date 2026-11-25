@@ -142,7 +142,7 @@ function FontOverrideG({ long = false, file = null }) {
   // surface colours (Terminal default: Focused #000000, Unfocused = base).
   const pv = (focused) => (
     <div style={{ flex: "1 1 var(--tasty-font-preview-min-width)", minWidth: "var(--tasty-font-preview-min-width)", display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
-      <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{focused ? "Focused" : "Unfocused"}</span>
+      <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{focused ? "Focused" : "Unfocused"}</span>
       <div style={{ display: "flex", flexDirection: "column", padding: "var(--tasty-font-preview-padding-y) var(--tasty-font-preview-padding-x)", background: focused ? "var(--tasty-bg-app)" : "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid " + (focused ? "var(--tasty-border-default)" : "var(--tasty-separator)"), borderRadius: "var(--tasty-radius)",
         fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-term)", lineHeight: "var(--tasty-font-preview-line-height)", color: "var(--tasty-text-primary)", whiteSpace: "nowrap", overflow: "hidden" }}>
         <span>AaBbCcDdEeFfGg</span><span>가나다라마바사</span><span>1234567890</span><span>アカサタナハマラヤワ</span>

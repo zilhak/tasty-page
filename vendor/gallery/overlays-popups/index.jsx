@@ -135,7 +135,7 @@ function Page() {
           when={<>Holding the <b>tab switch modifier</b> (<Kbd keys="Ctrl" /> by default — rebindable) paints a number keycap over <b>every tab</b>, previewing the <Kbd keys="Ctrl+1" />…<Kbd keys="Ctrl+9" /> / <Kbd keys="Ctrl+0" /> switch shortcuts. The keycap <b>replaces the tab's leading icon in place</b> — no width change, no scrim; the icon returns on release. The <b>active</b> tab's keycap is <b>accent-filled</b> so "where am I" stays legible. Workspaces show nothing — only the modifier bound to tabs triggers this.</>}>
           <Stage variant="solo center" style={{ flexDirection: "column", gap: 16, padding: 20, background: "var(--tasty-bg-app)" }}>
             <div>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>released — each tab shows its surface icon</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>released — each tab shows its surface icon</div>
               <TabStripMock held={false} />
             </div>
             <div>
@@ -152,7 +152,7 @@ function Page() {
           when={<>Holding the <b>workspace switch modifier</b> (<Kbd keys="Alt" /> by default — rebindable) paints a keycap over <b>each sidebar workspace</b>, previewing <Kbd keys="Alt+1" />…<Kbd keys="Alt+9" />. In the <b>full</b> sidebar the keycap replaces the leading <b>status dot</b>; in the <b>collapsed</b> rail it replaces the <b>letter avatar</b>. Same in-place, no-scrim rule as tabs; tabs show nothing here. Releasing dismisses instantly.</>}>
           <Stage variant="solo center" style={{ alignItems: "flex-start", gap: 24, padding: 20, background: "var(--tasty-bg-app)", flexWrap: "wrap" }}>
             <div>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>released — full sidebar</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>released — full sidebar</div>
               <SidebarMock held={false} />
             </div>
             <div>
@@ -174,7 +174,7 @@ function Page() {
           when={<>A third switch axis, present only when <b>Workspace categories (folders)</b> is on. Holding the <b>category switch modifier</b> (<Kbd keys="Ctrl+Shift" /> by default — rebindable) paints a keycap over <b>each category</b>, previewing <Kbd keys="Ctrl+Shift+1" />…<Kbd keys="Ctrl+Shift+9" /> / <Kbd keys="Ctrl+Shift+0" />. In the <b>full</b> sidebar the keycap is <b>right-aligned on the category header</b> — it does <b>not</b> replace the chevron, which stays to carry collapse state (and its auto-expand rotation). In the <b>rail</b> it sits <b>centered on the <code>---</code> boundary</b>. The reserved <b>normal</b> category (“Workspaces”) is <b>1</b>. This overlay and the workspace overlay are <b>modifier-exclusive</b> — <Kbd keys="Alt" /> paints workspaces, <Kbd keys="Ctrl+Shift" /> paints categories, never both at once, so workspace rows keep their status dots here. The chord is the product default <code>category_switch_modifier = ctrl+shift</code> (every preset) — the gallery and the app read it from there.</>}>
           <Stage variant="solo center" style={{ alignItems: "flex-start", gap: 24, padding: 20, background: "var(--tasty-bg-app)", flexWrap: "wrap" }}>
             <div>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>released — full sidebar with categories</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>released — full sidebar with categories</div>
               <CatSwitchSidebarMock held={false} />
             </div>
             <div>
@@ -209,15 +209,15 @@ function Page() {
           when={<>Sections are the shortcut <b>chords that contain the held modifier</b>, ordered by <b>chord size</b> (1→2→3→4) then by modifier priority <b>Ctrl → Cmd/Alt → Option → Shift</b>. Each section header is the chord as <span className="ic">Kbd</span> keycaps; under it sit the bound <b>keycap rows</b> (action + <span className="ic">Kbd</span>), an optional <b>special-role row</b> (what the chord itself does — e.g. Ctrl = tab-switch numbers, Shift = TUI mouse-capture bypass), and <b>plugin</b> rows carrying the agent dot. A chord with <b>no</b> bindings and no role is <b>omitted</b> entirely.</>}>
           <Stage variant="solo center" style={{ padding: 24, background: "var(--tasty-bg-app)", gap: 40, alignItems: "flex-start", flexWrap: "wrap" }}>
             <div>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>default — Ctrl held</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>default — Ctrl held</div>
               <ModifierHintPanelG />
             </div>
             <div>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>resized taller (drag any edge) — 480</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>resized taller (drag any edge) — 480</div>
               <ModifierHintPanelG style={{ height: 480 }} />
             </div>
             <div>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>Ctrl+Shift held — categories on</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>Ctrl+Shift held — categories on</div>
               <ModifierHintPanelG held="Ctrl+Shift" sections={MH_CAT_SECTIONS} style={{ height: 300 }} />
             </div>
           </Stage>
@@ -233,11 +233,11 @@ function Page() {
           when={<>A chord that <b>exists but carries no binding and no role</b> is <b>not</b> omitted — its <span className="ic">ChordHead</span> shows with a single muted <b>placeholder row</b> beneath it. This <b>reverses</b> the original decision (“empty chord → omitted entirely, never ‘none’”): holding an all-empty combo like <Kbd keys="Ctrl+Alt+Shift" /> now surfaces the panel with a <b>“No shortcuts bound”</b> line instead of showing nothing. The placeholder is the <b>quietest</b> row in the panel — <span className="ic">text-muted</span>, <b>no keycap</b>, <b>no wash</b>, <b>no leading glyph</b> — an <i>absence</i> signal, deliberately not a role-row. It is fully static and non-interactive.</>}>
           <Stage variant="solo center" style={{ padding: 24, background: "var(--tasty-bg-app)", gap: 40, alignItems: "flex-start", flexWrap: "wrap" }}>
             <div>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>all-empty — Ctrl+Alt+Shift held</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>all-empty — Ctrl+Alt+Shift held</div>
               <ModifierHintPanelG held="Ctrl+Alt+Shift" sections={MH_EMPTY_SECTIONS} />
             </div>
             <div>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>mixed — Ctrl held, filled + empty sections</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>mixed — Ctrl held, filled + empty sections</div>
               <ModifierHintPanelG held="Ctrl" sections={MH_MIXED_SECTIONS} />
             </div>
           </Stage>

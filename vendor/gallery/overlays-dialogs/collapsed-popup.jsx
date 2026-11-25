@@ -48,7 +48,7 @@ function CollapsedPopupSpec() {
       <Stage variant="solo center" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
         {FRAMES.map(([label, props]) => (
           <div key={label} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
-            <div style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label}</div>
+            <div className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label}</div>
             <ShellMock {...props} />
           </div>
         ))}
@@ -141,7 +141,7 @@ function CollapseFlowSpec() {
       <Stage variant="solo center" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
         {FLOW.map(([label, props]) => (
           <div key={label} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", maxWidth: "var(--tasty-collapsed-popup-specimen-flow-max-width)" }}>
-            <div style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label}</div>
+            <div className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label}</div>
             <ShellMock {...props} />
           </div>
         ))}

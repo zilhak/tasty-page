@@ -94,7 +94,7 @@ function AltKeySection() {
         when={<>On macOS the <C>alt</C> token can mean <b>Cmd</b> (default, today's behaviour) or <b>Option</b>; <C>extra</C> is always the other key. The row lives in its <b>own Keybindings section “Alt key”</b>, after Plugins, with the Keybindings separator moved above it — it changes what the tokens mean rather than editing a binding, like Import / Export, which follows it. Its own section is what makes the label-only filter find “alt”. The section and the row do not exist on Windows or Linux. Switching keeps every saved binding; the binding list, palette, modifier hint and keycaps re-render with the physical key each token now means, drawn with that key's <b>existing display setting</b> (Cmd key display / Option key display — unchanged, the Alt text choice included).</>}>
         <WStage variant="solo" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 24, flexWrap: "wrap", alignItems: "flex-start" }}>
           <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
-            <span style={wLbl}>Keybindings › Alt key — default (Cmd)</span>
+            <span className="g-cap" style={wLbl}>Keybindings › Alt key — default (Cmd)</span>
             <div style={{ ...wPanel, width: 520 }}>
               <Row label="Alt key mapping:" caption={<p style={wCaption}>Saved shortcuts stay the same; only the keys you press change. <C>alt</C> uses the selected key and <C>extra</C> the other.</p>}>
                 <WSelect options={[{ value: "cmd", label: "Cmd" }, { value: "option", label: "Option" }]} value="cmd" style={{ width: "var(--tasty-field-width-md)" }} />
@@ -102,14 +102,14 @@ function AltKeySection() {
             </div>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
-            <span style={wLbl}>open list</span>
+            <span className="g-cap" style={wLbl}>open list</span>
             <div style={wMenu}>
               <WMenuItem label="Cmd" selected />
               <WMenuItem label="Option" />
             </div>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
-            <span style={wLbl}>token → physical key (not drawn in the app)</span>
+            <span className="g-cap" style={wLbl}>token → physical key (not drawn in the app)</span>
             <div style={{ display: "grid", gridTemplateColumns: "64px 96px 96px", gap: "var(--tasty-space-xs) var(--tasty-space-sm)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-secondary)" }}>
               <span />
               <span style={{ color: "var(--tasty-text-muted)" }}>Alt key: Cmd</span>
@@ -131,7 +131,7 @@ function AltKeySection() {
         <WStage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-xl)", flexWrap: "wrap", alignItems: "flex-start" }}>
           {LINK_LIVE.map(({ os, options }) => (
             <div key={os} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", flex: "1 1 auto", minWidth: 0, maxWidth: "var(--tasty-settings-content-max-width)" }}>
-              <span style={wLbl}>{os} — live</span>
+              <span className="g-cap" style={wLbl}>{os} — live</span>
               <div style={wPanel}>
                 <FitRow label="Link click modifier:">
                   <WSelect options={options} defaultValue="ctrl" style={{ width: "var(--tasty-field-width-md)" }} />

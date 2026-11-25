@@ -20,7 +20,7 @@ export function Swatch({ token, theme, name, sub }) {
     <div style={{ minWidth: 0, background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
       <div style={{ height: "var(--tasty-size-48)", background: `var(--tasty-${token})`, borderBottom: "var(--tasty-border-width) solid var(--tasty-border-default)" }} />
       <div style={{ padding: "var(--tasty-space-xs) var(--tasty-space-sm)" }}>
-        <div style={{ fontSize: "var(--tasty-font-size-caption)", fontWeight: "var(--tasty-font-weight-semibold)", color: "var(--tasty-text-primary)" }}>{name}</div>
+        <div className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", fontWeight: "var(--tasty-font-weight-semibold)", color: "var(--tasty-text-primary)" }}>{name}</div>
         {sub && <div style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)", overflowWrap: "anywhere" }}>{sub}</div>}
         <div style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" }}><Hex name={token} theme={theme} /></div>
       </div>

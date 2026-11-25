@@ -339,7 +339,7 @@ function PluginTrustSpecs() {
         <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
           {THEMES.map(([label, attr]) => (
             <Themed key={label} attr={attr}>
-              <span style={cap}>{label} · Add plugin tab — trust box + action bar per verdict</span>
+              <span className="g-cap" style={cap}>{label} · Add plugin tab — trust box + action bar per verdict</span>
               {["unknown-key", "missing-pubkey", "unsigned", "signature-error"].map((k) => (
                 <div key={k} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}><span style={{ ...cap, fontFamily: "var(--tasty-font-mono)" }}>{k}{k === "unknown-key" ? " · Cancel holds initial focus" : ""}</span><AddPanel kind={k} focus={k === "unknown-key"} /></div>
               ))}
@@ -360,7 +360,7 @@ function PluginTrustSpecs() {
         <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
           {THEMES.map(([label, attr]) => (
             <Themed key={label} attr={attr}>
-              <span style={cap}>{label}</span>
+              <span className="g-cap" style={cap}>{label}</span>
               <span style={{ ...cap, fontFamily: "var(--tasty-font-mono)" }}>trusted · on mantle (host Add tab)</span><AddPanel kind="trusted" ground="var(--tasty-bg-sidebar)" />
               <span style={{ ...cap, fontFamily: "var(--tasty-font-mono)" }}>trusted · on base (board AddPanel)</span><AddPanel kind="trusted" />
               <span style={{ ...cap, fontFamily: "var(--tasty-font-mono)" }}>reference · unknown key (unchanged)</span>
@@ -380,7 +380,7 @@ function PluginTrustSpecs() {
         <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
           {THEMES.map(([label, attr]) => (
             <Themed key={label} attr={attr}>
-              <span style={cap}>{label}</span>
+              <span className="g-cap" style={cap}>{label}</span>
               <span style={{ ...cap, fontFamily: "var(--tasty-font-mono)" }}>adding — busy, no double add</span><AddPanel kind="unsigned" state="busy" />
               <span style={{ ...cap, fontFamily: "var(--tasty-font-mono)" }}>narrow 320 · long name + path</span><AddPanel kind="missing-pubkey" narrow width="var(--tasty-size-320)" />
               <span style={{ ...cap, fontFamily: "var(--tasty-font-mono)" }}>Needs attention › unknown key</span><AttentionDetail reason="unknown-key" />
@@ -388,7 +388,7 @@ function PluginTrustSpecs() {
             </Themed>
           ))}
           <Themed>
-            <span style={cap}>Mocha · ko / ja length</span>
+            <span className="g-cap" style={cap}>Mocha · ko / ja length</span>
             <AddPanel kind="unknown-key" lang="ko" width="var(--tasty-size-440)" />
             <AddPanel kind="signature-error" lang="ja" width="var(--tasty-size-440)" />
           </Themed>
@@ -403,14 +403,14 @@ function PluginTrustSpecs() {
         <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
           {THEMES.map(([label, attr]) => (
             <Themed key={label} attr={attr}>
-              <span style={cap}>{label} · list, first row selected</span>
+              <span className="g-cap" style={cap}>{label} · list, first row selected</span>
               <AttnList />
-              <span style={cap}>{label} · list, runtime error selected</span>
+              <span className="g-cap" style={cap}>{label} · list, runtime error selected</span>
               <AttnList selected={3} />
             </Themed>
           ))}
           <Themed>
-            <span style={cap}>Mocha · ko / ja length</span>
+            <span className="g-cap" style={cap}>Mocha · ko / ja length</span>
             <AttnList lang="ko" selected={-1} /><AttnList lang="ja" selected={-1} />
           </Themed>
         </Stage>
@@ -425,16 +425,16 @@ function PluginTrustSpecs() {
         <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
           {THEMES.map(([label, attr]) => (
             <Themed key={label} attr={attr}>
-              <span style={cap}>{label} · en</span>
+              <span className="g-cap" style={cap}>{label} · en</span>
               <AttnEmpty />
             </Themed>
           ))}
           <Themed attr="mocha">
-            <span style={cap}>Mocha · ko / ja / zh-Hans</span>
+            <span className="g-cap" style={cap}>Mocha · ko / ja / zh-Hans</span>
             <AttnEmpty lang="ko" /><AttnEmpty lang="ja" /><AttnEmpty lang="zh-Hans" />
           </Themed>
           <Themed attr="latte">
-            <span style={cap}>Latte · ko / ja / zh-Hans</span>
+            <span className="g-cap" style={cap}>Latte · ko / ja / zh-Hans</span>
             <AttnEmpty lang="ko" /><AttnEmpty lang="ja" /><AttnEmpty lang="zh-Hans" />
           </Themed>
         </Stage>
@@ -449,7 +449,7 @@ function PluginTrustSpecs() {
         <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
           {THEMES.map(([label, attr]) => (
             <Themed key={label} attr={attr}>
-              <span style={cap}>{label}</span>
+              <span className="g-cap" style={cap}>{label}</span>
               <span style={{ ...cap, fontFamily: "var(--tasty-font-mono)" }}>list row · rest · selected</span>
               <ReservedRow /><ReservedRow selected />
               <span style={{ ...cap, fontFamily: "var(--tasty-font-mono)" }}>detail · rest — Remove not focused on selection</span><ReservedDetail />
@@ -459,12 +459,12 @@ function PluginTrustSpecs() {
             </Themed>
           ))}
           <Themed>
-            <span style={cap}>Mocha · narrow 320 · long folder + id · confirm wraps</span>
+            <span className="g-cap" style={cap}>Mocha · narrow 320 · long folder + id · confirm wraps</span>
             <ReservedDetail p={RESERVED_LONG} width="var(--tasty-size-320)" />
             <ReservedDetail p={RESERVED_LONG} state="confirm" width="var(--tasty-size-320)" />
           </Themed>
           <Themed>
-            <span style={cap}>Mocha · ko / ja length</span>
+            <span className="g-cap" style={cap}>Mocha · ko / ja length</span>
             <ReservedRow lang="ko" selected /><ReservedRow lang="ja" selected />
             <ReservedDetail lang="ko" width="var(--tasty-size-440)" /><ReservedDetail lang="ko" state="confirm" width="var(--tasty-size-440)" />
             <ReservedDetail lang="ja" width="var(--tasty-size-440)" /><ReservedDetail lang="ja" state="confirm" width="var(--tasty-size-440)" />

@@ -193,7 +193,7 @@ function GalleryLoadingOverlay() {
         <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
           {THEMES.map(([label, attr]) => (
             <Themed key={label} attr={attr}>
-              <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · overlay boxes shown</span>
+              <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · overlay boxes shown</span>
               <Pair label="surface" off={<TermSurface />} on={<TermSurface loading boxes />} />
               <Pair label="tab" off={<TabBed><LTab active /></TabBed>} on={<TabBed><LTab active loading boxes /></TabBed>} />
               <Pair label="LNB card" off={<LnbBed><LRow active /></LnbBed>} on={<LnbBed><LRow active loading boxes /></LnbBed>} />
@@ -211,7 +211,7 @@ function GalleryLoadingOverlay() {
         <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
           {THEMES.map(([label, attr]) => (
             <Themed key={label} attr={attr}>
-              <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label}</span>
+              <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label}</span>
               {[["inactive", {}], ["active", { active: true }], ["hover · close shows", { hover: true }], ["attention · needs-input", { att: "needs-input" }], ["attention · completion", { att: "completion" }],
                 ["busy + loading", { busy: true, active: true }], ["move + HTML marker", { kind: "html", label: "report.html", move: true, marker: true }], ["narrow 120 · long title", { active: true, busy: true, move: true, label: "remote-attach-build-farm-eu", width: "var(--tasty-size-120)" }],
                 ["Ctrl held · keycap above", { active: true, keycap: "2" }]].map(([c, p]) => (
@@ -232,7 +232,7 @@ function GalleryLoadingOverlay() {
         <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
           {THEMES.map(([label, attr]) => (
             <Themed key={label} attr={attr}>
-              <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label}</span>
+              <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label}</span>
               {[["inactive", { status: "idle" }], ["active", { active: true }], ["hover", { hover: true, status: "idle" }], ["attached ring", { attached: true }],
                 ["REMOTE · subtitle · description · notif", { mirror: true, subtitle: "build-01 · 4 surfaces", description: "Nightly build farm, EU region. Mirrors the remote host's layout.", notif: 3 }],
                 ["Alt held · keycap above", { active: true, keycap: "2" }]].map(([c, p]) => (
@@ -251,7 +251,7 @@ function GalleryLoadingOverlay() {
         <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
           {THEMES.map(([label, attr]) => (
             <Themed key={label} attr={attr}>
-              <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label}</span>
+              <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label}</span>
               <div style={{ display: "flex", gap: "var(--tasty-space-lg)", flexWrap: "wrap" }}>
                 {[["idle", {}], ["active", { state: "active" }], ["hover", { state: "hover" }], ["notif", { notif: true }], ["attached ring", { ring: true }], ["mirror", { mirror: true }], ["move", { move: true }], ["refused", { refused: true }],
                   ["all marks", { notif: true, ring: true, mirror: true, move: true, refused: true, state: "active" }], ["keycap above", { keycap: "2" }]].map(([c, p]) => (
@@ -271,7 +271,7 @@ function GalleryLoadingOverlay() {
         <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
           {THEMES.map(([label, attr]) => (
             <Themed key={label} attr={attr}>
-              <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label}</span>
+              <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label}</span>
               <Pair label="terminal" off={<TermSurface />} on={<TermSurface loading />} />
               <Pair label="terminal · search bar + move ring" off={<TermSurface search moveRing />} on={<TermSurface search moveRing loading />} />
               <Pair label="egui surface (markdown)" off={<DocSurface />} on={<DocSurface loading />} />
@@ -289,13 +289,13 @@ function GalleryLoadingOverlay() {
         <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexDirection: "column", alignItems: "flex-start" }}>
           {THEMES.map(([label, attr]) => (
             <Themed key={label} attr={attr}>
-              <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label}</span>
+              <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label}</span>
               <Pair label="rail + tab + surface" off={<MiniWindow />} on={<MiniWindow loading />} />
               <div>{cap("reduced motion · still arc")}<MiniWindow loading rm /></div>
             </Themed>
           ))}
           <Themed>
-            <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>UI scale (zoom) · Mocha</span>
+            <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>UI scale (zoom) · Mocha</span>
             <div style={{ display: "flex", gap: "var(--tasty-space-lg)", alignItems: "flex-start", flexWrap: "wrap" }}>
               {["1", "1.25", "1.5"].map((z) => (
                 <div key={z}>{cap("×" + z)}
@@ -316,7 +316,7 @@ function GalleryLoadingOverlay() {
 
       <Spec id="labels-and-tooltips" title="Labels and tooltips">
         <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", flexDirection: "column", alignItems: "flex-start", gap: "var(--tasty-space-sm)", minHeight: 0 }}>
-          <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-secondary)" }}>The overlay has no tooltip of its own (no hit-test). The existing tab / avatar / card tooltip gains a second line from the caller's key; screen readers get the same string as the overlay's label.</span>
+          <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-secondary)" }}>The overlay has no tooltip of its own (no hit-test). The existing tab / avatar / card tooltip gains a second line from the caller's key; screen readers get the same string as the overlay's label.</span>
         </Stage>
         <Meta
           specs={[["loading.generic", "en Loading… · ko 불러오는 중… · ja 読み込み中…"], ["loading.remote_attach", "en Attaching… · ko 연결하는 중… · ja 接続中…"], ["tooltip", "existing tooltip + second line (muted)"], ["a11y", "role=status on the overlay, label = same key"]]} />

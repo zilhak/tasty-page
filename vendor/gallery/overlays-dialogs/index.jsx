@@ -76,7 +76,7 @@ function Page() {
               <div align="center" style={{ width: 320, background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)",
                 borderRadius: "var(--tasty-radius)", padding: 18, boxShadow: "var(--tasty-shadow-modal)", textAlign: "center" }}>
                 <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 6 }}>This is the frame</div>
-                <div style={{ fontSize: 12.5, color: "var(--tasty-text-muted)" }}>--tasty-bg-panel · 1px --tasty-border-frame · soft shadow · sits on a 50% scrim</div>
+                <div className="g-cap" style={{ fontSize: 12.5, color: "var(--tasty-text-muted)" }}>--tasty-bg-panel · 1px --tasty-border-frame · soft shadow · sits on a 50% scrim</div>
               </div>
             </Backdrop>
           </Stage>
@@ -93,7 +93,7 @@ function Page() {
               ["rejected — window scrim for a surface popup", "window", "var(--tasty-accent-danger-raised)"],
               ["rejected — no scrim at all", "none", "var(--tasty-accent-danger-raised)"]].map(([label, scope, c]) => (
               <div key={scope} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                <div style={{ fontSize: 11, color: c }}>{label}</div>
+                <div className="g-cap" style={{ fontSize: 11, color: c }}>{label}</div>
                 <ShellMock scope={scope} />
               </div>
             ))}
@@ -112,7 +112,7 @@ function Page() {
               ["narrow surface — popup collapsed to the show button", { scope: "surface", narrow: true, collapsed: "label", ring: true }],
               ["parent + child picker — one scrim", { scope: "surface", child: true }]].map(([label, props]) => (
               <div key={label} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
+                <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
                 <ShellMock {...props} />
               </div>
             ))}
@@ -148,7 +148,7 @@ function Page() {
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 16, flexWrap: "wrap" }}>
             {[["Mocha", "mocha", "9.18 : 1"], ["Latte", "latte", "5.80 : 1"]].map(([lab, th, cr]) => (
               <div key={lab} {...(th ? { "data-theme": th } : {})} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md)", background: "var(--tasty-surface-raised)", borderRadius: "var(--tasty-radius)", width: 300 }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{lab} · popup surface-raised · label {cr}</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{lab} · popup surface-raised · label {cr}</span>
                 {[["Allow once", false], ["Always allow in this workspace", false], ["Allow and skip future checks", true]].map(([t, dz]) => (
                   <div key={t} style={{ height: "var(--tasty-control-height)", display: "flex", alignItems: "center", padding: "0 var(--tasty-space-md)", borderRadius: "var(--tasty-radius)", fontSize: "var(--tasty-font-size-body)",
                     background: dz ? "var(--tasty-approval-danger-bg)" : "var(--tasty-bg-panel)", color: dz ? "var(--tasty-approval-danger-fg)" : "var(--tasty-text-primary)",
@@ -169,11 +169,11 @@ function Page() {
           when={<>A small list popup that converts a surface to another kind <b>without losing the running process or scrollback</b> — only the renderer changes. The shared popup title bar, then one <b>MenuItem</b> per kind the surface can become; click (or ↵ on the highlighted row) converts, × / Esc close. This is the product's shape and the target — the earlier 400-wide From / To dialog is retired. Width is <span className="tok">--tasty-convert-popup-width</span> (<b>240</b>, was a literal 200) and <b>scales with ui_scale</b> like every popup width; height = title bar + rows.</>}>
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>Mocha · en · ui_scale 1.0</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>Mocha · en · ui_scale 1.0</span>
                 <div style={{ zoom: 1 }}><ConvertSurfacePopup title="Surface Type" /></div>
               </div>
             <div data-theme="latte" style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>Latte · en · ui_scale 1.0</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>Latte · en · ui_scale 1.0</span>
                 <div style={{ zoom: 1 }}><ConvertSurfacePopup title="Surface Type" /></div>
               </div>
           </Stage>
@@ -186,14 +186,14 @@ function Page() {
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
             {[["Mocha", "mocha", "1.0", "rest · hover (Image) · active (Markdown) · collision · long"], ["Latte", "latte", "1.0", "same states"]].map(([th, dt, sc, cap]) => (
               <div key={th} data-theme={dt || undefined} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{th} · en · {sc} — {cap}</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{th} · en · {sc} — {cap}</span>
                 <ConvertSurfacePopup title="Surface Type" active={0} hover={1}
                   kinds={[["markdown", "Markdown", "M"], ["image", "Image", "I"], ["html", "HTML", "H"], ["file", "Mermaid (plugin)", null], ["file", "Notebook viewer with outputs (plugin)", "N"]]} />
               </div>
             ))}
             {[["Mocha", "mocha", "ko", "서피스 타입 전환", [["terminal", "터미널", "T"], ["image", "이미지", "I"], ["gitTree", "DAG", "D"], ["html", "HTML", "H"], ["folder", "탐색기", "E"]]], ["Mocha", "mocha", "ja", "サーフェスタイプ切替", [["terminal", "ターミナル", "T"], ["markdown", "マークダウン", "M"], ["image", "画像", "I"], ["html", "HTML", "H"], ["folder", "エクスプローラー", "E"]]], ["Latte", "latte", "ja", "サーフェスタイプ切替", [["terminal", "ターミナル", "T"], ["markdown", "マークダウン", "M"], ["image", "画像", "I"], ["html", "HTML", "H"], ["folder", "エクスプローラー", "E"]]]].map(([th, dt, lang, t, k], n) => (
               <div key={n} data-theme={dt || undefined} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{th} · {lang} · {lang === "ko" ? "1.0" : "1.2 (240 × 1.2, fits)"}</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{th} · {lang} · {lang === "ko" ? "1.0" : "1.2 (240 × 1.2, fits)"}</span>
                 <div style={{ zoom: lang === "ko" ? 1 : 1.2 }}><ConvertSurfacePopup title={t} kinds={k} active={0} /></div>
               </div>
             ))}
@@ -207,19 +207,19 @@ function Page() {
           when={<>Every popup width is a token and is multiplied by ui_scale, the same as the title and the reserve. Scaling alone keeps the ratio, so the base width must fit the longest locale title at 1.0: the ja title <i>サーフェスタイプ切替</i> is ≈ 139, and 200 leaves a band of 200 − 2 × 32 = 136 — it cuts at every scale. The convert popup's base therefore goes to <b>240</b> (band 176), and at 1.2 everything scales together (288 / 211 / ≈ 167). A title that still overflows ellipsises inside the symmetric band (unchanged), and <b>only then</b> shows the full title in a Tooltip on hover (shared placement: top, then bottom). No content-driven widening: the width stays a token.</>}>
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>Mocha · ja · 1.2 — before: literal 200 (cuts)</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>Mocha · ja · 1.2 — before: literal 200 (cuts)</span>
                 <div style={{ zoom: 1.2, ["--tasty-convert-popup-width"]: "calc(200px / 1.2)" }}><ConvertSurfacePopup title="サーフェスタイプ切替" /></div>
               </div>
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>Mocha · ja · 1.2 — convert-popup-width 240 × 1.2 (fits)</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>Mocha · ja · 1.2 — convert-popup-width 240 × 1.2 (fits)</span>
                 <div style={{ zoom: 1.2 }}><ConvertSurfacePopup title="サーフェスタイプ切替" /></div>
               </div>
             <div data-theme="latte" style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>Latte · ja · 1.2 — convert-popup-width 240 × 1.2 (fits)</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>Latte · ja · 1.2 — convert-popup-width 240 × 1.2 (fits)</span>
                 <div style={{ zoom: 1.2 }}><ConvertSurfacePopup title="サーフェスタイプ切替" /></div>
               </div>
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>Mocha · still too long — ellipsis + hover tooltip</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>Mocha · still too long — ellipsis + hover tooltip</span>
                 <div style={{ zoom: 1 }}><ConvertSurfacePopup title="Convert this surface to another type" /></div>
               </div>
           </Stage>
@@ -244,11 +244,11 @@ function Page() {
           when={<>The picker always says <b>what it thinks the file is</b>. The detector value (<code>markdown</code> · <code>html</code> · <code>$directory</code>) sits as an <b>accent Tag</b> on the title row, opposite the title; the path sits under it in mono. When detection fails the Tag reads <b>“format unknown”</b> in the neutral outline variant — an unknown format is a fact, not an error.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 18, flexWrap: "wrap" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>detected</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>detected</div>
               <FileHandlerFrame />
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>not detected → fallback</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>not detected → fallback</div>
               <FileHandlerFrame state="fallback" />
             </div>
           </Stage>
@@ -281,7 +281,7 @@ function Page() {
                 <span style={{ flex: "none", width: 80, fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: "var(--tasty-text-muted)" }}>{span}</span>
                 <span style={{ flex: "none", width: 120, fontFamily: "var(--tasty-font-mono)", fontSize: 12, color: "var(--tasty-text-primary)" }}>{en}</span>
                 <span style={{ flex: "none", width: "var(--tasty-fh-when-width)", fontSize: 11, color: "var(--tasty-text-muted)", background: "var(--tasty-surface-raised)", padding: "2px 0", textAlign: "left", paddingLeft: 4, boxSizing: "border-box" }}>{sample === "—" ? en : sample}</span>
-                <span style={{ flex: 1, fontSize: 11, color: "var(--tasty-text-muted)" }}>{span === "≥ 7 d" ? "absolute date — locale-neutral, 10 chars, the column's reserve" : span === "< 60 s" ? "the only non-numeric bucket besides yesterday" : ""}</span>
+                <span className="g-cap" style={{ flex: 1, fontSize: 11, color: "var(--tasty-text-muted)" }}>{span === "≥ 7 d" ? "absolute date — locale-neutral, 10 chars, the column's reserve" : span === "< 60 s" ? "the only non-numeric bucket besides yesterday" : ""}</span>
               </div>
             ))}
           </Stage>
@@ -298,7 +298,7 @@ function Page() {
               ["93 → 57 chars — leading segments dropped at a boundary", "…/navigation/federation/SidebarCategoryHeaderContrast.tsx"],
               ["one 72-char segment → 65 — mid-segment, front", "…on-federation-sidebar-category-header-contrast-exploration-v2.md"]].map(([label, p]) => (
               <div key={label} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
+                <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
                 <FileHandlerFrame path={p} />
               </div>
             ))}
@@ -320,7 +320,7 @@ function Page() {
                   ["93-char path beside work-laptop-attach (link menu) — 258px box, 43 chars: whole segments drop, the filename stays", { state: "fallback", remote: { host: "work-laptop-attach" }, path: "…/SidebarCategoryHeaderContrast.tsx" }],
                   ["same path at the host cap (link menu) — 206px box, 34 chars: …/ + the 33-char file name is 35, so only the slash drops — … + the whole file name", { state: "fallback", remote: { host: "build-runner-eu-west-07-staging-attach" }, path: "…SidebarCategoryHeaderContrast.tsx" }]].map(([label, o]) => (
                   <div key={label} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                    <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
+                    <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
                     <FileHandlerFrame {...o} />
                   </div>
                 ))}
@@ -371,11 +371,11 @@ function Page() {
           when={<>The picker is <b>headless</b> (no common popup titlebar): the frame draws its own header so the path appears <b>once</b>, in mono, truncated from the front. Using the shared titlebar puts the path in two places at two truncations — the reading below. Same precedent as Transfer progress.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 18, flexWrap: "wrap" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-accent-success-raised)" }}>headless — one header</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-accent-success-raised)" }}>headless — one header</div>
               <FileHandlerFrame />
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-accent-danger-raised)" }}>titlebar + header — path twice</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-accent-danger-raised)" }}>titlebar + header — path twice</div>
               <FileHandlerFrame headless={false} state="long" />
             </div>
           </Stage>
@@ -392,7 +392,7 @@ function Page() {
               ["rejected (a) — persists a binding with nowhere to undo it", "checkbox"],
               ["rejected (c) — an affordance that does nothing", "disabled"]].map(([label, v], i) => (
               <div key={v} style={{ display: "flex", flexDirection: "column", gap: 6, width: 420 }}>
-                <div style={{ fontSize: 11, color: i === 0 ? "var(--tasty-accent-success-raised)" : "var(--tasty-text-muted)" }}>{label}</div>
+                <div className="g-cap" style={{ fontSize: 11, color: i === 0 ? "var(--tasty-accent-success-raised)" : "var(--tasty-text-muted)" }}>{label}</div>
                 <div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", background: "var(--tasty-bg-panel)", overflow: "hidden" }}>
                   <FhFooter variant={v} />
                 </div>
@@ -418,11 +418,11 @@ function Page() {
           when={<>The picker no longer appears when one handler clearly wins — the implementation dispatches the top match directly. So it opens in three cases only: <b>ambiguous candidates</b>, <b>no match</b>, or an <b>explicit “Open with…”</b>. The <b>default</b> Tag is kept for the first and third: in an ambiguous list it names the handler that would have run, and on an explicit open it tells the user what they are overriding. In the <b>fallback</b> state nothing is default, so no Tag appears. Interaction contract below.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 18, flexWrap: "wrap" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>ambiguous / explicit — default Tag shown</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>ambiguous / explicit — default Tag shown</div>
               <FileHandlerFrame />
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>no match — no default</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>no match — no default</div>
               <FileHandlerFrame state="fallback" />
             </div>
           </Stage>
@@ -468,11 +468,11 @@ function Page() {
           when={<>Creating and renaming a workspace category reuses the <b>360px single-field Rename dialog</b> verbatim — title, keyboard hint, one autofocused Input, cancel/confirm. Name validation runs on confirm and shows an inline error under the field (the confirm button disables): <b>empty</b> after trim, the reserved word <b>“normal”</b>, or a <b>case-insensitive duplicate</b>.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 18, flexWrap: "wrap" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>new — empty field</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>new — empty field</div>
               <CategoryEditFrame mode="new" />
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>validation — duplicate name</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>validation — duplicate name</div>
               <CategoryEditFrame mode="new" error="duplicate" />
             </div>
           </Stage>
@@ -501,7 +501,7 @@ function Page() {
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
             {[["ui_scale 0.85", 0.85], ["ui_scale 1", 1], ["ui_scale 1.2", 1.2]].map(([cap, z]) => (
               <div key={cap} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap} — width and insets scale together</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap} — width and insets scale together</span>
                 <div style={{ zoom: z }}><TransferProgressFrame /></div>
               </div>
             ))}
@@ -516,11 +516,11 @@ function Page() {
           when={<>Shown when a transfer is <b>rejected before it starts</b> (capacity exceeded) or <b>fails mid-transfer</b> (channel dropped). Danger glyph + <b>Transfer failed</b> title; the body names the <b>file</b> (mono) and quotes the <b>reason</b> verbatim in a mono well — the same command-well pattern as agent approval, so the machine-reported cause is legible and copyable. Rejected → a single <b>Dismiss</b>; mid-transfer failure → <b>Retry</b> (secondary) beside a ghost Dismiss — retry is only offered when re-sending can succeed.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 18, flexWrap: "wrap", alignItems: "flex-start" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>rejected — capacity exceeded, no retry</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>rejected — capacity exceeded, no retry</div>
               <TransferErrorFrame />
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>failed mid-transfer — retry offered</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>failed mid-transfer — retry offered</div>
               <TransferErrorFrame retry reason="connection lost — remote workspace detached at 34.6 MiB" />
             </div>
           </Stage>
@@ -586,11 +586,11 @@ function Page() {
           when={<>The transfer error popup with the title <b>Download failed</b>. The body keeps the existing line (<code>transfer.error.body_suffix</code>, “<i>name</i> could not be received.”) and the well carries a <b>sentence per cause</b> instead of the raw reason code. Because it is a translated sentence, not a machine-reported cause to copy, the well text is set in the <b>UI face at body size</b> (<code>reasonKind="sentence"</code>); the well, its ground and the danger ink stay. The mono well remains for verbatim causes such as the upload capacity limit. A <b>folder</b> is refused here too: it is the same answer to the same press, and the sentence restates the one-file rule. A folder reaches the dialog only through a mirror terminal path link (Ctrl+click, or the link action from the right-click menu); an explorer double-click enters the folder. Whether the target is a folder is not known until the server's stat answer after the press, so there is no question before it: the refusal comes here, nothing is received and no handler runs. Every cause ends with a single <b>Dismiss</b> — nothing was opened, nothing is left behind, and opening the file again is the way to retry.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 18, flexWrap: "wrap", alignItems: "flex-start" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>folder — refused before anything is sent</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>folder — refused before anything is sent</div>
               <TransferErrorFrame title="Download failed" reasonKind="sentence" name="assets" reason="Folders are not supported. “Download and run” supports one file only." />
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>connection lost mid-download</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>connection lost mid-download</div>
               <TransferErrorFrame title="Download failed" reasonKind="sentence" name="build-artifacts.tar.gz" reason="The connection to the remote host was lost during the download." />
             </div>
           </Stage>
@@ -627,7 +627,7 @@ function Page() {
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
             {[["Theme not found — one sentence, min height", "theme", null], ["Database initialization error — quits", "db", null], ["Theme not found — Latte", "theme", "latte"], ["Database initialization error — Latte", "db", "latte"]].map(([cap, k, theme]) => (
               <div key={cap} {...(theme ? { "data-theme": theme } : {})} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
                 {k === "theme" ? <ThemeNotFoundModal /> : <DbInitErrorModal />}
               </div>
             ))}
@@ -642,9 +642,9 @@ function Page() {
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
             {[["Mocha", "mocha"], ["Latte", "latte"]].map(([label, theme]) => (
               <div key={label} {...(theme ? { "data-theme": theme } : {})} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · two buttons · short title</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · two buttons · short title</span>
                 <NotificationsPopupHead />
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · two buttons · long title ellipsises in the symmetric band</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · two buttons · long title ellipsises in the symmetric band</span>
                 <NotificationsPopupHead title="Notifications from every workspace and remote host" />
               </div>
             ))}
@@ -659,7 +659,7 @@ function Page() {
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
             {[["scrolled to top", "top", null], ["mid-way", "mid", null], ["at the end", "bottom", null], ["top — Latte", "top", "latte"]].map(([cap, sc, theme]) => (
               <div key={cap} {...(theme ? { "data-theme": theme } : {})} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
                 <PermissionNoticeModal scroll={sc} />
               </div>
             ))}
@@ -674,7 +674,7 @@ function Page() {
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
             {[["never — no grant on record", "never", null], ["stale — granted before, app changed", "stale", null], ["stale — Latte", "stale", "latte"], ["revoked — turned off outside Tasty", "revoked", null]].map(([cap, fda, theme]) => (
               <div key={cap} {...(theme ? { "data-theme": theme } : {})} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
                 <PermissionNoticeModal scroll="bottom" fda={fda} />
               </div>
             ))}
@@ -690,7 +690,7 @@ function Page() {
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
             {[["en", null], ["ko", null], ["ja", null], ["ja · Latte", "latte"]].map(([lang, th]) => (
               <div key={lang} {...(th ? { "data-theme": th } : {})} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{lang}</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{lang}</span>
                 <ScriptConfirmG lang={lang.slice(0, 2)} />
               </div>
             ))}

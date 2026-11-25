@@ -169,13 +169,13 @@ function RcThemeGrid({ label, attr }) {
       <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-md)", alignItems: "flex-start" }}>
         {RC_VARIANTS.map(([cap, p]) => (
           <div key={cap} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", width: "var(--tasty-size-480)" }}>
-            <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
+            <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
             <div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}><HtmlRemoteSurfaceG {...p} height={p.remote && p.script ? 400 : 300} /></div>
           </div>
         ))}
         {[["9a · narrow (360) — variant 1", { remote: "blocked" }, 340], ["9b · narrow (360) — variant 6a", { remote: "blocked", script: "blocked" }, 520]].map(([cap, p, h]) => (
           <div key={cap} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
-            <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
+            <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
             <div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}><HtmlRemoteSurfaceG {...p} narrow width="var(--tasty-size-360)" height={h} /></div>
           </div>
         ))}
@@ -187,7 +187,7 @@ function RcThemeGrid({ label, attr }) {
 // 2026-11-10 — top-level http(s) page (decisions 20 · 25). States of both notices with the web copy, wide and narrow.
 function RcWebStateGrid({ label, attr }) {
 
-  const cap = (t) => <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · {t}</span>;
+  const cap = (t) => <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · {t}</span>;
   const rows = [
     ["remote · blocked", (n) => <HtmlRemoteBanner web narrow={n} />],
     ["remote · hover — × revealed", (n) => <HtmlRemoteBanner web hover narrow={n} />],
@@ -217,7 +217,7 @@ function RcWebStateGrid({ label, attr }) {
 // The two markers on a web page: remote = end of the `web` address field, scripts = tab cell right cluster.
 function RcWebMarkerGrid({ label, attr }) {
 
-  const cap = (t) => <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · {t}</span>;
+  const cap = (t) => <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · {t}</span>;
   const frame = (child) => <div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>{child}</div>;
   const tab = (marker) => frame(<div style={{ display: "flex", background: "var(--tasty-bg-sidebar)" }}><HsTab label={RC_WEB.label} icon="html" active marker={marker} markerWeb /></div>);
   const bar = (marker) => frame(<HtmlAddressBar kind="web" address={RC_WEB.address} trailing={<HtmlRemoteMarker kind={marker} web />} />);
@@ -278,7 +278,7 @@ function BodyInkGrid({ label, theme }) {
       <span style={{ fontSize: "var(--tasty-font-size-body)", fontWeight: "var(--tasty-font-weight-semibold)", color: "var(--tasty-text-primary)" }}>{label}</span>
       {rows.map(([cap, el]) => (
         <div key={cap} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
-          <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
+          <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
           {el}
         </div>
       ))}
@@ -301,7 +301,7 @@ function RemainingInkGrid({ label, theme }) {
       <span style={{ fontSize: "var(--tasty-font-size-body)", fontWeight: "var(--tasty-font-weight-semibold)", color: "var(--tasty-text-primary)" }}>{label}</span>
       {rows.map(([cap, el]) => (
         <div key={cap} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
-          <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
+          <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
           {el}
         </div>
       ))}
@@ -372,14 +372,14 @@ function Page() {
           when={<>The top-right corner is an <b>affordance column</b> holding <b>one</b> dismiss slot (a banner that carries a ⋯ overflow trigger adds it to the left of that slot — see <i>Banner more menu</i>). A banner <b>with an action</b> (no TTL) keeps its <b>×</b> <b>hidden until you hover</b> the banner. An <b>action-less</b> banner (TTL) shows a <b>seconds countdown</b> there instead, flipping to the × on hover; at <b>0</b> it auto-dismisses. The countdown <b>pauses</b> while the banner is hovered or its scope is backgrounded, then resumes. Appear/dismiss is a <b>120ms alpha fade</b> — the banner never moves.</>}>
           <Stage variant="solo center" style={{ flexDirection: "column", gap: 16, padding: 20, background: "var(--tasty-bg-app)" }}>
             <div style={{ width: "100%", maxWidth: 480 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>has an action → no TTL · hover the banner to reveal ×</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>has an action → no TTL · hover the banner to reveal ×</div>
               <BannerShellG><div style={{ display: "flex", alignItems: "center", gap: 12, padding: "var(--tasty-banner-padding-y) var(--tasty-banner-padding-x)" }}>
                 <span style={{ flex: 1, fontSize: 13, color: "var(--tasty-banner-fg)" }}>Stays until the action or × (× on hover, top-right)</span>
                 <BButton variant="secondary" size="sm" style={{ background: "var(--tasty-banner-button-bg)", borderColor: "var(--tasty-banner-button-border)" }}>Retry</BButton>
                 <IconButton size="sm" aria-label="Dismiss">{ic.x}</IconButton></div></BannerShellG>
             </div>
             <div style={{ width: "100%", maxWidth: 480 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>no action → TTL 6s · live countdown · hover to pause + show ×</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>no action → TTL 6s · live countdown · hover to pause + show ×</div>
               <TtlBannerG />
             </div>
           </Stage>
@@ -405,7 +405,7 @@ function Page() {
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", flexDirection: "column", gap: "var(--tasty-space-md)", alignItems: "stretch" }}>
             {[["Mocha", "mocha"], ["Latte", "latte"]].map(([label, attr]) => (
               <div key={label} {...(attr ? { "data-theme": attr } : {})} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · live countdown · hover to pause + show ×</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · live countdown · hover to pause + show ×</span>
                 <div style={{ width: "100%", maxWidth: "var(--tasty-size-480)" }}>
                   <TtlBannerG ttl={10} glyph={<BIcon name="alertTriangle" size="var(--tasty-icon-size-md)" />} glyphColor="var(--tasty-accent-warning-raised)"
                     title="Shell integration not detected" body="Command-completion hooks (docker build, just run, etc.) need OSC 133 shell integration. See docs/features/hooks for setup." />
@@ -426,15 +426,15 @@ function Page() {
           when={<>The canonical use: a TUI app turns on mouse tracking (DECSET 1000/1002/1003), so drag-to-select and right-click stop working. The banner explains <b>why</b> and the <b>bypass</b>. It is <b>persistent</b> (no TTL — it doesn't time out), fires <b>once per tracking session</b> and only on a <b>real user click</b> (never from agent/IPC). The top-right × is hidden until you hover; dismissing it suppresses the banner for that session. Leading glyph = a mouse (open decision resolved: keep it, in <span className="tok">--tasty-banner-icon-fg</span> tone). Card height is <b>variable</b> — body wraps to 1–3 lines depending on locale.</>}>
           <Stage variant="solo center" style={{ flexDirection: "column", gap: 16, padding: 20, background: "var(--tasty-bg-app)" }}>
             <div style={{ width: "100%", maxWidth: 480 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>default · hover the card to reveal ×</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>default · hover the card to reveal ×</div>
               <MouseCaptureBannerG />
             </div>
             <div style={{ width: "100%", maxWidth: 480 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>one-line body (short locale)</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>one-line body (short locale)</div>
               <MouseCaptureBannerG body="Mouse captured — hold Shift to select." />
             </div>
             <div style={{ width: "100%", maxWidth: 480 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>recessed — dimmed behind a higher-scope banner</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>recessed — dimmed behind a higher-scope banner</div>
               <div data-audit-exempt="dimmed" style={{ opacity: "var(--tasty-banner-recessed-opacity)" }}><MouseCaptureBannerG /></div>
             </div>
           </Stage>
@@ -459,15 +459,15 @@ function Page() {
           when={<>The mouse-capture banner's two per-app opt-outs are <b>not</b> inline buttons — they sit behind a <b>⋯ trigger</b> in the banner's top-right affordance column, <b>left of the ×</b> with a <b>4px</b> gap. Both share the <b>same reveal rule</b>: hidden until the banner is hovered (this banner has no TTL, so no countdown competes for the slot), and the ⋯ additionally <b>stays lit while its menu is open</b>. The card's width and height are unchanged — only the body's right reserve grows from 28 to <b>56px</b>, so a 1-line body still fits on one line.</>}>
           <Stage variant="solo center" style={{ flexDirection: "column", gap: 16, padding: 20, background: "var(--tasty-bg-app)" }}>
             <div style={{ width: "100%", maxWidth: 480 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>idle — no affordance drawn</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>idle — no affordance drawn</div>
               <MouseCaptureBannerG />
             </div>
             <div style={{ width: "100%", maxWidth: 480 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>banner hovered — ⋯ then ×</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>banner hovered — ⋯ then ×</div>
               <MouseCaptureBannerG forceHover />
             </div>
             <div style={{ width: "100%", maxWidth: 480 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>menu open — trigger stays lit (active)</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>menu open — trigger stays lit (active)</div>
               <MouseCaptureBannerG open />
             </div>
           </Stage>
@@ -493,23 +493,23 @@ function Page() {
           when={<>Every row interpolates a program name of arbitrary length, and word order differs by locale (en: name last; ko/ja: name first; zh-Hans: name in the middle). So a row's label is <b>two parts</b>: the <b>fixed text</b> (never truncates) and the <b>program name</b> in <b>mono</b> (same row ink as the fixed text: text-secondary at rest, text-primary on hover — 2026-10-08), which is the part that <b>shrinks and ellipsises</b>. The menu grows with the content between <b>200px</b> and <b>288px</b> (a wider band than the Tools menu's 160–240, since every row carries a program name) and the full name is available as the row's tooltip.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 18, alignItems: "flex-start", flexWrap: "wrap" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>short name — content-sized (the vim row already passes the 200 floor)</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>short name — content-sized (the vim row already passes the 200 floor)</div>
               <BannerMoreMenuG app="vim" />
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>medium — grows to fit</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>medium — grows to fit</div>
               <BannerMoreMenuG app="python3.11" hovered={0} />
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>long — capped at 288px, name ellipsises</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>long — capped at 288px, name ellipsises</div>
               <BannerMoreMenuG app="some-very-long-tool-name" />
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>ja — fixed copy alone exceeds 288: that row wraps, menu stays 288 (2026-10-08)</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>ja — fixed copy alone exceeds 288: that row wraps, menu stays 288 (2026-10-08)</div>
               <BannerMoreMenuG app="vim" hovered={1} wrapRows={[1]} texts={[["", " の通知をオフにする"], ["", " について、このプログラムのマウスキャプチャを常に無効にする"]]} />
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>rejected — danger tone on the capture row</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>rejected — danger tone on the capture row</div>
               <BannerMoreMenuG app="vim" danger />
             </div>
           </Stage>
@@ -524,7 +524,7 @@ function Page() {
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 18, alignItems: "flex-start", flexWrap: "wrap" }}>
             {[["en", "vim"], ["ko", "vim"], ["ja", "vim"], ["zh-Hans", "vim"], ["en · long name", "some-very-long-tool-name", "en"], ["ja · long name", "some-very-long-tool-name", "ja"], ["zh-Hans · long name", "some-very-long-tool-name", "zh-Hans"]].map(([cap, app, l]) => (
               <div key={cap} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{cap}</div>
+                <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{cap}</div>
                 <BannerMoreMenuG app={app} lang={l || cap} />
               </div>
             ))}
@@ -538,14 +538,14 @@ function Page() {
           when={<>When the program name is unknown (remote attach mirror — no local PTY; before the first 1 Hz poll; OS lookup failed) the actions still exist but can't run, so they are <b>shown disabled, not hidden</b>. The ⋯ trigger is drawn exactly as with a known name (same hover reveal, lit while open, same 56 body reserve). The menu opens with a non-interactive <b>reason line</b> on top, a separator, then the <b>same two rows disabled</b> — worded with “this program” in place of the name. No “(unknown)” placeholder: a mono “(unknown)” would read as a process called that. Clicking a disabled row does nothing: nothing is saved, the menu stays open, the banner stays. Esc / outside click close as usual. Keyboard arrow navigation skips disabled rows (with both disabled, focus stays on the menu). If the name arrives while the menu is open the menu does not change; the next open shows the normal rows. On a remote mirror the name is always unknown, so this is the menu there — a note, no separate example.</>}>
           <Stage variant="solo center" style={{ flexDirection: "column", gap: 16, padding: 20, paddingBottom: 150, background: "var(--tasty-bg-app)" }}>
             <div style={{ width: "100%", maxWidth: 480 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>name unknown — menu open (en)</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>name unknown — menu open (en)</div>
               <MouseCaptureBannerG app={null} open />
             </div>
           </Stage>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 18, alignItems: "flex-start", flexWrap: "wrap" }}>
             {["en", "ko", "ja", "zh-Hans"].map((l) => (
               <div key={l} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{l} · unknown</div>
+                <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{l} · unknown</div>
                 <BannerMoreMenuG app={null} lang={l} />
               </div>
             ))}
@@ -563,11 +563,11 @@ function Page() {
           when={<>The companion settings (labels aligned with the ⋯ rows 2026-11-02): <b>Don't show the capture notice for these programs</b> (<code>mouse_capture_banner_blacklist</code>) and <b>Let Tasty handle clicks in these programs</b> (<code>mouse_capture_blacklist</code>) — process-name patterns where mouse capture is <b>disabled</b>, so clicks/drags are handled locally (select / tasty menu) instead of being sent to the app. Promoted from the old newline textarea to a <b>list editor</b> (rows + Add) — resolved open decision. Grouped with the <b>Show mouse-capture hint</b> switch since both govern the same feature. Default is an <b>empty list</b>. Remove uses <span className="ic">×</span> (it un-lists a program, it doesn't delete anything).</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 18, flexWrap: "wrap" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>filled · one row hovered</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>filled · one row hovered</div>
               <BlacklistEditorG />
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>empty (default) · Add disabled</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>empty (default) · Add disabled</div>
               <BlacklistEditorG empty />
             </div>
           </Stage>
@@ -584,7 +584,7 @@ function Page() {
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", flexDirection: "column", gap: "var(--tasty-space-lg)", alignItems: "stretch" }}>
             {[["Mocha", "mocha"], ["Latte", "latte"]].map(([label, attr]) => (
               <div key={label} {...(attr ? { "data-theme": attr } : {})} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", background: "var(--tasty-bg-app)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · two surfaces side by side, banner on the HTML one only</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · two surfaces side by side, banner on the HTML one only</span>
                 <div style={{ display: "flex", gap: "var(--tasty-border-width)", background: "var(--tasty-border-frame)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
                   <HtmlSurfaceG />
                   <TermSurfaceG />
@@ -602,12 +602,12 @@ function Page() {
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", flexDirection: "column", gap: "var(--tasty-space-md)", alignItems: "stretch" }}>
             {[["1 · blocked (default)", {}], ["2 · hover — × revealed", { hover: true }], ["3 · after Allow — reloading", { state: "reloading" }], ["4 · surface loading a new document — Allow disabled until commit (tooltip on hover)", { state: "loading" }], ["remote content also blocked — body branch", { remote: true }]].map(([cap, p]) => (
               <div key={cap} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", maxWidth: "var(--tasty-size-600)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
                 <HtmlScriptBanner {...p} />
               </div>
             ))}
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
-              <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>6 · narrow surface (360) — action wraps under the body</span>
+              <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>6 · narrow surface (360) — action wraps under the body</span>
               <div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden", alignSelf: "flex-start" }}><HtmlSurfaceG width="var(--tasty-size-360)" narrow height={300} /></div>
             </div>
           </Stage>
@@ -620,9 +620,9 @@ function Page() {
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
             {[["Mocha", "mocha"], ["Latte", "latte"]].map(([label, attr]) => (
               <div key={label} {...(attr ? { "data-theme": attr } : {})} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", width: "var(--tasty-size-560)", maxWidth: "100%", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · blocked, hover the button</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · blocked, hover the button</span>
                 <HtmlScriptBanner />
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · loading — disabled on the shell</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · loading — disabled on the shell</span>
                 <HtmlScriptBanner state="loading" />
               </div>
             ))}
@@ -638,7 +638,7 @@ function Page() {
               <div key={label} {...(attr ? { "data-theme": attr } : {})} style={{ display: "flex", gap: "var(--tasty-space-md)", flexWrap: "wrap", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
                 {[["current — stale banner over the failure (wrong)", { banner: "blocked", marker: "blocked" }], ["decided — failure state only", { banner: null, marker: null }]].map(([cap, p]) => (
                   <div key={cap} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
-                    <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · {cap}</span>
+                    <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · {cap}</span>
                     <div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}><HtmlSurfaceG {...p} failed width="var(--tasty-size-360)" height={220} /></div>
                   </div>
                 ))}
@@ -656,7 +656,7 @@ function Page() {
               <div key={label} {...(attr ? { "data-theme": attr } : {})} style={{ display: "flex", gap: "var(--tasty-space-md)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
                 {[["4a · dismissed — lock, click to re-show", "blocked"], ["4b · allowed this session", "allowed"]].map(([cap, m]) => (
                   <div key={m} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
-                    <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · {cap}</span>
+                    <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · {cap}</span>
                     <div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}><HtmlSurfaceG banner={null} marker={m} width="var(--tasty-size-240)" height={120} /></div>
                   </div>
                 ))}
@@ -688,7 +688,7 @@ function Page() {
             ))}
           </Stage>
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", flexDirection: "column", gap: "var(--tasty-space-sm)", alignItems: "stretch" }}>
-            <div style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>other mapping errors — same banner, own reason</div>
+            <div className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>other mapping errors — same banner, own reason</div>
             <div style={{ maxWidth: "var(--tasty-size-560)" }}><AttachRefusalBannerG kind="profile" /></div>
             <div style={{ maxWidth: "var(--tasty-size-560)" }}><AttachRefusalBannerG kind="resolve" /></div>
           </Stage>
@@ -727,15 +727,15 @@ function Page() {
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
             {[["Mocha", "mocha"], ["Latte", "latte"]].map(([label, th]) => (
               <div key={label} {...(th ? { "data-theme": th } : {})} style={{ width: "var(--tasty-size-460)", display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} — default</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} — default</span>
                 <AttachSizeSyncBannerG names={["build"]} />
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>retrying (≤ 5 s)</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>retrying (≤ 5 s)</span>
                 <AttachSizeSyncBannerG names={["build"]} retrying />
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>3 surfaces · long tab title truncated</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>3 surfaces · long tab title truncated</span>
                 <AttachSizeSyncBannerG names={["release-pipeline-watch-logs-eu-west", "build", "tests"]} />
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>split tab · same name twice (b11)</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>split tab · same name twice (b11)</span>
                 <AttachSizeSyncBannerG names={["Shell", "Shell"]} />
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>duplicates + others (b11)</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>duplicates + others (b11)</span>
                 <AttachSizeSyncBannerG names={["Shell", "Shell", "build", "tests"]} />
               </div>
             ))}
@@ -750,13 +750,13 @@ function Page() {
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
             {[["Mocha", "mocha"], ["Latte", "latte"]].map(([label, th]) => (
               <div key={label} {...(th ? { "data-theme": th } : {})} style={{ width: "var(--tasty-size-360)", display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} — refused · 360</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} — refused · 360</span>
                 <AttachRefusalBannerG kind="self" narrow />
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>size sync · one surface</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>size sync · one surface</span>
                 <AttachSizeSyncBannerG names={["build"]} narrow />
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>size sync · 3 surfaces · Retry all</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>size sync · 3 surfaces · Retry all</span>
                 <AttachSizeSyncBannerG names={["release-pipeline-watch-logs-eu-west", "build", "tests"]} narrow />
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>size sync · retrying</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>size sync · retrying</span>
                 <AttachSizeSyncBannerG names={["release-pipeline-watch-logs-eu-west", "build", "tests"]} narrow retrying />
               </div>
             ))}
@@ -772,16 +772,16 @@ function Page() {
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
             {[["Mocha", "mocha"], ["Latte", "latte"]].map(([th, dt]) => (
               <div key={th} data-theme={dt || undefined} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-panel)", borderRadius: "var(--tasty-radius)", width: "var(--tasty-size-560)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{th} · large file · one file</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{th} · large file · one file</span>
                 <HtmlSizeBanner kind="file" />
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{th} · large file · more waiting, long path</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{th} · large file · more waiting, long path</span>
                 <HtmlSizeBanner kind="file" name="assets/media/marketing/2026/launch/hero-background-loop-4k.mp4" size="12.4 MB" more={2} />
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{th} · cumulative limit</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{th} · cumulative limit</span>
                 <HtmlSizeBanner kind="limit" />
               </div>
             ))}
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-panel)", borderRadius: "var(--tasty-radius)", width: "var(--tasty-size-360)" }}>
-              <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>narrow (&lt; 440) — actions wrap under the body</span>
+              <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>narrow (&lt; 440) — actions wrap under the body</span>
               <HtmlSizeBanner kind="file" narrow />
               <HtmlSizeBanner kind="limit" narrow />
             </div>
@@ -800,7 +800,7 @@ function Page() {
               <div key={label} {...(attr ? { "data-theme": attr } : {})} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", width: "var(--tasty-size-560)", maxWidth: "100%", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
                 {[["blocked", {}], ["hover — × revealed", { hover: true }], ["loading — Allow disabled until commit", { state: "loading" }], ["reloading — spinner, no ×", { state: "reloading" }]].map(([cap, p]) => (
                   <React.Fragment key={cap}>
-                    <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · {cap}</span>
+                    <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · {cap}</span>
                     <HtmlRemoteBanner {...p} />
                   </React.Fragment>
                 ))}
@@ -819,7 +819,7 @@ function Page() {
               <div key={label} {...(attr ? { "data-theme": attr } : {})} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", width: "var(--tasty-size-460)", maxWidth: "100%", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
                 {[["blocked", { trailing: <HtmlRemoteMarker kind="blocked" /> }], ["blocked · hover", { trailing: <HtmlRemoteMarker kind="blocked" hover /> }], ["allowed", { trailing: <HtmlRemoteMarker kind="allowed" /> }], ["mirror · after a declined large file — Tag, then marker", { kind: "remote", address: "/home/me/reports/q3/report.html", skipped: 2, trailing: <HtmlRemoteMarker kind="blocked" /> }]].map(([cap, p]) => (
                   <React.Fragment key={cap}>
-                    <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · {cap}</span>
+                    <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · {cap}</span>
                     <div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}><HtmlAddressBar kind="local" address="~/reports/q3/report.html" {...p} /></div>
                   </React.Fragment>
                 ))}
@@ -837,7 +837,7 @@ function Page() {
             <RcThemeGrid label="Mocha" />
             <RcThemeGrid label="Latte" attr="latte" />
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
-              <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>mirror · all three notices — size → remote → script</span>
+              <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>mirror · all three notices — size → remote → script</span>
               <div style={{ alignSelf: "flex-start", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}><HtmlRemoteSurfaceG mirror size="file" remote="blocked" script="blocked" width="var(--tasty-size-560)" height={460} /></div>
             </div>
           </Stage>

@@ -250,8 +250,8 @@ function ViewModeColumn({ title, sub, children }) {
   return (
     <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}>
       <div style={{ marginBottom: 6 }}>
-        <div style={{ fontSize: 12, fontWeight: 600, color: "var(--tasty-text-secondary)" }}>{title}</div>
-        <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{sub}</div>
+        <div className="g-cap" style={{ fontSize: 12, fontWeight: 600, color: "var(--tasty-text-secondary)" }}>{title}</div>
+        <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{sub}</div>
       </div>
       <div style={{ height: 200, display: "flex", flexDirection: "column", border: "1px solid var(--tasty-separator)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>{children}</div>
     </div>
@@ -493,7 +493,7 @@ function MdInjectionMap() {
   return (
     <div style={{ display: "flex", flexWrap: "wrap", gap: 24, alignItems: "flex-start" }}>
       <div style={{ flex: "1 1 380px", minWidth: 320 }}>
-        <div style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 6, textTransform: "uppercase", letterSpacing: ".05em" }}>theme_css() --md-* → Tasty token</div>
+        <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 6, textTransform: "uppercase", letterSpacing: ".05em" }}>theme_css() --md-* → Tasty token</div>
         <div style={{ border: "1px solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden", background: "var(--tasty-bg-panel)" }}>
           <table style={{ borderCollapse: "collapse", width: "100%" }}>
             <thead><tr><th style={head}>CSS variable</th><th style={head}>draws</th><th style={head}>token</th></tr></thead>
@@ -512,7 +512,7 @@ function MdInjectionMap() {
         </div>
       </div>
       <div style={{ flex: "1 1 240px", minWidth: 220 }}>
-        <div style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 6, textTransform: "uppercase", letterSpacing: ".05em" }}>hljs_css() highlight role → palette</div>
+        <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 6, textTransform: "uppercase", letterSpacing: ".05em" }}>hljs_css() highlight role → palette</div>
         <div style={{ border: "1px solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden", background: "var(--tasty-bg-panel)" }}>
           <table style={{ borderCollapse: "collapse", width: "100%" }}>
             <tbody>
@@ -564,7 +564,7 @@ function ScrolledToEnd({ children }) {
 function Framed({ cap, children, theme }) {
   return (
     <div data-theme={theme} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", ...(theme ? { padding: "var(--tasty-space-sm)", background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)" } : null) }}>
-      <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
+      <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
       <div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>{children}</div>
     </div>
   );
@@ -690,7 +690,7 @@ function Page() {
             <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 300px)", gap: 20, justifyContent: "center" }}>
               {[["Explorer context — folderOpen · recent directories", ic.folderOpen, "~/Downloads", EXP_RECENT], ["Markdown context — file · recent files", ic.file, "~/work/tasty/docs/architecture.md", MD_RECENT]].map(([label, icon, path, candidates]) => (
                 <div key={label} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
+                  <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
                   <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                     <span style={{ width: 54, flex: "none", fontFamily: "var(--tasty-font-mono)", fontSize: 10, color: "var(--tasty-text-muted)" }}>idle</span>
                     <PathField icon={icon} path={path} />
@@ -731,7 +731,7 @@ function Page() {
           <Stage variant="solo" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 16, flexWrap: "wrap", alignItems: "flex-start" }}>
             {[["var(--tasty-size-460)", "460 — Name at its 140 floor, every column whole"], ["var(--tasty-size-320)", "320 — Name stays 140, Date modified and Type clipped"]].map(([w, cap]) => (
               <div key={w} style={{ flex: "none", display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
-                <div style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</div>
+                <div className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</div>
                 <div style={{ width: w, height: "var(--tasty-size-200)", display: "flex", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
                   <ExpDetail />
                 </div>
@@ -750,14 +750,14 @@ function Page() {
               <div key={label} {...(attr ? { "data-theme": attr } : {})}
                 style={{ display: "flex", flexDirection: "column", gap: 10, padding: 14, background: "var(--tasty-bg-app)",
                   border: "1px solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
-                <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
+                <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
                 {[["on = detail · off = grid, list", { value: "detail" }], ["hover on an off segment (list)", { value: "detail", hover: "list" }], ["on = grid", { value: "grid" }]].map(([cap, props]) => (
                   <div key={cap} style={{ display: "flex", alignItems: "center", gap: 12 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 8, height: 44, padding: "0 8px", background: "var(--tasty-bg-panel)", borderRadius: "var(--tasty-radius)", border: "1px solid var(--tasty-border-default)" }}>
                       <PathField icon={ic.folderOpen} path="~/Downloads" />
                       <SegToggle {...props} />
                     </div>
-                    <span style={{ width: 190, fontSize: 11, color: "var(--tasty-text-muted)" }}>{cap}</span>
+                    <span className="g-cap" style={{ width: 190, fontSize: 11, color: "var(--tasty-text-muted)" }}>{cap}</span>
                   </div>
                 ))}
               </div>
@@ -774,11 +774,11 @@ function Page() {
           when={<>The sidebar <b>Favorites</b> section caption is <b>always shown</b>, even at zero favorites — so the feature never disappears and reads as unimplemented. With favorites it lists STAR rows (left); empty, the caption stays and an <b>empty state</b> fills the slot: a faint outline star + <b>"No favorites yet"</b> in <span className="tok">--tasty-text-muted</span>, then a dimmer one-line hint pointing at the add path. Same tone as the content-area "This folder is empty" state — left-aligned to fit the 196px column.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 18, flexWrap: "wrap" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>with favorites</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>with favorites</div>
               <div style={{ height: 300, display: "flex", border: "1px solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}><ExpSidebar height={300} /></div>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>empty — caption persists</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>empty — caption persists</div>
               <div style={{ height: 300, display: "flex", border: "1px solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}><ExpSidebar height={300} favorites={[]} /></div>
             </div>
           </Stage>
@@ -797,8 +797,8 @@ function Page() {
                 ["Favorites empty — caption + hint persist", "pinned region keeps its height", { tree: "long", favorites: [] }],
                 ["many favorites — region scrolls itself", "list never expands past the pin", { tree: "long", favorites: FAVS_MANY }]].map(([label, sub, props]) => (
                 <div key={label} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                  <div style={{ fontSize: 11, color: "var(--tasty-text-secondary)" }}>{label}</div>
-                  <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{sub}</div>
+                  <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-secondary)" }}>{label}</div>
+                  <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{sub}</div>
                   <div style={{ display: "flex", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
                     <ExpSidebar height={620} {...props} />
                   </div>
@@ -990,7 +990,7 @@ function Page() {
                     </div>
                     <div style={{ height: 16, background: "var(--tasty-md-code-bg)", border: "1px solid var(--tasty-md-code-border)", borderRadius: "var(--tasty-radius)" }} />
                   </div>
-                  <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
+                  <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
                 </div>
               ))}
             </div>
@@ -1050,9 +1050,9 @@ function Page() {
           when={<>The address bar is a browser-style path field. <b>Display</b> shows the current file path (mono, secondary); <b>click</b> to edit (focus ring + caret) and type a new path — <span className="ic">↵</span> or the <b>Go</b> button opens it in place, <span className="ic">Esc</span> reverts to the original. A non-<code>.md</code> extension still opens as markdown. Opening a file <b>over 1 MB</b> first raises a <b>surface-scoped</b> confirm — clamped to the tile (not a window scrim), same 360px shell as <code>markdown_open</code> — with Open / Cancel; Cancel opens nothing.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", flexDirection: "column", gap: 16 }}>
             <div style={{ width: 440, maxWidth: "100%", display: "flex", flexDirection: "column", gap: 10 }}>
-              <div><div style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 6 }}>display (idle)</div>
+              <div><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 6 }}>display (idle)</div>
                 <div style={{ border: "1px solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}><MdAddressBar /></div></div>
-              <div><div style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 6 }}>editing (focus)</div>
+              <div><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 6 }}>editing (focus)</div>
                 <div style={{ border: "1px solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}><MdAddressBar editing path="~/work/tasty/docs/design/systems/theme.md" /></div></div>
             </div>
             <div style={{ position: "relative", width: 440, maxWidth: "100%", height: 232, background: "var(--tasty-bg-panel)",
@@ -1108,10 +1108,10 @@ function Page() {
         <Spec id="html-webview-chrome-4-states" title="HTML — webview chrome (4 states)"
           when={<>The html surface is <b>thin chrome + a native OS WebView overlay</b> — tasty does <b>not</b> theme the page pixels. What tasty paints is the tile skeleton before/instead of the overlay: <b>boundary</b> (region marker), <b>placeholder</b> (no URL), <b>loading</b> (Spinner), <b>error</b> (danger). All four are one part, the <b>webview page tile</b> (<code>HtmlPageState</code>), drawn on the page bed with no outline of its own: the frame around each specimen is the gallery's, not the app's. The same part fills the page rect under the address band below, the html mirror notices and the load-failed state, so the tile is that part in a fixed rect, not a second size. Its block is glyph, title and a sub line that is <b>always reserved</b>, centred as one, so loading, no page and failed swap without moving the glyph. The address bar band above these states is specified below (2026-10-12).</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 14, flexWrap: "wrap" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>boundary</div><div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}><HtmlTile state="boundary" /></div></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>placeholder</div><div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}><HtmlTile state="placeholder" /></div></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>loading</div><div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}><HtmlTile state="loading" /></div></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>error</div><div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}><HtmlTile state="error" /></div></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>boundary</div><div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}><HtmlTile state="boundary" /></div></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>placeholder</div><div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}><HtmlTile state="placeholder" /></div></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>loading</div><div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}><HtmlTile state="loading" /></div></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>error</div><div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}><HtmlTile state="error" /></div></div>
           </Stage>
           <Meta
             specs={[["content", "native OS WebView (token-agnostic)"], ["part", "HtmlPageState — one part for the page rect at every size; it fills the rect the host gives"], ["tile", <>page bed (<span className="tok">--tasty-bg-panel</span>) · no border, no shadow · the band's 1px separator is the only rule</>], ["block", "glyph 16 · space-sm · title (body × line-height-ui) · space-sm · sub line (caption × line-height-ui), always reserved · centred as one · padding space-md"], ["boundary (2026-10-06)", "the bare bed — shown only while an egui overlay hides a loaded page; no glyph, label or URL / path"], ["placeholder", "html glyph (glyph-dim) + 'No page loaded' · sub line holds the address hint when the surface has a band"], ["loading", "Spinner + 'Loading…' · sub line empty"], ["error", "alertCircle (glyph-danger) + 'Failed to load' (text-danger) + URL mono"]]}
@@ -1181,33 +1181,33 @@ function Page() {
               ["7b · input error — no base for a relative path", { kind: "empty", address: "docs/index.html", state: "error", canBack: false, error: "Can't resolve a relative path — no document or working folder" }, "empty"],
             ].map(([cap, bar, page]) => (
               <div key={cap} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
                 <div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
                   <HtmlAddressSurfaceG width="var(--tasty-size-460)" height={240} bar={bar} page={page} url="https://offline.example" />
                 </div>
               </div>
             ))}
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
-              <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>8 · with the script banner — band, then the inset banner, then the page</span>
+              <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>8 · with the script banner — band, then the inset banner, then the page</span>
               <div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
                 <HtmlAddressSurfaceG width="var(--tasty-size-560)" height={300} bar={{ kind: "local", address: "~/work/tasty/target/report.html" }} banners={["script"]} />
               </div>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
-              <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>9 · mirror — read-only field, Reload only</span>
+              <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>9 · mirror — read-only field, Reload only</span>
               <div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
                 <HtmlAddressSurfaceG width="var(--tasty-size-460)" height={240} bar={{ kind: "remote", address: "/home/me/work/site/index.html" }} />
               </div>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
-              <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>10 · narrow (360 &lt; 440) — Forward hidden</span>
+              <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>10 · narrow (360 &lt; 440) — Forward hidden</span>
               <div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
                 <HtmlAddressSurfaceG width="var(--tasty-size-360)" height={300} narrow bar={{ kind: "web", address: "https://docs.example.com/guide/getting-started", canBack: true, canForward: true }} banners={["script"]} />
               </div>
             </div>
             {[["Latte · local + editing", { kind: "local", address: "~/work/tasty/target/rep", state: "editing" }, "page"], ["Latte · input error", { kind: "local", address: "/tmp/x/missing.html", state: "error", error: "File not found: /tmp/x/missing.html" }, "page"], ["Latte · empty tab", { kind: "empty", canBack: false }, "empty"]].map(([cap, bar, page]) => (
               <div key={cap} data-theme="latte" style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", padding: "var(--tasty-space-sm)", background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
                 <div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
                   <HtmlAddressSurfaceG width="var(--tasty-size-460)" height={220} bar={bar} page={page} />
                 </div>
@@ -1233,21 +1233,21 @@ function Page() {
               ["7 · disconnected before the page arrived", { banners: [], page: "disconnected", disconnected: true }],
             ].map(([cap, o]) => (
               <div key={cap} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
                 <div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
                   <HtmlAddressSurfaceG width="var(--tasty-size-560)" height={o.height || 280} label={`${BASE}design/gallery/`} bar={{ kind: "remote", address: o.address || "/home/me/work/site/index.html", skipped: o.skipped, disconnected: o.disconnected }} banners={o.banners} page={o.page} progress={o.progress} />
                 </div>
               </div>
             ))}
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
-              <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>8 · narrow (360) — actions wrap under the body</span>
+              <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>8 · narrow (360) — actions wrap under the body</span>
               <div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
                 <HtmlAddressSurfaceG width="var(--tasty-size-360)" height={320} narrow label={`${BASE}design/gallery/`} bar={{ kind: "remote", address: "/home/me/work/site/index.html" }} banners={["size"]} page="paused" />
               </div>
             </div>
             {[["Latte · large file", ["size"]], ["Latte · limit", ["limit"]]].map(([cap, b]) => (
               <div key={cap} data-theme="latte" style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", padding: "var(--tasty-space-sm)", background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
                 <div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
                   <HtmlAddressSurfaceG width="var(--tasty-size-560)" height={260} label={`${BASE}design/gallery/`} bar={{ kind: "remote", address: "/home/me/work/site/index.html" }} banners={b} page="paused" />
                 </div>
@@ -1273,8 +1273,8 @@ function Page() {
         <Spec id="image-viewer-edit-paint-modes" title="Image — viewer & edit (paint) modes"
           when={<>The image surface is a single horizontal <b>control bar</b> over a <b>canvas</b>. Two modes toggle the bar: <b>viewer</b> (◀ ▶ ↻ ✎ ＋ · filename (i/n) · right-aligned zoom group) and <b>edit / paint</b> (Save · Cancel · undo/redo · brush size · color · zoom). Canvas fills with the bed for the focus state, <span className="tok">--tasty-surface-bed-focused</span> or <span className="tok">--tasty-surface-bed-unfocused</span>, so the image floats; ≤100% fits to window, &gt;100% pans on drag. ◀ ▶ show only when sibling images exist.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 16, flexWrap: "wrap" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>viewer · fit (100%)</div><ImgSurface mode="viewer" /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>viewer · zoomed + panned (250%)</div><ImgSurface mode="viewer" panned /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>viewer · fit (100%)</div><ImgSurface mode="viewer" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>viewer · zoomed + panned (250%)</div><ImgSurface mode="viewer" panned /></div>
           </Stage>
           {focusViews("image-viewer", (focused) => <ImgSurface mode="viewer" focused={focused} />, { width: "fit-content" })}
           <Meta
@@ -1284,7 +1284,7 @@ function Page() {
         <Spec id="image-paint-bar-floating-selection-popups" title="Image — paint bar · floating selection · popups"
           when={<>Edit mode swaps in the paint bar (undo/redo with disabled state, brush-size slider, color swatch defaulting to <span className="tok">--tasty-accent-danger</span>). A pasted image becomes a <b>floating selection</b> — accent border + 8 resize handles — that you move/resize before committing. <b>New Image</b> and <b>Save As</b> are small popups.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 16, flexWrap: "wrap" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>edit · floating selection</div><ImgSurface mode="edit" floating /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>edit · floating selection</div><ImgSurface mode="edit" floating /></div>
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               <div style={{ width: "var(--tasty-image-popup-width)", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", overflow: "hidden" }}>
                 <div style={{ padding: "var(--tasty-image-popup-pad-top) var(--tasty-image-popup-pad-x) var(--tasty-image-popup-gap)" }}>

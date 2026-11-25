@@ -82,7 +82,7 @@ function Bar({ w, remote, drop = 0, branch = null, shell = null, lang = "en" }) 
 function Labeled({ label, children }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 6, minWidth: 0 }}>
-      <div style={caption}>{label}</div>
+      <div className="g-cap" style={caption}>{label}</div>
       {children}
     </div>
   );

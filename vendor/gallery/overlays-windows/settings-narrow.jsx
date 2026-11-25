@@ -28,7 +28,7 @@ function WSettingsCol({ win, title, stacked, children }) {
   const w = win - 200 - 2 * 16;
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
-      <span style={wLbl}>{title} — window {win} · content {w}</span>
+      <span className="g-cap" style={wLbl}>{title} — window {win} · content {w}</span>
       <div style={{ width: w, display: "flex", flexDirection: "column", gap: "var(--tasty-settings-row-gap)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", boxSizing: "content-box" }}>
         {children(stacked)}
       </div>

@@ -63,8 +63,8 @@ export function MotionSpec() {
         {MOTION.map(([key, ink, title, body]) => (
           <div key={key} style={{ flex: "1 1 var(--tasty-size-200)", minWidth: 0, padding: "var(--tasty-space-md) var(--tasty-space-lg)", background: "var(--tasty-surface-raised)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
             <div style={{ fontFamily: MONO, fontSize: "var(--tasty-font-size-max)", fontWeight: "var(--tasty-font-weight-bold)", color: `var(${ink})` }}>{key}</div>
-            <div style={{ marginTop: "var(--tasty-space-xs)", fontSize: "var(--tasty-font-size-caption)", fontWeight: "var(--tasty-font-weight-semibold)", color: "var(--tasty-text-primary)" }}>{title}</div>
-            <div style={{ marginTop: "var(--tasty-space-xs)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{body}</div>
+            <div className="g-cap" style={{ marginTop: "var(--tasty-space-xs)", fontSize: "var(--tasty-font-size-caption)", fontWeight: "var(--tasty-font-weight-semibold)", color: "var(--tasty-text-primary)" }}>{title}</div>
+            <div className="g-cap" style={{ marginTop: "var(--tasty-space-xs)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{body}</div>
           </div>
         ))}
       </Stage>

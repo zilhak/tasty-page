@@ -149,7 +149,7 @@ function HookOverrideG() {
 const ThemePair = ({ children }) => (
   <>{[["Mocha", "mocha"], ["Latte", "latte"]].map(([label, t]) => (
     <div key={label} {...(t ? { "data-theme": t } : {})} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)", minWidth: 0 }}>
-      <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label}</span>{children}
+      <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label}</span>{children}
     </div>
   ))}</>
 );
@@ -719,7 +719,7 @@ function Page() {
                 ["empty — caption persists", "one muted how-to line", "empty"],
                 ["7 favorites — section scrolls", "list capped at 112px (5 rows)", "scrolling"]].map(([label, sub, v]) => (
                 <div key={v} style={{ display: "flex", flexDirection: "column", gap: 6, width: 300 }}>
-                  <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
+                  <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
                   <div style={{ border: "1px solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
                     <PortsFavoritesG favorites={v} />
                   </div>
@@ -728,9 +728,9 @@ function Page() {
               ))}
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-              <span style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>star states</span>
-              <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><PortStarG /><span style={{ fontSize: 12, color: "var(--tasty-text-muted)" }}>unregistered</span></span>
-              <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><PortStarG on /><span style={{ fontSize: 12, color: "var(--tasty-text-muted)" }}>registered</span></span>
+              <span className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>star states</span>
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><PortStarG /><span className="g-cap" style={{ fontSize: 12, color: "var(--tasty-text-muted)" }}>unregistered</span></span>
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><PortStarG on /><span className="g-cap" style={{ fontSize: 12, color: "var(--tasty-text-muted)" }}>registered</span></span>
             </div>
           </Stage>
           <Meta
@@ -744,7 +744,7 @@ function Page() {
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", flexDirection: "column", gap: "var(--tasty-space-lg)", alignItems: "flex-start" }}>
             {[["860 — wider than the column budget: Process takes ALL the spare width, Address stays at 140", 860], ["660 — popup width, under the budget (836): the body scrolls sideways; nothing shrinks or hides", 660]].map(([label, tw]) => (
               <div key={label} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
-                <div style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label}</div>
+                <div className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label}</div>
                 <div className="tasty-scroll" style={{ width: tw, overflowX: "auto", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", background: "var(--tasty-bg-panel)" }}>
                   <WTable columns={PORTS_COLUMNS} rowKey="port" rows={[
                     { port: 3000, proto: "tcp", addr: "127.0.0.1", proc: "node /usr/local/bin/vite --host --strictPort", pid: 41822, ws: "Project A", state: "LISTEN" },
@@ -793,8 +793,8 @@ function Page() {
         <Spec id="attach-form-reference-vs-inline" title="Attach form — reference vs. inline"
           when={<>The add/edit route on the Attach tab, on the shared [<span className="tok">--tasty-remote-label-col</span> · 1fr] grid. A <b>Connection</b> segmented toggle switches between <b>SSH profile</b> (an <span className="ic">ssh_ref</span> dropdown of existing ssh profiles) and <b>Direct (inline)</b> (the ssh profile fieldset — host / user / port / shell / passkey). Both share a <b>Remote tasty</b> group: <b>Executable</b> (default <span className="ic">tasty</span>), <b>Port mode</b> (<span className="ic">auto / subcommand / file-unix / file-windows</span>), and an optional <b>Port file</b> that overrides the mode.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 16, flexWrap: "wrap", alignItems: "flex-start" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>reference an ssh profile</div><RemoteFormFrame variant="attach-ref" /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>inline ssh info</div><RemoteFormFrame variant="attach-inline" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>reference an ssh profile</div><RemoteFormFrame variant="attach-ref" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>inline ssh info</div><RemoteFormFrame variant="attach-inline" /></div>
           </Stage>
           <Meta
             specs={[["toggle", "SSH profile ↔ Direct (inline)"], ["ref", "ssh_ref dropdown of ssh profiles"], ["inline", "host · user · port · shell · passkey"], ["remote tasty", "Executable (def. tasty)"], ["port", "auto / subcommand / file-unix / file-windows"], ["port file", "optional — overrides port mode"]]}
@@ -803,8 +803,8 @@ function Page() {
         <Spec id="profile-form-ssh-the-112px-1fr-row-grid" title="Profile form — SSH (the [112px · 1fr] row grid)"
           when={<>The add/edit route inside the popup. Every row is the same grid: a <b>fixed 112px right-aligned label</b> + a <b>1fr</b> control (columnGap 12, rowGap 8) so labels never collapse/truncate and all controls share one left edge. SSH gets the dedicated fields (Type · Name · Host · User · Port · Label · Shell + hint · Passkey) — <b>remote_tasty moved to the Attach tab</b>. Body scrolls; the footer is pinned with a <b>full-width</b> separator and right-aligned <b>Cancel (ghost) / Save (primary)</b>. Right: the same form with a <b>validation error</b>.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 16, flexWrap: "wrap", alignItems: "flex-start" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>SSH · add mode</div><RemoteFormFrame variant="ssh" /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>validation error</div><RemoteFormFrame variant="ssh" error="host" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>SSH · add mode</div><RemoteFormFrame variant="ssh" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>validation error</div><RemoteFormFrame variant="ssh" error="host" /></div>
           </Stage>
           <Meta
             specs={[["frame", "520 × 460 · resizable · headless"], ["row", <>[<span className="tok">--tasty-remote-label-col</span> 112 · 1fr] · gap 12/8</>], ["label", "right-aligned · text-muted · 13"], ["body/footer", "flex:1 scroll · pinned footer"], ["footer sep", "full-width 1px · buttons inset 16/12"], ["error", "accent-danger caption (11)"]]}
@@ -814,9 +814,9 @@ function Page() {
         <Spec id="generic-passkey-forms-badges" title="Generic & Passkey forms · badges"
           when={<>A non-ssh Type swaps the SSH grid for a <b>generic key-value editor</b> (Type · Name · FIELDS rows `[112 · 1fr · 28]` + Add field · Passkey), with an indented <b>unknown type</b> hint caption under the Type field, in accent-warning-raised, when the type isn't registered (still saves). The <b>Passkey</b> tab's form has Name · Kind (<span className="ic">path</span> / <span className="ic">inline</span> segmented) · Value — singleline path vs. 3-row multiline secret — plus the local-only note.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 16, flexWrap: "wrap", alignItems: "flex-start" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>generic · unknown type</div><RemoteFormFrame variant="generic" /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>passkey · kind = path</div><RemoteFormFrame variant="passkey-path" /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>passkey · kind = inline</div><RemoteFormFrame variant="passkey-inline" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>generic · unknown type</div><RemoteFormFrame variant="generic" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>passkey · kind = path</div><RemoteFormFrame variant="passkey-path" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>passkey · kind = inline</div><RemoteFormFrame variant="passkey-inline" /></div>
           </Stage>
           <Meta
             specs={[["generic", "Type · Name · FIELDS · Passkey"], ["field row", "[112 key · 1fr value · 28 ✕]"], ["unknown type", "indented hint caption under Type · 11 · accent-warning-raised · wraps (saves anyway)"], ["passkey kind", "path = singleline · inline = 3-row"], ["secret", "name-reference only · note always shown"], ["footer", "ghost Cancel / primary Save (both forms)"]]}
@@ -827,11 +827,11 @@ function Page() {
           when={<>Two components were drifting into one another. A <b>tab strip</b> (the window's Profiles / Attach / Passkeys bar) marks the current tab with a <b>2px accent underline</b> and a weight change, no fill. A <b>segmented control</b> (the attach form's <code>profile</code> / <code>inline</code> switch, the clipboard type segment, the apply-preset scope) marks the active segment with an <b>accent-primary fill</b> and <span className="tok">--tasty-text-on-accent</span> ink. <span className="tok">--tasty-surface-active</span> is the <b>row-selection</b> fill and is not used by either — that was the gallery's bug, now fixed.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 18, flexWrap: "wrap", alignItems: "flex-start" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>tab strip — underline</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>tab strip — underline</div>
               <RemoteFrame tab="attach" ssh="none" />
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>segmented — accent fill</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>segmented — accent fill</div>
               <RemoteFormFrame variant="attach" />
             </div>
           </Stage>
@@ -845,13 +845,13 @@ function Page() {
           when={<>Hosts parsed out of <code>~/.ssh/config</code> sit <b>below the profiles, in the same scroll</b> — it is the same question (“which machine?”), and a separate tab would hide the answer. Everything about the section says <b>one tier down</b>: a section header instead of a card, the <b>source path in mono</b> so the origin is unambiguous, <b>two lines</b> per row instead of the profile row's three, secondary ink on the alias, and <b>no per-row icon buttons</b> — one ghost <b>Add profile</b>, which is the import action that already exists. An already-imported host shows a muted <b>in profiles</b> Tag and no action, so importing twice is not offered.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 18, flexWrap: "wrap", alignItems: "flex-start" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>3 hosts · one already a profile · long alias</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>3 hosts · one already a profile · long alias</div>
               <RemoteFrame />
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               {[["no hosts", "empty"], ["no file", "missing"], ["unreadable config (any open error · directory · not UTF-8)", "unreadable"]].map(([label, st]) => (
                 <div key={st} style={{ display: "flex", flexDirection: "column", gap: 6, width: 300 }}>
-                  <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
+                  <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
                   <div style={{ padding: "8px 12px", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
                     <LocalSshSection state={st} />
                   </div>
@@ -881,10 +881,10 @@ function Page() {
         <Spec id="right-pane-states-initial-connecting-error-empty" title="Right-pane states — initial · connecting · error · empty"
           when={<>The three non-list states, plus the <b>empty</b> remote (plan B: the list path with the pre-selected “+ New workspace” row), driven by the left selection. Each is a centered column (glyph → title → one muted line), so the pane never looks broken while a connect is pending or failed.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 16, flexWrap: "wrap", alignItems: "flex-start" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>initial — nothing picked</div><RemoteAttachFrame state="initial" /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>connecting</div><RemoteAttachFrame state="loading" /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>error — retry</div><RemoteAttachFrame state="error" /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>empty — reachable, no workspaces (list path)</div><RemoteAttachFrame state="empty" emptyPlan="B" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>initial — nothing picked</div><RemoteAttachFrame state="initial" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>connecting</div><RemoteAttachFrame state="loading" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>error — retry</div><RemoteAttachFrame state="error" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>empty — reachable, no workspaces (list path)</div><RemoteAttachFrame state="empty" emptyPlan="B" /></div>
           </Stage>
           <Meta
             specs={[["initial", "remote glyph + prompt · Connect disabled"], ["connecting", "Spinner + “Connecting…”"], ["error", "danger glyph + reason + Retry"], ["empty", "caps header + pre-selected “+ New workspace” row + one muted line · Create & connect enabled"]]}
@@ -905,7 +905,7 @@ function Page() {
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 16, flexWrap: "wrap", alignItems: "flex-start" }}>
             {[["rest", {}], ["hover", { hover: true }], ["selected", { selected: true }], ["creating (list muted, Connect disabled)", { selected: true, phase: "creating" }], ["create failed — inline, list kept", { selected: true, phase: "failed" }]].map(([label, p]) => (
               <div key={label} style={{ display: "flex", flexDirection: "column", gap: 6, width: 440 }}>
-                <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
+                <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
                 <div style={{ background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
                   <RaNewRow {...p} />
                   <RaWsPeek muted={p.phase === "creating"} />
@@ -922,8 +922,8 @@ function Page() {
         <Spec id="empty-remote-plan-a-center-state-cta-vs-plan-b-list-path" title="Empty remote — plan A (center-state + CTA) vs plan B (list path)"
           when={<>§6-1, the decision that sets the implementation's render branch. Before this change a reachable-but-empty remote ended at a center-state with nothing but <b>Cancel</b>. <b>Plan A</b> keeps that center-state and adds a CTA button. <b>Plan B</b> takes the <b>list</b> path even when empty: caps header + the one “+ New workspace” row, with a muted line explaining why nothing follows it.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 16, flexWrap: "wrap", alignItems: "flex-start" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>plan A — center-state + CTA</div><RemoteAttachFrame state="empty" emptyPlan="A" /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-accent-primary-raised)" }}>plan B — list path (recommended)</div><RemoteAttachFrame state="empty" emptyPlan="B" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>plan A — center-state + CTA</div><RemoteAttachFrame state="empty" emptyPlan="A" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-accent-primary-raised)" }}>plan B — list path (recommended)</div><RemoteAttachFrame state="empty" emptyPlan="B" /></div>
           </Stage>
           <Meta
             specs={[["recommendation", "plan B"], ["why", "one render path, one affordance, one confirm route"], ["plan B copy", "“‹host› is reachable but has no workspaces yet.”"], ["footer", "Create & connect, enabled (the row is pre-selected)"], ["plan A cost", "a second way to trigger the same action, confirmed differently"]]}
@@ -952,8 +952,8 @@ function Page() {
         <Spec id="native-file-picker-local-remote-one-component" title="Native file picker — local & remote, one component"
           when={<>Tasty's own <b>Open file</b> dialog, replacing the OS-native picker so it can browse a <b>remote attach host</b> over the <b>same SSH mechanism</b> as attach — the OS picker only ever sees the local disk. It's a <b>select-and-confirm</b> dialog (pick a path, hand it back, close), <b>not</b> the Explorer surface (that's a free-roam tab). A <b>640×480</b> modal in the <b>remote_tool</b> popup language: Scrim · content-drawn header · <span className="tok">--tasty-bg-panel</span> frame. <b>Local and remote are the same component</b> — they differ only in the header host indicator; the breadcrumb root is the path root (<span className="ic">/</span> or <span className="ic">C:\</span>) in both. The badge holds the <b>host text</b> and follows the <b>host text rule</b> (Dialogs › File handler › Remote path): the attach profile name (R-57); for an attach with <b>no profile name</b> (<code>--ssh</code> or <code>--target-port</code> from the CLI or IPC, a profile saved with an empty name) the word <b>Remote</b> (<code>attach.mirror_pill_label</code>) in the label font and the same ink, never <code>127.0.0.1:&lt;port&gt;</code>. Rows reuse the <span className="ic">folder</span>/<span className="ic">file</span> list language; folder <b>double-click</b> descends, file <b>click</b> fills the name field, file <b>double-click</b> = Open.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 16, flexWrap: "wrap", alignItems: "flex-start" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>local</div><FilePickerFrame /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>remote (host badge — recommended)</div><FilePickerFrame remote indicator="badge" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>local</div><FilePickerFrame /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>remote (host badge — recommended)</div><FilePickerFrame remote indicator="badge" /></div>
           </Stage>
           <Views>
             <View name="file-picker-remote-no-profile" label="No profile name (--ssh or --target-port from the CLI or IPC) — the word Remote in the host badge, then the badge in every language">
@@ -961,7 +961,7 @@ function Page() {
                 <FilePickerFrame remote indicator="badge" host="" />
                 <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-md)" }}>
                   {["en", "ko", "ja", "zh-Hans"].map((l) => (
-                    <div key={l} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}><div style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{l}</div><div style={{ padding: "var(--tasty-space-sm)", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}><FpHostBadge host="" lang={l} /></div></div>
+                    <div key={l} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}><div className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{l}</div><div style={{ padding: "var(--tasty-space-sm)", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}><FpHostBadge host="" lang={l} /></div></div>
                   ))}
                 </div>
               </div>
@@ -977,9 +977,9 @@ function Page() {
         <Spec id="remote-indicator-three-candidates" title="Remote indicator — three candidates"
           when={<>§6.1 open decision: how to signal "this dialog is looking at a remote host, not your local disk," clearly but not loudly. Three candidates on the same <span className="tok">--tasty-accent-info</span> axis. <b>Badge</b> (recommended): a mono <span className="ic">user@host</span> chip beside the title — explicit about <i>which</i> host, reuses the attach/remote visual language. <b>Glyph + host</b>: swap the header icon to <span className="ic">remote</span> and print the host inline — lighter, no chip. <b>Border</b>: tint the whole frame edge + a 2px top strip — unmissable but the heaviest; use only if remote/local confusion is a real hazard.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 16, flexWrap: "wrap", alignItems: "flex-start" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>A · host badge</div><FilePickerFrame remote indicator="badge" /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>B · glyph + host</div><FilePickerFrame remote indicator="glyph" /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>C · frame border</div><FilePickerFrame remote indicator="border" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>A · host badge</div><FilePickerFrame remote indicator="badge" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>B · glyph + host</div><FilePickerFrame remote indicator="glyph" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>C · frame border</div><FilePickerFrame remote indicator="border" /></div>
           </Stage>
           <Meta
             specs={[["A badge", "mono host chip · info-tinted · explicit"], ["B glyph", "remote icon + inline host · lightest"], ["C border", "info edge + 2px top strip · loudest"], ["shared axis", "--tasty-accent-info (never danger)"], ["local", "no indicator · file glyph · / root"]]}
@@ -990,40 +990,40 @@ function Page() {
         <Spec id="states-loading-empty-permission-connection-lost-multi-select" title="States — loading · empty · permission · connection lost · multi-select"
           when={<>The body region swaps between list and status states without changing the frame. <b>Loading</b>: Spinner while the directory reads, with the app's line for a local or a remote read; neither names the host. <b>Empty</b>: muted <span className="ic">folderOpen</span> + "This folder is empty." <b>Permission denied</b> (local) and <b>Connection lost</b> (remote) share the layout — danger glyph · title · one reason line · action — but differ in copy and action but both buttons say <b>Retry</b> and do the same thing: read the current folder again. There is no reconnect action. A lost session (session_lost) has no mirror projection, so no read is ever sent: Retry and every path bar action (Refresh, Up, and the breadcrumb's root, ancestors and … menu) are disabled; the current folder's name stays as it was. A timeout keeps them enabled. <b>Multi-select</b> (§6.2): a checkbox column, a comma-joined name field, and an <span className="ic">N selected</span> count — spec'd for the future, single-select is the default.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 16, flexWrap: "wrap", alignItems: "flex-start" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>loading (remote)</div><FilePickerFrame remote state="loading" /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>empty folder</div><FilePickerFrame state="empty" /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>permission denied (local)</div><FilePickerFrame state="error-perm" /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>connection lost (remote)</div><FilePickerFrame remote state="error-conn" /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>multi-select (remote)</div><FilePickerFrame remote multi /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>loading (remote)</div><FilePickerFrame remote state="loading" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>empty folder</div><FilePickerFrame state="empty" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>permission denied (local)</div><FilePickerFrame state="error-perm" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>connection lost (remote)</div><FilePickerFrame remote state="error-conn" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>multi-select (remote)</div><FilePickerFrame remote multi /></div>
           </Stage>
           <Views>
             <View name="file-picker-remote-states-no-profile" wide label="No profile name (--ssh or --target-port from the CLI or IPC) — loading and both connection-lost causes with the app's host-free values">
               <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-lg)", alignItems: "flex-start" }}>
-                <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}><div style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>loading (remote, no profile name)</div><FilePickerFrame remote host="" state="loading" w="var(--tasty-fp-specimen-view-width)" h="var(--tasty-fp-specimen-view-height)" /></div>
-                <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}><div style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>connection lost — session lost (remote, no profile name)</div><FilePickerFrame remote host="" state="error-conn" w="var(--tasty-fp-specimen-view-width)" h="var(--tasty-fp-specimen-view-height)" /></div>
-                <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}><div style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>connection lost — timeout (remote, no profile name)</div><FilePickerFrame remote host="" state="error-conn-timeout" w="var(--tasty-fp-specimen-view-width)" h="var(--tasty-fp-specimen-view-height)" /></div>
+                <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}><div className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>loading (remote, no profile name)</div><FilePickerFrame remote host="" state="loading" w="var(--tasty-fp-specimen-view-width)" h="var(--tasty-fp-specimen-view-height)" /></div>
+                <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}><div className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>connection lost — session lost (remote, no profile name)</div><FilePickerFrame remote host="" state="error-conn" w="var(--tasty-fp-specimen-view-width)" h="var(--tasty-fp-specimen-view-height)" /></div>
+                <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}><div className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>connection lost — timeout (remote, no profile name)</div><FilePickerFrame remote host="" state="error-conn-timeout" w="var(--tasty-fp-specimen-view-width)" h="var(--tasty-fp-specimen-view-height)" /></div>
               </div>
             </View>
             <View name="file-picker-remote-loading-languages" wide label="Remote loading in every language — the app's filepicker.loading and loading_body_remote">
               <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-lg)", alignItems: "flex-start" }}>
                 {["en", "ko", "ja", "zh-Hans"].map((l) => (
-                  <div key={l} lang={l} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}><div style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{l}</div><FilePickerFrame remote state="loading" lang={l} w="var(--tasty-fp-specimen-view-width)" h="var(--tasty-fp-specimen-view-height)" /></div>
+                  <div key={l} lang={l} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}><div className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{l}</div><FilePickerFrame remote state="loading" lang={l} w="var(--tasty-fp-specimen-view-width)" h="var(--tasty-fp-specimen-view-height)" /></div>
                 ))}
               </div>
             </View>
             <View name="file-picker-session-lost-navigation" wide label="Session lost — the path bar: Refresh, Up and the breadcrumb's root, ancestors and … are disabled; timeout keeps them enabled">
               <div inert="" style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-lg)", alignItems: "flex-start", pointerEvents: "none" }}>
-                <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}><div style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>session lost · full path</div><FilePickerFrame remote state="error-conn" w="var(--tasty-fp-specimen-view-width)" h="var(--tasty-fp-specimen-view-height)" /></div>
-                <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}><div style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>session lost · elided path (… disabled)</div><FilePickerFrame remote state="error-conn" elideStage w="var(--tasty-fp-specimen-view-width)" h="var(--tasty-fp-specimen-view-height)" /></div>
-                <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}><div style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>timeout · elided path (all enabled)</div><FilePickerFrame remote state="error-conn-timeout" elideStage w="var(--tasty-fp-specimen-view-width)" h="var(--tasty-fp-specimen-view-height)" /></div>
+                <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}><div className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>session lost · full path</div><FilePickerFrame remote state="error-conn" w="var(--tasty-fp-specimen-view-width)" h="var(--tasty-fp-specimen-view-height)" /></div>
+                <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}><div className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>session lost · elided path (… disabled)</div><FilePickerFrame remote state="error-conn" elideStage w="var(--tasty-fp-specimen-view-width)" h="var(--tasty-fp-specimen-view-height)" /></div>
+                <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}><div className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>timeout · elided path (all enabled)</div><FilePickerFrame remote state="error-conn-timeout" elideStage w="var(--tasty-fp-specimen-view-width)" h="var(--tasty-fp-specimen-view-height)" /></div>
               </div>
             </View>
             <View name="file-picker-conn-lost-causes-languages" wide label="Connection lost in every language — timeout (Retry enabled) and session lost (no mirror projection: Retry and the path bar actions disabled)">
               <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-lg)", alignItems: "flex-start" }}>
                 {["en", "ko", "ja", "zh-Hans"].map((l) => (
                   <div key={l} lang={l} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
-                    <div style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{l} · timeout</div><FilePickerFrame remote state="error-conn-timeout" lang={l} w="var(--tasty-fp-specimen-view-width)" h="var(--tasty-fp-specimen-view-height)" />
-                    <div style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{l} · session lost</div><FilePickerFrame remote state="error-conn" lang={l} w="var(--tasty-fp-specimen-view-width)" h="var(--tasty-fp-specimen-view-height)" />
+                    <div className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{l} · timeout</div><FilePickerFrame remote state="error-conn-timeout" lang={l} w="var(--tasty-fp-specimen-view-width)" h="var(--tasty-fp-specimen-view-height)" />
+                    <div className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{l} · session lost</div><FilePickerFrame remote state="error-conn" lang={l} w="var(--tasty-fp-specimen-view-width)" h="var(--tasty-fp-specimen-view-height)" />
                   </div>
                 ))}
               </div>
@@ -1038,10 +1038,10 @@ function Page() {
         <Spec id="save-mode-one-confirm-in-the-footer" title="Save mode — one confirm, in the footer"
           when={<>The same picker, asked to <b>produce</b> a path instead of read one (Settings → Export, and every future save target — <code>rfd</code> blocks the calling thread, so no OS dialog). <b>There is exactly one confirm control, and it is the footer's primary button</b> — the <b>File name</b> row the picker already owns becomes editable and the button reads <b>Save</b>. No second row is appended below the view, because a second button would point at a second target and the screen could hold two answers at once.<br /><br /><b>One target.</b> Selecting a list row does not confirm anything — it <b>writes that row's name into the input</b>, and the input is the only thing the button reads. Typing after a pick keeps the row selected only while the name still matches; edit a character and the selection clears. So "the picked file" and "the typed name" are never two different paths.<br /><br /><b>Overwrite is inline, not a second dialog.</b> When the typed name already exists in this folder, a warning line appears above the buttons and the primary <b>relabels to Overwrite</b> — the decision stays on the button the user is already reaching for. A modal confirm on top of a modal picker would be a second scrim for a reversible write.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 16, flexWrap: "wrap", alignItems: "flex-start" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>save — typed name (new file)</div><FilePickerFrame mode="save" /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>save — existing file picked → Overwrite</div><FilePickerFrame mode="save" save="picked" /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>save — name edited after the pick → selection cleared</div><FilePickerFrame mode="save" save="edited" /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>deep path — fits at 640, nothing folds</div><FilePickerFrame mode="save" deep elideStage={false} /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>save — typed name (new file)</div><FilePickerFrame mode="save" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>save — existing file picked → Overwrite</div><FilePickerFrame mode="save" save="picked" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>save — name edited after the pick → selection cleared</div><FilePickerFrame mode="save" save="edited" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>deep path — fits at 640, nothing folds</div><FilePickerFrame mode="save" deep elideStage={false} /></div>
           </Stage>
           <Meta
             specs={[["title", "Save file (open mode: Open file)"], ["confirm", "footer primary only — one control"], ["labels", "Save · Overwrite when the name exists"], ["input", "editable · placeholder “Type a file name”"], ["list pick", "writes the name into the input → Overwrite"], ["selection", "clears as soon as the name diverges → Save"], ["overwrite", "11px warning line above the buttons"], ["disabled", "Save disabled while the name is empty"], ["breadcrumb", "folds only when the measured row doesn't fit — see Path bar"], ["footer", "never shrinks — the input absorbs it"]]}
@@ -1053,9 +1053,9 @@ function Page() {
         <Spec id="gestures-folder-targets-the-six-open-branches" title="Gestures &amp; folder targets — the six open branches"
           when={<>The save-mode decision left six branches undecided, and because <b>save and open are the same view</b>, each answer had to hold in both modes. One gesture table now covers them: <b>single click selects, double click descends</b> — in both modes, for both kinds. A <b>folder is never a save target</b>: the footer button still reads the input only, so a selected folder can't change what gets written; a muted line says so where the reading happens. In save mode a <b>file's double-click stops at select</b> — it writes the name, which <i>is</i> the overwrite state, and the warning line has to be readable before the write. Only open mode confirms on a file's double-click.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 16, flexWrap: "wrap", alignItems: "flex-start" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>save — folder selected · not a save target</div><FilePickerFrame mode="save" folderSel /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>open — folder selected · Open enters it</div><FilePickerFrame folderSel /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>… menu open — at the 320 picker floor, where the deep path really folds</div><FilePickerFrame mode="save" deep crumbMenu w={320} h={420} /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>save — folder selected · not a save target</div><FilePickerFrame mode="save" folderSel /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>open — folder selected · Open enters it</div><FilePickerFrame folderSel /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>… menu open — at the 320 picker floor, where the deep path really folds</div><FilePickerFrame mode="save" deep crumbMenu w={320} h={420} /></div>
           </Stage>
           <Meta
             specs={[["single click", "selects the row — file or folder, both modes"], ["double click folder", "descends — both modes"], ["double click file", "open: confirms · save: selects only"], ["folder + Save", "never a target — muted footer line, button unchanged"], ["folder + Open", "enters it (Open is the keyboard route to descend)"], ["elision", "overflow-driven — one ancestor at a time, no depth threshold"], ["… tooltip", "Show 3 hidden folders (singular: 1 hidden folder)"], ["… menu", "content-measured, 180–320 band = BORDER-BOX outer width, path order"], ["… menu rows", "shared MenuItem — 28 · pad-x 12 · folder 16 · text-primary"], ["specimen", <>320 (<span className="tok">--tasty-fp-popup-min-width</span>) — the width where it folds</>]]}
@@ -1069,21 +1069,21 @@ function Page() {
           <Stage variant="solo" style={{ padding: 20, background: "var(--tasty-bg-app)", flexDirection: "column", gap: 14, alignItems: "flex-start" }}>
             <div style={{ display: "flex", gap: 18, flexWrap: "wrap", alignItems: "flex-start" }}>
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>stage diagram (forced) — step 2 · parent at its 64 floor</div>
+                <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>stage diagram (forced) — step 2 · parent at its 64 floor</div>
                 <FilePickerFrame pathKind="longtwo" />
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>stage diagram (forced) — step 5 · … › current</div>
+                <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>stage diagram (forced) — step 5 · … › current</div>
                 <FilePickerFrame pathKind="longtwo" w={400} h={360} single />
               </div>
             </div>
             <div style={{ display: "flex", gap: 18, flexWrap: "wrap", alignItems: "flex-start" }}>
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>440×300 · long UNC root — capped at 180, nothing folds</div>
+                <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>440×300 · long UNC root — capped at 180, nothing folds</div>
                 <FilePickerFrame pathKind="longroot" w={440} h={300} />
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>stage diagram (forced) — save / overwrite · footer untouched</div>
+                <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>stage diagram (forced) — save / overwrite · footer untouched</div>
                 <FilePickerFrame pathKind="longtwo" mode="save" save="picked" w={400} h={360} single />
               </div>
             </div>
@@ -1098,10 +1098,10 @@ function Page() {
         <Spec id="file-type-filter-chip-a-read-only-readout" title="File-type filter chip — a read-only readout"
           when={<>The chip shows the filter <b>the caller</b> passed and nothing else: there is no menu and no way to change it, so it is drawn as a <b>readout</b>, not a control — no chevron, no fill, no hover, not focusable. Text is the extension list in mono (<code>*.toml, *.json</code>), lowercase, in the caller's order. <b>No filter → no chip</b>; the name field takes the width. Width is the content, capped at <span className="tok">--tasty-fp-filter-max-width</span>; past that the list ends in an ellipsis and the tooltip ("Showing …") carries all of it. Both consumers (Tools menu picker, the picker inside Settings) and both modes show the same chip. In save mode the filter does <b>not</b> touch the name field — no extension is appended.</>}>
           <Stage variant="solo" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 18, flexWrap: "wrap", alignItems: "flex-start" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>no filter — chip hidden</div><FilePickerFrame w={480} h={300} /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>one extension</div><FilePickerFrame w={480} h={300} filters={["toml"]} /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>two extensions — save mode</div><FilePickerFrame w={480} h={300} mode="save" filters={["toml", "json"]} /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>many — capped at 160, ellipsis + tooltip</div><FilePickerFrame w={480} h={300} filters={["png", "jpg", "jpeg", "gif", "webp", "svg"]} /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>no filter — chip hidden</div><FilePickerFrame w={480} h={300} /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>one extension</div><FilePickerFrame w={480} h={300} filters={["toml"]} /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>two extensions — save mode</div><FilePickerFrame w={480} h={300} mode="save" filters={["toml", "json"]} /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>many — capped at 160, ellipsis + tooltip</div><FilePickerFrame w={480} h={300} filters={["png", "jpg", "jpeg", "gif", "webp", "svg"]} /></div>
           </Stage>
           <Meta
             specs={[["role", "read-only readout — not a button, no menu, not in tab order"], ["label", "*.ext list, mono caption, caller order, joined by \", \""], ["no filter", "chip absent"], ["width", "content, ≤ fp-filter-max-width (160) · then end ellipsis"], ["tooltip", "Showing *.png, *.jpg, … (full list)"], ["height", "fp-filter-height = the Input beside it"], ["box", "1px separator · radius · no fill · pad-x space-sm"], ["save mode", "no extension auto-append"], ["i18n", "only the tooltip prefix is translated; the list is literal"]]}
@@ -1112,19 +1112,19 @@ function Page() {
         <Spec id="folder-mode-mode-folder-returns-a-folder" title={"Folder mode — mode=\"folder\" returns a folder"}
           when={<>The third mode of the same frame, for the three callers that used the OS folder dialog (Settings › Remote transfer › Save folder, Plugins › Add › Find folder…, Preset editor <code>dir</code>). Local only. The <b>target</b> is the selected folder row, or the <b>current folder</b> when nothing is selected, so <b>Select folder</b> is enabled whenever the folder reads (also when it is empty) and disabled while loading or on an error. The footer swaps the File name input for a <b>read-only Folder readout</b> of the full target path (front ellipsis, tooltip = full path) and one muted hint line. <b>Files stay listed</b> so the folder is recognisable. They are not selectable but they are read: <span className="tok">--tasty-fp-folder-file-fg</span> (text-muted), no hover, skipped by ↑↓, tooltip "Only folders can be selected." The filter chip is hidden: filters don't apply to folders. Not the same thing as <code>folderSel</code> above, which is a folder row in open / save mode.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 16, flexWrap: "wrap", alignItems: "flex-start" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>no row selected — target = current folder</div><FilePickerFrame mode="folder" /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>subfolder selected — target = configs</div><FilePickerFrame mode="folder" folderPick="row" /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>pointer on a file — inert, tooltip only</div><FilePickerFrame mode="folder" folderPick="row" fileHover /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>no row selected — target = current folder</div><FilePickerFrame mode="folder" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>subfolder selected — target = configs</div><FilePickerFrame mode="folder" folderPick="row" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>pointer on a file — inert, tooltip only</div><FilePickerFrame mode="folder" folderPick="row" fileHover /></div>
           </Stage>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 16, flexWrap: "wrap", alignItems: "flex-start" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>Settings chooser size 480×360 · empty folder — still selectable</div><FilePickerFrame mode="folder" state="empty" w={480} h={360} /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>480×360 · read error — Select folder disabled, path in disabled ink</div><FilePickerFrame mode="folder" state="error-perm" w={480} h={360} /></div>
-            <div data-theme="latte" style={{ display: "flex", flexDirection: "column", gap: 6, padding: 8, background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)" }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>Latte · 480×360 · subfolder selected</div><FilePickerFrame mode="folder" folderPick="row" w={480} h={360} /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>Settings chooser size 480×360 · empty folder — still selectable</div><FilePickerFrame mode="folder" state="empty" w={480} h={360} /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>480×360 · read error — Select folder disabled, path in disabled ink</div><FilePickerFrame mode="folder" state="error-perm" w={480} h={360} /></div>
+            <div data-theme="latte" style={{ display: "flex", flexDirection: "column", gap: 6, padding: 8, background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)" }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>Latte · 480×360 · subfolder selected</div><FilePickerFrame mode="folder" folderPick="row" w={480} h={360} /></div>
           </Stage>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 16, flexWrap: "wrap", alignItems: "flex-start" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>en · 640 · long folder names</div><FilePickerFrame mode="folder" pathKind="longtwo" folderPick="row" /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>ko · 480×360 · long names</div><FilePickerFrame mode="folder" lang="ko" pathKind="longtwo" w={480} h={360} /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>ja · 320 floor · long names, selected</div><FilePickerFrame mode="folder" lang="ja" pathKind="longtwo" folderPick="row" single w={320} h={420} /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>en · 640 · long folder names</div><FilePickerFrame mode="folder" pathKind="longtwo" folderPick="row" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>ko · 480×360 · long names</div><FilePickerFrame mode="folder" lang="ko" pathKind="longtwo" w={480} h={360} /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>ja · 320 floor · long names, selected</div><FilePickerFrame mode="folder" lang="ja" pathKind="longtwo" folderPick="row" single w={320} h={420} /></div>
           </Stage>
           <Meta
             specs={[["target", "selected folder row, else current folder — one path returned, picker closes"], ["header", "folder glyph + “Select folder” (14 semibold) — same header box"], ["footer row 1", "label fp-footer-label-width 64 (caption, ellipsis) · gap fp-section-gap 8 · readout flex 1, control-height 28, pad-x space-md, input-readonly-bg / -border, mono caption, fp-folder-path-fg, FRONT ellipsis, tooltip full path, not editable"],
@@ -1183,11 +1183,11 @@ function Page() {
           <Stage variant="solo" style={{ padding: 20, background: "var(--tasty-bg-panel)", gap: "var(--tasty-space-xl)", flexDirection: "column", alignItems: "flex-start" }}>
             {Kit_KbPluginsSubtab && <>
               <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", width: 620 }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>default — row 1 Custom (record slot, b12) · row 2 Inherit + caption · row 3 overridden (draft = saved, Reset enabled)</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>default — row 1 Custom (record slot, b12) · row 2 Inherit + caption · row 3 overridden (draft = saved, Reset enabled)</span>
                 <KbPluginsSubtab />
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", width: 620 }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>draft + invalid — row 1 holds unparsable config text (danger slot + error) · row 2 switched to None (dot)</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>draft + invalid — row 1 holds unparsable config text (danger slot + error) · row 2 switched to None (dot)</span>
                 <KbPluginsSubtab saved={{}} seedDrafts={{ "clipboard-viewer/open": { mode: "custom", keys: "ctrl+shft+h" }, "clipboard-viewer/paste-plain": { mode: "none" } }} />
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", width: 620 }}>
@@ -1211,7 +1211,7 @@ function Page() {
               {[["rest", "rest"], ["editing", "editing — focus border"], ["invalid", "out of range — commits as 10.0"]].map(([s, l]) => (
                 <div key={s} style={{ display: "flex", alignItems: "center", gap: 10 }}>
                   <ToastDragValue state={s} />
-                  <span style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{l}</span>
+                  <span className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{l}</span>
                 </div>
               ))}
             </div>
@@ -1257,7 +1257,7 @@ function Page() {
           <Stage variant="solo" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 16, flexWrap: "wrap", alignItems: "flex-start" }}>
             {[["Mocha", "mocha", false], ["Latte · out of range", "latte", true]].map(([label, th, bad]) => (
               <div key={label} data-theme={th || undefined} style={{ width: 460, display: "flex", flexDirection: "column", gap: "var(--tasty-settings-row-gap)", padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
-                <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
+                <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
                 <div style={{ fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-micro)", textTransform: "uppercase", letterSpacing: "var(--tasty-letter-spacing-caps)", color: "var(--tasty-text-muted)" }}>Report limits</div>
                 {[["Note size limit", bad ? "70000" : "1024", "One note longer than this is cut at a UTF-8 boundary and marked as truncated. Must be smaller than the attempt limit.", bad ? "Between 64 and 16383. Commits as 16383." : null],
                   ["Attempt report limit", "16384", "Total note text kept for one task attempt. Notes past it are not stored, only counted.", null]].map(([lab, val, desc, err], i) => (
@@ -1287,7 +1287,7 @@ function Page() {
           <Stage variant="solo" style={{ padding: 20, background: "var(--tasty-bg-app)", flexDirection: "column", gap: 16, alignItems: "flex-start" }}>
             {[["default", "150", false], ["out of range — clamp on commit", "420", true], ["disabled", "100", false, true]].map(([label, val, bad, dis]) => (
               <div key={label} style={{ display: "flex", flexDirection: "column", gap: 6, width: 420 }}>
-                <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
+                <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                   <span style={{ flex: 1, fontSize: 13, color: dis ? "var(--tasty-text-disabled)" : "var(--tasty-text-secondary)" }} aria-disabled={dis || undefined}>Default zoom</span>
                   <span style={{ flex: "none", width: "var(--tasty-field-width-xs)" }}>
@@ -1312,7 +1312,7 @@ function Page() {
           <Stage variant="solo" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 16, flexWrap: "wrap", alignItems: "flex-start" }}>
             {[["Mocha", "mocha"], ["Latte", "latte"]].map(([label, th]) => (
               <div key={label} data-theme={th || undefined} style={{ width: 480, display: "flex", flexDirection: "column", gap: "var(--tasty-space-md)", padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
-                <div style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · Keybindings › General</div>
+                <div className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · Keybindings › General</div>
                 <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-kb-row-gap)" }}>
                   {[["New tab", ["Ctrl+T"]], ["Close tab", ["Ctrl+W", "Ctrl+F4"], 1], ["Split right", []]].map(([act, keys, hov]) => (
                     <div key={act} style={{ display: "grid", gridTemplateColumns: "var(--tasty-settings-label-width) 1fr", columnGap: "var(--tasty-settings-label-gap)", alignItems: "center" }}>
@@ -1408,7 +1408,7 @@ function Page() {
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
             {[["Mocha", "mocha"], ["Latte", "latte"]].map(([label, theme]) => (
               <div key={label} {...(theme ? { "data-theme": theme } : {})} style={{ width: "var(--tasty-size-360)", display: "flex", flexDirection: "column", gap: "var(--tasty-label-detail-gap)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)", marginBottom: "var(--tasty-space-xs)" }}>{label}</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)", marginBottom: "var(--tasty-space-xs)" }}>{label}</span>
                 {[["accent", "#89b4fa", null], ["surface_bg", "#1e1e2e", "#181825"], ["selection", "#45475a", null]].map(([field, base, ov]) => (
                   <div key={field} style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", minHeight: "var(--tasty-control-height)" }}>
                     <span style={{ width: "var(--tasty-status-dot-size)", height: "var(--tasty-status-dot-size)", borderRadius: "var(--tasty-radius-pill)", flex: "none", background: ov ? "var(--tasty-accent-primary)" : "transparent" }} />
@@ -1430,7 +1430,7 @@ function Page() {
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
             {[["Mocha", "mocha", [["selection_bg", "#585b70"], ["vi_cursor_bg", "#f5e0dc"], ["search_match_bg", "#fab387"], ["search_match_active_bg", "#a6e3a1"], ["search_match_active_fg", "#1e1e2e"]]], ["Latte", "latte", [["selection_bg", "#acb0be"], ["vi_cursor_bg", "#dc8a78"], ["search_match_bg", "#fe640b"], ["search_match_active_bg", "#40a02b"], ["search_match_active_fg", "#4c4f69"]]]].map(([label, theme, rows]) => (
               <div key={label} {...(theme ? { "data-theme": theme } : {})} style={{ width: "var(--tasty-size-360)", display: "flex", flexDirection: "column", gap: "var(--tasty-label-detail-gap)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)", marginBottom: "var(--tasty-space-xs)" }}>{label} · Terminal-specific (5)</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)", marginBottom: "var(--tasty-space-xs)" }}>{label} · Terminal-specific (5)</span>
                 {rows.map(([field, base]) => (
                   <div key={field} style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", minHeight: "var(--tasty-control-height)" }}>
                     <span style={{ width: "var(--tasty-status-dot-size)", height: "var(--tasty-status-dot-size)", borderRadius: "var(--tasty-radius-pill)", flex: "none" }} />
@@ -1493,7 +1493,7 @@ function Page() {
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
             {[["A · nothing granted — Mocha", "none", false, null], ["A · nothing granted — Latte", "none", false, "latte"], ["B · all granted", "all", false, null], ["C · FDA unknown, screen granted", "fdaUnknown", false, null], ["F · FDA granted before an update — Mocha", "fdaStale", false, null], ["F · FDA granted before an update — Latte", "fdaStale", false, "latte"], ["G · FDA turned off outside Tasty (revoked, 2026-10-08)", "fdaRevoked", false, null], ["D · requesting", "requesting", false, null], ["E · debug build (4 rows)", "none", true, null], ["E · debug build — Latte", "all", true, "latte"]].map(([cap, sc, dbg, theme]) => (
               <div key={cap} {...(theme ? { "data-theme": theme } : {})} style={{ width: "var(--tasty-size-560)", display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", background: "var(--tasty-bg-app)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
                 <div style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)" }}>
                   <MacPermissionsPane scenario={sc} debug={dbg} />
                 </div>
@@ -1517,7 +1517,7 @@ function Page() {
                 {[["sm", "32 · list row"], ["lg", "46 · detail / preview"]].map(([s, l]) => (
                   <div key={s} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
                     <PluginAvatarG initial="G" size={s} />
-                    <span style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{l}</span>
+                    <span className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{l}</span>
                   </div>
                 ))}
               </div>
@@ -1625,7 +1625,7 @@ function Page() {
           <Stage variant="solo" style={{ padding: 20, background: "var(--tasty-bg-panel)", gap: "var(--tasty-space-md)", flexDirection: "column", alignItems: "flex-start" }}>
             {[["Windows / Linux", ["Ctrl", "Shift", "H"], ["Alt", "K"]], ["macOS · style text", ["Ctrl", "Shift", "H"], ["Cmd", "K"]], ["macOS · style symbol", ["Ctrl", "⇧", "H"], ["⌘", "K"]]].map(([lab, a, b]) => (
               <div key={lab} style={{ display: "grid", gridTemplateColumns: "var(--tasty-size-160) auto auto", columnGap: "var(--tasty-space-lg)", alignItems: "center" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{lab}</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{lab}</span>
                 <Kbd keys={a} /><Kbd keys={b} />
               </div>
             ))}
@@ -1724,8 +1724,8 @@ function Page() {
         <Spec id="scripts-subsection-list-states-empty" title="Scripts subsection — list, states & empty"
           when={<>Settings › <b>Misc</b> › <b>Scripts</b>. A subsection (not a separate popup) that manages user <b>Lua scripts</b> run by a shortcut. Each <b>ScriptRow</b>: the display name, the absolute path (<b>middle-elided</b> — dir tail truncates, filename always shown), a bound-shortcut <span className="ic">Kbd</span> badge (or italic <b>Unbound</b>), a peach <b>changed</b> badge + help line when the file's SHA no longer matches the one recorded at registration (TOFU re-confirm on next run), and an <b>Auto-run</b> row: mono <b>trigger chips</b> for the host-lifecycle events the script fires on (click a chip to remove it) plus a dashed <b>Add trigger…</b> control offering the remaining events. Row actions: bind shortcut (→ Keybindings), rename (inline), remove (inline confirm).</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 16, flexWrap: "wrap", alignItems: "flex-start" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>registered scripts</div><ScriptManagerFrame /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>empty state</div><ScriptManagerFrame empty /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>registered scripts</div><ScriptManagerFrame /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>empty state</div><ScriptManagerFrame empty /></div>
           </Stage>
           <Meta
             specs={[["home", "Settings › Misc › Scripts (subsection)"], ["row", "name · path · shortcut · actions · auto-run"], ["shortcut", <><span className="ic">Kbd</span> badge or italic Unbound</>], ["changed", "peach badge + help line (SHA mismatch)"], ["auto-run", "trigger chips + Add trigger… (13 lifecycle events)"], ["Add trigger… edge", <>dashed · <span className="tok">--tasty-border-dash</span> / <span className="tok">--tasty-border-dash-gap</span> 4 / 4 · corners solid (2026-10-07)</>], ["trigger menu", <>min 200 · max 220 then scrolls · <span className="tok">--tasty-trigger-menu-min-width</span> / <span className="tok">-max-height</span> · menu-* container</>], ["all bound", "control stays, DISABLED (disabled ink) · tooltip All events already bound"], ["chip", "mono event · click removes · hover 12% overlay"], ["actions", "bind · rename · remove"], ["empty", "glyph + Add script prompt"]]}
@@ -1779,14 +1779,14 @@ function Page() {
         <Spec id="clipboard-viewer-read-only-snapshot-popup" title="Clipboard viewer — read-only snapshot popup"
           when={<>Tools → Clipboard Viewer (or a toggle shortcut). A <b>480×360</b> screen-centered popup that shows what's on the system clipboard <b>right now</b> — a one-time snapshot, <b>not</b> history. <b>Single column</b>: a header (clipboard icon + <span className="ic">snapshot</span> tag), a <b>type bar</b>, then a recessed mono <b>code well</b>. The type bar treats a <b>single type as first-class</b> — just a <span className="ic">Text</span> badge + live metadata (<span className="ic">284 chars · 6 lines · UTF-8</span>); two-plus types expand it into a <b>segmented switch</b> (Text / Image / Files / HTML / Other). <b>No rail.</b> At <b>5 segments</b> the switch compacts to <b>icon-only</b> (the active segment keeps its label; tooltips carry the names) so it survives 20–40% longer translations inside 480px. <b>HTML</b> is shown as <b>source text only — never rendered</b>; a <span className="ic">Pretty print</span> checkbox takes over the type bar's meta slot (metadata moves beside the mime in the footer) and re-indents the same source instantly (0ms). <b>Other</b> buckets every format that isn't text/image/files/html — one row per format: mono name + size, then its textualized content, separated by 1px rules, all of it scrolling in the same well (long content clamps with a muted <span className="ic">+N more lines</span>). <b>Read-only</b> — no copy/paste/edit/delete.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 16, flexWrap: "wrap" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>single type (Text)</div><ClipboardFrame /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>multi-type · segmented</div><ClipboardFrame state="multi" /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>HTML · source (Pretty print off)</div><ClipboardFrame state="html" /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>HTML · Pretty print on</div><ClipboardFrame state="htmlPretty" /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>Other · format buckets</div><ClipboardFrame state="other" /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>5 types · compact icon-only segments</div><ClipboardFrame state="five" /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>empty</div><ClipboardFrame state="empty" /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>read failed</div><ClipboardFrame state="failed" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>single type (Text)</div><ClipboardFrame /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>multi-type · segmented</div><ClipboardFrame state="multi" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>HTML · source (Pretty print off)</div><ClipboardFrame state="html" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>HTML · Pretty print on</div><ClipboardFrame state="htmlPretty" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>Other · format buckets</div><ClipboardFrame state="other" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>5 types · compact icon-only segments</div><ClipboardFrame state="five" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>empty</div><ClipboardFrame state="empty" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>read failed</div><ClipboardFrame state="failed" /></div>
           </Stage>
           <Meta
             specs={[["frame", "480 × 360 · screen-center · dismiss outside"], ["layout", "single column — no rail"], ["type bar", "1 type = badge + meta · 2–4 = segmented · ≥5 = icon-only"], ["segment", "h 26 · pad 0 10 (icon-only 0 8, min-w 30)"], ["metadata", "chars · lines · encoding (mono 11, right) — moves to footer on HTML"], ["HTML body", "source only, never rendered · Pretty print = re-indent, 0ms"], ["Other body", "per format: mono 11 name + size / mono 12 content · 1px rules"], ["body", "recessed code well — bg-app · mono 12 · scroll"], ["empty / fail", "centered glyph + muted / danger one-liner"]]}
@@ -1805,15 +1805,15 @@ function Page() {
           when={<>How a popup moves. A <b>titlebar</b> popup drags from the <b>whole bar</b> (the close button is excluded). A <b>headless</b> popup can declare a <b>Region</b> handle — a header band (currently the left half: icon + title) — while the header's own widgets (search, close) keep priority. <b>None</b> means the popup can't be moved. Affordance is the <b>cursor</b> only (grab → grabbing); no painted grip. Hover the bars below to feel the cursors.</>}>
           <Stage variant="solo center" style={{ padding: 24, background: "var(--tasty-bg-app)", gap: 20, flexWrap: "wrap", alignItems: "flex-start" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>TitleBar — whole bar drags</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>TitleBar — whole bar drags</div>
               <FauxPopup title="Listening ports"><div>title centered · close excluded from the handle</div></FauxPopup>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>Region — header band drags, widgets win</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>Region — header band drags, widgets win</div>
               <FauxPopup titlebar={false} region w={260}><div>left band = grab · search/close = their own cursor</div></FauxPopup>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>None — not movable</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>None — not movable</div>
               <FauxPopup title="apply preset" grab={false}><div>no handle · grab cursor never appears</div></FauxPopup>
             </div>
           </Stage>
@@ -1837,11 +1837,11 @@ function Page() {
           when={<>Limits are enforced <b>silently</b>. A popup can't shrink past its <b>min size</b> (or its default size if none is set), and <b>no part</b> may leave the scope rect (Window / Workspace / Pane / Tab / Surface) — drag or resize just stops at the boundary, and a shrinking scope <b>auto-repositions</b> the popup back inside. The scope edge is the effective max (there's no separate max size). When popups overlap, only the <b>top-most</b> one's handles/cursor respond; pressing a popup brings it to front.</>}>
           <Stage variant="solo center" style={{ padding: 24, background: "var(--tasty-bg-app)", gap: 28, flexWrap: "wrap", alignItems: "center" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>scope clamp — stops at the boundary</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>scope clamp — stops at the boundary</div>
               <ClampDemo />
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>z-order — only the front popup responds</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>z-order — only the front popup responds</div>
               <ZOrderDemo />
             </div>
           </Stage>

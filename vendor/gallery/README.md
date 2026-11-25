@@ -50,7 +50,7 @@ Every specimen has a stable `id` on its `Spec`, because the Rust gallery and the
 | Views | What the demo hides, drawn as frames | No |
 | Specs | Dimensions and tokens, always shown | No |
 
-Faces: a specimen draws in the app's faces (`--tasty-font-ui`, `--tasty-font-mono`) and the writing around it in `--tasty-font-prose`. A specimen draws no ligatures, as the app's UI does not. A block of terminal content carries `data-terminal-content` and keeps D2Coding's ligatures (`parts/specimen.css`).
+Faces: a specimen draws in the app's faces (`--tasty-font-ui`, `--tasty-font-mono`) and the writing around it in `--tasty-font-prose`. A caption that names the specimen under it (state, case, variant) is that writing: it carries `className="g-cap"`. A specimen draws no ligatures, as the app's UI does not. A block of terminal content carries `data-terminal-content` and keeps D2Coding's ligatures (`parts/specimen.css`).
 
 ### Fixed states
 

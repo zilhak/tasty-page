@@ -75,7 +75,7 @@ function Frame({ kind, focused }) {
 function ThemeRow({ theme, label, kind }) {
   return (
     <div data-theme={theme} style={{ background: "var(--tasty-bg-panel)", padding: "var(--tasty-space-xs)" }}>
-      <div style={{ ...caption, color: "var(--tasty-text-secondary)", marginBottom: "var(--tasty-space-xs)" }}>{label}: focused, unfocused</div>
+      <div className="g-cap" style={{ ...caption, color: "var(--tasty-text-secondary)", marginBottom: "var(--tasty-space-xs)" }}>{label}: focused, unfocused</div>
       <div style={{ display: "flex", gap: "var(--tasty-space-xs)" }}>
         <Frame kind={kind} focused />
         <Frame kind={kind} focused={false} />

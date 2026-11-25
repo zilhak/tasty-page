@@ -46,7 +46,7 @@ function StagingLeftSection() {
             </div>
           )} />
           <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", width: "var(--tasty-toast-max-width)" }}>
-            <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-secondary)" }}>ko · ja reason line</span>
+            <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-secondary)" }}>ko · ja reason line</span>
             <YResult variant="warning" title="2개 항목을 문서 폴더로 복사했습니다" lines={[stagingLine("~/Documents/.tasty-copy-AbC123", "Permission denied", "ko")]} actions={<><Button variant="ghost" ground="raised" size="sm">실행 취소</Button><Button variant="ghost" ground="raised" size="sm">경로 복사</Button></>} />
             <YResult variant="warning" title="2 項目を書類にコピーしました" lines={[stagingLine("~/Documents/.tasty-copy-AbC123", "Permission denied", "ja")]} actions={<><Button variant="ghost" ground="raised" size="sm">元に戻す</Button><Button variant="ghost" ground="raised" size="sm">パスをコピー</Button></>} />
           </div>

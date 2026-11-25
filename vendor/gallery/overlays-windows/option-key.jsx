@@ -20,23 +20,23 @@ function OptionKeySection() {
         when={<>The <C>extra</C> token (it replaces <C>option</C>, which is no longer read — old values are not converted) means <b>Win</b> on Windows, <b>Super</b> on Linux, and on macOS the key the Alt key mapping leaves over: <b>Option</b> by default, <b>Cmd</b> when Alt key is Option (see “Alt key (macOS)”). Win and Super are shown as <b>words</b>, like Ctrl and Alt — no logo glyph (the Windows logo is a trademark and Linux keyboards print different marks); macOS keys follow that physical key's display setting. Linux uses <b>Super</b> on every desktop, KDE included, so one config reads the same everywhere. The display-style dropdown stays macOS-only (there is nothing to choose between on the other two). A shortcut <b>typed as text</b> (config file, bundle import, plugin shortcut field) that matches a short known list of OS-owned combos gets a warning caption — the list is a hint, not a guarantee, and the copy says “may”. A text field that receives an OS key name (<C>cmd+k</C>, <C>super+k</C>, <C>win+k</C>, <C>meta+k</C>, and now the old <C>option+k</C>) gets a dedicated caption saying how to write it on <b>this</b> machine: one string on Windows / Linux, and on macOS one of two strings chosen by the Alt key mapping.</>}>
         <WStage variant="solo" style={{ padding: 20, background: "var(--tasty-bg-panel)", gap: 24, flexWrap: "wrap", alignItems: "flex-start" }}>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            <span style={wLbl}>extra — shortcut display per OS</span>
+            <span className="g-cap" style={wLbl}>extra — shortcut display per OS</span>
             {wOS.map(([os, combo, word]) => (
               <div key={os} style={{ display: "grid", gridTemplateColumns: "136px 140px 1fr", alignItems: "center", gap: 8 }}>
-                <span style={{ fontSize: 12, color: "var(--tasty-text-secondary)" }}>{os}</span>
+                <span className="g-cap" style={{ fontSize: 12, color: "var(--tasty-text-secondary)" }}>{os}</span>
                 <span style={wRec}>{combo}</span>
                 <WKbd keys={word} />
               </div>
             ))}
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 4, width: 300 }}>
-            <span style={wLbl}>plugin shortcut field — OS-reserved (Windows)</span>
+            <span className="g-cap" style={wLbl}>plugin shortcut field — OS-reserved (Windows)</span>
             <WInput block mono defaultValue="extra+l" />
             <span style={{ display: "flex", alignItems: "flex-start", gap: "var(--tasty-space-xs)", fontSize: "var(--tasty-font-size-caption)", lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-kb-os-reserved-fg)" }}><span style={{ display: "inline-flex", flex: "none", marginTop: 1 }}><WIcon name="alertTriangle" size="var(--tasty-icon-size-xs)" /></span>Windows may use Win+L itself, so Tasty might not receive it.</span>
           </div>
           {wNameCaps.map(([os, typed, cap]) => (
             <div key={os} style={{ display: "flex", flexDirection: "column", gap: 4, width: 300 }}>
-              <span style={wLbl}>plugin shortcut field — OS key name typed ({os})</span>
+              <span className="g-cap" style={wLbl}>plugin shortcut field — OS key name typed ({os})</span>
               <WInput block mono defaultValue={typed} invalid />
               <span style={wErr}>{cap}</span>
             </div>

@@ -152,8 +152,8 @@ function RemainingSection() {
         <ZViews>
           <ZView name="broken-link-windows" label="broken link — Windows: the same row, disabled, no tooltip, label kept">
             <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-lg)", alignItems: "flex-start" }}>
-              <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}><span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>listing</span><ZBrokenMenu /></div>
-              <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}><span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>search results · no Open</span><ZBrokenMenu /></div>
+              <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}><span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>listing</span><ZBrokenMenu /></div>
+              <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}><span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>search results · no Open</span><ZBrokenMenu /></div>
             </div>
           </ZView>
         </ZViews>

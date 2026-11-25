@@ -350,7 +350,7 @@ function Page() {
           <Stage variant="solo" style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 16, padding: 20 }}>
             {[["popup — no DAGs", "popup", ""], ["popup — filter “deploy”", "search", "deploy"]].map(([cap, v, q]) => (
               <div key={cap} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
                 <div style={{ display: "flex", height: 220, border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", background: "var(--tasty-bg-panel)" }}><DagEmpty variant={v} query={q} /></div>
               </div>
             ))}
@@ -365,7 +365,7 @@ function Page() {
           <Stage variant="solo" style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 16, padding: 20 }}>
             {[["Mocha — status = Failed, no query", null, "filtered", ""], ["Latte — workspace only, no query", "latte", "filtered", ""], ["Mocha — query “deploy” + status filter", null, "search", "deploy"]].map(([cap, th, v, q]) => (
               <div key={cap} {...(th ? { "data-theme": th } : {})} style={{ display: "flex", flexDirection: "column", gap: 6, background: "var(--tasty-bg-panel)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
                 <div style={{ display: "flex", height: 220, border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", background: "var(--tasty-bg-panel)" }}><DagEmpty variant={v} query={q} /></div>
               </div>
             ))}
@@ -409,13 +409,13 @@ function Page() {
           when={<>The popup's list → detail flow reuses the graph screen, which drags the graph header along: the <b>runner badge</b>, the <b>DAG selector</b> and the <b>zoom cluster</b> all arrive in a view that shows one node — and the back bar's actions slot sits empty beneath them. Settled: <b>no second header</b>. The <b>back bar is the detail's chrome</b>, and its <b>actions slot</b> carries the <b>compact zoom cluster</b> (beside the graph it scales) and the <b>runner badge</b> (it describes the run the node belongs to). The <b>DAG selector is hidden</b>: the back-bar title already names the DAG, and switching DAGs under an open node detail has no meaning. Back restores the list, its header, and the selection.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 18, flexWrap: "wrap", alignItems: "flex-start" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>list — full header</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>list — full header</div>
               {/* the window's own 560 x 460 box: its scrim fills the nearest positioned box, so without one both
                   windows filled the stage and were cut to its height */}
               <div style={{ position: "relative", flex: "none", width: "var(--tasty-dag-popup-width)", height: "var(--tasty-dag-popup-height)" }}><DagWindow /></div>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>detail — the back bar carries zoom + runner badge</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>detail — the back bar carries zoom + runner badge</div>
               <RevealBackBarActions>
                 <div style={{ position: "relative", flex: "none", width: "var(--tasty-dag-popup-width)", height: "var(--tasty-dag-popup-height)" }}><DagWindow initialOpen="build-and-deploy" /></div>
               </RevealBackBarActions>

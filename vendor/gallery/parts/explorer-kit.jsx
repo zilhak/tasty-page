@@ -232,7 +232,7 @@ function GridCell({ glyph, name, state, glyphColor }) {
 function CtxMenu({ title, children }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-      <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{title}</div>
+      <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{title}</div>
       <div style={{ width: 220, background: "var(--tasty-menu-bg)", border: "1px solid var(--tasty-menu-border)",
         borderRadius: "var(--tasty-menu-radius)", padding: 6, boxShadow: "var(--tasty-shadow-popover)" }}>
         {children}

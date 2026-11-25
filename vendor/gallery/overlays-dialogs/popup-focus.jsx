@@ -42,7 +42,7 @@ function LeafUnderPopup({ kind, keys, completed = false }) {
       <div style={{ position: "absolute", top: "var(--tasty-size-28)", right: "var(--tasty-space-sm)", width: "var(--tasty-size-140)", overflow: "hidden", padding: "var(--tasty-popup-content-margin)", display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-popover)" }}>
         <PopupFocusEdge lit={popupLit} />
         <span style={{ fontSize: "var(--tasty-font-size-caption)", fontWeight: "var(--tasty-font-weight-semibold)", color: "var(--tasty-text-primary)" }}>Plugin popover</span>
-        <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>surface scope, no scrim</span>
+        <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>surface scope, no scrim</span>
       </div>
     </div>
   );
@@ -59,7 +59,7 @@ function PopupFocusSpec() {
       <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 18, flexWrap: "wrap", alignItems: "flex-start" }}>
         {FOCUS_FRAMES.map(([label, props]) => (
           <div key={label} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-            <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
+            <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
             <ShellMock {...props} />
           </div>
         ))}

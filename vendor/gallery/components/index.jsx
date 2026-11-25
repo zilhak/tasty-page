@@ -53,7 +53,7 @@ function SelRowGrid({ label, theme }) {
       <span style={{ fontSize: "var(--tasty-font-size-body)", fontWeight: "var(--tasty-font-weight-semibold)", color: "var(--tasty-text-primary)" }}>{label}</span>
       {SEL_CASES.map(([cap, draw]) => (
         <div key={cap} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", minWidth: 0 }}>
-          <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
+          <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
           <SelRow active={false}>{draw(false)}</SelRow>
           <SelRow active>{draw(true)}</SelRow>
         </div>
@@ -225,7 +225,7 @@ function Components() {
             <Cluster label={'ghost ground="raised" — on surface-raised the label takes button-ghost-raised-fg → text-secondary-raised (Latte 5.17:1, was 4.05) (2026-10-21)'}>
               {[["Mocha", "mocha"], ["Latte", "latte"]].map(([label, t]) => (
                 <div key={label} {...(t ? { "data-theme": t } : {})} style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md)", background: "var(--tasty-surface-raised)", borderRadius: "var(--tasty-radius)" }}>
-                  <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-secondary-raised)" }}>{label}</span>
+                  <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-secondary-raised)" }}>{label}</span>
                   <Button variant="ghost" size="sm" ground="raised">Cancel (panel)</Button>
                   <Button variant="ghost" size="sm" ground="raised">Cancel (raised)</Button>
                 </div>
@@ -248,7 +248,7 @@ function Components() {
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-md)", flexWrap: "wrap", alignItems: "flex-start" }}>
             {[["Mocha", "mocha"], ["Latte", "latte"]].map(([label, attr]) => (
               <div key={label} {...(attr ? { "data-theme": attr } : {})} style={{ display: "grid", gridTemplateColumns: "auto auto auto", gap: "var(--tasty-space-sm) var(--tasty-space-md)", alignItems: "center", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label}</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label}</span>
                 <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" }}>enabled</span>
                 <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" }}>disabled</span>
                 {["primary", "agent", "danger", "secondary", "ghost"].map((v) => (
@@ -327,7 +327,7 @@ function Components() {
           <Stage variant="solo" style={{ padding: 20, background: "var(--tasty-bg-app)", flexDirection: "column", gap: 14, alignItems: "flex-start" }}>
             {[["settled — Kbd (16 / 4 / 3 / 10)", true], ["dropped — palette-only cap (18 / 5 / 4 / 11)", false]].map(([label, canonical]) => (
               <div key={label} style={{ display: "flex", flexDirection: "column", gap: 6, width: 380 }}>
-                <div style={{ fontSize: 11, color: canonical ? "var(--tasty-accent-success-raised)" : "var(--tasty-text-muted)" }}>{label}</div>
+                <div className="g-cap" style={{ fontSize: 11, color: canonical ? "var(--tasty-accent-success-raised)" : "var(--tasty-text-muted)" }}>{label}</div>
                 <div style={{ background: "var(--tasty-surface-raised)", border: "1px solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", padding: 4 }}>
                   {[["Split pane right", "Ctrl+Shift+D"], ["Open file…", "Ctrl+P"]].map(([cmd, keys]) => (
                     <div key={cmd} style={{ height: 28, display: "flex", alignItems: "center", gap: 8, padding: "0 8px", borderRadius: "var(--tasty-radius-sm)" }}>
@@ -424,13 +424,13 @@ function Components() {
           <Stage variant="column" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-md)" }}>
             {[["Mocha", "mocha"], ["Latte", "latte"]].map(([label, t]) => (
               <div key={label} {...(t ? { "data-theme": t } : {})} style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-md)", alignItems: "flex-end", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-panel)", borderRadius: "var(--tasty-radius)" }}>
-                <span style={{ width: "100%", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} — Select states (2026-10-21): hover / focus are pinned with the same border values the CSS applies</span>
+                <span className="g-cap" style={{ width: "100%", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} — Select states (2026-10-21): hover / focus are pinned with the same border values the CSS applies</span>
                 {[["value", { defaultValue: "Tasty rc" }], ["hover", { defaultValue: "Tasty rc", style: { borderColor: "var(--tasty-border-control)" } }],
                   ["focus / open", { defaultValue: "Tasty rc", style: { borderColor: "var(--tasty-border-focus)", boxShadow: "0 0 0 var(--tasty-border-width) var(--tasty-border-focus)" } }],
                   ["no value → select-placeholder", { placeholder: "Select a profile…" }], ["disabled + value → state-disabled-fg", { disabled: true, defaultValue: "Tasty rc" }],
                   ["disabled + no value → state-disabled-fg", { disabled: true, placeholder: "Select a profile…" }]].map(([k, p]) => (
                   <div key={k} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", width: "var(--tasty-field-width-lg)" }}>
-                    <span style={{ fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" }}>{k}</span>
+                    <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" }}>{k}</span>
                     <Select block options={["Default (full rc)", "Tasty rc", "Custom"]} {...p} />
                   </div>
                 ))}
@@ -444,7 +444,7 @@ function Components() {
                 {[["value", { defaultValue: "Tasty rc" }], ["focus / open", { defaultValue: "Tasty rc", style: { borderColor: "var(--tasty-border-focus)", boxShadow: "0 0 0 var(--tasty-border-width) var(--tasty-border-focus)" } }],
                   ["no value", { placeholder: "Select a profile…" }], ["disabled", { disabled: true, defaultValue: "Tasty rc" }], ["panel ground (vanishes)", { defaultValue: "Tasty rc", ground: "panel" }]].map(([k, p]) => (
                   <div key={k} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", width: "var(--tasty-field-width-lg)" }}>
-                    <span style={{ fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-secondary-raised)" }}>{k}</span>
+                    <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-secondary-raised)" }}>{k}</span>
                     <Select block ground="raised" options={["Default (full rc)", "Tasty rc", "Custom"]} {...p} />
                   </div>
                 ))}
@@ -473,18 +473,18 @@ function Components() {
                 ["20 options → internal scroll at 220", <MultiSelect key="m" block open activeIndex={-1} options={MS_MANY} value={["opt-02", "opt-05"]} summary={msSummary} allToggle />, 230],
               ].map(([label, node, minH]) => (
                 <div key={label} style={{ display: "flex", flexDirection: "column", gap: 8, minHeight: minH, alignItems: "stretch" }}>
-                  <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
+                  <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
                   <div style={{ position: "relative" }}>{node}</div>
                 </div>
               ))}
             </div>
             <div style={{ display: "flex", gap: 16, alignItems: "flex-end", padding: "14px 16px", background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-default)", borderRadius: 4 }}>
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>Sort by — Select (one value)</div>
+                <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>Sort by — Select (one value)</div>
                 <Select options={["Started", "Name", "Duration"]} style={{ width: 160 }} />
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>Status — MultiSelect (many)</div>
+                <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>Status — MultiSelect (many)</div>
                 <MultiSelect options={MS_STATES} defaultValue={["waiting", "ready", "running"]} summary={msSummary} placeholder="No status" style={{ width: 160 }} />
               </div>
             </div>
@@ -521,7 +521,7 @@ function Components() {
                 ["hover (row 3) vs keyboard-active (row 1)", <AutoComplete key="h" block mono withGo icon={ic.folderOpen} rowIcon={ic.folderOpen} open activeIndex={1} hoverIndex={3} query="" items={AC_DIRS} maxDropdownHeight={220} />, 200],
               ].map(([label, node, minH]) => (
                 <div key={label} style={{ display: "flex", flexDirection: "column", gap: 8, minHeight: minH, alignItems: "stretch" }}>
-                  <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
+                  <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
                   <div style={{ position: "relative" }}>{node}</div>
                 </div>
               ))}
@@ -532,7 +532,7 @@ function Components() {
                 ["markdown context — file · recent files", ic.file, AC_FILES],
               ].map(([label, icon, items]) => (
                 <div key={label} style={{ display: "flex", flexDirection: "column", gap: 8, minHeight: 200 }}>
-                  <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
+                  <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
                   <div style={{ position: "relative" }}><AutoComplete block mono withGo icon={icon} rowIcon={icon} open activeIndex={0} query="" items={items} maxDropdownHeight={220} /></div>
                 </div>
               ))}
@@ -612,7 +612,7 @@ function Components() {
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
             {[["Mocha", "mocha"], ["Latte", "latte"]].map(([label, attr]) => (
               <div key={label} data-theme={attr || undefined} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-panel)", borderRadius: "var(--tasty-radius)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} — rest · selected · rest · keyboard-active</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} — rest · selected · rest · keyboard-active</span>
                 <div role="menu" style={{ width: "var(--tasty-field-width-lg)", background: "var(--tasty-menu-bg)", border: "var(--tasty-border-width) solid var(--tasty-menu-border)", borderRadius: "var(--tasty-menu-radius)", padding: "var(--tasty-space-xs)", boxShadow: "var(--tasty-shadow-popover)" }}>
                   <MenuItem label="Ask" />
                   <MenuItem label="Minimize to background" selected />
@@ -622,7 +622,7 @@ function Components() {
               </div>
             ))}
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-panel)", borderRadius: "var(--tasty-radius)" }}>
-              <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>No value yet (2026-10-09) — trigger in placeholder ink, list = real options only</span>
+              <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>No value yet (2026-10-09) — trigger in placeholder ink, list = real options only</span>
               <div style={{ width: "var(--tasty-field-width-lg)", height: "var(--tasty-control-height)", boxSizing: "border-box", display: "flex", alignItems: "center", padding: "0 var(--tasty-space-md)", border: "var(--tasty-border-width) solid var(--tasty-border-focus)", borderRadius: "var(--tasty-radius)", background: "var(--tasty-surface-field)", fontSize: "var(--tasty-font-size-body)", color: "var(--tasty-text-placeholder)" }}>Choose an action</div>
               <div role="menu" style={{ width: "var(--tasty-field-width-lg)", background: "var(--tasty-menu-bg)", border: "var(--tasty-border-width) solid var(--tasty-menu-border)", borderRadius: "var(--tasty-menu-radius)", padding: "var(--tasty-space-xs)", boxShadow: "var(--tasty-shadow-popover)" }}>
                 <MenuItem label="Ask" active />
@@ -830,7 +830,7 @@ function Components() {
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", flexDirection: "column", gap: "var(--tasty-space-lg)", alignItems: "flex-start" }}>
             {[["Mocha", "mocha"], ["Latte", "latte"]].map(([label, attr]) => (
               <div key={label} {...(attr ? { "data-theme": attr } : {})} style={{ display: "flex", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)", border: "var(--tasty-border-width) solid var(--tasty-border-default)" }}>
-                <span style={{ width: "100%", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · ui_scale 1</span>
+                <span className="g-cap" style={{ width: "100%", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · ui_scale 1</span>
                 {[["active", { active: true }], ["inactive", {}], ["hover", { hover: true }]].map(([st, p]) => (
                   <div key={st} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
                     <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" }}>{st}</span>
@@ -874,7 +874,7 @@ function Components() {
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", flexDirection: "column", gap: "var(--tasty-space-lg)", alignItems: "flex-start" }}>
             {[["file picker · remote attach", "fp"], ["Settings › Misc › Scripts", "scripts"]].map(([host, k]) => (
               <div key={k} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{host}</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{host}</span>
                 <div style={{ display: "flex", gap: "var(--tasty-space-md)", flexWrap: "wrap" }}>
                   {[["loading"], ["empty"], ["error"], ["error", true]].map(([v, act]) => (
                     <div key={v + (act ? "-a" : "")} style={{ width: "var(--tasty-size-288)", height: k === "fp" ? "var(--tasty-size-220)" : "var(--tasty-size-160)", display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
@@ -1101,7 +1101,7 @@ function Components() {
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-md)", flexWrap: "wrap", alignItems: "flex-start" }}>
             {[["Mocha", "mocha"], ["Latte", "latte"]].map(([label, attr]) => (
               <div key={label} {...(attr ? { "data-theme": attr } : {})} style={{ width: "var(--tasty-size-320)", display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label}</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label}</span>
                 <ListCtrl selectedId="default" items={[
                   { id: "default", label: "Default", description: "enabled · success Tag", trailing: <Tag variant="success" dot>Active</Tag> },
                   { id: "d-success", label: "Readline", description: "disabled · success Tag", trailing: <Tag variant="success" dot>Active</Tag>, disabled: true },

@@ -66,34 +66,34 @@ function WindowTabFocusSpec() {
       when={<>The tabs inside the settings, remote and plugins windows take keyboard focus: <span className="ic">Tab</span> and <span className="ic">Shift+Tab</span> move it, <span className="ic">Space</span> and <span className="ic">Enter</span> press the tab. A focused tab shows the control ring, inset on the settings L1 tab because it fills the top band and an outer ring would lose its top edge (−5px offset with 1px clearance from the active underline, compared with a 2px pane tab inset). The pane tab strip is not one of these: it is no keyboard stop and draws no ring (Components › Tab).</>}>
       <Views>
         <View name="settings-l1-tab-focus" wide label="Settings — an L1 tab with keyboard focus (General, while Appearance is open)">
-          <div style={col}><span style={cap}>settings · L1 tab</span>
+          <div style={col}><span className="g-cap" style={cap}>settings · L1 tab</span>
             <FocusOn crop={SETTINGS_CROP} pick={byText("button", "General")}>
               <Kit_SettingsWindow frame="bare" initialL1="Appearance" initialL2="Theme" theme="mocha" onTheme={noop} uiScale={1} onUiScale={noop} onClose={noop} />
             </FocusOn></div>
         </View>
         <View name="settings-l1-selected-tab-focus" wide label="Settings — the selected L1 tab with keyboard focus (Appearance, while Appearance is open)">
-          <div style={col}><span style={cap}>settings · selected L1 tab</span>
+          <div style={col}><span className="g-cap" style={cap}>settings · selected L1 tab</span>
             <FocusOn crop={SETTINGS_CROP} pick={byText("button", "Appearance")}>
               <Kit_SettingsWindow frame="bare" initialL1="Appearance" initialL2="Theme" theme="mocha" onTheme={noop} uiScale={1} onUiScale={noop} onClose={noop} />
             </FocusOn></div>
         </View>
         <View name="settings-l2-row-focus" wide label="Settings — an L2 sidebar row with keyboard focus (General, while Theme is open)">
-          <div style={col}><span style={cap}>settings · L2 row</span>
+          <div style={col}><span className="g-cap" style={cap}>settings · L2 row</span>
             <FocusOn crop={SETTINGS_CROP} pick={byText("[data-settings-l2]", "General")}>
               <Kit_SettingsWindow frame="bare" initialL1="Appearance" initialL2="Theme" theme="mocha" onTheme={noop} uiScale={1} onUiScale={noop} onClose={noop} />
             </FocusOn></div>
         </View>
         <View name="remote-tab-focus" wide label="Remote connections — a tab in the tab strip with keyboard focus (Remote profiles, while Passkeys is open)">
-          <div style={col}><span style={cap}>remote · tab strip</span>
+          <div style={col}><span className="g-cap" style={cap}>remote · tab strip</span>
             {/* the focused tab is not next to the open one, so no part of its ring lies on the open tab's accent underline */}
             <FocusOn pick={byText("span", "Remote profiles")}><RemoteFrame tab="passkeys" /></FocusOn></div>
         </View>
         <View name="remote-segment-focus" wide label="Remote connections — a segment with keyboard focus (Direct (inline))">
-          <div style={col}><span style={cap}>remote · segmented</span>
+          <div style={col}><span className="g-cap" style={cap}>remote · segmented</span>
             <FocusOn pick={byText("div", "Direct (inline)")}><RemoteFormFrame variant="attach" /></FocusOn></div>
         </View>
         <View name="plugins-tab-focus" wide label="Plugins — a tab with keyboard focus (Attention, while Installed is open)">
-          <div style={col}><span style={cap}>plugins · tab bar</span>
+          <div style={col}><span className="g-cap" style={cap}>plugins · tab bar</span>
             <FocusOn crop="var(--tasty-size-120)" pick={byText("button", "Attention")}>
               {/* the kit window's own 820 x 540 box, so its scrim centers it at the top left of the crop */}
               <div style={{ position: "relative", width: 820, height: 540 }}>

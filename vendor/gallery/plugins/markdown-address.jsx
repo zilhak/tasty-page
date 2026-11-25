@@ -116,14 +116,14 @@ const MaPair = ({ children, cols }) => (
   <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-lg)", alignItems: "flex-start" }}>
     {[["Mocha", "mocha"], ["Latte", "latte"]].map(([label, t]) => (
       <div key={label} {...(t ? { "data-theme": t } : {})} style={{ flex: "1 1 var(--tasty-size-440)", minWidth: 0, maxWidth: "100%", display: "flex", flexDirection: "column", gap: "var(--tasty-space-md)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)" }}>
-        <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label}</span>{children}
+        <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label}</span>{children}
       </div>
     ))}
   </div>
 );
 const MaCase = ({ label, w, h, children }) => (
   <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", width: w || "100%", maxWidth: "100%" }}>
-    <span style={{ fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" }}>{label}</span>
+    <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" }}>{label}</span>
     <div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "visible", background: "var(--tasty-md-doc-bg)", minHeight: h }}>{children}</div>
   </div>
 );

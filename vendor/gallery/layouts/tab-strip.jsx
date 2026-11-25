@@ -87,7 +87,7 @@ function GalleryTabStrip() {
         <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
           {THEMES.map(([label, attr]) => (
             <Themed key={label} attr={attr}>
-              <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label}</span>
+              <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label}</span>
               {[["marker only · inactive", { marker: "blocked" }], ["marker only · active", { marker: "blocked", active: true }], ["allowed · active", { marker: "allowed", active: true }],
                 ["marker + busy", { marker: "blocked", busy: true }], ["marker + move", { marker: "blocked", move: true }], ["marker + move + busy · hover", { marker: "blocked", move: true, busy: true, hover: true }],
                 ["hover on the lock", { marker: "blocked", hover: true, markerHover: true }], ["narrow tab — label ellipsises", { marker: "blocked", move: true, busy: true, active: true, label: "quarterly-report-final.html", width: "var(--tasty-size-120)" }]].map(([c, p]) => (
@@ -106,7 +106,7 @@ function GalleryTabStrip() {
         <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", paddingRight: "var(--tasty-size-120)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexDirection: "column", alignItems: "flex-start" }}>
           {THEMES.map(([label, attr]) => (
             <Themed key={label} attr={attr}>
-              <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · html tab active, lock hovered</span>
+              <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · html tab active, lock hovered</span>
               <div style={{ width: "var(--tasty-size-320)", display: "flex", flexDirection: "column", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)" }}>
                 <div style={{ height: "var(--tasty-titlebar-height)", flex: "none", display: "flex", alignItems: "center", padding: "0 var(--tasty-space-sm)", background: "var(--tasty-bg-app)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" }}>title area</div>
                 <div style={{ display: "flex", background: "var(--tasty-surface-raised)", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
@@ -115,7 +115,7 @@ function GalleryTabStrip() {
                 </div>
                 <div style={{ height: "var(--tasty-size-96)", display: "flex", alignItems: "center", justifyContent: "center", background: "var(--tasty-bg-panel)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" }}>WebView — native, drawn above Tasty</div>
               </div>
-              <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · html pane under an html pane — fallback inside the strip</span>
+              <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · html pane under an html pane — fallback inside the strip</span>
               <div style={{ width: "var(--tasty-size-320)", display: "flex", flexDirection: "column", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)" }}>
                 <div style={{ height: "var(--tasty-size-64)", display: "flex", alignItems: "center", justifyContent: "center", background: "var(--tasty-bg-panel)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" }}>upper pane WebView</div>
                 <div style={{ position: "relative", display: "flex", background: "var(--tasty-surface-raised)" /* app geometry: own WebView starts flush under the strip, gap 0 */ }}>
@@ -139,7 +139,7 @@ function GalleryTabStrip() {
         <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
           {THEMES.map(([label, attr]) => (
             <Themed key={label} attr={attr}>
-              <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label}</span>
+              <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label}</span>
               {[["focused · left end", { at: "start" }], ["focused · middle · hover right", { at: "mid", hoverSide: "right" }], ["focused · right end", { at: "end" }], ["unfocused · middle", { focused: false, at: "mid" }], ["unfocused · left end · hover left (no fill: disabled)", { focused: false, at: "start", hoverSide: "left" }]].map(([c, p]) => (
                 <div key={c}>{cap(c)}<Strip {...p} /></div>
               ))}
@@ -157,7 +157,7 @@ function GalleryTabStrip() {
         <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
           {THEMES.map(([label, attr]) => (
             <Themed key={label} attr={attr}>
-              <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label}</span>
+              <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label}</span>
               {[["target out on the right", { at: "start", moveSide: "right" }], ["target out on the left", { at: "end", moveSide: "left" }], ["target out on the right · hover", { at: "mid", moveSide: "right", hoverSide: "right" }], ["unfocused pane · target out on the left", { focused: false, at: "mid", moveSide: "left" }]].map(([c, p]) => (
                 <div key={c}>{cap(c)}<Strip {...p} /></div>
               ))}
