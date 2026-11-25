@@ -224,7 +224,7 @@ function TrustBox({ manifest }) {
   const p = { margin: 0, fontSize: "var(--tasty-font-size-term-sm)", lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-plugin-trust-body-fg)", overflowWrap: "anywhere" };
   return (
     <div style={box} role={k.unverified ? "alert" : undefined}>
-      <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", color: "var(--tasty-plugin-trust-title-fg)", fontSize: "var(--tasty-font-size-heading)", fontWeight: 600 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", color: "var(--tasty-plugin-trust-title-fg)", fontSize: "var(--tasty-font-size-heading)", fontWeight: "var(--tasty-font-weight-semibold)" }}>
         <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-plugin-trust-glyph-" + k.tone + ")" }}><Icon name={k.glyph} size={16} /></span><span>{k.title}</span>
       </div>
       <p style={p}>{UNVERIFIED_CAUSE[kind]}</p>
@@ -272,7 +272,7 @@ function AddPluginForm({ onAdded, onCancel }) {
         {/* path picker */}
         <div style={{ maxWidth: "var(--tasty-measure-xl)", display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
           <Mono>Plugin folder</Mono>
-          <div style={{ display: "flex", gap: 8 }}>
+          <div style={{ display: "flex", gap: "var(--tasty-space-sm)" }}>
             <Input mono icon={ic.folder} placeholder="~/dev/my-plugin"
               value={path} onChange={(e) => setPathReset(e.target.value)} style={{ flex: 1 }} />
             <Button variant="secondary" leadingIcon={ic.folder} onClick={pick}>Find folder…</Button>
@@ -297,15 +297,15 @@ function AddPluginForm({ onAdded, onCancel }) {
           <div style={{ maxWidth: "var(--tasty-measure-xl)", display: "flex", flexDirection: "column", gap: "var(--tasty-plugins-inset)" }}>
             {/* manifest preview */}
             <div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)",
-              background: "var(--tasty-surface-raised)", padding: 16, display: "flex", flexDirection: "column", gap: "var(--tasty-space-md)" }}>
-              <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+              background: "var(--tasty-surface-raised)", padding: "var(--tasty-space-lg)", display: "flex", flexDirection: "column", gap: "var(--tasty-space-md)" }}>
+              <div style={{ display: "flex", gap: "var(--tasty-space-md)", alignItems: "flex-start" }}>
                 <PluginAvatar plugin={manifest} size="lg" />
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", flexWrap: "wrap" }}>
                     <span style={{ fontSize: "var(--tasty-font-size-max)", fontWeight: "var(--tasty-font-weight-semibold)", color: "var(--tasty-text-primary)" }}>{manifest.name}</span>
                     <Tag mono>{"v" + manifest.version}</Tag>
                   </div>
-                  <div style={{ marginTop: 3, fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)",
+                  <div style={{ marginTop: "var(--tasty-plugins-manifest-meta-gap)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)",
                     color: "var(--tasty-text-muted)" }}>{manifest.id} · {manifest.author}</div>
                 </div>
               </div>
@@ -463,22 +463,22 @@ function AttentionPanel({ items, onFlash, onConfigure, onRemove, lang = "en" }) 
       {/* detail */}
       <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
         <div className="tasty-scroll" style={{ flex: 1, overflow: "auto", padding: "var(--tasty-space-lg)",
-          display: "flex", flexDirection: "column", gap: 16 }}>
+          display: "flex", flexDirection: "column", gap: "var(--tasty-space-lg)" }}>
           {/* identity */}
           <div style={{ display: "flex", gap: "var(--tasty-space-md)", alignItems: "flex-start" }}>
             <PluginAvatar plugin={sel} size="lg" />
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", flexWrap: "wrap" }}>
                 <span style={{ fontSize: "var(--tasty-font-size-max)", fontWeight: "var(--tasty-font-weight-normal)", color: "var(--tasty-text-primary)", overflowWrap: "anywhere" }}>{sel.name}</span>
                 {sel.version && <Tag mono>{"v" + sel.version}</Tag>}
                 {sel.builtin && <Tag>built-in</Tag>}
               </div>
-              <div style={{ marginTop: 4, fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)",
-                display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+              <div style={{ marginTop: "var(--tasty-space-xs)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)",
+                display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", flexWrap: "wrap" }}>
 {/* 2026-10-09 b10 — each separator travels WITH the item after it (one nowrap span), so a wrapped item never leaves a dangling · */}
 {/* 2026-11-08 — reserved id: the meta line is the id alone (no author, no homepage) */}
                 {meta.removeOnly ? <span style={{ overflowWrap: "anywhere" }}>{sel.id}</span> : [sel.author, sel.id, sel.reason !== "signature-invalid" && sel.homepage && /^https?:\/\//.test(sel.homepage) && <a href={sel.homepage} target="_blank" rel="noreferrer" style={{ color: "var(--tasty-accent-primary-raised)", textDecoration: "underline", textUnderlineOffset: 2 }}>{sel.homepage.replace(/^https?:\/\//, "")}</a>].filter(Boolean).map((part, i) => (
-                  <span key={i} style={{ display: "inline-flex", gap: 8, whiteSpace: "nowrap" }}>{i > 0 && <span>·</span>}{part}</span>
+                  <span key={i} style={{ display: "inline-flex", gap: "var(--tasty-space-sm)", whiteSpace: "nowrap" }}>{i > 0 && <span>·</span>}{part}</span>
                 ))}
               </div>
             </div>
@@ -499,17 +499,17 @@ function AttentionPanel({ items, onFlash, onConfigure, onRemove, lang = "en" }) 
           <div role="alert" style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-plugins-inset)", borderRadius: "var(--tasty-radius)",
             background: "var(--tasty-tint-danger-bg)",
             border: "var(--tasty-border-width) solid var(--tasty-tint-danger-border)" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", color: "var(--tasty-plugin-trust-title-fg)", fontSize: "var(--tasty-font-size-heading)", fontWeight: 600 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", color: "var(--tasty-plugin-trust-title-fg)", fontSize: "var(--tasty-font-size-heading)", fontWeight: "var(--tasty-font-weight-semibold)" }}>
               <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-plugin-trust-glyph-danger)" }}><Icon name="alertCircle" size={16} /></span>
               <span>{meta.label}</span>
             </div>
             <p style={{ margin: 0, fontSize: "var(--tasty-font-size-term-sm)", lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-plugin-trust-body-fg)", overflowWrap: "anywhere" }}>{meta.blurb}</p>
           </div>) :
-          <div style={{ display: "flex", flexDirection: "column", gap: 8, padding: "var(--tasty-space-md) var(--tasty-plugins-inset)",
+          <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-plugins-inset)",
             borderRadius: "var(--tasty-radius)", color: "var(--tasty-text-secondary)",
             background: `var(--tasty-tint-${meta.sev}-bg)`,
             border: `1px solid var(--tasty-tint-${meta.sev}-border)` }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", color: ink, fontSize: "var(--tasty-font-size-heading)", fontWeight: 600 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", color: ink, fontSize: "var(--tasty-font-size-heading)", fontWeight: "var(--tasty-font-weight-semibold)" }}>
               <Icon name={meta.sev === "danger" ? "alertCircle" : "alertTriangle"} size={16} />
               <span>{meta.label}</span>
             </div>
@@ -579,9 +579,9 @@ function AttentionPanel({ items, onFlash, onConfigure, onRemove, lang = "en" }) 
 function PluginsSeg({ value, label, count, danger, on, hover, onPick, onPointer }) {
   return (
     <button onClick={() => onPick(value)} onMouseEnter={() => onPointer(value)} onMouseLeave={() => onPointer((t) => (t === value ? null : t))} style={{ appearance: "none", cursor: "pointer", border: 0,
-      height: 26, padding: "0 var(--tasty-space-md)", borderRadius: "var(--tasty-radius)", display: "inline-flex",
+      height: "var(--tasty-plugins-tab-height)", padding: "0 var(--tasty-space-md)", borderRadius: "var(--tasty-radius)", display: "inline-flex",
       alignItems: "center", gap: "var(--tasty-space-sm)", fontFamily: "var(--tasty-font-ui)", fontSize: "var(--tasty-font-size-term-sm)",
-      fontWeight: on ? 600 : 400, color: on ? "var(--tasty-text-primary)" : "var(--tasty-text-muted)",
+      fontWeight: on ? "var(--tasty-font-weight-semibold)" : "var(--tasty-font-weight-normal)", color: on ? "var(--tasty-text-primary)" : "var(--tasty-text-muted)",
       background: on ? "var(--tasty-surface-raised)" : hover ? "var(--tasty-overlay-hover)" : "transparent",
       boxShadow: on ? "inset 0 0 0 var(--tasty-border-width) var(--tasty-border-default)" : "none",
       /* as the app: the tabs sit side by side on the header's mantle, and only the selected one is filled (raised,
@@ -673,23 +673,23 @@ function PluginsWindow({ onClose, onFlash, onConfigure, removedAttention, onRemo
     return (
       <>
         <div className="tasty-scroll" style={{ flex: 1, overflow: "auto", padding: "var(--tasty-space-lg)",
-          display: "flex", flexDirection: "column", gap: 16 }}>
+          display: "flex", flexDirection: "column", gap: "var(--tasty-space-lg)" }}>
           {/* identity */}
           <div style={{ display: "flex", gap: "var(--tasty-space-md)", alignItems: "flex-start" }}>
             <PluginAvatar plugin={sel} size="lg" />
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", flexWrap: "wrap" }}>
                 <span style={{ fontSize: "var(--tasty-font-size-max)", fontWeight: "var(--tasty-font-weight-normal)", color: "var(--tasty-text-primary)" }}>{sel.name}</span>
                 <Tag mono>{"v" + sel.version}</Tag>
                 {sel.builtin && <Tag>built-in</Tag>}
                 {sel.agent && <Tag variant="agent">agent</Tag>}
               </div>
               {/* 2026-10-09 — meta: author(s) · plugin id · homepage link (each optional; id always present) */}
-              <div style={{ marginTop: 4, fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)",
-                display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+              <div style={{ marginTop: "var(--tasty-space-xs)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)",
+                display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", flexWrap: "wrap" }}>
 {/* 2026-10-09 b10 — each separator travels WITH the item after it (one nowrap span), so a wrapped item never leaves a dangling · */}
                 {[sel.author, sel.id, sel.homepage && <a href={sel.homepage} target="_blank" rel="noreferrer" style={{ color: "var(--tasty-accent-primary-raised)", textDecoration: "underline", textUnderlineOffset: 2 }}>{sel.homepage.replace(/^https?:\/\//, "")}</a>].filter(Boolean).map((part, i) => (
-                  <span key={i} style={{ display: "inline-flex", gap: 8, whiteSpace: "nowrap" }}>{i > 0 && <span>·</span>}{part}</span>
+                  <span key={i} style={{ display: "inline-flex", gap: "var(--tasty-space-sm)", whiteSpace: "nowrap" }}>{i > 0 && <span>·</span>}{part}</span>
                 ))}
               </div>
             </div>
@@ -699,7 +699,7 @@ function PluginsWindow({ onClose, onFlash, onConfigure, removedAttention, onRemo
           <p style={{ margin: 0, fontSize: "var(--tasty-font-size-body)", lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-text-secondary)", maxWidth: "var(--tasty-measure-lg)" }}>{sel.desc}</p>
 
           {sel.status === "error" && isInstalled && isOn && (
-            <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "var(--tasty-space-sm) var(--tasty-space-md)",
+            <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-sm) var(--tasty-space-md)",
               borderRadius: "var(--tasty-radius)", fontSize: "var(--tasty-font-size-term-sm)", color: "var(--tasty-accent-danger-raised)",
               background: "var(--tasty-tint-danger-bg)",
               border: "var(--tasty-border-width) solid var(--tasty-tint-danger-border)" }}>
@@ -714,7 +714,7 @@ function PluginsWindow({ onClose, onFlash, onConfigure, removedAttention, onRemo
           {sel.cmd && (
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
               <Mono>Command</Mono>
-              <div style={{ display: "flex", alignItems: "center", gap: 16, minHeight: "var(--tasty-settings-row-min-height)",
+              <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-lg)", minHeight: "var(--tasty-settings-row-min-height)",
                 borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
                 <span style={{ flex: 1, fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-term-sm)", color: "var(--tasty-text-secondary)" }}>{sel.cmd}</span>
                 {sel.key && <Kbd keys={kbdKeys(sel.key)} />}
@@ -768,7 +768,7 @@ function PluginsWindow({ onClose, onFlash, onConfigure, removedAttention, onRemo
           )}
           {isInstalled && confirmId !== sel.id && (
             <>
-              <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
+              <label style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", cursor: "pointer" }}>
                 <Switch checked={isOn} onChange={() => toggleEnabled(sel)} />
                 <span style={{ fontSize: "var(--tasty-font-size-body)", color: "var(--tasty-text-secondary)" }}>{isOn ? "Enabled" : "Disabled"}</span>
               </label>
@@ -790,13 +790,13 @@ function PluginsWindow({ onClose, onFlash, onConfigure, removedAttention, onRemo
         border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden",
         boxShadow: "var(--tasty-shadow-modal)" }}>
         {/* header */}
-        <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", height: 48, flex: "none", paddingLeft: "var(--tasty-plugins-header-pad-left)", paddingRight: "var(--tasty-plugins-header-pad-right)",
+        <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", height: "var(--tasty-plugins-header-height)", flex: "none", paddingLeft: "var(--tasty-plugins-header-pad-left)", paddingRight: "var(--tasty-plugins-header-pad-right)",
           borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)", background: "var(--tasty-bg-sidebar)" }}>
           {/* the header ornament reads plugins-header-glyph (accent-decorative, no contrast target), as the app does */}
           <span data-ink-grade="none" data-ink-why="ornament" style={{ display: "inline-flex", color: "var(--tasty-plugins-header-glyph)" }}>
             <Icon name="plug" size={16} />
           </span>
-          <span style={{ fontSize: "var(--tasty-font-size-max)", fontWeight: 700, color: "var(--tasty-text-primary)", letterSpacing: "var(--tasty-letter-spacing-ui)" }}>Plugins</span>
+          <span style={{ fontSize: "var(--tasty-font-size-max)", fontWeight: "var(--tasty-font-weight-bold)", color: "var(--tasty-text-primary)", letterSpacing: "var(--tasty-letter-spacing-ui)" }}>Plugins</span>
           <span style={{ width: 1, height: 20, background: "var(--tasty-separator)", margin: "0 var(--tasty-space-sm)" }} />
           <div style={{ display: "flex", gap: 2 }}>
             <PluginsSeg {...segProps("installed")} label="Installed" count={installedCount} />

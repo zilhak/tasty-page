@@ -99,6 +99,7 @@
   /* fixed control dimensions (off-grid, but real product values) */
   --tasty-size-20:  20px;  /* modifier-hint empty-row min height (2026-10-07) */
   --tasty-size-22:  22px;
+  --tasty-size-26:  26px;  /* 2026-11-26 plugins window header tab height, the app's 26 */
   --tasty-size-28:  28px;
   --tasty-size-32:  32px;
   --tasty-size-36:  36px;  /* titlebar height (CSD) */
