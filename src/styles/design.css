@@ -19,7 +19,7 @@
 
 .design-head {
   color: var(--tasty-text-primary);
-  font-family: var(--tasty-font-ui);
+  font-family: var(--tasty-font-prose);
   font-size: var(--tasty-font-size-body);
   line-height: var(--tasty-line-height-ui);
 }
@@ -36,7 +36,7 @@
 
 .ds-group {
   margin-bottom: var(--sp-12);
-  font-family: var(--tasty-font-ui);
+  font-family: var(--tasty-font-prose);
   font-size: var(--tasty-font-size-body);
   line-height: var(--tasty-line-height-ui);
 }

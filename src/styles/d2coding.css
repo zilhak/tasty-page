@@ -19,11 +19,12 @@
 }
 
 [data-site-chrome] { --font-mono: var(--tasty-font-family-mono-system), monospace; }
-/* The token page lists names and values and is indexed, so it stays out too. Its [data-theme]
-   frames declare the tokens again, so they take the same values. */
+/* The token page lists names and values and is indexed, so it stays out too, for the UI face as
+   well as the mono. Its [data-theme] frames declare the tokens again, so they take the same values. */
 [data-gallery-page="tokens"],
 [data-gallery-page="tokens"] [data-theme] {
   --tasty-font-family-mono: var(--tasty-font-family-mono-system), monospace;
   --tasty-font-mono: var(--tasty-font-family-mono);
   --font-mono: var(--tasty-font-family-mono);
+  --tasty-font-ui: var(--tasty-font-family-sans);
 }
