@@ -45,6 +45,15 @@ const SANS = [
   ["--tasty-font-size-caption", "11 / 400", "caption", "var(--tasty-font-weight-normal)", "Language change takes effect after restart."],
 ];
 
+// One string from the app's language files, settings.terminal.mouse_capture_blacklist_label, in the four
+// languages. In ja and zh-Hans its Latin draws in D2Coding and its Han and kana in the language's CJK font.
+const UI_FACE_BY_LANG = [
+  ["en", "Let Tasty handle clicks in these programs"],
+  ["ko", "클릭을 Tasty가 처리할 프로그램"],
+  ["ja", "クリックを Tasty で処理するプログラム"],
+  ["zh-Hans", "让 Tasty 处理这些程序中的点击"],
+];
+
 export function UiSansSpec() {
   return (
     <Spec id="ui-sans-chrome" title="UI face — chrome"
@@ -54,6 +63,12 @@ export function UiSansSpec() {
           <div key={tok} style={{ display: "flex", flexWrap: "wrap", alignItems: "baseline", gap: "var(--tasty-space-xs) var(--tasty-space-lg)" }}>
             <span style={{ flex: "0 0 var(--tasty-size-140)", fontFamily: MONO, fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" }}>--{name} · {size}</span>
             <span style={{ fontSize: `var(${tok})`, fontWeight: weight, color: "var(--tasty-text-primary)" }}>{sample}</span>
+          </div>
+        ))}
+        {UI_FACE_BY_LANG.map(([lang, sample]) => (
+          <div key={lang} style={{ display: "flex", flexWrap: "wrap", alignItems: "baseline", gap: "var(--tasty-space-xs) var(--tasty-space-lg)" }}>
+            <span style={{ flex: "0 0 var(--tasty-size-140)", fontFamily: MONO, fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" }}>--body · {lang}</span>
+            <span lang={lang} style={{ fontSize: "var(--tasty-font-size-body)", fontWeight: "var(--tasty-font-weight-normal)", color: "var(--tasty-text-primary)" }}>{sample}</span>
           </div>
         ))}
       </Stage>
