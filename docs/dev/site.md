@@ -175,7 +175,9 @@
 
 `design.yml`은 `develop`·`release`·`main` push와 pull request마다 다음 순서로 실행한다. Python 설정 뒤 토큰 계층과 JSON을 빌드 전에 검사한다.
 
-- `test_verify_token_tiers.py`와 `test_gen_tokens_json.py`를 실행한 뒤 [`verify_token_tiers.py`](../../scripts/design-tokens/verify_token_tiers.py)로 세 토큰 CSS 파일에서 자동으로 판정할 수 있는 계층 규칙을 검사한다. 검사 범위는 스크립트의 docstring에, 규칙은 [`vendor/TOKENS.md`](../../vendor/TOKENS.md#part-only-measures)에 있다.
+- `test_verify_token_tiers.py`와 `test_gen_tokens_json.py`를 실행한 뒤 [`verify_token_tiers.py`](../../scripts/design-tokens/verify_token_tiers.py)로 세 토큰 CSS 파일에서 자동으로 판정할 수 있는 계층 규칙만 검사한다. 자세한 검사 항목은 스크립트의 docstring에, 규칙은 [`vendor/TOKENS.md`](../../vendor/TOKENS.md#part-only-measures)에 있다.
+  리뷰에서는 합성 값의 재료(`color-mix()` 안에 직접 적은 색 등)를 살피고, 치수가 한 부품에만 속하는지, 같은 뜻의 역할이 있는지, 컴포넌트 참조가 합성인지 동등한 부품 간 공유(peer sharing)인지 판단한다.
+  변수 함수는 정확히 소문자 `var(--tasty-<name>)` 형태만 허용하며(함수명에 대문자가 들어가거나 이스케이프 표기·공백·대체값을 쓰면 거부한다), 토큰 이름은 별도로 ASCII 소문자·숫자·하이픈(`[a-z0-9-]+`)으로 한정한다.
 - `scripts/design-tokens/gen_tokens_json.py`로 `vendor/tokens/tasty.tokens.json`을 다시 만들고 `git diff --exit-code`로 커밋된 파일과 차이가 없는지 확인한다. 이어 `scripts/design-tokens/verify_tokens_json.py`로 이름, 값, 별칭, Latte 값과 CSS에서 추론한 `$type`을 대조한다. 최상위 `$description` 한 필드를 제외하면 JSON은 손으로 고치지 않는다.
 - `test_verify_ground_ink_tokens.py`로 바탕·잉크 토큰 목록 대조 스크립트를 시험한 뒤 렌더링 대비 검사 스크립트의 단위 시험을 실행한다.
 - `npm ci`와 `npm run build`를 실행하고, Chromium을 설치한 뒤 `npm run check-contrast`를 실행한다(위 "렌더링 대비 검사").

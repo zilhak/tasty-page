@@ -103,6 +103,9 @@ Sizes, type, and motion are theme-invariant and never repeated.
 4. From the repository root, run `python3 scripts/design-tokens/verify_token_tiers.py vendor`. Then regenerate `tokens/tasty.tokens.json` with `scripts/design-tokens/gen_tokens_json.py` and run `scripts/design-tokens/verify_tokens_json.py`. Check that the token count rises and the verifier reports no errors. Non-color/size tokens (durations, easings, unitless multipliers) need a trailing `/* @kind other */`.
 5. After the JSON check passes, run `scripts/design-tokens/verify_ground_ink_tokens.py` to compare the ground-ink rules' token list with the token CSS.
 
+The tier checker covers only what it can determine from CSS, leaving the ingredients of composite values (such as a literal color in `color-mix()`) and questions of meaning (whether a measure belongs to one part, whether a semantic role with the same meaning exists, and whether a component reference is composition or peer sharing) to review.
+Variable functions must use the exact lowercase form `var(--tasty-<name>)` (no case variants of the function name, escapes, whitespace or fallbacks), and token names must independently match `[a-z0-9-]+` (ASCII lowercase letters, digits and hyphens), as detailed in the docstring of [`verify_token_tiers.py`](../scripts/design-tokens/verify_token_tiers.py).
+
 Never skip a tier for color, type, opacity, easing or UI scale. A component token that points straight at one of those primitives breaks the contract — the next person who re-themes via the semantic layer will be surprised it didn't follow.
 
 ### Part-only measures

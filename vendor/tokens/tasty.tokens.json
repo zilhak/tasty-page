@@ -1,5 +1,5 @@
 {
-  "$description": "Tasty Design System tokens in DTCG format with Tasty extensions, including the fontStyle type. The three tiers and their aliases are generated from token CSS, with Mocha as the base and Latte overrides under $extensions[\"com.tasty.mode\"].latte.",
+  "$description": "Tasty Design System tokens in DTCG format with Tasty extensions, including the fontStyle type. Each $type is inferred from its CSS value. Dimensions, shadows and dash patterns are stored as CSS strings. The three tiers and their aliases are generated from token CSS, with Mocha as the base and Latte overrides under $extensions[\"com.tasty.mode\"].latte.",
   "$extensions": {
     "com.tasty.themes": [
       "mocha (default)",
