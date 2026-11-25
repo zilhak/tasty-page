@@ -630,7 +630,8 @@ const PORTS_COLUMNS = [
   // 2026-10-08 (batch 8) — Address is pinned at its 140 floor; Process (width 100%) takes ALL spare width.
   { key: "addr", header: "Address", mono: true, sortable: true, width: "var(--tasty-port-addr-col-min-width)" },
   { key: "proc", header: "Process", strong: true, sortable: true, width: "100%", minWidth: "var(--tasty-port-process-col-min-width)",
-    render: (v, row) => (<span style={{ display: "inline-flex", alignItems: "center", gap: 8, minWidth: 0 }}><span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>{v}</span><Tag>{row.pid}</Tag></span>) },
+    // As the app's ports_process_cell: the PID Tag keeps its width and only the name ellipsises, so the row is bound to the cell.
+    render: (v, row) => (<span style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", minWidth: 0, maxWidth: "100%" }}><span style={{ flex: "0 1 auto", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis" }}>{v}</span><span style={{ flex: "none", display: "inline-flex" }}><Tag>{row.pid}</Tag></span></span>) },
   { key: "ws", header: "Workspace", width: "var(--tasty-port-workspace-col-width)", render: (v) => v || <PortsDash /> },
   { key: "tab", header: "Tab", width: "var(--tasty-port-tab-col-width)", render: (v) => v || <PortsDash /> },
   { key: "state", header: "State", width: "var(--tasty-port-state-col-width)",
