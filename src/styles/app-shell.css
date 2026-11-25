@@ -105,8 +105,10 @@
 .anat-settings { overflow-x: auto; overflow-y: hidden; }
 .anat-window .shell { height: 420px; }
 
-/* Scale the fixed-size settings window in steps. Stop at 0.5 to keep text
-   readable, then allow horizontal scrolling. */
+/* Scale the fixed-size settings window in steps of the frame's content width:
+   0.7 above 700px, 0.6 above 560px, 0.5 at 560px and below. It goes no
+   smaller than 0.5 to keep text readable. At any step, the frame scrolls
+   sideways when the scaled window is wider than it. */
 .anat-settings__stage {
   position: relative;
   /* The kit's Settings window size, the same tokens settings_window.jsx reads. */
