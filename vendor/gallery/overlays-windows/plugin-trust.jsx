@@ -1,6 +1,7 @@
 import React from "react";
 import { Button, IconButton, Icon, Tag, Spinner, NotificationItem } from "../../components/index.js";
 import { Spec, Stage, Meta, Note, Dont } from "../parts/specimen.jsx";
+import { attnEmpty } from "../../ui_kits/terminal/overlays/plugins_attention_copy.js";
 
 // Tasty Gallery — Overlays · Windows › Plugins window: unverified plugin warning + explicit add / register
 // choice (2026-10-19). Static specimens of
@@ -304,16 +305,10 @@ function AttnList({ lang = "en", selected = 0 }) {
 // panel (mantle) and draws two labels, the title 8 + 2 × space-xl (56) below the panel edge, the lines
 // 8 apart (item spacing 4 + space-xs 4), no width cap. The frame is the app's default 880 window, so
 // the detail is 640 wide. Copy is the app's [plugins] attn_empty_title and attn_empty_body in each
-// language, letter for letter.
-const ATTN_EMPTY = {
-  en: ["No plugins need attention", "Rejected or failing plugins show up here with the reason and what to do next."],
-  ko: ["확인이 필요한 플러그인이 없습니다", "등록이나 실행에 실패한 플러그인과 그 원인, 해결 방법을 표시합니다."],
-  ja: ["確認が必要なプラグインはありません", "登録や実行に失敗したプラグインを、原因と対処方法とともに表示します。"],
-  "zh-Hans": ["没有待处理的插件", "被拒绝或运行失败的插件会显示在此处，并附上原因和后续操作。"],
-};
+// language, letter for letter, read from the kit's copy module so the kit window and this frame share it.
 const ATTN_EMPTY_WIDTH = "calc(var(--tasty-plugins-attention-list-width) + var(--tasty-size-400) + var(--tasty-size-240))"; // 240 + 640 = 880
 function AttnEmpty({ lang = "en" }) {
-  const [title, body] = ATTN_EMPTY[lang];
+  const [title, body] = attnEmpty(lang);
   return (
     <div lang={lang} style={{ width: ATTN_EMPTY_WIDTH, flex: "none", height: "var(--tasty-size-240)", display: "flex", borderRadius: "var(--tasty-radius)", overflow: "hidden",
       border: "var(--tasty-border-width) solid var(--tasty-border-default)" }}>

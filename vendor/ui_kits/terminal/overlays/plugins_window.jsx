@@ -10,6 +10,7 @@ import { Input } from "../../../components/forms/Input.jsx";
 import { Switch } from "../../../components/forms/Switch.jsx";
 import { ic, Icon } from "../chrome.jsx";
 import { Scrim, Spinner as TastyKit_Spinner } from "./shared.jsx";
+import { attnEmpty } from "./plugins_attention_copy.js";
 
 // Tasty UI kit — Plugins window (lifecycle: install / enable / uninstall).
 // Mirrors zilhak/tasty → src/view/plugins.rs + src/view/plugins/ui/{list,add}.rs
@@ -393,7 +394,7 @@ function RemoveReserved({ item, confirming, busy, onBusy, onConfirm, onCancel, o
     </>
   );
 }
-function AttentionPanel({ items, onFlash, onConfigure, onRemove }) {
+function AttentionPanel({ items, onFlash, onConfigure, onRemove, lang = "en" }) {
   const [selId, setSelIdRaw] = React.useState(items[0] ? items[0].id : null);
   const [confirmId, setConfirmId] = React.useState(null);
   const [removing, setRemoving] = React.useState(false); // reserved-id removal in progress: no cancel path
@@ -411,7 +412,8 @@ function AttentionPanel({ items, onFlash, onConfigure, onRemove }) {
       letterSpacing: "var(--tasty-letter-spacing-caps)", color: "var(--tasty-text-muted)" }}>{children}</div>
   );
 
-  if (items.length === 0)
+  if (items.length === 0) {
+    const [emptyTitle, emptyBody] = attnEmpty(lang);
     return (
       <React.Fragment>
         {/* The app keeps the (empty) list panel and draws two lines of text, no glyph, on the default
@@ -419,15 +421,14 @@ function AttentionPanel({ items, onFlash, onConfigure, onRemove }) {
             8 apart (item spacing 4 + space-xs 4), no width cap: [plugins] attn_empty_title, attn_empty_body. */}
         <div style={{ width: "var(--tasty-plugins-attention-list-width)", flex: "none", background: "var(--tasty-bg-sidebar)",
           borderRight: "var(--tasty-border-width) solid var(--tasty-separator)" }} />
-        <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", alignItems: "center", background: "var(--tasty-bg-sidebar)",
+        <div lang={lang} style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", alignItems: "center", background: "var(--tasty-bg-sidebar)",
           gap: "var(--tasty-space-sm)", color: "var(--tasty-text-muted)", padding: "calc(var(--tasty-space-sm) + 2 * var(--tasty-space-xl)) var(--tasty-space-sm) 0" }}>
-          <div style={{ fontSize: "var(--tasty-font-size-body)", color: "var(--tasty-text-secondary)" }}>No plugins need attention</div>
-          <div style={{ fontSize: 12, textAlign: "center", lineHeight: "var(--tasty-line-height-ui)" }}>
-            Rejected or failing plugins show up here with the reason and what to do next.
-          </div>
+          <div style={{ fontSize: "var(--tasty-font-size-body)", color: "var(--tasty-text-secondary)" }}>{emptyTitle}</div>
+          <div style={{ fontSize: 12, textAlign: "center", lineHeight: "var(--tasty-line-height-ui)" }}>{emptyBody}</div>
         </div>
       </React.Fragment>
     );
+  }
 
   const meta = sel && ATTN[sel.reason];
   const c = sel && SEV_COLOR[meta.sev];
@@ -596,7 +597,8 @@ function PluginsSeg({ value, label, count, danger, on, hover, onPick, onPointer 
 }
 
 // hoverTab: a frame pins the pointer hover on one header tab ("installed" | "attention" | "add").
-function PluginsWindow({ onClose, onFlash, onConfigure, removedAttention, onRemoveAttention, hoverTab = null }) {
+// lang: the language of the empty Attention tab copy (en, ko, ja, zh-Hans; plugins_attention_copy.js). Other copy is English.
+function PluginsWindow({ onClose, onFlash, onConfigure, removedAttention, onRemoveAttention, hoverTab = null, lang = "en" }) {
   // 2026-11-08 — removed reserved-id folders. The app keeps this (so the sidebar badge drops too); a
   // standalone window falls back to its own state.
   const [ownRemoved, setOwnRemoved] = React.useState([]);
@@ -817,7 +819,7 @@ function PluginsWindow({ onClose, onFlash, onConfigure, removedAttention, onRemo
               onAdded={(m) => { onFlash && onFlash("Added " + m.name); setTab("installed"); }}
               onCancel={() => setTab("installed")} />
           ) : tab === "attention" ? (
-            <AttentionPanel items={attention} onFlash={onFlash} onConfigure={onConfigure} onRemove={removeAttention} />
+            <AttentionPanel items={attention} onFlash={onFlash} onConfigure={onConfigure} onRemove={removeAttention} lang={lang} />
           ) : (
           <React.Fragment>
           {/* list */}
