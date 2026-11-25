@@ -22,7 +22,7 @@ Everything here is lifted from the product's own code, not guessed. Explore thes
   - [`docs/design/systems/theme.md`](https://github.com/zilhak/tasty/blob/develop/docs/design/systems/theme.md), [`CLAUDE.md`](https://github.com/zilhak/tasty/blob/develop/CLAUDE.md) — the UI design rules (4px grid, 14px cap, 1px border, overlays, 0ms terminal motion).
   - `lang/en.toml` — UI copy, the source for the tone notes below.
   - `assets/icons/` — the watermelon app icon.
-- **Fonts:** `D2Coding` (ligature build) — Tasty's UI face and its default terminal/code typeface. The font files are not kept in this folder (see "The form kept here").
+- **Fonts:** `D2Coding` (ligature build) — the UI face the design sets, and the default terminal/code typeface. The font files are not kept in this folder (see "The form kept here").
 
 ---
 
