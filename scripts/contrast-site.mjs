@@ -118,9 +118,9 @@ function mergeScan(t, s, page, viewport) {
 
 // A row that read several svg paints keeps the lowest one as low: a below record shows that paint, a wrong ink record
 // the first paint off the token (see judgeInks in contrast-page.mjs).
-// low is not written to the report.
-export const belowRecord = ({ low, ...rec }) => (low ? { ...rec, ...low } : rec);
-export const mismatchRecord = ({ low, ...rec }) => rec;
+// low is not written to the report, nor otherRow: it only decides whether a wrong ink is recorded (mergeRow).
+export const belowRecord = ({ low, otherRow, ...rec }) => (low ? { ...rec, ...low } : rec);
+export const mismatchRecord = ({ low, otherRow, ...rec }) => rec;
 const inksNote = (b) => (b.inks === undefined ? "" : ` (${b.inks} paints, ${b.off} off the token)`);
 
 function mergeRow(t, rules, res, page, viewport) {
