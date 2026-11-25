@@ -260,8 +260,9 @@ export function pageLib() {
         res.measured += 1;
         if (r.inkOk) res.inkHits += 1;
         if (r.below || !r.inkOk) {
-          // Another row of the same kind may name this element: .site-nav a also matches the current link.
-          r.otherRow = allRows.some((o) => o !== row && alternatives(o.selector).some((a) => el.matches(bare(a)) && (judgeRow(o, el, pseudoOf(a), tokens, theme) || {}).inkOk));
+          // Another row of the same kind may name this element: .site-nav a also matches the current link. The focus row
+          // does not count: its ring is drawn only on focus, and its outline color would excuse a frame's text at rest.
+          r.otherRow = allRows.some((o) => o !== row && o.state !== "focus" && alternatives(o.selector).some((a) => el.matches(bare(a)) && (judgeRow(o, el, pseudoOf(a), tokens, theme) || {}).inkOk));
           res.results.push(r);
         }
       }
@@ -371,11 +372,12 @@ export function pageLib() {
   // frames: the selectors of the scroll frames this page samples. A frame must show its ring: a focus-visible outline that
   // is not none and has a width. A frame with the ring off or no paint is a wrong ink record, not a skip, so the next frame
   // of its kind cannot hide it. Other stops keep the row's reading, as an input shows focus by its border.
-  const measureFocus = (row, tokens, theme, frames = []) => {
+  // framesOnly: past the ordinary stops, any other stop is left unjudged.
+  const measureFocus = (row, tokens, theme, frames = [], framesOnly = false) => {
     const el = document.activeElement;
     if (!el || el === document.body || !outsideGallery(el) || !el.matches(row.selector)) return null;
     const frame = frames.find((f) => el.matches(f)) ?? null;
-    if (!frame) return judgeRow(row, el, null, tokens, theme);
+    if (!frame) return framesOnly ? null : judgeRow(row, el, null, tokens, theme);
     const cs = getComputedStyle(el);
     const ringOn = el.matches(":focus-visible") && cs.outlineStyle !== "none" && parseFloat(cs.outlineWidth) > 0;
     const r = ringOn ? judgeRow(row, el, null, tokens, theme) : null;

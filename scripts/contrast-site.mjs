@@ -304,8 +304,9 @@ export async function walkFocus(tab, t, rules, theme, page, where = {}) {
     where.at = `focus ${placeOf(page)} ${row.id} Tab ${i + 1}`;
     await tab.keyboard.press("Tab");
     await stylesSettled(tab);
-    const r = await tab.evaluate(({ row: x, tokens, name, frames: f }) => window.__contrast.measureFocus(x, tokens, name, f), { row, tokens: rules.tokens, name: theme, frames });
-    if (!r || (i >= TAB_STOPS && !r.frame)) continue;
+    const framesOnly = i >= TAB_STOPS;
+    const r = await tab.evaluate(({ row: x, tokens, name, frames: f, framesOnly: only }) => window.__contrast.measureFocus(x, tokens, name, f, only), { row, tokens: rules.tokens, name: theme, frames, framesOnly });
+    if (!r || (framesOnly && !r.frame)) continue;
     if (r.frame) left.delete(r.frame);
     rec.found += 1;
     rec.measured += 1;
