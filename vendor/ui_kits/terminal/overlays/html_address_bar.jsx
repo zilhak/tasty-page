@@ -152,7 +152,7 @@ function HtmlSizeBanner({ kind = "file", name = "assets/hero-video.mp4", size = 
             <div style={{ fontSize: "var(--tasty-banner-body-font-size)", lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-banner-body-fg)" }}>{HA_COPY.limitBody}</div>
           )}
         </div>
-        <span style={{ flex: "none", display: "flex", gap: "var(--tasty-space-sm)", marginLeft: narrow ? "calc(var(--tasty-icon-size-md) + var(--tasty-banner-gap))" : 0, width: narrow ? "100%" : "auto" }}>
+        <span style={{ flex: "none", display: "flex", gap: "var(--tasty-space-sm)", marginLeft: narrow ? "calc(var(--tasty-icon-size-md) + var(--tasty-banner-gap))" : 0, width: narrow ? "calc(100% - var(--tasty-icon-size-md) - var(--tasty-banner-gap))" : "auto" }}>
           <Button size="sm" variant="ghost" ground="raised" style={{ whiteSpace: "nowrap" }}>{file ? HA_COPY.decline : HA_COPY.stop}</Button>
           <Button size="sm" variant="secondary" style={{ whiteSpace: "nowrap" }}>{file ? HA_COPY.allow : HA_COPY.cont}</Button>
         </span>
