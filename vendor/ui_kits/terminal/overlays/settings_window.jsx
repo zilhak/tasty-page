@@ -1247,8 +1247,10 @@ function SettingsWindow({ theme, onTheme, uiScale, onUiScale, onClose, os = DEFA
               color: t === l1 ? "var(--tasty-text-primary)" : "var(--tasty-text-muted)", fontWeight: t === l1 ? 600 : 400,
               borderBottom: t === l1 ? "var(--tasty-focus-ring-width) solid var(--tasty-accent-primary)" : "var(--tasty-focus-ring-width) solid transparent",
               /* keyboard focus: the L1 tab fills its band at the top of the window, so a ring off its box would lose its
-                 top edge to the window edge. Its 2px ring sits inside the tab, as the pane tab's does. */
-              outlineOffset: "calc(-1 * var(--tasty-focus-ring-width))", borderRadius: "var(--tasty-radius-none)" }}>{L1_LABEL[t]}</button>
+                 top edge to the window edge. Its 2px ring sits inside the tab, clear of the 2px active underline by the
+                 1px ring offset, so on the selected tab the ring's bottom edge and the underline stay two lines. The same
+                 inset on every tab, so focus never moves between selected and not. */
+              outlineOffset: "calc(-1 * (2 * var(--tasty-focus-ring-width) + var(--tasty-focus-ring-offset)))", borderRadius: "var(--tasty-radius-none)" }}>{L1_LABEL[t]}</button>
           ))}
         </div>
 
