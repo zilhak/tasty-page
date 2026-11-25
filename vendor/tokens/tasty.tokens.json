@@ -2597,6 +2597,10 @@
       "$type": "dimension",
       "$value": "{primitive.size-260}"
     },
+    "caret-specimen-height": {
+      "$type": "dimension",
+      "$value": "calc(1.0741 * var(--tasty-input-font-size))"
+    },
     "input-bg": {
       "$type": "color",
       "$value": "{semantic.surface-field}"

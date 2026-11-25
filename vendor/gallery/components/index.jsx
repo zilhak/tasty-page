@@ -545,9 +545,9 @@ function Components() {
         </Spec>
         <Spec id="text-caret-steady-never-blinks" title="Text caret — steady, never blinks"
           when={<>The caret in every UI text field (palette search, settings fields, popup and modal inputs, single- and multi-line) is <b>steady</b>: always drawn while the field has focus and the window is focused, never blinking. This matches the terminal cursor (motion 0 ms) and keeps an idle focused field from waking the frame loop twice a second. Focus is already carried by the field's focus border, so the caret does not need motion to be found. Window not focused → no caret, as today.</>}>
-          <Stage variant="column" style={{ gap: "var(--tasty-space-md)", alignItems: "flex-start", maxWidth: 320 }}>
+          <Stage variant="column" style={{ gap: "var(--tasty-space-md)", alignItems: "flex-start" }}>
             <div style={{ position: "relative", width: "var(--tasty-caret-specimen-field-width)", height: "var(--tasty-control-height)", display: "flex", alignItems: "center", padding: "0 var(--tasty-space-sm)", background: "var(--tasty-input-bg, var(--tasty-surface-raised))", border: "var(--tasty-border-width) solid var(--tasty-border-focus)", borderRadius: "var(--tasty-radius)", fontSize: "var(--tasty-input-font-size)", color: "var(--tasty-text-primary)" }}>
-              open settings<span style={{ display: "inline-block", width: "var(--tasty-border-width)", height: 16, background: "var(--tasty-text-primary)", marginLeft: 1 }}></span>
+              open settings<span style={{ display: "inline-block", width: "var(--tasty-border-width)", height: "var(--tasty-caret-specimen-height)", background: "var(--tasty-text-primary)" }}></span>
             </div>
           </Stage>
           <Meta
