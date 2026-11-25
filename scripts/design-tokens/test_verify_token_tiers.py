@@ -93,40 +93,59 @@ class Base(unittest.TestCase):
         return r.stdout
 
 
+# Each count line of the tier check: its label (how the line starts) and its whole form.
 COUNT_LINES = {
-    "declarations": r"declarations: base (\d+), Latte (\d+)",
-    "references": r"var\(\) references: base (\d+), Latte (\d+)",
-    "primitive-base": r"component -> primitive \(base\): (\d+) \(size (\d+), radius (\d+), duration (\d+)\)",
-    "primitive-latte": r"component -> primitive \(Latte\): (\d+) \(size (\d+), radius (\d+), duration (\d+)\)",
-    "component": r"component -> component: base (\d+), Latte (\d+)",
-    "semantic": r"semantic -> semantic: base (\d+), Latte (\d+)",
-    "literals": r"component literals: (\d+) \((.*)\)",
+    "declarations": ("declarations:", r"declarations: base (\d+), Latte (\d+)"),
+    "references": ("var() references:", r"var\(\) references: base (\d+), Latte (\d+)"),
+    "primitive-base": ("component -> primitive (base):",
+                       r"component -> primitive \(base\): (\d+) \(size (\d+), radius (\d+), duration (\d+)\)"),
+    "primitive-latte": ("component -> primitive (Latte):",
+                        r"component -> primitive \(Latte\): (\d+) \(size (\d+), radius (\d+), duration (\d+)\)"),
+    "component": ("component -> component:", r"component -> component: base (\d+), Latte (\d+)"),
+    "semantic": ("semantic -> semantic:", r"semantic -> semantic: base (\d+), Latte (\d+)"),
+    "literals": ("component literals:", r"component literals: (\d+) \((.*)\)"),
 }
 JSON_LINE = re.compile(r"(primitive|semantic|component): css (\d+) json \d+ css-only \d+ json-only \d+ "
                        r"\| aliases \d+ \| latte css (\d+) json \d+ matched \d+")
 
 
+def one_line(lines, label, pattern, where):
+    """The groups of the one line that starts with label; it must have the whole form."""
+    hits = [line for line in lines if line.startswith(label)]
+    m = re.fullmatch(pattern, hits[0]) if len(hits) == 1 else None
+    if not m:
+        raise AssertionError((where, label, hits))
+    return m.groups()
+
+
 def count_lines(out):
     """Each count line of the tier check's output, read whole, as a tuple of its numbers
-    (the literal kinds as a dict). A line that is missing or reads differently fails."""
+    (the literal kinds as a dict). A line that is missing, repeated or reads differently
+    fails, and so does a literal kind that verify_token_tiers.LITERALS does not list."""
     lines = out.splitlines()
-    got = {}
-    for key, pattern in COUNT_LINES.items():
-        hits = [m for m in map(re.compile(pattern).fullmatch, lines) if m]
-        if len(hits) != 1:
-            raise AssertionError((key, out))
-        got[key] = hits[0].groups()
+    got = {key: one_line(lines, label, pattern, "tier check")
+           for key, (label, pattern) in COUNT_LINES.items()}
     total, kinds = got["literals"]
     pairs = [re.fullmatch(r"([a-z][a-z-]*) (\d+)", k) for k in kinds.split(", ")] if kinds else []
-    if not pairs or not all(pairs):
+    if not all(pairs) or (not pairs and total != "0"):
         raise AssertionError(("literals", out))
-    got["literals"] = (int(total), {m.group(1): int(m.group(2)) for m in pairs})
-    if len(got["literals"][1]) != len(pairs):
+    lit = {m.group(1): int(m.group(2)) for m in pairs}
+    if len(lit) != len(pairs) or not set(lit) <= set(vt.LITERALS.values()):
         raise AssertionError(("literals", out))
+    got["literals"] = (int(total), lit)
     for key in COUNT_LINES:
         if key != "literals":
             got[key] = tuple(map(int, got[key]))
     return got
+
+
+def json_counts(out):
+    """The base and Latte declaration counts summed over the token JSON checker's three
+    tier lines; each tier must have exactly one line, in the whole form."""
+    lines = out.splitlines()
+    tiers = [one_line(lines, f"{tier}:", JSON_LINE.pattern, "token JSON check")
+             for tier in ("primitive", "semantic", "component")]
+    return sum(int(t[1]) for t in tiers), sum(int(t[2]) for t in tiers)
 
 
 class Canon(Base):
@@ -145,10 +164,7 @@ class Canon(Base):
                             vendor, os.path.join(vendor, "tokens", "tasty.tokens.json")],
                            capture_output=True, text=True)
         self.assertEqual(j.returncode, 0, j.stdout + j.stderr)
-        tiers = [m.groups() for m in map(JSON_LINE.fullmatch, j.stdout.splitlines()) if m]
-        self.assertEqual(sorted(t[0] for t in tiers), ["component", "primitive", "semantic"], j.stdout)
-        base = sum(int(t[1]) for t in tiers)
-        latte = sum(int(t[2]) for t in tiers)
+        base, latte = json_counts(j.stdout)
         self.assertEqual(got["declarations"], (base, latte))
         self.assertGreater(base, 0)
         self.assertGreater(got["references"][0], 0)
@@ -160,18 +176,36 @@ class Canon(Base):
         self.assertEqual(total, sum(kinds.values()))
 
     def test_defaults_pass_and_count(self):
-        out = self.ok(files(sem_latte={"accent": "var(--tasty-color-base)"},
-                            comp={"button-gap": "var(--tasty-button-pad)"}))
+        out = self.ok(files(sem_latte={"accent": "var(--tasty-color-base)", "focus": "var(--tasty-bg)"},
+                            comp={"button-gap": "var(--tasty-button-pad)"},
+                            comp_latte={"button-fg": "var(--tasty-button-pad)"}))
         got = count_lines(out)
         # 11 primitives, 3 semantic and 2 + 1 component tokens, plus the 9 literal ones;
-        # one Latte semantic. var(): 3 semantic, 3 component and the Latte one.
-        self.assertEqual(got["declarations"], (len(PRIMITIVE) + len(SEMANTIC) + len(COMPONENT) + 1 + len(LITERAL_DECLS), 1))
-        self.assertEqual(got["references"], (6, 1))
+        # Latte: 2 semantic and 1 component. var(): 3 semantic and 3 component in the
+        # base blocks, all 3 Latte values. Latte has a same-tier reference in each tier.
+        self.assertEqual(got["declarations"], (len(PRIMITIVE) + len(SEMANTIC) + len(COMPONENT) + 1 + len(LITERAL_DECLS), 3))
+        self.assertEqual(got["references"], (6, 3))
         self.assertEqual(got["primitive-base"], (1, 1, 0, 0))
         self.assertEqual(got["primitive-latte"], (0, 0, 0, 0))
-        self.assertEqual(got["component"], (1, 0))
-        self.assertEqual(got["semantic"], (1, 0))
+        self.assertEqual(got["component"], (1, 1))
+        self.assertEqual(got["semantic"], (1, 1))
         self.assertEqual(got["literals"], (9, {"coefficient": 1, "count": 2, "dash": 4, "keyword": 1, "window-shadow": 1}))
+
+    def test_count_lines_reads_no_literals(self):
+        self.assertEqual(count_lines(self.ok(files(literals=False)))["literals"], (0, {}))
+
+    def test_json_counts_reject_changed_lines(self):
+        out = ("primitive: css 3 json 3 css-only 0 json-only 0 | aliases 0 | latte css 1 json 1 matched 1\n"
+               "semantic: css 2 json 2 css-only 0 json-only 0 | aliases 2 | latte css 0 json 0 matched 0\n"
+               "component: css 4 json 4 css-only 0 json-only 0 | aliases 4 | latte css 0 json 0 matched 0\n"
+               "total 9 errors []\n")
+        self.assertEqual(json_counts(out), (9, 1))
+        for old, new in (("latte css 0 json 0 matched 0\ncomponent", "latte CSS 0 json 0 matched 0\ncomponent"),
+                         ("total", "component: css 1232 | latte CSS 0\ntotal"),
+                         ("primitive:", "primitives:")):
+            self.assertIn(old, out)
+            with self.assertRaises(AssertionError, msg=new):
+                json_counts(out.replace(old, new, 1))
 
     def test_count_lines_rejects_changed_output(self):
         out = self.ok(files())
@@ -179,7 +213,10 @@ class Canon(Base):
                          ("Latte 0\nvar()", "Latte 00x\nvar()"),
                          ("component literals: 9 (coefficient 1, count 2, dash 4, keyword 1, window-shadow 1)",
                           "component literals: 0 (GARBAGE)"),
-                         ("var() references", "var() refs")):
+                         ("var() references", "var() refs"),
+                         ("dash 4", "bogus 4"),
+                         ("dash 4", "dash 2, dash 2"),
+                         ("token tiers", "declarations: base invalid, Latte 0\ntoken tiers")):
             self.assertIn(old, out)
             with self.assertRaises(AssertionError, msg=new):
                 count_lines(out.replace(old, new))
