@@ -631,7 +631,9 @@ function PluginsWindow({ onClose, onFlash, onConfigure, removedAttention, onRemo
   // plugin means pointing Tasty at a LOCAL folder (the “Add plugin” tab). Online
   // catalog browse + install-by-id are deferred (docs/dev-guide/plugin-packaging.md).
   const list = PLUGIN_LIST.filter((p) => installed[p.id] && matches(p));
-  const [installedEmptyText, installedEmptyLang] = installedEmpty(lang, Boolean(q));
+  // As the app's list.rs: nothing installed reads plugins.empty before the filter is looked at, so a leftover or
+  // blank query never turns it into no_matches. no_matches is only for installed plugins the query hides.
+  const [installedEmptyText, installedEmptyLang] = installedEmpty(lang, PLUGIN_LIST.some((p) => installed[p.id]));
   const sel = PLUGIN_LIST.find((p) => p.id === selId);
   const selVisible = sel && installed[sel.id] && matches(sel);
 
