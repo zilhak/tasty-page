@@ -70,9 +70,10 @@ function XStatus({ children, right }) {
 // The app folds the file commands into More when the toolbar itself (the cell inside its border) is narrower than
 // explorer-toolbar-compact-below, so a box drawing the wide toolbar is at least that plus its two border lines. A cell never
 // draws narrower than that floor or its own width, whichever is smaller; a narrower column scrolls the stage instead of
-// squeezing the cell and cutting the toolbar's end.
+// squeezing the cell and cutting the toolbar's end. A cell whose subject is not the toolbar but draws the wide one takes
+// w={xWideToolbarMin}, so it is as narrow as the app still shows those commands.
 const xWideToolbarMin = "calc(var(--tasty-explorer-toolbar-compact-below) + 2 * var(--tasty-border-width))";
-const xCellMin = (w) => `min(${w}px, ${xWideToolbarMin})`;
+const xCellMin = (w) => `min(${typeof w === "number" ? `${w}px` : w}, ${xWideToolbarMin})`;
 function XCell({ w = 640, h = 300, toolbar, bar, status, statusRight, children, overlay, preview }) {
   return (
     <div style={{ position: "relative", width: "100%", maxWidth: w, minWidth: preview ? xPreviewCellMin : xCellMin(w), height: h, display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
@@ -407,17 +408,17 @@ function DragSection() {
       <Spec id="files-from-the-os-copy-into-the-explorer-not-open" title="Files from the OS — copy into the explorer, not open"
         when={<>Files dragged in from the OS and dropped <b>on an explorer cell</b> are now <b>copied into</b> the target folder (folder row, or the folder being shown). Over an explorer cell the window drop overlay is <b>not drawn</b>; the explorer shows its own ring and a chip that always reads <b>Copy to</b> (an OS drag is never a move). Everywhere else in the window the existing overlay and “open with handler” stay as they are. A remote explorer refuses the OS drop and says so in the chip. Dragging items <b>out</b> of the explorer (for example into a terminal to paste a path) is left for a later pass.</>}>
         <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 18, flexWrap: "wrap", alignItems: "flex-start" }}>
-          <XCol label="OS files over a local explorer" w={420}>
+          <XCol label="OS files over a local explorer" w={xWideToolbarMin}>
             <div style={{ position: "relative" }}>
-              <XCell w={420} h={240} status="5 items">
+              <XCell w={xWideToolbarMin} h={240} status="5 items">
                 <XRing radius="0" style={{ flex: 1, minWidth: 0, display: "flex" }}><XDetail bg="transparent" rows={xUnderTint(XROWS)} /></XRing>
               </XCell>
               <XDragChip glyph={<XIcon name="layers" />} label="2 items" op="copy" target="Downloads" style={{ position: "absolute", left: 140, top: 150 }} />
             </div>
           </XCol>
-          <XCol label="OS files over a remote explorer" w={420}>
+          <XCol label="OS files over a remote explorer" w={xWideToolbarMin}>
             <div style={{ position: "relative" }}>
-              <XCell w={420} h={240} toolbar={<XToolbar remote path="/home/me/logs" />} status="5 items"><XDetail /></XCell>
+              <XCell w={xWideToolbarMin} h={240} toolbar={<XToolbar remote path="/home/me/logs" />} status="5 items"><XDetail /></XCell>
               <XDragChip glyph={<XIcon name="layers" />} label="2 items" op="refused" reason="remote folders are read-only" style={{ position: "absolute", left: 120, top: 150 }} />
             </div>
           </XCol>
