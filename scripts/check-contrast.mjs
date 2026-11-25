@@ -9,9 +9,9 @@
  * token, an ink below its grade, invalid data-parts, other text below 4.5, any painted shape of another glyph below 3,
  * an unknown exempt id, or nothing measured. An ink inside a disabled ancestor is measured at its grade unless it is a no-grade token.
  * Shapes composite through their own fill or stroke opacity and every opacity above them, a g inside the svg included.
- * --page names one gallery page and leaves the site pages out, as --gallery-only does. An unknown or repeated option, a
- * missing or empty value, --site-only with --gallery-only or --page, and a page key the build lacks exit 2 before the
- * browser starts (parseArgs() in contrast-args.mjs).
+ * --page names one gallery page and leaves the site pages out, as --gallery-only does; the two can go together, and then
+ * only that page is measured. An unknown or repeated option, a missing or empty value, --site-only with --gallery-only or
+ * --page, and a page key the build lacks exit 2 before the browser starts (parseArgs() in contrast-args.mjs).
  * Browser: CHROMIUM_PATH, else the Playwright browser, else /snap/bin/chromium.
  * Time limit: from after the built pages are listed, the whole run, and any span with no progress (a browser call starting, or a step of the run such as
  * listen, launch or a context), are limited (TOTAL_S and STALL_S below, or CONTRAST_TIMEOUT_S and CONTRAST_STALL_S in
@@ -151,8 +151,8 @@ async function run() {
   let current = null;
   const watchdog = createWatchdog({ totalMs: totalS * 1000, stallMs: stallS * 1000, onExpire: (e) => timedOut(e, report, doneThemes, current) });
   held.watchdog = watchdog;
-  if (!galleryOnly) console.log(`gallery pages per language path, shared parts only: ${galleries.map((c) => `${c.code} ${c.pages}`).join(", ") || "no other language"}`);
   const startHandle = watchdog.begin("start: listen");
+  if (!galleryOnly) console.log(`gallery pages per language path, shared parts only: ${galleries.map((c) => `${c.code} ${c.pages}`).join(", ") || "no other language"}`);
   if (watchdog.check()) return;
   const server = await serve();
   held.server = server;

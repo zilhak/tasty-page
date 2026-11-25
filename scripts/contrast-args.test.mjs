@@ -46,6 +46,7 @@ test("parseArgs refuses an option given twice", () => {
   refuses(["--page", "icons", "--page", "tokens"], /--page is given more than once/);
   refuses(["--json", "a.json", "--json", "b.json"], /--json is given more than once/);
   refuses(["--site-only", "--site-only"], /--site-only is given more than once/);
+  refuses(["--gallery-only", "--gallery-only"], /--gallery-only is given more than once/);
 });
 
 test("parseArgs refuses --site-only with --gallery-only or --page, in either order", () => {
