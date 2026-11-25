@@ -173,14 +173,15 @@
 [`vendor/README.md`](../../vendor/README.md)에 있고, 변경 기록은 커밋 이력이다. Tasty 본체가 이 레포의 어느 커밋을
 따르는지는 [Tasty 레포](https://github.com/zilhak/tasty)가 기록한다.
 
-`design.yml`이 `develop`·`release`·`main` push와 pull request마다 다음을 검사한다.
+`design.yml`은 `develop`·`release`·`main` push와 pull request마다 다음 순서로 실행한다. Python 설정 뒤 토큰 계층과 JSON을 빌드 전에 검사한다.
 
-- `npm run build`와 `npm run check-contrast`(위 "렌더링 대비 검사").
-- 토큰 JSON: `scripts/design-tokens/gen_tokens_json.py`로 `vendor/tokens/tasty.tokens.json`을 다시 만들어 차이가 없는지,
-  `scripts/design-tokens/verify_tokens_json.py`로 토큰 CSS와 대조한다. JSON은 손으로 고치지 않는다.
+- `test_verify_token_tiers.py`와 `test_gen_tokens_json.py`를 실행한 뒤 [`verify_token_tiers.py`](../../scripts/design-tokens/verify_token_tiers.py)로 세 토큰 CSS 파일에서 자동으로 판정할 수 있는 계층 규칙을 검사한다. 검사 범위는 스크립트의 docstring에, 규칙은 [`vendor/TOKENS.md`](../../vendor/TOKENS.md#part-only-measures)에 있다.
+- `scripts/design-tokens/gen_tokens_json.py`로 `vendor/tokens/tasty.tokens.json`을 다시 만들고 `git diff --exit-code`로 커밋된 파일과 차이가 없는지 확인한다. 이어 `scripts/design-tokens/verify_tokens_json.py`로 이름, 값, 별칭, Latte 값과 CSS에서 추론한 `$type`을 대조한다. 최상위 `$description` 한 필드를 제외하면 JSON은 손으로 고치지 않는다.
+- `test_verify_ground_ink_tokens.py`로 바탕·잉크 토큰 목록 대조 스크립트를 시험한 뒤 렌더링 대비 검사 스크립트의 단위 시험을 실행한다.
+- `npm ci`와 `npm run build`를 실행하고, Chromium을 설치한 뒤 `npm run check-contrast`를 실행한다(위 "렌더링 대비 검사").
 - `scripts/design-tokens/verify_ground_ink_tokens.py`로 `vendor/tokens/ground-ink-rules.json`의 토큰 목록을 토큰 CSS와 대조한다.
-- `npm run check-tokens-copy`: `vendor/tokens.css`가 되풀이하는 1단계 값이 `vendor/tokens/primitives.css`와 같은지 본다.
-- `npm run check-icons`: `vendor/icons/*.svg`와 `vendor/components/core/Icon.jsx`가 같은 글리프를 그리는지 원문으로 비교한다.
+- `npm run check-tokens-copy`로 `vendor/tokens.css`가 되풀이하는 1단계 값이 `vendor/tokens/primitives.css`와 같은지 확인한다.
+- `npm run check-icons`로 `vendor/icons/*.svg`와 `vendor/components/core/Icon.jsx`가 같은 글리프를 그리는지 원문을 비교한다.
 
 ## 빌드
 

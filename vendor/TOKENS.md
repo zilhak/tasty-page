@@ -100,8 +100,8 @@ Sizes, type, and motion are theme-invariant and never repeated.
 1. **New raw value?** Add a primitive on the right numeric scale in `primitives.css` (and its Latte counterpart if it is a color).
 2. **New role?** Add a semantic token in `semantic.css` as `var(--tasty-<primitive>)`, or as another role's `var()` when it is that role in a narrower use. Never a literal: the only literal roles are the shadows, the attention ranks, the Latte value of `--tasty-node-dim-opacity`, and a literal parameter that several components share for one reason (`--tasty-count-display-max`, `--tasty-font-style-absent`, see [Literal parameters](#literal-parameters)).
 3. **New component part?** Add a component token in `components.css` as `var(--tasty-<semantic>)`. A part-only measure may read its size, radius or duration primitive instead. A part of the same component may read that component's token, and so may a part drawn as another component, a member of its family, or a part that fills its slot. A count, coefficient, dash pattern or keyword may be a literal, and so may the window frame shadow. See the three sections below.
-4. Regenerate `tokens/tasty.tokens.json` with `scripts/design-tokens/gen_tokens_json.py`, then run `scripts/design-tokens/verify_tokens_json.py` and confirm the token count rises and it reports no errors. Non-color/size tokens (durations, easings, unitless multipliers) need a trailing `/* @kind other */`.
-5. Run `scripts/design-tokens/verify_ground_ink_tokens.py` to check the ground-ink rules' token list against the token CSS.
+4. From the repository root, run `python3 scripts/design-tokens/verify_token_tiers.py vendor`. Then regenerate `tokens/tasty.tokens.json` with `scripts/design-tokens/gen_tokens_json.py` and run `scripts/design-tokens/verify_tokens_json.py`. Check that the token count rises and the verifier reports no errors. Non-color/size tokens (durations, easings, unitless multipliers) need a trailing `/* @kind other */`.
+5. After the JSON check passes, run `scripts/design-tokens/verify_ground_ink_tokens.py` to compare the ground-ink rules' token list with the token CSS.
 
 Never skip a tier for color, type, opacity, easing or UI scale. A component token that points straight at one of those primitives breaks the contract — the next person who re-themes via the semantic layer will be surprised it didn't follow.
 
@@ -140,6 +140,8 @@ A chain may pass through several component tokens (`--tasty-notification-item-un
 
 A component token may hold a literal (no `var()`) only in the kinds below. Each is theme-invariant and has no scale in `primitives.css` to read.
 
+Review each new component literal in the commit that adds it to `LITERALS` in [`verify_token_tiers.py`](../scripts/design-tokens/verify_token_tiers.py).
+
 | Kind | Example | Why no scale fits |
 |------|---------|-------------------|
 | Count or clamp: a unitless integer | `--tasty-notification-item-body-lines` (2) | A number of items or lines, not a measure. |
@@ -154,9 +156,18 @@ Every kind except the shadow carries `/* @kind other */`. A literal is never a c
 
 ## Machine-readable export
 
-`tokens/tasty.tokens.json` is a **W3C DTCG**-format export of the whole system (primitive / semantic / component groups, with `$value` aliases like `{primitive.color-blue}` / `{semantic.space-md}` mirroring the CSS `var()` chain, and a `latte` mode under `$extensions["com.tasty.mode"]` for the theme-scoped tokens). Feed it to Style Dictionary / Tokens Studio to generate platform outputs (Swift, Kotlin, Tailwind config, etc.).
+`tokens/tasty.tokens.json` exports all three tiers in DTCG format with Tasty extensions. The generator infers each `$type` from its CSS value. The export keeps dimensions, shadows and dash patterns as CSS strings and uses the Tasty-specific `fontStyle` type for `italic` in tokens with `font-style` in their names.
 
-> It is a **generated artifact** — a full 1:1 mirror of the three CSS files (regenerate it from them; never hand-edit). Keeping it partial silently drops half the component contract, so treat CSS ↔ JSON parity as a build invariant.
+The tier checker validates variable syntax before export. The generator turns an exact `var(--tasty-<name>)` value into a `$value` alias such as `{primitive.color-blue}`. Theme overrides use `latte` under `$extensions["com.tasty.mode"]`.
+
+With the default transform groups in Style Dictionary 5.8.0, CSS (`css/variables`) and Android (`android/resources`) emit `italic` as a string. Swift (`ios-swift/enum.swift`) and Compose (`compose/object`) emit unquoted `italic` and need a custom transform to produce a string or a platform value.
+
+Strict DTCG consumers need a separate export. This repository currently provides only the Tasty export.
+
+> The token JSON is generated as a 1:1 mirror of the three CSS files.
+> Edit only the top-level `$description` by hand. The generator copies it from the previous JSON.
+> A partial export silently drops parts of the component contract, so CSS ↔ JSON parity is a build invariant.
+> CI regenerates the JSON, then runs `git diff --exit-code` and `verify_tokens_json.py`.
 
 ---
 
