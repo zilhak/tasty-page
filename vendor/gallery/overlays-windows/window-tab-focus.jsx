@@ -123,11 +123,21 @@ function inertAllBut(node, keep) {
 }
 function PluginsHeaderCrop({ hoverTab, live }) {
   const ref = React.useRef(null);
+  // The window re-renders by itself when a tab is pressed, and the body it mounts again (the filter field among it)
+  // would come back without inert, so the crop applies it again whenever the window's nodes change.
   React.useEffect(() => {
-    if (!live || !ref.current) return;
-    const tabs = PLUGIN_TABS.map((l) => byText("button", l)(ref.current)).filter(Boolean);
-    if (tabs.length) inertAllBut(ref.current, tabs);
-  });
+    const root = ref.current;
+    if (!live || !root) return undefined;
+    const apply = () => {
+      const tabs = PLUGIN_TABS.map((l) => byText("button", l)(root)).filter(Boolean);
+      if (tabs.length) inertAllBut(root, tabs);
+    };
+    apply();
+    if (typeof MutationObserver === "undefined") return undefined;
+    const mo = new MutationObserver(apply);
+    mo.observe(root, { childList: true, subtree: true });
+    return () => mo.disconnect();
+  }, [live]);
   return (
     <div style={{ overflow: "hidden", height: "var(--tasty-size-120)", flex: "none", width: "max-content" }}>
       <div ref={ref} {...(live ? {} : { inert: "" })} style={{ position: "relative", width: 820, height: 540, pointerEvents: live ? undefined : "none" }}>
