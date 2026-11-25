@@ -3,7 +3,8 @@
    ------------------------------------------------------------
    Roles & intent. A value reads a PRIMITIVE or another role. The
    only literals are the shadows, the attention ranks, the count
-   display cap and the Latte node-dim-opacity. Color-mix derivations and the role-remaps under
+   display cap, the absent-note font style and the Latte
+   node-dim-opacity. Color-mix derivations and the role-remaps under
    Latte are flagged inline.
 
    • DO read these from components / app code / the COMPONENT layer.
@@ -348,6 +349,11 @@
   --tasty-font-weight-medium:   var(--tasty-font-weight-500);
   --tasty-font-weight-semibold: var(--tasty-font-weight-600);
   --tasty-font-weight-bold:     var(--tasty-font-weight-700);
+
+  /* a note that stands in for content that is not there: an empty list, no binding, lines or a preview not shown.
+     The app slants these (egui italics, a sheared glyph, no italic face). A keyword on no scale, so the role holds
+     the literal (TOKENS.md, Literal parameters). A cut row's italic is another reason: cut-pending-font-style */
+  --tasty-font-style-absent: italic; /* @kind other */
 
   --tasty-line-height-tight: var(--tasty-line-height-100); /* terminal cells / ASCII art */
   --tasty-line-height-term:  var(--tasty-line-height-120); /* terminal reading */

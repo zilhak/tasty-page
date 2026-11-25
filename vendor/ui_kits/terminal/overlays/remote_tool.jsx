@@ -277,7 +277,7 @@ function ProfileForm({ draft, isNew, error, passkeys, onField, onFields, onSave,
               <Button variant="ghost" size="sm" leadingIcon={ic.plus} onClick={addField}>Add field</Button>
             </div>
             {(draft.fields || []).length === 0 ? (
-              <p style={{ ...rtCaption, fontStyle: "italic", margin: "var(--tasty-size-2) 0 0" }}>No fields. Add a key-value pair.</p>
+              <p style={{ ...rtCaption, fontStyle: "var(--tasty-font-style-absent)", margin: "var(--tasty-size-2) 0 0" }}>No fields. Add a key-value pair.</p>
             ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
                 {draft.fields.map((f, i) => (
@@ -598,7 +598,7 @@ function ProtocolFilter({ protocols, hidden, onApply }) {
             <div className="tasty-scroll" style={{ maxHeight: 168, overflow: "auto", padding: "var(--tasty-space-sm) var(--tasty-space-md)",
               display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
               {protocols.length === 0 ? (
-                <span style={{ ...rtCaption, fontStyle: "italic" }}>No protocols.</span>
+                <span style={{ ...rtCaption, fontStyle: "var(--tasty-font-style-absent)" }}>No protocols.</span>
               ) : protocols.map((proto) => (
                 <div key={proto} style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)" }}>
                   <Checkbox checked={!draft.has(proto)} onChange={() => toggle(proto)}
@@ -686,7 +686,7 @@ function ListShell({ addLabel, onAdd, empty, children, hasItems, rightSlot }) {
       <div className="tasty-scroll" style={{ flex: 1, minHeight: 0, overflow: "auto", padding: "0 var(--tasty-size-14) var(--tasty-space-sm)" }}>
         {hasItems ? children : (
           <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center",
-            textAlign: "center", padding: "0 var(--tasty-space-xl)", fontSize: "var(--tasty-font-size-term-sm)", fontStyle: "italic", color: "var(--tasty-text-muted)" }}>
+            textAlign: "center", padding: "0 var(--tasty-space-xl)", fontSize: "var(--tasty-font-size-term-sm)", fontStyle: "var(--tasty-font-style-absent)", color: "var(--tasty-text-muted)" }}>
             {empty}
           </div>
         )}

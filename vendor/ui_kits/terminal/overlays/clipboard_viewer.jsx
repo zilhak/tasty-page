@@ -142,7 +142,7 @@ function TypeBody({ t, pretty }) {
                 {f.size && <span style={cbMetaMono}>{f.size}</span>}
               </div>
               <pre style={{ ...cbMono, margin: 0, whiteSpace: "pre-wrap", wordBreak: "break-all" }}>{f.content}</pre>
-              {f.moreLines ? <span style={{ ...cbMetaMono, fontFamily: "var(--tasty-font-label)", fontStyle: "italic" }}>+{f.moreLines} more lines</span> : null}
+              {f.moreLines ? <span style={{ ...cbMetaMono, fontFamily: "var(--tasty-font-label)", fontStyle: "var(--tasty-font-style-absent)" }}>+{f.moreLines} more lines</span> : null}
             </div>
           ))}
         </div>
@@ -170,7 +170,7 @@ function TypeBody({ t, pretty }) {
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "var(--tasty-space-sm)", color: "var(--tasty-text-muted)" }}>
           <Icon name={CB.image} size={30} />
           <span style={{ ...cbMetaMono }}>{t.meta}</span>
-          <span style={{ fontSize: 11, color: "var(--tasty-text-disabled)", fontStyle: "italic" }}>No inline image preview</span>
+          <span style={{ fontSize: 11, color: "var(--tasty-text-disabled)", fontStyle: "var(--tasty-font-style-absent)" }}>No inline image preview</span>
         </div>
       </div>
     );

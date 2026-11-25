@@ -72,7 +72,7 @@ function PaneHead({ children, right }) {
 }
 function EmptyLine({ children }) {
   return <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "var(--tasty-space-lg)",
-    fontSize: "var(--tasty-font-size-term-sm)", fontStyle: "italic", color: "var(--tasty-text-muted)" }}>{children}</div>;
+    fontSize: "var(--tasty-font-size-term-sm)", fontStyle: "var(--tasty-font-style-absent)", color: "var(--tasty-text-muted)" }}>{children}</div>;
 }
 
 // ── worktree rail row — 2 lines so name + oid + badges never overflow 232px ──

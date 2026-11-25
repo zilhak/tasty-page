@@ -2271,7 +2271,7 @@ tasty read screen --surface 3 --json
               <span style={metaMono}>{f.size}</span>
             </div>
             <pre style={{ ...mono, margin: 0, whiteSpace: "pre-wrap", wordBreak: "break-all" }}>{f.content}</pre>
-            {f.moreLines ? <span style={{ ...metaMono, fontStyle: "italic" }}>+{f.moreLines} more lines</span> : null}
+            {f.moreLines ? <span style={{ ...metaMono, fontStyle: "var(--tasty-font-style-absent)" }}>+{f.moreLines} more lines</span> : null}
           </div>
         ))}
       </div>
@@ -2509,7 +2509,7 @@ function ScriptManagerFrame({ empty }) {
         <TriggerRow triggers={triggers || []} />
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: 6, flex: "none" }}>
-        {shortcut ? <Kbd keys={shortcut} /> : <span style={{ fontSize: 12, color: "var(--tasty-text-muted)", fontStyle: "italic" }}>Unbound</span>}
+        {shortcut ? <Kbd keys={shortcut} /> : <span style={{ fontSize: 12, color: "var(--tasty-text-muted)", fontStyle: "var(--tasty-font-style-absent)" }}>Unbound</span>}
         <IconButton size="sm" aria-label="Bind shortcut">{kbdIcon}</IconButton>
         <IconButton size="sm" aria-label="Rename">{ic.edit}</IconButton>
         <IconButton size="sm" aria-label="Remove">{ic.x}</IconButton>

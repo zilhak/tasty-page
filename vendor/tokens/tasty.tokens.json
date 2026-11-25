@@ -1509,6 +1509,10 @@
       "$type": "fontWeight",
       "$value": "{primitive.font-weight-700}"
     },
+    "font-style-absent": {
+      "$type": "number",
+      "$value": "italic"
+    },
     "line-height-tight": {
       "$type": "number",
       "$value": "{primitive.line-height-100}"
