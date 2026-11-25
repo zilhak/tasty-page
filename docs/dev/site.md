@@ -514,7 +514,7 @@ mocha 로 시작한다. 첫 페인트 전에 인라인 스크립트가 적용해
 |---|---|---|
 | 사이트 전체 | 82쪽, 두 파일 | 8656838 byte |
 | 디자인 구역 전체, chrome 포함 | 34쪽, 두 파일 | 33889 byte |
-| 지금: 갤러리 표본 | 30쪽(두 언어 경로). `explorer-ops`를 포함한 24쪽은 Regular·Bold 두 파일을 받고, `icons`, `rules`, `rules-map` 6쪽은 Regular만 받는다. | 34024 byte. 푸터 줄로 135 byte 늘었다 |
+| 지금: 갤러리 표본 | 60쪽(en·ko·ja·zh-Hans 각 15쪽, `f8edb4a` 빌드에서 끝까지 스크롤). 경로마다 `explorer-ops`를 포함한 12쪽(합계 48쪽)은 Regular·Bold 두 파일을 받고, `icons`, `rules`, `rules-map` 3쪽(합계 12쪽)은 Regular만 받는다. | 34024 byte. 푸터 줄로 135 byte 늘었다 |
 
 | 지금의 페이지 | 전송량 | 글꼴 요청 | Slow 4G 글꼴 완료 | CLS 전 → 후 |
 |---|---|---|---|---|
