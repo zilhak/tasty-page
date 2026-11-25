@@ -100,7 +100,7 @@ function holdHashTarget() {
   const target = hashTarget();
   if (!target) return;
   let at = 0, still = 0;
-  const place = () => { target.scrollIntoView({ block: "start" }); at = target.getBoundingClientRect().top; };
+  const place = () => { target.scrollIntoView({ block: "start", behavior: "instant" }); at = target.getBoundingClientRect().top; };
   const ends = ["wheel", "touchstart", "keydown", "pointerdown"];
   const tick = setInterval(() => {
     if (Math.abs(target.getBoundingClientRect().top - at) > 1) { place(); still = 0; } else if (++still >= HOLD_STILL) stop();
