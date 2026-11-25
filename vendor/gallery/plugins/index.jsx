@@ -205,7 +205,7 @@ function ExpDetail({ focused = true }) {
 
 function ExplorerFrame({ focused = true }) {
   return (
-    <div style={{ width: "100%", maxWidth: 760, display: "flex", flexDirection: "column", height: 420,
+    <div style={{ width: "var(--tasty-explorer-full-specimen-width)", flex: "none", display: "flex", flexDirection: "column", height: 420,
       background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
       <ExpInternalTabs />
       <ExpToolbar />

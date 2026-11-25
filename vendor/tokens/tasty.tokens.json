@@ -4644,6 +4644,14 @@
       "$type": "dimension",
       "$value": "{primitive.size-460}"
     },
+    "mod-hint-specimen-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-560}"
+    },
+    "explorer-full-specimen-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-760}"
+    },
     "specimen-annotation-border": {
       "$type": "color",
       "$value": "{semantic.border-control-raised}"

@@ -55,7 +55,7 @@ function ModHintHoldDemo() {
   }, [phase, reduce]);
   const status = phase === "idle" ? "press & hold" : phase === "pending" ? "holding… (500ms)" : "showing";
   return (
-    <div style={{ position: "relative", width: "100%", maxWidth: 560, height: 460, borderRadius: "var(--tasty-radius)",
+    <div style={{ position: "relative", width: "var(--tasty-mod-hint-specimen-width)", flex: "none", height: 460, borderRadius: "var(--tasty-radius)",
       overflow: "hidden", border: "var(--tasty-border-width) solid var(--tasty-border-default)", background: "var(--tasty-bg-app)" }}>
       {/* faux app: sidebar + terminal surface */}
       <div style={{ position: "absolute", inset: 0, display: "flex" }}>
