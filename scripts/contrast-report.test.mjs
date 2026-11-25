@@ -44,9 +44,25 @@ test("writeReport gives the child's error when the write fails", async () => {
   });
 });
 
-test("writeReport gives an error when the writer cannot start", async () => {
+test("writeReport gives an error when the writer cannot start, whether spawn fails at once or later", async () => {
   const res = await writeReport("out.json", "{}", { graceMs: 10000, reapMs: 2000, execPath: "/nonexistent/node" });
   assert.match(res.error, /^could not start the writer: .*ENOENT/);
+  const sync = await writeReport("out.json", "{}", { graceMs: 10000, reapMs: 2000, execPath: "" });
+  assert.match(sync.error, /^could not start the writer: /);
+});
+
+test("writeReport writes when the caller's NODE_OPTIONS make ES modules the default", async () => {
+  await withDir(async (dir) => {
+    const before = process.env.NODE_OPTIONS;
+    process.env.NODE_OPTIONS = "--experimental-default-type=module";
+    try {
+      assert.deepEqual(await writeReport(join(dir, "out.json"), "{}", { graceMs: 10000, reapMs: 2000 }), { ok: true });
+    } finally {
+      if (before === undefined) delete process.env.NODE_OPTIONS;
+      else process.env.NODE_OPTIONS = before;
+    }
+    assert.equal(readFileSync(join(dir, "out.json"), "utf8"), "{}");
+  });
 });
 
 // A FIFO with no reader holds the writer's open call. The writer must have reached it before the grace time ends, so the
@@ -56,13 +72,13 @@ test("writeReport kills and reaps a writer held past its grace time", { timeout:
     const fifo = join(dir, "fifo");
     execFileSync("mkfifo", [fifo]);
     let pid = null;
-    let reached;
-    const writing = new Promise((ok) => { reached = ok; });
-    const started = Date.now();
-    const result = writeReport(fifo, "{}", { graceMs: 3000, reapMs: 2000, onWriting: (p) => { pid = p; reached(); } });
-    await writing;
-    assert.ok(Date.now() - started < 3000, "the writer reached the write within the grace time");
-    assert.deepEqual(await result, { late: true, signalled: true, reaped: true });
+    let reachedAt = null;
+    const started = performance.now();
+    const res = await writeReport(fifo, "{}", { graceMs: 8000, reapMs: 2000, onWriting: (p) => { pid = p; reachedAt = performance.now(); } });
+    // A writer that started too slowly to reach the FIFO within the grace time did not test the held open call.
+    assert.notEqual(reachedAt, null, `the writer did not reach the write within the grace time: ${JSON.stringify(res)}`);
+    assert.ok(reachedAt - started < 8000);
+    assert.deepEqual(res, { late: true, signalled: true, reaped: true });
     assert.equal(alive(pid), false);
   });
 });
@@ -89,4 +105,12 @@ test("timeoutWriteNote: nothing when the partial report is written or not asked 
   assert.equal(timeoutWriteNote({ json: "r.json", written: { ok: true }, graceMs: 10000 }), null);
   assert.equal(timeoutWriteNote({ json: "r.json", written: { error: "EACCES" }, graceMs: 10000 }), "writing r.json failed: EACCES");
   assert.equal(timeoutWriteNote({ json: "r.json", written: { late: true, signalled: true, reaped: true }, graceMs: 10000 }), "writing r.json did not finish within 10s");
+  assert.equal(timeoutWriteNote({ json: "r.json", written: { late: true, signalled: true, reaped: false }, graceMs: 10000 }),
+    "writing r.json did not finish within 10s; the writer was not seen to exit");
+});
+
+test("report lines quote a path that holds a line break, so each stays one line", () => {
+  const err = reportExit({ failed: false, json: "a\nb.json", written: { error: "ENOENT" }, graceMs: 10000 }).err;
+  assert.equal(err, 'writing "a\\nb.json" failed: ENOENT');
+  assert.equal(err.includes("\n"), false);
 });
