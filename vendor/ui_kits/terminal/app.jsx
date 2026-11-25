@@ -8,26 +8,19 @@ import { PortsWindow } from "./overlays/port_scanner.jsx";
 import { RemoteTool } from "./overlays/remote_tool.jsx";
 import { SettingsWindow } from "./overlays/settings_window.jsx";
 import { ToolsMenu } from "./overlays/tools_menu.jsx";
-import { TabStrip, TerminalPane, MarkdownSurface, StatusBar, Prompt, S } from "./work.jsx";
+import { TabStrip, TerminalPane, MarkdownSurface, StatusBar, Prompt, C } from "./work.jsx";
 
 // Tasty UI kit — interactive app shell.
-
-
-const line = {
-  green: S("var(--tasty-color-green)"), blue: S("var(--tasty-color-blue)"), mauve: S("var(--tasty-color-mauve)"),
-  yellow: S("var(--tasty-color-yellow)"), peach: S("var(--tasty-color-peach)"), dim: S("var(--tasty-color-neutral-700)"),
-  red: S("var(--tasty-color-red)"), teal: S("var(--tasty-color-teal)"),
-};
 
 const agentSession = {
   id: "s_01HX", label: "build · cargo", owner: "agent", activity: "idle",
   lines: [
-    <><span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-color-mauve)" }}>❯</span> cargo build --release</>,
-    <span style={{ color: "var(--tasty-color-neutral-700)" }}>   Compiling tasty-themes v0.7.0</span>,
-    <span style={{ color: "var(--tasty-color-neutral-700)" }}>   Compiling tasty-type-appearance v0.7.0</span>,
-    <span style={{ color: "var(--tasty-color-neutral-700)" }}>   Compiling tasty-agent v0.7.0</span>,
-    <><span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-color-green)" }}>    Finished</span> <span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-color-yellow)" }}>release</span> [optimized] in 42.18s</>,
-    <><span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-color-blue)" }}>agent.task</span> <span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-color-green)" }}>done</span> id=t_build exit=0</>,
+    <><span style={{ color: C.mauve }}>❯</span> cargo build --release</>,
+    <span style={{ color: C.dim }}>   Compiling tasty-themes v0.7.0</span>,
+    <span style={{ color: C.dim }}>   Compiling tasty-type-appearance v0.7.0</span>,
+    <span style={{ color: C.dim }}>   Compiling tasty-agent v0.7.0</span>,
+    <><span style={{ color: C.green }}>    Finished</span> <span style={{ color: C.yellow }}>release</span> [optimized] in 42.18s</>,
+    <><span style={{ color: C.blue }}>agent.task</span> <span style={{ color: C.green }}>done</span> id=t_build exit=0</>,
   ],
 };
 
@@ -46,13 +39,13 @@ const userSession = {
   ],
   lines: [
     <Prompt branch="main" />,
-    <><span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-color-mauve)" }}>❯</span> tasty surface list --json | jq '.[].kind'</>,
-    <span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-color-green)" }}>"terminal"</span>,
-    <span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-color-green)" }}>"markdown"</span>,
-    <span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-color-green)" }}>"terminal"</span>,
+    <><span style={{ color: C.mauve }}>❯</span> tasty surface list --json | jq '.[].kind'</>,
+    <span style={{ color: C.green }}>"terminal"</span>,
+    <span style={{ color: C.green }}>"markdown"</span>,
+    <span style={{ color: C.green }}>"terminal"</span>,
     <Prompt branch="main" />,
-    <><span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-color-mauve)" }}>❯</span> tasty agent wait --id t_build</>,
-    <span style={{ color: "var(--tasty-color-neutral-700)" }}>blocking until child claude is idle…</span>,
+    <><span style={{ color: C.mauve }}>❯</span> tasty agent wait --id t_build</>,
+    <span style={{ color: C.dim }}>blocking until child claude is idle…</span>,
   ],
 };
 
@@ -66,8 +59,8 @@ const scratchSession = {
   ],
   lines: [
     <Prompt branch="main" />,
-    <><span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-color-mauve)" }}>❯</span> tasty surface open --kind markdown notes/split-layout.md --right</>,
-    <span style={{ color: "var(--tasty-color-neutral-700)" }}>opened s_05MD in pane 2</span>,
+    <><span style={{ color: C.mauve }}>❯</span> tasty surface open --kind markdown notes/split-layout.md --right</>,
+    <span style={{ color: C.dim }}>opened s_05MD in pane 2</span>,
   ],
 };
 
