@@ -4582,11 +4582,11 @@
     },
     "plugins-tab-gap": {
       "$type": "dimension",
-      "$value": "calc(var(--tasty-space-sm) + var(--tasty-size-2))"
+      "$value": "calc(1 * var(--tasty-space-sm) + 1 * var(--tasty-size-2))"
     },
     "plugins-list-row-gap": {
       "$type": "dimension",
-      "$value": "calc(var(--tasty-space-xs) + var(--tasty-size-2))"
+      "$value": "calc(1 * var(--tasty-space-xs) + 1 * var(--tasty-size-2))"
     },
     "plugins-manifest-meta-gap": {
       "$type": "dimension",
