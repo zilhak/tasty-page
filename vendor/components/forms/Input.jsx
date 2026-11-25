@@ -20,6 +20,10 @@ import React from "react";
  * invalid — red edge in every state; focused adds the red ring (2026-10-27: focus no longer
  *   repaints the edge blue over an invalid field).
  * focused — paints the focused box without DOM focus. Static specimens only (gallery).
+ *
+ * style and className go on the box, so a width given to the field is the whole box (border and padding
+ *   included), as the app's field takes its width (2026-11-25). inputStyle goes on the inner <input> for
+ *   what belongs to the text (text-align, font-family). Every other prop goes on the inner <input>.
  */
 
 const CSS = `
@@ -91,6 +95,8 @@ export function Input({
   ground = "panel",
   focused = false,
   className = "",
+  style,
+  inputStyle,
   ...rest
 }) {
   ensureCss();
@@ -103,9 +109,9 @@ export function Input({
     className,
   ].filter(Boolean).join(" ");
   return (
-    <div className={cls} data-disabled={disabled} data-readonly={!disabled && readOnly} data-focus={(!disabled && focused) || undefined}>
+    <div className={cls} style={style} data-disabled={disabled} data-readonly={!disabled && readOnly} data-focus={(!disabled && focused) || undefined}>
       {icon && <span className="tasty-input__icon">{icon}</span>}
-      <input disabled={disabled} readOnly={readOnly} {...rest} />
+      <input disabled={disabled} readOnly={readOnly} style={inputStyle} {...rest} />
       {addon && <span className="tasty-input__addon">{addon}</span>}
     </div>
   );

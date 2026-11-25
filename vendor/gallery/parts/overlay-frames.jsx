@@ -232,8 +232,8 @@ function ToastDragValue({ state = "rest", v = "2.0" }) {
   return (
     <span style={{ display: "inline-flex", alignItems: "center", gap: 10 }}>
       <span style={{ flex: "none", width: "var(--tasty-field-width-xs)" }}>
-        <Input block defaultValue={bad ? "14" : v} aria-invalid={bad || undefined}
-          style={{ fontFamily: "var(--tasty-font-mono)", textAlign: "right", ...(bad ? { borderColor: "var(--tasty-accent-danger)" } : state === "editing" ? { borderColor: "var(--tasty-border-focus)" } : null) }} />
+        <Input block defaultValue={bad ? "14" : v} invalid={bad} focused={state === "editing"} aria-invalid={bad || undefined}
+          inputStyle={{ fontFamily: "var(--tasty-font-mono)", textAlign: "right" }} />
       </span>
       <span style={{ flex: "none", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>s</span>
     </span>
@@ -349,7 +349,7 @@ function SettingsRemoteTransferFrame() {
         <div style={settingsRowGrid}>
           <span style={settingsRowLabel}>Maximum size</span>
           <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-number-field-unit-gap)" }}>
-            <span style={{ display: "inline-flex", flex: "none", width: "var(--tasty-number-field-min-width)" }}><Input block mono defaultValue="500" style={{ textAlign: "right" }} /></span>
+            <span style={{ display: "inline-flex", flex: "none", width: "var(--tasty-number-field-min-width)" }}><Input block mono defaultValue="500" inputStyle={{ textAlign: "right" }} /></span>
             <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>MiB</span>
           </span>
         </div>
@@ -652,7 +652,7 @@ function PortsFrame({ favorites = "mixed" }) {
         <span style={{ fontSize: 14, fontWeight: 600 }}>Listening ports</span>
         <Tag variant="accent">5 listening</Tag>
         <div style={{ flex: 1 }} />
-        <Input icon={ic.search} placeholder="Filter…" style={{ width: 160 }} />
+        <Input icon={ic.search} placeholder="Filter…" style={{ width: "var(--tasty-field-width-md)" }} />
         <IconButton aria-label="Refresh">{ic.refresh}</IconButton>
         <IconButton aria-label="Close">{ic.x}</IconButton>
       </div>
@@ -2402,7 +2402,7 @@ function RemoteFormFrame({ variant = "ssh", error }) {
               <>
                 <FRow label="Host"><Input block defaultValue="10.0.0.4" /></FRow>
                 <FRow label="User"><Input block defaultValue="deploy" /></FRow>
-                <FRow label="Port"><Input style={{ width: 96 }} defaultValue="22" /></FRow>
+                <FRow label="Port"><Input style={{ width: "var(--tasty-field-width-xs)" }} defaultValue="22" /></FRow>
                 <FRow label="Label"><Input block placeholder="optional" /></FRow>
                 <FRow label="Shell" hint="Auto-detects the remote shell once when saved (runs an SSH probe)."><Select options={["auto", "bash", "zsh", "fish"]} block /></FRow>
                 <FRow label="Passkey"><Select options={["(none)", "id_ed25519", "deploy-key"]} block /></FRow>
@@ -2412,7 +2412,7 @@ function RemoteFormFrame({ variant = "ssh", error }) {
                 <div style={{ fontFamily: "var(--tasty-font-label)", fontSize: 10, textTransform: "uppercase", letterSpacing: ".06em", color: "var(--tasty-text-muted)", marginTop: 4 }}>Fields</div>
                 {[["host", "fs.local"], ["share", "team"]].map(([k, v]) => (
                   <div key={k} style={{ display: "grid", gridTemplateColumns: "var(--tasty-remote-label-col) 1fr 28px", columnGap: 12, alignItems: "center" }}>
-                    <Input defaultValue={k} style={{ width: "100%" }} /><Input defaultValue={v} block /><IconButton size="sm" aria-label="Remove field">{ic.x}</IconButton>
+                    <Input block defaultValue={k} /><Input defaultValue={v} block /><IconButton size="sm" aria-label="Remove field">{ic.x}</IconButton>
                   </div>
                 ))}
                 <div><Button variant="ghost" size="sm" leadingIcon={ic.plus}>Add field</Button></div>
@@ -2430,7 +2430,7 @@ function RemoteFormFrame({ variant = "ssh", error }) {
               <>
                 <FRow label="Host"><Input block defaultValue="edge.example.com" /></FRow>
                 <FRow label="User"><Input block defaultValue="root" /></FRow>
-                <FRow label="Port"><Input style={{ width: 96 }} defaultValue="22" /></FRow>
+                <FRow label="Port"><Input style={{ width: "var(--tasty-field-width-xs)" }} defaultValue="22" /></FRow>
                 <FRow label="Shell"><Select options={["auto", "bash", "zsh", "fish"]} block /></FRow>
                 <FRow label="Passkey"><Select options={["(none)", "edge-pem"]} block /></FRow>
               </>
@@ -2655,7 +2655,7 @@ function CategoryEditFrame({ mode = "new", error }) {
         <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 2 }}>{mode === "new" ? "New category" : "Rename category"}</div>
         <div style={{ fontSize: 12, color: "var(--tasty-text-muted)", marginBottom: 12 }}>Press <Kbd keys="↵" /> to confirm, <Kbd keys="Esc" /> to cancel.</div>
         <Input block autoFocus defaultValue={mode === "new" ? "" : "Services"} placeholder="Category name"
-          style={errText ? { borderColor: "var(--tasty-accent-danger)" } : undefined} />
+          invalid={!!errText} aria-invalid={errText ? true : undefined} />
         {errText && <div style={{ fontSize: 11, color: "var(--tasty-accent-danger-raised)", marginTop: 6 }}>{errText}</div>}
       </div>
       <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, padding: 14 }}>

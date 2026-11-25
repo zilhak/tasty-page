@@ -112,7 +112,7 @@ function AnNumField({ text, unit, invalid, note, focused, onChange, onCommit }) 
         <span style={{ display: "inline-flex", flex: "none", maxWidth: "100%", width: "max(var(--tasty-number-field-min-width), calc(" + n + "ch + 2 * var(--tasty-input-padding-x) + 2 * var(--tasty-border-width)))" }}>
           <Input block mono value={text} invalid={invalid} focused={focused} inputMode="numeric"
             onChange={(e) => onChange && onChange(e.target.value)} onBlur={() => onCommit && onCommit()}
-            onKeyDown={(e) => { if (e.key === "Enter" && onCommit) onCommit(); }} style={{ textAlign: "right" }} />
+            onKeyDown={(e) => { if (e.key === "Enter" && onCommit) onCommit(); }} inputStyle={{ textAlign: "right" }} />
         </span>
         <span style={{ fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-number-field-unit-fg)", whiteSpace: "nowrap" }}>{unit}</span>
       </span>

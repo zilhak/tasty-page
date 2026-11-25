@@ -582,7 +582,7 @@ function HtmlSettings() {
     <div style={{ width: 320, display: "flex", flexDirection: "column", gap: 8, padding: 14,
       background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
       <div style={{ fontFamily: "var(--tasty-font-label)", fontSize: 10, textTransform: "uppercase", letterSpacing: ".06em", color: "var(--tasty-text-muted)" }}>HTML viewer</div>
-      <Row label="Default zoom"><div style={{ display: "flex", alignItems: "center", gap: 4 }}><Input style={{ width: 72 }} defaultValue="100" /><span style={{ fontSize: 12, color: "var(--tasty-text-muted)" }}>%</span></div></Row>
+      <Row label="Default zoom"><div style={{ display: "flex", alignItems: "center", gap: 4 }}><Input style={{ width: "var(--tasty-field-width-xs)" }} defaultValue="100" /><span style={{ fontSize: 12, color: "var(--tasty-text-muted)" }}>%</span></div></Row>
       <Row label="Color scheme"><Select options={["follow", "light", "dark"]} style={{ width: 160 }} /></Row>
       <Row label="Allow remote content"><Switch /></Row>
       <Row label="Sandbox scripts"><Switch defaultChecked /></Row>

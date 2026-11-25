@@ -73,7 +73,7 @@ function NumberRow({ lang, label, caption, range, min: MIN, max: MAX, def: DEFAU
             <span style={{ display: "flex", alignItems: "center", gap: "var(--tasty-number-field-unit-gap)", minHeight: "var(--tasty-settings-row-min-height)", minWidth: 0 }}>
               <span style={{ display: "inline-flex", flex: "none", maxWidth: "100%", width: "max(var(--tasty-number-field-min-width), calc(" + chars + "ch + 2 * var(--tasty-input-padding-x) + 2 * var(--tasty-border-width)))" }}>
                 <Input block mono value={text} invalid={out} focused={focused} inputMode="numeric" aria-label={L.label}
-                  onChange={(e) => setText(e.target.value)} onBlur={commit} onKeyDown={(e) => { if (e.key === "Enter") commit(); }} style={{ textAlign: "right" }} />
+                  onChange={(e) => setText(e.target.value)} onBlur={commit} onKeyDown={(e) => { if (e.key === "Enter") commit(); }} inputStyle={{ textAlign: "right" }} />
               </span>
               <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)", whiteSpace: "nowrap" }}>s</span>
             </span>

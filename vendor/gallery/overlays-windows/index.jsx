@@ -1268,7 +1268,7 @@ function Page() {
                     <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-settings-row-caption-gap)" }}>
                       <div style={{ display: "grid", gridTemplateColumns: "var(--tasty-settings-label-width) auto auto", columnGap: "var(--tasty-settings-label-gap)", alignItems: "center", justifyContent: "start", minHeight: "var(--tasty-settings-row-min-height)" }}>
                         <span style={{ fontSize: "var(--tasty-font-size-body)", color: "var(--tasty-text-secondary)" }}>{lab}</span>
-                        <span style={{ width: "var(--tasty-field-width-xs)" }}><Input block defaultValue={val} aria-invalid={err ? true : undefined} style={{ fontFamily: "var(--tasty-font-mono)", textAlign: "right", ...(err ? { borderColor: "var(--tasty-accent-danger)" } : null) }} /></span>
+                        <span style={{ width: "var(--tasty-field-width-xs)" }}><Input block defaultValue={val} invalid={!!err} aria-invalid={err ? true : undefined} inputStyle={{ fontFamily: "var(--tasty-font-mono)", textAlign: "right" }} /></span>
                         <span style={{ marginLeft: "calc(var(--tasty-space-sm) - var(--tasty-settings-label-gap))", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>B</span>
                       </div>
                       {err && <div style={{ marginLeft: "calc(var(--tasty-settings-label-width) + var(--tasty-settings-label-gap))", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-accent-danger-raised)" }}>{err}</div>}
@@ -1293,8 +1293,8 @@ function Page() {
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                   <span style={{ flex: 1, fontSize: 13, color: dis ? "var(--tasty-text-disabled)" : "var(--tasty-text-secondary)" }} aria-disabled={dis || undefined}>Default zoom</span>
                   <span style={{ flex: "none", width: "var(--tasty-field-width-xs)" }}>
-                    <Input block defaultValue={val} disabled={dis} aria-invalid={bad || undefined}
-                      style={{ fontFamily: "var(--tasty-font-mono)", textAlign: "right", ...(bad ? { borderColor: "var(--tasty-accent-danger)" } : null) }} />
+                    <Input block defaultValue={val} disabled={dis} invalid={bad} aria-invalid={bad || undefined}
+                      inputStyle={{ fontFamily: "var(--tasty-font-mono)", textAlign: "right" }} />
                   </span>
                   <span style={{ flex: "none", width: 28, fontSize: 12, color: "var(--tasty-text-muted)" }}>%</span>
                 </div>

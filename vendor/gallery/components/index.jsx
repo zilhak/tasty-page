@@ -378,14 +378,14 @@ function Components() {
           when={<>Single-line field. Use <code>mono</code> for paths, IDs, regex, hex. <code>icon</code> for a leading affordance (search), <code>addon</code> for a trailing unit. <code>invalid</code> turns the border + ring red. <code>readOnly</code> (2026-09-29) is for a value that can't be edited <b>now</b> but is still read: the disabled neutral box, the value in <span className="tok">--tasty-input-readonly-fg</span> (text-secondary-raised), focusable, selectable and copyable. <code>disabled</code> means the control itself is unavailable.</>}>
           <Stage variant="column" style={{ gap: 12 }}>
             <Cluster label="default · icon · addon — click to focus">
-              <Input placeholder="Workspace name" style={{ width: 200 }} />
-              <Input icon={ic.search} placeholder="Filter…" style={{ width: 200 }} />
+              <Input placeholder="Workspace name" style={{ width: "var(--tasty-field-width-lg)" }} />
+              <Input icon={ic.search} placeholder="Filter…" style={{ width: "var(--tasty-field-width-lg)" }} />
               <Input mono defaultValue="14" addon="px" style={{ width: "var(--tasty-field-width-color)" }} />
             </Cluster>
             <Cluster label="mono · invalid · disabled">
-              <Input mono defaultValue="s_01HXK9" style={{ width: 200 }} />
-              <Input invalid defaultValue="bad value" style={{ width: 160 }} />
-              <Input disabled placeholder="Disabled" style={{ width: 160 }} />
+              <Input mono defaultValue="s_01HXK9" style={{ width: "var(--tasty-field-width-lg)" }} />
+              <Input invalid defaultValue="bad value" style={{ width: "var(--tasty-field-width-md)" }} />
+              <Input disabled placeholder="Disabled" style={{ width: "var(--tasty-field-width-md)" }} />
             </Cluster>
             <Cluster label="readOnly vs disabled — same box, readable value (2026-09-29)">
               <Input mono readOnly defaultValue="#89b4fa" style={{ width: "var(--tasty-field-width-xs)" }} />
@@ -393,14 +393,14 @@ function Components() {
             </Cluster>
             <Cluster label={'ground="raised" — on surface-raised, box steps down to bg-panel + border-control-raised (2026-10-14)'}>
               <div style={{ display: "flex", gap: 12, padding: 12, background: "var(--tasty-surface-raised)", borderRadius: "var(--tasty-radius)" }}>
-                <Input ground="raised" placeholder="Editable" style={{ width: 140 }} />
+                <Input ground="raised" placeholder="Editable" style={{ width: "var(--tasty-field-width-md)" }} />
                 <Input ground="raised" mono readOnly defaultValue="#89b4fa" style={{ width: "var(--tasty-field-width-xs)" }} />
                 <Input ground="raised" mono disabled defaultValue="#89b4fa" style={{ width: "var(--tasty-field-width-xs)" }} />
               </div>
             </Cluster>
           </Stage>
           <Meta
-            specs={[["height", <>28px <span className="tok">--tasty-control-height</span></>], ["border", "1px → focus: border-focus edge + 1px ring flush outside, no gap (one solid 2px edge, 1px past the box)"], ["padding", <>0 <span className="tok">--tasty-space-sm</span></>]]}
+            specs={[["height", <>28px <span className="tok">--tasty-control-height</span></>], ["border", "1px → focus: border-focus edge + 1px ring flush outside, no gap (one solid 2px edge, 1px past the box)"], ["padding", <>0 <span className="tok">--tasty-space-sm</span></>], ["width", "style width sizes the whole box, border and padding included"]]}
             tokens={[{ tok: "--tasty-surface-raised", use: "fill", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-border-focus", use: "ring", color: "var(--tasty-border-focus)" }, { tok: "--tasty-accent-danger", use: "invalid", color: "var(--tasty-accent-danger-raised)" }, { tok: "--tasty-text-placeholder", use: "hint" }, { tok: "--tasty-input-readonly-fg", use: "read-only value → text-secondary-raised", color: "var(--tasty-input-readonly-fg)" }]} />
         </Spec>
 
@@ -1011,7 +1011,7 @@ function Components() {
           <Stage variant="column" style={{ gap: 16, alignItems: "stretch", maxWidth: 420 }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
               <span style={{ fontSize: 13, color: "var(--tasty-text-primary)" }}>Remote tasty path</span>
-              <Input mono placeholder="/usr/local/bin/tasty" style={{ width: "100%" }} />
+              <Input block mono placeholder="/usr/local/bin/tasty" />
               <span style={{ fontSize: 11, color: "var(--tasty-text-muted)", lineHeight: 1.5 }}>Leave empty to auto-detect on first connect.</span>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>

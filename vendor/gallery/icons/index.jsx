@@ -195,7 +195,7 @@ function Icons() {
               <div className="row">
                 <IconButton aria-label="Refresh"><Icon name="refresh" /></IconButton>
                 <IconButton aria-label="Close"><Icon name="close" /></IconButton>
-                <Input icon={<Icon name="search" />} placeholder="Filter…" style={{ width: 170 }} />
+                <Input icon={<Icon name="search" />} placeholder="Filter…" style={{ width: "var(--tasty-field-width-md)" }} />
               </div>
             </div>
           </Stage>
