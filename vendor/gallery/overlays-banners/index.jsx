@@ -87,6 +87,12 @@ function useScopeNarrow(on) {
   }, [on]);
   return [ref, narrow];
 }
+// The same narrow rule for the other banners in the ink tables that have a narrow layout (HTML script, remote content,
+// size, auto-attach refusal): children is a function of the judged narrow value.
+function ScopeNarrowG({ children }) {
+  const [ref, narrow] = useScopeNarrow(true);
+  return <div ref={ref} style={{ minWidth: 0 }}>{children(narrow)}</div>;
+}
 // b11 (attach-sync-duplicate-names): equal display names collapse into one entry + a muted “×k” that never shrinks.
 // “N surfaces” still counts surfaces; +n counts the remaining entries.
 function AttachSizeSyncBannerG({ names = ["build"], retrying = false, narrow: narrowProp }) {
@@ -282,14 +288,14 @@ function BodyInkGrid({ label, theme }) {
 
   const rows = [
     ["mouse capture", <MouseCaptureBannerG />],
-    ["HTML script", <HtmlScriptBanner />],
-    ["HTML script · reloading", <HtmlScriptBanner state="reloading" />],
-    ["HTML remote content", <HtmlRemoteBanner />],
-    ["HTML remote content · web page", <HtmlRemoteBanner web />],
-    ["HTML script · web page", <HtmlScriptBanner web />],
-    ["HTML mirror · large file, more waiting", <HtmlSizeBanner more={2} />],
-    ["HTML mirror · cumulative limit", <HtmlSizeBanner kind="limit" />],
-    ["auto-attach refused", <AttachRefusalBannerG />],
+    ["HTML script", <ScopeNarrowG>{(n) => <HtmlScriptBanner narrow={n} />}</ScopeNarrowG>],
+    ["HTML script · reloading", <ScopeNarrowG>{(n) => <HtmlScriptBanner state="reloading" narrow={n} />}</ScopeNarrowG>],
+    ["HTML remote content", <ScopeNarrowG>{(n) => <HtmlRemoteBanner narrow={n} />}</ScopeNarrowG>],
+    ["HTML remote content · web page", <ScopeNarrowG>{(n) => <HtmlRemoteBanner web narrow={n} />}</ScopeNarrowG>],
+    ["HTML script · web page", <ScopeNarrowG>{(n) => <HtmlScriptBanner web narrow={n} />}</ScopeNarrowG>],
+    ["HTML mirror · large file, more waiting", <ScopeNarrowG>{(n) => <HtmlSizeBanner more={2} narrow={n} />}</ScopeNarrowG>],
+    ["HTML mirror · cumulative limit", <ScopeNarrowG>{(n) => <HtmlSizeBanner kind="limit" narrow={n} />}</ScopeNarrowG>],
+    ["auto-attach refused", <ScopeNarrowG>{(n) => <AttachRefusalBannerG narrow={n} />}</ScopeNarrowG>],
     ["attach size sync · names line", <AttachSizeSyncBannerG names={["build", "build", "logs"]} narrow="auto" />],
     ["shell integration missing · TTL", <TtlBannerG ttl={10} glyph={<BIcon name="alertTriangle" size="var(--tasty-icon-size-md)" />} glyphColor="var(--tasty-accent-warning-raised)" title="Shell integration not detected" body="Command-completion hooks (docker build, just run, etc.) need OSC 133 shell integration. See docs/features/hooks for setup." />],
   ];
@@ -311,9 +317,9 @@ function RemainingInkGrid({ label, theme }) {
   const rows = [
     ["TTL countdown", <TtlBannerG ttl={10} glyph={<BIcon name="alertTriangle" size="var(--tasty-icon-size-md)" />} glyphColor="var(--tasty-accent-warning-raised)" title="Shell integration not detected" />],
     ["⋯ menu · program name unknown · reason line", <BannerMoreMenuG app={null} />],
-    ["large file · ghost Decline", <HtmlSizeBanner />],
-    ["cumulative limit · ghost Stop", <HtmlSizeBanner kind="limit" />],
-    ["long title · wraps, no clamp", <HtmlSizeBanner title="Long title sample: a longer translation or a future string wraps to as many lines as it needs and is never cut off, whether it runs to two lines, to three, or to more than that at this card width" />],
+    ["large file · ghost Decline", <ScopeNarrowG>{(n) => <HtmlSizeBanner narrow={n} />}</ScopeNarrowG>],
+    ["cumulative limit · ghost Stop", <ScopeNarrowG>{(n) => <HtmlSizeBanner kind="limit" narrow={n} />}</ScopeNarrowG>],
+    ["long title · wraps, no clamp", <ScopeNarrowG>{(n) => <HtmlSizeBanner title="Long title sample: a longer translation or a future string wraps to as many lines as it needs and is never cut off, whether it runs to two lines, to three, or to more than that at this card width" narrow={n} />}</ScopeNarrowG>],
     ["sample title ink", <TtlBannerG />],
   ];
   return (
