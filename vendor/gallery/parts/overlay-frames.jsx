@@ -583,8 +583,8 @@ function PortsFavoritesG({ favorites = "mixed" }) {
   const cap = { fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" };
   return (
     <div style={{ flex: "none", background: "var(--tasty-port-favorites-bg)",
-      borderBottom: "1px solid var(--tasty-port-favorites-border)" }}>
-      <div style={{ display: "flex", alignItems: "center", height: "var(--tasty-control-height-tree)", padding: "0 14px" }}>
+      borderBottom: "var(--tasty-border-width) solid var(--tasty-port-favorites-border)" }}>
+      <div style={{ display: "flex", alignItems: "center", height: "var(--tasty-control-height-tree)", padding: "0 var(--tasty-ports-pad-x)" }}>
         <span style={{ ...cap, textTransform: "uppercase", letterSpacing: "var(--tasty-letter-spacing-caps)" }}>
           Favorites{rows.length > 0 && ` · ${rows.length}`}
         </span>
@@ -592,21 +592,21 @@ function PortsFavoritesG({ favorites = "mixed" }) {
         <span style={{ ...cap, color: "var(--tasty-text-placeholder)" }}>system-wide</span>
       </div>
       {rows.length === 0 ? (
-        <div style={{ display: "flex", alignItems: "center", gap: 4, height: "var(--tasty-control-height-tree)", padding: "0 14px", color: "var(--tasty-text-muted)" }}>
-          <span style={{ display: "inline-flex", flex: "none" }}><Icon name="star" size="var(--tasty-icon-size-xs)" /></span>
-          <span style={{ fontSize: 12 }}>No favorites yet</span>
-          <span style={{ fontSize: 12, color: "var(--tasty-text-placeholder)" }}>— click a star in the list below to pin a port.</span>
+        <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-xs)", height: "var(--tasty-control-height-tree)", padding: "0 var(--tasty-ports-pad-x)", color: "var(--tasty-text-muted)" }}>
+          <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-glyph-dim)" }}><Icon name="star" size="var(--tasty-icon-size-xs)" /></span>
+          <span style={{ fontSize: "var(--tasty-font-size-caption)" }}>No favorites yet</span>
+          <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-placeholder)" }}>— click a star in the list below to pin a port.</span>
         </div>
       ) : (
         <div className="tasty-scroll" style={{ maxHeight: "var(--tasty-port-favorites-max-height)", overflowY: "auto" }}>
           {rows.map(([addr, meta, state]) => (
-            <div key={addr} style={{ display: "flex", alignItems: "center", height: "var(--tasty-port-favorites-row-height)", padding: "0 14px 0 0" }}>
+            <div key={addr} style={{ display: "flex", alignItems: "center", height: "var(--tasty-port-favorites-row-height)", padding: "0 var(--tasty-ports-pad-x) 0 0" }}>
               <span style={{ width: "var(--tasty-port-star-col-width)", display: "inline-flex", justifyContent: "center", flex: "none" }}>
                 <PortStarG on />
               </span>
-              <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 12, color: "var(--tasty-text-primary)", flex: "none" }}>{addr}</span>
-              <span style={{ flex: 1, minWidth: 12, paddingLeft: 12, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontSize: 12, color: "var(--tasty-text-muted)" }}>{meta}</span>
-              <span style={{ flex: "none", display: "inline-flex", justifyContent: "flex-end", minWidth: 112 }}>
+              <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-primary)", flex: "none" }}>{addr}</span>
+              <span style={{ flex: 1, minWidth: "var(--tasty-space-md)", paddingLeft: "var(--tasty-space-md)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{meta}</span>
+              <span style={{ flex: "none", display: "inline-flex", justifyContent: "flex-end", minWidth: "var(--tasty-port-favorites-state-min-width)" }}>
                 {state === "NONE"
                   ? <StatusDot status="idle" label="NONE" />
                   : <StatusDot status={state === "LISTEN" ? "running" : "waiting"} pulse={state === "LISTEN"} label={state} />}
