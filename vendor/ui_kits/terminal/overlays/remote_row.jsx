@@ -216,7 +216,7 @@ export function RemoteWorkspaceContent({ shape = false, width = "var(--tasty-rem
             <div data-terminal-content="" style={{ flex: 1, padding: "var(--tasty-space-sm)", background: "var(--tasty-surface-terminal-focused-bg)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", lineHeight: "var(--tasty-line-height-ui)" }}>
               {line("$ cargo build --release")}{line("   Compiling tasty-core v0.9.0")}{line("   Compiling tasty-remote v0.9.0")}{line("error: mismatched types at src/main.rs:42")}
             </div>
-            <div style={{ flex: 1, padding: "var(--tasty-space-sm)", background: "var(--tasty-surface-bed-unfocused)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", lineHeight: "var(--tasty-line-height-ui)" }}>
+            <div data-terminal-content="" style={{ flex: 1, padding: "var(--tasty-space-sm)", background: "var(--tasty-surface-bed-unfocused)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", lineHeight: "var(--tasty-line-height-ui)" }}>
               {line("$ tail -f deploy.log")}{line("12:04:31 rollout 3/5")}{line("12:04:40 rollout 4/5")}
             </div>
           </div>
