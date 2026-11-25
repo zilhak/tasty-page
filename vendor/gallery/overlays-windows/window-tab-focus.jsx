@@ -1,5 +1,5 @@
 import React from "react";
-import { Spec, Meta, Views, View } from "../parts/specimen.jsx";
+import { Spec, Stage, Meta, Views, View } from "../parts/specimen.jsx";
 import { mirrorPseudoStates } from "../parts/state-grid.jsx";
 import { RemoteFrame, RemoteFormFrame } from "../parts/overlay-frames.jsx";
 import { SettingsWindow as Kit_SettingsWindow } from "../../ui_kits/terminal/overlays/settings_window.jsx";
@@ -109,4 +109,37 @@ function WindowTabFocusSpec() {
   );
 }
 
-export { WindowTabFocusSpec };
+// The plugins window's header tabs under the pointer. The stage holds the live kit window cut below its header, so
+// hovering a tab there shows the fill. The check does not hover, so each frame pins it with the kit's hoverTab.
+function PluginsHeaderCrop({ hoverTab, live }) {
+  return (
+    <div style={{ overflow: "hidden", height: "var(--tasty-size-120)", flex: "none", width: "max-content" }}>
+      <div {...(live ? {} : { inert: "" })} style={{ position: "relative", width: 820, height: 540, pointerEvents: live ? undefined : "none" }}>
+        <Kit_PluginsWindow onClose={noop} onFlash={noop} onConfigure={noop} hoverTab={hoverTab} />
+      </div>
+    </div>
+  );
+}
+
+function PluginsTabHoverSpec() {
+  return (
+    <Spec id="plugins-window-header-tab-hover" title="Plugins window — header tab hover">
+      <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)" }}>
+        <div style={col}><span className="g-cap" style={cap}>live · hover a tab</span><PluginsHeaderCrop live /></div>
+      </Stage>
+      <Views>
+        <View name="plugins-tab-hover-count" wide label="Plugins — an unselected tab under the pointer (Add plugin, while Installed is open)">
+          <div style={col}><span className="g-cap" style={cap}>plugins · tab bar · hover</span><PluginsHeaderCrop hoverTab="add" /></div>
+        </View>
+        <View name="plugins-tab-hover-badge" wide label="Plugins — an unselected tab with its danger badge under the pointer (Attention, while Installed is open)">
+          <div style={col}><span className="g-cap" style={cap}>plugins · tab bar · hover with badge</span><PluginsHeaderCrop hoverTab="attention" /></div>
+        </View>
+      </Views>
+      <Meta
+        specs={[["rest", "unselected: no fill · label text-muted"], ["hover", <>unselected: <span className="tok">--tasty-overlay-hover</span> over the header mantle · radius 4 · label and count ink unchanged</>], ["selected", "surface-raised · 1px border-default inside · label text-primary · no hover change"], ["badge", "Attention count stays the danger badge on hover"]]}
+        tokens={[{ tok: "--tasty-overlay-hover", use: "hover fill" }, { tok: "--tasty-surface-raised", use: "selected tab", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-text-muted", use: "unselected label", color: "var(--tasty-text-muted)" }]} />
+    </Spec>
+  );
+}
+
+export { WindowTabFocusSpec, PluginsTabHoverSpec };

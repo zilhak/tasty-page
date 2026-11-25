@@ -20,7 +20,7 @@ import { TrustBox2 as OverlaysWindowsPluginTrust_TrustBox2, PluginTrustSpecs as 
 import { Section as PresetEditor_Section } from "./preset-editor.jsx";
 import { CaptureRegionSection } from "./capture-region.jsx";
 import { SettingsTitleBarLinuxSpec } from "./settings-titlebar-linux.jsx";
-import { WindowTabFocusSpec } from "./window-tab-focus.jsx";
+import { WindowTabFocusSpec, PluginsTabHoverSpec } from "./window-tab-focus.jsx";
 import { Section, Spec, Stage, Meta, Note, Do, Dont, Views, View } from "../parts/specimen.jsx";
 import { KbImportExportSubtab as Kit_KbImportExportSubtab, IE_GROUPS as KIT_IE_GROUPS } from "../../ui_kits/terminal/overlays/kb_import_export.jsx";
 
@@ -1509,6 +1509,7 @@ function Page() {
       </Section>
 
       <Section id="pluginswindow" title="Plugins window · plugin avatar">
+        <PluginsTabHoverSpec />
         <Spec id="plugin-identity-mark-one-component-two-sizes" title="Plugin identity mark — one component, two sizes"
           when={<>A plugin manifest carries <b>no image</b>, so its identity in the Plugins window is a <b>square initial mark</b>: the first letter of the plugin name, mono, bold, in a tinted square at <span className="tok">--tasty-radius</span>. There are exactly <b>two sizes</b> — <b>sm (32)</b> on Installed / Attention list rows and <b>lg (46)</b> on a detail identity block and the <b>Add plugin</b> manifest preview (the old one-off 42px preview copy is gone; it was the same thing at different numbers). The tint is mixed into <span className="tok">--tasty-surface-raised</span>, a <b>fixed bed</b> — not the row background — so the mark is pixel-identical on a rest, hover and selected row. The initial's size is a <b>token per size</b>, not a ratio of the box: <b>13 at sm, 14 at lg</b> — inside the 14px UI cap, with no exception (2026-10-07; the earlier 16 is withdrawn). The two sizes differ by the box (32 / 46) and one type step. Weight is <b>regular</b>: no bold mono face ships, so colour and size carry the mark.</>}>
           <Stage variant="tight" grid>

@@ -573,13 +573,15 @@ function AttentionPanel({ items, onFlash, onConfigure, onRemove }) {
   );
 }
 
-function PluginsWindow({ onClose, onFlash, onConfigure, removedAttention, onRemoveAttention }) {
+// hoverTab: a frame pins the pointer hover on one header tab ("installed" | "attention" | "add").
+function PluginsWindow({ onClose, onFlash, onConfigure, removedAttention, onRemoveAttention, hoverTab = null }) {
   // 2026-11-08 — removed reserved-id folders. The app keeps this (so the sidebar badge drops too); a
   // standalone window falls back to its own state.
   const [ownRemoved, setOwnRemoved] = React.useState([]);
   const removed = removedAttention || ownRemoved;
   const removeAttention = (it) => onRemoveAttention ? onRemoveAttention(it.id) : setOwnRemoved((r) => [...r, it.id]);
   const [tab, setTab] = React.useState("installed"); // installed | attention | add
+  const [pointerTab, setPointerTab] = React.useState(null);
   const [q, setQ] = React.useState("");
   const [installed, setInstalled] = React.useState(() =>
     Object.fromEntries(PLUGIN_LIST.map((p) => [p.id, p.installed])));
@@ -628,15 +630,17 @@ function PluginsWindow({ onClose, onFlash, onConfigure, removedAttention, onRemo
 
   const Seg = ({ value, label, count, danger }) => {
     const on = tab === value;
+    const hover = !on && (hoverTab || pointerTab) === value;
     return (
-      <button onClick={() => setTab(value)} style={{ appearance: "none", cursor: "pointer", border: 0,
+      <button onClick={() => setTab(value)} onMouseEnter={() => setPointerTab(value)} onMouseLeave={() => setPointerTab((t) => (t === value ? null : t))} style={{ appearance: "none", cursor: "pointer", border: 0,
         height: 26, padding: "0 var(--tasty-space-md)", borderRadius: "var(--tasty-radius)", display: "inline-flex",
         alignItems: "center", gap: "var(--tasty-space-sm)", fontFamily: "var(--tasty-font-ui)", fontSize: "var(--tasty-font-size-term-sm)",
         fontWeight: on ? 600 : 400, color: on ? "var(--tasty-text-primary)" : "var(--tasty-text-muted)",
-        background: on ? "var(--tasty-surface-raised)" : "transparent",
+        background: on ? "var(--tasty-surface-raised)" : hover ? "var(--tasty-overlay-hover)" : "transparent",
         boxShadow: on ? "inset 0 0 0 var(--tasty-border-width) var(--tasty-border-default)" : "none",
         /* as the app: the tabs sit side by side on the header's mantle, and only the selected one is filled (raised,
-           1px border-default). The keyboard focus ring is base.css's, 1px off the tab, on mantle: border-focus. */
+           1px border-default). An unselected tab under the pointer takes the overlay-hover fill; its ink stays.
+           The keyboard focus ring is base.css's, 1px off the tab, on mantle: border-focus. */
         outlineOffset: "var(--tasty-focus-ring-offset)" }}>
         {label}
         {count != null && !danger && <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)",
