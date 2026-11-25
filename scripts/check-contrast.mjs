@@ -18,10 +18,13 @@
  * seconds). Past either it starts closing the browser, prints what was in flight, waits up to CLOSE_GRACE_MS for the
  * close and the --json report, and exits 3, also when the close fails or runs late. It cannot stop a run held by
  * synchronous work in this process (contrast-watchdog.mjs).
+ * Report: --json is written by a child process (contrast-report.mjs), after the time limit has stopped on a finished run,
+ * within CLOSE_GRACE_MS and then REAP_GRACE_MS for a killed writer. A finished run whose report fails to write exits 1,
+ * one whose report runs late exits 3, and neither prints the verdict line. A timed out run exits 3 whatever its partial
+ * report did. After 1 or 3 the file may be missing, empty or cut short.
  */
 import { createServer } from "node:http";
-import { existsSync, readFileSync, statSync, writeFileSync } from "node:fs";
-import { writeFile } from "node:fs/promises";
+import { existsSync, readFileSync, statSync } from "node:fs";
 import { dirname, extname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright-core";
@@ -29,6 +32,7 @@ import { BASE } from "../src/lib/base.mjs";
 import { DEFAULT_LANG, LANGS } from "../src/lib/langs.mjs";
 import { PART_MAP } from "../vendor/gallery/parts/part-map.js";
 import { USAGE, parseArgs } from "./contrast-args.mjs";
+import { reportExit, timeoutWriteNote, writeReport } from "./contrast-report.mjs";
 import { measureGallery } from "./contrast-gallery.mjs";
 import { installPageLib, missingCellRows, stylesSettled } from "./contrast-page.mjs";
 import { CHECK_LOCALE, SPECIMEN_ROUTES, emptySiteTally, galleryPages, measureRest, reportChrome, runSite, sitePages, siteRules } from "./contrast-site.mjs";
@@ -41,13 +45,15 @@ let opts = null;
 const THEMES = ["mocha", "latte"];
 const EXPECTED_PAGES = 15;
 // A full run takes about 230s here and 250-330s in CI. The total limit is about three times that, and leaves room in the
-// Design job's 20 minutes: up to 65s before this step, 900s, 10s to close and 2s to flush come to about 977s. The stall limit
+// Design job's 20 minutes: up to 65s before this step, 900s, 10s to close and write, 2s to reap the writer and 2s to flush come to about 979s. The stall limit
 // is above the longest single wait with a limit of its own, 180s (launch, gallery goto and networkidle).
 const TOTAL_S = 900;
 const STALL_S = 300;
-// Past the time limit: how long closing the browser and writing the report may take, then how long stderr may take.
+// How long writing the report may take, and past the time limit closing the browser too, then how long stderr may take.
 const CLOSE_GRACE_MS = 10000;
 const FLUSH_GRACE_MS = 2000;
+// How long a killed report writer is waited for after its grace time, before the run ends without it.
+const REAP_GRACE_MS = 2000;
 
 const data = JSON.parse(readFileSync(join(root, "vendor/tokens/ground-ink-rules.json"), "utf8"));
 const tokens = Object.fromEntries(data.tokens.map((t) => [t.name, t.values]));
@@ -271,9 +277,16 @@ async function run() {
   }
   // The last look at the deadlines. Past one, the timeout path owns the exit and this run writes nothing more.
   if (!watchdog.stop()) return;
-  if (opts.json !== null) writeFileSync(opts.json, JSON.stringify(report, null, 1));
-  console.log(failed ? "check-contrast: FAILED" : "check-contrast: passed");
-  finish(failed ? 1 : 0);
+  // The report is written by a child process within its own grace time (contrast-report.mjs).
+  const written = opts.json === null ? null : await writeReport(opts.json, JSON.stringify(report, null, 1), { graceMs: CLOSE_GRACE_MS, reapMs: REAP_GRACE_MS });
+  const end = reportExit({ failed, json: opts.json, written, graceMs: CLOSE_GRACE_MS });
+  if (end.err !== null) {
+    process.stderr.on("error", () => {});
+    console.error(end.err);
+    await flushStderr();
+  }
+  if (end.out !== null) console.log(end.out);
+  finish(end.code);
 }
 
 // What the run holds open. Both paths close through these, so the browser and the server each close once, whichever
@@ -289,6 +302,8 @@ function closeServer() {
   held.server.close();
 }
 
+const flushStderr = () => settleWithin(new Promise((done) => process.stderr.write("", done)), FLUSH_GRACE_MS);
+
 // Settles within the grace time, and says how it settled instead of throwing.
 const settleWithin = (promise, ms) => new Promise((done) => {
   const timer = setTimeout(() => done({ late: true }), ms);
@@ -296,29 +311,32 @@ const settleWithin = (promise, ms) => new Promise((done) => {
 });
 
 async function timedOut({ reason, elapsedMs, inFlight }, report, doneThemes, current) {
-  // A closed pipe must not end the run with another code while it closes.
-  process.stderr.on("error", () => {});
-  const snapshot = {
-    complete: false,
-    timedOut: { reason, elapsedMs: Math.round(elapsedMs), inFlight: inFlight.map((e) => ({ ...e, ageMs: Math.round(e.ageMs), stepAgeMs: Math.round(e.stepAgeMs) })) },
-    languageGalleries: report.languageGalleries,
-    themes: Object.fromEntries(doneThemes.filter((name) => report.themes[name]).map((name) => [name, report.themes[name]])),
-    site: Object.fromEntries(doneThemes.filter((name) => report.site?.[name]).map((name) => [name, report.site[name]])),
-  };
-  if (current !== null && !doneThemes.includes(current)) snapshot.incompleteTheme = current;
-  const closing = closeBrowser();
-  closeServer();
-  const s = (ms) => (ms / 1000).toFixed(0);
-  console.error(`check-contrast: TIMED OUT (${reason}) after ${s(elapsedMs)}s`);
-  inFlight.forEach((e) => console.error(`  in flight ${s(e.ageMs)}s (step ${s(e.stepAgeMs)}s): ${e.label}`));
-  const writing = opts.json !== null ? writeFile(opts.json, JSON.stringify(snapshot, null, 1)) : null;
-  const [closed, wrote] = await Promise.all([settleWithin(closing, CLOSE_GRACE_MS), settleWithin(writing, CLOSE_GRACE_MS)]);
-  if (closed.late) console.error(`  the browser did not close within ${CLOSE_GRACE_MS / 1000}s`);
-  if (closed.error) console.error(`  closing the browser failed: ${String(closed.error).slice(0, 200)}`);
-  if (wrote.late) console.error(`  writing ${opts.json} did not finish within ${CLOSE_GRACE_MS / 1000}s`);
-  if (wrote.error) console.error(`  writing ${opts.json} failed: ${String(wrote.error).slice(0, 200)}`);
-  await settleWithin(new Promise((done) => process.stderr.write("", done)), FLUSH_GRACE_MS);
-  finish(3);
+  try {
+    // A closed pipe must not end the run with another code while it closes.
+    process.stderr.on("error", () => {});
+    const snapshot = {
+      complete: false,
+      timedOut: { reason, elapsedMs: Math.round(elapsedMs), inFlight: inFlight.map((e) => ({ ...e, ageMs: Math.round(e.ageMs), stepAgeMs: Math.round(e.stepAgeMs) })) },
+      languageGalleries: report.languageGalleries,
+      themes: Object.fromEntries(doneThemes.filter((name) => report.themes[name]).map((name) => [name, report.themes[name]])),
+      site: Object.fromEntries(doneThemes.filter((name) => report.site?.[name]).map((name) => [name, report.site[name]])),
+    };
+    if (current !== null && !doneThemes.includes(current)) snapshot.incompleteTheme = current;
+    const closing = closeBrowser();
+    closeServer();
+    const s = (ms) => (ms / 1000).toFixed(0);
+    console.error(`check-contrast: TIMED OUT (${reason}) after ${s(elapsedMs)}s`);
+    inFlight.forEach((e) => console.error(`  in flight ${s(e.ageMs)}s (step ${s(e.stepAgeMs)}s): ${e.label}`));
+    const writing = opts.json !== null ? writeReport(opts.json, JSON.stringify(snapshot, null, 1), { graceMs: CLOSE_GRACE_MS, reapMs: REAP_GRACE_MS }) : null;
+    const [closed, written] = await Promise.all([settleWithin(closing, CLOSE_GRACE_MS), writing]);
+    if (closed.late) console.error(`  the browser did not close within ${CLOSE_GRACE_MS / 1000}s`);
+    if (closed.error) console.error(`  closing the browser failed: ${String(closed.error).slice(0, 200)}`);
+    const note = timeoutWriteNote({ json: opts.json, written, graceMs: CLOSE_GRACE_MS });
+    if (note !== null) console.error(`  ${note}`);
+    await flushStderr();
+  } finally {
+    finish(3);
+  }
 }
 
 run().catch((error) => {
