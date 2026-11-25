@@ -8,6 +8,7 @@ import { Spec, Stage, Meta, Note, Do, Dont } from "../parts/specimen.jsx";
 //jsx).
 // Each screen A–D is shown in three columns: transparent (unchanged) · opaque (this request) · current (page hidden → boundary tile).
 // Dashed amber outline = a rect the host can paint over the page (popup box, dropdown box). Drawn 2px outside the box for legibility.
+// The rejected blotch column draws none: there the rect would lie on a scrim, where nothing is drawn.
 
 
 
@@ -90,6 +91,8 @@ function SceneA({ mode }) {
 // B — command palette (window scrim) across a markdown page | terminal split
 function SceneB({ mode }) {
   const op = mode === "opaque" || mode === "blotch";
+  // the blotch column keeps the opaque box but not its mark: half the mark would lie on the scrim
+  const mark = mode === "opaque";
   return (
     <Frame>
       <div style={{ position: "absolute", top: 0, bottom: 0, left: 0, width: 279 }}>{ground(mode)}</div>
@@ -98,7 +101,7 @@ function SceneB({ mode }) {
       {(mode === "transparent" || mode === "hidden") && <Scrim />}
       {mode === "blotch" && <Scrim style={{ left: 279 }} />}
       <div style={{ position: "absolute", top: 36, left: 0, right: 0, display: "flex", justifyContent: "center" }}>
-        <Host on={op}><PaletteFrame opaque={op} /></Host>
+        <Host on={mark}><PaletteFrame opaque={op} /></Host>
       </div>
     </Frame>
   );
