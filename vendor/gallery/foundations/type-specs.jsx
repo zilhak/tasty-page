@@ -48,7 +48,7 @@ const SANS = [
 export function UiSansSpec() {
   return (
     <Spec id="ui-sans-chrome" title="UI face — chrome"
-      when={<>App chrome uses the bundled D2Coding with system sans fallback, capped at 14px. Weight 600 draws D2Coding Bold. Compare the scale across four lines.</>}>
+      when={<>The design sets UI text in D2Coding with system sans fallback and a 14px cap. Weight 600 draws D2Coding Bold. Compare the scale across four lines.</>}>
       <Stage variant="solo column" style={{ gap: "var(--tasty-space-md)" }}>
         {SANS.map(([tok, size, name, weight, sample]) => (
           <div key={tok} style={{ display: "flex", flexWrap: "wrap", alignItems: "baseline", gap: "var(--tasty-space-xs) var(--tasty-space-lg)" }}>
