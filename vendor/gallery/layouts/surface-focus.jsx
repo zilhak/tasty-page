@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Icon } from "../../components/index.js";
-import { SurfaceFocusEdge, surfaceBed } from "../../ui_kits/terminal/surface_focus.jsx";
+import { SurfaceFocusEdge, SurfaceRing, surfaceBed } from "../../ui_kits/terminal/surface_focus.jsx";
 import { Spec, Stage, Meta, Note, Do, Dont, Views, View } from "../parts/specimen.jsx";
 
 // Tasty Gallery: Layouts, surface focus. Every surface kind, focused and unfocused, in Mocha and Latte.
@@ -101,14 +101,14 @@ function FocusDemo() {
 }
 
 // A mark rings the leaf. The unfocused edge sits under it. The lit edge sits over it and takes only the lower row, so both show.
-const ring = (token, width) => ({ outline: `var(--tasty-${width}) solid var(--tasty-${token})`, outlineOffset: `calc(-1 * var(--tasty-${width}))` });
 const LOWER_ROW = { position: "absolute", top: "var(--tasty-border-width)", left: 0, right: 0, height: "var(--tasty-border-width)" };
 
 function Marked({ kind = byId("plugin-mesh"), focused, bedFocused = focused, token, width, children }) {
   return (
-    <div style={{ position: "relative", ...frame, flex: "none", overflow: "hidden", display: "flex", flexDirection: "column", ...(token ? ring(token, width) : null) }}>
+    <div style={{ position: "relative", ...frame, flex: "none", overflow: "hidden", display: "flex", flexDirection: "column" }}>
       {kind.edge && <SurfaceFocusEdge focused={focused} />}
       {kind.body(bedFocused)}
+      {token && <SurfaceRing token={token} width={width} />}
       {kind.edge && focused && token && <SurfaceFocusEdge focused style={LOWER_ROW} />}
       {children}
     </div>
