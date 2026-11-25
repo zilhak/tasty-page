@@ -189,7 +189,7 @@ function LinkTip({ host, state = "connected", lang = "en" }) {
   const live = state === "connected";
   const word = c.reconnecting;
   return (
-    <span lang={lang} data-link-remote={state} style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-sm)", whiteSpace: "nowrap", maxWidth: "100%", minWidth: 0 }}>
+    <span lang={lang} data-link-remote={state} data-terminal-ui="" style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-sm)", whiteSpace: "nowrap", maxWidth: "100%", minWidth: 0 }}>
       <span style={{ flex: "none" }}>{c.remote}</span>
       <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-link-remote-gap)", minWidth: 0, fontFamily: "var(--tasty-font-mono)",
         color: live ? "var(--tasty-link-remote-fg)" : "var(--tasty-text-muted-raised)" }}>

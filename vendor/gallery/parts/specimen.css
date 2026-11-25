@@ -15,6 +15,8 @@
    (a control does not inherit the root value, so it is named), and they draw no contextual alternates. A terminal content block carries data-terminal-content and keeps D2Coding's. */
 [data-gallery-page], [data-gallery-page] :is(button, input, select, textarea, option, code, kbd, pre, samp, .tasty-mono) { font-variant-ligatures: none; }
 [data-gallery-page] [data-terminal-content], [data-gallery-page] [data-terminal-content] * { font-variant-ligatures: contextual; }
+/* UI drawn over terminal content (a link tooltip, a drop overlay, a gallery id) carries data-terminal-ui and draws none again. */
+[data-gallery-page] [data-terminal-content] [data-terminal-ui], [data-gallery-page] [data-terminal-content] [data-terminal-ui] * { font-variant-ligatures: none; }
 [data-gallery-page] [data-theme] { color: var(--tasty-text-primary); }
 [data-gallery-page] a { color: inherit; }
 [data-gallery-page] h1 { margin: 0 0 var(--tasty-space-sm); font-size: var(--tasty-font-size-max); font-weight: var(--tasty-font-weight-semibold); }

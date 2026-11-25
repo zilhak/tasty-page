@@ -58,7 +58,7 @@ function Surface({ focused, ring, edge, cmd = "cargo test", id }) {
       color: focused ? "var(--tasty-text-primary)" : "var(--tasty-surface-terminal-unfocused-fg)" }}>
       <div><span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-color-green)" }}>~/tasty</span> <span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-color-blue)" }}>main</span></div>
       <div><span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-color-mauve)" }}>❯ </span>{cmd}</div>
-      {id && <div style={{ marginTop: 4, fontSize: 10, color: "var(--tasty-text-muted)" }}>{id}</div>}
+      {id && <div data-terminal-ui="" style={{ marginTop: 4, fontSize: 10, color: "var(--tasty-text-muted)" }}>{id}</div>}
       {edge && <span aria-hidden style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 2, border: `${EDGE[edge][1]} solid ${EDGE[edge][0]}` }} />}
       {ring && <MoveRing />}
     </div>
