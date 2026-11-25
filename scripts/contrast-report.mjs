@@ -11,7 +11,7 @@
  * hyphen stays a path, and a relative path reads from the same working directory. Its code is CommonJS whatever the
  * caller's NODE_OPTIONS make the default module type. It shares the check's stdout and
  * stderr, so a path such as /dev/stdout still reaches the caller. It reports on file descriptor 3: a line "W" just
- * before it writes, and a line "E<message>" when the write fails.
+ * before it writes, and a line "E<message>" when the write fails, each line break in the message (CR, LF or CRLF) made one space.
  */
 import { spawn } from "node:child_process";
 
@@ -22,7 +22,7 @@ const CHILD = [
   'process.stdin.on("end", () => {',
   '  fs.writeSync(3, "W\\n");',
   "  try { fs.writeFileSync(process.argv[1], Buffer.concat(chunks)); }",
-  '  catch (e) { fs.writeSync(3, "E" + String((e && e.message) || e).replace(/\\n/g, " ") + "\\n"); process.exit(1); }',
+  '  catch (e) { fs.writeSync(3, "E" + String((e && e.message) || e).replace(/\\r\\n|\\r|\\n/g, " ") + "\\n"); process.exit(1); }',
   "  process.exit(0);",
   "});",
 ].join("\n");

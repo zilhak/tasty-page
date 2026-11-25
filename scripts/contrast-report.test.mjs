@@ -44,6 +44,22 @@ test("writeReport gives the child's error when the write fails", async () => {
   });
 });
 
+// Node's error text repeats the path, so a CR, CRLF or LF in it must each become one space for the line to stay one line.
+test("writeReport gives a failed write's error on one line, whatever line breaks the path holds", async () => {
+  await withDir(async (dir) => {
+    const path = join(dir, "missing", "a\rB\r\nC\nD.json");
+    const res = await writeReport(path, "{}", { graceMs: 10000, reapMs: 2000 });
+    assert.match(res.error, /ENOENT/);
+    assert.ok(res.error.includes("a B C D.json"), res.error);
+    assert.doesNotMatch(res.error, /[\r\n]/);
+    const quoted = `writing ${JSON.stringify(path)} failed: `;
+    for (const line of [reportExit({ failed: false, json: path, written: res, graceMs: 10000 }).err, timeoutWriteNote({ json: path, written: res, graceMs: 10000 })]) {
+      assert.ok(line.startsWith(quoted), line);
+      assert.doesNotMatch(line, /[\r\n]/);
+    }
+  });
+});
+
 test("writeReport gives an error when the writer cannot start, whether spawn fails at once or later", async () => {
   const res = await writeReport("out.json", "{}", { graceMs: 10000, reapMs: 2000, execPath: "/nonexistent/node" });
   assert.match(res.error, /^could not start the writer: .*ENOENT/);
