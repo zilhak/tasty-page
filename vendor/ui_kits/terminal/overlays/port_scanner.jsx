@@ -206,8 +206,8 @@ function PortsWindow({ onClose, onFlash, favorites = FAVS_DEFAULT }) {
         return <PortStar on={on} onToggle={() => toggleFav(k)}
           label={`${on ? "Remove" : "Add"} ${k} ${on ? "from" : "to"} favorites`} />;
       } },
-    { key: "port", header: "Port", align: "right", mono: true, sortable: true, width: 84 },
-    { key: "proto", header: "Proto", mono: true, width: 76 },
+    { key: "port", header: "Port", align: "right", mono: true, sortable: true, width: "var(--tasty-port-port-col-width)" },
+    { key: "proto", header: "Proto", mono: true, width: "var(--tasty-port-proto-col-width)" },
     { key: "addr", header: "Address", mono: true, sortable: true, width: "var(--tasty-port-addr-col-min-width)" }, // 2026-10-08 (batch 8) — pinned at 140
     { key: "proc", header: "Process", strong: true, sortable: true, width: "100%", minWidth: "var(--tasty-port-process-col-min-width)", // all spare width
       render: (v, row) => (
@@ -216,11 +216,11 @@ function PortsWindow({ onClose, onFlash, favorites = FAVS_DEFAULT }) {
           <Tag mono>{row.pid}</Tag>
         </span>
       ) },
-    { key: "ws", header: "Workspace", sortable: true, width: 120,
+    { key: "ws", header: "Workspace", sortable: true, width: "var(--tasty-port-workspace-col-width)",
       render: (v) => v || <Dash /> },
-    { key: "tab", header: "Tab", sortable: true,
+    { key: "tab", header: "Tab", sortable: true, width: "var(--tasty-port-tab-col-width)",
       render: (v) => v || <Dash /> },
-    { key: "state", header: "State", width: 140,
+    { key: "state", header: "State", width: "var(--tasty-port-state-col-width)",
       render: (v) => <StatusDot status={v === "LISTEN" ? "running" : "waiting"} pulse={v === "LISTEN"} label={v} /> },
   ];
 

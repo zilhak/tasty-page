@@ -625,14 +625,15 @@ const PortsDash = () => <span style={{ color: "var(--tasty-text-muted)" }}>—</
 const PORTS_COLUMNS = [
   { key: "fav", header: "", tight: true, width: "var(--tasty-port-star-col-width)",
     render: (_v, row) => <PortStarG on={row.port === 5173 || row.port === 8080} /> },
-  { key: "port", header: "Port", align: "right", mono: true, sortable: true, width: 72 },
-  { key: "proto", header: "Proto", mono: true, width: 64 },
+  { key: "port", header: "Port", align: "right", mono: true, sortable: true, width: "var(--tasty-port-port-col-width)" },
+  { key: "proto", header: "Proto", mono: true, width: "var(--tasty-port-proto-col-width)" },
   // 2026-10-08 (batch 8) — Address is pinned at its 140 floor; Process (width 100%) takes ALL spare width.
   { key: "addr", header: "Address", mono: true, sortable: true, width: "var(--tasty-port-addr-col-min-width)" },
   { key: "proc", header: "Process", strong: true, sortable: true, width: "100%", minWidth: "var(--tasty-port-process-col-min-width)",
     render: (v, row) => (<span style={{ display: "inline-flex", alignItems: "center", gap: 8, minWidth: 0 }}><span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>{v}</span><Tag>{row.pid}</Tag></span>) },
-  { key: "ws", header: "Workspace", width: 104, render: (v) => v || <PortsDash /> },
-  { key: "state", header: "State", width: 132,
+  { key: "ws", header: "Workspace", width: "var(--tasty-port-workspace-col-width)", render: (v) => v || <PortsDash /> },
+  { key: "tab", header: "Tab", width: "var(--tasty-port-tab-col-width)", render: (v) => v || <PortsDash /> },
+  { key: "state", header: "State", width: "var(--tasty-port-state-col-width)",
     render: (v) => <StatusDot status={v === "LISTEN" ? "running" : "waiting"} pulse={v === "LISTEN"} label={v} /> },
 ];
 function PortsFrame({ favorites = "mixed" }) {

@@ -904,6 +904,12 @@
   --tasty-port-star-col-width:       var(--tasty-size-28);             /* leading tight column in the table */
   --tasty-port-process-col-min-width: var(--tasty-size-200);           /* Process column — a MINIMUM, not a fixed width: the column grows with the table and never shrinks below this. The gallery specimen pins 200 only because its stage is fixed. */
   --tasty-port-addr-col-min-width:   var(--tasty-size-140);            /* 2026-10-08 (batch 8) — Address floor AND width: Address stays here; ALL spare width goes to Process */
+  --tasty-port-port-col-width:       var(--tasty-size-84);             /* Port column, fixed: its floor is its width */
+  --tasty-port-proto-col-width:      var(--tasty-size-76);             /* Proto column, fixed */
+  --tasty-port-workspace-col-width:  var(--tasty-size-120);            /* Workspace column, fixed */
+  --tasty-port-tab-col-width:        var(--tasty-size-80);             /* Tab column, fixed */
+  --tasty-port-state-col-width:      var(--tasty-size-140);            /* State column, fixed; past the popup width the table scrolls sideways to reach it */
+  --tasty-port-process-specimen-width: var(--tasty-size-960);         /* Overlays › Windows Process column specimen: the frame wider than the column budget */
   --tasty-port-star-on:              var(--tasty-accent-warning-glyph); /* 2026-11-05 ground-ink rules */
   --tasty-port-star-off:             var(--tasty-text-muted);          /* unregistered — muted outline */
   --tasty-port-star-on-active:       var(--tasty-accent-warning-on-active); /* 2026-11-05 selected row, registered: Mocha 5.25 · Latte 3.75 */

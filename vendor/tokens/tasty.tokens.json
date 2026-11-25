@@ -689,9 +689,17 @@
       "$type": "dimension",
       "$value": "64px"
     },
+    "size-76": {
+      "$type": "dimension",
+      "$value": "76px"
+    },
     "size-80": {
       "$type": "dimension",
       "$value": "80px"
+    },
+    "size-84": {
+      "$type": "dimension",
+      "$value": "84px"
     },
     "size-96": {
       "$type": "dimension",
@@ -4471,6 +4479,30 @@
     "port-addr-col-min-width": {
       "$type": "dimension",
       "$value": "{primitive.size-140}"
+    },
+    "port-port-col-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-84}"
+    },
+    "port-proto-col-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-76}"
+    },
+    "port-workspace-col-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-120}"
+    },
+    "port-tab-col-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-80}"
+    },
+    "port-state-col-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-140}"
+    },
+    "port-process-specimen-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-960}"
     },
     "port-star-on": {
       "$type": "color",
