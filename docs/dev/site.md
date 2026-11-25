@@ -499,12 +499,14 @@ mocha 로 시작한다. 첫 페인트 전에 인라인 스크립트가 적용해
 
 - 브라우저는 그 글꼴로 글자를 처음 그릴 때 파일을 받는다. 파일이 4 MB가 넘으므로 어느 글자가 D2Coding을 읽는지가 전송량을 정한다.
 - `@font-face`는 `src/styles/d2coding.css`에 있고 `design.css`가 불러온다. 디자인 구역 밖 페이지에는 규칙이 없다.
-- 디자인 구역 안에서도 `[data-site-chrome]`과 토큰 페이지(`[data-gallery-page="tokens"]`)는 `--tasty-font-family-mono-system`을 읽어 파일을 요청하지 않는다. 공통 부분의 고정폭 글자 몇 개만으로 파일이 요청될 수 있기 때문이다. 토큰 페이지는 이름과 값의 표이고 검색에 노출된다.
-- 디자인 첫 페이지는 규칙이 있어도 D2Coding으로 그리는 글자가 없어 요청하지 않는다. 이 페이지나 토큰 페이지에 고정폭 글자를 더하면 요청이 생기는지 다시 잰다.
+- UI 글꼴 `--tasty-font-ui`도 D2Coding으로 시작한다. 디자인 구역의 `[data-site-chrome]`은 `--font-mono`를 시스템 고정폭 글꼴로 덮는다. 토큰 페이지(`[data-gallery-page="tokens"]`)는 고정폭 글꼴과 UI 글꼴을 모두 시스템 글꼴로 덮는다. 토큰 페이지는 이름과 값의 표이고 검색에 노출된다.
+- 디자인 첫 페이지와 갤러리의 머리말·묶음 설명(`.design-head`, `.ds-group`)은 설명용 글꼴 `--tasty-font-prose`를 읽는다. 디자인 첫 페이지는 글자를 이 글꼴로 그리므로 D2Coding 파일을 요청하지 않는다. 이 페이지나 토큰 페이지에 고정폭 글자를 더하면 요청이 생기는지 다시 잰다.
+- 갤러리의 섹션 제목, 표본 설명(`when`), Note, spec 표도 `--tasty-font-prose`(시스템 sans)를 읽는다. 표본만 D2Coding으로 그린다.
+- `bcefcc7` 빌드를 Chromium으로 처음 열었을 때 1440px과 390px에서 `/design/`와 `/design/tokens/`는 각각 글꼴 파일을 0개 요청했고, `/design/gallery/components/`는 두 파일을 요청했다.
 - `font-display: swap`이다. `fallback`과 `optional`은 Slow 4G에서 같은 바이트를 다 받고도 그 페이지를 다른 글꼴로 남겼다. 파일을 받는 값을 그 페이지에서 보여 주는 쪽을 골랐다.
 - preload는 쓰지 않는다. 표본은 첫 렌더링에서 바로 요청하므로(약 1초) 끝나는 시각이 거의 같다. `local()`은 쓰지 않는다. 설치된 판이 다르면 표본이 앱과 달라진다.
 - 두 굵기를 모두 싣는다. 표본의 badge와 제목이 Bold를 쓰고 앱에도 Bold가 있다. 500은 Regular, 600 이상은 Bold로 그려진다.
-- 합자: `code, kbd, pre, samp`의 `font-variant-ligatures: contextual`은 그대로다. 범위 밖 페이지는 파일이 없어 명령 예시의 모양이 바뀌지 않는다.
+- 갤러리에서는 앱 UI처럼 `font-variant-ligatures: none`으로 합자를 끈다. 터미널 내용 블록만 `contextual`을 쓴다. 갤러리 밖 페이지의 `code`, `kbd`, `pre`, `samp`는 `contextual`을 쓴다. 디자인 구역 밖 페이지는 파일이 없어 명령 예시의 모양이 바뀌지 않는다.
 
 측정(Linux, Chromium, 첫 방문, Slow 4G는 1.6 Mbps·150 ms). 글꼴 전송은 압축이 없을 때 값이고, gzip이면 Regular 2095509, Bold 2216213 byte다. GitHub Pages의 `.ttf` 압축은 배포 전에는 잴 수 없다.
 
