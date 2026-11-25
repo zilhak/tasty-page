@@ -985,6 +985,7 @@
   --tasty-tutorial-marker-specimen-min-width: var(--tasty-size-320); /* floor of each marker window: it holds the faux app's 116 sidebar, tab row and terminal line, so a narrower column scrolls the stage instead of cutting them */
   /* Overlays › Windows (gallery specimen layout, not app chrome) — reduced window frames that keep their width, so a narrower column scrolls the stage instead of squeezing the frame and cutting its right side */
   --tasty-remote-form-specimen-width: var(--tasty-size-460); /* remote profile and attach forms */
+  --tasty-remote-form-specimen-height: var(--tasty-remote-window-height); /* 2026-11-26 remote profile, attach and passkey form specimens: the window's 460 height (was a 408 literal) */
   --tasty-git-viewer-specimen-width:  var(--tasty-size-640); /* git worktree viewer, list and diff */
   --tasty-clipboard-specimen-width:   var(--tasty-size-460); /* clipboard viewer, every content state */
   --tasty-mod-hint-specimen-width:    var(--tasty-size-560); /* Overlays › Popups: the modifier hint hold demo's faux app window */
@@ -1120,6 +1121,7 @@
   /* Remote tool */
   --tasty-remote-label-col:         var(--tasty-size-112); /* form label grid column */
   --tasty-remote-port-field-width:  var(--tasty-size-96);  /* 2026-11-25 — Port field in the profile and attach forms, the whole box */
+  --tasty-remote-type-suggest-width: var(--tasty-size-64); /* 2026-11-26 — suggestion Select beside the profile form's Type field */
   --tasty-remote-filter-menu-width: var(--tasty-size-240); /* protocol-filter menu — BORDER-BOX width (outer edge to outer edge). Content = this minus the frame the popup crate draws (14 total at scale 1 → 226). The mock's 236 was a raw literal, snapped to the existing 240 primitive (same measure as tooltip max-width). All widths in this family read as border box. */
   /* Explorer view toggle (SegToggle — grid / list / detail). A SEGMENT: it picks a
      value (how the same listing is drawn), it does not switch content, so it takes the
@@ -1544,6 +1546,7 @@
   --tasty-remote-ssh-line-pad-top:     var(--tasty-size-2);   /* 2026-11-26 From ssh config section: above its heading and its empty line, the app's STRUCT_GAP_2 */
   --tasty-remote-reveal-inset:         var(--tasty-size-6);   /* 2026-11-26 passkey form: the reveal button's offset from the textarea's top and right edges */
   --tasty-remote-reveal-pad-right:     calc(1 * var(--tasty-remote-reveal-inset) + 1 * var(--tasty-icon-button-size-sm) + 1 * var(--tasty-size-2)); /* 32 — sum of <number> * var(--tasty-…) terms, the form the app reads. Textarea right padding that keeps text clear of the reveal button: inset 6 + small icon button 24 + 2 */
+  --tasty-segmented-gap:               var(--tasty-size-6);   /* 2026-11-26 between the pills of a segmented toggle, the app's SEGMENT_GAP (tasty-ui-widgets segmented) */
   --tasty-remote-picker-width:         var(--tasty-size-680);  /* add remote workspace picker; not resizable */
   --tasty-remote-picker-height:        var(--tasty-size-460);
   --tasty-preset-window-width:         var(--tasty-size-960);  /* layout presets window, inner size when it opens */

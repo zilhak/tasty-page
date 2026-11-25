@@ -675,6 +675,32 @@ function PortsFrame({ favorites = "mixed" }) {
   );
 }
 
+// Remote connections window header and tab bar, shared by the list frame and the form frame so both draw one chrome.
+function RemoteTabBtnG({ children, on }) {
+  return (
+    <span style={{ height: "var(--tasty-remote-tab-height)", padding: "0 var(--tasty-space-md)", display: "inline-flex", alignItems: "center", fontSize: "var(--tasty-font-size-body)",
+      color: on ? "var(--tasty-text-primary)" : "var(--tasty-text-muted)", fontWeight: on ? "var(--tasty-font-weight-semibold)" : "var(--tasty-font-weight-normal)",
+      borderBottom: on ? "var(--tasty-tab-indicator-width) solid var(--tasty-accent-primary)" : "var(--tasty-tab-indicator-width) solid transparent",
+      /* keyboard focus: the kit's inset ring (remote_tool TabBtn), inside the tab and clear of the underline */
+      outlineOffset: "calc(-1 * (2 * var(--tasty-focus-ring-width) + var(--tasty-focus-ring-offset)))", borderRadius: "var(--tasty-radius-none)" }}>{children}</span>
+  );
+}
+function RemoteChromeG({ tab }) {
+  return (
+    <>
+      <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-space-md) var(--tasty-space-md) var(--tasty-remote-pad-x)", flex: "none", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
+        <span style={{ display: "inline-flex", color: "var(--tasty-text-muted)" }}>{ic.remote}</span>
+        <span style={{ fontSize: "var(--tasty-font-size-max)", fontWeight: "var(--tasty-font-weight-semibold)" }}>Remote connections</span>
+        <div style={{ flex: 1 }} />
+        <IconButton size="sm" aria-label="Close">{ic.x}</IconButton>
+      </div>
+      <div style={{ display: "flex", gap: "var(--tasty-remote-tab-gap)", padding: "0 var(--tasty-space-sm)", flex: "none", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)", background: "var(--tasty-bg-sidebar)" }}>
+        <RemoteTabBtnG on={tab === "profiles"}>Remote profiles</RemoteTabBtnG><RemoteTabBtnG on={tab === "attach"}>Attach</RemoteTabBtnG><RemoteTabBtnG on={tab === "passkeys"}>Passkeys</RemoteTabBtnG>
+      </div>
+    </>
+  );
+}
+
 // ── Remote connections — 520×460, three top tabs, list view ──
 function RemoteFrame({ tab = "profiles", ssh = "hosts" }) {
   const Caption = ({ children }) => <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)", fontFamily: "var(--tasty-font-mono)" }}>{children}</span>;
@@ -723,25 +749,10 @@ function RemoteFrame({ tab = "profiles", ssh = "hosts" }) {
       </div>
     </div>
   );
-  const TabBtn = ({ children, on }) => (
-    <span style={{ height: "var(--tasty-remote-tab-height)", padding: "0 var(--tasty-space-md)", display: "inline-flex", alignItems: "center", fontSize: "var(--tasty-font-size-body)",
-      color: on ? "var(--tasty-text-primary)" : "var(--tasty-text-muted)", fontWeight: on ? "var(--tasty-font-weight-semibold)" : "var(--tasty-font-weight-normal)",
-      borderBottom: on ? "var(--tasty-tab-indicator-width) solid var(--tasty-accent-primary)" : "var(--tasty-tab-indicator-width) solid transparent",
-      /* keyboard focus: the kit's inset ring (remote_tool TabBtn), inside the tab and clear of the underline */
-      outlineOffset: "calc(-1 * (2 * var(--tasty-focus-ring-width) + var(--tasty-focus-ring-offset)))", borderRadius: "var(--tasty-radius-none)" }}>{children}</span>
-  );
   return (
     <div style={{ width: "var(--tasty-remote-window-width)", flex: "none", height: "var(--tasty-remote-window-height)", display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)",
       border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden", boxShadow: "var(--tasty-shadow-modal)" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-space-md) var(--tasty-space-md) var(--tasty-remote-pad-x)", flex: "none", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
-        <span style={{ display: "inline-flex", color: "var(--tasty-text-muted)" }}>{ic.remote}</span>
-        <span style={{ fontSize: "var(--tasty-font-size-max)", fontWeight: "var(--tasty-font-weight-semibold)" }}>Remote connections</span>
-        <div style={{ flex: 1 }} />
-        <IconButton size="sm" aria-label="Close">{ic.x}</IconButton>
-      </div>
-      <div style={{ display: "flex", gap: "var(--tasty-remote-tab-gap)", padding: "0 var(--tasty-space-sm)", flex: "none", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)", background: "var(--tasty-bg-sidebar)" }}>
-        <TabBtn on={tab === "profiles"}>Remote profiles</TabBtn><TabBtn on={tab === "attach"}>Attach</TabBtn><TabBtn on={tab === "passkeys"}>Passkeys</TabBtn>
-      </div>
+      <RemoteChromeG tab={tab} />
       {tab === "passkeys" ? (
         <>
           <div style={{ display: "flex", alignItems: "center", padding: "var(--tasty-remote-content-pad-top) var(--tasty-remote-pad-x) var(--tasty-space-sm)", flex: "none" }}>
@@ -2353,22 +2364,22 @@ function RemoteFormFrame({ variant = "ssh", error }) {
   const attachInline = variant === "attach-inline";
   const FRow = ({ label, children, hint }) => (
     <>
-      <div style={{ display: "grid", gridTemplateColumns: "var(--tasty-remote-label-col) 1fr", columnGap: 12, alignItems: "center" }}>
-        <span style={{ textAlign: "right", fontSize: 13, color: "var(--tasty-text-muted)" }}>{label}</span>
+      <div style={{ display: "grid", gridTemplateColumns: "var(--tasty-remote-label-col) 1fr", columnGap: "var(--tasty-space-md)", alignItems: "center" }}>
+        <span style={{ textAlign: "right", fontSize: "var(--tasty-font-size-body)", color: "var(--tasty-text-muted)" }}>{label}</span>
         <div style={{ minWidth: 0 }}>{children}</div>
       </div>
-      {hint && <div style={{ display: "grid", gridTemplateColumns: "var(--tasty-remote-label-col) 1fr", columnGap: 12 }}><span /><span style={{ fontSize: 11, color: "var(--tasty-text-muted)", lineHeight: 1.4 }}>{hint}</span></div>}
+      {hint && <div style={{ display: "grid", gridTemplateColumns: "var(--tasty-remote-label-col) 1fr", columnGap: "var(--tasty-space-md)" }}><span /><span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)", lineHeight: "var(--tasty-line-height-ui)" }}>{hint}</span></div>}
     </>
   );
   // unknown type: an indented hint caption under the Type field, as the app draws it — not a badge.
   // Copy: [remote_tool] type_unknown_hint. The app shows it only for a type it does not know (ssh, smb and http
   // are known), so the generic form types "snb", the same unknown value as the protocol filter above.
   const typeHint = (txt) => (
-    <div style={{ display: "grid", gridTemplateColumns: "var(--tasty-remote-label-col) 1fr", columnGap: 12 }}><span />
-      <span style={{ fontSize: 11, lineHeight: 1.4, color: "var(--tasty-accent-warning-raised)", overflowWrap: "anywhere" }}>{txt}</span></div>
+    <div style={{ display: "grid", gridTemplateColumns: "var(--tasty-remote-label-col) 1fr", columnGap: "var(--tasty-space-md)" }}><span />
+      <span style={{ fontSize: "var(--tasty-font-size-caption)", lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-accent-warning-raised)", overflowWrap: "anywhere" }}>{txt}</span></div>
   );
   const seg = (label, active) => (
-    <div style={{ display: "flex", alignItems: "center", height: "var(--tasty-control-height)", padding: "0 12px", borderRadius: "var(--tasty-radius)", fontSize: 13, cursor: "pointer",
+    <div style={{ display: "flex", alignItems: "center", height: "var(--tasty-control-height)", padding: "0 var(--tasty-space-md)", borderRadius: "var(--tasty-radius)", fontSize: "var(--tasty-font-size-body)", cursor: "pointer",
       /* R1 — a SEGMENTED control's active segment is an accent FILL (same as
          Apply-preset scope and the clipboard type segment). surface-active is the
          row-selection fill and is not used here. Tab STRIPS keep the underline. */
@@ -2376,28 +2387,16 @@ function RemoteFormFrame({ variant = "ssh", error }) {
       border: "var(--tasty-border-width) solid " + (active ? "var(--tasty-accent-primary)" : "var(--tasty-border-default)") }}>{label}</div>
   );
   return (
-    <div style={{ width: "var(--tasty-remote-form-specimen-width)", flex: "none", height: 408, display: "flex", flexDirection: "column",
+    <div style={{ width: "var(--tasty-remote-form-specimen-width)", flex: "none", height: "var(--tasty-remote-form-specimen-height)", display: "flex", flexDirection: "column",
       background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", overflow: "hidden" }}>
-      {/* header */}
-      <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 14px", flex: "none", borderBottom: "1px solid var(--tasty-separator)" }}>
-        <span style={{ display: "inline-flex", color: "var(--tasty-text-muted)" }}>{ic.remote}</span>
-        <span style={{ fontSize: 14, fontWeight: 600 }}>Remote connections</span>
-        <span style={{ flex: 1 }} />
-        <IconButton size="sm" aria-label="Close">{ic.x}</IconButton>
-      </div>
-      {/* tabs */}
-      <div style={{ display: "flex", gap: 4, padding: "6px 10px 0", flex: "none", background: "var(--tasty-bg-sidebar)", borderBottom: "1px solid var(--tasty-separator)" }}>
-        {[["Remote profiles", !passkey && !attach], ["Attach", attach], ["Passkeys", passkey]].map(([t, a]) => (
-          <div key={t} style={{ padding: "6px 12px", fontSize: 13, cursor: "pointer", color: a ? "var(--tasty-text-primary)" : "var(--tasty-text-muted)",
-            boxShadow: a ? "inset 0 -2px 0 var(--tasty-accent-primary)" : "none" }}>{t}</div>
-        ))}
-      </div>
+      {/* header and tabs: the same chrome as the list frame */}
+      <RemoteChromeG tab={passkey ? "passkeys" : attach ? "attach" : "profiles"} />
       {/* body */}
-      <div style={{ flex: 1, minHeight: 0, overflow: "auto", padding: "12px 16px", display: "flex", flexDirection: "column", gap: 8 }}>
-        <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 2 }}>{passkey ? "New passkey" : attach ? "New attach" : "New profile"}</div>
+      <div style={{ flex: 1, minHeight: 0, overflow: "auto", padding: "var(--tasty-space-md) var(--tasty-space-lg)", display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
+        <div style={{ fontSize: "var(--tasty-font-size-heading)", fontWeight: "var(--tasty-font-weight-semibold)", marginBottom: "var(--tasty-space-sm)" }}>{passkey ? "New passkey" : attach ? "New attach" : "New profile"}</div>
         {!passkey && !attach && (
           <>
-            <FRow label="Type"><div style={{ display: "flex", gap: 4 }}><Input block defaultValue={variant === "generic" ? "snb" : "ssh"} /><Select options={["ssh", "smb", "http"]} style={{ width: 64 }} /></div></FRow>
+            <FRow label="Type"><div style={{ display: "flex", gap: "var(--tasty-space-xs)" }}><Input block defaultValue={variant === "generic" ? "snb" : "ssh"} /><Select options={["ssh", "smb", "http"]} style={{ width: "var(--tasty-remote-type-suggest-width)" }} /></div></FRow>
             {variant === "generic" && error !== "type" && typeHint("This type is not supported yet. You can save it, but it cannot be used until Tasty or a plugin supports it.")}
             <FRow label="Name"><Input block defaultValue={variant === "generic" ? "fileshare" : "prod-web"} /></FRow>
             {variant === "ssh" ? (
@@ -2411,9 +2410,9 @@ function RemoteFormFrame({ variant = "ssh", error }) {
               </>
             ) : (
               <>
-                <div style={{ fontFamily: "var(--tasty-font-label)", fontSize: 10, textTransform: "uppercase", letterSpacing: ".06em", color: "var(--tasty-text-muted)", marginTop: 4 }}>Fields</div>
+                <div style={{ fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-caption)", textTransform: "uppercase", color: "var(--tasty-text-muted)", marginTop: "var(--tasty-space-xs)" }}>Fields</div>
                 {[["host", "fs.local"], ["share", "team"]].map(([k, v]) => (
-                  <div key={k} style={{ display: "grid", gridTemplateColumns: "var(--tasty-remote-label-col) 1fr 28px", columnGap: 12, alignItems: "center" }}>
+                  <div key={k} style={{ display: "grid", gridTemplateColumns: "var(--tasty-remote-label-col) 1fr var(--tasty-control-height)", columnGap: "var(--tasty-space-md)", alignItems: "center" }}>
                     <Input block defaultValue={k} /><Input defaultValue={v} block /><IconButton size="sm" aria-label="Remove field">{ic.x}</IconButton>
                   </div>
                 ))}
@@ -2427,7 +2426,7 @@ function RemoteFormFrame({ variant = "ssh", error }) {
           <>
             <FRow label="Name"><Input block defaultValue="host" /></FRow>
             <FRow label="Label"><Input block placeholder="optional" defaultValue={attachInline ? "" : "us-east"} /></FRow>
-            <FRow label="Connection"><div style={{ display: "flex", gap: 6 }}>{seg("SSH profile", !attachInline)}{seg("Direct (inline)", attachInline)}</div></FRow>
+            <FRow label="Connection"><div style={{ display: "flex", gap: "var(--tasty-segmented-gap)" }}>{seg("SSH profile", !attachInline)}{seg("Direct (inline)", attachInline)}</div></FRow>
             {attachInline ? (
               <>
                 <FRow label="Host"><Input block defaultValue="edge.example.com" /></FRow>
@@ -2439,7 +2438,7 @@ function RemoteFormFrame({ variant = "ssh", error }) {
             ) : (
               <FRow label="SSH profile"><Select options={["(select a profile)", "prod-web (us-east)", "db-primary", "legacy-box"]} block /></FRow>
             )}
-            <div style={{ fontFamily: "var(--tasty-font-label)", fontSize: 10, textTransform: "uppercase", letterSpacing: ".06em", color: "var(--tasty-text-muted)", marginTop: 4 }}>Remote tasty</div>
+            <div style={{ fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-caption)", textTransform: "uppercase", color: "var(--tasty-text-muted)", marginTop: "var(--tasty-space-xs)" }}>Remote tasty</div>
             <FRow label="Executable"><Input block defaultValue={attachInline ? "/opt/tasty/bin/tasty" : "tasty"} /></FRow>
             <FRow label="Port mode"><Select options={["auto", "subcommand", "file-unix", "file-windows"]} block /></FRow>
             <FRow label="Port file" hint="Optional — an explicit path takes precedence over the port mode."><Input block placeholder="optional path" defaultValue={attachInline ? "/run/user/1000/tasty/port" : ""} /></FRow>
@@ -2448,17 +2447,17 @@ function RemoteFormFrame({ variant = "ssh", error }) {
         {passkey && (
           <>
             <FRow label="Name"><Input block defaultValue="id_ed25519" /></FRow>
-            <FRow label="Kind"><div style={{ display: "flex", gap: 6 }}>{seg("path", variant === "passkey-path")}{seg("inline", variant === "passkey-inline")}</div></FRow>
+            <FRow label="Kind"><div style={{ display: "flex", gap: "var(--tasty-segmented-gap)" }}>{seg("path", variant === "passkey-path")}{seg("inline", variant === "passkey-inline")}</div></FRow>
             {variant === "passkey-path"
               ? <FRow label="Value" hint="References a key file you own."><Input block defaultValue="~/.ssh/id_ed25519" /></FRow>
-              : <FRow label="Value" hint="Pasted secret is materialized to a 0600-managed file."><textarea rows={3} placeholder="Paste secret / key contents" style={{ width: "100%", resize: "none", fontFamily: "var(--tasty-font-mono)", fontSize: 12, padding: 8, background: "var(--tasty-input-bg)", color: "var(--tasty-input-fg)", border: "1px solid var(--tasty-input-border)", borderRadius: "var(--tasty-radius)" }} /></FRow>}
-            <div style={{ display: "grid", gridTemplateColumns: "var(--tasty-remote-label-col) 1fr", columnGap: 12 }}><span /><span style={{ fontSize: 11, color: "var(--tasty-text-muted)", lineHeight: 1.4 }}>Local-only. Profiles reference this passkey by name; the secret is never shared.</span></div>
+              : <FRow label="Value" hint="Pasted secret is materialized to a 0600-managed file."><textarea rows={3} placeholder="Paste secret / key contents" style={{ width: "100%", resize: "none", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", padding: "var(--tasty-space-sm)", background: "var(--tasty-input-bg)", color: "var(--tasty-input-fg)", border: "var(--tasty-border-width) solid var(--tasty-input-border)", borderRadius: "var(--tasty-radius)" }} /></FRow>}
+            <div style={{ display: "grid", gridTemplateColumns: "var(--tasty-remote-label-col) 1fr", columnGap: "var(--tasty-space-md)" }}><span /><span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)", lineHeight: "var(--tasty-line-height-ui)" }}>Local-only. Profiles reference this passkey by name; the secret is never shared.</span></div>
           </>
         )}
-        {error && <div style={{ fontSize: 11, color: "var(--tasty-accent-danger-raised)", marginTop: 4 }}>{error === "type" ? "Type is required." : error === "host" ? "Host is required." : "Port must be 1–65535."}</div>}
+        {error && <div style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-accent-danger-raised)", marginTop: "var(--tasty-space-xs)" }}>{error === "type" ? "Type is required." : error === "host" ? "Host is required." : "Port must be 1–65535."}</div>}
       </div>
       {/* footer — full-width separator, buttons inset */}
-      <div style={{ flex: "none", borderTop: "1px solid var(--tasty-separator)", padding: "12px 16px", display: "flex", justifyContent: "flex-end", gap: 8 }}>
+      <div style={{ flex: "none", borderTop: "var(--tasty-border-width) solid var(--tasty-separator)", padding: "var(--tasty-space-md) var(--tasty-space-lg)", display: "flex", justifyContent: "flex-end", gap: "var(--tasty-space-sm)" }}>
         <Button variant="ghost" size="sm">Cancel</Button>
         <Button variant="primary" size="sm">Save</Button>
       </div>

@@ -4752,6 +4752,10 @@
       "$type": "dimension",
       "$value": "{primitive.size-460}"
     },
+    "remote-form-specimen-height": {
+      "$type": "dimension",
+      "$value": "{component.remote-window-height}"
+    },
     "git-viewer-specimen-width": {
       "$type": "dimension",
       "$value": "{primitive.size-640}"
@@ -5055,6 +5059,10 @@
     "remote-port-field-width": {
       "$type": "dimension",
       "$value": "{primitive.size-96}"
+    },
+    "remote-type-suggest-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-64}"
     },
     "remote-filter-menu-width": {
       "$type": "dimension",
@@ -6110,6 +6118,10 @@
     "remote-reveal-pad-right": {
       "$type": "dimension",
       "$value": "calc(1 * var(--tasty-remote-reveal-inset) + 1 * var(--tasty-icon-button-size-sm) + 1 * var(--tasty-size-2))"
+    },
+    "segmented-gap": {
+      "$type": "dimension",
+      "$value": "{primitive.size-6}"
     },
     "remote-picker-width": {
       "$type": "dimension",
