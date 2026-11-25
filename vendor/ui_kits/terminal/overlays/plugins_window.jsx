@@ -859,7 +859,7 @@ function PluginsWindow({ onClose, onFlash, onConfigure, removedAttention, onRemo
             })}
             {list.length === 0 && (
               <div style={{ padding: "var(--tasty-space-lg) 0 0", fontSize: "var(--tasty-font-size-body)", color: "var(--tasty-text-muted)" }}>
-                {q ? "No matches" : tab === "installed" ? "Nothing installed yet" : "All caught up"}
+                {q ? "No matches" : "No plugins installed."}
               </div>
             )}
           </div>
