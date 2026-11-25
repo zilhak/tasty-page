@@ -90,7 +90,7 @@ function TerminalPane({ session, focused, searchOpen, onSearchClose }) {
         {session.lines.map((ln, i) => <div key={i}>{ln}</div>)}
         <div style={{ display: "flex", alignItems: "center" }}>
           <span style={{ color: C.mauve }}>❯&nbsp;</span>
-          {focused && <span style={{ width: "var(--tasty-size-8)", height: "var(--tasty-size-16)", background: "var(--tasty-color-neutral-1100)",
+          {focused && <span style={{ width: "var(--tasty-size-8)", height: "var(--tasty-size-16)", background: "var(--tasty-surface-terminal-focused-fg)",
             display: "inline-block", animation: "tasty-blink 1.1s step-end infinite" }} />}
         </div>
       </div>
