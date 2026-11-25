@@ -122,8 +122,10 @@ test("a scoped theme value other than latte maps to Mocha", () => {
 const SVG_NS = "http://www.w3.org/2000/svg";
 const DEFAULT_STYLE = { display: "inline", visibility: "visible", opacity: "1", stroke: "none", strokeWidth: "1px", strokeOpacity: "1", fill: "rgb(0, 0, 0)", fillOpacity: "1", color: "rgb(0, 0, 0)", backgroundColor: "rgba(0, 0, 0, 0)", backgroundImage: "none", content: "none", position: "static" };
 class Node_ {
-  constructor(tag, { style = {}, cls = [], attrs = {}, box = [10, 10], ns } = {}, children = []) {
+  constructor(tag, { style = {}, cls = [], attrs = {}, box = [10, 10], ns, pseudo = {} } = {}, children = []) {
     this.tagName = tag.toUpperCase();
+    // A pseudo element's computed style, by name. One not given reads the node's own style.
+    this.pseudoStyle = Object.fromEntries(Object.entries(pseudo).map(([name, st]) => [name, { ...DEFAULT_STYLE, ...st }]));
     this.namespaceURI = ns ?? (["svg", "path", "rect", "line", "circle", "g", "defs", "text", "use", "polyline", "polygon", "ellipse"].includes(tag) ? SVG_NS : "html");
     this.style = { ...DEFAULT_STYLE, ...style };
     this.cls = cls;
@@ -157,7 +159,7 @@ class Node_ {
   get childNodes() { return []; }
 }
 const el = (tag, opts, children) => new Node_(tag, opts, children);
-globalThis.getComputedStyle = (node) => node.style;
+globalThis.getComputedStyle = (node, pseudo) => (pseudo && node.pseudoStyle[pseudo]) || node.style;
 
 const lib = pageLib();
 const WHITE = [[255, 255, 255, 1]];
@@ -685,4 +687,27 @@ test("measureRows: no focus row excuses an ink, even for another focus row", () 
 
 test("measureRows: a row naming a pseudo element does not excuse the element's own ink", () => {
   assert.equal(excusedBy(frameRow(), twin({ selector: ".table-wrap::before" })), false);
+});
+
+// The frame's own border is black and its ::before and ::after borders grey, so a row reads a different paint on each.
+const pseudoFrame = () => {
+  const grey = { borderTopWidth: "1px", borderTopColor: "rgb(128, 128, 128)" };
+  const frame = el("div", { cls: ["table-wrap"], style: { borderTopWidth: "1px", borderTopColor: "rgb(0, 0, 0)" }, pseudo: { "::before": grey, "::after": grey } });
+  page([frame]);
+};
+const excusedOnBefore = (candidate) => {
+  pseudoFrame();
+  const measured = frameRow({ selector: ".table-wrap::before" });
+  const [res] = lib.measureRows([measured], [measured, candidate], [], { edge: { mocha: "#000000" }, grey: { mocha: "#808080" } }, "mocha");
+  delete globalThis.document;
+  assert.equal(res.results.length, 1);
+  return res.results[0].otherRow;
+};
+
+test("measureRows: a row naming the same pseudo element excuses by that pseudo element's paint", () => {
+  assert.equal(excusedOnBefore(twin({ selector: ".table-wrap::before" })), true);
+});
+
+test("measureRows: the pseudo element and the element must match in the same selector alternative", () => {
+  assert.equal(excusedOnBefore(twin({ selector: ".absent::before, .table-wrap::after" })), false);
 });
