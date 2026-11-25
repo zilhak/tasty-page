@@ -67,9 +67,13 @@ const ic = {
 
 // a faux app backdrop so the scrim reads correctly. scrim={false} keeps the backdrop and drops the scrim, for a
 // centered popup that does not cover its scope (Approval).
+// The window sits in the backdrop's flow, so the backdrop is never narrower than the window and a space-lg margin on
+// each side (min-width: max-content). In a narrower column the stage scrolls to it instead of the backdrop cutting
+// both of its sides. The app hint and the scrim are layers under it.
 function Backdrop({ height = 360, blur = false, scrim = true, children }) {
+  const top = children.props.align === "top";
   return (
-    <div style={{ position: "relative", width: "100%", height, borderRadius: "var(--tasty-radius)", overflow: "hidden",
+    <div style={{ position: "relative", display: "grid", width: "100%", minWidth: "max-content", height, boxSizing: "border-box", borderRadius: "var(--tasty-radius)", overflow: "hidden",
       border: "1px solid var(--tasty-border-default)", background: "var(--tasty-bg-app)" }}>
       {/* hint of app chrome behind */}
       <div style={{ position: "absolute", inset: 0, padding: 14, opacity: 0.5 }}>
@@ -81,9 +85,9 @@ function Backdrop({ height = 360, blur = false, scrim = true, children }) {
       </div>
       {/* scrim — flat fill by default; the 1px blur (documented recipe) is opt-in
           so only the canonical Scrim spec pays the per-frame compositing cost */}
-      <div style={{ position: "absolute", inset: 0, background: scrim ? "var(--tasty-scrim-bg)" : undefined, backdropFilter: scrim && blur ? "blur(var(--tasty-scrim-blur))" : undefined,
-        display: "flex", alignItems: children.props.align === "top" ? "flex-start" : "center", justifyContent: "center",
-        paddingTop: children.props.align === "top" ? 40 : 0 }}>
+      <div style={{ position: "absolute", inset: 0, background: scrim ? "var(--tasty-scrim-bg)" : undefined, backdropFilter: scrim && blur ? "blur(var(--tasty-scrim-blur))" : undefined }} />
+      <div style={{ position: "relative", minHeight: 0, display: "flex", alignItems: top ? "flex-start" : "center", justifyContent: "center",
+        padding: `${top ? 40 : 0}px var(--tasty-space-lg) 0` }}>
         {children}
       </div>
     </div>
