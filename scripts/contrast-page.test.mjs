@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { missingCellRows, pageLib } from "./contrast-page.mjs";
 import { measureGallery } from "./contrast-gallery.mjs";
-import { FOCUS_FRAMES, belowRecord, chromeFailures, emptySiteTally, measureRest, mismatchRecord, printChromeFailures, reportChrome, summarize, walkFocus } from "./contrast-site.mjs";
+import { FOCUS_FRAMES, FOCUS_PAGES, belowRecord, chromeFailures, emptySiteTally, measureRest, mismatchRecord, printChromeFailures, reportChrome, summarize, walkFocus } from "./contrast-site.mjs";
 
 const { selectParts, validateParts, expectedTheme } = pageLib();
 const key = { component: "Title bar", state: "rest", host: "crust" };
@@ -616,4 +616,34 @@ test("walkFocus: a frame at the 120th stop is measured, one at the 121st is miss
     console.log = log;
   }
   assert.deepEqual(report.site.mocha.focusMissing, [{ page: look, selector: ".table-wrap", stops: 120 }]);
+});
+
+test("walkFocus with the page library: past the ordinary stops the walk asks for frames only, and every focus page with frames is visited", async () => {
+  for (const page of Object.keys(FOCUS_FRAMES)) assert.ok(FOCUS_PAGES.includes(page), page);
+  // Tab moves focus through real stand-in nodes and the tab runs the page function against them.
+  const link = () => focusVisible(el("a", ring()));
+  const nodes = [...Array.from({ length: 14 }, link), link(), focusVisible(el("div", { cls: ["anat-window"], ...ring() })), focusVisible(el("div", { cls: ["table-wrap"], ...ring() }))];
+  page(nodes);
+  const calls = [];
+  globalThis.window = { __contrast: { measureFocus: (...a) => { calls.push(a[4]); return lib.measureFocus(...a); } } };
+  let i = -1;
+  const tab = { keyboard: { press: async () => { i += 1; globalThis.document.activeElement = nodes[i]; } }, evaluate: async (fn, a) => (a && a.row ? fn(a) : undefined) };
+  const row = { ...focusRow, selector: "a, .table-wrap, .anat-window" };
+  const rules = { rows: [row], family: new Set(), tokens: ringTokens };
+  const t = emptySiteTally(rules);
+  // The 15th stop is an ordinary link: its style must not be read at all, so it is not judged and then dropped.
+  const read = new Set();
+  const style = globalThis.getComputedStyle;
+  globalThis.getComputedStyle = (node, pseudo) => { read.add(node); return style(node, pseudo); };
+  try {
+    await walkFocus(tab, t, rules, "mocha", "guide/getting-started/first-look/");
+  } finally {
+    globalThis.getComputedStyle = style;
+  }
+  assert.equal(read.has(nodes[14]), false);
+  assert.equal(read.has(nodes[13]), true);
+  assert.deepEqual(calls, [...Array(14).fill(false), true, true, true]);
+  assert.deepEqual([t.rows.focus.measured, t.rows.focus.inkHits, t.focusMissing.length], [16, 16, 0]);
+  delete globalThis.window;
+  delete globalThis.document;
 });

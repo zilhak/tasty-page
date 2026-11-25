@@ -37,7 +37,7 @@ const injectFixtures = (tab, page) => Promise.all(FIXTURES.filter((f) => f.page 
 // The landing window starts on its third tab. The other two hold the rest of the drawn lines.
 const LANDING_PAGES = LANGS.map((row) => row.landing);
 const LANDING_TABS = ["claude · release", "README.md"];
-const FOCUS_PAGES = ["", "guide/getting-started/first-look/", "guide/customize/settings/"];
+export const FOCUS_PAGES = ["", "guide/getting-started/first-look/", "guide/customize/settings/"];
 // The scroll frames each focus page must reach, by the focus row's selectors for them. After the first TAB_STOPS stops the
 // walk goes on, measuring frames only, until every one listed has been measured or FRAME_TAB_LIMIT stops have passed.
 export const FOCUS_FRAMES = {
