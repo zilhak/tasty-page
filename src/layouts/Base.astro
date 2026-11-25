@@ -14,7 +14,7 @@ interface Props {
   lang: string;
   title: string;
   description: string;
-  /** Which top-nav item to mark as current. */
+  /** Which top-nav item to mark as current. "design" also marks the root as the design zone, where styles/d2coding.css declares the D2Coding faces. */
   active?: "guide" | "install" | "design" | null;
   /** This page's path per language code. The language switch lists the languages present here. */
   hrefs: Record<string, string>;
@@ -41,7 +41,7 @@ const hasOtherLanguage = announceLanguages && listed.length > 1;
 const defaultHref = hrefs[DEFAULT_LANG];
 const D2CODING_SOURCE = "https://github.com/naver/d2-coding-font";
 ---
-<html lang={s.lang} data-theme-default="mocha">
+<html lang={s.lang} data-theme-default="mocha" data-design-zone={active === "design" ? "" : undefined}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
