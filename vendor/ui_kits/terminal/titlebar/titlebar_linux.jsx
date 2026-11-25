@@ -7,8 +7,11 @@ const BASE = `${import.meta.env.BASE_URL.replace(/\/$/, "")}/`;
 // Tasty's MAIN window on Linux draws its own titlebar (Client-Side
 //   Decoration): it is created with WindowAttributes::with_decorations(false),
 //   and the host handles the window buttons, the titlebar drag and the edge
-//   resize. The settings window turns the OS frame off on Linux too and draws
-//   its own title row. This kit is the design for that titlebar.
+//   resize. This kit is the design for that main-window titlebar.
+//   The settings window also asks for no OS frame on Linux, but on Wayland the
+//   compositor may still choose server-side decorations; then the OS draws the
+//   title bar and Tasty draws none. Otherwise Tasty draws the settings title
+//   row itself, with a close button only, not the min · max · close set here.
 //
 // Linux has NO single convention — the button set, order, and side vary by
 // desktop environment and user setting (GNOME: Close only, right; KDE/Breeze:
