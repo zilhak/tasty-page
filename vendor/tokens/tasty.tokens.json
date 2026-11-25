@@ -4600,6 +4600,10 @@
       "$type": "dimension",
       "$value": "{primitive.size-288}"
     },
+    "explorer-state-specimen-row-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-700}"
+    },
     "tutorial-marker-glow-inner": {
       "$type": "color",
       "$value": "color-mix(in srgb, var(--tasty-accent-primary) 22%, transparent)"

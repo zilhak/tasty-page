@@ -923,7 +923,7 @@ function Page() {
         <Spec id="empty-permission-loading-read-error-favorite-rename-popups" title="Empty / permission / loading / read error · favorite + rename popups"
           when={<>Status screens fill the content area; the two small editors reuse the Popup/rename visual language. <b>Read error (2026-10-07)</b>: any failure that is not a permission denial (path gone, not a directory, I/O error, remote read failure) gets its own state instead of falling through to “This folder is empty”: <b>alertTriangle</b> in <span className="tok">--tasty-explorer-error-fg</span> (→ accent-danger, as in the file picker error), title <b>“Can't read this folder”</b>, the <b>OS reason</b> as one mono caption line (text-muted, max 200, untranslated), and two buttons: <b>Retry</b> (secondary sm — re-reads the same path) and <b>Go up</b> (ghost sm — opens the parent; hidden at a root). Toolbar, tree and status line stay usable.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", flexDirection: "column", gap: 16 }}>
-            <div style={{ display: "flex", gap: 12, width: 700, flex: "none" }}>
+            <div style={{ display: "flex", gap: 12, width: "var(--tasty-explorer-state-specimen-row-width)", flex: "none" }}>
               <ExpState glyph={ic.folderOpen} title="This folder is empty" />
               <ExpState glyph={ic.lock} glyphColor="var(--tasty-accent-warning-raised)" title="Permission denied" sub="You don't have access to read this folder." />
               <ExpState glyph={<Spinner />} title="Loading…" />
