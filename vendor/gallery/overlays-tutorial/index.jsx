@@ -189,7 +189,7 @@ function Page() {
 
       <Section id="composite" title="Composite — a tutorial step in place">
         <Spec id="step-1-4" title="Step 1 / 5 — 워크스페이스"
-          when={<>Popup closed: marker (glow ring) + spotlight dim + callout only. Per <b>Decision 2</b>, step 1 wraps the whole workspace content area (tabs + surface + status, sidebar excluded), and the marker then shrinks to the pane, tab and surface before the summary highlights the whole area again.</>}>
+          when={<>Popup closed: marker (glow ring) + spotlight dim + callout only. Per <b>Decision 2</b>, step 1 wraps the whole workspace content area (tabs + surface + status, sidebar excluded), and the marker then shrinks to the pane, tab and surface. The summary shows only the callout.</>}>
           <Stage variant="solo" style={{ padding: 0, background: "var(--tasty-bg-app)" }} minHeight={340}>
             {/* Every part inside is absolutely placed, so the frame takes the stage's width itself (it shrank to its 2px
                 border before) and keeps a floor that holds the callout and its tail; a narrower column scrolls the stage. */}
