@@ -1445,6 +1445,10 @@
       "$type": "fontFamily",
       "$value": "{primitive.font-family-mono}"
     },
+    "font-prose": {
+      "$type": "fontFamily",
+      "$value": "{primitive.font-family-sans}"
+    },
     "font-label": {
       "$type": "fontFamily",
       "$value": "{semantic.font-mono}"

@@ -8,6 +8,8 @@
   /* A specimen's popups keep their real z-index, and it only ranks them against each other. The page's menu, header and skip link stay above the whole gallery. */
   isolation: isolate;
 }
+/* The writing about a specimen reads font-prose. The specimen itself inherits font-ui from the page, as the app draws it. */
+.g-intro, .g-section > h2, .spec-head, .part-h, .spec-note, .do, .dont, .spec-table { font-family: var(--tasty-font-prose); }
 [data-gallery-page] [data-theme] { color: var(--tasty-text-primary); }
 [data-gallery-page] a { color: inherit; }
 [data-gallery-page] h1 { margin: 0 0 var(--tasty-space-sm); font-size: var(--tasty-font-size-max); font-weight: var(--tasty-font-weight-semibold); }
