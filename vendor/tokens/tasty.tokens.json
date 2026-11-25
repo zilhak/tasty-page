@@ -3502,6 +3502,10 @@
       "$type": "color",
       "$value": "{semantic.overlay-hover}"
     },
+    "html-surface-specimen-min-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-288}"
+    },
     "html-remote-banner-glyph": {
       "$type": "color",
       "$value": "{semantic.accent-info-raised}"

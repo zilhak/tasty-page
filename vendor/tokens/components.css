@@ -470,6 +470,7 @@
   --tasty-html-script-marker-hit:     var(--tasty-size-16);           /* 16 square cell around the 12 glyph — lock click / hover target */
   --tasty-html-script-marker-hover-bg: var(--tasty-overlay-hover);    /* lock only; scriptFile has no hover fill */
   /* HTML surface — remote-content-blocked notice (inset banner) + address-field marker — 2026-11-01 */
+  --tasty-html-surface-specimen-min-width: var(--tasty-size-288); /* 2026-11-26 gallery inset-placement specimen: the narrowest each of the two side-by-side surfaces is drawn, so the narrow banner's Allow button fits inside the shell; a narrower column scrolls the stage */
   --tasty-html-remote-banner-glyph:   var(--tasty-accent-info-raised); /* 2026-11-05 ground-ink rules */
   --tasty-html-remote-marker-fg-hover: var(--tasty-text-muted-raised); /* 2026-11-05 the marker on its hover wash */
   --tasty-html-remote-marker-fg:      var(--tasty-glyph-dim-raised); /* 2026-11-05 ground-ink rules */

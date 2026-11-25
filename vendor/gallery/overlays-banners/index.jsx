@@ -614,9 +614,11 @@ function Page() {
             {[["Mocha", "mocha"], ["Latte", "latte"]].map(([label, attr]) => (
               <div key={label} {...(attr ? { "data-theme": attr } : {})} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", background: "var(--tasty-bg-app)" }}>
                 <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · two surfaces side by side, banner on the HTML one only</span>
-                <div style={{ display: "flex", gap: "var(--tasty-border-width)", background: "var(--tasty-border-frame)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
+                {/* The row keeps each surface at least html-surface-specimen-min-width, so at a narrow column the stage scrolls instead of
+                    clipping the narrow banner's Allow button. Narrow is still judged on the HTML surface's own width, as the app does. */}
+                <div style={{ display: "flex", gap: "var(--tasty-border-width)", minWidth: "calc(2 * var(--tasty-html-surface-specimen-min-width) + 3 * var(--tasty-border-width))", background: "var(--tasty-border-frame)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
                   {/* The app judges narrow on the surface's width before the banner inset: the slot is the HTML surface's box. */}
-                  <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ flex: 1, minWidth: "var(--tasty-html-surface-specimen-min-width)" }}>
                     <ScopeNarrowG>{(n) => <HtmlSurfaceG narrow={n} />}</ScopeNarrowG>
                   </div>
                   <TermSurfaceG />
