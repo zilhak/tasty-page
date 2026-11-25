@@ -953,6 +953,7 @@
   --tasty-remote-row-specimen-rail-width:   var(--tasty-size-288); /* 2026-11-24 — the wrapping rail of avatars beside the rows */
   /* Plugin surfaces › status screens (gallery specimen layout, not app chrome) — 2026-11-25 rows that keep their width and scroll the stage */
   --tasty-explorer-state-specimen-row-width: var(--tasty-size-700); /* the four explorer status screens side by side */
+  --tasty-image-state-specimen-grid-width:   var(--tasty-size-760); /* 2026-11-25 Plugin surfaces › image: the five canvas states, three to a row */
   /* Overlays › Tutorial (gallery specimen layout, not app chrome) — the composite step's faux window */
   /* 2026-11-25 tutorial marker glow (around the 2px accent ring) and the topic list's selected-row edge */
   --tasty-tutorial-marker-glow-inner:      color-mix(in srgb, var(--tasty-accent-primary) 22%, transparent); /* 3px spread right outside the ring */

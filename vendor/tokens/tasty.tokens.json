@@ -741,6 +741,10 @@
       "$type": "dimension",
       "$value": "960px"
     },
+    "size-760": {
+      "$type": "dimension",
+      "$value": "760px"
+    },
     "size-1100": {
       "$type": "dimension",
       "$value": "1100px"
@@ -4603,6 +4607,10 @@
     "explorer-state-specimen-row-width": {
       "$type": "dimension",
       "$value": "{primitive.size-700}"
+    },
+    "image-state-specimen-grid-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-760}"
     },
     "tutorial-marker-glow-inner": {
       "$type": "color",
