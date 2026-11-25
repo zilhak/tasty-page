@@ -133,7 +133,7 @@ const WEBVIEW_MARKS = [
   ["occupied-soft", "Occupied soft", "surface-occupied-soft-border", "surface-occupied-border-width", true],
   ["occupied-hard", "Occupied hard or mirror", "surface-occupied-hard-border", "surface-occupied-border-width", true],
   ["needs-input", "Needs input", "surface-highlight-input-border", "surface-highlight-input-width", true],
-  ["completion", "Completed", "surface-highlight-done-border", "surface-highlight-done-width", false],
+  ["completion", "Completed", "surface-highlight-done-border", "surface-highlight-done-width", true],
 ];
 
 export function GallerySurfaceFocus() {
@@ -168,10 +168,12 @@ export function GallerySurfaceFocus() {
           <View name="edge-occupied-hard-unfocused" label="Occupied hard or mirror, unfocused"><Marked focused={false} token="surface-occupied-hard-border" width="surface-occupied-border-width" /></View>
           <View name="edge-needs-input-focused" label="Needs input, focused"><Marked focused token="surface-highlight-input-border" width="surface-highlight-input-width" /></View>
           <View name="edge-needs-input-unfocused" label="Needs input, unfocused"><Marked focused={false} token="surface-highlight-input-border" width="surface-highlight-input-width" /></View>
+          <View name="edge-completion-focused" label="Completed, focused: the OS window is inactive, so it has not cleared"><Marked focused token="surface-highlight-done-border" width="surface-highlight-done-width" /></View>
           <View name="edge-completion-unfocused" label="Completed, unfocused"><Marked focused={false} token="surface-highlight-done-border" width="surface-highlight-done-width" /></View>
           <View name="bed-needs-input-focused" label="Bed kind, needs input, focused"><Marked kind={byId("terminal")} focused token="surface-highlight-input-border" width="surface-highlight-input-width" /></View>
           <View name="bed-needs-input-unfocused" label="Bed kind, needs input, unfocused"><Marked kind={byId("terminal")} focused={false} token="surface-highlight-input-border" width="surface-highlight-input-width" /></View>
           <View name="bed-occupied-hard-focused" label="Bed kind, hard occupied, focused: unfocused values"><Marked kind={byId("terminal")} focused bedFocused={false} token="surface-occupied-hard-border" width="surface-occupied-border-width" /></View>
+          <View name="bed-completion-focused" label="Bed kind, completed, focused: the OS window is inactive, so it has not cleared"><Marked kind={byId("terminal")} focused token="surface-highlight-done-border" width="surface-highlight-done-width" /></View>
           <View name="bed-completion-unfocused" label="Bed kind, completed, unfocused"><Marked kind={byId("terminal")} focused={false} token="surface-highlight-done-border" width="surface-highlight-done-width" /></View>
           <View name="bed-markdown-occupied-hard-focused" label="Markdown, hard occupied, focused: unfocused values, the webview covers the ring"><Marked kind={byId("markdown")} focused bedFocused={false} /></View>
           <View name="bed-field-focus" label="Bed kind, focused, with a focused field">
