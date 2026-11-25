@@ -149,7 +149,7 @@ function GalleryTabStrip() {
         <Meta
           specs={[["glyph", "chevronLeft / chevronRight · 14"], ["cell", "24 × 24, no fill"], ["hover", "overlay-hover, enabled side only"], ["disabled", "the end reached · no hover · no response"], ["scope", "pane strip + horizontal_tab_bar_with_arrows"], ["3:1 basis", "flat colour (Mocha 5.65 · Latte 3.65)"]]}
           tokens={[{ tok: "--tasty-tab-scroll-arrow-width", use: "→ control-height-tab 24" }, { tok: "--tasty-tab-scroll-arrow-glyph-size", use: "→ icon-size-sm 14" }, { tok: "--tasty-tab-scroll-arrow-fg", use: "→ text-muted", color: "var(--tasty-tab-scroll-arrow-fg)" }, { tok: "--tasty-tab-scroll-arrow-fg-disabled", use: "→ text-disabled", color: "var(--tasty-tab-scroll-arrow-fg-disabled)" }]} />
-        <Dont><b>Don't</b> draw arrows with a font glyph. A proportional <code>&lt;</code> at 11px renders thinner than the icon stroke and depends on the UI font.</Dont>
+        <Dont><b>Don't</b> draw arrows with a font glyph. A <code>&lt;</code> at 11px in monospaced D2Coding renders thinner than the icon stroke and depends on the UI font.</Dont>
       </Spec>
 
       <Spec id="move-source-scrolled-out-of-view-the-arrow-on-that-side-turns-pi" title="Move source scrolled out of view — the arrow on that side turns pink"

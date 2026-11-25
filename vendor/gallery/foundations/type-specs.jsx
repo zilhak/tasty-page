@@ -48,7 +48,7 @@ const SANS = [
 export function UiSansSpec() {
   return (
     <Spec id="ui-sans-chrome" title="UI face — chrome"
-      when={<>Native system sans for app chrome, capped at 14px. Compare the scale across four lines.</>}>
+      when={<>App chrome uses the bundled D2Coding with system sans fallback, capped at 14px. Weight 600 draws D2Coding Bold. Compare the scale across four lines.</>}>
       <Stage variant="solo column" style={{ gap: "var(--tasty-space-md)" }}>
         {SANS.map(([tok, size, name, weight, sample]) => (
           <div key={tok} style={{ display: "flex", flexWrap: "wrap", alignItems: "baseline", gap: "var(--tasty-space-xs) var(--tasty-space-lg)" }}>
@@ -104,7 +104,7 @@ export function LabelFamilySpec() {
   const cap = { fontFamily: MONO, fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" };
   return (
     <Spec id="label-family" title="Label family"
-      when={<>Use for small translated labels: section and column headings, tags and status words. English and Korean use mono; Japanese and Simplified Chinese use UI sans because mono lacks some of their Han glyphs; paths, IDs and other values stay mono in every language.</>}>
+      when={<>Use for small translated labels such as section and column headings, tags and status words. English and Korean use mono. Japanese and Simplified Chinese use <code>font-ui</code>, which starts with D2Coding, so labels follow the surrounding text. Paths, IDs and other values stay mono in every language.</>}>
       <Stage variant="solo column" style={{ gap: "var(--tasty-space-sm)", alignItems: "stretch" }}>
         {LABEL_FAMILY.map(([lang, family, heading, section]) => (
           <div key={lang} style={{ display: "grid", gridTemplateColumns: "var(--tasty-size-64) var(--tasty-size-140) 1fr 1fr", alignItems: "baseline", gap: "var(--tasty-space-sm)" }}>
@@ -140,7 +140,7 @@ const WEIGHTS = [["normal", 400], ["medium", 500], ["semibold", 600], ["bold", 7
 export function WeightsSpec() {
   return (
     <Spec id="weights-and-casing" title="Weights & casing"
-      when={<>Compare four weights in the UI sans. The specimen exceeds the size cap so you can judge the weight steps. Use small caps for micro-labels only.</>}>
+      when={<>D2Coding is the UI font. Its two faces are Regular for 400 and 500, and Bold for 600 and 700. The specimen exceeds the size cap so you can judge the weight steps. Use small caps for micro-labels only.</>}>
       <Stage variant="solo" style={{ alignItems: "flex-end", gap: "var(--tasty-space-xl)" }}>
         {WEIGHTS.map(([name, weight]) => (
           <div key={name}>
