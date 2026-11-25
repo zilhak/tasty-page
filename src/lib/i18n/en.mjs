@@ -197,6 +197,7 @@ export default {
       statusbar: "Status bar",
       workspaces: "Workspaces",
     },
+    settingsWindow: { name: "Settings window layout diagram" },
     workflow: {
       caption: "A layout example built from design components. Follow the steps below in Tasty.",
       labels: ["Implementation", "Tests"],

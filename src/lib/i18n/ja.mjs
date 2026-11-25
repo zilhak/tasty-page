@@ -197,6 +197,7 @@ export default {
       statusbar: "ステータスバー",
       workspaces: "ワークスペース",
     },
+    settingsWindow: { name: "設定ウィンドウの構成図" },
     workflow: {
       caption: "デザインコンポーネントで構成したレイアウト例です。実際のターミナルは以下の手順で作成してください。",
       labels: ["実装する場所", "テストする場所"],
