@@ -48,10 +48,10 @@ const ic = {
   rocket: <DSIcon name="rocket" />,
 };
 
-// ⚠ NON-PRODUCT MOCK. Tasty ships the NATIVE titlebar on every OS (this just
-// paints macOS traffic lights for the kit's frame). For the Client-Side-
-// Decoration exploration (macOS/Windows/Linux, tokenized) see
-// titlebar/titlebar_{macos,windows,linux}.{jsx,html} and FEATURES.md.
+// ⚠ NON-PRODUCT MOCK. This just paints macOS traffic lights for the kit's
+// frame. Tasty's main window draws its own titlebar on Windows and Linux and
+// keeps the native window buttons on macOS. For the per-OS titlebars
+// (tokenized) see titlebar/titlebar_{macos,windows,linux}.jsx.
 function TitleBar({ workspace }) {
   return (
     <div style={{ display: "flex", alignItems: "center", height: "var(--tasty-titlebar-height)", flex: "none",

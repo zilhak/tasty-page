@@ -4,11 +4,11 @@ const BASE = `${import.meta.env.BASE_URL.replace(/\/$/, "")}/`;
 
 // Tasty UI kit — CSD titlebar · Linux
 // ─────────────────────────────────────────────────────────────────────────
-// ⚠ NON-PRODUCT / EXPLORATION. Shipping Tasty uses the NATIVE Linux titlebar.
-//   This designs the Client-Side-Decoration alternative (the common case on
-//   Wayland, where the client draws its own decorations + resize edges).
-//   Adopting it needs WindowAttributes::with_decorations(false), custom drag,
-//   and Wayland CSD resize-edge handling.
+// Tasty's MAIN window on Linux draws its own titlebar (Client-Side
+//   Decoration): it is created with WindowAttributes::with_decorations(false),
+//   and the host handles the window buttons, the titlebar drag and the edge
+//   resize. The settings window turns the OS frame off on Linux too and draws
+//   its own title row. This kit is the design for that titlebar.
 //
 // Linux has NO single convention — the button set, order, and side vary by
 // desktop environment and user setting (GNOME: Close only, right; KDE/Breeze:
