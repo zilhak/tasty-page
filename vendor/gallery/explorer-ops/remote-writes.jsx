@@ -1,6 +1,6 @@
 import React from "react";
 import { IconButton, Button, Input, MenuItem, Kbd, Spinner, Icon } from "../../components/index.js";
-import { XCol, XThemes, XToolbar, XCell, xCellMin, XDetail, XROWS, XDragChip } from "./create-drag-search.jsx";
+import { XCol, XThemes, XToolbar, XCell, xWideToolbarMin, XDetail, XROWS, XDragChip } from "./create-drag-search.jsx";
 import * as ExplorerOpsY_ns from "./index.jsx";
 import * as K from "../parts/explorer-kit.jsx";
 import { MIRROR_PILL_LABEL } from "../parts/overlay-frames.jsx";
@@ -145,7 +145,7 @@ function RemoteWriteSection() {
             </K.CtxMenu>
             <Tip>{REASON.old.en}</Tip>
           </div>
-          <XCol label="toolbar · can't write — create disabled" w={560}><div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden", minWidth: xCellMin(560) }}><XToolbar denied deniedReason={REASON.old.en} path="/home/me/logs" /></div></XCol>
+          <XCol label="toolbar · can't write — create disabled" w={560}><div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden", minWidth: xWideToolbarMin }}><XToolbar denied deniedReason={REASON.old.en} path="/home/me/logs" /></div></XCol>
           <XCol label="shortcut on a remote that can't write — toast (en · ko · ja)" w={340}>
             <XThemes gap="var(--tasty-space-sm)" render={() => (
               <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", width: "var(--tasty-toast-max-width)", maxWidth: "100%" }}>

@@ -67,10 +67,12 @@ function XStatus({ children, right }) {
     </div>
   );
 }
-// A cell never draws narrower than its own width or the toolbar's fold point (explorer-toolbar-compact-below), whichever
-// is smaller. Under the fold point the app folds the file commands into More, so a cell drawing the wide toolbar is at
-// least that wide; a narrower column scrolls the stage instead of squeezing the cell and cutting the toolbar's end.
-const xCellMin = (w) => `min(${w}px, var(--tasty-explorer-toolbar-compact-below))`;
+// The app folds the file commands into More when the toolbar itself (the cell inside its border) is narrower than
+// explorer-toolbar-compact-below, so a box drawing the wide toolbar is at least that plus its two border lines. A cell never
+// draws narrower than that floor or its own width, whichever is smaller; a narrower column scrolls the stage instead of
+// squeezing the cell and cutting the toolbar's end.
+const xWideToolbarMin = "calc(var(--tasty-explorer-toolbar-compact-below) + 2 * var(--tasty-border-width))";
+const xCellMin = (w) => `min(${w}px, ${xWideToolbarMin})`;
 function XCell({ w = 640, h = 300, toolbar, bar, status, statusRight, children, overlay, preview }) {
   return (
     <div style={{ position: "relative", width: "100%", maxWidth: w, minWidth: preview ? xPreviewCellMin : xCellMin(w), height: h, display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
@@ -185,10 +187,10 @@ function CreateSection() {
       <Spec id="toolbar-create-group-and-view-group-wide-narrow-remote-read-only" title="Toolbar — create group and view group (wide · narrow · remote · read-only)"
         when={<>Two small icon groups sit between the <b>PathField</b> and the <b>SegToggle</b>: <b>create</b> (New folder · New file) and, after a 1px separator, <b>view</b> (Find · Preview panel, both toggles with the IconButton <code>active</code> state). Icon-only, sm, tooltip = the command name. Delete, Rename and the clipboard stay in the context menu and on keys; the toolbar holds only what has no selection target. When the <b>cell</b> is narrower than <span className="tok">--tasty-explorer-toolbar-compact-below</span> (440) both groups fold into one <b>More</b> IconButton whose menu lists the same four rows; the PathField keeps flex 1 and the nav group never folds. A <b>remote (mirror)</b> explorer hides the create group (Find and Preview stay). A folder the user can't write to keeps the buttons <b>disabled</b> with the tooltip “Can't write to this folder”.</>}>
         <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", flexDirection: "column", gap: 14, alignItems: "stretch" }}>
-          <XCol label="wide · local"><div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden", maxWidth: 640, minWidth: xCellMin(640) }}><XToolbar /></div></XCol>
-          <XCol label="wide · preview on · find on"><div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden", maxWidth: 640, minWidth: xCellMin(640) }}><XToolbar preview search /></div></XCol>
-          <XCol label="remote (mirror) — create group hidden"><div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden", maxWidth: 640, minWidth: xCellMin(640) }}><XToolbar remote path="/home/me/logs" /></div></XCol>
-          <XCol label="permission denied — create disabled"><div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden", maxWidth: 640, minWidth: xCellMin(640) }}><XToolbar denied path="/usr/share" /></div></XCol>
+          <XCol label="wide · local"><div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden", maxWidth: 640, minWidth: xWideToolbarMin }}><XToolbar /></div></XCol>
+          <XCol label="wide · preview on · find on"><div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden", maxWidth: 640, minWidth: xWideToolbarMin }}><XToolbar preview search /></div></XCol>
+          <XCol label="remote (mirror) — create group hidden"><div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden", maxWidth: 640, minWidth: xWideToolbarMin }}><XToolbar remote path="/home/me/logs" /></div></XCol>
+          <XCol label="permission denied — create disabled"><div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden", maxWidth: 640, minWidth: xWideToolbarMin }}><XToolbar denied path="/usr/share" /></div></XCol>
           <div style={{ display: "flex", gap: 18, flexWrap: "wrap", alignItems: "flex-start" }}>
             <XCol label="narrow cell (< 440) — More" w={400}><div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}><XToolbar narrow /></div></XCol>
             <XK.CtxMenu title="More menu">
@@ -542,4 +544,4 @@ function SearchSection() {
   );
 }
 
-export { XCol, XThemes, XToolbar, XCell, xCellMin, XDetail, XROWS, XListRow, XHi, XFindBar, XListEdit, XDragChip, CreateSection, DragSection, SearchSection };
+export { XCol, XThemes, XToolbar, XCell, xWideToolbarMin, XDetail, XROWS, XListRow, XHi, XFindBar, XListEdit, XDragChip, CreateSection, DragSection, SearchSection };
