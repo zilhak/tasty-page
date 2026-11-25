@@ -14,7 +14,7 @@ const LoadingOverlay = TastyDesignSystem_41fd3f_LoadingOverlay || (() => null); 
 const THEMES = [["Mocha", "mocha"], ["Latte", "latte"]];
 const mono = { fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" };
 const cap = (t) => <div style={{ ...mono, marginBottom: "var(--tasty-space-xs)" }}>{t}</div>;
-const BOX = { outline: "var(--tasty-border-width) dashed var(--tasty-accent-move)", outlineOffset: 0 };
+const BOX = { outline: "var(--tasty-border-width) dashed var(--tasty-specimen-annotation-border)", outlineOffset: 0 };
 const Themed = ({ attr, children, style }) => (
   <div {...(attr ? { "data-theme": attr } : {})} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-md)", padding: "var(--tasty-space-md)",
     background: "var(--tasty-bg-app)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", minWidth: 0, ...style }}>{children}</div>
@@ -164,7 +164,7 @@ function DocSurface({ loading, boxes, rm }) {
 function WebViewSurface() {
   return (
     <div style={{ width: "var(--tasty-size-288)", height: "var(--tasty-size-140)", boxSizing: "border-box", display: "flex", alignItems: "center", justifyContent: "center", textAlign: "center", padding: "var(--tasty-space-md)",
-      background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) dashed var(--tasty-border-default)", ...mono }}>WebView (native, drawn above Tasty) · no in-surface spinner · the tab and the LNB card carry it</div>
+      background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) dashed var(--tasty-specimen-annotation-border)", ...mono }}>WebView (native, drawn above Tasty) · no in-surface spinner · the tab and the LNB card carry it</div>
   );
 }
 

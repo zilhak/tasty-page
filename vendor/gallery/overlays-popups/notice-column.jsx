@@ -16,7 +16,7 @@ const THEMES = [["Mocha", "mocha"], ["Latte", "latte"]];
 const cap = { fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" };
 const mono = { fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" };
 const LINES = ["~ $ ls", "Cargo.toml  crates  docs  src", "~ $ cargo build", "   Compiling tasty v0.9.4", "~ $ ▌"];
-const ANNOT = { outline: "var(--tasty-border-width) dashed var(--tasty-accent-move)", outlineOffset: "var(--tasty-size-2)" };
+const ANNOT = { outline: "var(--tasty-border-width) dashed var(--tasty-specimen-annotation-border)", outlineOffset: "var(--tasty-size-2)" };
 
 function Term({ lines = LINES, search }) {
   return (

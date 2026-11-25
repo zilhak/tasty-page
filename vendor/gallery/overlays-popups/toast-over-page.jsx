@@ -29,7 +29,7 @@ const Body = ({ children }) => <div style={{ position: "absolute", top: STRIP, l
 const Corner = ({ children }) => (
   <div style={{ position: "absolute", right: INSET, bottom: INSET, display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "var(--tasty-space-sm)" }}>{children}</div>
 );
-const SLOT_EDGE = { outline: "var(--tasty-border-width) dashed var(--tasty-text-muted)", outlineOffset: "calc(-1 * var(--tasty-border-width))" };
+const SLOT_EDGE = { outline: "var(--tasty-border-width) dashed var(--tasty-specimen-annotation-border)", outlineOffset: "calc(-1 * var(--tasty-border-width))" };
 // where the card is under the page, not drawn: the outline takes the size of the card itself (same width and height rule)
 const Slot = () => (
   <div aria-hidden="true" style={{ flex: "none", display: "flex", ...SLOT_EDGE }}>

@@ -58,7 +58,7 @@ function Term() {
 }
 const Scrim = ({ style }) => <div style={{ position: "absolute", inset: 0, background: "var(--tasty-scrim-bg)", ...style }} />;
 const Host = ({ on, children, style }) => (
-  <div style={{ display: "flex", outline: on ? "var(--tasty-border-width) dashed var(--tasty-accent-warning)" : "none", outlineOffset: 2, ...style }}>{children}</div>
+  <div style={{ display: "flex", outline: on ? "var(--tasty-border-width) dashed var(--tasty-specimen-annotation-border)" : "none", outlineOffset: 2, ...style }}>{children}</div>
 );
 function Frame({ w = 560, h = 340, children }) {
   return (
@@ -160,7 +160,7 @@ function Grid({ Scene, h = 340, extra }) {
     <Stage variant="solo" eager style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", flexDirection: "column", gap: "var(--tasty-space-md)", alignItems: "flex-start" }}>
       {row("Mocha")}{row("Latte")}
       <span style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>
-        <span style={{ width: 16, height: 10, outline: "var(--tasty-border-width) dashed var(--tasty-accent-warning)" }} />
+        <span style={{ width: 16, height: 10, outline: "var(--tasty-border-width) dashed var(--tasty-specimen-annotation-border)" }} />
         host-drawable rect over the page (popup box · dropdown box) — every pixel inside is opaque, nothing outside it can change
       </span>
     </Stage>
