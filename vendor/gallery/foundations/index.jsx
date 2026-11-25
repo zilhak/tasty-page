@@ -294,7 +294,7 @@ function Foundations() {
             <ElevationStack />
           </Stage>
           <Meta
-            specs={[["ramp order", <>crust→mantle→base→surface0→1→2</>], ["border", <>mantle and base use 1px <span className="tok">--tasty-border-default</span>, raised uses 1px <span className="tok">--tasty-border-strong</span></>], ["shadow", "none in the page; floating surfaces only"]]}
+            specs={[["ramp order", <>crust→mantle→base→surface0→1→2</>], ["border", <>crust, mantle and base use 1px <span className="tok">--tasty-border-default</span>, raised uses 1px <span className="tok">--tasty-border-strong</span></>], ["shadow", "none in the page; floating surfaces only"]]}
             tokens={[
               { tok: "--tasty-bg-app", use: "window", color: "var(--tasty-bg-app)" },
               { tok: "--tasty-bg-sidebar", use: "rails", color: "var(--tasty-bg-sidebar)" },
