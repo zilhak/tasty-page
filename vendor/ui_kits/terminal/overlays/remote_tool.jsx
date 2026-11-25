@@ -90,7 +90,7 @@ const MASK = "••••••••";
 const rtMono = { fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" };
 const rtCaption = { fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" };
 const rtLabel = { fontSize: "var(--tasty-font-size-body)", color: "var(--tasty-text-muted)", textAlign: "right" };
-const rtFormTitle = { fontSize: "var(--tasty-font-size-heading)", fontWeight: "var(--tasty-font-weight-semibold)", color: "var(--tasty-text-primary)", marginBottom: "var(--tasty-space-md)" };
+const rtFormTitle = { fontSize: "var(--tasty-font-size-heading)", fontWeight: "var(--tasty-font-weight-semibold)", color: "var(--tasty-text-primary)", marginBottom: "var(--tasty-space-lg)" };
 const rtScrollPad = { flex: 1, minHeight: 0, overflow: "auto", padding: "var(--tasty-space-md) var(--tasty-space-lg)" };
 const rtFooter = { display: "flex", justifyContent: "flex-end", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-space-lg)", flex: "none",
   borderTop: "var(--tasty-border-width) solid var(--tasty-separator)" };
