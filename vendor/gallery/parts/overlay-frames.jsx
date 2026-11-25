@@ -1118,7 +1118,8 @@ function SearchBarFrame({ value = "tasty", focused = false, invalid = false, hei
         <IconButton size="sm" aria-label="Previous"><Icon name="chevronUp" size={14} /></IconButton>
         <IconButton size="sm" aria-label="Next"><Icon name="chevronDown" size={14} /></IconButton>
         <Toggle label="Aa" /><Toggle label=".*" active={invalid} /><Toggle label="ab" active={!invalid} />
-        <span style={{ width: 1, alignSelf: "stretch", margin: "0 2px", background: "var(--tasty-separator)" }} />
+        {/* The divider sits on the raised bar, so it reads border-strong, the raised cell of the separator role. */}
+        <span style={{ width: 1, alignSelf: "stretch", margin: "0 2px", background: "var(--tasty-border-strong)" }} />
         <IconButton size="sm" aria-label="Close">{ic.x}</IconButton>
       </div>
     </div>
