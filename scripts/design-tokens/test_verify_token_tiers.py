@@ -95,18 +95,35 @@ class Base(unittest.TestCase):
 
 class Canon(Base):
     def test_vendor_tokens_pass(self):
+        # The canon grows as tokens are added, so its counts are not pinned here. The
+        # declaration counts are compared with the token JSON checker, which reads the
+        # CSS with gen_tokens_json.parse(), and each breakdown must add up to its total.
         r = subprocess.run([sys.executable, "-B", SCRIPT, os.path.join(HERE, "..", "..", "vendor")],
                            capture_output=True, text=True)
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
-        for line in ("declarations: base 1661, Latte 87",
-                     "var() references: base 1543, Latte 94",
-                     "component -> primitive (base): 239 (size 235, radius 1, duration 3)",
-                     "component -> primitive (Latte): 0 (size 0, radius 0, duration 0)",
-                     "component -> component: base 91, Latte 0",
-                     "semantic -> semantic: base 91, Latte 2",
-                     "component literals: 9 (coefficient 1, count 2, dash 4, keyword 1, window-shadow 1)",
-                     "token tiers: 0 violations"):
-            self.assertIn(line, r.stdout)
+        out = r.stdout
+        self.assertIn("token tiers: 0 violations", out)
+        j = subprocess.run([sys.executable, "-B", os.path.join(HERE, "verify_tokens_json.py"),
+                            os.path.join(HERE, "..", "..", "vendor"),
+                            os.path.join(HERE, "..", "..", "vendor", "tokens", "tasty.tokens.json")],
+                           capture_output=True, text=True)
+        self.assertEqual(j.returncode, 0, j.stdout + j.stderr)
+        base = sum(int(n) for n in re.findall(r"^\w+: css (\d+) json", j.stdout, re.M))
+        latte = sum(int(n) for n in re.findall(r"\| latte css (\d+) json", j.stdout))
+        self.assertGreater(base, 0)
+        self.assertIn(f"declarations: base {base}, Latte {latte}", out)
+        self.assertRegex(out, r"var\(\) references: base \d+, Latte \d+")
+        for theme in ("base", "Latte"):
+            m = re.search(r"component -> primitive \(%s\): (\d+) \(size (\d+), radius (\d+), duration (\d+)\)" % theme, out)
+            self.assertIsNotNone(m, theme)
+            total, *parts = map(int, m.groups())
+            self.assertEqual(total, sum(parts), m.group(0))
+        self.assertIn("component -> primitive (Latte): 0 (size 0, radius 0, duration 0)", out)
+        self.assertRegex(out, r"component -> component: base \d+, Latte \d+")
+        self.assertRegex(out, r"semantic -> semantic: base \d+, Latte \d+")
+        m = re.search(r"component literals: (\d+) \(([^)]*)\)", out)
+        self.assertIsNotNone(m)
+        self.assertEqual(int(m.group(1)), sum(int(n) for n in re.findall(r" (\d+)(?:,|$)", m.group(2))), m.group(0))
 
     def test_defaults_pass_and_count(self):
         out = self.ok(files())
