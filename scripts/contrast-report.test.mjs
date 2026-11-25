@@ -112,5 +112,8 @@ test("timeoutWriteNote: nothing when the partial report is written or not asked 
 test("report lines quote a path that holds a line break, so each stays one line", () => {
   const err = reportExit({ failed: false, json: "a\nb.json", written: { error: "ENOENT" }, graceMs: 10000 }).err;
   assert.equal(err, 'writing "a\\nb.json" failed: ENOENT');
-  assert.equal(err.includes("\n"), false);
+  const late = { late: true, signalled: true, reaped: true };
+  assert.equal(reportExit({ failed: false, json: "a\nb.json", written: late, graceMs: 10000 }).err, 'writing "a\\nb.json" did not finish within 10s');
+  assert.equal(timeoutWriteNote({ json: "a\nb.json", written: { error: "ENOENT" }, graceMs: 10000 }), 'writing "a\\nb.json" failed: ENOENT');
+  assert.equal(timeoutWriteNote({ json: "a\nb.json", written: late, graceMs: 10000 }), 'writing "a\\nb.json" did not finish within 10s');
 });
