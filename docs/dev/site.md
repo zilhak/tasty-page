@@ -138,7 +138,7 @@
 
 ### 렌더링 대비 검사
 
-`npm run check-contrast`는 빌드 결과를 띄워 갤러리 페이지와 사이트 페이지를 Mocha와 Latte로 렌더링한다. `--site-only`와 `--gallery-only`로 한쪽만 실행하고, `--page <키>`는 갤러리 한 페이지만 잰다. 갤러리 측정과 결과 집계는 [`scripts/check-contrast.mjs`](../../scripts/check-contrast.mjs)의 `measure()`와 `run()`에 있다. 사이트 측정은 `scripts/contrast-site.mjs`가 맡는다.
+`npm run check-contrast`는 빌드 결과를 띄워 갤러리 페이지와 사이트 페이지를 Mocha와 Latte로 렌더링한다. `--site-only`와 `--gallery-only`로 한쪽만 실행하고, `--page <키>`는 갤러리 한 페이지만 잰다. 갤러리 측정과 결과 집계는 [`scripts/check-contrast.mjs`](../../scripts/check-contrast.mjs)의 `measure()`와 `run()`에 있다. 사이트 측정은 `scripts/contrast-site.mjs`가 맡는다. 검사 전체 시간과 어느 작업도 브라우저 호출을 시작하지 않은 시간(정체)의 상한은 `scripts/check-contrast.mjs`의 `TOTAL_S`와 `STALL_S`에 두며, 환경 변수 `CONTRAST_TIMEOUT_S`와 `CONTRAST_STALL_S`로 각각 초 단위로 바꿀 수 있고 정체 상한은 전체 상한보다 작아야 한다. 어느 상한이든 넘으면 진행 중이던 작업을 출력하고 브라우저를 닫은 뒤 종료 코드 3으로 끝나며, 검사 프로세스가 동기 작업에 갇히면 이 제한은 작동하지 않는다.
 
 갤러리 페이지와 토큰 페이지(`design/tokens/`)에서는 다음을 잰다. 토큰 페이지는 갤러리 수에 넣지 않고 `SPECIMEN_ROUTES`로 더한다. 기본 언어 경로에서 한 번만 잰다. 다른 언어 경로의 표본은 같은 소스라 다시 재지 않는다.
 
