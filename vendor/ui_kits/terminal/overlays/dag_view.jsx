@@ -305,7 +305,7 @@ function DagNode({ node, lod = "full", selected = false, dimmed = false, onSelec
   const tip = nodeTitle(node);
   const base = {
     position: "absolute", boxSizing: "border-box", textAlign: "left",
-    width: "var(--tasty-dag-node-width)", height: "var(--tasty-dag-node-height)",
+    width: "var(--tasty-dag-node-width)", height: "var(--tasty-dag-node-height)", lineHeight: "var(--tasty-line-height-ui)",
     display: "flex", alignItems: "stretch", gap: 0, padding: 0, cursor: "pointer",
     borderRadius: "var(--tasty-dag-node-radius)",
     border: `var(--tasty-border-width) solid ${node.status === "waiting" || node.status === "cancelled" || node.status === "skipped" ? "var(--tasty-dag-node-border)" : accent}`,

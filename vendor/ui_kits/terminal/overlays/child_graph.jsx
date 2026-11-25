@@ -158,7 +158,7 @@ function GapNode({ node, lod, selected, lang, onSelect }) {
   const tip = `${label} — ${host}`;
   const box = {
     position: "absolute", boxSizing: "border-box", textAlign: "left", cursor: "pointer", fontFamily: "var(--tasty-font-ui)",
-    width: "var(--tasty-dag-node-width)", height: "var(--tasty-dag-node-height)", padding: 0,
+    width: "var(--tasty-dag-node-width)", height: "var(--tasty-dag-node-height)", padding: 0, lineHeight: "var(--tasty-line-height-ui)",
     display: "flex", alignItems: lod === "block" ? "center" : "stretch", justifyContent: lod === "block" ? "center" : "flex-start",
     borderRadius: "var(--tasty-dag-node-radius)", border: "var(--tasty-border-width) dashed var(--tasty-dag-node-border)",
     background: "var(--tasty-dag-node-bg)", color: "var(--tasty-dag-node-fg)",
@@ -210,7 +210,7 @@ function ChildNode({ node, lod = "full", selected = false, base = false, hover, 
   const tip = [name, label, other ? host || gt("attach.mirror_pill_label", lang) : null, other && node.id !== name ? node.id : null].filter(Boolean).join(" — ");
   const box = {
     position: "absolute", boxSizing: "border-box", textAlign: "left",
-    width: "var(--tasty-dag-node-width)", height: "var(--tasty-dag-node-height)",
+    width: "var(--tasty-dag-node-width)", height: "var(--tasty-dag-node-height)", lineHeight: "var(--tasty-line-height-ui)",
     display: "flex", alignItems: "stretch", padding: 0, cursor: "pointer",
     borderRadius: "var(--tasty-dag-node-radius)",
     border: `var(--tasty-border-width) ${special ? "dashed" : "solid"} ${special || st.plain ? "var(--tasty-dag-node-border)" : accent}`,
