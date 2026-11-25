@@ -51,8 +51,10 @@ function BootFrame({ w, h, z = 1, phase, showPhase = true, theme }) {
     position: "absolute", inset: 0, background: "var(--tasty-bg-app)",
     display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
   };
+  // min-width: max-content keeps the frame at its window size in a narrow stage: the wrap clips (overflow hidden), so as a
+  // flex or grid item it would otherwise shrink to nothing and cut the window instead of letting the stage scroll.
   const wrap = {
-    display: "inline-block", border: "var(--tasty-border-width) solid var(--tasty-titlebar-csd-border)",
+    display: "inline-block", minWidth: "max-content", border: "var(--tasty-border-width) solid var(--tasty-titlebar-csd-border)",
     borderRadius: "var(--tasty-titlebar-csd-radius)", overflow: "hidden",
   };
   const vp = { position: "relative", overflow: "hidden", width: w * z, height: h * z };
@@ -110,7 +112,7 @@ function ShellSetupFrame({ check = "valid", os = "mac", notice = "missing", foun
   const win = os === "win";
   const value = valueProp ?? { empty: "", missing: win ? "C:/Program Files/Git/bin/bash.exe" : "/usr/local/bin/zsh", notShell: "C:/Windows/System32/cmd.exe", valid: win ? "D:/Tools/Git/bin/bash.exe" : "/bin/zsh" }[check];
   return (
-    <div style={{ display: "inline-block", border: "var(--tasty-border-width) solid var(--tasty-titlebar-csd-border)", borderRadius: "var(--tasty-titlebar-csd-radius)", overflow: "hidden" }}>
+    <div style={{ display: "inline-block", minWidth: "max-content", border: "var(--tasty-border-width) solid var(--tasty-titlebar-csd-border)", borderRadius: "var(--tasty-titlebar-csd-radius)", overflow: "hidden" }}>
       <div {...(theme ? { "data-theme": theme } : {})} style={{ width: 640, height: 480, background: "var(--tasty-bg-app)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
         <Lockup />
         <div style={{ marginTop: "var(--tasty-space-xl)", width: "var(--tasty-size-360)", display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
@@ -148,7 +150,7 @@ const BOOT_ERRORS = {
 function BootErrorFrame({ kind = "engine", theme, h = 480 }) {
   const e = BOOT_ERRORS[kind];
   return (
-    <div style={{ display: "inline-block", border: "var(--tasty-border-width) solid var(--tasty-titlebar-csd-border)", borderRadius: "var(--tasty-titlebar-csd-radius)", overflow: "hidden" }}>
+    <div style={{ display: "inline-block", minWidth: "max-content", border: "var(--tasty-border-width) solid var(--tasty-titlebar-csd-border)", borderRadius: "var(--tasty-titlebar-csd-radius)", overflow: "hidden" }}>
       <div {...(theme ? { "data-theme": theme } : {})} style={{ width: 640, height: h, background: "var(--tasty-bg-app)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
         <Lockup />
         <div style={{ marginTop: "var(--tasty-space-xl)", width: "var(--tasty-boot-form-width)", display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", minHeight: 0 }}>
