@@ -85,8 +85,10 @@ export function View({ name, label, wide, children }) {
 // the id down. The hold checks the id's place every 150ms and puts it back when it moved. It ends when the id has stayed
 // put for 600ms, after 5s, or at the reader's first wheel, touch, key or pointer press.
 const hashListeners = new Set();
+// A hash that does not decode (#%) names no target, so the page opens as it does without one.
 const hashTarget = () => {
-  const id = decodeURIComponent(window.location.hash.slice(1));
+  let id = "";
+  try { id = decodeURIComponent(window.location.hash.slice(1)); } catch (e) { return null; }
   return id ? document.getElementById(id) : null;
 };
 const upToTarget = (el, target) => !!target && (el === target || el.contains(target) || target.contains(el)
