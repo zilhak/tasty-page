@@ -424,7 +424,7 @@ function AttentionPanel({ items, onFlash, onConfigure, onRemove, lang = "en" }) 
         <div lang={emptyLang} style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", alignItems: "center", background: "var(--tasty-bg-sidebar)",
           gap: "var(--tasty-space-sm)", color: "var(--tasty-text-muted)", padding: "calc(var(--tasty-space-sm) + 2 * var(--tasty-space-xl)) var(--tasty-space-sm) 0" }}>
           <div style={{ fontSize: "var(--tasty-font-size-body)", color: "var(--tasty-text-secondary)" }}>{emptyTitle}</div>
-          <div style={{ fontSize: 12, textAlign: "center", lineHeight: "var(--tasty-line-height-ui)" }}>{emptyBody}</div>
+          <div style={{ fontSize: "var(--tasty-font-size-term-sm)", textAlign: "center", lineHeight: "var(--tasty-line-height-ui)" }}>{emptyBody}</div>
         </div>
       </React.Fragment>
     );

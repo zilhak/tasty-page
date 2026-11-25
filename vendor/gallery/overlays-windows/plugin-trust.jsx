@@ -59,15 +59,15 @@ function TrustBox2({ kind, lang = "en", attention = false }) {
     background: "var(--tasty-tint-" + k.tone + "-bg)", border: "var(--tasty-border-width) solid var(--tasty-tint-" + k.tone + "-border)" };
   if (kind === "trusted") return (
     <div style={{ ...box, flexDirection: "row", alignItems: "center", fontSize: "var(--tasty-font-size-term-sm)" }}>
-      <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-plugin-trust-glyph-success)" }}><Icon name="shieldCheck" size={16} /></span>
+      <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-plugin-trust-glyph-success)" }}><Icon name="shieldCheck" size="var(--tasty-icon-size-md)" /></span>
       <span style={{ color: "var(--tasty-plugin-trust-body-trusted-fg)" }}>Signed by a <b>trusted publisher</b> — its key is in your trust store.</span>
     </div>
   );
   const p = { margin: 0, fontSize: "var(--tasty-font-size-term-sm)", lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-plugin-trust-body-fg)", overflowWrap: "anywhere", textWrap: "pretty" };
   return (
     <div style={box} role={k.unverified ? "alert" : undefined}>
-      <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", color: "var(--tasty-plugin-trust-title-fg)", fontSize: 13, fontWeight: 600 }}>
-        <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-plugin-trust-glyph-" + k.tone + ")" }}><Icon name={k.glyph} size={16} /></span>
+      <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", color: "var(--tasty-plugin-trust-title-fg)", fontSize: "var(--tasty-font-size-heading)", fontWeight: "var(--tasty-font-weight-semibold)" }}>
+        <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-plugin-trust-glyph-" + k.tone + ")" }}><Icon name={k.glyph} size="var(--tasty-icon-size-md)" /></span>
         <span>{c.title}</span>
       </div>
       <p style={p}>{c.cause[kind]}</p><p style={p}>{c.risk}{k.trustKey && !attention ? " " + c.trustKey : ""}</p>
@@ -87,7 +87,7 @@ function Bar({ kind, lang = "en", state = "rest", focus = false }) {
     <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-size-14)", borderTop: "var(--tasty-border-width) solid var(--tasty-separator)", background: "var(--tasty-bg-panel)" }}>
       <div style={{ flex: 1 }} />
       <div style={{ display: "flex", gap: "var(--tasty-space-sm)", marginLeft: "auto" }}>
-        {busy && <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-sm)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}><Spinner size={14} label={c.adding} />{c.adding}</span>}
+        {busy && <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-sm)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}><Spinner size="var(--tasty-icon-size-sm)" label={c.adding} />{c.adding}</span>}
         <Button variant="ghost" disabled={busy} style={focus && !busy ? { boxShadow: "0 0 0 var(--tasty-focus-ring-width) var(--tasty-border-focus)" } : undefined}>{c.cancel}</Button>
         <Button variant={k.unverified ? "danger" : "primary"} disabled={busy}>{label}</Button>
       </div>
@@ -99,7 +99,7 @@ function Manifest({ narrow }) {
   return (
     <div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", background: "var(--tasty-surface-raised)", padding: "var(--tasty-space-md)", display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
       <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", flexWrap: "wrap" }}>
-        <span style={{ fontSize: "var(--tasty-font-size-max)", fontWeight: 600, color: "var(--tasty-text-primary)", overflowWrap: "anywhere" }}>{narrow ? "logwatch-structured-severity-highlighter" : "logwatch"}</span><Tag>v0.3.1</Tag>
+        <span style={{ fontSize: "var(--tasty-font-size-max)", fontWeight: "var(--tasty-font-weight-semibold)", color: "var(--tasty-text-primary)", overflowWrap: "anywhere" }}>{narrow ? "logwatch-structured-severity-highlighter" : "logwatch"}</span><Tag>v0.3.1</Tag>
       </div>
       <div style={{ display: "flex", gap: "var(--tasty-space-xs)", flexWrap: "wrap" }}><Tag mono>logwatch.viewer</Tag></div>
       <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-secondary)", overflowWrap: "anywhere" }}>{narrow ? "~/dev/plugins/third-party/aurelia/tasty-logwatch-structured-severity-highlighter" : "~/dev/tasty-logwatch"}</span>
@@ -107,7 +107,7 @@ function Manifest({ narrow }) {
   );
 }
 
-function AddPanel({ kind, lang, state, width = "var(--tasty-size-560)", narrow, focus, ground = "var(--tasty-bg-panel)" }) {
+function AddPanel({ kind, lang, state, width = "var(--tasty-plugin-trust-specimen-width)", narrow, focus, ground = "var(--tasty-bg-panel)" }) {
   return (
     <div style={{ width, flex: "none", display: "flex", flexDirection: "column", background: ground, border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
       <div style={{ padding: "var(--tasty-space-md)", display: "flex", flexDirection: "column", gap: "var(--tasty-space-md)" }}>
@@ -122,16 +122,16 @@ function AddPanel({ kind, lang, state, width = "var(--tasty-size-560)", narrow, 
 function AttentionDetail({ reason = "unknown-key", state = "rest" }) {
   const busy = state === "busy";
   return (
-    <div style={{ width: "var(--tasty-size-440)", flex: "none", display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
+    <div style={{ width: "var(--tasty-plugin-trust-specimen-width-sm)", flex: "none", display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
       <div style={{ padding: "var(--tasty-space-md)", display: "flex", flexDirection: "column", gap: "var(--tasty-space-md)" }}>
         <span style={{ fontSize: "var(--tasty-font-size-max)", color: "var(--tasty-text-primary)" }}>{reason === "unknown-key" ? "fleet-sync" : "remote-shell"}</span>
         <TrustBox2 kind={reason} attention />
         {reason === "unknown-key" && <FpLine value="a13c 4e7f 2b08 9d51  ·  ed25519" />}
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-size-14)", borderTop: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
-        <span style={{ fontSize: 12, color: "var(--tasty-accent-danger-raised)", display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-sm)" }}><span style={{ width: "var(--tasty-status-dot-size)", height: "var(--tasty-status-dot-size)", borderRadius: "50%", background: "var(--tasty-accent-danger)" }} />Not registered</span>
+        <span style={{ fontSize: "var(--tasty-font-size-term-sm)", color: "var(--tasty-accent-danger-raised)", display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-sm)" }}><span style={{ width: "var(--tasty-status-dot-size)", height: "var(--tasty-status-dot-size)", borderRadius: "50%", background: "var(--tasty-accent-danger)" }} />Not registered</span>
         <div style={{ flex: 1 }} />
-        {busy && <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-sm)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}><Spinner size={14} label="Registering" />Registering…</span>}
+        {busy && <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-sm)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}><Spinner size="var(--tasty-icon-size-sm)" label="Registering" />Registering…</span>}
         <Button variant="danger" disabled={busy}>Register anyway</Button>
       </div>
     </div>
@@ -173,7 +173,7 @@ const RESERVED = {
 };
 const RESERVED_SAMPLE = { folder: "com.tasty.agent-stream-plus", id: "com.tasty.agent-stream-plus", dir: "~/.tasty/plugins/com.tasty.agent-stream-plus" };
 const RESERVED_LONG = { folder: "tasty-official-agent-stream-v2-preview-build", id: "com.tasty.official.agent-stream.v2-preview", dir: "~/.tasty/plugins/tasty-official-agent-stream-v2-preview-build" };
-const monoCap = { fontFamily: "var(--tasty-font-label)", fontSize: 10, textTransform: "uppercase", letterSpacing: "var(--tasty-letter-spacing-caps)", color: "var(--tasty-text-muted)" };
+const monoCap = { fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-micro)", textTransform: "uppercase", letterSpacing: "var(--tasty-letter-spacing-caps)", color: "var(--tasty-text-muted)" };
 const dot = (bg) => <span style={{ flex: "none", width: "var(--tasty-status-dot-size)", height: "var(--tasty-status-dot-size)", borderRadius: "50%", background: bg }} />;
 
 function ReservedAvatar({ name, lg }) {
@@ -195,7 +195,7 @@ function ReservedRow({ p = RESERVED_SAMPLE, lang = "en", selected = false }) {
         background: on ? "var(--tasty-surface-active)" : "transparent", boxShadow: on ? "inset var(--tasty-selection-edge-width) 0 0 var(--tasty-accent-danger)" : "none" }}>
         <ReservedAvatar name={p.folder} />
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 13, color: on ? "var(--tasty-text-on-active)" : "var(--tasty-text-secondary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.folder}</div>
+          <div style={{ fontSize: "var(--tasty-font-size-body)", color: on ? "var(--tasty-text-on-active)" : "var(--tasty-text-secondary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.folder}</div>
           <div lang={lang} style={{ fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-micro)", color: on ? "var(--tasty-text-on-active)" : "var(--tasty-accent-danger-raised)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c.label}</div>
         </div>
         {dot("var(--tasty-accent-danger)")}
@@ -207,7 +207,7 @@ function ReservedRow({ p = RESERVED_SAMPLE, lang = "en", selected = false }) {
 // detail — identity (folder name · id) → hidden-description line → danger banner → Folder section → action bar
 // state: rest (Remove, secondary with danger ink — not focused on selection) · confirm (bar replaced in place,
 // Cancel holds focus) · removing (both disabled, Spinner + Removing…)
-function ReservedDetail({ p = RESERVED_SAMPLE, lang = "en", state = "rest", width = "var(--tasty-size-560)" }) {
+function ReservedDetail({ p = RESERVED_SAMPLE, lang = "en", state = "rest", width = "var(--tasty-plugin-trust-specimen-width)" }) {
   const c = RESERVED[lang] || RESERVED.en;
   const confirm = state === "confirm" || state === "removing";
   const busy = state === "removing";
@@ -220,14 +220,14 @@ function ReservedDetail({ p = RESERVED_SAMPLE, lang = "en", state = "rest", widt
           <ReservedAvatar name={p.folder} lg />
           <div style={{ flex: 1, minWidth: 0 }}>
             <span style={{ fontSize: "var(--tasty-font-size-max)", color: "var(--tasty-text-primary)", overflowWrap: "anywhere" }}>{p.folder}</span>
-            <div style={{ marginTop: "var(--tasty-space-xs)", fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: "var(--tasty-text-muted)", overflowWrap: "anywhere" }}>{p.id}</div>
+            <div style={{ marginTop: "var(--tasty-space-xs)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)", overflowWrap: "anywhere" }}>{p.id}</div>
           </div>
         </div>
         <p style={{ margin: 0, fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{c.descHidden}</p>
         <div role="alert" style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-size-14)", borderRadius: "var(--tasty-radius)",
           background: "var(--tasty-tint-danger-bg)", border: "var(--tasty-border-width) solid var(--tasty-tint-danger-border)" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", color: "var(--tasty-plugin-trust-title-fg)", fontSize: 13, fontWeight: 600 }}>
-            <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-plugin-trust-glyph-danger)" }}><Icon name="alertCircle" size={16} /></span>
+          <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", color: "var(--tasty-plugin-trust-title-fg)", fontSize: "var(--tasty-font-size-heading)", fontWeight: "var(--tasty-font-weight-semibold)" }}>
+            <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-plugin-trust-glyph-danger)" }}><Icon name="alertCircle" size="var(--tasty-icon-size-md)" /></span>
             <span>{c.label}</span>
           </div>
           <p style={body}>{c.blurb}</p>
@@ -239,18 +239,18 @@ function ReservedDetail({ p = RESERVED_SAMPLE, lang = "en", state = "rest", widt
       </div>
       <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-size-14)", borderTop: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
         {!confirm && <>
-          <span style={{ fontSize: 12, color: "var(--tasty-accent-danger-raised)", display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-sm)" }}>{dot(acc)}{c.status}</span>
+          <span style={{ fontSize: "var(--tasty-font-size-term-sm)", color: "var(--tasty-accent-danger-raised)", display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-sm)" }}>{dot(acc)}{c.status}</span>
           <div style={{ flex: 1 }} />
           <Button variant="secondary" style={{ color: "var(--tasty-accent-danger-raised)" }}>{c.remove}</Button>
         </>}
         {confirm && <>
-          <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-accent-attention-raised)" }}><Icon name="alertTriangle" size={16} /></span>
+          <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-accent-attention-raised)" }}><Icon name="alertTriangle" size="var(--tasty-icon-size-md)" /></span>
           <div style={{ flex: "1 1 auto", minWidth: 0, display: "flex", flexDirection: "column" }}>
             <span style={{ fontSize: "var(--tasty-font-size-body)", color: "var(--tasty-text-primary)", overflowWrap: "anywhere" }}>{c.confirmTitle(p.folder)}</span>
             <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{c.confirmNote}</span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", marginLeft: "auto" }}>
-            {busy && <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-sm)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}><Spinner size={14} label={c.removing} />{c.removing}</span>}
+            {busy && <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-sm)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}><Spinner size="var(--tasty-icon-size-sm)" label={c.removing} />{c.removing}</span>}
             <Button variant="ghost" disabled={busy} style={!busy ? { boxShadow: "0 0 0 var(--tasty-focus-ring-width) var(--tasty-border-focus)" } : undefined}>{c.cancel}</Button>
             <Button variant="danger" disabled={busy}>{c.remove}</Button>
           </div>
@@ -263,7 +263,7 @@ function ReservedDetail({ p = RESERVED_SAMPLE, lang = "en", state = "rest", widt
 function ReservedNotice({ lang = "en", id = RESERVED_SAMPLE.id }) {
   const c = RESERVED[lang] || RESERVED.en;
   return (
-    <div style={{ width: "var(--tasty-size-440)", flex: "none", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
+    <div style={{ width: "var(--tasty-plugin-trust-specimen-width-sm)", flex: "none", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
       <NotificationItem level="warning" title={c.noticeTitle(id)} body={c.noticeBody} time="now" unread expanded />
     </div>
   );
@@ -286,7 +286,7 @@ function AttnRow({ r, lang = "en", selected = false }) {
       background: on ? "var(--tasty-surface-active)" : "transparent", boxShadow: on ? "inset var(--tasty-selection-edge-width) 0 0 " + SEV_FILL[r.sev] : "none" }}>
       <ReservedAvatar name={r.name} />
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 13, color: on ? "var(--tasty-text-on-active)" : "var(--tasty-text-secondary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.name}</div>
+        <div style={{ fontSize: "var(--tasty-font-size-body)", color: on ? "var(--tasty-text-on-active)" : "var(--tasty-text-secondary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.name}</div>
         <div lang={lang} style={{ fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-micro)", color: on ? "var(--tasty-text-on-active)" : SEV_INK[r.sev], overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.label[lang] || r.label.en}</div>
       </div>
       {dot(SEV_FILL[r.sev])}
@@ -316,7 +316,7 @@ function AttnEmpty({ lang = "en" }) {
       <div style={{ flex: 1, minWidth: 0, background: "var(--tasty-bg-sidebar)", padding: "calc(var(--tasty-space-sm) + 2 * var(--tasty-space-xl)) var(--tasty-space-sm) 0",
         display: "flex", flexDirection: "column", alignItems: "center", gap: "var(--tasty-space-sm)", textAlign: "center" }}>
         <div style={{ fontSize: "var(--tasty-font-size-body)", color: "var(--tasty-text-secondary)" }}>{title}</div>
-        <div style={{ fontSize: 12, color: "var(--tasty-text-muted)", lineHeight: "var(--tasty-line-height-ui)" }}>{body}</div>
+        <div style={{ fontSize: "var(--tasty-font-size-term-sm)", color: "var(--tasty-text-muted)", lineHeight: "var(--tasty-line-height-ui)" }}>{body}</div>
       </div>
     </div>
   );
@@ -384,8 +384,8 @@ function PluginTrustSpecs() {
           ))}
           <Themed>
             <span className="g-cap" style={cap}>Mocha · ko / ja length</span>
-            <AddPanel kind="unknown-key" lang="ko" width="var(--tasty-size-440)" />
-            <AddPanel kind="signature-error" lang="ja" width="var(--tasty-size-440)" />
+            <AddPanel kind="unknown-key" lang="ko" width="var(--tasty-plugin-trust-specimen-width-sm)" />
+            <AddPanel kind="signature-error" lang="ja" width="var(--tasty-plugin-trust-specimen-width-sm)" />
           </Themed>
         </Stage>
         <Meta specs={[["busy", "Cancel + primary disabled, labels unchanged · Spinner 14 + Adding… / Registering… beside them, caption, text-muted"], ["failure", "existing toast · buttons back to rest · verdict stays"], ["narrow", "bar flex-wrap · reason flex 1 · buttons margin-left auto"], ["attention", "same box (no fingerprint inside) · Signature section keeps fingerprint · Register anyway danger · no auto focus"]]} />
@@ -461,8 +461,8 @@ function PluginTrustSpecs() {
           <Themed>
             <span className="g-cap" style={cap}>Mocha · ko / ja length</span>
             <ReservedRow lang="ko" selected /><ReservedRow lang="ja" selected />
-            <ReservedDetail lang="ko" width="var(--tasty-size-440)" /><ReservedDetail lang="ko" state="confirm" width="var(--tasty-size-440)" />
-            <ReservedDetail lang="ja" width="var(--tasty-size-440)" /><ReservedDetail lang="ja" state="confirm" width="var(--tasty-size-440)" />
+            <ReservedDetail lang="ko" width="var(--tasty-plugin-trust-specimen-width-sm)" /><ReservedDetail lang="ko" state="confirm" width="var(--tasty-plugin-trust-specimen-width-sm)" />
+            <ReservedDetail lang="ja" width="var(--tasty-plugin-trust-specimen-width-sm)" /><ReservedDetail lang="ja" state="confirm" width="var(--tasty-plugin-trust-specimen-width-sm)" />
             <ReservedNotice lang="ko" /><ReservedNotice lang="ja" />
           </Themed>
         </Stage>

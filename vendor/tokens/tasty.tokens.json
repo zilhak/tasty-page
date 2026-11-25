@@ -6712,6 +6712,14 @@
       "$value": "{semantic.accent-success-ink}",
       "$description": "trusted one-line body (plugins.trust_trusted_body)"
     },
+    "plugin-trust-specimen-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-560}"
+    },
+    "plugin-trust-specimen-width-sm": {
+      "$type": "dimension",
+      "$value": "{primitive.size-440}"
+    },
     "notice-column-inset": {
       "$type": "dimension",
       "$value": "{semantic.space-sm}",
