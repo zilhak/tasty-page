@@ -14,7 +14,8 @@ const LoadingOverlay = TastyDesignSystem_41fd3f_LoadingOverlay || (() => null); 
 const THEMES = [["Mocha", "mocha"], ["Latte", "latte"]];
 const mono = { fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" };
 const cap = (t) => <div style={{ ...mono, marginBottom: "var(--tasty-space-xs)" }}>{t}</div>;
-const BOX = { outline: "var(--tasty-border-width) dashed var(--tasty-specimen-annotation-border)", outlineOffset: 0 };
+// The box outline sits inside the overlay's edge: the surface beds clip at their border, so an outline outside it was cut.
+const BOX = { outline: "var(--tasty-border-width) dashed var(--tasty-specimen-annotation-border)", outlineOffset: "calc(-1 * var(--tasty-border-width))" };
 const Themed = ({ attr, children, style }) => (
   <div {...(attr ? { "data-theme": attr } : {})} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-md)", padding: "var(--tasty-space-md)",
     background: "var(--tasty-bg-app)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", minWidth: 0, ...style }}>{children}</div>
