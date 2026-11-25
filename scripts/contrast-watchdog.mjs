@@ -176,7 +176,7 @@ export async function closingTab(page, tab, fn, log = (line) => console.error(li
       await tab.close();
     } catch (error) {
       if (failure === null) throw error;
-      log(`  tab close failed after an earlier error: ${String(error).slice(0, 200)}`);
+      log(`  tab close failed after an earlier error: ${String(error).replace(/\s+/g, " ").slice(0, 200)}`);
     }
   }
   if (failure !== null) throw failure.error;

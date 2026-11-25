@@ -357,3 +357,12 @@ test("closingTab reads isClosed on the page, not on the tracked tab", async () =
   await assert.rejects(closingTab(page, tab, async () => { throw new Error("expired"); }), /expired/);
   assert.equal(state.closes, 1);
 });
+
+test("closingTab logs a multi-line close error as one line", async () => {
+  const { page } = fakeTab({ closeError: new Error("close failed\nCall log:\n  - detail") });
+  const lines = [];
+  await assert.rejects(closingTab(page, page, async () => { throw new Error("measure failed"); }, (l) => lines.push(l)), /measure failed/);
+  assert.equal(lines.length, 1);
+  assert.doesNotMatch(lines[0], /\n/);
+  assert.match(lines[0], /close failed Call log: - detail/);
+});
