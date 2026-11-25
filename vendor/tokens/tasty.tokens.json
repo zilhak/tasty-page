@@ -6087,6 +6087,18 @@
       "$type": "dimension",
       "$value": "{primitive.size-1}"
     },
+    "remote-ssh-line-pad-top": {
+      "$type": "dimension",
+      "$value": "{primitive.size-2}"
+    },
+    "remote-reveal-inset": {
+      "$type": "dimension",
+      "$value": "{primitive.size-6}"
+    },
+    "remote-reveal-pad-right": {
+      "$type": "dimension",
+      "$value": "calc(1 * var(--tasty-remote-reveal-inset) + 1 * var(--tasty-icon-button-size-sm) + 1 * var(--tasty-size-2))"
+    },
     "remote-picker-width": {
       "$type": "dimension",
       "$value": "{primitive.size-680}"

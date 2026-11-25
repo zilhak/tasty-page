@@ -1538,6 +1538,9 @@
   --tasty-remote-tab-gap:              var(--tasty-size-2);   /* 2026-11-26 between remote tabs */
   --tasty-remote-row-line-gap:         var(--tasty-size-2);   /* 2026-11-26 between the name, target and caption lines of a profile, attach or passkey row */
   --tasty-remote-row-action-gap:       var(--tasty-size-1);   /* 2026-11-26 between the small icon buttons at a row's end */
+  --tasty-remote-ssh-line-pad-top:     var(--tasty-size-2);   /* 2026-11-26 From ssh config section: above its heading and its empty line, the app's STRUCT_GAP_2 */
+  --tasty-remote-reveal-inset:         var(--tasty-size-6);   /* 2026-11-26 passkey form: the reveal button's offset from the textarea's top and right edges */
+  --tasty-remote-reveal-pad-right:     calc(1 * var(--tasty-remote-reveal-inset) + 1 * var(--tasty-icon-button-size-sm) + 1 * var(--tasty-size-2)); /* 32 — sum of <number> * var(--tasty-…) terms, the form the app reads. Textarea right padding that keeps text clear of the reveal button: inset 6 + small icon button 24 + 2 */
   --tasty-remote-picker-width:         var(--tasty-size-680);  /* add remote workspace picker; not resizable */
   --tasty-remote-picker-height:        var(--tasty-size-460);
   --tasty-preset-window-width:         var(--tasty-size-960);  /* layout presets window, inner size when it opens */
