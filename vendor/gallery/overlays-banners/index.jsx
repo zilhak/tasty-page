@@ -71,9 +71,27 @@ function SyncNameG({ n }) {
   }, [n]);
   return <span ref={ref} style={{ flex: "0 1 auto", minWidth: floor, maxWidth: "var(--tasty-attach-sync-name-max-width)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "var(--tasty-text-secondary-raised)" }}>{n}</span>;
 }
+// The app's narrow rule for a banner whose scope is the box it sits in: narrow when that box's content width is under
+// --tasty-banner-narrow-below. The ink table passes narrow="auto", so at 390 the action wraps under the text as in the
+// app and the names line keeps its fixed pieces (", ", " ×k", " +n") inside the line instead of past its clip.
+function useScopeNarrow(on) {
+  const ref = React.useRef(null);
+  const [narrow, setNarrow] = React.useState(false);
+  React.useLayoutEffect(() => {
+    const el = ref.current; if (!on || !el) return undefined;
+    const judge = () => setNarrow(el.clientWidth < parseFloat(getComputedStyle(el).getPropertyValue("--tasty-banner-narrow-below")));
+    judge();
+    const ro = new ResizeObserver(judge); ro.observe(el);
+    return () => ro.disconnect();
+  }, [on]);
+  return [ref, narrow];
+}
 // b11 (attach-sync-duplicate-names): equal display names collapse into one entry + a muted “×k” that never shrinks.
 // “N surfaces” still counts surfaces; +n counts the remaining entries.
-function AttachSizeSyncBannerG({ names = ["build"], retrying = false, narrow }) {
+function AttachSizeSyncBannerG({ names = ["build"], retrying = false, narrow: narrowProp }) {
+  const auto = narrowProp === "auto";
+  const [scopeRef, scopeNarrow] = useScopeNarrow(auto);
+  const narrow = auto ? scopeNarrow : narrowProp;
 
   const many = names.length > 1;
   const groups = [];
@@ -81,7 +99,7 @@ function AttachSizeSyncBannerG({ names = ["build"], retrying = false, narrow }) 
   const shown = groups.slice(0, 2);
   const rest = groups.length - shown.length;
   const body = { fontSize: "var(--tasty-banner-body-font-size)", color: "var(--tasty-banner-body-fg)" };
-  return (
+  const banner = (
     <BannerShellG>
       <BannerActionsG narrow={narrow} action={<BButton variant="secondary" size="sm" disabled={retrying} leadingIcon={retrying ? <BSpinner size="var(--tasty-icon-size-sm)" /> : undefined}
           style={retrying ? undefined : { background: "var(--tasty-banner-button-bg)", borderColor: "var(--tasty-banner-button-border)" }}>{many ? "Retry all" : "Retry"}</BButton>}>
@@ -98,6 +116,7 @@ function AttachSizeSyncBannerG({ names = ["build"], retrying = false, narrow }) 
       </BannerActionsG>
     </BannerShellG>
   );
+  return auto ? <div ref={scopeRef} style={{ minWidth: 0 }}>{banner}</div> : banner;
 }
 function RefusalRowG({ name, active, refused, move, ni, done }) {
   return (
@@ -270,7 +289,7 @@ function BodyInkGrid({ label, theme }) {
     ["HTML mirror · large file, more waiting", <HtmlSizeBanner more={2} />],
     ["HTML mirror · cumulative limit", <HtmlSizeBanner kind="limit" />],
     ["auto-attach refused", <AttachRefusalBannerG />],
-    ["attach size sync · names line", <AttachSizeSyncBannerG names={["build", "build", "logs"]} />],
+    ["attach size sync · names line", <AttachSizeSyncBannerG names={["build", "build", "logs"]} narrow="auto" />],
     ["shell integration missing · TTL", <TtlBannerG ttl={10} glyph={<BIcon name="alertTriangle" size="var(--tasty-icon-size-md)" />} glyphColor="var(--tasty-accent-warning-raised)" title="Shell integration not detected" body="Command-completion hooks (docker build, just run, etc.) need OSC 133 shell integration. See docs/features/hooks for setup." />],
   ];
   return (
