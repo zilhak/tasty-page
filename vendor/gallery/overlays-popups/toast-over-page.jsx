@@ -8,8 +8,8 @@ import { Spec, Meta, Note, Views, View } from "../parts/specimen.jsx";
 // Every toast whose card lands on a web or markdown page that takes keys is drawn in a hole cut out of that page:
 // same corner, same stack, square card. A page without keys is hidden for the card's life, as before. Where no hole
 // can be cut (Linux without XFixes or SHAPE) the current rule holds and the card stays under the page.
-// Dashed amber outline = a rect the host paints over the page (a hole cut out of the page). Drawn 2px outside the card.
-// Dashed muted outline = where a card is under the page, not drawn.
+// Dashed outline 2px outside a card = a rect the host paints over the page (a hole cut out of the page).
+// Dashed outline on the card's own edge, with no card in it = where a card is under the page, not drawn.
 
 const W = 400, H = 220;
 const STRIP = "var(--tasty-tab-height)"; // the pane tab strip, 24

@@ -7,7 +7,7 @@ import { Spec, Stage, Meta, Note, Do, Dont } from "../parts/specimen.jsx";
 // Tasty Gallery — Overlays · Popups › Over a web page, opaque mode (2026-10-21)
 //jsx).
 // Each screen A–D is shown in three columns: transparent (unchanged) · opaque (this request) · current (page hidden → boundary tile).
-// Dashed amber outline = a rect the host can paint over the page (popup box, dropdown box). Drawn 2px outside the box for legibility.
+// Dashed outline = a rect the host can paint over the page (popup box, dropdown box). Drawn 2px outside the box for legibility.
 // The rejected blotch column draws none: there the rect would lie on a scrim, where nothing is drawn.
 
 
