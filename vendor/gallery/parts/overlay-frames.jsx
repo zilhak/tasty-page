@@ -744,7 +744,7 @@ function RemoteFrame({ tab = "profiles", ssh = "hosts" }) {
       </div>
       {tab === "passkeys" ? (
         <>
-          <div style={{ display: "flex", alignItems: "center", padding: "var(--tasty-remote-content-pad-top) var(--tasty-remote-pad-x) var(--tasty-space-xs)", flex: "none" }}>
+          <div style={{ display: "flex", alignItems: "center", padding: "var(--tasty-remote-content-pad-top) var(--tasty-remote-pad-x) var(--tasty-space-sm)", flex: "none" }}>
             <Button variant="secondary" size="sm" leadingIcon={ic.plus}>Add passkey</Button>
           </div>
           <div style={{ flex: 1, minHeight: 0, overflow: "auto", padding: "0 var(--tasty-remote-pad-x) var(--tasty-space-sm)" }}>
@@ -773,7 +773,7 @@ function RemoteFrame({ tab = "profiles", ssh = "hosts" }) {
         </>
       ) : tab === "attach" ? (
         <>
-          <div style={{ display: "flex", alignItems: "center", padding: "var(--tasty-remote-content-pad-top) var(--tasty-remote-pad-x) var(--tasty-space-xs)", flex: "none" }}>
+          <div style={{ display: "flex", alignItems: "center", padding: "var(--tasty-remote-content-pad-top) var(--tasty-remote-pad-x) var(--tasty-space-sm)", flex: "none" }}>
             <Button variant="secondary" size="sm" leadingIcon={ic.plus}>Add attach</Button>
           </div>
           <div style={{ flex: 1, minHeight: 0, overflow: "auto", padding: "0 var(--tasty-remote-pad-x) var(--tasty-space-sm)" }}>
@@ -784,7 +784,7 @@ function RemoteFrame({ tab = "profiles", ssh = "hosts" }) {
         </>
       ) : (
       <>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "var(--tasty-remote-content-pad-top) var(--tasty-remote-pad-x) var(--tasty-space-xs)", flex: "none" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "var(--tasty-remote-content-pad-top) var(--tasty-remote-pad-x) var(--tasty-space-sm)", flex: "none" }}>
         <Button variant="secondary" size="sm" leadingIcon={ic.plus}>Add profile</Button>
         <div style={{ position: "relative" }}>
           <Button variant="primary" size="sm" leadingIcon={ic.funnel}>Filter · 3/4</Button>
