@@ -211,9 +211,10 @@ function PortsWindow({ onClose, onFlash, favorites = FAVS_DEFAULT }) {
     { key: "addr", header: "Address", mono: true, sortable: true, width: "var(--tasty-port-addr-col-min-width)" }, // 2026-10-08 (batch 8) — pinned at 140
     { key: "proc", header: "Process", strong: true, sortable: true, width: "100%", minWidth: "var(--tasty-port-process-col-min-width)", // all spare width
       render: (v, row) => (
-        <span style={{ display: "inline-flex", alignItems: "center", gap: 8, minWidth: 0 }}>
-          <span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>{v}</span>
-          <Tag mono>{row.pid}</Tag>
+        // As the app's ports_process_cell: the PID Tag keeps its width and only the name ellipsises, so the row is bound to the cell.
+        <span style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", minWidth: 0, maxWidth: "100%" }}>
+          <span style={{ flex: "0 1 auto", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis" }}>{v}</span>
+          <span style={{ flex: "none", display: "inline-flex" }}><Tag mono>{row.pid}</Tag></span>
         </span>
       ) },
     { key: "ws", header: "Workspace", sortable: true, width: "var(--tasty-port-workspace-col-width)",
