@@ -100,7 +100,7 @@ The rules are in `RULES.md` section 14. `measureGallery()` in [`scripts/contrast
 | Text and glyphs outside cells | Contrast on the composited ground |
 | `data-audit-exempt="<id>"` | Skips its subtree. The id must be in `exceptions[].id` with `audit: "subtree"`. Each use is listed in the output |
 | `data-ink-grade="none" data-ink-why="disabled\|ornament"` | Outside a cell, marks an ink with no grade. It is not an exception, as `RULES.md` section 12 says |
-| Scope | `[data-gallery-page]`. Site header, sidebar and footer carry `data-site-chrome` and are not part of these rules |
+| Scope | Specimens are under `[data-gallery-page]`. Individual below-grade and wrong-ink records for site rows in the shared UI, such as the header, sidebar and footer marked with `data-site-chrome`, also fail the gallery check (see `chromeFailures()` in [`scripts/contrast-site.mjs`](../../scripts/contrast-site.mjs) and its tests in [`scripts/contrast-page.test.mjs`](../../scripts/contrast-page.test.mjs)). |
 
 Exempt ids: `ansi-content`, `terminal-attributes`, `html-page`, `plugin-webview`, `third-party-plugin`, `image-content`, `capture-picture`, `code-highlight`, `brand`, `os-window-controls`, `dimmed`, `under-scrim`, `decorative-grid`. Opacity alone never exempts anything.
 

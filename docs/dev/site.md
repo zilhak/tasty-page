@@ -147,7 +147,7 @@
 - SVG: 보이는 도형의 stroke와 fill을 각각 재고 도형 수를 출력한다. 도형 자신의 `stroke-opacity`·`fill-opacity`와 SVG 안 `<g>`를 포함한 모든 조상의 opacity를 곱한다. SVG 안 `<text>`는 fill을 글자 기준으로 잰다. 아무것도 칠하지 않는 SVG의 수도 출력한다. 바탕은 DOM 조상에서 읽으므로 같은 SVG 안에서 도형 아래 깔린 다른 도형은 바탕으로 보지 않는다. `<use>`의 대상 내부와 그라데이션·패턴 칠은 재지 않으며 그라데이션·패턴 칠의 수를 출력한다.
 - 비활성 조상(`:disabled`, `aria-disabled="true"`, `data-ink-why="disabled"`) 안: 등급 없는 비활성 토큰만 등급을 면제한다. 그 밖의 잉크는 일반 기준으로 잰다.
 - 측정 0건, 알 수 없는 예외 id, 페이지 오류도 실패다.
-- 표본 밖의 머리글·사이드바·푸터도 같은 기준으로 잰다.
+- 표본 밖의 머리글·사이드바·푸터도 같은 기준으로 잰다. 사이트 행의 대비 미달(`below`)과 잉크 불일치(`wrong ink`) 기록은 건마다 갤러리 검사 실패로 센다. 행별 요소 발견 수, 측정 수, 지정 잉크 출현 수에 따른 판정은 사이트 패스가 맡는다([`scripts/contrast-site.mjs`](../../scripts/contrast-site.mjs)의 `chromeFailures()`와 [`scripts/contrast-page.test.mjs`](../../scripts/contrast-page.test.mjs) 참조).
 
 사이트 페이지는 기본 언어의 갤러리 밖에 있는 빌드된 페이지 전부(랜딩, 가이드, 디자인, privacy, 모든 언어)다. 다른 언어의 `design/gallery/*`도 여기에 들어가며, 사이트 패스는 `[data-gallery-page]` 안을 재지 않으므로 그 페이지에서는 표본을 뺀 공통 부분만 잰다. 기본 언어가 아닌 언어마다 갤러리 페이지 수가 맞지 않거나, 표본 페이지에 `[data-gallery-page]`가 정확히 1개가 아니면 실패한다. 언어 하나당 15페이지 × 2폭 × 2테마가 는다. 기준은 `vendor/tokens/ground-ink-rules.json`의 `site.places`이고 `vendor/RULES.md` 15절이 같은 내용을 설명한다. 검사 브라우저 컨텍스트의 언어는 기본 언어(`CHECK_LOCALE`, `en-US`)로 고정한다. 루트 랜딩은 저장된 언어 선택이 없으면 브라우저 언어에 맞는 다른 언어의 랜딩으로 보낼 수 있기 때문이다. 사이트 패스는 요청한 경로와 열린 문서의 경로가 다르면 실패한다(`scripts/contrast-site.mjs`의 `openPage()`).
 
@@ -162,7 +162,7 @@
 
 측정은 시간이 아니라 조건을 기다린다. 스타일 변경은 transition의 프레임을 거쳐야 계산값에 나타난다. `global.css`의 reduced motion 규칙은 `transition-duration`만 0.01ms로 바꾸므로 기본값 `transition-property: all`과 합쳐져 모든 속성의 변경이 transition을 거친다. 그래서 탭 클릭, 포인터, 포커스, 검색 뒤의 모든 측정 전에 `contrast-page.mjs`의 `stylesSettled`가 끝이 있는 애니메이션이 모두 끝나기를 기다린다. 30초 안에 끝나지 않으면 실패한다. 고정 시간을 기다리면 부하가 걸렸을 때 옛 잉크를 읽고, `color-mix` 토큰의 진행 중 값은 `oklab()`이라 `parse`가 읽지 못해 그 요소나 바탕을 건너뛴다.
 
-`--json` 보고서의 `passes`(사이트), `chromePasses`(갤러리 머리글 등), 테마별 `passes`(갤러리 페이지)에 패스별 측정 수가 있다. 같은 `dist`의 두 실행은 이 값이 같아야 한다.
+`--json` 보고서의 `passes`(사이트), `chromePasses`(갤러리 머리글 등), 테마별 `passes`(갤러리 페이지)에 패스별 측정 수가 있다. 같은 `dist`의 두 실행은 이 값이 같아야 한다. `themes.<theme>.chromeRows`에는 `below`와 `mismatch` 배열이 있고, 각 기록의 `row`에 행 ID가 있다.
 
 브라우저는 `CHROMIUM_PATH`, Playwright 캐시의 Chromium, `/snap/bin/chromium` 순으로 찾는다. 의존성은 `playwright-core`뿐이라 `npm ci`는 브라우저를 받지 않는다. 로컬에서는 `npx playwright-core install chromium`으로 한 번 받는다. CI에서는 `design.yml`이 빌드 뒤 `npx playwright-core install --with-deps chromium`으로 `playwright-core`와 맞는 Chromium을 받아 이 검사를 실행한다.
 
