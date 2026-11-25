@@ -11,9 +11,11 @@
  * Shapes composite through their own fill or stroke opacity and every opacity above them, a g inside the svg included.
  * --page names one gallery page and leaves the site pages out.
  * Browser: CHROMIUM_PATH, else the Playwright browser, else /snap/bin/chromium.
- * Time limit: the whole run, and any span with no browser call starting, are limited (TOTAL_S and STALL_S below, or
- * CONTRAST_TIMEOUT_S and CONTRAST_STALL_S in seconds). Past either it prints what was in flight, closes the browser and
- * exits 3. It cannot stop a run held by synchronous work in this process (contrast-watchdog.mjs).
+ * Time limit: the whole run, and any span with no progress (a browser call starting, or a step of the run such as
+ * listen, launch or a context), are limited (TOTAL_S and STALL_S below, or CONTRAST_TIMEOUT_S and CONTRAST_STALL_S in
+ * seconds). Past either it starts closing the browser, prints what was in flight, waits up to CLOSE_GRACE_MS for the
+ * close and the --json report, and exits 3, also when the close fails or runs late. It cannot stop a run held by
+ * synchronous work in this process (contrast-watchdog.mjs).
  */
 import { createServer } from "node:http";
 import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
@@ -69,7 +71,7 @@ function fail(message) {
 // Seconds from the environment, as a whole number Node can hold in one timer (2^31 - 1 ms).
 function seconds(name, fallback) {
   const raw = process.env[name];
-  if (raw === undefined || raw === "") return fallback;
+  if (raw === undefined) return fallback;
   if (!/^[0-9]+$/.test(raw) || Number(raw) < 1 || Number(raw) > 2147483) fail(`${name} must be a whole number of seconds from 1 to 2147483, got ${JSON.stringify(raw)}.`);
   return Number(raw);
 }
@@ -275,7 +277,7 @@ async function run() {
   let current = null;
   const watchdog = createWatchdog({ totalMs: totalS * 1000, stallMs: stallS * 1000, onExpire: (e) => timedOut(e, report, doneThemes, current) });
   held.watchdog = watchdog;
-  const runHandle = watchdog.begin("start: list built pages");
+  const startHandle = watchdog.begin("start: list built pages");
   const siteOnly = args.includes("--site-only");
   const galleryOnly = args.includes("--gallery-only") || argOf("--page") !== null;
   const pages = siteOnly ? [] : galleryPages().filter((p) => !argOf("--page") || p.key === argOf("--page"));
@@ -283,16 +285,16 @@ async function run() {
   const galleries = galleryOnly ? [] : languageGalleries();
   report.languageGalleries = galleries;
   if (!galleryOnly) console.log(`gallery pages per language path, shared parts only: ${galleries.map((c) => `${c.code} ${c.pages}`).join(", ") || "no other language"}`);
-  runHandle.update("start: listen");
+  startHandle.update("start: listen");
   if (watchdog.check()) return;
   const server = await serve();
   held.server = server;
   const port = server.address().port;
-  runHandle.update("start: launch");
+  startHandle.update("start: launch");
   if (watchdog.check()) return;
   const browser = await launch();
   held.browser = browser;
-  runHandle.update("running");
+  startHandle.end();
   let failed = false;
   const prefix = BASE.replace(/\/$/, "");
   const noGrade = [...noGradeTokens];
@@ -311,12 +313,17 @@ async function run() {
     const measuredRows = [];
     const t = { cells: 0, rows: 0, ok: 0, unlocated: [], mismatch: [], below: [], diagnostics: [], text: 0, svgs: 0, emptySvgs: 0, glyph: 0, inputs: 0, other: [], exemptUses: {}, badExempt: [], gradeNone: {}, picture: 0, paintServer: 0, hscroll: [], errors: [], passes: {} };
     const base = `${theme} gallery`;
+    // The context is an entry only while it is made and while it closes. Each tab is its own entry from before newPage.
     const contextHandle = watchdog.begin(`${base} newContext`);
-    const context = tracked(await tracked(browser, watchdog, contextHandle, () => base).newContext({ viewport: { width: 1440, height: 1000 } }), watchdog, contextHandle, () => base);
+    if (watchdog.expired) return;
+    const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
+    contextHandle.update(`${base} addInitScript`);
+    if (watchdog.expired) return;
     await context.addInitScript((name) => localStorage.setItem("tasty-theme", name), theme);
+    contextHandle.end();
     for (const page of pages) {
-      if (watchdog.check()) return;
       const handle = watchdog.begin(`${base} ${page.key} newPage`);
+      if (watchdog.expired) return;
       const tab = tracked(await context.newPage(), watchdog, handle, () => `${base} ${page.key}`);
       tab.on("pageerror", (e) => t.errors.push(`${page.key}: ${String(e).slice(0, 200)}`));
       await tab.goto(`${origin}/${page.path}?audit=1`, { waitUntil: "load", timeout: 180000 });
@@ -351,8 +358,9 @@ async function run() {
       await tab.close();
       handle.end();
     }
+    const closeHandle = watchdog.begin(`${base} context close`);
     await context.close();
-    contextHandle.end();
+    closeHandle.end();
     // The shared parts around the specimens, measured here on the default language paths the site pass leaves out.
     const chromeBad = chrome.below.length + chrome.badExempt.length + chrome.picture.length;
     console.log(`${theme} gallery chrome: pages ${chrome.pages}, text ${chrome.text}, shapes ${chrome.glyph}, below ${chrome.below.length}`);
@@ -379,10 +387,10 @@ async function run() {
     t.errors.forEach((e) => console.log(`  page error ${e}`));
     doneThemes.push(theme);
   }
-  runHandle.update("closing the browser");
-  held.closing = browser.close();
-  await held.closing;
-  server.close();
+  const closeHandle = watchdog.begin("closing the browser");
+  await closeBrowser();
+  closeServer();
+  closeHandle.end();
   // The last look at the deadlines. Past one, the timeout path owns the exit and this run writes nothing more.
   if (!watchdog.stop()) return;
   if (argOf("--json")) writeFileSync(argOf("--json"), JSON.stringify(report, null, 1));
@@ -390,8 +398,18 @@ async function run() {
   finish(failed ? 1 : 0);
 }
 
-// What the run holds open, for the timeout path to close.
-const held = { server: null, browser: null, closing: null, watchdog: null };
+// What the run holds open. Both paths close through these, so the browser and the server each close once, whichever
+// path starts first, and the other waits on the same close.
+const held = { server: null, browser: null, closing: null, serverClosed: false, watchdog: null };
+function closeBrowser() {
+  if (!held.closing && held.browser) held.closing = held.browser.close();
+  return held.closing;
+}
+function closeServer() {
+  if (held.serverClosed || !held.server) return;
+  held.serverClosed = true;
+  held.server.close();
+}
 
 // Settles within the grace time, and says how it settled instead of throwing.
 const settleWithin = (promise, ms) => new Promise((done) => {
@@ -410,8 +428,8 @@ async function timedOut({ reason, elapsedMs, inFlight }, report, doneThemes, cur
     site: Object.fromEntries(doneThemes.filter((name) => report.site?.[name]).map((name) => [name, report.site[name]])),
   };
   if (current !== null && !doneThemes.includes(current)) snapshot.incompleteTheme = current;
-  const closing = held.closing || (held.browser ? held.browser.close() : null);
-  if (held.server) held.server.close();
+  const closing = closeBrowser();
+  closeServer();
   const s = (ms) => (ms / 1000).toFixed(0);
   console.error(`check-contrast: TIMED OUT (${reason}) after ${s(elapsedMs)}s`);
   inFlight.forEach((e) => console.error(`  in flight ${s(e.ageMs)}s (step ${s(e.stepAgeMs)}s): ${e.label}`));
@@ -419,6 +437,7 @@ async function timedOut({ reason, elapsedMs, inFlight }, report, doneThemes, cur
   const [closed, wrote] = await Promise.all([settleWithin(closing, CLOSE_GRACE_MS), settleWithin(writing, CLOSE_GRACE_MS)]);
   if (closed.late) console.error(`  the browser did not close within ${CLOSE_GRACE_MS / 1000}s`);
   if (closed.error) console.error(`  closing the browser failed: ${String(closed.error).slice(0, 200)}`);
+  if (wrote.late) console.error(`  writing ${argOf("--json")} did not finish within ${CLOSE_GRACE_MS / 1000}s`);
   if (wrote.error) console.error(`  writing ${argOf("--json")} failed: ${String(wrote.error).slice(0, 200)}`);
   await settleWithin(new Promise((done) => process.stderr.write("", done)), FLUSH_GRACE_MS);
   finish(3);

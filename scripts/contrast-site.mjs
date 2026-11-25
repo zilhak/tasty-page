@@ -140,10 +140,10 @@ const placeOf = (page) => page || "/";
 // where.at as it moves, so the entry names the page and step it is on. Returns false, opening nothing, once the
 // watchdog has expired.
 async function withTab(env, at, fn) {
-  if (env.watchdog.check()) return false;
   const where = { at };
   const label = () => `${env.base} ${where.at}`;
   const handle = env.watchdog.begin(`${label()} newPage`);
+  if (env.watchdog.expired) return false;
   try {
     const tab = tracked(await env.context.newPage(), env.watchdog, handle, label);
     await fn(tab, where);
@@ -208,10 +208,10 @@ async function pointerPass(env, origin, t, rules, theme) {
       if (row.selector.includes(".search__results") || row.selector.includes(".lang-switch__menu")) continue;
       const rec = t.rows[row.id];
       const alts = Object.keys(t.altsFound).filter((k) => k.startsWith(`${row.id}\n`));
-      for (const key of alts) {
+      for (const [n, key] of alts.entries()) {
         const alt = key.split("\n")[1];
         const page = t.altsFound[key];
-        where.at = `pointer ${placeOf(page)} ${row.id}`;
+        where.at = `pointer ${placeOf(page)} ${row.id} alt ${n + 1}`;
         if (at !== page) {
           await tab.goto(urlOf(origin, page), { waitUntil: "load", timeout: 120000 });
           await settle(tab);
@@ -249,7 +249,7 @@ async function focusPass(env, origin, t, rules, theme) {
       await settle(tab);
       await installPageLib(tab);
       for (let i = 0; i < TAB_STOPS; i += 1) {
-        where.at = `focus ${placeOf(page)} Tab ${i + 1}`;
+        where.at = `focus ${placeOf(page)} ${row.id} Tab ${i + 1}`;
         await tab.keyboard.press("Tab");
         await stylesSettled(tab);
         const r = await tab.evaluate(({ row: x, tokens, name }) => window.__contrast.measureFocus(x, tokens, name), { row, tokens: rules.tokens, name: theme });
@@ -385,12 +385,16 @@ export async function runSite({ browser, origin, dist, rules, theme, report, wat
   const pages = sitePages(dist);
   const t = emptySiteTally(rules);
   for (const vp of VIEWPORTS) {
-    if (watchdog.check()) return null;
     const base = `${theme} site ${vp.name}`;
+    // The context is an entry only while it is made and while it closes. Each tab is its own entry (withTab).
     const handle = watchdog.begin(`${base} newContext`);
+    if (watchdog.expired) return null;
     try {
-      const context = tracked(await tracked(browser, watchdog, handle, () => base).newContext({ viewport: { width: vp.width, height: vp.height }, reducedMotion: "reduce" }), watchdog, handle, () => base);
+      const context = await browser.newContext({ viewport: { width: vp.width, height: vp.height }, reducedMotion: "reduce" });
+      handle.update(`${base} addInitScript`);
+      if (watchdog.expired) return null;
       await context.addInitScript((name) => localStorage.setItem("tasty-theme", name), theme);
+      handle.end();
       const env = { context, watchdog, base };
       if (vp.name === "narrow") await drawerPass(env, origin, t, rules, theme);
       await restPass(env, origin, pages, t, rules, theme, vp.name);
@@ -400,7 +404,9 @@ export async function runSite({ browser, origin, dist, rules, theme, report, wat
         await searchPass(env, origin, t, rules, theme);
         await langPass(env, origin, t, rules, theme);
       }
+      const closing = watchdog.begin(`${base} context close`);
       await context.close();
+      closing.end();
     } finally {
       handle.end();
     }
