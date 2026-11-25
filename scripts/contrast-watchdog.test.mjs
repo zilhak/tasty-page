@@ -225,6 +225,24 @@ test("progress judges and records at one reading of the clock", () => {
   assert.deepEqual(calls[0].inFlight.map((e) => e.label), ["at 299"]);
 });
 
+test("begin sets the timer from the reading it judged at, not a later one", () => {
+  // Each reading moves 1ms. Judged at 999, a second reading for the timer would be at the total deadline of 1000
+  // and set a 0ms timer while expired is still false, so the call after begin would start at the deadline.
+  let now = 0;
+  const waits = [];
+  const clock = { now: () => now, setTimeout: (fn, ms) => { waits.push(ms); return waits.length; }, clearTimeout: () => {} };
+  const wd = createWatchdog({ totalMs: 1000, stallMs: 5000, clock, onExpire: () => {} });
+  now = 999;
+  let readings = 0;
+  const tick = clock.now;
+  clock.now = () => { readings += 1; const t = now; now += 1; return t; };
+  wd.begin("at 999");
+  clock.now = tick;
+  assert.equal(readings, 1);
+  assert.equal(wd.expired, false);
+  assert.equal(waits.at(-1), 1);
+});
+
 test("a tracked page marks each call of a locator chain and the keyboard, and refuses them after expiry", async () => {
   const { tracked, Expired } = await import("./contrast-watchdog.mjs");
   const s = setup(5000, 300);

@@ -54,18 +54,21 @@ export function createWatchdog({ totalMs, stallMs, onExpire, clock = systemClock
   };
   const check = () => checkAt(clock.now());
 
-  const arm = () => {
+  // Sets the timer from the reading the caller judged at, so no second reading can reach a deadline that only the timer
+  // would then find.
+  const arm = (now) => {
     if (timer !== null) clock.clearTimeout(timer);
-    const wait = Math.max(0, Math.min(totalAt, stallAt) - clock.now());
+    const wait = Math.max(0, Math.min(totalAt, stallAt) - now);
     timer = clock.setTimeout(() => {
       timer = null;
-      if (!check() && !stopped) arm();
+      const at = clock.now();
+      if (!checkAt(at) && !stopped) arm(at);
     }, wait);
   };
 
   const progress = (now) => {
     stallAt = now + stallMs;
-    arm();
+    arm(now);
   };
 
   const begin = (label) => {
@@ -103,7 +106,7 @@ export function createWatchdog({ totalMs, stallMs, onExpire, clock = systemClock
     return true;
   };
 
-  arm();
+  arm(start);
   return {
     begin,
     check,
