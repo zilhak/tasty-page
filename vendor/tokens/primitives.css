@@ -157,6 +157,11 @@
                             "Noto Sans", "Helvetica Neue", Arial, sans-serif;
   --tasty-font-family-mono: "D2Coding", "SF Mono", "Cascadia Code",
                             "JetBrains Mono", ui-monospace, "Menlo", "Consolas", monospace;
+  /* The UI family: the bundled D2Coding first, as the app's proportional stack has it, then the system sans for
+     the letters D2Coding lacks (most Han) and for a page that has not loaded the font. Not the mono stack: what
+     follows D2Coding here draws running text, not cells. */
+  --tasty-font-family-ui:   "D2Coding", -apple-system, BlinkMacSystemFont, "Segoe UI",
+                            "Noto Sans", "Helvetica Neue", Arial, sans-serif;
   /* The same names without D2Coding and without the generic family, in the same order. For a place that
      must not draw in D2Coding, and so that a language's own font names can come before the generic family. */
   --tasty-font-family-mono-system: "SF Mono", "Cascadia Code", "JetBrains Mono", ui-monospace, "Menlo", "Consolas";
