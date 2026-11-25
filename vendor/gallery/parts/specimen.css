@@ -11,9 +11,9 @@
 /* The writing about a specimen reads font-prose: headings, descriptions, notes, spec tables, the caption over a specimen (.g-cap)
    and an icon's role. The specimen itself inherits font-ui from the page, as the app draws it. */
 .g-intro, .g-section > h2, .spec-head, .part-h, .spec-note, .do, .dont, .spec-table, .g-cap, .icontile .irole { font-family: var(--tasty-font-prose); }
-/* Ligatures. The app shapes terminal content only. Its UI text, mono runs and keycaps are laid out glyph by glyph,
-   so they draw no contextual alternates. A terminal content block carries data-terminal-content and keeps D2Coding's. */
-[data-gallery-page], [data-gallery-page] :is(code, kbd, pre, samp, .tasty-mono) { font-variant-ligatures: none; }
+/* Ligatures. The app shapes terminal content only. Its UI text, mono runs, keycaps and form controls are laid out glyph by glyph
+   (a control does not inherit the root value, so it is named), and they draw no contextual alternates. A terminal content block carries data-terminal-content and keeps D2Coding's. */
+[data-gallery-page], [data-gallery-page] :is(button, input, select, textarea, option, code, kbd, pre, samp, .tasty-mono) { font-variant-ligatures: none; }
 [data-gallery-page] [data-terminal-content], [data-gallery-page] [data-terminal-content] * { font-variant-ligatures: contextual; }
 [data-gallery-page] [data-theme] { color: var(--tasty-text-primary); }
 [data-gallery-page] a { color: inherit; }
