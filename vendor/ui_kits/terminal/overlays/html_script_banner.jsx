@@ -84,7 +84,10 @@ function HtmlScriptBanner({ state = "blocked", remote = false, hover = false, na
           <div style={{ fontSize: "var(--tasty-banner-title-font-size)", fontWeight: "var(--tasty-font-weight-semibold)", lineHeight: "var(--tasty-line-height-ui)", textWrap: "pretty" }}>{web ? HS_COPY.titleWeb : HS_COPY.title}</div>
           <div style={{ fontSize: "var(--tasty-banner-body-font-size)", lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-banner-body-fg)", textWrap: "pretty" }}>{body}</div>
         </div>
-        <span style={{ flex: "none", display: "flex", marginLeft: narrow ? "calc(var(--tasty-icon-size-md) + var(--tasty-banner-gap))" : 0, width: narrow ? "100%" : "auto" }}>{action}</span>
+        {/* Narrow: the action takes its own line at the body's left edge, as the app's ActionRow places it. The line
+            box is the content width less that indent, so it ends at the content edge instead of 28 past it. */}
+        <span style={{ flex: "none", display: "flex", marginLeft: narrow ? "calc(1 * var(--tasty-icon-size-md) + 1 * var(--tasty-banner-gap))" : 0,
+          width: narrow ? "calc(1 * 100% + -1 * var(--tasty-icon-size-md) + -1 * var(--tasty-banner-gap))" : "auto" }}>{action}</span>
       </div>
       <span style={{ position: "absolute", top: "var(--tasty-banner-padding-y)", right: "var(--tasty-space-sm)", display: "flex",
         opacity: showX ? 1 : 0, transition: "opacity var(--tasty-banner-fade) var(--tasty-ease-ui)" }}>
