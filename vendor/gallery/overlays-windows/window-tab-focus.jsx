@@ -63,7 +63,7 @@ const SETTINGS_CROP = "calc(var(--tasty-border-width) + var(--tasty-settings-l1-
 function WindowTabFocusSpec() {
   return (
     <Spec id="window-tabs-keyboard-focus" title="Window tabs — keyboard focus"
-      when={<>The tabs inside the settings, remote and plugins windows take keyboard focus: <span className="ic">Tab</span> and <span className="ic">Shift+Tab</span> move it, <span className="ic">Space</span> and <span className="ic">Enter</span> press the tab. A focused tab shows the control ring, inset on the settings L1 tab because it fills the top band and an outer ring would lose its top edge (−5px offset with 1px clearance from the active underline, compared with a 2px pane tab inset). The pane tab strip is not one of these: it is no keyboard stop and draws no ring (Components › Tab).</>}>
+      when={<>The tabs inside the settings, remote and plugins windows take keyboard focus: <span className="ic">Tab</span> and <span className="ic">Shift+Tab</span> move it, <span className="ic">Space</span> and <span className="ic">Enter</span> press the tab. The settings L1 tab and every remote tab draw the 2px focus ring inside the tab at a −5px offset, with 1px of clearance from its own underline. An outer ring would lose its top edge in the settings window's top band or cross the 2px gap and meet the adjacent remote tab's underline if that tab is open. The pane tab strip is not one of these: it is no keyboard stop and draws no ring (Components › Tab).</>}>
       <Views>
         <View name="settings-l1-tab-focus" wide label="Settings — an L1 tab with keyboard focus (General, while Appearance is open)">
           <div style={col}><span className="g-cap" style={cap}>settings · L1 tab</span>
@@ -85,8 +85,15 @@ function WindowTabFocusSpec() {
         </View>
         <View name="remote-tab-focus" wide label="Remote connections — a tab in the tab strip with keyboard focus (Remote profiles, while Passkeys is open)">
           <div style={col}><span className="g-cap" style={cap}>remote · tab strip</span>
-            {/* the focused tab is not next to the open one, so no part of its ring lies on the open tab's accent underline */}
             <FocusOn pick={byText("span", "Remote profiles")}><RemoteFrame tab="passkeys" /></FocusOn></div>
+        </View>
+        <View name="remote-tab-next-to-selected-focus" wide label="Remote connections — the tab next to the open one with keyboard focus (Passkeys, while Attach is open)">
+          <div style={col}><span className="g-cap" style={cap}>remote · tab next to the open one</span>
+            <FocusOn pick={byText("span", "Passkeys")}><RemoteFrame tab="attach" /></FocusOn></div>
+        </View>
+        <View name="remote-selected-tab-focus" wide label="Remote connections — the open tab with keyboard focus (Attach, while Attach is open)">
+          <div style={col}><span className="g-cap" style={cap}>remote · selected tab</span>
+            <FocusOn pick={byText("span", "Attach")}><RemoteFrame tab="attach" /></FocusOn></div>
         </View>
         <View name="remote-segment-focus" wide label="Remote connections — a segment with keyboard focus (Direct (inline))">
           <div style={col}><span className="g-cap" style={cap}>remote · segmented</span>
@@ -103,7 +110,7 @@ function WindowTabFocusSpec() {
         </View>
       </Views>
       <Meta
-        specs={[["tabs", "Settings L1 tabs and L2 rows · Remote tab strip and segments · Plugins tab bar"], ["keys", "Tab / Shift+Tab move focus · Space / Enter press"], ["focus", <>control ring: outline <span className="tok">--tasty-focus-ring-width</span> 2px · <span className="tok">--tasty-border-focus</span> · <span className="tok">--tasty-focus-ring-offset</span> 1px off the tab</>], ["settings L1 tab", <>the same 2px ring inside the tab: the tab fills its band at the window's top edge · offset minus (2 × <span className="tok">--tasty-focus-ring-width</span> + <span className="tok">--tasty-focus-ring-offset</span>) = −5, so the ring clears the 2px active underline by 1px on every tab</>], ["plugins tab", <>the same ring: the tabs sit side by side on the header's mantle and only the selected one is filled (raised, 1px border-default), so the ring lies on mantle and reads <span className="tok">--tasty-border-focus</span> (RULES focus-ring)</>], ["not here", "pane tab strip: no keyboard stop, no ring"]]}
+        specs={[["tabs", "Settings L1 tabs and L2 rows · Remote tab strip and segments · Plugins tab bar"], ["keys", "Tab / Shift+Tab move focus · Space / Enter press"], ["focus", <>control ring: outline <span className="tok">--tasty-focus-ring-width</span> 2px · <span className="tok">--tasty-border-focus</span> · <span className="tok">--tasty-focus-ring-offset</span> 1px off the tab</>], ["settings L1 tab", <>the same 2px ring inside the tab: the tab fills its band at the window's top edge · offset minus (2 × <span className="tok">--tasty-focus-ring-width</span> + <span className="tok">--tasty-focus-ring-offset</span>) = −5, so the ring clears the 2px active underline by 1px on every tab</>], ["remote tab", <>the same 2px ring inside the tab, at the settings L1 tab's −5 offset: the tabs stand 2px apart, and a ring 1px off one tab would reach 1px into the next and meet its accent underline · inside, it stays on its own tab and clears its own underline by 1px</>], ["plugins tab", <>the same ring: the tabs sit side by side on the header's mantle and only the selected one is filled (raised, 1px border-default), so the ring lies on mantle and reads <span className="tok">--tasty-border-focus</span> (RULES focus-ring)</>], ["not here", "pane tab strip: no keyboard stop, no ring"]]}
         tokens={[{ tok: "--tasty-border-focus", use: "focus ring", color: "var(--tasty-border-focus)" }, { tok: "--tasty-focus-ring-width", use: "→ 2px" }, { tok: "--tasty-focus-ring-offset", use: "→ 1px" }]} />
     </Spec>
   );

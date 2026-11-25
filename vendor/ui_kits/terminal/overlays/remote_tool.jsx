@@ -807,7 +807,11 @@ function RemoteTool({ onClose, onFlash }) {
       <button onClick={() => switchTab(id)} style={{ border: 0, background: "transparent", cursor: "pointer",
         height: 35, padding: "0 var(--tasty-space-md)", fontFamily: "var(--tasty-font-ui)", fontSize: 13,
         color: on ? "var(--tasty-text-primary)" : "var(--tasty-text-muted)", fontWeight: on ? 600 : 400,
-        borderBottom: on ? "var(--tasty-focus-ring-width) solid var(--tasty-accent-primary)" : "var(--tasty-focus-ring-width) solid transparent" }}>{children}</button>
+        borderBottom: on ? "var(--tasty-focus-ring-width) solid var(--tasty-accent-primary)" : "var(--tasty-focus-ring-width) solid transparent",
+        /* keyboard focus: the tabs stand 2px apart, so a ring 1px off the tab would reach 1px into the next tab and meet
+           its accent underline. As on the settings L1 tab, the 2px ring sits inside the tab, clear of the 2px underline
+           by the 1px ring offset, the same inset on every tab. */
+        outlineOffset: "calc(-1 * (2 * var(--tasty-focus-ring-width) + var(--tasty-focus-ring-offset)))", borderRadius: "var(--tasty-radius-none)" }}>{children}</button>
     );
   };
 

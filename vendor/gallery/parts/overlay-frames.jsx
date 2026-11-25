@@ -724,7 +724,9 @@ function RemoteFrame({ tab = "profiles", ssh = "hosts" }) {
   const TabBtn = ({ children, on }) => (
     <span style={{ height: 35, padding: "0 12px", display: "inline-flex", alignItems: "center", fontSize: 13,
       color: on ? "var(--tasty-text-primary)" : "var(--tasty-text-muted)", fontWeight: on ? 600 : 400,
-      borderBottom: on ? "2px solid var(--tasty-accent-primary)" : "2px solid transparent" }}>{children}</span>
+      borderBottom: on ? "2px solid var(--tasty-accent-primary)" : "2px solid transparent",
+      /* keyboard focus: the kit's inset ring (remote_tool TabBtn), inside the tab and clear of the underline */
+      outlineOffset: "calc(-1 * (2 * var(--tasty-focus-ring-width) + var(--tasty-focus-ring-offset)))", borderRadius: "var(--tasty-radius-none)" }}>{children}</span>
   );
   return (
     <div style={{ width: 520, height: 440, display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)",
