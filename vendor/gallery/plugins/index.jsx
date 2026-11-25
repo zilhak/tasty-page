@@ -86,14 +86,17 @@ function ExpToolbar() {
 // feature is always discoverable; a muted line + faint hint fill the slot. Tone
 // matches the content-area "This folder is empty" state (text-muted). i18n key:
 // explorer.sidebar.favorites_empty ("아직 즐겨찾기가 없습니다").
+// Metrics follow the app's favorites_empty: space-xs above, space-sm inset and below, no gap between the two lines,
+// a 14 star (icon-size-sm) space-xs before caption-size text. The star recedes as glyph-dim, an opaque role, like the
+// ports window's empty star; the app's two tones for it (0.55 here, 0.37 there) converge on that role.
 function FavoritesEmpty() {
   return (
-    <div style={{ padding: "2px 10px 10px", display: "flex", flexDirection: "column", gap: 3 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 6, color: "var(--tasty-text-muted)" }}>
-        <span style={{ display: "inline-flex", flex: "none" }}>{ic.star}</span>
-        <span style={{ fontSize: 12 }}>No favorites yet</span>
+    <div style={{ padding: "var(--tasty-space-xs) var(--tasty-space-sm) var(--tasty-space-sm)", display: "flex", flexDirection: "column" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-xs)", color: "var(--tasty-text-muted)" }}>
+        <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-glyph-dim)" }}><PIcon name="star" size="var(--tasty-icon-size-sm)" /></span>
+        <span style={{ fontSize: "var(--tasty-font-size-caption)", lineHeight: "var(--tasty-line-height-ui)" }}>No favorites yet</span>
       </div>
-      <div style={{ fontSize: 11, lineHeight: 1.45, color: "var(--tasty-text-placeholder)" }}>
+      <div style={{ fontSize: "var(--tasty-font-size-caption)", lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-text-placeholder)" }}>
         Right-click a folder → <span style={{ color: "var(--tasty-text-muted)" }}>Add to favorites</span>.
       </div>
     </div>
