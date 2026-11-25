@@ -100,13 +100,14 @@ function FocusDemo() {
   );
 }
 
-// A mark rings the leaf. The unfocused edge sits under it. The lit edge sits over it and takes only the lower row, so both show.
+// A mark rings the leaf. The unfocused edge sits under it, even on a focused leaf. The lit edge sits over it and takes
+// only the lower row, so both show (RULES.md section 4, Paint order).
 const LOWER_ROW = { position: "absolute", top: "var(--tasty-border-width)", left: 0, right: 0, height: "var(--tasty-border-width)" };
 
 function Marked({ kind = byId("plugin-mesh"), focused, bedFocused = focused, token, width, children }) {
   return (
     <div style={{ position: "relative", ...frame, flex: "none", overflow: "hidden", display: "flex", flexDirection: "column" }}>
-      {kind.edge && <SurfaceFocusEdge focused={focused} />}
+      {kind.edge && <SurfaceFocusEdge focused={focused && !token} />}
       {kind.body(bedFocused)}
       {token && <SurfaceRing token={token} width={width} />}
       {kind.edge && focused && token && <SurfaceFocusEdge focused style={LOWER_ROW} />}
@@ -120,7 +121,7 @@ function WebviewMarked({ kind = byId("plugin-webview"), focused, token, width })
   return (
     <div style={{ ...frame, flex: "none", overflow: "hidden", display: "flex", flexDirection: "column" }}>
       <div style={{ position: "relative", flex: "none" }}>
-        <SurfaceFocusEdge focused={focused} />
+        <SurfaceFocusEdge focused={false} />
         <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: `var(--tasty-${width})`, background: `var(--tasty-${token})` }} />
         {focused && <SurfaceFocusEdge focused style={LOWER_ROW} />}
       </div>
