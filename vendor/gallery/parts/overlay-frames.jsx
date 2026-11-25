@@ -2134,7 +2134,7 @@ function GitViewerFrame({ diff }) {
     );
   };
   return (
-    <div style={{ width: "100%", maxWidth: 640, height: 412, display: "flex", flexDirection: "column",
+    <div style={{ width: "var(--tasty-git-viewer-specimen-width)", flex: "none", height: 412, display: "flex", flexDirection: "column",
       background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", overflow: "hidden" }}>
       {/* header */}
       <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", flex: "none", borderBottom: "1px solid var(--tasty-separator)" }}>
@@ -2232,7 +2232,7 @@ tasty read screen --surface 3 --json
   );
   const clipGlyph = <Icon name="clipboard" size={28} />;
   const Frame = ({ children }) => (
-    <div style={{ width: "100%", maxWidth: 460, height: 320, display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)",
+    <div style={{ width: "var(--tasty-clipboard-specimen-width)", flex: "none", height: 320, display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)",
       border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", overflow: "hidden" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 14px", flex: "none", borderBottom: "1px solid var(--tasty-separator)" }}>
         <span style={{ display: "inline-flex", color: "var(--tasty-text-muted)" }}><Icon name="clipboard" size={16} /></span>
@@ -2374,7 +2374,7 @@ function RemoteFormFrame({ variant = "ssh", error }) {
       border: "var(--tasty-border-width) solid " + (active ? "var(--tasty-accent-primary)" : "var(--tasty-border-default)") }}>{label}</div>
   );
   return (
-    <div style={{ width: "100%", maxWidth: 460, height: 408, display: "flex", flexDirection: "column",
+    <div style={{ width: "var(--tasty-remote-form-specimen-width)", flex: "none", height: 408, display: "flex", flexDirection: "column",
       background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", overflow: "hidden" }}>
       {/* header */}
       <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 14px", flex: "none", borderBottom: "1px solid var(--tasty-separator)" }}>

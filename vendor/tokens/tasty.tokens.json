@@ -4632,6 +4632,18 @@
       "$type": "dimension",
       "$value": "{primitive.size-320}"
     },
+    "remote-form-specimen-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-460}"
+    },
+    "git-viewer-specimen-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-640}"
+    },
+    "clipboard-specimen-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-460}"
+    },
     "specimen-annotation-border": {
       "$type": "color",
       "$value": "{semantic.border-control-raised}"

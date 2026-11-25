@@ -108,7 +108,7 @@ function Manifest({ narrow }) {
 
 function AddPanel({ kind, lang, state, width = "var(--tasty-size-560)", narrow, focus, ground = "var(--tasty-bg-panel)" }) {
   return (
-    <div style={{ width, maxWidth: "100%", display: "flex", flexDirection: "column", background: ground, border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
+    <div style={{ width, flex: "none", display: "flex", flexDirection: "column", background: ground, border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
       <div style={{ padding: "var(--tasty-space-md)", display: "flex", flexDirection: "column", gap: "var(--tasty-space-md)" }}>
         <Manifest narrow={narrow} />
         <TrustBox2 kind={kind} lang={lang} />
@@ -121,7 +121,7 @@ function AddPanel({ kind, lang, state, width = "var(--tasty-size-560)", narrow, 
 function AttentionDetail({ reason = "unknown-key", state = "rest" }) {
   const busy = state === "busy";
   return (
-    <div style={{ width: "var(--tasty-size-440)", maxWidth: "100%", display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
+    <div style={{ width: "var(--tasty-size-440)", flex: "none", display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
       <div style={{ padding: "var(--tasty-space-md)", display: "flex", flexDirection: "column", gap: "var(--tasty-space-md)" }}>
         <span style={{ fontSize: "var(--tasty-font-size-max)", color: "var(--tasty-text-primary)" }}>{reason === "unknown-key" ? "fleet-sync" : "remote-shell"}</span>
         <TrustBox2 kind={reason} attention />
@@ -213,7 +213,7 @@ function ReservedDetail({ p = RESERVED_SAMPLE, lang = "en", state = "rest", widt
   const body = { margin: 0, fontSize: "var(--tasty-font-size-term-sm)", lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-plugin-trust-body-fg)", overflowWrap: "anywhere", textWrap: "pretty" };
   const acc = "var(--tasty-accent-danger)";
   return (
-    <div style={{ width, maxWidth: "100%", display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
+    <div style={{ width, flex: "none", display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
       <div style={{ padding: "var(--tasty-space-lg)", display: "flex", flexDirection: "column", gap: "var(--tasty-space-lg)" }}>
         <div style={{ display: "flex", gap: "var(--tasty-space-md)", alignItems: "flex-start" }}>
           <ReservedAvatar name={p.folder} lg />
@@ -262,7 +262,7 @@ function ReservedDetail({ p = RESERVED_SAMPLE, lang = "en", state = "rest", widt
 function ReservedNotice({ lang = "en", id = RESERVED_SAMPLE.id }) {
   const c = RESERVED[lang] || RESERVED.en;
   return (
-    <div style={{ width: "var(--tasty-size-440)", maxWidth: "100%", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
+    <div style={{ width: "var(--tasty-size-440)", flex: "none", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
       <NotificationItem level="warning" title={c.noticeTitle(id)} body={c.noticeBody} time="now" unread expanded />
     </div>
   );
@@ -315,7 +315,7 @@ const ATTN_EMPTY_WIDTH = "calc(var(--tasty-plugins-attention-list-width) + var(-
 function AttnEmpty({ lang = "en" }) {
   const [title, body] = ATTN_EMPTY[lang];
   return (
-    <div lang={lang} style={{ width: ATTN_EMPTY_WIDTH, maxWidth: "100%", height: "var(--tasty-size-240)", display: "flex", borderRadius: "var(--tasty-radius)", overflow: "hidden",
+    <div lang={lang} style={{ width: ATTN_EMPTY_WIDTH, flex: "none", height: "var(--tasty-size-240)", display: "flex", borderRadius: "var(--tasty-radius)", overflow: "hidden",
       border: "var(--tasty-border-width) solid var(--tasty-border-default)" }}>
       <div style={{ width: "var(--tasty-plugins-attention-list-width)", flex: "none", background: "var(--tasty-bg-sidebar)", borderRight: "var(--tasty-border-width) solid var(--tasty-separator)" }} />
       <div style={{ flex: 1, minWidth: 0, background: "var(--tasty-bg-sidebar)", padding: "calc(var(--tasty-space-sm) + 2 * var(--tasty-space-xl)) var(--tasty-space-sm) 0",
