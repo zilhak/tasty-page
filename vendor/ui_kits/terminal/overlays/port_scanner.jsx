@@ -118,7 +118,8 @@ function FavoritesSection({ favs, onToggle }) {
       {rows.length === 0 ? (
         <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-xs)",
           height: "var(--tasty-control-height-tree)", padding: "0 var(--tasty-ports-pad-x)", color: "var(--tasty-text-muted)" }}>
-          <span style={{ display: "inline-flex", flex: "none", opacity: 0.55 }}><Icon name="star" size="var(--tasty-icon-size-xs)" /></span>
+          {/* the empty line's star recedes as glyph-dim ink, an opaque role, with no opacity on top */}
+          <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-glyph-dim)" }}><Icon name="star" size="var(--tasty-icon-size-xs)" /></span>
           <span style={{ fontSize: "var(--tasty-font-size-caption)" }}>No favorites yet</span>
           <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-placeholder)" }}>
             — click a star in the list below to pin a port.
@@ -141,7 +142,7 @@ function FavoritesSection({ favs, onToggle }) {
                 textOverflow: "ellipsis", whiteSpace: "nowrap", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>
                 {r.hit ? `${r.hit.proc} · ${r.hit.pid}${r.hit.ws ? ` · ${r.hit.ws}` : ""}` : "not running"}
               </span>
-              <span style={{ flex: "none", display: "inline-flex", justifyContent: "flex-end", minWidth: "var(--tasty-size-112)" }}>
+              <span style={{ flex: "none", display: "inline-flex", justifyContent: "flex-end", minWidth: "var(--tasty-port-favorites-state-min-width)" }}>
                 {r.hit
                   ? <StatusDot status={r.hit.state === "LISTEN" ? "running" : "waiting"} pulse={r.hit.state === "LISTEN"} label={r.hit.state} />
                   : <StatusDot status="idle" label="NONE" />}

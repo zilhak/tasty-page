@@ -4492,6 +4492,10 @@
       "$type": "dimension",
       "$value": "{primitive.size-112}"
     },
+    "port-favorites-state-min-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-112}"
+    },
     "port-star-col-width": {
       "$type": "dimension",
       "$value": "{primitive.size-28}"

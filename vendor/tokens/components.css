@@ -903,6 +903,7 @@
   --tasty-port-favorites-border:     var(--tasty-separator);           /* boundary to the table */
   --tasty-port-favorites-row-height: var(--tasty-control-height-tree); /* 22 — denser than a table row */
   --tasty-port-favorites-max-height: var(--tasty-size-112);            /* 5 rows, then scroll */
+  --tasty-port-favorites-state-min-width: var(--tasty-size-112);       /* 2026-11-26 state column at a favorites row's end: the dot and its label sit right-aligned in it, so a long detail ellipsises before the dot. The app's ports_favorite_state_min_width */
   --tasty-port-star-col-width:       var(--tasty-size-28);             /* leading tight column in the table */
   --tasty-port-process-col-min-width: var(--tasty-size-200);           /* Process column — a MINIMUM, not a fixed width: the column grows with the table and never shrinks below this. The gallery specimen pins 200 only because its stage is fixed. */
   --tasty-port-addr-col-min-width:   var(--tasty-size-140);            /* 2026-10-08 (batch 8) — Address floor AND width: Address stays here; ALL spare width goes to Process */
