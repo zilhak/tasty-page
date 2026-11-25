@@ -90,6 +90,9 @@ test("galleryPages names each required page without an index.html file", () => {
   withDist(["design/gallery/index.html/", "design/gallery/icons/index.html", "design/tokens/index.html"], (got) => {
     assert.deepEqual(got.missing, ["design/gallery/"]);
   });
+  withDist(["design/gallery/index.html", "design/gallery/icons/index.html", "design/tokens/index.html/"], (got) => {
+    assert.deepEqual(got.missing, ["design/tokens/"]);
+  });
 });
 
 test("galleryPages returns no pages when design/gallery is not built", () => {
