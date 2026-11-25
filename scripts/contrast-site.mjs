@@ -134,6 +134,19 @@ async function settle(tab) {
 }
 
 const urlOf = (origin, page) => `${origin}/${page}`;
+
+// The language every check context reports. The root page sends a browser whose language matches another landing to that
+// landing, so without it the check would measure the browser's language there instead of the default one.
+export const CHECK_LOCALE = "en-US";
+
+// Opens page and fails when the document that loads has another path, so a page that sends the browser elsewhere is
+// never counted under its own name.
+async function openPage(tab, origin, page) {
+  const asked = urlOf(origin, page);
+  await tab.goto(asked, { waitUntil: "load", timeout: 120000 });
+  const got = new URL(tab.url()).pathname;
+  if (got !== new URL(asked).pathname) throw new Error(`asked for ${new URL(asked).pathname}, the page went to ${got}`);
+}
 const placeOf = (page) => page || "/";
 
 // Opens a tab as one in-flight entry of the watchdog, from before newPage until the pass is done with it. The pass sets
@@ -200,7 +213,7 @@ async function restPass(env, origin, pages, t, rules, theme, viewport) {
       await withTab(env, `rest ${placeOf(page)}`, async (tab, where) => {
         tab.on("pageerror", (e) => t.errors.push(`${page}: ${String(e).slice(0, 200)}`));
         try {
-          await tab.goto(urlOf(origin, page), { waitUntil: "load", timeout: 120000 });
+          await openPage(tab, origin, page);
           await settle(tab);
           if (SPECIMEN_PAGE.test(page)) {
             const found = await tab.locator("[data-gallery-page]").count();
@@ -224,12 +237,7 @@ async function restPass(env, origin, pages, t, rules, theme, viewport) {
     }
   };
   await Promise.all(Array.from({ length: CONCURRENT_TABS }, worker));
-  if (viewport === "wide") {
-    // In place, since the report holds this object.
-    const ordered = orderFound(t.altsFound, pointerRows(rules));
-    for (const key of Object.keys(t.altsFound)) delete t.altsFound[key];
-    Object.assign(t.altsFound, ordered);
-  }
+  if (viewport === "wide") t.altsFound = orderFound(t.altsFound, pointerRows(rules));
 }
 
 async function pointerPass(env, origin, t, rules, theme) {
@@ -245,7 +253,7 @@ async function pointerPass(env, origin, t, rules, theme) {
         const page = t.altsFound[key];
         where.at = `pointer ${placeOf(page)} ${row.id} alt ${n + 1}`;
         if (at !== page) {
-          await tab.goto(urlOf(origin, page), { waitUntil: "load", timeout: 120000 });
+          await openPage(tab, origin, page);
           await settle(tab);
           await injectFixtures(tab, page);
           await installPageLib(tab);
@@ -277,7 +285,7 @@ async function focusPass(env, origin, t, rules, theme) {
   const rec = t.rows[row.id];
   for (const page of FOCUS_PAGES) {
     const opened = await withTab(env, `focus ${placeOf(page)}`, async (tab, where) => {
-      await tab.goto(urlOf(origin, page), { waitUntil: "load", timeout: 120000 });
+      await openPage(tab, origin, page);
       await settle(tab);
       await installPageLib(tab);
       for (let i = 0; i < TAB_STOPS; i += 1) {
@@ -305,7 +313,7 @@ async function drawerPass(env, origin, t, rules, theme) {
   const sidebarRows = restRows(rules).filter((r) => !held(r) && /\.nav-(section|list|desc)/.test(r.selector));
   for (const page of DRAWER_PAGES) {
     const opened = await withTab(env, `drawer ${placeOf(page)}`, async (tab, where) => {
-      await tab.goto(urlOf(origin, page), { waitUntil: "load", timeout: 120000 });
+      await openPage(tab, origin, page);
       await settle(tab);
       await installPageLib(tab);
       await tab.click(".menu-btn");
@@ -424,7 +432,7 @@ export async function runSite({ browser, origin, dist, rules, theme, report, wat
     if (watchdog.expired) return null;
     let context;
     try {
-      context = await browser.newContext({ viewport: { width: vp.width, height: vp.height }, reducedMotion: "reduce" });
+      context = await browser.newContext({ viewport: { width: vp.width, height: vp.height }, reducedMotion: "reduce", locale: CHECK_LOCALE });
       handle.update(`${base} addInitScript`);
       if (watchdog.expired) return null;
       await context.addInitScript((name) => localStorage.setItem("tasty-theme", name), theme);

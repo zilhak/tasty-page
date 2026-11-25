@@ -27,7 +27,7 @@ import { BASE } from "../src/lib/base.mjs";
 import { DEFAULT_LANG, LANGS } from "../src/lib/langs.mjs";
 import { PART_MAP } from "../vendor/gallery/parts/part-map.js";
 import { installPageLib, missingCellRows, stylesSettled } from "./contrast-page.mjs";
-import { emptySiteTally, measureRest, runSite, sitePages, siteRules } from "./contrast-site.mjs";
+import { CHECK_LOCALE, emptySiteTally, measureRest, runSite, sitePages, siteRules } from "./contrast-site.mjs";
 import { closingTab, createWatchdog, tracked } from "./contrast-watchdog.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -319,7 +319,7 @@ async function run() {
     if (watchdog.expired) return;
     let context;
     try {
-      context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
+      context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, locale: CHECK_LOCALE });
       contextHandle.update(`${base} addInitScript`);
       if (watchdog.expired) return;
       await context.addInitScript((name) => localStorage.setItem("tasty-theme", name), theme);
