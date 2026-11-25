@@ -4,10 +4,12 @@ const BASE = `${import.meta.env.BASE_URL.replace(/\/$/, "")}/`;
 
 // Tasty UI kit — CSD titlebar · Windows
 // ─────────────────────────────────────────────────────────────────────────
-// Tasty on Windows draws its own titlebar (Client-Side Decoration): the window
-//   is created with WindowAttributes::with_decorations(false) and the
-//   undecorated shadow on, and the host handles the caption buttons, the
-//   titlebar drag and the edge resize. This kit is that titlebar.
+// Tasty's MAIN window on Windows draws its own titlebar (Client-Side
+//   Decoration): it is created with WindowAttributes::with_decorations(false)
+//   and the undecorated shadow on, and the host handles the caption buttons,
+//   the titlebar drag and the edge resize. This kit is that titlebar. Other
+//   windows keep the OS frame on Windows: the settings window, for one, uses
+//   the native titlebar (only Linux draws its own there).
 //
 // Windows conventions: caption buttons (minimize · maximize/restore · close) on
 // the RIGHT, each ~46px wide and full titlebar height; close-hover paints the
