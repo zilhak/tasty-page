@@ -62,6 +62,41 @@ function EdgeSpecimen({ rel }) {
   );
 }
 
+// The back bar's actions (zoom cluster and runner badge) are what the detail view specimen is about. They sit at
+// the right of a 560 window, so in a narrower stage the stage opens scrolled to them: when they run past the
+// stage's visible right edge, the stage scrolls by that much plus its own padding, on first paint and whenever the
+// stage changes width. A stage that holds them whole does not move.
+function RevealBackBarActions({ children }) {
+  const ref = React.useRef(null);
+  React.useEffect(() => {
+    const box = ref.current;
+    const stage = box && box.closest(".stage");
+    if (!stage) return undefined;
+    const actions = () => {
+      let best = null;
+      for (const el of box.querySelectorAll("span, div")) {
+        if (!el.querySelector("button") || !/Runner/.test(el.textContent)) continue;
+        const r = el.getBoundingClientRect();
+        if (!best || r.width * r.height < best.r.width * best.r.height) best = { el, r };
+      }
+      return best && best.el;
+    };
+    const reveal = () => {
+      const el = actions();
+      if (!el) return;
+      const r = el.getBoundingClientRect(), s = stage.getBoundingClientRect();
+      const right = s.left + stage.clientLeft + stage.clientWidth;
+      const pad = parseFloat(getComputedStyle(stage).paddingRight) || 0;
+      if (r.right > right) stage.scrollLeft += r.right - right + pad;
+    };
+    reveal();
+    const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(reveal) : null;
+    if (ro) ro.observe(stage);
+    return () => { if (ro) ro.disconnect(); };
+  }, []);
+  return <div ref={ref}>{children}</div>;
+}
+
 function PopupStage() {
   const [open, setOpen] = React.useState(true);
   return (
@@ -381,7 +416,9 @@ function Page() {
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
               <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>detail — the back bar carries zoom + runner badge</div>
-              <div style={{ position: "relative", flex: "none", width: "var(--tasty-dag-popup-width)", height: "var(--tasty-dag-popup-height)" }}><DagWindow initialOpen="build-and-deploy" /></div>
+              <RevealBackBarActions>
+                <div style={{ position: "relative", flex: "none", width: "var(--tasty-dag-popup-width)", height: "var(--tasty-dag-popup-height)" }}><DagWindow initialOpen="build-and-deploy" /></div>
+              </RevealBackBarActions>
             </div>
           </Stage>
           <Meta
