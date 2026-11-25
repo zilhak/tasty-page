@@ -16,8 +16,10 @@ const THEMES = [["Mocha", "mocha"], ["Latte", "latte"]];
 const cap = { fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" };
 const mono = { fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" };
 const LINES = ["~ $ ls", "Cargo.toml  crates  docs  src", "~ $ cargo build", "   Compiling tasty v0.9.4", "~ $ ▌"];
-// drawn just inside the work column, on its tab strip and terminal: outside it, the mark would cross the sidebar's active row
-const ANNOT = { outline: "var(--tasty-border-width) dashed var(--tasty-specimen-annotation-border)", outlineOffset: "calc(-1 * var(--tasty-border-width))" };
+// drawn just inside the work column, on its tab strip and terminal: outside it, the mark would cross the sidebar's active row.
+// Its own box sits above the terminal (which is positioned and would cover it) and under the notice column, and takes no input.
+const ANNOT = { position: "absolute", inset: 0, zIndex: 1, pointerEvents: "none",
+  outline: "var(--tasty-border-width) dashed var(--tasty-specimen-annotation-border)", outlineOffset: "calc(-1 * var(--tasty-border-width))" };
 
 function Term({ lines = LINES, search }) {
   return (
@@ -54,7 +56,7 @@ function Win({ w = 640, h = 300, split, search, banner, notifErr, children, anno
         </div>
       </div>
       <div style={{ position: "relative", flex: 1, minWidth: 0, display: "flex" }}>
-        <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", ...(annotate ? ANNOT : {}) }}><Strip tabs={["main"]} /><Term /></div>
+        <div style={{ position: "relative", flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}><Strip tabs={["main"]} /><Term />{annotate && <div aria-hidden="true" style={ANNOT} />}</div>
         {split && <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", borderLeft: "var(--tasty-border-width) solid var(--tasty-separator)" }}><Strip tabs={["logs"]} /><Term lines={["$ tail -f app.log", "INFO listening on :8080", "INFO GET /health 200"]} search={search} /></div>}
         {banner && <Banner text={banner} />}
         {children && <NoticeColumn topOffset={colTop}>{children}</NoticeColumn>}
