@@ -149,6 +149,7 @@
   --tasty-input-gap:               var(--tasty-space-sm);
   --tasty-input-radius:            var(--tasty-radius);
   --tasty-input-font-size:         var(--tasty-font-size-body);
+  --tasty-caret-specimen-field-width: var(--tasty-size-260); /* 2026-11-26 Components › Text caret specimen: the focused field's width */
   --tasty-input-bg:                var(--tasty-surface-field); /* 2026-11-05 ground-ink rules */
   --tasty-input-fg:                var(--tasty-text-primary);
   --tasty-input-placeholder:       var(--tasty-text-placeholder);

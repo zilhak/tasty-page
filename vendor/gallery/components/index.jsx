@@ -392,7 +392,7 @@ function Components() {
               <Input mono disabled defaultValue="#89b4fa" style={{ width: "var(--tasty-field-width-xs)" }} />
             </Cluster>
             <Cluster label={'ground="raised" — on surface-raised, box steps down to bg-panel + border-control-raised (2026-10-14)'}>
-              <div style={{ display: "flex", gap: 12, padding: 12, background: "var(--tasty-surface-raised)", borderRadius: "var(--tasty-radius)" }}>
+              <div style={{ display: "flex", gap: "var(--tasty-space-md)", padding: "var(--tasty-space-md)", background: "var(--tasty-surface-raised)", borderRadius: "var(--tasty-radius)" }}>
                 <Input ground="raised" placeholder="Editable" style={{ width: "var(--tasty-field-width-md)" }} />
                 <Input ground="raised" mono readOnly defaultValue="#89b4fa" style={{ width: "var(--tasty-field-width-xs)" }} />
                 <Input ground="raised" mono disabled defaultValue="#89b4fa" style={{ width: "var(--tasty-field-width-xs)" }} />
@@ -545,8 +545,8 @@ function Components() {
         </Spec>
         <Spec id="text-caret-steady-never-blinks" title="Text caret — steady, never blinks"
           when={<>The caret in every UI text field (palette search, settings fields, popup and modal inputs, single- and multi-line) is <b>steady</b>: always drawn while the field has focus and the window is focused, never blinking. This matches the terminal cursor (motion 0 ms) and keeps an idle focused field from waking the frame loop twice a second. Focus is already carried by the field's focus border, so the caret does not need motion to be found. Window not focused → no caret, as today.</>}>
-          <Stage variant="column" style={{ gap: 12, alignItems: "flex-start", maxWidth: 320 }}>
-            <div style={{ position: "relative", width: 260, height: "var(--tasty-control-height)", display: "flex", alignItems: "center", padding: "0 var(--tasty-space-sm)", background: "var(--tasty-input-bg, var(--tasty-surface-raised))", border: "var(--tasty-border-width) solid var(--tasty-border-focus)", borderRadius: "var(--tasty-radius)", fontSize: 13, color: "var(--tasty-text-primary)" }}>
+          <Stage variant="column" style={{ gap: "var(--tasty-space-md)", alignItems: "flex-start", maxWidth: 320 }}>
+            <div style={{ position: "relative", width: "var(--tasty-caret-specimen-field-width)", height: "var(--tasty-control-height)", display: "flex", alignItems: "center", padding: "0 var(--tasty-space-sm)", background: "var(--tasty-input-bg, var(--tasty-surface-raised))", border: "var(--tasty-border-width) solid var(--tasty-border-focus)", borderRadius: "var(--tasty-radius)", fontSize: "var(--tasty-input-font-size)", color: "var(--tasty-text-primary)" }}>
               open settings<span style={{ display: "inline-block", width: "var(--tasty-border-width)", height: 16, background: "var(--tasty-text-primary)", marginLeft: 1 }}></span>
             </div>
           </Stage>

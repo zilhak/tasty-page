@@ -381,6 +381,10 @@
       "$type": "dimension",
       "$value": "240px"
     },
+    "size-260": {
+      "$type": "dimension",
+      "$value": "260px"
+    },
     "size-320": {
       "$type": "dimension",
       "$value": "320px"
@@ -2580,6 +2584,10 @@
     "input-font-size": {
       "$type": "dimension",
       "$value": "{semantic.font-size-body}"
+    },
+    "caret-specimen-field-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-260}"
     },
     "input-bg": {
       "$type": "color",

@@ -112,6 +112,7 @@
   --tasty-size-150: 150px;
   --tasty-size-196: 196px; /* explorer sidebar width */
   --tasty-size-240: 240px; /* tooltip max-width · explorer favorites pin height */
+  --tasty-size-260: 260px; /* 2026-11-26 caret specimen field */
   --tasty-size-320: 320px; /* toast / popover max-width */
   --tasty-size-352: 352px;  /* notifications popup default width */
   /* layout / form-control / measure widths (fixed product dimensions; like 22/46
