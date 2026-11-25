@@ -394,7 +394,7 @@ function DragSection() {
           )} />
         </Stage>
         <Meta
-          specs={[["paint order", "bed · tint · row fill · ink · ring"], ["ink", "the drop-target@* cell, with no tint over it"], ["image row, list body", "glyph → text-secondary · glyph-info is forbidden on the tint"], ["image row, outside a tint", "glyph-info → accent-info-raised"], ["match run", "accent-primary-raised"], ["opaque row fill", "hides the tint on that row · the ring still shows"]]}
+          specs={[["paint order", "bed · tint · row fill · ink · ring"], ["ink", "the drop-target@* cell, with no tint over it"], ["image row, list body", "glyph → text-secondary · glyph-info is forbidden on the tint"], ["image row, outside a tint", "glyph-info → accent-info-raised"], ["match run", "explorer-match-fg"], ["opaque row fill", "hides the tint on that row · the ring still shows"]]}
           tokens={[{ tok: "--tasty-explorer-drop-target-bg", use: "tint, under the row", color: "var(--tasty-explorer-drop-target-bg)" }, { tok: "--tasty-explorer-drop-target-border", use: "ring, last", color: "var(--tasty-explorer-drop-target-border)" }, { tok: "--tasty-surface-bed-focused", use: "focused bed", color: "var(--tasty-surface-bed-focused)" }, { tok: "--tasty-surface-bed-unfocused", use: "unfocused bed", color: "var(--tasty-surface-bed-unfocused)" }]} />
       </Spec>
 
@@ -494,7 +494,7 @@ function SearchSection() {
         </Stage>
         <Meta
           specs={[["placement", "bar under the toolbar · full cell width · explorer-search-bar-height 36"], ["field", "Input + search icon · placeholder “Filter this folder”"], ["match", "substring, case-insensitive · matched part in explorer-match-fg"], ["count", "mono caption · “{shown} of {total}”"], ["type-ahead", "off in the field · on the list it cycles visible rows"], ["Esc", "clear → close"], ["closes on", "× · Back · Up · address bar · folder change"], ["remote", "filter yes"]]}
-          tokens={[{ tok: "--tasty-explorer-search-bar-height", use: "→ size-36" }, { tok: "--tasty-accent-primary-raised", use: "match run on the bed", color: "var(--tasty-accent-primary-raised)" }, { tok: "--tasty-input-bg", use: "field", color: "var(--tasty-input-bg)" }]} />
+          tokens={[{ tok: "--tasty-explorer-search-bar-height", use: "→ size-36" }, { tok: "--tasty-explorer-match-fg", use: "match run on the bed → accent-primary-raised", color: "var(--tasty-explorer-match-fg)" }, { tok: "--tasty-input-bg", use: "field", color: "var(--tasty-input-bg)" }]} />
       </Spec>
 
       <Spec id="subfolders-recursive-search-searching-no-results-errors-stopped" title="Subfolders — recursive search · searching · no results · errors · stopped"
