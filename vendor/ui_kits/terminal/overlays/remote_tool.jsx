@@ -91,7 +91,7 @@ const rtMono = { fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-fo
 const rtCaption = { fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" };
 const rtLabel = { fontSize: "var(--tasty-font-size-body)", color: "var(--tasty-text-muted)", textAlign: "right" };
 const rtFormTitle = { fontSize: "var(--tasty-font-size-heading)", fontWeight: "var(--tasty-font-weight-semibold)", color: "var(--tasty-text-primary)", marginBottom: "var(--tasty-space-md)" };
-const rtScrollPad = { flex: 1, minHeight: 0, overflow: "auto", padding: "var(--tasty-size-14) var(--tasty-space-lg)" };
+const rtScrollPad = { flex: 1, minHeight: 0, overflow: "auto", padding: "var(--tasty-space-md) var(--tasty-space-lg)" };
 const rtFooter = { display: "flex", justifyContent: "flex-end", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-space-lg)", flex: "none",
   borderTop: "var(--tasty-border-width) solid var(--tasty-separator)" };
 const rtLinkBtn = { appearance: "none", border: 0, background: "transparent", cursor: "pointer", padding: 0,
@@ -168,7 +168,7 @@ function ProfileRow({ p, passkeyNames, onRedetect, onEdit, onDelete }) {
               <span style={rtCaption}>shell: <span style={{ fontFamily: "var(--tasty-font-mono)" }}>{p.shell}</span></span>
               {p.state === "detecting" && (
                 <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-xs)", ...rtCaption }}>
-                  <Spinner size={12} /> detecting…
+                  <Spinner size="var(--tasty-remote-detect-spinner-size)" /> detecting…
                 </span>
               )}
               {p.state === "failed" && (
@@ -271,7 +271,7 @@ function ProfileForm({ draft, isNew, error, passkeys, onField, onFields, onSave,
               <label style={rtLabel}>Passkey</label>
               <PasskeySelect value={draft.passkeyRef} passkeys={passkeys} onChange={(e) => onField("passkeyRef", e.target.value)} />
             </div>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", margin: "var(--tasty-size-14) 0 var(--tasty-space-sm)" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", margin: "var(--tasty-space-md) 0 var(--tasty-space-sm)" }}>
               <span style={{ fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-micro)", textTransform: "uppercase",
                 letterSpacing: "var(--tasty-letter-spacing-caps)", color: "var(--tasty-text-muted)" }}>Fields</span>
               <Button variant="ghost" size="sm" leadingIcon={ic.plus} onClick={addField}>Add field</Button>
@@ -361,7 +361,7 @@ function PasskeyForm({ draft, isNew, error, onField, onSave, onCancel, onBrowse 
               const on = draft.kind === opt;
               return (
                 <button key={opt} onClick={() => onField("kind", opt)} style={{ appearance: "none", cursor: "pointer",
-                  border: 0, borderLeft: i ? "var(--tasty-border-width) solid var(--tasty-border-default)" : 0, padding: "0 var(--tasty-size-14)", height: 26,
+                  border: 0, borderLeft: i ? "var(--tasty-border-width) solid var(--tasty-border-default)" : 0, padding: "0 var(--tasty-space-md)", height: 26,
                   fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-term-sm)",
                   color: on ? "var(--tasty-text-on-accent)" : "var(--tasty-text-secondary)",
                   background: on ? "var(--tasty-accent-primary)" : "transparent" }}>{opt}</button>
@@ -477,7 +477,7 @@ function AttachForm({ draft, isNew, error, sshProfiles, passkeys, onField, onSav
               const on = draft.mode === opt;
               return (
                 <button key={opt} onClick={() => onField("mode", opt)} style={{ appearance: "none", cursor: "pointer",
-                  border: 0, borderLeft: i ? "var(--tasty-border-width) solid var(--tasty-border-default)" : 0, padding: "0 var(--tasty-size-14)", height: 26,
+                  border: 0, borderLeft: i ? "var(--tasty-border-width) solid var(--tasty-border-default)" : 0, padding: "0 var(--tasty-space-md)", height: 26,
                   fontFamily: "var(--tasty-font-ui)", fontSize: "var(--tasty-font-size-term-sm)",
                   color: on ? "var(--tasty-text-on-accent)" : "var(--tasty-text-secondary)",
                   background: on ? "var(--tasty-accent-primary)" : "transparent" }}>{lbl}</button>
@@ -513,7 +513,7 @@ function AttachForm({ draft, isNew, error, sshProfiles, passkeys, onField, onSav
           </div>
         )}
 
-        <div style={{ display: "flex", alignItems: "center", margin: "var(--tasty-size-14) 0 var(--tasty-space-sm)" }}>
+        <div style={{ display: "flex", alignItems: "center", margin: "var(--tasty-space-md) 0 var(--tasty-space-sm)" }}>
           <span style={{ fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-micro)", textTransform: "uppercase",
             letterSpacing: "var(--tasty-letter-spacing-caps)", color: "var(--tasty-text-muted)" }}>Remote tasty</span>
         </div>
@@ -595,7 +595,7 @@ function ProtocolFilter({ protocols, hidden, onApply }) {
             <div style={{ padding: "var(--tasty-space-sm) var(--tasty-space-md)", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)",
               fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-micro)", textTransform: "uppercase",
               letterSpacing: "var(--tasty-letter-spacing-caps)", color: "var(--tasty-text-muted)" }}>Filter by protocol</div>
-            <div className="tasty-scroll" style={{ maxHeight: 168, overflow: "auto", padding: "var(--tasty-space-sm) var(--tasty-space-md)",
+            <div className="tasty-scroll" style={{ overflow: "auto", padding: "var(--tasty-space-sm) var(--tasty-space-md)",
               display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
               {protocols.length === 0 ? (
                 <span style={{ ...rtCaption, fontStyle: "var(--tasty-font-style-absent)" }}>No protocols.</span>
@@ -679,7 +679,7 @@ function ListShell({ addLabel, onAdd, empty, children, hasItems, rightSlot }) {
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "var(--tasty-space-sm)",
-        padding: "var(--tasty-space-md) var(--tasty-remote-pad-x) var(--tasty-space-sm)", flex: "none" }}>
+        padding: "var(--tasty-remote-content-pad-top) var(--tasty-remote-pad-x) var(--tasty-space-sm)", flex: "none" }}>
         <Button variant="secondary" size="sm" leadingIcon={ic.plus} onClick={onAdd}>{addLabel}</Button>
         {rightSlot}
       </div>
