@@ -1491,6 +1491,14 @@
   --tasty-settings-window-height:      var(--tasty-size-700);
   --tasty-settings-l1-height:          var(--tasty-size-44);   /* L1 band (Settings label, divider, L1 tabs), 1px bottom line included. OFF-SCALE like the window */
   --tasty-settings-window-csd-height:  calc(var(--tasty-settings-window-height) + var(--tasty-titlebar-height)); /* 736 — Linux settings window inner + min height when Tasty draws its own title bar: the 1100 × 700 below the title bar stays. OFF-SCALE like both terms */
+  /* 2026-11-25 — default sizes of four windows and popups, as the app opens them */
+  --tasty-approval-width:              var(--tasty-size-480);  /* agent approval popup width (the app's DEFAULT_WIDTH); height follows the content */
+  --tasty-ports-window-width:          var(--tasty-size-660);  /* listening ports window, default size */
+  --tasty-ports-window-height:         var(--tasty-size-520);
+  --tasty-remote-picker-width:         var(--tasty-size-680);  /* add remote workspace picker; not resizable */
+  --tasty-remote-picker-height:        var(--tasty-size-460);
+  --tasty-preset-window-width:         var(--tasty-size-960);  /* layout presets window, inner size when it opens */
+  --tasty-preset-window-height:        var(--tasty-size-640);
   --tasty-toast-stack-offset-bottom:   var(--tasty-size-36);   /* MAIN window-scope stack: status bar 24 + 12. OFF-SCALE — the status bar and the toast structural dims are outside the UI zoom (2026-10-07) */
   --tasty-loading-lockup-tracking:     var(--tasty-letter-spacing-brand-lockup); /* "tasty." 38px loading lockup */
   --tasty-loading-lockup-font-size:    var(--tasty-font-size-brand-lockup); /* 38 — "tasty." loading lockup; BRANDING exception to the 14px UI cap */

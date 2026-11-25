@@ -123,7 +123,7 @@ function PaletteFrame({ opaque = false, focused = false, value = "", rows = 4 } 
 // popover shadow, the lift of a floating surface with no scrim.
 function ApprovalFrame() {
   return (
-    <div style={{ width: 480, background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)",
+    <div style={{ width: "var(--tasty-approval-width)", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)",
       borderRadius: "var(--tasty-radius)", overflow: "hidden", boxShadow: "var(--tasty-shadow-popover)" }}>
       <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-transfer-header-pad-y) var(--tasty-transfer-pad-x)", borderBottom: "1px solid var(--tasty-separator)" }}>
         <span style={{ width: 7, height: 7, borderRadius: "50%", background: "var(--tasty-accent-agent)" }} />
@@ -641,7 +641,7 @@ function PortsFrame({ favorites = "mixed" }) {
   ];
   const columns = PORTS_COLUMNS;
   return (
-    <div style={{ width: 640, flex: "none", height: 460, display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)",
+    <div style={{ width: "var(--tasty-ports-window-width)", flex: "none", height: "var(--tasty-ports-window-height)", display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)",
       border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden", boxShadow: "var(--tasty-shadow-modal)" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 14px", flex: "none", borderBottom: "1px solid var(--tasty-separator)" }}>
         <span style={{ display: "inline-flex", color: "var(--tasty-text-muted)" }}>{ic.port}</span>
@@ -2959,7 +2959,7 @@ function RemoteAttachFrame({ state = "loaded", newPhase = "rest", newSelected, e
   );
   const errSel = state === "error";
   return (
-    <div style={{ width: 680, flex: "none", height: 460, display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)",
+    <div style={{ width: "var(--tasty-remote-picker-width)", flex: "none", height: "var(--tasty-remote-picker-height)", display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)",
       border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden", boxShadow: "var(--tasty-shadow-modal)" }}>
       {/* header */}
       {/* section insets (2026-09-29): every section starts on fp-inset-start (12) — header glyph, first crumb, Name, row icon and footer label share one column */}
