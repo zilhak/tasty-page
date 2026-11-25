@@ -577,8 +577,10 @@ function FauxPopup({ title = "Listening ports", w = 240, h = 150, titlebar = tru
           <span style={{ display: "inline-flex", alignItems: "center", gap: 6, height: "100%", paddingRight: 8, cursor: "grab", color: "var(--tasty-text-secondary)" }}>
             <span style={{ display: "inline-flex", color: "var(--tasty-text-muted)" }}>{ic.port}</span><span style={{ fontSize: 12 }}>Ports</span>
           </span>
-          <div style={{ flex: 1, cursor: "text" }}><Input block icon={ic.search} placeholder="filter…" /></div>
-          <IconButton size="sm" aria-label="Close">{ic.x}</IconButton>
+          {/* The close button keeps the right end, as the app lays the header's widgets out from the right: the search
+              field takes what is left and shrinks, instead of pushing close out of a narrow popup. */}
+          <div style={{ flex: 1, minWidth: 0, cursor: "text" }}><Input block icon={ic.search} placeholder="filter…" /></div>
+          <span style={{ display: "inline-flex", flex: "none" }}><IconButton size="sm" aria-label="Close">{ic.x}</IconButton></span>
         </div>
       )}
       <div style={{ height: h, padding: 10, fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: "var(--tasty-text-muted)", lineHeight: 1.7 }}>{children}</div>
