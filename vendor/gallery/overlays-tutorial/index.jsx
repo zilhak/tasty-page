@@ -169,7 +169,7 @@ function Page() {
           <Meta
             specs={[["width", "244px fixed"], ["tail", "up · down · left · right (12px diamond)"], ["progress", "2/5 label + dot rail"], ["buttons", "tutorial.btn_skip (link) · btn_back (secondary) · btn_next (primary) · ko 목록 · 이전 · 다음 · en Topics · Back · Next"], ["first step", "Back hidden"], ["last step", "btn_next → btn_done (ko 완료 · en Done), reopens topic popup"], ["placement", "below → above → right → left; flip on overflow; clamp to 8px safe area"]]}
             tokens={[{ tok: "--tasty-surface-raised", use: "bubble fill", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-border-frame", use: "1px edge + tail — the popup frame", color: "var(--tasty-border-frame)" }, { tok: "--tasty-shadow-modal", use: "floating lift" }, { tok: "--tasty-accent-primary", use: "step · active dot · Next", color: "var(--tasty-accent-primary-raised)" }]} />
-          <Do><b>Do</b> reuse the DS <b>Button</b> (primary Next / secondary Back) and keep Skip as a low-emphasis link — the callout is guidance, not a decision surface.</Do>
+          <Do><b>Do</b> reuse the DS <b>Button</b> (primary 다음 / secondary 이전) and keep 목록 as a low-emphasis link back to the topic list popup — the callout is guidance, not a decision surface.</Do>
         </Spec>
       </Section>
 
@@ -206,7 +206,7 @@ function Page() {
                 style={{ left: 150, top: 120 }} />
             </div>
           </Stage>
-          <Note><b>동작:</b> Next → step 2 (페인으로 마커 축소) · Back → 이전 · Skip/Esc → 주제 목록 팝업 복귀 · 마지막 step Next → 목록 팝업 재open. 마커·딤은 <code>pointer-events:none</code>.</Note>
+          <Note><b>동작:</b> 다음 → step 2 (페인으로 마커 축소) · 이전 → 이전 · 목록/Esc → 주제 목록 팝업 복귀 · 마지막 step 다음 → 목록 팝업 재open. 마커·딤은 <code>pointer-events:none</code>.</Note>
         </Spec>
       </Section>
     </>
