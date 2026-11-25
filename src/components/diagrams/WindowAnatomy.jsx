@@ -36,7 +36,9 @@ export function WindowAnatomy({ labels }) {
   return (
     // The window scrolls sideways when the column is narrower than the kit, so it is a Tab stop
     // (as browsers make a scroller with nothing focusable inside), named for what it shows.
-    <div className="anat-window" role="group" aria-label={labels.name} tabIndex={0}>
+    // It is a region, not a group: WebKitGTK reports a group as a panel, and screen readers there
+    // skip focus on panels, so the name would not be spoken.
+    <div className="anat-window" role="region" aria-label={labels.name} tabIndex={0}>
       <div className="shell">
         <Part label={labels.titlebar}><TitleBar workspace="agents-prod" /></Part>
         <div className="shell__body">
