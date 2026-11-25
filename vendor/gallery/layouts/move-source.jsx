@@ -53,7 +53,7 @@ const EDGE = {
 };
 function Surface({ focused, ring, edge, cmd = "cargo test", id }) {
   return (
-    <div style={{ position: "relative", flex: 1, minWidth: 0, padding: "8px 10px", fontFamily: "var(--tasty-font-mono)", fontSize: 12, lineHeight: 1.5,
+    <div data-terminal-content="" style={{ position: "relative", flex: 1, minWidth: 0, padding: "8px 10px", fontFamily: "var(--tasty-font-mono)", fontSize: 12, lineHeight: 1.5,
       background: focused ? "var(--tasty-surface-terminal-focused-bg)" : "var(--tasty-surface-terminal-unfocused-bg)",
       color: focused ? "var(--tasty-text-primary)" : "var(--tasty-surface-terminal-unfocused-fg)" }}>
       <div><span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-color-green)" }}>~/tasty</span> <span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-color-blue)" }}>main</span></div>

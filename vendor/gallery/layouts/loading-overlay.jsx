@@ -140,7 +140,7 @@ function TermSurface({ loading, search, moveRing, boxes, rm, w = "var(--tasty-si
   return (
     <div style={{ position: "relative", width: w, height: h, boxSizing: "border-box", padding: "var(--tasty-space-sm)", overflow: "hidden", background: "var(--tasty-bg-panel)",
       border: "var(--tasty-border-width) solid var(--tasty-border-default)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-term-sm)", lineHeight: 1.5, color: "var(--tasty-text-secondary)" }}>
-      {TERM.map((l, i) => <div key={i} style={{ whiteSpace: "nowrap" }}>{l}</div>)}
+      {TERM.map((l, i) => <div data-terminal-content="" key={i} style={{ whiteSpace: "nowrap" }}>{l}</div>)}
       {moveRing && <span style={{ position: "absolute", inset: 0, boxShadow: "inset 0 0 0 var(--tasty-move-source-ring-width) var(--tasty-move-source-ring)", pointerEvents: "none" }} />}
       <LoadingOverlay kind="surface" visible={!!loading} reducedMotion={rm} style={boxes ? BOX : undefined} />
       {search && (

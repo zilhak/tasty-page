@@ -334,7 +334,7 @@ function fakePane(label, focused, agent) {
         {agent ? <StatusDot status="agent" pulse label={label} /> : <StatusDot status={focused ? "running" : "idle"} label={label} />}
         <span style={{ marginLeft: "auto" }}><Tag>{focused ? "s_01HX" : "s_02KQ"}</Tag></span>
       </div>
-      <div style={{ padding: "10px 12px", fontFamily: "var(--tasty-font-mono)", fontSize: 12.5,
+      <div data-terminal-content="" style={{ padding: "10px 12px", fontFamily: "var(--tasty-font-mono)", fontSize: 12.5,
         color: focused ? "var(--tasty-surface-terminal-focused-fg)" : "var(--tasty-surface-terminal-unfocused-fg)", lineHeight: 1.5 }}>
         <div><span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-color-green)" }}>~/tasty</span> <span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-color-blue)" }}>main</span></div>
         <div style={{ display: "flex", alignItems: "center", marginTop: 2 }}>
@@ -389,7 +389,7 @@ function occPane(kind) {
         <span style={{ fontSize: 10, color: "var(--tasty-text-muted)" }}>· {cfg.sub}</span>
         {cfg.readonly && <span style={{ marginLeft: "auto" }}><IconButton size="sm" aria-label="Force detach">{ic.close}</IconButton></span>}
       </div>
-      <div style={{ padding: "10px 12px", fontFamily: "var(--tasty-font-mono)", fontSize: 12.5,
+      <div data-terminal-content="" style={{ padding: "10px 12px", fontFamily: "var(--tasty-font-mono)", fontSize: 12.5,
         color: cfg.readonly ? "var(--tasty-surface-terminal-unfocused-fg)" : "var(--tasty-color-neutral-1100)", lineHeight: 1.5 }}>
         <div><span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-color-green)" }}>~/tasty</span> <span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-color-blue)" }}>main</span></div>
         <div style={{ display: "flex", alignItems: "center", marginTop: 2 }}>
@@ -543,7 +543,7 @@ function attPane(kind) {
         <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 11, fontWeight: 600, color: "var(--tasty-text-primary)" }}>{cfg.label}</span>
         <span style={{ fontSize: 10, color: "var(--tasty-text-muted)" }}>· {cfg.sub}</span>
       </div>
-      <div style={{ padding: "10px 12px", fontFamily: "var(--tasty-font-mono)", fontSize: 12.5, color: "var(--tasty-color-neutral-1100)", lineHeight: 1.5 }}>
+      <div data-terminal-content="" style={{ padding: "10px 12px", fontFamily: "var(--tasty-font-mono)", fontSize: 12.5, color: "var(--tasty-color-neutral-1100)", lineHeight: 1.5 }}>
         <div><span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-color-green)" }}>~/tasty</span> <span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-color-blue)" }}>main</span></div>
         <div style={{ marginTop: 2 }}><span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-color-mauve)" }}>❯&nbsp;</span><span style={{ color: "var(--tasty-text-secondary)" }}>{cfg.line}</span></div>
       </div>

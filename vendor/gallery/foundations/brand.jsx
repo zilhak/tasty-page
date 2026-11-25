@@ -40,7 +40,7 @@ function S({ ink, children }) {
 
 function TerminalSample() {
   return (
-    <div style={{ width: "100%", padding: "var(--tasty-space-md) var(--tasty-space-lg)", background: "var(--tasty-surface-terminal-focused-bg)", color: "var(--tasty-surface-terminal-focused-fg)",
+    <div data-terminal-content="" style={{ width: "100%", padding: "var(--tasty-space-md) var(--tasty-space-lg)", background: "var(--tasty-surface-terminal-focused-bg)", color: "var(--tasty-surface-terminal-focused-fg)",
       border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", fontFamily: MONO, fontSize: "var(--tasty-font-size-term)", lineHeight: "var(--tasty-line-height-140)", whiteSpace: "pre", overflowX: "auto" }}>
       <div><S ink="path">~/tasty</S> <S ink="branch">main</S> <S ink="dim">via</S> <S ink="tool">rust v1.84</S></div>
       <div><S ink="prompt">❯</S> cargo build --release</div>

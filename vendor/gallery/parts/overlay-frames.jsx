@@ -920,7 +920,7 @@ function ShellMock({ scope = "none", split = "v", child = false, narrow = false,
   const Term = ({ lines, focused, children, label, onPointerDown }) => (
     <div onPointerDown={onPointerDown} style={{ position: "relative", flex: 1, minWidth: 0, minHeight: 0, overflow: "hidden",
       background: focused ? "var(--tasty-surface-terminal-focused-bg)" : "var(--tasty-surface-terminal-unfocused-bg)" }}>
-      <div style={{ padding: "8px 10px", fontFamily: "var(--tasty-font-mono)", fontSize: 11, lineHeight: 1.6,
+      <div data-terminal-content="" style={{ padding: "8px 10px", fontFamily: "var(--tasty-font-mono)", fontSize: 11, lineHeight: 1.6,
         color: focused ? "var(--tasty-text-secondary)" : "var(--tasty-text-muted)", whiteSpace: "pre" }}>{lines}</div>
       {children}
     </div>
@@ -1087,7 +1087,7 @@ function SearchBarFrame({ value = "tasty", focused = false, invalid = false, hei
     <div style={{ position: "relative", width: "100%", height, borderRadius: "var(--tasty-radius)", overflow: "hidden",
       border: "1px solid var(--tasty-border-default)", background: `var(--tasty-surface-terminal-${term}-bg)` }}>
       {/* faux terminal text */}
-      <div style={{ padding: "12px 14px", fontFamily: "var(--tasty-font-mono)", fontSize: 12.5, lineHeight: 1.7, color: `var(--tasty-surface-terminal-${term}-fg)` }}>
+      <div data-terminal-content="" style={{ padding: "12px 14px", fontFamily: "var(--tasty-font-mono)", fontSize: 12.5, lineHeight: 1.7, color: `var(--tasty-surface-terminal-${term}-fg)` }}>
         <div><span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-color-green)" }}>~/tasty</span> $ cargo build --release</div>
         <div>   Compiling tasty-core v0.5.0</div>
         <div>   Compiling <mark style={{ background: "var(--tasty-search-match-bg)", color: "var(--tasty-text-primary)" }}>tasty</mark>-ui-widgets v0.5.0</div>
@@ -1707,7 +1707,7 @@ function BannerScope({ height = 240, tab = "vim", children }) {
             boxShadow: i === 2 ? "inset 0 -2px 0 var(--tasty-accent-primary)" : "none" }}>{t}</div>
         ))}
       </div>
-      <div style={{ padding: "12px 14px", fontFamily: "var(--tasty-font-mono)", fontSize: 12, lineHeight: 1.7, color: "var(--tasty-surface-terminal-focused-fg)" }}>
+      <div data-terminal-content="" style={{ padding: "12px 14px", fontFamily: "var(--tasty-font-mono)", fontSize: 12, lineHeight: 1.7, color: "var(--tasty-surface-terminal-focused-fg)" }}>
         <div><span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-color-green)" }}>~/tasty</span> $ vim src/main.rs</div>
         <div>-- VISUAL --   1,1   Top</div>
       </div>

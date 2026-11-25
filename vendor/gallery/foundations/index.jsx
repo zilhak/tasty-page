@@ -418,7 +418,7 @@ function Foundations() {
             <div>
               <div style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 10, textTransform: "uppercase",
                 letterSpacing: ".06em", color: "var(--tasty-text-muted)", marginBottom: 8 }}>terminal state fills — painted onto cells</div>
-              <div style={{ background: "var(--tasty-surface-terminal-focused-bg)", border: "1px solid var(--tasty-separator)", borderRadius: "var(--tasty-radius)",
+              <div data-terminal-content="" style={{ background: "var(--tasty-surface-terminal-focused-bg)", border: "1px solid var(--tasty-separator)", borderRadius: "var(--tasty-radius)",
                 padding: "12px 14px", fontFamily: "var(--tasty-font-mono)", fontSize: 13, lineHeight: 1.8,
                 color: "var(--tasty-surface-terminal-focused-fg)" }}>
                 <div><span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-ansi-green)" }}>~/tasty</span> $ vi notes.md</div>
@@ -502,8 +502,8 @@ function Foundations() {
             <div style={{ display: "grid", gridTemplateColumns: "150px 1fr", alignItems: "baseline", gap: 16, padding: "12px 0 0" }}>
               <div style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 11.5, color: "var(--tasty-text-primary)" }}>--tasty-font-mono</div>
               <div>
-                <div style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 14, color: "var(--tasty-text-primary)" }}>D2Coding — git diff --stat  →  !=  ==&gt;  </div>
-                <div style={{ fontSize: 11.5, color: "var(--tasty-text-muted)", marginTop: 3 }}>terminal cells, code, IDs, shortcuts — ligatures on</div>
+                <div data-terminal-content="" style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 14, color: "var(--tasty-text-primary)" }}>D2Coding — git diff --stat  →  !=  ==&gt;  </div>
+                <div style={{ fontSize: 11.5, color: "var(--tasty-text-muted)", marginTop: 3 }}>terminal cells — ligatures on · code runs, IDs, shortcuts in UI — none</div>
               </div>
             </div>
           </Stage>

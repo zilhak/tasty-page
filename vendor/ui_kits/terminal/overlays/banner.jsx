@@ -259,7 +259,7 @@ function BannerHost() {
               boxShadow: i === 2 ? "inset 0 -2px 0 var(--tasty-accent-primary)" : "none" }}>{t}</div>
           ))}
         </div>
-        <div style={{ padding: "var(--tasty-space-md) var(--tasty-size-14)", fontFamily: "var(--tasty-font-mono)",
+        <div data-terminal-content="" style={{ padding: "var(--tasty-space-md) var(--tasty-size-14)", fontFamily: "var(--tasty-font-mono)",
           fontSize: "var(--tasty-font-size-term-sm)", lineHeight: 1.6, color: "var(--tasty-color-neutral-1100)", opacity: 0.4 }}>
           <div><span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-color-green)" }}>~/tasty</span> $ vim src/main.rs</div>
           <div>-- VISUAL --   1,1   Top</div>

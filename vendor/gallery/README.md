@@ -50,6 +50,8 @@ Every specimen has a stable `id` on its `Spec`, because the Rust gallery and the
 | Views | What the demo hides, drawn as frames | No |
 | Specs | Dimensions and tokens, always shown | No |
 
+Faces: a specimen draws in the app's faces (`--tasty-font-ui`, `--tasty-font-mono`) and the writing around it in `--tasty-font-prose`. A specimen draws no ligatures, as the app's UI does not. A block of terminal content carries `data-terminal-content` and keeps D2Coding's ligatures (`parts/specimen.css`).
+
 ### Fixed states
 
 **`StateGrid` draws one contract: a row per host, a column per state, from the `components` rows of `tokens/ground-ink-rules.json`.** Column order is `rest`, `hover`, `press`, `focus`, `selected`, `selected+hover`, `selected+press`, `keyboard-active`, `disabled`, `invalid`, `readonly`. A state or host the contract does not have gets no column or row. An empty intersection stays blank. Each cell paints the host ground and carries `data-contract`, `data-state` and `data-host`, spelled as in the file.

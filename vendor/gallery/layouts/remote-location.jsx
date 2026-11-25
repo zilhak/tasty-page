@@ -175,7 +175,7 @@ export function RemoteStatusBarSpec() {
 
 // ── Terminal path link on a mirror ──
 function TermLine({ children }) {
-  return <div style={{ whiteSpace: "pre" }}>{children}</div>;
+  return <div data-terminal-content="" style={{ whiteSpace: "pre" }}>{children}</div>;
 }
 function LinkRun({ children }) {
   // the link under the pointer, unchanged: selection fill, text-on-active, blue underline

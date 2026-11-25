@@ -21,7 +21,7 @@ const ANNOT = { outline: "var(--tasty-border-width) dashed var(--tasty-accent-mo
 function Term({ lines = LINES, search }) {
   return (
     <div style={{ position: "relative", flex: 1, minWidth: 0, padding: "var(--tasty-space-sm)", background: "var(--tasty-surface-terminal-focused-bg, var(--tasty-bg-panel))", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-term-sm)", lineHeight: 1.5, color: "var(--tasty-text-secondary)", overflow: "hidden" }}>
-      {lines.map((l, i) => <div key={i} style={{ whiteSpace: "nowrap" }}>{l}</div>)}
+      {lines.map((l, i) => <div data-terminal-content="" key={i} style={{ whiteSpace: "nowrap" }}>{l}</div>)}
       {search && <div style={{ position: "absolute", top: "var(--tasty-space-sm)", right: "var(--tasty-space-sm)", width: "var(--tasty-size-240)", maxWidth: "calc(100% - var(--tasty-space-md))", height: "var(--tasty-size-32)", boxSizing: "border-box", display: "flex", alignItems: "center", gap: "var(--tasty-space-xs)", padding: "0 var(--tasty-space-sm)", background: "var(--tasty-surface-raised)", border: "var(--tasty-border-width) solid var(--tasty-search-bar-border)", borderRadius: "var(--tasty-radius)", color: "var(--tasty-text-muted)", fontSize: "var(--tasty-font-size-caption)", fontFamily: "var(--tasty-font-ui)" }}><Icon name="search" size="var(--tasty-icon-size-xs)" /><span style={{ color: "var(--tasty-text-primary)" }}>cargo</span><span style={{ marginLeft: "auto" }}>1/2</span></div>}
     </div>
   );

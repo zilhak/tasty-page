@@ -86,7 +86,7 @@ function TerminalPane({ session, focused, searchOpen, onSearchClose }) {
       {focused && searchOpen && (
         <SearchBar lines={session.plainLines || []} onClose={onSearchClose} />
       )}
-      <div className="tasty-scroll" style={{ padding: "var(--tasty-space-sm) var(--tasty-space-md)", overflow: "auto", flex: 1 }}>
+      <div data-terminal-content="" className="tasty-scroll" style={{ padding: "var(--tasty-space-sm) var(--tasty-space-md)", overflow: "auto", flex: 1 }}>
         {session.lines.map((ln, i) => <div key={i}>{ln}</div>)}
         <div style={{ display: "flex", alignItems: "center" }}>
           <span style={{ color: C.mauve }}>❯&nbsp;</span>

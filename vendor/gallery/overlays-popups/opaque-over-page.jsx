@@ -47,7 +47,7 @@ function Tile() {
 }
 function Term() {
   return (
-    <div style={{ position: "absolute", inset: 0, padding: "12px 14px", display: "flex", flexDirection: "column", gap: 4,
+    <div data-terminal-content="" style={{ position: "absolute", inset: 0, padding: "12px 14px", display: "flex", flexDirection: "column", gap: 4,
       background: "var(--tasty-surface-terminal-focused-bg)", color: "var(--tasty-surface-terminal-focused-fg)", fontFamily: "var(--tasty-font-mono)", fontSize: 12 }}>
       <span><span style={{ color: "var(--tasty-accent-success-raised)" }}>❯</span> cargo build --release</span>
       <span>   Compiling tasty v0.14.0</span>

@@ -14,9 +14,9 @@ export function MonospaceSpec() {
     <Spec id="monospace-d2coding" title="Monospace — D2Coding"
       when={<>The brand typeface for terminal content, code and metadata, shown on the terminal ground where it is used. Terminal cells are outside the 14px UI cap.</>}>
       <Stage variant="solo column" style={{ gap: "var(--tasty-space-sm)", background: "var(--tasty-surface-terminal-focused-bg)", color: "var(--tasty-surface-terminal-focused-fg)", fontFamily: MONO }}>
-        <div style={{ fontSize: "var(--tasty-font-size-brand-display)", fontWeight: "var(--tasty-font-weight-bold)" }}>D2Coding ligature</div>
-        <div style={{ fontSize: "var(--tasty-font-size-term)", color: "var(--tasty-text-muted)" }}>ABCDEFG abcdefg 0123456789 &amp;@#$%&lt;&gt;=*  가나다 ライ</div>
-        <pre style={{ margin: "var(--tasty-space-sm) 0 0", font: "inherit", fontSize: "var(--tasty-font-size-term)", lineHeight: "var(--tasty-line-height-140)" }}>
+        <div data-terminal-content="" style={{ fontSize: "var(--tasty-font-size-brand-display)", fontWeight: "var(--tasty-font-weight-bold)" }}>D2Coding ligature</div>
+        <div data-terminal-content="" style={{ fontSize: "var(--tasty-font-size-term)", color: "var(--tasty-text-muted)" }}>ABCDEFG abcdefg 0123456789 &amp;@#$%&lt;&gt;=*  가나다 ライ</div>
+        <pre data-terminal-content="" style={{ margin: "var(--tasty-space-sm) 0 0", font: "inherit", fontSize: "var(--tasty-font-size-term)", lineHeight: "var(--tasty-line-height-140)" }}>
           <C ink="text-muted">{"// ligatures: "}<C ink="accent-info-raised">{"->  =>  !=  >=  ==  ::  |>"}</C></C>{"\n"}
           <C ink="accent-agent-raised">pub fn</C> <C ink="accent-primary-raised">surface</C>(<C ink="accent-attention-raised">id</C>: &amp;str) <C ink="accent-info-raised">{"->"}</C> &amp;SurfaceTheme {"{"}{"\n"}
           {"    "}<C ink="accent-agent-raised">self</C>.themes.get(id).unwrap_or(<C ink="accent-success-raised">"fallback"</C>){"\n"}

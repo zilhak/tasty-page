@@ -181,7 +181,7 @@ function TermSurfaceG({ height = 260 }) {
       <div style={{ display: "flex", flex: "none", background: "var(--tasty-bg-sidebar)", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
         <HsTab label="zsh" icon="terminal" />
       </div>
-      <div style={{ padding: "var(--tasty-space-md)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-term-sm)", color: "var(--tasty-surface-terminal-unfocused-fg)" }}>~/tasty $ open report.html</div>
+      <div data-terminal-content="" style={{ padding: "var(--tasty-space-md)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-term-sm)", color: "var(--tasty-surface-terminal-unfocused-fg)" }}>~/tasty $ open report.html</div>
     </div>
   );
 }
