@@ -661,7 +661,7 @@ function Foundations() {
                 <span style={{ flex: "none", width: 26, fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: "var(--tasty-text-muted)" }}>{id}</span>
                 <span className="g-cap" style={{ flex: 1, minWidth: 0, fontSize: 12, color: "var(--tasty-text-secondary)" }}>{place}</span>
                 <span style={{ flex: "none", width: 190, fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: "var(--tasty-text-muted)" }}>{was}</span>
-                <span style={{ flex: "none", width: 20, height: 20, borderRadius: "var(--tasty-radius-sm)", background: color, border: "1px solid var(--tasty-border-default)" }} />
+                <span style={{ flex: "none", width: 20, height: 20, borderRadius: "var(--tasty-radius-sm)", background: color, border: "var(--tasty-border-width) solid var(--tasty-swatch-border)" }} />
                 <span style={{ flex: "none", width: 210, fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: "var(--tasty-text-primary)" }}>{now}</span>
                 <span style={{ flex: "none", width: 200, fontSize: 11, color: /MOVES/.test(verdict) ? "var(--tasty-accent-warning-raised)" : "var(--tasty-text-muted)" }}>{verdict}</span>
               </div>

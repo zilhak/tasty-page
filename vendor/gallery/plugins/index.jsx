@@ -460,7 +460,7 @@ function MarkdownDoc({ editing = false, focused = true }) {
 // writes Tasty tokens into --md-* CSS variables; hljs_css() maps highlight.js classes
 // to palette roles. Rendered as text+swatch so the mapping is the source of truth.
 function Sw({ c }) {
-  return <span style={{ display: "inline-block", width: 12, height: 12, flex: "none", borderRadius: 2, border: "1px solid var(--tasty-separator)", background: c, verticalAlign: "middle" }} />;
+  return <span style={{ display: "inline-block", width: 12, height: 12, flex: "none", borderRadius: "var(--tasty-radius-sm)", border: "var(--tasty-border-width) solid var(--tasty-swatch-border)", background: c, verticalAlign: "middle" }} />;
 }
 const MD_VAR_MAP = [
   ["--md-bg", "document bed, follows focus", "--tasty-surface-bed-focused"],

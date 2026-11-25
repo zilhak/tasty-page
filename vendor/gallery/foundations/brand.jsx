@@ -81,7 +81,7 @@ export function BrandSection() {
           <Mark size="var(--tasty-size-56)" />
           {MELON.map((name) => (
             <div key={name} style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-md)" }}>
-              <span style={{ width: "var(--tasty-size-56)", height: "var(--tasty-size-56)", flex: "none", background: `var(--tasty-brand-melon-${name})`, border: "var(--tasty-border-width) solid var(--tasty-separator)", borderRadius: "var(--tasty-radius)" }} />
+              <span style={{ width: "var(--tasty-size-56)", height: "var(--tasty-size-56)", flex: "none", background: `var(--tasty-brand-melon-${name})`, border: "var(--tasty-border-width) solid var(--tasty-swatch-border)", borderRadius: "var(--tasty-radius)" }} />
               <div>
                 <div style={{ fontSize: "var(--tasty-font-size-body)", fontWeight: "var(--tasty-font-weight-semibold)", color: "var(--tasty-text-primary)" }}>{name}</div>
                 <div style={{ fontFamily: MONO, fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" }}><Hex name={`brand-melon-${name}`} theme="mocha" /></div>
