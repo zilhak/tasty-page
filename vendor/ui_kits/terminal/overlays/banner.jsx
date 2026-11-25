@@ -247,7 +247,7 @@ function BannerHost() {
 
       {/* faux scope: tab bar (must stay clear) + terminal content + the banner zone */}
       <div style={{ position: "relative", width: "100%", height: 320, borderRadius: "var(--tasty-radius)", overflow: "hidden",
-        border: "var(--tasty-border-width) solid var(--tasty-border-default)", background: "var(--tasty-color-black)",
+        border: "var(--tasty-border-width) solid var(--tasty-border-default)", background: "var(--tasty-surface-terminal-focused-bg)",
         opacity: bg ? 0.55 : 1, transition: "opacity var(--tasty-banner-fade) var(--tasty-ease-ui)" }}>
         <div style={{ display: "flex", alignItems: "stretch", height: 28, flex: "none",
           background: "var(--tasty-bg-sidebar)", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
