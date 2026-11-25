@@ -332,7 +332,7 @@ function ScriptRow({ s, renaming, confirming, onStartRename, onCommitRename, onC
         <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", flex: "none" }}>
           {s.shortcut
             ? <Kbd keys={s.shortcut} />
-            : <span style={{ fontSize: 12, color: "var(--tasty-text-disabled)", fontStyle: "var(--tasty-font-style-absent)" }}>Unbound</span>}
+            : <span style={{ fontSize: 12, color: "var(--tasty-text-muted)", fontStyle: "var(--tasty-font-style-absent)" }}>Unbound</span>}
           <IconButton size="sm" aria-label="Bind shortcut" title="Bind shortcut (Keybindings)"><Icon name={SD.kbd} size={16} /></IconButton>
           <IconButton size="sm" aria-label="Rename" title="Rename" onClick={onStartRename}><Icon name={SD.edit} size={16} /></IconButton>
           <IconButton size="sm" aria-label="Remove" title="Remove" onClick={onDelete}><Icon name={SD.trash} size={16} /></IconButton>
