@@ -150,7 +150,7 @@ function SceneD({ mode }) {
 function Grid({ Scene, h = 340, extra }) {
   const cols = extra ? [...COLS, extra] : COLS;
   const row = (theme) => (
-    <div data-theme={theme === "Latte" ? "latte" : undefined} style={{ display: "flex", gap: "var(--tasty-space-lg)", flexWrap: "wrap", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)" }}>
+    <div data-theme={theme === "Latte" ? "latte" : "mocha"} style={{ display: "flex", gap: "var(--tasty-space-lg)", flexWrap: "wrap", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)" }}>
       {cols.map((c) => (
         <div key={c.mode} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
           <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: c.mode === "opaque" ? "var(--tasty-text-primary)" : "var(--tasty-text-muted)" }}>{theme} · {c.label}</span>
