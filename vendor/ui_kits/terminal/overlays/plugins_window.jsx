@@ -573,6 +573,28 @@ function AttentionPanel({ items, onFlash, onConfigure, onRemove }) {
   );
 }
 
+// One header tab. It is a component of its own, not one made inside PluginsWindow's render, so a hover that
+// re-renders the window keeps the same button and its keyboard focus.
+function PluginsSeg({ value, label, count, danger, on, hover, onPick, onPointer }) {
+  return (
+    <button onClick={() => onPick(value)} onMouseEnter={() => onPointer(value)} onMouseLeave={() => onPointer((t) => (t === value ? null : t))} style={{ appearance: "none", cursor: "pointer", border: 0,
+      height: 26, padding: "0 var(--tasty-space-md)", borderRadius: "var(--tasty-radius)", display: "inline-flex",
+      alignItems: "center", gap: "var(--tasty-space-sm)", fontFamily: "var(--tasty-font-ui)", fontSize: "var(--tasty-font-size-term-sm)",
+      fontWeight: on ? 600 : 400, color: on ? "var(--tasty-text-primary)" : "var(--tasty-text-muted)",
+      background: on ? "var(--tasty-surface-raised)" : hover ? "var(--tasty-overlay-hover)" : "transparent",
+      boxShadow: on ? "inset 0 0 0 var(--tasty-border-width) var(--tasty-border-default)" : "none",
+      /* as the app: the tabs sit side by side on the header's mantle, and only the selected one is filled (raised,
+         1px border-default). An unselected tab under the pointer takes the overlay-hover fill; its ink stays.
+         The keyboard focus ring is base.css's, 1px off the tab, on mantle: border-focus. */
+      outlineOffset: "var(--tasty-focus-ring-offset)" }}>
+      {label}
+      {count != null && !danger && <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)",
+        color: on ? "var(--tasty-text-secondary-raised)" : "var(--tasty-text-muted)" }}>{count}</span>}
+      {danger && count > 0 && <Badge variant="danger">{count}</Badge>}
+    </button>
+  );
+}
+
 // hoverTab: a frame pins the pointer hover on one header tab ("installed" | "attention" | "add").
 function PluginsWindow({ onClose, onFlash, onConfigure, removedAttention, onRemoveAttention, hoverTab = null }) {
   // 2026-11-08 — removed reserved-id folders. The app keeps this (so the sidebar badge drops too); a
@@ -628,27 +650,8 @@ function PluginsWindow({ onClose, onFlash, onConfigure, removedAttention, onRemo
   const attention = [...ATTENTION_LIST.filter((p) => !removed.includes(p.id)), ...healthErrors];
   const attentionCount = attention.length;
 
-  const Seg = ({ value, label, count, danger }) => {
-    const on = tab === value;
-    const hover = !on && (hoverTab || pointerTab) === value;
-    return (
-      <button onClick={() => setTab(value)} onMouseEnter={() => setPointerTab(value)} onMouseLeave={() => setPointerTab((t) => (t === value ? null : t))} style={{ appearance: "none", cursor: "pointer", border: 0,
-        height: 26, padding: "0 var(--tasty-space-md)", borderRadius: "var(--tasty-radius)", display: "inline-flex",
-        alignItems: "center", gap: "var(--tasty-space-sm)", fontFamily: "var(--tasty-font-ui)", fontSize: "var(--tasty-font-size-term-sm)",
-        fontWeight: on ? 600 : 400, color: on ? "var(--tasty-text-primary)" : "var(--tasty-text-muted)",
-        background: on ? "var(--tasty-surface-raised)" : hover ? "var(--tasty-overlay-hover)" : "transparent",
-        boxShadow: on ? "inset 0 0 0 var(--tasty-border-width) var(--tasty-border-default)" : "none",
-        /* as the app: the tabs sit side by side on the header's mantle, and only the selected one is filled (raised,
-           1px border-default). An unselected tab under the pointer takes the overlay-hover fill; its ink stays.
-           The keyboard focus ring is base.css's, 1px off the tab, on mantle: border-focus. */
-        outlineOffset: "var(--tasty-focus-ring-offset)" }}>
-        {label}
-        {count != null && !danger && <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)",
-          color: on ? "var(--tasty-text-secondary-raised)" : "var(--tasty-text-muted)" }}>{count}</span>}
-        {danger && count > 0 && <Badge variant="danger">{count}</Badge>}
-      </button>
-    );
-  };
+  const segProps = (value) => ({ value, on: tab === value, hover: tab !== value && (hoverTab || pointerTab) === value,
+    onPick: setTab, onPointer: setPointerTab });
 
   const Mono = ({ children }) => (
     <div style={{ fontFamily: "var(--tasty-font-label)", fontSize: 10, textTransform: "uppercase",
@@ -794,9 +797,9 @@ function PluginsWindow({ onClose, onFlash, onConfigure, removedAttention, onRemo
           <span style={{ fontSize: 14, fontWeight: 700, color: "var(--tasty-text-primary)", letterSpacing: "var(--tasty-letter-spacing-ui)" }}>Plugins</span>
           <span style={{ width: 1, height: 20, background: "var(--tasty-separator)", margin: "0 var(--tasty-space-sm)" }} />
           <div style={{ display: "flex", gap: 2 }}>
-            <Seg value="installed" label="Installed" count={installedCount} />
-            <Seg value="attention" label="Attention" count={attentionCount} danger />
-            <Seg value="add" label="Add plugin" />
+            <PluginsSeg {...segProps("installed")} label="Installed" count={installedCount} />
+            <PluginsSeg {...segProps("attention")} label="Attention" count={attentionCount} danger />
+            <PluginsSeg {...segProps("add")} label="Add plugin" />
           </div>
           <div style={{ flex: 1 }} />
           {tab === "installed" && (
