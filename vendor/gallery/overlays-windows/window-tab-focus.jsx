@@ -111,10 +111,26 @@ function WindowTabFocusSpec() {
 
 // The plugins window's header tabs under the pointer. The stage holds the live kit window cut below its header, so
 // hovering a tab there shows the fill. The check does not hover, so each frame pins it with the kit's hoverTab.
+// In the live crop only the three header tabs take the pointer and keyboard: the rest of the window, cut or not, is
+// inert, so Tab cycles through the tabs and never scrolls the crop to a control below its edge.
+const PLUGIN_TABS = ["Installed", "Attention", "Add plugin"];
+function inertAllBut(node, keep) {
+  for (const child of Array.from(node.children)) {
+    if (keep.includes(child)) continue;
+    if (keep.some((k) => child.contains(k))) inertAllBut(child, keep);
+    else child.inert = true;
+  }
+}
 function PluginsHeaderCrop({ hoverTab, live }) {
+  const ref = React.useRef(null);
+  React.useEffect(() => {
+    if (!live || !ref.current) return;
+    const tabs = PLUGIN_TABS.map((l) => byText("button", l)(ref.current)).filter(Boolean);
+    if (tabs.length) inertAllBut(ref.current, tabs);
+  });
   return (
     <div style={{ overflow: "hidden", height: "var(--tasty-size-120)", flex: "none", width: "max-content" }}>
-      <div {...(live ? {} : { inert: "" })} style={{ position: "relative", width: 820, height: 540, pointerEvents: live ? undefined : "none" }}>
+      <div ref={ref} {...(live ? {} : { inert: "" })} style={{ position: "relative", width: 820, height: 540, pointerEvents: live ? undefined : "none" }}>
         <Kit_PluginsWindow onClose={noop} onFlash={noop} onConfigure={noop} hoverTab={hoverTab} />
       </div>
     </div>
