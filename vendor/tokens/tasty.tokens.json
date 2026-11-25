@@ -4608,6 +4608,10 @@
       "$type": "dimension",
       "$value": "calc(1 * var(--tasty-space-sm) + 1 * var(--tasty-space-md))"
     },
+    "plugins-add-pad-bottom": {
+      "$type": "dimension",
+      "$value": "{primitive.size-22}"
+    },
     "plugins-link-underline-offset": {
       "$type": "dimension",
       "$value": "{primitive.size-2}"

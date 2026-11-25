@@ -267,7 +267,7 @@ function AddPluginForm({ onAdded, onCancel }) {
 
   return (
     <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
-      <div className="tasty-scroll" style={{ flex: 1, overflow: "auto", padding: "var(--tasty-plugins-add-pad-y) var(--tasty-space-xl)",
+      <div className="tasty-scroll" style={{ flex: 1, overflow: "auto", padding: "var(--tasty-plugins-add-pad-y) var(--tasty-space-xl) var(--tasty-plugins-add-pad-bottom)",
         display: "flex", flexDirection: "column", gap: "var(--tasty-space-lg)" }}>
         {/* path picker */}
         <div style={{ maxWidth: "var(--tasty-measure-xl)", display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
