@@ -649,24 +649,24 @@ function PortsFrame({ favorites = "mixed" }) {
   return (
     <div style={{ width: "var(--tasty-ports-window-width)", flex: "none", height: "var(--tasty-ports-window-height)", display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)",
       border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden", boxShadow: "var(--tasty-shadow-modal)" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 14px", flex: "none", borderBottom: "1px solid var(--tasty-separator)" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-ports-pad-x)", flex: "none", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
         <span style={{ display: "inline-flex", color: "var(--tasty-text-muted)" }}>{ic.port}</span>
-        <span style={{ fontSize: 14, fontWeight: 600 }}>Listening ports</span>
+        <span style={{ fontSize: "var(--tasty-font-size-max)", fontWeight: "var(--tasty-font-weight-semibold)" }}>Listening ports</span>
         <Tag variant="accent">5 listening</Tag>
         <div style={{ flex: 1 }} />
         <Input icon={ic.search} placeholder="Filter…" style={{ width: "var(--tasty-field-width-md)" }} />
         <IconButton aria-label="Refresh">{ic.refresh}</IconButton>
         <IconButton aria-label="Close">{ic.x}</IconButton>
       </div>
-      <div style={{ display: "flex", alignItems: "center", padding: "8px 14px", flex: "none", borderBottom: "1px solid var(--tasty-separator)" }}>
+      <div style={{ display: "flex", alignItems: "center", padding: "var(--tasty-space-sm) var(--tasty-ports-pad-x)", flex: "none", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
         <Checkbox label="Show all (system-wide)" />
       </div>
       <PortsFavoritesG favorites={favorites} />
       <div style={{ overflow: "auto", flex: 1, minHeight: 0 }}>
         <Table columns={columns} rows={rows} rowKey="port" selectedKey={8080} />
       </div>
-      <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "8px 14px", flex: "none", borderTop: "1px solid var(--tasty-separator)" }}>
-        <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: "var(--tasty-text-muted)" }}>5 of 5 ports</span>
+      <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-md)", padding: "var(--tasty-space-sm) var(--tasty-ports-pad-x)", flex: "none", borderTop: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
+        <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>5 of 5 ports</span>
         <div style={{ flex: 1 }} />
         <Button variant="ghost">Copy address</Button>
         <Button variant="secondary">Close</Button>
@@ -677,21 +677,21 @@ function PortsFrame({ favorites = "mixed" }) {
 
 // ── Remote connections — 520×460, three top tabs, list view ──
 function RemoteFrame({ tab = "profiles", ssh = "hosts" }) {
-  const Caption = ({ children }) => <span style={{ fontSize: 11, color: "var(--tasty-text-muted)", fontFamily: "var(--tasty-font-mono)" }}>{children}</span>;
+  const Caption = ({ children }) => <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)", fontFamily: "var(--tasty-font-mono)" }}>{children}</span>;
   const ProfileRow = ({ name, label, type, target, passkey, detecting }) => (
-    <div style={{ display: "flex", alignItems: "flex-start", gap: 8, padding: "10px 4px", borderBottom: "1px solid var(--tasty-separator)" }}>
-      <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 2 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <span style={{ fontSize: 13, fontWeight: 600 }}>{name}{label && <span style={{ fontWeight: 400, color: "var(--tasty-text-muted)" }}>  ({label})</span>}</span>
+    <div style={{ display: "flex", alignItems: "flex-start", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-space-xs)", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
+      <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: "var(--tasty-remote-row-line-gap)" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)" }}>
+          <span style={{ fontSize: "var(--tasty-font-size-heading)", fontWeight: "var(--tasty-font-weight-semibold)" }}>{name}{label && <span style={{ fontWeight: "var(--tasty-font-weight-normal)", color: "var(--tasty-text-muted)" }}>  ({label})</span>}</span>
           <Tag>{type}</Tag>
         </div>
-        <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: "var(--tasty-text-muted)" }}>{target}</span>
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{target}</span>
+        <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)" }}>
           <Caption>passkey: {passkey || "—"}</Caption>
-          {detecting && <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11, color: "var(--tasty-text-muted)" }}><Spinner size={12} /> detecting…</span>}
+          {detecting && <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-xs)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}><Spinner size={12} /> detecting…</span>}
         </div>
       </div>
-      <div style={{ display: "flex", gap: 1, flex: "none" }}>
+      <div style={{ display: "flex", gap: "var(--tasty-remote-row-action-gap)", flex: "none" }}>
         <IconButton size="sm" aria-label="Re-detect">{ic.refresh}</IconButton>
         <IconButton size="sm" aria-label="Edit">{ic.edit}</IconButton>
         <IconButton size="sm" aria-label="Delete"><Icon name="trash" /></IconButton>
@@ -699,70 +699,70 @@ function RemoteFrame({ tab = "profiles", ssh = "hosts" }) {
     </div>
   );
   const AttachRow = ({ name, label, mode, target, tasty, port, inactive, missing }) => (
-    <div style={{ display: "flex", alignItems: "flex-start", gap: 8, padding: "10px 4px", borderBottom: "1px solid var(--tasty-separator)" }}>
-      <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 2 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <span style={{ fontSize: 13, fontWeight: 600, color: inactive ? "var(--tasty-text-muted)" : "var(--tasty-text-primary)" }}>{name}{label && <span style={{ fontWeight: 400, color: "var(--tasty-text-muted)" }}>  ({label})</span>}</span>
+    <div style={{ display: "flex", alignItems: "flex-start", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-space-xs)", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
+      <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: "var(--tasty-remote-row-line-gap)" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)" }}>
+          <span style={{ fontSize: "var(--tasty-font-size-heading)", fontWeight: "var(--tasty-font-weight-semibold)", color: inactive ? "var(--tasty-text-muted)" : "var(--tasty-text-primary)" }}>{name}{label && <span style={{ fontWeight: "var(--tasty-font-weight-normal)", color: "var(--tasty-text-muted)" }}>  ({label})</span>}</span>
           <Tag>{mode}</Tag>
-          {inactive && <span style={{ display: "inline-flex", alignItems: "center", gap: 3, height: 16, padding: "0 6px", borderRadius: "var(--tasty-radius-sm)",
-            fontFamily: "var(--tasty-font-mono)", fontSize: 10, fontWeight: 500, color: "var(--tasty-accent-warning-raised)",
-            border: "1px solid var(--tasty-tint-warning-border)",
+          {inactive && <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-tag-gap)", height: "var(--tasty-tag-size)", padding: "0 var(--tasty-tag-padding-x)", borderRadius: "var(--tasty-tag-radius)",
+            fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-tag-font-size)", fontWeight: "var(--tasty-font-weight-medium)", color: "var(--tasty-tag-warning-fg)",
+            border: "var(--tasty-border-width) solid var(--tasty-tag-warning-border)",
             background: "var(--tasty-tint-warning-bg)" }}>inactive</span>}
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: "var(--tasty-text-muted)" }}>{target}</span>
-          {missing && <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 10, color: "var(--tasty-accent-warning-raised)" }}>profile missing</span>}
+        <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)" }}>
+          <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{target}</span>
+          {missing && <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-accent-warning-raised)" }}>profile missing</span>}
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-md)" }}>
           <Caption>tasty: {tasty}</Caption><Caption>port: {port}</Caption>
         </div>
       </div>
-      <div style={{ display: "flex", gap: 1, flex: "none" }}>
+      <div style={{ display: "flex", gap: "var(--tasty-remote-row-action-gap)", flex: "none" }}>
         <IconButton size="sm" aria-label="Edit">{ic.edit}</IconButton>
         <IconButton size="sm" aria-label="Delete"><Icon name="trash" /></IconButton>
       </div>
     </div>
   );
   const TabBtn = ({ children, on }) => (
-    <span style={{ height: 35, padding: "0 12px", display: "inline-flex", alignItems: "center", fontSize: 13,
-      color: on ? "var(--tasty-text-primary)" : "var(--tasty-text-muted)", fontWeight: on ? 600 : 400,
-      borderBottom: on ? "2px solid var(--tasty-accent-primary)" : "2px solid transparent",
+    <span style={{ height: "var(--tasty-remote-tab-height)", padding: "0 var(--tasty-space-md)", display: "inline-flex", alignItems: "center", fontSize: "var(--tasty-font-size-body)",
+      color: on ? "var(--tasty-text-primary)" : "var(--tasty-text-muted)", fontWeight: on ? "var(--tasty-font-weight-semibold)" : "var(--tasty-font-weight-normal)",
+      borderBottom: on ? "var(--tasty-tab-indicator-width) solid var(--tasty-accent-primary)" : "var(--tasty-tab-indicator-width) solid transparent",
       /* keyboard focus: the kit's inset ring (remote_tool TabBtn), inside the tab and clear of the underline */
       outlineOffset: "calc(-1 * (2 * var(--tasty-focus-ring-width) + var(--tasty-focus-ring-offset)))", borderRadius: "var(--tasty-radius-none)" }}>{children}</span>
   );
   return (
-    <div style={{ width: 520, height: 440, display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)",
+    <div style={{ width: "var(--tasty-remote-window-width)", flex: "none", height: "var(--tasty-remote-window-height)", display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)",
       border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden", boxShadow: "var(--tasty-shadow-modal)" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "10px 14px", flex: "none", borderBottom: "1px solid var(--tasty-separator)" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-space-md) var(--tasty-space-md) var(--tasty-remote-pad-x)", flex: "none", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
         <span style={{ display: "inline-flex", color: "var(--tasty-text-muted)" }}>{ic.remote}</span>
-        <span style={{ fontSize: 14, fontWeight: 600 }}>Remote connections</span>
+        <span style={{ fontSize: "var(--tasty-font-size-max)", fontWeight: "var(--tasty-font-weight-semibold)" }}>Remote connections</span>
         <div style={{ flex: 1 }} />
         <IconButton size="sm" aria-label="Close">{ic.x}</IconButton>
       </div>
-      <div style={{ display: "flex", gap: 2, padding: "0 8px", flex: "none", borderBottom: "1px solid var(--tasty-separator)", background: "var(--tasty-bg-sidebar)" }}>
+      <div style={{ display: "flex", gap: "var(--tasty-remote-tab-gap)", padding: "0 var(--tasty-space-sm)", flex: "none", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)", background: "var(--tasty-bg-sidebar)" }}>
         <TabBtn on={tab === "profiles"}>Remote profiles</TabBtn><TabBtn on={tab === "attach"}>Attach</TabBtn><TabBtn on={tab === "passkeys"}>Passkeys</TabBtn>
       </div>
       {tab === "passkeys" ? (
         <>
-          <div style={{ display: "flex", alignItems: "center", padding: "10px 14px 6px", flex: "none" }}>
+          <div style={{ display: "flex", alignItems: "center", padding: "var(--tasty-space-md) var(--tasty-remote-pad-x) var(--tasty-space-sm)", flex: "none" }}>
             <Button variant="secondary" size="sm" leadingIcon={ic.plus}>Add passkey</Button>
           </div>
-          <div style={{ flex: 1, minHeight: 0, overflow: "auto", padding: "0 14px 8px" }}>
+          <div style={{ flex: 1, minHeight: 0, overflow: "auto", padding: "0 var(--tasty-remote-pad-x) var(--tasty-space-sm)" }}>
             {[{ name: "ed25519-main", kind: "file", value: "~/.ssh/id_ed25519" },
               { name: "deploy-key-with-a-very-long-name", kind: "file", value: "/Users/someone/Library/Application Support/tasty/keys/deploy/ci-runner/id_ed25519_deploy", revealed: true },
               { name: "vault-token", kind: "secret", value: "••••••••" },
               { name: "legacy", kind: "agent-x", value: "••••••••", unknown: true }].map((k) => (
               <div key={k.name} style={{ display: "flex", alignItems: "flex-start", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-space-xs)", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
-                <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 2 }}>
+                <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: "var(--tasty-remote-row-line-gap)" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", minWidth: 0 }}>
-                    <span style={{ fontSize: 13, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{k.name}</span>
+                    <span style={{ fontSize: "var(--tasty-font-size-heading)", fontWeight: "var(--tasty-font-weight-semibold)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{k.name}</span>
                     {k.unknown
-                      ? <span title="Unknown kind." style={{ flex: "none", display: "inline-flex", alignItems: "center", gap: 3, height: 16, padding: "0 6px", borderRadius: "var(--tasty-radius-sm)", fontFamily: "var(--tasty-font-mono)", fontSize: 10, fontWeight: 500, color: "var(--tasty-accent-warning-raised)", border: "1px solid var(--tasty-tint-warning-border)", background: "var(--tasty-tint-warning-bg)" }}>{k.kind}</span>
+                      ? <span title="Unknown kind." style={{ flex: "none", display: "inline-flex", alignItems: "center", gap: "var(--tasty-tag-gap)", height: "var(--tasty-tag-size)", padding: "0 var(--tasty-tag-padding-x)", borderRadius: "var(--tasty-tag-radius)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-tag-font-size)", fontWeight: "var(--tasty-font-weight-medium)", color: "var(--tasty-tag-warning-fg)", border: "var(--tasty-border-width) solid var(--tasty-tag-warning-border)", background: "var(--tasty-tint-warning-bg)" }}>{k.kind}</span>
                       : <span style={{ flex: "none", display: "inline-flex" }}><Tag>{k.kind}</Tag></span>}
                   </div>
-                  <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: "var(--tasty-text-muted)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{k.kind} · {k.revealed ? k.value : "••••••••"}</span>
+                  <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{k.kind} · {k.revealed ? k.value : "••••••••"}</span>
                 </div>
-                <div style={{ display: "flex", gap: 1, flex: "none" }}>
+                <div style={{ display: "flex", gap: "var(--tasty-remote-row-action-gap)", flex: "none" }}>
                   <IconButton size="sm" active={!!k.revealed} aria-label={k.revealed ? "Hide value" : "Show value (local only)"}><Icon name={k.revealed ? "eyeOff" : "eye"} /></IconButton>
                   <IconButton size="sm" aria-label="Edit">{ic.edit}</IconButton>
                   <IconButton size="sm" aria-label="Delete"><Icon name="trash" /></IconButton>
@@ -773,10 +773,10 @@ function RemoteFrame({ tab = "profiles", ssh = "hosts" }) {
         </>
       ) : tab === "attach" ? (
         <>
-          <div style={{ display: "flex", alignItems: "center", padding: "10px 14px 6px", flex: "none" }}>
+          <div style={{ display: "flex", alignItems: "center", padding: "var(--tasty-space-md) var(--tasty-remote-pad-x) var(--tasty-space-sm)", flex: "none" }}>
             <Button variant="secondary" size="sm" leadingIcon={ic.plus}>Add attach</Button>
           </div>
-          <div style={{ flex: 1, minHeight: 0, overflow: "auto", padding: "0 14px 8px" }}>
+          <div style={{ flex: 1, minHeight: 0, overflow: "auto", padding: "0 var(--tasty-remote-pad-x) var(--tasty-space-sm)" }}>
             <AttachRow name="host" label="us-east" mode="profile" target="→ prod-web" tasty="tasty" port="auto" />
             <AttachRow name="edge-direct" mode="inline" target="root@edge.example.com" tasty="/opt/tasty/bin/tasty" port="file-unix" />
             <AttachRow name="legacy-attach" mode="profile" target="→ legacy-box" tasty="tasty" port="subcommand" inactive />
@@ -784,39 +784,39 @@ function RemoteFrame({ tab = "profiles", ssh = "hosts" }) {
         </>
       ) : (
       <>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 14px 6px", flex: "none" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "var(--tasty-space-md) var(--tasty-remote-pad-x) var(--tasty-space-sm)", flex: "none" }}>
         <Button variant="secondary" size="sm" leadingIcon={ic.plus}>Add profile</Button>
         <div style={{ position: "relative" }}>
           <Button variant="primary" size="sm" leadingIcon={ic.funnel}>Filter · 3/4</Button>
-          <div role="dialog" aria-label="Filter by protocol" style={{ position: "absolute", top: "calc(100% + 4px)", right: 0, zIndex: 5, width: "var(--tasty-remote-filter-menu-width)",
+          <div role="dialog" aria-label="Filter by protocol" style={{ position: "absolute", top: "calc(100% + var(--tasty-space-xs))", right: 0, zIndex: 5, width: "var(--tasty-remote-filter-menu-width)",
             background: "var(--tasty-menu-bg)", border: "var(--tasty-border-width) solid var(--tasty-menu-border)", borderRadius: "var(--tasty-menu-radius)",
             boxShadow: "var(--tasty-shadow-popover)", overflow: "hidden" }}>
-            <div style={{ padding: "8px 12px", borderBottom: "1px solid var(--tasty-separator)", fontFamily: "var(--tasty-font-mono)",
-              fontSize: 10, textTransform: "uppercase", letterSpacing: ".06em", color: "var(--tasty-text-muted)" }}>Filter by protocol</div>
-            <div style={{ padding: "8px 12px", display: "flex", flexDirection: "column", gap: 8 }}>
+            <div style={{ padding: "var(--tasty-space-sm) var(--tasty-space-md)", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)", fontFamily: "var(--tasty-font-mono)",
+              fontSize: "var(--tasty-font-size-micro)", textTransform: "uppercase", letterSpacing: "var(--tasty-letter-spacing-caps)", color: "var(--tasty-text-muted)" }}>Filter by protocol</div>
+            <div style={{ padding: "var(--tasty-space-sm) var(--tasty-space-md)", display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
               {[["ssh", true, false], ["smb", true, false], ["http", true, false], ["snb", false, true]].map(([p, on, unknown]) => (
-                <div key={p} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <div key={p} style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)" }}>
                   <Checkbox checked={on} readOnly label={p} />
-                  {unknown && <span style={{ display: "inline-flex", alignItems: "center", gap: 3, height: 16, padding: "0 6px", borderRadius: "var(--tasty-radius-sm)",
-                    fontFamily: "var(--tasty-font-mono)", fontSize: 10, fontWeight: 500, color: "var(--tasty-accent-warning-raised)",
-                    border: "1px solid var(--tasty-tint-warning-border)",
+                  {unknown && <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-tag-gap)", height: "var(--tasty-tag-size)", padding: "0 var(--tasty-tag-padding-x)", borderRadius: "var(--tasty-tag-radius)",
+                    fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-tag-font-size)", fontWeight: "var(--tasty-font-weight-medium)", color: "var(--tasty-tag-warning-fg)",
+                    border: "var(--tasty-border-width) solid var(--tasty-tag-warning-border)",
                     background: "var(--tasty-tint-warning-bg)" }}>unknown</span>}
                 </div>
               ))}
             </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", borderTop: "1px solid var(--tasty-separator)" }}>
-              <span style={{ fontSize: 11, color: "var(--tasty-accent-primary-raised)" }}>Select all</span>
+            <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-sm) var(--tasty-space-md)", borderTop: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
+              <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-accent-primary-raised)" }}>Select all</span>
               <span data-ink-grade="none" data-ink-why="ornament" style={{ color: "var(--tasty-separator)" }}>·</span>
-              <span style={{ fontSize: 11, color: "var(--tasty-accent-primary-raised)" }}>Deselect all</span>
+              <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-accent-primary-raised)" }}>Deselect all</span>
             </div>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "8px 12px", borderTop: "1px solid var(--tasty-separator)" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "var(--tasty-space-sm) var(--tasty-space-md)", borderTop: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
               <Button variant="ghost" ground="raised" size="sm">Reset</Button>
               <Button variant="primary" size="sm">Apply</Button>
             </div>
           </div>
         </div>
       </div>
-      <div style={{ flex: 1, minHeight: 0, overflow: "auto", padding: "0 14px 8px" }}>
+      <div style={{ flex: 1, minHeight: 0, overflow: "auto", padding: "0 var(--tasty-remote-pad-x) var(--tasty-space-sm)" }}>
         <ProfileRow name="prod-web" label="us-east" type="ssh" target="deploy@10.0.4.12" passkey="ed25519-main" />
         <ProfileRow name="db-primary" type="ssh" target="postgres@db.internal:2222" passkey="" />
         <ProfileRow name="edge-cache" label="staging" type="ssh" target="root@edge.example.com" passkey="edge-pem" detecting />

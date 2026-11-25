@@ -353,6 +353,10 @@
       "$type": "dimension",
       "$value": "36px"
     },
+    "size-35": {
+      "$type": "dimension",
+      "$value": "35px"
+    },
     "size-46": {
       "$type": "dimension",
       "$value": "46px"
@@ -5994,6 +5998,38 @@
     "ports-window-height": {
       "$type": "dimension",
       "$value": "{primitive.size-520}"
+    },
+    "ports-pad-x": {
+      "$type": "dimension",
+      "$value": "{primitive.size-14}"
+    },
+    "remote-window-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-520}"
+    },
+    "remote-window-height": {
+      "$type": "dimension",
+      "$value": "{primitive.size-460}"
+    },
+    "remote-pad-x": {
+      "$type": "dimension",
+      "$value": "{primitive.size-14}"
+    },
+    "remote-tab-height": {
+      "$type": "dimension",
+      "$value": "{primitive.size-35}"
+    },
+    "remote-tab-gap": {
+      "$type": "dimension",
+      "$value": "{primitive.size-2}"
+    },
+    "remote-row-line-gap": {
+      "$type": "dimension",
+      "$value": "{primitive.size-2}"
+    },
+    "remote-row-action-gap": {
+      "$type": "dimension",
+      "$value": "{primitive.size-1}"
     },
     "remote-picker-width": {
       "$type": "dimension",

@@ -102,6 +102,7 @@
   --tasty-size-28:  28px;
   --tasty-size-32:  32px;
   --tasty-size-36:  36px;  /* titlebar height (CSD) */
+  --tasty-size-35: 35px; /* 2026-11-26 remote connections tab height (with its 1px bar edge, the bar is 36) */
   --tasty-size-40:  40px;  /* image zoom-percent label min width (2026-10-07) */
   --tasty-size-44:  44px;  /* preset-window detail toolbar / surface-settings header height */
   --tasty-size-46:  46px;  /* Windows caption button width */
