@@ -4600,6 +4600,18 @@
       "$type": "dimension",
       "$value": "{primitive.size-3}"
     },
+    "plugins-header-divider-height": {
+      "$type": "dimension",
+      "$value": "{primitive.size-20}"
+    },
+    "plugins-add-pad-y": {
+      "$type": "dimension",
+      "$value": "calc(1 * var(--tasty-space-sm) + 1 * var(--tasty-space-md))"
+    },
+    "plugins-link-underline-offset": {
+      "$type": "dimension",
+      "$value": "{primitive.size-2}"
+    },
     "plugins-header-glyph": {
       "$type": "color",
       "$value": "{semantic.accent-decorative}"

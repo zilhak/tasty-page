@@ -217,7 +217,7 @@ function TrustBox({ manifest }) {
   if (kind === "trusted") return (
     <div style={{ ...box, flexDirection: "row", alignItems: "center", fontSize: "var(--tasty-font-size-term-sm)" }}>
       {/* 2026-10-27: inks split from the tone — glyph + body → accent-success-ink (Latte ≥ 5.5:1 on mantle/base+tint); fill/border keep accent-success */}
-      <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-plugin-trust-glyph-success)" }}><Icon name="shieldCheck" size={16} /></span>
+      <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-plugin-trust-glyph-success)" }}><Icon name="shieldCheck" size="var(--tasty-icon-size-md)" /></span>
       <span style={{ color: "var(--tasty-plugin-trust-body-trusted-fg)" }}>Signed by a <b>trusted publisher</b> — its key is in your trust store.</span>
     </div>
   );
@@ -225,7 +225,7 @@ function TrustBox({ manifest }) {
   return (
     <div style={box} role={k.unverified ? "alert" : undefined}>
       <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", color: "var(--tasty-plugin-trust-title-fg)", fontSize: "var(--tasty-font-size-heading)", fontWeight: "var(--tasty-font-weight-semibold)" }}>
-        <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-plugin-trust-glyph-" + k.tone + ")" }}><Icon name={k.glyph} size={16} /></span><span>{k.title}</span>
+        <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-plugin-trust-glyph-" + k.tone + ")" }}><Icon name={k.glyph} size="var(--tasty-icon-size-md)" /></span><span>{k.title}</span>
       </div>
       <p style={p}>{UNVERIFIED_CAUSE[kind]}</p>
       <p style={p}>{UNVERIFIED_RISK}{k.after ? " " + k.after : ""}</p>
@@ -267,7 +267,7 @@ function AddPluginForm({ onAdded, onCancel }) {
 
   return (
     <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
-      <div className="tasty-scroll" style={{ flex: 1, overflow: "auto", padding: "var(--tasty-size-22) var(--tasty-space-xl)",
+      <div className="tasty-scroll" style={{ flex: 1, overflow: "auto", padding: "var(--tasty-plugins-add-pad-y) var(--tasty-space-xl)",
         display: "flex", flexDirection: "column", gap: "var(--tasty-space-lg)" }}>
         {/* path picker */}
         <div style={{ maxWidth: "var(--tasty-measure-xl)", display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
@@ -338,7 +338,7 @@ function AddPluginForm({ onAdded, onCancel }) {
           </span>
         ) : <div style={{ flex: 1 }} />}
         <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", marginLeft: "auto" }}>
-          {busy && <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-sm)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}><PwSpinner size={14} label="Adding" />Adding…</span>}
+          {busy && <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-sm)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}><PwSpinner size="var(--tasty-icon-size-sm)" label="Adding" />Adding…</span>}
           <Button key={manifest ? manifest.path + trustKindOf(manifest) : "none"} variant="ghost" autoFocus={!!manifest && TRUST_KIND[trustKindOf(manifest)].unverified} disabled={busy} onClick={onCancel}>Cancel</Button>
           {manifest && (manifest.blocked
             ? <Button variant="primary" disabled>Add plugin</Button>
@@ -355,7 +355,7 @@ function RegisterAnyway({ name, onFlash }) {
   React.useEffect(() => setBusy(false), [name]);
   return (
     <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-sm)" }}>
-      {busy && <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-sm)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}><PwSpinner size={14} label="Registering" />Registering…</span>}
+      {busy && <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-sm)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}><PwSpinner size="var(--tasty-icon-size-sm)" label="Registering" />Registering…</span>}
       <Button variant="danger" disabled={busy} aria-busy={busy || undefined}
         onClick={() => { setBusy(true); setTimeout(() => { setBusy(false); onFlash && onFlash("Registered " + name); }, 900); }}>
         Register anyway
@@ -380,13 +380,13 @@ function RemoveReserved({ item, confirming, busy, onBusy, onConfirm, onCancel, o
     );
   return (
     <>
-      <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-accent-attention-raised)" }}><Icon name="alertTriangle" size={16} /></span>
+      <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-accent-attention-raised)" }}><Icon name="alertTriangle" size="var(--tasty-icon-size-md)" /></span>
       <div style={{ flex: "1 1 auto", minWidth: 0, display: "flex", flexDirection: "column" }}>
         <span style={{ fontSize: "var(--tasty-font-size-body)", color: "var(--tasty-text-primary)", overflowWrap: "anywhere" }}>Remove {item.name}?</span>
         <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>Its folder is deleted from your plugins folder.</span>
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", marginLeft: "auto" }}>
-        {busy && <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-sm)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}><PwSpinner size={14} label="Removing" />Removing…</span>}
+        {busy && <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-sm)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}><PwSpinner size="var(--tasty-icon-size-sm)" label="Removing" />Removing…</span>}
         <Button variant="ghost" autoFocus disabled={busy} onClick={onCancel}>Cancel</Button>
         <Button variant="danger" disabled={busy} aria-busy={busy || undefined}
           onClick={() => { onBusy(true); setTimeout(() => { onBusy(false); onRemove && onRemove(item); onFlash && onFlash("Removed '" + item.name + "'."); }, 700); }}>Remove</Button>
@@ -477,7 +477,7 @@ function AttentionPanel({ items, onFlash, onConfigure, onRemove, lang = "en" }) 
                 display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", flexWrap: "wrap" }}>
 {/* 2026-10-09 b10 — each separator travels WITH the item after it (one nowrap span), so a wrapped item never leaves a dangling · */}
 {/* 2026-11-08 — reserved id: the meta line is the id alone (no author, no homepage) */}
-                {meta.removeOnly ? <span style={{ overflowWrap: "anywhere" }}>{sel.id}</span> : [sel.author, sel.id, sel.reason !== "signature-invalid" && sel.homepage && /^https?:\/\//.test(sel.homepage) && <a href={sel.homepage} target="_blank" rel="noreferrer" style={{ color: "var(--tasty-accent-primary-raised)", textDecoration: "underline", textUnderlineOffset: 2 }}>{sel.homepage.replace(/^https?:\/\//, "")}</a>].filter(Boolean).map((part, i) => (
+                {meta.removeOnly ? <span style={{ overflowWrap: "anywhere" }}>{sel.id}</span> : [sel.author, sel.id, sel.reason !== "signature-invalid" && sel.homepage && /^https?:\/\//.test(sel.homepage) && <a href={sel.homepage} target="_blank" rel="noreferrer" style={{ color: "var(--tasty-accent-primary-raised)", textDecoration: "underline", textUnderlineOffset: "var(--tasty-plugins-link-underline-offset)" }}>{sel.homepage.replace(/^https?:\/\//, "")}</a>].filter(Boolean).map((part, i) => (
                   <span key={i} style={{ display: "inline-flex", gap: "var(--tasty-space-sm)", whiteSpace: "nowrap" }}>{i > 0 && <span>·</span>}{part}</span>
                 ))}
               </div>
@@ -500,7 +500,7 @@ function AttentionPanel({ items, onFlash, onConfigure, onRemove, lang = "en" }) 
             background: "var(--tasty-tint-danger-bg)",
             border: "var(--tasty-border-width) solid var(--tasty-tint-danger-border)" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", color: "var(--tasty-plugin-trust-title-fg)", fontSize: "var(--tasty-font-size-heading)", fontWeight: "var(--tasty-font-weight-semibold)" }}>
-              <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-plugin-trust-glyph-danger)" }}><Icon name="alertCircle" size={16} /></span>
+              <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-plugin-trust-glyph-danger)" }}><Icon name="alertCircle" size="var(--tasty-icon-size-md)" /></span>
               <span>{meta.label}</span>
             </div>
             <p style={{ margin: 0, fontSize: "var(--tasty-font-size-term-sm)", lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-plugin-trust-body-fg)", overflowWrap: "anywhere" }}>{meta.blurb}</p>
@@ -508,9 +508,9 @@ function AttentionPanel({ items, onFlash, onConfigure, onRemove, lang = "en" }) 
           <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-plugins-inset)",
             borderRadius: "var(--tasty-radius)", color: "var(--tasty-text-secondary)",
             background: `var(--tasty-tint-${meta.sev}-bg)`,
-            border: `1px solid var(--tasty-tint-${meta.sev}-border)` }}>
+            border: `var(--tasty-border-width) solid var(--tasty-tint-${meta.sev}-border)` }}>
             <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", color: ink, fontSize: "var(--tasty-font-size-heading)", fontWeight: "var(--tasty-font-weight-semibold)" }}>
-              <Icon name={meta.sev === "danger" ? "alertCircle" : "alertTriangle"} size={16} />
+              <Icon name={meta.sev === "danger" ? "alertCircle" : "alertTriangle"} size="var(--tasty-icon-size-md)" />
               <span>{meta.label}</span>
             </div>
             <p style={{ margin: 0, fontSize: "var(--tasty-font-size-term-sm)", lineHeight: "var(--tasty-line-height-ui)" }}>{meta.blurb}</p>
@@ -688,7 +688,7 @@ function PluginsWindow({ onClose, onFlash, onConfigure, removedAttention, onRemo
               <div style={{ marginTop: "var(--tasty-space-xs)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)",
                 display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", flexWrap: "wrap" }}>
 {/* 2026-10-09 b10 — each separator travels WITH the item after it (one nowrap span), so a wrapped item never leaves a dangling · */}
-                {[sel.author, sel.id, sel.homepage && <a href={sel.homepage} target="_blank" rel="noreferrer" style={{ color: "var(--tasty-accent-primary-raised)", textDecoration: "underline", textUnderlineOffset: 2 }}>{sel.homepage.replace(/^https?:\/\//, "")}</a>].filter(Boolean).map((part, i) => (
+                {[sel.author, sel.id, sel.homepage && <a href={sel.homepage} target="_blank" rel="noreferrer" style={{ color: "var(--tasty-accent-primary-raised)", textDecoration: "underline", textUnderlineOffset: "var(--tasty-plugins-link-underline-offset)" }}>{sel.homepage.replace(/^https?:\/\//, "")}</a>].filter(Boolean).map((part, i) => (
                   <span key={i} style={{ display: "inline-flex", gap: "var(--tasty-space-sm)", whiteSpace: "nowrap" }}>{i > 0 && <span>·</span>}{part}</span>
                 ))}
               </div>
@@ -703,7 +703,7 @@ function PluginsWindow({ onClose, onFlash, onConfigure, removedAttention, onRemo
               borderRadius: "var(--tasty-radius)", fontSize: "var(--tasty-font-size-term-sm)", color: "var(--tasty-accent-danger-raised)",
               background: "var(--tasty-tint-danger-bg)",
               border: "var(--tasty-border-width) solid var(--tasty-tint-danger-border)" }}>
-              <Icon name="alertCircle" size={16} />
+              <Icon name="alertCircle" size="var(--tasty-icon-size-md)" />
               <span>Failed to connect. Check the plugin's configuration in Settings.</span>
             </div>
           )}
@@ -755,7 +755,7 @@ function PluginsWindow({ onClose, onFlash, onConfigure, removedAttention, onRemo
           {isInstalled && confirmId === sel.id && (
             <>
               {/* 2026-10-09 — uninstall confirm REPLACES the bar contents in place. b10: the bar grows with its text (max(text, control 28) + space-md × 2); the note may wrap. */}
-              <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-accent-attention-raised)" }}><Icon name="alertTriangle" size={16} /></span>
+              <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-accent-attention-raised)" }}><Icon name="alertTriangle" size="var(--tasty-icon-size-md)" /></span>
               <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}>
                 <span style={{ fontSize: "var(--tasty-font-size-body)", color: "var(--tasty-text-primary)" }}>Uninstall {sel.name}?</span>
                 <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>
@@ -793,11 +793,13 @@ function PluginsWindow({ onClose, onFlash, onConfigure, removedAttention, onRemo
         <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", height: "var(--tasty-plugins-header-height)", flex: "none", paddingLeft: "var(--tasty-plugins-header-pad-left)", paddingRight: "var(--tasty-plugins-header-pad-right)",
           borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)", background: "var(--tasty-bg-sidebar)" }}>
           {/* the header ornament reads plugins-header-glyph (accent-decorative, no contrast target), as the app does */}
-          <span data-ink-grade="none" data-ink-why="ornament" style={{ display: "inline-flex", color: "var(--tasty-plugins-header-glyph)" }}>
-            <Icon name="plug" size={16} />
+          {/* plug to title 12 and search to close 16: the header gap is the app's item spacing 8, and the app adds
+              hspace(spacing_xs) after the plug and hspace(spacing_sm) before the close button */}
+          <span data-ink-grade="none" data-ink-why="ornament" style={{ display: "inline-flex", color: "var(--tasty-plugins-header-glyph)", marginRight: "var(--tasty-space-xs)" }}>
+            <Icon name="plug" size="var(--tasty-icon-size-md)" />
           </span>
           <span style={{ fontSize: "var(--tasty-font-size-max)", fontWeight: "var(--tasty-font-weight-bold)", color: "var(--tasty-text-primary)", letterSpacing: "var(--tasty-letter-spacing-ui)" }}>Plugins</span>
-          <span style={{ width: 1, height: 20, background: "var(--tasty-separator)", margin: "0 var(--tasty-space-sm)" }} />
+          <span style={{ width: "var(--tasty-border-width)", height: "var(--tasty-plugins-header-divider-height)", background: "var(--tasty-separator)", margin: "0 var(--tasty-space-sm)" }} />
           <div style={{ display: "flex", gap: "var(--tasty-plugins-tab-gap)" }}>
             <PluginsSeg {...segProps("installed")} label="Installed" count={installedCount} />
             <PluginsSeg {...segProps("attention")} label="Attention" count={attentionCount} danger />
@@ -806,7 +808,7 @@ function PluginsWindow({ onClose, onFlash, onConfigure, removedAttention, onRemo
           <div style={{ flex: 1 }} />
           {tab === "installed" && (
             <Input icon={ic.search} placeholder="Filter installed…"
-              value={q} onChange={(e) => setQ(e.target.value)} style={{ width: "var(--tasty-field-width-lg)" }} />
+              value={q} onChange={(e) => setQ(e.target.value)} style={{ width: "var(--tasty-field-width-lg)", marginRight: "var(--tasty-space-sm)" }} />
           )}
           <IconButton aria-label="Close" onClick={onClose}>
             <Icon name="close" />

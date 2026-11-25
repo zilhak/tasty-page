@@ -933,6 +933,9 @@
   --tasty-plugins-tab-gap:          calc(1 * var(--tasty-space-sm) + 1 * var(--tasty-size-2)); /* 10 — sum of <number> * var(--tasty-…) terms, the form the app reads. Between header tabs: the app's item spacing 8 plus STRUCT_GAP_2 */
   --tasty-plugins-list-row-gap:     calc(1 * var(--tasty-space-xs) + 1 * var(--tasty-size-2)); /* 6 — sum of <number> * var(--tasty-…) terms, the form the app reads. Between rows of the Installed and Attention lists: the app's item spacing 4 plus STRUCT_GAP_2 */
   --tasty-plugins-manifest-meta-gap: var(--tasty-size-3); /* 2026-11-26 manifest card: name line to the id and author line, the app's STRUCT_GAP_3 */
+  --tasty-plugins-header-divider-height: var(--tasty-size-20); /* 2026-11-26 vertical rule between the header title and the tabs, the app's draw_header_divider 1 × 20 */
+  --tasty-plugins-add-pad-y:        calc(1 * var(--tasty-space-sm) + 1 * var(--tasty-space-md)); /* 20 — sum of <number> * var(--tasty-…) terms, the form the app reads. Add plugin tab: header edge to the path picker, the app's central panel frame 8 plus vspace(spacing_md) */
+  --tasty-plugins-link-underline-offset: var(--tasty-size-2); /* 2026-11-26 homepage link in the detail and attention identity lines: underline below the text */
   --tasty-plugins-header-glyph:     var(--tasty-accent-decorative); /* window-header ornament — peach, but decorative: NOT accent-attention */
   --tasty-plugins-tab-focus-ring:   var(--tasty-accent-primary-raised); /* 2026-11-25 keyboard focus ring of a tab on the tab bar's surface-active pill (RULES focus-ring: active ground). Unused since the tab bar follows the app (tabs on the header's mantle, no pill): the ring there is base.css's border-focus. Kept, as tokens are never removed */
   /* Plugin avatar — the square initial mark that stands in for a plugin icon
