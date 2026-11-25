@@ -1550,7 +1550,7 @@
       "$value": "{primitive.font-weight-700}"
     },
     "font-style-absent": {
-      "$type": "number",
+      "$type": "fontStyle",
       "$value": "italic"
     },
     "line-height-tight": {
@@ -5072,7 +5072,7 @@
       "$value": "{semantic.text-muted}"
     },
     "cut-pending-font-style": {
-      "$type": "strokeStyle",
+      "$type": "fontStyle",
       "$value": "italic"
     },
     "switch-overlay-size": {

@@ -4,7 +4,8 @@
 usage: verify_tokens_json.py <project-dir> <json>
   e.g. verify_tokens_json.py vendor vendor/tokens/tasty.tokens.json
 
-Names, values, aliases and Latte values must match. Exits 1 on any difference.
+Names, values, aliases and Latte values must match, and each $type must be the type
+gen_tokens_json.py infers from the CSS value. Exits 1 on any difference.
 """
 import json, os, sys
 
@@ -26,6 +27,8 @@ for t in g.TIERS:
         if k not in base: continue
         e=g.alias(base[k],own)
         if str(v['$value'])!=e: errs.append((t,k,'value',v['$value'],e))
+        it=g.infer_type(k,t,base[k],T,own)
+        if v.get('$type')!=it: errs.append((f'{t}.{k}.$type',v.get('$type'),it))
         nv+=1; al+=str(v['$value']).startswith('{')
         jl=v.get('$extensions',{}).get('com.tasty.mode',{}).get('latte')
         cl=g.alias(lat[k],own) if k in lat else None

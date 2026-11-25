@@ -8,11 +8,16 @@ Names, values, aliases and Latte values come only from the CSS:
   tokens/primitives.css              -> primitive
   tokens/semantic.css                -> semantic
   tokens/components.css              -> component
-The CSS does not hold everything the JSON holds, so <prev-json> supplies, for tokens it
-already has: key order, $description, $type and the int-vs-string spelling of a number.
-A new token is placed right after its CSS predecessor and gets an inferred $type.
---pure ignores <prev-json> for those fields (used to measure what the CSS alone can give).
+$type is inferred from the CSS value of every token, following an alias to the token it
+names, in the token's own theme. The CSS does not hold everything the JSON holds, so
+<prev-json> supplies, for tokens it already has: key order, $description and the
+int-vs-string spelling of a number, plus the top-level fields and group descriptions.
+A new token is placed right after its CSS predecessor.
+--pure ignores <prev-json> for key order, descriptions and spelling (used to measure what
+the CSS alone can give).
 A token in <prev-json> that is not in the CSS is an error: tokens are never removed here.
+Only the exact spelling var(--tasty-<name>) becomes a JSON alias. Any other variable
+syntax is rejected earlier by verify_token_tiers.py, which runs before this script.
 """
 import json, re, sys
 
@@ -75,18 +80,35 @@ def tier_of(tiers):
     return owner
 
 def alias(value, owner):
-    m = re.fullmatch(r"var\(--tasty-([\w-]+)\)", value)
+    m = ALIAS.fullmatch(value)
     if not m:
         return value  # literals, color-mix(), calc() and lists stay verbatim
     if m.group(1) not in owner:
         sys.exit(f"alias of a missing token: {value}")
     return "{%s.%s}" % (owner[m.group(1)], m.group(1))
 
-def infer_type(key, tier, value, tiers, owner):
-    m = re.fullmatch(r"var\(--tasty-([\w-]+)\)", value)
+ALIAS = re.compile(r"var\(--tasty-([\w-]+)\)")
+NUMBER = re.compile(r"-?(?:[0-9]+(?:\.[0-9]+)?|\.[0-9]+)")
+FONT_STYLE = {"italic"}
+
+def theme_value(tiers, owner, key, theme):
+    """The value of a token in a theme: its Latte value if it has one there, else its base."""
+    base, latte = tiers[owner[key]]
+    return latte[key] if theme == "latte" and key in latte else base[key]
+
+def infer_type(key, tier, value, tiers, owner, theme="mocha", seen=()):
+    """The $type of a token from its value in one theme. An alias is followed to the token
+    it names, through that theme's values, so a Latte-only cycle is found too."""
+    m = ALIAS.fullmatch(value)
     if m:
         t = m.group(1)
-        return infer_type(t, owner[t], tiers[owner[t]][0][t], tiers, owner)
+        if t not in owner:
+            sys.exit(f"{tier}.{key}: alias of a missing token: {value}")
+        if t == key or t in seen:
+            path = " -> ".join((*seen, key, t))
+            sys.exit(f"alias cycle in {theme}: {path}")
+        return infer_type(t, owner[t], theme_value(tiers, owner, t, theme), tiers, owner,
+                          theme, (*seen, key))
     v = value
     if "font-family" in key: return "fontFamily"
     if key.startswith("font-weight"): return "fontWeight"
@@ -97,7 +119,10 @@ def infer_type(key, tier, value, tiers, owner):
     if re.fullmatch(r"\d+( \d+)+", v): return "strokeStyle"
     if re.search(r"(px|em)\b", v) or v.startswith("calc("): return "dimension"
     if key.startswith(("size-", "radius-", "letter-spacing-")): return "dimension"
-    return "number"
+    # fontStyle is a Tasty type: DTCG has no font-style type (see TOKENS.md, Machine-readable export)
+    if v in FONT_STYLE and "font-style" in key: return "fontStyle"
+    if NUMBER.fullmatch(v): return "number"
+    sys.exit(f"{tier}.{key}: no $type fits the value {v!r}")
 
 def build(project, prev, pure):
     tiers = collect(project)
@@ -125,7 +150,9 @@ def build(project, prev, pure):
         for k in order:
             value = alias(base[k], owner)
             o = old.get(k) if not pure else None
-            typ = o["$type"] if o else infer_type(k, tier, base[k], tiers, owner)
+            typ = infer_type(k, tier, base[k], tiers, owner)
+            if k in latte and infer_type(k, tier, latte[k], tiers, owner, "latte") != typ:
+                sys.exit(f"{tier}.{k}: the Latte value has another $type than the base value")
             if o and str(o["$value"]) == value:
                 value = o["$value"]  # keeps the old int-vs-string spelling
             entry = {"$type": typ, "$value": value}
