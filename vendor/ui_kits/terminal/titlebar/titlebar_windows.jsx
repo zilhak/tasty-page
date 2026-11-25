@@ -4,16 +4,18 @@ const BASE = `${import.meta.env.BASE_URL.replace(/\/$/, "")}/`;
 
 // Tasty UI kit — CSD titlebar · Windows
 // ─────────────────────────────────────────────────────────────────────────
-// ⚠ NON-PRODUCT / EXPLORATION. Shipping Tasty uses the NATIVE Windows titlebar.
-//   This designs the Client-Side-Decoration alternative. Adopting it needs
-//   WindowAttributes::with_decorations(false) + custom drag + WM_NCHITTEST
-//   handling (HTMAXBUTTON on the maximize rect for Snap Layouts).
+// Tasty on Windows draws its own titlebar (Client-Side Decoration): the window
+//   is created with WindowAttributes::with_decorations(false) and the
+//   undecorated shadow on, and the host handles the caption buttons, the
+//   titlebar drag and the edge resize. This kit is that titlebar.
 //
 // Windows conventions: caption buttons (minimize · maximize/restore · close) on
 // the RIGHT, each ~46px wide and full titlebar height; close-hover paints the
 // system red (#c42b1c via --tasty-accent-window-close) with a white glyph.
-// The maximize button must expose its hit-rect to the OS so the Snap-Layouts
-// flyout appears on hover. All color/size from --tasty-* tokens.
+// Snap Layouts: the OS shows its flyout over the maximize button only when the
+// window answers WM_NCHITTEST with HTMAXBUTTON on that button's rect. The
+// design keeps that target; the app does not answer it yet (2026-11-25).
+// All color/size from --tasty-* tokens.
 
 const TB_WIN_CSS = `
 .tb-win { display:flex; align-items:stretch; height:var(--tasty-titlebar-height); flex:none;
