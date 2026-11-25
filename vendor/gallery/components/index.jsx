@@ -592,7 +592,7 @@ function Components() {
         <Spec id="menuitem" title="MenuItem"
           when={<>A <b>28px</b> row for context menus, the command palette, and tools menus — icon + label + trailing shortcut. <b>active</b> = keyboard-highlighted; <b>danger</b> for destructive; <code>separator</code> draws a thin rule.</>}>
           <Stage variant="tight">
-            <div style={{ background: "var(--tasty-surface-raised)", border: "1px solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", padding: 6, width: 280 }}>
+            <div style={{ background: "var(--tasty-menu-bg)", border: "var(--tasty-border-width) solid var(--tasty-menu-border)", borderRadius: "var(--tasty-radius)", padding: 6, width: 280 }}>
               <MenuItem label="New tab" icon={ic.term} shortcut={<Kbd keys="Ctrl+T" />} active />
               <MenuItem label="Split pane" icon={ic.split} shortcut={<Kbd keys="Ctrl+D" />} />
               <MenuItem label="Copy path" icon={ic.copy} />
