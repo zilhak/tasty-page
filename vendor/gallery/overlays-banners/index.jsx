@@ -615,7 +615,10 @@ function Page() {
               <div key={label} {...(attr ? { "data-theme": attr } : {})} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", background: "var(--tasty-bg-app)" }}>
                 <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · two surfaces side by side, banner on the HTML one only</span>
                 <div style={{ display: "flex", gap: "var(--tasty-border-width)", background: "var(--tasty-border-frame)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
-                  <HtmlSurfaceG />
+                  {/* The app judges narrow on the surface's width before the banner inset: the slot is the HTML surface's box. */}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <ScopeNarrowG>{(n) => <HtmlSurfaceG narrow={n} />}</ScopeNarrowG>
+                  </div>
                   <TermSurfaceG />
                 </div>
               </div>
