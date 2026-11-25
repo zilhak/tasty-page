@@ -49,7 +49,7 @@ def block(selector, decls):
 
 
 def files(prim=None, prim_latte=None, sem=None, sem_latte=None, comp=None, comp_latte=None,
-          literals=True, base_selector=":root, [data-theme]"):
+          literals=True):
     """The three files' text, from the defaults with the given declarations added."""
     out = {}
     for tier, default, extra, latte in (
@@ -58,7 +58,7 @@ def files(prim=None, prim_latte=None, sem=None, sem_latte=None, comp=None, comp_
             ("component", {**COMPONENT, **(LITERAL_DECLS if literals else {})}, comp, comp_latte)):
         decls = {**default, **(extra or {})}
         decls = {k: v for k, v in decls.items() if v is not None}
-        text = "/* header */\n" + block(base_selector, decls)
+        text = "/* header */\n" + block(vt.BASE_SELECTOR[tier], decls)
         if latte:
             text += block('[data-theme="latte"]', latte)
         out[tier] = text
@@ -98,8 +98,14 @@ class Canon(Base):
         r = subprocess.run([sys.executable, "-B", SCRIPT, os.path.join(HERE, "..", "..", "vendor")],
                            capture_output=True, text=True)
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
-        self.assertIn("token tiers: 0 violations", r.stdout)
-        self.assertIn("component literals: 9", r.stdout)
+        for line in ("declarations: base 1661, Latte 87",
+                     "var() references: base 1543, Latte 94",
+                     "component -> primitive (base): 239 (size 235, radius 1, duration 3)",
+                     "component -> primitive (Latte): 0 (size 0, radius 0, duration 0)",
+                     "component -> component: base 91, Latte 0",
+                     "component literals: 9 (coefficient 1, count 2, dash 4, keyword 1, window-shadow 1)",
+                     "token tiers: 0 violations"):
+            self.assertIn(line, r.stdout)
 
     def test_defaults_pass_and_count(self):
         out = self.ok(files())
@@ -177,7 +183,8 @@ class References(Base):
                    "R3a: --tasty-up (mocha)", "component token --tasty-button-fg")
 
     def test_strings_and_other_functions_are_not_variables(self):
-        self.ok(files(prim={"font-family-x": '"var(--tasty-size-4)", sans-serif'},
+        self.ok(files(prim={"font-family-x": '"var(--tasty-size-4)", sans-serif',
+                            "font-family-y": "myvar(--tasty-nowhere), sans-serif"},
                       comp={"a": "calc(var(--tasty-size-4) * 2)"}))
 
     def test_unclosed_function(self):
@@ -201,10 +208,18 @@ class Cycles(Base):
                    "alias cycle in mocha: --tasty-a -> --tasty-b -> --tasty-c -> --tasty-a")
 
     def test_cycle_only_in_latte(self):
-        out = self.fails(files(sem={"a": "var(--tasty-b)", "b": "var(--tasty-color-blue)"},
-                               sem_latte={"b": "var(--tasty-a)"}),
-                         "alias cycle in latte: --tasty-a -> --tasty-b -> --tasty-a")
+        t = files(sem={"a": "var(--tasty-b)", "b": "var(--tasty-color-blue)"}, sem_latte={"b": "var(--tasty-a)"})
+        lines = t["semantic"].splitlines()
+        a_line = 1 + next(i for i, x in enumerate(lines) if "--tasty-a:" in x)
+        b_latte = 1 + next(i for i, x in enumerate(lines) if "--tasty-b: var(--tasty-a)" in x)
+        out = self.fails(t, "alias cycle in latte: --tasty-a -> --tasty-b -> --tasty-a",
+                         f"semantic.css:{a_line}", f"semantic.css:{b_latte}")
         self.assertNotIn("cycle in mocha", out)
+
+    def test_long_cycle(self):
+        n = 1100
+        chain = {f"c{i}": f"var(--tasty-c{(i + 1) % n})" for i in range(n)}
+        self.fails(files(sem=chain), "alias cycle in mocha: --tasty-c0 -> --tasty-c1")
 
 
 class Literals(Base):
@@ -227,8 +242,25 @@ class Literals(Base):
         self.literal("notification-item-body-lines", "2;\n  /* @kind other */", "right after its semicolon")
 
     def test_window_shadow_with_marker(self):
-        self.literal("titlebar-csd-shadow", "0 18px 50px -8px rgba(0,0,0,.5); /* @kind other */",
-                     "takes no @kind marker")
+        for v in ("0 18px 50px -8px rgba(0,0,0,.5); /* @kind other */",
+                  "0 18px 50px -8px rgba(0,0,0,.5); /* note */ /* @kind other */"):
+            with self.subTest(v):
+                self.literal("titlebar-csd-shadow", v, "takes no @kind marker")
+
+    def test_marker_of_the_next_declaration_on_the_same_line(self):
+        t = files()
+        t["component"] = t["component"].replace(
+            "  --tasty-notification-item-body-lines: 2; /* @kind other */ /* popup */\n"
+            "  --tasty-notification-item-body-lines-wide: 3; /* @kind other */",
+            "  --tasty-notification-item-body-lines: 2; --tasty-notification-item-body-lines-wide: 3;"
+            " /* @kind other */")
+        out = self.fails(t, "R4: --tasty-notification-item-body-lines (mocha)", "right after its semicolon")
+        self.assertNotIn("--tasty-notification-item-body-lines-wide (mocha)", out)
+
+    def test_leading_zero_dash_and_exact_alpha_bound(self):
+        self.ok(files(comp={"dag-edge-dash-fallback": "02 3; /* @kind other */"}))
+        self.literal("titlebar-csd-shadow", "0 18px 50px -8px rgba(0,0,0,1.00000000000000001);",
+                     "is not a window-shadow")
 
     def test_wrong_shapes(self):
         cases = [
@@ -264,6 +296,9 @@ class Literals(Base):
                 self.fails(files(comp_latte={"notification-item-body-lines": f"{latte}; /* @kind other */"}),
                            "R4: --tasty-notification-item-body-lines (latte)", "has no Latte value")
 
+    def test_component_alias_with_a_latte_literal(self):
+        self.fails(files(comp_latte={"button-pad": "4px"}), "R4: --tasty-button-pad (latte)", "has no Latte value")
+
     def test_part_scales_have_no_latte_value(self):
         for k in ("size-4", "radius-4", "duration-120"):
             with self.subTest(k):
@@ -275,8 +310,33 @@ class Reading(Base):
         self.ok(files(prim={"font-family-x": '"Inter", "Noto Sans",\n      "Segoe UI", sans-serif'},
                       comp={"a": "calc(\n    var(--tasty-size-4) * 2\n  )"}))
 
-    def test_mocha_base_selector(self):
-        self.ok(files(base_selector=':root, [data-theme="mocha"]'))
+    def test_base_selector_of_each_tier(self):
+        # primitives keep the Mocha theme block; semantic and component repeat on every [data-theme]
+        for tier, other in (("primitive", ":root, [data-theme]"), ("component", ":root"),
+                            ("semantic", ':root, [data-theme="mocha"]')):
+            with self.subTest(tier):
+                t = files()
+                t[tier] = t[tier].replace(vt.BASE_SELECTOR[tier] + " {", other + " {", 1)
+                self.fails(t, vt.FILES[tier] + ":2", "unsupported selector", vt.BASE_SELECTOR[tier])
+
+    def test_non_css_space_in_a_selector(self):
+        t = files(sem_latte={"accent": "var(--tasty-color-base)"})
+        t["semantic"] = t["semantic"].replace('[data-theme="latte"] {', '\u00a0[data-theme="latte"] {')
+        self.fails(t, "semantic.css:", "unsupported selector")
+
+    def test_missing_semicolon_on_the_same_line(self):
+        t = files(comp={"zz-a": "calc(var(--tasty-size-4) * 2) --tasty-zz-b: 4px"})
+        self.fails(t, "components.css:", "missing semicolon: a new declaration starts")
+
+    def test_declaration_shape_inside_a_block_is_a_value(self):
+        self.ok(files(prim={"font-family-x": "custom(\n    --tasty-size-4: 4px\n  )"}))
+
+    def test_escapes_and_bang_inside_a_function(self):
+        self.ok(files(prim={"font-family-x": "O\\'Brien, sans-serif", "font-family-y": "A\\(B, sans-serif",
+                            "font-family-z": "custom(!)"}))
+
+    def test_unclosed_bracket(self):
+        self.fails(files(comp={"bad": "calc([var(--tasty-size-4))"}), "components.css:", "unbalanced )")
 
     def test_comment_inside_a_value(self):
         self.fails(files(comp={"bad": "var(--tasty-size-4) /* x */ ;"}), "comment inside a value")
@@ -327,9 +387,15 @@ class Reading(Base):
         self.assertIn("semantic.css:", out)
         self.assertIn("components.css:", out)
 
+    def test_latte_value_in_another_tier(self):
+        out = self.fails(files(comp_latte={"accent": "var(--tasty-color-base)"}), "two tiers: --tasty-accent at")
+        self.assertIn("semantic.css:", out)
+        self.assertIn("its Latte value at", out)
+        self.assertIn("components.css:", out)
+
     def test_read_differently_from_collect(self):
         # collect() takes the text before a quoted { for a selector; this reader keeps the string
-        self.fails(files(prim={"font-family-x": '"a{b", sans-serif'}), "collect")
+        self.fails(files(prim={"font-family-x": '"a{b", sans-serif'}), "collect", "primitives.css:")
 
 
 if __name__ == "__main__":

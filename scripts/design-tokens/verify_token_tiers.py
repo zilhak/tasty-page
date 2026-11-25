@@ -15,12 +15,15 @@ It reads only tokens/primitives.css, tokens/semantic.css and tokens/components.c
 The tokens.css copy is compared by check-tokens-copy.mjs, not here.
 
 Declarations, read strictly (file:line on failure):
-  - Blocks are a base block (:root, ":root, [data-theme]" or
-    ':root, [data-theme="mocha"]') and an optional Latte block, exactly
-    [data-theme="latte"], after the base block. No other selectors, nesting or @-rules.
-  - Each declaration is --tasty-<name>: <value>; with <name> in [a-z0-9-]+. A value has
-    no comment, no !important, and no quoted semicolon. A quoted string is one atom; one
-    whose content would change when whitespace is collapsed is rejected.
+  - Each file has its tier's base block (BASE_SELECTOR) and an optional Latte block,
+    exactly [data-theme="latte"], after it. No other selectors, nesting or @-rules; only
+    CSS whitespace separates selector parts.
+  - Each declaration is --tasty-<name>: <value>; with <name> in [a-z0-9-]+. The value
+    ends at the first semicolon outside strings and outside () and [] blocks; a new
+    declaration before it is a missing semicolon. A backslash escapes the next character.
+    A value has no comment, no { or }, no ! at its top level (so no !important), no
+    unbalanced bracket and no quoted semicolon. A quoted string is one atom; one whose
+    content would change when whitespace is collapsed is rejected.
   - A name is declared once per theme and in one tier only.
   - The declarations must be the same set gen_tokens_json.collect() reads.
 
@@ -32,11 +35,14 @@ Rules, for base and Latte declarations each:
   R1   A component reads a primitive only from the size-, radius- and duration- scales.
   R2   The same check, with its own message for color- and alpha-.
   R4   A component value with no var() is a listed literal of the right shape (LITERALS).
+       Its first comment after the semicolon, on that line, is the @kind other marker;
+       the window shadow has no @kind marker in any comment there.
   Size, radius and duration primitives and component literals have no Latte value.
 
 Prints each violation and the counts, and exits 1 on any violation.
 """
 import os, re, sys
+from decimal import Decimal
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 sys.dont_write_bytecode = True  # keep __pycache__ out of the working tree
@@ -44,11 +50,20 @@ import gen_tokens_json as g
 from verify_ground_ink_tokens import var_arguments, var_functions
 
 FILES = {"primitive": "primitives.css", "semantic": "semantic.css", "component": "components.css"}
-BASE_SELECTORS = {":root", ":root, [data-theme]", ':root, [data-theme="mocha"]'}
+# The base block of each tier as the canon files have it. A primitive is themed by
+# [data-theme="mocha"]; semantic and component tokens repeat on every [data-theme] so a nested
+# theme wrapper computes their aliases again.
+BASE_SELECTOR = {
+    "primitive": ':root, [data-theme="mocha"]',
+    "semantic": ":root, [data-theme]",
+    "component": ":root, [data-theme]",
+}
 LATTE_SELECTOR = '[data-theme="latte"]'
+CSS_SPACE = re.compile(r"[ \t\n\r\f]+")  # CSS whitespace only; U+00A0 and the like are not
 NAME = re.compile(r"--tasty-([a-z0-9-]+)")
 REFERENCE = re.compile(r"var\(--tasty-([a-z0-9-]+)\)")
-NEW_DECLARATION = re.compile(r"\n\s*--[\w-]*\s*:")
+DECLARATION_START = re.compile(r"--[^\s:;{}()\[\]]*\s*:")
+CLOSE = {"(": ")", "[": "]"}
 MARKER = "/* @kind other */"
 PART_SCALES = ("size-", "radius-", "duration-")
 ROLE_SCALES = ("color-", "alpha-")
@@ -70,6 +85,7 @@ LENGTH = r"(?:0|-?[0-9]+px)"
 BLUR = r"(?:0|[0-9]+px)"
 SHADOW = re.compile(rf"({LENGTH}) ({LENGTH}) ({BLUR}) ({LENGTH}) rgba\(([^()]*)\)")
 ALPHA = re.compile(r"(?:[0-9]+(?:\.[0-9]+)?|\.[0-9]+)")
+POSITIVE = r"0*[1-9][0-9]*"
 
 
 def shadow_ok(value):
@@ -78,22 +94,27 @@ def shadow_ok(value):
         return False
     parts = [p.strip() for p in m.group(5).split(",")]
     return (len(parts) == 4 and parts[:3] == ["0", "0", "0"]
-            and bool(ALPHA.fullmatch(parts[3])) and float(parts[3]) <= 1)
+            and bool(ALPHA.fullmatch(parts[3])) and Decimal(parts[3]) <= 1)
 
 
 SHAPES = {
     "count": lambda v: re.fullmatch(r"[0-9]+", v) is not None,
     "coefficient": lambda v: re.fullmatch(r"0?\.[0-9]+|[0-9]+\.[0-9]+", v) is not None,
-    "dash": lambda v: re.fullmatch(r"[1-9][0-9]*(?: [1-9][0-9]*)+", v) is not None,
+    "dash": lambda v: re.fullmatch(rf"{POSITIVE}(?: {POSITIVE})+", v) is not None,
     "keyword": lambda v: v == "italic",
     "window-shadow": shadow_ok,
 }
 
 
 class Decl:
-    def __init__(self, tier, theme, key, value, path, line, marker):
+    def __init__(self, tier, theme, key, value, path, line, comments):
         self.tier, self.theme, self.key, self.value = tier, theme, key, value
-        self.path, self.line, self.marker = path, line, marker
+        self.path, self.line, self.comments = path, line, comments
+
+    @property
+    def marker(self):
+        """The first comment right after the semicolon, on its line."""
+        return self.comments[0] if self.comments else None
 
     @property
     def where(self):
@@ -123,7 +144,7 @@ class Reader:
     def skip_space_and_comments(self):
         t = self.text
         while self.i < len(t):
-            if t[self.i].isspace():
+            if t[self.i] in " \t\n\r\f":
                 self.i += 1
             elif t.startswith("/*", self.i):
                 end = t.find("*/", self.i + 2)
@@ -145,7 +166,7 @@ class Reader:
             stop = min(x for x in (t.find(";", start), t.find("}", start), len(t)) if x >= 0)
             if end < 0 or stop < end:
                 self.fail("text outside a block")
-            selector = re.sub(r"\s+", " ", t[start:end]).strip()
+            selector = CSS_SPACE.sub(" ", t[start:end]).strip(" ")
             if "/*" in selector or selector.startswith("@"):
                 self.fail(f"unsupported selector {selector!r}", start)
             if selector == LATTE_SELECTOR:
@@ -154,12 +175,13 @@ class Reader:
                 if seen_latte:
                     self.fail("a second Latte block", start)
                 seen_latte, theme = True, "latte"
-            elif selector in BASE_SELECTORS:
+            elif selector == BASE_SELECTOR[self.tier]:
                 if seen_base or seen_latte:
                     self.fail("a second base block, or a base block after the Latte block", start)
                 seen_base, theme = True, "mocha"
             else:
-                self.fail(f"unsupported selector {selector!r}", start)
+                self.fail(f"unsupported selector {selector!r}: the {self.tier} blocks are "
+                          f"{BASE_SELECTOR[self.tier]!r} and {LATTE_SELECTOR!r}", start)
             self.i = end + 1
             self.read_block(theme)
         return self.decls
@@ -182,14 +204,21 @@ class Reader:
                 self.fail(f"declaration name outside --tasty-[a-z0-9-]+: {name}")
             self.i = m.end()
             value, semi = self.read_value()
-            marker = self.marker_after(semi)
-            self.decls.append(Decl(self.tier, theme, n.group(1), value, self.path, self.line(semi), marker))
+            comments = self.comments_after(semi)
+            self.decls.append(Decl(self.tier, theme, n.group(1), value, self.path, self.line(semi), comments))
 
     def read_value(self):
+        """Reads up to the semicolon at the top level of the value: outside strings and
+        outside () and [] blocks, with a backslash escaping the next character."""
         t = self.text
-        start, depth = self.i, 0
+        start, stack = self.i, []
         while self.i < len(t):
             c = t[self.i]
+            if c == "\\":
+                if self.i + 1 >= len(t) or t[self.i + 1] == "\n":
+                    self.fail("a backslash at the end of a line")
+                self.i += 2
+                continue
             if c in "\"'":
                 close = self.i + 1
                 while close < len(t) and t[close] != c:
@@ -209,31 +238,34 @@ class Reader:
                 continue
             if t.startswith("/*", self.i):
                 self.fail("comment inside a value")
-            if c == "!":
-                self.fail("!important or ! inside a value")
-            if c == "(":
-                depth += 1
-            elif c == ")":
-                depth -= 1
-                if depth < 0:
-                    self.fail("unbalanced ) in a value")
-            elif c in "{}" and depth == 0:
-                self.fail("missing semicolon before the end of the block" if c == "}" else "nested rule")
-            elif c == ";" and depth == 0:
-                value = t[start:self.i]
-                if NEW_DECLARATION.search(value):
-                    self.fail("missing semicolon: a new declaration starts inside the value",
-                              start + NEW_DECLARATION.search(value).start() + 1)
-                semi = self.i
-                self.i += 1
-                return value.strip(), semi
+            if c in CLOSE:
+                stack.append(CLOSE[c])
+            elif c in ")]":
+                if not stack or stack.pop() != c:
+                    self.fail(f"unbalanced {c} in a value")
+            elif c in "{}":
+                self.fail("missing semicolon before the end of the block" if c == "}" and not stack
+                          else "a { or } inside a value")
+            elif not stack:
+                if c == "!":
+                    self.fail("!important or another ! at the top level of a value")
+                if c == "-" and (self.i == start or t[self.i - 1].isspace()) \
+                        and DECLARATION_START.match(t, self.i) and self.i > start:
+                    self.fail("missing semicolon: a new declaration starts inside the value")
+                if c == ";":
+                    semi = self.i
+                    self.i += 1
+                    return t[start:semi].strip(), semi
             self.i += 1
-        self.fail("missing semicolon at the end of the file")
+        self.fail("unclosed ( or [ in a value" if stack else "missing semicolon at the end of the file")
 
-    def marker_after(self, semi):
-        """The first comment on the line of the semicolon, right after it (only blanks between)."""
-        m = re.compile(r"[ \t]*(/\*.*?\*/)").match(self.text, semi + 1)
-        return m.group(1) if m else None
+    def comments_after(self, semi):
+        """The comments on the line of the semicolon, right after it (only blanks between)."""
+        out, at = [], semi + 1
+        while m := re.compile(r"[ \t]*(/\*.*?\*/)").match(self.text, at):
+            out.append(m.group(1))
+            at = m.end()
+        return out
 
 
 def references(d):
@@ -305,8 +337,13 @@ def check(project):
             errors.append(f"two tiers: --tasty-{d.key} at {owner_at[d.key].where} and {d.where}")
         owner_at.setdefault(d.key, d)
     for d in decls:
-        if d.theme == "latte" and (d.key not in owner_at or owner_at[d.key].tier != d.tier):
-            errors.append(f"Latte value without a base value in its tier: --tasty-{d.key} at {d.where}")
+        if d.theme != "latte":
+            continue
+        if d.key not in owner_at:
+            errors.append(f"Latte value without a base value: --tasty-{d.key} at {d.where}")
+        elif owner_at[d.key].tier != d.tier:
+            errors.append(f"two tiers: --tasty-{d.key} at {owner_at[d.key].where} and its Latte value "
+                          f"at {d.where}")
     if errors:
         return errors, None
 
@@ -318,15 +355,24 @@ def check(project):
     theirs = {(t, th, k, v) for t, (base, latte) in tiers.items()
               for th, m in (("mocha", base), ("latte", latte)) for k, v in m.items()}
     ours = {(d.tier, d.theme, d.key, d.collapsed) for d in decls}
+    at = {(d.tier, d.theme, d.key): d.where for d in decls}
+
+    def located(x):
+        return at.get(x[:3]) or f"{project}/tokens/{FILES[x[0]]}"
+
     for x in sorted(ours - theirs):
-        errors.append(f"read differently from collect(): {x}")
+        errors.append(f"read differently from collect(): {x} at {located(x)}")
     for x in sorted(theirs - ours):
-        errors.append(f"collect() reads a declaration this reader does not: {x}")
+        errors.append(f"collect() reads a declaration this reader does not: {x} near {located(x)}")
     if errors:
         return errors, None
 
     owner = {d.key: d.tier for d in decls if d.theme == "mocha"}
     base = {d.key: d for d in decls if d.theme == "mocha"}
+    latte = {d.key: d for d in decls if d.theme == "latte"}
+
+    def effective(theme, key):
+        return latte[key] if theme == "latte" and key in latte else base[key]
     counts = {
         "declarations": {"mocha": 0, "latte": 0},
         "var": {"mocha": 0, "latte": 0},
@@ -384,7 +430,7 @@ def check(project):
                 if not SHAPES[kind](d.collapsed):
                     errors.append(f"R4: {at}: {d.collapsed!r} is not a {kind}")
                 if kind == "window-shadow":
-                    if d.marker and "@kind" in d.marker:
+                    if any("@kind" in c for c in d.comments):
                         errors.append(f"R4: {at}: the window shadow takes no @kind marker")
                 elif d.marker != MARKER:
                     errors.append(f"R4: {at}: a {kind} literal needs {MARKER} right after its semicolon")
@@ -397,8 +443,9 @@ def check(project):
             targets = refs.get((theme, k)) if theme == "latte" and (theme, k) in refs else refs.get(("mocha", k), [])
             graph[k] = {t for t in targets if t in owner}
         for loop in cycles(graph):
+            places = ", ".join(sorted({effective(theme, x).where for x in loop[:-1]}))
             errors.append(f"R3a: alias cycle in {theme}: " + " -> ".join(f"--tasty-{x}" for x in loop)
-                          + f" ({base[loop[0]].where})")
+                          + f" (declared at {places})")
     return errors, counts
 
 
