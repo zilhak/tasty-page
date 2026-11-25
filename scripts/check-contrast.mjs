@@ -15,13 +15,15 @@
  * Browser: CHROMIUM_PATH, else the Playwright browser, else /snap/bin/chromium.
  * Time limit: from after the built pages are listed, the whole run, and any span with no progress (a browser call starting, or a step of the run such as
  * listen, launch or a context), are limited (TOTAL_S and STALL_S below, or CONTRAST_TIMEOUT_S and CONTRAST_STALL_S in
- * seconds). Past either it starts closing the browser, prints what was in flight, waits up to CLOSE_GRACE_MS for the
- * close and the --json report, and exits 3, also when the close fails or runs late. It cannot stop a run held by
- * synchronous work in this process (contrast-watchdog.mjs).
- * Report: --json is written by a child process (contrast-report.mjs), after the time limit has stopped on a finished run,
- * within CLOSE_GRACE_MS and then REAP_GRACE_MS for a killed writer. A finished run whose report fails to write exits 1,
- * one whose report runs late exits 3, and neither prints the verdict line. A timed out run exits 3 whatever its partial
- * report did. After 1 or 3 the file may be missing, empty or cut short.
+ * seconds). Past either it starts closing the browser, prints what was in flight, and waits for the close up to
+ * CLOSE_GRACE_MS and, at the same time, for the --json report as below, then up to FLUSH_GRACE_MS for stderr, and exits 3,
+ * also when the close or the report fails or runs late. It cannot stop a run held by synchronous work in this process
+ * (contrast-watchdog.mjs), the report's JSON.stringify included.
+ * Report: --json is written by a child process (contrast-report.mjs) within CLOSE_GRACE_MS, and a writer killed past
+ * that is waited for up to REAP_GRACE_MS more. A finished run writes it after the time limit has stopped. If the write
+ * fails it exits 1, if it runs late 3, each after one stderr line and up to FLUSH_GRACE_MS for stderr, and without the
+ * verdict line. A timed out run exits 3 whatever its partial report did. After 1 or 3 the file may be missing, empty or
+ * cut short. The child shares this process's stdout and stderr, so /dev/stdout and /dev/stderr work as paths.
  */
 import { createServer } from "node:http";
 import { existsSync, readFileSync, statSync } from "node:fs";

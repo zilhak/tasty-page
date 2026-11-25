@@ -8,7 +8,8 @@
  * on a kill) can leave the child running after the check has exited.
  *
  * The child gets the report on its stdin and the path as its own argument after --, so a path that starts with a
- * hyphen stays a path, and a relative path reads from the same working directory. It shares the check's stdout and
+ * hyphen stays a path, and a relative path reads from the same working directory. Its code is CommonJS whatever the
+ * caller's NODE_OPTIONS make the default module type. It shares the check's stdout and
  * stderr, so a path such as /dev/stdout still reaches the caller. It reports on file descriptor 3: a line "W" just
  * before it writes, and a line "E<message>" when the write fails.
  */
@@ -35,7 +36,7 @@ export function writeReport(path, text, { graceMs, reapMs, onWriting = null, exe
   return new Promise((done) => {
     let child;
     try {
-      child = spawn(execPath, ["-e", CHILD, "--", path], { stdio: ["pipe", "inherit", "inherit", "pipe"] });
+      child = spawn(execPath, ["--input-type=commonjs", "-e", CHILD, "--", path], { stdio: ["pipe", "inherit", "inherit", "pipe"] });
     } catch (error) {
       done(startFailed(error));
       return;
@@ -84,20 +85,23 @@ export function writeReport(path, text, { graceMs, reapMs, onWriting = null, exe
   });
 }
 
+// A path is printed as given, or quoted when it holds a line break, so a report line stays one line.
+const shown = (path) => (/[\r\n]/.test(path) ? JSON.stringify(path) : path);
+
 const lateNote = (path, written, graceMs) =>
-  `writing ${path} did not finish within ${graceMs / 1000}s${written.reaped ? "" : "; the writer was not seen to exit"}`;
+  `writing ${shown(path)} did not finish within ${graceMs / 1000}s${written.reaped ? "" : "; the writer was not seen to exit"}`;
 
 // How a run that finished its measuring ends. out is the verdict line for stdout, err a report line for stderr. A report
 // that failed to write ends the run with 1, one that ran late with 3, and neither prints the verdict.
 export function reportExit({ failed, json, written, graceMs }) {
   if (json === null || (written && written.ok)) return { code: failed ? 1 : 0, out: failed ? "check-contrast: FAILED" : "check-contrast: passed", err: null };
   if (written.late) return { code: 3, out: null, err: lateNote(json, written, graceMs) };
-  return { code: 1, out: null, err: `writing ${json} failed: ${String(written.error).slice(0, 200)}` };
+  return { code: 1, out: null, err: `writing ${shown(json)} failed: ${String(written.error).slice(0, 200)}` };
 }
 
 // The report line of a timed out run's partial report, or null when it was written or not asked for. The run ends with 3.
 export function timeoutWriteNote({ json, written, graceMs }) {
   if (json === null || !written || written.ok) return null;
   if (written.late) return lateNote(json, written, graceMs);
-  return `writing ${json} failed: ${String(written.error).slice(0, 200)}`;
+  return `writing ${shown(json)} failed: ${String(written.error).slice(0, 200)}`;
 }
