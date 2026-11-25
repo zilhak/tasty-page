@@ -41,16 +41,18 @@ export function createWatchdog({ totalMs, stallMs, onExpire, clock = systemClock
     onExpire({ reason, elapsedMs: now - start, inFlight });
   };
 
-  // True when a deadline has passed. Expires on the spot, so the caller sees expired before it changes anything.
-  const check = () => {
+  // True when a deadline has passed at now. Expires on the spot, so the caller sees expired before it changes anything.
+  // Progress reads the clock once and judges and records at that one time, so it cannot pass the check at one time and
+  // be recorded at a later one.
+  const checkAt = (now) => {
     if (expired) return true;
     if (stopped) return false;
-    const now = clock.now();
     const reason = reasonAt(now);
     if (reason === null) return false;
     expire(reason, now);
     return true;
   };
+  const check = () => checkAt(clock.now());
 
   const arm = () => {
     if (timer !== null) clock.clearTimeout(timer);
@@ -69,24 +71,25 @@ export function createWatchdog({ totalMs, stallMs, onExpire, clock = systemClock
   const begin = (label) => {
     const id = nextId;
     nextId += 1;
-    if (!check() && !stopped) {
-      const now = clock.now();
+    const now = clock.now();
+    if (!checkAt(now) && !stopped) {
       entries.set(id, { label, began: now, stepped: now });
       progress(now);
     }
     return {
       update(next) {
-        if (check() || stopped) return;
+        const at = clock.now();
+        if (checkAt(at) || stopped) return;
         const entry = entries.get(id);
         if (!entry) return;
-        const now = clock.now();
         entry.label = next;
-        entry.stepped = now;
-        progress(now);
+        entry.stepped = at;
+        progress(at);
       },
       end() {
-        if (check() || stopped) return;
-        if (entries.delete(id)) progress(clock.now());
+        const at = clock.now();
+        if (checkAt(at) || stopped) return;
+        if (entries.delete(id)) progress(at);
       },
     };
   };
@@ -145,6 +148,8 @@ export function tracked(target, watchdog, handle, where) {
         const label = `${where()} ${prop}`;
         if (prop !== "close" && watchdog.check()) throw new Expired(label);
         handle.update(label);
+        // The update itself can be the one that finds the deadline passed.
+        if (prop !== "close" && watchdog.expired) throw new Expired(label);
         const result = value.apply(obj, args);
         return CHAINED.has(prop) ? tracked(result, watchdog, handle, where) : result;
       };

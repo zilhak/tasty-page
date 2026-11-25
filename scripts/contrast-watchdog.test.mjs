@@ -187,3 +187,93 @@ test("a tracked object marks each call and refuses all but close after expiry", 
   assert.equal(s.calls[0].reason, "stall");
   assert.deepEqual(s.calls[0].inFlight.map((e) => e.label), ["site wide / mouse move"]);
 });
+
+test("a late begin or end, alone, changes nothing and expires on the old deadline", () => {
+  const lateBegin = setup(1000, 300);
+  lateBegin.skip(300);
+  lateBegin.wd.begin("late");
+  assert.equal(lateBegin.calls.length, 1);
+  assert.equal(lateBegin.calls[0].elapsedMs, 300);
+  assert.deepEqual(lateBegin.calls[0].inFlight, []);
+
+  const lateEnd = setup(1000, 300);
+  const h = lateEnd.wd.begin("open");
+  lateEnd.skip(300);
+  h.end();
+  assert.equal(lateEnd.calls.length, 1);
+  assert.equal(lateEnd.calls[0].elapsedMs, 300);
+  assert.deepEqual(lateEnd.calls[0].inFlight.map((e) => e.label), ["open"]);
+});
+
+test("progress judges and records at one reading of the clock", () => {
+  // Each reading moves 1ms, so a check at 299 and a record at 300 would slip past the deadline.
+  let now = 0;
+  const clock = { now: () => now, setTimeout: () => 0, clearTimeout: () => {} };
+  const calls = [];
+  const wd = createWatchdog({ totalMs: 1000, stallMs: 300, clock, onExpire: (e) => calls.push(e) });
+  now = 299;
+  const tick = clock.now;
+  clock.now = () => { const t = now; now += 1; return t; };
+  wd.begin("at 299");
+  clock.now = tick;
+  // Judged and recorded at 299, the stall deadline is 599. Recorded at the next reading, it would be 600.
+  now = 599;
+  wd.check();
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].reason, "stall");
+  assert.equal(calls[0].elapsedMs, 599);
+  assert.deepEqual(calls[0].inFlight.map((e) => e.label), ["at 299"]);
+});
+
+test("a tracked page marks each call of a locator chain and the keyboard, and refuses them after expiry", async () => {
+  const { tracked, Expired } = await import("./contrast-watchdog.mjs");
+  const s = setup(5000, 300);
+  const h = s.wd.begin("tab");
+  const page = {
+    getByText() { return { first: () => ({ click: () => Promise.resolve() }) }; },
+    locator() { return { count: () => 1 }; },
+    keyboard: { press() { return Promise.resolve(); } },
+    goto() { return Promise.resolve(); },
+  };
+  const tab = tracked(page, s.wd, h, () => "focus /");
+  const steps = [
+    () => tab.getByText("x"),
+    (r) => r.first(),
+    (r) => r.click(),
+    () => tab.locator("y").count(),
+    () => tab.keyboard.press("Tab"),
+  ];
+  let last;
+  for (const step of steps) {
+    s.advance(250);
+    last = step(last);
+  }
+  s.advance(250);
+  assert.equal(s.calls.length, 0, "every call in the chain moved the stall deadline");
+  s.skip(300);
+  assert.throws(() => tab.keyboard.press("Tab"), Expired);
+  assert.equal(s.calls[0].inFlight[0].label, "focus / keyboard press");
+
+  const t = setup(5000, 300);
+  const h2 = t.wd.begin("tab");
+  const tab2 = tracked(page, t.wd, h2, () => "rest /");
+  const loc = tab2.locator("y");
+  t.skip(300);
+  assert.throws(() => loc.count(), Expired);
+});
+
+test("the call whose own update finds the deadline passed does not start", async () => {
+  const { tracked, Expired } = await import("./contrast-watchdog.mjs");
+  let now = 0;
+  const clock = { now: () => now, setTimeout: () => 0, clearTimeout: () => {} };
+  const wd = createWatchdog({ totalMs: 1000, stallMs: 300, clock, onExpire: () => {} });
+  const h = wd.begin("tab");
+  let started = false;
+  const tab = tracked({ goto() { started = true; } }, wd, h, () => "rest /");
+  now = 299;
+  // The first check reads 299; the update reads 300, the deadline.
+  let reads = 0;
+  clock.now = () => (reads++ === 0 ? 299 : 300);
+  assert.throws(() => tab.goto(), Expired);
+  assert.equal(started, false);
+});
