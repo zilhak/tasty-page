@@ -682,6 +682,9 @@ function ImgSurface({ mode, panned, floating, focused = true }) {
   );
 }
 
+// A New Image size field is image-size-input-width across, border included, as the app sizes the whole field. Input
+// passes its style to the inner <input>, so the width sits on a box around it.
+const imgSizeField = { display: "flex", width: "var(--tasty-image-size-input-width)", flex: "none" };
 function Page() {
   return (
     <>
@@ -1292,7 +1295,7 @@ function Page() {
                 <div style={{ padding: "var(--tasty-image-popup-pad-top) var(--tasty-image-popup-pad-x) var(--tasty-image-popup-gap)" }}>
                   <div style={{ fontSize: "var(--tasty-image-popup-title-font-size)", fontWeight: "var(--tasty-image-popup-title-weight)", marginBottom: "var(--tasty-image-popup-gap)" }}>New Image</div>
                   <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-image-popup-btn-gap)", fontSize: 13, color: "var(--tasty-text-secondary)" }}>
-                    <span>Width</span><Input style={{ width: "var(--tasty-image-size-input-width)", flex: "none" }} defaultValue="800" /><span style={{ color: "var(--tasty-text-muted)" }}>×</span><span>Height</span><Input style={{ width: "var(--tasty-image-size-input-width)", flex: "none" }} defaultValue="600" />
+                    <span>Width</span><span style={imgSizeField}><Input block defaultValue="800" /></span><span style={{ color: "var(--tasty-text-muted)" }}>×</span><span>Height</span><span style={imgSizeField}><Input block defaultValue="600" /></span>
                   </div>
                 </div>
                 <div style={{ display: "flex", justifyContent: "flex-end", gap: "var(--tasty-image-popup-btn-gap)", padding: "0 var(--tasty-image-popup-pad-x) var(--tasty-image-popup-pad-top)" }}><Button variant="ghost" size="sm">Cancel</Button><Button variant="primary" size="sm">OK</Button></div>
