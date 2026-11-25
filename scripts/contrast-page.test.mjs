@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { missingCellRows, pageLib } from "./contrast-page.mjs";
-import { belowRecord, mismatchRecord } from "./contrast-site.mjs";
+import { measureGallery } from "./contrast-gallery.mjs";
+import { belowRecord, emptySiteTally, measureRest, mismatchRecord } from "./contrast-site.mjs";
 
 const { selectParts, validateParts, expectedTheme } = pageLib();
 const key = { component: "Title bar", state: "rest", host: "crust" };
@@ -135,7 +136,10 @@ class Node_ {
   simple(sel) {
     sel = sel.trim();
     if (sel.startsWith(".")) return this.cls.includes(sel.slice(1));
-    if (sel.startsWith("[")) return sel.slice(1, -1) in this.attrs;
+    if (sel.startsWith("[")) {
+      const [name, value] = sel.slice(1, -1).split("=");
+      return name in this.attrs && (value === undefined || this.attrs[name] === value.replace(/"/g, ""));
+    }
     return this.tagName.toLowerCase() === sel.toLowerCase();
   }
   matches(sel) { return sel.split(",").some((s) => this.simple(s)); }
@@ -144,6 +148,10 @@ class Node_ {
   querySelectorAll(sel) { return this.descendants().filter((e) => e.matches(sel)); }
   querySelector(sel) { return this.querySelectorAll(sel)[0] ?? null; }
   getBoundingClientRect() { return { width: this.box[0], height: this.box[1], left: 0, top: 0 }; }
+  getAttribute(name) { return name in this.attrs ? this.attrs[name] : null; }
+  get dataset() { return Object.fromEntries(Object.entries(this.attrs).filter(([k]) => k.startsWith("data-")).map(([k, v]) => [k.slice(5), v])); }
+  get ownerDocument() { return globalThis.document; }
+  scrollIntoView() {}
   get textContent() { return ""; }
   get className() { return this.cls.join(" "); }
   get childNodes() { return []; }
@@ -315,5 +323,59 @@ test("site records: a token miss on one paint and a grade miss on another report
   const pick = ({ got, ground, ratio, inks, off, low }) => ({ got, ground, ratio, inks, off, low });
   assert.deepEqual(pick(mismatchRecord(r)), { got: "#000000", ground: "#ffffff", ratio: 21, inks: 2, off: 1, low: undefined });
   assert.deepEqual(pick(belowRecord(r)), { got: "#e0e0e0", ground: "#ffffff", ratio: 1.32, inks: 2, off: 1, low: undefined });
+  delete globalThis.document;
+});
+
+test("measureGallery: a contract row on an svg part fails on its second stroke off the token", () => {
+  // Title bar restore: a rect and a path, the path's stroke off the token.
+  const restore = el("svg", { attrs: { "data-part": "restore" } }, [el("rect", stroke("rgb(166, 173, 200)")), el("path", stroke("rgb(255, 255, 255)"))]);
+  const cell = el("div", { attrs: { "data-contract": "Title bar", "data-state": "rest", "data-host": "crust" }, style: { backgroundColor: "rgb(17, 17, 27)" } }, [restore]);
+  const scope = el("div", { attrs: { "data-gallery-page": "" } }, [cell]);
+  const root = el("html", {}, [scope]);
+  globalThis.document = {
+    documentElement: root,
+    querySelectorAll: (sel) => (sel === "[data-gallery-page] [data-contract]" ? [cell] : []),
+    querySelector: (sel) => (sel === "[data-gallery-page]" ? scope : null),
+    createTreeWalker: () => ({ nextNode: () => null }),
+  };
+  globalThis.window = { __contrast: lib };
+  globalThis.NodeFilter = { SHOW_TEXT: 4 };
+  const row = { component: "Title bar", state: "rest", host: "crust", part: "restore", token: "glyph", role: "icon" };
+  const args = { rows: [row], tokens: { glyph: { mocha: "#a6adc8" } }, grades: { icon: { grade: 3, kind: "glyph" } }, partMap: {}, exemptIds: [], noGradeTokens: [], theme: "mocha" };
+  const [r] = measureGallery(args).rows;
+  assert.deepEqual([r.status, r.got, r.ground, r.inks, r.off], ["mismatch", "#ffffff", "#11111b", 2, 1]);
+  restore.children[1].style.stroke = "rgb(166, 173, 200)";
+  const [ok] = measureGallery(args).rows;
+  assert.deepEqual([ok.status, ok.got, ok.inks], ["ok", "#a6adc8", undefined]);
+  delete globalThis.window;
+  delete globalThis.document;
+  delete globalThis.NodeFilter;
+});
+
+test("aim: a pointer row takes a line with a box in one direction as its candidate", () => {
+  const line = el("line", { ...stroke("rgb(0, 0, 0)"), box: [24, 0] });
+  page([el("svg", {}, [line])]);
+  globalThis.window = {};
+  assert.notEqual(lib.aim("line:hover"), null);
+  assert.equal(globalThis.window.__aimed.target, line);
+  delete globalThis.window;
+  delete globalThis.document;
+});
+
+test("measureRest: a row missing the token on one paint and the grade on another records each paint", async () => {
+  const svg = el("svg", {}, [el("path", stroke("rgb(0, 0, 0)")), el("path", stroke("rgb(224, 224, 224)"))]);
+  page([el("button", { cls: ["icon-btn"] }, [svg])]);
+  const noScan = { text: 0, glyph: 0, inputs: 0, svgs: 0, pseudo: 0, paintServer: 0, below: [], picture: [], badExempt: [], exemptUses: {}, gradeNone: {} };
+  globalThis.window = { __contrast: { measureRows: lib.measureRows, scan: () => noScan } };
+  // The tab runs the page function here, against the stand-in DOM. Settling and installing the library do nothing.
+  const tab = { evaluate: async (fn, a) => (a && a.rows ? fn(a) : undefined), addScriptTag: async () => {} };
+  const row = { id: "header-icon", kind: "glyph", selector: ".icon-btn", token: "ink", grade: 3, state: "rest" };
+  const rules = { rows: [row], family: new Set(), tokens: { ink: { mocha: "#e0e0e0" } }, noGrade: () => [], exemptIds: [], grades: {} };
+  const t = emptySiteTally(rules);
+  await measureRest(tab, t, rules, "mocha", "guide/", "wide");
+  const pick = ({ got, ground, ratio, inks, off, low }) => ({ got, ground, ratio, inks, off, low });
+  assert.deepEqual(t.rows["header-icon"].mismatch.map(pick), [{ got: "#000000", ground: "#ffffff", ratio: 21, inks: 2, off: 1, low: undefined }]);
+  assert.deepEqual(t.rows["header-icon"].below.map(pick), [{ got: "#e0e0e0", ground: "#ffffff", ratio: 1.32, inks: 2, off: 1, low: undefined }]);
+  delete globalThis.window;
   delete globalThis.document;
 });
