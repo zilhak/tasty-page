@@ -630,18 +630,17 @@ function PluginsWindow({ onClose, onFlash, onConfigure, removedAttention, onRemo
     const on = tab === value;
     return (
       <button onClick={() => setTab(value)} style={{ appearance: "none", cursor: "pointer", border: 0,
-        height: 26, padding: "0 var(--tasty-space-md)", borderRadius: "var(--tasty-radius-sm)", display: "inline-flex",
+        height: 26, padding: "0 var(--tasty-space-md)", borderRadius: "var(--tasty-radius)", display: "inline-flex",
         alignItems: "center", gap: "var(--tasty-space-sm)", fontFamily: "var(--tasty-font-ui)", fontSize: "var(--tasty-font-size-term-sm)",
-        fontWeight: on ? 600 : 400, color: on ? "var(--tasty-text-primary)" : "var(--tasty-text-on-active)",
+        fontWeight: on ? 600 : 400, color: on ? "var(--tasty-text-primary)" : "var(--tasty-text-muted)",
         background: on ? "var(--tasty-surface-raised)" : "transparent",
         boxShadow: on ? "inset 0 0 0 var(--tasty-border-width) var(--tasty-border-default)" : "none",
-        /* keyboard focus: the tabs sit on the surface-active pill, and on the active ground the focus ring reads
-           accent-primary-raised (RULES focus-ring); border-focus there is under 3:1 in Latte. The ring reads it through
-           plugins-tab-focus-ring, which resolves at the theme root, so no ink swap for the pill's own content reaches it. */
-        outlineColor: "var(--tasty-plugins-tab-focus-ring)", outlineOffset: "var(--tasty-focus-ring-offset)" }}>
+        /* as the app: the tabs sit side by side on the header's mantle, and only the selected one is filled (raised,
+           1px border-default). The keyboard focus ring is base.css's, 1px off the tab, on mantle: border-focus. */
+        outlineOffset: "var(--tasty-focus-ring-offset)" }}>
         {label}
         {count != null && !danger && <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)",
-          color: on ? "var(--tasty-text-secondary-raised)" : "var(--tasty-text-on-active)" }}>{count}</span>}
+          color: on ? "var(--tasty-text-secondary-raised)" : "var(--tasty-text-muted)" }}>{count}</span>}
         {danger && count > 0 && <Badge variant="danger">{count}</Badge>}
       </button>
     );
@@ -790,8 +789,7 @@ function PluginsWindow({ onClose, onFlash, onConfigure, removedAttention, onRemo
           </span>
           <span style={{ fontSize: 14, fontWeight: 700, color: "var(--tasty-text-primary)", letterSpacing: "var(--tasty-letter-spacing-ui)" }}>Plugins</span>
           <span style={{ width: 1, height: 20, background: "var(--tasty-separator)", margin: "0 var(--tasty-space-sm)" }} />
-          <div style={{ display: "flex", gap: 2, padding: 2, borderRadius: "var(--tasty-radius)",
-            background: "var(--tasty-surface-active)" }}>
+          <div style={{ display: "flex", gap: 2 }}>
             <Seg value="installed" label="Installed" count={installedCount} />
             <Seg value="attention" label="Attention" count={attentionCount} danger />
             <Seg value="add" label="Add plugin" />
