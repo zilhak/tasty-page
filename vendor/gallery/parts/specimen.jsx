@@ -25,6 +25,9 @@ const flat = (children) => React.Children.toArray(children).flatMap((c) => (c &&
 
 export function Spec({ id, title, badges, when, children }) {
   const states = useContext(StatesContext);
+  // A page whose specs appear after a fetch (Rules, Rules map) has no stage to start the hash entry, and the browser
+  // found no target when it loaded, so the spec starts it too.
+  useEffect(() => { startHashEntry(); }, []);
   const kids = flat(children);
   const metas = kids.filter((c) => c && c.type === Meta);
   const views = kids.filter((c) => c && c.type === Views);
@@ -79,7 +82,8 @@ export function View({ name, label, wide, children }) {
 
 // A page opened at #id, or a link to #id on the page, mounts every stage up to that id at once, then keeps the id at
 // the top while those stages lay out. Mounting them only near the viewport let each one grow after the jump and push
-// the id down. The reader's first wheel, touch, key or pointer press ends the hold, and so does a quiet layout.
+// the id down. The hold checks the id's place every 150ms and puts it back when it moved. It ends when the id has stayed
+// put for 600ms, after 5s, or at the reader's first wheel, touch, key or pointer press.
 const hashListeners = new Set();
 const hashTarget = () => {
   const id = decodeURIComponent(window.location.hash.slice(1));
@@ -88,26 +92,26 @@ const hashTarget = () => {
 const upToTarget = (el, target) => !!target && (el === target || el.contains(target) || target.contains(el)
   || !!(el.compareDocumentPosition(target) & Node.DOCUMENT_POSITION_FOLLOWING));
 let hashHold = null;
-const HOLD_QUIET = 600;
+const HOLD_TICK = 150;
+const HOLD_STILL = 4;
 const HOLD_MAX = 5000;
 function holdHashTarget() {
   if (hashHold) hashHold();
   const target = hashTarget();
   if (!target) return;
-  const place = () => target.scrollIntoView({ block: "start" });
+  let at = 0, still = 0;
+  const place = () => { target.scrollIntoView({ block: "start" }); at = target.getBoundingClientRect().top; };
   const ends = ["wheel", "touchstart", "keydown", "pointerdown"];
-  let quiet = null;
-  const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(() => { place(); clearTimeout(quiet); quiet = setTimeout(stop, HOLD_QUIET); }) : null;
-  const cap = setTimeout(() => stop(), HOLD_MAX);
+  const tick = setInterval(() => {
+    if (Math.abs(target.getBoundingClientRect().top - at) > 1) { place(); still = 0; } else if (++still >= HOLD_STILL) stop();
+  }, HOLD_TICK);
+  const cap = setTimeout(stop, HOLD_MAX);
   function stop() {
-    if (ro) ro.disconnect();
-    clearTimeout(quiet); clearTimeout(cap);
+    clearInterval(tick); clearTimeout(cap);
     ends.forEach((e) => window.removeEventListener(e, stop, true));
     if (hashHold === stop) hashHold = null;
   }
   ends.forEach((e) => window.addEventListener(e, stop, { capture: true, passive: true }));
-  if (ro) ro.observe(document.body);
-  quiet = setTimeout(stop, HOLD_QUIET);
   hashHold = stop;
   place();
 }
