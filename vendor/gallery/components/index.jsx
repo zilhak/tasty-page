@@ -551,8 +551,8 @@ function Components() {
             </div>
           </Stage>
           <Meta
-            specs={[["blink", "off · egui text_cursor.blink = false"], ["width", "1 · text-primary ink"], ["shown", "field focused AND window focused"], ["cost", "no idle repaint while a field is focused"]]}
-            tokens={[{ tok: "--tasty-border-focus", use: "focus edge", color: "var(--tasty-border-focus)" }]} />
+            specs={[["blink", "off · egui text_cursor.blink = false"], ["width", "1 · text-primary ink"], ["height", <>1 egui text row · <span className="tok">--tasty-caret-specimen-height</span> = 1.0741 × <span className="tok">--tasty-input-font-size</span> · 13.96 at 13</>], ["shown", "field focused AND window focused"], ["cost", "no idle repaint while a field is focused"]]}
+            tokens={[{ tok: "--tasty-border-focus", use: "focus edge", color: "var(--tasty-border-focus)" }, { tok: "--tasty-text-primary", use: "caret ink", color: "var(--tasty-text-primary)" }, { tok: "--tasty-caret-specimen-height", use: "caret height" }]} />
         </Spec>
       </Section>
 
