@@ -159,8 +159,8 @@ function StatusBar({ surfaceId, theme = "Mocha", onTheme, onPalette }) {
       <button type="button" style={btn} onClick={onTheme} aria-label="Toggle theme"
         onMouseEnter={(e) => (e.currentTarget.style.color = "var(--tasty-text-secondary)")}
         onMouseLeave={(e) => (e.currentTarget.style.color = "var(--tasty-text-muted)")}>
-        <span style={{ width: "var(--tasty-size-8)", height: "var(--tasty-size-8)", borderRadius: "var(--tasty-radius-pill)",
-          background: /latte/i.test(theme) ? "var(--tasty-color-yellow)" : "var(--tasty-color-mauve)" }} />{" "}
+        <span style={{ display: "inline-flex", color: "var(--tasty-statusbar-theme-glyph)" }}>
+          <MdI name={/latte/i.test(theme) ? "sun" : "theme"} size="var(--tasty-statusbar-glyph-size)" /></span>{" "}
         {theme ? theme.charAt(0).toUpperCase() + theme.slice(1) : "Mocha"}
       </button>
     </div>
