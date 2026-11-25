@@ -1514,6 +1514,7 @@
   /* 2026-10-06 — command palette list cap · remote protocol filter */
   --tasty-palette-list-max-height:     var(--tasty-size-320); /* list grows to 11 rows then scrolls; ON-SCALE with control-height. List padding = space-sm on all four sides (no extra footer gap) */
   --tasty-remote-filter-dropdown-width: var(--tasty-size-240); /* BORDER-BOX width (includes the 1px border) of the protocol-filter popover; content = 240 − 2 */
+  --tasty-remote-filter-list-max-height: var(--tasty-size-168); /* 2026-11-26 protocol-filter list: scrolls past this height so the popover never grows out of the window. The app's FILTER_DROPDOWN_MAX_HEIGHT */
 
   /* 2026-10-06 (batch 2) — palette width · settings window · toast offset · brand lockup · font preview · CodeArea */
   --tasty-palette-width:               var(--tasty-size-540);  /* command palette card; ON-SCALE (× UI zoom) */

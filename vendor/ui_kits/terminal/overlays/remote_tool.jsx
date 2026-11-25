@@ -595,7 +595,7 @@ function ProtocolFilter({ protocols, hidden, onApply }) {
             <div style={{ padding: "var(--tasty-space-sm) var(--tasty-space-md)", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)",
               fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-micro)", textTransform: "uppercase",
               letterSpacing: "var(--tasty-letter-spacing-caps)", color: "var(--tasty-text-muted)" }}>Filter by protocol</div>
-            <div className="tasty-scroll" style={{ overflow: "auto", padding: "var(--tasty-space-sm) var(--tasty-space-md)",
+            <div className="tasty-scroll" style={{ maxHeight: "var(--tasty-remote-filter-list-max-height)", overflow: "auto", padding: "var(--tasty-space-sm) var(--tasty-space-md)",
               display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
               {protocols.length === 0 ? (
                 <span style={{ ...rtCaption, fontStyle: "var(--tasty-font-style-absent)" }}>No protocols.</span>

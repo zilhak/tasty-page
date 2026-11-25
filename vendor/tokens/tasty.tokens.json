@@ -6003,6 +6003,10 @@
       "$type": "dimension",
       "$value": "{primitive.size-240}"
     },
+    "remote-filter-list-max-height": {
+      "$type": "dimension",
+      "$value": "{primitive.size-168}"
+    },
     "palette-width": {
       "$type": "dimension",
       "$value": "{primitive.size-540}"
