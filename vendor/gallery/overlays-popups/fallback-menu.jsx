@@ -41,7 +41,7 @@ function FallbackWindow({ w, h, click, caption, children }) {
       <div data-fallback-window="" style={{ position: "relative", width: w, height: h, overflow: "hidden", borderRadius: "var(--tasty-radius)",
         border: "var(--tasty-border-width) solid var(--tasty-border-default)", background: "var(--tasty-bg-panel)" }}>
         {click && <span aria-hidden="true" style={{ position: "absolute", left: click.x - 2, top: click.y - 2, width: "var(--tasty-space-xs)", height: "var(--tasty-space-xs)",
-          borderRadius: "var(--tasty-radius-full)", background: "var(--tasty-border-focus)" }} />}
+          borderRadius: "var(--tasty-radius-pill)", background: "var(--tasty-border-focus)" }} />}
         {children}
       </div>
     </div>

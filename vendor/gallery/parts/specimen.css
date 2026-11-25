@@ -173,7 +173,7 @@
   background-size: var(--tasty-size-4) var(--tasty-size-4);
 }
 .tasty-scroll::-webkit-scrollbar { width: var(--tasty-size-10); height: var(--tasty-size-10); }
-.tasty-scroll::-webkit-scrollbar-thumb { border: var(--tasty-size-2) solid transparent; border-radius: var(--tasty-radius-full); background: var(--tasty-scrollbar-thumb); background-clip: padding-box; }
+.tasty-scroll::-webkit-scrollbar-thumb { border: var(--tasty-size-2) solid transparent; border-radius: var(--tasty-radius-pill); background: var(--tasty-scrollbar-thumb); background-clip: padding-box; }
 .tasty-scroll::-webkit-scrollbar-thumb:hover { border: var(--tasty-size-2) solid transparent; background: var(--tasty-scrollbar-thumb-hover); background-clip: padding-box; }
 
 @media (max-width: 900px) {

@@ -378,7 +378,7 @@ import { Section, Spec, Stage, Meta, Note, Do, Dont } from "../parts/specimen.js
           <div style={{ flex: 1 }} />
           {dirty && (
             <span title="Draft — applied on OK" style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-xs)", flex: "none", fontSize: 11, color: "var(--tasty-text-muted)" }}>
-              <span style={{ width: 6, height: 6, borderRadius: "var(--tasty-radius-full)", background: "var(--tasty-preset-cfg-draft-fg)" }} />unsaved
+              <span style={{ width: 6, height: 6, borderRadius: "var(--tasty-radius-pill)", background: "var(--tasty-preset-cfg-draft-fg)" }} />unsaved
             </span>
           )}
         </div>
