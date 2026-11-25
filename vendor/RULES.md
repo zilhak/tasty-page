@@ -1249,19 +1249,20 @@ Do not add a fainter ink to get order back. An ink under grade is a failure, wha
 
 **Label family.** A small label that draws words from the translation catalog reads `font-label`: section headings, column headings, Tags, status words and counters with a word in them. Its value depends on the UI language, not on the string.
 
-| UI language | `font-label` | Catalog strings with a letter the mono face lacks |
-|---|---|---|
-| en | `font-mono` | 0 of 3888 |
-| ko | `font-mono` | 0 of 3818 |
-| ja | `font-ui` | 1821 of 3818 |
-| zh-Hans | `font-ui` | 3425 of 3818 |
+| UI language | `font-ui` | `font-label` | Catalog strings with Han, kana or CJK punctuation |
+|---|---|---|---|
+| en | `font-family-ui` | `font-mono` | 0 of 3892 |
+| ko | `font-family-ui` | `font-mono` | 0 of 3822 |
+| ja | `font-family-ui-ja` | `font-ui` | 3768 of 3822 |
+| zh-Hans | `font-family-ui-zh-hans` | `font-ui` | 3773 of 3822 |
 
-- **Why.** A label reads the family of the words around it. In en and ko D2Coding holds every letter of the catalog. In ja and zh-Hans it does not: it holds kana and 4620 Han in Korean forms, and the rest falls through to the system font. `font-ui` starts with D2Coding in every language too, so where `font-label` reads `font-ui` a label changes face in the same places as the sentences around it, not in places of its own. Han from D2Coding and Han from the system font meet in 1742 of 3818 ja strings and 3303 of 3818 zh-Hans strings.
+- **Why.** A label reads the family of the words around it. In en and ko D2Coding holds every letter of the catalog, and `font-ui` and `font-mono` both draw it. In ja and zh-Hans D2Coding holds kana and 4620 Han in Korean forms but not the rest, so with D2Coding first Han from D2Coding and Han from the system font met in 1746 of 3822 ja strings and 3307 of 3822 zh-Hans strings, sometimes inside one word. So in these two languages `font-ui` starts with D2Coding under a range that leaves out Han, kana, CJK punctuation and full-width forms (the CJK ranges below), and the language's own CJK font draws them. Every Han in a string then comes from one face, in the language's forms. `font-mono` keeps the whole of D2Coding, so a label reading it would still draw Korean-form Han: the label reads `font-ui`.
 - **By language, not by string.** Choosing per string would set neighbouring labels in different faces, and having the letter says nothing about its form.
 - **What stays.** Size, weight, ink, tracking and uppercase stay as the label has them. Uppercase does not touch Han or kana. The label keeps its truncation.
 - **Row height and baseline.** The row height is exact, down to a fraction of a pixel. Where `font-label` reads `font-ui`, the label takes the line height and the baseline that `font-mono` has at the same size, so changing the language moves no layout and a label shares one baseline with a mono count in its row. Both follow the mono metrics. They are not a stored offset. An icon stays centred in its row. Body text in `font-ui` does not move.
 - **Latin in a `font-ui` label.** Latin draws in D2Coding, the face it has in an en or ko label. No second face, synthetic bold or brighter ink is added.
-- **Where this is judged.** The browser gallery draws D2Coding for both families, but the font after it is the browser's system font, not the app's. Where Han meets D2Coding, and the row height and baseline above, are measured in the app. The specimen shows the arrangement.
+- **CJK ranges.** In ja and zh-Hans, D2Coding draws nothing in U+2E80–2FFF, U+3000–303F, U+3040–30FF, U+3100–312F, U+3190–31FF, U+3400–4DBF, U+4E00–9FFF, U+F900–FAFF, U+FE10–FE1F, U+FE30–FE4F, U+FF00–FF9F, U+FFE0–FFE6, U+1AFF0–1B16F and U+20000–3FFFF: radicals, CJK punctuation, kana, Han and its extensions, compatibility ideographs, vertical forms, full-width and half-width forms and kana supplements. Those characters take the language's CJK font, then the system sans. Latin, digits, Hangul (Hangul compatibility jamo and half-width Hangul included), general punctuation such as … — “ ”, symbols, box drawing, and the enclosed and squared CJK letters (U+3200–33FF, which hold Hangul and units) stay in D2Coding. CJK punctuation and full-width forms leave with the Han: their place in the em differs by language, and in the catalog they sit between Han (、。「」（）：？ in ja, 、。，：；？（） in zh-Hans).
+- **Where this is judged.** The browser gallery draws D2Coding for both families, but the CJK font after it is the browser's system font, not the app's. Which face draws each character can be read in the browser. The row height and baseline above, and how the app's CJK font sits beside D2Coding, are measured in the app. The specimen shows the arrangement.
 - **One run, one family.** A value inside a translated string takes the label family with the words. Where the value has to be mono, it is its own run.
 - **Stays mono in every language.** Terminal cells, code and commands, paths, IDs, permissions, surface kinds, versions, ports, sizes, times, counts with no word, keycaps, the wordmark, and Tags that hold one of these (`Tag mono`).
 
