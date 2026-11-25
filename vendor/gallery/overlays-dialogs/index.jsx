@@ -139,7 +139,7 @@ function Page() {
           when={<>Shown when an agent requests a privileged or destructive action. The <b>mauve agent accent</b> in the header and tag makes it unmistakable. Show the <b>exact command</b>, the requesting plugin, the target surface ID, and the permission tags. Three responses: deny / allow once / always.</>}>
           <Stage variant="solo center"><Backdrop height={420} scrim={false}><ApprovalFrame /></Backdrop></Stage>
           <Meta
-            specs={[["width", "440px"], ["scrim", "none · the window under it keeps taking input"], ["shadow", <span className="tok">--tasty-shadow-popover</span>], ["header dot", <span className="tok">--tasty-accent-agent</span>], ["command", "mono on #000"], ["actions", "ghost / secondary / agent"]]}
+            specs={[["width", "480px"], ["scrim", "none · the window under it keeps taking input"], ["shadow", <span className="tok">--tasty-shadow-popover</span>], ["header dot", <span className="tok">--tasty-accent-agent</span>], ["command", "mono on #000"], ["actions", "ghost / secondary / agent"]]}
             tokens={[{ tok: "--tasty-accent-agent", use: "agent gate", color: "var(--tasty-accent-agent-raised)" }, { tok: "--tasty-accent-danger", use: "destructive tag", color: "var(--tasty-accent-danger-raised)" }, { tok: "--tasty-bg-panel", use: "frame", color: "var(--tasty-bg-panel)" }, { tok: "--tasty-shadow-popover", use: "lift with no scrim" }]} />
           <Do><b>Do</b> name the actor and show the literal command. The user is granting authority — make the stakes legible.</Do>
         </Spec>

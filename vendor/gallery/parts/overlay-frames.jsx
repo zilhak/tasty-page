@@ -100,7 +100,7 @@ function PaletteFrame({ opaque = false, focused = false, value = "", rows = 4 } 
     { label: "Settings", sc: "Ctrl+,", icon: ic.settings },
   ];
   return (
-    <div align="top" style={{ width: 480, background: "var(--tasty-surface-raised)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)",
+    <div align="top" style={{ width: "var(--tasty-palette-width)", flex: "none", background: "var(--tasty-surface-raised)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)",
       borderRadius: opaque ? "var(--tasty-webview-opaque-radius)" : "var(--tasty-radius)", overflow: "hidden", boxShadow: opaque ? "var(--tasty-webview-opaque-shadow)" : "var(--tasty-shadow-modal)" }}>
       <div style={{ padding: 10, borderBottom: "var(--tasty-border-width) solid var(--tasty-border-strong)" }}>
         <Input block ground="raised" focused={focused} icon={ic.search} placeholder="Type to search commands…" defaultValue={value} />
@@ -123,7 +123,7 @@ function PaletteFrame({ opaque = false, focused = false, value = "", rows = 4 } 
 // popover shadow, the lift of a floating surface with no scrim.
 function ApprovalFrame() {
   return (
-    <div style={{ width: 440, background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)",
+    <div style={{ width: 480, flex: "none", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)",
       borderRadius: "var(--tasty-radius)", overflow: "hidden", boxShadow: "var(--tasty-shadow-popover)" }}>
       <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-transfer-header-pad-y) var(--tasty-transfer-pad-x)", borderBottom: "1px solid var(--tasty-separator)" }}>
         <span style={{ width: 7, height: 7, borderRadius: "50%", background: "var(--tasty-accent-agent)" }} />
