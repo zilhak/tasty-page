@@ -49,9 +49,13 @@ export function WindowAnatomy({ labels }) {
               </div>
             </Part>
             <Part label={labels.statusbar}>
-              <div className="shell__status">
-                <StatusBar surfaceId="s_01" theme="Mocha" onTheme={noop} onPalette={noop} />
-              </div>
+              {/* Static markup cannot read the page theme, so the diagram carries one
+                  status bar per theme and app-shell.css shows the page's. */}
+              {["Mocha", "Latte"].map((theme) => (
+                <div key={theme} className="shell__status" data-anat-theme={theme.toLowerCase()}>
+                  <StatusBar surfaceId="s_01" theme={theme} onTheme={noop} onPalette={noop} />
+                </div>
+              ))}
             </Part>
           </div>
         </div>

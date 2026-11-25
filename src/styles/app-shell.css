@@ -98,6 +98,9 @@
   container-type: inline-size;
 }
 .anat-window { overflow-x: auto; overflow-y: hidden; }
+/* The window anatomy holds a status bar per theme. Show the one for the page theme. */
+:root:not([data-theme="latte"]) .anat-window [data-anat-theme="latte"],
+:root[data-theme="latte"] .anat-window [data-anat-theme="mocha"] { display: none; }
 .anat-settings { overflow-x: auto; overflow-y: hidden; }
 .anat-window .shell { height: 420px; }
 
