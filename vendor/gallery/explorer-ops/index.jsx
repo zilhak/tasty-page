@@ -386,19 +386,19 @@ function FollowupsSection() {
       <YSpec id="find-every-view-highlights-while-filtering-no-matches-skipped-ca" title="Find — every view highlights · `..` while filtering · no matches · skipped · cap · More rows"
         when={<>The matched part takes <span className="tok">--tasty-explorer-match-fg</span> in <b>all three views</b> (Detail, List, Grid), filter and search alike. While <b>filtering</b> the <code>..</code> row stays at the top: it is navigation, never matched, never counted in “{"{shown}"} of {"{total}"}”; recursive results drop it (they replace the listing). A filter with <b>no matches</b> keeps the bar (“0 of 6”) and shows the state screen with a filter line — <b>“No names match “{"{query}"}””</b>, no sub-line. One unreadable folder reads <b>“1 folder skipped”</b>. A recursive search <b>stops at 5,000</b> results: the bar reads “5,000+ found · stopped”, the results stay, and a muted line asks for a longer query. Native menus have no check mark, so the <b>More</b> rows say the action: <b>Find / Close find</b>, <b>Show preview / Hide preview</b> — and Preview folds into More with the rest of the view group under 440.</>}>
         <YStage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 16, flexWrap: "wrap", alignItems: "flex-start" }}>
-          <XCol label="List — filter “re” · .. kept" w={360}>
-            <XCell w={360} h={190} toolbar={<XToolbar search view="list" />} bar={<XFindBar value="re" right="2 of 6" />} status="2 of 6 items">
+          <XCol label="List — filter “po” · .. kept" w={360}>
+            <XCell w={360} h={190} toolbar={<XToolbar search view="list" />} bar={<XFindBar value="po" right="2 of 6" />} status="2 of 6 items">
               <div style={{ flex: 1, padding: 4, display: "flex", flexDirection: "column" }}>
                 <XListRow glyph={YK.ic.folder} name=".." />
-                <XListRow glyph={YK.ic.file} name={<XHi text="report.pdf" q="re" selected />} state="selected" />
-                <XListRow glyph={YK.ic.folder} name={<XHi text="mockup-exports" q="re" />} />
+                <XListRow glyph={YK.ic.file} name={<XHi text="report.pdf" q="po" selected />} state="selected" />
+                <XListRow glyph={YK.ic.folder} name={<XHi text="mockup-exports" q="po" />} />
               </div>
             </XCell>
           </XCol>
           <XCol label="Grid — same highlight" w={360}>
-            <XCell w={360} h={190} toolbar={<XToolbar search view="grid" />} bar={<XFindBar value="re" right="2 of 6" />}>
+            <XCell w={360} h={190} toolbar={<XToolbar search view="grid" />} bar={<XFindBar value="po" right="2 of 6" />}>
               <div style={{ flex: 1, display: "flex", gap: 4, padding: 8 }}>
-                <YGridHit name=".." q="" glyph={YK.ic.folder} /><YGridHit name="report.pdf" q="re" /><YGridHit name="mockup-exports" q="re" glyph={YK.ic.folder} />
+                <YGridHit name=".." q="" glyph={YK.ic.folder} /><YGridHit name="report.pdf" q="po" /><YGridHit name="mockup-exports" q="po" glyph={YK.ic.folder} />
               </div>
             </XCell>
           </XCol>
