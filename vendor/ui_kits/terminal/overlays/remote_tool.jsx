@@ -143,7 +143,7 @@ function ProfileRow({ p, passkeyNames, onRedetect, onEdit, onDelete }) {
         {/* row 1 — name + type badge */}
         <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", minWidth: 0 }}>
           <span style={{ fontSize: "var(--tasty-font-size-heading)", fontWeight: "var(--tasty-font-weight-semibold)", lineHeight: "var(--tasty-line-height-ui)", flex: "0 1 auto",
-            color: disabled ? "var(--tasty-text-disabled)" : "var(--tasty-text-primary)",
+            color: disabled ? "var(--tasty-text-muted)" : "var(--tasty-text-primary)",
             overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
             {p.name}{p.label && <span style={{ fontWeight: "var(--tasty-font-weight-normal)", color: "var(--tasty-text-muted)" }}>  ({p.label})</span>}
           </span>
@@ -425,7 +425,7 @@ function AttachRow({ a, sshProfileNames, onEdit, onDelete }) {
         {/* row 1 — name + mode/state badge */}
         <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", minWidth: 0 }}>
           <span style={{ fontSize: "var(--tasty-font-size-heading)", fontWeight: "var(--tasty-font-weight-semibold)", lineHeight: "var(--tasty-line-height-ui)", flex: "0 1 auto",
-            color: inactive ? "var(--tasty-text-disabled)" : "var(--tasty-text-primary)",
+            color: inactive ? "var(--tasty-text-muted)" : "var(--tasty-text-primary)",
             overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
             {a.name}{a.label && <span style={{ fontWeight: "var(--tasty-font-weight-normal)", color: "var(--tasty-text-muted)" }}>  ({a.label})</span>}
           </span>
