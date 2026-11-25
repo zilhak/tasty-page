@@ -10,7 +10,7 @@
 import { existsSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { LANGS } from "../src/lib/langs.mjs";
-import { installPageLib, stylesSettled } from "./contrast-page.mjs";
+import { installPageLib, pageLib, stylesSettled } from "./contrast-page.mjs";
 import { NO_WATCHDOG, tracked } from "./contrast-watchdog.mjs";
 
 const VIEWPORTS = [{ name: "wide", width: 1440, height: 1000 }, { name: "narrow", width: 390, height: 844 }];
@@ -153,19 +153,45 @@ async function withTab(env, at, fn) {
   return true;
 }
 
-// Records which page first shows each pointer row's element, since most pages do not have all of them.
-async function recordAlts(tab, t, rules, page) {
+const { alternatives } = pageLib();
+const pointerRows = (rules) => rules.rows.filter((r) => r.state === "hover" || r.state === "press");
+
+// Keeps, for each pointer row alternative, the page that shows it and comes first in the page list, so the page does not
+// depend on which tab finished first. The root page is "", which counts as found.
+export function recordFound(altsFound, keys, page, rankOf) {
+  for (const key of keys) {
+    if (!Object.hasOwn(altsFound, key) || rankOf(page) < rankOf(altsFound[key])) altsFound[key] = page;
+  }
+}
+
+// The found alternatives in rule row order, and within a row in the order of its selector's alternatives. Keys no row
+// names keep their place after those. The pointer pass visits them in this order and the --json report lists them so.
+export function orderFound(altsFound, rows) {
+  const ordered = {};
+  for (const row of rows) {
+    for (const alt of alternatives(row.selector)) {
+      const key = `${row.id}\n${alt}`;
+      if (Object.hasOwn(altsFound, key)) ordered[key] = altsFound[key];
+    }
+  }
+  for (const key of Object.keys(altsFound)) if (!Object.hasOwn(ordered, key)) ordered[key] = altsFound[key];
+  return ordered;
+}
+
+// Records which page shows each pointer row's element, since most pages do not have all of them (recordFound).
+async function recordAlts(tab, t, rules, page, rankOf) {
   await installPageLib(tab);
-  const rows = rules.rows.filter((r) => r.state === "hover" || r.state === "press");
   const found = await tab.evaluate((list) => {
     const lib = window.__contrast;
     return list.flatMap((row) => lib.alternatives(row.selector).filter((alt) => lib.pick(alt).some((e) => lib.visible(e) || e.parentElement && lib.visible(e.parentElement))).map((alt) => `${row.id}\n${alt}`));
-  }, rows);
-  found.forEach((key) => { if (!t.altsFound[key]) t.altsFound[key] = page; });
+  }, pointerRows(rules));
+  recordFound(t.altsFound, found, page, rankOf);
 }
 
 async function restPass(env, origin, pages, t, rules, theme, viewport) {
   const queue = [...pages];
+  const rank = new Map(pages.map((page, i) => [page, i]));
+  const rankOf = (page) => rank.get(page);
   const worker = async () => {
     for (;;) {
       if (env.watchdog.check()) return;
@@ -182,7 +208,7 @@ async function restPass(env, origin, pages, t, rules, theme, viewport) {
           }
           await injectFixtures(tab, page);
           await measureRest(tab, t, rules, theme, page, viewport);
-          if (viewport === "wide") await recordAlts(tab, t, rules, page);
+          if (viewport === "wide") await recordAlts(tab, t, rules, page, rankOf);
           if (viewport === "wide" && LANDING_PAGES.includes(page)) {
             for (const title of LANDING_TABS) {
               where.at = `rest ${placeOf(page)} tab ${title}`;
@@ -198,6 +224,12 @@ async function restPass(env, origin, pages, t, rules, theme, viewport) {
     }
   };
   await Promise.all(Array.from({ length: CONCURRENT_TABS }, worker));
+  if (viewport === "wide") {
+    // In place, since the report holds this object.
+    const ordered = orderFound(t.altsFound, pointerRows(rules));
+    for (const key of Object.keys(t.altsFound)) delete t.altsFound[key];
+    Object.assign(t.altsFound, ordered);
+  }
 }
 
 async function pointerPass(env, origin, t, rules, theme) {
