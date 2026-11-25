@@ -4558,11 +4558,11 @@
     },
     "plugins-header-pad-left": {
       "$type": "dimension",
-      "$value": "{primitive.size-20}"
+      "$value": "calc(var(--tasty-size-20) - var(--tasty-border-width))"
     },
     "plugins-header-pad-right": {
       "$type": "dimension",
-      "$value": "{semantic.space-lg}"
+      "$value": "calc(var(--tasty-space-lg) - var(--tasty-border-width))"
     },
     "plugins-header-glyph": {
       "$type": "color",
