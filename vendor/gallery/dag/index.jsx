@@ -97,10 +97,12 @@ function RevealBackBarActions({ children }) {
   return <div ref={ref}>{children}</div>;
 }
 
+// The scrim centers the 560 window in this box and the box clips it, so the box never gets narrower than the
+// window and a 16px margin on each side: in a narrower column the stage scrolls to the window instead of cutting it.
 function PopupStage() {
   const [open, setOpen] = React.useState(true);
   return (
-    <div style={{ position: "relative", width: "100%", height: 520, borderRadius: "var(--tasty-radius)", overflow: "hidden",
+    <div style={{ position: "relative", width: "100%", minWidth: "calc(var(--tasty-dag-popup-width) + 2 * var(--tasty-space-lg))", height: 520, borderRadius: "var(--tasty-radius)", overflow: "hidden",
       border: "var(--tasty-border-width) solid var(--tasty-border-default)", background: "var(--tasty-bg-app)" }}>
       {!open && (
         <button type="button" onClick={() => setOpen(true)}
