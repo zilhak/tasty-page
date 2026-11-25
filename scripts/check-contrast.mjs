@@ -28,7 +28,7 @@ import { DEFAULT_LANG, LANGS } from "../src/lib/langs.mjs";
 import { PART_MAP } from "../vendor/gallery/parts/part-map.js";
 import { installPageLib, missingCellRows, stylesSettled } from "./contrast-page.mjs";
 import { emptySiteTally, measureRest, runSite, sitePages, siteRules } from "./contrast-site.mjs";
-import { createWatchdog, tracked } from "./contrast-watchdog.mjs";
+import { closingTab, createWatchdog, tracked } from "./contrast-watchdog.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const dist = join(root, "dist");
@@ -330,38 +330,40 @@ async function run() {
       const handle = watchdog.begin(`${base} ${page.key} newPage`);
       if (watchdog.expired) return;
       try {
-        const tab = tracked(await context.newPage(), watchdog, handle, () => `${base} ${page.key}`);
-        tab.on("pageerror", (e) => t.errors.push(`${page.key}: ${String(e).slice(0, 200)}`));
-        await tab.goto(`${origin}/${page.path}?audit=1`, { waitUntil: "load", timeout: 180000 });
-        await tab.waitForLoadState("networkidle", { timeout: 180000 }).catch(() => {});
-        // Hydration, then stages and fetched tables. Measure once the page stops growing.
-        let last = -1;
-        for (let i = 0; i < 40; i += 1) {
-          await tab.waitForTimeout(500);
-          const size = await tab.evaluate(() => document.querySelectorAll("[data-gallery-page] *").length);
-          if (size === last && !(await tab.evaluate(() => document.querySelector("astro-island[ssr]") !== null))) break;
-          last = size;
-        }
-        await stylesSettled(tab);
-        await installPageLib(tab);
-        const m = await tab.evaluate(measure, { rows: data.components, tokens, grades, partMap: PART_MAP, exemptIds, noGradeTokens: noGrade, theme });
-        t.passes[page.key] = { cells: m.cells, rows: m.rows.length, text: m.text, glyph: m.glyph, inputs: m.inputs };
-        t.cells += m.cells;
-        t.rows += m.rows.length;
-        for (const r of m.rows) {
-          measuredRows.push(r);
-          if (r.status === "ok") t.ok += 1;
-          else t[r.status].push({ ...r, page: page.key });
-        }
-        m.diagnostics.forEach((d) => t.diagnostics.push({ ...d, page: page.key }));
-        t.text += m.text; t.svgs += m.svgs; t.emptySvgs += m.emptySvgs; t.glyph += m.glyph; t.inputs += m.inputs; t.picture += m.picture; t.paintServer += m.paintServer;
-        m.below.forEach((b) => t.other.push({ ...b, page: page.key }));
-        for (const [id, n] of Object.entries(m.exemptUses)) t.exemptUses[id] = (t.exemptUses[id] || 0) + n;
-        m.badExempt.forEach((b) => t.badExempt.push({ ...b, page: page.key }));
-        m.gradeNone.forEach((g) => { t.gradeNone[g.why] = (t.gradeNone[g.why] || 0) + 1; });
-        if (m.hscroll) t.hscroll.push(page.key);
-        await measureRest(tab, chrome, rules, theme, page.path, "gallery chrome");
-        await tab.close();
+        // The tab closes after the measurement, also when the measurement rejects (closingTab).
+        const raw = await context.newPage();
+        await closingTab(raw, tracked(raw, watchdog, handle, () => `${base} ${page.key}`), async (tab) => {
+          tab.on("pageerror", (e) => t.errors.push(`${page.key}: ${String(e).slice(0, 200)}`));
+          await tab.goto(`${origin}/${page.path}?audit=1`, { waitUntil: "load", timeout: 180000 });
+          await tab.waitForLoadState("networkidle", { timeout: 180000 }).catch(() => {});
+          // Hydration, then stages and fetched tables. Measure once the page stops growing.
+          let last = -1;
+          for (let i = 0; i < 40; i += 1) {
+            await tab.waitForTimeout(500);
+            const size = await tab.evaluate(() => document.querySelectorAll("[data-gallery-page] *").length);
+            if (size === last && !(await tab.evaluate(() => document.querySelector("astro-island[ssr]") !== null))) break;
+            last = size;
+          }
+          await stylesSettled(tab);
+          await installPageLib(tab);
+          const m = await tab.evaluate(measure, { rows: data.components, tokens, grades, partMap: PART_MAP, exemptIds, noGradeTokens: noGrade, theme });
+          t.passes[page.key] = { cells: m.cells, rows: m.rows.length, text: m.text, glyph: m.glyph, inputs: m.inputs };
+          t.cells += m.cells;
+          t.rows += m.rows.length;
+          for (const r of m.rows) {
+            measuredRows.push(r);
+            if (r.status === "ok") t.ok += 1;
+            else t[r.status].push({ ...r, page: page.key });
+          }
+          m.diagnostics.forEach((d) => t.diagnostics.push({ ...d, page: page.key }));
+          t.text += m.text; t.svgs += m.svgs; t.emptySvgs += m.emptySvgs; t.glyph += m.glyph; t.inputs += m.inputs; t.picture += m.picture; t.paintServer += m.paintServer;
+          m.below.forEach((b) => t.other.push({ ...b, page: page.key }));
+          for (const [id, n] of Object.entries(m.exemptUses)) t.exemptUses[id] = (t.exemptUses[id] || 0) + n;
+          m.badExempt.forEach((b) => t.badExempt.push({ ...b, page: page.key }));
+          m.gradeNone.forEach((g) => { t.gradeNone[g.why] = (t.gradeNone[g.why] || 0) + 1; });
+          if (m.hscroll) t.hscroll.push(page.key);
+          await measureRest(tab, chrome, rules, theme, page.path, "gallery chrome");
+        });
       } finally {
         handle.end();
       }

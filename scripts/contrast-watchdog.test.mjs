@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { createWatchdog } from "./contrast-watchdog.mjs";
+import { closingTab, createWatchdog } from "./contrast-watchdog.mjs";
 
 // A clock the test moves by hand. advance() runs every timer that falls due, in order of its time.
 function fakeClock() {
@@ -294,4 +294,66 @@ test("the call whose own update finds the deadline passed does not start", async
   clock.now = () => (reads++ === 0 ? 299 : 300);
   assert.throws(() => tab.goto(), Expired);
   assert.equal(started, false);
+});
+
+// A page stand-in for closingTab: counts closes, and closes or rejects as told.
+function fakeTab({ closed = false, closeError = null } = {}) {
+  const state = { closed, closes: 0 };
+  const page = {
+    isClosed: () => state.closed,
+    close: async () => {
+      state.closes += 1;
+      if (closeError) throw closeError;
+      state.closed = true;
+    },
+  };
+  return { page, state };
+}
+
+test("closingTab closes the tab after fn succeeds", async () => {
+  const { page, state } = fakeTab();
+  let ran = false;
+  await closingTab(page, page, async () => { ran = true; });
+  assert.equal(ran, true);
+  assert.equal(state.closes, 1);
+});
+
+test("closingTab closes the tab when fn rejects and passes the error on", async () => {
+  const { page, state } = fakeTab();
+  const boom = new Error("measure failed");
+  await assert.rejects(closingTab(page, page, async () => { throw boom; }), (e) => e === boom);
+  assert.equal(state.closes, 1);
+});
+
+test("closingTab keeps fn's error and logs a failed close after it", async () => {
+  const { page, state } = fakeTab({ closeError: new Error("close failed") });
+  const boom = new Error("measure failed");
+  const lines = [];
+  await assert.rejects(closingTab(page, page, async () => { throw boom; }, (l) => lines.push(l)), (e) => e === boom);
+  assert.equal(state.closes, 1);
+  assert.equal(lines.length, 1);
+  assert.match(lines[0], /close failed/);
+});
+
+test("closingTab rejects with a failed close when fn succeeded", async () => {
+  const closeError = new Error("close failed");
+  const { page } = fakeTab({ closeError });
+  const lines = [];
+  await assert.rejects(closingTab(page, page, async () => {}, (l) => lines.push(l)), (e) => e === closeError);
+  assert.equal(lines.length, 0);
+});
+
+test("closingTab does not close a tab that is already closed", async () => {
+  const { page, state } = fakeTab({ closed: true });
+  const boom = new Error("browser closed");
+  await assert.rejects(closingTab(page, page, async () => { throw boom; }), (e) => e === boom);
+  assert.equal(state.closes, 0);
+});
+
+test("closingTab reads isClosed on the page, not on the tracked tab", async () => {
+  // After expiry the tracked tab refuses every call but close, isClosed included.
+  const { page, state } = fakeTab();
+  const tab = { isClosed: () => { throw new Error("refused"); }, close: () => page.close() };
+  await assert.rejects(closingTab(page, tab, async () => { throw new Error("expired"); }), /expired/);
+  assert.equal(state.closes, 1);
 });

@@ -159,3 +159,25 @@ export function tracked(target, watchdog, handle, where) {
     },
   });
 }
+
+// Runs fn on a tab, then closes the tab if it is still open, also when fn rejects. page is the Playwright page itself and
+// tab its tracked() wrapper: whether it is open is read on page, since the wrapper refuses that read after expiry, and
+// the close goes through tab so it marks progress. When fn rejects, its error is the one that propagates and a failed
+// close only goes to log. When fn succeeds, a failed close rejects as before.
+export async function closingTab(page, tab, fn, log = (line) => console.error(line)) {
+  let failure = null;
+  try {
+    await fn(tab);
+  } catch (error) {
+    failure = { error };
+  }
+  if (!page.isClosed()) {
+    try {
+      await tab.close();
+    } catch (error) {
+      if (failure === null) throw error;
+      log(`  tab close failed after an earlier error: ${String(error).slice(0, 200)}`);
+    }
+  }
+  if (failure !== null) throw failure.error;
+}
