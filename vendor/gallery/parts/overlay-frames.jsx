@@ -6,6 +6,7 @@ import { AttachConnectionsSection } from "./settings-attach-section.jsx";
 import { rt } from "../../ui_kits/terminal/overlays/remote_row_copy.js";
 import { PopupFocusEdge } from "../../ui_kits/terminal/overlays/shared.jsx";
 import { PopupTitleBar } from "../../ui_kits/terminal/overlays/info_modal.jsx";
+import { WarnBadge } from "../../ui_kits/terminal/overlays/remote_tool.jsx";
 
 // Tasty Gallery — Overlays SHARED frames. Loaded by every overlays-*.html page
 // (Dialogs / Windows / Popups & menus / Banners). Defines the scrim Backdrop, the
@@ -730,10 +731,7 @@ function RemoteFrame({ tab = "profiles", ssh = "hosts" }) {
         <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)" }}>
           <span style={{ fontSize: "var(--tasty-font-size-heading)", fontWeight: "var(--tasty-font-weight-semibold)", color: inactive ? "var(--tasty-text-muted)" : "var(--tasty-text-primary)" }}>{name}{label && <span style={{ fontWeight: "var(--tasty-font-weight-normal)", color: "var(--tasty-text-muted)" }}>  ({label})</span>}</span>
           <Tag>{mode}</Tag>
-          {inactive && <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-tag-gap)", height: "var(--tasty-tag-size)", padding: "0 var(--tasty-tag-padding-x)", borderRadius: "var(--tasty-tag-radius)",
-            fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-tag-font-size)", fontWeight: "var(--tasty-font-weight-medium)", color: "var(--tasty-tag-warning-fg)",
-            border: "var(--tasty-border-width) solid var(--tasty-tag-warning-border)",
-            background: "var(--tasty-tint-warning-bg)" }}>inactive</span>}
+          {inactive && <WarnBadge title="Inactive — the referenced ssh profile or inline shell isn't reachable.">inactive</WarnBadge>}
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)" }}>
           <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{target}</span>
@@ -768,7 +766,7 @@ function RemoteFrame({ tab = "profiles", ssh = "hosts" }) {
                   <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", minWidth: 0 }}>
                     <span style={{ fontSize: "var(--tasty-font-size-heading)", fontWeight: "var(--tasty-font-weight-semibold)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{k.name}</span>
                     {k.unknown
-                      ? <span title="Unknown kind." style={{ flex: "none", display: "inline-flex", alignItems: "center", gap: "var(--tasty-tag-gap)", height: "var(--tasty-tag-size)", padding: "0 var(--tasty-tag-padding-x)", borderRadius: "var(--tasty-tag-radius)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-tag-font-size)", fontWeight: "var(--tasty-font-weight-medium)", color: "var(--tasty-tag-warning-fg)", border: "var(--tasty-border-width) solid var(--tasty-tag-warning-border)", background: "var(--tasty-tint-warning-bg)" }}>{k.kind}</span>
+                      ? <span style={{ flex: "none", display: "inline-flex" }}><WarnBadge title="Unknown kind.">{k.kind}</WarnBadge></span>
                       : <span style={{ flex: "none", display: "inline-flex" }}><Tag>{k.kind}</Tag></span>}
                   </div>
                   <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{k.kind} · {k.revealed ? k.value : "••••••••"}</span>
@@ -808,10 +806,7 @@ function RemoteFrame({ tab = "profiles", ssh = "hosts" }) {
               {[["ssh", true, false], ["smb", true, false], ["http", true, false], ["snb", false, true]].map(([p, on, unknown]) => (
                 <div key={p} style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)" }}>
                   <Checkbox checked={on} readOnly label={p} />
-                  {unknown && <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-tag-gap)", height: "var(--tasty-tag-size)", padding: "0 var(--tasty-tag-padding-x)", borderRadius: "var(--tasty-tag-radius)",
-                    fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-tag-font-size)", fontWeight: "var(--tasty-font-weight-medium)", color: "var(--tasty-tag-warning-fg)",
-                    border: "var(--tasty-border-width) solid var(--tasty-tag-warning-border)",
-                    background: "var(--tasty-tint-warning-bg)" }}>unknown</span>}
+                  {unknown && <WarnBadge raised>unknown</WarnBadge>}
                 </div>
               ))}
             </div>

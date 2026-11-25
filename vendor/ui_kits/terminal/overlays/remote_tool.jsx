@@ -113,15 +113,15 @@ const RD = {
 
 // ── small warning pill (type-unknown / dangling-ref / unknown-kind) ──────
 // A warning tint box, as the app draws it: tint-warning fill and edge over its host. The label reads
-// the text-warning cell; the glyph reads the glyph-warning cell, which differs by host
+// the text-warning cell (tag-warning-fg, the Tag warning ink); the glyph reads the glyph-warning cell, which differs by host
 // (accent-warning-glyph on base, accent-warning-raised on a raised menu: pass `raised`).
 function WarnBadge({ children, title, raised = false }) {
   return (
     <span title={title} style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-tag-gap)", height: "var(--tasty-tag-size)",
       padding: "0 var(--tasty-tag-padding-x)", borderRadius: "var(--tasty-tag-radius)", whiteSpace: "nowrap",
       fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-tag-font-size)", fontWeight: "var(--tasty-font-weight-medium)", lineHeight: 1,
-      color: "var(--tasty-accent-warning-raised)",
-      border: "var(--tasty-border-width) solid var(--tasty-tint-warning-border)",
+      color: "var(--tasty-tag-warning-fg)",
+      border: "var(--tasty-border-width) solid var(--tasty-tag-warning-border)",
       background: "var(--tasty-tint-warning-bg)" }}>
       <span style={{ display: "inline-flex", color: raised ? "var(--tasty-accent-warning-raised)" : "var(--tasty-accent-warning-glyph)" }}><Icon name={RD.warn} size="var(--tasty-icon-size-xs)" /></span>{children}
     </span>
@@ -902,4 +902,4 @@ function RemoteTool({ onClose, onFlash }) {
   );
 }
 
-export { RemoteTool, LocalSshSection };
+export { RemoteTool, LocalSshSection, WarnBadge };
