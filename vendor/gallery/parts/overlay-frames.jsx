@@ -704,6 +704,12 @@ function RemoteChromeG({ tab }) {
 
 // ── Remote connections — 520×460, three top tabs, list view ──
 function RemoteFrame({ tab = "profiles", ssh = "hosts" }) {
+  // The Passkeys tab's store. A profile row whose passkey name is not in it draws the passkey missing badge, as the
+  // app's draw_profile_row does.
+  const passkeys = [{ name: "ed25519-main", kind: "file", value: "~/.ssh/id_ed25519" },
+    { name: "deploy-key-with-a-very-long-name", kind: "file", value: "/Users/someone/Library/Application Support/tasty/keys/deploy/ci-runner/id_ed25519_deploy", revealed: true },
+    { name: "vault-token", kind: "secret", value: "••••••••" },
+    { name: "legacy", kind: "agent-x", value: "••••••••", unknown: true }];
   const Caption = ({ children }) => <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)", fontFamily: "var(--tasty-font-mono)" }}>{children}</span>;
   const ProfileRow = ({ name, label, type, target, passkey, detecting }) => (
     <div style={{ display: "flex", alignItems: "flex-start", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-space-xs)", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
@@ -715,6 +721,7 @@ function RemoteFrame({ tab = "profiles", ssh = "hosts" }) {
         <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{target}</span>
         <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)" }}>
           <Caption>passkey: {passkey || "—"}</Caption>
+          {passkey && !passkeys.some((k) => k.name === passkey) && <WarnBadge title="Referenced passkey not found.">passkey missing</WarnBadge>}
           {detecting && <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-xs)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}><Spinner size="var(--tasty-remote-detect-spinner-size)" /> detecting…</span>}
         </div>
       </div>
@@ -735,7 +742,7 @@ function RemoteFrame({ tab = "profiles", ssh = "hosts" }) {
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)" }}>
           <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{target}</span>
-          {missing && <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-accent-warning-raised)" }}>profile missing</span>}
+          {missing && <WarnBadge title="Referenced ssh profile not found.">profile missing</WarnBadge>}
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-md)" }}>
           <Caption>tasty: {tasty}</Caption><Caption>port: {port}</Caption>
@@ -757,10 +764,7 @@ function RemoteFrame({ tab = "profiles", ssh = "hosts" }) {
             <Button variant="secondary" size="sm" leadingIcon={ic.plus}>Add passkey</Button>
           </div>
           <div style={{ flex: 1, minHeight: 0, overflow: "auto", padding: "0 var(--tasty-remote-pad-x) var(--tasty-space-sm)" }}>
-            {[{ name: "ed25519-main", kind: "file", value: "~/.ssh/id_ed25519" },
-              { name: "deploy-key-with-a-very-long-name", kind: "file", value: "/Users/someone/Library/Application Support/tasty/keys/deploy/ci-runner/id_ed25519_deploy", revealed: true },
-              { name: "vault-token", kind: "secret", value: "••••••••" },
-              { name: "legacy", kind: "agent-x", value: "••••••••", unknown: true }].map((k) => (
+            {passkeys.map((k) => (
               <div key={k.name} style={{ display: "flex", alignItems: "flex-start", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-space-xs)", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
                 <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: "var(--tasty-remote-row-line-gap)" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", minWidth: 0 }}>
@@ -825,7 +829,7 @@ function RemoteFrame({ tab = "profiles", ssh = "hosts" }) {
       <div style={{ flex: 1, minHeight: 0, overflow: "auto", padding: "0 var(--tasty-remote-pad-x) var(--tasty-space-sm)" }}>
         <ProfileRow name="prod-web" label="us-east" type="ssh" target="deploy@10.0.4.12" passkey="ed25519-main" />
         <ProfileRow name="db-primary" type="ssh" target="postgres@db.internal:2222" passkey="" />
-        <ProfileRow name="edge-cache" label="staging" type="ssh" target="root@edge.example.com" passkey="edge-pem" detecting />
+        <ProfileRow name="edge-cache" label="staging" type="ssh" target="root@edge.example.com" passkey="vault-token" detecting />
         <ProfileRow name="media-nas" label="lab" type="smb" target="host=nas.local  share=media" passkey="nas-cred" />
         {ssh !== "none" && <LocalSshSection state={ssh} />}
       </div>
