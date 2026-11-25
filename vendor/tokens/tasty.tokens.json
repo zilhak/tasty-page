@@ -1308,6 +1308,10 @@
       "$type": "dimension",
       "$value": "{primitive.size-200}"
     },
+    "field-width-xl": {
+      "$type": "dimension",
+      "$value": "{primitive.size-320}"
+    },
     "dropdown-max-height": {
       "$type": "dimension",
       "$value": "{primitive.size-220}"

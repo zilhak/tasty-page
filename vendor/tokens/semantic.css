@@ -261,6 +261,7 @@
   --tasty-field-width-md:    var(--tasty-size-160);
   --tasty-field-width-range: var(--tasty-size-180);
   --tasty-field-width-lg:    var(--tasty-size-200);
+  --tasty-field-width-xl:    var(--tasty-size-320); /* 2026-11-25 — a field that holds a long line; a cap, so the field still shrinks with its column */
   /* the height cap of a dropdown list (~7 rows of control-height), past which the list scrolls:
      AutoComplete, MultiSelect, the Scripts "Add trigger…" menu (2026-11-25) */
   --tasty-dropdown-max-height: var(--tasty-size-220);

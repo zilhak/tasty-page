@@ -349,7 +349,7 @@ function Foundations() {
             <div style={{ fontSize: 13, color: "var(--tasty-text-secondary)" }}>--tasty-text-secondary — body labels, descriptions, settings rows</div>
             <div style={{ fontSize: 13, color: "var(--tasty-text-muted)" }}>--tasty-text-muted — meta, captions, hints, monospace IDs</div>
             <div data-ink-grade="none" data-ink-why="disabled" style={{ fontSize: 13, color: "var(--tasty-text-disabled)" }}>--tasty-text-disabled — disabled controls and rows</div>
-            <Input block placeholder="--tasty-text-placeholder — empty field hint" />
+            <Input block placeholder="--tasty-text-placeholder — empty field hint" style={{ maxWidth: "var(--tasty-field-width-xl)" }} />
           </Stage>
           <Meta tokens={[
             { tok: "--tasty-text-primary", use: "headings, active", color: "var(--tasty-text-primary)" },
