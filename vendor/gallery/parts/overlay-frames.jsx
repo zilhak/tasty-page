@@ -594,7 +594,7 @@ function PortsFavoritesG({ favorites = "mixed" }) {
       </div>
       {rows.length === 0 ? (
         <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-xs)", height: "var(--tasty-control-height-tree)", padding: "0 var(--tasty-ports-pad-x)", color: "var(--tasty-text-muted)" }}>
-          <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-glyph-dim)" }}><Icon name="star" size="var(--tasty-icon-size-xs)" /></span>
+          <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-glyph-dim)" }}><Icon name="star" size="var(--tasty-icon-size-sm)" /></span>
           <span style={{ fontSize: "var(--tasty-font-size-caption)" }}>No favorites yet</span>
           <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-placeholder)" }}>— click a star in the list below to pin a port.</span>
         </div>
