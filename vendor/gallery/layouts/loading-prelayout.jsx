@@ -91,7 +91,7 @@ function GalleryLoadingPrelayout() {
               </Row>
             </Themed>
           ))}
-          <Themed>
+          <Themed attr="mocha">
             <span className="g-cap" style={cap}>Mocha · surface split (inside the tab) and pane split (the layout above it)</span>
             <Row>
               <Cell label="surface split · current tab splits, the new side carries the overlay · tab strip unchanged"><Frame w={W} h={H} lnb={WS(true)} panes={[{ tabs: [T("server", { active: true, loading: true }), T("logs")], surfaces: [TERM(), EMPTY()] }]} /></Cell>
@@ -113,7 +113,7 @@ function GalleryLoadingPrelayout() {
       <Spec id="loading-prelayout-edges" title="Pre-layout — selection moved · several adds · explicit failure · merged results"
         when={<><b>Selection moved</b>: while waiting, the user picks another real tab; when the response lands, the new tab turns real <b>in the background</b> and the user's selection is kept. <b>Several adds</b> to the same pane: each request gets its own tab with its own overlay. <b>Explicit failure</b>: only that tab / split and its overlay go; everything the user did since stays; the reason goes through the existing error notice. <b>Merged results</b> that cannot be matched to requests: the confirmed structure is shown, pre-layout areas that might duplicate it are folded, the LNB card keeps its wait for unfinished requests, and nothing is auto-focused. This is an exception path, never the default for a single add.</>}>
         <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexDirection: "column", alignItems: "flex-start" }}>
-          <Themed>
+          <Themed attr="mocha">
             <span className="g-cap" style={cap}>Mocha</span>
             <Row>
               <Cell label="selection moved · user picked 'server' while 'New tab' waits"><Frame w={W} h={H} lnb={WS(true)} panes={[{ tabs: [T("server", { active: true }), T("logs"), T("New tab", { loading: true })], surfaces: [TERM()] }]} /></Cell>
@@ -152,7 +152,7 @@ function GalleryLoadingPrelayout() {
               </Row>
             </Themed>
           ))}
-          <Themed>
+          <Themed attr="mocha">
             <span className="g-cap" style={cap}>Mocha · chip states</span>
             <div style={{ display: "flex", gap: "var(--tasty-space-lg)", alignItems: "center", flexWrap: "wrap" }}>
               {[["1 · 12s", { count: 1, elapsed: 12 }], ["3 · 1m 04s", { count: 3, elapsed: 64 }], ["1 · 1h 02m", { count: 1, elapsed: 3720 }], ["compact", { count: 2, elapsed: 9, compact: true }], ["reduced motion", { count: 1, elapsed: 30, reducedMotion: true }],

@@ -382,7 +382,7 @@ function PluginTrustSpecs() {
               <span style={{ ...cap, fontFamily: "var(--tasty-font-mono)" }}>Needs attention › signature invalid · registering</span><AttentionDetail reason="signature-error" state="busy" />
             </Themed>
           ))}
-          <Themed>
+          <Themed attr="mocha">
             <span className="g-cap" style={cap}>Mocha · ko / ja length</span>
             <AddPanel kind="unknown-key" lang="ko" width="var(--tasty-plugin-trust-specimen-width-sm)" />
             <AddPanel kind="signature-error" lang="ja" width="var(--tasty-plugin-trust-specimen-width-sm)" />
@@ -404,7 +404,7 @@ function PluginTrustSpecs() {
               <AttnList selected={3} />
             </Themed>
           ))}
-          <Themed>
+          <Themed attr="mocha">
             <span className="g-cap" style={cap}>Mocha · ko / ja length</span>
             <AttnList lang="ko" selected={-1} /><AttnList lang="ja" selected={-1} />
           </Themed>
@@ -453,12 +453,12 @@ function PluginTrustSpecs() {
               <span style={{ ...cap, fontFamily: "var(--tasty-font-mono)" }}>notification · warning · on arrival (once per folder)</span><ReservedNotice />
             </Themed>
           ))}
-          <Themed>
+          <Themed attr="mocha">
             <span className="g-cap" style={cap}>Mocha · narrow 320 · long folder + id · confirm wraps</span>
             <ReservedDetail p={RESERVED_LONG} width="var(--tasty-size-320)" />
             <ReservedDetail p={RESERVED_LONG} state="confirm" width="var(--tasty-size-320)" />
           </Themed>
-          <Themed>
+          <Themed attr="mocha">
             <span className="g-cap" style={cap}>Mocha · ko / ja length</span>
             <ReservedRow lang="ko" selected /><ReservedRow lang="ja" selected />
             <ReservedDetail lang="ko" width="var(--tasty-plugin-trust-specimen-width-sm)" /><ReservedDetail lang="ko" state="confirm" width="var(--tasty-plugin-trust-specimen-width-sm)" />

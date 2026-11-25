@@ -295,7 +295,7 @@ function GalleryLoadingOverlay() {
               <div>{cap("reduced motion · still arc")}<MiniWindow loading rm /></div>
             </Themed>
           ))}
-          <Themed>
+          <Themed attr="mocha">
             <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>UI scale (zoom) · Mocha</span>
             <div style={{ display: "flex", gap: "var(--tasty-space-lg)", alignItems: "flex-start", flexWrap: "wrap" }}>
               {["1", "1.25", "1.5"].map((z) => (
