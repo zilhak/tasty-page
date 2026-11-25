@@ -103,6 +103,7 @@ class Canon(Base):
                      "component -> primitive (base): 239 (size 235, radius 1, duration 3)",
                      "component -> primitive (Latte): 0 (size 0, radius 0, duration 0)",
                      "component -> component: base 91, Latte 0",
+                     "semantic -> semantic: base 91, Latte 2",
                      "component literals: 9 (coefficient 1, count 2, dash 4, keyword 1, window-shadow 1)",
                      "token tiers: 0 violations"):
             self.assertIn(line, r.stdout)
@@ -247,6 +248,12 @@ class Literals(Base):
             with self.subTest(v):
                 self.literal("titlebar-csd-shadow", v, "takes no @kind marker")
 
+    def test_window_shadow_notes_that_mention_the_marker(self):
+        self.ok(files(comp={"titlebar-csd-shadow":
+                            "0 18px 50px -8px rgba(0,0,0,.5); /* note */ /* Do not add @kind to the window shadow. */"}))
+        self.literal("titlebar-csd-shadow", "0 18px 50px -8px rgba(0,0,0,.5); /* @kind other\n  */",
+                     "takes no @kind marker")
+
     def test_marker_of_the_next_declaration_on_the_same_line(self):
         t = files()
         t["component"] = t["component"].replace(
@@ -334,6 +341,28 @@ class Reading(Base):
     def test_escapes_and_bang_inside_a_function(self):
         self.ok(files(prim={"font-family-x": "O\\'Brien, sans-serif", "font-family-y": "A\\(B, sans-serif",
                             "font-family-z": "custom(!)"}))
+
+    def test_escaped_colon_and_space_are_not_a_new_declaration(self):
+        self.ok(files(prim={"font-family-x": "--Acme\\:Display, sans-serif",
+                            "font-family-y": "Acme\\ --x: 4px"}))
+
+    def test_missing_semicolon_without_a_space(self):
+        t = files(comp={"zz-a": "calc(var(--tasty-size-4)*2)--tasty-zz-b: 4px"})
+        self.fails(t, "components.css:", "missing semicolon: a new declaration starts")
+
+    def test_braces_inside_a_function(self):
+        self.ok(files(prim={"font-family-x": "custom(/ {x})"}))
+        self.fails(files(prim={"font-family-x": "custom(/ {x)}"}), "primitives.css:", "unbalanced")
+
+    def test_name_with_a_non_css_space(self):
+        t = files()
+        t["semantic"] = t["semantic"].replace("--tasty-focus:", "--tasty-focus\u00a0:")
+        self.fails(t, "semantic.css:", "--tasty-[a-z0-9-]+")
+
+    def test_a_file_without_its_base_block(self):
+        t = files()
+        t["semantic"] = "/* empty */\n"
+        self.fails(t, "semantic.css:", "no base block")
 
     def test_unclosed_bracket(self):
         self.fails(files(comp={"bad": "calc([var(--tasty-size-4))"}), "components.css:", "unbalanced )")

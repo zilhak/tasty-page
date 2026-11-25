@@ -15,14 +15,14 @@ It reads only tokens/primitives.css, tokens/semantic.css and tokens/components.c
 The tokens.css copy is compared by check-tokens-copy.mjs, not here.
 
 Declarations, read strictly (file:line on failure):
-  - Each file has its tier's base block (BASE_SELECTOR) and an optional Latte block,
+  - Each file has its tier's base block (BASE_SELECTOR, required) and an optional Latte block,
     exactly [data-theme="latte"], after it. No other selectors, nesting or @-rules; only
     CSS whitespace separates selector parts.
   - Each declaration is --tasty-<name>: <value>; with <name> in [a-z0-9-]+. The value
-    ends at the first semicolon outside strings and outside () and [] blocks; a new
-    declaration before it is a missing semicolon. A backslash escapes the next character.
-    A value has no comment, no { or }, no ! at its top level (so no !important), no
-    unbalanced bracket and no quoted semicolon. A quoted string is one atom; one whose
+    ends at the first semicolon outside strings and outside (), [] and {} blocks; a new
+    unescaped --name: before it is a missing semicolon. A backslash escapes the next
+    character. A value has no comment, no {, } or ! at its top level (so no nested rule
+    and no !important), no unbalanced bracket and no quoted semicolon. A quoted string is one atom; one whose
     content would change when whitespace is collapsed is rejected.
   - A name is declared once per theme and in one tier only.
   - The declarations must be the same set gen_tokens_json.collect() reads.
@@ -36,7 +36,7 @@ Rules, for base and Latte declarations each:
   R2   The same check, with its own message for color- and alpha-.
   R4   A component value with no var() is a listed literal of the right shape (LITERALS).
        Its first comment after the semicolon, on that line, is the @kind other marker;
-       the window shadow has no @kind marker in any comment there.
+       the window shadow has no comment there that starts with @kind.
   Size, radius and duration primitives and component literals have no Latte value.
 
 Prints each violation and the counts, and exits 1 on any violation.
@@ -62,8 +62,11 @@ LATTE_SELECTOR = '[data-theme="latte"]'
 CSS_SPACE = re.compile(r"[ \t\n\r\f]+")  # CSS whitespace only; U+00A0 and the like are not
 NAME = re.compile(r"--tasty-([a-z0-9-]+)")
 REFERENCE = re.compile(r"var\(--tasty-([a-z0-9-]+)\)")
-DECLARATION_START = re.compile(r"--[^\s:;{}()\[\]]*\s*:")
-CLOSE = {"(": ")", "[": "]"}
+# A declaration name at the top level of a value: unescaped name characters, then a colon.
+DECLARATION_START = re.compile(r"--[^ \t\n\r\f:;{}()\[\]\\]*[ \t\n\r\f]*:")
+NAME_CHAR = re.compile(r"[A-Za-z0-9_\x80-\U0010ffff-]")
+CLOSE = {"(": ")", "[": "]", "{": "}"}
+KIND_MARKER = re.compile(r"/\*[ \t\n\r\f]*@kind\b")
 MARKER = "/* @kind other */"
 PART_SCALES = ("size-", "radius-", "duration-")
 ROLE_SCALES = ("color-", "alpha-")
@@ -184,6 +187,8 @@ class Reader:
                           f"{BASE_SELECTOR[self.tier]!r} and {LATTE_SELECTOR!r}", start)
             self.i = end + 1
             self.read_block(theme)
+        if not seen_base:
+            self.fail(f"no base block {BASE_SELECTOR[self.tier]!r}")
         return self.decls
 
     def read_block(self, theme):
@@ -195,7 +200,7 @@ class Reader:
             if t[self.i] == "}":
                 self.i += 1
                 return
-            m = re.compile(r"(--[^\s:;{}]*)\s*:").match(t, self.i)
+            m = re.compile(r"(--[^ \t\n\r\f:;{}]*)[ \t\n\r\f]*:").match(t, self.i)
             if not m:
                 self.fail("expected a --tasty-<name>: declaration")
             name = m.group(1)
@@ -211,13 +216,14 @@ class Reader:
         """Reads up to the semicolon at the top level of the value: outside strings and
         outside () and [] blocks, with a backslash escaping the next character."""
         t = self.text
-        start, stack = self.i, []
+        start, stack, escaped_to = self.i, [], -1
         while self.i < len(t):
             c = t[self.i]
             if c == "\\":
                 if self.i + 1 >= len(t) or t[self.i + 1] == "\n":
                     self.fail("a backslash at the end of a line")
                 self.i += 2
+                escaped_to = self.i  # the escaped character ends here
                 continue
             if c in "\"'":
                 close = self.i + 1
@@ -238,19 +244,22 @@ class Reader:
                 continue
             if t.startswith("/*", self.i):
                 self.fail("comment inside a value")
+            if c == "{" and not stack:
+                self.fail("nested rule: a { at the top level of a value")
+            if c == "}" and not stack:
+                self.fail("missing semicolon before the end of the block")
             if c in CLOSE:
                 stack.append(CLOSE[c])
-            elif c in ")]":
+            elif c in ")]}":
                 if not stack or stack.pop() != c:
                     self.fail(f"unbalanced {c} in a value")
-            elif c in "{}":
-                self.fail("missing semicolon before the end of the block" if c == "}" and not stack
-                          else "a { or } inside a value")
             elif not stack:
                 if c == "!":
                     self.fail("!important or another ! at the top level of a value")
-                if c == "-" and (self.i == start or t[self.i - 1].isspace()) \
-                        and DECLARATION_START.match(t, self.i) and self.i > start:
+                # a new name starts where the previous character ends a token: not a name
+                # character and not an escaped one
+                if c == "-" and self.i > start and self.i != escaped_to \
+                        and not NAME_CHAR.match(t[self.i - 1]) and DECLARATION_START.match(t, self.i):
                     self.fail("missing semicolon: a new declaration starts inside the value")
                 if c == ";":
                     semi = self.i
@@ -262,7 +271,7 @@ class Reader:
     def comments_after(self, semi):
         """The comments on the line of the semicolon, right after it (only blanks between)."""
         out, at = [], semi + 1
-        while m := re.compile(r"[ \t]*(/\*.*?\*/)").match(self.text, at):
+        while m := re.compile(r"[ \t]*(/\*.*?\*/)", re.S).match(self.text, at):
             out.append(m.group(1))
             at = m.end()
         return out
@@ -430,7 +439,7 @@ def check(project):
                 if not SHAPES[kind](d.collapsed):
                     errors.append(f"R4: {at}: {d.collapsed!r} is not a {kind}")
                 if kind == "window-shadow":
-                    if any("@kind" in c for c in d.comments):
+                    if any(KIND_MARKER.match(c) for c in d.comments):
                         errors.append(f"R4: {at}: the window shadow takes no @kind marker")
                 elif d.marker != MARKER:
                     errors.append(f"R4: {at}: a {kind} literal needs {MARKER} right after its semicolon")
