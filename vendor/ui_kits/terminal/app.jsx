@@ -77,6 +77,9 @@ function App() {
   const [notifAnchor, setNotifAnchor] = React.useState(null); // DOMRect of the LNB notification summary
   const [sidebarCollapsed, setSidebarCollapsed] = React.useState(false);
   const [uiScale, setUiScale] = React.useState("md"); // sm | md | lg — chrome zoom
+  // The settings the window saved last. Save writes the draft here and closes the window, as the app does; the next
+  // open starts from these values. Cancel and close drop the draft and leave them as they were. No toast: the app shows none.
+  const [savedSettings, setSavedSettings] = React.useState(undefined);
   React.useEffect(() => {
     document.documentElement.style.setProperty("--tasty-ui-scale", `var(--tasty-ui-scale-${uiScale})`);
   }, [uiScale]);
@@ -231,7 +234,8 @@ function App() {
       {toolsAnchor && <ToolsMenu anchor={toolsAnchor} onClose={() => setToolsAnchor(null)} onAction={runTool} />}
       {overlay === "palette" && <CommandPalette onClose={() => setOverlay(null)} onRun={runCmd} />}
       {overlay === "settings" && <SettingsWindow theme={theme} onTheme={setTheme}
-        uiScale={uiScale} onUiScale={setUiScale} onClose={() => setOverlay(null)} />}
+        uiScale={uiScale} onUiScale={setUiScale} onClose={() => setOverlay(null)}
+        saved={savedSettings} onSave={(values) => { setSavedSettings(values); setOverlay(null); }} />}
       {overlay === "ports" && <PortsWindow onClose={() => setOverlay(null)} onFlash={flash} />}
       {overlay === "remote" && <RemoteTool onClose={() => setOverlay(null)} onFlash={flash} />}
       {overlay === "plugins" && <PluginsWindow onClose={() => setOverlay(null)} onFlash={flash}
