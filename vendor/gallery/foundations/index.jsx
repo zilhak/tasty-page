@@ -90,10 +90,10 @@ function ElevationStack() {
     <div style={{ background: "var(--tasty-bg-app)", border: "1px solid var(--tasty-border-default)",
       borderRadius: "var(--tasty-radius)", padding: 14, width: 360 }}>
       <Lbl tok="--tasty-bg-app">window chrome / deepest</Lbl>
-      <div style={{ background: "var(--tasty-bg-sidebar)", border: "1px solid var(--tasty-separator)",
+      <div style={{ background: "var(--tasty-bg-sidebar)", border: "1px solid var(--tasty-border-default)",
         borderRadius: "var(--tasty-radius)", padding: 12, marginTop: 8 }}>
         <Lbl tok="--tasty-bg-sidebar">sidebars, side panels</Lbl>
-        <div style={{ background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-separator)",
+        <div style={{ background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-default)",
           borderRadius: "var(--tasty-radius)", padding: 12, marginTop: 8 }}>
           <Lbl tok="--tasty-bg-panel">primary content panels</Lbl>
           <div style={{ background: "var(--tasty-surface-raised)", border: "1px solid var(--tasty-border-strong)",
@@ -294,7 +294,7 @@ function Foundations() {
             <ElevationStack />
           </Stage>
           <Meta
-            specs={[["ramp order", <>crust→mantle→base→surface0→1→2</>], ["border", <>1px <span className="tok">--tasty-border-default</span></>], ["shadow", "none in the page; floating surfaces only"]]}
+            specs={[["ramp order", <>crust→mantle→base→surface0→1→2</>], ["border", <>mantle and base use 1px <span className="tok">--tasty-border-default</span>, raised uses 1px <span className="tok">--tasty-border-strong</span></>], ["shadow", "none in the page; floating surfaces only"]]}
             tokens={[
               { tok: "--tasty-bg-app", use: "window", color: "var(--tasty-bg-app)" },
               { tok: "--tasty-bg-sidebar", use: "rails", color: "var(--tasty-bg-sidebar)" },
