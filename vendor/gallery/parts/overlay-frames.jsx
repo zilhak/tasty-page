@@ -2829,12 +2829,14 @@ function ModifierHintPanelG({ style, held = "Ctrl", sections = MH_SECTIONS, show
       borderRadius: "var(--tasty-modhint-radius)", boxShadow: "var(--tasty-modhint-shadow)", overflow: "hidden",
       position: "relative", ...style }}>
       {/* drag strip — muted (sidebar) fill, NOT a focus titlebar */}
-      <div style={{ display: "flex", alignItems: "center", gap: 8, flex: "none", height: "var(--tasty-modhint-header-height)",
+      {/* The close button keeps its place at the strip's right end and is drawn last, over the strip: a long held
+          combo runs under it instead of pushing it out of the panel, as the app draws the button in its own corner. */}
+      <div style={{ position: "relative", display: "flex", alignItems: "center", gap: 8, flex: "none", height: "var(--tasty-modhint-header-height)",
         padding: "0 4px 0 10px", cursor: "move", userSelect: "none",
         background: "var(--tasty-modhint-header-bg)", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
-        <Kbd keys={held} />
-        <span style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>held</span>
-        <span style={{ marginLeft: "auto" }}>
+        <span style={{ display: "flex", flex: "none" }}><Kbd keys={held} /></span>
+        <span style={{ flex: "none", whiteSpace: "nowrap", fontSize: 11, color: "var(--tasty-text-muted)" }}>held</span>
+        <span style={{ position: "absolute", top: 0, bottom: 0, right: "var(--tasty-space-xs)", display: "flex", alignItems: "center" }}>
           <IconButton size="sm" aria-label="Hide for this hold">{ic.x}</IconButton>
         </span>
       </div>
