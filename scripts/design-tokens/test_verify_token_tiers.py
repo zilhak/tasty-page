@@ -93,42 +93,96 @@ class Base(unittest.TestCase):
         return r.stdout
 
 
+COUNT_LINES = {
+    "declarations": r"declarations: base (\d+), Latte (\d+)",
+    "references": r"var\(\) references: base (\d+), Latte (\d+)",
+    "primitive-base": r"component -> primitive \(base\): (\d+) \(size (\d+), radius (\d+), duration (\d+)\)",
+    "primitive-latte": r"component -> primitive \(Latte\): (\d+) \(size (\d+), radius (\d+), duration (\d+)\)",
+    "component": r"component -> component: base (\d+), Latte (\d+)",
+    "semantic": r"semantic -> semantic: base (\d+), Latte (\d+)",
+    "literals": r"component literals: (\d+) \((.*)\)",
+}
+JSON_LINE = re.compile(r"(primitive|semantic|component): css (\d+) json \d+ css-only \d+ json-only \d+ "
+                       r"\| aliases \d+ \| latte css (\d+) json \d+ matched \d+")
+
+
+def count_lines(out):
+    """Each count line of the tier check's output, read whole, as a tuple of its numbers
+    (the literal kinds as a dict). A line that is missing or reads differently fails."""
+    lines = out.splitlines()
+    got = {}
+    for key, pattern in COUNT_LINES.items():
+        hits = [m for m in map(re.compile(pattern).fullmatch, lines) if m]
+        if len(hits) != 1:
+            raise AssertionError((key, out))
+        got[key] = hits[0].groups()
+    total, kinds = got["literals"]
+    pairs = [re.fullmatch(r"([a-z][a-z-]*) (\d+)", k) for k in kinds.split(", ")] if kinds else []
+    if not pairs or not all(pairs):
+        raise AssertionError(("literals", out))
+    got["literals"] = (int(total), {m.group(1): int(m.group(2)) for m in pairs})
+    if len(got["literals"][1]) != len(pairs):
+        raise AssertionError(("literals", out))
+    for key in COUNT_LINES:
+        if key != "literals":
+            got[key] = tuple(map(int, got[key]))
+    return got
+
+
 class Canon(Base):
     def test_vendor_tokens_pass(self):
         # The canon grows as tokens are added, so its counts are not pinned here. The
         # declaration counts are compared with the token JSON checker, which reads the
         # CSS with gen_tokens_json.parse(), and each breakdown must add up to its total.
-        r = subprocess.run([sys.executable, "-B", SCRIPT, os.path.join(HERE, "..", "..", "vendor")],
-                           capture_output=True, text=True)
+        # What each count means is pinned on the small inputs in test_defaults_pass_and_count.
+        vendor = os.path.join(HERE, "..", "..", "vendor")
+        r = subprocess.run([sys.executable, "-B", SCRIPT, vendor], capture_output=True, text=True)
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
         out = r.stdout
-        self.assertIn("token tiers: 0 violations", out)
+        self.assertIn("token tiers: 0 violations", out.splitlines())
+        got = count_lines(out)
         j = subprocess.run([sys.executable, "-B", os.path.join(HERE, "verify_tokens_json.py"),
-                            os.path.join(HERE, "..", "..", "vendor"),
-                            os.path.join(HERE, "..", "..", "vendor", "tokens", "tasty.tokens.json")],
+                            vendor, os.path.join(vendor, "tokens", "tasty.tokens.json")],
                            capture_output=True, text=True)
         self.assertEqual(j.returncode, 0, j.stdout + j.stderr)
-        base = sum(int(n) for n in re.findall(r"^\w+: css (\d+) json", j.stdout, re.M))
-        latte = sum(int(n) for n in re.findall(r"\| latte css (\d+) json", j.stdout))
+        tiers = [m.groups() for m in map(JSON_LINE.fullmatch, j.stdout.splitlines()) if m]
+        self.assertEqual(sorted(t[0] for t in tiers), ["component", "primitive", "semantic"], j.stdout)
+        base = sum(int(t[1]) for t in tiers)
+        latte = sum(int(t[2]) for t in tiers)
+        self.assertEqual(got["declarations"], (base, latte))
         self.assertGreater(base, 0)
-        self.assertIn(f"declarations: base {base}, Latte {latte}", out)
-        self.assertRegex(out, r"var\(\) references: base \d+, Latte \d+")
-        for theme in ("base", "Latte"):
-            m = re.search(r"component -> primitive \(%s\): (\d+) \(size (\d+), radius (\d+), duration (\d+)\)" % theme, out)
-            self.assertIsNotNone(m, theme)
-            total, *parts = map(int, m.groups())
-            self.assertEqual(total, sum(parts), m.group(0))
-        self.assertIn("component -> primitive (Latte): 0 (size 0, radius 0, duration 0)", out)
-        self.assertRegex(out, r"component -> component: base \d+, Latte \d+")
-        self.assertRegex(out, r"semantic -> semantic: base \d+, Latte \d+")
-        m = re.search(r"component literals: (\d+) \(([^)]*)\)", out)
-        self.assertIsNotNone(m)
-        self.assertEqual(int(m.group(1)), sum(int(n) for n in re.findall(r" (\d+)(?:,|$)", m.group(2))), m.group(0))
+        self.assertGreater(got["references"][0], 0)
+        for key in ("primitive-base", "primitive-latte"):
+            total, *parts = got[key]
+            self.assertEqual(total, sum(parts), key)
+        self.assertEqual(got["primitive-latte"], (0, 0, 0, 0))
+        total, kinds = got["literals"]
+        self.assertEqual(total, sum(kinds.values()))
 
     def test_defaults_pass_and_count(self):
+        out = self.ok(files(sem_latte={"accent": "var(--tasty-color-base)"},
+                            comp={"button-gap": "var(--tasty-button-pad)"}))
+        got = count_lines(out)
+        # 11 primitives, 3 semantic and 2 + 1 component tokens, plus the 9 literal ones;
+        # one Latte semantic. var(): 3 semantic, 3 component and the Latte one.
+        self.assertEqual(got["declarations"], (len(PRIMITIVE) + len(SEMANTIC) + len(COMPONENT) + 1 + len(LITERAL_DECLS), 1))
+        self.assertEqual(got["references"], (6, 1))
+        self.assertEqual(got["primitive-base"], (1, 1, 0, 0))
+        self.assertEqual(got["primitive-latte"], (0, 0, 0, 0))
+        self.assertEqual(got["component"], (1, 0))
+        self.assertEqual(got["semantic"], (1, 0))
+        self.assertEqual(got["literals"], (9, {"coefficient": 1, "count": 2, "dash": 4, "keyword": 1, "window-shadow": 1}))
+
+    def test_count_lines_rejects_changed_output(self):
         out = self.ok(files())
-        self.assertIn("component -> primitive (base): 1 (size 1, radius 0, duration 0)", out)
-        self.assertIn("component literals: 9 (coefficient 1, count 2, dash 4, keyword 1, window-shadow 1)", out)
+        for old, new in (("dash 4", "??? 4"), ("window-shadow 1)", "window-shadow 1, JUNK)"),
+                         ("Latte 0\nvar()", "Latte 00x\nvar()"),
+                         ("component literals: 9 (coefficient 1, count 2, dash 4, keyword 1, window-shadow 1)",
+                          "component literals: 0 (GARBAGE)"),
+                         ("var() references", "var() refs")):
+            self.assertIn(old, out)
+            with self.assertRaises(AssertionError, msg=new):
+                count_lines(out.replace(old, new))
 
     def test_function_returns_violations(self):
         r, project = self.run_check(files(comp={"bad": "var(--tasty-color-blue)"}))
