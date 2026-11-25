@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { missingCellRows, pageLib } from "./contrast-page.mjs";
 import { measureGallery } from "./contrast-gallery.mjs";
-import { belowRecord, chromeFailures, emptySiteTally, measureRest, mismatchRecord, printChromeFailures, summarize } from "./contrast-site.mjs";
+import { belowRecord, chromeFailures, emptySiteTally, measureRest, mismatchRecord, printChromeFailures, reportChrome, summarize } from "./contrast-site.mjs";
 
 const { selectParts, validateParts, expectedTheme } = pageLib();
 const key = { component: "Title bar", state: "rest", host: "crust" };
@@ -422,6 +422,27 @@ test("chromeFailures: below and wrong ink records fail with their row, details p
     "  chrome below search-edge [gallery chrome] pg/ div.search: #303043 on #1e1e2e 2.64 < 3",
     "  chrome wrong ink header-icon [gallery chrome] pa/ button.icon-btn: #ffffff on #1e1e2e, wants ink (2 paints, 1 off the token)",
   ]);
+});
+
+test("reportChrome: the summary, the verdict and the report count every record, repeats included", () => {
+  const t = emptySiteTally(failRules);
+  t.pages = 16;
+  const icon = t.rows["header-icon"];
+  ["a", "b", "b", "c", "d", "e", "f"].forEach((n) => icon.below.push(rec(`p${n}/`, "button.icon-btn", "#45475a", 1.5)));
+  icon.mismatch.push(rec("pa/", "button.icon-btn", "#ffffff", 17.56));
+  t.rows["search-edge"].below.push(rec("pg/", "div.search", "#303043", 2.64));
+  let res;
+  const lines = captured(() => { res = reportChrome(t, failRules, "mocha"); });
+  assert.equal(lines[0], "mocha gallery chrome: pages 16, text 0, shapes 0, below 0, row below 8, row wrong ink 1");
+  assert.equal(lines.length, 1 + 6 + 1);
+  assert.equal(res.bad, 9);
+  const json = JSON.parse(JSON.stringify({ chromeRows: res.chromeRows }));
+  assert.deepEqual([json.chromeRows.below.length, json.chromeRows.mismatch.length], [8, 1]);
+  // The page scan's own counts still fail on their own.
+  const scan = emptySiteTally(failRules);
+  scan.picture.push({ at: "div", text: "x" });
+  assert.equal(captured(() => { res = reportChrome(scan, failRules, "latte"); }).length, 1);
+  assert.equal(res.bad, 1);
 });
 
 test("chromeFailures: rows with no records give nothing, whatever their found, measured and ink counts", () => {

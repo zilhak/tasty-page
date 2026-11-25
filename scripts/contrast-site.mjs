@@ -497,6 +497,17 @@ export function printChromeFailures(f) {
   printPerRow(f.mismatch, "chrome wrong ink");
 }
 
+// Prints the gallery chrome tally of one theme. Returns how many records fail the gallery and the row records for
+// the --json report. The counts are of every record, repeats included; only the detail lines are limited.
+export function reportChrome(chrome, rules, theme) {
+  const rows = chromeFailures(chrome, rules);
+  const bad = chrome.below.length + chrome.badExempt.length + chrome.picture.length + rows.records.below.length + rows.records.mismatch.length;
+  console.log(`${theme} gallery chrome: pages ${chrome.pages}, text ${chrome.text}, shapes ${chrome.glyph}, below ${chrome.below.length}, row below ${rows.records.below.length}, row wrong ink ${rows.records.mismatch.length}`);
+  chrome.below.slice(0, 100).forEach((b) => console.log(`  chrome ${b.page} ${b.at}: ${b.kind} "${b.text}" ${b.got} on ${b.ground} ${b.ratio} < ${b.grade}`));
+  printChromeFailures(rows);
+  return { bad, chromeRows: rows.records };
+}
+
 // Prints the tally and says whether this theme passed.
 export function summarize(t, rules, theme, pageCount, report) {
   const unlocated = [], unmeasured = [], below = [], mismatch = [], notes = [];

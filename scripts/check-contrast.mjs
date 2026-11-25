@@ -28,7 +28,7 @@ import { DEFAULT_LANG, LANGS } from "../src/lib/langs.mjs";
 import { PART_MAP } from "../vendor/gallery/parts/part-map.js";
 import { measureGallery } from "./contrast-gallery.mjs";
 import { installPageLib, missingCellRows, stylesSettled } from "./contrast-page.mjs";
-import { CHECK_LOCALE, chromeFailures, emptySiteTally, measureRest, printChromeFailures, runSite, sitePages, siteRules } from "./contrast-site.mjs";
+import { CHECK_LOCALE, emptySiteTally, measureRest, reportChrome, runSite, sitePages, siteRules } from "./contrast-site.mjs";
 import { closingTab, createWatchdog, tracked } from "./contrast-watchdog.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -233,15 +233,11 @@ async function run() {
       closeHandle.end();
     }
     // The shared parts around the specimens, measured here on the default language paths the site pass leaves out.
-    // A row's below and wrong ink records fail here as on the site (chromeFailures in contrast-site.mjs).
-    const chromeRows = chromeFailures(chrome, rules);
-    const chromeBad = chrome.below.length + chrome.badExempt.length + chrome.picture.length + chromeRows.records.below.length + chromeRows.records.mismatch.length;
-    console.log(`${theme} gallery chrome: pages ${chrome.pages}, text ${chrome.text}, shapes ${chrome.glyph}, below ${chrome.below.length}, row below ${chromeRows.records.below.length}, row wrong ink ${chromeRows.records.mismatch.length}`);
-    chrome.below.slice(0, 100).forEach((b) => console.log(`  chrome ${b.page} ${b.at}: ${b.kind} "${b.text}" ${b.got} on ${b.ground} ${b.ratio} < ${b.grade}`));
-    printChromeFailures(chromeRows);
-    if (chromeBad > 0) failed = true;
+    // A row's below and wrong ink records fail here as on the site (reportChrome in contrast-site.mjs).
+    const chromeResult = reportChrome(chrome, rules, theme);
+    if (chromeResult.bad > 0) failed = true;
     t.missingCells = argOf("--page") ? [] : missingCellRows(data.components, measuredRows);
-    report.themes[theme] = { ...t, chromePasses: chrome.passes, chromeRows: chromeRows.records };
+    report.themes[theme] = { ...t, chromePasses: chrome.passes, chromeRows: chromeResult.chromeRows };
     const measured = t.rows + t.text + t.glyph + t.inputs;
     const bad = t.unlocated.length + t.mismatch.length + t.below.length + t.diagnostics.length + t.other.length + t.badExempt.length + t.missingCells.length + t.errors.length;
     console.log(`${theme}: cells ${t.cells}, rows ${t.rows} (ok ${t.ok}, unlocated ${t.unlocated.length}, mismatch ${t.mismatch.length}, below ${t.below.length}), text ${t.text}, svgs ${t.svgs} (${t.glyph} painted shapes, ${t.emptySvgs} svgs painting nothing, ${t.paintServer} gradient or pattern paints not measured), inputs ${t.inputs}, below on page ${t.other.length}, on a picture ${t.picture}, missing cells ${t.missingCells.length}, page errors ${t.errors.length}`);
