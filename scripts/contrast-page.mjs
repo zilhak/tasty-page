@@ -244,6 +244,7 @@ export function pageLib() {
   const directText = (el) => [...el.childNodes].some((n) => n.nodeType === Node.TEXT_NODE && n.textContent.trim());
   // A text row reads an element that shows text. A family row spans a whole drawing, so it reads the element holding the text.
   const showsText = (row, el, pseudo, family) => pseudo || el.tagName === "INPUT" || (family ? directText(el) : el.textContent.trim() !== "");
+  const sameState = (row, o) => o.state === row.state || (row.state === "rest" && o.state === "selected");
   const measureRows = (rows, allRows, family, tokens, theme) => rows.map((row) => {
     const res = { id: row.id, found: [], measured: 0, inkHits: 0, results: [] };
     for (const alt of alternatives(row.selector)) {
@@ -260,9 +261,12 @@ export function pageLib() {
         res.measured += 1;
         if (r.inkOk) res.inkHits += 1;
         if (r.below || !r.inkOk) {
-          // Another row of the same kind may name this element: .site-nav a also matches the current link. The focus row
-          // does not count: its ring is drawn only on focus, and its outline color would excuse a frame's text at rest.
-          r.otherRow = allRows.some((o) => o !== row && o.state !== "focus" && alternatives(o.selector).some((a) => el.matches(bare(a)) && (judgeRow(o, el, pseudoOf(a), tokens, theme) || {}).inkOk));
+          // Another row may name this element: .site-nav a also matches the current link. Only a row that reads the same paint
+          // in the same state counts: the same kind and pseudo element, and the same state, or a selected row for an element a
+          // rest row reads. A selected item's own ink is not excused by the rest ink. The focus row does not count: its ring is
+          // drawn only on focus, and its outline color would excuse a frame's text at rest.
+          r.otherRow = allRows.some((o) => o !== row && o.kind === row.kind && o.state !== "focus" && sameState(row, o)
+            && alternatives(o.selector).some((a) => pseudoOf(a) === pseudo && el.matches(bare(a)) && (judgeRow(o, el, pseudo, tokens, theme) || {}).inkOk));
           res.results.push(r);
         }
       }
