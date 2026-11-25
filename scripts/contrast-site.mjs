@@ -49,6 +49,26 @@ const SEARCH_PAGE = "guide/";
 const DRAWER_PAGES = ["", "guide/", "design/"];
 const TAB_STOPS = 14;
 
+// Specimen pages outside design/gallery. They are measured like a gallery page and do not count as one.
+export const SPECIMEN_ROUTES = [{ key: "tokens", path: "design/tokens/" }];
+const isFile = (path) => existsSync(path) && statSync(path).isFile();
+
+// The built gallery pages: the foundations page first, then each folder under design/gallery with a built index.html in name
+// order, then the specimen routes. The foundations page and the specimen routes must be built, so any of them without an
+// index.html file is listed in missing. pages is null when design/gallery itself is not built.
+export function galleryPages(dist) {
+  const dir = join(dist, "design/gallery");
+  if (!existsSync(dir) || !statSync(dir).isDirectory()) return { pages: null, missing: [] };
+  const required = [{ key: "foundations", path: "design/gallery/" }, ...SPECIMEN_ROUTES];
+  const missing = required.filter((p) => !isFile(join(dist, p.path, "index.html"))).map((p) => p.path);
+  const sub = [];
+  for (const name of readdirSync(dir).sort()) {
+    const path = join(dir, name);
+    if (statSync(path).isDirectory() && isFile(join(path, "index.html"))) sub.push({ key: name, path: `design/gallery/${name}/` });
+  }
+  return { pages: [required[0], ...sub, ...SPECIMEN_ROUTES], missing };
+}
+
 export function sitePages(dist) {
   const pages = [];
   const walk = (dir, rel) => {

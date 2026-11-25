@@ -20,7 +20,7 @@
  * synchronous work in this process (contrast-watchdog.mjs).
  */
 import { createServer } from "node:http";
-import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { writeFile } from "node:fs/promises";
 import { dirname, extname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -31,7 +31,7 @@ import { PART_MAP } from "../vendor/gallery/parts/part-map.js";
 import { USAGE, parseArgs } from "./contrast-args.mjs";
 import { measureGallery } from "./contrast-gallery.mjs";
 import { installPageLib, missingCellRows, stylesSettled } from "./contrast-page.mjs";
-import { CHECK_LOCALE, emptySiteTally, measureRest, reportChrome, runSite, sitePages, siteRules } from "./contrast-site.mjs";
+import { CHECK_LOCALE, SPECIMEN_ROUTES, emptySiteTally, galleryPages, measureRest, reportChrome, runSite, sitePages, siteRules } from "./contrast-site.mjs";
 import { closingTab, createWatchdog, tracked } from "./contrast-watchdog.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -40,8 +40,6 @@ const dist = join(root, "dist");
 let opts = null;
 const THEMES = ["mocha", "latte"];
 const EXPECTED_PAGES = 15;
-// Specimen pages outside design/gallery. They are measured like a gallery page and do not count as one.
-const SPECIMEN_ROUTES = [{ key: "tokens", path: "design/tokens/" }];
 // A full run takes about 230s here and 250-330s in CI. The total limit is about three times that, and leaves room in the
 // Design job's 20 minutes: up to 65s before this step, 900s, 10s to close and 2s to flush come to about 977s. The stall limit
 // is above the longest single wait with a limit of its own, 180s (launch, gallery goto and networkidle).
@@ -98,14 +96,12 @@ function serve() {
   });
 }
 
-function galleryPages() {
-  const dir = join(dist, "design/gallery");
-  if (!existsSync(dir)) fail("No built gallery. Run npm run build first.");
-  const pages = [{ key: "foundations", path: "design/gallery/" }];
-  for (const name of readdirSync(dir).sort()) {
-    if (statSync(join(dir, name)).isDirectory()) pages.push({ key: name, path: `design/gallery/${name}/` });
-  }
-  return [...pages, ...SPECIMEN_ROUTES];
+// The gallery pages a run measures. A build without design/gallery, or without one of the pages every build has, is refused.
+function builtGallery() {
+  const { pages, missing } = galleryPages(dist);
+  if (pages === null) fail("No built gallery. Run npm run build first.");
+  if (missing.length > 0) fail(`Built gallery is missing ${missing.map((p) => `${p}index.html`).join(", ")}. Run npm run build first.`);
+  return pages;
 }
 
 // Specimens are measured once, on the default language path. Each other language path repeats the same source, so the site
@@ -140,7 +136,7 @@ async function run() {
   if (stallS >= totalS) fail(`The stall limit (${stallS}s) must be below the total limit (${totalS}s).`);
   // The built pages are listed, and a wrong page key refused, before the time limit starts: no exit here can meet a timeout.
   const { siteOnly, galleryOnly } = opts;
-  const built = siteOnly ? [] : galleryPages();
+  const built = siteOnly ? [] : builtGallery();
   if (opts.page !== null && !built.some((p) => p.key === opts.page)) fail(`No gallery page ${JSON.stringify(opts.page)}. Pages: ${built.map((p) => p.key).join(", ")}.\n${USAGE}`);
   const pages = opts.page === null ? built : built.filter((p) => p.key === opts.page);
   if (!siteOnly && opts.page === null && pages.length !== EXPECTED_PAGES + SPECIMEN_ROUTES.length) fail(`Expected ${EXPECTED_PAGES} gallery pages and ${SPECIMEN_ROUTES.length} specimen routes, found ${pages.length} in all.`);
