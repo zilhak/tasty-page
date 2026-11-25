@@ -644,7 +644,7 @@
   --tasty-workspace-running-count-gap:       var(--tasty-size-2);  /* 2 — slot → numeral; clears the attached ring and the keycap */
   --tasty-workspace-running-count-min-width: var(--tasty-size-10); /* 10 — two D2Coding digits at micro, so 0 to 99 never move the name. Another mono font: the wider of this and its two digits */
   --tasty-workspace-running-count-font-size: var(--tasty-font-size-micro); /* 10 — mono, weight medium */
-  --tasty-workspace-running-count-max:       99; /* @kind other */ /* above → "99+", the one row whose column grows */
+  --tasty-workspace-running-count-max:       var(--tasty-count-display-max); /* 99 — above → "99+", the one row whose column grows */
 
   /* Move source — the pending "Move Surface / Tab / Pane" target (app-wide, max one).
      IS the target  → dashed ring drawn INSIDE the target rect (surface rect · tab cell
@@ -699,7 +699,7 @@
   --tasty-notification-badge-glyph-gap:     var(--tasty-size-2);
   --tasty-notification-badge-group-gap:     var(--tasty-space-xs);  /* 4 — badges side by side (LNB, popup toolbar) */
   --tasty-notification-badge-stack-gap:     var(--tasty-size-2);    /* 2 — badges stacked (rail) */
-  --tasty-notification-badge-max:           99; /* @kind other */                     /* above → "99+" */
+  --tasty-notification-badge-max:           var(--tasty-count-display-max); /* 99 — above → "99+" */
   --tasty-notification-summary-pad:         var(--tasty-space-sm);  /* 8 — block padding, same as the Tools block */
   --tasty-notification-summary-row-height:  var(--tasty-size-24);   /* line 1 = ghost sm button height */
   --tasty-notification-summary-pad-x:       var(--tasty-space-sm);

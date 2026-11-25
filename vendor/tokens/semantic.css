@@ -2,8 +2,8 @@
    Tasty — TIER 2 · SEMANTIC tokens
    ------------------------------------------------------------
    Roles & intent. A value reads a PRIMITIVE or another role. The
-   only literals are the shadows, the attention ranks and the Latte
-   node-dim-opacity. Color-mix derivations and the role-remaps under
+   only literals are the shadows, the attention ranks, the count
+   display cap and the Latte node-dim-opacity. Color-mix derivations and the role-remaps under
    Latte are flagged inline.
 
    • DO read these from components / app code / the COMPONENT layer.
@@ -167,6 +167,9 @@
      design and code can't drift apart */
   --tasty-attention-rank-needs-input: 30; /* @kind other */
   --tasty-attention-rank-completion:  10; /* @kind other */
+  /* count display cap — a count above this shows as "99+". One reason for every compact count (workspace running
+     count, notification badge, attention count), so they share one literal role (TOKENS.md, Literal parameters) */
+  --tasty-count-display-max: 99; /* @kind other */
 
   /* macOS traffic-light roles — OS-recognized affordance colors, theme-invariant
      (point straight at the OS primitives, like accent-window-close). */
