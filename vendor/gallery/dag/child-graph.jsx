@@ -340,7 +340,7 @@ export function ChildGraphSection() {
             </>)}
           </View>
           <View name="child-surface-selector-empty" label="No terminal surface in any window — the picker is disabled">
-            <Frame w={560} h={200}><ChildGraphSurface nodes={[]} baseId="" status="empty" windows={[]} /></Frame>
+            <Frame w={560} h={200} fluid><ChildGraphSurface nodes={[]} baseId="" status="empty" windows={[]} /></Frame>
           </View>
           <View name="child-surface-picker-locales" label="ko, ja, zh-Hans — the open picker">
             <div style={{ display: "flex", flexWrap: "wrap", gap: 16 }}>
@@ -491,7 +491,7 @@ export function ChildGraphSection() {
             </>)}
           </View>
           <View name="child-graph-remote-no-profile" label="A remote surface attached with no profile name — Remote on its card, no Attach profile row in its drawer">
-            <Frame w={640} h={320}><ChildView nodes={CHILD_CROSS.map((n) => (n.id === "s_R1" ? { ...n, profile: "" } : n))} baseId="s_L1" selected="s_R1" /></Frame>
+            <Frame w={640} h={320} fluid><ChildView nodes={CHILD_CROSS.map((n) => (n.id === "s_R1" ? { ...n, profile: "" } : n))} baseId="s_L1" selected="s_R1" /></Frame>
           </View>
           <View name="child-graph-chain-lod" label="The three-machine chain at compact and block — the remote glyph, then the state fill">
             <div style={{ display: "flex", flexWrap: "wrap", gap: 16 }}>

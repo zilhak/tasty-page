@@ -57,9 +57,11 @@ function RemoteItem({ host, state = "connected", dropHost = false, lang = "en" }
 // One 24px bar, the same drawing as the "What the 24px bar carries" specimen, with the
 // remote item leading the left cluster. drop = how many collapse steps have run:
 // 1 grid → 2 shell → 3 surface id → 4 palette cap → 5 branch text → 6 host text.
-function Bar({ w, remote, drop = 0, branch = null, shell = null, lang = "en" }) {
+// The stage states keep their width (the collapse order places each item at it). fluid: the language view below fills
+// its grid cell up to w, as it did before, so it adds no scroll at 1440.
+function Bar({ w, remote, drop = 0, branch = null, shell = null, lang = "en", fluid = false }) {
   return (
-    <div style={{ width: w, flex: "none", height: "var(--tasty-status-bar-height)", display: "flex", alignItems: "center", gap: 10, padding: "0 10px", boxSizing: "border-box",
+    <div style={{ width: w, ...(fluid ? { maxWidth: "100%" } : { flex: "none" }), height: "var(--tasty-status-bar-height)", display: "flex", alignItems: "center", gap: 10, padding: "0 10px", boxSizing: "border-box",
       background: "var(--tasty-bg-sidebar)", border: "1px solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius-sm)",
       fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)", overflow: "hidden" }}>
       {remote && <RemoteItem {...remote} dropHost={drop >= 6} lang={lang} />}
@@ -134,7 +136,7 @@ export function RemoteStatusBarSpec() {
         </View>
         <View name="statusbar-remote-no-profile" label="No profile name (--ssh or --target-port from the CLI or IPC) — the word Remote in the host slot, every language, then hover">
           <div style={{ display: "flex", flexDirection: "column", gap: 12, minWidth: 300 }}>
-            {["en", "ko", "ja", "zh-Hans"].map((lang) => <Labeled key={lang} label={lang}><Bar w={470} lang={lang} remote={{ host: "" }} /></Labeled>)}
+            {["en", "ko", "ja", "zh-Hans"].map((lang) => <Labeled key={lang} label={lang}><Bar w={470} lang={lang} remote={{ host: "" }} fluid /></Labeled>)}
             <Labeled label="hover — no host line">
               <div style={{ paddingTop: 56, display: "flex", justifyContent: "center", minWidth: 300 }}>
                 <Tooltip open placement="top" content={<BarTip host="" />}>

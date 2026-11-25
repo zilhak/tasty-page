@@ -203,9 +203,11 @@ function ExpDetail({ focused = true }) {
   );
 }
 
-function ExplorerFrame({ focused = true }) {
+// The full layout stage keeps the frame at its width. fluid: the focus views below fill their grid cell up to that width,
+// as they did before, so their narrower pane ends its names in an ellipsis at the pane edge and adds no scroll at 1440.
+function ExplorerFrame({ focused = true, fluid = false }) {
   return (
-    <div style={{ width: "var(--tasty-explorer-full-specimen-width)", flex: "none", display: "flex", flexDirection: "column", height: 420,
+    <div style={{ ...(fluid ? { width: "100%", maxWidth: "var(--tasty-explorer-full-specimen-width)" } : { width: "var(--tasty-explorer-full-specimen-width)", flex: "none" }), display: "flex", flexDirection: "column", height: 420,
       background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
       <ExpInternalTabs />
       <ExpToolbar />
@@ -719,7 +721,7 @@ function Page() {
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)" }}>
             <ExplorerFrame />
           </Stage>
-          {focusViews("explorer-full-layout", (focused) => <ExplorerFrame focused={focused} />)}
+          {focusViews("explorer-full-layout", (focused) => <ExplorerFrame focused={focused} fluid />)}
           <Meta
             specs={[["focus", <>the file area takes the bed, <span className="tok">--tasty-surface-bed-focused</span> or <span className="tok">--tasty-surface-bed-unfocused</span>; tabs, toolbar, sidebar, header and status line stay</>], ["surface", "fills a work-area tile"], ["internal tabs", <>28px · per-cwd, with <span className="ic">×</span> + <span className="ic">＋</span></>], ["toolbar", "44px · nav · path field · view toggle"], ["sidebar", <>196px — Files tree + Favorites</>], ["splitter", <>1px <span className="tok">--tasty-separator</span>, drag to resize</>], ["row height", <>28 (Detail) · <span className="tok">--tasty-table-cell-height</span> — the shared Table</>], ["detail columns", <>Size 80 · Date modified 132 · Type 92, fixed (not resizable) · Name takes the rest, floor 140 <span className="tok">--tasty-explorer-detail-name-col-min-width</span> · narrower pane → the table is clipped on the right, no horizontal scroll · header and rows share one track list</>], ["row name", "ellipsis at its Name cell end or at the pane's clip edge, whichever comes first · room = clip edge − name start"], ["detail header", "shared Table header — UI font · table-header-font-size 11 · weight medium · caps"], ["min height", <>180 · <span className="tok">--tasty-explorer-min-height</span> — the split drag stops here (tabs 28 + toolbar 44 + header 28 + 2 rows + status 24)</>], ["selected row", <span className="tok">--tasty-surface-active</span>]]}
             tokens={[{ tok: "--tasty-bg-panel", use: "toolbar + active tab", color: "var(--tasty-bg-panel)" }, { tok: "--tasty-surface-bed-focused", use: "file area, focused", color: "var(--tasty-surface-bed-focused)" }, { tok: "--tasty-surface-bed-unfocused", use: "file area, unfocused", color: "var(--tasty-surface-bed-unfocused)" }, { tok: "--tasty-bg-sidebar", use: "tabs + sidebar + header", color: "var(--tasty-bg-sidebar)" }, { tok: "--tasty-surface-raised", use: "view toggle container", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-segtoggle-on-bg", use: "view toggle — selected segment", color: "var(--tasty-segtoggle-on-bg)" }, { tok: "--tasty-input-bg", use: "path field", color: "var(--tasty-input-bg)" }, { tok: "--tasty-surface-active", use: "selected row (rows only)", color: "var(--tasty-surface-active)" }, { tok: "--tasty-accent-warning", use: "favorite star", color: "var(--tasty-accent-warning-raised)" }, { tok: "--tasty-accent-primary", use: "active tab bar", color: "var(--tasty-accent-primary-raised)" }]} />
