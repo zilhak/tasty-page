@@ -647,3 +647,42 @@ test("walkFocus with the page library: past the ordinary stops the walk asks for
   delete globalThis.window;
   delete globalThis.document;
 });
+
+// One frame whose border and background are grey, read by a row that wants black. Each candidate row below differs from an
+// excusing twin (same kind, state and pseudo element, grey token) in one thing only.
+const excusedBy = (measured, candidate) => {
+  const frame = el("div", { cls: ["table-wrap"], style: { borderTopWidth: "1px", borderTopColor: "rgb(128, 128, 128)", backgroundColor: "rgb(128, 128, 128)" } });
+  page([frame]);
+  const tokens = { edge: { mocha: "#000000" }, grey: { mocha: "#808080" } };
+  const [res] = lib.measureRows([measured], [measured, candidate], [], tokens, "mocha");
+  delete globalThis.document;
+  assert.equal(res.results.length, 1);
+  return res.results[0].otherRow;
+};
+const frameRow = (over = {}) => ({ id: "frame-edge", kind: "edge", selector: ".table-wrap", token: "edge", grade: null, state: "rest", ...over });
+const twin = (over = {}) => ({ id: "frame-twin", kind: "edge", selector: ".table-wrap", token: "grey", grade: null, state: "rest", ...over });
+
+test("measureRows: a row of the same kind, state and pseudo element excuses the ink", () => {
+  assert.equal(excusedBy(frameRow(), twin()), true);
+});
+
+test("measureRows: a row of another kind does not excuse the ink, though its own paint matches", () => {
+  assert.equal(excusedBy(frameRow(), twin({ kind: "mark" })), false);
+});
+
+test("measureRows: a selected row excuses a rest row's ink on the selected item, not the other way round", () => {
+  assert.equal(excusedBy(frameRow(), twin({ state: "selected" })), true);
+  assert.equal(excusedBy(frameRow({ state: "selected" }), twin()), false);
+});
+
+test("measureRows: a pointer state row does not excuse a rest row's ink", () => {
+  assert.equal(excusedBy(frameRow(), twin({ state: "hover", selector: ".table-wrap:hover" })), false);
+});
+
+test("measureRows: no focus row excuses an ink, even for another focus row", () => {
+  assert.equal(excusedBy(frameRow({ state: "focus" }), twin({ state: "focus" })), false);
+});
+
+test("measureRows: a row naming a pseudo element does not excuse the element's own ink", () => {
+  assert.equal(excusedBy(frameRow(), twin({ selector: ".table-wrap::before" })), false);
+});
