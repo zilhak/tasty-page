@@ -20,7 +20,8 @@ function ZBrokenMenu({ tip = false }) {
   );
 }
 
-const zMenu = { width: "var(--tasty-size-240)", background: "var(--tasty-menu-bg)", border: "var(--tasty-border-width) solid var(--tasty-menu-border)", borderRadius: "var(--tasty-menu-radius)", padding: "var(--tasty-space-xs)", boxShadow: "var(--tasty-shadow-popover)" };
+// An explorer menu grows to its longest row from a 240 floor, so a label beside its shortcut does not elide in D2Coding.
+const zMenu = { minWidth: "var(--tasty-size-240)", width: "max-content", background: "var(--tasty-menu-bg)", border: "var(--tasty-border-width) solid var(--tasty-menu-border)", borderRadius: "var(--tasty-menu-radius)", padding: "var(--tasty-space-xs)", boxShadow: "var(--tasty-shadow-popover)" };
 // The keyboard ring is a layer after the row, as the app paints it after the list body: it sits on top of a
 // selected row's opaque fill instead of under it. Inset, so it never moves layout.
 function ZCursor({ children, on = true }) {
