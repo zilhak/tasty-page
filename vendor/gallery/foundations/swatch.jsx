@@ -14,11 +14,12 @@ export function SwatchGrid({ children }) {
   return <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(var(--tasty-size-96), 1fr))", gap: "var(--tasty-space-xs)" }}>{children}</div>;
 }
 
-// name: the short name. sub: an optional second name, such as the primitive step.
+// name: the short name. sub: an optional second name, such as the primitive step. The chip can paint the ground's own
+// colour (neutral-200 is bg-panel), so the tile and the chip edge read swatch-border: the edge alone shows it is there.
 export function Swatch({ token, theme, name, sub }) {
   return (
-    <div style={{ minWidth: 0, background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
-      <div style={{ height: "var(--tasty-size-48)", background: `var(--tasty-${token})`, borderBottom: "var(--tasty-border-width) solid var(--tasty-border-default)" }} />
+    <div style={{ minWidth: 0, background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-swatch-border)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
+      <div style={{ height: "var(--tasty-size-48)", background: `var(--tasty-${token})`, borderBottom: "var(--tasty-border-width) solid var(--tasty-swatch-border)" }} />
       <div style={{ padding: "var(--tasty-space-xs) var(--tasty-space-sm)" }}>
         <div className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", fontWeight: "var(--tasty-font-weight-semibold)", color: "var(--tasty-text-primary)" }}>{name}</div>
         {sub && <div style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)", overflowWrap: "anywhere" }}>{sub}</div>}

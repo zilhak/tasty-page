@@ -36,7 +36,7 @@ const isColor = (name) => INDEX[name].$type === "color";
 const short = (v) => (v.length > 22 && v.includes(",") ? `${v.split(",")[0]} …` : v);
 
 function Chip({ name, theme, size = "var(--tasty-icon-size-xs)" }) {
-  return <span data-theme={theme} style={{ display: "inline-block", flex: "none", width: size, height: size, background: `var(--tasty-${name})`, border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius-sm)" }} />;
+  return <span data-theme={theme} style={{ display: "inline-block", flex: "none", width: size, height: size, background: `var(--tasty-${name})`, border: "var(--tasty-border-width) solid var(--tasty-swatch-border)", borderRadius: "var(--tasty-radius-sm)" }} />;
 }
 
 function Name({ children }) {
