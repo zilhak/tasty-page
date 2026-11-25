@@ -14,7 +14,9 @@ const CSS = `
   justify-content: center;
   min-width: var(--tasty-kbd-size);
   height: var(--tasty-kbd-size);
-  padding: 0 var(--tasty-kbd-padding-x);
+  /* The app draws the edge inside the cap: width = label + 2 × kbd-padding-x, at least kbd-size. Here the box is
+     border-box, so the side padding gives back the 1px side borders. */
+  padding: 0 calc(1 * var(--tasty-kbd-padding-x) + -1 * var(--tasty-border-width));
   border: var(--tasty-border-width) solid var(--tasty-border-strong);
   border-bottom-width: var(--tasty-kbd-shadow-depth);
   border-radius: var(--tasty-radius-sm);
