@@ -91,7 +91,9 @@ function mergeScan(t, s, page, viewport) {
 
 // A row that read several svg paints keeps the lowest one as low: a below record shows that paint, a wrong ink record
 // the first paint off the token (see judgeInks in contrast-page.mjs).
-const belowRecord = (rec) => (rec.low ? { ...rec, ...rec.low } : rec);
+// low is not written to the report.
+export const belowRecord = ({ low, ...rec }) => (low ? { ...rec, ...low } : rec);
+export const mismatchRecord = ({ low, ...rec }) => rec;
 const inksNote = (b) => (b.inks === undefined ? "" : ` (${b.inks} paints, ${b.off} off the token)`);
 
 function mergeRow(t, rules, res, page, viewport) {
@@ -102,7 +104,7 @@ function mergeRow(t, rules, res, page, viewport) {
   res.results.forEach((r) => {
     const rec = { ...r, page, viewport };
     if (r.below) row.below.push(belowRecord(rec));
-    if (!r.inkOk && !r.otherRow && !rules.family.has(res.id)) row.mismatch.push(rec);
+    if (!r.inkOk && !r.otherRow && !rules.family.has(res.id)) row.mismatch.push(mismatchRecord(rec));
     if (r.picture) t.picture.push({ at: r.at, text: res.id, page, viewport });
   });
 }
@@ -276,7 +278,7 @@ async function pointerPass(env, origin, t, rules, theme) {
         rec.measured += 1;
         if (r.inkOk) rec.inkHits += 1;
         if (r.below) rec.below.push(belowRecord({ ...r, page, viewport: row.state }));
-        if (!r.inkOk) rec.mismatch.push({ ...r, page, viewport: row.state });
+        if (!r.inkOk) rec.mismatch.push(mismatchRecord({ ...r, page, viewport: row.state }));
       }
     }
     await tab.close();
@@ -301,7 +303,7 @@ async function focusPass(env, origin, t, rules, theme) {
         rec.measured += 1;
         if (r.inkOk) rec.inkHits += 1;
         if (r.below) rec.below.push(belowRecord({ ...r, page, viewport: "focus" }));
-        if (!r.inkOk) rec.mismatch.push({ ...r, page, viewport: "focus" });
+        if (!r.inkOk) rec.mismatch.push(mismatchRecord({ ...r, page, viewport: "focus" }));
       }
       await tab.close();
     });

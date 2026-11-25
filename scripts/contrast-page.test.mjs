@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { missingCellRows, pageLib } from "./contrast-page.mjs";
+import { belowRecord, mismatchRecord } from "./contrast-site.mjs";
 
 const { selectParts, validateParts, expectedTheme } = pageLib();
 const key = { component: "Title bar", state: "rest", host: "crust" };
@@ -115,9 +116,10 @@ test("a scoped theme value other than latte maps to Mocha", () => {
 });
 
 // A small stand-in for the DOM the row paints are read from. Selectors are comma lists of tag names, .classes and
-// [attributes]; a node's computed style is its style object over the defaults below.
+// [attributes]; a node's computed style is its style object over the defaults below. As in a browser a shape fills
+// black unless its style says otherwise, and a shape under a display: none svg has no box.
 const SVG_NS = "http://www.w3.org/2000/svg";
-const DEFAULT_STYLE = { display: "inline", visibility: "visible", opacity: "1", stroke: "none", strokeWidth: "1px", strokeOpacity: "1", fill: "none", fillOpacity: "1", color: "rgb(0, 0, 0)", backgroundColor: "rgba(0, 0, 0, 0)", backgroundImage: "none", content: "none", position: "static" };
+const DEFAULT_STYLE = { display: "inline", visibility: "visible", opacity: "1", stroke: "none", strokeWidth: "1px", strokeOpacity: "1", fill: "rgb(0, 0, 0)", fillOpacity: "1", color: "rgb(0, 0, 0)", backgroundColor: "rgba(0, 0, 0, 0)", backgroundImage: "none", content: "none", position: "static" };
 class Node_ {
   constructor(tag, { style = {}, cls = [], attrs = {}, box = [10, 10], ns } = {}, children = []) {
     this.tagName = tag.toUpperCase();
@@ -151,7 +153,7 @@ globalThis.getComputedStyle = (node) => node.style;
 
 const lib = pageLib();
 const WHITE = [[255, 255, 255, 1]];
-const stroke = (color, extra = {}) => ({ style: { stroke: color, ...extra } });
+const stroke = (color, extra = {}) => ({ style: { stroke: color, fill: "none", ...extra } });
 
 test("judgeInks: a second paint off the token fails the token, the record is that paint", () => {
   const j = lib.judgeInks([[0, 0, 0, 1], [64, 64, 64, 1]], WHITE, [0, 0, 0, 1], 3);
@@ -197,7 +199,7 @@ test("judgeInks: no token value skips the token, no grade skips the grade, and n
 });
 
 test("rowInks: an element reads every svg inside it, a hidden first svg reads nothing", () => {
-  const moon = el("svg", { style: { display: "none" } }, [el("path", { style: { display: "none", stroke: "rgb(0, 0, 0)" } })]);
+  const moon = el("svg", { style: { display: "none" } }, [el("path", { ...stroke("rgb(0, 0, 0)"), box: [0, 0] })]);
   const sun = el("svg", {}, [el("path", stroke("rgb(10, 10, 10)"))]);
   const chevron = el("svg", {}, [el("path", stroke("rgb(20, 20, 20)"))]);
   const button = el("button", {}, [moon, sun, chevron]);
@@ -247,5 +249,71 @@ test("measureRows: a site glyph row fails on a second svg paint off the token", 
   assert.equal(res.inkHits, 0);
   assert.equal(res.results.length, 1);
   assert.deepEqual([res.results[0].got, res.results[0].inks, res.results[0].off, res.results[0].inkOk, res.results[0].below], ["#404040", 2, 1, false, false]);
+  delete globalThis.document;
+});
+
+test("judgeInks: each paint takes its own lowest ground, not the first paint's", () => {
+  // Black is lowest on #202020, white on #e0e0e0: the white paint off the token is reported on #e0e0e0.
+  const j = lib.judgeInks([[0, 0, 0, 1], [255, 255, 255, 1]], [[32, 32, 32, 1], [224, 224, 224, 1]], [0, 0, 0, 1], null);
+  assert.equal(j.off, 1);
+  assert.deepEqual(j.mismatch, { ratio: 1.32, got: "#ffffff", ground: "#e0e0e0" });
+  assert.equal(j.worst.ground, "#202020");
+});
+
+test("judgeSvgPart: a gallery svg part fails on a second stroke off the token", () => {
+  const svg = el("svg", {}, [el("rect", stroke("rgb(0, 0, 0)")), el("path", stroke("rgb(64, 64, 64)"))]);
+  const black = [0, 0, 0, 1];
+  assert.deepEqual(lib.judgeSvgPart(svg, undefined, [255, 255, 255, 1], black, 3, () => {}),
+    { ratio: 10.37, got: "#404040", ground: "#ffffff", status: "mismatch", inks: 2, off: 1 });
+  const same = el("svg", {}, [el("rect", stroke("rgb(0, 0, 0)")), el("path", stroke("rgb(0, 0, 0)"))]);
+  assert.deepEqual(lib.judgeSvgPart(same, undefined, [255, 255, 255, 1], black, 3, () => {}),
+    { ratio: 21, got: "#000000", ground: "#ffffff", status: "ok" });
+  const below = el("svg", {}, [el("rect", stroke("rgb(0, 0, 0)")), el("path", stroke("rgb(224, 224, 224)"))]);
+  assert.equal(lib.judgeSvgPart(below, undefined, [255, 255, 255, 1], null, 3, () => {}).status, "below");
+  assert.deepEqual(lib.judgeSvgPart(el("span"), undefined, [255, 255, 255, 1], black, 3, () => {}),
+    { status: "mismatch", got: "none", ground: "#ffffff", inks: 0, off: 0 });
+});
+
+const page = (children) => {
+  const body = el("body", { style: { backgroundColor: "rgb(255, 255, 255)" } }, children);
+  globalThis.document = { querySelectorAll: (sel) => body.querySelectorAll(sel), documentElement: body };
+  return body;
+};
+const hovered = (node) => { const own = node.matches.bind(node); node.matches = (sel) => sel === ":hover" || own(sel); return node; };
+
+test("measureAimed: a pointer row fails on a second svg paint off the token", () => {
+  const svg = el("svg", {}, [el("path", stroke("rgb(0, 0, 0)")), el("path", stroke("rgb(64, 64, 64)"))]);
+  const button = hovered(el("button", {}, [svg]));
+  page([button]);
+  globalThis.window = { __aimed: { pointer: button, target: button, pseudo: null } };
+  const row = { id: "header-icon-hover", kind: "glyph", selector: ".x:hover", token: "ink", grade: 3, state: "hover" };
+  const r = lib.measureAimed(row, { ink: { mocha: "#000000" } }, "mocha");
+  assert.deepEqual([r.reached, r.measured, r.got, r.inks, r.off, r.inkOk], [true, true, "#404040", 2, 1, false]);
+  delete globalThis.window;
+  delete globalThis.document;
+});
+
+test("measureAimed: a line with a box in one direction is measured as the target", () => {
+  const line = el("line", { ...stroke("rgb(0, 0, 0)"), box: [24, 0] });
+  const button = hovered(el("button", {}, [el("svg", {}, [line])]));
+  page([button]);
+  globalThis.window = { __aimed: { pointer: button, target: line, pseudo: null } };
+  const row = { id: "header-icon-hover", kind: "glyph", selector: ".x:hover", token: "ink", grade: 3, state: "hover" };
+  const r = lib.measureAimed(row, { ink: { mocha: "#000000" } }, "mocha");
+  assert.deepEqual([r.reached, r.measured, r.got, r.inks, r.inkOk], [true, true, "#000000", 1, true]);
+  delete globalThis.window;
+  delete globalThis.document;
+});
+
+test("site records: a token miss on one paint and a grade miss on another report each paint, without low", () => {
+  const svg = el("svg", {}, [el("path", stroke("rgb(0, 0, 0)")), el("path", stroke("rgb(224, 224, 224)"))]);
+  page([el("button", { cls: ["icon-btn"] }, [svg])]);
+  const row = { id: "header-icon", kind: "glyph", selector: ".icon-btn", token: "ink", grade: 3, state: "rest" };
+  const [res] = lib.measureRows([row], [row], [], { ink: { mocha: "#e0e0e0" } }, "mocha");
+  const [r] = res.results;
+  assert.deepEqual([r.inkOk, r.below], [false, true]);
+  const pick = ({ got, ground, ratio, inks, off, low }) => ({ got, ground, ratio, inks, off, low });
+  assert.deepEqual(pick(mismatchRecord(r)), { got: "#000000", ground: "#ffffff", ratio: 21, inks: 2, off: 1, low: undefined });
+  assert.deepEqual(pick(belowRecord(r)), { got: "#e0e0e0", ground: "#ffffff", ratio: 1.32, inks: 2, off: 1, low: undefined });
   delete globalThis.document;
 });

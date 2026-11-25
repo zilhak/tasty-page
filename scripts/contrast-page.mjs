@@ -160,6 +160,15 @@ export function pageLib() {
     };
   };
 
+  // A gallery contract row whose part is an svg: the row's status and the paint it reports. No paint reports none.
+  const judgeSvgPart = (el, paint, ground, want, grade, onPaintServer) => {
+    const inks = rowInks(el, onPaintServer, paint);
+    if (inks.length === 0) return { status: "mismatch", got: "none", ground: hex(ground), inks: 0, off: 0 };
+    const j = judgeInks(inks.map(({ ink, shape }) => [ink[0], ink[1], ink[2], ink[3] * opacityOf(shape)]), [ground], want, grade);
+    const status = j.off ? "mismatch" : j.gradeOk ? "ok" : "below";
+    return { ...(j.off ? j.mismatch : j.worst), status, ...(status === "ok" ? {} : { inks: j.inks, off: j.off }) };
+  };
+
   const outsideGallery = (el) => el.closest("[data-gallery-page]") === null;
   const where = (el) => {
     const name = (e) => e.tagName.toLowerCase() + (typeof e.className === "string" && e.className.trim() ? "." + e.className.trim().split(/\s+/)[0] : "");
@@ -365,7 +374,7 @@ export function pageLib() {
     return judgeRow(row, el, null, tokens, theme);
   };
 
-  return { selectParts, validateParts, expectedTheme, parse, over, ratio, hex, near, overlays, opacityOf, visible, svgInks, shapeInks, rowInks, rowShown, judgeInks, inkOn, measureRows, scan, alternatives, pseudoOf, bare, pick, aim, measureAimed, measureFocus };
+  return { selectParts, validateParts, expectedTheme, parse, over, ratio, hex, near, overlays, opacityOf, visible, svgInks, shapeInks, rowInks, rowShown, judgeInks, judgeSvgPart, inkOn, measureRows, scan, alternatives, pseudoOf, bare, pick, aim, measureAimed, measureFocus };
 }
 
 export const installPageLib = (tab) => tab.addScriptTag({ content: `window.__contrast = (${pageLib})();` });
