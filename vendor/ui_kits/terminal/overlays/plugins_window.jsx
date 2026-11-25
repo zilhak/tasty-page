@@ -10,7 +10,7 @@ import { Input } from "../../../components/forms/Input.jsx";
 import { Switch } from "../../../components/forms/Switch.jsx";
 import { ic, Icon } from "../chrome.jsx";
 import { Scrim, Spinner as TastyKit_Spinner } from "./shared.jsx";
-import { attnEmpty } from "./plugins_attention_copy.js";
+import { attnEmpty, installedEmpty } from "./plugins_attention_copy.js";
 
 // Tasty UI kit — Plugins window (lifecycle: install / enable / uninstall).
 // Mirrors zilhak/tasty → src/view/plugins.rs + src/view/plugins/ui/{list,add}.rs
@@ -597,7 +597,8 @@ function PluginsSeg({ value, label, count, danger, on, hover, onPick, onPointer 
 }
 
 // hoverTab: a frame pins the pointer hover on one header tab ("installed" | "attention" | "add").
-// lang: the language of the empty Attention tab copy (en, ko, ja, zh-Hans; plugins_attention_copy.js). Other copy is English.
+// lang: the language of the empty Attention tab and empty Installed list copy (en, ko, ja, zh-Hans; plugins_attention_copy.js).
+// Other copy is English, the filter's "No matches" included.
 function PluginsWindow({ onClose, onFlash, onConfigure, removedAttention, onRemoveAttention, hoverTab = null, lang = "en" }) {
   // 2026-11-08 — removed reserved-id folders. The app keeps this (so the sidebar badge drops too); a
   // standalone window falls back to its own state.
@@ -630,6 +631,7 @@ function PluginsWindow({ onClose, onFlash, onConfigure, removedAttention, onRemo
   // plugin means pointing Tasty at a LOCAL folder (the “Add plugin” tab). Online
   // catalog browse + install-by-id are deferred (docs/dev-guide/plugin-packaging.md).
   const list = PLUGIN_LIST.filter((p) => installed[p.id] && matches(p));
+  const [installedEmptyText, installedEmptyLang] = installedEmpty(lang);
   const sel = PLUGIN_LIST.find((p) => p.id === selId);
   const selVisible = sel && installed[sel.id] && matches(sel);
 
@@ -857,11 +859,15 @@ function PluginsWindow({ onClose, onFlash, onConfigure, removedAttention, onRemo
                 </div>
               );
             })}
-            {list.length === 0 && (
+            {list.length === 0 && (q ? (
               <div style={{ padding: "var(--tasty-space-lg) 0 0", fontSize: "var(--tasty-font-size-body)", color: "var(--tasty-text-muted)" }}>
-                {q ? "No matches" : "No plugins installed."}
+                No matches
               </div>
-            )}
+            ) : (
+              <div lang={installedEmptyLang} style={{ padding: "var(--tasty-space-lg) 0 0", fontSize: "var(--tasty-font-size-body)", color: "var(--tasty-text-muted)" }}>
+                {installedEmptyText}
+              </div>
+            ))}
           </div>
 
           {/* detail */}
