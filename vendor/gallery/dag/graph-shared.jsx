@@ -14,11 +14,13 @@ import { gt } from "../../ui_kits/terminal/overlays/graph_copy.js";
 const cap = { fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" };
 
 // lang: the UI language of a locale frame, set on the box so :lang() picks font-label as the app does.
+// The frame keeps its width: a graph narrower than its wide form draws the narrow form (the narrow rule below), so a
+// frame drawn wide is that wide, and a narrower column scrolls the stage instead of squeezing it.
 export function Frame({ label, w, h, lang, children, style }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", minWidth: 0, flex: "none" }}>
       {label && <span style={cap}>{label}</span>}
-      <div lang={lang} style={{ position: "relative", width: w, height: h, maxWidth: "100%", display: "flex", flexDirection: "column", overflow: "hidden",
+      <div lang={lang} style={{ position: "relative", width: w, height: h, flex: "none", display: "flex", flexDirection: "column", overflow: "hidden",
         boxSizing: "border-box", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)",
         background: "var(--tasty-bg-panel)", ...style }}>{children}</div>
     </div>
