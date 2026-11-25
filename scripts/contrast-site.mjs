@@ -461,6 +461,42 @@ export async function runSite({ browser, origin, dist, rules, theme, report, wat
   return summarize(t, rules, theme, pages.length, report);
 }
 
+// One row's own failures as detail lines: each below record and each wrong ink record, with its paint count.
+const rowFailureLines = (row, r) => ({
+  below: r.below.map((b) => `${row.id} [${b.viewport}] ${b.page} ${b.at}: ${b.got} on ${b.ground} ${b.ratio} < ${row.grade}${inksNote(b)}`),
+  mismatch: r.mismatch.map((b) => `${row.id} [${b.viewport}] ${b.page} ${b.at}: ${b.got} on ${b.ground}, wants ${row.token}${inksNote(b)}`),
+});
+
+// Prints detail lines a few per row, so one broad failure does not hide another row. A repeated line prints once.
+const printPerRow = (lines, tag) => {
+  const shown = new Map();
+  new Set(lines).forEach((l) => {
+    const id = l.split(/[ :]/)[0];
+    shown.set(id, (shown.get(id) || 0) + 1);
+    if (shown.get(id) <= 5) console.log(`  ${tag} ${l}`);
+  });
+};
+
+// The row failures of the gallery chrome pass: the same below and wrong ink records the site pass counts for a row.
+// The rows' found, measured and ink counts are left out: those pages show only some of the site rows.
+export function chromeFailures(t, rules) {
+  const out = { below: [], mismatch: [], records: { below: [], mismatch: [] } };
+  for (const row of rules.rows) {
+    const r = t.rows[row.id];
+    const lines = rowFailureLines(row, r);
+    out.below.push(...lines.below);
+    out.mismatch.push(...lines.mismatch);
+    r.below.forEach((b) => out.records.below.push({ row: row.id, ...b }));
+    r.mismatch.forEach((b) => out.records.mismatch.push({ row: row.id, ...b }));
+  }
+  return out;
+}
+
+export function printChromeFailures(f) {
+  printPerRow(f.below, "chrome below");
+  printPerRow(f.mismatch, "chrome wrong ink");
+}
+
 // Prints the tally and says whether this theme passed.
 export function summarize(t, rules, theme, pageCount, report) {
   const unlocated = [], unmeasured = [], below = [], mismatch = [], notes = [];
@@ -468,8 +504,9 @@ export function summarize(t, rules, theme, pageCount, report) {
     const r = t.rows[row.id];
     if (r.found === 0) unlocated.push(row.id);
     else if (r.measured === 0) unmeasured.push(row.id);
-    r.below.forEach((b) => below.push(`${row.id} [${b.viewport}] ${b.page} ${b.at}: ${b.got} on ${b.ground} ${b.ratio} < ${row.grade}${inksNote(b)}`));
-    r.mismatch.forEach((b) => mismatch.push(`${row.id} [${b.viewport}] ${b.page} ${b.at}: ${b.got} on ${b.ground}, wants ${row.token}${inksNote(b)}`));
+    const lines = rowFailureLines(row, r);
+    below.push(...lines.below);
+    mismatch.push(...lines.mismatch);
     if (r.measured > 0 && r.inkHits === 0) mismatch.push(`${row.id}: no element shows ${row.token}`);
     r.notes.forEach((n) => notes.push(`${row.id}: ${n}`));
   }
@@ -481,17 +518,8 @@ export function summarize(t, rules, theme, pageCount, report) {
   console.log(`  no grade: ${Object.entries(t.gradeNone).map(([k, v]) => `${k} ${v}`).join(", ") || "none"}`);
   unlocated.forEach((id) => console.log(`  no element for row ${id}`));
   unmeasured.forEach((id) => console.log(`  nothing measured for row ${id}`));
-  // A few lines per row, so one broad failure does not hide another row.
-  const perRow = (lines, tag) => {
-    const shown = new Map();
-    new Set(lines).forEach((l) => {
-      const id = l.split(/[ :]/)[0];
-      shown.set(id, (shown.get(id) || 0) + 1);
-      if (shown.get(id) <= 5) console.log(`  ${tag} ${l}`);
-    });
-  };
-  perRow(below, "below");
-  perRow(mismatch, "wrong ink");
+  printPerRow(below, "below");
+  printPerRow(mismatch, "wrong ink");
   const seen = new Set();
   t.below.forEach((b) => {
     const key = `${b.at} ${b.text} ${b.got} ${b.ground}`;

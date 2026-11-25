@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { missingCellRows, pageLib } from "./contrast-page.mjs";
 import { measureGallery } from "./contrast-gallery.mjs";
-import { belowRecord, emptySiteTally, measureRest, mismatchRecord, summarize } from "./contrast-site.mjs";
+import { belowRecord, chromeFailures, emptySiteTally, measureRest, mismatchRecord, printChromeFailures, summarize } from "./contrast-site.mjs";
 
 const { selectParts, validateParts, expectedTheme } = pageLib();
 const key = { component: "Title bar", state: "rest", host: "crust" };
@@ -385,4 +385,68 @@ test("measureRest: a row missing the token on one paint and the grade on another
   assert.ok(lines.includes("  wrong ink header-icon [wide] guide/ body > button.icon-btn: #000000 on #ffffff, wants ink (2 paints, 1 off the token)"), lines.join("\n"));
   delete globalThis.window;
   delete globalThis.document;
+});
+
+// Two site rows and records shaped as mergeRow writes them.
+const failRules = {
+  rows: [
+    { id: "header-icon", kind: "glyph", selector: ".icon-btn", token: "ink", grade: 3, state: "rest" },
+    { id: "search-edge", kind: "edge", selector: ".search", token: "edge", grade: 3, state: "rest" },
+  ],
+  family: new Set(), tokens: {}, noGrade: () => [], exemptIds: [], grades: {},
+};
+const rec = (page, at, got, ratio, extra = {}) => ({ got, ground: "#1e1e2e", ratio, page, viewport: "gallery chrome", at, ...extra });
+const captured = (fn) => {
+  const lines = [];
+  const log = console.log;
+  console.log = (line) => lines.push(line);
+  try { fn(); } finally { console.log = log; }
+  return lines;
+};
+
+test("chromeFailures: below and wrong ink records fail with their row, details print five per row and kind", () => {
+  const t = emptySiteTally(failRules);
+  const icon = t.rows["header-icon"];
+  // Six different below records and a repeat of the second, inside the first five lines.
+  ["a", "b", "b", "c", "d", "e", "f"].forEach((n) => icon.below.push(rec(`p${n}/`, "button.icon-btn", "#45475a", 1.5)));
+  icon.mismatch.push(rec("pa/", "button.icon-btn", "#ffffff", 17.56, { inks: 2, off: 1 }));
+  t.rows["search-edge"].below.push(rec("pg/", "div.search", "#303043", 2.64));
+  t.rows["search-edge"].found = 3; t.rows["search-edge"].measured = 3; t.rows["search-edge"].inkHits = 3;
+  const f = chromeFailures(t, failRules);
+  assert.deepEqual([f.records.below.length, f.records.mismatch.length], [8, 1]);
+  assert.deepEqual(f.records.mismatch[0], { row: "header-icon", ...icon.mismatch[0] });
+  assert.equal(f.records.below[7].row, "search-edge");
+  const line = (p) => `  chrome below header-icon [gallery chrome] ${p}/ button.icon-btn: #45475a on #1e1e2e 1.5 < 3`;
+  assert.deepEqual(captured(() => printChromeFailures(f)), [
+    line("pa"), line("pb"), line("pc"), line("pd"), line("pe"),
+    "  chrome below search-edge [gallery chrome] pg/ div.search: #303043 on #1e1e2e 2.64 < 3",
+    "  chrome wrong ink header-icon [gallery chrome] pa/ button.icon-btn: #ffffff on #1e1e2e, wants ink (2 paints, 1 off the token)",
+  ]);
+});
+
+test("chromeFailures: rows with no records give nothing, whatever their found, measured and ink counts", () => {
+  const t = emptySiteTally(failRules);
+  assert.deepEqual(chromeFailures(t, failRules), { below: [], mismatch: [], records: { below: [], mismatch: [] } });
+  t.rows["header-icon"].found = 2;
+  t.rows["search-edge"].found = 4; t.rows["search-edge"].measured = 4; t.rows["search-edge"].inkHits = 0;
+  assert.deepEqual(chromeFailures(t, failRules), { below: [], mismatch: [], records: { below: [], mismatch: [] } });
+});
+
+test("summarize: below lines of every row come first, then each row's wrong ink lines and its no element line", () => {
+  const t = emptySiteTally(failRules);
+  for (const id of ["header-icon", "search-edge"]) {
+    const r = t.rows[id];
+    r.found = 1; r.measured = 1; r.inkHits = 0;
+    r.below.push(rec("guide/", id, "#45475a", 1.5));
+    r.mismatch.push(rec("guide/", id, "#ffffff", 17.56));
+  }
+  const lines = captured(() => summarize(t, failRules, "mocha", 1, {})).filter((l) => /^ {2}(below|wrong ink) /.test(l));
+  assert.deepEqual(lines, [
+    "  below header-icon [gallery chrome] guide/ header-icon: #45475a on #1e1e2e 1.5 < 3",
+    "  below search-edge [gallery chrome] guide/ search-edge: #45475a on #1e1e2e 1.5 < 3",
+    "  wrong ink header-icon [gallery chrome] guide/ header-icon: #ffffff on #1e1e2e, wants ink",
+    "  wrong ink header-icon: no element shows ink",
+    "  wrong ink search-edge [gallery chrome] guide/ search-edge: #ffffff on #1e1e2e, wants edge",
+    "  wrong ink search-edge: no element shows edge",
+  ]);
 });
