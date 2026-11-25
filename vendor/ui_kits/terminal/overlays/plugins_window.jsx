@@ -790,7 +790,7 @@ function PluginsWindow({ onClose, onFlash, onConfigure, removedAttention, onRemo
         border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden",
         boxShadow: "var(--tasty-shadow-modal)" }}>
         {/* header */}
-        <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", height: 48, flex: "none", padding: "0 var(--tasty-space-md)",
+        <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", height: 48, flex: "none", paddingLeft: "var(--tasty-plugins-header-pad-left)", paddingRight: "var(--tasty-plugins-header-pad-right)",
           borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)", background: "var(--tasty-bg-sidebar)" }}>
           {/* the header ornament reads plugins-header-glyph (accent-decorative, no contrast target), as the app does */}
           <span data-ink-grade="none" data-ink-why="ornament" style={{ display: "inline-flex", color: "var(--tasty-plugins-header-glyph)" }}>

@@ -4556,6 +4556,14 @@
       "$type": "dimension",
       "$value": "{primitive.size-14}"
     },
+    "plugins-header-pad-left": {
+      "$type": "dimension",
+      "$value": "{primitive.size-20}"
+    },
+    "plugins-header-pad-right": {
+      "$type": "dimension",
+      "$value": "{semantic.space-lg}"
+    },
     "plugins-header-glyph": {
       "$type": "color",
       "$value": "{semantic.accent-decorative}"

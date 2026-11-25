@@ -923,6 +923,8 @@
   --tasty-plugins-attention-list-width: var(--tasty-size-240); /* 2026-11-25 left list column of the Attention tab (the app's 240 at 100%), empty or not */
   --tasty-plugins-window-width:     var(--tasty-size-880); /* 2026-11-25 default inner width of the plugins window (the app opens it at 880 × 560) */
   --tasty-plugins-inset:            var(--tasty-size-14); /* 2026-11-25 horizontal inset of the trust box, the Add and detail action bars and the manifest-read hint (also its vertical inset), and the card-to-trust-box gap. The app's PLUGIN_ADD_INSET, off the 4px grid by the app's own value */
+  --tasty-plugins-header-pad-left:  var(--tasty-size-20); /* 2026-11-26 header: window edge to the plug glyph. The app's panel frame 8 + spacing_md 12 */
+  --tasty-plugins-header-pad-right: var(--tasty-space-lg); /* 2026-11-26 header: window edge to the close button. The app's panel frame 8 + spacing_sm 8 */
   --tasty-plugins-header-glyph:     var(--tasty-accent-decorative); /* window-header ornament — peach, but decorative: NOT accent-attention */
   --tasty-plugins-tab-focus-ring:   var(--tasty-accent-primary-raised); /* 2026-11-25 keyboard focus ring of a tab on the tab bar's surface-active pill (RULES focus-ring: active ground). Unused since the tab bar follows the app (tabs on the header's mantle, no pill): the ring there is base.css's border-focus. Kept, as tokens are never removed */
   /* Plugin avatar — the square initial mark that stands in for a plugin icon
