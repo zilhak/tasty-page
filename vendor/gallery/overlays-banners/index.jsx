@@ -492,23 +492,23 @@ function Page() {
         <Spec id="elastic-width-the-interpolated-program-name" title="Elastic width — the interpolated program name"
           when={<>Every row interpolates a program name of arbitrary length, and word order differs by locale (en: name last; ko/ja: name first; zh-Hans: name in the middle). So a row's label is <b>two parts</b>: the <b>fixed text</b> (never truncates) and the <b>program name</b> in <b>mono</b> (same row ink as the fixed text: text-secondary at rest, text-primary on hover — 2026-10-08), which is the part that <b>shrinks and ellipsises</b>. The menu grows with the content between <b>200px</b> and <b>288px</b> (a wider band than the Tools menu's 160–240, since every row carries a program name) and the full name is available as the row's tooltip.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 18, alignItems: "flex-start", flexWrap: "wrap" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 6 }}>
               <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>short name — content-sized (the vim row already passes the 200 floor)</div>
               <BannerMoreMenuG app="vim" />
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 6 }}>
               <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>medium — grows to fit</div>
-              <BannerMoreMenuG app="python3.11" hovered={0} />
+              <BannerMoreMenuG app="python" hovered={0} />
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 6 }}>
               <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>long — capped at 288px, name ellipsises</div>
               <BannerMoreMenuG app="some-very-long-tool-name" />
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 6 }}>
               <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>ja — fixed copy alone exceeds 288: that row wraps, menu stays 288 (2026-10-08)</div>
               <BannerMoreMenuG app="vim" hovered={1} wrapRows={[1]} texts={[["", " の通知をオフにする"], ["", " について、このプログラムのマウスキャプチャを常に無効にする"]]} />
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 6 }}>
               <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>rejected — danger tone on the capture row</div>
               <BannerMoreMenuG app="vim" danger />
             </div>
