@@ -162,6 +162,18 @@
      follows D2Coding here draws running text, not cells. */
   --tasty-font-family-ui:   "D2Coding", -apple-system, BlinkMacSystemFont, "Segoe UI",
                             "Noto Sans", "Helvetica Neue", Arial, sans-serif;
+  /* The UI family in Japanese and in Simplified Chinese. "D2Coding Hangul Latin" is D2Coding with a
+     unicode-range that leaves out Han, kana, CJK punctuation and full-width forms, so it still draws
+     Latin, digits, Hangul and symbols. The language's own CJK fonts draw the rest, so the Han in one
+     word never comes from two faces. Read through tokens/base.css, RULES section 8. */
+  --tasty-font-family-ui-ja: "D2Coding Hangul Latin", "Hiragino Sans", "Hiragino Kaku Gothic ProN",
+                             "Yu Gothic UI", "Yu Gothic", "Meiryo", "Noto Sans CJK JP", "Noto Sans JP",
+                             -apple-system, BlinkMacSystemFont, "Segoe UI",
+                             "Noto Sans", "Helvetica Neue", Arial, sans-serif;
+  --tasty-font-family-ui-zh-hans: "D2Coding Hangul Latin", "PingFang SC", "Hiragino Sans GB",
+                             "Microsoft YaHei UI", "Microsoft YaHei", "Noto Sans CJK SC", "Noto Sans SC",
+                             -apple-system, BlinkMacSystemFont, "Segoe UI",
+                             "Noto Sans", "Helvetica Neue", Arial, sans-serif;
   /* The same names without D2Coding and without the generic family, in the same order. For a place that
      must not draw in D2Coding, and so that a language's own font names can come before the generic family. */
   --tasty-font-family-mono-system: "SF Mono", "Cascadia Code", "JetBrains Mono", ui-monospace, "Menlo", "Consolas";

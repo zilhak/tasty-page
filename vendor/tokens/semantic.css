@@ -328,7 +328,7 @@
   --tasty-tint-edge-width:   var(--tasty-size-2); /* 2 — the accent-box's one leading edge (Do / Don't callouts, notes). HAIRLINE — zoom-exempt like selection-edge-width (2026-10-06) */
 
   /* ── Typography roles ─────────────────────────────────────── */
-  --tasty-font-ui:   var(--tasty-font-family-ui); /* app chrome: D2Coding first in every language. 400 and 500 draw its Regular face, 600 and 700 its Bold. RULES section 8 */
+  --tasty-font-ui:   var(--tasty-font-family-ui); /* app chrome: D2Coding first in every language. 400 and 500 draw its Regular face, 600 and 700 its Bold. In ja and zh-Hans tokens/base.css sets font-family-ui-ja or -zh-hans, where Han and kana skip D2Coding. RULES section 8 */
   --tasty-font-mono: var(--tasty-font-family-mono);
   --tasty-font-prose: var(--tasty-font-family-sans); /* writing about the design: gallery section headings, descriptions, notes and spec tables. Never app chrome, which reads font-ui */
   --tasty-font-label: var(--tasty-font-mono); /* words from the translation catalog drawn as a small label. Mono in en and ko, font-ui in ja and zh-Hans: tokens/base.css, RULES section 8 */
