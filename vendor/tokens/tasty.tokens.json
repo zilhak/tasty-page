@@ -753,6 +753,10 @@
       "$type": "dimension",
       "$value": "760px"
     },
+    "size-880": {
+      "$type": "dimension",
+      "$value": "880px"
+    },
     "size-1100": {
       "$type": "dimension",
       "$value": "1100px"
@@ -4532,6 +4536,14 @@
       "$type": "dimension",
       "$value": "{primitive.size-240}"
     },
+    "plugins-window-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-880}"
+    },
+    "plugins-inset": {
+      "$type": "dimension",
+      "$value": "{primitive.size-14}"
+    },
     "plugins-header-glyph": {
       "$type": "color",
       "$value": "{semantic.accent-decorative}"
@@ -6751,6 +6763,14 @@
     "plugin-trust-specimen-width-sm": {
       "$type": "dimension",
       "$value": "{primitive.size-440}"
+    },
+    "plugin-trust-specimen-width-narrow": {
+      "$type": "dimension",
+      "$value": "{primitive.size-320}"
+    },
+    "plugin-trust-attn-empty-height": {
+      "$type": "dimension",
+      "$value": "{primitive.size-240}"
     },
     "notice-column-inset": {
       "$type": "dimension",

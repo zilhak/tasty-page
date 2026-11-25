@@ -920,6 +920,8 @@
   /* Plugins window */
   --tasty-plugins-list-width:       var(--tasty-size-288); /* left installed-list column */
   --tasty-plugins-attention-list-width: var(--tasty-size-240); /* 2026-11-25 left list column of the Attention tab (the app's 240 at 100%), empty or not */
+  --tasty-plugins-window-width:     var(--tasty-size-880); /* 2026-11-25 default inner width of the plugins window (the app opens it at 880 × 560) */
+  --tasty-plugins-inset:            var(--tasty-size-14); /* 2026-11-25 horizontal inset of the trust box, the Add and detail action bars and the manifest-read hint (also its vertical inset), and the card-to-trust-box gap. The app's PLUGIN_ADD_INSET, off the 4px grid by the app's own value */
   --tasty-plugins-header-glyph:     var(--tasty-accent-decorative); /* window-header ornament — peach, but decorative: NOT accent-attention */
   --tasty-plugins-tab-focus-ring:   var(--tasty-accent-primary-raised); /* 2026-11-25 keyboard focus ring of a tab on the tab bar's surface-active pill (RULES focus-ring: active ground). Unused since the tab bar follows the app (tabs on the header's mantle, no pill): the ring there is base.css's border-focus. Kept, as tokens are never removed */
   /* Plugin avatar — the square initial mark that stands in for a plugin icon
@@ -1700,6 +1702,8 @@
   --tasty-plugin-trust-body-trusted-fg: var(--tasty-accent-success-ink); /* 2026-10-27: trusted one-line body (plugins.trust_trusted_body) — Latte ≥ 5.5:1 on mantle/base+tint */
   --tasty-plugin-trust-specimen-width: var(--tasty-size-560); /* Overlays › Windows plugin trust specimens: default width of the Add panel and reserved-id detail frames */
   --tasty-plugin-trust-specimen-width-sm: var(--tasty-size-440); /* the same specimens' narrower frames: Attention detail, reserved-id notice, ko / ja length */
+  --tasty-plugin-trust-specimen-width-narrow: var(--tasty-size-320); /* 2026-11-25 the same specimens' narrow 320 frames: Add panel and reserved-id detail with long name and path */
+  --tasty-plugin-trust-attn-empty-height: var(--tasty-size-240); /* 2026-11-25 height of the empty Needs attention specimen frame */
   --tasty-notice-column-inset: var(--tasty-space-sm); /* window top-right notice column: inset from the work area edge (under window banners / top-right search bar) */
   --tasty-notice-column-gap: var(--tasty-space-sm); /* gap between stacked notices in the column */
   --tasty-notice-column-width: var(--tasty-size-360); /* notice column width (= search bar width); max = work area − 2 × inset */

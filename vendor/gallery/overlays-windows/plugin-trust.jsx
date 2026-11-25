@@ -55,7 +55,7 @@ function FpLine({ value }) {
 
 function TrustBox2({ kind, lang = "en", attention = false }) {
   const k = KIND[kind]; const c = COPY[lang] || COPY.en;
-  const box = { display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-size-14)", borderRadius: "var(--tasty-radius)",
+  const box = { display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-plugins-inset)", borderRadius: "var(--tasty-radius)",
     background: "var(--tasty-tint-" + k.tone + "-bg)", border: "var(--tasty-border-width) solid var(--tasty-tint-" + k.tone + "-border)" };
   if (kind === "trusted") return (
     <div style={{ ...box, flexDirection: "row", alignItems: "center", fontSize: "var(--tasty-font-size-term-sm)" }}>
@@ -84,7 +84,7 @@ function Bar({ kind, lang = "en", state = "rest", focus = false }) {
   const busy = state === "busy";
   const label = kind === "trusted" ? "Add plugin" : kind === "unknown-key" ? c.trustAdd : c.add;
   return (
-    <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-size-14)", borderTop: "var(--tasty-border-width) solid var(--tasty-separator)", background: "var(--tasty-bg-panel)" }}>
+    <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-plugins-inset)", borderTop: "var(--tasty-border-width) solid var(--tasty-separator)", background: "var(--tasty-bg-panel)" }}>
       <div style={{ flex: 1 }} />
       <div style={{ display: "flex", gap: "var(--tasty-space-sm)", marginLeft: "auto" }}>
         {busy && <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-sm)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}><Spinner size="var(--tasty-icon-size-sm)" label={c.adding} />{c.adding}</span>}
@@ -128,7 +128,7 @@ function AttentionDetail({ reason = "unknown-key", state = "rest" }) {
         <TrustBox2 kind={reason} attention />
         {reason === "unknown-key" && <FpLine value="a13c 4e7f 2b08 9d51  ·  ed25519" />}
       </div>
-      <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-size-14)", borderTop: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-plugins-inset)", borderTop: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
         <span style={{ fontSize: "var(--tasty-font-size-term-sm)", color: "var(--tasty-accent-danger-raised)", display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-sm)" }}><span style={{ width: "var(--tasty-status-dot-size)", height: "var(--tasty-status-dot-size)", borderRadius: "50%", background: "var(--tasty-accent-danger)" }} />Not registered</span>
         <div style={{ flex: 1 }} />
         {busy && <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-sm)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}><Spinner size="var(--tasty-icon-size-sm)" label="Registering" />Registering…</span>}
@@ -224,7 +224,7 @@ function ReservedDetail({ p = RESERVED_SAMPLE, lang = "en", state = "rest", widt
           </div>
         </div>
         <p style={{ margin: 0, fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{c.descHidden}</p>
-        <div role="alert" style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-size-14)", borderRadius: "var(--tasty-radius)",
+        <div role="alert" style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-plugins-inset)", borderRadius: "var(--tasty-radius)",
           background: "var(--tasty-tint-danger-bg)", border: "var(--tasty-border-width) solid var(--tasty-tint-danger-border)" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", color: "var(--tasty-plugin-trust-title-fg)", fontSize: "var(--tasty-font-size-heading)", fontWeight: "var(--tasty-font-weight-semibold)" }}>
             <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-plugin-trust-glyph-danger)" }}><Icon name="alertCircle" size="var(--tasty-icon-size-md)" /></span>
@@ -237,7 +237,7 @@ function ReservedDetail({ p = RESERVED_SAMPLE, lang = "en", state = "rest", widt
           <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)", wordBreak: "break-all", userSelect: "text" }}>{p.dir}</span>
         </div>
       </div>
-      <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-size-14)", borderTop: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
+      <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-plugins-inset)", borderTop: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
         {!confirm && <>
           <span style={{ fontSize: "var(--tasty-font-size-term-sm)", color: "var(--tasty-accent-danger-raised)", display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-sm)" }}>{dot(acc)}{c.status}</span>
           <div style={{ flex: 1 }} />
@@ -306,11 +306,11 @@ function AttnList({ lang = "en", selected = 0 }) {
 // 8 apart (item spacing 4 + space-xs 4), no width cap. The frame is the app's default 880 window, so
 // the detail is 640 wide. Copy is the app's [plugins] attn_empty_title and attn_empty_body in each
 // language, letter for letter, read from the kit's copy module so the kit window and this frame share it.
-const ATTN_EMPTY_WIDTH = "calc(var(--tasty-plugins-attention-list-width) + var(--tasty-size-400) + var(--tasty-size-240))"; // 240 + 640 = 880
+const ATTN_EMPTY_WIDTH = "var(--tasty-plugins-window-width)"; // 880: the list column 240 + the detail 640
 function AttnEmpty({ lang = "en" }) {
   const [title, body, shown] = attnEmpty(lang);
   return (
-    <div lang={shown} style={{ width: ATTN_EMPTY_WIDTH, flex: "none", height: "var(--tasty-size-240)", display: "flex", borderRadius: "var(--tasty-radius)", overflow: "hidden",
+    <div lang={shown} style={{ width: ATTN_EMPTY_WIDTH, flex: "none", height: "var(--tasty-plugin-trust-attn-empty-height)", display: "flex", borderRadius: "var(--tasty-radius)", overflow: "hidden",
       border: "var(--tasty-border-width) solid var(--tasty-border-default)" }}>
       <div style={{ width: "var(--tasty-plugins-attention-list-width)", flex: "none", background: "var(--tasty-bg-sidebar)", borderRight: "var(--tasty-border-width) solid var(--tasty-separator)" }} />
       <div style={{ flex: 1, minWidth: 0, background: "var(--tasty-bg-sidebar)", padding: "calc(var(--tasty-space-sm) + 2 * var(--tasty-space-xl)) var(--tasty-space-sm) 0",
@@ -377,7 +377,7 @@ function PluginTrustSpecs() {
             <Themed key={label} attr={attr}>
               <span className="g-cap" style={cap}>{label}</span>
               <span style={{ ...cap, fontFamily: "var(--tasty-font-mono)" }}>adding — busy, no double add</span><AddPanel kind="unsigned" state="busy" />
-              <span style={{ ...cap, fontFamily: "var(--tasty-font-mono)" }}>narrow 320 · long name + path</span><AddPanel kind="missing-pubkey" narrow width="var(--tasty-size-320)" />
+              <span style={{ ...cap, fontFamily: "var(--tasty-font-mono)" }}>narrow 320 · long name + path</span><AddPanel kind="missing-pubkey" narrow width="var(--tasty-plugin-trust-specimen-width-narrow)" />
               <span style={{ ...cap, fontFamily: "var(--tasty-font-mono)" }}>Needs attention › unknown key</span><AttentionDetail reason="unknown-key" />
               <span style={{ ...cap, fontFamily: "var(--tasty-font-mono)" }}>Needs attention › signature invalid · registering</span><AttentionDetail reason="signature-error" state="busy" />
             </Themed>
@@ -455,8 +455,8 @@ function PluginTrustSpecs() {
           ))}
           <Themed attr="mocha">
             <span className="g-cap" style={cap}>Mocha · narrow 320 · long folder + id · confirm wraps</span>
-            <ReservedDetail p={RESERVED_LONG} width="var(--tasty-size-320)" />
-            <ReservedDetail p={RESERVED_LONG} state="confirm" width="var(--tasty-size-320)" />
+            <ReservedDetail p={RESERVED_LONG} width="var(--tasty-plugin-trust-specimen-width-narrow)" />
+            <ReservedDetail p={RESERVED_LONG} state="confirm" width="var(--tasty-plugin-trust-specimen-width-narrow)" />
           </Themed>
           <Themed attr="mocha">
             <span className="g-cap" style={cap}>Mocha · ko / ja length</span>
