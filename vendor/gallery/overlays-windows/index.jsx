@@ -749,9 +749,9 @@ function Page() {
                 <div className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label}</div>
                 <div className="tasty-scroll" style={{ width: tw, overflowX: "auto", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", background: "var(--tasty-bg-panel)" }}>
                   <WTable columns={PORTS_COLUMNS} rowKey="port" rows={[
-                    { port: 3000, proto: "tcp", addr: "127.0.0.1", proc: "node /usr/local/bin/vite --host --strictPort", pid: 41822, ws: "Project A", state: "LISTEN" },
+                    { port: 3000, proto: "tcp", addr: "127.0.0.1", proc: "node /usr/local/bin/vite --host --strictPort", pid: 41822, ws: "Project A", tab: "dev", state: "LISTEN" },
                     { port: 5432, proto: "tcp", addr: "127.0.0.1", proc: "postgres: checkpointer", pid: 913, ws: null, state: "LISTEN" },
-                    { port: 8080, proto: "tcp", addr: "0.0.0.0", proc: "tasty-agent", pid: 50321, ws: "Project B", state: "LISTEN" },
+                    { port: 8080, proto: "tcp", addr: "0.0.0.0", proc: "tasty-agent", pid: 50321, ws: "Project B", tab: "agent", state: "LISTEN" },
                   ]} />
                 </div>
               </div>

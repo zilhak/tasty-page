@@ -633,7 +633,7 @@ const PORTS_COLUMNS = [
     // As the app's ports_process_cell: the PID Tag keeps its width and only the name ellipsises, so the row is bound to the cell.
     render: (v, row) => (<span style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", minWidth: 0, maxWidth: "100%" }}><span style={{ flex: "0 1 auto", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis" }}>{v}</span><span style={{ flex: "none", display: "inline-flex" }}><Tag>{row.pid}</Tag></span></span>) },
   { key: "ws", header: "Workspace", width: "var(--tasty-port-workspace-col-width)", render: (v) => v || <PortsDash /> },
-  { key: "tab", header: "Tab", width: "var(--tasty-port-tab-col-width)", render: (v) => v || <PortsDash /> },
+  { key: "tab", header: "Tab", sortable: true, width: "var(--tasty-port-tab-col-width)", render: (v) => v || <PortsDash /> },
   { key: "state", header: "State", width: "var(--tasty-port-state-col-width)",
     render: (v) => <StatusDot status={v === "LISTEN" ? "running" : "waiting"} pulse={v === "LISTEN"} label={v} /> },
 ];
