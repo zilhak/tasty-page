@@ -57,6 +57,9 @@ function Marker({ style, kind = "ring" }) {
 function Scrim() { return <div style={{ position: "absolute", inset: 0, background: "var(--tasty-scrim-bg)", pointerEvents: "none" }} />; }
 
 // ── Callout ──
+// Every callout here is the ko copy, so its buttons read the app's ko values: tutorial.btn_skip, btn_back, btn_next.
+const CALLOUT_KO = { skip: "목록", back: "이전", next: "다음" };
+
 function Callout({ tail = "up", step, total = 5, title, body, first, style }) {
   const base = {
     position: "absolute", width: 244, background: "var(--tasty-surface-raised)",
@@ -82,9 +85,9 @@ function Callout({ tail = "up", step, total = 5, title, body, first, style }) {
             <span key={i} style={{ width: 5, height: 5, borderRadius: "50%", background: i === step - 1 ? "var(--tasty-accent-primary)" : "var(--tasty-surface-active)" }} />
           ))}
         </div>
-        <button style={{ appearance: "none", background: "transparent", border: 0, color: "var(--tasty-text-muted-raised)", fontSize: 11, cursor: "pointer", padding: "0 6px", fontFamily: "var(--tasty-font-ui)" }}>Skip</button>
-        {!first && <Button size="sm">Back</Button>}
-        <Button size="sm" variant="primary">Next</Button>
+        <button style={{ appearance: "none", background: "transparent", border: 0, color: "var(--tasty-text-muted-raised)", fontSize: 11, cursor: "pointer", padding: "0 6px", fontFamily: "var(--tasty-font-ui)" }}>{CALLOUT_KO.skip}</button>
+        {!first && <Button size="sm">{CALLOUT_KO.back}</Button>}
+        <Button size="sm" variant="primary">{CALLOUT_KO.next}</Button>
       </div>
     </div>
   );
@@ -164,7 +167,7 @@ function Page() {
             <div style={{ position: "relative" }}><Callout tail="right" step={1} first title="워크스페이스" body="작업에 필요한 페인과 탭을 묶는 공간입니다. 사이드바에서 다른 워크스페이스로 전환할 수 있어요." style={{ position: "relative" }} /></div>
           </Stage>
           <Meta
-            specs={[["width", "244px fixed"], ["tail", "up · down · left · right (12px diamond)"], ["progress", "2/5 label + dot rail"], ["buttons", "Skip (link) · Back (secondary) · Next (primary)"], ["first step", "Back hidden"], ["last step", "Next → 'Done', reopens topic popup"], ["placement", "below → above → right → left; flip on overflow; clamp to 8px safe area"]]}
+            specs={[["width", "244px fixed"], ["tail", "up · down · left · right (12px diamond)"], ["progress", "2/5 label + dot rail"], ["buttons", "tutorial.btn_skip (link) · btn_back (secondary) · btn_next (primary) · ko 목록 · 이전 · 다음 · en Topics · Back · Next"], ["first step", "Back hidden"], ["last step", "btn_next → btn_done (ko 완료 · en Done), reopens topic popup"], ["placement", "below → above → right → left; flip on overflow; clamp to 8px safe area"]]}
             tokens={[{ tok: "--tasty-surface-raised", use: "bubble fill", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-border-frame", use: "1px edge + tail — the popup frame", color: "var(--tasty-border-frame)" }, { tok: "--tasty-shadow-modal", use: "floating lift" }, { tok: "--tasty-accent-primary", use: "step · active dot · Next", color: "var(--tasty-accent-primary-raised)" }]} />
           <Do><b>Do</b> reuse the DS <b>Button</b> (primary Next / secondary Back) and keep Skip as a low-emphasis link — the callout is guidance, not a decision surface.</Do>
         </Spec>
