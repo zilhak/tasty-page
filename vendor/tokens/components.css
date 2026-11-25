@@ -1523,6 +1523,8 @@
   --tasty-remote-window-width:         var(--tasty-size-520); /* 2026-11-26 remote connections window, default size 520 × 460 */
   --tasty-remote-window-height:        var(--tasty-size-460);
   --tasty-remote-pad-x:                var(--tasty-size-14);  /* 2026-11-26 remote connections window: left inset of the header and both insets of the list toolbar and list. The app's PANEL_PAD_L, off the 4px grid by the app's own value */
+  --tasty-remote-content-pad-top:      var(--tasty-size-10);  /* 2026-11-26 remote connections window: tab bar to the list's Add row. The app's CONTENT_PAD_TOP, off the 4px grid by the app's own value */
+  --tasty-remote-detect-spinner-size:  var(--tasty-font-size-caption); /* 2026-11-26 the spinner beside "detecting…" on a profile row: the caption line's size, as the app sizes it */
   --tasty-remote-tab-height:           var(--tasty-size-35);  /* 2026-11-26 remote tab; the tab bar is this plus its 1px bottom edge */
   --tasty-remote-tab-gap:              var(--tasty-size-2);   /* 2026-11-26 between remote tabs */
   --tasty-remote-row-line-gap:         var(--tasty-size-2);   /* 2026-11-26 between the name, target and caption lines of a profile, attach or passkey row */

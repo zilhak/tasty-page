@@ -6023,6 +6023,14 @@
       "$type": "dimension",
       "$value": "{primitive.size-14}"
     },
+    "remote-content-pad-top": {
+      "$type": "dimension",
+      "$value": "{primitive.size-10}"
+    },
+    "remote-detect-spinner-size": {
+      "$type": "dimension",
+      "$value": "{semantic.font-size-caption}"
+    },
     "remote-tab-height": {
       "$type": "dimension",
       "$value": "{primitive.size-35}"
