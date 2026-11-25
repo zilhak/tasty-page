@@ -2829,17 +2829,18 @@ function ModifierHintPanelG({ style, held = "Ctrl", sections = MH_SECTIONS, show
       borderRadius: "var(--tasty-modhint-radius)", boxShadow: "var(--tasty-modhint-shadow)", overflow: "hidden",
       position: "relative", ...style }}>
       {/* drag strip — muted (sidebar) fill, NOT a focus titlebar */}
-      {/* As in the app, the strip content has the strip up to a strip-height square at the right end, and the close
-          button sits in that square at the place it always had. A long held combo stops at the square, so it never runs
-          into the close glyph and never pushes the button out of the panel. */}
+      {/* As in the app, the strip content is laid out in the strip up to a strip-height square at the panel's right edge,
+          and the close button is centred in that square. The labels keep their full width, as the app's horizontal labels
+          do, so a long held combo runs on under the button and is cut at the panel edge, not at the square. */}
       <div style={{ position: "relative", display: "flex", alignItems: "center", flex: "none", height: "var(--tasty-modhint-header-height)",
-        padding: "0 var(--tasty-modhint-header-height) 0 10px", cursor: "move", userSelect: "none",
+        padding: "0 calc(var(--tasty-modhint-header-height) - var(--tasty-border-width)) 0 10px", cursor: "move", userSelect: "none",
         background: "var(--tasty-modhint-header-bg)", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
-        <span style={{ display: "flex", alignItems: "center", gap: 8, flex: 1, minWidth: 0, overflow: "hidden", whiteSpace: "nowrap" }}>
+        <span style={{ display: "flex", alignItems: "center", gap: 8, flex: 1, minWidth: 0, whiteSpace: "nowrap" }}>
           <span style={{ display: "flex", flex: "none" }}><Kbd keys={held} /></span>
           <span style={{ flex: "none", fontSize: 11, color: "var(--tasty-text-muted)" }}>held</span>
         </span>
-        <span style={{ position: "absolute", top: 0, bottom: 0, right: "var(--tasty-space-xs)", display: "flex", alignItems: "center" }}>
+        <span style={{ position: "absolute", top: 0, bottom: 0, right: "calc(-1 * var(--tasty-border-width))", width: "var(--tasty-modhint-header-height)",
+          display: "flex", alignItems: "center", justifyContent: "center" }}>
           <IconButton size="sm" aria-label="Hide for this hold">{ic.x}</IconButton>
         </span>
       </div>
