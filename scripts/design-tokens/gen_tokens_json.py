@@ -81,12 +81,13 @@ def tier_of(tiers):
             owner[key] = tier
     return owner
 
-def alias(value, owner):
+def alias(value, owner, where):
+    """The JSON alias of a var() value; `where` names the token (and theme) in an error."""
     m = ALIAS.fullmatch(value)
     if not m:
         return value  # literals, color-mix(), calc() and lists stay verbatim
     if m.group(1) not in owner:
-        sys.exit(f"alias of a missing token: {value}")
+        sys.exit(f"{where}: alias of a missing token: {value}")
     return "{%s.%s}" % (owner[m.group(1)], m.group(1))
 
 ALIAS = re.compile(r"var\(--tasty-([\w-]+)\)")
@@ -98,20 +99,21 @@ def theme_value(tiers, owner, key, theme):
     base, latte = tiers[owner[key]]
     return latte[key] if theme == "latte" and key in latte else base[key]
 
-def infer_type(key, tier, value, tiers, owner, theme="mocha", seen=()):
+def infer_type(key, tier, value, tiers, owner, theme="mocha"):
     """The $type of a token from its value in one theme. An alias is followed to the token
-    it names, through that theme's values, so a Latte-only cycle is found too."""
-    m = ALIAS.fullmatch(value)
-    if m:
+    it names, through that theme's values, so a Latte-only cycle is found too. The walk is
+    a loop, so a long chain does not reach the recursion limit."""
+    path, at, v = [key], key, value
+    while m := ALIAS.fullmatch(v):
         t = m.group(1)
         if t not in owner:
-            sys.exit(f"{tier}.{key}: alias of a missing token: {value}")
-        if t == key or t in seen:
-            path = " -> ".join((*seen, key, t))
-            sys.exit(f"alias cycle in {theme}: {path}")
-        return infer_type(t, owner[t], theme_value(tiers, owner, t, theme), tiers, owner,
-                          theme, (*seen, key))
-    v = value
+            via = f" (via {' -> '.join(path)})" if len(path) > 1 else ""
+            sys.exit(f"{tier}.{key}: alias of a missing token in {theme}: {v}{via}")
+        if t in path:
+            sys.exit(f"{tier}.{key}: alias cycle in {theme}: {' -> '.join(path + [t])}")
+        path.append(t)
+        at, v = t, theme_value(tiers, owner, t, theme)
+    key = at  # the name rules below read the token that holds the value
     if "font-family" in key: return "fontFamily"
     if key.startswith("font-weight"): return "fontWeight"
     if key.startswith("shadow") or "shadow" in key: return "shadow"
@@ -124,7 +126,8 @@ def infer_type(key, tier, value, tiers, owner, theme="mocha", seen=()):
     # fontStyle is a Tasty type: DTCG has no font-style type (see TOKENS.md, Machine-readable export)
     if v in FONT_STYLE and "font-style" in key: return "fontStyle"
     if NUMBER.fullmatch(v): return "number"
-    sys.exit(f"{tier}.{key}: no $type fits the value {v!r}")
+    where = f"{tier}.{key}" if len(path) == 1 else f"{tier}.{path[0]} (via {' -> '.join(path)})"
+    sys.exit(f"{where}: no $type fits the value {v!r}")
 
 def build(project, prev, pure):
     tiers = collect(project)
@@ -150,17 +153,18 @@ def build(project, prev, pure):
         if "$description" in prev[tier]:
             group["$description"] = prev[tier]["$description"]
         for k in order:
-            value = alias(base[k], owner)
             o = old.get(k) if not pure else None
             typ = infer_type(k, tier, base[k], tiers, owner)
             if k in latte and infer_type(k, tier, latte[k], tiers, owner, "latte") != typ:
                 sys.exit(f"{tier}.{k}: the Latte value has another $type than the base value")
+            value = alias(base[k], owner, f"{tier}.{k}")
             if o and str(o["$value"]) == value:
                 value = o["$value"]  # keeps the old int-vs-string spelling
             entry = {"$type": typ, "$value": value}
             if o and "$description" in o and list(o).index("$description") < list(o).index("$value"):
                 sys.exit(f"unexpected key order: {k}")
-            ext = {"$extensions": {"com.tasty.mode": {"latte": alias(latte[k], owner)}}} if k in latte else {}
+            ext = ({"$extensions": {"com.tasty.mode": {"latte": alias(latte[k], owner, f"{tier}.{k} (latte)")}}}
+                   if k in latte else {})
             desc = {"$description": o["$description"]} if o and "$description" in o else {}
             # key order as the old file has it, when it has the token
             keys = list(o) if o else ["$type", "$value", "$extensions", "$description"]
@@ -175,7 +179,8 @@ if __name__ == "__main__":
     args = [a for a in sys.argv[1:] if a != "--pure"]
     pure = "--pure" in sys.argv
     project, prev_path, out_path = args
-    prev = json.load(open(prev_path, encoding="utf-8"))
+    with open(prev_path, encoding="utf-8") as f:
+        prev = json.load(f)
     res = build(project, prev, pure)
     with open(out_path, "w", encoding="utf-8") as f:
         json.dump(res, f, ensure_ascii=False, indent=2)

@@ -11,6 +11,10 @@ import json, os, subprocess, sys, tempfile, unittest
 HERE = os.path.dirname(os.path.abspath(__file__))
 GEN = os.path.join(HERE, "gen_tokens_json.py")
 VERIFY = os.path.join(HERE, "verify_tokens_json.py")
+sys.path.insert(0, HERE)
+sys.dont_write_bytecode = True
+import gen_tokens_json as gen
+
 FILES = {"primitive": "primitives.css", "semantic": "semantic.css", "component": "components.css"}
 
 
@@ -148,6 +152,33 @@ class InferredTypes(Base):
         self.assertNotIn("$extensions", res["semantic"]["a"])
         self.assertEqual(res["semantic"]["a"]["$type"], "color")
 
+    def test_latte_follows_several_latte_values(self):
+        # a's own Latte value goes to c, whose Latte value goes to e, which reaches a primitive
+        tiers = {"primitive": ({"p1": "#111111", "p2": "#222222"}, {}),
+                 "semantic": ({"e": "var(--tasty-p2)", "c": "var(--tasty-p1)", "b": "var(--tasty-p1)",
+                               "a": "var(--tasty-b)"},
+                              {"c": "var(--tasty-e)", "a": "var(--tasty-c)"})}
+        _, res = self.ok(tiers)
+        self.assertEqual(res["semantic"]["a"]["$type"], "color")
+        self.assertEqual(res["semantic"]["a"]["$extensions"], {"com.tasty.mode": {"latte": "{semantic.c}"}})
+        # the walk itself: in Latte, a reaches p2 through c and e; in Mocha, p1 through b
+        p = self.project({"primitive": ({"p1": "#111111", "p2": "4px"}, {}),
+                          "semantic": ({"e": "var(--tasty-p1)", "c": "var(--tasty-p1)", "b": "var(--tasty-p1)",
+                                        "a": "var(--tasty-b)"},
+                                       {"c": "var(--tasty-e)", "e": "var(--tasty-p2)", "a": "var(--tasty-c)"})})
+        tiers = gen.collect(p.dir)
+        owner = gen.tier_of(tiers)
+        self.assertEqual(gen.infer_type("a", "semantic", tiers["semantic"][1]["a"], tiers, owner, "latte"),
+                         "dimension")
+        self.assertEqual(gen.infer_type("a", "semantic", tiers["semantic"][0]["a"], tiers, owner), "color")
+
+    def test_a_long_chain(self):
+        n = 1100
+        chain = {f"c{i}": f"var(--tasty-c{i + 1})" for i in range(n)}
+        chain[f"c{n}"] = "#89b4fa"
+        _, res = self.ok({"semantic": (chain, {})})
+        self.assertEqual(res["semantic"]["c0"]["$type"], "color")
+
     def test_latte_literal_and_alias_directions_with_the_same_type(self):
         _, res = self.ok({"primitive": ({"c": "#111111"}, {}),
                           "semantic": ({"lit": "#222222", "ali": "var(--tasty-c)"},
@@ -170,7 +201,20 @@ class Rejected(Base):
 
     def test_alias_of_a_missing_token(self):
         self.fails({"semantic": ({"accent": "var(--tasty-nowhere)"}, {})},
-                   "alias of a missing token", "var(--tasty-nowhere)")
+                   "semantic.accent", "alias of a missing token", "var(--tasty-nowhere)")
+        self.fails({"semantic": ({"accent": "var(--tasty-mid)", "mid": "var(--tasty-nowhere)"}, {})},
+                   "semantic.accent", "via accent -> mid", "var(--tasty-nowhere)")
+
+    def test_latte_alias_of_a_missing_token(self):
+        self.fails({"primitive": ({"c": "#111111"}, {}),
+                    "semantic": ({"accent": "var(--tasty-c)"}, {"accent": "var(--tasty-nowhere)"})},
+                   "semantic.accent", "missing token in latte", "var(--tasty-nowhere)")
+
+    def test_long_cycle(self):
+        n = 1100
+        chain = {f"c{i}": f"var(--tasty-c{(i + 1) % n})" for i in range(n)}
+        err = self.fails({"semantic": (chain, {})}, "semantic.c", "alias cycle in mocha")
+        self.assertNotIn("RecursionError", err)
 
     def test_self_cycle(self):
         self.fails({"semantic": ({"loop": "var(--tasty-loop)"}, {})}, "alias cycle", "loop -> loop")
@@ -208,6 +252,19 @@ class VerifyJson(Base):
         r = p.verify()
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
         self.assertIn("errors []", r.stdout)
+
+    def test_missing_targets_name_the_token(self):
+        p, _ = self.regenerated()
+        for name, text in (("semantic.css", ':root, [data-theme] {\n  --tasty-accent: var(--tasty-nowhere);\n}\n'),
+                           ("semantic.css", ':root, [data-theme] {\n  --tasty-accent: var(--tasty-blue);\n}\n'
+                                            '[data-theme="latte"] {\n  --tasty-accent: var(--tasty-nowhere);\n}\n')):
+            with self.subTest(text):
+                with open(os.path.join(p.dir, "tokens", name), "w", encoding="utf-8") as f:
+                    f.write(text)
+                r = p.verify()
+                self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+                self.assertIn("semantic.accent", r.stderr)
+                self.assertIn("var(--tasty-nowhere)", r.stderr)
 
     def test_type_errors_name_the_json_path(self):
         cases = {"missing": None, "not a string": 7, "another type": "dimension"}
