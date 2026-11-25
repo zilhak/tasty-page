@@ -63,8 +63,13 @@ CSS_SPACE = re.compile(r"[ \t\n\r\f]+")  # CSS whitespace only; U+00A0 and the l
 NAME = re.compile(r"--tasty-([a-z0-9-]+)")
 REFERENCE = re.compile(r"var\(--tasty-([a-z0-9-]+)\)")
 # A declaration name at the top level of a value: unescaped name characters, then a colon.
-DECLARATION_START = re.compile(r"--[^ \t\n\r\f:;{}()\[\]\\]*[ \t\n\r\f]*:")
-NAME_CHAR = re.compile(r"[A-Za-z0-9_\x80-\U0010ffff-]")
+# A declaration name at the top level of a value: --, CSS name characters or escapes,
+# then a colon. An escape can end in one whitespace character (\62 ).
+NAME_ESCAPE = r"\\(?:[0-9a-fA-F]{1,6}[ \t\n\r\f]?|[^\n\r\f0-9a-fA-F])"
+DECLARATION_START = re.compile(rf"--(?:[A-Za-z0-9_\x80-\U0010ffff-]|{NAME_ESCAPE})*[ \t\n\r\f]*:")
+# A character after which a new name cannot start: a name character, or # and @, which
+# begin hash and at-keyword tokens.
+NAME_CHAR = re.compile(r"[A-Za-z0-9_\x80-\U0010ffff#@-]")
 CLOSE = {"(": ")", "[": "]", "{": "}"}
 KIND_MARKER = re.compile(r"/\*[ \t\n\r\f]*@kind\b")
 MARKER = "/* @kind other */"
@@ -214,7 +219,7 @@ class Reader:
 
     def read_value(self):
         """Reads up to the semicolon at the top level of the value: outside strings and
-        outside () and [] blocks, with a backslash escaping the next character."""
+        outside (), [] and {} blocks, with a backslash escaping the next character."""
         t = self.text
         start, stack, escaped_to = self.i, [], -1
         while self.i < len(t):
@@ -266,14 +271,17 @@ class Reader:
                     self.i += 1
                     return t[start:semi].strip(), semi
             self.i += 1
-        self.fail("unclosed ( or [ in a value" if stack else "missing semicolon at the end of the file")
+        self.fail("unclosed (, [ or { in a value" if stack else "missing semicolon at the end of the file")
 
     def comments_after(self, semi):
-        """The comments on the line of the semicolon, right after it (only blanks between)."""
+        """The comments that start on the line of the semicolon, right after it (only blanks
+        between). A comment may run onto later lines; a comment after it starts on another line."""
         out, at = [], semi + 1
         while m := re.compile(r"[ \t]*(/\*.*?\*/)", re.S).match(self.text, at):
             out.append(m.group(1))
             at = m.end()
+            if "\n" in m.group(1):
+                break
         return out
 
 

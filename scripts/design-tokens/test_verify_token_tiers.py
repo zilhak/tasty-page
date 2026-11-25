@@ -254,6 +254,9 @@ class Literals(Base):
         self.literal("titlebar-csd-shadow", "0 18px 50px -8px rgba(0,0,0,.5); /* @kind other\n  */",
                      "takes no @kind marker")
 
+    def test_marker_on_the_line_after_a_multi_line_note(self):
+        self.ok(files(comp={"titlebar-csd-shadow": "0 18px 50px -8px rgba(0,0,0,.5); /* note\n  */ /* @kind other */"}))
+
     def test_marker_of_the_next_declaration_on_the_same_line(self):
         t = files()
         t["component"] = t["component"].replace(
@@ -345,6 +348,15 @@ class Reading(Base):
     def test_escaped_colon_and_space_are_not_a_new_declaration(self):
         self.ok(files(prim={"font-family-x": "--Acme\\:Display, sans-serif",
                             "font-family-y": "Acme\\ --x: 4px"}))
+
+    def test_hash_at_keyword_and_dotted_names_are_not_declarations(self):
+        self.ok(files(prim={"font-family-x": "#--x: label", "font-family-y": "@--x: label",
+                            "font-family-z": "red,--x.foo: label"}))
+
+    def test_missing_semicolon_before_an_escaped_name(self):
+        for v in ("calc(var(--tasty-size-4)*2) --tasty-\\62: 4px", "calc(var(--tasty-size-4)*2) --tasty-\\62 : 4px"):
+            with self.subTest(v):
+                self.fails(files(comp={"zz-a": v}), "components.css:", "missing semicolon: a new declaration starts")
 
     def test_missing_semicolon_without_a_space(self):
         t = files(comp={"zz-a": "calc(var(--tasty-size-4)*2)--tasty-zz-b: 4px"})
