@@ -227,6 +227,18 @@ const bareNode = (node) => {
   return node;
 };
 
+// The Token cell of a spec row: every token name in it reads mono, the words around it read the prose face.
+const tokNode = (node) => {
+  if (typeof node === "string") {
+    const parts = node.split(/(--tasty-[\w-]+)/);
+    return parts.length === 1 ? node : parts.map((p, i) => (i % 2 ? <span key={i} className="tok">{bareTok(p)}</span> : p));
+  }
+  if (Array.isArray(node)) return node.map((n, i) => <React.Fragment key={i}>{tokNode(n)}</React.Fragment>);
+  if (node && node.props && node.props.className === "tok") return bareNode(node);
+  if (node && node.props && node.props.children !== undefined) return React.cloneElement(node, undefined, tokNode(node.props.children));
+  return node;
+};
+
 // A length token that is a calc() resolves through a measured width, so the table shows its px value.
 function resolveLength(name) {
   const raw = resolveToken(name);
@@ -246,6 +258,8 @@ function ResolvedLength({ name }) {
 }
 
 // specs: [[label, valueNode], ...]   tokens: [{ tok, use, color }]
+// A spec row with a token shows it in the Token cell and its resolved value, mono, in the Value cell. A row with no
+// token is a description, so its Value cell reads the prose face; token names and code inside a cell stay mono.
 export function Meta({ specs, tokens }) {
   return (
     <>
@@ -259,8 +273,8 @@ export function Meta({ specs, tokens }) {
                 return (
                   <tr key={i}>
                     <td>{bareNode(k)}</td>
-                    <td className="m">{m ? bareNode(v) : null}</td>
-                    <td className="m">{m ? <ResolvedLength name={m[1]} /> : bareNode(v)}</td>
+                    <td>{m ? tokNode(v) : null}</td>
+                    <td className={m ? "m" : undefined}>{m ? <ResolvedLength name={m[1]} /> : bareNode(v)}</td>
                   </tr>
                 );
               })}
