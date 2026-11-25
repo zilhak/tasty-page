@@ -28,7 +28,9 @@ DECL = re.compile(
 def parse(path):
     """-> [(selector, name, value)] with whitespace in values collapsed."""
     scope, out = None, []
-    for m in DECL.finditer(open(path, encoding="utf-8").read()):
+    with open(path, encoding="utf-8") as f:
+        text = f.read()
+    for m in DECL.finditer(text):
         if m.group(2):
             out.append((scope, m.group(2), re.sub(r"\s+", " ", m.group(3)).strip()))
         elif m.group(1) is not None:

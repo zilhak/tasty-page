@@ -109,7 +109,8 @@ class Reader:
 
     def __init__(self, tier, path):
         self.tier, self.path = tier, path
-        self.text = open(path, encoding="utf-8").read()
+        with open(path, encoding="utf-8") as f:
+            self.text = f.read()
         self.i = 0
         self.decls, self.errors = [], []
 
