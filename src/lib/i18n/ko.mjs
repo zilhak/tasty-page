@@ -189,6 +189,7 @@ export default {
   },
   diagrams: {
     windowAnatomy: {
+      name: "윈도우 구성도",
       titlebar: "타이틀바",
       sidebar: "사이드바",
       tabstrip: "탭 스트립",

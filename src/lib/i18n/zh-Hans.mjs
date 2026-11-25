@@ -189,6 +189,7 @@ export default {
   },
   diagrams: {
     windowAnatomy: {
+      name: "窗口结构图",
       titlebar: "标题栏",
       sidebar: "侧边栏",
       tabstrip: "标签栏",

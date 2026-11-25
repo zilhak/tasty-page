@@ -189,6 +189,7 @@ export default {
   },
   diagrams: {
     windowAnatomy: {
+      name: "Window layout diagram",
       titlebar: "Title bar",
       sidebar: "Sidebar",
       tabstrip: "Tab strip",

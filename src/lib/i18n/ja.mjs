@@ -189,6 +189,7 @@ export default {
   },
   diagrams: {
     windowAnatomy: {
+      name: "ウィンドウの構成図",
       titlebar: "タイトルバー",
       sidebar: "サイドバー",
       tabstrip: "タブストリップ",
