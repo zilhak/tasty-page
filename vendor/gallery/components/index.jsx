@@ -400,7 +400,7 @@ function Components() {
             </Cluster>
           </Stage>
           <Meta
-            specs={[["height", <>28px <span className="tok">--tasty-control-height</span></>], ["border", "1px → focus: border-focus edge + 1px ring flush outside, no gap (one solid 2px edge, 1px past the box)"], ["padding", <>0 <span className="tok">--tasty-space-sm</span></>], ["width", "style width sizes the whole box, border and padding included"]]}
+            specs={[["height", <>28px <span className="tok">--tasty-control-height</span></>], ["border", "1px → focus: border-focus edge + 1px ring flush outside, no gap (one solid 2px edge, 1px past the box)"], ["padding", <>0 <span className="tok">--tasty-space-md</span></>], ["width", "style width sizes the whole box, border and padding included"]]}
             tokens={[{ tok: "--tasty-surface-raised", use: "fill", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-border-focus", use: "ring", color: "var(--tasty-border-focus)" }, { tok: "--tasty-accent-danger", use: "invalid", color: "var(--tasty-accent-danger-raised)" }, { tok: "--tasty-text-placeholder", use: "hint" }, { tok: "--tasty-input-readonly-fg", use: "read-only value → text-secondary-raised", color: "var(--tasty-input-readonly-fg)" }]} />
         </Spec>
 
