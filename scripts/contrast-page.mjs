@@ -64,27 +64,46 @@ export function pageLib() {
     const r = el.getBoundingClientRect();
     return r.width > 0 && r.height > 0;
   };
-  // Each stroke and fill the svg itself paints, in document order. A nested svg reports its own. What a defs entry or a
-  // use target holds is not walked: a use counts through its own inherited paint.
-  const svgInks = (svg, onPaintServer) => {
+  // The paints of one shape: its stroke, then its fill (a line has no fill), each through its own stroke-opacity or
+  // fill-opacity. A shape that is hidden, fully transparent, has no box, or sits in a defs-like container paints nothing.
+  // paint names the one property to read ("stroke" or "fill"), so the other is neither read nor counted as a paint server.
+  const SHAPES = "path, circle, rect, line, polyline, polygon, ellipse, use, text";
+  const isShape = (el) => el.namespaceURI === "http://www.w3.org/2000/svg" && el.matches(SHAPES);
+  const shapeShown = (shape) => {
+    if (shape.closest("defs, clipPath, mask, symbol, pattern, marker")) return false;
+    const s = getComputedStyle(shape);
+    if (s.display === "none" || s.visibility !== "visible" || opacityOf(shape) === 0) return false;
+    const r = shape.getBoundingClientRect();
+    return !(r.width === 0 && r.height === 0);
+  };
+  const shapeInks = (shape, onPaintServer, paint) => {
+    if (!shapeShown(shape)) return [];
+    const s = getComputedStyle(shape);
     const inks = [];
-    svg.querySelectorAll("path, circle, rect, line, polyline, polygon, ellipse, use, text").forEach((shape) => {
-      if (shape.closest("svg") !== svg || shape.closest("defs, clipPath, mask, symbol, pattern, marker")) return;
-      const s = getComputedStyle(shape);
-      if (s.display === "none" || s.visibility !== "visible" || opacityOf(shape) === 0) return;
-      const r = shape.getBoundingClientRect();
-      if (r.width === 0 && r.height === 0) return;
-      const add = (paint, alpha) => {
-        if (paint === "none") return;
-        if (paint.startsWith("url(")) { onPaintServer(); return; }
-        const ink = parse(paint);
-        if (ink && ink[3] * alpha > 0) inks.push({ shape, ink: [ink[0], ink[1], ink[2], ink[3] * alpha] });
-      };
-      if (s.strokeWidth !== "0px") add(s.stroke, Number(s.strokeOpacity));
-      if (shape.tagName.toLowerCase() !== "line") add(s.fill, Number(s.fillOpacity));
-    });
+    const add = (value, alpha) => {
+      if (value === "none") return;
+      if (value.startsWith("url(")) { onPaintServer(); return; }
+      const ink = parse(value);
+      if (ink && ink[3] * alpha > 0) inks.push({ shape, ink: [ink[0], ink[1], ink[2], ink[3] * alpha] });
+    };
+    if (paint !== "fill" && s.strokeWidth !== "0px") add(s.stroke, Number(s.strokeOpacity));
+    if (paint !== "stroke" && shape.tagName.toLowerCase() !== "line") add(s.fill, Number(s.fillOpacity));
     return inks;
   };
+  // Each stroke and fill the svg itself paints, in document order. A nested svg reports its own. What a defs entry or a
+  // use target holds is not walked: a use counts through its own inherited paint.
+  const svgInks = (svg, onPaintServer, paint) => [...svg.querySelectorAll(SHAPES)]
+    .filter((shape) => shape.closest("svg") === svg)
+    .flatMap((shape) => shapeInks(shape, onPaintServer, paint));
+  // The paints a row reads on the element it picked: an svg reads its own shapes, a shape reads itself, and any other
+  // element reads every svg inside it, nested ones included, in document order.
+  const rowInks = (el, onPaintServer, paint) => {
+    if (el.tagName.toLowerCase() === "svg") return svgInks(el, onPaintServer, paint);
+    if (isShape(el)) return shapeInks(el, onPaintServer, paint);
+    return [...el.querySelectorAll("svg")].flatMap((svg) => svgInks(svg, onPaintServer, paint));
+  };
+  // Whether a row can read the element: a shape is on screen with a box in one direction, like a horizontal line.
+  const rowShown = (el) => (isShape(el) ? shapeShown(el) : visible(el));
   const inkOn = (ink, el, ground) => over([ink[0], ink[1], ink[2], ink[3] * opacityOf(el)], ground);
 
   // The ground under an element as every value it can read: a gradient contributes each of its stops, so the lowest
@@ -117,6 +136,29 @@ export function pageLib() {
     const rt = ratio(got, ground);
     return !best || rt < best.ratio ? { ratio: rt, got, ground } : best;
   }, null);
+
+  // A row that reads several paints: every paint is judged on its own lowest ground, against the token on that ground
+  // and against the grade. inks are already composited through the opacity above each shape. want is the token value
+  // (null when the row has none to compare) and grade is null when the row has none. The record of a token failure
+  // is the first paint off the token; the record of a grade failure, or of a pass, is the paint with the lowest ratio.
+  const judgeInks = (inks, grounds, want, grade) => {
+    let off = 0, first = null, worst = null;
+    for (const ink of inks) {
+      const low = grounds.reduce((best, ground) => {
+        const got = over(ink, ground);
+        const rt = ratio(got, ground);
+        return !best || rt < best.ratio ? { ratio: rt, got, ground } : best;
+      }, null);
+      if (want && !near(low.got, over(want, low.ground))) { off += 1; if (!first) first = low; }
+      if (!worst || low.ratio < worst.ratio) worst = low;
+    }
+    const show = (v) => v && { ratio: +v.ratio.toFixed(2), got: hex(v.got), ground: hex(v.ground) };
+    return {
+      inks: inks.length, off, tokenOk: want ? off === 0 : null,
+      gradeOk: grade === null || grade === undefined || !worst || worst.ratio >= grade,
+      mismatch: show(first), worst: show(worst),
+    };
+  };
 
   const outsideGallery = (el) => el.closest("[data-gallery-page]") === null;
   const where = (el) => {
@@ -153,9 +195,8 @@ export function pageLib() {
     if (row.kind === "glyph") {
       if (pseudo) ink = parse(cs.borderLeftColor);
       else {
-        const svg = el.tagName.toLowerCase() === "svg" ? el : el.querySelector("svg");
-        const inks = svg ? svgInks(svg, () => {}) : [];
-        if (inks.length) return { ink: inks[0].ink, owner: inks[0].shape, ground: groundsOf(el) };
+        const inks = rowInks(el, () => {});
+        if (inks.length) return { inks, ground: groundsOf(el) };
         ink = parse(cs.color);
       }
     } else if (row.kind === "mark" && !el.textContent.trim()) ink = parse(cs.backgroundColor);
@@ -167,10 +208,21 @@ export function pageLib() {
   };
 
   const judgeRow = (row, el, pseudo, tokens, theme) => {
-    const { ink, owner, ground } = paintOf(row, el, pseudo);
-    if (!ink || ink[3] === 0) return null;
-    const low = lowest(ink, owner || el, ground.grounds);
+    const { ink, inks, ground } = paintOf(row, el, pseudo);
     const want = tokens[row.token] && tokens[row.token][theme] ? parse(tokens[row.token][theme]) : null;
+    if (inks) {
+      // Every paint of the svg counts. A below record reads the lowest paint, a wrong ink record the first one off.
+      const j = judgeInks(inks.map(({ ink: i, shape }) => [i[0], i[1], i[2], i[3] * opacityOf(shape)]), ground.grounds, want, row.grade);
+      const shown = j.off ? j.mismatch : j.worst;
+      return {
+        ...shown, low: j.worst, inks: j.inks, off: j.off, picture: ground.picture,
+        inkOk: want ? j.tokenOk : false,
+        below: row.grade !== null && !j.gradeOk,
+        at: where(el),
+      };
+    }
+    if (!ink || ink[3] === 0) return null;
+    const low = lowest(ink, el, ground.grounds);
     return {
       ratio: +low.ratio.toFixed(2), got: hex(low.got), ground: hex(low.ground), picture: ground.picture,
       inkOk: want ? near(low.got, over(want, low.ground)) : false,
@@ -190,7 +242,7 @@ export function pageLib() {
       const els = pick(alt);
       if (els.length) res.found.push(alt);
       for (const el of els) {
-        if (!visible(el)) continue;
+        if (!rowShown(el)) continue;
         if (row.kind === "text" && !showsText(row, el, pseudo, family.includes(row.id))) continue;
         // A graded row does not read the mark or an ornament inside it. Those have their own rows.
         if (row.grade !== null && el.closest("[data-audit-exempt], [data-ink-grade]")) continue;
@@ -286,7 +338,7 @@ export function pageLib() {
     const m = /^(.*?):(hover|active)(.*)$/.exec(bare.length ? alt : alt);
     const head = m ? m[1] : bare(alt);
     const tail = m ? m[3] : "";
-    const candidates = [...document.querySelectorAll(head)].filter((e) => outsideGallery(e) && (m ? visible(e) : true));
+    const candidates = [...document.querySelectorAll(head)].filter((e) => outsideGallery(e) && (m ? rowShown(e) : true));
     const el = candidates.find((e) => !e.matches("[aria-current]")) || candidates[0];
     if (!el) return null;
     const pseudo = pseudoOf(alt);
@@ -303,7 +355,7 @@ export function pageLib() {
   const measureAimed = (row, tokens, theme) => {
     const { pointer, target, pseudo } = window.__aimed;
     const reached = pointer.matches(":hover");
-    if (!reached || !visible(target)) return { reached, measured: false };
+    if (!reached || !rowShown(target)) return { reached, measured: false };
     const r = judgeRow(row, target, pseudo, tokens, theme);
     return r ? { reached, measured: true, ...r } : { reached, measured: false };
   };
@@ -313,7 +365,7 @@ export function pageLib() {
     return judgeRow(row, el, null, tokens, theme);
   };
 
-  return { selectParts, validateParts, expectedTheme, parse, over, ratio, hex, near, overlays, opacityOf, visible, svgInks, inkOn, measureRows, scan, alternatives, pseudoOf, bare, pick, aim, measureAimed, measureFocus };
+  return { selectParts, validateParts, expectedTheme, parse, over, ratio, hex, near, overlays, opacityOf, visible, svgInks, shapeInks, rowInks, rowShown, judgeInks, inkOn, measureRows, scan, alternatives, pseudoOf, bare, pick, aim, measureAimed, measureFocus };
 }
 
 export const installPageLib = (tab) => tab.addScriptTag({ content: `window.__contrast = (${pageLib})();` });

@@ -113,3 +113,139 @@ test("a scoped theme value other than latte maps to Mocha", () => {
   const frame = themedElement("other", root);
   assert.equal(expectedTheme(themedElement(undefined, frame), "latte"), "mocha");
 });
+
+// A small stand-in for the DOM the row paints are read from. Selectors are comma lists of tag names, .classes and
+// [attributes]; a node's computed style is its style object over the defaults below.
+const SVG_NS = "http://www.w3.org/2000/svg";
+const DEFAULT_STYLE = { display: "inline", visibility: "visible", opacity: "1", stroke: "none", strokeWidth: "1px", strokeOpacity: "1", fill: "none", fillOpacity: "1", color: "rgb(0, 0, 0)", backgroundColor: "rgba(0, 0, 0, 0)", backgroundImage: "none", content: "none", position: "static" };
+class Node_ {
+  constructor(tag, { style = {}, cls = [], attrs = {}, box = [10, 10], ns } = {}, children = []) {
+    this.tagName = tag.toUpperCase();
+    this.namespaceURI = ns ?? (["svg", "path", "rect", "line", "circle", "g", "defs", "text", "use", "polyline", "polygon", "ellipse"].includes(tag) ? SVG_NS : "html");
+    this.style = { ...DEFAULT_STYLE, ...style };
+    this.cls = cls;
+    this.attrs = attrs;
+    this.box = box;
+    this.children = children;
+    this.parentElement = null;
+    children.forEach((c) => { c.parentElement = this; });
+  }
+  simple(sel) {
+    sel = sel.trim();
+    if (sel.startsWith(".")) return this.cls.includes(sel.slice(1));
+    if (sel.startsWith("[")) return sel.slice(1, -1) in this.attrs;
+    return this.tagName.toLowerCase() === sel.toLowerCase();
+  }
+  matches(sel) { return sel.split(",").some((s) => this.simple(s)); }
+  closest(sel) { for (let e = this; e; e = e.parentElement) if (e.matches(sel)) return e; return null; }
+  descendants() { return this.children.flatMap((c) => [c, ...c.descendants()]); }
+  querySelectorAll(sel) { return this.descendants().filter((e) => e.matches(sel)); }
+  querySelector(sel) { return this.querySelectorAll(sel)[0] ?? null; }
+  getBoundingClientRect() { return { width: this.box[0], height: this.box[1], left: 0, top: 0 }; }
+  get textContent() { return ""; }
+  get className() { return this.cls.join(" "); }
+  get childNodes() { return []; }
+}
+const el = (tag, opts, children) => new Node_(tag, opts, children);
+globalThis.getComputedStyle = (node) => node.style;
+
+const lib = pageLib();
+const WHITE = [[255, 255, 255, 1]];
+const stroke = (color, extra = {}) => ({ style: { stroke: color, ...extra } });
+
+test("judgeInks: a second paint off the token fails the token, the record is that paint", () => {
+  const j = lib.judgeInks([[0, 0, 0, 1], [64, 64, 64, 1]], WHITE, [0, 0, 0, 1], 3);
+  assert.equal(j.inks, 2);
+  assert.equal(j.off, 1);
+  assert.equal(j.tokenOk, false);
+  assert.equal(j.gradeOk, true);
+  assert.deepEqual(j.mismatch, { ratio: 10.37, got: "#404040", ground: "#ffffff" });
+});
+
+test("judgeInks: a second paint below the grade inside the token tolerance fails only the grade", () => {
+  // #949494 and #959595 are within one step of each other, at 3.03 and 2.995 on white.
+  const j = lib.judgeInks([[148, 148, 148, 1], [149, 149, 149, 1]], WHITE, [148, 148, 148, 1], 3);
+  assert.equal(j.off, 0);
+  assert.equal(j.tokenOk, true);
+  assert.equal(j.gradeOk, false);
+  // The grade is judged before rounding: 2.995 shows as 3 but is below it.
+  assert.deepEqual(j.worst, { ratio: 3, got: "#959595", ground: "#ffffff" });
+});
+
+test("judgeInks: every paint on the token and above the grade passes", () => {
+  const j = lib.judgeInks([[0, 0, 0, 1], [1, 1, 1, 1]], WHITE, [0, 0, 0, 1], 3);
+  assert.equal(j.tokenOk, true);
+  assert.equal(j.gradeOk, true);
+  assert.equal(j.mismatch, null);
+});
+
+test("judgeInks: each paint is compared with the token on its own lowest ground", () => {
+  // Half black over grey or white: the lowest ratio is on grey, where the token #404040 matches.
+  const j = lib.judgeInks([[0, 0, 0, 0.5]], [[128, 128, 128, 1], [255, 255, 255, 1]], [64, 64, 64, 1], null);
+  assert.equal(j.tokenOk, true);
+  assert.equal(j.worst.ground, "#808080");
+  assert.equal(j.gradeOk, true);
+});
+
+test("judgeInks: no token value skips the token, no grade skips the grade, and no paint is reported as none", () => {
+  const j = lib.judgeInks([[200, 200, 200, 1]], WHITE, null, null);
+  assert.equal(j.tokenOk, null);
+  assert.equal(j.off, 0);
+  assert.equal(j.gradeOk, true);
+  const none = lib.judgeInks([], WHITE, [0, 0, 0, 1], 3);
+  assert.deepEqual([none.inks, none.off, none.tokenOk, none.gradeOk, none.worst], [0, 0, true, true, null]);
+});
+
+test("rowInks: an element reads every svg inside it, a hidden first svg reads nothing", () => {
+  const moon = el("svg", { style: { display: "none" } }, [el("path", { style: { display: "none", stroke: "rgb(0, 0, 0)" } })]);
+  const sun = el("svg", {}, [el("path", stroke("rgb(10, 10, 10)"))]);
+  const chevron = el("svg", {}, [el("path", stroke("rgb(20, 20, 20)"))]);
+  const button = el("button", {}, [moon, sun, chevron]);
+  assert.deepEqual(lib.rowInks(button, () => {}).map((p) => p.ink[0]), [10, 20]);
+});
+
+test("rowInks: an svg reads only its own shapes, a shape reads itself, defs are left out", () => {
+  const inner = el("svg", {}, [el("path", stroke("rgb(30, 30, 30)"))]);
+  const own = el("rect", stroke("rgb(40, 40, 40)"));
+  const def = el("defs", {}, [el("path", stroke("rgb(50, 50, 50)"))]);
+  const outer = el("svg", {}, [own, inner, def]);
+  const wrap = el("span", {}, [outer]);
+  assert.deepEqual(lib.rowInks(outer, () => {}).map((p) => p.ink[0]), [40]);
+  assert.deepEqual(lib.rowInks(wrap, () => {}).map((p) => p.ink[0]), [40, 30]);
+  assert.deepEqual(lib.rowInks(own, () => {}).map((p) => p.ink[0]), [40]);
+});
+
+test("rowInks: paint keeps one property and does not count the other as a paint server", () => {
+  const shape = el("path", { style: { stroke: "url(#g)", fill: "rgba(0, 0, 0, 0.5)" } });
+  const svg = el("svg", {}, [shape]);
+  let servers = 0;
+  assert.equal(lib.rowInks(svg, () => { servers += 1; }).length, 1);
+  assert.equal(servers, 1);
+  servers = 0;
+  assert.deepEqual(lib.rowInks(svg, () => { servers += 1; }, "fill").map((p) => p.ink[3]), [0.5]);
+  assert.equal(servers, 0);
+  assert.deepEqual(lib.rowInks(svg, () => { servers += 1; }, "stroke"), []);
+  assert.equal(servers, 1);
+});
+
+test("rowShown: a line with a box in one direction is shown, a box-less element is not", () => {
+  const line = el("line", { ...stroke("rgb(0, 0, 0)"), box: [24, 0] });
+  el("svg", {}, [line]);
+  assert.equal(lib.rowShown(line), true);
+  assert.equal(lib.visible(line), false);
+  assert.equal(lib.rowShown(el("span", { box: [24, 0] })), false);
+});
+
+test("measureRows: a site glyph row fails on a second svg paint off the token", () => {
+  const svg = el("svg", {}, [el("path", stroke("rgb(0, 0, 0)")), el("path", stroke("rgb(64, 64, 64)"))]);
+  const button = el("button", { cls: ["icon-btn"], style: { backgroundColor: "rgb(255, 255, 255)" } }, [svg]);
+  const body = el("body", { style: { backgroundColor: "rgb(255, 255, 255)" } }, [button]);
+  globalThis.document = { querySelectorAll: (sel) => body.querySelectorAll(sel), documentElement: body };
+  const row = { id: "header-icon", kind: "glyph", selector: ".icon-btn", token: "ink", grade: 3, state: "rest" };
+  const [res] = lib.measureRows([row], [row], [], { ink: { mocha: "#000000" } }, "mocha");
+  assert.equal(res.measured, 1);
+  assert.equal(res.inkHits, 0);
+  assert.equal(res.results.length, 1);
+  assert.deepEqual([res.results[0].got, res.results[0].inks, res.results[0].off, res.results[0].inkOk, res.results[0].below], ["#404040", 2, 1, false, false]);
+  delete globalThis.document;
+});

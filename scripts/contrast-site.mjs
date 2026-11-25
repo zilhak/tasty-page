@@ -89,6 +89,11 @@ function mergeScan(t, s, page, viewport) {
   for (const [why, n] of Object.entries(s.gradeNone)) t.gradeNone[why] = (t.gradeNone[why] || 0) + n;
 }
 
+// A row that read several svg paints keeps the lowest one as low: a below record shows that paint, a wrong ink record
+// the first paint off the token (see judgeInks in contrast-page.mjs).
+const belowRecord = (rec) => (rec.low ? { ...rec, ...rec.low } : rec);
+const inksNote = (b) => (b.inks === undefined ? "" : ` (${b.inks} paints, ${b.off} off the token)`);
+
 function mergeRow(t, rules, res, page, viewport) {
   const row = t.rows[res.id];
   row.found += res.found.length;
@@ -96,7 +101,7 @@ function mergeRow(t, rules, res, page, viewport) {
   row.inkHits += res.inkHits;
   res.results.forEach((r) => {
     const rec = { ...r, page, viewport };
-    if (r.below) row.below.push(rec);
+    if (r.below) row.below.push(belowRecord(rec));
     if (!r.inkOk && !r.otherRow && !rules.family.has(res.id)) row.mismatch.push(rec);
     if (r.picture) t.picture.push({ at: r.at, text: res.id, page, viewport });
   });
@@ -270,7 +275,7 @@ async function pointerPass(env, origin, t, rules, theme) {
         if (!r.measured) continue;
         rec.measured += 1;
         if (r.inkOk) rec.inkHits += 1;
-        if (r.below) rec.below.push({ ...r, page, viewport: row.state });
+        if (r.below) rec.below.push(belowRecord({ ...r, page, viewport: row.state }));
         if (!r.inkOk) rec.mismatch.push({ ...r, page, viewport: row.state });
       }
     }
@@ -295,7 +300,7 @@ async function focusPass(env, origin, t, rules, theme) {
         rec.found += 1;
         rec.measured += 1;
         if (r.inkOk) rec.inkHits += 1;
-        if (r.below) rec.below.push({ ...r, page, viewport: "focus" });
+        if (r.below) rec.below.push(belowRecord({ ...r, page, viewport: "focus" }));
         if (!r.inkOk) rec.mismatch.push({ ...r, page, viewport: "focus" });
       }
       await tab.close();
@@ -461,8 +466,8 @@ export function summarize(t, rules, theme, pageCount, report) {
     const r = t.rows[row.id];
     if (r.found === 0) unlocated.push(row.id);
     else if (r.measured === 0) unmeasured.push(row.id);
-    r.below.forEach((b) => below.push(`${row.id} [${b.viewport}] ${b.page} ${b.at}: ${b.got} on ${b.ground} ${b.ratio} < ${row.grade}`));
-    r.mismatch.forEach((b) => mismatch.push(`${row.id} [${b.viewport}] ${b.page} ${b.at}: ${b.got} on ${b.ground}, wants ${row.token}`));
+    r.below.forEach((b) => below.push(`${row.id} [${b.viewport}] ${b.page} ${b.at}: ${b.got} on ${b.ground} ${b.ratio} < ${row.grade}${inksNote(b)}`));
+    r.mismatch.forEach((b) => mismatch.push(`${row.id} [${b.viewport}] ${b.page} ${b.at}: ${b.got} on ${b.ground}, wants ${row.token}${inksNote(b)}`));
     if (r.measured > 0 && r.inkHits === 0) mismatch.push(`${row.id}: no element shows ${row.token}`);
     r.notes.forEach((n) => notes.push(`${row.id}: ${n}`));
   }

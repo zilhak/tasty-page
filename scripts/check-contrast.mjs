@@ -186,19 +186,31 @@ function measure({ rows, tokens, grades, partMap, exemptIds, noGradeTokens, them
       }
       if (r.part === "ring" && prop === "outlineColor" && cs.outlineStyle === "none") { out.rows.push({ ...base, status: "mismatch", got: "none", expect: want }); return; }
       const shadow = () => { const m = /(rgba?\([^)]+\)|color\([^)]+\))/.exec(cs.boxShadow); return m ? parse(m[1]) : null; };
-      const glyphInks = prop === "svg" ? svgInks(el.tagName.toLowerCase() === "svg" ? el : el.querySelector("svg")) : [];
-      const raw = prop === "svg" ? glyphInks[0]?.ink : prop === "shadow" ? shadow() : parse(cs[prop]);
       // An edge, a ring or a filled part stands on what is under it, not on itself.
       const ownFill = /^(border|outline|shadow|backgroundColor)/.test(prop);
       const ground = groundOf(ownFill ? el.parentElement : el).color;
-      if (!raw || raw[3] === 0) { out.rows.push({ ...base, status: "mismatch", got: "none", expect: want, ground: hex(ground) }); return; }
-      const got = inkOn(raw, prop === "svg" ? glyphInks[0].shape : el, ground);
-      const exp = want && parse(want) ? over(parse(want), ground) : null;
-      const rt = ratio(got, ground);
-      const row = { ...base, got: hex(got), expect: want, ground: hex(ground), ratio: +rt.toFixed(2) };
-      if (exp && !near(got, exp)) row.status = "mismatch";
-      else if (role.grade && (rt < role.grade || glyphInks.some((g) => ratio(inkOn(g.ink, g.shape, ground), ground) < role.grade))) row.status = "below";
-      else row.status = "ok";
+      let row;
+      if (prop === "svg") {
+        // Every paint the part draws is judged: the svg's own shapes, the shape the row picks, or every svg inside
+        // the element (judgeInks in contrast-page.mjs). map.paint keeps only the stroke or only the fill.
+        const inks = window.__contrast.rowInks(el, () => { out.paintServer += 1; }, map.paint);
+        if (inks.length === 0) { out.rows.push({ ...base, status: "mismatch", got: "none", expect: want, ground: hex(ground), inks: 0, off: 0 }); return; }
+        const j = window.__contrast.judgeInks(inks.map(({ ink, shape }) => [ink[0], ink[1], ink[2], ink[3] * window.__contrast.opacityOf(shape)]),
+          [ground], want ? parse(want) : null, role.grade || null);
+        const status = j.off ? "mismatch" : j.gradeOk ? "ok" : "below";
+        row = { ...base, ...(j.off ? j.mismatch : j.worst), expect: want, status };
+        if (status !== "ok") Object.assign(row, { inks: j.inks, off: j.off });
+      } else {
+        const raw = prop === "shadow" ? shadow() : parse(cs[prop]);
+        if (!raw || raw[3] === 0) { out.rows.push({ ...base, status: "mismatch", got: "none", expect: want, ground: hex(ground) }); return; }
+        const got = inkOn(raw, el, ground);
+        const exp = want && parse(want) ? over(parse(want), ground) : null;
+        const rt = ratio(got, ground);
+        row = { ...base, got: hex(got), expect: want, ground: hex(ground), ratio: +rt.toFixed(2) };
+        if (exp && !near(got, exp)) row.status = "mismatch";
+        else if (role.grade && rt < role.grade) row.status = "below";
+        else row.status = "ok";
+      }
       out.rows.push(row);
     });
   });
@@ -390,7 +402,7 @@ async function run() {
     if (bad > 0) failed = true;
     const at = (b) => `${b.page}${b.spec ? `#${b.spec}` : ""}${b.view ? ` (data-view=${b.view})` : ""}`;
     const pairs = new Map();
-    for (const b of [...t.mismatch, ...t.below]) pairs.set(`${b.contract} ${b.part}: got ${b.got} want ${b.token} (${b.expect}) on ${b.ground} at ${at(b)}`, b);
+    for (const b of [...t.mismatch, ...t.below]) pairs.set(`${b.contract} ${b.part}: got ${b.got} want ${b.token} (${b.expect}) on ${b.ground}${b.status === "below" ? ` ${b.ratio} < ${b.grade}` : ""}${b.inks === undefined ? "" : ` (${b.inks} paints, ${b.off} off the token)`} at ${at(b)}`, b);
     for (const b of t.other) pairs.set(`${b.page}#${b.spec}: ${b.kind} ${b.text} ${b.got} on ${b.ground} ${b.ratio} < ${b.grade}`, b);
     [...pairs.keys()].slice(0, 400).forEach((p) => console.log(`  ${p}`));
     t.unlocated.slice(0, 200).forEach((b) => console.log(`  unlocated ${b.contract} ${b.part} at ${at(b)}`));
