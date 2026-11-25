@@ -10,9 +10,10 @@
 }
 /* A specimen part that sets its own language draws in that language's UI family (tokens/base.css, RULES section 8). An element
    inherits the family its ancestor resolved, not the token, so the element with lang reads font-ui again. No specificity: a family
-   the element sets itself wins, and so does the mono or prose run around it. UI drawn over terminal content is UI again. */
-:where([data-gallery-page] [lang]:not(:is(code, kbd, pre, samp, .tasty-mono, [data-terminal-content], .g-intro, .g-section > h2, .spec-head, .part-h, .spec-note, .do, .dont, .spec-table, .g-cap, .icontile .irole) [lang]),
-  [data-gallery-page] :is([data-terminal-ui][lang], [data-terminal-ui] [lang]):not(:is(code, kbd, pre, samp, .tasty-mono) [lang])) { font-family: var(--tasty-font-ui); }
+   the element sets itself wins. A mono, terminal content or prose run keeps its family, whether the lang sits on the run itself or
+   inside it; a run that sets mono only inline counts too. UI drawn over terminal content is UI again. */
+:where([data-gallery-page] [lang]:not(:is(code, kbd, pre, samp, .tasty-mono, [style*="font-mono"], [data-terminal-content], .g-intro, .g-section > h2, .spec-head, .part-h, .spec-note, .do, .dont, .spec-table, .g-cap, .icontile .irole), :is(code, kbd, pre, samp, .tasty-mono, [style*="font-mono"], [data-terminal-content], .g-intro, .g-section > h2, .spec-head, .part-h, .spec-note, .do, .dont, .spec-table, .g-cap, .icontile .irole) *),
+  [data-gallery-page] :is([data-terminal-ui][lang], [data-terminal-ui] [lang]):not(:is(code, kbd, pre, samp, .tasty-mono, [style*="font-mono"]), [data-terminal-ui] :is(code, kbd, pre, samp, .tasty-mono, [style*="font-mono"]) *)) { font-family: var(--tasty-font-ui); }
 /* The writing about a specimen reads font-prose: headings, descriptions, notes, spec tables, the caption over a specimen (.g-cap)
    and an icon's role. The specimen itself inherits font-ui from the page, as the app draws it. */
 .g-intro, .g-section > h2, .spec-head, .part-h, .spec-note, .do, .dont, .spec-table, .g-cap, .icontile .irole { font-family: var(--tasty-font-prose); }
