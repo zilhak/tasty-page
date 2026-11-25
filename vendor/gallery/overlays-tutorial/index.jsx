@@ -177,10 +177,12 @@ function Page() {
         <Spec id="topic-list-centered-popup-scrollable-to-start" title="Topic list — centered popup, scrollable, '진행' to start"
           when={<>The entry surface (CenteredFocused popup, standard scrim). Title + a scrollable list of topics (name + description, hover / selected / done states) + a primary <b>진행</b> button. v1 ships <b>one</b> topic; the list scrolls as topics grow.</>}>
           <Stage variant="solo" style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 16, padding: 16, background: "var(--tasty-bg-app)" }}>
-            <div style={{ position: "relative", minHeight: 300, display: "grid", placeItems: "center", background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)", overflow: "hidden", border: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
+            {/* Each window is never narrower than its popup and a space-lg margin on each side (min-width: max-content), as the
+                scrim Backdrop is: in a narrower column the stage scrolls instead of the window cutting the popup. */}
+            <div style={{ position: "relative", minHeight: 300, minWidth: "max-content", padding: "0 var(--tasty-space-lg)", display: "grid", placeItems: "center", background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)", overflow: "hidden", border: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
               <Scrim /><TopicPopup />
             </div>
-            <div style={{ position: "relative", minHeight: 300, display: "grid", placeItems: "center", background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)", overflow: "hidden", border: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
+            <div style={{ position: "relative", minHeight: 300, minWidth: "max-content", padding: "0 var(--tasty-space-lg)", display: "grid", placeItems: "center", background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)", overflow: "hidden", border: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
               <Scrim /><TopicPopup scaled />
             </div>
           </Stage>
