@@ -368,10 +368,18 @@ export function pageLib() {
     const r = judgeRow(row, target, pseudo, tokens, theme);
     return r ? { reached, measured: true, ...r } : { reached, measured: false };
   };
-  const measureFocus = (row, tokens, theme) => {
+  // frames: the selectors of the scroll frames this page samples. A frame must show its ring: a focus-visible outline that
+  // is not none and has a width. A frame with the ring off or no paint is a wrong ink record, not a skip, so the next frame
+  // of its kind cannot hide it. Other stops keep the row's reading, as an input shows focus by its border.
+  const measureFocus = (row, tokens, theme, frames = []) => {
     const el = document.activeElement;
     if (!el || el === document.body || !outsideGallery(el) || !el.matches(row.selector)) return null;
-    return judgeRow(row, el, null, tokens, theme);
+    const frame = frames.find((f) => el.matches(f)) ?? null;
+    if (!frame) return judgeRow(row, el, null, tokens, theme);
+    const cs = getComputedStyle(el);
+    const ringOn = el.matches(":focus-visible") && cs.outlineStyle !== "none" && parseFloat(cs.outlineWidth) > 0;
+    const r = ringOn ? judgeRow(row, el, null, tokens, theme) : null;
+    return r ? { ...r, frame } : { frame, at: where(el), got: "none", ground: "none", ratio: 0, inkOk: false, below: false };
   };
 
   return { selectParts, validateParts, expectedTheme, parse, over, ratio, hex, near, overlays, opacityOf, visible, svgInks, shapeInks, rowInks, rowShown, judgeInks, judgeSvgPart, inkOn, measureRows, scan, alternatives, pseudoOf, bare, pick, aim, measureAimed, measureFocus };

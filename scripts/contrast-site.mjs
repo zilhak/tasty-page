@@ -37,7 +37,14 @@ const injectFixtures = (tab, page) => Promise.all(FIXTURES.filter((f) => f.page 
 // The landing window starts on its third tab. The other two hold the rest of the drawn lines.
 const LANDING_PAGES = LANGS.map((row) => row.landing);
 const LANDING_TABS = ["claude · release", "README.md"];
-const FOCUS_PAGES = ["", "guide/getting-started/first-look/"];
+const FOCUS_PAGES = ["", "guide/getting-started/first-look/", "guide/customize/settings/"];
+// The scroll frames each focus page must reach, by the focus row's selectors for them. After the first TAB_STOPS stops the
+// walk goes on, measuring frames only, until every one listed has been measured or FRAME_TAB_LIMIT stops have passed.
+export const FOCUS_FRAMES = {
+  "guide/getting-started/first-look/": [".table-wrap", ".anat-window"],
+  "guide/customize/settings/": [".anat-settings", ".table-wrap", "pre.astro-code"],
+};
+const FRAME_TAB_LIMIT = 120;
 const SEARCH_PAGE = "guide/";
 const DRAWER_PAGES = ["", "guide/", "design/"];
 const TAB_STOPS = 14;
@@ -76,7 +83,7 @@ export function emptySiteTally(rules) {
   return {
     pages: 0, text: 0, glyph: 0, inputs: 0, svgs: 0, pseudo: 0, paintServer: 0, below: [], picture: [], badExempt: [], exemptUses: {}, gradeNone: {},
     rows: Object.fromEntries(rules.rows.map((r) => [r.id, { found: 0, measured: 0, inkHits: 0, below: [], mismatch: [], notes: [] }])),
-    altsFound: {}, errors: [], passes: {},
+    altsFound: {}, errors: [], passes: {}, focusMissing: [],
   };
 }
 
@@ -285,26 +292,37 @@ async function pointerPass(env, origin, t, rules, theme) {
   });
 }
 
-async function focusPass(env, origin, t, rules, theme) {
+// Presses Tab on an open page: every stop of the first TAB_STOPS, then only the page's frames until each has been measured.
+// A frame never measured within FRAME_TAB_LIMIT stops is a focusMissing record.
+export async function walkFocus(tab, t, rules, theme, page, where = {}) {
   const row = rules.rows.find((r) => r.state === "focus");
   if (!row) return;
   const rec = t.rows[row.id];
+  const frames = FOCUS_FRAMES[page] ?? [];
+  const left = new Set(frames);
+  for (let i = 0; i < TAB_STOPS || (left.size > 0 && i < FRAME_TAB_LIMIT); i += 1) {
+    where.at = `focus ${placeOf(page)} ${row.id} Tab ${i + 1}`;
+    await tab.keyboard.press("Tab");
+    await stylesSettled(tab);
+    const r = await tab.evaluate(({ row: x, tokens, name, frames: f }) => window.__contrast.measureFocus(x, tokens, name, f), { row, tokens: rules.tokens, name: theme, frames });
+    if (!r || (i >= TAB_STOPS && !r.frame)) continue;
+    if (r.frame) left.delete(r.frame);
+    rec.found += 1;
+    rec.measured += 1;
+    if (r.inkOk) rec.inkHits += 1;
+    if (r.below) rec.below.push(belowRecord({ ...r, page, viewport: "focus" }));
+    if (!r.inkOk) rec.mismatch.push(mismatchRecord({ ...r, page, viewport: "focus" }));
+  }
+  left.forEach((selector) => t.focusMissing.push({ page, selector, stops: Math.max(TAB_STOPS, FRAME_TAB_LIMIT) }));
+}
+
+async function focusPass(env, origin, t, rules, theme) {
+  if (!rules.rows.some((r) => r.state === "focus")) return;
   for (const page of FOCUS_PAGES) {
     const opened = await withTab(env, `focus ${placeOf(page)}`, async (tab, where) => {
       await openPage(tab, origin, page);
       await installPageLib(tab);
-      for (let i = 0; i < TAB_STOPS; i += 1) {
-        where.at = `focus ${placeOf(page)} ${row.id} Tab ${i + 1}`;
-        await tab.keyboard.press("Tab");
-        await stylesSettled(tab);
-        const r = await tab.evaluate(({ row: x, tokens, name }) => window.__contrast.measureFocus(x, tokens, name), { row, tokens: rules.tokens, name: theme });
-        if (!r) continue;
-        rec.found += 1;
-        rec.measured += 1;
-        if (r.inkOk) rec.inkHits += 1;
-        if (r.below) rec.below.push(belowRecord({ ...r, page, viewport: "focus" }));
-        if (!r.inkOk) rec.mismatch.push(mismatchRecord({ ...r, page, viewport: "focus" }));
-      }
+      await walkFocus(tab, t, rules, theme, page, where);
       await tab.close();
     });
     if (!opened) return;
@@ -521,7 +539,7 @@ export function summarize(t, rules, theme, pageCount, report) {
     if (r.measured > 0 && r.inkHits === 0) mismatch.push(`${row.id}: no element shows ${row.token}`);
     r.notes.forEach((n) => notes.push(`${row.id}: ${n}`));
   }
-  const bad = unlocated.length + unmeasured.length + below.length + mismatch.length + t.below.length + t.picture.length + t.badExempt.length + t.errors.length;
+  const bad = unlocated.length + unmeasured.length + below.length + mismatch.length + t.below.length + t.picture.length + t.badExempt.length + t.errors.length + t.focusMissing.length;
   const measured = t.text + t.glyph + t.inputs;
   console.log(`${theme} site: pages ${t.pages} of ${pageCount} (each wide and narrow), rows ${rules.rows.length} (unlocated ${unlocated.length}, nothing measured ${unmeasured.length}, below ${below.length}, wrong ink ${mismatch.length}), text ${t.text} (generated ${t.pseudo}), shapes ${t.glyph} in ${t.svgs} svgs (${t.paintServer} gradient paints not measured), inputs ${t.inputs}, below on page ${t.below.length}, on a picture ${t.picture.length}, page errors ${t.errors.length}`);
   console.log(`  measured through a fixture, no built page has the markup: ${FIXTURE_ROWS.join(", ")}`);
@@ -529,6 +547,7 @@ export function summarize(t, rules, theme, pageCount, report) {
   console.log(`  no grade: ${Object.entries(t.gradeNone).map(([k, v]) => `${k} ${v}`).join(", ") || "none"}`);
   unlocated.forEach((id) => console.log(`  no element for row ${id}`));
   unmeasured.forEach((id) => console.log(`  nothing measured for row ${id}`));
+  t.focusMissing.forEach((m) => console.log(`  focus frame not measured on ${placeOf(m.page)}: ${m.selector} within ${m.stops} Tab stops`));
   printPerRow(below, "below");
   printPerRow(mismatch, "wrong ink");
   const seen = new Set();
