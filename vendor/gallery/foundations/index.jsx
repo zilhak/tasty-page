@@ -494,7 +494,7 @@ function Foundations() {
       {/* TYPE */}
       <Section id="type" title="Type">
         <Spec id="two-families-hard-14px-cap-hierarchy-by-weight" title="Two families, hard 14px cap, hierarchy by weight"
-          when={<>UI chrome uses the bundled <b>D2Coding</b> with system sans fallback, capped at 14px — body is 13px, captions 11px. Code and terminal use D2Coding (the brand mono). Only terminal content draws ligatures. Code runs, paths, IDs and keycaps in the UI draw without ligatures. Headings use D2Coding Bold at body size and weight 600. Never scale UI text up for emphasis.</>}>
+          when={<>UI chrome is capped at 14px (13px body, 11px captions) and uses the bundled <b>D2Coding</b> in every language, with a language-specific CJK font for Han, kana, CJK punctuation and full-width forms in Japanese and Simplified Chinese and the system sans as the final fallback. Code and terminal use D2Coding (the brand mono). Only terminal content draws ligatures. Code runs, paths, IDs and keycaps in the UI draw without ligatures. Headings use D2Coding Bold at body size and weight 600. Never scale UI text up for emphasis.</>}>
           <Stage variant="solo column" style={{ gap: 0 }}>
             {typeScaleRow(13, "--tasty-font-size-heading", 600, "section heading — same size as body, weight 600", "New workspace")}
             {typeScaleRow(13, "--tasty-font-size-body", 400, "default UI text, labels, menu rows", "Held by another client. Force detach to take over.")}

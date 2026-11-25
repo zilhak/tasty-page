@@ -57,7 +57,7 @@ const UI_FACE_BY_LANG = [
 export function UiSansSpec() {
   return (
     <Spec id="ui-sans-chrome" title="UI face — chrome"
-      when={<>The design sets UI text in D2Coding with system sans fallback and a 14px cap. Weight 600 draws D2Coding Bold. Compare the scale across four lines.</>}>
+      when={<>UI text uses D2Coding with a 14px cap and system sans fallback. Weight 600 draws D2Coding Bold. Compare the scale across the four size lines. In English and Korean, D2Coding draws every letter in the app's catalog. In Japanese and Simplified Chinese, the language's CJK font draws all Han characters, kana, CJK punctuation and full-width forms. Latin, digits, Hangul and symbols stay in D2Coding. The four body rows show the same app string by language.</>}>
       <Stage variant="solo column" style={{ gap: "var(--tasty-space-md)" }}>
         {SANS.map(([tok, size, name, weight, sample]) => (
           <div key={tok} style={{ display: "flex", flexWrap: "wrap", alignItems: "baseline", gap: "var(--tasty-space-xs) var(--tasty-space-lg)" }}>
@@ -73,7 +73,7 @@ export function UiSansSpec() {
         ))}
       </Stage>
       <Meta tokens={[
-        { tok: "--tasty-font-ui", use: "D2Coding, then the system sans" },
+        { tok: "--tasty-font-ui", use: "D2Coding, the language's CJK font for CJK ranges in ja and zh-Hans, then the system sans" },
         { tok: "--tasty-font-size-max", use: "14px, the hard ceiling for UI chrome" },
         { tok: "--tasty-font-size-heading", use: "13px, weight 600" },
         { tok: "--tasty-font-size-body", use: "13px, weight 400" },
@@ -119,7 +119,7 @@ export function LabelFamilySpec() {
   const cap = { fontFamily: MONO, fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" };
   return (
     <Spec id="label-family" title="Label family"
-      when={<>Use for small translated labels such as section and column headings, tags and status words. English and Korean use mono. Japanese and Simplified Chinese use <code>font-ui</code>, which starts with D2Coding, so labels follow the surrounding text. Paths, IDs and other values stay mono in every language.</>}>
+      when={<>Use <code>--tasty-font-label</code> for small translated labels such as section and column headings, tags and status words. It resolves to mono in English and Korean and to <code>font-ui</code> in Japanese and Simplified Chinese. In those two languages, a label's Han and kana use the language's CJK font. Paths, IDs and other values stay mono in every language.</>}>
       <Stage variant="solo column" style={{ gap: "var(--tasty-space-sm)", alignItems: "stretch" }}>
         {LABEL_FAMILY.map(([lang, family, heading, section]) => (
           <div key={lang} style={{ display: "grid", gridTemplateColumns: "var(--tasty-size-64) var(--tasty-size-140) 1fr 1fr", alignItems: "baseline", gap: "var(--tasty-space-sm)" }}>
@@ -136,7 +136,7 @@ export function LabelFamilySpec() {
           </div>
         ))}
       </Stage>
-      <Meta specs={[["family", <span className="tok">--tasty-font-label</span>], ["language rule", "tokens/base.css · RULES section 8"], ["size, ink, tracking, uppercase", "the label's own, in every language"], ["line height, baseline in ja, zh-Hans", "font-mono's at the same size, measured in the app"], ["count", "same baseline as the label"], ["icon", "centred in the row"], ["Latin in ja, zh-Hans", "D2Coding, no second face"]]}
+      <Meta specs={[["family", <span className="tok">--tasty-font-label</span>], ["language rule", "tokens/base.css · RULES section 8"], ["size, ink, tracking, uppercase", "the label's own, in every language"], ["line height, baseline in ja, zh-Hans", "font-mono's at the same size, measured in the app"], ["count", "same baseline as the label"], ["icon", "centred in the row"], ["Latin in ja, zh-Hans", "D2Coding, no second face"], ["Han and kana in ja, zh-Hans", "the language's CJK font"]]}
         tokens={[
           { tok: "--tasty-sidebar-category-header-fg", use: "heading and icon ink", color: "var(--tasty-sidebar-category-header-fg)" },
           { tok: "--tasty-sidebar-category-header-count-fg", use: "count ink", color: "var(--tasty-sidebar-category-header-count-fg)" },
