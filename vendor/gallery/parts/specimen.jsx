@@ -77,6 +77,51 @@ export function View({ name, label, wide, children }) {
   );
 }
 
+// A page opened at #id, or a link to #id on the page, mounts every stage up to that id at once, then keeps the id at
+// the top while those stages lay out. Mounting them only near the viewport let each one grow after the jump and push
+// the id down. The reader's first wheel, touch, key or pointer press ends the hold, and so does a quiet layout.
+const hashListeners = new Set();
+const hashTarget = () => {
+  const id = decodeURIComponent(window.location.hash.slice(1));
+  return id ? document.getElementById(id) : null;
+};
+const upToTarget = (el, target) => !!target && (el === target || el.contains(target) || target.contains(el)
+  || !!(el.compareDocumentPosition(target) & Node.DOCUMENT_POSITION_FOLLOWING));
+let hashHold = null;
+const HOLD_QUIET = 600;
+const HOLD_MAX = 5000;
+function holdHashTarget() {
+  if (hashHold) hashHold();
+  const target = hashTarget();
+  if (!target) return;
+  const place = () => target.scrollIntoView({ block: "start" });
+  const ends = ["wheel", "touchstart", "keydown", "pointerdown"];
+  let quiet = null;
+  const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(() => { place(); clearTimeout(quiet); quiet = setTimeout(stop, HOLD_QUIET); }) : null;
+  const cap = setTimeout(() => stop(), HOLD_MAX);
+  function stop() {
+    if (ro) ro.disconnect();
+    clearTimeout(quiet); clearTimeout(cap);
+    ends.forEach((e) => window.removeEventListener(e, stop, true));
+    if (hashHold === stop) hashHold = null;
+  }
+  ends.forEach((e) => window.addEventListener(e, stop, { capture: true, passive: true }));
+  if (ro) ro.observe(document.body);
+  quiet = setTimeout(stop, HOLD_QUIET);
+  hashHold = stop;
+  place();
+}
+let hashStarted = false;
+function startHashEntry() {
+  if (hashStarted || typeof window === "undefined") return;
+  hashStarted = true;
+  window.addEventListener("hashchange", () => {
+    hashListeners.forEach((f) => f());
+    holdHashTarget();
+  });
+  if (window.location.hash) requestAnimationFrame(holdHashTarget);
+}
+
 // A live demo mounts once it scrolls near the viewport, so a page with many specimens renders a few stages at a time.
 // With ?audit=1 every stage mounts at once and nothing else changes.
 const LAZY_MARGIN = 700;
@@ -87,6 +132,8 @@ function useNearViewport(ref, eager) {
     const el = ref.current;
     if (!el) return undefined;
     if (new URLSearchParams(window.location.search).has("audit")) { setShown(true); return undefined; }
+    startHashEntry();
+    if (upToTarget(el, hashTarget())) { setShown(true); return undefined; }
     const near = () => {
       const r = el.getBoundingClientRect();
       const vh = window.innerHeight || document.documentElement.clientHeight;
@@ -101,11 +148,14 @@ function useNearViewport(ref, eager) {
       last = now;
       if (near()) { setShown(true); cleanup(); }
     };
+    const onHash = () => { if (upToTarget(el, hashTarget())) { setShown(true); cleanup(); } };
     const cleanup = () => {
       if (io) io.disconnect();
+      hashListeners.delete(onHash);
       window.removeEventListener("scroll", onScroll, true);
       window.removeEventListener("resize", onScroll);
     };
+    hashListeners.add(onHash);
     if (typeof IntersectionObserver !== "undefined") {
       io = new IntersectionObserver((es) => { if (es.some((e) => e.isIntersecting)) { setShown(true); cleanup(); } }, { rootMargin: LAZY_MARGIN + "px 0px" });
       io.observe(el);
