@@ -59,7 +59,7 @@ function RemoteItem({ host, state = "connected", dropHost = false, lang = "en" }
 // 1 grid → 2 shell → 3 surface id → 4 palette cap → 5 branch text → 6 host text.
 function Bar({ w, remote, drop = 0, branch = null, shell = null, lang = "en" }) {
   return (
-    <div style={{ width: w, maxWidth: "100%", height: "var(--tasty-status-bar-height)", display: "flex", alignItems: "center", gap: 10, padding: "0 10px", boxSizing: "border-box",
+    <div style={{ width: w, flex: "none", height: "var(--tasty-status-bar-height)", display: "flex", alignItems: "center", gap: 10, padding: "0 10px", boxSizing: "border-box",
       background: "var(--tasty-bg-sidebar)", border: "1px solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius-sm)",
       fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)", overflow: "hidden" }}>
       {remote && <RemoteItem {...remote} dropHost={drop >= 6} lang={lang} />}

@@ -380,7 +380,7 @@ function occPane(kind) {
             label: "completed", sub: "clears on focus", who: "done" },
   }[kind];
   return (
-    <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", background: "var(--tasty-surface-terminal-focused-bg)",
+    <div style={{ flex: 1, minWidth: "max-content", display: "flex", flexDirection: "column", background: "var(--tasty-surface-terminal-focused-bg)",
       border: `${cfg.width} solid ${cfg.color}`, borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 10px",
         borderBottom: "1px solid var(--tasty-separator)", background: "var(--tasty-bg-panel)" }}>
