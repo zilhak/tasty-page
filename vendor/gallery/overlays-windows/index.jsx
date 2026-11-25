@@ -1833,7 +1833,7 @@ function Page() {
           </Stage>
           <Meta
             specs={[["zones", "N · S · E · W + NW · NE · SW · SE"], ["band", "inside the border (token-width)"], ["corner", "wins over edge at the crossing"], ["edge drag", "that edge moves, opposite fixed"], ["grip", "none — cursor only"], ["persist", "user size sticks until the popup closes"]]}
-            tokens={[{ tok: "--tasty-accent-info", use: "zone labels (demo only)", color: "var(--tasty-accent-info-raised)" }, { tok: "--tasty-border-strong", use: "popup edge", color: "var(--tasty-border-strong)" }]} />
+            tokens={[{ tok: "--tasty-accent-info", use: "zone labels (demo only)", color: "var(--tasty-accent-info-raised)" }, { tok: "--tasty-border-frame", use: "popup edge", color: "var(--tasty-border-frame)" }]} />
           <Note>Once you resize, the size <b>sticks</b> (the sizer won't overwrite it); closing the popup resets it to its default size on next open.</Note>
         </Spec>
         <Spec id="constraints-z-order-quiet-limits-top-most-wins" title="Constraints & z-order — quiet limits, top-most wins"
@@ -1850,7 +1850,7 @@ function Page() {
           </Stage>
           <Meta
             specs={[["min size", "min_size, else default_size"], ["max", "scope rect is the cap (no max_size)"], ["clamp", "no part leaves the scope"], ["reposition", "shrinking scope pulls it back in"], ["limit signal", "none — quiet stop (no warning color)"], ["z-order", "top-most only · press = bring to front"]]}
-            tokens={[{ tok: "--tasty-border-strong", use: "scope rect (demo)", color: "var(--tasty-border-strong)" }, { tok: "--tasty-shadow-modal", use: "popup lift" }]} />
+            tokens={[{ tok: "--tasty-specimen-annotation-border", use: "scope rect (demo)", color: "var(--tasty-specimen-annotation-border)" }, { tok: "--tasty-shadow-modal", use: "popup lift" }]} />
           <Dont><b>Don't</b> flash a warning color (peach/red) when a popup hits min size or the scope edge — the limit is communicated by simply <b>not moving</b>. Reserve danger tones for actual errors.</Dont>
         </Spec>
       </Section>
