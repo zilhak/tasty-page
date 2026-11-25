@@ -79,7 +79,8 @@ function useScopeNarrow(on) {
   const [narrow, setNarrow] = React.useState(false);
   React.useLayoutEffect(() => {
     const el = ref.current; if (!on || !el) return undefined;
-    const judge = () => setNarrow(el.clientWidth < parseFloat(getComputedStyle(el).getPropertyValue("--tasty-banner-narrow-below")));
+    // The fractional box width, not clientWidth: clientWidth rounds, so 439.5 would read 440 and stay wide.
+    const judge = () => setNarrow(el.getBoundingClientRect().width < parseFloat(getComputedStyle(el).getPropertyValue("--tasty-banner-narrow-below")));
     judge();
     const ro = new ResizeObserver(judge); ro.observe(el);
     return () => ro.disconnect();
