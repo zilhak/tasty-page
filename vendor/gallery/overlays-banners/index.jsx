@@ -827,7 +827,7 @@ function Page() {
                 {[["blocked", {}], ["hover — × revealed", { hover: true }], ["loading — Allow disabled until commit", { state: "loading" }], ["reloading — spinner, no ×", { state: "reloading" }]].map(([cap, p]) => (
                   <React.Fragment key={cap}>
                     <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · {cap}</span>
-                    <HtmlRemoteBanner {...p} />
+                    <ScopeNarrowG>{(n) => <HtmlRemoteBanner {...p} narrow={n} />}</ScopeNarrowG>
                   </React.Fragment>
                 ))}
               </div>
