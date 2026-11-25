@@ -108,7 +108,7 @@ function GalleryNoticeColumn() {
               <Win w={640} h={330} split><RN variant="halt" cause="write" /></Win>
             </Themed>
           ))}
-          <Themed>
+          <Themed attr="mocha">
             <span className="g-cap" style={cap}>Mocha · ko / ja length</span>
             <RN lang="ko" cause="corrupt" path={LONG} />
             <RN lang="ja" variant="halt" cause="write" />
