@@ -961,8 +961,10 @@
   --tasty-tutorial-topic-selected-border:  color-mix(in srgb, var(--tasty-accent-primary) 40%, transparent); /* edge of the selected topic row on surface-active */
   --tasty-tutorial-step-specimen-min-width: var(--tasty-size-440); /* 2026-11-25 — floor of the composite step frame: it holds the callout (left 150 + 244 + tail) beside the sidebar, so a narrower column scrolls the stage instead of cutting the callout */
   /* Gallery annotation (specimen layout, not app chrome) — a dashed outline that marks an implementer's box or a scope
-     rectangle. It has no fill, so the edge alone shows it: border-control role, 3:1 on crust and base (2026-11-24) */
-  --tasty-specimen-annotation-border: var(--tasty-border-control);
+     rectangle. It has no fill, so the edge alone shows it: border-control role (2026-11-24). One mark can cross several
+     grounds, so it takes the raised cell, which holds 3:1 on raised and on every lower ground (2026-11-25, was
+     border-control: 2.57 / 2.82 on raised). On surface-active the gallery ground scope re-points it to that cell */
+  --tasty-specimen-annotation-border: var(--tasty-border-control-raised);
   /* Settings › General › Permissions (macOS) — four states, told apart by
      GLYPH + WORD, colour only as a third channel. Unknown and Not observable
      share the muted ink but never the glyph. */

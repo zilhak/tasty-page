@@ -389,6 +389,7 @@
   --tasty-accent-agent-raised: var(--tasty-accent-agent-on-active);
   --tasty-accent-warning-glyph: var(--tasty-accent-warning-on-active);
   --tasty-explorer-match-fg: var(--tasty-explorer-match-fg-active);
+  --tasty-specimen-annotation-border: var(--tasty-text-on-active);
   --tasty-port-star-on: var(--tasty-port-star-on-active);
   --sg-chip-base: var(--tasty-surface-raised);
 }
