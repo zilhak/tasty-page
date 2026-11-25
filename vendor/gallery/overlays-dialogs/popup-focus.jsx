@@ -2,7 +2,7 @@ import React from "react";
 import { Spec, Stage, Meta, Note, Dont, Views, View } from "../parts/specimen.jsx";
 import { ShellMock, CollapsedPopupButton, GroundThemes, GroundCap } from "../parts/overlay-frames.jsx";
 import { PopupFocusEdge } from "../../ui_kits/terminal/overlays/shared.jsx";
-import { SurfaceFocusEdge, surfaceBed } from "../../ui_kits/terminal/surface_focus.jsx";
+import { SurfaceFocusEdge, SurfaceRing, surfaceBed } from "../../ui_kits/terminal/surface_focus.jsx";
 
 // Tasty Gallery: Dialogs, which open popup holds key focus. A press outside a popup's scope never closes it and
 // takes key focus to the surface it presses (closing on an outside click applies only inside the scope), so a surface popup can sit open beside the surface the user types in. The shell lights the
@@ -33,12 +33,12 @@ const LEAF_KINDS = {
 };
 // completed: the leaf finished a task before the popup took key focus. The completion ring stays while the popup holds
 // key focus and clears in the frame key focus lands back in the leaf (RULES.md "Surface focus", Attention).
-const COMPLETION_RING = { outline: "var(--tasty-surface-highlight-done-width) solid var(--tasty-surface-highlight-done-border)", outlineOffset: "calc(-1 * var(--tasty-surface-highlight-done-width))" };
 function LeafUnderPopup({ kind, keys, completed = false }) {
   const popupLit = keys === "popup";
   return (
-    <div data-leaf-focus={popupLit ? "unfocused" : "focused"} style={{ position: "relative", display: "flex", flexDirection: "column", width: "var(--tasty-size-240)", height: "var(--tasty-size-112)", overflow: "hidden", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", ...(completed && popupLit ? COMPLETION_RING : null) }}>
+    <div data-leaf-focus={popupLit ? "unfocused" : "focused"} style={{ position: "relative", display: "flex", flexDirection: "column", width: "var(--tasty-size-240)", height: "var(--tasty-size-112)", overflow: "hidden", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
       {LEAF_KINDS[kind](!popupLit)}
+      {completed && popupLit && <SurfaceRing token="surface-highlight-done-border" width="surface-highlight-done-width" />}
       <div style={{ position: "absolute", top: "var(--tasty-size-28)", right: "var(--tasty-space-sm)", width: "var(--tasty-size-140)", overflow: "hidden", padding: "var(--tasty-popup-content-margin)", display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-popover)" }}>
         <PopupFocusEdge lit={popupLit} />
         <span style={{ fontSize: "var(--tasty-font-size-caption)", fontWeight: "var(--tasty-font-weight-semibold)", color: "var(--tasty-text-primary)" }}>Plugin popover</span>
