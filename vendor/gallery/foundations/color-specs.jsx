@@ -34,7 +34,7 @@ export function SemanticElevationSpec() {
 function OverlayCell({ wash, name, label }) {
   return (
     <div style={{ flex: "1 1 var(--tasty-size-88)", minWidth: 0 }}>
-      <div style={{ background: "var(--tasty-surface-raised)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
+      <div style={{ background: "var(--tasty-surface-raised)", border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
         <div style={{ background: wash ? `var(${wash})` : "transparent", height: "var(--tasty-size-56)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: SMALL, color: "var(--tasty-text-secondary)" }}>{name}</div>
       </div>
       <div style={{ marginTop: "var(--tasty-space-xs)", fontFamily: MONO, fontSize: MICRO, color: "var(--tasty-text-muted)", textAlign: "center", overflowWrap: "anywhere" }}>{label}</div>

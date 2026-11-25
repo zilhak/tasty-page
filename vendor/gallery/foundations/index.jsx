@@ -96,7 +96,7 @@ function ElevationStack() {
         <div style={{ background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-separator)",
           borderRadius: "var(--tasty-radius)", padding: 12, marginTop: 8 }}>
           <Lbl tok="--tasty-bg-panel">primary content panels</Lbl>
-          <div style={{ background: "var(--tasty-surface-raised)", border: "1px solid var(--tasty-border-default)",
+          <div style={{ background: "var(--tasty-surface-raised)", border: "1px solid var(--tasty-border-strong)",
             borderRadius: "var(--tasty-radius)", padding: 8, marginTop: 8 }}>
             <Lbl tok="--tasty-surface-raised" raised>cards, inputs, menus</Lbl>
             <div style={{ marginTop: 6, display: "flex", flexDirection: "column", gap: 2 }}>
@@ -544,7 +544,7 @@ function Foundations() {
               </div>
             </SpaceUse>
             <SpaceUse token="--tasty-space-md" px="12px" usedFor="card / panel padding, toolbar insets">
-              <div style={{ background: "var(--tasty-surface-raised)", border: "1px solid var(--tasty-border-default)",
+              <div style={{ background: "var(--tasty-surface-raised)", border: "1px solid var(--tasty-border-strong)",
                 borderRadius: "var(--tasty-radius)", padding: "var(--tasty-space-md)", fontSize: 12.5, color: "var(--tasty-text-secondary)", display: "inline-block" }}>
                 Card padded with --tasty-space-md on all sides
               </div>
