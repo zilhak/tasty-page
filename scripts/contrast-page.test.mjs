@@ -564,3 +564,56 @@ test("walkFocus: a page with no frames stops after the ordinary stops, and one w
     console.log = log;
   }
 });
+
+test("measureRows: the focus row does not excuse a frame's ink at rest, while another rest row still does", () => {
+  const frame = el("div", { cls: ["table-wrap"], style: { borderTopWidth: "1px", borderTopColor: "rgb(128, 128, 128)", outlineColor: "rgb(128, 128, 128)" } });
+  page([frame]);
+  const edge = { id: "frame-edge", kind: "edge", selector: ".table-wrap", token: "edge", grade: 3, state: "rest" };
+  const ringRow = { ...focusRow, token: "grey" };
+  const tokens = { edge: { mocha: "#000000" }, grey: { mocha: "#808080" } };
+  const [res] = lib.measureRows([edge], [edge, ringRow], [], tokens, "mocha");
+  assert.deepEqual(res.results.map((r) => [r.got, r.inkOk, r.otherRow]), [["#808080", false, false]]);
+  const restTwin = { id: "frame-edge-alt", kind: "edge", selector: ".table-wrap", token: "grey", grade: 3, state: "rest" };
+  const [excused] = lib.measureRows([edge], [edge, ringRow, restTwin], [], tokens, "mocha");
+  assert.deepEqual(excused.results.map((r) => r.otherRow), [true]);
+  delete globalThis.document;
+});
+
+test("measureFocus: past the ordinary stops only a frame is judged", () => {
+  focusOn(focusVisible(el("a", ring())));
+  assert.equal(lib.measureFocus(focusRow, ringTokens, "mocha", [".table-wrap"], true), null);
+  assert.equal(lib.measureFocus(focusRow, ringTokens, "mocha", [".table-wrap"], false).got, "#000000");
+  focusOn(focusVisible(el("div", { cls: ["table-wrap"], ...ring() })));
+  assert.equal(lib.measureFocus(focusRow, ringTokens, "mocha", [".table-wrap"], true).frame, ".table-wrap");
+  delete globalThis.document;
+});
+
+test("walkFocus: a frame at the 120th stop is measured, one at the 121st is missing, and the walk stops once every kind is measured", async () => {
+  const look = "guide/getting-started/first-look/";
+  const rules = { rows: [focusRow], family: new Set(), tokens: ringTokens };
+  const run = async (stops) => {
+    const t = emptySiteTally(rules);
+    const tab = tabOf(stops);
+    let presses = 0;
+    const press = tab.keyboard.press;
+    tab.keyboard.press = async () => { presses += 1; await press(); };
+    await walkFocus(tab, t, rules, "mocha", look);
+    return { t, presses };
+  };
+  const stopsWith = (at) => { const s = Array.from({ length: 130 }, () => ok()); s[14] = ok(".anat-window"); s[at] = ok(".table-wrap"); return s; };
+  const at120 = await run(stopsWith(119));
+  assert.deepEqual([at120.presses, at120.t.focusMissing.length, at120.t.rows.focus.measured], [120, 0, 16]);
+  const at121 = await run(stopsWith(120));
+  assert.deepEqual([at121.presses, at121.t.focusMissing.map((m) => m.selector), at121.t.rows.focus.measured], [120, [".table-wrap"], 15]);
+  const early = await run(stopsWith(20));
+  assert.equal(early.presses, 21);
+  const report = {};
+  const log = console.log;
+  console.log = () => {};
+  try {
+    summarize(at121.t, rules, "mocha", 1, report);
+  } finally {
+    console.log = log;
+  }
+  assert.deepEqual(report.site.mocha.focusMissing, [{ page: look, selector: ".table-wrap", stops: 120 }]);
+});
