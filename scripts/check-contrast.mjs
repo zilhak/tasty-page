@@ -314,53 +314,64 @@ async function run() {
     const t = { cells: 0, rows: 0, ok: 0, unlocated: [], mismatch: [], below: [], diagnostics: [], text: 0, svgs: 0, emptySvgs: 0, glyph: 0, inputs: 0, other: [], exemptUses: {}, badExempt: [], gradeNone: {}, picture: 0, paintServer: 0, hscroll: [], errors: [], passes: {} };
     const base = `${theme} gallery`;
     // The context is an entry only while it is made and while it closes. Each tab is its own entry from before newPage.
+    // An entry ends when its call settles, rejected too, so a failed call is not reported in flight.
     const contextHandle = watchdog.begin(`${base} newContext`);
     if (watchdog.expired) return;
-    const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
-    contextHandle.update(`${base} addInitScript`);
-    if (watchdog.expired) return;
-    await context.addInitScript((name) => localStorage.setItem("tasty-theme", name), theme);
-    contextHandle.end();
+    let context;
+    try {
+      context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
+      contextHandle.update(`${base} addInitScript`);
+      if (watchdog.expired) return;
+      await context.addInitScript((name) => localStorage.setItem("tasty-theme", name), theme);
+    } finally {
+      contextHandle.end();
+    }
     for (const page of pages) {
       const handle = watchdog.begin(`${base} ${page.key} newPage`);
       if (watchdog.expired) return;
-      const tab = tracked(await context.newPage(), watchdog, handle, () => `${base} ${page.key}`);
-      tab.on("pageerror", (e) => t.errors.push(`${page.key}: ${String(e).slice(0, 200)}`));
-      await tab.goto(`${origin}/${page.path}?audit=1`, { waitUntil: "load", timeout: 180000 });
-      await tab.waitForLoadState("networkidle", { timeout: 180000 }).catch(() => {});
-      // Hydration, then stages and fetched tables. Measure once the page stops growing.
-      let last = -1;
-      for (let i = 0; i < 40; i += 1) {
-        await tab.waitForTimeout(500);
-        const size = await tab.evaluate(() => document.querySelectorAll("[data-gallery-page] *").length);
-        if (size === last && !(await tab.evaluate(() => document.querySelector("astro-island[ssr]") !== null))) break;
-        last = size;
+      try {
+        const tab = tracked(await context.newPage(), watchdog, handle, () => `${base} ${page.key}`);
+        tab.on("pageerror", (e) => t.errors.push(`${page.key}: ${String(e).slice(0, 200)}`));
+        await tab.goto(`${origin}/${page.path}?audit=1`, { waitUntil: "load", timeout: 180000 });
+        await tab.waitForLoadState("networkidle", { timeout: 180000 }).catch(() => {});
+        // Hydration, then stages and fetched tables. Measure once the page stops growing.
+        let last = -1;
+        for (let i = 0; i < 40; i += 1) {
+          await tab.waitForTimeout(500);
+          const size = await tab.evaluate(() => document.querySelectorAll("[data-gallery-page] *").length);
+          if (size === last && !(await tab.evaluate(() => document.querySelector("astro-island[ssr]") !== null))) break;
+          last = size;
+        }
+        await stylesSettled(tab);
+        await installPageLib(tab);
+        const m = await tab.evaluate(measure, { rows: data.components, tokens, grades, partMap: PART_MAP, exemptIds, noGradeTokens: noGrade, theme });
+        t.passes[page.key] = { cells: m.cells, rows: m.rows.length, text: m.text, glyph: m.glyph, inputs: m.inputs };
+        t.cells += m.cells;
+        t.rows += m.rows.length;
+        for (const r of m.rows) {
+          measuredRows.push(r);
+          if (r.status === "ok") t.ok += 1;
+          else t[r.status].push({ ...r, page: page.key });
+        }
+        m.diagnostics.forEach((d) => t.diagnostics.push({ ...d, page: page.key }));
+        t.text += m.text; t.svgs += m.svgs; t.emptySvgs += m.emptySvgs; t.glyph += m.glyph; t.inputs += m.inputs; t.picture += m.picture; t.paintServer += m.paintServer;
+        m.below.forEach((b) => t.other.push({ ...b, page: page.key }));
+        for (const [id, n] of Object.entries(m.exemptUses)) t.exemptUses[id] = (t.exemptUses[id] || 0) + n;
+        m.badExempt.forEach((b) => t.badExempt.push({ ...b, page: page.key }));
+        m.gradeNone.forEach((g) => { t.gradeNone[g.why] = (t.gradeNone[g.why] || 0) + 1; });
+        if (m.hscroll) t.hscroll.push(page.key);
+        await measureRest(tab, chrome, rules, theme, page.path, "gallery chrome");
+        await tab.close();
+      } finally {
+        handle.end();
       }
-      await stylesSettled(tab);
-      await installPageLib(tab);
-      const m = await tab.evaluate(measure, { rows: data.components, tokens, grades, partMap: PART_MAP, exemptIds, noGradeTokens: noGrade, theme });
-      t.passes[page.key] = { cells: m.cells, rows: m.rows.length, text: m.text, glyph: m.glyph, inputs: m.inputs };
-      t.cells += m.cells;
-      t.rows += m.rows.length;
-      for (const r of m.rows) {
-        measuredRows.push(r);
-        if (r.status === "ok") t.ok += 1;
-        else t[r.status].push({ ...r, page: page.key });
-      }
-      m.diagnostics.forEach((d) => t.diagnostics.push({ ...d, page: page.key }));
-      t.text += m.text; t.svgs += m.svgs; t.emptySvgs += m.emptySvgs; t.glyph += m.glyph; t.inputs += m.inputs; t.picture += m.picture; t.paintServer += m.paintServer;
-      m.below.forEach((b) => t.other.push({ ...b, page: page.key }));
-      for (const [id, n] of Object.entries(m.exemptUses)) t.exemptUses[id] = (t.exemptUses[id] || 0) + n;
-      m.badExempt.forEach((b) => t.badExempt.push({ ...b, page: page.key }));
-      m.gradeNone.forEach((g) => { t.gradeNone[g.why] = (t.gradeNone[g.why] || 0) + 1; });
-      if (m.hscroll) t.hscroll.push(page.key);
-      await measureRest(tab, chrome, rules, theme, page.path, "gallery chrome");
-      await tab.close();
-      handle.end();
     }
     const closeHandle = watchdog.begin(`${base} context close`);
-    await context.close();
-    closeHandle.end();
+    try {
+      await context.close();
+    } finally {
+      closeHandle.end();
+    }
     // The shared parts around the specimens, measured here on the default language paths the site pass leaves out.
     const chromeBad = chrome.below.length + chrome.badExempt.length + chrome.picture.length;
     console.log(`${theme} gallery chrome: pages ${chrome.pages}, text ${chrome.text}, shapes ${chrome.glyph}, below ${chrome.below.length}`);
@@ -388,9 +399,12 @@ async function run() {
     doneThemes.push(theme);
   }
   const closeHandle = watchdog.begin("closing the browser");
-  await closeBrowser();
-  closeServer();
-  closeHandle.end();
+  try {
+    await closeBrowser();
+    closeServer();
+  } finally {
+    closeHandle.end();
+  }
   // The last look at the deadlines. Past one, the timeout path owns the exit and this run writes nothing more.
   if (!watchdog.stop()) return;
   if (argOf("--json")) writeFileSync(argOf("--json"), JSON.stringify(report, null, 1));

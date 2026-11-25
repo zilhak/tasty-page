@@ -387,28 +387,32 @@ export async function runSite({ browser, origin, dist, rules, theme, report, wat
   for (const vp of VIEWPORTS) {
     const base = `${theme} site ${vp.name}`;
     // The context is an entry only while it is made and while it closes. Each tab is its own entry (withTab).
+    // An entry ends when its call settles, rejected too, so a failed call is not reported in flight.
     const handle = watchdog.begin(`${base} newContext`);
     if (watchdog.expired) return null;
+    let context;
     try {
-      const context = await browser.newContext({ viewport: { width: vp.width, height: vp.height }, reducedMotion: "reduce" });
+      context = await browser.newContext({ viewport: { width: vp.width, height: vp.height }, reducedMotion: "reduce" });
       handle.update(`${base} addInitScript`);
       if (watchdog.expired) return null;
       await context.addInitScript((name) => localStorage.setItem("tasty-theme", name), theme);
-      handle.end();
-      const env = { context, watchdog, base };
-      if (vp.name === "narrow") await drawerPass(env, origin, t, rules, theme);
-      await restPass(env, origin, pages, t, rules, theme, vp.name);
-      if (vp.name === "wide") {
-        await pointerPass(env, origin, t, rules, theme);
-        await focusPass(env, origin, t, rules, theme);
-        await searchPass(env, origin, t, rules, theme);
-        await langPass(env, origin, t, rules, theme);
-      }
-      const closing = watchdog.begin(`${base} context close`);
-      await context.close();
-      closing.end();
     } finally {
       handle.end();
+    }
+    const env = { context, watchdog, base };
+    if (vp.name === "narrow") await drawerPass(env, origin, t, rules, theme);
+    await restPass(env, origin, pages, t, rules, theme, vp.name);
+    if (vp.name === "wide") {
+      await pointerPass(env, origin, t, rules, theme);
+      await focusPass(env, origin, t, rules, theme);
+      await searchPass(env, origin, t, rules, theme);
+      await langPass(env, origin, t, rules, theme);
+    }
+    const closing = watchdog.begin(`${base} context close`);
+    try {
+      await context.close();
+    } finally {
+      closing.end();
     }
   }
   if (watchdog.check()) return null;
