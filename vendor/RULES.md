@@ -2469,6 +2469,8 @@ The site's landing, guide and design pages use the same grounds, roles and table
 
 **Tables.** Every table in a guide page sits in `.table-wrap`: the 1px frame, the `mantle` head and the sideways scroll on a narrow screen. Inline code in a table wraps only where its own text allows, such as at a space or a hyphen, and a token wider than the room scrolls the table instead of splitting. File names, plugin IDs and environment variables follow the same rule. Japanese and Chinese cells keep a `10em` floor, because their prose can break after any character and the column would otherwise collapse. Inline code outside a table may still split inside a token, so a long one cannot push the page wider.
 
+**Scroll frames.** On the site's own pages, `.table-wrap`, `.anat-window`, `.anat-settings` and `pre.astro-code` take focus with Tab (`tabindex="0"`). This lets keyboard readers scroll sideways when the content is wider than the frame. They get the same 2px solid `border-focus` outline as links and buttons, 2px outside the frame on `base`.
+
 ### Site grounds
 
 | ID | Token | Mocha | Latte | Used for |
@@ -2542,7 +2544,7 @@ Contrast is the lowest across the row's grounds.
 | Contents list | `.toc__title, .toc a` | `base` | `text-muted` | `text-muted` | 7.37 · 5.53 |
 | Contents list, current | `.toc a[data-active]` | `base` | `text-primary` | `accent-primary-raised` | 7.79 · 7.34 |
 | Contents list bar, current | `.toc a[data-active]` | `base` | `selection-bar` | `accent-primary` | 7.79 · 4.34 |
-| Focus ring | `a, button, input, summary` | `base`, `mantle`, `raised` | `focus-ring` | `border-focus` | 5.97 · 3.18 |
+| Focus ring | `a, button, input, summary, .table-wrap, .anat-window, .anat-settings, pre.astro-code` | `base`, `mantle`, `raised` | `focus-ring` | `border-focus` | 5.97 · 3.18 |
 | Footer text | `.site-footer h4, .site-footer a, .site-footer__blurb, .site-footer__legal` | `mantle` | `text-muted` | `text-muted` | 7.89 · 5.14 |
 | Footer link, pointer over | `.site-footer a:hover` | `mantle` | `text-body` | `text-primary` | 12.14 · 6.57 |
 | Hero release word | `.hero__eyebrow` | `base` | `text-muted` | `text-muted` | 7.37 · 5.53 |
