@@ -787,7 +787,7 @@ function Page() {
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)" }}><RemoteFrame tab="attach" /></Stage>
           <Meta
             specs={[["rows", "name+label · target · tasty/port"], ["mode", "profile (→ ref) · inline"], ["target", <><span className="ic">→ profile</span> or <span className="ic">user@host</span></>], ["inactive", "peach badge (unreachable)"], ["add-bar", "Add attach (no protocol filter)"]]}
-            tokens={[{ tok: "--tasty-accent-warning", use: "inactive / profile-missing", color: "var(--tasty-accent-warning-raised)" }, { tok: "--tasty-text-disabled", use: "inactive name", color: "var(--tasty-text-disabled)" }, { tok: "--tasty-separator", use: "row dividers" }]} />
+            tokens={[{ tok: "--tasty-accent-warning", use: "inactive / profile-missing", color: "var(--tasty-accent-warning-raised)" }, { tok: "--tasty-text-muted", use: "inactive name", color: "var(--tasty-text-muted)" }, { tok: "--tasty-separator", use: "row dividers" }]} />
           <Do><b>Do</b> keep <span className="ic">remote_tasty</span> and port discovery on the Attach, not the ssh profile — an ssh profile is reusable connection info; how to find the remote tasty binary is attach-specific.</Do>
         </Spec>
         <Spec id="attach-form-reference-vs-inline" title="Attach form — reference vs. inline"
