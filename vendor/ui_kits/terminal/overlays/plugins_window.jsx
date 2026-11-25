@@ -413,7 +413,7 @@ function AttentionPanel({ items, onFlash, onConfigure, onRemove, lang = "en" }) 
   );
 
   if (items.length === 0) {
-    const [emptyTitle, emptyBody] = attnEmpty(lang);
+    const [emptyTitle, emptyBody, emptyLang] = attnEmpty(lang);
     return (
       <React.Fragment>
         {/* The app keeps the (empty) list panel and draws two lines of text, no glyph, on the default
@@ -421,7 +421,7 @@ function AttentionPanel({ items, onFlash, onConfigure, onRemove, lang = "en" }) 
             8 apart (item spacing 4 + space-xs 4), no width cap: [plugins] attn_empty_title, attn_empty_body. */}
         <div style={{ width: "var(--tasty-plugins-attention-list-width)", flex: "none", background: "var(--tasty-bg-sidebar)",
           borderRight: "var(--tasty-border-width) solid var(--tasty-separator)" }} />
-        <div lang={lang} style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", alignItems: "center", background: "var(--tasty-bg-sidebar)",
+        <div lang={emptyLang} style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", alignItems: "center", background: "var(--tasty-bg-sidebar)",
           gap: "var(--tasty-space-sm)", color: "var(--tasty-text-muted)", padding: "calc(var(--tasty-space-sm) + 2 * var(--tasty-space-xl)) var(--tasty-space-sm) 0" }}>
           <div style={{ fontSize: "var(--tasty-font-size-body)", color: "var(--tasty-text-secondary)" }}>{emptyTitle}</div>
           <div style={{ fontSize: 12, textAlign: "center", lineHeight: "var(--tasty-line-height-ui)" }}>{emptyBody}</div>

@@ -9,5 +9,9 @@ export const ATTN_EMPTY = {
   "zh-Hans": ["没有待处理的插件", "被拒绝或运行失败的插件会显示在此处，并附上原因和后续操作。"],
 };
 
-// The pair for a language; any other language reads en.
-export const attnEmpty = (lang) => ATTN_EMPTY[lang] || ATTN_EMPTY.en;
+// [title, body, lang] for a language. Only the four languages above are looked up, as own keys; any other value
+// reads en, and lang is then en too, so the text never carries a language it is not written in.
+export const attnEmpty = (lang) => {
+  const shown = Object.hasOwn(ATTN_EMPTY, lang) ? lang : "en";
+  return [...ATTN_EMPTY[shown], shown];
+};

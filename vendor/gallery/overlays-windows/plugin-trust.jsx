@@ -308,9 +308,9 @@ function AttnList({ lang = "en", selected = 0 }) {
 // language, letter for letter, read from the kit's copy module so the kit window and this frame share it.
 const ATTN_EMPTY_WIDTH = "calc(var(--tasty-plugins-attention-list-width) + var(--tasty-size-400) + var(--tasty-size-240))"; // 240 + 640 = 880
 function AttnEmpty({ lang = "en" }) {
-  const [title, body] = attnEmpty(lang);
+  const [title, body, shown] = attnEmpty(lang);
   return (
-    <div lang={lang} style={{ width: ATTN_EMPTY_WIDTH, flex: "none", height: "var(--tasty-size-240)", display: "flex", borderRadius: "var(--tasty-radius)", overflow: "hidden",
+    <div lang={shown} style={{ width: ATTN_EMPTY_WIDTH, flex: "none", height: "var(--tasty-size-240)", display: "flex", borderRadius: "var(--tasty-radius)", overflow: "hidden",
       border: "var(--tasty-border-width) solid var(--tasty-border-default)" }}>
       <div style={{ width: "var(--tasty-plugins-attention-list-width)", flex: "none", background: "var(--tasty-bg-sidebar)", borderRight: "var(--tasty-border-width) solid var(--tasty-separator)" }} />
       <div style={{ flex: 1, minWidth: 0, background: "var(--tasty-bg-sidebar)", padding: "calc(var(--tasty-space-sm) + 2 * var(--tasty-space-xl)) var(--tasty-space-sm) 0",
