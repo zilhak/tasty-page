@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { missingCellRows, pageLib } from "./contrast-page.mjs";
 import { measureGallery } from "./contrast-gallery.mjs";
-import { belowRecord, chromeFailures, emptySiteTally, measureRest, mismatchRecord, printChromeFailures, reportChrome, summarize } from "./contrast-site.mjs";
+import { FOCUS_FRAMES, belowRecord, chromeFailures, emptySiteTally, measureRest, mismatchRecord, printChromeFailures, reportChrome, summarize, walkFocus } from "./contrast-site.mjs";
 
 const { selectParts, validateParts, expectedTheme } = pageLib();
 const key = { component: "Title bar", state: "rest", host: "crust" };
@@ -470,4 +470,97 @@ test("summarize: below lines of every row come first, then each row's wrong ink 
     "  wrong ink search-edge [gallery chrome] guide/ search-edge: #ffffff on #1e1e2e, wants edge",
     "  wrong ink search-edge: no element shows edge",
   ]);
+});
+
+// The focus row reads a frame's outline and an input's border. A frame given in frames must show a focus-visible ring.
+const focusRow = { id: "focus", kind: "edge", selector: "a, button, input, .table-wrap", token: "ring", grade: 3, state: "focus" };
+const ringTokens = { ring: { mocha: "#000000" } };
+const ring = (extra = {}) => ({ style: { outlineColor: "rgb(0, 0, 0)", outlineStyle: "solid", outlineWidth: "2px", ...extra } });
+const focusVisible = (node) => { const own = node.matches.bind(node); node.matches = (sel) => sel === ":focus-visible" || own(sel); return node; };
+const focusOn = (node) => { page([node]); globalThis.document.activeElement = node; };
+
+test("measureFocus: a frame with its ring shown is measured and names its frame", () => {
+  focusOn(focusVisible(el("div", { cls: ["table-wrap"], ...ring() })));
+  const r = lib.measureFocus(focusRow, ringTokens, "mocha", [".table-wrap"]);
+  assert.deepEqual([r.frame, r.got, r.ground, r.ratio, r.inkOk, r.below], [".table-wrap", "#000000", "#ffffff", 21, true, false]);
+  delete globalThis.document;
+});
+
+test("measureFocus: a frame whose ring is off or has no paint is a wrong ink record, not a skip", () => {
+  const cases = [
+    focusVisible(el("div", { cls: ["table-wrap"], ...ring({ outlineStyle: "none" }) })),
+    focusVisible(el("div", { cls: ["table-wrap"], ...ring({ outlineWidth: "0px" }) })),
+    focusVisible(el("div", { cls: ["table-wrap"], ...ring({ outlineColor: "rgba(0, 0, 0, 0)" }) })),
+    el("div", { cls: ["table-wrap"], ...ring() }),
+  ];
+  for (const node of cases) {
+    focusOn(node);
+    const r = lib.measureFocus(focusRow, ringTokens, "mocha", [".table-wrap"]);
+    assert.deepEqual([r.frame, r.got, r.inkOk, r.below], [".table-wrap", "none", false, false]);
+  }
+  delete globalThis.document;
+});
+
+test("measureFocus: an input keeps its border reading when the page samples frames", () => {
+  focusOn(focusVisible(el("input", { style: { outlineStyle: "none", outlineWidth: "0px", borderTopColor: "rgb(0, 0, 0)" } })));
+  const r = lib.measureFocus(focusRow, ringTokens, "mocha", [".table-wrap"]);
+  assert.deepEqual([r.frame, r.got, r.inkOk], [undefined, "#000000", true]);
+  delete globalThis.document;
+});
+
+// Tab stops of a page as measureFocus returns them; the fake tab hands out one per press and settles at once.
+const tabOf = (stops) => {
+  let i = -1;
+  return { keyboard: { press: async () => { i += 1; } }, evaluate: async (fn, a) => (a && a.row ? stops[i] ?? null : undefined) };
+};
+const ok = (frame) => ({ ...(frame ? { frame } : {}), at: frame ?? "a", got: "#000000", ground: "#ffffff", ratio: 21, inkOk: true, below: false });
+const off = (frame) => ({ frame, at: `${frame} 1`, got: "none", ground: "none", ratio: 0, inkOk: false, below: false });
+
+test("walkFocus: a frame reached with its ring off fails though the next frame of its kind passes, and an unreached frame is missing", async () => {
+  const page = "guide/customize/settings/";
+  assert.deepEqual(FOCUS_FRAMES[page], [".anat-settings", ".table-wrap", "pre.astro-code"]);
+  const rules = { rows: [focusRow], family: new Set(), tokens: ringTokens };
+  const t = emptySiteTally(rules);
+  // 14 ordinary stops, then a control the walk skips, both frames of the first two kinds, and no code block.
+  const stops = [...Array.from({ length: 14 }, () => ok()), ok(), off(".table-wrap"), ok(".anat-settings"), ok(".table-wrap")];
+  await walkFocus(tabOf(stops), t, rules, "mocha", page);
+  const rec = t.rows.focus;
+  assert.deepEqual([rec.found, rec.measured, rec.inkHits], [17, 17, 16]);
+  assert.deepEqual(rec.mismatch.map((m) => [m.frame, m.got, m.page]), [[".table-wrap", "none", page]]);
+  assert.deepEqual(t.focusMissing, [{ page, selector: "pre.astro-code", stops: 120 }]);
+  const lines = [];
+  const log = console.log;
+  console.log = (line) => lines.push(line);
+  try {
+    assert.equal(summarize(t, rules, "mocha", 1, {}), false);
+  } finally {
+    console.log = log;
+  }
+  assert.ok(lines.includes("  focus frame not measured on guide/customize/settings/: pre.astro-code within 120 Tab stops"));
+});
+
+test("walkFocus: a page with no frames stops after the ordinary stops, and one with every frame measured has nothing missing", async () => {
+  const rules = { rows: [focusRow], family: new Set(), tokens: ringTokens };
+  const landing = emptySiteTally(rules);
+  let presses = 0;
+  const counting = tabOf(Array.from({ length: 40 }, () => ok()));
+  const press = counting.keyboard.press;
+  counting.keyboard.press = async () => { presses += 1; await press(); };
+  await walkFocus(counting, landing, rules, "mocha", "");
+  assert.deepEqual([presses, landing.rows.focus.measured, landing.focusMissing.length], [14, 14, 0]);
+  const look = emptySiteTally(rules);
+  const stops = [...Array.from({ length: 14 }, () => ok()), ok(".anat-window"), ok(".table-wrap"), ok()];
+  await walkFocus(tabOf(stops), look, rules, "mocha", "guide/getting-started/first-look/");
+  assert.deepEqual([look.rows.focus.measured, look.focusMissing.length], [16, 0]);
+  // The same tally passes until a missing frame is its only failure.
+  look.text = 1;
+  const log = console.log;
+  console.log = () => {};
+  try {
+    assert.equal(summarize(look, rules, "mocha", 1, {}), true);
+    look.focusMissing.push({ page: "guide/getting-started/first-look/", selector: ".anat-window", stops: 120 });
+    assert.equal(summarize(look, rules, "mocha", 1, {}), false);
+  } finally {
+    console.log = log;
+  }
 });
