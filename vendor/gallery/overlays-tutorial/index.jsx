@@ -206,7 +206,7 @@ function Page() {
                 style={{ left: 150, top: 120 }} />
             </div>
           </Stage>
-          <Note><b>동작:</b> 다음 → step 2 (페인으로 마커 축소) · 이전 → 이전 · 목록/Esc → 주제 목록 팝업 복귀 · 마지막 step 다음 → 목록 팝업 재open. 마커·딤은 <code>pointer-events:none</code>.</Note>
+          <Note><b>동작:</b> 다음 → step 2 (페인으로 마커 축소) · 이전 → 이전 · 목록/Esc → 주제 목록 팝업 복귀 · 마지막 step 완료 → 목록 팝업 재open. 마커·딤은 <code>pointer-events:none</code>.</Note>
         </Spec>
       </Section>
     </>
