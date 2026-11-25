@@ -711,3 +711,31 @@ test("measureRows: a row naming the same pseudo element excuses by that pseudo e
 test("measureRows: the pseudo element and the element must match in the same selector alternative", () => {
   assert.equal(excusedOnBefore(twin({ selector: ".absent::before, .table-wrap::after" })), false);
 });
+
+test("records: below and wrong ink records leave out otherRow, which only decides whether a wrong ink is recorded", async () => {
+  const noScan = { text: 0, glyph: 0, inputs: 0, svgs: 0, pseudo: 0, paintServer: 0, below: [], picture: [], badExempt: [], exemptUses: {}, gradeNone: {} };
+  const result = (at, otherRow) => ({ got: "#45475a", ground: "#1e1e2e", ratio: 1.5, picture: null, inkOk: false, below: true, at, otherRow });
+  const measured = [{ id: "header-icon", found: [".icon-btn"], measured: 2, inkHits: 0, results: [result("a", true), result("b", false)] }];
+  page([]);
+  globalThis.window = { __contrast: { measureRows: () => measured, scan: () => noScan } };
+  const tab = { evaluate: async (fn, a) => (a && a.rows ? fn(a) : undefined), addScriptTag: async () => {} };
+  const t = emptySiteTally(failRules);
+  await measureRest(tab, t, failRules, "mocha", "guide/", "wide");
+  delete globalThis.window;
+  delete globalThis.document;
+  const icon = t.rows["header-icon"];
+  // Both below, and only the one no other row excuses as a wrong ink.
+  assert.deepEqual([icon.below.map((b) => b.at), icon.mismatch.map((b) => b.at), icon.inkHits], [["a", "b"], ["b"], 0]);
+  const fields = { got: "#45475a", ground: "#1e1e2e", ratio: 1.5, picture: null, inkOk: false, below: true, page: "guide/", viewport: "wide" };
+  assert.deepEqual([...icon.below, ...icon.mismatch], [{ ...fields, at: "a" }, { ...fields, at: "b" }, { ...fields, at: "b" }]);
+  const report = {};
+  captured(() => summarize(t, failRules, "mocha", 1, report));
+  const site = JSON.parse(JSON.stringify(report.site.mocha.rows["header-icon"]));
+  assert.deepEqual([site.below.length, site.mismatch.length], [2, 1]);
+  [...site.below, ...site.mismatch].forEach((r) => assert.equal("otherRow" in r, false));
+  let res;
+  captured(() => { res = reportChrome(t, failRules, "mocha"); });
+  const chrome = JSON.parse(JSON.stringify(res.chromeRows));
+  assert.deepEqual([chrome.below.length, chrome.mismatch.length, res.bad], [2, 1, 3]);
+  [...chrome.below, ...chrome.mismatch].forEach((r) => assert.equal("otherRow" in r, false));
+});

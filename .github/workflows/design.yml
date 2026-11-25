@@ -54,7 +54,7 @@ jobs:
         run: python3 -B scripts/design-tokens/test_verify_ground_ink_tokens.py -v
 
       - name: Test the contrast checker
-        run: node --test scripts/contrast-page.test.mjs scripts/contrast-site.test.mjs scripts/contrast-watchdog.test.mjs scripts/contrast-args.test.mjs
+        run: node --test scripts/contrast-page.test.mjs scripts/contrast-site.test.mjs scripts/contrast-watchdog.test.mjs scripts/contrast-args.test.mjs scripts/contrast-report.test.mjs
 
       - run: npm ci
 
