@@ -47,7 +47,7 @@ const SANS = [
 
 export function UiSansSpec() {
   return (
-    <Spec id="ui-sans-chrome" title="UI sans — chrome"
+    <Spec id="ui-sans-chrome" title="UI face — chrome"
       when={<>Native system sans for app chrome, capped at 14px. Compare the scale across four lines.</>}>
       <Stage variant="solo column" style={{ gap: "var(--tasty-space-md)" }}>
         {SANS.map(([tok, size, name, weight, sample]) => (
@@ -58,7 +58,7 @@ export function UiSansSpec() {
         ))}
       </Stage>
       <Meta tokens={[
-        { tok: "--tasty-font-ui", use: "native system sans" },
+        { tok: "--tasty-font-ui", use: "D2Coding, then the system sans" },
         { tok: "--tasty-font-size-max", use: "14px, the hard ceiling for UI chrome" },
         { tok: "--tasty-font-size-heading", use: "13px, weight 600" },
         { tok: "--tasty-font-size-body", use: "13px, weight 400" },
@@ -121,7 +121,7 @@ export function LabelFamilySpec() {
           </div>
         ))}
       </Stage>
-      <Meta specs={[["family", <span className="tok">--tasty-font-label</span>], ["language rule", "tokens/base.css · RULES section 8"], ["size, ink, tracking, uppercase", "the label's own, in every language"], ["line height, baseline in ja, zh-Hans", "font-mono's at the same size, measured in the app"], ["count", "same baseline as the label"], ["icon", "centred in the row"], ["Latin in ja, zh-Hans", "UI sans, no second face"]]}
+      <Meta specs={[["family", <span className="tok">--tasty-font-label</span>], ["language rule", "tokens/base.css · RULES section 8"], ["size, ink, tracking, uppercase", "the label's own, in every language"], ["line height, baseline in ja, zh-Hans", "font-mono's at the same size, measured in the app"], ["count", "same baseline as the label"], ["icon", "centred in the row"], ["Latin in ja, zh-Hans", "D2Coding, no second face"]]}
         tokens={[
           { tok: "--tasty-sidebar-category-header-fg", use: "heading and icon ink", color: "var(--tasty-sidebar-category-header-fg)" },
           { tok: "--tasty-sidebar-category-header-count-fg", use: "count ink", color: "var(--tasty-sidebar-category-header-count-fg)" },
@@ -154,8 +154,8 @@ export function WeightsSpec() {
         </div>
       </Stage>
       <Meta tokens={[
-        { tok: "--tasty-font-weight-normal", use: "400" }, { tok: "--tasty-font-weight-medium", use: "500" },
-        { tok: "--tasty-font-weight-semibold", use: "600" }, { tok: "--tasty-font-weight-bold", use: "700" },
+        { tok: "--tasty-font-weight-normal", use: "400, D2Coding Regular" }, { tok: "--tasty-font-weight-medium", use: "500, D2Coding Regular" },
+        { tok: "--tasty-font-weight-semibold", use: "600, D2Coding Bold" }, { tok: "--tasty-font-weight-bold", use: "700, D2Coding Bold" },
         { tok: "--tasty-letter-spacing-caps", use: "0.04em: 0.44px at 11px, micro-label caps" },
       ]} />
     </Spec>

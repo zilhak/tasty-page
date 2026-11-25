@@ -508,9 +508,9 @@ function Foundations() {
             </div>
           </Stage>
           <Meta
-            specs={[["UI cap", <span className="tok">--tasty-font-size-max</span>], ["heading", "body size, weight 600"], ["mono", <span className="tok">--tasty-font-mono</span>]]}
+            specs={[["UI cap", <span className="tok">--tasty-font-size-max</span>], ["heading", "body size, weight 600, D2Coding Bold"], ["mono", <span className="tok">--tasty-font-mono</span>]]}
             tokens={[
-              { tok: "--tasty-font-ui", use: "chrome (system sans)" },
+              { tok: "--tasty-font-ui", use: "chrome (D2Coding)" },
               { tok: "--tasty-font-mono", use: "D2Coding — code/term" },
               { tok: "--tasty-font-size-body", use: "13px default" },
               { tok: "--tasty-font-size-caption", use: "11px meta" },
