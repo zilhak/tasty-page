@@ -68,7 +68,8 @@
   outline: 1px dashed color-mix(in srgb, var(--brand) 55%, transparent);
   outline-offset: -1px;
 }
-.anat > * { flex: 1; min-height: 0; }
+.anat > *, .anat__kit > * { flex: 1; min-height: 0; }
+.anat__kit { display: contents; }
 .anat::after {
   content: attr(data-label);
   position: absolute;

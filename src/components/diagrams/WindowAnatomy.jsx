@@ -22,9 +22,14 @@ const session = {
   lines: [<Prompt branch="main" />, <><span style={{ color: "var(--tasty-accent-agent-raised)" }}>❯</span> tasty list tree</>],
 };
 
-/** `grow` marks the one region that should absorb the leftover height. */
+/** `grow` marks the one region that should absorb the leftover height. The kit
+ * inside is a picture, not controls: it is inert and hidden from assistive
+ * technology, while the region label stays readable. The wrapper has no box
+ * (display: contents), so the kit lays out as before. */
 const Part = ({ label, grow, children }) => (
-  <div className="anat" data-label={label} data-grow={grow ? "" : undefined}>{children}</div>
+  <div className="anat" data-label={label} data-grow={grow ? "" : undefined}>
+    <div className="anat__kit" aria-hidden="true" inert="">{children}</div>
+  </div>
 );
 
 export function WindowAnatomy({ labels }) {
