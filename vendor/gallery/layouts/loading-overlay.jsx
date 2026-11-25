@@ -72,7 +72,7 @@ function Arrow({ dir, disabled }) {
 function OverflowStrip({ loadingIdx = [], focused = true }) {
   const tabs = ["server", "build-server", "vim", "logs", "tests", "db"];
   return (
-    <div style={{ display: "flex", width: "var(--tasty-size-460)", maxWidth: "100%", overflow: "hidden", background: focused ? "var(--tasty-surface-raised)" : "var(--tasty-bg-sidebar)", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
+    <div style={{ display: "flex", width: "var(--tasty-size-460)", maxWidth: "100%", overflow: "hidden", background: focused ? "var(--tasty-surface-raised)" : "var(--tasty-bg-sidebar)", borderBottom: `var(--tasty-border-width) solid var(--tasty-${focused ? "border-strong" : "separator"})` }}>
       <Arrow dir="left" disabled />
       <div style={{ flex: 1, minWidth: 0, display: "flex", overflow: "hidden" }}>
         {tabs.map((t, i) => <LTab key={t} label={t} active={i === 1} loading={loadingIdx.includes(i)} />)}
@@ -177,7 +177,7 @@ function MiniWindow({ loading, rm }) {
         <LAv ch="T" /><LAv ch="B" state="active" mirror loading={loading} rm={rm} /><LAv ch="S" notif />
       </div>
       <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}>
-        <div style={{ display: "flex", background: "var(--tasty-surface-raised)", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)", overflow: "hidden" }}>
+        <div style={{ display: "flex", background: "var(--tasty-surface-raised)", borderBottom: "var(--tasty-border-width) solid var(--tasty-border-strong)", overflow: "hidden" }}>
           <LTab label="build-server" active loading={loading} rm={rm} /><LTab label="logs" busy />
         </div>
         <div style={{ flex: 1, minHeight: 0, display: "flex" }}><TermSurface loading={loading} rm={rm} w="100%" h="100%" /></div>

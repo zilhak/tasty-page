@@ -31,7 +31,7 @@ function Term({ lines = LINES, search }) {
 }
 function Strip({ tabs = ["main"] }) {
   return (
-    <div style={{ flex: "none", height: "var(--tasty-tab-height)", display: "flex", background: "var(--tasty-surface-raised)", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
+    <div style={{ flex: "none", height: "var(--tasty-tab-height)", display: "flex", background: "var(--tasty-surface-raised)", borderBottom: "var(--tasty-border-width) solid var(--tasty-border-strong)" }}>
       {tabs.map((t, i) => <span key={t} style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-tab-gap)", padding: "0 var(--tasty-tab-padding-x)", fontSize: "var(--tasty-font-size-caption)", color: i === 0 ? "var(--tasty-tab-fg-active)" : "var(--tasty-tab-fg)", background: i === 0 ? "var(--tasty-tab-bg-active)" : "transparent", borderRight: "var(--tasty-border-width) solid var(--tasty-tab-separator)" }}><Icon name="terminal" size="var(--tasty-tab-icon-size)" />{t}</span>)}
     </div>
   );

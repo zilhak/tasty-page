@@ -311,7 +311,7 @@ function IeGrid() {
   const cell = { padding: "8px 12px", borderBottom: "1px solid var(--tasty-separator)", fontSize: 13, display: "flex", alignItems: "center" };
   const group = (label, counts, open = true) => (
     <div style={{ gridColumn: "1 / -1", display: "flex", alignItems: "center", gap: 8, padding: "8px 12px",
-      background: "var(--tasty-surface-raised)", borderBottom: "1px solid var(--tasty-separator)" }}>
+      background: "var(--tasty-surface-raised)", borderBottom: "1px solid var(--tasty-border-strong)" }}>
       <WCheckbox defaultChecked={open} aria-label={"Select all in " + label} />
       <span style={{ display: "inline-flex", color: "var(--tasty-text-muted)" }}><WIcon name={open ? "chevronDown" : "chevronRight"} size={14} /></span>
       <span style={{ ...ieCaps, color: "var(--tasty-text-secondary)" }}>{label}</span>

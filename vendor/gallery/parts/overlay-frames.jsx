@@ -1382,7 +1382,7 @@ function FileHandlerFrame({ state = "default", headless = true, footer = "action
 
       {state === "fallback" && (
         <div style={{ display: "flex", alignItems: "flex-start", gap: 8, padding: "8px 14px",
-          background: "var(--tasty-surface-raised)", borderBottom: "1px solid var(--tasty-separator)" }}>
+          background: "var(--tasty-surface-raised)", borderBottom: "1px solid var(--tasty-border-strong)" }}>
           <span style={{ display: "inline-flex", color: "var(--tasty-accent-attention-raised)", flex: "0 0 auto" }}>{ic.warn}</span>
           <span style={{ fontSize: 11, color: "var(--tasty-text-secondary)", lineHeight: 1.5 }}>
             One-time choice — nothing is registered for this format. This screen shows again next time.
