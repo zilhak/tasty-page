@@ -90,7 +90,7 @@ The toggle goes. Specs are always on, because they are what the app is built fro
 
 ### The check
 
-The rules are in `RULES.md` section 14. `measure()` and `run()` implement the rendered gallery check in [`scripts/check-contrast.mjs`](../../scripts/check-contrast.mjs). The browser uses `selectParts()`, `validateParts()` and `expectedTheme()` from `pageLib()` in [`scripts/contrast-page.mjs`](../../scripts/contrast-page.mjs).
+The rules are in `RULES.md` section 14. `measureGallery()` in [`scripts/contrast-gallery.mjs`](../../scripts/contrast-gallery.mjs) and `run()` in [`scripts/check-contrast.mjs`](../../scripts/check-contrast.mjs) implement the rendered gallery check. The browser uses `selectParts()`, `validateParts()` and `expectedTheme()` from `pageLib()` in [`scripts/contrast-page.mjs`](../../scripts/contrast-page.mjs).
 
 `contract-audit.js` is a historical reference for the Button family's frozen cells. The original mock run measured 113 cells and 241 rows in each theme, with zero token mismatches and ratios within 0.03 of those in the rule file.
 
