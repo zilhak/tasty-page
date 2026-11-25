@@ -2525,7 +2525,7 @@ function ScriptManagerFrame({ empty }) {
       background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)" }}>
       <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
         <div style={{ flex: 1 }}>
-          <div style={{ fontSize: 16, fontWeight: 600, color: "var(--tasty-text-primary)" }}>Scripts</div>
+          <div style={{ fontSize: "var(--tasty-font-size-max)", fontWeight: 600, color: "var(--tasty-text-primary)" }}>Scripts</div>
           <p style={{ fontSize: 12, color: "var(--tasty-text-muted)", margin: "2px 0 0", lineHeight: 1.5 }}>Register and manage Lua scripts you can run with a shortcut. Binding a trigger is done in <b style={{ color: "var(--tasty-text-secondary)" }}>Keybindings</b>; each script is verified against the SHA recorded when it was added.</p>
         </div>
         <Button variant="secondary" size="sm" leadingIcon={ic.plus}>Add script</Button>

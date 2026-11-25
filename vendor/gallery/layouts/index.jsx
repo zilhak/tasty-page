@@ -726,7 +726,7 @@ function Layouts() {
               </div>
               <div style={{ flex: 1, padding: 18, display: "flex", flexDirection: "column", gap: 12, minWidth: 0 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <span style={{ fontSize: 15, fontWeight: 600 }}>git-helper</span>
+                  <span style={{ fontSize: "var(--tasty-font-size-max)", fontWeight: 600 }}>git-helper</span>
                   <Tag variant="agent">plugin</Tag><Tag variant="success" dot>running</Tag>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
