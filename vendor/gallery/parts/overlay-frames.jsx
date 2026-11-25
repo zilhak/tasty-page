@@ -2402,7 +2402,7 @@ function RemoteFormFrame({ variant = "ssh", error }) {
               <>
                 <FRow label="Host"><Input block defaultValue="10.0.0.4" /></FRow>
                 <FRow label="User"><Input block defaultValue="deploy" /></FRow>
-                <FRow label="Port"><Input style={{ width: "var(--tasty-field-width-xs)" }} defaultValue="22" /></FRow>
+                <FRow label="Port"><Input style={{ width: "var(--tasty-remote-port-field-width)" }} defaultValue="22" /></FRow>
                 <FRow label="Label"><Input block placeholder="optional" /></FRow>
                 <FRow label="Shell" hint="Auto-detects the remote shell once when saved (runs an SSH probe)."><Select options={["auto", "bash", "zsh", "fish"]} block /></FRow>
                 <FRow label="Passkey"><Select options={["(none)", "id_ed25519", "deploy-key"]} block /></FRow>
@@ -2430,7 +2430,7 @@ function RemoteFormFrame({ variant = "ssh", error }) {
               <>
                 <FRow label="Host"><Input block defaultValue="edge.example.com" /></FRow>
                 <FRow label="User"><Input block defaultValue="root" /></FRow>
-                <FRow label="Port"><Input style={{ width: "var(--tasty-field-width-xs)" }} defaultValue="22" /></FRow>
+                <FRow label="Port"><Input style={{ width: "var(--tasty-remote-port-field-width)" }} defaultValue="22" /></FRow>
                 <FRow label="Shell"><Select options={["auto", "bash", "zsh", "fish"]} block /></FRow>
                 <FRow label="Passkey"><Select options={["(none)", "edge-pem"]} block /></FRow>
               </>

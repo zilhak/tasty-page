@@ -4936,6 +4936,10 @@
       "$type": "dimension",
       "$value": "{primitive.size-112}"
     },
+    "remote-port-field-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-96}"
+    },
     "remote-filter-menu-width": {
       "$type": "dimension",
       "$value": "{primitive.size-240}",

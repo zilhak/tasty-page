@@ -1097,6 +1097,7 @@
   --tasty-remote-row-popup-width:   var(--tasty-size-360); /* 2026-11-24 — Workspace-scope popup width; at most the content area less space-md each side */
   /* Remote tool */
   --tasty-remote-label-col:         var(--tasty-size-112); /* form label grid column */
+  --tasty-remote-port-field-width:  var(--tasty-size-96);  /* 2026-11-25 — Port field in the profile and attach forms, the whole box */
   --tasty-remote-filter-menu-width: var(--tasty-size-240); /* protocol-filter menu — BORDER-BOX width (outer edge to outer edge). Content = this minus the frame the popup crate draws (14 total at scale 1 → 226). The mock's 236 was a raw literal, snapped to the existing 240 primitive (same measure as tooltip max-width). All widths in this family read as border box. */
   /* Explorer view toggle (SegToggle — grid / list / detail). A SEGMENT: it picks a
      value (how the same listing is drawn), it does not switch content, so it takes the
