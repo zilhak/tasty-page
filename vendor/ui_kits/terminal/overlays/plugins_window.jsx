@@ -597,8 +597,8 @@ function PluginsSeg({ value, label, count, danger, on, hover, onPick, onPointer 
 }
 
 // hoverTab: a frame pins the pointer hover on one header tab ("installed" | "attention" | "add").
-// lang: the language of the empty Attention tab and empty Installed list copy (en, ko, ja, zh-Hans; plugins_attention_copy.js).
-// Other copy is English, the filter's "No matches" included.
+// lang: the language of the empty Attention tab and empty Installed list copy, the filter's no-match text included
+// (en, ko, ja, zh-Hans; plugins_attention_copy.js). Other copy is English.
 function PluginsWindow({ onClose, onFlash, onConfigure, removedAttention, onRemoveAttention, hoverTab = null, lang = "en" }) {
   // 2026-11-08 — removed reserved-id folders. The app keeps this (so the sidebar badge drops too); a
   // standalone window falls back to its own state.
@@ -631,7 +631,7 @@ function PluginsWindow({ onClose, onFlash, onConfigure, removedAttention, onRemo
   // plugin means pointing Tasty at a LOCAL folder (the “Add plugin” tab). Online
   // catalog browse + install-by-id are deferred (docs/dev-guide/plugin-packaging.md).
   const list = PLUGIN_LIST.filter((p) => installed[p.id] && matches(p));
-  const [installedEmptyText, installedEmptyLang] = installedEmpty(lang);
+  const [installedEmptyText, installedEmptyLang] = installedEmpty(lang, Boolean(q));
   const sel = PLUGIN_LIST.find((p) => p.id === selId);
   const selVisible = sel && installed[sel.id] && matches(sel);
 
@@ -859,15 +859,11 @@ function PluginsWindow({ onClose, onFlash, onConfigure, removedAttention, onRemo
                 </div>
               );
             })}
-            {list.length === 0 && (q ? (
-              <div style={{ padding: "var(--tasty-space-lg) 0 0", fontSize: "var(--tasty-font-size-body)", color: "var(--tasty-text-muted)" }}>
-                No matches
-              </div>
-            ) : (
+            {list.length === 0 && (
               <div lang={installedEmptyLang} style={{ padding: "var(--tasty-space-lg) 0 0", fontSize: "var(--tasty-font-size-body)", color: "var(--tasty-text-muted)" }}>
                 {installedEmptyText}
               </div>
-            ))}
+            )}
           </div>
 
           {/* detail */}

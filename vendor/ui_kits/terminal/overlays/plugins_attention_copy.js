@@ -1,5 +1,5 @@
 // Tasty UI kit — copy of the plugins window's empty Attention tab (2026-11-25) and empty Installed list (2026-11-26).
-// Values are the app's lang/*.toml, section [plugins], keys attn_empty_title, attn_empty_body and empty, letter for letter.
+// Values are the app's lang/*.toml, section [plugins], keys attn_empty_title, attn_empty_body, empty and no_matches, letter for letter.
 // They are not new copy: a change starts in the app catalog and is copied here as it stands.
 
 export const ATTN_EMPTY = {
@@ -24,8 +24,17 @@ export const INSTALLED_EMPTY = {
   "zh-Hans": "未安装插件。",
 };
 
-// [text, lang] for a language; any other value reads en.
-export const installedEmpty = (lang) => {
-  const shown = Object.hasOwn(INSTALLED_EMPTY, lang) ? lang : "en";
-  return [INSTALLED_EMPTY[shown], shown];
+// The Installed list when the filter matches nothing, section [plugins], key no_matches, letter for letter.
+export const INSTALLED_NO_MATCHES = {
+  en: "No matches",
+  ko: "일치 항목 없음",
+  ja: "一致なし",
+  "zh-Hans": "无匹配项",
+};
+
+// [text, lang] for a language; any other value reads en. filtered picks no_matches over empty.
+export const installedEmpty = (lang, filtered = false) => {
+  const table = filtered ? INSTALLED_NO_MATCHES : INSTALLED_EMPTY;
+  const shown = Object.hasOwn(table, lang) ? lang : "en";
+  return [table[shown], shown];
 };
