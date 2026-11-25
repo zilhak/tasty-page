@@ -12,7 +12,7 @@
    inherits the family its ancestor resolved, not the token, so the element with lang reads font-ui again. No specificity: a family
    the element sets itself wins, and so does the mono or prose run around it. UI drawn over terminal content is UI again. */
 :where([data-gallery-page] [lang]:not(:is(code, kbd, pre, samp, .tasty-mono, [data-terminal-content], .g-intro, .g-section > h2, .spec-head, .part-h, .spec-note, .do, .dont, .spec-table, .g-cap, .icontile .irole) [lang]),
-  [data-gallery-page] [data-terminal-ui] [lang]:not(:is(code, kbd, pre, samp, .tasty-mono) [lang])) { font-family: var(--tasty-font-ui); }
+  [data-gallery-page] :is([data-terminal-ui][lang], [data-terminal-ui] [lang]):not(:is(code, kbd, pre, samp, .tasty-mono) [lang])) { font-family: var(--tasty-font-ui); }
 /* The writing about a specimen reads font-prose: headings, descriptions, notes, spec tables, the caption over a specimen (.g-cap)
    and an icon's role. The specimen itself inherits font-ui from the page, as the app draws it. */
 .g-intro, .g-section > h2, .spec-head, .part-h, .spec-note, .do, .dont, .spec-table, .g-cap, .icontile .irole { font-family: var(--tasty-font-prose); }
