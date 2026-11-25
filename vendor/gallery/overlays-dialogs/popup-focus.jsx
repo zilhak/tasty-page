@@ -95,15 +95,15 @@ function PopupFocusSpec() {
             )} />
           </View>
         ))}
-        <View name="popup-focus-leaf-under-terminal-completed" label="the surface under a popup, bed kind (terminal), completed — the highlight stays while the popup holds key focus, and clears when focus is back in the leaf">
+        <View name="popup-focus-leaf-under-terminal-completed" label="Completed terminal under a popup in an active OS window">
           <GroundThemes render={() => (
             <div style={{ display: "flex", gap: "var(--tasty-space-lg)", alignItems: "flex-start", flexWrap: "wrap" }}>
               <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
-                <GroundCap>popup holds key focus · completion stays</GroundCap>
+                <GroundCap>Popup holds key focus · ring stays, unfocused bed, no cursor</GroundCap>
                 <LeafUnderPopup kind="terminal" keys="popup" completed />
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
-                <GroundCap>focus back in the leaf · completion cleared</GroundCap>
+                <GroundCap>Key focus returns · ring clears, focused bed</GroundCap>
                 <LeafUnderPopup kind="terminal" keys="leaf" completed />
               </div>
             </div>
@@ -118,7 +118,7 @@ function PopupFocusSpec() {
           ["layout", "drawn over the content margin (popup-content-margin 4 ≥ 2) — no row is reserved, nothing moves on a focus change"],
           ["unfocused", "no bar · border, fill, shadow, scrim and content unchanged · nothing dims (a user still reads it)"],
           ["one focus", "at most one thing in the window is lit: one popup's bar or one surface's bed or edge · none while a window-scope popup or one shown over the window holds key focus · a child popup takes the bar from its parent · a focused surface keeps its own focused bed or edge"],
-          ["the surface under it", "unfocused while the popup holds key focus, scrim or none: a bed kind takes the unfocused bed, an edge kind the unfocused edge · lit again in the frame key focus lands back in it (popup closed, or a click into it) · a passive popup leaves it focused"],
+          ["the surface under it", "While the popup holds key focus, the surface paints its unfocused bed or edge, with or without a scrim. Completion and needs-input highlights stay, a terminal draws no cursor, and mesh, webview and plugin surfaces are told they lost focus. When key focus returns (on close or a click into the surface), paint, cursor and focus notifications update in that frame. Highlights clear in that frame if the OS window is active and the surface is free of hard occupancy. Passive popups such as agent-opened popups, context menus, Select and autocomplete lists, and tooltips leave all four behaviors alone."],
           ["passive (agent-opened)", "unlit, no ring, until the user gives it focus"],
           ["scrim", "unchanged by focus — it marks the scope the popup covers (a click there still goes to the popup), not where keys go"],
           ["window scope", "no bar — in scope everywhere, so focused while open, or passive · while it holds key focus every surface is unfocused, so nothing in the window is lit · the same for a popup shown over the window and its child"],
