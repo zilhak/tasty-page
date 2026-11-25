@@ -78,7 +78,7 @@ function SegToggle({ value = "detail", hover = null }) {
   const items = [["grid", ic.grid], ["list", ic.list], ["detail", ic.detail]];
   return (
     <div style={{ display: "flex", alignItems: "center", flex: "none", height: 28, padding: "var(--tasty-space-xs)", gap: "var(--tasty-space-xs)", boxSizing: "border-box",
-      background: "var(--tasty-surface-raised)", border: "1px solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
+      background: "var(--tasty-surface-raised)", border: "1px solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)" }}>
       {items.map(([k, glyph]) => {
         const active = k === value;
         const hov = k === hover && !active;

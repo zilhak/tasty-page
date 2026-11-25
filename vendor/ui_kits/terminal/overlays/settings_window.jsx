@@ -381,7 +381,7 @@ function ScriptManager() {
       {/* add form */}
       {adding && (
         <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md)",
-          border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", background: "var(--tasty-surface-raised)" }}>
+          border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", background: "var(--tasty-surface-raised)" }}>
           <span style={headStyle}>New script</span>
           <div style={{ display: "flex", alignItems: "center", gap: 16, minHeight: "var(--tasty-settings-row-min-height)" }}>
             <span style={{ width: 100, flex: "none", fontSize: 13, color: "var(--tasty-text-secondary)" }}>File:</span>
@@ -547,7 +547,7 @@ function HookHandlers() {
 
       {adding && (
         <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md)",
-          border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", background: "var(--tasty-surface-raised)" }}>
+          border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", background: "var(--tasty-surface-raised)" }}>
           {/* 2026-10-21 — raised card: labels text-secondary-raised, Inputs ground="raised", Cancel ghost ground="raised" (same fix as the File Handlers add card) */}
           <span style={headStyle}>New hook handler</span>
           <div style={{ display: "flex", alignItems: "center", gap: 16, minHeight: "var(--tasty-settings-row-min-height)" }}>

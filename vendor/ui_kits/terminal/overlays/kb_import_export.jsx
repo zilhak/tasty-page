@@ -159,7 +159,7 @@ function IeActionRow({ glyph, title, desc, action, notice }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)",
       padding: "var(--tasty-kb-ie-notice-inset)", borderRadius: "var(--tasty-radius)",
-      background: "var(--tasty-surface-raised)", border: "var(--tasty-border-width) solid var(--tasty-border-default)" }}>
+      background: "var(--tasty-surface-raised)", border: "var(--tasty-border-width) solid var(--tasty-border-strong)" }}>
       <div style={{ display: "flex", alignItems: "flex-start", gap: "var(--tasty-space-md)" }}>
       <span style={{ display: "inline-flex", flex: "none", marginTop: 2, color: "var(--tasty-text-muted)" }}><Icon name={glyph} size={16} /></span>
       <div style={{ flex: 1, minWidth: 0 }}>

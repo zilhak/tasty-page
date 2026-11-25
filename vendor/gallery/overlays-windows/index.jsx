@@ -286,7 +286,7 @@ function IeL2Tail() {
 function IeEntry() {
   const card = (glyph, title, desc, btn) => (
     <div style={{ display: "flex", alignItems: "flex-start", gap: 12, padding: "12px 14px", borderRadius: "var(--tasty-radius)",
-      background: "var(--tasty-surface-raised)", border: "1px solid var(--tasty-border-default)" }}>
+      background: "var(--tasty-surface-raised)", border: "1px solid var(--tasty-border-strong)" }}>
       <span style={{ display: "inline-flex", flex: "none", marginTop: 2, color: "var(--tasty-text-muted)" }}><WIcon name={glyph} size={16} /></span>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontSize: 13, color: "var(--tasty-text-primary)" }}>{title}</div>
@@ -433,7 +433,7 @@ function IeExportFailG({ reason = "readonly" }) {
   return (
     <div style={{ width: "100%", maxWidth: "var(--tasty-settings-content-max-width)", display: "flex", flexDirection: "column", gap: 8,
       padding: "var(--tasty-kb-ie-notice-inset)", borderRadius: "var(--tasty-radius)",
-      background: "var(--tasty-surface-raised)", border: "1px solid var(--tasty-border-default)" }}>
+      background: "var(--tasty-surface-raised)", border: "1px solid var(--tasty-border-strong)" }}>
       <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
         <span style={{ display: "inline-flex", flex: "none", marginTop: 2, color: "var(--tasty-text-muted)" }}><WIcon name="download" size={16} /></span>
         <div style={{ flex: 1, minWidth: 0 }}>
@@ -1651,7 +1651,7 @@ function Page() {
           </Stage>
           <Meta
             specs={[["L2 items", "one — “Import / Export”"], ["position", "last, after Plugins"], ["separator", "1px above the row (new axis)"], ["filtering", "separator hidden while filtering"], ["entry", "2 action rows, not a ListCtrl"], ["weights", "Import primary · Export secondary"], ["export feedback", "the window's own toast, carrying the path"], ["file picker", "popup on the window's PopupManager"]]}
-            tokens={[{ tok: "--tasty-separator", use: "L2 separator + row rules" }, { tok: "--tasty-surface-raised", use: "action row bed", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-border-default", use: "action row edge", color: "var(--tasty-border-default)" }, { tok: "--tasty-settings-sidebar-width", use: "200 — L2 column" }]} />
+            tokens={[{ tok: "--tasty-separator", use: "L2 separator + row rules" }, { tok: "--tasty-surface-raised", use: "action row bed", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-border-strong", use: "action row edge", color: "var(--tasty-border-strong)" }, { tok: "--tasty-settings-sidebar-width", use: "200 — L2 column" }]} />
           <Note><b>Why a popup for the file picker</b> and not another drill-down step: the drill-down is already spoken for by the preview (list ⇄ detail), and the same picker serves both directions — Export needs a save target, Import an open target. The settings window already runs a PopupManager for the shortcut-conflict confirm, so this adds a case, not a mechanism.</Note>
           <Dont><b>Don't</b> give export its own result screen. There is nothing to do after a write, so the confirmation is a <b>toast with the resolved path</b> and the user stays where they were.</Dont>
         </Spec>
@@ -1692,7 +1692,7 @@ function Page() {
               <IeParseFailG line={false} />
               <IeConflictSummaryG />
               <div style={{ display: "flex", flexDirection: "column", gap: 8, padding: "var(--tasty-kb-ie-notice-inset)", borderRadius: "var(--tasty-radius)",
-                background: "var(--tasty-surface-raised)", border: "1px solid var(--tasty-border-default)" }}>
+                background: "var(--tasty-surface-raised)", border: "1px solid var(--tasty-border-strong)" }}>
                 <IeModifierSelectG />
                 <IeModifierSelectG chosen />
               </div>

@@ -97,7 +97,7 @@ function Bar({ kind, lang = "en", state = "rest", focus = false }) {
 
 function Manifest({ narrow }) {
   return (
-    <div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", background: "var(--tasty-surface-raised)", padding: "var(--tasty-space-md)", display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
+    <div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", background: "var(--tasty-surface-raised)", padding: "var(--tasty-space-md)", display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
       <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", flexWrap: "wrap" }}>
         <span style={{ fontSize: "var(--tasty-font-size-max)", fontWeight: "var(--tasty-font-weight-semibold)", color: "var(--tasty-text-primary)", overflowWrap: "anywhere" }}>{narrow ? "logwatch-structured-severity-highlighter" : "logwatch"}</span><Tag>v0.3.1</Tag>
       </div>
