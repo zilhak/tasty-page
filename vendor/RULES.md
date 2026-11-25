@@ -1240,7 +1240,7 @@ Forbidden:
 Contrast sets the floor, so the ink steps can merge. In Latte `text-secondary` and `text-muted` are one ink, and on `raised` body, secondary and muted are one ink. On `active` every neutral is one ink. This is by design. Order holds through these, in this order:
 
 1. **Size.** Body 13, caption 11, micro 10. A supporting line is one step smaller than the line it supports.
-2. **Weight.** A title is 13 at 600. An unread item is semibold.
+2. **Weight.** A title is 13 at 600. An unread item is semibold. D2Coding, the UI face, ships two weights: 400 and 500 draw Regular, 600 and 700 draw Bold. So 600 is the step that reads, and medium does not separate from normal.
 3. **Family.** Paths, IDs, times and process names are mono. Words from the translation catalog drawn as a small label read `font-label`.
 4. **Position.** The line under a label is its detail, `label-detail-gap` away.
 5. **Ink step,** where one exists.
@@ -1251,17 +1251,17 @@ Do not add a fainter ink to get order back. An ink under grade is a failure, wha
 
 | UI language | `font-label` | Catalog strings with a letter the mono face lacks |
 |---|---|---|
-| en | `font-mono` | 0 of 3797 |
-| ko | `font-mono` | 0 of 3736 |
-| ja | `font-ui` | 1762 of 3736 |
-| zh-Hans | `font-ui` | 3334 of 3736 |
+| en | `font-mono` | 0 of 3888 |
+| ko | `font-mono` | 0 of 3818 |
+| ja | `font-ui` | 1821 of 3818 |
+| zh-Hans | `font-ui` | 3425 of 3818 |
 
-- **Why.** D2Coding cannot hold Han. In ja and zh-Hans a label would change face inside a word, with a different weight and baseline, and the Han it does hold is not promised in the language's own forms. The mono face has to come first in its stack, or Latin stops being fixed width, so the stack cannot fix this.
+- **Why.** A label reads the family of the words around it. In en and ko D2Coding holds every letter of the catalog. In ja and zh-Hans it does not: it holds kana and 4620 Han in Korean forms, and the rest falls through to the system font. `font-ui` starts with D2Coding in every language too, so where `font-label` reads `font-ui` a label changes face in the same places as the sentences around it, not in places of its own. Han from D2Coding and Han from the system font meet in 1742 of 3818 ja strings and 3303 of 3818 zh-Hans strings.
 - **By language, not by string.** Choosing per string would set neighbouring labels in different faces, and having the letter says nothing about its form.
 - **What stays.** Size, weight, ink, tracking and uppercase stay as the label has them. Uppercase does not touch Han or kana. The label keeps its truncation.
 - **Row height and baseline.** The row height is exact, down to a fraction of a pixel. Where `font-label` reads `font-ui`, the label takes the line height and the baseline that `font-mono` has at the same size, so changing the language moves no layout and a label shares one baseline with a mono count in its row. Both follow the mono metrics. They are not a stored offset. An icon stays centred in its row. Body text in `font-ui` does not move.
-- **Latin in a `font-ui` label.** Latin draws in the UI sans, and in the app that is thinner than the mono face. That is accepted. No second face, synthetic bold or brighter ink makes up for it.
-- **Where this is judged.** The browser gallery draws the mono face but not the app's UI sans, so these two rules are measured in the app. The specimen shows the arrangement.
+- **Latin in a `font-ui` label.** Latin draws in D2Coding, the face it has in an en or ko label. No second face, synthetic bold or brighter ink is added.
+- **Where this is judged.** The browser gallery draws D2Coding for both families, but the font after it is the browser's system font, not the app's. Where Han meets D2Coding, and the row height and baseline above, are measured in the app. The specimen shows the arrangement.
 - **One run, one family.** A value inside a translated string takes the label family with the words. Where the value has to be mono, it is its own run.
 - **Stays mono in every language.** Terminal cells, code and commands, paths, IDs, permissions, surface kinds, versions, ports, sizes, times, counts with no word, keycaps, the wordmark, and Tags that hold one of these (`Tag mono`).
 
