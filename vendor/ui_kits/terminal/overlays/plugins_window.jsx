@@ -438,7 +438,7 @@ function AttentionPanel({ items, onFlash, onConfigure, onRemove, lang = "en" }) 
       {/* list */}
       <div className="tasty-scroll" style={{ width: "var(--tasty-plugins-attention-list-width)", flex: "none", overflow: "auto", padding: "var(--tasty-space-sm)",
         background: "var(--tasty-bg-sidebar)", borderRight: "var(--tasty-border-width) solid var(--tasty-separator)",
-        display: "flex", flexDirection: "column", gap: 3 }}>
+        display: "flex", flexDirection: "column", gap: "var(--tasty-plugins-list-row-gap)" }}>
         {items.map((p) => {
           const on = p.id === sel.id;
           const pc = SEV_COLOR[ATTN[p.reason].sev];
@@ -786,7 +786,7 @@ function PluginsWindow({ onClose, onFlash, onConfigure, removedAttention, onRemo
 
   return (
     <Scrim onClose={onClose}>
-      <div style={{ width: 820, height: 540, display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)",
+      <div style={{ width: "var(--tasty-plugins-window-width)", height: "var(--tasty-plugins-window-height)", display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)",
         border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden",
         boxShadow: "var(--tasty-shadow-modal)" }}>
         {/* header */}
@@ -798,7 +798,7 @@ function PluginsWindow({ onClose, onFlash, onConfigure, removedAttention, onRemo
           </span>
           <span style={{ fontSize: "var(--tasty-font-size-max)", fontWeight: "var(--tasty-font-weight-bold)", color: "var(--tasty-text-primary)", letterSpacing: "var(--tasty-letter-spacing-ui)" }}>Plugins</span>
           <span style={{ width: 1, height: 20, background: "var(--tasty-separator)", margin: "0 var(--tasty-space-sm)" }} />
-          <div style={{ display: "flex", gap: 2 }}>
+          <div style={{ display: "flex", gap: "var(--tasty-plugins-tab-gap)" }}>
             <PluginsSeg {...segProps("installed")} label="Installed" count={installedCount} />
             <PluginsSeg {...segProps("attention")} label="Attention" count={attentionCount} danger />
             <PluginsSeg {...segProps("add")} label="Add plugin" />
@@ -825,7 +825,7 @@ function PluginsWindow({ onClose, onFlash, onConfigure, removedAttention, onRemo
           {/* list */}
           <div className="tasty-scroll" style={{ width: "var(--tasty-plugins-list-width)", flex: "none", overflow: "auto", padding: "var(--tasty-space-sm)",
             background: "var(--tasty-bg-sidebar)", borderRight: "var(--tasty-border-width) solid var(--tasty-separator)",
-            display: "flex", flexDirection: "column", gap: 3 }}>
+            display: "flex", flexDirection: "column", gap: "var(--tasty-plugins-list-row-gap)" }}>
             {list.map((p) => {
               const on = p.id === selId;
               const isOn = installed[p.id] && enabled[p.id];
@@ -856,7 +856,7 @@ function PluginsWindow({ onClose, onFlash, onConfigure, removedAttention, onRemo
               );
             })}
             {list.length === 0 && (
-              <div style={{ padding: 14, fontSize: "var(--tasty-font-size-term-sm)", color: "var(--tasty-text-muted)", textAlign: "center" }}>
+              <div style={{ padding: "var(--tasty-space-lg) 0 0", fontSize: "var(--tasty-font-size-body)", color: "var(--tasty-text-muted)" }}>
                 {q ? "No matches" : tab === "installed" ? "Nothing installed yet" : "All caught up"}
               </div>
             )}

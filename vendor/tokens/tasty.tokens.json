@@ -4546,7 +4546,7 @@
     },
     "plugins-list-width": {
       "$type": "dimension",
-      "$value": "{primitive.size-288}"
+      "$value": "{primitive.size-240}"
     },
     "plugins-attention-list-width": {
       "$type": "dimension",
@@ -4568,6 +4568,10 @@
       "$type": "dimension",
       "$value": "calc(var(--tasty-space-lg) + -1 * var(--tasty-border-width))"
     },
+    "plugins-window-height": {
+      "$type": "dimension",
+      "$value": "{primitive.size-560}"
+    },
     "plugins-header-height": {
       "$type": "dimension",
       "$value": "{primitive.size-48}"
@@ -4575,6 +4579,14 @@
     "plugins-tab-height": {
       "$type": "dimension",
       "$value": "{primitive.size-26}"
+    },
+    "plugins-tab-gap": {
+      "$type": "dimension",
+      "$value": "calc(var(--tasty-space-sm) + var(--tasty-size-2))"
+    },
+    "plugins-list-row-gap": {
+      "$type": "dimension",
+      "$value": "calc(var(--tasty-space-xs) + var(--tasty-size-2))"
     },
     "plugins-manifest-meta-gap": {
       "$type": "dimension",

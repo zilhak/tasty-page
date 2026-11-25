@@ -102,8 +102,8 @@ function WindowTabFocusSpec() {
         <View name="plugins-tab-focus" wide label="Plugins — a tab with keyboard focus (Attention, while Installed is open)">
           <div style={col}><span className="g-cap" style={cap}>plugins · tab bar</span>
             <FocusOn crop="var(--tasty-size-120)" pick={byText("button", "Attention")}>
-              {/* the kit window's own 820 x 540 box, so its scrim centers it at the top left of the crop */}
-              <div style={{ position: "relative", width: 820, height: 540 }}>
+              {/* the kit window's own 880 x 560 box, so its scrim centers it at the top left of the crop */}
+              <div style={{ position: "relative", width: "var(--tasty-plugins-window-width)", height: "var(--tasty-plugins-window-height)" }}>
                 <Kit_PluginsWindow onClose={noop} onFlash={noop} onConfigure={noop} />
               </div>
             </FocusOn></div>
@@ -147,7 +147,7 @@ function PluginsHeaderCrop({ hoverTab, live }) {
   }, [live]);
   return (
     <div style={{ overflow: "hidden", height: "var(--tasty-size-120)", flex: "none", width: "max-content" }}>
-      <div ref={ref} {...(live ? {} : { inert: "" })} style={{ position: "relative", width: 820, height: 540, pointerEvents: live ? undefined : "none" }}>
+      <div ref={ref} {...(live ? {} : { inert: "" })} style={{ position: "relative", width: "var(--tasty-plugins-window-width)", height: "var(--tasty-plugins-window-height)", pointerEvents: live ? undefined : "none" }}>
         <Kit_PluginsWindow onClose={noop} onFlash={noop} onConfigure={noop} hoverTab={hoverTab} />
       </div>
     </div>
