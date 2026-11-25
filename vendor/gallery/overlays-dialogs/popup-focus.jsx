@@ -31,10 +31,13 @@ const LEAF_KINDS = {
     <div style={{ ...mono, flex: 1, padding: "var(--tasty-space-xs) var(--tasty-space-sm)", background: surfaceBed(f), color: f ? "var(--tasty-surface-terminal-focused-fg)" : "var(--tasty-surface-terminal-unfocused-fg)" }}>$ cargo test</div>
   ),
 };
-function LeafUnderPopup({ kind, keys }) {
+// completed: the leaf finished a task before the popup took key focus. The completion ring stays while the popup holds
+// key focus and clears in the frame key focus lands back in the leaf (RULES.md "Surface focus", Attention).
+const COMPLETION_RING = { outline: "var(--tasty-surface-highlight-done-width) solid var(--tasty-surface-highlight-done-border)", outlineOffset: "calc(-1 * var(--tasty-surface-highlight-done-width))" };
+function LeafUnderPopup({ kind, keys, completed = false }) {
   const popupLit = keys === "popup";
   return (
-    <div data-leaf-focus={popupLit ? "unfocused" : "focused"} style={{ position: "relative", display: "flex", flexDirection: "column", width: "var(--tasty-size-240)", height: "var(--tasty-size-112)", overflow: "hidden", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
+    <div data-leaf-focus={popupLit ? "unfocused" : "focused"} style={{ position: "relative", display: "flex", flexDirection: "column", width: "var(--tasty-size-240)", height: "var(--tasty-size-112)", overflow: "hidden", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", ...(completed && popupLit ? COMPLETION_RING : null) }}>
       {LEAF_KINDS[kind](!popupLit)}
       <div style={{ position: "absolute", top: "var(--tasty-size-28)", right: "var(--tasty-space-sm)", width: "var(--tasty-size-140)", overflow: "hidden", padding: "var(--tasty-popup-content-margin)", display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-popover)" }}>
         <PopupFocusEdge lit={popupLit} />
@@ -92,6 +95,20 @@ function PopupFocusSpec() {
             )} />
           </View>
         ))}
+        <View name="popup-focus-leaf-under-terminal-completed" label="the surface under a popup, bed kind (terminal), completed — the highlight stays while the popup holds key focus, and clears when focus is back in the leaf">
+          <GroundThemes render={() => (
+            <div style={{ display: "flex", gap: "var(--tasty-space-lg)", alignItems: "flex-start", flexWrap: "wrap" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
+                <GroundCap>popup holds key focus · completion stays</GroundCap>
+                <LeafUnderPopup kind="terminal" keys="popup" completed />
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
+                <GroundCap>focus back in the leaf · completion cleared</GroundCap>
+                <LeafUnderPopup kind="terminal" keys="leaf" completed />
+              </div>
+            </div>
+          )} />
+        </View>
       </Views>
       <Meta
         specs={[
