@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { missingCellRows, pageLib } from "./contrast-page.mjs";
 import { measureGallery } from "./contrast-gallery.mjs";
-import { belowRecord, emptySiteTally, measureRest, mismatchRecord } from "./contrast-site.mjs";
+import { belowRecord, emptySiteTally, measureRest, mismatchRecord, summarize } from "./contrast-site.mjs";
 
 const { selectParts, validateParts, expectedTheme } = pageLib();
 const key = { component: "Title bar", state: "rest", host: "crust" };
@@ -327,8 +327,9 @@ test("site records: a token miss on one paint and a grade miss on another report
 });
 
 test("measureGallery: a contract row on an svg part fails on its second stroke off the token", () => {
-  // Title bar restore: a rect and a path, the path's stroke off the token.
-  const restore = el("svg", { attrs: { "data-part": "restore" } }, [el("rect", stroke("rgb(166, 173, 200)")), el("path", stroke("rgb(255, 255, 255)"))]);
+  // Windows title bar restore: the part is the button, its svg draws a rect and a path, the path's stroke off the token.
+  const glyph = el("svg", {}, [el("rect", stroke("rgb(166, 173, 200)")), el("path", stroke("rgb(255, 255, 255)"))]);
+  const restore = el("button", { attrs: { "data-part": "restore" } }, [glyph]);
   const cell = el("div", { attrs: { "data-contract": "Title bar", "data-state": "rest", "data-host": "crust" }, style: { backgroundColor: "rgb(17, 17, 27)" } }, [restore]);
   const scope = el("div", { attrs: { "data-gallery-page": "" } }, [cell]);
   const root = el("html", {}, [scope]);
@@ -344,7 +345,7 @@ test("measureGallery: a contract row on an svg part fails on its second stroke o
   const args = { rows: [row], tokens: { glyph: { mocha: "#a6adc8" } }, grades: { icon: { grade: 3, kind: "glyph" } }, partMap: {}, exemptIds: [], noGradeTokens: [], theme: "mocha" };
   const [r] = measureGallery(args).rows;
   assert.deepEqual([r.status, r.got, r.ground, r.inks, r.off], ["mismatch", "#ffffff", "#11111b", 2, 1]);
-  restore.children[1].style.stroke = "rgb(166, 173, 200)";
+  glyph.children[1].style.stroke = "rgb(166, 173, 200)";
   const [ok] = measureGallery(args).rows;
   assert.deepEqual([ok.status, ok.got, ok.inks], ["ok", "#a6adc8", undefined]);
   delete globalThis.window;
@@ -376,6 +377,12 @@ test("measureRest: a row missing the token on one paint and the grade on another
   const pick = ({ got, ground, ratio, inks, off, low }) => ({ got, ground, ratio, inks, off, low });
   assert.deepEqual(t.rows["header-icon"].mismatch.map(pick), [{ got: "#000000", ground: "#ffffff", ratio: 21, inks: 2, off: 1, low: undefined }]);
   assert.deepEqual(t.rows["header-icon"].below.map(pick), [{ got: "#e0e0e0", ground: "#ffffff", ratio: 1.32, inks: 2, off: 1, low: undefined }]);
+  const lines = [];
+  const log = console.log;
+  console.log = (line) => lines.push(line);
+  try { summarize(t, rules, "mocha", 1, {}); } finally { console.log = log; }
+  assert.ok(lines.includes("  below header-icon [wide] guide/ body > button.icon-btn: #e0e0e0 on #ffffff 1.32 < 3 (2 paints, 1 off the token)"), lines.join("\n"));
+  assert.ok(lines.includes("  wrong ink header-icon [wide] guide/ body > button.icon-btn: #000000 on #ffffff, wants ink (2 paints, 1 off the token)"), lines.join("\n"));
   delete globalThis.window;
   delete globalThis.document;
 });
