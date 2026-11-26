@@ -1087,6 +1087,7 @@
   /* Overlays › Windows › File picker (gallery specimen layout, not app chrome) — the reduced frame a fixed view draws several of side by side */
   --tasty-fp-specimen-view-width:  var(--tasty-size-400);
   --tasty-fp-specimen-view-height: var(--tasty-size-300);
+  --tasty-fp-specimen-row-tooltip-left: var(--tasty-size-96); /* where a frozen row tooltip starts past fp-inset-start, standing in for the pointer */
 
   /* Popup over a WebView page in OPAQUE mode (2026-10-21).
      The host can paint only inside the popup rect and each dropdown rect; those pixels are fully opaque.

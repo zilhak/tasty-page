@@ -5024,6 +5024,10 @@
       "$type": "dimension",
       "$value": "{primitive.size-300}"
     },
+    "fp-specimen-row-tooltip-left": {
+      "$type": "dimension",
+      "$value": "{primitive.size-96}"
+    },
     "popup-title-btn-size": {
       "$type": "dimension",
       "$value": "{component.icon-button-size-sm}"
