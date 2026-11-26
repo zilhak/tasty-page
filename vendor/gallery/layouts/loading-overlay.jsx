@@ -216,7 +216,7 @@ function GalleryLoadingOverlay() {
             <Themed key={label} attr={attr}>
               <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label}</span>
               {[["inactive", {}], ["active", { active: true }], ["hover · close shows", { hover: true }], ["attention · needs-input", { att: "needs-input" }], ["attention · completion", { att: "completion" }],
-                ["busy + loading", { busy: true, active: true }], ["move + HTML marker", { kind: "html", label: "report.html", move: true, marker: true }], ["narrow 120 · long title", { active: true, busy: true, move: true, label: "remote-attach-build-farm-eu", width: "var(--tasty-size-120)" }],
+                ["busy + loading", { busy: true, active: true }], ["move + HTML marker", { kind: "html", label: "report.html", move: true, marker: true }], ["narrow 120 · long title", { busy: true, move: true, label: "remote-attach-build-farm-eu", width: "var(--tasty-size-120)" }],
                 ["Ctrl held · keycap above", { active: true, keycap: "2" }]].map(([c, p]) => (
                 <Pair key={c} label={c} off={<TabBed><LTab {...p} /></TabBed>} on={<TabBed><LTab {...p} loading /></TabBed>} />
               ))}
@@ -257,7 +257,7 @@ function GalleryLoadingOverlay() {
               <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label}</span>
               <div style={{ display: "flex", gap: "var(--tasty-space-lg)", flexWrap: "wrap" }}>
                 {[["idle", {}], ["active", { state: "active" }], ["hover", { state: "hover" }], ["notif", { notif: true }], ["attached ring", { ring: true }], ["mirror", { mirror: true }], ["move", { move: true }], ["remote refused", { mirror: "offline", refused: true }],
-                  ["active with all four corners", { notif: true, mirror: "offline", move: true, refused: true, state: "active" }], ["keycap above", { keycap: "2" }]].map(([c, p]) => (
+                  ["idle with all four corners", { notif: true, mirror: "offline", move: true, refused: true }], ["keycap above", { keycap: "2" }]].map(([c, p]) => (
                   <Pair key={c} label={c} off={<RailBed><LAv {...p} /></RailBed>} on={<RailBed><LAv {...p} loading /></RailBed>} />
                 ))}
               </div>

@@ -153,7 +153,7 @@ export function RunningCountSpec() {
         <View name="running-count-narrowest" label="Narrowest case: long name, both badges at 99+, and move glyph. The name gives way and the number stays">
           <ThreeWidths>
             <CountRow name={LONG} count={3} ni="99+" done="99+" move />
-            <CountRow name={LONG} count={12} state="selected" ni="99+" done="99+" move />
+            <CountRow name={LONG} count={12} state="selected" ni="99+" done="99+" />
             <CountRow name={LONG} count={0} />
           </ThreeWidths>
         </View>

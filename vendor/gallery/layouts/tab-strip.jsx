@@ -90,7 +90,7 @@ function GalleryTabStrip() {
               <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label}</span>
               {[["marker only · inactive", { marker: "blocked" }], ["marker only · active", { marker: "blocked", active: true }], ["allowed · active", { marker: "allowed", active: true }],
                 ["marker + busy", { marker: "blocked", busy: true }], ["marker + move", { marker: "blocked", move: true }], ["marker + move + busy · hover", { marker: "blocked", move: true, busy: true, hover: true }],
-                ["hover on the lock", { marker: "blocked", hover: true, markerHover: true }], ["narrow tab — label ellipsises", { marker: "blocked", move: true, busy: true, active: true, label: "quarterly-report-final.html", width: "var(--tasty-size-120)" }]].map(([c, p]) => (
+                ["hover on the lock", { marker: "blocked", hover: true, markerHover: true }], ["narrow tab — label ellipsises", { marker: "blocked", move: true, busy: true, label: "quarterly-report-final.html", width: "var(--tasty-size-120)" }]].map(([c, p]) => (
                 <div key={c}>{cap(c)}<div style={{ display: "flex", background: "var(--tasty-bg-sidebar)" }}><TabCellS {...p} /></div></div>
               ))}
             </Themed>
