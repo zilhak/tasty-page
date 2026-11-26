@@ -2421,8 +2421,9 @@ function RemoteFormFrame({ variant = "ssh", error }) {
                 <FRow label="User"><Input block defaultValue="deploy" /></FRow>
                 <FRow label="Port"><Input style={{ width: "var(--tasty-remote-port-field-width)" }} defaultValue="22" /></FRow>
                 <FRow label="Label"><Input block placeholder="optional" /></FRow>
-                <FRow label="Shell" hint="Auto-detects the remote shell once when saved (runs an SSH probe)."><Select options={["auto", "bash", "zsh", "fish"]} block /></FRow>
-                <FRow label="Passkey"><Select options={["(none)", "id_ed25519", "deploy-key"]} block /></FRow>
+                <FRow label="Shell"><Select options={["auto", "bash", "zsh", "fish"]} block /></FRow>
+                {/* the app draws the shell=auto hint after the Passkey row, at the end of the SSH fields */}
+                <FRow label="Passkey" hint="Auto-detects the remote shell once when saved (runs an SSH probe)."><Select options={["(none)", "id_ed25519", "deploy-key"]} block /></FRow>
               </>
             ) : (
               <>
