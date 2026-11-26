@@ -145,6 +145,8 @@ export function pageLib() {
   // fill when the background reaches under it (background-clip border-box), else on the ground under the element.
   // Each paint is judged at 3:1 on its ground, a border on the side with the lowest ratio. A ground that is a picture, or
   // a gradient of more than one color, is counted, not judged: a line across it meets colors no stop holds.
+  // The ground is read layer by layer (markGrounds): under a border only the background layers whose own clip is
+  // border-box count, and an opaque layer hides every layer and ancestor below it.
   const MARK_TOKEN = "var(--tasty-specimen-annotation-border)";
   const SIDES = ["Top", "Right", "Bottom", "Left"];
   const sameColor = (a, b) => near(a, b) && Math.abs(a[3] - b[3]) < 0.01;
@@ -157,6 +159,57 @@ export function pageLib() {
     } finally {
       el.removeChild(probe);
     }
+  };
+  // A computed background-image list split at its top-level commas, one entry per layer.
+  const splitLayers = (v) => {
+    const out = [];
+    let depth = 0, cur = "";
+    for (const ch of v) {
+      if (ch === "(") depth += 1;
+      else if (ch === ")") depth -= 1;
+      if (ch === "," && depth === 0) { out.push(cur.trim()); cur = ""; } else cur += ch;
+    }
+    out.push(cur.trim());
+    return out;
+  };
+  // What one element paints, top layer first: a covering pseudo-element, each background image, then the background
+  // color. A picture is null. underBorder keeps only the layers clipped to the border box; the color takes the clip of
+  // the last layer, as CSS does.
+  const markLayers = (e, underBorder) => {
+    const s = getComputedStyle(e);
+    const clips = (s.backgroundClip || "border-box").split(",").map((c) => c.trim());
+    const images = s.backgroundImage && s.backgroundImage !== "none" ? splitLayers(s.backgroundImage) : [];
+    const reaches = (i) => !underBorder || clips[i % clips.length] === "border-box";
+    const out = overlays(e).map((c) => [c]);
+    images.forEach((img, i) => {
+      if (img === "none" || !reaches(i)) return;
+      if (img.includes("url(")) { out.push(null); return; }
+      const stops = (img.match(STOP) || []).map(parse).filter(Boolean);
+      if (stops.length) out.push(stops);
+    });
+    const c = parse(s.backgroundColor);
+    if (c && c[3] > 0 && reaches(Math.max(images.length - 1, 0))) out.push([c]);
+    return out;
+  };
+  // The ground under a mark: the element's own layers when own (only those reaching under a border for a border), then
+  // its ancestors', down to the first opaque layer. A picture above that layer makes the ground a picture.
+  const markGrounds = (el, own, border) => {
+    const layers = [];
+    let picture = false;
+    walk: for (let e = own ? el : el.parentElement; e; e = e.parentElement) {
+      for (const layer of markLayers(e, border && e === el)) {
+        if (layer === null) { picture = true; continue; }
+        layers.push(layer);
+        if (layer.every((c) => c[3] >= 1)) break walk;
+      }
+    }
+    let grounds = [[255, 255, 255, 1]];
+    for (let i = layers.length - 1; i >= 0; i -= 1) {
+      const next = new Map();
+      for (const g of grounds) for (const layer of layers[i]) { const v = over(layer, g); next.set(hex(v), v); }
+      grounds = [...next.values()];
+    }
+    return { grounds, picture };
   };
   const measureMarks = (scope, left, label) => {
     const res = { marks: 0, judged: 0, picture: 0, below: [] };
@@ -171,12 +224,11 @@ export function pageLib() {
       if (!token) continue;
       const matched = paints.filter((p) => { const c = parse(p.colors[0]); return c && sameColor(c, token); });
       const borderSides = sides.filter((d) => { const c = parse(s[`border${d}Color`]); return c && sameColor(c, token); });
-      const clipped = s.backgroundClip === "padding-box" || s.backgroundClip === "content-box";
-      if (borderSides.length) matched.push({ name: borderSides.map((d) => d.toLowerCase()).join(","), colors: borderSides.map((d) => s[`border${d}Color`]), own: !clipped });
+      if (borderSides.length) matched.push({ name: borderSides.map((d) => d.toLowerCase()).join(","), colors: borderSides.map((d) => s[`border${d}Color`]), own: true, border: true });
       if (matched.length === 0) continue;
       res.marks += 1;
       for (const m of matched) {
-        const { grounds, picture } = groundsOf(el, m.own);
+        const { grounds, picture } = markGrounds(el, m.own, m.border === true);
         if (picture || grounds.length > 1) { res.picture += 1; continue; }
         res.judged += 1;
         const low = m.colors.map((c) => lowest(parse(c), el, grounds)).reduce((x, y) => (y.ratio < x.ratio ? y : x));

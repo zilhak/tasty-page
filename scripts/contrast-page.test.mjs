@@ -873,6 +873,42 @@ test("measureMarks: a gradient of one color is a ground, a gradient of two color
   assert.deepEqual([p.marks, p.judged, p.picture], [1, 0, 1]);
 });
 
+test("measureMarks: under a border only the layers clipped to the border box count, each by its own clip", () => {
+  // On white the mark #949494 is 3.03; the fill #9399b2 under it would be 1.07.
+  const W = { bg: "rgb(255, 255, 255)", vars: { [TOKEN_VAR]: "rgb(148, 148, 148)" } };
+  const border = { borderTopStyle: "dashed", borderTopWidth: "1px", borderTopColor: "rgb(148, 148, 148)" };
+  const fill = "linear-gradient(rgb(147, 153, 178), rgb(147, 153, 178))";
+  const on = (extra) => runMarks(markTree([el("div", { style: { ...border, ...extra } })], W));
+  // Two fills, both clipped inside the border: the border stands on white.
+  const two = on({ backgroundImage: `${fill}, ${fill}`, backgroundColor: "rgb(147, 153, 178)", backgroundClip: "padding-box, content-box" });
+  assert.deepEqual([two.judged, two.picture, two.below.length], [1, 0, 0]);
+  // A blend that stops short of the border is not under it, so it does not make the ground a picture.
+  const blend = on({ backgroundImage: `linear-gradient(rgb(0, 0, 0), rgb(255, 255, 255)), ${fill}`, backgroundClip: "padding-box, padding-box" });
+  assert.deepEqual([blend.judged, blend.picture, blend.below.length], [1, 0, 0]);
+  // The clip pairs with its own layer: the second layer reaches under the border, the first does not.
+  const second = on({ backgroundImage: `linear-gradient(rgb(0, 0, 0), rgb(255, 255, 255)), ${fill}`, backgroundClip: "padding-box, border-box" });
+  assert.deepEqual([second.judged, second.below.length, second.below[0]?.ground], [1, 1, "#9399b2"]);
+  // The color takes the last layer's clip.
+  const color = on({ backgroundImage: fill, backgroundColor: "rgb(147, 153, 178)", backgroundClip: "padding-box" });
+  assert.deepEqual([color.judged, color.below.length], [1, 0]);
+});
+
+test("measureMarks: an opaque layer hides what is below it", () => {
+  // A white layer over a black-to-white blend: the mark inside stands on white only.
+  const W = { vars: { [TOKEN_VAR]: "rgb(148, 148, 148)" } };
+  const inside = (bg) => runMarks(markTree([el("div", dashedOutline("-1px", "rgb(148, 148, 148)", { backgroundImage: bg }))], W));
+  const hidden = inside("linear-gradient(rgb(255, 255, 255), rgb(255, 255, 255)), linear-gradient(rgb(0, 0, 0), rgb(255, 255, 255))");
+  assert.deepEqual([hidden.judged, hidden.picture, hidden.below.length], [1, 0, 0]);
+  // An image below the opaque layer is hidden too; one above it makes the ground a picture.
+  const below = inside("linear-gradient(rgb(255, 255, 255), rgb(255, 255, 255)), url(x.png)");
+  assert.deepEqual([below.judged, below.picture], [1, 0]);
+  const above = inside("url(x.png), linear-gradient(rgb(255, 255, 255), rgb(255, 255, 255))");
+  assert.deepEqual([above.judged, above.picture], [0, 1]);
+  // A layer that lets the ground through does not hide it: the ancestor's #1e1e2e shows under half-transparent white.
+  const half = inside("linear-gradient(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.5))");
+  assert.deepEqual([half.judged, half.below.length, half.below[0]?.ground], [1, 1, "#8f8f97"]);
+});
+
 test("measureGallery: marks outside the frozen cells and exemptions are counted and judged", () => {
   const free = el("div", dashedOutline());
   const exempt = el("div", { attrs: { "data-audit-exempt": "demo" } }, [el("div", dashedOutline())]);
