@@ -3,7 +3,7 @@
 
 // Runs in the page. Colors round per channel to 8 bits and a translucent layer composites source-over, as RULES.md says.
 export function measureGallery({ rows, tokens, grades, partMap, exemptIds, noGradeTokens, theme }) {
-  const { selectParts, validateParts, expectedTheme, parse, over, ratio, hex, near, overlays, visible, inkOn } = window.__contrast;
+  const { selectParts, validateParts, expectedTheme, parse, over, ratio, hex, near, overlays, visible, inkOn, inClosedSlot } = window.__contrast;
   // The ground under an element: its own fill and overlays, then each ancestor's, down to the first opaque fill.
   const groundOf = (el, includeSelf = true) => {
     const stack = [];
@@ -125,6 +125,8 @@ export function measureGallery({ rows, tokens, grades, partMap, exemptIds, noGra
     const t = n.textContent.trim();
     if (!t) continue;
     const el = n.parentElement;
+    // Text right inside a closed details is in its hidden slot, as in the site scan.
+    if (inClosedSlot(el)) continue;
     if (el.closest("svg") || skip(el) || exemptOf(el) || !visible(el)) continue;
     const ink = parse(getComputedStyle(el).color);
     if (!ink || ink[3] === 0) continue;

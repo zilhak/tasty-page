@@ -60,6 +60,18 @@ export function pageLib() {
   // details body sits in a slot whose content-visibility is hidden, and its color can lag behind a theme switch.
   // checkVisibility() with no options sees that; opacity and visibility are judged below, since opacity is composited.
   const rendered = (el) => typeof el.checkVisibility !== "function" || el.checkVisibility();
+  // A closed details shows its first summary only. inClosedSlot: el is such a details, so the text right inside it is in
+  // the hidden slot. inClosedBody: el sits in the body of a closed details, outside that summary.
+  const isClosedDetails = (e) => e.tagName.toLowerCase() === "details" && e.getAttribute("open") === null;
+  const inClosedSlot = (el) => isClosedDetails(el);
+  const inClosedBody = (el) => {
+    for (let c = el, p = el.parentElement; p; c = p, p = p.parentElement) {
+      if (!isClosedDetails(p)) continue;
+      const summary = [...p.children].find((k) => k.tagName.toLowerCase() === "summary");
+      if (c !== summary) return true;
+    }
+    return false;
+  };
   const visible = (el) => {
     if (!rendered(el)) return false;
     const s = getComputedStyle(el);
@@ -436,7 +448,7 @@ export function pageLib() {
       if (!t) continue;
       const el = n.parentElement;
       // Text right inside a closed details is in its hidden slot, though the details itself is rendered.
-      if (el.tagName.toLowerCase() === "details" && el.getAttribute("open") === null) continue;
+      if (inClosedSlot(el)) continue;
       if (el.closest("svg") || skip(el) || exemptOf(el) || !visible(el)) continue;
       const ink = parse(getComputedStyle(el).color);
       if (!ink || ink[3] === 0) continue;
@@ -511,7 +523,12 @@ export function pageLib() {
     return r ? { ...r, frame } : { frame, at: where(el), got: "none", ground: "none", ratio: 0, inkOk: false, below: false };
   };
 
-  return { selectParts, validateParts, expectedTheme, parse, over, ratio, hex, near, overlays, opacityOf, visible, svgInks, shapeInks, rowInks, rowShown, judgeInks, judgeSvgPart, inkOn, measureRows, scan, alternatives, pseudoOf, bare, pick, aim, measureAimed, measureFocus, measureMarks };
+  // Whether a pointer row's target counts as found: shown, or with a shown parent, since the target can have no box until
+  // the pointer reaches its host (display: none until :hover). A target in a closed details body is not found through its
+  // parent: the body is not drawn whatever the pointer does.
+  const pointerCandidate = (e) => visible(e) || (!inClosedBody(e) && e.parentElement !== null && visible(e.parentElement));
+
+  return { selectParts, validateParts, expectedTheme, parse, over, ratio, hex, near, overlays, opacityOf, visible, svgInks, shapeInks, rowInks, rowShown, judgeInks, judgeSvgPart, inkOn, measureRows, scan, alternatives, pseudoOf, bare, pick, aim, measureAimed, measureFocus, measureMarks, inClosedSlot, pointerCandidate };
 }
 
 export const installPageLib = (tab) => tab.addScriptTag({ content: `window.__contrast = (${pageLib})();` });
