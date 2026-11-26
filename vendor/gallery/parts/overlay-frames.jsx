@@ -3264,7 +3264,10 @@ function FilePickerFrame({ state = "loaded", remote = false, indicator = "badge"
     { kind: "file", name: "deploy.sh", size: "902 B", mod: "Jul 11 14:02" },
     { kind: "file", name: ".env", size: "218 B", mod: "Jul 09 10:30" },
   ];
-  // pick overrides the selected row in every mode (a name, or null for none), as a key move leaves it.
+  // pick overrides the selected row in every mode (a name, or null for none), as a key move or Space leaves it.
+  // In open mode it also sets the File name readout (a file's name, empty for a folder or none). In save mode it
+  // sets the selection only: the name and Overwrite still come from save, because picking a folder keeps the
+  // typed name (the app writes a name only for a file, file_picker.rs Select); draw a file pick with save="picked".
   const pickedKind = pick ? (files.find((f) => f.name === pick) || {}).kind : null;
   const selFolder = folderSel ? "configs" : !folderMode && pickedKind === "folder" ? pick : null;
   const fileName = multi ? "README.md, package.json, pipeline.yaml" : pick !== undefined ? (pickedKind === "file" ? pick : "") : "README.md";
@@ -3275,7 +3278,9 @@ function FilePickerFrame({ state = "loaded", remote = false, indicator = "badge"
   const saveName = save === "picked" ? "pipeline.yaml" : save === "edited" ? "pipeline-v2.yaml" : "keybindings-2026-09-14.toml";
   const saveSelected = save === "picked" ? "pipeline.yaml" : null;
   const overwrite = saving && save === "picked";
-  const canOpen = (state === "loaded" || state === "empty" ? state === "loaded" : false);
+  // Open is enabled only with a loaded list and a selection, as the app's footer reads it (footer.rs can_confirm).
+  const openSel = pick !== undefined ? pick : folderSel ? "configs" : !multi ? "README.md" : null;
+  const canOpen = state === "loaded" && (multi || openSel != null);
   const center = (kids) => (
     <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
       textAlign: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-xl) var(--tasty-space-lg)" }}>{kids}</div>
