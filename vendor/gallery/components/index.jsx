@@ -321,7 +321,7 @@ function Components() {
           <Stage>
             <Cluster label="shortcuts"><Kbd keys="Ctrl+K" /><Kbd keys="Ctrl+Shift+N" /><Kbd keys={["⌘", ","]} /><Kbd keys="Esc" /></Cluster>
           </Stage>
-          <Meta tokens={[{ tok: "--tasty-font-mono", use: "keycap" }, { tok: "--tasty-surface-raised", use: "cap fill", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-border-default", use: "cap border" }]} />
+          <Meta tokens={[{ tok: "--tasty-font-mono", use: "keycap" }, { tok: "--tasty-surface-raised", use: "cap fill", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-border-strong", use: "cap border" }]} />
         <Spec id="one-keycap-no-palette-variant" title="One keycap, no palette variant"
           when={<>The command palette drew its own keycaps — <b>18</b> square, <b>5</b> side padding, <b>4</b> gap, <b>11</b>px type — against <b>Kbd</b>'s 16 / 4 / 3 / 10. That is drift, not a variant: nothing about a palette row asks for a bigger key, and a second size would have to be maintained in two places. The palette <b>converges on Kbd</b>. In a <b>28px</b> palette row a 16px cap leaves 6px of air above and below and still centres on the row's text baseline, so no row height or alignment changes.</>}>
           <Stage variant="solo" style={{ padding: 20, background: "var(--tasty-bg-app)", flexDirection: "column", gap: 14, alignItems: "flex-start" }}>
