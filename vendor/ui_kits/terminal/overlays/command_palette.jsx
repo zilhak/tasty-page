@@ -45,13 +45,17 @@ function CommandPalette({ onClose, onRun }) {
   const items = all.filter((i) => i.label.toLowerCase().includes(q.toLowerCase()));
   return (
     <Scrim onClose={onClose} align="top">
-      <div style={{ width: "var(--tasty-palette-width)", background: "var(--tasty-surface-raised)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)",
+      {/* A column, as the app lays the card out (command_palette.rs): search, then the footer's height reserved at the
+          bottom, then the list takes what is left, at least one row, and scrolls inside. When the screen cuts the card
+          (the scrim room's max-height, as clamp_to_screen) the list shrinks first and the footer stays whole. */}
+      <div style={{ width: "var(--tasty-palette-width)", display: "flex", flexDirection: "column", background: "var(--tasty-surface-raised)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)",
         borderRadius: "var(--tasty-radius)", overflow: "hidden", boxShadow: "var(--tasty-shadow-modal)" }}>
-        <div style={{ padding: "var(--tasty-space-md)", borderBottom: "var(--tasty-border-width) solid var(--tasty-border-strong)" }}>
+        <div style={{ flex: "none", padding: "var(--tasty-space-md)", borderBottom: "var(--tasty-border-width) solid var(--tasty-border-strong)" }}>
           <Input block ground="raised" autoFocus icon={ic.search} placeholder="Type to search commands…"
             value={q} onChange={(e) => setQ(e.target.value)} />
         </div>
-        <div className="tasty-scroll" style={{ padding: "var(--tasty-space-sm)", maxHeight: "calc(var(--tasty-palette-list-max-height) + 2 * var(--tasty-space-sm))", overflow: "auto" }}>
+        <div className="tasty-scroll" style={{ flex: "0 1 auto", padding: "var(--tasty-space-sm)", maxHeight: "calc(1 * var(--tasty-palette-list-max-height) + 2 * var(--tasty-space-sm))",
+          minHeight: "calc(1 * var(--tasty-menu-item-height) + 2 * var(--tasty-space-sm))", overflow: "auto" }}>
           {items.length === 0 && <div style={{ padding: 14, fontSize: 13, color: "var(--tasty-text-muted)" }}>No matching commands</div>}
           {items.map((i, n) => (
             <MenuItem key={i.label} label={i.label} icon={i.icon}
@@ -59,7 +63,7 @@ function CommandPalette({ onClose, onRun }) {
               onClick={() => onRun(i.label)} />
           ))}
         </div>
-        <div style={{ display: "flex", gap: 14, padding: "var(--tasty-space-sm) var(--tasty-space-md)", borderTop: "var(--tasty-border-width) solid var(--tasty-border-strong)",
+        <div style={{ flex: "none", display: "flex", gap: 14, padding: "var(--tasty-space-sm) var(--tasty-space-md)", borderTop: "var(--tasty-border-width) solid var(--tasty-border-strong)",
           fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted-raised)" }}>
           <span>↑↓ navigate</span><span>↵ run</span><span>esc close</span>
         </div>
