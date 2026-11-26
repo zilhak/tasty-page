@@ -137,6 +137,52 @@ export function pageLib() {
     return !best || rt < best.ratio ? { ratio: rt, got, ground } : best;
   }, null);
 
+  // The dashed annotation marks a specimen draws only to explain it (RULES.md "Annotation marks"): an outline or a border
+  // side that is dashed, wider than 0 and painted in the color --tasty-specimen-annotation-border resolves to on that
+  // element. The token resolves through a child probe's computed color, because the custom property itself can stay a
+  // color-mix() string. A mark is one element however many sides it dashes. An outline with a negative offset and a
+  // border stand on the element's own fill (a background reaches under the border), an outline outside stands on the
+  // ground under the element. Each paint is judged at 3:1 on its lowest ground; a picture ground is counted, not judged.
+  const MARK_TOKEN = "var(--tasty-specimen-annotation-border)";
+  const SIDES = ["Top", "Right", "Bottom", "Left"];
+  const sameColor = (a, b) => near(a, b) && Math.abs(a[3] - b[3]) < 0.01;
+  const markToken = (el) => {
+    const probe = el.ownerDocument.createElement("span");
+    probe.style.color = MARK_TOKEN;
+    el.appendChild(probe);
+    try {
+      return parse(getComputedStyle(probe).color);
+    } finally {
+      el.removeChild(probe);
+    }
+  };
+  const measureMarks = (scope, left, label) => {
+    const res = { marks: 0, judged: 0, picture: 0, below: [] };
+    for (const el of scope.querySelectorAll("*")) {
+      const s = getComputedStyle(el);
+      const paints = [];
+      if (s.outlineStyle === "dashed" && parseFloat(s.outlineWidth) > 0) paints.push({ name: "outline", color: s.outlineColor, own: parseFloat(s.outlineOffset) < 0 });
+      const sides = SIDES.filter((d) => s[`border${d}Style`] === "dashed" && parseFloat(s[`border${d}Width`]) > 0);
+      if (paints.length === 0 && sides.length === 0) continue;
+      if (left(el) || !visible(el)) continue;
+      const token = markToken(el);
+      if (!token) continue;
+      const matched = paints.filter((p) => { const c = parse(p.color); return c && sameColor(c, token); });
+      const borderSides = sides.filter((d) => { const c = parse(s[`border${d}Color`]); return c && sameColor(c, token); });
+      if (borderSides.length) matched.push({ name: borderSides.map((d) => d.toLowerCase()).join(","), color: s[`border${borderSides[0]}Color`], own: true });
+      if (matched.length === 0) continue;
+      res.marks += 1;
+      for (const m of matched) {
+        const { grounds, picture } = groundsOf(el, m.own);
+        if (picture) { res.picture += 1; continue; }
+        res.judged += 1;
+        const low = lowest(parse(m.color), el, grounds);
+        if (low.ratio < 3) res.below.push({ kind: "edge", ratio: +low.ratio.toFixed(2), grade: 3, got: hex(low.got), ground: hex(low.ground), spec: label(el), text: `annotation ${m.name}` });
+      }
+    }
+    return res;
+  };
+
   // A row that reads several paints: every paint is judged on its own lowest ground, against the token on that ground
   // and against the grade. inks are already composited through the opacity above each shape. want is the token value
   // (null when the row has none to compare) and grade is null when the row has none. The record of a token failure
@@ -388,7 +434,7 @@ export function pageLib() {
     return r ? { ...r, frame } : { frame, at: where(el), got: "none", ground: "none", ratio: 0, inkOk: false, below: false };
   };
 
-  return { selectParts, validateParts, expectedTheme, parse, over, ratio, hex, near, overlays, opacityOf, visible, svgInks, shapeInks, rowInks, rowShown, judgeInks, judgeSvgPart, inkOn, measureRows, scan, alternatives, pseudoOf, bare, pick, aim, measureAimed, measureFocus };
+  return { selectParts, validateParts, expectedTheme, parse, over, ratio, hex, near, overlays, opacityOf, visible, svgInks, shapeInks, rowInks, rowShown, judgeInks, judgeSvgPart, inkOn, measureRows, scan, alternatives, pseudoOf, bare, pick, aim, measureAimed, measureFocus, measureMarks };
 }
 
 export const installPageLib = (tab) => tab.addScriptTag({ content: `window.__contrast = (${pageLib})();` });

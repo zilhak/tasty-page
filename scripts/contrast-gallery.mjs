@@ -147,6 +147,12 @@ export function measureGallery({ rows, tokens, grades, partMap, exemptIds, noGra
       judge(isText ? "text" : "glyph", shape, ink, isText ? 4.5 : 3, isText ? shape.textContent.trim().slice(0, 40) : el.getAttribute("aria-label") || shape.getAttribute("class") || "svg");
     });
   });
+  // The dashed annotation marks (measureMarks in contrast-page.mjs), outside the frozen cells and exemptions.
+  const marks = window.__contrast.measureMarks(scope, (el) => skip(el) || exemptOf(el) !== null, label);
+  out.marks = marks.marks;
+  out.marksJudged = marks.judged;
+  out.marksPicture = marks.picture;
+  marks.below.forEach((b) => out.below.push(b));
   out.hscroll = document.documentElement.scrollWidth > document.documentElement.clientWidth;
   return out;
 }

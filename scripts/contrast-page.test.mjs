@@ -137,6 +137,7 @@ class Node_ {
   }
   simple(sel) {
     sel = sel.trim();
+    if (sel === "*") return true;
     if (sel.startsWith(".")) return this.cls.includes(sel.slice(1));
     if (sel.startsWith("[")) {
       const [name, value] = sel.slice(1, -1).split("=");
@@ -154,12 +155,21 @@ class Node_ {
   get dataset() { return Object.fromEntries(Object.entries(this.attrs).filter(([k]) => k.startsWith("data-")).map(([k, v]) => [k.slice(5), v])); }
   get ownerDocument() { return globalThis.document; }
   scrollIntoView() {}
+  appendChild(c) { c.parentElement = this; this.children.push(c); }
+  removeChild(c) { this.children = this.children.filter((x) => x !== c); c.parentElement = null; }
   get textContent() { return ""; }
   get className() { return this.cls.join(" "); }
   get childNodes() { return []; }
 }
 const el = (tag, opts, children) => new Node_(tag, opts, children);
-globalThis.getComputedStyle = (node, pseudo) => (pseudo && node.pseudoStyle[pseudo]) || node.style;
+// A color that reads a custom property resolves through the nearest ancestor's vars, as a browser's computed color does.
+globalThis.getComputedStyle = (node, pseudo) => {
+  const st = (pseudo && node.pseudoStyle[pseudo]) || node.style;
+  const m = /^var\((--[\w-]+)\)$/.exec(st.color || "");
+  if (!m) return st;
+  for (let e = node.parentElement; e; e = e.parentElement) if (e.vars && m[1] in e.vars) return { ...st, color: e.vars[m[1]] };
+  return { ...st, color: "" };
+};
 
 const lib = pageLib();
 const WHITE = [[255, 255, 255, 1]];
@@ -738,4 +748,104 @@ test("records: below and wrong ink records leave out otherRow, which only decide
   const chrome = JSON.parse(JSON.stringify(res.chromeRows));
   assert.deepEqual([chrome.below.length, chrome.mismatch.length, res.bad], [2, 1, 3]);
   [...chrome.below, ...chrome.mismatch].forEach((r) => assert.equal("otherRow" in r, false));
+});
+
+// Annotation marks (measureMarks). The token resolves per element through vars, as the specimen.css re-point does on an
+// active ground. The mark color is #7f849c (Mocha's default), on #1e1e2e it is 4.73, on #9399b2 it is 1.31.
+const MARK = "rgb(127, 132, 156)";
+const TOKEN_VAR = "--tasty-specimen-annotation-border";
+const marksDoc = () => { globalThis.document = { createElement: (tag) => el(tag) }; };
+const markTree = (children, { bg = "rgb(30, 30, 46)", vars = { [TOKEN_VAR]: MARK } } = {}) => {
+  const scope = el("div", { style: { backgroundColor: bg } }, children);
+  scope.vars = vars;
+  return scope;
+};
+const runMarks = (scope, left = () => false) => {
+  marksDoc();
+  try {
+    return lib.measureMarks(scope, left, () => "spec");
+  } finally {
+    delete globalThis.document;
+  }
+};
+const dashedOutline = (offset = "0px", color = MARK, extra = {}) => ({ style: { outlineStyle: "dashed", outlineWidth: "1px", outlineColor: color, outlineOffset: offset, ...extra } });
+
+test("measureMarks: a dashed outline in the token color above 3:1 is one mark and no record", () => {
+  const r = runMarks(markTree([el("div", dashedOutline())]));
+  assert.deepEqual([r.marks, r.judged, r.picture, r.below.length], [1, 1, 0, 0]);
+});
+
+test("measureMarks: a mark below 3:1 is an edge record naming what is dashed", () => {
+  const r = runMarks(markTree([el("div", dashedOutline())], { bg: "rgb(147, 153, 178)" }));
+  assert.equal(r.below.length, 1);
+  assert.deepEqual(r.below[0], { kind: "edge", ratio: 1.31, grade: 3, got: "#7f849c", ground: "#9399b2", spec: "spec", text: "annotation outline" });
+});
+
+test("measureMarks: the grade is 3 judged before rounding", () => {
+  // On white #949494 is 3.03 and #959595 is 2.995, which shows as 3 but is below it.
+  const on = (c) => runMarks(markTree([el("div", dashedOutline("0px", c))], { bg: "rgb(255, 255, 255)", vars: { [TOKEN_VAR]: c } }));
+  assert.equal(on("rgb(148, 148, 148)").below.length, 0);
+  const low = on("rgb(149, 149, 149)");
+  assert.deepEqual([low.below.length, low.below[0].ratio], [1, 3]);
+});
+
+test("measureMarks: an outline outside stands on the ground below, one inside on the element's own fill", () => {
+  // The element fills #9399b2 (1.31 under the mark), the ground below is #1e1e2e (4.73).
+  const fill = { backgroundColor: "rgb(147, 153, 178)" };
+  const outside = runMarks(markTree([el("div", dashedOutline("0px", MARK, fill))]));
+  const inside = runMarks(markTree([el("div", dashedOutline("-1px", MARK, fill))]));
+  assert.deepEqual([outside.below.length, inside.below.length], [0, 1]);
+  assert.equal(inside.below[0].ground, "#9399b2");
+});
+
+test("measureMarks: a dashed border stands on the element's own fill", () => {
+  const border = { borderTopStyle: "dashed", borderTopWidth: "1px", borderTopColor: MARK, backgroundColor: "rgb(147, 153, 178)" };
+  const r = runMarks(markTree([el("div", { style: border })]));
+  assert.deepEqual([r.marks, r.below.length, r.below[0]?.text], [1, 1, "annotation top"]);
+  const clear = runMarks(markTree([el("div", { style: { ...border, backgroundColor: "rgba(0, 0, 0, 0)" } })]));
+  assert.deepEqual([clear.marks, clear.below.length], [1, 0]);
+});
+
+test("measureMarks: one dashed side or four is one mark", () => {
+  const side = (d) => ({ [`border${d}Style`]: "dashed", [`border${d}Width`]: "1px", [`border${d}Color`]: MARK });
+  const right = runMarks(markTree([el("div", { style: side("Right") })]));
+  const four = runMarks(markTree([el("div", { style: { ...side("Top"), ...side("Right"), ...side("Bottom"), ...side("Left") } })], { bg: "rgb(147, 153, 178)" }));
+  assert.equal(right.marks, 1);
+  assert.deepEqual([four.marks, four.below.length, four.below[0].text], [1, 1, "annotation top,right,bottom,left"]);
+});
+
+test("measureMarks: a solid line, another color, a transparent copy, outline none and a 0px dash or border are not marks", () => {
+  const cases = [
+    { style: { outlineStyle: "solid", outlineWidth: "1px", outlineColor: MARK, outlineOffset: "0px" } },
+    dashedOutline("0px", "rgb(255, 0, 0)"),
+    dashedOutline("0px", "rgba(127, 132, 156, 0)"),
+    { style: { outlineStyle: "none", outlineWidth: "3px", outlineColor: MARK, outlineOffset: "0px" } },
+    { style: { outlineStyle: "dashed", outlineWidth: "0px", outlineColor: MARK, outlineOffset: "0px" } },
+    { style: { borderTopStyle: "dashed", borderTopWidth: "0px", borderTopColor: MARK } },
+  ];
+  for (const c of cases) assert.equal(runMarks(markTree([el("div", c)])).marks, 0, JSON.stringify(c.style));
+});
+
+test("measureMarks: what the caller leaves out is not a mark", () => {
+  const cell = el("div", { attrs: { "data-contract": "x" } }, [el("div", dashedOutline())]);
+  const r = runMarks(markTree([cell]), (e) => e.closest("[data-contract]") !== null);
+  assert.equal(r.marks, 0);
+});
+
+test("measureMarks: the token resolves on each element, so a re-pointed scope compares its own color", () => {
+  // An active ground re-points the token to #585b70. A mark there in the default color is not the token there, and a
+  // mark in the re-pointed color is.
+  const active = el("div", { style: { backgroundColor: "rgb(166, 173, 200)" } }, [el("div", dashedOutline("0px", "rgb(88, 91, 112)")), el("div", dashedOutline())]);
+  active.vars = { [TOKEN_VAR]: "color(srgb 0.345098 0.356863 0.439216)" };
+  const r = runMarks(markTree([active]));
+  assert.deepEqual([r.marks, r.judged], [1, 1]);
+});
+
+test("measureMarks: a gradient of one color is a ground, an image is a picture", () => {
+  const solid = el("div", { style: { backgroundImage: "linear-gradient(rgb(147, 153, 178), rgb(147, 153, 178)), none" } }, [el("div", dashedOutline())]);
+  const r = runMarks(markTree([solid]));
+  assert.deepEqual([r.judged, r.picture, r.below.length, r.below[0]?.ground], [1, 0, 1, "#9399b2"]);
+  const image = el("div", { style: { backgroundImage: "url(x.png)" } }, [el("div", dashedOutline())]);
+  const p = runMarks(markTree([image]));
+  assert.deepEqual([p.marks, p.judged, p.picture], [1, 0, 1]);
 });

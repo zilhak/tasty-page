@@ -190,7 +190,7 @@ async function run() {
     }
     if (siteOnly) { doneThemes.push(theme); continue; }
     const measuredRows = [];
-    const t = { cells: 0, rows: 0, ok: 0, unlocated: [], mismatch: [], below: [], diagnostics: [], text: 0, svgs: 0, emptySvgs: 0, glyph: 0, inputs: 0, other: [], exemptUses: {}, badExempt: [], gradeNone: {}, picture: 0, paintServer: 0, hscroll: [], errors: [], passes: {} };
+    const t = { cells: 0, rows: 0, ok: 0, unlocated: [], mismatch: [], below: [], diagnostics: [], text: 0, svgs: 0, emptySvgs: 0, glyph: 0, inputs: 0, other: [], exemptUses: {}, badExempt: [], gradeNone: {}, picture: 0, paintServer: 0, marks: 0, marksJudged: 0, marksPicture: 0, hscroll: [], errors: [], passes: {} };
     const base = `${theme} gallery`;
     // The context is an entry only while it is made and while it closes. Each tab is its own entry from before newPage.
     // An entry ends when its call settles, rejected too, so a failed call is not reported in flight.
@@ -226,7 +226,7 @@ async function run() {
           await stylesSettled(tab);
           await installPageLib(tab);
           const m = await tab.evaluate(measureGallery, { rows: data.components, tokens, grades, partMap: PART_MAP, exemptIds, noGradeTokens: noGrade, theme });
-          t.passes[page.key] = { cells: m.cells, rows: m.rows.length, text: m.text, glyph: m.glyph, inputs: m.inputs };
+          t.passes[page.key] = { cells: m.cells, rows: m.rows.length, text: m.text, glyph: m.glyph, inputs: m.inputs, marks: m.marks };
           t.cells += m.cells;
           t.rows += m.rows.length;
           for (const r of m.rows) {
@@ -235,7 +235,7 @@ async function run() {
             else t[r.status].push({ ...r, page: page.key });
           }
           m.diagnostics.forEach((d) => t.diagnostics.push({ ...d, page: page.key }));
-          t.text += m.text; t.svgs += m.svgs; t.emptySvgs += m.emptySvgs; t.glyph += m.glyph; t.inputs += m.inputs; t.picture += m.picture; t.paintServer += m.paintServer;
+          t.text += m.text; t.svgs += m.svgs; t.emptySvgs += m.emptySvgs; t.glyph += m.glyph; t.inputs += m.inputs; t.picture += m.picture; t.paintServer += m.paintServer; t.marks += m.marks; t.marksJudged += m.marksJudged; t.marksPicture += m.marksPicture;
           m.below.forEach((b) => t.other.push({ ...b, page: page.key }));
           for (const [id, n] of Object.entries(m.exemptUses)) t.exemptUses[id] = (t.exemptUses[id] || 0) + n;
           m.badExempt.forEach((b) => t.badExempt.push({ ...b, page: page.key }));
@@ -261,7 +261,7 @@ async function run() {
     report.themes[theme] = { ...t, chromePasses: chrome.passes, chromeRows: chromeResult.chromeRows };
     const measured = t.rows + t.text + t.glyph + t.inputs;
     const bad = t.unlocated.length + t.mismatch.length + t.below.length + t.diagnostics.length + t.other.length + t.badExempt.length + t.missingCells.length + t.errors.length;
-    console.log(`${theme}: cells ${t.cells}, rows ${t.rows} (ok ${t.ok}, unlocated ${t.unlocated.length}, mismatch ${t.mismatch.length}, below ${t.below.length}), text ${t.text}, svgs ${t.svgs} (${t.glyph} painted shapes, ${t.emptySvgs} svgs painting nothing, ${t.paintServer} gradient or pattern paints not measured), inputs ${t.inputs}, below on page ${t.other.length}, on a picture ${t.picture}, missing cells ${t.missingCells.length}, page errors ${t.errors.length}`);
+    console.log(`${theme}: cells ${t.cells}, rows ${t.rows} (ok ${t.ok}, unlocated ${t.unlocated.length}, mismatch ${t.mismatch.length}, below ${t.below.length}), text ${t.text}, svgs ${t.svgs} (${t.glyph} painted shapes, ${t.emptySvgs} svgs painting nothing, ${t.paintServer} gradient or pattern paints not measured), inputs ${t.inputs}, annotation marks ${t.marks} (${t.marksJudged} paints judged, ${t.marksPicture} on a picture), below on page ${t.other.length}, on a picture ${t.picture}, missing cells ${t.missingCells.length}, page errors ${t.errors.length}`);
     console.log(`  exempt: ${Object.entries(t.exemptUses).map(([k, v]) => `${k} ${v}`).join(", ") || "none"}`);
     console.log(`  no grade: ${Object.entries(t.gradeNone).map(([k, v]) => `${k} ${v}`).join(", ") || "none"}`);
     if (measured === 0) { console.error(`${theme}: nothing measured`); failed = true; }
