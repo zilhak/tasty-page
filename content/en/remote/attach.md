@@ -1,4 +1,4 @@
-<!-- source-hash: 9da138ea33f1 -->
+<!-- source-hash: a18407b5637d -->
 <a id="remote-attach"></a>
 
 # Working remotely (attach)
@@ -9,7 +9,7 @@ Tasty’s remote attach uses SSH to display and control a workspace from Tasty r
 
 - attach brings in and shows a Workspace from a **remote Tasty that is already running**. It does not open a new remote shell. Tasty must be running on the remote machine (either the GUI or a windowless [headless build](../getting-started/install.md#headless-build)).
 - The remote Workspace is held **exclusively** by the side that mirrors it. Meanwhile the user on the remote side can see that terminal but cannot type into it (read-only). It comes back when the connection is closed.
-- Mirror workspaces have a sky-blue **REMOTE** marker in the sidebar. Rows attached through the **Add remote workspace** dialog are saved and return to the same place after restart. Mirrors attached through the CLI are not saved.
+- Mirror workspaces have a sky-blue **Remote** marker in the sidebar. Rows attached through the **Add remote workspace** dialog are saved and return to the same place after restart. Mirrors attached through the CLI are not saved.
 - The remote Tasty does not need to be on PATH. It is enough that the port file (`~/.tasty/tasty.port`) can be read.
 
 ## 1. Create a profile
@@ -30,7 +30,7 @@ Trying to attach directly with an `ssh` profile is refused. Always create one `t
    - Hosts already in `~/.ssh/config` can be created directly from the **From ssh config** section below the profile list with **Add profile** on the right of the host. Only the alias is stored, so changes to the ssh config are followed as they are. A host you already created shows **in profiles** instead of the button. The list is read once when the popup opens, so after editing the ssh config, reopen the popup.
    - Register key files in the **Passkey** tab first, then pick them from the profile's Passkey dropdown. Secret values are referenced only by path in `~/.tasty/passkeys.toml`.
 3. **Attach** tab → **Add attach**. Enter a name and, under **Connection**, choose **SSH profile** (referencing the one created above) or **Direct (inline)**.
-   - **Remote tasty** group: **Executable** (the remote tasty path, default `tasty`) · **Port mode** · **Port file**. If tasty is not on the remote PATH, enter the full path in Executable or set the port mode to `file-unix`.
+   - **REMOTE TASTY** group: **Executable** (the remote tasty path, default `tasty`) · **Port mode** · **Port file**. If tasty is not on the remote PATH, enter the full path in Executable or set the port mode to `file-unix`.
 
 The Save button is temporarily disabled while saving. If saving fails, your input and the error stay visible so you can edit and retry. Canceling or closing the remote connections popup leaves an already accepted save running; its later completion does not overwrite a reopened form. A new Passkey with an existing name is rejected without replacing the existing credential.
 
@@ -97,7 +97,7 @@ Connection attempts do not wait forever — 10 seconds for the SSH connection, 2
 3. Pick a Workspace and **Connect**. One that someone else is already attached to is shown as **in use** and cannot be picked.
    - Picking the first row, **New workspace**, creates a Workspace on the remote with a default name and then attaches to it (**Create & connect**). A Workspace created this way stays on the remote.
    - Once the list appears, move between rows with `↑` / `↓` and press `Enter` to connect.
-4. A mirror Workspace with the **REMOTE** tag appears in the sidebar and focus moves to it. If connecting or preparing the mirror fails, a failure toast with the reason appears in that window. Nothing is shown if you have closed the window.
+4. A mirror Workspace with the **Remote** tag appears in the sidebar and focus moves to it. If connecting or preparing the mirror fails, a failure toast with the reason appears in that window. Nothing is shown if you have closed the window.
    - If the remote force detach is already confirmed when Tasty checks whether the new connection is ready, no row is created. The toast reads **Couldn&apos;t connect to the remote workspace.** followed by **force-detached by server** in parentheses. If the force detach is confirmed after that check, the connection can succeed and then drop shortly afterward.
 
 A remote workspace that is itself a mirror from another Tasty is disabled with a `mirror` marker and cannot be attached. `tasty remote workspaces` also prints a note beneath that row.
@@ -227,7 +227,7 @@ Older versions of the remote Tasty also report a force detach when the connectio
 - When working directory inheritance is on, the remote Tasty reads the working directory of the Surface selected when you entered the command at the time it creates the new tab or split. If the source Surface closes before Tasty sends the request to the remote, Tasty sends the request without asking to inherit the working directory. If the remote Tasty can no longer find the source Surface after the request is sent, it may reject the request. The **New Workspace** action in the Tasty interface creates a local workspace. If a remote Surface is selected when you use it, the new terminal starts in your home directory.
 - While a mirror is waiting for a new Tab to be created, if you request an input popup for an operation that creates a new Tab, such as **Open Markdown File**, the popup opens after the Tab is created, using that Tab as its target. If Tab creation fails on the remote, the popup does not open.
 - While a mirror waits for a new Tab to be created, built-in actions that target a single Tab run in that new Tab, in the order you pressed them, after it is created. These include Search, Refresh, Convert Surface type, Select all, Copy path, vi copy mode, and Explorer actions: Refresh, go to parent folder, Go to the address bar, the Preview panel toggle, Show or hide hidden files, Properties, Back, forward, New folder, new file, Rename, move to trash, Undo and Redo. Actions that the new Tab type does not support do not run: for example, Explorer actions do not run in a terminal Tab. The Explorer keys for Move between items, extend the selection, Open the selected item and clear the selection do not run in the new Tab when pressed during the wait. Copy, Cut and Paste pressed during the wait do not run in the new Tab. If creation fails or is cancelled, all actions held during the wait are discarded.
-- While waiting for a new Tab to be created, **Close Pane** and **Close active item** do not close the Workspace. **Rename Tab**, applying a Tab preset and taking a screenshot do nothing.
+- While waiting for a new Tab to be created, the **Close pane:** and **Close active:** shortcuts do not close the Workspace. **Rename Tab**, applying a Tab preset and taking a screenshot do nothing.
 - Zoom pressed while a new Tab is being created applies to the font for the type of Tab that is created. If creation fails, it is discarded. If you select a Tab awaiting creation in another Pane and enter a command, it targets that Tab’s Pane. While a new terminal Tab is being created over an Explorer Tab, Explorer keys are not handled as Explorer keys.
 - **Move Surface** from the Surface context menu is executed on the remote only within the same mirror Workspace. Moving between a mirror and another Workspace is blocked.
 - Moving with **Move Tab** · **Move Pane** from the Tab context menu is not available in a mirror. If the item to move or the destination is a mirror, a toast says it was blocked and nothing changes.

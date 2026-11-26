@@ -1,4 +1,4 @@
-<!-- source-hash: 45e0c0b7430e -->
+<!-- source-hash: 7ea402fe31b6 -->
 # Settings
 
 Tasty’s shell, fonts, language, and other preferences can be configured in the settings window or by editing `~/.tasty/config.toml` directly. Keybindings and themes have their own guides.
@@ -38,7 +38,7 @@ Press the same shortcut again to close the settings window.
 - If saved settings cannot be applied, an error notice appears and the settings stay as they were. If they were applied on screen but could not be written to `config.toml`, a warning notice appears instead; those changes are lost when Tasty restarts.
 - If another program changes `config.toml` after Tasty reads it, Tasty reports a save failure and preserves that file. Restart Tasty to load the changes made outside the app.
 - Startup corrections and the confirmed shell path are saved together. The loading screen keeps updating while the save completes. During normal use, new windows use the latest settings applied in this run even if a save is still pending.
-- Changes to **Language** take effect after you save and restart Tasty. The three settings in the **Performance** section of the **Terminal** tab apply to terminals you open after saving. Saving **Frame rate** settings applies them immediately to all open windows without restarting Tasty.
+- Changes to **Language:** take effect after you save and restart Tasty. The three settings in the **Performance** section of the **Terminal** tab apply to terminals you open after saving. Saving **Frame rate** settings applies them immediately to all open windows without restarting Tasty.
 - Numeric entries are **typed**, never dragged. Values are not adjusted while you type; they are brought into the allowed range when you leave the field or press `Enter`. Type something outside the range and the field's border takes the warning colour, with one line under it naming the range and the value that will actually be saved.
 - Whole-number fields widen to show the entire value, and grow with each character as you type. The unit sits after the field. Some entries show an oversized value from the settings file unchanged. However, when `[remote_attach] heartbeat_timeout_secs` is outside 10–600, Tasty resets it to the default of 30 when reading the file, saves the corrected value back to the settings file, and writes a warning only to the log.
 - If the settings window is so narrow that an entry's control no longer fits beside its name, that entry moves the control onto the line below the name. Widen the window and it moves back beside it.
@@ -49,8 +49,8 @@ Press the same shortcut again to close the settings window.
 
 | Section | Entries |
 |------|------|
-| **General** | **Restore layout on startup** · **Restore surface content on restart** (terminal scrollback) · **Workspace categories (folders)** · **Next/prev workspace crosses categories** · **Explorer: refresh file details** (off by default — when on, size and modified-time changes of files in the open folder show up within a few seconds too, but every check reads all items of that folder; see [Files](../using/files.md)) · **Close behavior** (Ask / Minimize to background / Quit) · **Wheel scroll distance** (10-200pt, default 50) - how far one wheel notch scrolls, applied the same everywhere in the window · **Language** (English / 한국어 / 日本語 plus any [language pack](#adding-a-language-language-packs) you install) · **Time format in Properties** (Minutes / Seconds / Seconds and UTC offset, default Minutes — used for Modified, Created and Target modified in Explorer Properties, in this computer's time zone; an open Properties popup follows right away) · **Accept webhook calls from other computers** (off by default, applies from the next start — [webhooks](../agents/hooks-notifications.md)) |
-| **Notifications** | **Notifications enabled** · **Sound** · **Coalesce interval (ms)** |
+| **General** | **Restore layout on startup:** · **Restore surface content on restart:** (terminal scrollback) · **Workspace categories (folders):** · **Next/prev workspace crosses categories:** · **Explorer: refresh file details:** (off by default — when on, size and modified-time changes of files in the open folder show up within a few seconds too, but every check reads all items of that folder; see [Files](../using/files.md)) · **Close behavior:** (Ask / Minimize to background / Quit) · **Wheel scroll distance:** (10-200pt, default 50) - how far one wheel notch scrolls, applied the same everywhere in the window · **Language:** (English / 한국어 / 日本語 plus any [language pack](#adding-a-language-language-packs) you install) · **Time format in Properties** (Minutes / Seconds / Seconds and UTC offset, default Minutes — used for Modified, Created and Target modified in Explorer Properties, in this computer's time zone; an open Properties popup follows right away) · **Accept webhook calls from other computers:** (off by default, applies from the next start — [webhooks](../agents/hooks-notifications.md)) |
+| **Notifications** | **Notifications enabled** · **Sound** · **Coalesce interval (ms):** |
 | **Accessibility** | **Reduced motion** (turns off toast and overlay fades, the loading spinner's rotation, and the modal shake) · **Show modifier key hints** |
 | **Overlay** | **Toast duration** (1~10 seconds) |
 | **Remote transfer** | **Save folder** (default `~/.tasty/transfers/`) · **Maximum size** (MiB) — where files received from a remote Workspace are saved |
@@ -76,9 +76,9 @@ With a GUI server, the server's `notification.enabled` must be on for OSC notifi
 
 | Section | Entries |
 |------|------|
-| **General** | **Shell** · **Startup command** · **Scrollback lines** (default 10000) · **Confirm close running process** · **Inherit working directory** · **Reverse-screen flash (DECSCNM)** · **Show bell notification:** · **Link click modifier** (Ctrl / Alt / Disable left-click opening) · macOS: **Use Option as Meta** |
+| **General** | **Shell:** · **Startup command:** · **Scrollback lines:** (default 10000) · **Confirm close running process:** · **Inherit working directory:** · **Reverse-screen flash (DECSCNM):** · **Show bell notification:** · **Link click modifier:** (Ctrl / Alt / Disable left-click opening) · macOS: **Use Option as Meta:** |
 | **Input** | Per-app **Send a newline with Shift+Enter** rules — add an executable name (for example `claude`) and turn it on, and `Shift+Enter` sends a newline (LF) while that app takes the input. Turned off, or with no rule, it uses the platform's default encoding |
-| **Mouse Capture** | **Show mouse-capture hint** · **Let Tasty handle clicks in these programs** · **Don't show the capture notice for these programs** — process names or patterns such as `ht*` |
+| **Mouse Capture** | **Show mouse-capture hint:** · **Let Tasty handle clicks in these programs** · **Don't show the capture notice for these programs** — process names or patterns such as `ht*` |
 | **TUI** | **Allow clipboard read (OSC 52):** — off by default. When on, programs inside the terminal can read the clipboard |
 | **Performance** | **Targeted PTY polling** · **Scrollback disk swap** (moves lines past the scrollback line count to disk) · **Lines kept on disk** (default 10000, -1 = unlimited — separate from the scrollback line count; the oldest lines past it are dropped). The unit **lines** follows the field, and at -1 **no limit** takes its place. Type a value outside the range and "Use -1 or a number from 0 to 100000000." appears under the field. As the note at the top of the tab says, all three apply to terminals you open after saving, and terminals that are already open don't change right away |
 | **Frame rate** | **Output frame rate** (default 30 fps) · **Input frame rate** (default 60 fps) |
@@ -93,7 +93,7 @@ Set **Link click modifier** to **Disable left-click opening** to prevent left-cl
 |------|------|
 | **Theme** | The theme card list — [Themes](themes.md) |
 | **Colors** | Override the current theme's colours entry by entry — [Themes](themes.md) |
-| **General** | **Default Font Settings**: **Font family** · **Custom font file** · **Font size** (default 14) · **Line height** · **Font DPI scaling** (Auto / Fixed). Plus **Ligatures** · **Background opacity** |
+| **General** | **Default Font Settings**: **Font family:** · **Custom font file:** · **Font size:** (default 14) · **Line height:** · **Font DPI scaling:** (Auto / Fixed). Plus **Ligatures:** · **Background opacity:** |
 | **Display** | **UI Scale** — Small / Medium / Large |
 | **Tasty** | Button, sidebar, and tab colours — **Accent** · **Sidebar background** · **Active tab indicator** (Underline / Fill / Dot) |
 | **Terminal** | The terminal Surface's **Focused background** · **Unfocused background** and font override |
@@ -200,7 +200,7 @@ about = "Créer une ressource"
 
 ### Selecting it
 
-The pack appears in Settings › **General** › **Language**. Select it, press
+The pack appears in Settings › **General** › **Language:**. Select it, press
 **Save**, then restart Tasty.
 
 ### Changing plugin text

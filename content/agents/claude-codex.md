@@ -124,7 +124,7 @@ tasty claude parent --surface 57                            # 이 자식의 부�
 
 `tasty claude children`과 `tasty codex children`의 기본 출력은 부모 ID 표입니다. 두 명령은 `--format table|json`을 받으며 기본값은 `table`입니다. 다른 값을 주면 오류로 끝납니다. 스크립트에서 JSON으로 읽으려면 `--format json`을 붙이세요. 이전 버전처럼 기본 출력을 JSON으로 읽던 스크립트도 이 옵션을 붙여야 합니다.
 
-자식이 너무 많아지면 spawn 응답에 경고가 붙습니다. 임계치는 **설정** <!-- en: Settings --> › **플러그인** <!-- en: Plugins --> › **Claude Code** / **Codex** 의 **Spawn child 경고 임계치** <!-- en: Spawn child warning threshold --> 에서 바꿉니다 (Claude Code·Codex 모두 기본 6).
+자식이 너무 많아지면 spawn 응답에 경고가 붙습니다. **설정** <!-- en: Settings --> › **플러그인** <!-- en: Plugins -->의 **Claude Code** › **자식 수 경고 기준** <!-- en: Child count warning threshold --> 또는 **Codex** › **자식 수 경고 기준** <!-- en: Spawn child warning threshold -->에서 임계치를 바꿀 수 있습니다. 두 설정의 기본값은 6입니다.
 
 ### Claude 자식의 idle 체크
 
@@ -421,7 +421,7 @@ tasty claude spawn --workspace w --profile continue-checklist
 `checklist-enable`·`checklist-disable`·`checklist-status` 는 `--gate <이름>` 으로 다른 등록 게이트를 지정할 수 있습니다(기본 `continue-checklist`). 모든 게이트의 켜짐 여부는 `tasty claude gate-list` 로 한 번에 봅니다.
 
 - 에이전트가 응답 끝에 `[[TASTY-CHECKLIST-DONE]]` 을 넣으면 통과, 아니면 체크리스트를 다시 받습니다. 라운드 상한(기본 3)에 닿으면 자동 통과합니다.
-- 상한은 **설정** › **플러그인** › **Claude Code** 의 **게이트 기본 라운드 상한** <!-- en: Default gate round limit -->.
+- 상한은 **설정** › **플러그인** › **Claude Code** 의 **게이트 기본 라운드 상한 (게이트가 자체 값을 지정하지 않았을 때)** <!-- en: Default gate round limit (used when a gate sets none) -->.
 - 자기 게이트를 만들려면 `tasty claude gate-register <이름> --body-file <파일> [--sentinel <문자열>] [--rounds N]`. 본문에 센티넬 문자열이 들어 있어야 합니다. `gate-list` / `gate-show` 로 확인.
 
 ## 문제 해결

@@ -1,4 +1,4 @@
-<!-- source-hash: 5f2ce63d3886 -->
+<!-- source-hash: b13783033cb0 -->
 # Plugins
 
 Plugins provide Markdown, image, and HTML viewers, along with Claude Code and Codex integrations. Manage bundled plugins or install new ones.
@@ -37,7 +37,7 @@ In the **Settings** window, plugin pages appear in two places.
 
 - **Appearance** > **Markdown** — Font settings applied only to Markdown Surfaces · **Allow remote content** (off by default — blocks external http/https resources the document loads).
 - **Appearance** > **HTML** — **Default zoom** (%) · **Color scheme** (follow theme / light / dark) · **Allow remote content** (off by default — blocks external http/https resources) · **Sandbox scripts** (on by default).
-- **Plugins** > **Claude Code** — **Spawn child warning threshold** · **Seconds without child output before notifying the parent** (`no_output_notice_secs`, default 600 seconds, range 60–86400 seconds). See [section 4 of Working with Claude and Codex](../agents/claude-codex.md#4-receiving-completion-notifications) for details.
+- **Plugins** > **Claude Code** — **Child count warning threshold** · **Seconds without child output before notifying the parent** (`no_output_notice_secs`, default 600 seconds, range 60–86400 seconds). See [section 4 of Working with Claude and Codex](../agents/claude-codex.md#4-receiving-completion-notifications) for details.
 - **Plugins** > **Codex** — **Spawn child warning threshold** · **Default approval policy** · **Default sandbox mode**.
 
 A plugin that adds a Surface drawn as a web page, even one you installed yourself, applies the zoom, color scheme, allow remote content, and sandbox scripts values from its own settings page to that Surface, the same way HTML does. Values you have not changed follow the defaults the plugin sets, and on a Surface that supports the zoom shortcuts, the shortcuts change that plugin's zoom value.

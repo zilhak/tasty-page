@@ -21,7 +21,7 @@ bash(4.4 이상)와 zsh 는 별도 설정 없이 셸 통합이 붙습니다. 탭
 
 터미널 프로그램은 `Shift`·`Ctrl`·`Alt`와 함께 누른 방향키를 일반 방향키와 구분해 받습니다. **이 조합에서 macOS의 키는 `Cmd`가 아니라 실제 `Option`입니다.** 예를 들어 프로그램이 `⌥ + ↑`를 안내하면 `Option+↑`를 누릅니다. 동작은 터미널 안 프로그램이 정합니다.
 
-방향키 조합은 **Option as Meta** 설정을 켜거나 꺼도 전달됩니다. 이 설정은 macOS의 Option+문자를 특수문자로 입력할지 Meta 키로 전달할지만 정합니다. Tasty 단축키로 등록된 조합이나 복사 모드·입력을 가로채는 오버레이가 소비하는 키는 프로그램으로 보내지 않습니다.
+방향키 조합은 **Option을 Meta로 사용:** <!-- en: Use Option as Meta: --> 설정을 켜거나 꺼도 전달됩니다. 이 설정은 macOS의 Option+문자를 특수문자로 입력할지 Meta 키로 전달할지만 정합니다. Tasty 단축키로 등록된 조합이나 복사 모드·입력을 가로채는 오버레이가 소비하는 키는 프로그램으로 보내지 않습니다.
 
 ## 앱별 Shift+Enter 설정
 
@@ -186,7 +186,7 @@ vim(`:set mouse=a`) · htop · Claude Code 처럼 마우스를 직접 쓰는 프
 
 ## 플랫폼별 참고
 
-- **macOS** — **설정** > **터미널** > **Option 을 Meta 로 사용** <!-- en: Use Option as Meta --> 을 켜면 `Option+F` 같은 조합이 특수문자 대신 readline · Emacs 의 Meta 키로 들어갑니다(기본 꺼짐).
+- **macOS** — **설정** > **터미널** > **Option을 Meta로 사용:** <!-- en: Use Option as Meta: --> 설정을 켜면 `Option+F` 같은 조합이 특수문자 대신 readline · Emacs 의 Meta 키로 들어갑니다(기본 꺼짐).
 - **Windows** — 절전에서 깨어난 뒤 터미널이 응답하지 않을 수 있습니다. Tasty 가 깨우기를 시도하고, 그래도 멈춘 것으로 보이면 알림으로 알립니다. 그때는 그 터미널을 새로 엽니다.
 - 화면 전체가 번쩍이는 프로그램(readline 의 visible bell 등)이 거슬리면 **설정** > **터미널** > **화면 반전 플래시 (DECSCNM)** <!-- en: Reverse-screen flash (DECSCNM) --> 을 끕니다.
 

@@ -1,4 +1,4 @@
-<!-- source-hash: 45e0c0b7430e -->
+<!-- source-hash: 7ea402fe31b6 -->
 # 設定
 
 Tasty のシェル、フォント、言語などは、設定ウィンドウで変更するか、`~/.tasty/config.toml` を直接編集して設定できます。キーバインドとテーマは、それぞれのガイドで詳しく説明します。
@@ -38,7 +38,7 @@ Tasty のシェル、フォント、言語などは、設定ウィンドウで�
 - 保存した設定を適用できない場合は、エラー通知が表示され、設定はそのままです。画面には適用されたものの `config.toml` に書き込めなかった場合は、警告通知が表示されます。この場合、変更した設定は Tasty を再起動すると失われます。
 - Tasty が読み込んだ後に別のプログラムが `config.toml` を変更すると、そのファイルを上書きせず、保存の失敗を通知します。外部で変更した設定を読み込むには、Tasty を再起動してください。
 - 初回起動時に補正した設定と、確認したシェルのパスはまとめて保存します。保存結果を待つ間も、読み込み画面は更新され続けます。実行中に保存が待機状態でも、新しいウィンドウは今回の実行で適用された最新の設定を使用します。
-- **言語** <!-- en: Language --> は、保存後に Tasty を再起動すると適用されます。**ターミナル** タブの **パフォーマンス** <!-- en: Performance --> にある 3 つの設定は、保存後に新しく開くターミナルから適用されます。**フレームレート** <!-- en: Frame rate --> の設定は、保存すると開いているすべてのウィンドウにすぐに適用されます。Tasty の再起動は不要です。
+- **言語:** <!-- en: Language: --> は、保存後に Tasty を再起動すると適用されます。**ターミナル** タブの **パフォーマンス** <!-- en: Performance --> にある 3 つの設定は、保存後に新しく開くターミナルから適用されます。**フレームレート** <!-- en: Frame rate --> の設定は、保存すると開いているすべてのウィンドウにすぐに適用されます。Tasty の再起動は不要です。
 - 数値欄は **入力** して変更します。ドラッグして値を増減する欄はありません。入力中は値を自動補正せず、欄から移動するか `Enter` を押すと、許容範囲内に調整されます — 範囲外の値を入力すると、欄の枠線が警告色に変わり、その下に許容範囲と実際に保存される値が 1 行で表示されます。
 - 整数欄は値全体が見えるように値の長さに合わせて広がり、入力中も文字ごとに広がります。単位は欄の後ろに表示されます。設定ファイルに範囲を超える値が書かれている場合、そのまま表示する項目もあります。ただし、`[remote_attach] heartbeat_timeout_secs` が 10~600 の範囲外の場合は、読み込み時にデフォルト値の 30 に戻して設定ファイルに保存し直し、警告はログにだけ残します。
 - 設定ウィンドウを非常に狭くして項目の欄が名前の横に収まらなくなると、その項目だけ欄が名前の下の行に移動します。再び広げると横に戻ります。
@@ -49,8 +49,8 @@ Tasty のシェル、フォント、言語などは、設定ウィンドウで�
 
 | セクション | 項目 |
 |------|------|
-| **一般** | **起動時にレイアウトを復元** <!-- en: Restore layout on startup --> · **再起動時にサーフェスの内容を復元** <!-- en: Restore surface content on restart --> （ターミナルのスクロールバック） · **ワークスペースのカテゴリ（フォルダー）** <!-- en: Workspace categories (folders) --> · **次/前のワークスペースへの移動に他のカテゴリも含める** <!-- en: Next/prev workspace crosses categories --> · **エクスプローラー: ファイル情報を自動更新** <!-- en: Explorer: refresh file details --> （デフォルトはオフ — オンにすると、開いているフォルダー内のファイルのサイズ・更新日時の変更も数秒以内に反映されますが、確認のたびにそのフォルダーの項目をすべて読み込みます。[ファイルエクスプローラー](../using/files.md)） · **終了時の動作** <!-- en: Close behavior --> （確認する / バックグラウンドに最小化 / 終了） · **ホイールのスクロール距離** <!-- en: Wheel scroll distance --> （10~200pt、デフォルトは 50） — ホイール 1 目盛りでスクロールする距離で、ウィンドウ内のすべての場所に同じように適用されます · **言語** （English / 한국어 / 日本語 + インストールした [言語パック](#言語を追加する言語パック)） · **プロパティの日時形式** <!-- en: Time format in Properties --> （分まで / 秒まで / 秒 + UTC オフセット、デフォルトは分まで — エクスプローラーのプロパティウィンドウの更新日時・作成日時・対象の更新日時に使用し、このコンピューターのタイムゾーンに基づきます。開いているプロパティウィンドウにもすぐに適用されます） · **他のコンピューターからの webhook 呼び出しを受け付ける** <!-- en: Accept webhook calls from other computers --> （デフォルトはオフ、次回起動時から適用 — [webhook](../agents/hooks-notifications.md)） |
-| **通知** <!-- en: Notifications --> | **通知を有効化** <!-- en: Notifications enabled --> · **サウンド** <!-- en: Sound --> · **通知の統合間隔（ms）** <!-- en: Coalesce interval (ms) --> |
+| **一般** | **起動時にレイアウトを復元:** <!-- en: Restore layout on startup: --> · **再起動時にサーフェスの内容を復元:** <!-- en: Restore surface content on restart: --> （ターミナルのスクロールバック） · **ワークスペースカテゴリ(フォルダ):** <!-- en: Workspace categories (folders): --> · **次/前のワークスペースへの移動に別カテゴリも含める:** <!-- en: Next/prev workspace crosses categories: --> · **エクスプローラー: ファイル情報を自動更新:** <!-- en: Explorer: refresh file details: --> （デフォルトはオフ — オンにすると、開いているフォルダー内のファイルのサイズ・更新日時の変更も数秒以内に反映されますが、確認のたびにそのフォルダーの項目をすべて読み込みます。[ファイルエクスプローラー](../using/files.md)） · **終了時の動作:** <!-- en: Close behavior: --> （確認する / バックグラウンドに最小化 / 終了） · **ホイールのスクロール距離:** <!-- en: Wheel scroll distance: --> （10~200pt、デフォルトは 50） — ホイール 1 目盛りでスクロールする距離で、ウィンドウ内のすべての場所に同じように適用されます · **言語:** <!-- en: Language: --> （English / 한국어 / 日本語 + インストールした [言語パック](#言語を追加する言語パック)） · **プロパティの日時形式** <!-- en: Time format in Properties --> （分まで / 秒まで / 秒 + UTC オフセット、デフォルトは分まで — エクスプローラーのプロパティウィンドウの更新日時・作成日時・対象の更新日時に使用し、このコンピューターのタイムゾーンに基づきます。開いているプロパティウィンドウにもすぐに適用されます） · **他のコンピューターからの Webhook 呼び出しを受け付ける:** <!-- en: Accept webhook calls from other computers: --> （デフォルトはオフ、次回起動時から適用 — [webhook](../agents/hooks-notifications.md)） |
+| **通知** <!-- en: Notifications --> | **通知を有効化** <!-- en: Notifications enabled --> · **サウンド** <!-- en: Sound --> · **通知統合間隔 (ms):** <!-- en: Coalesce interval (ms): --> |
 | **アクセシビリティ** <!-- en: Accessibility --> | **モーションを減らす** <!-- en: Reduced motion --> （トースト・オーバーレイのフェード、読み込みスピナーの回転、モーダルの揺れをオフにします） · **修飾キーのヒントを表示** <!-- en: Show modifier key hints --> |
 | **オーバーレイ** <!-- en: Overlay --> | **トースト表示時間** <!-- en: Toast duration --> （1~10 秒） |
 | **リモート転送** <!-- en: Remote transfer --> | **保存フォルダ** <!-- en: Save folder --> （デフォルトは `~/.tasty/transfers/`） · **最大サイズ** <!-- en: Maximum size --> （MiB） — リモートワークスペースから受信したファイルの保存先です |
@@ -76,9 +76,9 @@ GUI サーバーに接続している場合、OSC 通知で音が鳴るにはサ
 
 | セクション | 項目 |
 |------|------|
-| **一般** | **シェル** <!-- en: Shell --> · **起動コマンド** <!-- en: Startup command --> · **スクロールバック行数** <!-- en: Scrollback lines --> （デフォルトは 10000） · **実行中のプロセスを閉じる前に確認** <!-- en: Confirm close running process --> · **作業ディレクトリを継承** <!-- en: Inherit working directory --> · **画面反転フラッシュ（DECSCNM）** <!-- en: Reverse-screen flash (DECSCNM) --> · **ベル通知を表示:** <!-- en: Show bell notification: --> · **リンククリックの修飾キー** <!-- en: Link click modifier --> （Ctrl / Alt / 左クリックで開く：オフ） · macOS: **Option を Meta として使用** <!-- en: Use Option as Meta --> |
+| **一般** | **シェル:** <!-- en: Shell: --> · **起動コマンド:** <!-- en: Startup command: --> · **スクロールバック行数:** <!-- en: Scrollback lines: --> （デフォルトは 10000） · **実行中プロセスの終了確認:** <!-- en: Confirm close running process: --> · **作業ディレクトリの継承:** <!-- en: Inherit working directory: --> · **画面反転フラッシュ (DECSCNM):** <!-- en: Reverse-screen flash (DECSCNM): --> · **ベル通知を表示:** <!-- en: Show bell notification: --> · **リンククリック修飾キー:** <!-- en: Link click modifier: --> （Ctrl / Alt / 左クリックで開く：オフ） · macOS: **Option を Meta として使用:** <!-- en: Use Option as Meta: --> |
 | **入力** <!-- en: Input --> | ターミナルアプリごとの **Shift+Enterで改行文字を送信** <!-- en: Send a newline with Shift+Enter --> ルール — 実行ファイル名（例: `claude`）を追加してオンにすると、そのアプリが入力を受け取っている間、`Shift+Enter` が改行文字（LF）を送信します。オフにするかルールがない場合は、プラットフォームのデフォルトの方式で送信します |
-| **マウスキャプチャ** <!-- en: Mouse Capture --> | **マウスキャプチャのヒントを表示** <!-- en: Show mouse-capture hint --> · **クリックを Tasty で処理するプログラム** <!-- en: Let Tasty handle clicks in these programs --> · **キャプチャ通知を表示しないプログラム** <!-- en: Don't show the capture notice for these programs --> — プロセス名または `ht*` のようなパターンです |
+| **マウスキャプチャ** <!-- en: Mouse Capture --> | **マウスキャプチャの案内を表示:** <!-- en: Show mouse-capture hint: --> · **クリックを Tasty で処理するプログラム** <!-- en: Let Tasty handle clicks in these programs --> · **キャプチャ通知を表示しないプログラム** <!-- en: Don't show the capture notice for these programs --> — プロセス名または `ht*` のようなパターンです |
 | **TUI** | **クリップボード読み取りを許可 (OSC 52):** <!-- en: Allow clipboard read (OSC 52): --> — デフォルトはオフです。オンにすると、ターミナル内のプログラムがクリップボードを読み取れます |
 | **パフォーマンス** <!-- en: Performance --> | **選択的PTYポーリング** <!-- en: Targeted PTY polling --> · **スクロールバックディスクスワップ** <!-- en: Scrollback disk swap --> （スクロールバック行数を超えた行をディスクに移動します） · **ディスク保持行数** <!-- en: Lines kept on disk --> （デフォルトは 10000、-1 は無制限 — スクロールバック行数とは別で、超えると古い行から破棄します）。欄の後ろに単位の **行** <!-- en: lines --> が付き、-1 の場合は単位の代わりに **無制限** <!-- en: no limit --> が表示されます。範囲外の値を入力すると、欄の下に「-1 または 0 から 100000000 までの数値を入力してください。」と表示されます。タブ最上部の案内どおり、3 つの設定はいずれも保存後に新しく開くターミナルから適用され、すでに開いているターミナルはすぐには変わりません |
 | **フレームレート** <!-- en: Frame rate --> | **出力フレームレート** <!-- en: Output frame rate -->（デフォルトは 30 fps） · **入力フレームレート** <!-- en: Input frame rate -->（デフォルトは 60 fps） |
@@ -93,7 +93,7 @@ GUI サーバーに接続している場合、OSC 通知で音が鳴るにはサ
 |------|------|
 | **テーマ** <!-- en: Theme --> | テーマカードの一覧 — [テーマ](themes.md) |
 | **色** <!-- en: Colors --> | 現在のテーマの色を項目ごとに上書きします — [テーマ](themes.md) |
-| **一般** | **デフォルトフォント設定** <!-- en: Default Font Settings -->: **フォント** <!-- en: Font family --> · **カスタムフォントファイル** <!-- en: Custom font file --> · **フォントサイズ** <!-- en: Font size --> （デフォルトは 14） · **行の高さ** <!-- en: Line height --> · **フォントDPIスケーリング** <!-- en: Font DPI scaling --> （自動 / 固定）。ほかに **合字（Ligatures）** <!-- en: Ligatures --> · **背景の不透明度** <!-- en: Background opacity --> があります |
+| **一般** | **デフォルトフォント設定** <!-- en: Default Font Settings -->: **フォント:** <!-- en: Font family: --> · **カスタムフォントファイル:** <!-- en: Custom font file: --> · **フォントサイズ:** <!-- en: Font size: --> （デフォルトは 14） · **行の高さ:** <!-- en: Line height: --> · **フォントDPIスケーリング:** <!-- en: Font DPI scaling: --> （自動 / 固定）。ほかに **合字(リガチャ):** <!-- en: Ligatures: --> · **背景透明度:** <!-- en: Background opacity: --> があります |
 | **ディスプレイ** <!-- en: Display --> | **UIスケール** <!-- en: UI Scale --> — 小 / 中 / 大 |
 | **Tasty** | ボタン・サイドバー・タブの色 — **アクセント** <!-- en: Accent --> · **サイドバー背景** <!-- en: Sidebar background --> · **アクティブタブインジケーター** <!-- en: Active tab indicator --> （下線 / 塗りつぶし / 点） |
 | **ターミナル** | ターミナルサーフェスの **フォーカス時の背景** <!-- en: Focused background --> · **非フォーカス時の背景** <!-- en: Unfocused background --> と個別のフォント設定 |
@@ -197,7 +197,7 @@ about = "Créer une ressource"
 
 ### 選択
 
-設定ウィンドウ › **一般** › **言語** の一覧にパックが一緒に表示されます。選んで **保存** した後、Tasty を
+設定ウィンドウ › **一般** › **言語:** <!-- en: Language: --> の一覧にパックが一緒に表示されます。選んで **保存** した後、Tasty を
 再起動すると適用されます。
 
 ### プラグインの文言を変更する

@@ -1,4 +1,4 @@
-<!-- source-hash: 1183ed88dda7 -->
+<!-- source-hash: 5d6bf36f53f7 -->
 # Working with the terminal
 
 You can copy the output you need, search terminal history, and open file paths as you work. You can also select text without a mouse and receive notifications when work finishes.
@@ -22,7 +22,7 @@ When the program exits and the shell ends, that Surface closes automatically.
 
 Terminal programs can distinguish arrow keys pressed with `Shift`, `Ctrl`, or `Alt` from plain arrow keys. **For these combinations on macOS, use the physical `Option` key, not `Cmd`.** For example, press `Option+↑` when a program displays `⌥ + ↑`. The program inside the terminal determines the action.
 
-Modified arrow keys are forwarded with **Option as Meta** either on or off. That setting only controls whether Option+character input on macOS produces a composed character or a Meta key sequence. Keys consumed by a Tasty shortcut, copy mode, or an overlay that captures keyboard input are not also sent to the program.
+Modified arrow keys are forwarded with **Use Option as Meta:** either on or off. That setting only controls whether Option+character input on macOS produces a composed character or a Meta key sequence. Keys consumed by a Tasty shortcut, copy mode, or an overlay that captures keyboard input are not also sent to the program.
 
 ## Shift+Enter per application
 
@@ -188,7 +188,7 @@ To send a notification directly from a script, `tasty notify "build done" --titl
 
 ## Platform notes
 
-- **macOS** — turn on **Settings** > **Terminal** > **Use Option as Meta** and combinations such as `Option+F` are sent as the readline · Emacs Meta key instead of special characters (off by default).
+- **macOS** — turn on **Settings** > **Terminal** > **Use Option as Meta:** and combinations such as `Option+F` are sent as the readline · Emacs Meta key instead of special characters (off by default).
 - **Windows** — the terminal may stop responding after waking from sleep. Tasty tries to wake it and, if it still appears stuck, tells you with a notification. In that case open a new terminal.
 - If programs that flash the whole screen (readline's visible bell and so on) bother you, turn off **Settings** > **Terminal** > **Reverse-screen flash (DECSCNM)**.
 

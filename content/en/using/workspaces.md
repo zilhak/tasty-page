@@ -1,4 +1,4 @@
-<!-- source-hash: 597667b147ea -->
+<!-- source-hash: c6f1762ab16c -->
 # Workspaces
 
 Tasty’s workspaces group terminals and layouts by project or task, organized by name and category and switched from the sidebar.
@@ -60,10 +60,10 @@ Each Workspace remembers its own focused Pane. Switch away and back and the curs
 |------|----|
 | Dot left of the name | A program is running inside that Workspace (the count is shown alongside, as in `● 3`) |
 | Number badge right of the name | Number of Surfaces that need attention. Yellow means waiting for input, blue means a job finished. Click that Surface and it disappears |
-| **REMOTE** pill | A Workspace mirroring a remote tasty |
+| **Remote** pill | A Workspace mirroring a remote tasty |
 | Lavender border around the dot left of the name | Occupied remotely by another user |
 
-When the sidebar is collapsed (**Collapse**, `Ctrl+B`) the cards become square icons and the marks shrink with them. The dot at the top right shows only the most urgent one, without a count — yellow is waiting for input, blue is a finished job, green is running. The **REMOTE** pill turns into a sky-blue chip at the bottom right. When another user holds the Workspace remotely, the lavender border wraps **the whole square icon** instead of the dot.
+When the sidebar is collapsed (**Collapse**, `Ctrl+B`) the cards become square icons and the marks shrink with them. The dot at the top right shows only the most urgent one, without a count — yellow is waiting for input, blue is a finished job, green is running. The **Remote** pill turns into a sky-blue chip at the bottom right. When another user holds the Workspace remotely, the lavender border wraps **the whole square icon** instead of the dot.
 
 ## Closing and restoring
 
@@ -86,12 +86,12 @@ Terminal history for items being closed is kept within a 64 MiB pending-request 
 
 When you have many Workspaces, turn on **Settings** > **General** > **Workspace categories (folders)**. The sidebar changes into collapsible sections.
 
-- The default section **Workspaces** is always at the top and cannot be renamed or deleted.
+- The default section **WORKSPACES** is always at the top and cannot be renamed or deleted.
 - Click a section header — collapse / expand. The **Collapse/expand all categories** shortcut is empty by default, so assign it yourself.
 - Right-click a header — **Add workspace** · **Create workspace from preset...** · **Add remote workspace** · **Rename category** · **Delete category** · **New category**.
 - Right-click an empty area — **New category** · **Add remote workspace**.
 - Right-click a Workspace card — **Move to category**. Dragging it to another section also works.
-- Deleting a category does not delete the Workspaces in it; they return to the **Workspaces** section.
+- Deleting a category does not delete the Workspaces in it; they return to the **WORKSPACES** section.
 
 With categories on, the **New Workspace** button under the sidebar disappears and you create Workspaces from the header menu. `Alt+N` creates one in the category the current Workspace belongs to.
 
@@ -104,7 +104,7 @@ Switching shortcuts also gain a category level.
 | `Alt+1` to `Alt+9` | The nth Workspace **within** the current category |
 | `Alt+J` / `Alt+K` | Next / previous within the current category. To cross the boundary into the next category, turn on **Settings** > **General** > **Next/prev workspace crosses categories** |
 
-Turning categories off again merges all Workspaces into the single **Workspaces** section.
+Turning categories off again merges all Workspaces into the single **WORKSPACES** section.
 
 ```sh
 tasty workspace-category list

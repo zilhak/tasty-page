@@ -319,7 +319,7 @@ DAG id 는 `tasty agent dag-list` 에서 봅니다. 다시 실행(retry)한 작�
 | **취소** <!-- en: Cancelled --> · **건너뜀** <!-- en: Skipped --> | 사람이 취소했거나, 앞이 실패해 건너뛰었습니다 |
 | **선택 안 됨** <!-- en: Not selected --> | 갈래에서 다른 쪽이 골라져 실행하지 않았습니다. 실패가 아닙니다 |
 | **입력 대기** <!-- en: Needs input --> | 실행 중인 Claude·Codex 세션이 사람의 답을 기다립니다. DAG 상태는 실행 중 그대로입니다 |
-| **알수없음** <!-- en: Unknown --> | 결과를 알 수 없습니다. 노드를 누르면 상세에 그 이유가 나옵니다. Tasty 가 다시 시작되는 사이 명령이 끝났거나, 다시 시작한 뒤 이어서 지켜보던 명령이 나중에 끝나 종료 코드를 받지 못한 경우입니다(다시 시작한 Tasty 는 그 명령의 종료 코드를 받을 수 없습니다). 뒤 작업은 기다리고, 다시 실행(`task-retry`)하거나 취소해야 진행됩니다. 세마포어·lease 를 쥔 작업도 같습니다. 명령이 아직 실행 중이면 끝날 때까지 자원을 쥐고 있다가 끝난 뒤 내놓습니다 |
+| **알 수 없음** <!-- en: Unknown --> | Tasty가 작업 결과를 확인할 수 없는 상태입니다. 노드를 누르면 상세에 그 이유가 나옵니다. Tasty 가 다시 시작되는 사이 명령이 끝났거나, 다시 시작한 뒤 이어서 지켜보던 명령이 나중에 끝나 종료 코드를 받지 못한 경우입니다(다시 시작한 Tasty 는 그 명령의 종료 코드를 받을 수 없습니다). 뒤 작업은 기다리고, 다시 실행(`task-retry`)하거나 취소해야 진행됩니다. 세마포어·lease 를 쥔 작업도 같습니다. 명령이 아직 실행 중이면 끝날 때까지 자원을 쥐고 있다가 끝난 뒤 내놓습니다 |
 
 터미널에서 보려면:
 
@@ -344,7 +344,7 @@ tasty agent task-graph --workspace 2 --format dot   # Graphviz 로 그리기
 
 ```sh
 tasty agent task-await --workspace 2 --id "$TEST"             # 끝날 때까지 대기
-tasty agent task-retry --workspace 2 --id "$TEST"             # 실패·취소·건너뜀·알수없음 작업 재시도
+tasty agent task-retry --workspace 2 --id "$TEST"             # 실패·취소·건너뜀·알 수 없음 작업 재시도
 tasty agent task-cancel --workspace 2 --id "$TEST"
 tasty agent task-set-result --workspace 2 --id "$MANUAL" --state succeeded
 tasty agent task-purge --workspace 2 --states succeeded

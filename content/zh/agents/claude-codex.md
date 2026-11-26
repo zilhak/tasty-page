@@ -1,4 +1,4 @@
-<!-- source-hash: b8c2b93d9ba8 -->
+<!-- source-hash: 654565ce05e1 -->
 # 配合 Claude 和 Codex 使用
 
 在 Tasty 终端中运行 Claude Code 和 Codex CLI 并查看状态。两个 CLI 需要单独安装。要将任务分配给多个智能体，请同时配置钩子和父智能体的结果接收路径。
@@ -125,7 +125,7 @@ tasty claude parent --surface 57                            # 此子智能体的
 
 `tasty claude children` 和 `tasty codex children` 默认输出父 ID 表。两个命令都接受 `--format table|json`，默认值为 `table`。其他值会报错。要在脚本中按 JSON 读取输出，添加 `--format json`。在旧版本中将默认输出解析为 JSON 的脚本也必须添加此选项。
 
-子智能体过多时，spawn 响应会附带警告。可在**设置** <!-- en: Settings --> › **插件** <!-- en: Plugins --> › **Claude Code** / **Codex** 的 **Spawn 子实例警告阈值** <!-- en: Spawn child warning threshold --> 中更改阈值（Claude Code、Codex 均默认为 6）。
+子智能体过多时，spawn 响应会附带警告。可在**设置** <!-- en: Settings --> › **插件** <!-- en: Plugins --> 中通过 **Claude Code** › **子数量警告阈值** <!-- en: Child count warning threshold --> 或 **Codex** › **Spawn 子实例警告阈值** <!-- en: Spawn child warning threshold --> 更改阈值。两项默认值均为 6。
 
 ### Claude 子智能体的 idle 检查
 
@@ -422,7 +422,7 @@ tasty claude spawn --workspace w --profile continue-checklist
 `checklist-enable`、`checklist-disable`、`checklist-status` 可通过 `--gate <名称>` 指定其他已注册的 Gate（默认为 `continue-checklist`）。用 `tasty claude gate-list` 一次查看所有 Gate 的启用状态。
 
 - 智能体在响应末尾加入 `[[TASTY-CHECKLIST-DONE]]` 则通过，否则会再次收到检查清单。达到轮次上限（默认为 3）后自动通过。
-- 上限位于**设置** › **插件** › **Claude Code** 的 **Gate 默认轮次上限** <!-- en: Default gate round limit -->。
+- 上限位于**设置** › **插件** › **Claude Code** 的 **Gate 默认轮数上限（Gate 未设置时使用）** <!-- en: Default gate round limit (used when a gate sets none) -->。
 - 要创建自己的 Gate，使用 `tasty claude gate-register <名称> --body-file <文件> [--sentinel <字符串>] [--rounds N]`。正文必须包含哨兵字符串。用 `gate-list` / `gate-show` 查看。
 
 ## 故障排除

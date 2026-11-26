@@ -1,4 +1,4 @@
-<!-- source-hash: 5f2ce63d3886 -->
+<!-- source-hash: b13783033cb0 -->
 # 插件
 
 Markdown、图像、HTML 查看及 Claude Code、Codex 集成等功能由插件提供。可以管理内置插件或安装新插件。
@@ -37,8 +37,8 @@ Markdown 查看器、图像查看器、Claude Code 集成等功能由 **插件**
 
 - **外观** <!-- en: Appearance --> > **Markdown** — 仅应用于 Markdown Surface 的字体设置 · **允许远程内容** <!-- en: Allow remote content -->（默认关闭，阻止文档加载的外部 http/https 资源）。
 - **外观** > **HTML** — **默认缩放** <!-- en: Default zoom -->（%）· **配色方案** <!-- en: Color scheme -->（跟随主题 / 浅色 / 深色）· **允许远程内容** <!-- en: Allow remote content -->（默认关闭，阻止外部 http/https 资源）· **在沙箱中运行脚本** <!-- en: Sandbox scripts -->（默认开启）。
-- **插件** <!-- en: Plugins --> > **Claude Code** — **Spawn 子实例警告阈值** <!-- en: Spawn child warning threshold --> · **子无输出时通知父之前的等待秒数** <!-- en: Seconds without child output before notifying the parent -->（`no_output_notice_secs`，默认 600 秒，范围 60~86400 秒）。详细行为见[与 Claude、Codex 配合使用第 4 节](../agents/claude-codex.md#4-接收完成通知)。
-- **插件** > **Codex** — **Spawn 子实例警告阈值** · **默认批准策略** <!-- en: Default approval policy --> · **默认沙箱模式** <!-- en: Default sandbox mode -->。
+- **插件** <!-- en: Plugins --> > **Claude Code** — **子数量警告阈值** <!-- en: Child count warning threshold --> · **子无输出时通知父之前的等待秒数** <!-- en: Seconds without child output before notifying the parent -->（`no_output_notice_secs`，默认 600 秒，范围 60~86400 秒）。详细行为见[与 Claude、Codex 配合使用第 4 节](../agents/claude-codex.md#4-接收完成通知)。
+- **插件** > **Codex** — **Spawn 子实例警告阈值** <!-- en: Spawn child warning threshold --> · **默认批准策略** <!-- en: Default approval policy --> · **默认沙箱模式** <!-- en: Default sandbox mode -->。
 
 添加以网页绘制的 Surface 的插件，即使是自行安装的，也会与 HTML 一样，将自身设置页面中的缩放 · 配色方案 · 允许远程内容 · 在沙箱中运行脚本的值应用于该 Surface。未更改的值使用插件设定的默认值；支持缩放快捷键的 Surface 中，快捷键会更改该插件的缩放值。
 

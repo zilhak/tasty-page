@@ -1,4 +1,4 @@
-<!-- source-hash: b8c2b93d9ba8 -->
+<!-- source-hash: 654565ce05e1 -->
 # Working with Claude and Codex
 
 Run Claude Code and Codex CLI in Tasty terminals and follow their status. Install each CLI separately. To delegate work across agents, configure both the hooks and the parent’s result delivery path.
@@ -125,7 +125,7 @@ A Claude child started without a prompt is `idle` once its input screen appears.
 
 `tasty claude children` and `tasty codex children` print a parent ID table by default. Both accept `--format table|json`, with `table` as the default. Other values cause an error. To read JSON in scripts, add `--format json`. Scripts that parsed the default output as JSON in earlier versions also need this option.
 
-When there are too many children, a warning is attached to the spawn response. Change the threshold at **Settings** › **Plugins** › **Claude Code** / **Codex** › **Spawn child warning threshold** (default 6 for both Claude Code and Codex).
+When there are too many children, the spawn response includes a warning. Change the threshold under **Settings** › **Plugins** in **Claude Code** › **Child count warning threshold** or **Codex** › **Spawn child warning threshold**. Both settings default to 6.
 
 ### Idle checks for Claude children
 
@@ -423,7 +423,7 @@ tasty claude spawn --workspace w --profile continue-checklist
 `checklist-enable`, `checklist-disable` and `checklist-status` take `--gate <name>` to target another registered gate (default `continue-checklist`). To see whether every gate is on at once, use `tasty claude gate-list`.
 
 - If the agent puts `[[TASTY-CHECKLIST-DONE]]` at the end of its response it passes; otherwise it receives the checklist again. When the round limit (default 3) is reached it passes automatically.
-- The limit is **Default gate round limit** at **Settings** › **Plugins** › **Claude Code**.
+- The limit is **Default gate round limit (used when a gate sets none)** at **Settings** › **Plugins** › **Claude Code**.
 - To create your own gate: `tasty claude gate-register <name> --body-file <file> [--sentinel <string>] [--rounds N]`. The body must contain the sentinel string. Check with `gate-list` / `gate-show`.
 
 ## Troubleshooting

@@ -36,12 +36,12 @@
 
 - **외관** <!-- en: Appearance --> > **Markdown** — 마크다운 서피스에만 적용할 폰트 설정 · **원격 콘텐츠 허용** <!-- en: Allow remote content --> (기본 꺼짐 — 문서가 불러오는 외부 http/https 리소스 차단).
 - **외관** > **HTML** — **기본 확대** <!-- en: Default zoom --> (%) · **색 구성표** <!-- en: Color scheme --> (테마 따름 / 라이트 / 다크) · **원격 콘텐츠 허용** <!-- en: Allow remote content --> (기본 꺼짐 — 외부 http/https 리소스 차단) · **스크립트 샌드박스** <!-- en: Sandbox scripts --> (기본 켜짐).
-- **플러그인** <!-- en: Plugins --> > **Claude Code** — **Spawn child 경고 임계치** <!-- en: Spawn child warning threshold --> · **자식 출력이 없을 때 부모에게 알리기 전 대기 시간(초)** <!-- en: Seconds without child output before notifying the parent --> (`no_output_notice_secs`, 기본 600초, 범위 60~86400초). 자세한 동작은 [Claude·Codex와 함께 쓰기 4절](../agents/claude-codex.md#4-완료-알림-받기)에 있습니다.
-- **플러그인** > **Codex** — **Spawn child 경고 임계치** · **기본 승인 정책** <!-- en: Default approval policy --> · **기본 샌드박스 모드** <!-- en: Default sandbox mode -->.
+- **플러그인** <!-- en: Plugins --> > **Claude Code** — **자식 수 경고 기준** <!-- en: Child count warning threshold --> · **자식 출력이 없을 때 부모에게 알리기 전 대기 시간(초)** <!-- en: Seconds without child output before notifying the parent --> (`no_output_notice_secs`, 기본 600초, 범위 60~86400초). 자세한 동작은 [Claude·Codex와 함께 쓰기 4절](../agents/claude-codex.md#4-완료-알림-받기)에 있습니다.
+- **플러그인** > **Codex** — **자식 수 경고 기준** <!-- en: Spawn child warning threshold --> · **기본 승인 정책** <!-- en: Default approval policy --> · **기본 샌드박스 모드** <!-- en: Default sandbox mode -->.
 
 웹 페이지로 그리는 서피스를 추가하는 플러그인은 직접 설치한 것이라도 HTML 과 같은 방식으로 자기 설정 페이지의 확대 · 색 구성표 · 원격 콘텐츠 허용 · 스크립트 샌드박스 값을 그 서피스에 적용합니다. 바꾸지 않은 값은 플러그인이 정한 기본값을 따르고, 확대 단축키를 지원하는 서피스에서는 단축키가 그 플러그인의 확대 값을 바꿉니다.
 
-플러그인 윈도우의 **구성** <!-- en: Configure --> 버튼도 이 페이지로 갑니다.
+플러그인 윈도우의 **설정** <!-- en: Configure --> 버튼도 이 페이지로 갑니다.
 
 라이트 테마의 신뢰됨 상자는 본문과 방패 아이콘을 짙은 초록색으로 표시합니다. 서명 판정을 뜻하며, 코드 검토나 실행 안전을 보장하는 표시는 아닙니다.
 
@@ -59,7 +59,7 @@
 - **설치 경로** <!-- en: Install path --> · **로그** <!-- en: Log --> — 상세의 마지막 절입니다. 긴 경로는 줄바꿈되어 끝까지 보이고, 드래그해 선택·복사할 수 있습니다. 머리글 줄 오른쪽 **폴더 열기** <!-- en: Open folder --> 는 설치 폴더를 파일 관리자로 엽니다. 파일 관리자를 실행하지 못하면 플러그인 윈도우에 열지 못했다는 알림이 뜹니다.
 - 상세 아래 바는 상세를 스크롤해도 늘 보입니다.
   - 왼쪽 스위치 — 옆 라벨이 **활성화** <!-- en: Enabled --> / **비활성** <!-- en: Disabled --> 를 보입니다. 라벨을 눌러도 바뀝니다. 끄면 프로세스가 정리되고, 켜면 다시 시작됩니다.
-  - **구성** <!-- en: Configure --> — 설정 윈도우의 플러그인 페이지로 이동.
+  - **설정** <!-- en: Configure --> — 설정 윈도우의 플러그인 페이지로 이동.
   - **제거** <!-- en: Uninstall --> — 누르면 이 바가 그 자리에서 확인으로 바뀝니다. **취소** <!-- en: Cancel --> 와 **제거** <!-- en: Uninstall --> 버튼이 나오고, 제거를 누르면 설치 폴더가 삭제됩니다. 플러그인 설정은 직접 지울 때까지 남습니다. **기본 제공** <!-- en: built-in --> 플러그인은 다음 실행에서 다시 설치되지 않는다는 안내가 나옵니다. 확인이 뜨면 **취소** 에 키보드 초점이 있어 Enter 로 바로 취소할 수 있고, Esc 를 눌러도 취소됩니다(다른 탭으로 옮긴 뒤에 눌러도 됩니다). 다른 플러그인을 고르면 확인이 취소되어 평소 바로 돌아갑니다.
 
 ### 확인 필요

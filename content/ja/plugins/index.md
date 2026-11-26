@@ -1,4 +1,4 @@
-<!-- source-hash: 5f2ce63d3886 -->
+<!-- source-hash: b13783033cb0 -->
 # プラグイン
 
 マークダウン・画像・HTML の表示や Claude Code・Codex との連携などは、プラグインで提供されます。標準搭載プラグインの管理や新しいプラグインのインストールができます。
@@ -37,8 +37,8 @@
 
 - **外観** <!-- en: Appearance --> > **Markdown** — マークダウンサーフェスにのみ適用するフォント設定 · **リモートコンテンツを許可** <!-- en: Allow remote content -->（既定ではオフ — 文書が読み込む外部 http/https リソースをブロックします）。
 - **外観** > **HTML** — **既定のズーム** <!-- en: Default zoom -->（%）· **カラースキーム** <!-- en: Color scheme -->（テーマに従う / ライト / ダーク）· **リモートコンテンツを許可** <!-- en: Allow remote content -->（既定ではオフ — 外部 http/https リソースをブロックします）· **スクリプトをサンドボックス化** <!-- en: Sandbox scripts -->（既定ではオン）。
-- **プラグイン** <!-- en: Plugins --> > **Claude Code** — **Spawn child 警告しきい値** <!-- en: Spawn child warning threshold --> · **子の出力がないとき親に通知するまでの待ち時間（秒）** <!-- en: Seconds without child output before notifying the parent -->（`no_output_notice_secs`、既定は 600 秒、範囲は 60~86400 秒）。詳しい動作は、[Claude・Codex と一緒に使う 第 4 節](../agents/claude-codex.md#4-完了通知を受け取る)をご覧ください。
-- **プラグイン** > **Codex** — **Spawn child 警告しきい値** · **デフォルト承認ポリシー** <!-- en: Default approval policy --> · **デフォルトサンドボックスモード** <!-- en: Default sandbox mode -->。
+- **プラグイン** <!-- en: Plugins --> > **Claude Code** — **子の数の警告しきい値** <!-- en: Child count warning threshold --> · **子の出力がないとき親に通知するまでの待ち時間（秒）** <!-- en: Seconds without child output before notifying the parent -->（`no_output_notice_secs`、既定は 600 秒、範囲は 60~86400 秒）。詳しい動作は、[Claude・Codex と一緒に使う 第 4 節](../agents/claude-codex.md#4-完了通知を受け取る)をご覧ください。
+- **プラグイン** > **Codex** — **Spawn child 警告しきい値** <!-- en: Spawn child warning threshold --> · **デフォルト承認ポリシー** <!-- en: Default approval policy --> · **デフォルトサンドボックスモード** <!-- en: Default sandbox mode -->。
 
 ウェブページで描画するサーフェスを追加するプラグインは、自分でインストールしたものでも、HTML と同じように自分の設定ページの拡大 · カラースキーム · リモートコンテンツを許可 · スクリプトをサンドボックス化の値をそのサーフェスに適用します。変更していない値はプラグインが定めた既定値に従います。拡大ショートカットに対応するサーフェスでは、ショートカットによってそのプラグインの拡大値が変わります。
 

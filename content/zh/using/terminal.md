@@ -1,4 +1,4 @@
-<!-- source-hash: 1183ed88dda7 -->
+<!-- source-hash: 5d6bf36f53f7 -->
 # 使用终端
 
 介绍在终端运行命令时复制输出、搜索和打开文件路径的方法。还可使用无需鼠标的复制模式，以及任务完成通知。
@@ -22,7 +22,7 @@ bash（4.4 及以上）和 zsh 无需额外配置即可启用 Shell 集成。标
 
 终端程序可区分与 `Shift`、`Ctrl`、`Alt` 一起按下的方向键和普通方向键。**这些组合在 macOS 上使用实际的 `Option` 键，而非 `Cmd`。**例如，程序提示 `⌥ + ↑` 时，按 `Option+↑`。具体行为由终端内的程序决定。
 
-无论 **将 Option 用作 Meta** 设置开启还是关闭，方向键组合都会传递。此设置仅决定 macOS 的 Option+字符是输入特殊字符，还是作为 Meta 键传递。已注册为 Tasty 快捷键的组合，以及被复制模式或拦截输入的叠加层接收的按键，不会发送给程序。
+无论 **将 Option 用作 Meta：** <!-- en: Use Option as Meta: --> 设置开启还是关闭，方向键组合都会传递。此设置仅决定 macOS 的 Option+字符是输入特殊字符，还是作为 Meta 键传递。已注册为 Tasty 快捷键的组合，以及被复制模式或拦截输入的叠加层接收的按键，不会发送给程序。
 
 ## 按应用设置 Shift+Enter
 
@@ -189,7 +189,7 @@ vim（`:set mouse=a`）、htop、Claude Code 等直接使用鼠标的程序运�
 
 ## 各平台说明
 
-- **macOS** — 开启 **设置** > **终端** > **将 Option 用作 Meta** <!-- en: Use Option as Meta --> 后，`Option+F` 等组合会作为 readline、Emacs 的 Meta 键传入，而非特殊字符（默认关闭）。
+- **macOS** — 开启 **设置** > **终端** > **将 Option 用作 Meta：** <!-- en: Use Option as Meta: --> 后，`Option+F` 等组合会作为 readline、Emacs 的 Meta 键传入，而非特殊字符（默认关闭）。
 - **Windows** — 从睡眠中唤醒后，终端可能无响应。Tasty 会尝试唤醒，如果仍然显示为卡住状态，会通过通知提示。此时重新打开该终端。
 - 如果不希望程序使整个屏幕闪烁（如 readline 的 visible bell），可关闭 **设置** > **终端** > **屏幕反色闪烁（DECSCNM）** <!-- en: Reverse-screen flash (DECSCNM) -->。
 

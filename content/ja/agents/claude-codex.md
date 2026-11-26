@@ -1,4 +1,4 @@
-<!-- source-hash: b8c2b93d9ba8 -->
+<!-- source-hash: 654565ce05e1 -->
 # Claude・Codex と一緒に使う
 
 Claude Code と Codex CLI を Tasty のターミナルで実行し、状態を確認します。両方の CLI は別途インストールする必要があります。複数のエージェントにタスクを分担させるには、フックと親の結果受信経路をあわせて設定してください。
@@ -125,7 +125,7 @@ tasty claude parent --surface 57                            # この子の親
 
 `tasty claude children` と `tasty codex children` のデフォルト出力は、親 ID の表です。両コマンドは `--format table|json` を受け付け、デフォルトは `table` です。それ以外の値を指定するとエラーになります。スクリプトで JSON として読み取るには、`--format json` を追加してください。以前のバージョンでデフォルト出力を JSON として読み取っていたスクリプトにも、このオプションが必要です。
 
-子が多くなりすぎると、spawn の応答に警告が付きます。しきい値は**設定** <!-- en: Settings --> › **プラグイン** <!-- en: Plugins --> › **Claude Code** / **Codex** の **Spawn child 警告しきい値** <!-- en: Spawn child warning threshold --> で変更します（Claude Code・Codex ともにデフォルトは 6）。
+子が多くなりすぎると、spawn の応答に警告が付きます。しきい値は **設定** <!-- en: Settings --> › **プラグイン** <!-- en: Plugins --> の **Claude Code** › **子の数の警告しきい値** <!-- en: Child count warning threshold --> または **Codex** › **Spawn child 警告しきい値** <!-- en: Spawn child warning threshold --> で変更できます。どちらもデフォルトは 6 です。
 
 ### Claude の子の idle チェック
 
@@ -422,7 +422,7 @@ tasty claude spawn --workspace w --profile continue-checklist
 `checklist-enable`・`checklist-disable`・`checklist-status` は、`--gate <名前>` で別の登録済みゲートを指定できます（デフォルトは `continue-checklist`）。すべてのゲートの有効状態は、`tasty claude gate-list` でまとめて確認します。
 
 - エージェントが応答の末尾に `[[TASTY-CHECKLIST-DONE]]` を入れると通過し、そうでなければチェックリストを再度受け取ります。ラウンド上限（デフォルトは 3）に達すると、自動で通過します。
-- 上限は、**設定** › **プラグイン** › **Claude Code** の**ゲートのデフォルトラウンド上限** <!-- en: Default gate round limit --> です。
+- 上限は、**設定** › **プラグイン** › **Claude Code** の**ゲートの既定ラウンド上限（ゲートが独自の値を指定しない場合）** <!-- en: Default gate round limit (used when a gate sets none) --> です。
 - 独自のゲートを作成するには、`tasty claude gate-register <名前> --body-file <ファイル> [--sentinel <文字列>] [--rounds N]` を使用します。本文にはセンチネル文字列が含まれている必要があります。`gate-list` / `gate-show` で確認してください。
 
 ## トラブルシューティング
