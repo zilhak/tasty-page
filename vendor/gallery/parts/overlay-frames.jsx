@@ -828,7 +828,10 @@ function RemoteFrame({ tab = "profiles", ssh = "hosts" }) {
           <div style={{ flex: 1, minHeight: 0, overflow: "auto", padding: "0 var(--tasty-remote-pad-x) var(--tasty-space-sm)" }}>
             <AttachRow name="host" label="us-east" mode="profile" target="→ prod-web" tasty="tasty" port="auto" />
             <AttachRow name="edge-direct" mode="inline" target="root@edge.example.com" tasty="/opt/tasty/bin/tasty" port="file-unix" />
+            {/* legacy-box exists but failed detection, so the attach reads inactive. retired-box is in no profile, so the
+                attach reads profile missing instead, with its name at full ink (the app derives both in attach_status). */}
             <AttachRow name="legacy-attach" mode="profile" target="→ legacy-box" tasty="tasty" port="subcommand" inactive />
+            <AttachRow name="old-attach" mode="profile" target="→ retired-box" tasty="tasty" port="auto" missing />
           </div>
         </>
       ) : (
