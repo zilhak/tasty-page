@@ -183,13 +183,24 @@ function XListRow({ glyph, name, state, glyphColor }) {
   const icon = ink ? <span style={{ display: "inline-flex", color: ink }}>{glyph}</span> : glyph;
   return <XDS.TreeRow label={name} icon={icon} selected={selected} />;
 }
+// The Grid view's name editor, as the app draws it (explorer_name_row_in, Grid layout): the cell itself, at the Grid
+// cell's width and height (three name lines reserved), on surface-active with the radius. The glyph is icon-size-md in
+// text-on-active, centred in the thumb slot space-sm from the top. The field is field-width-md wide, centred on the
+// cell and space-xs under the slot, so it hangs over the cells beside it and over the name lines. The error box starts
+// under the field, at its left edge.
+const X_GRID_EDIT_H = "calc(2 * var(--tasty-space-sm) + 1 * var(--tasty-explorer-grid-thumb-size) + 1 * var(--tasty-space-xs) + 3 * var(--tasty-explorer-grid-label-line-height))";
+const X_GRID_EDIT_FIELD_TOP = "calc(1 * var(--tasty-space-sm) + 1 * var(--tasty-explorer-grid-thumb-size) + 1 * var(--tasty-space-xs))";
+const X_GRID_EDIT_FIELD_LEFT = "calc(0.5 * var(--tasty-explorer-grid-cell-width) + -0.5 * var(--tasty-field-width-md))";
 function XGridEdit({ glyph = XK.ic.file, value = "untitled.txt", error }) {
   return (
-    <div style={{ position: "relative", width: "var(--tasty-explorer-grid-cell-width)", display: "flex", flexDirection: "column", alignItems: "center", gap: "var(--tasty-space-xs)", padding: "var(--tasty-space-sm) var(--tasty-space-xs)", borderRadius: "var(--tasty-radius)", background: "var(--tasty-surface-active)" }}>
-      <span style={{ display: "inline-flex", height: "var(--tasty-explorer-grid-thumb-size)", alignItems: "center", color: "var(--tasty-text-secondary)" }}>{glyph}</span>
-      <span style={{ width: "var(--tasty-size-160)", alignSelf: "center", zIndex: 1 }}><XInput block defaultValue={value} invalid={!!error} /></span>
-      <span style={{ height: "var(--tasty-explorer-grid-label-line-height)" }} />
-      {error && <XNameError text={error} left={-36} />}
+    <div style={{ position: "relative", flex: "none", width: "var(--tasty-explorer-grid-cell-width)", height: X_GRID_EDIT_H, borderRadius: "var(--tasty-radius)", background: "var(--tasty-surface-active)" }}>
+      <span style={{ position: "absolute", top: "var(--tasty-space-sm)", left: 0, right: 0, height: "var(--tasty-explorer-grid-thumb-size)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--tasty-text-on-active)" }}>
+        {React.isValidElement(glyph) ? React.cloneElement(glyph, { size: "var(--tasty-icon-size-md)" }) : glyph}
+      </span>
+      <span style={{ position: "absolute", top: X_GRID_EDIT_FIELD_TOP, left: X_GRID_EDIT_FIELD_LEFT, width: "var(--tasty-field-width-md)", zIndex: 1 }}>
+        <XInput block defaultValue={value} invalid={!!error} />
+        {error && <XNameError text={error} left={0} />}
+      </span>
     </div>
   );
 }
