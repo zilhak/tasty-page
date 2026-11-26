@@ -7,7 +7,7 @@ Each test writes three small token CSS files to a temporary directory and runs t
 check as a command (and once as a function). A rejected case must exit 1 and name the
 rule, the token, the target and the theme, or the file and line.
 """
-import os, re, subprocess, sys, tempfile, unittest
+import collections, os, re, subprocess, sys, tempfile, unittest
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 SCRIPT = os.path.join(HERE, "verify_token_tiers.py")
@@ -154,6 +154,9 @@ class Canon(Base):
         # declaration counts are compared with the token JSON checker, which reads the
         # CSS with gen_tokens_json.parse(), and each breakdown must add up to its total.
         # What each count means is pinned on the small inputs in test_defaults_pass_and_count.
+        # The literal kinds must match LITERALS counted by kind: the check skips a listed
+        # name that is missing or reads a var(), so this asks that each listed name be
+        # declared once in the base component block as a literal.
         vendor = os.path.join(HERE, "..", "..", "vendor")
         r = subprocess.run([sys.executable, "-B", SCRIPT, vendor], capture_output=True, text=True)
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
@@ -174,6 +177,7 @@ class Canon(Base):
         self.assertEqual(got["primitive-latte"], (0, 0, 0, 0))
         total, kinds = got["literals"]
         self.assertEqual(total, sum(kinds.values()))
+        self.assertEqual(kinds, dict(collections.Counter(vt.LITERALS.values())))
 
     def test_defaults_pass_and_count(self):
         out = self.ok(files(sem_latte={"accent": "var(--tasty-color-base)", "focus": "var(--tasty-bg)"},
@@ -182,7 +186,8 @@ class Canon(Base):
         got = count_lines(out)
         # 11 primitives, 3 semantic and 2 + 1 component tokens, plus the 9 literal ones;
         # Latte: 2 semantic and 1 component. var(): 3 semantic and 3 component in the
-        # base blocks, all 3 Latte values. Latte has a same-tier reference in each tier.
+        # base blocks, all 3 Latte values. Latte has a same-tier reference in the semantic
+        # and component tiers.
         self.assertEqual(got["declarations"], (len(PRIMITIVE) + len(SEMANTIC) + len(COMPONENT) + 1 + len(LITERAL_DECLS), 3))
         self.assertEqual(got["references"], (6, 3))
         self.assertEqual(got["primitive-base"], (1, 1, 0, 0))
