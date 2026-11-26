@@ -121,10 +121,10 @@ function RemoteWriteSection() {
         when={<>A remote running a new Tasty shows the write rows exactly like local. A remote that <b>can't</b> write (its server doesn't announce remote writes, as an older Tasty, or the connection is gone) now <b>shows the rows disabled</b> (option b) instead of hiding them. Reason: the rows tell the user the command exists and where it went; hiding them made the menu look broken next to a writable remote in the next cell. The native menu can only grey a row and add a tooltip (Linux, macOS); Windows shows no tooltip, so the shortcut path keeps the <b>toast</b>, and the toast now names the reason. Two reasons, two strings: an older Tasty on the host gets the update hint, any other refusal (no connection details, a connection that is closing) the general “not supported in a mirror yet” line. The toolbar create group follows the same rule (disabled, tooltip = reason), the same way a local folder without write access does.</>}>
         <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 18, flexWrap: "wrap", alignItems: "flex-start" }}>
           <K.CtxMenu title="Writable remote (new Tasty)">
-            <MenuItem label="Copy path" icon={K.ic.link} />
+            <MenuItem label="Copy Path" icon={K.ic.link} />
             <MenuItem label="Copy" icon={K.ic.copy} shortcut={<Kbd keys="Ctrl+C" />} />
             <MenuItem label="Cut" icon={K.ic.scissors} shortcut={<Kbd keys="Ctrl+X" />} />
-            <MenuItem label="Paste into" icon={K.ic.paste} />
+            <MenuItem label="Paste (into)" icon={K.ic.paste} />
             <MenuItem separator />
             <MenuItem label="New folder" icon={<Icon name="folderPlus" />} />
             <MenuItem label="New file" icon={<Icon name="filePlus" />} />
@@ -133,10 +133,10 @@ function RemoteWriteSection() {
           </K.CtxMenu>
           <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
             <K.CtxMenu title="Remote that can't write — disabled">
-              <MenuItem label="Copy path" icon={K.ic.link} />
+              <MenuItem label="Copy Path" icon={K.ic.link} />
               <MenuItem label="Copy" icon={K.ic.copy} shortcut={<Kbd keys="Ctrl+C" />} />
               <MenuItem label="Cut" icon={K.ic.scissors} disabled />
-              <MenuItem label="Paste into" icon={K.ic.paste} disabled />
+              <MenuItem label="Paste (into)" icon={K.ic.paste} disabled />
               <MenuItem separator />
               <MenuItem label="New folder" icon={<Icon name="folderPlus" />} disabled />
               <MenuItem label="New file" icon={<Icon name="filePlus" />} disabled />
@@ -165,7 +165,7 @@ function RemoteWriteSection() {
           </View>
         </Views>
         <Meta
-          specs={[["choice", "(b) show disabled · tooltip = reason (Linux / macOS)"], ["rows", "Cut · Paste · New folder · New file · Rename · Move to Trash"], ["read rows", "Copy path · Copy · Open stay enabled"], ["toolbar", "create group disabled · tooltip = reason"], ["shortcut", "info toast in the cell · the same reason string"], ["reasons", "host doesn't announce remote writes (older Tasty) → explorer.remote.write_needs_update · any other refusal (no connection details, closing) → explorer.state.remote_write_unsupported"], ["no host", "no profile name (--ssh, --target-port, a profile saved with an empty name) → explorer.remote.write_needs_update_no_host() · never 127.0.0.1:<port>"]]}
+          specs={[["choice", "(b) show disabled · tooltip = reason (Linux / macOS)"], ["rows", "Cut · Paste · New folder · New file · Rename · Move to Trash"], ["read rows", "Copy Path · Copy · Open stay enabled"], ["toolbar", "create group disabled · tooltip = reason"], ["shortcut", "info toast in the cell · the same reason string"], ["reasons", "host doesn't announce remote writes (older Tasty) → explorer.remote.write_needs_update · any other refusal (no connection details, closing) → explorer.state.remote_write_unsupported"], ["no host", "no profile name (--ssh, --target-port, a profile saved with an empty name) → explorer.remote.write_needs_update_no_host() · never 127.0.0.1:<port>"]]}
           tokens={[{ tok: "--tasty-state-disabled-fg", use: "disabled row / button", color: "var(--tasty-state-disabled-fg)" }, { tok: "--tasty-toast-accent-info", use: "reason toast", color: "var(--tasty-toast-accent-info)" }]} />
         <Note>i18n: <code>explorer.remote.write_needs_update</code> “Update Tasty on {"{host}"} to change remote files.” / “{"{host}"}의 Tasty를 업데이트하면 원격 파일을 바꿀 수 있습니다.” / “{"{host}"} の Tasty を更新すると、リモートのファイルを変更できます。” / “更新 {"{host}"} 上的 Tasty 以更改远程文件。” · <code>explorer.state.remote_write_unsupported</code> “This action isn't supported in a mirrored remote explorer yet.” / “미러링된 원격 탐색기에서는 이 작업을 아직 지원하지 않습니다.” / “ミラーされたリモートエクスプローラーではこの操作をまだサポートしていません。” / “远程文件浏览器镜像暂不支持此操作。”. Both keys exist today; no new key. The general key stays as the fallback for every refusal that isn't an older Tasty. Tooltip and toast share the key, in the same order as D6's reason order.</Note>
       </Spec>
@@ -302,11 +302,11 @@ function RemoteWriteSection() {
       </Spec>
 
       <Spec id="d6-rows-a-mirror-can-t-run-shown-disabled" title="D6 · Rows a mirror can't run — shown disabled, reason in the tooltip"
-        when={<>In a <b>mirror</b> (remote) cell, rows that work in a local cell but can't run here stay in their place, <b>disabled</b>, instead of being left out: <b>Open in system</b> and <b>Show in Finder / File Explorer / File Manager</b> with their separator, <b>Open in new tab</b> (folder and favorite rows), and <b>Undo · Redo</b> in the empty-area menu (bare labels, as with an empty history). <b>Paste</b> and <b>Paste into</b> are disabled when the clipboard list comes from another source (a mirror's list in a local cell or another connection, a local list in a mirror). A row shows <b>one</b> reason, in the order the shortcut path checks: when the target is a remote that can't write, the write refusal wins over the source reason (<code>explorer.remote.write_needs_update</code> for an older Tasty on the host, otherwise <code>explorer.state.remote_write_unsupported</code>, the same keys the paste shortcut's toast picks), so the tooltip and the toast always agree. One rule picks the reason: a disabled native row carries a <b>reason tooltip</b> (Linux, macOS) when the cause is not on screen, and stays <b>bare</b> when the cause is the plain absence of something (empty history, no selection, nothing held). Every row here is the first kind: a mirror cell looks like a local folder, so a grey row alone reads as broken. Windows popup menus have no item tooltips, and these labels are <b>not swapped</b> for the reason there: unlike a stale Undo (Undo / Redo rows › stale), a bare greyed “Open in system” or “Undo” does not name a step that looks runnable, so Windows shows the same rows without the tooltip, as in D1.</>}>
+        when={<>In a <b>mirror</b> (remote) cell, rows that work in a local cell but can't run here stay in their place, <b>disabled</b>, instead of being left out: <b>Open in system</b> and <b>Show in Finder / File Explorer / File Manager</b> with their separator, <b>Open in New Tab</b> (folder and favorite rows), and <b>Undo · Redo</b> in the empty-area menu (bare labels, as with an empty history). <b>Paste</b> and <b>Paste (into)</b> are disabled when the clipboard list comes from another source (a mirror's list in a local cell or another connection, a local list in a mirror). A row shows <b>one</b> reason, in the order the shortcut path checks: when the target is a remote that can't write, the write refusal wins over the source reason (<code>explorer.remote.write_needs_update</code> for an older Tasty on the host, otherwise <code>explorer.state.remote_write_unsupported</code>, the same keys the paste shortcut's toast picks), so the tooltip and the toast always agree. One rule picks the reason: a disabled native row carries a <b>reason tooltip</b> (Linux, macOS) when the cause is not on screen, and stays <b>bare</b> when the cause is the plain absence of something (empty history, no selection, nothing held). Every row here is the first kind: a mirror cell looks like a local folder, so a grey row alone reads as broken. Windows popup menus have no item tooltips, and these labels are <b>not swapped</b> for the reason there: unlike a stale Undo (Undo / Redo rows › stale), a bare greyed “Open in system” or “Undo” does not name a step that looks runnable, so Windows shows the same rows without the tooltip, as in D1.</>}>
         <Stage variant="solo center" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
           <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
             <K.CtxMenu title="Mirror · one file · Linux">
-              <MenuItem label="Copy path" icon={K.ic.link} />
+              <MenuItem label="Copy Path" icon={K.ic.link} />
               <MenuItem label="Copy" icon={K.ic.copy} shortcut={<Kbd keys="Ctrl+C" />} />
               <MenuItem label="Cut" icon={K.ic.scissors} shortcut={<Kbd keys="Ctrl+X" />} />
               <MenuItem separator />
@@ -322,25 +322,25 @@ function RemoteWriteSection() {
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
             <K.CtxMenu title="Mirror · one folder · top of the menu">
-              <MenuItem label="Copy path" icon={K.ic.link} />
+              <MenuItem label="Copy Path" icon={K.ic.link} />
               <MenuItem label="Add to Favorites" icon={K.ic.star} />
-              <MenuItem label="Open in new tab" disabled title={MIRROR_REASON.newTab.en} />
-              <MenuItem label="Set as root" />
+              <MenuItem label="Open in New Tab" disabled title={MIRROR_REASON.newTab.en} />
+              <MenuItem label="Set as Root" />
             </K.CtxMenu>
             <Tip>{MIRROR_REASON.newTab.en}</Tip>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
             <K.CtxMenu title="Mirror · favorite row">
-              <MenuItem label="Open in new tab" disabled title={MIRROR_REASON.newTab.en} />
-              <MenuItem label="Set as root" />
+              <MenuItem label="Open in New Tab" disabled title={MIRROR_REASON.newTab.en} />
+              <MenuItem label="Set as Root" />
               <MenuItem separator />
-              <MenuItem label="Remove from favorites" />
+              <MenuItem label="Remove from Favorites" />
             </K.CtxMenu>
             <Tip>{MIRROR_REASON.newTab.en}</Tip>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
             <K.CtxMenu title="Mirror · empty area">
-              <MenuItem label="Copy path" icon={K.ic.link} />
+              <MenuItem label="Copy Path" icon={K.ic.link} />
               <MenuItem label="Paste" icon={K.ic.paste} shortcut={<Kbd keys="Ctrl+V" />} />
               <MenuItem separator />
               <MenuItem label="Undo" shortcut={<Kbd keys="Ctrl+Z" />} disabled title={MIRROR_REASON.undo.en} />
@@ -352,20 +352,20 @@ function RemoteWriteSection() {
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
             <K.CtxMenu title="Local · empty area · a mirror's list held">
-              <MenuItem label="Copy path" icon={K.ic.link} />
+              <MenuItem label="Copy Path" icon={K.ic.link} />
               <MenuItem label="Add to Favorites" icon={K.ic.star} />
               <MenuItem separator />
               <MenuItem label="Paste" icon={K.ic.paste} shortcut={<Kbd keys="Ctrl+V" />} disabled title={MIRROR_REASON.pasteRemote.en} />
             </K.CtxMenu>
             <Tip>{MIRROR_REASON.pasteRemote.en}</Tip>
             <K.CtxMenu title="Mirror · one folder · a local list held · top of the menu">
-              <MenuItem label="Copy path" icon={K.ic.link} />
+              <MenuItem label="Copy Path" icon={K.ic.link} />
               <MenuItem label="Add to Favorites" icon={K.ic.star} />
-              <MenuItem label="Open in new tab" disabled title={MIRROR_REASON.newTab.en} />
-              <MenuItem label="Set as root" />
+              <MenuItem label="Open in New Tab" disabled title={MIRROR_REASON.newTab.en} />
+              <MenuItem label="Set as Root" />
               <MenuItem label="Copy" icon={K.ic.copy} shortcut={<Kbd keys="Ctrl+C" />} />
               <MenuItem label="Cut" icon={K.ic.scissors} shortcut={<Kbd keys="Ctrl+X" />} />
-              <MenuItem label="Paste into" icon={K.ic.paste} disabled title={MIRROR_REASON.pasteCross.en} />
+              <MenuItem label="Paste (into)" icon={K.ic.paste} disabled title={MIRROR_REASON.pasteCross.en} />
             </K.CtxMenu>
             <Tip>{MIRROR_REASON.pasteCross.en}</Tip>
           </div>
@@ -374,7 +374,7 @@ function RemoteWriteSection() {
           <View name="mirror-disabled-windows" label="Windows — each menu as on Linux, same rows and separators, no tooltip, labels kept" wide>
             <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-lg)", alignItems: "flex-start" }}>
               <K.CtxMenu title="Mirror · one file">
-                <MenuItem label="Copy path" icon={K.ic.link} />
+                <MenuItem label="Copy Path" icon={K.ic.link} />
                 <MenuItem label="Copy" icon={K.ic.copy} shortcut={<Kbd keys="Ctrl+C" />} />
                 <MenuItem label="Cut" icon={K.ic.scissors} shortcut={<Kbd keys="Ctrl+X" />} />
                 <MenuItem separator />
@@ -387,19 +387,19 @@ function RemoteWriteSection() {
                 <MenuItem label="Properties" icon={<Icon name="info" />} />
               </K.CtxMenu>
               <K.CtxMenu title="Mirror · one folder · top of the menu">
-                <MenuItem label="Copy path" icon={K.ic.link} />
+                <MenuItem label="Copy Path" icon={K.ic.link} />
                 <MenuItem label="Add to Favorites" icon={K.ic.star} />
-                <MenuItem label="Open in new tab" disabled />
-                <MenuItem label="Set as root" />
+                <MenuItem label="Open in New Tab" disabled />
+                <MenuItem label="Set as Root" />
               </K.CtxMenu>
               <K.CtxMenu title="Mirror · favorite row">
-                <MenuItem label="Open in new tab" disabled />
-                <MenuItem label="Set as root" />
+                <MenuItem label="Open in New Tab" disabled />
+                <MenuItem label="Set as Root" />
                 <MenuItem separator />
-                <MenuItem label="Remove from favorites" />
+                <MenuItem label="Remove from Favorites" />
               </K.CtxMenu>
               <K.CtxMenu title="Mirror · empty area">
-                <MenuItem label="Copy path" icon={K.ic.link} />
+                <MenuItem label="Copy Path" icon={K.ic.link} />
                 <MenuItem label="Paste" icon={K.ic.paste} shortcut={<Kbd keys="Ctrl+V" />} />
                 <MenuItem separator />
                 <MenuItem label="Undo" shortcut={<Kbd keys="Ctrl+Z" />} disabled />
@@ -408,19 +408,19 @@ function RemoteWriteSection() {
                 <MenuItem label="Properties" icon={<Icon name="info" />} />
               </K.CtxMenu>
               <K.CtxMenu title="Local · empty area · a mirror's list held">
-                <MenuItem label="Copy path" icon={K.ic.link} />
+                <MenuItem label="Copy Path" icon={K.ic.link} />
                 <MenuItem label="Add to Favorites" icon={K.ic.star} />
                 <MenuItem separator />
                 <MenuItem label="Paste" icon={K.ic.paste} shortcut={<Kbd keys="Ctrl+V" />} disabled />
               </K.CtxMenu>
               <K.CtxMenu title="Mirror · one folder · a local list held · top of the menu">
-                <MenuItem label="Copy path" icon={K.ic.link} />
+                <MenuItem label="Copy Path" icon={K.ic.link} />
                 <MenuItem label="Add to Favorites" icon={K.ic.star} />
-                <MenuItem label="Open in new tab" disabled />
-                <MenuItem label="Set as root" />
+                <MenuItem label="Open in New Tab" disabled />
+                <MenuItem label="Set as Root" />
                 <MenuItem label="Copy" icon={K.ic.copy} shortcut={<Kbd keys="Ctrl+C" />} />
                 <MenuItem label="Cut" icon={K.ic.scissors} shortcut={<Kbd keys="Ctrl+X" />} />
-                <MenuItem label="Paste into" icon={K.ic.paste} disabled />
+                <MenuItem label="Paste (into)" icon={K.ic.paste} disabled />
               </K.CtxMenu>
             </div>
           </View>
@@ -438,7 +438,7 @@ function RemoteWriteSection() {
           </View>
         </Views>
         <Meta
-          specs={[["rule", "a row that waits on the cell's or the clipboard's state is disabled, never left out · a row the target's kind never takes is left out"], ["reason shown", "tooltip when the cause is off screen · bare when it is the plain absence of something (empty history, no selection, nothing held)"], ["Open in system · Show in …", "mirror: both disabled, separator kept · tooltip local_only_reason · several items: Open in system alone, the same"], ["Open in new tab", "mirror folder row and mirror favorite row: disabled in its current place · folder: Copy path · Add to Favorites · Open in new tab · Set as root · … · favorite: Open in new tab · Set as root | Remove from favorites · tooltip new_tab_remote_reason"], ["Undo · Redo", "mirror empty area: the group is always there · bare “Undo” / “Redo” disabled, shortcut column kept · both rows tooltip undo_remote_reason"], ["Paste · Paste into", "list from another source: disabled · tooltip = the toast the shortcut already shows (remote_paste_unsupported, cross_computer_paste_unsupported) · empty clipboard stays bare"], ["reason order", "one reason per row, in the shortcut path's order: a target remote that can't write → the write refusal the paste shortcut shows wins, even with a list from another source: an older Tasty on the host → explorer.remote.write_needs_update · any other refusal (no connection details, …) → explorer.state.remote_write_unsupported · else a list from another source → its paste reason · else an empty list → bare"], ["Windows", "the same menus, rows and separators (Views › Windows) · no item tooltips · labels not swapped (the stale Undo keeps its label swap) · the shortcut path keeps its toast"], ["ink", "disabled rows only (OS-drawn) · no reason line in the menu"]]}
+          specs={[["rule", "a row that waits on the cell's or the clipboard's state is disabled, never left out · a row the target's kind never takes is left out"], ["reason shown", "tooltip when the cause is off screen · bare when it is the plain absence of something (empty history, no selection, nothing held)"], ["Open in system · Show in …", "mirror: both disabled, separator kept · tooltip local_only_reason · several items: Open in system alone, the same"], ["Open in New Tab", "mirror folder row and mirror favorite row: disabled in its current place · folder: Copy Path · Add to Favorites · Open in New Tab · Set as Root · … · favorite: Open in New Tab · Set as Root | Remove from Favorites · tooltip new_tab_remote_reason"], ["Undo · Redo", "mirror empty area: the group is always there · bare “Undo” / “Redo” disabled, shortcut column kept · both rows tooltip undo_remote_reason"], ["Paste · Paste (into)", "list from another source: disabled · tooltip = the toast the shortcut already shows (remote_paste_unsupported, cross_computer_paste_unsupported) · empty clipboard stays bare"], ["reason order", "one reason per row, in the shortcut path's order: a target remote that can't write → the write refusal the paste shortcut shows wins, even with a list from another source: an older Tasty on the host → explorer.remote.write_needs_update · any other refusal (no connection details, …) → explorer.state.remote_write_unsupported · else a list from another source → its paste reason · else an empty list → bare"], ["Windows", "the same menus, rows and separators (Views › Windows) · no item tooltips · labels not swapped (the stale Undo keeps its label swap) · the shortcut path keeps its toast"], ["ink", "disabled rows only (OS-drawn) · no reason line in the menu"]]}
           tokens={[{ tok: "--tasty-state-disabled-fg", use: "disabled row (kit; the OS draws it in the app)", color: "var(--tasty-state-disabled-fg)" }, { tok: "--tasty-tooltip-fg", use: "reason tooltip text (Tooltip contract; OS-drawn in the app)", color: "var(--tasty-tooltip-fg)" }, { tok: "--tasty-tooltip-border", use: "reason tooltip edge", color: "var(--tasty-tooltip-border)" }]} />
         <Note>i18n (new, in <code>[explorer.menu]</code>): <code>local_only_reason</code> “{MIRROR_REASON.localOnly.en}” / “{MIRROR_REASON.localOnly.ko}” / “{MIRROR_REASON.localOnly.ja}” / “{MIRROR_REASON.localOnly["zh-Hans"]}” · <code>new_tab_remote_reason</code> “{MIRROR_REASON.newTab.en}” / “{MIRROR_REASON.newTab.ko}” / “{MIRROR_REASON.newTab.ja}” / “{MIRROR_REASON.newTab["zh-Hans"]}” · <code>undo_remote_reason</code> “{MIRROR_REASON.undo.en}” / “{MIRROR_REASON.undo.ko}” / “{MIRROR_REASON.undo.ja}” / “{MIRROR_REASON.undo["zh-Hans"]}”. Reused as is: <code>explorer.state.remote_paste_unsupported</code> and <code>explorer.state.cross_computer_paste_unsupported</code>; tooltip and toast share the key, as in D1. Undo and Redo share <code>undo_remote_reason</code>. Row labels keep their keys: <code>explorer.context_menu.open_in_system</code>, <code>.reveal_finder</code> / <code>.reveal_explorer</code> / <code>.reveal_files</code>, <code>.open_in_new_tab</code>, <code>.set_as_root</code>, <code>.add_to_favorites</code>, <code>.remove_from_favorites</code>, <code>.paste</code>, <code>.paste_into</code>; <code>explorer.menu.undo_none</code>, <code>.redo_none</code>. The new reasons sit in <code>[explorer.menu]</code>, beside the Undo rows.</Note>
       </Spec>

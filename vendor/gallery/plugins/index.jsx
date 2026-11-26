@@ -878,12 +878,12 @@ function Page() {
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)" }}>
             <div style={{ display: "flex", gap: 18, flexWrap: "wrap", justifyContent: "center" }}>
               <CtxMenu title="Background (empty area) → cwd · a pasteable list held">
-                <MenuItem label="Copy path" icon={ic.link} />
+                <MenuItem label="Copy Path" icon={ic.link} />
                 <MenuItem label="Add to Favorites" icon={ic.star} />
                 <MenuItem label="Paste" icon={ic.paste} shortcut={<Kbd keys="Ctrl+V" />} />
               </CtxMenu>
               <CtxMenu title="Single file">
-                <MenuItem label="Copy path" icon={ic.link} />
+                <MenuItem label="Copy Path" icon={ic.link} />
                 <MenuItem label="Copy" icon={ic.copy} shortcut={<Kbd keys="Ctrl+C" />} />
                 <MenuItem label="Cut" icon={ic.scissors} shortcut={<Kbd keys="Ctrl+X" />} />
                 <MenuItem separator />
@@ -896,11 +896,11 @@ function Page() {
                 <MenuItem label="Properties" icon={<PIcon name="info" />} />
               </CtxMenu>
               <CtxMenu title="Single folder · a pasteable list held">
-                <MenuItem label="Copy path" icon={ic.link} />
+                <MenuItem label="Copy Path" icon={ic.link} />
                 <MenuItem label="Add to Favorites" icon={ic.star} />
                 <MenuItem label="Copy" icon={ic.copy} shortcut={<Kbd keys="Ctrl+C" />} />
                 <MenuItem label="Cut" icon={ic.scissors} shortcut={<Kbd keys="Ctrl+X" />} />
-                <MenuItem label="Paste into" icon={ic.paste} />
+                <MenuItem label="Paste (into)" icon={ic.paste} />
                 <MenuItem separator />
                 <MenuItem label="Rename" icon={ic.rename} shortcut={<Kbd keys="F2" />} />
                 <MenuItem label="Move to Trash" icon={ic.trash} danger shortcut={<Kbd keys="Del" />} />
@@ -911,7 +911,7 @@ function Page() {
                 <MenuItem label="Properties" icon={<PIcon name="info" />} />
               </CtxMenu>
               <CtxMenu title="Multiple selected (3)">
-                <MenuItem label="Copy paths" icon={ic.link} />
+                <MenuItem label="Copy Paths" icon={ic.link} />
                 <MenuItem label="Copy" icon={ic.copy} shortcut={<Kbd keys="Ctrl+C" />} />
                 <MenuItem label="Cut" icon={ic.scissors} shortcut={<Kbd keys="Ctrl+X" />} />
                 <MenuItem separator />

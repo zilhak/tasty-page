@@ -217,18 +217,18 @@ function CreateSection() {
               <XMenuItem label="New folder" icon={<XIcon name="folderPlus" />} />
               <XMenuItem label="New file" icon={<XIcon name="filePlus" />} />
               <XMenuItem separator />
-              <XMenuItem label="Copy path" icon={XK.ic.link} />
+              <XMenuItem label="Copy Path" icon={XK.ic.link} />
               <XMenuItem label="Add to Favorites" icon={XK.ic.star} />
               <XMenuItem label="Paste" icon={XK.ic.paste} shortcut={<XKbd keys="Ctrl+V" />} />
               <XMenuItem separator />
               <XMenuItem label="Properties" icon={<XIcon name="info" />} />
             </XK.CtxMenu>
             <XK.CtxMenu title="Single folder">
-              <XMenuItem label="Copy path" icon={XK.ic.link} />
+              <XMenuItem label="Copy Path" icon={XK.ic.link} />
               <XMenuItem label="Add to Favorites" icon={XK.ic.star} />
               <XMenuItem label="Copy" icon={XK.ic.copy} shortcut={<XKbd keys="Ctrl+C" />} />
               <XMenuItem label="Cut" icon={XK.ic.scissors} shortcut={<XKbd keys="Ctrl+X" />} />
-              <XMenuItem label="Paste into" icon={XK.ic.paste} />
+              <XMenuItem label="Paste (into)" icon={XK.ic.paste} />
               <XMenuItem separator />
               <XMenuItem label="New folder" icon={<XIcon name="folderPlus" />} />
               <XMenuItem label="New file" icon={<XIcon name="filePlus" />} />

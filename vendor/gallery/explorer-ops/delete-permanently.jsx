@@ -35,7 +35,7 @@ function PermanentDeleteSection() {
         <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 18, flexWrap: "wrap", alignItems: "flex-start" }}>
           {[["Windows / Linux", "Shift+Delete"], ["macOS", "⌘⌥⌫"]].map(([os, key]) => (
             <K.CtxMenu key={os} title={"File · " + os}>
-              <MenuItem label="Copy path" icon={K.ic.link} />
+              <MenuItem label="Copy Path" icon={K.ic.link} />
               <MenuItem label="Copy" icon={K.ic.copy} shortcut={<Kbd keys={os === "macOS" ? "⌘C" : "Ctrl+C"} />} />
               <MenuItem label="Cut" icon={K.ic.scissors} shortcut={<Kbd keys={os === "macOS" ? "⌘X" : "Ctrl+X"} />} />
               <MenuItem separator />

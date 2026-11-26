@@ -13,7 +13,7 @@ function ZBrokenMenu({ tip = false }) {
     <div style={zMenu}>
       <ZMenuItem label="Show in enclosing folder" disabled title={tip ? ZBROKEN : undefined} />
       <ZMenuItem separator />
-      <ZMenuItem label="Copy path" />
+      <ZMenuItem label="Copy Path" />
       <ZMenuItem label="Copy" shortcut="Ctrl+C" />
       <ZMenuItem label="Cut" shortcut="Ctrl+X" />
     </div>
@@ -112,7 +112,7 @@ function RemainingSection() {
               <ZMenuItem label="Open" />
               <ZMenuItem icon={<ZIcon name="folderOpen" />} label="Show in enclosing folder" />
               <ZMenuItem separator />
-              <ZMenuItem label="Copy path" />
+              <ZMenuItem label="Copy Path" />
             </div>
           </XCol>
           <XCol label="search result — native menu (Linux · macOS, 2026-10-14)">
@@ -120,7 +120,7 @@ function RemainingSection() {
               <ZMenuItem label="Open" />
               <ZMenuItem label="Show in enclosing folder" />
               <ZMenuItem separator />
-              <ZMenuItem label="Copy path" />
+              <ZMenuItem label="Copy Path" />
               <ZMenuItem label="Copy" shortcut="Ctrl+C" />
               <ZMenuItem label="Cut" shortcut="Ctrl+X" />
               <ZMenuItem separator />
@@ -158,7 +158,7 @@ function RemainingSection() {
           </ZView>
         </ZViews>
         <ZMeta
-          specs={[["hidden toggle", "More row · action words · Ctrl+Shift+. / ⌘⇧. · default off · per explorer, remembered"], ["hidden shown", "name + glyph explorer-hidden-fg (→ text-muted) · no opacity"], ["hidden off", "status “{n} items · {h} hidden”"], ["show in folder", "opens the real parent · selects + current item · scrolls into view · no flash"], ["broken link", "local cell, one item: Show in enclosing folder disabled, separator kept · tooltip explorer.state.broken_link with the target path (Linux · macOS) · Windows: no tooltip, label kept · search result: no Open, the same disabled row first · permission error, loop: no row (unchanged) · mirror: no row (unchanged here)"], ["search result · native", "Open · Show in enclosing folder · separator · the item's usual file menu from Copy path on · no glyphs (OS menu) · Open = file → default handler, folder → navigate into it"], ["redo", "context menu beside Undo · Ctrl+Shift+Z · Ctrl+Y · ⌘⇧Z"], ["history", "10 steps per explorer · no list · stale step = disabled row + tooltip reason"], ["Undo card", "unchanged — one step, no Redo button"]]}
+          specs={[["hidden toggle", "More row · action words · Ctrl+Shift+. / ⌘⇧. · default off · per explorer, remembered"], ["hidden shown", "name + glyph explorer-hidden-fg (→ text-muted) · no opacity"], ["hidden off", "status “{n} items · {h} hidden”"], ["show in folder", "opens the real parent · selects + current item · scrolls into view · no flash"], ["broken link", "local cell, one item: Show in enclosing folder disabled, separator kept · tooltip explorer.state.broken_link with the target path (Linux · macOS) · Windows: no tooltip, label kept · search result: no Open, the same disabled row first · permission error, loop: no row (unchanged) · mirror: no row (unchanged here)"], ["search result · native", "Open · Show in enclosing folder · separator · the item's usual file menu from Copy Path on · no glyphs (OS menu) · Open = file → default handler, folder → navigate into it"], ["redo", "context menu beside Undo · Ctrl+Shift+Z · Ctrl+Y · ⌘⇧Z"], ["history", "10 steps per explorer · no list · stale step = disabled row + tooltip reason"], ["Undo card", "unchanged — one step, no Redo button"]]}
           tokens={[{ tok: "--tasty-explorer-hidden-fg", use: "→ text-muted", color: "var(--tasty-explorer-hidden-fg)" }]} />
         <ZNote>i18n: <code>explorer.more.hidden_show</code> “Show hidden files” / “숨김 파일 보기” / “隠しファイルを表示” · <code>.hidden_hide</code> “Hide hidden files” / “숨김 파일 숨기기” / “隠しファイルを非表示” · <code>explorer.status.hidden</code> “{"{n}"} hidden” / “숨김 {"{n}"}개” / “非表示 {"{n}"}” · <code>explorer.menu.show_in_folder</code> “Show in enclosing folder” / “들어 있는 폴더에서 보기” / “含まれているフォルダで表示” · <code>explorer.menu.redo</code> “Redo {"{op}"}” / “다시 실행: {"{op}"}” / “やり直す: {"{op}"}” · <code>explorer.menu.undo_stale</code> “Can't undo: {"{reason}"}” / “되돌릴 수 없음: {"{reason}"}” / “元に戻せません: {"{reason}"}”.</ZNote>
       </ZSpec>
