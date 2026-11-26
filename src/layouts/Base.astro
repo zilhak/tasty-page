@@ -41,7 +41,6 @@ const hasOtherLanguage = announceLanguages && listed.length > 1;
 const defaultHref = hrefs[DEFAULT_LANG];
 const D2CODING_SOURCE = "https://github.com/naver/d2-coding-font";
 const LUCIDE_SOURCE = "https://lucide.dev";
-const footerIconSpace = lang === "zh-Hans" ? "" : " ";
 ---
 <html lang={s.lang} data-theme-default="mocha" data-design-zone={active === "design" ? "" : undefined}>
   <head>
@@ -190,10 +189,10 @@ const footerIconSpace = lang === "zh-Hans" ? "" : " ";
       </p>
       <p class="site-footer__font">
         <span>
-          {s.footerIconNote}{footerIconSpace}Lucide&nbsp;<a href={url("icons/LICENSE-lucide.txt")}>{s.footerIconLicense}</a>
+          {s.footerIconNote}Lucide&nbsp;<a href={url("icons/LICENSE-lucide.txt")}>{s.footerIconLicense}</a>
           {" · "}Feather&nbsp;<a href={url("icons/LICENSE-feather.txt")}>{s.footerIconMitLicense}</a>
         </span>
-        <span>{s.footerIconSource}{footerIconSpace}<a href={LUCIDE_SOURCE}>{LUCIDE_SOURCE}</a></span>
+        <span>{s.footerIconSource}<a href={LUCIDE_SOURCE}>{LUCIDE_SOURCE}</a></span>
       </p>
     </footer>
 
