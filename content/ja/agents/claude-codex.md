@@ -159,7 +159,7 @@ tasty claude spawn --workspace workers --cwd ~/proj --model opus --effort high \
 
 行頭の `surface <N>: ` を探していたスクリプトでは、タグとその直後の空白を飛ばしてから読み取ってください。出力なしの警告だけを選ぶには、まず `^\[warning\] ` で絞り込み、本文で入力待ちと承認待ちの行を除外してください。
 
-Claude の子が API エラーでターンを終了した場合は、完了通知行の末尾にその事実とエラーの種類（例: `overloaded`）が付きます。バックグラウンドタスクが残っていて子が待ち続けている場合は、完了行の代わりに、その事実を記した行が 1 回記録されます。 たとえば、英語のログには `[error] surface 12: the turn ended on an API error (overloaded), but background work (shell) is still running, so the child keeps waiting` と記録されます。
+Claude の子が API エラーでターンを終了した場合は、完了通知行の末尾にその事実とエラーの種類（例: `overloaded`）が付きます。バックグラウンドタスクが残っていて子が待ち続けている場合は、完了行の代わりに、その事実を記した行が 1 回記録されます。たとえば、英語のログには `[error] surface 12: the turn ended on an API error (overloaded), but background work (shell) is still running, so the child keeps waiting` と記録されます。
 
 Claude の子の出力なし通知は、デフォルトで 10 分（600 秒）を基準とします。[設定 > プラグイン > Claude Code](../plugins/index.md#プラグインが追加する設定)で 60～86400 秒に変更でき、再起動せずに反映されます。通知を無効にする値はありません。
 
