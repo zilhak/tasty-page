@@ -800,12 +800,21 @@ function PluginsWindow({ onClose, onFlash, onConfigure, removedAttention, onRemo
           {/* the header ornament reads plugins-header-glyph (accent-decorative, no contrast target), as the app does */}
           {/* plug to title 12 and search to close 16: the header gap is the app's item spacing 8, and the app adds
               hspace(spacing_xs) after the plug and hspace(spacing_sm) before the close button */}
-          {/* as the app's header (plugins ui.rs): the right cluster (close, then the filter on Installed) is laid out
-              from the right edge first and keeps its size; the left group takes what is left and is cut at its end. The
-              group's clip reaches past its box by the ring's reach above and below (padding taken back by the margin), so
-              a segment's keyboard ring, focus-ring-offset off its box, is not cut. */}
-          <div style={{ flex: "1 1 0", minWidth: 0, overflow: "hidden", display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)",
-            paddingBlock: "calc(1 * var(--tasty-focus-ring-width) + 1 * var(--tasty-focus-ring-offset))", marginBlock: "calc(-1 * var(--tasty-focus-ring-width) + -1 * var(--tasty-focus-ring-offset))" }}>
+          {/* as the app's header (plugins ui.rs): the left group (plug, title, tabs) comes first and the right cluster
+              (close, then the filter on Installed) sits at the right edge and keeps its size. The app's window is never
+              narrower than 720, so the two always fit there. A web window can be narrower: the left group then takes
+              what is left and scrolls sideways (its scrollbar under the tabs, a wheel, or Tab moving focus), so every
+              tab stays reachable. The group's box reaches past its place by the ring's reach on all four sides (padding
+              taken back by the margin), and focus scrolling keeps that reach clear (scroll padding), so a tab's keyboard
+              ring, focus-ring-offset off its box, is not cut at either end. Sideways the reach has 1px more, as the
+              scroll offset snaps to whole pixels and can stop up to 1px short. Chrome does not scroll a tab that is
+              partly in view when focus reaches it, so the group brings the focused tab fully into view itself. */}
+          <div className="tasty-scroll" data-plugins-header-start="" style={{ flex: "1 1 0", minWidth: 0, overflowX: "auto", overflowY: "hidden", display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)",
+            paddingBlock: "calc(1 * var(--tasty-focus-ring-width) + 1 * var(--tasty-focus-ring-offset))", marginBlock: "calc(-1 * var(--tasty-focus-ring-width) + -1 * var(--tasty-focus-ring-offset))",
+            paddingInline: "calc(1 * var(--tasty-focus-ring-width) + 1 * var(--tasty-focus-ring-offset) + 1 * var(--tasty-border-width))",
+            marginInline: "calc(-1 * var(--tasty-focus-ring-width) + -1 * var(--tasty-focus-ring-offset) + -1 * var(--tasty-border-width))",
+            scrollPaddingInline: "calc(1 * var(--tasty-focus-ring-width) + 1 * var(--tasty-focus-ring-offset) + 1 * var(--tasty-border-width))" }}
+            onFocus={(e) => e.target.scrollIntoView({ block: "nearest", inline: "nearest" })}>
             <span data-ink-grade="none" data-ink-why="ornament" style={{ display: "inline-flex", flex: "none", color: "var(--tasty-plugins-header-glyph)", marginRight: "var(--tasty-space-xs)" }}>
               <Icon name="plug" size="var(--tasty-icon-size-md)" />
             </span>
