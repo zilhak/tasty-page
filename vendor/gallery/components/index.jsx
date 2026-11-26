@@ -408,7 +408,7 @@ function Components() {
       <Section id="forms" title="Form controls">
         <Spec id="input" title="Input" badges={<HoverBadge label="focus me" />}
           when={<>Single-line field. Use <code>mono</code> for paths, IDs, regex, hex. <code>icon</code> for a leading affordance (search), <code>addon</code> for a trailing unit. <code>invalid</code> turns the border + ring red. <code>readOnly</code> (2026-09-29) is for a value that can't be edited <b>now</b> but is still read: the disabled neutral box, the value in <span className="tok">--tasty-input-readonly-fg</span> (text-secondary-raised), focusable, selectable and copyable. <code>disabled</code> means the control itself is unavailable.</>}>
-          <Stage variant="column" style={{ gap: 12 }}>
+          <Stage variant="column" style={{ gap: "var(--tasty-space-md)" }}>
             <Cluster label="default · icon · addon — click to focus">
               <Input placeholder="Workspace name" style={{ width: "var(--tasty-field-width-lg)" }} />
               <Input icon={ic.search} placeholder="Filter…" style={{ width: "var(--tasty-field-width-lg)" }} />
