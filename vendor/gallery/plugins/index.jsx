@@ -87,7 +87,7 @@ function ExpToolbar() {
 // matches the content-area "This folder is empty" state (text-muted). Copy, quoted from the app's lang/en.toml:
 // explorer.sidebar.favorites_empty and favorites_empty_hint ("Right-click a folder → {}."), with {} filled by
 // explorer.context_menu.add_to_favorites ("Add to Favorites"), which the app draws in text-muted.
-// Metrics follow the app's favorites_empty: space-xs above, space-sm inset and below, no gap between the two lines,
+// Metrics follow the app's favorites_empty: space-xs above, space-sm inset and below, no added vertical spacing between the empty-state label row and the hint block,
 // a 14 star (icon-size-sm) space-xs before caption-size text. The star recedes as glyph-dim, an opaque role, like the
 // ports window's empty star; the app's two tones for it (0.55 here, 0.37 there) converge on that role.
 function FavoritesEmpty() {
