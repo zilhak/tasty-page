@@ -41,7 +41,7 @@ const SEED_PROFILES = [
   { id: "p3", type: "ssh", name: "edge-cache", label: "staging", host: "edge.example.com", user: "root", port: "22",
     remoteTasty: "", shell: "auto", state: "detecting", passkeyRef: "edge-pem", fields: [] },
   { id: "p4", type: "ssh", name: "legacy-box", label: "", host: "203.0.113.40", user: "admin", port: "22",
-    remoteTasty: "", shell: "sh", state: "failed", passkeyRef: "old-rsa", fields: [] },
+    remoteTasty: "", shell: "sh", state: "ok", failed: true, passkeyRef: "old-rsa", fields: [] },
   { id: "p5", type: "smb", name: "media-nas", label: "lab", passkeyRef: "nas-cred", state: "ok",
     fields: [{ key: "host", value: "nas.local" }, { key: "share", value: "media" }] },
   { id: "p6", type: "http", name: "grafana", label: "", passkeyRef: "", state: "ok",
@@ -134,7 +134,8 @@ function WarnBadge({ children, title, raised = false }) {
 function ProfileRow({ p, passkeyNames, onRedetect, onEdit, onDelete }) {
   const ssh = isSshType(p.type);
   const unknown = isUnknownType(p.type);
-  const disabled = p.state === "failed";
+  // failed is the stored result of the last detection; state "detecting" runs beside it until a new result comes in
+  const disabled = !!p.failed;
   const dangling = p.passkeyRef && !passkeyNames.includes(p.passkeyRef);
   return (
     <div style={{ display: "flex", alignItems: "flex-start", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-space-xs)",
@@ -171,7 +172,7 @@ function ProfileRow({ p, passkeyNames, onRedetect, onEdit, onDelete }) {
                   <Spinner size="var(--tasty-remote-detect-spinner-size)" /> detecting…
                 </span>
               )}
-              {p.state === "failed" && (
+              {p.failed && p.state !== "detecting" && (
                 <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-accent-danger-raised)" }}>detection failed (disabled)</span>
               )}
             </span>
@@ -427,7 +428,7 @@ function AttachRow({ a, sshProfiles, onEdit, onDelete }) {
   const ref = a.mode === "ref";
   const referenced = ref ? sshProfiles.find((p) => p.name === a.sshRef) : null;
   const dangling = ref && !referenced;
-  const inactive = ref ? referenced?.state === "failed" : a.state === "failed";
+  const inactive = ref ? !!referenced?.failed : !!a.failed;
   return (
     <div style={{ display: "flex", alignItems: "flex-start", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-space-xs)",
       borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
@@ -753,7 +754,7 @@ function RemoteTool({ onClose, onFlash }) {
     setProfiles((ps) => ps.map((x) => (x.id === p.id ? { ...x, state: "detecting" } : x)));
     onFlash && onFlash(`Re-detecting ${p.name}…`);
     clearTimeout(timers.current[p.id]);
-    timers.current[p.id] = setTimeout(() => setProfiles((ps) => ps.map((x) => (x.id === p.id ? { ...x, state: "ok" } : x))), 1400);
+    timers.current[p.id] = setTimeout(() => setProfiles((ps) => ps.map((x) => (x.id === p.id ? { ...x, state: "ok", failed: false } : x))), 1400);
   };
   const pSave = () => {
     const ssh = isSshType(pDraft.type);
@@ -765,7 +766,7 @@ function RemoteTool({ onClose, onFlash }) {
     }
     if (profiles.some((p) => p.name === pDraft.name.trim() && p.id !== pDraft.id)) return setPErr("A profile with this name already exists.");
     if (pDraft.id) {
-      setProfiles((ps) => ps.map((x) => (x.id === pDraft.id ? { ...pDraft, type: pDraft.type.trim(), state: x.state === "failed" ? "ok" : x.state } : x)));
+      setProfiles((ps) => ps.map((x) => (x.id === pDraft.id ? { ...pDraft, type: pDraft.type.trim(), state: x.state, failed: false } : x)));
     } else {
       setProfiles((ps) => [...ps, { ...pDraft, type: pDraft.type.trim(), id: "p" + Date.now(), state: "ok" }]);
     }
