@@ -595,7 +595,7 @@ function PortsFavoritesG({ favorites = "mixed" }) {
       {rows.length === 0 ? (
         <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-xs)", height: "var(--tasty-control-height-tree)", padding: "0 var(--tasty-ports-pad-x)", color: "var(--tasty-text-muted)" }}>
           <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-glyph-dim)" }}><Icon name="star" size="var(--tasty-icon-size-sm)" /></span>
-          <span style={{ fontSize: "var(--tasty-font-size-caption)", fontStyle: "var(--tasty-font-style-absent)" }}>No favorites yet — click a star in the list below to pin a port.</span>
+          <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontSize: "var(--tasty-font-size-caption)", fontStyle: "var(--tasty-font-style-absent)" }}>No favorites yet — click a star in the list below to pin a port.</span>
         </div>
       ) : (
         <div className="tasty-scroll" style={{ maxHeight: "var(--tasty-port-favorites-max-height)", overflowY: "auto" }}>

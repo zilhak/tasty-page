@@ -120,8 +120,8 @@ function FavoritesSection({ favs, onToggle }) {
           height: "var(--tasty-control-height-tree)", padding: "0 var(--tasty-ports-pad-x)", color: "var(--tasty-text-muted)" }}>
           {/* the empty line's star recedes as glyph-dim ink, an opaque role, with no opacity on top */}
           <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-glyph-dim)" }}><Icon name="star" size="var(--tasty-icon-size-sm)" /></span>
-          {/* one muted italic label, as the app draws [port_scanner] favorites_empty */}
-          <span style={{ fontSize: "var(--tasty-font-size-caption)", fontStyle: "var(--tasty-font-style-absent)" }}>No favorites yet — click a star in the list below to pin a port.</span>
+          {/* one muted italic label on one line, as the app draws [port_scanner] favorites_empty; a narrow window ends it in an ellipsis */}
+          <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontSize: "var(--tasty-font-size-caption)", fontStyle: "var(--tasty-font-style-absent)" }}>No favorites yet — click a star in the list below to pin a port.</span>
         </div>
       ) : (
         <div className="tasty-scroll" style={{ maxHeight: "var(--tasty-port-favorites-max-height)", overflowY: "auto" }}>
