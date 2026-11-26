@@ -1,4 +1,4 @@
-<!-- source-hash: c490b5ab842a -->
+<!-- source-hash: 64c442a4f1f1 -->
 # 使用终端
 
 介绍在终端运行命令时复制输出、搜索和打开文件路径的方法。还可使用无需鼠标的复制模式，以及任务完成通知。
@@ -16,7 +16,7 @@
 
 在 `general.shell` 中仅填写 `zsh` 等名称时，Tasty 会在传给终端 Shell 的 `PATH` 中查找。先查找 Tasty 可执行文件所在的文件夹，再查找 Tasty 启动环境中的 `PATH`。`./bin/zsh` 等相对路径和 `PATH` 中的相对条目均以 Tasty 启动时所在的文件夹为基准。`PATH` 中的空条目也指向该文件夹。`~/bin/zsh` 等以 `~/` 开头的路径以主文件夹为基准。
 
-在 Windows 上，Tasty 先在 `PATH` 的每个文件夹中查找输入的名称，再按 `PATHEXT` 的顺序尝试扩展名。未设置 `PATHEXT` 时使用 `.EXE`。Shell 路径可使用 `/c/…` 等 MSYS 驱动器格式，Tasty 会将其解析为 `C:\…`。也可使用 `\\server\share\…` 等绝对 UNC 路径。`\tools` 或 `/usr/bin/bash` 等以当前驱动器根目录为基准的路径，以及 `C:tools` 等驱动器相对路径，均无法用作 Shell 路径。`PATH` 中的这类条目会被跳过。
+在 Windows 上，Tasty 先在 `PATH` 的每个文件夹中查找输入的名称，再按 `PATHEXT` 的顺序尝试扩展名。如果名称已有扩展名，每个候选项会替换原扩展名。未设置 `PATHEXT` 时使用 `.EXE`。Shell 路径可使用 `/c/…` 等 MSYS 驱动器格式，Tasty 会将其解析为 `C:\…`。也可使用 `\\server\share\…` 等绝对 UNC 路径。`\tools` 或 `/usr/bin/bash` 等以当前驱动器根目录为基准的路径，以及 `C:tools` 等驱动器相对路径，均无法用作 Shell 路径。`PATH` 中的这类条目会被跳过。
 
 在 macOS 和 Linux 上，如果 Tasty 的启动环境中已设置 `SHELL`，终端 Shell 会继承该值。否则使用账户的登录 Shell。找不到账户信息、登录 Shell 的路径无法按 UTF-8 读取，或该 Shell 无法执行时，`SHELL` 的值为 `/bin/sh`。在 Windows 上，Git Bash 使用 Tasty 数据文件夹中的 `bashrc.default` 启动。此文件会设置 Shell 集成，并在用户的 `~/.bashrc` 存在时读取它。
 

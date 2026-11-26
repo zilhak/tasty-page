@@ -1,4 +1,4 @@
-<!-- source-hash: c490b5ab842a -->
+<!-- source-hash: 64c442a4f1f1 -->
 # Working with the terminal
 
 You can copy the output you need, search terminal history, and open file paths as you work. You can also select text without a mouse and receive notifications when work finishes.
@@ -16,7 +16,7 @@ Set under **Settings** > **Terminal**.
 
 For a name such as `zsh` in `general.shell`, Tasty searches the `PATH` passed to the terminal shell. It looks in the folder containing the Tasty executable first, then searches the `PATH` from Tasty’s startup environment. Relative paths such as `./bin/zsh` and relative entries in `PATH` are resolved from the folder where Tasty started. An empty `PATH` entry refers to that folder. A path starting with `~/`, such as `~/bin/zsh`, is resolved from your home folder.
 
-On Windows, Tasty checks each `PATH` folder for the name as typed, then tries extensions in `PATHEXT` order. If `PATHEXT` is absent, it uses `.EXE`. A shell path in MSYS drive format, such as `/c/…`, resolves to `C:\…`. Absolute UNC paths such as `\\server\share\…` are also accepted. Tasty rejects shell paths rooted on the current drive, such as `\tools` or `/usr/bin/bash`, and drive-relative paths such as `C:tools`. It skips such entries in `PATH`.
+On Windows, Tasty checks each `PATH` folder for the name as typed, then tries extensions in `PATHEXT` order. If the name already has an extension, each candidate replaces it. If `PATHEXT` is absent, it uses `.EXE`. A shell path in MSYS drive format, such as `/c/…`, resolves to `C:\…`. Absolute UNC paths such as `\\server\share\…` are also accepted. Tasty rejects shell paths rooted on the current drive, such as `\tools` or `/usr/bin/bash`, and drive-relative paths such as `C:tools`. It skips such entries in `PATH`.
 
 On macOS and Linux, the terminal shell receives `SHELL` from Tasty’s startup environment when set. Otherwise it receives the account’s login shell. If the account cannot be found or the login shell path cannot be read as UTF-8 or executed, the value of `SHELL` is `/bin/sh`. On Windows, Git Bash starts with `bashrc.default` from the Tasty data folder. That file sets up shell integration and reads your `~/.bashrc` when present.
 
