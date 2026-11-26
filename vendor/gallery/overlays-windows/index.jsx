@@ -817,7 +817,7 @@ function Page() {
           </Stage>
           <Meta
             specs={[["frame", "520 × 460 · resizable · headless"], ["row", <>[<span className="tok">--tasty-remote-label-col</span> 112 · 1fr] · gap 12/8</>], ["label", "right-aligned · text-muted · 13"], ["body/footer", "flex:1 scroll · pinned footer"], ["footer sep", "full-width 1px · buttons inset 16/12"], ["error", "accent-danger caption (11)"]]}
-            tokens={[{ tok: "--tasty-remote-label-col", use: "112px label column" }, { tok: "--tasty-text-muted", use: "labels / hints", color: "var(--tasty-text-muted)" }, { tok: "--tasty-separator", use: "footer + tab divider" }, { tok: "--tasty-accent-primary", use: "active tab · Save", color: "var(--tasty-accent-primary-raised)" }, { tok: "--tasty-accent-danger", use: "validation error", color: "var(--tasty-accent-danger-raised)" }]} />
+            tokens={[{ tok: "--tasty-remote-label-col", use: "112px label column" }, { tok: "--tasty-text-muted", use: "labels / hints", color: "var(--tasty-text-muted)" }, { tok: "--tasty-separator", use: "footer + tab divider" }, { tok: "--tasty-accent-primary", use: "active tab · Save", color: "var(--tasty-accent-primary)" }, { tok: "--tasty-accent-danger", use: "validation error", color: "var(--tasty-accent-danger-raised)" }]} />
           <Do><b>Do</b> keep the label column fixed at 112px (not 1fr-negotiated) — egui's auto grid collapsed it and truncated labels, so the form uses a manual two-column row.</Do>
         </Spec>
         <Spec id="generic-passkey-forms-badges" title="Generic & Passkey forms · badges"
