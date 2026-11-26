@@ -3352,7 +3352,7 @@ function FilePickerFrame({ state = "loaded", remote = false, indicator = "badge"
           </>);
         })()}
         {!folderMode && <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-fp-section-gap)" }}>
-          <span style={{ fontSize: 12, color: "var(--tasty-text-muted)", flex: "none", width: "var(--tasty-fp-footer-label-width)" }}>File name</span>
+          <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)", flex: "none", width: "var(--tasty-fp-footer-label-width)" }}>File name</span>
           <span style={{ flex: 1, minWidth: 0, display: "flex" }}>
             <Input block defaultValue={saving ? saveName : folderSel ? "" : state === "loaded" ? fileName : ""} placeholder={saving ? "Type a file name" : "No file selected"} />
           </span>
