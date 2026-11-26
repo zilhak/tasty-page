@@ -40,6 +40,7 @@ const listed = LANGS.filter((row) => hrefs[row.code] !== undefined);
 const hasOtherLanguage = announceLanguages && listed.length > 1;
 const defaultHref = hrefs[DEFAULT_LANG];
 const D2CODING_SOURCE = "https://github.com/naver/d2-coding-font";
+const LUCIDE_SOURCE = "https://lucide.dev";
 ---
 <html lang={s.lang} data-theme-default="mocha" data-design-zone={active === "design" ? "" : undefined}>
   <head>
@@ -185,6 +186,11 @@ const D2CODING_SOURCE = "https://github.com/naver/d2-coding-font";
       <p class="site-footer__font">
         <span>{s.footerFontNote} <a href={url("fonts/D2Coding-OFL.txt")}>{s.footerFontLicense}</a></span>
         <span>{s.footerFontSource} <a href={D2CODING_SOURCE}>{D2CODING_SOURCE}</a></span>
+      </p>
+      <p class="site-footer__font">
+        <span>{s.footerIconNote}</span>
+        <a href={url("icons/LICENSE-lucide.txt")}>{s.footerIconLicense}</a>
+        <a href={LUCIDE_SOURCE}>{s.footerIconSource}</a>
       </p>
     </footer>
 

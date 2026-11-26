@@ -219,6 +219,7 @@ npm run stamp content/en/index.md
 | `/design/tokens/` · `/<언어>/design/tokens/` | 3티어 토큰 표본(`vendor/gallery/tokens/`). `client:load` 없이 정적으로 그려 토큰 JSON을 브라우저로 보내지 않는다. 내용은 영어 고정이다. 기본 언어 경로만 색인하고 sitemap에 넣는다. 다른 언어 경로는 `noindex, follow`다 |
 | `/design/gallery/**` · `/<언어>/design/gallery/**` | 레퍼런스 갤러리 15 페이지. 머리글, 푸터, 검색, 언어 전환은 경로의 언어이고 내용은 영어 고정이며 표본은 같은 소스다. 모든 언어 경로를 `noindex, follow`로 색인에서 빼고 sitemap에도 넣지 않는다 |
 | `/fonts/D2Coding-ligature-Regular.ttf` · `/fonts/D2Coding-ligature-Bold.ttf` · `/fonts/D2Coding-OFL.txt` | D2Coding 원본 글꼴과 OFL 전문(`public/fonts/`). 페이지가 아니므로 sitemap에 넣지 않는다. 푸터의 고지가 OFL 전문으로 연결한다. 아래 "D2Coding 글꼴 파일" 참고 |
+| `/icons/LICENSE-lucide.txt` | Lucide 아이콘 라이선스 전문(`public/icons/`). 푸터의 아이콘 고지가 이 파일로 연결한다. 글꼴 파일과 마찬가지로 sitemap에 넣지 않는다. 아래 "Lucide 아이콘 라이선스 파일" 참고 |
 | `/robots.txt` | 전체 허용과 `Sitemap:` 줄. `Disallow`를 넣지 않는다. 막으면 크롤러가 갤러리의 `noindex`를 읽지 못한다 |
 | `/sitemap.xml` | 랜딩, 가이드, privacy의 모든 언어와 색인 대상인 디자인 페이지. 언어는 언어 목록 하나에서 읽는다. 랜딩과 privacy의 경로는 언어 행에, 가이드와 디자인은 `buildPages`와 `DESIGN_PAGES`에 있어 페이지를 추가하면 자동으로 들어간다. 디자인 페이지는 `indexed` 값으로 정해진다. 갤러리는 넣지 않는다. `lastmod`, `changefreq`, `priority`는 정확한 값을 얻을 근거가 없어 넣지 않는다. `npm run check-sitemap`이 빌드된 HTML 중 `<head>`에 `noindex`가 없는 페이지(`404.html` 제외)를 공개 페이지로 보고 `<loc>`와 대조한다. 빠진 공개 페이지, 없는 페이지나 `noindex` 페이지를 가리키는 `<loc>`, 중복, 비어 있거나 없는 sitemap은 실패다 |
 | `/search-index.json` (en) · `/search-index.ko.json` · `/search-index.ja.json` · `/search-index.zh.json` | 검색 인덱스. 파일 이름은 언어 행의 `searchIndex`이고 라우트는 `src/pages/[searchIndex].ts` 하나다. 페이지마다 제목·섹션과 본문 앞 600자를 싣는다(`src/lib/search.ts`). 찾기는 부분 일치라 띄어쓰기 없는 일본어와 중국어도 찾는다. 입력기가 조합 중인 키는 검색 상자가 처리하지 않는다. 코드 블록과 HTML 태그는 빼고, 인라인 코드는 글자로 남기며, 단어 안의 하이픈은 지워지지 않아 `task-await` 같은 명령 이름이 입력한 그대로 맞는다. 명령 이름으로 찾게 하려면 그 이름을 제목이나 첫 문단에 쓴다 |
@@ -533,12 +534,22 @@ mocha 로 시작한다. 첫 페인트 전에 인라인 스크립트가 적용해
 - `DOMContentLoaded`는 약 1~1.6초로 글꼴의 영향이 적다. `load`는 글꼴이 끝날 때까지 늦어진다.
 - 표본의 글꼴 폭: 이 Linux의 대체 글꼴 `Noto Sans Mono CJK JP`는 11px에서 글자당 5.5px이고 D2Coding은 앱처럼 6px로 반올림된다. 문서 높이는 페이지마다 0.3~1.7% 늘고 문서 가로 넘침은 없다. 안쪽에서 잘리는 요소는 1440폭에서 434개에서 452개로 늘었다. 내용을 확인한 새 잘림은 말줄임 표시, 경로 입력 칸, 값이 잘리는 사례를 보여 주는 표본이다.
 
+### Lucide 아이콘 라이선스 파일
+
+디자인 갤러리에서 사용하는 아이콘 중 7개가 Lucide에서 왔다. Lucide의 기본 라이선스는 ISC License이며, Feather에서 가져온 일부에는 MIT 라이선스가 적용된다. `vendor/icons/LICENSE-lucide.txt`의 전문을 `public/icons/LICENSE-lucide.txt`로 바이트 그대로 복사한다. 빌드는 이를 `/icons/LICENSE-lucide.txt`로 내보낸다. 라이선스 파일은 sitemap에 넣지 않으며 `check-sitemap`은 빌드된 HTML 페이지만 대조한다.
+
+| 파일 | sha256 | 크기(byte) |
+|---|---|---|
+| `LICENSE-lucide.txt` | `1e7290b35280a048667bbf0ebabac1c7fd52a75300e8b2946ac165715997f2bc` | 880 |
+
 ### 라이선스 고지
 
 푸터의 `MIT` 줄 아래에 별도 줄을 둔다(`Base.astro`, 사전의 `footerFontNote`, `footerFontLicense`, `footerFontSource`). 줄이 글꼴과 라이선스를 직접 말하므로 `MIT` 줄이 글꼴까지 덮는 것으로 읽히지 않는다. 라이선스 이름은 `/fonts/D2Coding-OFL.txt`로, 출처는 원 배포처 주소로 연결한다. 모든 페이지에 있다.
 
 - 저작권자 이름은 이 줄에 적지 않는다. OFL 파일 머리와 글꼴 메타데이터에 있고 두 표기가 다르므로, 한쪽을 골라 다시 적지 않는다.
 - 내려받기 안내가 아니다. 글꼴 링크를 사이트에 두지 않는다.
+
+모든 페이지의 글꼴 고지 아래에 아이콘 고지를 둔다. `Base.astro`가 같은 `.site-footer__font` 클래스를 쓰고, 사전의 `footerIconNote`, `footerIconLicense`, `footerIconSource`를 읽는다. 디자인 갤러리의 일부 아이콘이 Lucide에서 왔음을 밝히고, `ISC License`는 `/icons/LICENSE-lucide.txt`로 연결한다. 출처 링크는 Lucide 공식 사이트로 연결한다. 저작권자 이름은 라이선스 전문에 있다. [Lucide](https://lucide.dev)
 
 ## 언어별 글꼴과 줄바꿈
 
