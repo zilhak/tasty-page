@@ -1,4 +1,4 @@
-<!-- source-hash: a39270060cb5 -->
+<!-- source-hash: 772585e039c7 -->
 # CLI command reference
 
 Find commands beyond the introduction, including `read since-mark`, surface state, message queues, and shared memory, organized by purpose. Use `tasty help` for the full list of arguments and options.
@@ -129,7 +129,7 @@ tasty terminal kill --child 1                   # kill a child by index
 
 The table uses Markdown-style pipe (`|`) rows. Its columns, in order, are `id`, `parents`, `nickname`, `state`, `cwd`, `last_report_at`, `index`, `confidence`, `evidence`. `id` is the child surface ID; `index` is the number passed to `kill --child` and `respawn --child`. Multiple parents are joined with commas in `parents`. An external parent set with `--parent-external`, as in the example below, appears in `parents` as its key. `last_report_at` uses a format such as `2026-11-09T12:19:12Z`. With no children, only the two header lines are printed and the exit code is 0. `tasty claude children` and `tasty codex children` print the same columns.
 
-Use `tasty terminal set-nickname` to rename a running child or `--clear` to remove its nickname. Pass the `index` from the `children` table to `--child`. To select the parent explicitly, pass its Surface ID with `--surface` or its external key with `--parent-external`. When several windows are open, also pass `--workspace` for an external parent. The new nickname appears in the `nickname` column of `tasty terminal children`, `tasty claude children`, and `tasty codex children`. For a child in a remote mirror, the change applies to the Tasty instance where you run the command.
+To rename a running child terminal, pass a 1–256 byte string with no control characters to `--nickname`. To remove the nickname, use `--clear` on its own. Give `--child` the `index` from the `children` table. Use `--surface` to specify a parent Surface ID or `--parent-external` for an external parent. If you omit the parent, the command uses the calling Surface. Without a caller Surface ID, it uses the sole live Surface parent and refuses the request if there are none or more than one. The new nickname appears in the `nickname` column of `tasty terminal children`, `tasty claude children`, and `tasty codex children`. For a child in a remote mirror, the change applies to the Tasty instance where you run the command.
 
 `spawn` replies when terminal preparation completes; it does not wait for the agent to finish its work. Agent state delivery and parent setup follow [Claude & Codex integration](claude-codex.md). Starting an ordinary program does not guarantee delivery of agent results.
 There is no separate command to wait on. Tag children with `--role` to address them together with `broadcast`.
@@ -142,7 +142,7 @@ If `terminal spawn` fails during setup, it sends no command and removes the term
 
 With `--command`, `spawn` types the command after the new terminal appears, sends Enter, and then replies. If the terminal is replaced by another shell or held by a remote attach in between, Enter is not sent and the reply is a recovery-required error (`-32068`); the created terminal stays. Keys typed into that terminal between the command and Enter can join the end of the command and run with it, as with `terminal tell`.
 
-A child's parent is usually the terminal that ran the command. The dedicated Claude and Codex commands choose the parent for you, so you do not need to set it. If your script uses something outside Tasty as the parent (for example, an agent conversation running in another process), pass `--parent-external <key>` instead of `--surface`. The key is a string you choose (no whitespace, at most 256 bytes), and the same key groups children under the same parent. `spawn`, `children`, `kill`, `respawn`, `broadcast` and `release` accept this option. When several windows are open, also pass `--workspace`.
+A child's parent is usually the terminal that ran the command. The dedicated Claude and Codex commands choose the parent for you, so you do not need to set it. If your script uses something outside Tasty as the parent (for example, an agent conversation running in another process), pass `--parent-external <key>` instead of `--surface`. The key is a string you choose (no whitespace, at most 256 bytes), and the same key groups children under the same parent. `spawn`, `children`, `kill`, `respawn`, `broadcast`, `release`, and `set-nickname` accept this option. When several windows are open, also pass `--workspace`.
 
 ```sh
 tasty terminal spawn --workspace build --parent-external review-bot --command "make lint"

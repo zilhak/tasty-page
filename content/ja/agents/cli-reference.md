@@ -1,4 +1,4 @@
-<!-- source-hash: a39270060cb5 -->
+<!-- source-hash: 772585e039c7 -->
 # CLI コマンドリファレンス
 
 読み取り位置を指定する `read since-mark`、サーフェスの状態、メッセージキュー、共有メモリなど、入門で扱わないコマンドを目的別に説明します。すべての引数とオプションは `tasty help` で確認できます。
@@ -131,7 +131,7 @@ tasty terminal kill --child 1                   # 子をインデックスで終
 
 表は Markdown と同じようにパイプ（`|`）で列を区切り、列の順序は `id`、`parents`、`nickname`、`state`、`cwd`、`last_report_at`、`index`、`confidence`、`evidence` です。`id` は子サーフェスの ID、`index` は `kill --child` と `respawn --child` に渡す番号です。親が複数ある場合は、`parents` にカンマでつないで表示します。下の例のように `--parent-external` で指定した外部の親は、そのキーが `parents` に表示されます。`last_report_at` は `2026-11-09T12:19:12Z` のような形式で表示します。子がいない場合はヘッダーの 2 行だけを出力し、終了コードは 0 です。`tasty claude children` と `tasty codex children` も同じ列を出力します。
 
-実行中の子のニックネームは `tasty terminal set-nickname` で変更し、`--clear` で消去します。`--child` には `children` の表にある `index` を指定してください。親を指定する場合は `--surface` に親のサーフェス ID を渡すか、`--parent-external` で外部の親を指定してください。複数のウィンドウが開いているときに外部の親を指定する場合は、`--workspace` も指定してください。変更した名前は `tasty terminal children`、`tasty claude children`、`tasty codex children` の `nickname` 列に表示されます。リモートミラーの子では、コマンドを実行した Tasty の記録だけが変わります。
+実行中の子ターミナルのニックネームを変更するには、`--nickname` に制御文字を含まない 1〜256 バイトの文字列を渡してください。消去するときは `--clear` だけを指定してください。`--child` には `children` の表の `index` を指定します。`--surface` で親のサーフェス ID を、`--parent-external` で外部の親を指定できます。親を省略すると、コマンドを実行したサーフェスが親になります。呼び出し元のサーフェス ID がない場合は、開いている親サーフェスが 1 つの場合に限りそれを使い、候補がなかったり複数あったりすると拒否します。変更した名前は `tasty terminal children`、`tasty claude children`、`tasty codex children` の `nickname` 列に表示されます。リモートミラーの子では、コマンドを実行した Tasty の記録だけが変わります。
 
 `spawn` はターミナルの準備が終わると応答し、エージェントのタスク終了は待ちません。エージェントの状態の伝達と親の受信準備は、[Claude・Codex 連携](claude-codex.md)に従います。通常のプログラムを作成しただけで、エージェントの結果の伝達が保証されるわけではありません。
 待機するコマンドを別に動かす必要はありません。`--role` で役割を指定すると、`broadcast` でまとめて送れます。
@@ -144,7 +144,7 @@ tasty terminal kill --child 1                   # 子をインデックスで終
 
 `--command` を指定した `spawn` は、新しいターミナルが画面に表示された後、command を入力して Enter を送り、それから応答します。その間に対象ターミナルが別のシェルに変わったり、リモートアタッチに占有されたりすると、Enter を送らず、復旧が必要なエラー（`-32068`）で応答し、作成したターミナルはそのまま残ります。command の入力と Enter の間にそのターミナルで直接打ったキーは、command の後ろに付いて一緒に実行される場合があります（`terminal tell` と同じです）。
 
-子の親は通常、コマンドを実行したターミナルです。Claude・Codex 専用コマンドは親を自動で決めるため、別に指定する必要はありません。Tasty 外の対象（例: 別のプロセスで進行中のエージェントの会話）を親にするスクリプトなら、`--surface` の代わりに `--parent-external <キー>` を指定してください。キーは自分で決める文字列（空白なしで 256 バイト以下）で、同じキーを指定すると同じ親の配下にまとめられます。`spawn`・`children`・`kill`・`respawn`・`broadcast`・`release` がこのオプションを受け付けます。ウィンドウが複数開いている場合は、`--workspace` も一緒に指定してください。
+子の親は通常、コマンドを実行したターミナルです。Claude・Codex 専用コマンドは親を自動で決めるため、別に指定する必要はありません。Tasty 外の対象（例: 別のプロセスで進行中のエージェントの会話）を親にするスクリプトなら、`--surface` の代わりに `--parent-external <キー>` を指定してください。キーは自分で決める文字列（空白なしで 256 バイト以下）で、同じキーを指定すると同じ親の配下にまとめられます。`spawn`・`children`・`kill`・`respawn`・`broadcast`・`release`・`set-nickname` がこのオプションを受け付けます。ウィンドウが複数開いている場合は、`--workspace` も一緒に指定してください。
 
 ```sh
 tasty terminal spawn --workspace build --parent-external review-bot --command "make lint"

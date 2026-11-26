@@ -130,7 +130,7 @@ tasty terminal kill --child 1                   # 자식을 인덱스로 종료
 
 표는 Markdown처럼 파이프(`|`)로 열을 나누며, 열 순서는 `id`, `parents`, `nickname`, `state`, `cwd`, `last_report_at`, `index`, `confidence`, `evidence`입니다. `id`는 자식 서피스 ID이고, `index`는 `kill --child`와 `respawn --child`에 넘기는 번호입니다. 부모가 여럿이면 `parents`에 쉼표로 이어서 표시합니다. 아래 예시처럼 `--parent-external`로 지정한 외부 부모는 그 키가 `parents`에 나옵니다. `last_report_at`은 `2026-11-09T12:19:12Z` 같은 형식으로 표시합니다. 자식이 없으면 머리글 두 줄만 출력하고 종료 코드는 0입니다. `tasty claude children`과 `tasty codex children`도 같은 열을 출력합니다.
 
-실행 중인 자식의 별명은 `tasty terminal set-nickname`으로 바꾸고 `--clear`로 지웁니다. `--child`에는 `children` 표의 `index`를 넣으세요. 부모를 직접 고르려면 `--surface`에 부모 서피스 ID를 주거나 `--parent-external`로 외부 부모를 지정하세요. 여러 윈도우가 열려 있을 때 외부 부모를 지정하려면 `--workspace`도 함께 주세요. 새 별명은 `tasty terminal children`, `tasty claude children`, `tasty codex children`의 `nickname` 열에 표시됩니다. 원격 mirror의 자식은 명령을 실행한 Tasty의 기록에서만 별명이 바뀝니다.
+실행 중인 자식 터미널의 별명을 바꾸려면 `--nickname`에 제어 문자가 없는 1~256바이트 문자열을 넘기세요. 별명을 지울 때는 `--clear`만 사용하세요. `--child`에는 `children` 표의 `index`를 넣습니다. `--surface`로 부모 서피스 ID를 지정하거나 `--parent-external`로 외부 부모를 골라 쓸 수 있습니다. 부모를 생략하면 명령을 실행한 서피스를 부모로 삼습니다. 호출 서피스 ID가 없으면 현재 살아 있는 서피스 부모가 하나일 때만 그 부모를 사용하고, 후보가 없거나 여럿이면 거절합니다. 새 별명은 `tasty terminal children`, `tasty claude children`, `tasty codex children`의 `nickname` 열에 표시됩니다. 원격 mirror의 자식은 명령을 실행한 Tasty의 기록에서만 별명이 바뀝니다.
 
 `spawn`은 터미널 준비가 끝나면 응답하며 에이전트 작업 종료는 기다리지 않습니다. 에이전트의 상태 전달과 부모의 수신 준비는 [Claude·Codex 연동](claude-codex.md)을 따릅니다. 일반 프로그램의 생성만으로 에이전트 결과 전달을 보장하지 않습니다.
 기다리는 명령을 따로 돌릴 필요가 없습니다. `--role` 로 역할을 지정하면 `broadcast` 로 묶어 보냅니다.
@@ -143,7 +143,7 @@ tasty terminal kill --child 1                   # 자식을 인덱스로 종료
 
 `--command`를 준 `spawn`은 새 터미널이 화면에 나타난 뒤 command를 입력하고 Enter를 보낸 다음 응답합니다. 그 사이 대상 터미널이 다른 셸로 바뀌거나 원격 attach에 점유되면 Enter를 보내지 않고 복구 필요 오류(`-32068`)로 응답하며, 만든 터미널은 그대로 남습니다. command 입력과 Enter 사이에 그 터미널에 직접 친 키는 command 뒤에 붙어 함께 실행될 수 있습니다(`terminal tell`과 같습니다).
 
-자식의 부모는 보통 명령을 실행한 터미널입니다. Claude·Codex 전용 명령은 부모를 알아서 정하므로 따로 지정할 필요가 없습니다. Tasty 밖의 대상(예: 다른 프로세스에서 진행 중인 에이전트 대화)을 부모로 삼는 스크립트라면 `--surface` 대신 `--parent-external <키>`를 주세요. 키는 직접 정하는 문자열(공백 없이 256바이트 이하)이며 같은 키를 주면 같은 부모로 묶입니다. `spawn`·`children`·`kill`·`respawn`·`broadcast`·`release`가 이 옵션을 받습니다. 윈도우가 여러 개 열려 있으면 `--workspace`도 함께 주세요.
+자식의 부모는 보통 명령을 실행한 터미널입니다. Claude·Codex 전용 명령은 부모를 알아서 정하므로 따로 지정할 필요가 없습니다. Tasty 밖의 대상(예: 다른 프로세스에서 진행 중인 에이전트 대화)을 부모로 삼는 스크립트라면 `--surface` 대신 `--parent-external <키>`를 주세요. 키는 직접 정하는 문자열(공백 없이 256바이트 이하)이며 같은 키를 주면 같은 부모로 묶입니다. `spawn`·`children`·`kill`·`respawn`·`broadcast`·`release`·`set-nickname`이 이 옵션을 받습니다. 윈도우가 여러 개 열려 있으면 `--workspace`도 함께 주세요.
 
 ```sh
 tasty terminal spawn --workspace build --parent-external review-bot --command "make lint"

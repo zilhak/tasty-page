@@ -1,4 +1,4 @@
-<!-- source-hash: a39270060cb5 -->
+<!-- source-hash: 772585e039c7 -->
 # CLI 命令参考
 
 按用途说明入门内容之外的命令，包括指定读取位置的 `read since-mark`、Surface 状态、消息队列和共享记忆。完整参数和选项可通过 `tasty help` 查看。
@@ -131,7 +131,7 @@ tasty terminal kill --child 1                   # 按索引终止子终端
 
 表格使用 Markdown 风格的管道符（`|`）分隔列，列顺序为 `id`、`parents`、`nickname`、`state`、`cwd`、`last_report_at`、`index`、`confidence`、`evidence`。`id` 是子 Surface ID，`index` 是传给 `kill --child` 和 `respawn --child` 的编号。存在多个父方时，`parents` 用逗号连接。如下方示例所示，通过 `--parent-external` 指定的外部父方会在 `parents` 中显示其键。`last_report_at` 的显示格式如 `2026-11-09T12:19:12Z`。没有子项时，仅输出两行表头，退出码为 0。`tasty claude children` 和 `tasty codex children` 输出相同的列。
 
-运行 `tasty terminal set-nickname` 修改正在运行的子进程的昵称，使用 `--clear` 清除昵称。给 `--child` 传入 `children` 表中的 `index`。要明确选择父级，给 `--surface` 传入父 Surface ID，或用 `--parent-external` 指定外部父级。打开多个窗口时，指定外部父级还需传入 `--workspace`。新昵称显示在 `tasty terminal children`、`tasty claude children` 和 `tasty codex children` 的 `nickname` 列。对于远程镜像中的子进程，只有运行命令的 Tasty 实例中的记录会更新。
+要修改正在运行的子终端的昵称，用 `--nickname` 传入 1 至 256 字节且不含控制字符的字符串。清除昵称时只用 `--clear`。给 `--child` 传入 `children` 表中的 `index`。可用 `--surface` 指定父 Surface ID，或用 `--parent-external` 指定外部父方。省略父方时，命令以调用方 Surface 为父方。如果没有调用方 Surface ID，只有在恰好存在一个仍打开的父 Surface 时才会选用它。没有候选项或有多个候选项时，命令会拒绝请求。新昵称显示在 `tasty terminal children`、`tasty claude children` 和 `tasty codex children` 的 `nickname` 列。对于远程镜像中的子终端，只有运行命令的 Tasty 实例中的记录会更新。
 
 `spawn` 在终端准备完成后响应，不等待智能体任务结束。智能体状态传递和父方接收准备遵循 [Claude·Codex 集成](claude-codex.md)中的说明。仅创建普通程序不保证智能体结果传递。
 无需单独运行等待命令。使用 `--role` 指定角色后，可通过 `broadcast` 批量发送。
@@ -144,7 +144,7 @@ tasty terminal kill --child 1                   # 按索引终止子终端
 
 带 `--command` 的 `spawn` 在新终端显示后输入 command，发送 Enter，然后响应。如果期间目标终端换成其他 Shell，或被远程附加占用，则不发送 Enter，返回需要恢复的错误（`-32068`），已创建的终端会保留。在 command 输入与 Enter 之间直接向该终端键入的按键，可能附加在 command 后一起执行（与 `terminal tell` 相同）。
 
-子终端的父方通常是执行命令的终端。Claude·Codex 专用命令会自动确定父方，无需另行指定。如果脚本将 Tasty 外部的目标（例如其他进程中正在进行的智能体对话）作为父方，请使用 `--parent-external <键>` 代替 `--surface`。键为自行指定的字符串（不含空白，最多 256 字节），相同键会将子终端归到同一父方。`spawn` · `children` · `kill` · `respawn` · `broadcast` · `release` 接受此选项。打开多个窗口时，还需提供 `--workspace`。
+子终端的父方通常是执行命令的终端。Claude·Codex 专用命令会自动确定父方，无需另行指定。如果脚本将 Tasty 外部的目标（例如其他进程中正在进行的智能体对话）作为父方，请使用 `--parent-external <键>` 代替 `--surface`。键为自行指定的字符串（不含空白，最多 256 字节），相同键会将子终端归到同一父方。`spawn` · `children` · `kill` · `respawn` · `broadcast` · `release` · `set-nickname` 接受此选项。打开多个窗口时，还需提供 `--workspace`。
 
 ```sh
 tasty terminal spawn --workspace build --parent-external review-bot --command "make lint"
