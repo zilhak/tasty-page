@@ -338,7 +338,7 @@ function fakePane(label, focused, agent) {
         color: focused ? "var(--tasty-surface-terminal-focused-fg)" : "var(--tasty-surface-terminal-unfocused-fg)", lineHeight: 1.5 }}>
         <div><span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-ansi-green)" }}>~/tasty</span> <span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-ansi-blue)" }}>main</span></div>
         <div style={{ display: "flex", alignItems: "center", marginTop: 2 }}>
-          <span style={{ color: agent ? "var(--tasty-accent-agent-raised)" : "var(--tasty-ansi-magenta)" }} data-audit-exempt="ansi-content">❯&nbsp;</span>
+          <span style={{ color: "var(--tasty-ansi-magenta)" }} data-audit-exempt="ansi-content">❯&nbsp;</span>
           {focused && <span style={{ width: 8, height: 15, background: "var(--tasty-surface-terminal-focused-fg)", display: "inline-block", animation: "tasty-blink 1.1s step-end infinite" }} />}
         </div>
       </div>
@@ -393,7 +393,7 @@ function occPane(kind) {
         color: cfg.readonly ? "var(--tasty-surface-terminal-unfocused-fg)" : "var(--tasty-surface-terminal-focused-fg)", lineHeight: 1.5 }}>
         <div><span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-ansi-green)" }}>~/tasty</span> <span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-ansi-blue)" }}>main</span></div>
         <div style={{ display: "flex", alignItems: "center", marginTop: 2 }}>
-          <span style={{ color: cfg.who === "agent" ? "var(--tasty-accent-agent)" : "var(--tasty-ansi-magenta)" }} data-audit-exempt="ansi-content">❯&nbsp;</span>
+          <span style={{ color: "var(--tasty-ansi-magenta)" }} data-audit-exempt="ansi-content">❯&nbsp;</span>
           {cfg.who === "agent" && <span style={{ color: "var(--tasty-text-secondary)" }}>running tests…</span>}
           {cfg.who === "done" && <span style={{ color: "var(--tasty-text-secondary)" }}>build passed ✓</span>}
         </div>
