@@ -1,4 +1,4 @@
-<!-- source-hash: 7d464d53958f -->
+<!-- source-hash: 17ef648ab00f -->
 # Working with the terminal
 
 You can copy the output you need, search terminal history, and open file paths as you work. You can also select text without a mouse and receive notifications when work finishes.
@@ -53,6 +53,8 @@ With the default key encoding, Codex CLI for Windows uses `Shift+Enter` or `Ctrl
 - If the clipboard has no text but has an image, it is saved as a PNG file and the path is pasted. Use this to hand a screenshot to an agent. Saving happens in the background without freezing the window, and the path goes into the terminal you pasted into once the file is saved. Anything you type in the meantime may arrive before the path. If you close that terminal before then, the path is not pasted and the file is deleted.
 - Lines wrapped because of the window width are joined into one line when copied.
 - When you copy from a right-click menu, the "Copied" notice also shows the copy shortcut on its right. Copying a path from the Explorer right-click menu shows the copy-path shortcut. It does not appear when you copied with the shortcut or left the shortcut empty.
+
+When you copy or cut from a text field, copy text selected in a label, or use a copy button in the main window, **Settings**, **Layout Presets**, or **Plugins**, the result appears in that window. A successful clipboard write shows a **Copied** toast. A failed write shows a failure toast.
 
 ### Screenshot to clipboard
 

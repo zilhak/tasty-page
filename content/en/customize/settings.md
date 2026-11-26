@@ -1,4 +1,4 @@
-<!-- source-hash: d8cdc27c3f0c -->
+<!-- source-hash: 3047636692df -->
 # Settings
 
 Tasty’s shell, fonts, language, and other preferences can be configured in the settings window or by editing `~/.tasty/config.toml` directly. Keybindings and themes have their own guides.
@@ -59,6 +59,8 @@ Press the same shortcut again to close the settings window.
 | **Permissions** (macOS only) | **Full Disk Access** · **Screen recording** status, **Request all permissions** (asks for the folders and screen recording in one go), and **Open System Settings** in the Full Disk Access row |
 
 Turn off **Restore surface content on restart** and earlier terminal content no longer comes back from the next start. Content that was already saved is not restored either, while the tab layout and working directories still are. Reopening a closed tab (`Ctrl+Shift+T`) also leaves out terminal content while the setting is off.
+
+A toast stays visible while the pointer is over it, and a fading toast becomes fully visible again. When the pointer leaves, the full **Toast duration** starts again. Clicks and drags over a toast go to whatever is underneath it.
 
 **Browse…** beside the **Remote transfer** save folder opens the Tasty folder picker inside Settings. **Select folder** fills the field with the selected subfolder, or the current folder when nothing is selected. Press **Save** in Settings to apply it. Cancel or Esc leaves the folder value unchanged.
 
