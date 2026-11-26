@@ -551,7 +551,7 @@ function Components() {
             </div>
           </Stage>
           <Meta
-            specs={[["blink", "off · egui text_cursor.blink = false"], ["width", "1 · text-primary ink"], ["height", <>default Input uses the proportional UI font (Ubuntu-Light first) · egui extends the caret 1.5 px above and below the row · At 13 px font size, row / drawn segment / visible after field clipping = 15 / 18 / 17 px at 1.0 and 2.0 ppp, 14.40625 / 17.40625 / 16.40625 px at 1.25 ppp · visible height <span className="tok">--tasty-caret-specimen-height</span> = 1.3077 × <span className="tok">--tasty-input-font-size</span> = 17 px at 13 px</>], ["shown", "field focused AND window focused"], ["cost", "no idle repaint while a field is focused"]]}
+            specs={[["blink", "off · egui text_cursor.blink = false"], ["width", "1 · text-primary ink"], ["height", <>default Input uses the proportional UI font (Ubuntu-Light first) · egui caret extension 1.5 pt above and below the row · at 13 pt font size, row / drawn segment / visible after field clipping = 15 pt / 18 pt / 17 pt at 1.0 and 2.0 ppp, 14.40625 pt / 17.40625 pt / 16.40625 pt at 1.25 ppp · 17 pt = 34 device pixels at 2.0 ppp · web specimen visible height <span className="tok">--tasty-caret-specimen-height</span> = 1.3077 × <span className="tok">--tasty-input-font-size</span> = 17 CSS px at 13 CSS px</>], ["shown", "field focused AND window focused"], ["cost", "no idle repaint while a field is focused"]]}
             tokens={[{ tok: "--tasty-border-focus", use: "focus edge", color: "var(--tasty-border-focus)" }, { tok: "--tasty-text-primary", use: "caret ink", color: "var(--tasty-text-primary)" }, { tok: "--tasty-caret-specimen-height", use: "caret height" }]} />
         </Spec>
       </Section>
