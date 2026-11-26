@@ -3,3 +3,4 @@
   <circle cx="9" cy="9" r="2"></circle>
   <path d="m21 15-5-5L5 21"></path>
 </svg>
+<!-- Adapted from Lucide "image" (lucide-static 0.460.0), ISC License, with Feather portions under the MIT License. See LICENSE-lucide.txt and LICENSE-feather.txt in this folder. -->
