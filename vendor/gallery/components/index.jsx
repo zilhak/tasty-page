@@ -9,6 +9,38 @@ import { GalleryScrollbar } from "./scrollbar.jsx";
 import { GallerySearchableSelect } from "./searchable-select.jsx";
 import { Section, Spec, Stage, Cluster, Meta, Note, Do, Dont, GIcon, Views, View } from "../parts/specimen.jsx";
 
+// Text caret specimen: the shared Input, focused, with the steady caret drawn over it. A native <input> draws its own
+// caret only under real focus, blinking, at the font's height, so the field hides it and the specimen paints a
+// border-width bar of --tasty-caret-specimen-height at the end of the value, centred on the field. The bar's x is
+// measured from the input's own box and font, so it follows the Input's padding and face without restating them. It
+// appears once the page runs, as the Detail name fit does.
+function CaretField({ value }) {
+  const box = React.useRef(null);
+  const [x, setX] = React.useState(null);
+  React.useEffect(() => {
+    const root = box.current;
+    const input = root && root.querySelector("input");
+    if (!input) return undefined;
+    let live = true;
+    const measure = () => {
+      if (!live) return;
+      const ctx = document.createElement("canvas").getContext("2d");
+      ctx.font = getComputedStyle(input).font;
+      setX(input.getBoundingClientRect().left - root.getBoundingClientRect().left + ctx.measureText(input.value).width);
+    };
+    measure();
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
+    return () => { live = false; };
+  }, [value]);
+  return (
+    <div ref={box} style={{ position: "relative", display: "inline-flex" }}>
+      <Input focused value={value} onChange={() => {}} tabIndex={-1}
+        style={{ width: "var(--tasty-caret-specimen-field-width)", pointerEvents: "none" }} inputStyle={{ caretColor: "transparent" }} />
+      {x != null && <span aria-hidden="true" style={{ position: "absolute", left: x, top: 0, bottom: 0, marginBlock: "auto", width: "var(--tasty-border-width)", height: "var(--tasty-caret-specimen-height)", background: "var(--tasty-text-primary)" }} />}
+    </div>
+  );
+}
+
 // Tasty Gallery — Components. Live, interactive specimens of the DS
 // primitives. Hover / focus work for real on the page; persistent
 // states (active, disabled) are shown explicitly. Each carries a
@@ -535,9 +567,7 @@ function Components() {
         <Spec id="text-caret-steady-never-blinks" title="Text caret — steady, never blinks"
           when={<>The caret in every UI text field (palette search, settings fields, popup and modal inputs, single- and multi-line) is <b>steady</b>: always drawn while the field has focus and the window is focused, never blinking. This matches the terminal cursor (motion 0 ms) and keeps an idle focused field from waking the frame loop twice a second. Focus is already carried by the field's focus border, so the caret does not need motion to be found. Window not focused → no caret, as today.</>}>
           <Stage variant="column" style={{ gap: "var(--tasty-space-md)", alignItems: "flex-start" }}>
-            <div style={{ position: "relative", width: "var(--tasty-caret-specimen-field-width)", height: "var(--tasty-control-height)", display: "flex", alignItems: "center", padding: "0 var(--tasty-input-padding-x)", background: "var(--tasty-input-bg, var(--tasty-surface-raised))", border: "var(--tasty-border-width) solid var(--tasty-border-focus)", borderRadius: "var(--tasty-radius)", fontSize: "var(--tasty-input-font-size)", color: "var(--tasty-text-primary)" }}>
-              open settings<span style={{ display: "inline-block", width: "var(--tasty-border-width)", height: "var(--tasty-caret-specimen-height)", background: "var(--tasty-text-primary)" }}></span>
-            </div>
+            <CaretField value="open settings" />
           </Stage>
           <Meta
             specs={[["blink", "off · egui text_cursor.blink = false"], ["width", "1 · text-primary ink"], ["height", <>default Input uses the proportional UI font (Ubuntu-Light first) · egui caret extension 1.5 pt above and below the row · at 13 pt font size, row / drawn segment / visible after field clipping = 15 pt / 18 pt / 17 pt at 1.0 and 2.0 ppp, 14.40625 pt / 17.40625 pt / 16.40625 pt at 1.25 ppp · 17 pt = 34 device pixels at 2.0 ppp · web specimen visible height <span className="tok">--tasty-caret-specimen-height</span> = 1.3077 × <span className="tok">--tasty-input-font-size</span> = 17 CSS px at 13 CSS px</>], ["shown", "field focused AND window focused"], ["cost", "no idle repaint while a field is focused"]]}
