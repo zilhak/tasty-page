@@ -448,7 +448,7 @@ function Page() {
           when={<>A two-choice confirm shown when opening a <code>.md</code> file: <b>rendered preview</b> or <b>raw text</b> in the editor. Two equal card-buttons with the default pre-selected (accent ring), filename in mono, cancel + confirm. The pattern for any “open as A or B” fork.</>}>
           <Stage variant="solo center"><Backdrop height={300}><div align="center"><MarkdownOpenFrame /></div></Backdrop></Stage>
           <Meta
-            specs={[["width", "420px"], ["choices", "2 equal card-buttons"], ["default", "accent ring + fill"], ["confirm", "names the choice"]]}
+            specs={[["width", "420px"], ["choices", "2 equal card-buttons"], ["default", "accent edge + flush ring + accent glyph"], ["confirm", "names the choice"]]}
             tokens={[{ tok: "--tasty-accent-primary", use: "selected choice", color: "var(--tasty-accent-primary-raised)" }, { tok: "--tasty-surface-raised", use: "choice fill", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-border-strong", use: "unselected edge" }]} />
         </Spec>
       </Section>
