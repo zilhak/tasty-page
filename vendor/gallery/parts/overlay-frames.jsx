@@ -6,7 +6,7 @@ import { AttachConnectionsSection } from "./settings-attach-section.jsx";
 import { rt } from "../../ui_kits/terminal/overlays/remote_row_copy.js";
 import { PopupFocusEdge } from "../../ui_kits/terminal/overlays/shared.jsx";
 import { PopupTitleBar } from "../../ui_kits/terminal/overlays/info_modal.jsx";
-import { WarnBadge } from "../../ui_kits/terminal/overlays/remote_tool.jsx";
+import { WarnBadge, LocalSshSection as KitLocalSshSection } from "../../ui_kits/terminal/overlays/remote_tool.jsx";
 
 // Tasty Gallery — Overlays SHARED frames. Loaded by every overlays-*.html page
 // (Dialogs / Windows / Popups & menus / Banners). Defines the scrim Backdrop, the
@@ -868,37 +868,11 @@ function RemoteFrame({ tab = "profiles", ssh = "hosts" }) {
 //     which is the existing import action (no new behaviour)
 //   · a host already imported shows a muted "in profiles" Tag and no action
 // Empty / failure are one muted line each — a missing ssh config is not an error.
-// Static specimen of the kit component ui_kits/terminal/overlays/remote_tool.jsx › LocalSshSection (the definition).
+// The kit component ui_kits/terminal/overlays/remote_tool.jsx › LocalSshSection is the definition, and its
+// measures are the app's (remote_tool.rs ssh section). The specimen draws it with the kit's sample hosts; the
+// prod-web host matches a stored ssh profile, so it shows the "in profiles" Tag.
 function LocalSshSection({ state = "hosts" }) {
-  const hosts = [
-    { alias: "host", target: "maya@host.local:22" },
-    { alias: "prod-web", target: "deploy@10.0.4.12:22", have: true },
-    { alias: "eu-west-build-farm-bastion-01", target: "ci-runner@bastion-01.eu-west.build.example.com:2222" },
-  ];
-  return (
-    <div style={{ marginTop: 10, paddingTop: 8, borderTop: "1px solid var(--tasty-border-frame)" }}>
-      <div style={{ display: "flex", alignItems: "baseline", gap: 6, padding: "2px 4px 6px" }}>
-        <span style={{ fontSize: 11, letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--tasty-text-secondary)" }}>From ssh config</span>
-        <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: "var(--tasty-text-muted)" }}>~/.ssh/config</span>
-        <div style={{ flex: 1 }} />
-        {state === "hosts" && <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: "var(--tasty-text-muted)" }}>{hosts.length}</span>}
-      </div>
-      {state === "empty" && <div style={{ padding: "2px 4px 6px", fontSize: 12, color: "var(--tasty-text-muted)" }}>No hosts in ~/.ssh/config.</div>}
-      {state === "missing" && <div style={{ padding: "2px 4px 6px", fontSize: 12, color: "var(--tasty-text-muted)" }}>No ~/.ssh/config found.</div>}
-      {state === "unreadable" && <div style={{ padding: "2px 4px 6px", fontSize: 12, color: "var(--tasty-text-muted)" }}>Can't read ~/.ssh/config. Check the file and its permissions.</div>}
-      {state === "hosts" && hosts.map((h) => (
-        <div key={h.alias} style={{ display: "flex", alignItems: "center", gap: 8, padding: "6px 4px", borderBottom: "1px solid var(--tasty-separator)" }}>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 13, color: "var(--tasty-text-secondary)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{h.alias}</div>
-            <div style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: "var(--tasty-text-muted)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{h.target}</div>
-          </div>
-          {h.have
-            ? <Tag>in profiles</Tag>
-            : <Button variant="ghost" size="sm" leadingIcon={ic.plus}>Add profile</Button>}
-        </div>
-      ))}
-    </div>
-  );
+  return <KitLocalSshSection state={state} profileTargets={["deploy@10.0.4.12:22"]} />;
 }
 
 // ── ShellMock — the whole window at 1/1 scale, small: CSD titlebar · sidebar ·

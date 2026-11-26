@@ -639,8 +639,8 @@ function ProtocolFilter({ protocols, hidden, onApply, lang = "en" }) {
 }
 
 // ── "From ssh config" — hosts read from ~/.ssh/config under the profile list ──
-// Kit definition (2026-09-29). gallery/overlays-shared.jsx LocalSshSection is the
-// static specimen of THIS component (state only) and must match it.
+// Kit definition (2026-09-29). The gallery's LocalSshSection (gallery/parts/overlay-frames.jsx)
+// draws THIS component, so the two cannot drift.
 //   state          "hosts" | "empty" | "missing" | "unreadable"
 //                  empty      = read OK, 0 hosts
 //                  missing    = no file at ~/.ssh/config
