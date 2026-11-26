@@ -1,4 +1,4 @@
-<!-- source-hash: 96db2435314c -->
+<!-- source-hash: 9a805b0c1662 -->
 # 配合 Claude 和 Codex 使用
 
 在 Tasty 终端中运行 Claude Code 和 Codex CLI 并查看状态。两个 CLI 需要单独安装。要将任务分配给多个智能体，请同时配置钩子和父智能体的结果接收路径。
@@ -172,6 +172,10 @@ Tasty 在判定无输出通知时会排除识别为 Monitor 的任务。如果 M
 无输出通知会写入完成日志，并唤醒已完成下方 mod 或 Monitor 接收配置的父 Claude Code，启动新回合。此通知路径不适用于从父 Codex 对话中创建的子智能体。父 Codex 通过下方的结果返回路径接收回合结果。
 
 未等待后台任务时，如果近期输出包含错误文本，无输出通知的阈值固定为 30 秒。通知标记由发出通知前的终端画面决定。找到错误文本时使用 `[error]`，否则使用 `[warning]`。30 秒的阈值和重复通知的最小间隔 5 分钟均为固定值。同一段无输出期间仅通知一次。此设置与 `tasty claude children` 中 `stale` 标记的 120 秒阈值相互独立，因此可能在通知前先看到 `stale`。不能仅凭通知断定任务已停止。
+
+如果预计耗时任务不会产生输出，可用 `tasty claude quiet --surface 12 --secs 900` 等命令声明静默时段。省略 `--surface` 时，命令在其所在的 Surface 上生效。用 `--task <id>` 将范围限定为单个后台任务。任务 ID 为 Bash 的 `backgroundTaskId` 或 Agent 的 `agentId`。
+
+将 `--secs` 设为正数时，无输出警告会暂存，等到时间到期、指定任务结束或用 `--clear` 解除时，再合并成一行发送到父级的完成日志。使用 `--secs -1` 丢弃静默时段内的警告。未指定任务时，`--clear` 会解除该 Surface 上的所有声明。状态通知和错误通知照常发送。发生错误时，该 Surface 上的所有声明都会解除，暂存的警告会附在错误行末尾。
 
 如果仍在使用旧版钩子，重新执行 `tasty claude install`，然后启动新的 Claude Code 进程。如果钩子将 Monitor 报告为 Shell 任务，可能会发送无输出通知。
 

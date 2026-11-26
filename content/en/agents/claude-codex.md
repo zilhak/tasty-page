@@ -1,4 +1,4 @@
-<!-- source-hash: 96db2435314c -->
+<!-- source-hash: 9a805b0c1662 -->
 # Working with Claude and Codex
 
 Run Claude Code and Codex CLI in Tasty terminals and follow their status. Install each CLI separately. To delegate work across agents, configure both the hooks and the parent’s result delivery path.
@@ -173,6 +173,10 @@ Tasty excludes tasks it recognizes as Monitor from no-output checks. If a backgr
 The no-output notification is recorded in the completion log and wakes a new turn in a parent Claude Code with the mod or Monitor receiving setup described below. This notification path does not apply to children created from a Codex parent conversation. Codex parents receive turn results through the separate return path below.
 
 Outside a background wait, error text in recent output sets a fixed 30-second no-output threshold. To choose the tag, Tasty reads the terminal screen just before the notification. It uses `[error]` if it finds error text and `[warning]` otherwise. The 30-second threshold and the minimum 5-minute interval between notifications are fixed. Each stretch of silence is reported only once. This setting is separate from the 120-second threshold for `stale` in `tasty claude children`, so `stale` can appear before the notification. A notification does not establish that work has stopped.
+
+If you expect a long task to produce no output, declare a quiet period with a command such as `tasty claude quiet --surface 12 --secs 900`. Omit `--surface` to target the Surface where you run the command. Use `--task <id>` to target just one background task. The ID is Bash’s `backgroundTaskId` or Agent’s `agentId`.
+
+A positive `--secs` holds no-output warnings and sends them as one line to the parent’s completion log when the time expires, the specified task ends, or you pass `--clear`. Use `--secs -1` to discard those warnings during the quiet period. With no task specified, `--clear` ends all declarations on the Surface. State and error notices still arrive. An error ends every declaration on the Surface and appends any held warnings to the error line.
 
 If you have older hooks installed, run `tasty claude install` again and start a new Claude Code process. If a hook reports Monitor as shell work, a no-output notification may be sent.
 
