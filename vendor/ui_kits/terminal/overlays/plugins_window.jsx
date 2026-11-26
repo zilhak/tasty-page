@@ -296,7 +296,7 @@ function AddPluginForm({ onAdded, onCancel }) {
         ) : (
           <div style={{ maxWidth: "var(--tasty-measure-xl)", display: "flex", flexDirection: "column", gap: "var(--tasty-plugins-inset)" }}>
             {/* manifest preview */}
-            <div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)",
+            <div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)",
               background: "var(--tasty-surface-raised)", padding: "var(--tasty-space-lg)", display: "flex", flexDirection: "column", gap: "var(--tasty-space-md)" }}>
               <div style={{ display: "flex", gap: "var(--tasty-space-md)", alignItems: "flex-start" }}>
                 <PluginAvatar plugin={manifest} size="lg" />

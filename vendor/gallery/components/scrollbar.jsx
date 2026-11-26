@@ -21,7 +21,7 @@ function GalleryScrollbar() {
         {HOSTS.map(([host, ground, thumb]) => (
           <figure key={host} style={{ margin: 0 }}>
             <figcaption style={{ marginBottom: "var(--tasty-space-xs)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-secondary)" }}>{host}</figcaption>
-            <div data-contract="Scrollbar" data-state="rest" data-host={host} style={{ position: "relative", width: "var(--tasty-size-64)", height: "var(--tasty-size-96)", background: `var(${ground})`, border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
+            <div data-contract="Scrollbar" data-state="rest" data-host={host} style={{ position: "relative", width: "var(--tasty-size-64)", height: "var(--tasty-size-96)", background: `var(${ground})`, border: "var(--tasty-border-width) solid var(--tasty-swatch-border)", borderRadius: "var(--tasty-radius)" }}>
               <span data-part="thumb" style={{ position: "absolute", top: "var(--tasty-size-8)", right: "var(--tasty-size-2)", width: "var(--tasty-size-6)", height: "var(--tasty-size-48)", borderRadius: "var(--tasty-radius-pill)", background: `var(${thumb})` }} />
             </div>
           </figure>

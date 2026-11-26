@@ -238,7 +238,7 @@ function YPreview({ kind }) {
   );
   else if (kind === "image") body = (
     <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-sidebar)" }}>
-      <div style={{ width: "100%", aspectRatio: "16 / 9", display: "flex", alignItems: "center", justifyContent: "center", border: "var(--tasty-border-width) solid var(--tasty-separator)", borderRadius: "var(--tasty-radius-sm)", background: "var(--tasty-surface-raised)", color: "var(--tasty-text-muted)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)" }}>image · fit</div>
+      <div style={{ width: "100%", aspectRatio: "16 / 9", display: "flex", alignItems: "center", justifyContent: "center", border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius-sm)", background: "var(--tasty-surface-raised)", color: "var(--tasty-text-muted)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)" }}>image · fit</div>
     </div>
   );
   else {

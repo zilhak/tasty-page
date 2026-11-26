@@ -250,7 +250,7 @@ function Icons() {
                     </div>
                   ))}
                 </div>
-                <div style={{ width: 168, padding: "var(--tasty-space-xs)", border: "var(--tasty-border-width) solid var(--tasty-border-default)",
+                <div style={{ width: 168, padding: "var(--tasty-space-xs)", border: "var(--tasty-border-width) solid var(--tasty-menu-border)",
                   borderRadius: "var(--tasty-radius)", background: "var(--tasty-menu-bg, var(--tasty-surface-raised))", boxShadow: "var(--tasty-shadow-popover)",
                   display: "flex", flexDirection: "column", gap: 1 }}>
                   {[["Text — \u201cOption\u201d", null, false], ["Symbol", "optionKey", true]].map(([label, glyph, active]) => (
