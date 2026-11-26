@@ -780,7 +780,7 @@ function Page() {
         </Spec>
 
         <Spec id="sidebar-favorites-populated-vs-empty-state" title="Sidebar Favorites — populated vs. empty state"
-          when={<>The Favorites caption stays visible at zero favorites. Populated rows show a filled star and the folder name. The empty state shares the caption’s 8px inset and shows a <span className="tok">--tasty-glyph-dim</span> star and “No favorites yet” in <span className="tok">--tasty-text-muted</span>, both at caption size. The add hint below uses <span className="tok">--tasty-text-placeholder</span> with “Add to Favorites” in <span className="tok">--tasty-text-muted</span> and wraps to two lines at 196px.</>}>
+          when={<>The Favorites caption stays visible at zero favorites. Populated rows show a filled star and the folder name. The empty state shares the caption’s 8px inset and shows a <span className="tok">--tasty-glyph-dim</span> star at <span className="tok">--tasty-icon-size-sm</span> (14px) and “No favorites yet” in <span className="tok">--tasty-text-muted</span> at <span className="tok">--tasty-font-size-caption</span> (11px). The add hint below uses <span className="tok">--tasty-text-placeholder</span> with “Add to Favorites” in <span className="tok">--tasty-text-muted</span> and wraps to two lines at 196px.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 18, flexWrap: "wrap" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
               <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>with favorites</div>
