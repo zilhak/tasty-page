@@ -1,4 +1,4 @@
-<!-- source-hash: 4fd449994168 -->
+<!-- source-hash: 96db2435314c -->
 # Working with Claude and Codex
 
 Run Claude Code and Codex CLI in Tasty terminals and follow their status. Install each CLI separately. To delegate work across agents, configure both the hooks and the parent’s result delivery path.
@@ -155,10 +155,10 @@ Child notification lines start with a fixed tag followed by a space, regardless 
 
 | Child | `[info]` | `[warning]` | `[error]` |
 |-------|----------|-------------|-----------|
-| Claude | Normal end of a turn (`idle`), stored remote result | Waiting for input (`needs_input`), prolonged silence during a turn without an error, no screen or task-file output while waiting on background work, a summary of held no-output notices | Turn ended on an API error, API error with background work still running, output stalled after an error, process exit (`exited`) |
+| Claude | Normal end of a turn (`idle`), stored remote result | Waiting for input (`needs_input`), prolonged silence outside a background wait with no error text found on the terminal screen just before the notice, no screen or task-file output while waiting on background work, a summary of held no-output notices | Turn ended on an API error, API error with background work still running, prolonged silence outside a background wait with error text found on the terminal screen just before the notice, process exit (`exited`) |
 | Codex | Ordinary state change, stored remote result | Waiting for tool approval (`needs_input`) | Process exit (`exited`), completion line with a sandbox initialization failure hint |
 
-If a script looked for `surface <N>: ` at the start of the line, read past the tag and its trailing space first. To select just no-output warnings, start with `^\[warning\] `, then use the message text to exclude input and approval waits. Stalls after an error are logged as `[error]`.
+If a script looked for `surface <N>: ` at the start of the line, read past the tag and its trailing space first. To select just no-output warnings, start with `^\[warning\] `, then use the message text to exclude input and approval waits.
 
 When a Claude child ended its turn on an API error, the end of the completion line says so and names the error kind (for example `overloaded`). If background work is still running and the child keeps waiting, a single line saying so is written instead of a completion line. For example, an English log can contain `[error] surface 12: the turn ended on an API error (overloaded), but background work (shell) is still running, so the child keeps waiting`.
 
@@ -172,7 +172,7 @@ Tasty excludes tasks it recognizes as Monitor from no-output checks. If a backgr
 
 The no-output notification is recorded in the completion log and wakes a new turn in a parent Claude Code with the mod or Monitor receiving setup described below. This notification path does not apply to children created from a Codex parent conversation. Codex parents receive turn results through the separate return path below.
 
-During a turn that is not waiting on background work, an error in the latest output sets a fixed 30-second threshold. Neither the 30 seconds after an error nor the minimum 5-minute interval between notifications is configurable. Each stretch of silence is reported only once. This setting is separate from the 120-second threshold for `stale` in `tasty claude children`, so `stale` can appear before the notification. A notification does not establish that work has stopped.
+Outside a background wait, error text in recent output sets a fixed 30-second no-output threshold. To choose the tag, Tasty reads the terminal screen just before the notification. It uses `[error]` if it finds error text and `[warning]` otherwise. The 30-second threshold and the minimum 5-minute interval between notifications are fixed. Each stretch of silence is reported only once. This setting is separate from the 120-second threshold for `stale` in `tasty claude children`, so `stale` can appear before the notification. A notification does not establish that work has stopped.
 
 If you have older hooks installed, run `tasty claude install` again and start a new Claude Code process. If a hook reports Monitor as shell work, a no-output notification may be sent.
 
