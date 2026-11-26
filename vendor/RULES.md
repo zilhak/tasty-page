@@ -2338,7 +2338,7 @@ Inside the fixed limits: 4px grid, UI type 14px or less, borders 1px, radius 4px
 | Banner | - | `banner-padding-x` 12px | `icon-size-md` 16px | Body title, caption body | Left, actions right, wraps under when narrow | Wraps |
 | Modifier hint row | `modhint-row-min-height` 24px | `space-sm` 8px | `icon-size-sm` 14px | Caption | Left | Ellipsis |
 | Notification item | - | `notification-item-pad-x` 12px | `notification-item-glyph-size` 14px | Body title, caption body, micro meta | Top left | Clamps to notification-item-body-lines |
-| File picker row | `tree-row-height` 22px | `fp-inset-start` 12px | `icon-size-sm` 14px | Body, mono micro meta | Left, size and date right | Ellipsis |
+| File picker row | `tree-row-height` 22px | `fp-inset-start` 12px | `icon-size-md` 16px | Body, mono micro meta | Left, size and date right | Ellipsis |
 | DAG row | `dag-row-height` 36px | `listctrl-row-padding-x` 12px | `icon-size-md` 16px | Body, caption | Left | Ellipsis |
 | Keycap, Tag, Badge | `kbd-size` 16px | `tag-padding-x` 8px | - | Micro | Center | No wrap, no ellipsis in keycaps |
 
