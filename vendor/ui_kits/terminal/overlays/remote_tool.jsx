@@ -757,11 +757,9 @@ function RemoteTool({ onClose, onFlash }) {
   // host in 203.0.113.0/24 (TEST-NET-3, a documentation range nothing answers on) fails, any other host succeeds.
   // legacy-box sits there, so Re-detect on it shows the failed result again; editing its host to another address
   // lets the next probe succeed.
-  // Only an IPv4 literal in that range fails: a name such as 203.0.113.example.com is another host.
-  const probeReaches = (p) => {
-    const m = /^203\.0\.113\.(\d{1,3})$/.exec((p.host || "").trim());
-    return !(m && Number(m[1]) <= 255);
-  };
+  // Only an IPv4 literal in that range fails: a name such as 203.0.113.example.com is another host, and so is a last
+  // octet with a leading zero (203.0.113.025) or past 255, which strict dotted-decimal IPv4 does not accept.
+  const probeReaches = (p) => !/^203\.0\.113\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)$/.test((p.host || "").trim());
   // The probe runs on the profile as it was when Re-detect was pressed. Like the app, which rejects the result when
   // the stored profile changed in the meantime, a row saved during the probe keeps its own status.
   // Saving copies the row through blankProfile(), so the comparison fills the same defaults and ignores key order.
