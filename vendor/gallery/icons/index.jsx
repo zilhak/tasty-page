@@ -242,8 +242,8 @@ function Icons() {
                     <div key={glyph} style={{ display: "flex", alignItems: "center", gap: 12, minHeight: "var(--tasty-settings-row-min-height)" }}>
                       <span style={{ width: 128, flex: "none", fontSize: 13, color: "var(--tasty-text-secondary)" }}>{label}</span>
                       <span style={{ display: "inline-flex", alignItems: "center", gap: 8, height: "var(--tasty-control-height)", padding: "0 var(--tasty-space-sm)",
-                        border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)",
-                        background: "var(--tasty-surface-raised)", color: "var(--tasty-text-primary)" }}>
+                        border: "var(--tasty-border-width) solid var(--tasty-select-border)", borderRadius: "var(--tasty-radius)",
+                        background: "var(--tasty-select-bg)", color: "var(--tasty-text-primary)" }}>
                         <Icon name={glyph} size={16} />
                         <Icon name="chevronDown" size={14} />
                       </span>
