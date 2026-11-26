@@ -185,10 +185,10 @@ function XListRow({ glyph, name, state, glyphColor }) {
 }
 function XGridEdit({ glyph = XK.ic.file, value = "untitled.txt", error }) {
   return (
-    <div style={{ position: "relative", width: 80, display: "flex", flexDirection: "column", alignItems: "center", gap: 4, padding: "8px 4px", borderRadius: "var(--tasty-radius)", background: "var(--tasty-surface-active)" }}>
+    <div style={{ position: "relative", width: "var(--tasty-explorer-grid-cell-width)", display: "flex", flexDirection: "column", alignItems: "center", gap: "var(--tasty-space-xs)", padding: "var(--tasty-space-sm) var(--tasty-space-xs)", borderRadius: "var(--tasty-radius)", background: "var(--tasty-surface-active)" }}>
       <span style={{ display: "inline-flex", height: "var(--tasty-explorer-grid-thumb-size)", alignItems: "center", color: "var(--tasty-text-secondary)" }}>{glyph}</span>
       <span style={{ width: "var(--tasty-size-160)", alignSelf: "center", zIndex: 1 }}><XInput block defaultValue={value} invalid={!!error} /></span>
-      <span style={{ height: 14 }} />
+      <span style={{ height: "var(--tasty-explorer-grid-label-line-height)" }} />
       {error && <XNameError text={error} left={-36} />}
     </div>
   );

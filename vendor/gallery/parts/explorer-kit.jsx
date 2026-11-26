@@ -208,16 +208,16 @@ function DetailHeader() {
 //            grid rows uniform (stable horizontal_wrapped alignment). Label is
 //            top-aligned within the reserved block.
 //   gaps   : spacing_sm (8) top/bottom · spacing_xs (4) icon→label
-const GRID_CELL_W = 80;
+const GRID_CELL_W = "var(--tasty-explorer-grid-cell-width)";
 const GRID_LABEL_LINES = 3;
-const GRID_LABEL_LINE_H = 14; // round(font_size_caption 11 × 1.3)
+const GRID_LABEL_LINE_H = "var(--tasty-explorer-grid-label-line-height)"; // round(font_size_caption 11 × 1.3)
 function GridCell({ glyph, name, state, glyphColor }) {
   const bg = state === "selected" ? "var(--tasty-surface-active)" : state === "hover" ? "var(--tasty-overlay-hover)" : "transparent";
   return (
-    <div style={{ width: GRID_CELL_W, display: "flex", flexDirection: "column", alignItems: "center", gap: 4, padding: "8px 4px",
+    <div style={{ width: GRID_CELL_W, display: "flex", flexDirection: "column", alignItems: "center", gap: "var(--tasty-space-xs)", padding: "var(--tasty-space-sm) var(--tasty-space-xs)",
       borderRadius: "var(--tasty-radius)", background: bg, cursor: "default" }}>
       <span style={{ display: "inline-flex", color: state === "selected" ? "var(--tasty-text-on-active)" : glyphColor || "var(--tasty-text-secondary)", height: 16, alignItems: "center" }}>{glyph}</span>
-      <span style={{ fontSize: 11, textAlign: "center", lineHeight: `${GRID_LABEL_LINE_H}px`, height: GRID_LABEL_LINES * GRID_LABEL_LINE_H,
+      <span style={{ fontSize: "var(--tasty-font-size-caption)", textAlign: "center", lineHeight: GRID_LABEL_LINE_H, height: `calc(${GRID_LABEL_LINES} * ${GRID_LABEL_LINE_H})`,
         color: state === "selected" ? "var(--tasty-text-on-active)" : state === "cut" ? "var(--tasty-cut-pending-fg)" : "var(--tasty-text-secondary)", fontStyle: state === "cut" ? "var(--tasty-cut-pending-font-style)" : undefined, wordBreak: "break-word",
         display: "-webkit-box", WebkitLineClamp: GRID_LABEL_LINES, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{name}</span>
     </div>

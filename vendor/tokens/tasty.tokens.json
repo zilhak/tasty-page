@@ -6580,6 +6580,14 @@
       "$value": "{primitive.size-40}",
       "$description": "Grid cell icon slot (all cells) — image thumbnails fit here"
     },
+    "explorer-grid-cell-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-80}"
+    },
+    "explorer-grid-label-line-height": {
+      "$type": "dimension",
+      "$value": "{primitive.size-14}"
+    },
     "explorer-delete-list-max-height": {
       "$type": "dimension",
       "$value": "{primitive.size-160}",
