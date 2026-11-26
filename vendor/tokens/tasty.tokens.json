@@ -4932,6 +4932,10 @@
       "$type": "dimension",
       "$value": "{primitive.size-13}"
     },
+    "fp-footer-line-glyph-size": {
+      "$type": "dimension",
+      "$value": "{component.fp-crumb-glyph-size}"
+    },
     "fp-popup-min-width": {
       "$type": "dimension",
       "$value": "{primitive.size-320}"

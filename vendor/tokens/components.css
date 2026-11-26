@@ -1053,6 +1053,7 @@
   --tasty-fp-crumb-current-min-width: var(--tasty-size-96); /* the CURRENT folder's floor — it never goes below this while any ancestor is still painted */
   --tasty-fp-bar-hysteresis:          var(--tasty-size-8);  /* grow-back margin: a crumb returns only when 8px MORE than its floor is free, so a drag-resize can't flap */
   --tasty-fp-crumb-glyph-size:        var(--tasty-size-13); /* 13 — chevron between crumbs, the app's CRUMB_GLYPH */
+  --tasty-fp-footer-line-glyph-size:  var(--tasty-fp-crumb-glyph-size); /* 13 — glyph of the footer folder and overwrite lines; the app draws both at CRUMB_GLYPH */
   --tasty-fp-popup-min-width:         var(--tasty-size-320); /* the picker's own floor — clamped by the owning surface, which always wins */
   /* File picker list columns: the list header and every row read the same widths. Name takes what is left. */
   --tasty-fp-size-col-width:          var(--tasty-size-68);  /* Size column, right-aligned */

@@ -3368,18 +3368,20 @@ function FilePickerFrame({ state = "loaded", remote = false, indicator = "badge"
             );
           })()}
         </div>}
+        {/* The folder and overwrite lines are one line each, as the app draws them: glyph fp-footer-line-glyph-size,
+            then the text, cut at the end with an ellipsis (footer.rs folder_line / overwrite_line). */}
         {folderSel && (
-          <div style={{ display: "flex", alignItems: "flex-start", gap: "var(--tasty-space-xs)", fontSize: "var(--tasty-font-size-caption)", lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-text-muted)" }}>
-            <span style={{ display: "inline-flex", alignItems: "center", flex: "none", height: "1lh" }}><Icon name="folder" size="var(--tasty-icon-size-xs)" /></span>
-            <span>{saving
+          <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-xs)", minWidth: 0, fontSize: "var(--tasty-font-size-caption)", lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-text-muted)" }}>
+            <span style={{ display: "inline-flex", alignItems: "center", flex: "none", height: "1lh" }}><Icon name="folder" size="var(--tasty-fp-footer-line-glyph-size)" /></span>
+            <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{saving
               ? <>Folders aren't save targets — double-click <span style={{ fontFamily: "var(--tasty-font-mono)" }}>configs</span> to open it.</>
               : <><span style={{ fontFamily: "var(--tasty-font-mono)" }}>configs</span> is a folder — <b style={{ fontWeight: 600 }}>Open</b> enters it.</>}</span>
           </div>
         )}
         {overwrite && (
-          <div style={{ display: "flex", alignItems: "flex-start", gap: "var(--tasty-space-xs)", fontSize: "var(--tasty-font-size-caption)", lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-accent-warning-raised)" }}>
-            <span style={{ display: "inline-flex", alignItems: "center", flex: "none", height: "1lh" }}><Icon name="alertTriangle" size="var(--tasty-icon-size-xs)" /></span>
-            <span><span style={{ fontFamily: "var(--tasty-font-mono)" }}>{saveName}</span> already exists in this folder. Saving replaces it.</span>
+          <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-xs)", minWidth: 0, fontSize: "var(--tasty-font-size-caption)", lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-accent-warning-raised)" }}>
+            <span style={{ display: "inline-flex", alignItems: "center", flex: "none", height: "1lh" }}><Icon name="alertTriangle" size="var(--tasty-fp-footer-line-glyph-size)" /></span>
+            <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}><span style={{ fontFamily: "var(--tasty-font-mono)" }}>{saveName}</span> already exists in this folder. Saving replaces it.</span>
           </div>
         )}
         <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)" }}>
