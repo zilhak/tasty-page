@@ -49,12 +49,12 @@ macOS 에서 설정 화면의 표기를 `⌘` `⌥` `⇧` 심볼로 바꾸려면
 |---------|-----------------|-------|
 | 페인 분할 (좌우 / 상하) | `Alt+E` / `Alt+Shift+E` | `Cmd+E` / `Cmd+Shift+E` |
 | 다음 · 이전 페인 | `Ctrl+]` · `Ctrl+[` | `Ctrl+]` · `Ctrl+[` |
-| 페인 닫기 | `Ctrl+Shift+W` | `Ctrl+Shift+W` |
+| **페인 닫기:** <!-- en: Close pane: --> | `Ctrl+Shift+W` | `Ctrl+Shift+W` |
 | 새 탭 | `Alt+T` | `Cmd+T` |
 | n 번 탭으로 | `Ctrl+1` ~ `Ctrl+0` | `Ctrl+1` ~ `Ctrl+0` |
 | 다음 · 이전 탭 | `Ctrl+L` · `Ctrl+H` | `Ctrl+L` · `Ctrl+H` |
 | 탭 이름 변경 | `F2` | `F2` |
-| 활성 항목 닫기 (탭 → 페인 → 워크스페이스 순) | `Ctrl+W` | `Ctrl+W` |
+| **활성 항목 닫기:** <!-- en: Close active: --> (탭 → 페인 → 워크스페이스 순) | `Ctrl+W` | `Ctrl+W` |
 | 닫은 항목 복원 | `Ctrl+Shift+T` | `Ctrl+Shift+T` |
 | 서피스 분할 (좌우 / 상하) | `Alt+D` / `Alt+Shift+D` | `Cmd+D` / `Cmd+Shift+D` |
 | 다음 · 이전 서피스 | `Alt+]` · `Alt+[` | `Cmd+]` · `Cmd+[` |
@@ -139,7 +139,7 @@ macOS 에서 설정 화면의 표기를 `⌘` `⌥` `⇧` 심볼로 바꾸려면
 | 프리셋 | 기준 | Tasty 프리셋과 다른 점 |
 |--------|------|------------------------|
 | **Tasty** (기본) | 자체 | 위 표. 복사 · 붙여넣기 · 줌은 세 OS 관례를 모두 묶어 둡니다 |
-| **Mac** | iTerm2 · Terminal.app | `Cmd` 중심. 설정 `Cmd+,` · 알림 `Cmd+Shift+I` · DAG 목록 `Cmd+Shift+G` · 사이드바 `Cmd+Shift+B` / `Cmd+B` · 종료 `Cmd+Q` · 백그라운드 `Cmd+M` · 페인 닫기 `Cmd+Shift+W`. 여러 조합을 묶어 둔 동작은 `Cmd` 쪽 하나만 남습니다 — 복사 `Cmd+C` · 붙여넣기 `Cmd+V` · 잘라내기 `Cmd+X` · 전체 선택 `Cmd+A` · 검색 `Cmd+F` · 줌 `Cmd+=` · `Cmd+-` · `Cmd+0` · 명령 팔레트 `Cmd+Shift+P` · 코드 입력칸 적용 `Cmd+Enter`, 탐색기의 휴지통 `Cmd+Backspace` · 실행 취소 `Cmd+Z` · 다시 실행 `Cmd+Shift+Z` · 숨김 파일 `Cmd+Shift+.`. **활성 항목 닫기** 와 **워크스페이스 닫기** 는 비어 있습니다 |
+| **Mac** | iTerm2 · Terminal.app | `Cmd` 중심. 설정 `Cmd+,` · 알림 `Cmd+Shift+I` · DAG 목록 `Cmd+Shift+G` · 사이드바 `Cmd+Shift+B` / `Cmd+B` · 종료 `Cmd+Q` · 백그라운드 `Cmd+M` · 페인 닫기 `Cmd+Shift+W`. 여러 조합을 묶어 둔 동작은 `Cmd` 쪽 하나만 남습니다 — 복사 `Cmd+C` · 붙여넣기 `Cmd+V` · 잘라내기 `Cmd+X` · 전체 선택 `Cmd+A` · 검색 `Cmd+F` · 줌 `Cmd+=` · `Cmd+-` · `Cmd+0` · 명령 팔레트 `Cmd+Shift+P` · 코드 입력칸 적용 `Cmd+Enter`, 탐색기의 휴지통 `Cmd+Backspace` · 실행 취소 `Cmd+Z` · 다시 실행 `Cmd+Shift+Z` · 숨김 파일 `Cmd+Shift+.`. **활성 항목 닫기:** 와 **워크스페이스 닫기** 는 비어 있습니다 |
 | **Windows** | Windows Terminal | 페인 분할 `Alt+Shift+E` / `Alt+Shift+D`, 서피스 분할 `Alt+D` / `Alt+E` · 새 윈도우 `Ctrl+Shift+N`. 여러 조합을 묶어 둔 동작은 `Ctrl` 쪽만 남고 `Alt` 조합이 빠집니다 — 복사 `Ctrl+C` · 붙여넣기 `Ctrl+V` · 잘라내기 `Ctrl+X` · 전체 선택 `Ctrl+A` · 검색 `Ctrl+F` · 줌 `Ctrl+=` · `Ctrl+-` · `Ctrl+0` · 명령 팔레트 `Ctrl+Shift+P` · 코드 입력칸 적용 `Ctrl+Enter`, 탐색기의 휴지통 `Delete` · 실행 취소 `Ctrl+Z` · 다시 실행 `Ctrl+Shift+Z` · `Ctrl+Y` · 숨김 파일 `Ctrl+Shift+.` |
 | **Linux** | GNOME Terminal | Windows 프리셋과 같되 복사/붙여넣기/잘라내기 `Ctrl+Shift+C` / `Ctrl+Shift+V` / `Ctrl+Shift+X` · 종료 `Ctrl+Q` |
 

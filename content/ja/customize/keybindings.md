@@ -1,4 +1,4 @@
-<!-- source-hash: 04adb9cae0f7 -->
+<!-- source-hash: 7d466878ab3a -->
 # キーバインド
 
 Tasty のキーバインドは、プリセットで変更したり、よく使う動作ごとに好みのキーの組み合わせを指定したりできます。キーバインドの設定は **設定** <!-- en: Settings --> > **キーバインド** <!-- en: Keybindings --> にあります。
@@ -50,12 +50,12 @@ macOS で設定画面の表記を `⌘` `⌥` `⇧` の記号に変えるには�
 |---------|-----------------|-------|
 | ペインを分割（左右 / 上下） | `Alt+E` / `Alt+Shift+E` | `Cmd+E` / `Cmd+Shift+E` |
 | 次・前のペイン | `Ctrl+]` · `Ctrl+[` | `Ctrl+]` · `Ctrl+[` |
-| ペインを閉じる | `Ctrl+Shift+W` | `Ctrl+Shift+W` |
+| **ペインを閉じる:** <!-- en: Close pane: --> | `Ctrl+Shift+W` | `Ctrl+Shift+W` |
 | 新しいタブ | `Alt+T` | `Cmd+T` |
 | n 番目のタブへ | `Ctrl+1` ~ `Ctrl+0` | `Ctrl+1` ~ `Ctrl+0` |
 | 次・前のタブ | `Ctrl+L` · `Ctrl+H` | `Ctrl+L` · `Ctrl+H` |
 | タブ名の変更 | `F2` | `F2` |
-| アクティブな項目を閉じる（タブ → ペイン → ワークスペースの順） | `Ctrl+W` | `Ctrl+W` |
+| **アクティブ項目を閉じる:** <!-- en: Close active: -->（タブ → ペイン → ワークスペースの順） | `Ctrl+W` | `Ctrl+W` |
 | 閉じた項目を復元 | `Ctrl+Shift+T` | `Ctrl+Shift+T` |
 | サーフェスを分割（左右 / 上下） | `Alt+D` / `Alt+Shift+D` | `Cmd+D` / `Cmd+Shift+D` |
 | 次・前のサーフェス | `Alt+]` · `Alt+[` | `Cmd+]` · `Cmd+[` |
@@ -140,7 +140,7 @@ Markdown・HTML 画面の本文とその中の入力欄、HTML アドレスバ�
 | プリセット | 基準 | Tasty プリセットとの違い |
 |--------|------|------------------------|
 | **Tasty**（デフォルト） | 独自 | 上の表です。コピー・貼り付け・ズームは 3 つの OS の慣例をすべてまとめています |
-| **Mac** | iTerm2 · Terminal.app | `Cmd` が中心です。設定 `Cmd+,` · 通知 `Cmd+Shift+I` · DAG 一覧 `Cmd+Shift+G` · サイドバー `Cmd+Shift+B` / `Cmd+B` · 終了 `Cmd+Q` · バックグラウンド `Cmd+M` · ペインを閉じる `Cmd+Shift+W`。複数の組み合わせをまとめた動作は、`Cmd` 側の 1 つだけが残ります — コピー `Cmd+C` · 貼り付け `Cmd+V` · 切り取り `Cmd+X` · すべて選択 `Cmd+A` · 検索 `Cmd+F` · ズーム `Cmd+=` · `Cmd+-` · `Cmd+0` · コマンドパレット `Cmd+Shift+P` · コード入力欄で適用 `Cmd+Enter`、エクスプローラーのゴミ箱 `Cmd+Backspace` · 元に戻す `Cmd+Z` · やり直す `Cmd+Shift+Z` · 隠しファイル `Cmd+Shift+.`。**アクティブな項目を閉じる** と **ワークスペースを閉じる** は空です |
+| **Mac** | iTerm2 · Terminal.app | `Cmd` が中心です。設定 `Cmd+,` · 通知 `Cmd+Shift+I` · DAG 一覧 `Cmd+Shift+G` · サイドバー `Cmd+Shift+B` / `Cmd+B` · 終了 `Cmd+Q` · バックグラウンド `Cmd+M` · ペインを閉じる `Cmd+Shift+W`。複数の組み合わせをまとめた動作は、`Cmd` 側の 1 つだけが残ります — コピー `Cmd+C` · 貼り付け `Cmd+V` · 切り取り `Cmd+X` · すべて選択 `Cmd+A` · 検索 `Cmd+F` · ズーム `Cmd+=` · `Cmd+-` · `Cmd+0` · コマンドパレット `Cmd+Shift+P` · コード入力欄で適用 `Cmd+Enter`、エクスプローラーのゴミ箱 `Cmd+Backspace` · 元に戻す `Cmd+Z` · やり直す `Cmd+Shift+Z` · 隠しファイル `Cmd+Shift+.`。**アクティブ項目を閉じる:** と **ワークスペースを閉じる** は空です |
 | **Windows** | Windows Terminal | ペインの分割 `Alt+Shift+E` / `Alt+Shift+D`、サーフェスの分割 `Alt+D` / `Alt+E` · 新しいウィンドウ `Ctrl+Shift+N`。複数の組み合わせをまとめた動作は、`Ctrl` 側だけが残り、`Alt` の組み合わせはなくなります — コピー `Ctrl+C` · 貼り付け `Ctrl+V` · 切り取り `Ctrl+X` · すべて選択 `Ctrl+A` · 検索 `Ctrl+F` · ズーム `Ctrl+=` · `Ctrl+-` · `Ctrl+0` · コマンドパレット `Ctrl+Shift+P` · コード入力欄で適用 `Ctrl+Enter`、エクスプローラーのゴミ箱 `Delete` · 元に戻す `Ctrl+Z` · やり直す `Ctrl+Shift+Z` · `Ctrl+Y` · 隠しファイル `Ctrl+Shift+.` |
 | **Linux** | GNOME Terminal | Windows プリセットと同じですが、コピー/貼り付け/切り取りは `Ctrl+Shift+C` / `Ctrl+Shift+V` / `Ctrl+Shift+X` · 終了は `Ctrl+Q` です |
 

@@ -1,4 +1,4 @@
-<!-- source-hash: 04adb9cae0f7 -->
+<!-- source-hash: 7d466878ab3a -->
 # 按键绑定
 
 Tasty 的按键绑定可通过预设更改，也可为常用操作指定所需的组合键。按键绑定位于 **设置** <!-- en: Settings --> > **按键绑定** <!-- en: Keybindings -->。
@@ -50,12 +50,12 @@ Windows 保留的组合键，如 `Win+L` · `Win+D`，以及 GNOME · KDE 使用
 |---------|-----------------|-------|
 | 拆分窗格（左右／上下） | `Alt+E` / `Alt+Shift+E` | `Cmd+E` / `Cmd+Shift+E` |
 | 下一个 · 上一个窗格 | `Ctrl+]` · `Ctrl+[` | `Ctrl+]` · `Ctrl+[` |
-| 关闭窗格 | `Ctrl+Shift+W` | `Ctrl+Shift+W` |
+| **关闭窗格：** <!-- en: Close pane: --> | `Ctrl+Shift+W` | `Ctrl+Shift+W` |
 | 新建标签页 | `Alt+T` | `Cmd+T` |
 | 转到第 n 个标签页 | `Ctrl+1` ~ `Ctrl+0` | `Ctrl+1` ~ `Ctrl+0` |
 | 下一个 · 上一个标签页 | `Ctrl+L` · `Ctrl+H` | `Ctrl+L` · `Ctrl+H` |
 | 重命名标签页 | `F2` | `F2` |
-| 关闭活动项（按标签页 → 窗格 → 工作区顺序） | `Ctrl+W` | `Ctrl+W` |
+| **关闭活动项：** <!-- en: Close active: -->（按标签页 → 窗格 → 工作区顺序） | `Ctrl+W` | `Ctrl+W` |
 | 恢复已关闭的项目 | `Ctrl+Shift+T` | `Ctrl+Shift+T` |
 | 拆分 Surface（左右／上下） | `Alt+D` / `Alt+Shift+D` | `Cmd+D` / `Cmd+Shift+D` |
 | 下一个 · 上一个 Surface | `Alt+]` · `Alt+[` | `Cmd+]` · `Cmd+[` |
@@ -140,7 +140,7 @@ Windows 保留的组合键，如 `Win+L` · `Win+D`，以及 GNOME · KDE 使用
 | 预设 | 依据 | 与 Tasty 预设的区别 |
 |--------|------|------------------------|
 | **Tasty**（默认） | 自有 | 见上表。复制、粘贴、缩放集合了三种操作系统的惯用组合 |
-| **Mac** | iTerm2 · Terminal.app | 以 `Cmd` 为主。设置 `Cmd+,` · 通知 `Cmd+Shift+I` · DAG 列表 `Cmd+Shift+G` · 侧边栏 `Cmd+Shift+B` / `Cmd+B` · 退出 `Cmd+Q` · 后台 `Cmd+M` · 关闭窗格 `Cmd+Shift+W`。包含多个组合的操作只保留 `Cmd` 组合——复制 `Cmd+C` · 粘贴 `Cmd+V` · 剪切 `Cmd+X` · 全选 `Cmd+A` · 搜索 `Cmd+F` · 缩放 `Cmd+=` · `Cmd+-` · `Cmd+0` · 命令面板 `Cmd+Shift+P` · 在代码输入框中应用 `Cmd+Enter`，文件浏览器的回收站 `Cmd+Backspace` · 撤销 `Cmd+Z` · 重做 `Cmd+Shift+Z` · 隐藏文件 `Cmd+Shift+.`。**关闭活动项** 和 **关闭工作区** 为空 |
+| **Mac** | iTerm2 · Terminal.app | 以 `Cmd` 为主。设置 `Cmd+,` · 通知 `Cmd+Shift+I` · DAG 列表 `Cmd+Shift+G` · 侧边栏 `Cmd+Shift+B` / `Cmd+B` · 退出 `Cmd+Q` · 后台 `Cmd+M` · 关闭窗格 `Cmd+Shift+W`。包含多个组合的操作只保留 `Cmd` 组合——复制 `Cmd+C` · 粘贴 `Cmd+V` · 剪切 `Cmd+X` · 全选 `Cmd+A` · 搜索 `Cmd+F` · 缩放 `Cmd+=` · `Cmd+-` · `Cmd+0` · 命令面板 `Cmd+Shift+P` · 在代码输入框中应用 `Cmd+Enter`，文件浏览器的回收站 `Cmd+Backspace` · 撤销 `Cmd+Z` · 重做 `Cmd+Shift+Z` · 隐藏文件 `Cmd+Shift+.`。**关闭活动项：** 和 **关闭工作区** 为空 |
 | **Windows** | Windows Terminal | 拆分窗格 `Alt+Shift+E` / `Alt+Shift+D`，拆分 Surface `Alt+D` / `Alt+E` · 新建窗口 `Ctrl+Shift+N`。包含多个组合的操作只保留 `Ctrl` 组合，移除 `Alt` 组合——复制 `Ctrl+C` · 粘贴 `Ctrl+V` · 剪切 `Ctrl+X` · 全选 `Ctrl+A` · 搜索 `Ctrl+F` · 缩放 `Ctrl+=` · `Ctrl+-` · `Ctrl+0` · 命令面板 `Ctrl+Shift+P` · 在代码输入框中应用 `Ctrl+Enter`，文件浏览器的回收站 `Delete` · 撤销 `Ctrl+Z` · 重做 `Ctrl+Shift+Z` · `Ctrl+Y` · 隐藏文件 `Ctrl+Shift+.` |
 | **Linux** | GNOME Terminal | 与 Windows 预设相同，但复制／粘贴／剪切为 `Ctrl+Shift+C` / `Ctrl+Shift+V` / `Ctrl+Shift+X` · 退出为 `Ctrl+Q` |
 

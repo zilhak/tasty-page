@@ -1,4 +1,4 @@
-<!-- source-hash: 04adb9cae0f7 -->
+<!-- source-hash: 7d466878ab3a -->
 # Keybindings
 
 Tasty’s keybindings can be changed with a preset or by assigning preferred key combinations to frequently used actions. Keybindings are available in **Settings** > **Keybindings**.
@@ -50,12 +50,12 @@ Category keybindings work only when **Settings** > **General** > **Workspace cat
 |---------|-----------------|-------|
 | Split Pane (left/right / top/bottom) | `Alt+E` / `Alt+Shift+E` | `Cmd+E` / `Cmd+Shift+E` |
 | Next · previous Pane | `Ctrl+]` · `Ctrl+[` | `Ctrl+]` · `Ctrl+[` |
-| Close Pane | `Ctrl+Shift+W` | `Ctrl+Shift+W` |
+| **Close pane:** | `Ctrl+Shift+W` | `Ctrl+Shift+W` |
 | New Tab | `Alt+T` | `Cmd+T` |
 | Go to Tab n | `Ctrl+1` ~ `Ctrl+0` | `Ctrl+1` ~ `Ctrl+0` |
 | Next · previous Tab | `Ctrl+L` · `Ctrl+H` | `Ctrl+L` · `Ctrl+H` |
 | Rename Tab | `F2` | `F2` |
-| Close active item (Tab → Pane → Workspace, in that order) | `Ctrl+W` | `Ctrl+W` |
+| **Close active:** (Tab → Pane → Workspace, in that order) | `Ctrl+W` | `Ctrl+W` |
 | Restore closed item | `Ctrl+Shift+T` | `Ctrl+Shift+T` |
 | Split Surface (left/right / top/bottom) | `Alt+D` / `Alt+Shift+D` | `Cmd+D` / `Cmd+Shift+D` |
 | Next · previous Surface | `Alt+]` · `Alt+[` | `Cmd+]` · `Cmd+[` |
@@ -140,7 +140,7 @@ The following have no default combination, either to prevent accidents or becaus
 | Preset | Based on | Differences from the Tasty preset |
 |--------|------|------------------------|
 | **Tasty** (default) | Its own | The tables above. Copy · paste · zoom bundle the conventions of all three OSes |
-| **Mac** | iTerm2 · Terminal.app | `Cmd`-centred. Settings `Cmd+,` · notifications `Cmd+Shift+I` · DAG list `Cmd+Shift+G` · sidebar `Cmd+Shift+B` / `Cmd+B` · quit `Cmd+Q` · background `Cmd+M` · close Pane `Cmd+Shift+W`. Actions that bundle several combinations keep only the `Cmd` one — copy `Cmd+C` · paste `Cmd+V` · cut `Cmd+X` · select all `Cmd+A` · search `Cmd+F` · zoom `Cmd+=` · `Cmd+-` · `Cmd+0` · command palette `Cmd+Shift+P` · apply in a code field `Cmd+Enter`, and in the Explorer move to trash `Cmd+Backspace` · undo `Cmd+Z` · redo `Cmd+Shift+Z` · hidden files `Cmd+Shift+.`. **Close active item** and **Close Workspace** are empty |
+| **Mac** | iTerm2 · Terminal.app | `Cmd`-centred. Settings `Cmd+,` · notifications `Cmd+Shift+I` · DAG list `Cmd+Shift+G` · sidebar `Cmd+Shift+B` / `Cmd+B` · quit `Cmd+Q` · background `Cmd+M` · close Pane `Cmd+Shift+W`. Actions that bundle several combinations keep only the `Cmd` one — copy `Cmd+C` · paste `Cmd+V` · cut `Cmd+X` · select all `Cmd+A` · search `Cmd+F` · zoom `Cmd+=` · `Cmd+-` · `Cmd+0` · command palette `Cmd+Shift+P` · apply in a code field `Cmd+Enter`, and in the Explorer move to trash `Cmd+Backspace` · undo `Cmd+Z` · redo `Cmd+Shift+Z` · hidden files `Cmd+Shift+.`. **Close active:** and **Close Workspace** are empty |
 | **Windows** | Windows Terminal | Pane split `Alt+Shift+E` / `Alt+Shift+D`, Surface split `Alt+D` / `Alt+E` · new window `Ctrl+Shift+N`. Actions that bundle several combinations keep only the `Ctrl` side and drop the `Alt` ones — copy `Ctrl+C` · paste `Ctrl+V` · cut `Ctrl+X` · select all `Ctrl+A` · search `Ctrl+F` · zoom `Ctrl+=` · `Ctrl+-` · `Ctrl+0` · command palette `Ctrl+Shift+P` · apply in a code field `Ctrl+Enter`, and in the Explorer move to trash `Delete` · undo `Ctrl+Z` · redo `Ctrl+Shift+Z` · `Ctrl+Y` · hidden files `Ctrl+Shift+.` |
 | **Linux** | GNOME Terminal | Same as the Windows preset, but copy/paste/cut `Ctrl+Shift+C` / `Ctrl+Shift+V` / `Ctrl+Shift+X` · quit `Ctrl+Q` |
 
