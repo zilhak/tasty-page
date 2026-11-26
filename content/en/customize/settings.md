@@ -1,4 +1,4 @@
-<!-- source-hash: 7ea402fe31b6 -->
+<!-- source-hash: d8cdc27c3f0c -->
 # Settings
 
 Tasty’s shell, fonts, language, and other preferences can be configured in the settings window or by editing `~/.tasty/config.toml` directly. Keybindings and themes have their own guides.
@@ -99,6 +99,8 @@ Set **Link click modifier** to **Disable left-click opening** to prevent left-cl
 | **Terminal** | The terminal Surface's **Focused background** · **Unfocused background** and font override |
 | **Explorer** | Explorer-only font override |
 | **Markdown** · **HTML** | Pages added by plugins — the Markdown font override and **Allow remote content**, and the HTML viewer's **Default zoom** · **Color scheme** · **Allow remote content** · **Sandbox scripts** |
+
+The terminal uses the font file in `custom_font_path` first, even if `font_family` is blank or names a different font. For glyphs missing from the file, it tries the configured font family, then the bundled D2Coding. The saved font file and line height apply in new windows and after restarting Tasty.
 
 For fonts, the defaults under **General** apply to terminal · Markdown · explorer all at once, and turning off **Use default** in a section lets only that type use different values. With **Font DPI scaling** set to **Auto**, the physical size of the text stays the same across monitors; with **Fixed**, the pixel size stays the same, so text gets smaller on high-resolution monitors.
 
