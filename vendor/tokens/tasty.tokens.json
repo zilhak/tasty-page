@@ -2599,7 +2599,7 @@
     },
     "caret-specimen-height": {
       "$type": "dimension",
-      "$value": "calc(1.0741 * var(--tasty-input-font-size))"
+      "$value": "calc(1.3077 * var(--tasty-input-font-size))"
     },
     "input-bg": {
       "$type": "color",

@@ -150,7 +150,7 @@
   --tasty-input-radius:            var(--tasty-radius);
   --tasty-input-font-size:         var(--tasty-font-size-body);
   --tasty-caret-specimen-field-width: var(--tasty-size-260); /* 2026-11-26 Components › Text caret specimen: the focused field's width */
-  --tasty-caret-specimen-height: calc(1.0741 * var(--tasty-input-font-size)); /* 2026-11-26 Components › Text caret specimen: the caret is one egui text row of the input font, D2Coding (ascent 850 + descent 230 + line gap 80) / 1080 = 1.0741 × the size, 13.96 at 13 */
+  --tasty-caret-specimen-height: calc(1.3077 * var(--tasty-input-font-size)); /* 2026-11-26 Components › Text caret specimen: the drawn caret of the app's default Input, proportional font (first face Ubuntu-Light). egui extends the 15px text row 1.5 above and below to 18, the field clip leaves 17 = 1.3077 × the size at 13 */
   --tasty-input-bg:                var(--tasty-surface-field); /* 2026-11-05 ground-ink rules */
   --tasty-input-fg:                var(--tasty-text-primary);
   --tasty-input-placeholder:       var(--tasty-text-placeholder);
