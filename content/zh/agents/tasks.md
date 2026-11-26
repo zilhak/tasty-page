@@ -1,4 +1,4 @@
-<!-- source-hash: 8956777bc01d -->
+<!-- source-hash: ddb44b259ff4 -->
 <a id="任务-dag"></a>
 
 # 任务顺序管理（DAG）
@@ -18,6 +18,8 @@ tasty agent task-run --workspace 2 --action start
 tasty agent task-run --workspace 2 --action status
 tasty agent task-run --workspace 2 --action stop
 ```
+
+`stop` 收到停止请求后立即响应。运行器停止派发新任务，并完成已经开始的派发、状态检查或后处理清理。停止所需时间没有固定上限。清理期间，`status` 返回 `state: stopping`，此时执行 `start` 不会启动新的运行器。要重新启动运行器，等 `status` 返回 `state: stopped` 后再执行 `start`。
 
 重启 tasty 后，运行器不会自动启动。任务本身仍会保留，再次 `start` 即可继续。重启前等待外部完成信号的任务，重启后不会再由该信号完成；设定的等待时间到期后，正在运行的运行器会将其以超时失败结束。运行器停止时，DAG 界面的运行器标记也会显示这一状态，将鼠标悬停在标记上可直接看到重新启动的命令。DAG 标签页的页首也会单独列出这一行命令。
 

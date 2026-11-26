@@ -1,4 +1,4 @@
-<!-- source-hash: 8956777bc01d -->
+<!-- source-hash: ddb44b259ff4 -->
 <a id="task-dag"></a>
 
 # Task workflows (DAG)
@@ -18,6 +18,8 @@ tasty agent task-run --workspace 2 --action start
 tasty agent task-run --workspace 2 --action status
 tasty agent task-run --workspace 2 --action stop
 ```
+
+`stop` returns as soon as it accepts the stop request. The runner stops dispatching new tasks and finishes any dispatch, status check, or postprocess cleanup already in progress. There is no fixed upper bound on how long stopping takes. During cleanup, `status` returns `state: stopping`, and `start` does not launch another runner. To start the runner again, wait until `status` returns `state: stopped` before running `start`.
 
 Restarting Tasty does not start the runner again automatically. The tasks themselves are still there, so `start` again and it picks up where it left off. A task that was waiting for an external completion signal before the restart is not finished by that signal afterwards; once its wait time runs out, a running runner ends it as a timeout failure. When the runner is stopped, the runner pill on the DAG screen says so, and hovering it shows the command that starts it again. In a DAG tab that command is also spelled out on the header line.
 
