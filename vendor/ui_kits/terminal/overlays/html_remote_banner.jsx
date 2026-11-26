@@ -129,6 +129,8 @@ function HtmlRemoteMarker({ kind = "blocked", hover = false, web = false, open =
 }
 
 // stand-in for a page whose remote stylesheet/images did not load (not tasty chrome)
+// The dashed boxes are the page's own broken-image placeholders: page content the specimen depicts, not an
+// annotation mark (RULES.md section 14), so they keep a page edge (border-default) and not specimen-annotation-border.
 function RcUnstyledPage({ label = "report.html" }) {
   const line = (w) => <span style={{ height: "var(--tasty-space-sm)", width: w, background: "var(--tasty-surface-raised)", borderRadius: "var(--tasty-radius-sm)" }} />;
   const broken = (w) => (
