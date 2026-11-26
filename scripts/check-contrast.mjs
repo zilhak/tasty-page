@@ -23,7 +23,11 @@
  * that is waited for up to REAP_GRACE_MS more. A finished run writes it after the time limit has stopped. If the write
  * fails it exits 1, if it runs late 3, each after one stderr line and up to FLUSH_GRACE_MS for stderr, and without the
  * verdict line. A timed out run exits 3 whatever its partial report did. After 1 or 3 the file may be missing, empty or
- * cut short. The child shares this process's stdout and stderr, so /dev/stdout and /dev/stderr work as paths.
+ * cut short. The child shares this process's stdout and stderr, so /dev/stdout and /dev/stderr reach the caller as paths,
+ * with limits: on a pipe the report mixes with the summary and verdict lines; on a regular file the child opens it again
+ * from the start, so the report overwrites what was written before it and a later line can overwrite the report; on a
+ * socket it cannot be opened (ENXIO), so a finished run exits 1 and a timed out run 3. A separate file is the safe path.
+ * scripts/contrast-cli.test.mjs runs this file with a stand-in browser to pin the exits before the browser and on a timeout.
  */
 import { createServer } from "node:http";
 import { existsSync, readFileSync, statSync } from "node:fs";
