@@ -323,31 +323,20 @@ function Components() {
           </Stage>
           <Meta tokens={[{ tok: "--tasty-font-mono", use: "keycap" }, { tok: "--tasty-surface-raised", use: "cap fill", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-border-strong", use: "cap border" }]} />
         <Spec id="one-keycap-no-palette-variant" title="One keycap, no palette variant"
-          when={<>The command palette drew its own keycaps — <b>18</b> square, <b>5</b> side padding, <b>4</b> gap, <b>11</b>px type — against <b>Kbd</b>'s 16 / 4 / 3 / 10. That is drift, not a variant: nothing about a palette row asks for a bigger key, and a second size would have to be maintained in two places. The palette <b>converges on Kbd</b>. In a <b>28px</b> palette row a 16px cap leaves 6px of air above and below and still centres on the row's text baseline, so no row height or alignment changes.</>}>
-          <Stage variant="solo" style={{ padding: 20, background: "var(--tasty-bg-app)", flexDirection: "column", gap: 14, alignItems: "flex-start" }}>
-            {[["settled — Kbd (16 / 4 / 3 / 10)", true], ["dropped — palette-only cap (18 / 5 / 4 / 11)", false]].map(([label, canonical]) => (
-              <div key={label} style={{ display: "flex", flexDirection: "column", gap: 6, width: 380 }}>
-                <div className="g-cap" style={{ fontSize: 11, color: canonical ? "var(--tasty-accent-success-raised)" : "var(--tasty-text-muted)" }}>{label}</div>
-                <div style={{ background: "var(--tasty-surface-raised)", border: "1px solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", padding: 4 }}>
-                  {[["Split pane right", "Ctrl+Shift+D"], ["Open file…", "Ctrl+P"]].map(([cmd, keys]) => (
-                    <div key={cmd} style={{ height: 28, display: "flex", alignItems: "center", gap: 8, padding: "0 8px", borderRadius: "var(--tasty-radius-sm)" }}>
-                      <span style={{ flex: 1, fontSize: 13, color: "var(--tasty-text-secondary)" }}>{cmd}</span>
-                      {canonical
-                        ? <Kbd keys={keys} />
-                        : <span style={{ display: "inline-flex", gap: 4 }}>{keys.split("+").map((k) => (
-                            <span key={k} style={{ minWidth: 18, height: 18, padding: "0 5px", display: "inline-flex", alignItems: "center", justifyContent: "center",
-                              fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: "var(--tasty-kbd-fg)", background: "var(--tasty-kbd-bg)",
-                              border: "1px solid var(--tasty-kbd-border)", borderRadius: "var(--tasty-radius-sm)",
-                              boxShadow: "0 var(--tasty-kbd-shadow-depth) 0 var(--tasty-kbd-border)" }}>{k}</span>))}
-                          </span>}
-                    </div>
-                  ))}
+          when={<>Both command palette rows use the shared Kbd keycap. The palette needs no larger cap, so there is only one size to maintain. A 16px cap centers on the text in a 28px row with 6px above and below.</>}>
+          {/* The palette's keycaps are the shared Kbd. The dropped palette-only cap is not drawn: the git history keeps it. */}
+          <Stage variant="solo">
+            <div style={{ width: "100%", maxWidth: "var(--tasty-palette-width)", background: "var(--tasty-surface-raised)", border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", padding: "var(--tasty-space-xs)" }}>
+              {[["Split pane right", "Ctrl+Shift+D"], ["Open file…", "Ctrl+P"]].map(([cmd, keys]) => (
+                <div key={cmd} style={{ height: "var(--tasty-control-height)", display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "0 var(--tasty-space-sm)", borderRadius: "var(--tasty-radius-sm)" }}>
+                  <span style={{ flex: 1, fontSize: "var(--tasty-font-size-body)", color: "var(--tasty-text-secondary)" }}>{cmd}</span>
+                  <Kbd keys={keys} />
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </Stage>
           <Meta
-            specs={[["min side", <>16 — <span className="tok">--tasty-kbd-size</span> (was 18)</>], ["padding-x", <>4 — <span className="tok">--tasty-kbd-padding-x</span> (was 5)</>], ["gap", <>3 — <span className="tok">--tasty-kbd-gap</span> (was 4)</>], ["font", <>10 — <span className="tok">--tasty-kbd-font-size</span> (was 11)</>], ["bottom edge", <>unchanged — <span className="tok">--tasty-kbd-shadow-depth</span></>], ["row", "28px palette row — unchanged, 6px air per side"], ["new tokens", "none"]]}
+            specs={[["min side", <>16px · <span className="tok">--tasty-kbd-size</span> (was 18px)</>], ["padding-x", <>4px · <span className="tok">--tasty-kbd-padding-x</span> (was 5px)</>], ["gap", <>4px · <span className="tok">--tasty-kbd-gap</span></>], ["font", <>10px · <span className="tok">--tasty-kbd-font-size</span> (was 11px)</>], ["bottom edge", <>2px bottom border · <span className="tok">--tasty-kbd-shadow-depth</span></>], ["row", "28px · 6px above and below the cap"], ["new tokens", "none"]]}
             tokens={[{ tok: "--tasty-kbd-size", use: "cap min side" }, { tok: "--tasty-kbd-padding-x", use: "cap side padding" }, { tok: "--tasty-kbd-gap", use: "between caps" }, { tok: "--tasty-kbd-font-size", use: "cap label" }]} />
           <Note>The switch-number overlay keycap already reads the Kbd tokens, so the palette was the last divergent cap. One keycap in the system now.</Note>
         </Spec>
