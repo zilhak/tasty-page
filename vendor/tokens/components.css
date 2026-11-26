@@ -1053,6 +1053,10 @@
   --tasty-fp-crumb-current-min-width: var(--tasty-size-96); /* the CURRENT folder's floor — it never goes below this while any ancestor is still painted */
   --tasty-fp-bar-hysteresis:          var(--tasty-size-8);  /* grow-back margin: a crumb returns only when 8px MORE than its floor is free, so a drag-resize can't flap */
   --tasty-fp-popup-min-width:         var(--tasty-size-320); /* the picker's own floor — clamped by the owning surface, which always wins */
+  /* File picker list columns: the list header and every row read the same widths. Name takes what is left. */
+  --tasty-fp-size-col-width:          var(--tasty-size-68);  /* Size column, right-aligned */
+  --tasty-fp-modified-col-width:      var(--tasty-size-108); /* Modified column, right-aligned */
+  --tasty-fp-remote-strip-height:     var(--tasty-selection-edge-width); /* 2 — the frame-border indicator's info strip across the top; the focus edge sits under it */
   /* File picker section insets (2026-09-29) — every section starts on ONE line (fp-inset-start = the list's space-md),
      so the header glyph, first crumb, list-header Name, row icon and footer label share a column. 10 / 14 / 6 / 5 / 30 retire. */
   --tasty-fp-inset-start:             var(--tasty-space-md);  /* 12 — header · path bar · list header · rows · footer */

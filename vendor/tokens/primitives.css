@@ -120,6 +120,7 @@
   /* layout / form-control / measure widths (fixed product dimensions; like 22/46
      above, some are off the 4px grid — real control widths, not spacing rhythm) */
   --tasty-size-64:  64px;  /* file-picker ancestor-crumb floor */
+  --tasty-size-68:  68px;  /* file-picker Size column */
   --tasty-size-76:  76px;  /* listening ports Proto column */
   --tasty-size-80:  80px;  /* explorer Detail Size column */
   --tasty-size-84:  84px;  /* listening ports Port column */
@@ -127,6 +128,7 @@
   --tasty-size-90:  90px;
   --tasty-size-92:  92px;  /* explorer Detail Type column */
   --tasty-size-96:  96px;  /* file-picker current-folder crumb floor */
+  --tasty-size-108: 108px; /* file-picker Modified column */
   --tasty-size-110: 110px;
   --tasty-size-112: 112px;
   --tasty-size-132: 132px; /* explorer Detail Date modified column */

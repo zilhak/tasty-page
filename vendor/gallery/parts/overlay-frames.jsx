@@ -3086,8 +3086,8 @@ function FpRow({ kind, name, size, mod, selected, focus, multi, checked, dim, in
       </span>
       <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
         fontSize: 13, fontWeight: isFolder ? 500 : 400, color: inert ? "var(--tasty-fp-folder-file-fg)" : selected ? "var(--tasty-text-on-active)" : "var(--tasty-text-secondary)" }}>{name}</span>
-      <span style={{ flex: "none", width: 68, textAlign: "right", fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: inert ? "var(--tasty-fp-folder-file-fg)" : selected ? "var(--tasty-text-on-active)" : "var(--tasty-text-muted)" }}>{size}</span>
-      <span style={{ flex: "none", width: 108, textAlign: "right", fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: inert ? "var(--tasty-fp-folder-file-fg)" : selected ? "var(--tasty-text-on-active)" : "var(--tasty-text-muted)" }}>{mod}</span>
+      <span style={{ flex: "none", width: "var(--tasty-fp-size-col-width)", textAlign: "right", fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: inert ? "var(--tasty-fp-folder-file-fg)" : selected ? "var(--tasty-text-on-active)" : "var(--tasty-text-muted)" }}>{size}</span>
+      <span style={{ flex: "none", width: "var(--tasty-fp-modified-col-width)", textAlign: "right", fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: inert ? "var(--tasty-fp-folder-file-fg)" : selected ? "var(--tasty-text-on-active)" : "var(--tasty-text-muted)" }}>{mod}</span>
       {tip && (
         <span role="tooltip" style={{ position: "absolute", left: "calc(1 * var(--tasty-fp-inset-start) + 1 * var(--tasty-size-96))", top: "100%", marginTop: "var(--tasty-space-xs)", zIndex: 4, whiteSpace: "nowrap",
           padding: "var(--tasty-tooltip-padding-y) var(--tasty-tooltip-padding-x)", background: "var(--tasty-tooltip-bg)", border: "var(--tasty-border-width) solid var(--tasty-tooltip-border)",
@@ -3273,9 +3273,9 @@ function FilePickerFrame({ state = "loaded", remote = false, indicator = "badge"
     <div style={{ position: "relative", width: w, height: h, display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)",
       border: borderMode ? "var(--tasty-border-width) solid var(--tasty-accent-info)" : "var(--tasty-border-width) solid var(--tasty-border-frame)",
       borderRadius: opaque ? "var(--tasty-webview-opaque-radius)" : "var(--tasty-radius)", overflow: "hidden", boxShadow: opaque ? "var(--tasty-webview-opaque-shadow)" : "var(--tasty-shadow-modal)" }}>
-      {borderMode && <div style={{ height: 2, flex: "none", background: "var(--tasty-accent-info)" }} />}
+      {borderMode && <div style={{ height: "var(--tasty-fp-remote-strip-height)", flex: "none", background: "var(--tasty-accent-info)" }} />}
       {/* the picker is scoped to its surface, so it lights the focus edge; in border mode the info row keeps the top and the edge sits under it */}
-      <PopupFocusEdge top={borderMode ? 2 : 0} />
+      <PopupFocusEdge top={borderMode ? "var(--tasty-fp-remote-strip-height)" : 0} />
       {/* header */}
       {/* section insets (2026-09-29): every section starts on fp-inset-start (12) — header glyph, first crumb, Name, row icon and footer label share one column */}
       <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-fp-section-gap)", padding: "var(--tasty-fp-header-pad-y) var(--tasty-fp-inset-end) var(--tasty-fp-header-pad-y) var(--tasty-fp-inset-start)", flex: "none", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
@@ -3284,7 +3284,7 @@ function FilePickerFrame({ state = "loaded", remote = false, indicator = "badge"
         </span>
         <span style={{ fontSize: "var(--tasty-font-size-max)", fontWeight: "var(--tasty-font-weight-semibold)", color: "var(--tasty-text-primary)" }}>{folderMode ? FC.title : saving ? "Save file" : "Open file"}</span>
         {remote && indicator === "badge" && <FpHostBadge host={host} lang={lang} />}
-        {remote && indicator === "glyph" && <span style={{ fontSize: 12, fontFamily: "var(--tasty-font-mono)", color: "var(--tasty-accent-info-raised)" }}><FpHostText host={host} lang={lang} /></span>}
+        {remote && indicator === "glyph" && <span style={{ fontSize: "var(--tasty-fp-host-badge-font-size)", fontFamily: "var(--tasty-font-mono)", color: "var(--tasty-accent-info-raised)" }}><FpHostText host={host} lang={lang} /></span>}
         <div style={{ flex: 1 }} />
         <IconButton size="sm" aria-label="Close">{ic.x}</IconButton>
       </div>
@@ -3298,11 +3298,11 @@ function FilePickerFrame({ state = "loaded", remote = false, indicator = "badge"
       {/* list header */}
       {state === "loaded" && (
         <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-fp-list-head-pad-y) var(--tasty-fp-inset-start)", flex: "none", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)",
-          fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-micro)", textTransform: "uppercase", letterSpacing: ".06em", color: "var(--tasty-text-muted)" }}>
-          {multi && <span style={{ width: 16, flex: "none" }} />}
-          <span style={{ width: 16, flex: "none" }} /><span style={{ flex: 1 }}>Name</span>
-          <span style={{ width: 68, textAlign: "right", flex: "none" }}>Size</span>
-          <span style={{ width: 108, textAlign: "right", flex: "none" }}>Modified</span>
+          fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-micro)", textTransform: "uppercase", letterSpacing: "var(--tasty-letter-spacing-caps-wide)", color: "var(--tasty-text-muted)" }}>
+          {multi && <span style={{ width: "var(--tasty-checkbox-size)", flex: "none" }} />}
+          <span style={{ width: "var(--tasty-icon-size-md)", flex: "none" }} /><span style={{ flex: 1 }}>Name</span>
+          <span style={{ width: "var(--tasty-fp-size-col-width)", textAlign: "right", flex: "none" }}>Size</span>
+          <span style={{ width: "var(--tasty-fp-modified-col-width)", textAlign: "right", flex: "none" }}>Modified</span>
         </div>
       )}
       {/* body */}
@@ -3370,20 +3370,20 @@ function FilePickerFrame({ state = "loaded", remote = false, indicator = "badge"
           })()}
         </div>}
         {folderSel && (
-          <div style={{ display: "flex", alignItems: "flex-start", gap: 6, fontSize: 11, lineHeight: 1.5, color: "var(--tasty-text-muted)" }}>
-            <span style={{ display: "inline-flex", flex: "none", marginTop: 1 }}><Icon name="folder" size={13} /></span>
+          <div style={{ display: "flex", alignItems: "flex-start", gap: "var(--tasty-space-xs)", fontSize: "var(--tasty-font-size-caption)", lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-text-muted)" }}>
+            <span style={{ display: "inline-flex", alignItems: "center", flex: "none", height: "1lh" }}><Icon name="folder" size="var(--tasty-icon-size-xs)" /></span>
             <span>{saving
               ? <>Folders aren't save targets — double-click <span style={{ fontFamily: "var(--tasty-font-mono)" }}>configs</span> to open it.</>
               : <><span style={{ fontFamily: "var(--tasty-font-mono)" }}>configs</span> is a folder — <b style={{ fontWeight: 600 }}>Open</b> enters it.</>}</span>
           </div>
         )}
         {overwrite && (
-          <div style={{ display: "flex", alignItems: "flex-start", gap: 6, fontSize: 11, lineHeight: 1.5, color: "var(--tasty-accent-warning-raised)" }}>
-            <span style={{ display: "inline-flex", flex: "none", marginTop: 1 }}><Icon name="alertTriangle" size={13} /></span>
+          <div style={{ display: "flex", alignItems: "flex-start", gap: "var(--tasty-space-xs)", fontSize: "var(--tasty-font-size-caption)", lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-accent-warning-raised)" }}>
+            <span style={{ display: "inline-flex", alignItems: "center", flex: "none", height: "1lh" }}><Icon name="alertTriangle" size="var(--tasty-icon-size-xs)" /></span>
             <span><span style={{ fontFamily: "var(--tasty-font-mono)" }}>{saveName}</span> already exists in this folder. Saving replaces it.</span>
           </div>
         )}
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)" }}>
           {multi && <span style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>3 selected</span>}
           <div style={{ flex: 1, minWidth: 0 }} />
           <span style={{ flex: "none", display: "flex" }}><Button variant="ghost">{folderMode ? FC.cancel : "Cancel"}</Button></span>

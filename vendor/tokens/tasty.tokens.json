@@ -701,6 +701,10 @@
       "$type": "dimension",
       "$value": "64px"
     },
+    "size-68": {
+      "$type": "dimension",
+      "$value": "68px"
+    },
     "size-76": {
       "$type": "dimension",
       "$value": "76px"
@@ -716,6 +720,10 @@
     "size-96": {
       "$type": "dimension",
       "$value": "96px"
+    },
+    "size-108": {
+      "$type": "dimension",
+      "$value": "108px"
     },
     "font-size-30": {
       "$type": "dimension",
@@ -4919,6 +4927,18 @@
     "fp-popup-min-width": {
       "$type": "dimension",
       "$value": "{primitive.size-320}"
+    },
+    "fp-size-col-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-68}"
+    },
+    "fp-modified-col-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-108}"
+    },
+    "fp-remote-strip-height": {
+      "$type": "dimension",
+      "$value": "{semantic.selection-edge-width}"
     },
     "fp-inset-start": {
       "$type": "dimension",
