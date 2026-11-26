@@ -1,4 +1,4 @@
-<!-- source-hash: 3d6d8f113c27 -->
+<!-- source-hash: 86a993504b59 -->
 # Lua scripts
 
 Lua scripts registered in Tasty can run from a keybinding or be set to run automatically when a window, workspace, or tab opens or closes.
@@ -62,6 +62,8 @@ File I/O and running external commands from the Lua standard library are availab
 ### `tasty.tree()` return structure
 
 `tasty.tree()` returns a copy of the most recently prepared tree at the time of the call. Changing the returned table does not change Tasty. `tasty.run_cli` requests execution without waiting for completion, so a `tasty.tree()` call immediately after it may not include the result.
+
+This tree structure is available in the GUI. In headless mode, `tasty.tree()` returns an empty array.
 
 Workspaces are appended to the array by window. Workspaces from open windows, including hidden or minimized windows, come first, with no fixed order between windows. Workspaces from windows sent to the background with Tasty’s **Minimize** on macOS follow in the order the windows were sent to the background. The order among windows sent to the background together in one operation is not fixed.
 
