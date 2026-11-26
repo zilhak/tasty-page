@@ -647,15 +647,22 @@ function ProtocolFilter({ protocols, hidden, onApply, lang = "en" }) {
 //                  unreadable = exists but can't be read: any open error (permission
 //                               denied included), not a regular file (a directory),
 //                               or not valid UTF-8. One cause-neutral line (2026-09-29).
-//   profileTargets user@host:port of existing ssh profiles → that host shows
-//                  a muted "in profiles" Tag instead of the action
+//   profileHosts   the host field of each stored ssh profile. A config host whose
+//                  alias equals one of them, letter for letter, shows a muted
+//                  "in profiles" Tag instead of the action. As the app's imported_as
+//                  (tasty-remote-profiles ssh_config.rs): the import writes the alias
+//                  into the profile's host and leaves user and port empty, so the
+//                  alias is what a stored profile can match; the target line is a
+//                  hint only and never decides it.
 //   onImport(host) the existing import action (one ghost button per row)
+// The sample: db.internal is a config Host with no HostName, so its target line names the alias (as local_target_hint)
+// and the db-primary profile's host field holds the same alias.
 const SSH_CONFIG_HOSTS = [
   { alias: "host", target: "maya@host.local:22" },
-  { alias: "prod-web", target: "deploy@10.0.4.12:22" },
+  { alias: "db.internal", target: "postgres@db.internal:2222" },
   { alias: "eu-west-build-farm-bastion-01", target: "ci-runner@bastion-01.eu-west.build.example.com:2222" },
 ];
-function LocalSshSection({ state = "hosts", hosts = SSH_CONFIG_HOSTS, profileTargets = [], onImport }) {
+function LocalSshSection({ state = "hosts", hosts = SSH_CONFIG_HOSTS, profileHosts = [], onImport }) {
   const caption = { fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" };
   const line = { padding: "var(--tasty-remote-ssh-line-pad-top) var(--tasty-space-xs) var(--tasty-space-xs)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" };
   return (
@@ -670,7 +677,7 @@ function LocalSshSection({ state = "hosts", hosts = SSH_CONFIG_HOSTS, profileTar
       {state === "missing" && <div style={line}>No ~/.ssh/config found.</div>}
       {state === "unreadable" && <div style={line}>Can't read ~/.ssh/config. Check the file and its permissions.</div>}
       {state === "hosts" && hosts.map((h) => {
-        const have = profileTargets.includes(h.target);
+        const have = profileHosts.includes(h.alias);
         return (
           <div key={h.alias} style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-xs)", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
             <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: "var(--tasty-label-detail-gap)" }}>
@@ -906,7 +913,7 @@ function RemoteTool({ onClose, onFlash }) {
                 <ProfileRow key={p.id} p={p} passkeyNames={passkeyNames} onRedetect={pRedetect}
                   onEdit={pEdit} onDelete={(x) => setPView({ type: "confirm", profile: x })} />
               ))}
-              <LocalSshSection state={sshCfg} profileTargets={profiles.filter((p) => isSshType(p.type)).map((p) => `${p.user}@${p.host}:${p.port}`)}
+              <LocalSshSection state={sshCfg} profileHosts={profiles.filter((p) => isSshType(p.type)).map((p) => p.host)}
                 onImport={(h) => onFlash && onFlash(`Added profile from ssh config: ${h.alias}`)} />
             </ListShell>
           )

@@ -869,10 +869,12 @@ function RemoteFrame({ tab = "profiles", ssh = "hosts" }) {
 //   · a host already imported shows a muted "in profiles" Tag and no action
 // Empty / failure are one muted line each — a missing ssh config is not an error.
 // The kit component ui_kits/terminal/overlays/remote_tool.jsx › LocalSshSection is the definition, and its
-// measures are the app's (remote_tool.rs ssh section). The specimen draws it with the kit's sample hosts; the
-// prod-web host matches a stored ssh profile, so it shows the "in profiles" Tag.
+// measures are the app's (remote_tool.rs ssh section). The specimen draws it with the kit's sample hosts and the host
+// fields of the ssh profile rows RemoteFrame draws above it: the db.internal alias equals db-primary's host, so that row
+// shows the "in profiles" Tag (the app's imported_as matches the alias against the host field, not the target line).
+const REMOTE_FRAME_SSH_HOSTS = ["10.0.4.12", "db.internal", "edge.example.com", "203.0.113.40"];
 function LocalSshSection({ state = "hosts" }) {
-  return <KitLocalSshSection state={state} profileTargets={["deploy@10.0.4.12:22"]} />;
+  return <KitLocalSshSection state={state} profileHosts={REMOTE_FRAME_SSH_HOSTS} />;
 }
 
 // ── ShellMock — the whole window at 1/1 scale, small: CSD titlebar · sidebar ·
