@@ -164,7 +164,8 @@ const X_LIST_EDIT_FIELD_LEFT = "calc(1 * var(--tasty-space-xs) + 1.5 * var(--tas
 function XListEdit({ glyph = XK.ic.folder, value = "New folder", error }) {
   return (
     <div style={{ position: "relative", display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", height: "var(--tasty-table-cell-height)", padding: `0 var(--tasty-space-sm) 0 ${X_LIST_EDIT_GLYPH_LEFT}`, borderRadius: "var(--tasty-radius-sm)", background: "var(--tasty-surface-active)" }}>
-      <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-text-on-active)" }}>{glyph}</span>
+      {/* The glyph reads the same icon-size-md the two offsets above use, so its centre and the field start move together. */}
+      <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-text-on-active)" }}>{React.isValidElement(glyph) ? React.cloneElement(glyph, { size: "var(--tasty-icon-size-md)" }) : glyph}</span>
       <span style={{ flex: 1, minWidth: 0 }}><XInput block defaultValue={value} invalid={!!error} /></span>
       {error && <XNameError text={error} left={X_LIST_EDIT_FIELD_LEFT} />}
     </div>

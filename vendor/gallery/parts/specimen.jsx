@@ -307,11 +307,13 @@ export function Note({ children }) { return <p className="spec-note">{children}<
 export function Do({ children }) { return <p className="do">{children}</p>; }
 export function Dont({ children }) { return <p className="dont">{children}</p>; }
 
-// Gallery-only inline glyph (2px stroke). Product UI uses <Icon name>.
+// Gallery-only inline glyph (2px stroke). Product UI uses <Icon name>. A string size such as
+// "var(--tasty-icon-size-md)" goes to the CSS box, because the SVG width attribute cannot read a custom property.
 export function GIcon({ d, size = 16, fill }) {
+  const css = typeof size === "string";
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill={fill || "none"}
+    <svg width={css ? undefined : size} height={css ? undefined : size} viewBox="0 0 24 24" fill={fill || "none"}
       stroke={fill ? "none" : "currentColor"} strokeWidth="2" strokeLinecap="round"
-      strokeLinejoin="round" style={{ display: "block" }}>{d}</svg>
+      strokeLinejoin="round" style={css ? { display: "block", width: size, height: size } : { display: "block" }}>{d}</svg>
   );
 }
