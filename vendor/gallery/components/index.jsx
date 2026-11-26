@@ -603,7 +603,7 @@ function Components() {
             {[["needs-input", "deploy.sh", "active · needs-input · OS window inactive"], ["completion", "README.md", "active · completion · surface hard occupied"]].map(([att, label, cap]) => (
               <div key={att} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
                 <div className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</div>
-                <div style={{ display: "flex", background: "var(--tasty-bg-sidebar)", borderBottom: "1px solid var(--tasty-separator)" }}>
+                <div style={{ display: "flex", background: "var(--tasty-bg-sidebar)", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
                   <Tab label={label} icon={att === "completion" ? ic.md : ic.term} active attention={att} />
                   <Tab label="server.log" icon={ic.term} />
                 </div>
