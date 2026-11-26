@@ -800,24 +800,32 @@ function PluginsWindow({ onClose, onFlash, onConfigure, removedAttention, onRemo
           {/* the header ornament reads plugins-header-glyph (accent-decorative, no contrast target), as the app does */}
           {/* plug to title 12 and search to close 16: the header gap is the app's item spacing 8, and the app adds
               hspace(spacing_xs) after the plug and hspace(spacing_sm) before the close button */}
-          <span data-ink-grade="none" data-ink-why="ornament" style={{ display: "inline-flex", color: "var(--tasty-plugins-header-glyph)", marginRight: "var(--tasty-space-xs)" }}>
-            <Icon name="plug" size="var(--tasty-icon-size-md)" />
-          </span>
-          <span style={{ fontSize: "var(--tasty-font-size-max)", fontWeight: "var(--tasty-font-weight-bold)", color: "var(--tasty-text-primary)", letterSpacing: "var(--tasty-letter-spacing-ui)" }}>Plugins</span>
-          <span style={{ width: "var(--tasty-border-width)", height: "var(--tasty-plugins-header-divider-height)", background: "var(--tasty-separator)", margin: "0 var(--tasty-space-sm)" }} />
-          <div style={{ display: "flex", gap: "var(--tasty-plugins-tab-gap)" }}>
-            <PluginsSeg {...segProps("installed")} label="Installed" count={installedCount} />
-            <PluginsSeg {...segProps("attention")} label="Attention" count={attentionCount} danger />
-            <PluginsSeg {...segProps("add")} label="Add plugin" />
+          {/* as the app's header (plugins ui.rs): the right cluster (close, then the filter on Installed) is laid out
+              from the right edge first and keeps its size; the left group takes what is left and is cut at its end. The
+              group's clip reaches past its box by the ring's reach above and below (padding taken back by the margin), so
+              a segment's keyboard ring, focus-ring-offset off its box, is not cut. */}
+          <div style={{ flex: "1 1 0", minWidth: 0, overflow: "hidden", display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)",
+            paddingBlock: "calc(1 * var(--tasty-focus-ring-width) + 1 * var(--tasty-focus-ring-offset))", marginBlock: "calc(-1 * var(--tasty-focus-ring-width) + -1 * var(--tasty-focus-ring-offset))" }}>
+            <span data-ink-grade="none" data-ink-why="ornament" style={{ display: "inline-flex", flex: "none", color: "var(--tasty-plugins-header-glyph)", marginRight: "var(--tasty-space-xs)" }}>
+              <Icon name="plug" size="var(--tasty-icon-size-md)" />
+            </span>
+            <span style={{ flex: "none", whiteSpace: "nowrap", fontSize: "var(--tasty-font-size-max)", fontWeight: "var(--tasty-font-weight-bold)", color: "var(--tasty-text-primary)", letterSpacing: "var(--tasty-letter-spacing-ui)" }}>Plugins</span>
+            <span style={{ flex: "none", width: "var(--tasty-border-width)", height: "var(--tasty-plugins-header-divider-height)", background: "var(--tasty-separator)", margin: "0 var(--tasty-space-sm)" }} />
+            <div style={{ flex: "none", display: "flex", gap: "var(--tasty-plugins-tab-gap)" }}>
+              <PluginsSeg {...segProps("installed")} label="Installed" count={installedCount} />
+              <PluginsSeg {...segProps("attention")} label="Attention" count={attentionCount} danger />
+              <PluginsSeg {...segProps("add")} label="Add plugin" />
+            </div>
           </div>
-          <div style={{ flex: 1 }} />
-          {tab === "installed" && (
-            <Input icon={ic.search} placeholder="Filter installed…"
-              value={q} onChange={(e) => setQ(e.target.value)} style={{ width: "var(--tasty-field-width-lg)", marginRight: "var(--tasty-space-sm)" }} />
-          )}
-          <IconButton aria-label="Close" onClick={onClose}>
-            <Icon name="close" />
-          </IconButton>
+          <div style={{ flex: "none", display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)" }}>
+            {tab === "installed" && (
+              <Input icon={ic.search} placeholder="Filter installed…"
+                value={q} onChange={(e) => setQ(e.target.value)} style={{ width: "var(--tasty-field-width-lg)", marginRight: "var(--tasty-space-sm)" }} />
+            )}
+            <IconButton aria-label="Close" onClick={onClose}>
+              <Icon name="close" />
+            </IconButton>
+          </div>
         </div>
 
         <div style={{ display: "flex", flex: 1, minHeight: 0 }}>
