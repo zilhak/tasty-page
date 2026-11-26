@@ -600,7 +600,7 @@ function ProtocolFilter({ protocols, hidden, onApply }) {
           <div role="dialog" aria-label="Filter by protocol" style={{ position: "absolute", top: "calc(100% + var(--tasty-space-xs))", right: 0, zIndex: 41,
             width: "var(--tasty-remote-filter-dropdown-width)", boxSizing: "border-box", background: "var(--tasty-menu-bg)", border: "var(--tasty-border-width) solid var(--tasty-menu-border)", /* 2026-10-06: every anchored popover = menu container tokens */
             borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-popover)", display: "flex", flexDirection: "column", overflow: "hidden" }}>
-            <div style={{ padding: "var(--tasty-space-sm) var(--tasty-space-md)", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)",
+            <div style={{ padding: "var(--tasty-space-sm) var(--tasty-space-md)", borderBottom: "var(--tasty-border-width) solid var(--tasty-menu-separator)",
               fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-micro)", textTransform: "uppercase",
               letterSpacing: "var(--tasty-letter-spacing-caps)", color: "var(--tasty-text-muted)" }}>Filter by protocol</div>
             <div className="tasty-scroll" style={{ maxHeight: "var(--tasty-remote-filter-list-max-height)", overflow: "auto", padding: "var(--tasty-space-sm) var(--tasty-space-md)",
@@ -616,13 +616,13 @@ function ProtocolFilter({ protocols, hidden, onApply }) {
               ))}
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-sm) var(--tasty-space-md)",
-              borderTop: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
+              borderTop: "var(--tasty-border-width) solid var(--tasty-menu-separator)" }}>
               <button onClick={() => setDraft(new Set())} style={rtLinkBtn}>Select all</button>
               <span data-ink-grade="none" data-ink-why="ornament" style={{ color: "var(--tasty-separator)" }}>·</span>
               <button onClick={() => setDraft(new Set(protocols))} style={rtLinkBtn}>Deselect all</button>
             </div>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "var(--tasty-space-sm)",
-              padding: "var(--tasty-space-sm) var(--tasty-space-md)", borderTop: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
+              padding: "var(--tasty-space-sm) var(--tasty-space-md)", borderTop: "var(--tasty-border-width) solid var(--tasty-menu-separator)" }}>
               <Button variant="ghost" size="sm" onClick={() => setDraft(new Set())}>Reset</Button>
               <Button variant="primary" size="sm" onClick={apply}>Apply</Button>
             </div>

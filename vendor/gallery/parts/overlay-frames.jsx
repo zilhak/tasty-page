@@ -712,7 +712,7 @@ function RemoteFilterMenuG() {
     <div role="dialog" aria-label="Filter by protocol" style={{ width: "var(--tasty-remote-filter-menu-width)",
       background: "var(--tasty-menu-bg)", border: "var(--tasty-border-width) solid var(--tasty-menu-border)", borderRadius: "var(--tasty-menu-radius)",
       boxShadow: "var(--tasty-shadow-popover)", overflow: "hidden" }}>
-      <div style={{ padding: "var(--tasty-space-sm) var(--tasty-space-md)", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)", fontFamily: "var(--tasty-font-mono)",
+      <div style={{ padding: "var(--tasty-space-sm) var(--tasty-space-md)", borderBottom: "var(--tasty-border-width) solid var(--tasty-menu-separator)", fontFamily: "var(--tasty-font-mono)",
         fontSize: "var(--tasty-font-size-micro)", textTransform: "uppercase", letterSpacing: "var(--tasty-letter-spacing-caps)", color: "var(--tasty-text-muted)" }}>Filter by protocol</div>
       <div style={{ padding: "var(--tasty-space-sm) var(--tasty-space-md)", display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
         {[["ssh", true, false], ["smb", true, false], ["http", true, false], ["snb", false, true]].map(([p, on, unknown]) => (
@@ -722,12 +722,12 @@ function RemoteFilterMenuG() {
           </div>
         ))}
       </div>
-      <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-sm) var(--tasty-space-md)", borderTop: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-sm) var(--tasty-space-md)", borderTop: "var(--tasty-border-width) solid var(--tasty-menu-separator)" }}>
         <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-accent-primary-raised)" }}>Select all</span>
         <span data-ink-grade="none" data-ink-why="ornament" style={{ color: "var(--tasty-separator)" }}>·</span>
         <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-accent-primary-raised)" }}>Deselect all</span>
       </div>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "var(--tasty-space-sm) var(--tasty-space-md)", borderTop: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "var(--tasty-space-sm) var(--tasty-space-md)", borderTop: "var(--tasty-border-width) solid var(--tasty-menu-separator)" }}>
         <Button variant="ghost" ground="raised" size="sm">Reset</Button>
         <Button variant="primary" size="sm">Apply</Button>
       </div>
