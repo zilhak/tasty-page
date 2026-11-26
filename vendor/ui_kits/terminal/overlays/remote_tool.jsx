@@ -725,7 +725,9 @@ function RemoteTool({ onClose, onFlash }) {
   const [aErr, setAErr] = React.useState("");
   const [revealed, setRevealed] = React.useState(() => new Set());
   const [sshCfg] = React.useState("hosts"); // ~/.ssh/config read result: "hosts" | "empty" | "unreadable"
-  const timers = React.useRef({});
+  // One detection at a time, as in the app: the popup holds a single detection job, and Re-detect on another row does
+  // nothing until it ends. The ref holds that job's timer.
+  const detection = React.useRef(null);
   const passkeyNames = passkeys.map((k) => k.name);
   const sshProfiles = profiles.filter((p) => isSshType(p.type));
   // dynamic protocol set (known types first, then unknowns alpha) + filtered view
@@ -743,8 +745,8 @@ function RemoteTool({ onClose, onFlash }) {
     window.addEventListener("keydown", h);
     return () => window.removeEventListener("keydown", h);
   }, [onClose]);
-  // detection timers end only when the window unmounts; a host that passes a new onClose each render must not cancel them
-  React.useEffect(() => () => Object.values(timers.current).forEach(clearTimeout), []);
+  // the detection timer ends only when the window unmounts; a host that passes a new onClose each render must not cancel it
+  React.useEffect(() => () => { clearTimeout(detection.current); detection.current = null; }, []);
 
   const switchTab = (t) => { setTab(t); setPView({ type: "list" }); setKView({ type: "list" }); setAView({ type: "list" }); setPErr(""); setKErr(""); setAErr(""); };
 
@@ -767,16 +769,29 @@ function RemoteTool({ onClose, onFlash }) {
     const { state, failed, ...rest } = { ...blankProfile(), ...p };
     return JSON.stringify(Object.keys(rest).sort().map((k) => [k, rest[k]]));
   };
-  const pRedetect = (p) => {
+  // The job: after the probe time, store the result on the row, unless the row was saved meanwhile.
+  const runDetection = (p) => {
     const started = recordOf(p);
+    detection.current = setTimeout(() => {
+      detection.current = null;
+      setProfiles((ps) => ps.map((x) => {
+        if (x.id !== p.id) return x;
+        return recordOf(x) === started ? { ...x, state: "ok", failed: !probeReaches(p) } : { ...x, state: "ok" };
+      }));
+    }, 1400);
+  };
+  const pRedetect = (p) => {
+    if (detection.current !== null) return;
     setProfiles((ps) => ps.map((x) => (x.id === p.id ? { ...x, state: "detecting" } : x)));
     onFlash && onFlash(`Re-detecting ${p.name}…`);
-    clearTimeout(timers.current[p.id]);
-    timers.current[p.id] = setTimeout(() => setProfiles((ps) => ps.map((x) => {
-      if (x.id !== p.id) return x;
-      return recordOf(x) === started ? { ...x, state: "ok", failed: !probeReaches(p) } : { ...x, state: "ok" };
-    })), 1400);
+    runDetection(p);
   };
+  // A row seeded as detecting is the job already running when the window opens, so it holds the one slot and ends
+  // like any other detection.
+  React.useEffect(() => {
+    const seeded = profiles.find((x) => x.state === "detecting");
+    if (seeded && detection.current === null) runDetection(seeded);
+  }, []);
   const pSave = () => {
     const ssh = isSshType(pDraft.type);
     if (!pDraft.type.trim()) return setPErr("Type is required.");
