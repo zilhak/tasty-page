@@ -316,7 +316,8 @@ function SettingsRemoteFrameShell({ active, children }) {
           </div>
         </div>
         <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
-          <div style={{ flex: 1, padding: "var(--tasty-space-lg)", display: "flex", flexDirection: "column", gap: "var(--tasty-settings-row-gap)", minHeight: 0, overflow: "hidden" }}>{children}</div>
+          {/* The content column scrolls vertically, as the app's settings body does, so a longer caption or range line stays readable in the fixed frame. */}
+          <div className="tasty-scroll" style={{ flex: 1, padding: "var(--tasty-space-lg)", display: "flex", flexDirection: "column", gap: "var(--tasty-settings-row-gap)", minHeight: 0, overflowX: "hidden", overflowY: "auto" }}>{children}</div>
           <div style={{ display: "flex", justifyContent: "flex-end", gap: "var(--tasty-space-sm)", padding: "var(--tasty-transfer-footer-pad-y) var(--tasty-transfer-pad-x)", borderTop: "1px solid var(--tasty-separator)" }}>
             <Button variant="ghost">Cancel</Button><Button variant="primary">Save</Button>
           </div>
