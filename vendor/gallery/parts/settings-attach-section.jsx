@@ -7,7 +7,8 @@ import { rt } from "../../ui_kits/terminal/overlays/remote_row_copy.js";
 // non-number returns to the last committed value. The range line shows only while the typed value is out of range.
 // Row 1 Disconnect after: 10 to 600, default 30. Row 2 Keep reconnecting for (R-58): 0 to 3600, default 300, 0 = off;
 // it counts from when Tasty detects the drop (row 1's timeout, a remote end of stream or any other read or write failure),
-// and applies to saved remote rows only (an agent mirror does not reconnect).
+// and applies to saved remote rows only (an agent mirror does not reconnect). It never retries a connection the user ended
+// or one the other Tasty force-detached.
 
 const MIN = 10;
 const MAX = 600;
