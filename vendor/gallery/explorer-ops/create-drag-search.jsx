@@ -155,21 +155,28 @@ function XDetailEdit({ glyph = XK.ic.folder, value = "New folder", error }) {
     </div>
   );
 }
+// The List view's name editor, as the app draws it (explorer_name_row_in, List layout): a table-cell-height row on
+// surface-active with radius-sm. The glyph is icon-size-md, centred on the TreeRow icon column the List rows use
+// (inline start + chevron slot + tree-row-gap + half the icon slot), in text-on-active like every ink on the row.
+// The field starts space-sm after the glyph and ends space-sm before the row's end. The error box starts under the field.
+const X_LIST_EDIT_GLYPH_LEFT = "calc(1 * var(--tasty-space-xs) + 1.5 * var(--tasty-icon-size-sm) + 1 * var(--tasty-tree-row-gap) + -0.5 * var(--tasty-icon-size-md))";
+const X_LIST_EDIT_FIELD_LEFT = "calc(1 * var(--tasty-space-xs) + 1.5 * var(--tasty-icon-size-sm) + 1 * var(--tasty-tree-row-gap) + 0.5 * var(--tasty-icon-size-md) + 1 * var(--tasty-space-sm))";
 function XListEdit({ glyph = XK.ic.folder, value = "New folder", error }) {
   return (
-    <div style={{ position: "relative", display: "flex", alignItems: "center", gap: 8, height: "var(--tasty-table-cell-height)", padding: "0 8px", borderRadius: "var(--tasty-radius-sm)", background: "var(--tasty-surface-active)" }}>
-      <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-text-secondary)" }}>{glyph}</span>
+    <div style={{ position: "relative", display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", height: "var(--tasty-table-cell-height)", padding: `0 var(--tasty-space-sm) 0 ${X_LIST_EDIT_GLYPH_LEFT}`, borderRadius: "var(--tasty-radius-sm)", background: "var(--tasty-surface-active)" }}>
+      <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-text-on-active)" }}>{glyph}</span>
       <span style={{ flex: 1, minWidth: 0 }}><XInput block defaultValue={value} invalid={!!error} /></span>
-      {error && <XNameError text={error} left={32} />}
+      {error && <XNameError text={error} left={X_LIST_EDIT_FIELD_LEFT} />}
     </div>
   );
 }
+// A List view row is the app's tree_row at depth 0 (explorer list_view), so it is the shared TreeRow: its height,
+// empty chevron slot, icon slot, inks, selected fill and label ellipsis. The kind glyph keeps its ink (text-secondary,
+// TreeRow's icon ink at rest) and turns text-on-active on the selected row, as the app's entry_icon does.
 function XListRow({ glyph, name, state }) {
-  return (
-    <div style={{ display: "flex", alignItems: "center", gap: 8, height: "var(--tasty-tree-row-height)", padding: "0 8px", borderRadius: "var(--tasty-radius-sm)", fontSize: 13, color: state === "selected" ? "var(--tasty-text-primary)" : "var(--tasty-text-secondary)", background: state === "selected" ? "var(--tasty-surface-active)" : "transparent" }}>
-      <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-text-secondary)" }}>{glyph}</span>{name}
-    </div>
-  );
+  const selected = state === "selected";
+  const icon = selected ? <span style={{ display: "inline-flex", color: "var(--tasty-text-on-active)" }}>{glyph}</span> : glyph;
+  return <XDS.TreeRow label={name} icon={icon} selected={selected} />;
 }
 function XGridEdit({ glyph = XK.ic.file, value = "untitled.txt", error }) {
   return (
