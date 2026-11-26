@@ -44,8 +44,9 @@ import { KbImportExportSubtab as Kit_KbImportExportSubtab, IE_GROUPS as KIT_IE_G
 
 // 2026-09-29 disabled sites without a screen — static specimens of the kit
 // (plugins_window.jsx FingerprintLine / Add bar, settings_window.jsx ExtensionMapping).
-// Row focus states, one row per state and kind, both themes. Rows are FpRow itself on the picker's bg-panel, so the
-// ring and hover inks are the frame's own; captions sit outside the row on bg-app.
+// Row focus states, both themes. Each state draws a folder row and a file row in boxes of their own, because a list has
+// one row focus. Rows are FpRow itself on the picker's bg-panel, so the ring and hover inks are the frame's own;
+// captions sit outside the rows on bg-app.
 const FP_STATE_ROWS = [["rest", {}], ["hover", { hover: true }], ["focus", { focus: true }], ["hover + focus", { hover: true, focus: true }],
   ["selected", { selected: true }], ["selected + focus", { selected: true, focus: true }], ["selected + hover", { selected: true, hover: true }], ["selected + hover + focus", { selected: true, hover: true, focus: true }]];
 function FpRowStatesG({ caps }) {
@@ -55,9 +56,12 @@ function FpRowStatesG({ caps }) {
         {FP_STATE_ROWS.map(([k, st]) => (
           <React.Fragment key={k}>
             <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{caps[k]}</span>
-            <div style={{ background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
-              <FpRow kind="folder" name="configs" size="—" mod="Jul 12 09:14" {...st} />
-              <FpRow kind="file" name="README.md" size="4.2 KB" mod="Jul 15 08:21" {...st} />
+            <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
+              {[["folder", "configs", "—", "Jul 12 09:14"], ["file", "README.md", "4.2 KB", "Jul 15 08:21"]].map(([kind, name, size, mod]) => (
+                <div key={kind} style={{ background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
+                  <FpRow kind={kind} name={name} size={size} mod={mod} {...st} />
+                </div>
+              ))}
             </div>
           </React.Fragment>
         ))}
@@ -1173,7 +1177,7 @@ function Page() {
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}><div className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{"save — target spec · ↓ moves focus to package.json, ring only · File name keeps keybindings-2026-09-14.toml · Save"}</div><FilePickerFrame mode="save" focusRow="package.json" /></div>
           </Stage>
           <Views>
-            <View name="fp-row-focus-row-states" wide label={"Row states — one row per state, Mocha and Latte side by side"}>
+            <View name="fp-row-focus-row-states" wide label={"Row states — separate boxes for one folder row and one file row per state, Mocha and Latte side by side"}>
               <FpRowStatesG caps={{"rest": "rest", "hover": "hover", "focus": "focus", "hover + focus": "hover + focus", "selected": "selected", "selected + focus": "selected + focus", "selected + hover": "selected + hover", "selected + hover + focus": "selected + hover + focus"}} />
             </View>
             <View name="fp-row-focus-entry" wide label={"Open mode after entering a folder or Tab into a list with no selection — ring on the first row, configs · no selection · File name empty"}>
