@@ -741,9 +741,9 @@ function RemoteFrame({ tab = "profiles", ssh = "hosts" }) {
   // names instead (remote_tool.jsx SEED_PASSKEYS), as the app gallery's remote.rs keeps PASSKEY_NAMES apart from
   // its Passkeys tab sample. A name outside the store draws the passkey missing badge.
   const passkeyNames = ["ed25519-main", "edge-pem", "nas-cred", "deploy-token"];
-  const passkeys = [{ name: "ed25519-main", kind: "file", value: "~/.ssh/id_ed25519" },
-    { name: "deploy-key-with-a-very-long-name", kind: "file", value: "/Users/someone/Library/Application Support/tasty/keys/deploy/ci-runner/id_ed25519_deploy", revealed: true },
-    { name: "vault-token", kind: "secret", value: "••••••••" },
+  const passkeys = [{ name: "ed25519-main", kind: "path", value: "~/.ssh/id_ed25519" },
+    { name: "deploy-key-with-a-very-long-name", kind: "path", value: "/Users/someone/Library/Application Support/tasty/keys/deploy/ci-runner/id_ed25519_deploy", revealed: true },
+    { name: "vault-token", kind: "inline", value: "••••••••" },
     { name: "legacy", kind: "agent-x", value: "••••••••", unknown: true }];
   const Caption = ({ children }) => <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)", fontFamily: "var(--tasty-font-mono)" }}>{children}</span>;
   const ProfileRow = ({ name, label, type, target, passkey, detecting, failed }) => (
