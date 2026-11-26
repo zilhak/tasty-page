@@ -909,6 +909,55 @@ test("measureMarks: an opaque layer hides what is below it", () => {
   assert.deepEqual([half.judged, half.below.length, half.below[0]?.ground], [1, 1, "#8f8f97"]);
 });
 
+test("measureMarks: a layer hides what is below only when it surely covers the line in opaque color", () => {
+  // Each case puts a white layer over an image. Where the white may not cover the line, the image can show, so the
+  // ground is a picture.
+  const W = { vars: { [TOKEN_VAR]: "rgb(148, 148, 148)" } };
+  const white = "linear-gradient(rgb(255, 255, 255), rgb(255, 255, 255))";
+  const inside = (extra, wrap = (x) => x) => runMarks(markTree([wrap(el("div", dashedOutline("-1px", "rgb(148, 148, 148)", { backgroundImage: `${white}, url(x.png)`, ...extra })))], W));
+  const covered = inside({});
+  assert.deepEqual([covered.judged, covered.picture], [1, 0]);
+  for (const [name, extra] of [["sized", { backgroundSize: "12px 12px, auto" }], ["no-repeat", { backgroundRepeat: "no-repeat, repeat" }], ["content-box", { backgroundClip: "content-box, border-box" }]]) {
+    const r = inside(extra);
+    assert.deepEqual([r.judged, r.picture], [0, 1], name);
+  }
+  // A stop this does not read may be transparent.
+  const unread = runMarks(markTree([el("div", dashedOutline("-1px", "rgb(148, 148, 148)", { backgroundImage: "linear-gradient(oklch(0 0 0 / 0), rgb(255, 255, 255)), url(x.png)" }))], W));
+  assert.deepEqual([unread.judged, unread.picture], [0, 1]);
+  // Under an element at half opacity what lies below shows through.
+  const faded = runMarks(markTree([el("div", { style: { backgroundImage: "url(x.png)" } }, [el("div", { style: { opacity: "0.5", backgroundImage: white } }, [el("div", dashedOutline("0px", "rgb(148, 148, 148)"))])])], W));
+  assert.deepEqual([faded.judged, faded.picture], [0, 1]);
+});
+
+test("measureMarks: layers split at top-level commas, and a parenthesis in a quoted URL does not nest", () => {
+  // The first URL holds a "(" in quotes and stops inside the border; the second reaches under it.
+  const W = { bg: "rgb(255, 255, 255)", vars: { [TOKEN_VAR]: "rgb(148, 148, 148)" } };
+  const border = { borderTopStyle: "dashed", borderTopWidth: "1px", borderTopColor: "rgb(148, 148, 148)" };
+  for (const q of ['url("data:image/svg+xml,a(b")', 'url("data:image/svg+xml,a)b")']) {
+    const r = runMarks(markTree([el("div", { style: { ...border, backgroundImage: `${q}, url(y.png)`, backgroundClip: "padding-box, border-box" } })], W));
+    assert.deepEqual([r.judged, r.picture], [0, 1], q);
+  }
+});
+
+test("measureMarks: the own pseudo-element is not under a border, the color takes the last clip, a short clip list repeats, an ancestor's clip does not apply", () => {
+  // On white the mark #949494 is 3.03; #9399b2 under it would be 1.07.
+  const W = { bg: "rgb(255, 255, 255)", vars: { [TOKEN_VAR]: "rgb(148, 148, 148)" } };
+  const border = { borderTopStyle: "dashed", borderTopWidth: "1px", borderTopColor: "rgb(148, 148, 148)" };
+  const fill = "linear-gradient(rgb(147, 153, 178), rgb(147, 153, 178))";
+  const on = (opts, wrap = (x) => x) => runMarks(markTree([wrap(el("div", { ...opts, style: { ...border, ...opts.style } }))], W));
+  const pseudo = on({ style: { backgroundColor: "rgb(147, 153, 178)", backgroundClip: "padding-box" }, pseudo: { "::before": { content: '""', position: "absolute", width: "10px", height: "10px", backgroundColor: "rgb(147, 153, 178)" } } });
+  assert.deepEqual([pseudo.judged, pseudo.below.length], [1, 0]);
+  // Two images clipped border-box then padding-box: the color follows the last, so it stays off the border.
+  const last = on({ style: { backgroundImage: "none, none", backgroundColor: "rgb(147, 153, 178)", backgroundClip: "border-box, padding-box" } });
+  assert.deepEqual([last.judged, last.below.length], [1, 0]);
+  // Three images with one clip value: it repeats, so the third is clipped too.
+  const repeat = on({ style: { backgroundImage: `none, none, ${fill}`, backgroundClip: "padding-box" } });
+  assert.deepEqual([repeat.judged, repeat.below.length], [1, 0]);
+  // An ancestor clipped to its padding box still paints under its child.
+  const parent = on({ style: {} }, (x) => el("div", { style: { backgroundColor: "rgb(147, 153, 178)", backgroundClip: "padding-box" } }, [x]));
+  assert.deepEqual([parent.judged, parent.below.length, parent.below[0]?.ground], [1, 1, "#9399b2"]);
+});
+
 test("measureGallery: marks outside the frozen cells and exemptions are counted and judged", () => {
   const free = el("div", dashedOutline());
   const exempt = el("div", { attrs: { "data-audit-exempt": "demo" } }, [el("div", dashedOutline())]);

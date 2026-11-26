@@ -146,7 +146,7 @@ export function pageLib() {
   // Each paint is judged at 3:1 on its ground, a border on the side with the lowest ratio. A ground that is a picture, or
   // a gradient of more than one color, is counted, not judged: a line across it meets colors no stop holds.
   // The ground is read layer by layer (markGrounds): under a border only the background layers whose own clip is
-  // border-box count, and an opaque layer hides every layer and ancestor below it.
+  // border-box count, and a layer that surely covers the line in opaque color hides every layer and ancestor below it.
   const MARK_TOKEN = "var(--tasty-specimen-annotation-border)";
   const SIDES = ["Top", "Right", "Bottom", "Left"];
   const sameColor = (a, b) => near(a, b) && Math.abs(a[3] - b[3]) < 0.01;
@@ -160,47 +160,62 @@ export function pageLib() {
       el.removeChild(probe);
     }
   };
-  // A computed background-image list split at its top-level commas, one entry per layer.
+  // A computed list split at its top-level commas, one entry per layer. A parenthesis inside a quoted string, as a data
+  // URL can hold, does not nest.
   const splitLayers = (v) => {
     const out = [];
-    let depth = 0, cur = "";
+    let depth = 0, quote = "", escaped = false, cur = "";
     for (const ch of v) {
-      if (ch === "(") depth += 1;
+      if (escaped) escaped = false;
+      else if (quote) { if (ch === "\\") escaped = true; else if (ch === quote) quote = ""; }
+      else if (ch === '"' || ch === "'") quote = ch;
+      else if (ch === "(") depth += 1;
       else if (ch === ")") depth -= 1;
-      if (ch === "," && depth === 0) { out.push(cur.trim()); cur = ""; } else cur += ch;
+      if (ch === "," && depth === 0 && !quote) { out.push(cur.trim()); cur = ""; } else cur += ch;
     }
     out.push(cur.trim());
     return out;
   };
+  const listAt = (v, i, fallback) => { const l = v ? splitLayers(v) : [fallback]; return l[i % l.length]; };
+  const GRADIENT = /^(repeating-)?(linear|radial|conic)-gradient$/;
   // What one element paints, top layer first: a covering pseudo-element, each background image, then the background
-  // color. A picture is null. underBorder keeps only the layers clipped to the border box; the color takes the clip of
-  // the last layer, as CSS does.
+  // color. A picture is null; any other layer is its colors and whether it hides what lies below it. underBorder keeps
+  // only the layers clipped to the border box (the color takes the clip of the last layer, as CSS does) and leaves out
+  // the element's own pseudo-elements, which a box inset from the border does not put under it. An image layer hides
+  // only when it surely covers the line in opaque color: clipped to the border box, auto-sized and repeated, and with
+  // every color in it read and opaque. A color this reads no stop from (oklch(), say) leaves the layer not hiding.
   const markLayers = (e, underBorder) => {
     const s = getComputedStyle(e);
-    const clips = (s.backgroundClip || "border-box").split(",").map((c) => c.trim());
     const images = s.backgroundImage && s.backgroundImage !== "none" ? splitLayers(s.backgroundImage) : [];
-    const reaches = (i) => !underBorder || clips[i % clips.length] === "border-box";
-    const out = overlays(e).map((c) => [c]);
+    const clipAt = (i) => listAt(s.backgroundClip, i, "border-box");
+    const reaches = (i) => !underBorder || clipAt(i) === "border-box";
+    const out = underBorder ? [] : overlays(e).map((c) => ({ colors: [c], hides: c[3] >= 1 }));
     images.forEach((img, i) => {
       if (img === "none" || !reaches(i)) return;
       if (img.includes("url(")) { out.push(null); return; }
-      const stops = (img.match(STOP) || []).map(parse).filter(Boolean);
-      if (stops.length) out.push(stops);
+      const colors = (img.match(STOP) || []).map(parse).filter(Boolean);
+      if (!colors.length) return;
+      const read = [...img.replace(STOP, "").matchAll(/([a-z-]+)\(/g)].every((m) => GRADIENT.test(m[1]));
+      const covers = clipAt(i) === "border-box" && /^auto( auto)?$/.test(listAt(s.backgroundSize, i, "auto")) && /^repeat( repeat)?$/.test(listAt(s.backgroundRepeat, i, "repeat"));
+      out.push({ colors, hides: read && covers && colors.every((c) => c[3] >= 1) });
     });
     const c = parse(s.backgroundColor);
-    if (c && c[3] > 0 && reaches(Math.max(images.length - 1, 0))) out.push([c]);
+    if (c && c[3] > 0 && reaches(Math.max(images.length - 1, 0))) out.push({ colors: [c], hides: c[3] >= 1 });
     return out;
   };
   // The ground under a mark: the element's own layers when own (only those reaching under a border for a border), then
-  // its ancestors', down to the first opaque layer. A picture above that layer makes the ground a picture.
+  // its ancestors', down to the first layer that hides the rest. Under an element that is not fully opaque, or one
+  // inside such an element, what lies below shows through, so no layer there hides it. A picture above that layer
+  // makes the ground a picture.
   const markGrounds = (el, own, border) => {
     const layers = [];
     let picture = false;
     walk: for (let e = own ? el : el.parentElement; e; e = e.parentElement) {
+      const opaque = opacityOf(e) === 1;
       for (const layer of markLayers(e, border && e === el)) {
         if (layer === null) { picture = true; continue; }
-        layers.push(layer);
-        if (layer.every((c) => c[3] >= 1)) break walk;
+        layers.push(layer.colors);
+        if (layer.hides && opaque) break walk;
       }
     }
     let grounds = [[255, 255, 255, 1]];
