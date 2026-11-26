@@ -1,4 +1,4 @@
-<!-- source-hash: 8af66f66ce12 -->
+<!-- source-hash: a39270060cb5 -->
 # CLI command reference
 
 Find commands beyond the introduction, including `read since-mark`, surface state, message queues, and shared memory, organized by purpose. Use `tasty help` for the full list of arguments and options.
@@ -121,12 +121,15 @@ tasty terminal spawn --workspace build --command "cargo watch -x test" --cwd ~/p
 tasty terminal children                        # children under me
 tasty terminal tell "y" --surface 57           # send input to a child (line breaks kept, submitted automatically)
 tasty terminal broadcast $'git pull\r' --role worker # to every child with the same role (submits only with a real trailing CR)
+tasty terminal set-nickname --child 1 --nickname "test runner"
 tasty terminal kill --child 1                   # kill a child by index
 ```
 
 `tasty terminal children` prints a parent ID table by default. It accepts `--format table|json`, with `table` as the default. Other values cause an error. To read JSON in scripts, add `--format json`. Scripts that parsed the default output as JSON in earlier versions also need this option.
 
 The table uses Markdown-style pipe (`|`) rows. Its columns, in order, are `id`, `parents`, `nickname`, `state`, `cwd`, `last_report_at`, `index`, `confidence`, `evidence`. `id` is the child surface ID; `index` is the number passed to `kill --child` and `respawn --child`. Multiple parents are joined with commas in `parents`. An external parent set with `--parent-external`, as in the example below, appears in `parents` as its key. `last_report_at` uses a format such as `2026-11-09T12:19:12Z`. With no children, only the two header lines are printed and the exit code is 0. `tasty claude children` and `tasty codex children` print the same columns.
+
+Use `tasty terminal set-nickname` to rename a running child or `--clear` to remove its nickname. Pass the `index` from the `children` table to `--child`. To select the parent explicitly, pass its Surface ID with `--surface` or its external key with `--parent-external`. When several windows are open, also pass `--workspace` for an external parent. The new nickname appears in the `nickname` column of `tasty terminal children`, `tasty claude children`, and `tasty codex children`. For a child in a remote mirror, the change applies to the Tasty instance where you run the command.
 
 `spawn` replies when terminal preparation completes; it does not wait for the agent to finish its work. Agent state delivery and parent setup follow [Claude & Codex integration](claude-codex.md). Starting an ordinary program does not guarantee delivery of agent results.
 There is no separate command to wait on. Tag children with `--role` to address them together with `broadcast`.
@@ -144,6 +147,7 @@ A child's parent is usually the terminal that ran the command. The dedicated Cla
 ```sh
 tasty terminal spawn --workspace build --parent-external review-bot --command "make lint"
 tasty terminal children --parent-external review-bot --workspace build
+tasty terminal set-nickname --parent-external review-bot --workspace build --child 0 --clear
 tasty terminal release --parent-external review-bot --workspace build --child 0
 ```
 

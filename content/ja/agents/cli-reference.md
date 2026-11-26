@@ -1,4 +1,4 @@
-<!-- source-hash: 8af66f66ce12 -->
+<!-- source-hash: a39270060cb5 -->
 # CLI コマンドリファレンス
 
 読み取り位置を指定する `read since-mark`、サーフェスの状態、メッセージキュー、共有メモリなど、入門で扱わないコマンドを目的別に説明します。すべての引数とオプションは `tasty help` で確認できます。
@@ -123,12 +123,15 @@ tasty terminal spawn --workspace build --command "cargo watch -x test" --cwd ~/p
 tasty terminal children                        # 自分の配下の子一覧
 tasty terminal tell "y" --surface 57           # 子に入力を送る (改行を保持、自動送信)
 tasty terminal broadcast $'git pull\r' --role worker # 同じ役割の子すべてに送る (末尾に実際の CR が必要)
+tasty terminal set-nickname --child 1 --nickname "test runner"
 tasty terminal kill --child 1                   # 子をインデックスで終了
 ```
 
 `tasty terminal children` のデフォルト出力は、親 ID の表です。`--format table|json` を受け付け、デフォルトは `table` です。それ以外の値を指定するとエラーになります。スクリプトで JSON として読み取るには、`--format json` を追加してください。以前のバージョンでデフォルト出力を JSON として読み取っていたスクリプトにも、このオプションが必要です。
 
 表は Markdown と同じようにパイプ（`|`）で列を区切り、列の順序は `id`、`parents`、`nickname`、`state`、`cwd`、`last_report_at`、`index`、`confidence`、`evidence` です。`id` は子サーフェスの ID、`index` は `kill --child` と `respawn --child` に渡す番号です。親が複数ある場合は、`parents` にカンマでつないで表示します。下の例のように `--parent-external` で指定した外部の親は、そのキーが `parents` に表示されます。`last_report_at` は `2026-11-09T12:19:12Z` のような形式で表示します。子がいない場合はヘッダーの 2 行だけを出力し、終了コードは 0 です。`tasty claude children` と `tasty codex children` も同じ列を出力します。
+
+実行中の子のニックネームは `tasty terminal set-nickname` で変更し、`--clear` で消去します。`--child` には `children` の表にある `index` を指定してください。親を指定する場合は `--surface` に親のサーフェス ID を渡すか、`--parent-external` で外部の親を指定してください。複数のウィンドウが開いているときに外部の親を指定する場合は、`--workspace` も指定してください。変更した名前は `tasty terminal children`、`tasty claude children`、`tasty codex children` の `nickname` 列に表示されます。リモートミラーの子では、コマンドを実行した Tasty の記録だけが変わります。
 
 `spawn` はターミナルの準備が終わると応答し、エージェントのタスク終了は待ちません。エージェントの状態の伝達と親の受信準備は、[Claude・Codex 連携](claude-codex.md)に従います。通常のプログラムを作成しただけで、エージェントの結果の伝達が保証されるわけではありません。
 待機するコマンドを別に動かす必要はありません。`--role` で役割を指定すると、`broadcast` でまとめて送れます。
@@ -146,6 +149,7 @@ tasty terminal kill --child 1                   # 子をインデックスで終
 ```sh
 tasty terminal spawn --workspace build --parent-external review-bot --command "make lint"
 tasty terminal children --parent-external review-bot --workspace build
+tasty terminal set-nickname --parent-external review-bot --workspace build --child 0 --clear
 tasty terminal release --parent-external review-bot --workspace build --child 0
 ```
 
