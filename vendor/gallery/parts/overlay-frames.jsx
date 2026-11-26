@@ -2282,7 +2282,7 @@ tasty read screen --surface 3 --json
       <span key={id} title={label} style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", gap: bare ? 0 : 4, height: 26,
         padding: bare ? "0 8px" : "0 10px", minWidth: bare ? 30 : 0,
         borderLeft: first ? "none" : "1px solid var(--tasty-border-default)", fontSize: 12, fontWeight: active ? 600 : 400,
-        color: active ? "var(--tasty-text-on-accent)" : "var(--tasty-text-secondary)", background: active ? "var(--tasty-accent-primary)" : "transparent" }}>
+        color: active ? "var(--tasty-text-on-accent)" : "var(--tasty-text-secondary)", background: active ? "var(--tasty-accent-primary-raised)" : "transparent" }}>
         <Icon name={glyph} size={13} />{bare ? null : label}</span>
     );
   };
