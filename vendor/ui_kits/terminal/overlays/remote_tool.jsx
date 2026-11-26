@@ -424,7 +424,8 @@ function PasskeyForm({ draft, isNew, error, onField, onSave, onCancel, onBrowse 
 // ════════════════════════════════════════════════════════════════════════
 function AttachRow({ a, sshProfiles, onEdit, onDelete }) {
   // Derived as the app derives it: a reference with no ssh profile of that name is "profile missing"; a reference whose
-  // ssh profile failed detection (disabled), or an inline target whose own detection failed, is "inactive".
+  // ssh profile holds a failed detection result (its failed flag, the app's disabled), or an inline target whose own
+  // flag is set, is "inactive". A detection in progress leaves the flag as it was until its result arrives.
   const ref = a.mode === "ref";
   const referenced = ref ? sshProfiles.find((p) => p.name === a.sshRef) : null;
   const dangling = ref && !referenced;
