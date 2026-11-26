@@ -623,9 +623,10 @@ function PluginsWindow({ onClose, onFlash, onConfigure, removedAttention, onRemo
     return () => window.removeEventListener("keydown", onKey, true);
   }, [confirmId]);
 
+  // As the app's list.rs: the filter looks at the name, the authors and the description, not the category.
   const matches = (p) => {
     const n = q.trim().toLowerCase();
-    return !n || `${p.name} ${p.author} ${p.cat} ${p.desc}`.toLowerCase().includes(n);
+    return !n || `${p.name} ${p.author} ${p.desc}`.toLowerCase().includes(n);
   };
   // The list is INSTALLED-ONLY. There is no catalog/marketplace browse — adding a
   // plugin means pointing Tasty at a LOCAL folder (the “Add plugin” tab). Online
