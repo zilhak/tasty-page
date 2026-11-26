@@ -1,4 +1,4 @@
-<!-- source-hash: 5d6bf36f53f7 -->
+<!-- source-hash: 7d464d53958f -->
 # 使用终端
 
 介绍在终端运行命令时复制输出、搜索和打开文件路径的方法。还可使用无需鼠标的复制模式，以及任务完成通知。
@@ -12,6 +12,12 @@
 - **Shell** <!-- en: Shell --> — 要运行的 Shell。在 Windows 上，Tasty 仅运行 Git Bash（Git for Windows 的 `bash.exe`）。值为空时，使用在默认安装位置找到的 Git Bash。如果安装在其他位置，输入对应的 `bash.exe` 路径。
 - **启动命令** <!-- en: Startup command --> — 每个新终端启动时输入的一行命令。
 - **继承工作目录** <!-- en: Inherit working directory --> — 新建标签页、拆分或新建工作区时，继承输入命令时所选 Surface 的工作目录（默认开启）。Tasty 在实际创建时读取目录。如果来源是终端，并在这期间于该终端执行了 `cd`，则使用更改后的目录。对于本地操作，如果来源 Surface 在读取目录前关闭，就没有可继承的工作目录。远程新建标签页和拆分的行为见[继续远程工作](../remote/attach.md)。Markdown、图像和 HTML 文件使用文件所在的文件夹，文件浏览器使用其根文件夹。
+在 `general.shell` 中仅填写 `zsh` 等名称时，Tasty 会在 `PATH` 中查找。`./bin/zsh` 等相对路径和 `PATH` 中的相对条目均以 Tasty 的启动文件夹为基准。`~/bin/zsh` 等以 `~/` 开头的路径以主文件夹为基准。
+
+在 Windows 上，Tasty 先在 `PATH` 的每个文件夹中查找输入的名称，再按 `PATHEXT` 的顺序尝试扩展名。未设置 `PATHEXT` 时使用 `.EXE`。`/c/…` 等 MSYS 驱动器路径会解析为 `C:\…`。`/usr/bin/bash` 等未指定驱动器的根相对路径和 `C:…` 等驱动器内的相对路径均无法用作 Shell 路径。
+
+在 macOS 和 Linux 上，终端子进程从 Tasty 的启动环境继承 `SHELL`。启动环境中没有 `SHELL` 时，其值为账户的登录 Shell。在 Windows 上，Git Bash 会读取用于设置 Shell 集成的 `bashrc.default`，并在用户的 `~/.bashrc` 存在时一并读取。
+
 - **关闭运行中进程前确认** <!-- en: Confirm close running process --> — 关闭仍有程序运行的终端时要求确认。
 
 bash（4.4 及以上）和 zsh 无需额外配置即可启用 Shell 集成。标签页名称随当前目录变化，状态栏显示 git 分支，还可在命令结束时触发钩子（[钩子 · 通知](../agents/hooks-notifications.md)）。fish 等其他 Shell 需要手动配置，此时可能显示 **未检测到 Shell 集成** <!-- en: Shell integration not detected --> 横幅。通过附加到远程 Tasty 查看终端时，不显示此横幅。横幅在 10 秒后自动关闭，鼠标悬停时会保持显示。

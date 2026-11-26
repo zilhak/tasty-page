@@ -1,4 +1,4 @@
-<!-- source-hash: 5d6bf36f53f7 -->
+<!-- source-hash: 7d464d53958f -->
 # Working with the terminal
 
 You can copy the output you need, search terminal history, and open file paths as you work. You can also select text without a mouse and receive notifications when work finishes.
@@ -12,6 +12,12 @@ Set under **Settings** > **Terminal**.
 - **Shell** — the shell to run. On Windows, Tasty runs only Git Bash (`bash.exe` from Git for Windows). An empty value uses Git Bash found in the default install locations. If it is installed elsewhere, enter its `bash.exe` path.
 - **Startup command** — one line entered at the start of every new terminal.
 - **Inherit working directory** — new tabs, splits, and workspaces inherit the working directory from the Surface selected when you enter the command (on by default). Tasty reads the directory when it creates the item. If the source is a terminal and you run `cd` there in the meantime, Tasty uses the updated directory. For local commands, if the source Surface closes before Tasty reads its directory, there is no directory to inherit. See [Working remotely](../remote/attach.md) for remote tabs and splits. Markdown, image, and HTML files use their containing folder, and Explorer uses its root folder.
+A name such as `zsh` in `general.shell` is looked up in `PATH`. Relative paths such as `./bin/zsh` and relative entries in `PATH` are resolved from the folder where Tasty started. A path starting with `~/`, such as `~/bin/zsh`, is resolved from your home folder.
+
+On Windows, Tasty checks each `PATH` folder for the name as typed, then tries the extensions in `PATHEXT` order. It uses `.EXE` if `PATHEXT` is absent. MSYS drive paths such as `/c/…` resolve to `C:\…`. Rooted paths without a drive, such as `/usr/bin/bash`, and drive-relative paths such as `C:…` are invalid shell paths.
+
+On macOS and Linux, terminal child processes inherit `SHELL` from Tasty’s startup environment. If `SHELL` is absent, they get the account’s login shell as its value. On Windows, Git Bash reads `bashrc.default` to set up shell integration and also reads your `~/.bashrc` if present.
+
 - **Confirm close running process** — asks for confirmation when closing a terminal in which a program is running.
 
 bash (4.4 or later) and zsh get shell integration with no extra setup. The Tab name follows the current directory, the git branch appears in the status bar, and you can attach hooks to command completion ([Hooks · notifications](../agents/hooks-notifications.md)). Other shells such as fish need to be set up by hand, and until then the **Shell integration not detected** banner may appear. It does not appear on terminals you view by attaching to a remote Tasty. It closes on its own after 10 seconds, and waits while the pointer is over it.
