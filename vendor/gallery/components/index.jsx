@@ -372,7 +372,7 @@ function Components() {
             <div style={{ width: "100%", maxWidth: "var(--tasty-palette-width)", background: "var(--tasty-surface-raised)", border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", padding: "var(--tasty-space-xs)" }}>
               {[["Split pane right", "Ctrl+Shift+D"], ["Open file…", "Ctrl+P"]].map(([cmd, keys]) => (
                 <div key={cmd} style={{ height: "var(--tasty-control-height)", display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "0 var(--tasty-space-sm)", borderRadius: "var(--tasty-radius-sm)" }}>
-                  <span style={{ flex: 1, fontSize: "var(--tasty-font-size-body)", color: "var(--tasty-text-secondary)" }}>{cmd}</span>
+                  <span style={{ flex: 1, fontSize: "var(--tasty-font-size-body)", color: "var(--tasty-text-secondary-raised)" }}>{cmd}</span>
                   <Kbd keys={keys} />
                 </div>
               ))}
