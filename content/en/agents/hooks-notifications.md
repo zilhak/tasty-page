@@ -1,4 +1,4 @@
-<!-- source-hash: 85d042b7a818 -->
+<!-- source-hash: 21fd371b7d22 -->
 # Hooks, notifications, and webhooks
 
 Hooks run actions in response to Tasty events, notifications show items to check in the app, and webhooks receive HTTP requests from external services. Choose the path that fits your task.
@@ -34,7 +34,7 @@ tasty unset hook --hook <HOOK_ID>
 | `claude-idle` / `needs-input` / `codex-idle` | Events emitted by the Claude Code / Codex plugins ([Claude and Codex](claude-codex.md)) |
 | `claude-stop-failure` | When a Claude Code turn ends on an API error (server overload, rate limit, authentication failure, and so on). It usually comes with `claude-idle`; when background work is still running, only this one comes |
 | `claude-error` | When a known error message appears in Claude Code's screen output |
-| `claude-error-stalled` | When Claude Code output remains unchanged for 10 minutes by default (configurable). The threshold is fixed at 30 seconds for an error in the latest output during a turn; waits with only Monitor remaining are excluded ([wait-specific thresholds and receiving requirements](claude-codex.md#4-receiving-completion-notifications)) |
+| `claude-error-stalled` | When Claude Code output remains unchanged for 10 minutes by default (configurable). Outside a background wait, an error in recent output sets a fixed 30-second threshold. Tasty excludes only tasks it recognizes as Monitor from no-output checks. If an older hook reports Monitor as a shell task, that task still counts ([wait-specific thresholds and receiving requirements](claude-codex.md#4-receiving-completion-notifications)) |
 
 - With `--once`, the hook is removed when the first matching event occurs, even if the command cannot run. By default the hook stays registered.
 - Hook commands run in the background without blocking terminal input. Standard input, standard output, and standard error all go to the null device. To keep the output, redirect it to a file or send a message with `tasty notify`. The hook run ends when the shell exits. Background jobs started by the shell can keep running.
