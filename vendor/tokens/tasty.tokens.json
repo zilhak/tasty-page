@@ -7240,6 +7240,18 @@
       "$value": "{semantic.text-muted}",
       "$description": "folder mode — footer hint line"
     },
+    "fp-row-focus-ring": {
+      "$type": "color",
+      "$value": "{semantic.accent-primary-raised}"
+    },
+    "fp-row-focus-ring-selected-hover": {
+      "$type": "color",
+      "$value": "{semantic.accent-primary-on-active}"
+    },
+    "fp-row-focus-ring-width": {
+      "$type": "dimension",
+      "$value": "{semantic.border-width}"
+    },
     "file-handler-form-info-fg": {
       "$type": "color",
       "$value": "{semantic.text-secondary-raised}",

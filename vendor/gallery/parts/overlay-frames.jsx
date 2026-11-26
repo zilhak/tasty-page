@@ -3070,24 +3070,41 @@ function RemoteAttachFrame({ state = "loaded", newPhase = "rest", newSelected, e
 // a remote attach host — differing only in the header host indicator (the
 // breadcrumb root is the path root, / or C:\, in both). Popup language: Scrim · content-drawn header ·
 // --tasty-bg-panel frame, same as remote_tool / Add remote workspace.
-// No row focus ring: the app moves the selection with the keys it reads (folder mode ↑↓) and draws no
-// separate keyboard focus on a row.
+// Row focus (target spec, not in the app yet): the keyboard current row of the list, apart from the
+// selection, drawn as the explorer's current item is: a 1px inset ring painted after the row, so it sits on
+// top of the selection fill and bar, and it never moves layout. It shows only while the list holds key focus
+// and the last input to it was a key; a click on a row moves the focus there and hides the ring until the
+// next key. Ring ink: fp-row-focus-ring on rest, hover and selected; fp-row-focus-ring-selected-hover on a
+// selected row under the pointer, where fp-row-focus-ring falls under 3:1 in Mocha.
+// hover: overlay-hover over the row's ground (base+hover, or active+hover on a selected row), inks one step
+// raised as the cells for those grounds say. The wash is the inner box's own fill, so the bar and the
+// selection fill stay on the outer box under it.
 // inert (2026-10-21, folder mode): a file row that is listed for orientation but can't be selected —
 // ink state-disabled-fg (never opacity), no hover overlay, skipped by ↑↓, tooltip "Only folders can be selected."
-function FpRow({ kind, name, size, mod, selected, multi, checked, inert, tip }) {
+// The row focus never lands on an inert row: every list key skips it, so inert takes neither focus nor hover.
+function FpRow({ kind, name, size, mod, selected, multi, checked, inert, tip, focus = false, hover = false }) {
   const isFolder = kind === "folder";
+  const hov = hover && !inert;
+  const ink = (rest, restHover, sel, selHover) => inert ? "var(--tasty-fp-folder-file-fg)" : selected ? (hov ? selHover : sel) : (hov ? restHover : rest);
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-fp-row-pad-y) var(--tasty-fp-inset-start)", position: "relative", cursor: "default",
+    <div data-fp-row={name} style={{ position: "relative", cursor: "default",
       background: selected ? "var(--tasty-surface-active)" : "transparent",
       boxShadow: selected ? "inset var(--tasty-selection-edge-width) 0 0 var(--tasty-accent-primary)" : "none" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-fp-row-pad-y) var(--tasty-fp-inset-start)",
+        background: hov ? "var(--tasty-overlay-hover)" : "transparent" }}>
       {multi && <span style={{ display: "inline-flex", flex: "none" }}><Checkbox checked={!!checked} /></span>}
-      <span style={{ flex: "none", display: "inline-flex", color: inert ? "var(--tasty-fp-folder-file-fg)" : isFolder ? "var(--tasty-accent-primary-raised)" : "var(--tasty-text-muted)" }}>
+      <span style={{ flex: "none", display: "inline-flex", color: isFolder
+        ? ink("var(--tasty-accent-primary-raised)", "var(--tasty-accent-primary-raised)", "var(--tasty-accent-primary-raised)", "var(--tasty-accent-primary-on-active)")
+        : ink("var(--tasty-text-muted)", "var(--tasty-text-muted-raised)", "var(--tasty-text-muted)", "var(--tasty-text-on-active)") }}>
         <Icon name={isFolder ? "folder" : "file"} size="var(--tasty-icon-size-md)" />
       </span>
       <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-        fontSize: "var(--tasty-font-size-body)", fontWeight: isFolder ? 500 : 400, color: inert ? "var(--tasty-fp-folder-file-fg)" : selected ? "var(--tasty-text-on-active)" : "var(--tasty-text-secondary)" }}>{name}</span>
-      <span style={{ flex: "none", width: "var(--tasty-fp-size-col-width)", textAlign: "right", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: inert ? "var(--tasty-fp-folder-file-fg)" : selected ? "var(--tasty-text-on-active)" : "var(--tasty-text-muted)" }}>{size}</span>
-      <span style={{ flex: "none", width: "var(--tasty-fp-modified-col-width)", textAlign: "right", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: inert ? "var(--tasty-fp-folder-file-fg)" : selected ? "var(--tasty-text-on-active)" : "var(--tasty-text-muted)" }}>{mod}</span>
+        fontSize: "var(--tasty-font-size-body)", fontWeight: isFolder ? 500 : 400, color: ink("var(--tasty-text-secondary)", "var(--tasty-text-secondary-raised)", "var(--tasty-text-on-active)", "var(--tasty-text-on-active-hover)") }}>{name}</span>
+      <span style={{ flex: "none", width: "var(--tasty-fp-size-col-width)", textAlign: "right", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: ink("var(--tasty-text-muted)", "var(--tasty-text-muted-raised)", "var(--tasty-text-on-active)", "var(--tasty-text-on-active-hover)") }}>{size}</span>
+      <span style={{ flex: "none", width: "var(--tasty-fp-modified-col-width)", textAlign: "right", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: ink("var(--tasty-text-muted)", "var(--tasty-text-muted-raised)", "var(--tasty-text-on-active)", "var(--tasty-text-on-active-hover)") }}>{mod}</span>
+      </div>
+      {focus && !inert && <span aria-hidden="true" data-fp-row-focus="" style={{ position: "absolute", inset: 0, pointerEvents: "none", borderRadius: "var(--tasty-radius-sm)",
+        boxShadow: "inset 0 0 0 var(--tasty-fp-row-focus-ring-width) " + (selected && hov ? "var(--tasty-fp-row-focus-ring-selected-hover)" : "var(--tasty-fp-row-focus-ring)") }} />}
       {tip && (
         <span role="tooltip" style={{ position: "absolute", left: "calc(1 * var(--tasty-fp-inset-start) + 1 * var(--tasty-fp-specimen-row-tooltip-left))", top: "100%", marginTop: "var(--tasty-space-xs)", zIndex: 4, whiteSpace: "nowrap",
           padding: "var(--tasty-tooltip-padding-y) var(--tasty-tooltip-padding-x)", background: "var(--tasty-tooltip-bg)", border: "var(--tasty-border-width) solid var(--tasty-tooltip-border)",
@@ -3213,7 +3230,7 @@ const FP_ERROR_COPY = {
   "zh-Hans": { permTitle: "权限被拒绝", permReason: "没有读取此目录的权限。", permAction: "重试", connTitle: "连接已断开", sessionLost: "远程会话已不再附加。", timeout: "远程主机未及时响应。", connAction: "重试" },
 };
 function FilePickerFrame({ state = "loaded", remote = false, indicator = "badge", multi = false, filters = [], mode = "open", save = "new", deep = false, crumbMenu = false, folderSel = false, w = 640, h = 480, pathKind, single = false, elideStage,
-  folderPick = "none", fileHover = false, lang = "en", opaque = false, host = "work-laptop-attach" }) {
+  folderPick = "none", fileHover = false, lang = "en", opaque = false, host = "work-laptop-attach", pick, focusRow = null, hoverRow = null }) {
   const saving = mode === "save";
   const folderMode = mode === "folder";
   const FC = FP_FOLDER_COPY[lang] || FP_FOLDER_COPY.en;
@@ -3241,7 +3258,10 @@ function FilePickerFrame({ state = "loaded", remote = false, indicator = "badge"
     { kind: "file", name: "deploy.sh", size: "902 B", mod: "Jul 11 14:02" },
     { kind: "file", name: ".env", size: "218 B", mod: "Jul 09 10:30" },
   ];
-  const fileName = multi ? "README.md, package.json, pipeline.yaml" : "README.md";
+  // pick overrides the selected row in every mode (a name, or null for none), as a key move leaves it.
+  const pickedKind = pick ? (files.find((f) => f.name === pick) || {}).kind : null;
+  const selFolder = folderSel ? "configs" : !folderMode && pickedKind === "folder" ? pick : null;
+  const fileName = multi ? "README.md, package.json, pipeline.yaml" : pick !== undefined ? (pickedKind === "file" ? pick : "") : "README.md";
   // save mode: the INPUT is the only target. Picking a list row just writes its
   // name into the input — and since every listed name exists, a pick IS the
   // overwrite state (save="picked"). Editing the name away from the picked row
@@ -3315,7 +3335,8 @@ function FilePickerFrame({ state = "loaded", remote = false, indicator = "badge"
                 tip={folderMode && fileHover && f.name === "README.md" ? FC.fileTip : null}
                 multi={multi}
                 checked={multi && f.pick && ["README.md", "package.json", "pipeline.yaml"].includes(f.name)}
-                selected={folderMode ? folderPick === "row" && f.name === "configs" : folderSel ? f.name === "configs" : saving ? f.name === saveSelected : !multi && f.name === "README.md"} />
+                focus={f.name === focusRow} hover={f.name === hoverRow}
+                selected={pick !== undefined ? f.name === pick : folderMode ? folderPick === "row" && f.name === "configs" : folderSel ? f.name === "configs" : saving ? f.name === saveSelected : !multi && f.name === "README.md"} />
             ))}
           </div>
         )}
@@ -3328,7 +3349,8 @@ function FilePickerFrame({ state = "loaded", remote = false, indicator = "badge"
       <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-fp-section-gap)", flex: "none", padding: "var(--tasty-fp-footer-pad-y) var(--tasty-fp-inset-start)", borderTop: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
         {folderMode && (() => {
           const cur = "/" + crumbs.slice(1).map((c) => c.label).join("/");
-          const target = folderPick === "row" ? cur + "/configs" : cur;
+          const picked = pick !== undefined ? pick : folderPick === "row" ? "configs" : null;
+          const target = picked ? cur + "/" + picked : cur;
           const live = state === "loaded" || state === "empty";
           return (<>
             <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-fp-section-gap)" }}>
@@ -3345,7 +3367,7 @@ function FilePickerFrame({ state = "loaded", remote = false, indicator = "badge"
             {live && (
               <div style={{ display: "flex", alignItems: "flex-start", gap: "var(--tasty-space-xs)", fontSize: "var(--tasty-font-size-micro)", lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-fp-folder-hint-fg)" }}>
                 <span style={{ display: "inline-flex", flex: "none", height: "1lh", alignItems: "center" }}><Icon name="folder" size="var(--tasty-icon-size-sm)" /></span>
-                <span style={{ minWidth: 0, overflowWrap: "anywhere" }}>{folderPick === "row" ? FC.hintSel("configs") : FC.hintCur}</span>
+                <span style={{ minWidth: 0, overflowWrap: "anywhere" }}>{picked ? FC.hintSel(picked) : FC.hintCur}</span>
               </div>
             )}
           </>);
@@ -3353,7 +3375,7 @@ function FilePickerFrame({ state = "loaded", remote = false, indicator = "badge"
         {!folderMode && <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-fp-section-gap)" }}>
           <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)", flex: "none", width: "var(--tasty-fp-footer-label-width)" }}>File name</span>
           <span style={{ flex: 1, minWidth: 0, display: "flex" }}>
-            <Input block defaultValue={saving ? saveName : folderSel ? "" : state === "loaded" ? fileName : ""} placeholder={saving ? "Type a file name" : "No file selected"} />
+            <Input block defaultValue={saving ? saveName : selFolder ? "" : state === "loaded" ? fileName : ""} placeholder={saving ? "Type a file name" : "No file selected"} />
           </span>
           {filters.length > 0 && (() => {
             /* 2026-10-06 — READ-ONLY readout of the caller's filter: no chevron, no hover, not focusable.
@@ -3370,12 +3392,12 @@ function FilePickerFrame({ state = "loaded", remote = false, indicator = "badge"
         </div>}
         {/* The folder and overwrite lines are one line each, as the app draws them: glyph fp-footer-line-glyph-size,
             then the text, cut at the end with an ellipsis (footer.rs folder_line / overwrite_line). */}
-        {folderSel && (
+        {selFolder && (
           <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-xs)", minWidth: 0, fontSize: "var(--tasty-font-size-caption)", lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-text-muted)" }}>
             <span style={{ display: "inline-flex", alignItems: "center", flex: "none", height: "1lh" }}><Icon name="folder" size="var(--tasty-fp-footer-line-glyph-size)" /></span>
             <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{saving
-              ? <>Folders aren't save targets — double-click <span style={{ fontFamily: "var(--tasty-font-mono)" }}>configs</span> to open it.</>
-              : <><span style={{ fontFamily: "var(--tasty-font-mono)" }}>configs</span> is a folder — <b style={{ fontWeight: 600 }}>Open</b> enters it.</>}</span>
+              ? <>Folders aren't save targets — double-click <span style={{ fontFamily: "var(--tasty-font-mono)" }}>{selFolder}</span> to open it.</>
+              : <><span style={{ fontFamily: "var(--tasty-font-mono)" }}>{selFolder}</span> is a folder — <b style={{ fontWeight: 600 }}>Open</b> enters it.</>}</span>
           </div>
         )}
         {overwrite && (
@@ -3397,4 +3419,4 @@ function FilePickerFrame({ state = "loaded", remote = false, indicator = "badge"
   );
 }
 
-export { PopupFocusEdge, TOOLS_MENU_BUILTIN, ic, Backdrop, GroundThemes, GroundCap, PaletteFrame, ApprovalFrame, RenameFrame, SettingsFrame, SettingsGeneralOverlayFrame, SettingsRemoteTransferFrame, SettingsRemoteAttachFrame, TransferProgressFrame, TransferErrorFrame, DownloadRunFrame, DownloadRunLargeFrame, ToastDragValue, ToolsMenuFrame, PortsFrame, PORTS_COLUMNS, PortsFavoritesG, PortStarG, RemoteFrame, RemoteFilterButtonG, RemoteFilterMenuG, LocalSshSection, SearchBarFrame, FileHandlerFrame, FhFooter, PresetFrame, MarkdownOpenFrame, HeldLabel, TabStripMock, SidebarMock, RailMock, CatSwitchSidebarMock, CatSwitchRailMock, BannerShellG, BannerScope, MouseCaptureBannerG, MouseCaptureHitZone, BlacklistEditorG, TtlBannerG, StackDemoG, BannerMoreMenuG, BannerMoreDemoG, GitViewerFrame, ClipboardFrame, RemoteFormFrame, ScriptManagerFrame, ShellMock, CollapsedPopupButton, RemoteAttachFrame, RaNewRow, RaWsPeek, FilePickerFrame, FpCrumbMenu, FpHostBadge, ModifierHintPanelG, MH_CAT_SECTIONS, MH_MIXED_SECTIONS, MH_EMPTY_SECTIONS, catIc, CatMenu, RailCategoryFrame, CategoryEditFrame, CategoryDeleteFrame };
+export { FpRow, PopupFocusEdge, TOOLS_MENU_BUILTIN, ic, Backdrop, GroundThemes, GroundCap, PaletteFrame, ApprovalFrame, RenameFrame, SettingsFrame, SettingsGeneralOverlayFrame, SettingsRemoteTransferFrame, SettingsRemoteAttachFrame, TransferProgressFrame, TransferErrorFrame, DownloadRunFrame, DownloadRunLargeFrame, ToastDragValue, ToolsMenuFrame, PortsFrame, PORTS_COLUMNS, PortsFavoritesG, PortStarG, RemoteFrame, RemoteFilterButtonG, RemoteFilterMenuG, LocalSshSection, SearchBarFrame, FileHandlerFrame, FhFooter, PresetFrame, MarkdownOpenFrame, HeldLabel, TabStripMock, SidebarMock, RailMock, CatSwitchSidebarMock, CatSwitchRailMock, BannerShellG, BannerScope, MouseCaptureBannerG, MouseCaptureHitZone, BlacklistEditorG, TtlBannerG, StackDemoG, BannerMoreMenuG, BannerMoreDemoG, GitViewerFrame, ClipboardFrame, RemoteFormFrame, ScriptManagerFrame, ShellMock, CollapsedPopupButton, RemoteAttachFrame, RaNewRow, RaWsPeek, FilePickerFrame, FpCrumbMenu, FpHostBadge, ModifierHintPanelG, MH_CAT_SECTIONS, MH_MIXED_SECTIONS, MH_EMPTY_SECTIONS, catIc, CatMenu, RailCategoryFrame, CategoryEditFrame, CategoryDeleteFrame };
