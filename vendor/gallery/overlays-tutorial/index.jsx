@@ -159,7 +159,7 @@ function Page() {
       </Section>
 
       <Section id="callout" title="Callout bubble">
-        <Spec id="callout-title-body-progress-back-next-skip-4-way-tail" title="Callout — title · body · progress · Back/Next/Skip · 4-way tail"
+        <Spec id="callout-title-body-progress-back-next-skip-4-way-tail" title="Callout — title · body · progress · Back/Next/Topics · 4-way tail"
           when={<>The guidance bubble pinned to a marker. Fixed <b>244px</b> wide (i18n growth absorbed vertically), a <b>tail</b> points at the marker in one of 4 directions, and edge-avoidance flips the tail + clamps the body into the 8px safe area while the tail keeps aiming at the marker corner.</>}>
           <Stage variant="solo" style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 24, padding: 24, background: "var(--tasty-bg-app)", placeItems: "center" }}>
             {/* The basics topic in the app's order (workspace, pane, tab, surface, summary), with its ko copy as written. */}
@@ -169,7 +169,7 @@ function Page() {
             <div style={{ position: "relative" }}><Callout tail="right" step={1} first title="워크스페이스" body="작업에 필요한 페인과 탭을 묶는 공간입니다. 사이드바에서 다른 워크스페이스로 전환할 수 있어요." style={{ position: "relative" }} /></div>
           </Stage>
           <Meta
-            specs={[["width", "244px fixed"], ["tail", "up · down · left · right (12px diamond)"], ["progress", "2/5 label + dot rail"], ["buttons", "tutorial.btn_skip (link) · btn_back (secondary) · btn_next (primary) · ko 목록 · 이전 · 다음 · en Topics · Back · Next"], ["first step", "Back hidden"], ["last step", "btn_next → btn_done (ko 완료 · en Done), reopens topic popup"], ["placement", "below → above → right → left; flip on overflow; clamp to 8px safe area"]]}
+            specs={[["width", "244px fixed"], ["tail", "up · down · left · right (12px diamond)"], ["progress", "2/5 label + dot rail"], ["buttons", "tutorial.btn_skip (link) · btn_back (secondary) · btn_next (primary) · en Topics · Back · Next · ko 목록 · 이전 · 다음 · ja 一覧 · 戻る · 次へ · zh-Hans 主题 · 上一步 · 下一步"], ["first step", "Back hidden"], ["last step", "btn_next → btn_done (en Done · ko 완료 · ja 完了 · zh-Hans 完成), reopens topic popup"], ["placement", "below → above → right → left; flip on overflow; clamp to 8px safe area"]]}
             tokens={[{ tok: "--tasty-surface-raised", use: "bubble fill", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-border-frame", use: "1px edge + tail — the popup frame", color: "var(--tasty-border-frame)" }, { tok: "--tasty-shadow-modal", use: "floating lift" }, { tok: "--tasty-accent-primary", use: "step · active dot · Next", color: "var(--tasty-accent-primary-raised)" }]} />
           <Do><b>Do</b> reuse the DS <b>Button</b> (primary 다음 / secondary 이전) and keep 목록 as a low-emphasis link back to the topic list popup — the callout is guidance, not a decision surface.</Do>
         </Spec>
