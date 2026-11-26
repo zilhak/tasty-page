@@ -84,8 +84,9 @@ function ExpToolbar() {
 
 // Favorites empty state — the section CAPTION stays even at 0 favorites, so the
 // feature is always discoverable; a muted line + faint hint fill the slot. Tone
-// matches the content-area "This folder is empty" state (text-muted). i18n key:
-// explorer.sidebar.favorites_empty ("아직 즐겨찾기가 없습니다").
+// matches the content-area "This folder is empty" state (text-muted). Copy, quoted from the app's lang/en.toml:
+// explorer.sidebar.favorites_empty and favorites_empty_hint ("Right-click a folder → {}."), with {} filled by
+// explorer.context_menu.add_to_favorites ("Add to Favorites"), which the app draws in text-muted.
 // Metrics follow the app's favorites_empty: space-xs above, space-sm inset and below, no gap between the two lines,
 // a 14 star (icon-size-sm) space-xs before caption-size text. The star recedes as glyph-dim, an opaque role, like the
 // ports window's empty star; the app's two tones for it (0.55 here, 0.37 there) converge on that role.
@@ -97,7 +98,7 @@ function FavoritesEmpty() {
         <span style={{ fontSize: "var(--tasty-font-size-caption)", lineHeight: "var(--tasty-line-height-ui)" }}>No favorites yet</span>
       </div>
       <div style={{ fontSize: "var(--tasty-font-size-caption)", lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-text-placeholder)" }}>
-        Right-click a folder → <span style={{ color: "var(--tasty-text-muted)" }}>Add to favorites</span>.
+        Right-click a folder → <span style={{ color: "var(--tasty-text-muted)" }}>Add to Favorites</span>.
       </div>
     </div>
   );
