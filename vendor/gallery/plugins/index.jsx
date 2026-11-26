@@ -780,7 +780,7 @@ function Page() {
         </Spec>
 
         <Spec id="sidebar-favorites-populated-vs-empty-state" title="Sidebar Favorites — populated vs. empty state"
-          when={<>The sidebar <b>Favorites</b> section caption is <b>always shown</b>, even at zero favorites — so the feature never disappears and reads as unimplemented. With favorites it lists STAR rows (left); empty, the caption stays and an <b>empty state</b> fills the slot: a faint outline star + <b>"No favorites yet"</b> in <span className="tok">--tasty-text-muted</span>, then a dimmer one-line hint pointing at the add path. Same tone as the content-area "This folder is empty" state — left-aligned to fit the 196px column.</>}>
+          when={<>The Favorites caption stays visible at zero favorites. Populated rows show a filled star and the folder name. The empty state shares the caption’s 8px inset and shows a <span className="tok">--tasty-glyph-dim</span> star and “No favorites yet” in <span className="tok">--tasty-text-muted</span>, both at caption size. The add hint below uses <span className="tok">--tasty-text-placeholder</span> with “Add to Favorites” in <span className="tok">--tasty-text-muted</span> and wraps to two lines at 196px.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 18, flexWrap: "wrap" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
               <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>with favorites</div>
@@ -792,9 +792,9 @@ function Page() {
             </div>
           </Stage>
           <Meta
-            specs={[["caption", "always shown — micro caps, text-muted"], ["empty line", <>14px outline star · <span className="tok">--tasty-icon-size-sm</span> · <span className="tok">--tasty-glyph-dim</span> + 11px "No favorites yet" · <span className="tok">--tasty-text-muted</span></>], ["hint", <>1 line · <span className="tok">--tasty-text-placeholder</span></>], ["align", "left, inside 196px column"], ["condition", "was: hide section at 0 → now: always show"]]}
+            specs={[["caption", "always shown — micro caps, text-muted"], ["empty line", <>14px outline star · <span className="tok">--tasty-icon-size-sm</span> · <span className="tok">--tasty-glyph-dim</span> + 11px "No favorites yet" · <span className="tok">--tasty-text-muted</span></>], ["hint", <>Wraps at the column’s right edge like the app label (2 lines at 196px) · <span className="tok">--tasty-text-placeholder</span> · menu label in <span className="tok">--tasty-text-muted</span></>], ["align", "left, inside 196px column"], ["condition", "was: hide section at 0 → now: always show"]]}
             tokens={[{ tok: "--tasty-text-muted", use: "caption + empty line", color: "var(--tasty-text-muted)" }, { tok: "--tasty-text-placeholder", use: "hint line", color: "var(--tasty-text-placeholder)" }, { tok: "--tasty-accent-warning", use: "filled star (populated)", color: "var(--tasty-accent-warning-raised)" }, { tok: "--tasty-glyph-dim", use: "empty favorites star", color: "var(--tasty-glyph-dim)" }]} />
-          <Note>New string <InlineCode>explorer.sidebar.favorites_empty</InlineCode> — en "No favorites yet" · ko "아직 즐겨찾기가 없습니다" · add to <InlineCode>lang/&#123;en,ko,ja&#125;.toml</InlineCode>. The hint reuses existing "Add to favorites" copy. Implementer: replace <InlineCode>if !favorites.is_empty()</InlineCode> in <InlineCode>explorer.rs sidebar()</InlineCode> with an always-rendered caption + empty branch.</Note>
+          <Note><InlineCode>explorer.sidebar.favorites_empty</InlineCode> supplies the empty label. <InlineCode>explorer.sidebar.favorites_empty_hint</InlineCode> supplies the hint, with <InlineCode>{"{}"}</InlineCode> replaced by the label from <InlineCode>explorer.context_menu.add_to_favorites</InlineCode>.</Note>
         </Spec>
 
         <Spec id="sidebar-layout-favorites-pinned-to-the-bottom-2-region-split" title="Sidebar layout — Favorites PINNED to the bottom (2-region split)"
