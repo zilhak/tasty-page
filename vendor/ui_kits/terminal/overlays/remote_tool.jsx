@@ -236,7 +236,7 @@ function ProfileForm({ draft, isNew, error, passkeys, onField, onFields, onSave,
           </div>
         </div>
         {unknown && (
-          <p style={{ margin: "var(--tasty-space-sm) 0 0 calc(var(--tasty-remote-label-col) + var(--tasty-space-md))",
+          <p style={{ margin: "var(--tasty-space-sm) 0 0 calc(1 * var(--tasty-remote-label-col) + 1 * var(--tasty-space-md))",
             fontSize: "var(--tasty-font-size-caption)", lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-accent-warning-raised)" }}>
             Unknown type — will be saved but not handled until a plugin or core supports it.
           </p>
@@ -276,7 +276,7 @@ function ProfileForm({ draft, isNew, error, passkeys, onField, onFields, onSave,
               <Button variant="ghost" size="sm" leadingIcon={ic.plus} onClick={addField}>Add field</Button>
             </div>
             {(draft.fields || []).length === 0 ? (
-              <p style={{ ...rtCaption, fontStyle: "var(--tasty-font-style-absent)", margin: "0 0 0 calc(var(--tasty-remote-label-col) + var(--tasty-space-md))" }}>No fields. Add a key-value pair.</p>
+              <p style={{ ...rtCaption, fontStyle: "var(--tasty-font-style-absent)", margin: "0 0 0 calc(1 * var(--tasty-remote-label-col) + 1 * var(--tasty-space-md))" }}>No fields. Add a key-value pair.</p>
             ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
                 {draft.fields.map((f, i) => (
@@ -294,11 +294,11 @@ function ProfileForm({ draft, isNew, error, passkeys, onField, onFields, onSave,
         )}
 
         {ssh && draft.shell === "auto" && (
-          <p style={{ margin: "var(--tasty-space-md) 0 0 calc(var(--tasty-remote-label-col) + var(--tasty-space-md))", ...rtCaption, lineHeight: "var(--tasty-line-height-ui)" }}>
+          <p style={{ margin: "var(--tasty-space-md) 0 0 calc(1 * var(--tasty-remote-label-col) + 1 * var(--tasty-space-md))", ...rtCaption, lineHeight: "var(--tasty-line-height-ui)" }}>
             Auto-detects the remote shell once when saved (runs an SSH probe).
           </p>
         )}
-        {error && <p style={{ margin: "var(--tasty-space-md) 0 0 calc(var(--tasty-remote-label-col) + var(--tasty-space-md))", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-accent-danger-raised)" }}>{error}</p>}
+        {error && <p style={{ margin: "var(--tasty-space-md) 0 0 calc(1 * var(--tasty-remote-label-col) + 1 * var(--tasty-space-md))", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-accent-danger-raised)" }}>{error}</p>}
       </div>
       <div style={rtFooter}>
         <Button variant="ghost" onClick={onCancel}>Cancel</Button>
@@ -403,10 +403,10 @@ function PasskeyForm({ draft, isNew, error, onField, onSave, onCancel, onBrowse 
             </div>
           )}
         </div>
-        <p style={{ margin: "var(--tasty-space-md) 0 0 calc(var(--tasty-remote-label-col) + var(--tasty-space-md))", ...rtCaption, lineHeight: "var(--tasty-line-height-ui)" }}>
+        <p style={{ margin: "var(--tasty-space-md) 0 0 calc(1 * var(--tasty-remote-label-col) + 1 * var(--tasty-space-md))", ...rtCaption, lineHeight: "var(--tasty-line-height-ui)" }}>
           The value is local-only. Profiles reference this passkey by name; the secret is never shared.
         </p>
-        {error && <p style={{ margin: "var(--tasty-space-md) 0 0 calc(var(--tasty-remote-label-col) + var(--tasty-space-md))", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-accent-danger-raised)" }}>{error}</p>}
+        {error && <p style={{ margin: "var(--tasty-space-md) 0 0 calc(1 * var(--tasty-remote-label-col) + 1 * var(--tasty-space-md))", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-accent-danger-raised)" }}>{error}</p>}
       </div>
       <div style={rtFooter}>
         <Button variant="ghost" onClick={onCancel}>Cancel</Button>
@@ -529,10 +529,10 @@ function AttachForm({ draft, isNew, error, sshProfiles, passkeys, onField, onSav
           <label style={rtLabel}>Port file</label>
           <Input block mono placeholder="optional — overrides port mode" value={draft.portFile} onChange={(e) => onField("portFile", e.target.value)} />
         </div>
-        <p style={{ margin: "var(--tasty-space-md) 0 0 calc(var(--tasty-remote-label-col) + var(--tasty-space-md))", ...rtCaption, lineHeight: "var(--tasty-line-height-ui)" }}>
+        <p style={{ margin: "var(--tasty-space-md) 0 0 calc(1 * var(--tasty-remote-label-col) + 1 * var(--tasty-space-md))", ...rtCaption, lineHeight: "var(--tasty-line-height-ui)" }}>
           Point <span style={{ fontFamily: "var(--tasty-font-mono)" }}>Executable</span> at the remote <span style={{ fontFamily: "var(--tasty-font-mono)" }}>tasty</span> binary when it isn't on <span style={{ fontFamily: "var(--tasty-font-mono)" }}>PATH</span>. A <span style={{ fontFamily: "var(--tasty-font-mono)" }}>Port file</span> path takes precedence over the selected port mode.
         </p>
-        {error && <p style={{ margin: "var(--tasty-space-md) 0 0 calc(var(--tasty-remote-label-col) + var(--tasty-space-md))", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-accent-danger-raised)" }}>{error}</p>}
+        {error && <p style={{ margin: "var(--tasty-space-md) 0 0 calc(1 * var(--tasty-remote-label-col) + 1 * var(--tasty-space-md))", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-accent-danger-raised)" }}>{error}</p>}
       </div>
       <div style={rtFooter}>
         <Button variant="ghost" onClick={onCancel}>Cancel</Button>
