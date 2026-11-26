@@ -1,4 +1,4 @@
-<!-- source-hash: c39d0b22ae35 -->
+<!-- source-hash: ca0c4a96ff03 -->
 # インストール
 
 Tasty の Windows・macOS・Linux 用インストールファイルは、GitHub リリースページからアーキテクチャ別にダウンロードできます。macOS は Apple Silicon をサポートしています。
@@ -177,7 +177,7 @@ cargo build --release --no-default-features
 | Windows `.zip` | 解凍したフォルダーを削除してください | `~/.tasty/` は残ります。自分で削除してください |
 | ヘッドレス圧縮ファイル（すべての OS） | 解凍したフォルダーを削除してください | `~/.tasty/` は残ります。自分で削除してください |
 
-ユーザーデータも削除するには、Windows の設定アプリの一覧で Tasty の **変更** <!-- en: Modify --> → **Remove** を選ぶか、`.msi` を再実行して **Remove** を選んでください。アンインストール画面で **Permanently delete settings, history, saved logins and profiles in .tasty** にチェックを入れてください。その状態でアンインストールが正常に完了すると、`~/.tasty` が削除されます。
+ユーザーデータも削除するには、Windows の設定アプリの一覧で Tasty の **変更** <!-- en: Modify --> → **Remove** を選ぶか、`.msi` を再実行して **Remove** を選んでください。アンインストール画面で **Permanently delete settings, history, saved logins and profiles in .tasty** にチェックを入れてください。その状態でアンインストールが正常に完了すると、インストーラーは `~/.tasty` の削除を試みます。削除できないファイルがありデータが残った場合は、**Tasty data deletion incomplete** ダイアログが表示されます。
 
 アプリの一覧で直接 **アンインストール** <!-- en: Uninstall --> を選ぶか、`msiexec /qn` または `msiexec /qb` でアンインストールすると、ユーザーデータは残ります。アップグレードと修復でも残ります。
 

@@ -176,7 +176,7 @@ cargo build --release --no-default-features
 | Windows `.zip` | 압축 푼 폴더를 지웁니다 | `~/.tasty/` 는 남습니다. 직접 지웁니다 |
 | headless 압축 파일 (모든 OS) | 압축 푼 폴더를 지웁니다 | `~/.tasty/` 는 남습니다. 직접 지웁니다 |
 
-사용자 데이터도 지우려면 Windows 설정 앱의 앱 목록에서 Tasty의 **수정** <!-- en: Modify --> → **Remove**를 선택하거나 `.msi`를 다시 실행해 **Remove**를 선택하세요. 제거 화면에서 **Permanently delete settings, history, saved logins and profiles in .tasty**를 선택하고 제거를 마치면 `~/.tasty`를 지웁니다.
+사용자 데이터도 지우려면 Windows 설정 앱의 앱 목록에서 Tasty의 **수정** <!-- en: Modify --> → **Remove**를 선택하거나 `.msi`를 다시 실행해 **Remove**를 선택하세요. 제거 화면에서 **Permanently delete settings, history, saved logins and profiles in .tasty**를 선택하면 앱 제거가 정상적으로 끝난 뒤 설치 프로그램이 `~/.tasty` 삭제를 시도합니다. 파일을 지우지 못해 데이터가 남으면 **Tasty data deletion incomplete** 창이 뜹니다.
 
 앱 목록에서 **제거** <!-- en: Uninstall -->를 바로 선택하거나 `msiexec /qn` 또는 `msiexec /qb`로 제거하면 데이터가 남습니다. 업그레이드와 복구도 데이터를 보존합니다.
 

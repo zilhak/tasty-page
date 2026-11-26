@@ -1,4 +1,4 @@
-<!-- source-hash: c39d0b22ae35 -->
+<!-- source-hash: ca0c4a96ff03 -->
 # 安装
 
 Tasty 的 Windows、macOS 和 Linux 安装文件可在 GitHub 发布页面按架构下载。macOS 支持 Apple Silicon。
@@ -177,7 +177,7 @@ cargo build --release --no-default-features
 | Windows `.zip` | 删除解压后的文件夹 | 保留 `~/.tasty/`。需手动删除 |
 | 无界面压缩包（所有 OS） | 删除解压后的文件夹 | 保留 `~/.tasty/`。需手动删除 |
 
-如需一并删除用户数据，在 Windows 设置的应用列表中为 Tasty 选择**修改** <!-- en: Modify --> → **Remove**，或重新运行 `.msi` 并选择 **Remove**。在卸载界面勾选 **Permanently delete settings, history, saved logins and profiles in .tasty**。勾选后成功卸载时，安装程序会删除 `~/.tasty`。
+如需一并删除用户数据，在 Windows 设置的应用列表中为 Tasty 选择**修改** <!-- en: Modify --> → **Remove**，或重新运行 `.msi` 并选择 **Remove**。在卸载界面勾选 **Permanently delete settings, history, saved logins and profiles in .tasty**。勾选后，安装程序会在应用成功卸载后尝试删除 `~/.tasty`。如果有文件无法删除，导致数据残留，安装程序会显示 **Tasty data deletion incomplete** 对话框。
 
 直接在应用列表中选择**卸载** <!-- en: Uninstall -->，或用 `msiexec /qn` 或 `msiexec /qb` 卸载，都会保留数据。升级和修复也会保留数据。
 
