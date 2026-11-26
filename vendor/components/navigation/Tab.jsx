@@ -2,14 +2,18 @@ import React from "react";
 
 /**
  * Tasty Tab — a single tab in the tab strip. 24px tall, 150px wide,
- * holds a label and a close affordance. Inactive tabs sit on the sidebar tone.
+ * holds a label and a close affordance. A tab keeps its strip's fill (tab_bar/view.rs):
+ *   ground="mantle" (default) — an unfocused pane's strip, tab-bg
+ *   ground="raised"           — the focused pane's strip, tab-bg-raised, and the
+ *                               inactive label reads tab-fg-raised
+ * The host that draws the strip passes the same ground to every tab in it.
  *
  * `indicator` mirrors the app's active tab indicator setting (tasty-settings
  * appearance.rs ActiveTabIndicator), and the three draw apart (tab_bar/tab.rs):
- *   underline (default) — the inactive fill and a tab-indicator bar
+ *   underline (default) — the strip's fill and a tab-indicator bar
  *                         tab-indicator-width tall across the top
  *   fill                — tab-bg-active, no mark
- *   dot                 — the inactive fill and a tab-indicator dot
+ *   dot                 — the strip's fill and a tab-indicator dot
  *                         tab-indicator-dot-size wide, centred, its centre one
  *                         dot below the top edge
  * Hover never paints the active tab.
@@ -71,20 +75,22 @@ const CSS = `
   width: var(--tasty-tab-width);
   padding: 0 var(--tasty-space-sm) 0 var(--tasty-space-md);
   border-right: var(--tasty-border-width) solid var(--tasty-separator);
-  background: var(--tasty-bg-sidebar);
-  color: var(--tasty-text-muted);
+  background: var(--tasty-tab-bg);
+  color: var(--tasty-tab-fg);
   font-family: var(--tasty-font-ui);
   font-size: var(--tasty-font-size-body);
   cursor: pointer;
   user-select: none;
   transition: background var(--tasty-motion-ui-fast) var(--tasty-ease-ui), color var(--tasty-motion-ui-fast) var(--tasty-ease-ui);
 }
+/* the focused pane's strip; before the hover, active and fill rules so each of those still wins */
+.tasty-tab--raised { background: var(--tasty-tab-bg-raised); color: var(--tasty-tab-fg-raised); }
 /* the app reads hover only off the active tab (tab.rs tab_fill_and_ink), so an active tab keeps its fill under the pointer */
 .tasty-tab:not(.tasty-tab--active):hover { background: var(--tasty-tab-bg-hover); color: var(--tasty-tab-fg-hover); }
 .tasty-tab--active { color: var(--tasty-tab-fg-active); }
 /* only when a host makes the tab a Tab stop: the ring sits inside the box (see the note above) */
 .tasty-tab:focus-visible { outline-offset: calc(-1 * var(--tasty-focus-ring-width)); }
-/* the active tab indicator, one of three (Appearance › active tab indicator). Underline and Dot keep the inactive fill
+/* the active tab indicator, one of three (Appearance › active tab indicator). Underline and Dot keep the strip's fill
    and add a mark in tab-indicator; Fill takes tab-bg-active and draws no mark. */
 .tasty-tab--underline::before {
   content: ""; position: absolute; left: 0; right: 0; top: 0; height: var(--tasty-tab-indicator-width); background: var(--tasty-tab-indicator);
@@ -128,11 +134,11 @@ function ensureCss() {
   injected = true;
 }
 
-export function Tab({ label, icon = null, active = false, indicator = "underline", status = "idle", attention = null, onClose, className = "", ...rest }) {
+export function Tab({ label, icon = null, active = false, indicator = "underline", ground = "mantle", status = "idle", attention = null, onClose, className = "", ...rest }) {
   ensureCss();
   const busy = status === "busy";
   // As the app's tab_title_color: attention outranks active, so an active tab keeps its attention tint.
-  const cls = ["tasty-tab", active ? "tasty-tab--active tasty-tab--" + indicator : "", attention ? "tasty-tab--" + attention : "", className].filter(Boolean).join(" ");
+  const cls = ["tasty-tab", ground === "raised" ? "tasty-tab--raised" : "", active ? "tasty-tab--active tasty-tab--" + indicator : "", attention ? "tasty-tab--" + attention : "", className].filter(Boolean).join(" ");
   return (
     <div className={cls} {...rest}>
       {icon && <span className="tasty-tab__icon">{icon}</span>}

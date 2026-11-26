@@ -9,10 +9,16 @@ export interface TabProps extends React.HTMLAttributes<HTMLDivElement> {
   active?: boolean;
   /**
    * Active tab indicator, as the app's Appearance setting: `underline` (default,
-   * inactive fill + top bar), `fill` (tab-bg-active, no mark) or `dot` (inactive
-   * fill + a small dot at the top). Read only when `active`.
+   * the strip's fill + top bar), `fill` (tab-bg-active, no mark) or `dot` (the
+   * strip's fill + a small dot at the top). Read only when `active`.
    */
   indicator?: "underline" | "fill" | "dot";
+  /**
+   * The strip's fill, which the tab keeps: `mantle` (default, an unfocused
+   * pane, tab-bg) or `raised` (the focused pane, tab-bg-raised, inactive label
+   * tab-fg-raised). Pass the same value to every tab of one strip.
+   */
+  ground?: "mantle" | "raised";
   /**
    * Live-activity dot, MIRRORING the product surface model: the body exposes
    * one activity bool per surface, so the tab shows one dot — busy=green,

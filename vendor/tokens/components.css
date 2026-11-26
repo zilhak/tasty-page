@@ -283,6 +283,8 @@
   --tasty-tab-fg:                  var(--tasty-text-muted);
   --tasty-tab-fg-hover:            var(--tasty-text-secondary);
   --tasty-tab-fg-active:           var(--tasty-text-primary);
+  --tasty-tab-bg-raised:           var(--tasty-surface-raised); /* 2026-11-27 the focused pane's strip fill, which an inactive tab and an Underline or Dot active tab keep (app tab_bar/view.rs surface_raised) */
+  --tasty-tab-fg-raised:           var(--tasty-text-muted-raised); /* 2026-11-27 inactive tab label on the focused pane's strip: tab-fg reads 4.05 on raised in Latte */
   /* Tab title — attention tint. The title color carries FOUR states in one
      channel; resolution order is needs-input → completion → active → rest.
      Attention clears on focus, so an active tab never shows an attention tint

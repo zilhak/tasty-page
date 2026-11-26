@@ -35,9 +35,9 @@ Exceptions exist only in the `exceptions` list of the file and in [section 12](#
 | ID | Token | Mocha | Latte | Used for |
 |---|---|---|---|---|
 | `crust` | `bg-app` | #11111b | #dce0e8 | Window chrome, title bar, sidebar category band, recessed progress track, DAG log. |
-| `mantle` | `bg-sidebar` | #181825 | #e6e9ef | Sidebar, tab strip, address bars, table header, DAG chrome and detail, code gutter, notice path box. |
+| `mantle` | `bg-sidebar` | #181825 | #e6e9ef | Sidebar, unfocused pane’s tab strip, address bars, table header, DAG chrome and detail, code gutter, notice path box. |
 | `base` | `bg-panel` | #1e1e2e | #eff1f5 | Panels, active tab with the Fill indicator, dialogs, popups, windows, modifier hint. |
-| `raised` | `surface-raised` | #313244 | #ccd0da | Menus, tooltips, toasts, banners, cards, keycaps, Tags, DAG nodes, code blocks. |
+| `raised` | `surface-raised` | #313244 | #ccd0da | Menus, tooltips, toasts, banners, cards, keycaps, Tags, DAG nodes, code blocks, focused pane’s tab strip. |
 | `on-raised` | `surface-on-raised` | #45475a | #eff1f5 | A control fill on a raised shell (banner Secondary). |
 | `field` | `surface-field` | #313244 | #eff1f5 | Fill of an enterable control: Input, Select, Checkbox box. |
 | `solid-hover` | `surface-hover` | #45475a | #bcc0cc | Opaque step above raised. Read only by on-raised in Mocha. |
@@ -195,7 +195,7 @@ Each location has one ground. It may hold only the listed children, to the liste
 | Collapsed rail | `mantle` | 2 | `mantle+hover`, `mantle+press`, `active`, `raised`, filled controls | Avatar fill, count Badge, mirror chip. |
 | Sidebar | `mantle` | 2 | `crust`, `mantle+hover`, `mantle+press`, `active`, `active+hover`, `active+press`, `raised`, `field`, `track`, filled controls, tint boxes over `mantle` | Category band is crust. Selected workspace row is active. |
 | Workspace status bar | `crust` | 1 | `crust+hover`, `crust+press` | Glyphs and text only. |
-| Tab bar | `mantle` | 1 | `tab-hover`, `base`, `mantle+hover`, `mantle+press`, `raised` | Active tab keeps mantle with the Underline and Dot indicators and is base with Fill. Scroll arrow cell is raised. |
+| Tab bar | `mantle` | 1 | `tab-hover`, `base`, `mantle+hover`, `mantle+press`, `raised` | The strip and its tabs use mantle on unfocused panes and raised on the focused pane, with Underline and Dot keeping the strip’s fill and Fill giving the active tab a base fill. Scroll arrow cell is raised. |
 | Pane body | `base` | 1 | `term`, `term-unfocused`, `crust`, `mantle`, `raised` | Holds one surface. See Surface focus for what shows focus on each kind. |
 | Surface head and split line | `mantle` | 2 | `field`, `mantle+hover`, `mantle+press`, `raised`, filled controls, tint boxes over `mantle` | Address bar band: mantle. Split lines take border-frame. |
 | Terminal surface, focused | `term` | 2 | `term-selection`, `term-cursor`, `match@term-selection`, `match-active@term-selection`, `match@term`, `match-active@term`, `file-drop@term`, `raised` | Banner, toast and search bar float on raised. A default cell, bold or dim, takes text-primary in an ordinary search match. It takes text-on-active in a selection. A selected match cell takes search-match-selected-fg. |
@@ -1639,17 +1639,20 @@ Sits on: `crust`, `mantle`, `base`, `raised`
 
 ### Tab.inactive
 
-Sits on: `mantle`
+Sits on: `mantle`, `raised`
+
+An inactive tab keeps its strip’s fill, mantle on an unfocused pane and raised on the focused pane. On raised, its label uses `tab-fg-raised` because `tab-fg` provides 4.05:1 contrast in Latte, below the 4.5:1 text target.
 
 | Part | Token | States | Ground | Lowest, Mocha · Latte |
 |---|---|---|---|---|
 | label | `tab-fg` | rest | `mantle` | 7.89 · 5.14 |
-| label.needs-input | `tab-fg-needs-input` | rest | `mantle` | 13.81 · 6.65 |
-| label.completion | `tab-fg-completion` | rest | `mantle` | 8.34 · 6.83 |
-| icon | `text-secondary` | rest | `mantle` | 9.91 · 5.14 |
-| close | `text-secondary` | rest | `mantle` | 9.91 · 5.14 |
-| dot | `accent-success-raised` | rest | `mantle` | 11.81 · 6.23 |
-| separator | `tab-separator` | rest | `mantle` | no target |
+| label | `tab-fg-raised` | rest | `raised` | 5.65 · 5.17 |
+| label.needs-input | `tab-fg-needs-input` | rest | `mantle`, `raised` | 9.89 · 5.24 |
+| label.completion | `tab-fg-completion` | rest | `mantle`, `raised` | 5.97 · 5.38 |
+| icon | `text-secondary` | rest | `mantle`, `raised` | 7.10 · 4.05 |
+| close | `text-secondary` | rest | `mantle`, `raised` | 7.10 · 4.05 |
+| dot | `accent-success-raised` | rest | `mantle`, `raised` | 8.46 · 4.91 |
+| separator | `tab-separator` | rest | `mantle`, `raised` | no target |
 
 ### Tab.hover
 
@@ -1666,19 +1669,19 @@ Sits on: `tab-hover`
 
 ### Tab.active
 
-Sits on: `mantle`
+Sits on: `mantle`, `raised`
 
-The active tab with the Underline indicator, the default, or the Dot indicator. Both keep the inactive fill, and `indicator` is the top bar or the dot.
+With Underline (the default) or Dot, the active tab keeps the strip’s fill (mantle on an unfocused pane, raised on the focused pane). The `indicator` is the top bar or the dot.
 
 | Part | Token | States | Ground | Lowest, Mocha · Latte |
 |---|---|---|---|---|
-| label | `tab-fg-active` | rest | `mantle` | 12.14 · 6.57 |
-| label.needs-input | `tab-fg-needs-input` | rest | `mantle` | 13.81 · 6.65 |
-| label.completion | `tab-fg-completion` | rest | `mantle` | 8.34 · 6.83 |
-| icon | `text-secondary` | rest | `mantle` | 9.91 · 5.14 |
-| close | `text-secondary` | rest | `mantle` | 9.91 · 5.14 |
-| dot | `accent-success-raised` | rest | `mantle` | 11.81 · 6.23 |
-| indicator | `tab-indicator` | rest | `mantle` | 8.34 · 4.04 |
+| label | `tab-fg-active` | rest | `mantle`, `raised` | 8.69 · 5.17 |
+| label.needs-input | `tab-fg-needs-input` | rest | `mantle`, `raised` | 9.89 · 5.24 |
+| label.completion | `tab-fg-completion` | rest | `mantle`, `raised` | 5.97 · 5.38 |
+| icon | `text-secondary` | rest | `mantle`, `raised` | 7.10 · 4.05 |
+| close | `text-secondary` | rest | `mantle`, `raised` | 7.10 · 4.05 |
+| dot | `accent-success-raised` | rest | `mantle`, `raised` | 8.46 · 4.91 |
+| indicator | `tab-indicator` | rest | `mantle`, `raised` | 5.97 · 3.18 |
 
 ### Tab.active (fill)
 

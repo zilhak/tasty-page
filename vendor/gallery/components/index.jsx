@@ -599,15 +599,24 @@ function Components() {
             </div>
           </Stage>
           {/* The app's three active tab indicators (Appearance › Active tab indicator) draw apart: Underline and Dot keep the
-              strip's fill and add a tab-indicator mark, Fill takes tab-bg-active and draws no mark. Captions quote lang/en.toml. */}
+              strip's fill and add a tab-indicator mark, Fill takes tab-bg-active and draws no mark. Captions quote lang/en.toml.
+              Each one is drawn on both strips the app paints (tab_bar/view.rs): an unfocused pane's (tab-bg) and the focused
+              pane's (tab-bg-raised), and every tab of a strip takes that strip's ground. */}
           <Stage variant="column" style={{ alignItems: "flex-start", gap: "var(--tasty-space-md)" }}>
             <div className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>Active tab indicator</div>
             {[["underline", "Underline"], ["fill", "Fill"], ["dot", "Dot"]].map(([ind, cap]) => (
               <div key={ind} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
                 <div className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</div>
-                <div style={{ display: "flex", background: "var(--tasty-bg-sidebar)", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
-                  <Tab label="build.sh" icon={ic.term} active indicator={ind} status="busy" />
-                  <Tab label="server.log" icon={ic.term} />
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-md)" }}>
+                  {[["mantle", "var(--tasty-tab-bg)", "unfocused pane · mantle"], ["raised", "var(--tasty-tab-bg-raised)", "focused pane · raised"]].map(([ground, fill, where]) => (
+                    <div key={ground} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
+                      <div className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{where}</div>
+                      <div style={{ display: "flex", background: fill, borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
+                        <Tab label="build.sh" icon={ic.term} active indicator={ind} ground={ground} status="busy" />
+                        <Tab label="server.log" icon={ic.term} ground={ground} />
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             ))}
@@ -625,8 +634,8 @@ function Components() {
             ))}
           </Stage>
           <Meta
-            specs={[["height", <>24px <span className="tok">--tasty-control-height-tab</span></>], ["width", <>150px <span className="tok">--tasty-tab-width</span></>], ["active indicator", "one of Underline (default, 2px top bar), Fill (fill only), Dot (4px near top centre) · bar/dot keep strip fill · active tab ignores hover"], ["close", "hover-revealed"], ["title", "needs-input › completion › active › rest"], ["cluster", <>busy dot · close, 4 apart · <span className="tok">--tasty-tab-status-gap</span></>], ["keyboard focus", "none: the strip is no Tab stop and draws no ring, tabs move by shortcut (the app still lets egui focus reach a pane tab; taking it out is pending app work)"], ["web host Tab stop", <>ring <span className="tok">--tasty-focus-ring-width</span> 2px inside the tab · close keeps <span className="tok">--tasty-focus-ring-offset</span> 1px off</>]]}
-            tokens={[{ tok: "--tasty-tab-bg-active", use: "active tab fill in Fill mode only", color: "var(--tasty-tab-bg-active)" }, { tok: "--tasty-tab-indicator", use: "Underline bar and Dot colour", color: "var(--tasty-tab-indicator)" }, { tok: "--tasty-tab-indicator-dot-size", use: "Dot diameter \u00b7 4px" }, { tok: "--tasty-tab-fg-needs-input", use: "needs-input title", color: "var(--tasty-tab-fg-needs-input)" }, { tok: "--tasty-tab-fg-completion", use: "completion title", color: "var(--tasty-tab-fg-completion)" }, { tok: "--tasty-tab-status-gap", use: "→ space-xs 4" }, { tok: "--tasty-separator", use: "dividers" }]} />
+            specs={[["height", <>24px <span className="tok">--tasty-control-height-tab</span></>], ["width", <>150px <span className="tok">--tasty-tab-width</span></>], ["active indicator", "one of Underline (default, 2px top bar), Fill (fill only), Dot (4px near top centre) · bar/dot keep strip fill · active tab ignores hover"], ["strip fill", "unfocused strip and tabs use mantle · focused strip and tabs use raised · Fill makes the active tab base · inactive labels on raised use tab-fg-raised for contrast · hover uses tab-bg-hover on either strip"], ["close", "hover-revealed"], ["title", "needs-input › completion › active › rest"], ["cluster", <>busy dot · close, 4 apart · <span className="tok">--tasty-tab-status-gap</span></>], ["keyboard focus", "none: the strip is no Tab stop and draws no ring, tabs move by shortcut (the app still lets egui focus reach a pane tab; taking it out is pending app work)"], ["web host Tab stop", <>ring <span className="tok">--tasty-focus-ring-width</span> 2px inside the tab · close keeps <span className="tok">--tasty-focus-ring-offset</span> 1px off</>]]}
+            tokens={[{ tok: "--tasty-tab-bg-active", use: "active tab fill in Fill mode only", color: "var(--tasty-tab-bg-active)" }, { tok: "--tasty-tab-bg-raised", use: "focused pane’s tab strip fill", color: "var(--tasty-tab-bg-raised)" }, { tok: "--tasty-tab-fg-raised", use: "inactive tab label on the raised strip", color: "var(--tasty-tab-fg-raised)" }, { tok: "--tasty-tab-indicator", use: "Underline bar and Dot colour", color: "var(--tasty-tab-indicator)" }, { tok: "--tasty-tab-indicator-dot-size", use: "Dot diameter \u00b7 4px" }, { tok: "--tasty-tab-fg-needs-input", use: "needs-input title", color: "var(--tasty-tab-fg-needs-input)" }, { tok: "--tasty-tab-fg-completion", use: "completion title", color: "var(--tasty-tab-fg-completion)" }, { tok: "--tasty-tab-status-gap", use: "→ space-xs 4" }, { tok: "--tasty-separator", use: "dividers" }]} />
         </Spec>
 
         <Spec id="treerow" title="TreeRow"

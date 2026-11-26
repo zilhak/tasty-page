@@ -3010,6 +3010,14 @@
       "$type": "color",
       "$value": "{semantic.text-primary}"
     },
+    "tab-bg-raised": {
+      "$type": "color",
+      "$value": "{semantic.surface-raised}"
+    },
+    "tab-fg-raised": {
+      "$type": "color",
+      "$value": "{semantic.text-muted-raised}"
+    },
     "tab-fg-needs-input": {
       "$type": "color",
       "$value": "{semantic.accent-warning-raised}"

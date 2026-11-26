@@ -32,13 +32,17 @@ const selectCell = (ground) => () => (
     <Select ground={ground} data-part="placeholder" placeholder="Hint" options={["Value"]} />
   </>
 );
-const tabParts = (extra) => () => (
-  <>
-    <Tab label="Tab" icon={<Icon name="terminal" />} status="busy" {...extra} data-part="tab" />
-    <Tab label="Needs input" attention="needs-input" {...extra} />
-    <Tab label="Done" attention="completion" {...extra} />
-  </>
-);
+// A tab keeps its strip's fill, so the host row tells it which strip it sits in: raised is the focused pane's strip.
+const tabParts = (extra) => (_state, host) => {
+  const ground = host === "raised" ? "raised" : "mantle";
+  return (
+    <>
+      <Tab label="Tab" icon={<Icon name="terminal" />} status="busy" ground={ground} {...extra} data-part="tab" />
+      <Tab label="Needs input" attention="needs-input" ground={ground} {...extra} />
+      <Tab label="Done" attention="completion" ground={ground} {...extra} />
+    </>
+  );
+};
 const treeRow = (state) => (
   <>
     <TreeRow label="Folder" expandable open meta="3" selected={selected(state)} />
