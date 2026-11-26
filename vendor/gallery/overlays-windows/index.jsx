@@ -6,7 +6,7 @@ import { Icon as WIcon, Checkbox as WCheckbox, Select as WSelect, Tag as WTag, T
 import { KbPluginsSubtab as Kit_KbPluginsSubtab, KbPluginsSubtab } from "../../ui_kits/terminal/overlays/kb_plugins_subtab.jsx";
 import { MacPermissionsPane } from "../../ui_kits/terminal/overlays/macos_permissions.jsx";
 import { Popup as GalleryNotifications_Popup } from "../parts/notifications.jsx";
-import { GroundThemes as WGroundThemes, GroundCap as WGroundCap, Backdrop, PaletteFrame, LocalSshSection, PortsFrame, PORTS_COLUMNS, PortsFavoritesG, PortStarG, RemoteFrame, RemoteFilterButtonG, RemoteFilterMenuG, SettingsFrame, SettingsGeneralOverlayFrame, SettingsRemoteTransferFrame, SettingsRemoteAttachFrame, ToastDragValue, GitViewerFrame, ClipboardFrame, RemoteFormFrame, RemoteAttachFrame, RaNewRow, RaWsPeek, FilePickerFrame, FpHostBadge, ScriptManagerFrame, ic } from "../parts/overlay-frames.jsx";
+import { GroundThemes as WGroundThemes, GroundCap as WGroundCap, Backdrop, PaletteFrame, LocalSshSection, PortsFrame, PORTS_COLUMNS, PortsFavoritesG, PortStarG, RemoteFrame, RemoteFilterButtonG, RemoteFilterMenuG, SettingsFrame, SettingsGeneralOverlayFrame, SettingsRemoteTransferFrame, SettingsRemoteAttachFrame, ToastDragValue, GitViewerFrame, ClipboardFrame, RemoteFormFrame, RemoteAttachFrame, RaNewRow, RaWsPeek, FilePickerFrame, FpHostBadge, FpRow, ScriptManagerFrame, ic } from "../parts/overlay-frames.jsx";
 import { AnomalySection as OverlaysWindowsAnomaly_AnomalySection } from "./settings-anomaly.jsx";
 import { KbPluginsRecordSpec as OverlaysWindowsB12_KbPluginsRecordSpec } from "./kb-plugin-records.jsx";
 import { SettingsNarrowSection as OverlaysWindowsB12_SettingsNarrowSection } from "./settings-narrow.jsx";
@@ -44,6 +44,28 @@ import { KbImportExportSubtab as Kit_KbImportExportSubtab, IE_GROUPS as KIT_IE_G
 
 // 2026-09-29 disabled sites without a screen — static specimens of the kit
 // (plugins_window.jsx FingerprintLine / Add bar, settings_window.jsx ExtensionMapping).
+// Row focus states, one row per state and kind, both themes. Rows are FpRow itself on the picker's bg-panel, so the
+// ring and hover inks are the frame's own; captions sit outside the row on bg-app.
+const FP_STATE_ROWS = [["rest", {}], ["hover", { hover: true }], ["focus", { focus: true }], ["hover + focus", { hover: true, focus: true }],
+  ["selected", { selected: true }], ["selected + focus", { selected: true, focus: true }], ["selected + hover", { selected: true, hover: true }], ["selected + hover + focus", { selected: true, hover: true, focus: true }]];
+function FpRowStatesG({ caps }) {
+  return (
+    <WGroundThemes render={() => (
+      <div style={{ display: "grid", gridTemplateColumns: "max-content var(--tasty-fp-specimen-view-width)", alignItems: "center", columnGap: "var(--tasty-space-md)", rowGap: "var(--tasty-space-sm)" }}>
+        {FP_STATE_ROWS.map(([k, st]) => (
+          <React.Fragment key={k}>
+            <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{caps[k]}</span>
+            <div style={{ background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
+              <FpRow kind="folder" name="configs" size="—" mod="Jul 12 09:14" {...st} />
+              <FpRow kind="file" name="README.md" size="4.2 KB" mod="Jul 15 08:21" {...st} />
+            </div>
+          </React.Fragment>
+        ))}
+      </div>
+    )} />
+  );
+}
+
 function FpLineG({ value }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>
@@ -1142,6 +1164,41 @@ function Page() {
             tokens={[{ tok: "--tasty-fp-folder-file-fg", use: "→ text-muted", color: "var(--tasty-fp-folder-file-fg)" }, { tok: "--tasty-fp-folder-path-fg", use: "new · → input-readonly-fg", color: "var(--tasty-fp-folder-path-fg)" }, { tok: "--tasty-fp-folder-hint-fg", use: "new · → text-muted", color: "var(--tasty-fp-folder-hint-fg)" }, { tok: "--tasty-input-readonly-bg", use: "readout box", color: "var(--tasty-input-readonly-bg)" }, { tok: "--tasty-fp-footer-label-width", use: "64 label column" }]} />
           <Note>Strings (<code>picker.folder.*</code>) — <b>title / confirm</b>: Select folder · 폴더 선택 · フォルダーを選択 — <b>label</b>: Folder · 폴더 · フォルダー — <b>hint.current</b>: Using the current folder. Select a subfolder to use it instead. · 현재 폴더를 사용합니다. 하위 폴더를 고르면 그 폴더를 사용합니다. · 現在のフォルダーを使用します。サブフォルダーを選ぶとそのフォルダーを使用します。 — <b>hint.selected</b>: Double-click {"{name}"} to open it. · {"{name}"} 폴더를 열려면 더블클릭하세요. · {"{name}"} を開くにはダブルクリックします。 — <b>file.tooltip</b>: Only folders can be selected. · 폴더만 선택할 수 있습니다. · 選択できるのはフォルダーだけです。 — <b>empty</b>: No subfolders here · 하위 폴더가 없습니다 · サブフォルダーはありません. Width check: the longest label (フォルダー) fits 64 at caption; the longest button (フォルダーを選択) fits beside Cancel at the 320 floor; hints wrap to two lines at 320, never clip.</Note>
           <Dont><b>Don't</b> make Enter descend in this mode: Enter presses the primary button in every mode (in open mode Open happens to descend into a selected folder); here the primary button is Select folder, so Enter confirms. Descending is double-click or →.</Dont>
+        </Spec>
+        {/* 2026-11-27 row focus and list keys (target spec): the frames freeze each state; the keys are in the Meta table. */}
+        <Spec id="row-focus-and-list-keys" title={"File picker — row focus and list keys"}
+          when={<>Use the list keys to move through rows in open, save and folder mode. Row focus is the list's keyboard current row, separate from the selection. It uses the explorer's current-item ring.</>}>
+          <Stage variant="solo center" style={{ padding: "var(--tasty-space-xl)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}><div className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{"open — target spec · ↓ moves focus and selection to package.json · File name reads package.json"}</div><FilePickerFrame pick="package.json" focusRow="package.json" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}><div className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{"save — target spec · ↓ moves focus to package.json, ring only · File name keeps keybindings-2026-09-14.toml · Save"}</div><FilePickerFrame mode="save" focusRow="package.json" /></div>
+          </Stage>
+          <Views>
+            <View name="fp-row-focus-row-states" wide label={"Row states — one row per state, Mocha and Latte side by side"}>
+              <FpRowStatesG caps={{"rest": "rest", "hover": "hover", "focus": "focus", "hover + focus": "hover + focus", "selected": "selected", "selected + focus": "selected + focus", "selected + hover": "selected + hover", "selected + hover + focus": "selected + hover + focus"}} />
+            </View>
+            <View name="fp-row-focus-entry" wide label={"Open mode after entering a folder or Tab into a list with no selection — ring on the first row, configs · no selection · File name empty"}>
+              <FilePickerFrame pick={null} focusRow="configs" />
+            </View>
+            <View name="fp-row-focus-parent" wide label={"Open mode after Backspace from logs — ring on logs · no selection"}>
+              <FilePickerFrame pick={null} focusRow="logs" />
+            </View>
+            <View name="fp-row-focus-pointer" wide label={"Pointer over row focus — save mode on deploy.sh (hover + focus) · open mode on README.md (selected + hover + focus)"}>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-lg)", alignItems: "flex-start" }}>
+                <FilePickerFrame mode="save" focusRow="deploy.sh" hoverRow="deploy.sh" />
+                <FilePickerFrame pick="README.md" focusRow="README.md" hoverRow="README.md" />
+              </div>
+            </View>
+            <View name="fp-row-focus-no-key-focus" wide label={"Open mode — README.md selected · key focus in File name · no ring"}>
+              <FilePickerFrame pick="README.md" />
+            </View>
+            <View name="fp-row-focus-folder-skip" wide label={"Folder mode after End — focus and selection on node_modules, the last folder · inert files after it skipped"}>
+              <FilePickerFrame mode="folder" pick="node_modules" focusRow="node_modules" />
+            </View>
+          </Views>
+          <Meta
+            specs={[["status", "target spec, spec'd for the future · today only folder mode reads list keys · ↑ ↓ move selection, → enters, Alt+↑ goes up, Enter = Select folder · open and save have no row keys"], ["row focus", "keyboard current row, separate from selection · explorer's current-item shape · 1px inset ring (fp-row-focus-ring-width), radius-sm corners · painted after the row, over the selection fill and bar · no layout shift"], ["ink", "fp-row-focus-ring (accent-primary-raised) at rest, under hover and when selected · fp-row-focus-ring-selected-hover (accent-primary-on-active) on a selected row under the pointer"], ["contrast", "rest 7.79 / 7.34 (Mocha / Latte) · hover 6.16 / 6.16 · selected 3.17 / 3.84 · selected under hover 3.44 / 3.57 (fp-row-focus-ring would give 2.61 in Mocha on selected + hover, so that state uses its own token)"], ["shows", "ring only while the list holds key focus and its last input was a key (Tab into the list or a list key) · row click moves row focus there and hides the ring until the next key · leaving the list hides the ring and keeps the row for Shift+Tab back"], ["hover", "overlay-hover over the row ground · name text-secondary-raised · size, date and file glyph text-muted-raised · folder glyph unchanged · selected under hover uses text-on-active-hover for name, size and date, accent-primary-on-active for the folder glyph and text-on-active for the file glyph"], ["inert rows", "folder mode files · no row focus or hover · skipped by every list key"], ["Tab order", "one stop per control · Tab wraps, Shift+Tab reverses and wraps · header Close → path bar (crumb links, … menu, Up, Refresh) → list (one stop) → File name (open and save) → Cancel → primary button (Open, Save or Overwrite, Select folder) · filter chip and folder mode Folder readout skipped"], ["on open", "list in open and folder mode · File name in save mode"], ["start", "on list focus, selected row or first row with no selection (first folder in folder mode) · after entering, first row with nothing selected · after going up, the folder just left with nothing selected · after Refresh, same row by name if present, else first row"], ["↑ ↓ · Home · End", "with list focus · ↑ ↓ one row · Home first row · End last row · stop at ends, no wrap · skip inert rows"], ["PageUp · PageDown", "with list focus · one page, the rows that fit the list view minus one · move the view by the same page · stop at ends, no wrap · skip inert rows"], ["selection", "follows row focus in open and folder mode (as today in folder mode) · in save mode, row movement preserves File name and cannot turn Save into Overwrite · only Space or a click picks a row and writes its name into File name · → enters the focused folder in save mode"], ["Space", "selects the focused row · in save mode, picking a file writes its name into File name and sets Overwrite"], ["Enter", "presses the primary button in every mode · open mode, Open enters the selected folder or opens the selected file · save mode, Save or Overwrite uses only File name, even from the list · folder mode, Select folder (as today)"], ["→", "enters a folder in every mode (as today in folder mode) · no action on a file"], ["Backspace · Alt+↑", "Alt+↑ goes to the parent folder in every mode (as today in folder mode) · Backspace goes to the parent folder only with list key focus · with File name key focus, Backspace deletes text as usual"], ["Esc", "closes the picker (as today)"], ["scroll", "each row focus move scrolls the least distance needed to show the whole row below the column header · wheel and scrollbar move only the view · if the focused row is out of view, the next list key first brings it into view and moves from that row"], ["empty list", "list skipped in Tab order when it has no row · loading, error or empty folder"]]}
+            tokens={[{ tok: "--tasty-fp-row-focus-ring", use: "row focus ring ink at rest, under hover and when selected · accent-primary-raised", color: "var(--tasty-fp-row-focus-ring)" }, { tok: "--tasty-fp-row-focus-ring-selected-hover", use: "row focus ring ink on a selected row under the pointer · accent-primary-on-active", color: "var(--tasty-fp-row-focus-ring-selected-hover)" }, { tok: "--tasty-fp-row-focus-ring-width", use: "1px inset ring" }, { tok: "--tasty-overlay-hover", use: "hover fill over the row ground" }, { tok: "--tasty-surface-active", use: "selected row fill", color: "var(--tasty-surface-active)" }]} />
+          <Note>Selection follows row focus in open and folder mode. In save mode, a pick writes the row's name into File name. Requiring an explicit pick protects the typed name and keeps row movement from turning Save into Overwrite. The same Enter rule applies in save mode because it uses the name shown in File name, with the overwrite line already visible if that name exists.</Note>
         </Spec>
       </Section>
       {<PresetEditor_Section />}
