@@ -362,7 +362,7 @@ function PasskeyForm({ draft, isNew, error, onField, onSave, onCancel, onBrowse 
               const on = draft.kind === opt;
               return (
                 <button key={opt} onClick={() => onField("kind", opt)} style={{ appearance: "none", cursor: "pointer",
-                  border: 0, borderLeft: i ? "var(--tasty-border-width) solid var(--tasty-border-default)" : 0, padding: "0 var(--tasty-space-md)", height: "calc(var(--tasty-control-height) - 2 * var(--tasty-border-width))",
+                  border: 0, borderLeft: i ? "var(--tasty-border-width) solid var(--tasty-border-default)" : 0, padding: "0 var(--tasty-space-md)", height: "calc(1 * var(--tasty-control-height) + -2 * var(--tasty-border-width))",
                   fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-term-sm)",
                   color: on ? "var(--tasty-text-on-accent)" : "var(--tasty-text-secondary)",
                   background: on ? "var(--tasty-accent-primary)" : "transparent" }}>{opt}</button>
@@ -489,7 +489,7 @@ function AttachForm({ draft, isNew, error, sshProfiles, passkeys, onField, onSav
               const on = draft.mode === opt;
               return (
                 <button key={opt} onClick={() => onField("mode", opt)} style={{ appearance: "none", cursor: "pointer",
-                  border: 0, borderLeft: i ? "var(--tasty-border-width) solid var(--tasty-border-default)" : 0, padding: "0 var(--tasty-space-md)", height: "calc(var(--tasty-control-height) - 2 * var(--tasty-border-width))",
+                  border: 0, borderLeft: i ? "var(--tasty-border-width) solid var(--tasty-border-default)" : 0, padding: "0 var(--tasty-space-md)", height: "calc(1 * var(--tasty-control-height) + -2 * var(--tasty-border-width))",
                   fontFamily: "var(--tasty-font-ui)", fontSize: "var(--tasty-font-size-term-sm)",
                   color: on ? "var(--tasty-text-on-accent)" : "var(--tasty-text-secondary)",
                   background: on ? "var(--tasty-accent-primary)" : "transparent" }}>{lbl}</button>
@@ -601,7 +601,7 @@ function ProtocolFilter({ protocols, hidden, onApply }) {
       {open && (
         <>
           <div onClick={() => setOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 40 }} />
-          <div role="dialog" aria-label="Filter by protocol" style={{ position: "absolute", top: "calc(100% + var(--tasty-space-xs))", right: 0, zIndex: 41,
+          <div role="dialog" aria-label="Filter by protocol" style={{ position: "absolute", top: "100%", marginTop: "var(--tasty-space-xs)", right: 0, zIndex: 41,
             width: "var(--tasty-remote-filter-dropdown-width)", boxSizing: "border-box", background: "var(--tasty-menu-bg)", border: "var(--tasty-border-width) solid var(--tasty-menu-border)", /* 2026-10-06: every anchored popover = menu container tokens */
             borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-popover)", display: "flex", flexDirection: "column", overflow: "hidden" }}>
             <div style={{ padding: "var(--tasty-space-sm) var(--tasty-space-md)", borderBottom: "var(--tasty-border-width) solid var(--tasty-menu-separator)",
@@ -824,7 +824,7 @@ function RemoteTool({ onClose, onFlash }) {
         /* keyboard focus: the tabs stand 2px apart, so a ring 1px off the tab would reach 1px into the next tab and meet
            its accent underline. As on the settings L1 tab, the 2px ring sits inside the tab, clear of the 2px underline
            by the 1px ring offset, the same inset on every tab. */
-        outlineOffset: "calc(-1 * (2 * var(--tasty-focus-ring-width) + var(--tasty-focus-ring-offset)))", borderRadius: "var(--tasty-radius-none)" }}>{children}</button>
+        outlineOffset: "calc(-2 * var(--tasty-focus-ring-width) + -1 * var(--tasty-focus-ring-offset))", borderRadius: "var(--tasty-radius-none)" }}>{children}</button>
     );
   };
 
