@@ -1,4 +1,4 @@
-<!-- source-hash: 1a7514476bb4 -->
+<!-- source-hash: f1f3980dedd8 -->
 # Panes, tabs, and splits
 
 Tasty’s pane splits create areas with independent tab switching, while surface splits divide views that stay together within one tab. Choose either level to build the layout you need.
@@ -158,7 +158,7 @@ A popup for a Surface, Tab, Pane, or workspace shows a focus bar along its top e
 
 When a search bar takes keyboard focus, even the selected Surface in the Tab appears unfocused. Its focus indicator returns when keyboard focus goes back to the Surface. A popup that leaves keyboard focus in place, such as a context menu, leaves the Surface’s indicator in place too.
 
-HTML and plugin Surfaces show keyboard focus in a strip at the top by default. The strip takes up the same space in both states, so the content stays in place as focus changes. The Markdown viewer shows focus through its background. The bundled image viewer keeps the same background as focus changes and shows no focus strip locally. A remote plugin viewer can show the top strip when connected to an older Tasty that does not report how it displays focus.
+HTML and plugin Surfaces show keyboard focus in a strip at the top by default. The strip takes up the same space in both states, so the content stays in place as focus changes. The Markdown viewer shows focus through its background. The bundled image viewer keeps the same background as focus changes and shows no focus strip locally. For example, a mirrored image viewer shows the top strip if you connect to an older remote Tasty that does not report how it displays focus.
 
 ## Fullscreen
 
