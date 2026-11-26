@@ -107,7 +107,7 @@ function IeDiffTable({ groups, changedOnly, collapsed, onToggleGroup, sel, onSel
                 It does NOT repeat the column headers. */}
             <div style={{ gridColumn: "1 / -1", display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)",
               padding: "var(--tasty-space-sm) var(--tasty-space-md)", background: "var(--tasty-surface-raised)",
-              borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
+              borderBottom: "var(--tasty-border-width) solid var(--tasty-border-strong)" }}>
               <Checkbox checked={on} onChange={() => onSel(g, !on)} aria-label={"Select all in " + g.label} />
               <button type="button" onClick={() => onToggleGroup(g.id)} style={{ border: 0, background: "transparent", cursor: "pointer",
                 display: "flex", alignItems: "center", gap: 6, padding: 0 }}>
