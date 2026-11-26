@@ -1,4 +1,4 @@
-<!-- source-hash: b3071374dfdb -->
+<!-- source-hash: c39d0b22ae35 -->
 # Installation
 
 Tasty installation files for Windows, macOS, and Linux are available on GitHub Releases, organized by architecture. macOS support is for Apple Silicon.
@@ -173,9 +173,13 @@ Settings · sessions · themes all live in `~/.tasty/`, so they survive updates.
 | Linux `.rpm` | `sudo dnf remove tasty` | Same as above |
 | Linux AppImage / tar.gz | Delete the file · folder | Same as above |
 | macOS | Move `Tasty.app` to the Trash | Same as above |
-| Windows `.msi` | Uninstall Tasty from **Settings > Apps** | **`~/.tasty/` is deleted along with it** — back it up before uninstalling if you want to keep settings · sessions · themes |
+| Windows `.msi` | Uninstall Tasty from **Settings > Apps** | `~/.tasty` is kept by default |
 | Windows `.zip` | Delete the extracted folder | `~/.tasty/` remains. Delete it yourself |
 | Headless archive (any OS) | Delete the extracted folder | `~/.tasty/` remains. Delete it yourself |
+
+To delete user data as well, choose **Modify** → **Remove** for Tasty in the Windows Settings app list, or run the `.msi` again and choose **Remove**. Select **Permanently delete settings, history, saved logins and profiles in .tasty** on the removal screen. The installer deletes `~/.tasty` after a successful uninstall with this box checked.
+
+Choosing **Uninstall** directly from the app list or removing Tasty with `msiexec /qn` or `msiexec /qb` keeps your data. Upgrades and repairs also keep it.
 
 On Windows, `~` is `%USERPROFILE%` (usually `C:\Users\<name>`).
 

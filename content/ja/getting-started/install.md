@@ -1,4 +1,4 @@
-<!-- source-hash: b3071374dfdb -->
+<!-- source-hash: c39d0b22ae35 -->
 # インストール
 
 Tasty の Windows・macOS・Linux 用インストールファイルは、GitHub リリースページからアーキテクチャ別にダウンロードできます。macOS は Apple Silicon をサポートしています。
@@ -173,9 +173,13 @@ cargo build --release --no-default-features
 | Linux `.rpm` | `sudo dnf remove tasty` | 上と同じです |
 | Linux AppImage / tar.gz | ファイル・フォルダーを削除してください | 上と同じです |
 | macOS | `Tasty.app` をゴミ箱に移動してください | 上と同じです |
-| Windows `.msi` | **設定 > アプリ** で Tasty をアンインストールしてください | **`~/.tasty/` も一緒に削除されます** — 設定・セッション・テーマを残すには、アンインストール前にバックアップしてください |
+| Windows `.msi` | **設定 > アプリ** で Tasty をアンインストールしてください | 既定では `~/.tasty` が残ります |
 | Windows `.zip` | 解凍したフォルダーを削除してください | `~/.tasty/` は残ります。自分で削除してください |
 | ヘッドレス圧縮ファイル（すべての OS） | 解凍したフォルダーを削除してください | `~/.tasty/` は残ります。自分で削除してください |
+
+ユーザーデータも削除するには、Windows の設定アプリの一覧で Tasty の **変更** → **Remove** を選ぶか、`.msi` を再実行して **Remove** を選んでください。アンインストール画面で **Permanently delete settings, history, saved logins and profiles in .tasty** にチェックを入れてください。その状態でアンインストールが正常に完了すると、`~/.tasty` が削除されます。
+
+アプリの一覧で直接 **アンインストール** を選ぶか、`msiexec /qn` または `msiexec /qb` でアンインストールすると、ユーザーデータは残ります。アップグレードと修復でも残ります。
 
 Windows では `~` は `%USERPROFILE%`（通常は `C:\Users\<名前>`）です。
 

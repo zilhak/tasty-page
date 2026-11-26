@@ -172,9 +172,13 @@ cargo build --release --no-default-features
 | Linux `.rpm` | `sudo dnf remove tasty` | 위와 같습니다 |
 | Linux AppImage / tar.gz | 파일 · 폴더를 지웁니다 | 위와 같습니다 |
 | macOS | `Tasty.app` 을 휴지통으로 | 위와 같습니다 |
-| Windows `.msi` | **설정 > 앱** 에서 Tasty 제거 | **`~/.tasty/` 까지 함께 삭제됩니다** — 설정 · 세션 · 테마를 남기려면 제거 전에 백업합니다 |
+| Windows `.msi` | **설정 > 앱**에서 Tasty를 제거합니다 | `~/.tasty`는 기본으로 남습니다 |
 | Windows `.zip` | 압축 푼 폴더를 지웁니다 | `~/.tasty/` 는 남습니다. 직접 지웁니다 |
 | headless 압축 파일 (모든 OS) | 압축 푼 폴더를 지웁니다 | `~/.tasty/` 는 남습니다. 직접 지웁니다 |
+
+사용자 데이터도 지우려면 Windows 설정 앱의 앱 목록에서 Tasty의 **수정** <!-- en: Modify --> → **Remove**를 선택하거나 `.msi`를 다시 실행해 **Remove**를 선택하세요. 제거 화면에서 **Permanently delete settings, history, saved logins and profiles in .tasty**를 선택하고 제거를 마치면 `~/.tasty`를 지웁니다.
+
+앱 목록에서 **제거** <!-- en: Uninstall -->를 바로 선택하거나 `msiexec /qn` 또는 `msiexec /qb`로 제거하면 데이터가 남습니다. 업그레이드와 복구도 데이터를 보존합니다.
 
 Windows 에서 `~` 는 `%USERPROFILE%`(보통 `C:\Users\<이름>`)입니다.
 

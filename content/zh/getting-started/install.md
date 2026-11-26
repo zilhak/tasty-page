@@ -1,4 +1,4 @@
-<!-- source-hash: b3071374dfdb -->
+<!-- source-hash: c39d0b22ae35 -->
 # 安装
 
 Tasty 的 Windows、macOS 和 Linux 安装文件可在 GitHub 发布页面按架构下载。macOS 支持 Apple Silicon。
@@ -173,9 +173,13 @@ cargo build --release --no-default-features
 | Linux `.rpm` | `sudo dnf remove tasty` | 同上 |
 | Linux AppImage / tar.gz | 删除文件、文件夹 | 同上 |
 | macOS | 将 `Tasty.app` 移到废纸篓 | 同上 |
-| Windows `.msi` | 在**设置 > 应用**中卸载 Tasty | **`~/.tasty/` 也会一并删除** — 如需保留设置、会话和主题，请在卸载前备份 |
+| Windows `.msi` | 在**设置 > 应用**中卸载 Tasty | 默认保留 `~/.tasty` |
 | Windows `.zip` | 删除解压后的文件夹 | 保留 `~/.tasty/`。需手动删除 |
 | 无界面压缩包（所有 OS） | 删除解压后的文件夹 | 保留 `~/.tasty/`。需手动删除 |
+
+如需一并删除用户数据，在 Windows 设置的应用列表中为 Tasty 选择**修改** → **Remove**，或重新运行 `.msi` 并选择 **Remove**。在卸载界面勾选 **Permanently delete settings, history, saved logins and profiles in .tasty**。勾选后成功卸载时，安装程序会删除 `~/.tasty`。
+
+直接在应用列表中选择**卸载**，或用 `msiexec /qn` 或 `msiexec /qb` 卸载，都会保留数据。升级和修复也会保留数据。
 
 在 Windows 上，`~` 表示 `%USERPROFILE%`（通常为 `C:\Users\<姓名>`）。
 
