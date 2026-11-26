@@ -73,6 +73,8 @@ Lua 표준 라이브러리의 파일 입출력과 외부 명령 실행은 그대
 | `layout` 노드 | `Leaf`: `type`, `id`, `kind`, `busy`. `Split`: `type`, `direction`(`horizontal` · `vertical`), `ratio`, `focus_second`, `first`, `second`. `Split`에는 `busy` 필드가 없습니다 |
 | `tab.surface`(나뉘지 않은 탭) | 서피스 하나입니다. 모든 서피스에 `id`, `type`, `busy`가 있고 나머지 필드는 종류마다 다릅니다. 터미널은 `type = "Terminal"`이며 `cols` · `rows`는 이 트리에서 항상 0입니다 |
 
+예를 들어 분할된 탭 하나에 작업 중인 서피스가 2개 있고 같은 페인의 나머지 서피스가 모두 쉬고 있으면, 그 탭과 페인의 `busy_count`는 각각 2입니다. 그 탭을 선택하지 않아도 두 서피스는 페인의 집계에 포함됩니다.
+
 `focus_second`는 분할을 만들거나 복원할 때 정해진 값이라 현재 포커스와 다를 수 있습니다. 현재 포커스는 `focused_surface`로 판단합니다.
 
 ### 포커스 서피스 찾기

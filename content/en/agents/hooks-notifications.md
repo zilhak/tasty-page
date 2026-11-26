@@ -1,4 +1,4 @@
-<!-- source-hash: e67eb9e1413e -->
+<!-- source-hash: 0b5f7ed5be20 -->
 # Hooks, notifications, and webhooks
 
 Hooks run actions in response to Tasty events, notifications show items to check in the app, and webhooks receive HTTP requests from external services. Choose the path that fits your task.
@@ -41,7 +41,7 @@ tasty unset hook --hook <HOOK_ID>
 - Hook commands run in the background without blocking terminal input. Standard input, standard output, and standard error all go to the null device. To keep the output, redirect it to a file or send a message with `tasty notify`. The hook run ends when the shell exits. Background jobs started by the shell can keep running.
 - `command-completed` never fires without shell integration. A guidance banner appears once on local Surfaces that lack shell integration and closes on its own after 10 seconds.
 
-Surface hook shell commands (`tasty set hook --command` or a shell command handler), shell commands run directly with `tasty hook-handler dispatch`, and global hooks (`tasty set global-hook`) share one executor. There are separate limits on how many commands can run at once and how many can wait. If all execution slots are in use and the queue is full, the command does not run or retry automatically. Commands that are still queued when Tasty exits are discarded without running or sending a notification.
+Surface hook shell commands (`tasty set hook --command` or a shell command handler), shell commands run directly with `tasty hook-handler dispatch`, and global hooks (`tasty set global-hook`) share one executor. Across all three sources, up to 32 shell commands can run at once and up to 256 can wait in the queue. If all execution slots are in use and the queue is full, the command does not run or retry automatically. Commands that are still queued when Tasty exits are discarded without running or sending a notification.
 
 Event information reaches the command through environment variables.
 

@@ -1,4 +1,4 @@
-<!-- source-hash: 308387cf9570 -->
+<!-- source-hash: 3d6d8f113c27 -->
 # Lua scripts
 
 Lua scripts registered in Tasty can run from a keybinding or be set to run automatically when a window, workspace, or tab opens or closes.
@@ -73,6 +73,8 @@ Workspaces are appended to the array by window. Workspaces from open windows, in
 | `tab.surface` (split Tab) | `type = "SplitLayout"`, `focused_surface` (the focused Surface id in that Tab), `surfaces` (an array of Surface ids in the Tab), `layout`. There is no `busy` field |
 | `layout` node | `Leaf`: `type`, `id`, `kind`, `busy`. `Split`: `type`, `direction` (`horizontal` · `vertical`), `ratio`, `focus_second`, `first`, `second`. `Split` has no `busy` field |
 | `tab.surface` (unsplit Tab) | A single Surface. Every Surface has `id`, `type`, and `busy`; the other fields depend on its type. A terminal has `type = "Terminal"`; `cols` and `rows` are always 0 in this tree |
+
+For example, if a split Tab has two busy Surfaces and every other Surface in the Pane is idle, both the Tab and the Pane have a `busy_count` of 2. The Pane counts those two Surfaces even when you select a different Tab.
 
 `focus_second` is set when a split is created or restored and may differ from the current focus. Use `focused_surface` to determine the current focus.
 

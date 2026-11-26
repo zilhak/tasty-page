@@ -1,4 +1,4 @@
-<!-- source-hash: 308387cf9570 -->
+<!-- source-hash: 3d6d8f113c27 -->
 # Lua 脚本
 
 在 Tasty 中注册的 Lua 脚本可通过快捷键运行，也可设置为在窗口、工作区或标签页打开和关闭时自动运行。
@@ -73,6 +73,8 @@ tasty.run_cli({ "notify", "新工作区", "--title", "script" })
 | `tab.surface`（已拆分的标签页） | `type = "SplitLayout"`、`focused_surface`（该标签页中具有焦点的 Surface id）、`surfaces`（标签页内 Surface id 的数组）、`layout`。没有 `busy` 字段 |
 | `layout` 节点 | `Leaf`：`type`、`id`、`kind`、`busy`。`Split`：`type`、`direction`（`horizontal` · `vertical`）、`ratio`、`focus_second`、`first`、`second`。`Split` 没有 `busy` 字段 |
 | `tab.surface`（未拆分的标签页） | 单个 Surface。所有 Surface 都有 `id`、`type` 和 `busy`，其他字段因类型而异。终端的 `type = "Terminal"`，`cols` 和 `rows` 在这棵树中始终为 0 |
+
+例如，一个拆分的标签页中有 2 个 Surface 正在工作，同一窗格中其余 Surface 都处于空闲状态，则该标签页和窗格的 `busy_count` 都为 2。即使选中了其他标签页，这 2 个 Surface 也会计入窗格的统计。
 
 `focus_second` 是创建或恢复拆分时设置的值，可能与当前焦点不同。使用 `focused_surface` 判断当前焦点。
 

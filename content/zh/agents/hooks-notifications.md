@@ -1,4 +1,4 @@
-<!-- source-hash: e67eb9e1413e -->
+<!-- source-hash: 0b5f7ed5be20 -->
 # 钩子、通知和 Webhook
 
 钩子按 Tasty 事件执行操作，通知在应用内显示待查看事项。Webhook 接收外部服务的 HTTP 请求。按需选择并配置。
@@ -41,7 +41,7 @@ tasty unset hook --hook <HOOK_ID>
 - 钩子命令在后台执行，不阻塞终端输入。标准输入、标准输出和标准错误均连接到空设备。要保留输出，可将输出重定向到文件，或用 `tasty notify` 发送消息。Shell 退出后，钩子执行结束。Shell 启动的后台任务仍可继续运行。
 - 没有 Shell 集成时，`command-completed` 绝不会触发。缺少 Shell 集成的本地 Surface 会显示一次提示横幅，10 秒后自动关闭。
 
-Surface 钩子的 Shell 命令（`tasty set hook --command` 或 Shell 命令处理器）、通过 `tasty hook-handler dispatch` 直接运行的 Shell 命令和全局钩子（`tasty set global-hook`）共用同一个执行器。并发执行和排队等待的命令数各有上限。执行名额和等待队列都满时，该命令不会执行，也不会自动重试。Tasty 退出时仍在排队的命令会被丢弃，不会执行或发送通知。
+Surface 钩子的 Shell 命令（`tasty set hook --command` 或 Shell 命令处理器）、通过 `tasty hook-handler dispatch` 直接运行的 Shell 命令和全局钩子（`tasty set global-hook`）共用同一个执行器。这三类 Shell 命令合计最多可同时运行 32 条，另有最多 256 条可排队等待。执行名额和等待队列都满时，该命令不会执行，也不会自动重试。Tasty 退出时仍在排队的命令会被丢弃，不会执行或发送通知。
 
 事件信息通过环境变量传入命令。
 

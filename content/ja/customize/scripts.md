@@ -1,4 +1,4 @@
-<!-- source-hash: 308387cf9570 -->
+<!-- source-hash: 3d6d8f113c27 -->
 # Lua スクリプト
 
 Tasty に登録した Lua スクリプトは、ショートカットで実行したり、ウィンドウ・ワークスペース・タブが開閉するときに自動実行するよう設定したりできます。
@@ -73,6 +73,8 @@ Lua 標準ライブラリのファイル入出力や外部コマンド実行は�
 | `tab.surface`（分割されたタブ） | `type = "SplitLayout"`, `focused_surface`（そのタブのフォーカスサーフェスの id）, `surfaces`（タブ内のサーフェス id の配列）, `layout`。`busy` フィールドはありません |
 | `layout` ノード | `Leaf`: `type`, `id`, `kind`, `busy`。`Split`: `type`, `direction`（`horizontal` ・ `vertical`）, `ratio`, `focus_second`, `first`, `second`。`Split` には `busy` フィールドはありません |
 | `tab.surface`（分割されていないタブ） | サーフェス 1 つです。すべてのサーフェスに `id`、`type`、`busy` があり、ほかのフィールドは種類によって異なります。ターミナルは `type = "Terminal"` で、`cols` ・ `rows` はこのツリーでは常に 0 です |
+
+例えば、分割したタブに作業中のサーフェスが 2 つあり、同じペイン内のほかのサーフェスがすべて待機中なら、タブとペインの `busy_count` はどちらも 2 です。別のタブを選択していても、その 2 つのサーフェスはペインの集計に含まれます。
 
 `focus_second` は分割の作成時や復元時に設定された値のため、現在のフォーカスと異なる場合があります。現在のフォーカスは `focused_surface` で判断します。
 
