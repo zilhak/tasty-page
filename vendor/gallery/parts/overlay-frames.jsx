@@ -702,6 +702,40 @@ function RemoteChromeG({ tab }) {
   );
 }
 
+// The Profiles protocol filter, as the app gallery's draw_filter shows it. The button reads the applied set: plain
+// Filter while nothing is hidden, primary with selected/total once something is. The open menu holds the draft, here
+// snb unchecked before Apply.
+function RemoteFilterButtonG({ applied = "" }) {
+  return <Button variant={applied ? "primary" : "secondary"} size="sm" leadingIcon={ic.funnel}>{applied ? `Filter · ${applied}` : "Filter"}</Button>;
+}
+function RemoteFilterMenuG() {
+  return (
+    <div role="dialog" aria-label="Filter by protocol" style={{ width: "var(--tasty-remote-filter-menu-width)",
+      background: "var(--tasty-menu-bg)", border: "var(--tasty-border-width) solid var(--tasty-menu-border)", borderRadius: "var(--tasty-menu-radius)",
+      boxShadow: "var(--tasty-shadow-popover)", overflow: "hidden" }}>
+      <div style={{ padding: "var(--tasty-space-sm) var(--tasty-space-md)", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)", fontFamily: "var(--tasty-font-mono)",
+        fontSize: "var(--tasty-font-size-micro)", textTransform: "uppercase", letterSpacing: "var(--tasty-letter-spacing-caps)", color: "var(--tasty-text-muted)" }}>Filter by protocol</div>
+      <div style={{ padding: "var(--tasty-space-sm) var(--tasty-space-md)", display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
+        {[["ssh", true, false], ["smb", true, false], ["http", true, false], ["snb", false, true]].map(([p, on, unknown]) => (
+          <div key={p} style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)" }}>
+            <Checkbox checked={on} readOnly label={p} />
+            {unknown && <WarnBadge raised>unknown</WarnBadge>}
+          </div>
+        ))}
+      </div>
+      <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-sm) var(--tasty-space-md)", borderTop: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
+        <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-accent-primary-raised)" }}>Select all</span>
+        <span data-ink-grade="none" data-ink-why="ornament" style={{ color: "var(--tasty-separator)" }}>·</span>
+        <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-accent-primary-raised)" }}>Deselect all</span>
+      </div>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "var(--tasty-space-sm) var(--tasty-space-md)", borderTop: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
+        <Button variant="ghost" ground="raised" size="sm">Reset</Button>
+        <Button variant="primary" size="sm">Apply</Button>
+      </div>
+    </div>
+  );
+}
+
 // ── Remote connections — 520×460, three top tabs, list view ──
 function RemoteFrame({ tab = "profiles", ssh = "hosts" }) {
   // The Passkeys tab draws these four sample rows. Profile rows check their reference against the kit's seed store
@@ -802,32 +836,7 @@ function RemoteFrame({ tab = "profiles", ssh = "hosts" }) {
       <>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "var(--tasty-remote-content-pad-top) var(--tasty-remote-pad-x) var(--tasty-space-sm)", flex: "none" }}>
         <Button variant="secondary" size="sm" leadingIcon={ic.plus}>Add profile</Button>
-        <div style={{ position: "relative" }}>
-          <Button variant="primary" size="sm" leadingIcon={ic.funnel}>Filter · 3/4</Button>
-          <div role="dialog" aria-label="Filter by protocol" style={{ position: "absolute", top: "calc(100% + var(--tasty-space-xs))", right: 0, zIndex: 5, width: "var(--tasty-remote-filter-menu-width)",
-            background: "var(--tasty-menu-bg)", border: "var(--tasty-border-width) solid var(--tasty-menu-border)", borderRadius: "var(--tasty-menu-radius)",
-            boxShadow: "var(--tasty-shadow-popover)", overflow: "hidden" }}>
-            <div style={{ padding: "var(--tasty-space-sm) var(--tasty-space-md)", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)", fontFamily: "var(--tasty-font-mono)",
-              fontSize: "var(--tasty-font-size-micro)", textTransform: "uppercase", letterSpacing: "var(--tasty-letter-spacing-caps)", color: "var(--tasty-text-muted)" }}>Filter by protocol</div>
-            <div style={{ padding: "var(--tasty-space-sm) var(--tasty-space-md)", display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
-              {[["ssh", true, false], ["smb", true, false], ["http", true, false], ["snb", false, true]].map(([p, on, unknown]) => (
-                <div key={p} style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)" }}>
-                  <Checkbox checked={on} readOnly label={p} />
-                  {unknown && <WarnBadge raised>unknown</WarnBadge>}
-                </div>
-              ))}
-            </div>
-            <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-sm) var(--tasty-space-md)", borderTop: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
-              <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-accent-primary-raised)" }}>Select all</span>
-              <span data-ink-grade="none" data-ink-why="ornament" style={{ color: "var(--tasty-separator)" }}>·</span>
-              <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-accent-primary-raised)" }}>Deselect all</span>
-            </div>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "var(--tasty-space-sm) var(--tasty-space-md)", borderTop: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
-              <Button variant="ghost" ground="raised" size="sm">Reset</Button>
-              <Button variant="primary" size="sm">Apply</Button>
-            </div>
-          </div>
-        </div>
+        <RemoteFilterButtonG />
       </div>
       <div style={{ flex: 1, minHeight: 0, overflow: "auto", padding: "0 var(--tasty-remote-pad-x) var(--tasty-space-sm)" }}>
         <ProfileRow name="prod-web" label="us-east" type="ssh" target="deploy@10.0.4.12" passkey="ed25519-main" />
@@ -3384,4 +3393,4 @@ function FilePickerFrame({ state = "loaded", remote = false, indicator = "badge"
   );
 }
 
-export { PopupFocusEdge, TOOLS_MENU_BUILTIN, ic, Backdrop, GroundThemes, GroundCap, PaletteFrame, ApprovalFrame, RenameFrame, SettingsFrame, SettingsGeneralOverlayFrame, SettingsRemoteTransferFrame, SettingsRemoteAttachFrame, TransferProgressFrame, TransferErrorFrame, DownloadRunFrame, DownloadRunLargeFrame, ToastDragValue, ToolsMenuFrame, PortsFrame, PORTS_COLUMNS, PortsFavoritesG, PortStarG, RemoteFrame, LocalSshSection, SearchBarFrame, FileHandlerFrame, FhFooter, PresetFrame, MarkdownOpenFrame, HeldLabel, TabStripMock, SidebarMock, RailMock, CatSwitchSidebarMock, CatSwitchRailMock, BannerShellG, BannerScope, MouseCaptureBannerG, MouseCaptureHitZone, BlacklistEditorG, TtlBannerG, StackDemoG, BannerMoreMenuG, BannerMoreDemoG, GitViewerFrame, ClipboardFrame, RemoteFormFrame, ScriptManagerFrame, ShellMock, CollapsedPopupButton, RemoteAttachFrame, RaNewRow, RaWsPeek, FilePickerFrame, FpCrumbMenu, FpHostBadge, ModifierHintPanelG, MH_CAT_SECTIONS, MH_MIXED_SECTIONS, MH_EMPTY_SECTIONS, catIc, CatMenu, RailCategoryFrame, CategoryEditFrame, CategoryDeleteFrame };
+export { PopupFocusEdge, TOOLS_MENU_BUILTIN, ic, Backdrop, GroundThemes, GroundCap, PaletteFrame, ApprovalFrame, RenameFrame, SettingsFrame, SettingsGeneralOverlayFrame, SettingsRemoteTransferFrame, SettingsRemoteAttachFrame, TransferProgressFrame, TransferErrorFrame, DownloadRunFrame, DownloadRunLargeFrame, ToastDragValue, ToolsMenuFrame, PortsFrame, PORTS_COLUMNS, PortsFavoritesG, PortStarG, RemoteFrame, RemoteFilterButtonG, RemoteFilterMenuG, LocalSshSection, SearchBarFrame, FileHandlerFrame, FhFooter, PresetFrame, MarkdownOpenFrame, HeldLabel, TabStripMock, SidebarMock, RailMock, CatSwitchSidebarMock, CatSwitchRailMock, BannerShellG, BannerScope, MouseCaptureBannerG, MouseCaptureHitZone, BlacklistEditorG, TtlBannerG, StackDemoG, BannerMoreMenuG, BannerMoreDemoG, GitViewerFrame, ClipboardFrame, RemoteFormFrame, ScriptManagerFrame, ShellMock, CollapsedPopupButton, RemoteAttachFrame, RaNewRow, RaWsPeek, FilePickerFrame, FpCrumbMenu, FpHostBadge, ModifierHintPanelG, MH_CAT_SECTIONS, MH_MIXED_SECTIONS, MH_EMPTY_SECTIONS, catIc, CatMenu, RailCategoryFrame, CategoryEditFrame, CategoryDeleteFrame };
