@@ -1080,6 +1080,8 @@
   --tasty-fp-row-focus-ring-selected:      var(--tasty-accent-primary-raised);   /* focus-ring cell on active: Mocha 3.17 · Latte 3.84 (border-focus would be 2.27 in Latte) */
   --tasty-fp-row-focus-ring-selected-hover: var(--tasty-accent-primary-on-active); /* focus-ring cell on active+hover: Mocha 3.44 · Latte 3.57 (fp-row-focus-ring-selected would be 2.61 in Mocha) */
   --tasty-fp-row-focus-ring-width:         var(--tasty-border-width);            /* 1, inset — never moves layout */
+  --tasty-fp-row-glyph-fg-hover:           var(--tasty-text-secondary);          /* glyph cell on base+hover: Mocha 7.32 · Latte 4.64 */
+  --tasty-fp-row-meta-fg-hover:            var(--tasty-text-muted);              /* text-muted cell on base+hover: Mocha 5.82 · Latte 4.64 */
   --tasty-fp-filter-max-width:        var(--tasty-field-width-md); /* 160 — READ-ONLY filter chip: content width up to this, then front-kept ellipsis + tooltip with the full list (2026-10-06) */
   /* File picker host badge (remote mode, beside the header title): remote glyph + host text in an info tint box.
      Fill and edge are the tint pair (accent-info × tint-fill-alpha / tint-border-alpha) over the header (bg-panel = base).

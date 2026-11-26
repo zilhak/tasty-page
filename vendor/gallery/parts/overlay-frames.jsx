@@ -3091,6 +3091,8 @@ function FpRow({ kind, name, size, mod, selected, multi, checked, inert, tip, fo
   const isFolder = kind === "folder";
   const hov = hover && !inert;
   const ink = (rest, restHover, sel, selHover) => inert ? "var(--tasty-fp-folder-file-fg)" : selected ? (hov ? selHover : sel) : (hov ? restHover : rest);
+  // Hover file glyph and meta read component tokens: the hover-wash scope in specimen.css re-points text-secondary and
+  // text-muted to their raised values, while the base+hover cells are text-secondary and text-muted.
   const ring = selected ? (hov ? "var(--tasty-fp-row-focus-ring-selected-hover)" : "var(--tasty-fp-row-focus-ring-selected)") : "var(--tasty-fp-row-focus-ring)";
   return (
     <div data-fp-row={name} style={{ position: "relative", cursor: "default",
@@ -3100,13 +3102,13 @@ function FpRow({ kind, name, size, mod, selected, multi, checked, inert, tip, fo
       {multi && <span style={{ display: "inline-flex", flex: "none" }}><Checkbox checked={!!checked} /></span>}
       <span style={{ flex: "none", display: "inline-flex", color: isFolder
         ? ink("var(--tasty-accent-primary-raised)", "var(--tasty-accent-primary)", "var(--tasty-accent-primary-raised)", "var(--tasty-accent-primary-on-active)")
-        : ink("var(--tasty-text-muted)", "var(--tasty-text-secondary)", "var(--tasty-text-muted)", "var(--tasty-text-on-active)") }}>
+        : ink("var(--tasty-text-muted)", "var(--tasty-fp-row-glyph-fg-hover)", "var(--tasty-text-muted)", "var(--tasty-text-on-active)") }}>
         <Icon name={isFolder ? "folder" : "file"} size="var(--tasty-icon-size-md)" />
       </span>
       <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
         fontSize: "var(--tasty-font-size-body)", fontWeight: isFolder ? 500 : 400, color: ink("var(--tasty-text-secondary)", "var(--tasty-text-secondary-raised)", "var(--tasty-text-on-active)", "var(--tasty-text-on-active-hover)") }}>{name}</span>
-      <span style={{ flex: "none", width: "var(--tasty-fp-size-col-width)", textAlign: "right", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: ink("var(--tasty-text-muted)", "var(--tasty-text-muted)", "var(--tasty-text-on-active)", "var(--tasty-text-on-active-hover)") }}>{size}</span>
-      <span style={{ flex: "none", width: "var(--tasty-fp-modified-col-width)", textAlign: "right", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: ink("var(--tasty-text-muted)", "var(--tasty-text-muted)", "var(--tasty-text-on-active)", "var(--tasty-text-on-active-hover)") }}>{mod}</span>
+      <span style={{ flex: "none", width: "var(--tasty-fp-size-col-width)", textAlign: "right", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: ink("var(--tasty-text-muted)", "var(--tasty-fp-row-meta-fg-hover)", "var(--tasty-text-on-active)", "var(--tasty-text-on-active-hover)") }}>{size}</span>
+      <span style={{ flex: "none", width: "var(--tasty-fp-modified-col-width)", textAlign: "right", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: ink("var(--tasty-text-muted)", "var(--tasty-fp-row-meta-fg-hover)", "var(--tasty-text-on-active)", "var(--tasty-text-on-active-hover)") }}>{mod}</span>
       </div>
       {selected && <span aria-hidden="true" data-fp-row-bar="" style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: "var(--tasty-selection-edge-width)", pointerEvents: "none", background: "var(--tasty-accent-primary-on-active)" }} />}
       {focus && !inert && <span aria-hidden="true" data-fp-row-focus="" style={{ position: "absolute", inset: 0, pointerEvents: "none", borderRadius: "var(--tasty-radius-sm)",

@@ -7256,6 +7256,14 @@
       "$type": "dimension",
       "$value": "{semantic.border-width}"
     },
+    "fp-row-glyph-fg-hover": {
+      "$type": "color",
+      "$value": "{semantic.text-secondary}"
+    },
+    "fp-row-meta-fg-hover": {
+      "$type": "color",
+      "$value": "{semantic.text-muted}"
+    },
     "file-handler-form-info-fg": {
       "$type": "color",
       "$value": "{semantic.text-secondary-raised}",
