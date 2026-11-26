@@ -75,7 +75,14 @@ export function pageLib() {
     if (el.tagName.toLowerCase() !== "details") return false;
     const s = slotStyle(el);
     if (!s) return el.getAttribute("open") === null;
+    // visibility inherits into the slot, so a hidden slot hides its text whatever its box does.
+    if (s.visibility === "hidden" || s.visibility === "collapse") return true;
     return s.display === "none" || (s.display !== "contents" && s.contentVisibility === "hidden");
+  };
+  // The slot's own fill, which paints under the text right inside a details.
+  const slotFill = (el) => {
+    const c = parse(slotStyle(el)?.backgroundColor || "");
+    return c && c[3] > 0 ? c : null;
   };
   // The color a text node right inside el is drawn in.
   const textColorOf = (el) => (slotStyle(el)?.color || getComputedStyle(el).color);
@@ -430,12 +437,13 @@ export function pageLib() {
       const bold = Number(s.fontWeight) >= 700;
       return px >= grades.displayMinPx || (bold && px >= grades.displayBoldMinPx) ? grades.display : grades.text;
     };
-    const judge = (kind, el, ink, grade, text, pseudo) => {
+    const judge = (kind, el, ink, grade, text, pseudo, layer) => {
       if (kind === "text") out.text += 1; else if (kind === "glyph") out.glyph += 1; else out.inputs += 1;
       if (pseudo) out.pseudo += 1;
       const { grounds, picture } = groundsOf(el);
       const own = pseudo ? parse(getComputedStyle(el, pseudo).backgroundColor) : null;
-      const used = own && own[3] > 0 ? grounds.map((g) => over(own, g)) : grounds;
+      const mine = own && own[3] > 0 ? grounds.map((g) => over(own, g)) : grounds;
+      const used = layer ? mine.map((g) => over(layer, g)) : mine;
       const low = lowest(ink, el, used);
       const marked = el.closest("[data-ink-grade]");
       const native = el.closest(":disabled, [aria-disabled='true']");
@@ -459,7 +467,7 @@ export function pageLib() {
       if (el.closest("svg") || skip(el) || exemptOf(el) || !visible(el)) continue;
       const ink = parse(textColorOf(el));
       if (!ink || ink[3] === 0) continue;
-      judge("text", el, ink, textGrade(el), t.slice(0, 40));
+      judge("text", el, ink, textGrade(el), t.slice(0, 40), undefined, slotFill(el));
     }
     // Generated text such as a figure label has no text node.
     scope.querySelectorAll("*").forEach((el) => {
@@ -530,7 +538,7 @@ export function pageLib() {
     return r ? { ...r, frame } : { frame, at: where(el), got: "none", ground: "none", ratio: 0, inkOk: false, below: false };
   };
 
-  return { selectParts, validateParts, expectedTheme, parse, over, ratio, hex, near, overlays, opacityOf, visible, svgInks, shapeInks, rowInks, rowShown, judgeInks, judgeSvgPart, inkOn, measureRows, scan, alternatives, pseudoOf, bare, pick, aim, measureAimed, measureFocus, measureMarks, inClosedSlot, textColorOf };
+  return { selectParts, validateParts, expectedTheme, parse, over, ratio, hex, near, overlays, opacityOf, visible, svgInks, shapeInks, rowInks, rowShown, judgeInks, judgeSvgPart, inkOn, measureRows, scan, alternatives, pseudoOf, bare, pick, aim, measureAimed, measureFocus, measureMarks, inClosedSlot, textColorOf, slotFill };
 }
 
 export const installPageLib = (tab) => tab.addScriptTag({ content: `window.__contrast = (${pageLib})();` });

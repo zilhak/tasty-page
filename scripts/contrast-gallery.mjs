@@ -3,7 +3,7 @@
 
 // Runs in the page. Colors round per channel to 8 bits and a translucent layer composites source-over, as RULES.md says.
 export function measureGallery({ rows, tokens, grades, partMap, exemptIds, noGradeTokens, theme }) {
-  const { selectParts, validateParts, expectedTheme, parse, over, ratio, hex, near, overlays, visible, inkOn, inClosedSlot, textColorOf } = window.__contrast;
+  const { selectParts, validateParts, expectedTheme, parse, over, ratio, hex, near, overlays, visible, inkOn, inClosedSlot, textColorOf, slotFill } = window.__contrast;
   // The ground under an element: its own fill and overlays, then each ancestor's, down to the first opaque fill.
   const groundOf = (el, includeSelf = true) => {
     const stack = [];
@@ -104,11 +104,13 @@ export function measureGallery({ rows, tokens, grades, partMap, exemptIds, noGra
     const name = expectedTheme(el, theme);
     return noGradeTokens.map((t) => tokens[t] && tokens[t][name]).filter(Boolean).map((v) => parse(v)).filter(Boolean);
   };
-  const judge = (kind, el, ink, grade, text) => {
+  // layer is a fill painted between the element's ground and its ink, such as a details slot's own background.
+  const judge = (kind, el, ink, grade, text, layer) => {
     if (kind === "text") out.text += 1; else if (kind === "glyph") out.glyph += 1; else out.inputs += 1;
     const marked = el.closest("[data-ink-grade]");
     const native = el.closest(":disabled, [aria-disabled='true']");
-    const { color: ground, picture } = groundOf(el);
+    const { color: under, picture } = groundOf(el);
+    const ground = layer ? over(layer, under) : under;
     const got = inkOn(ink, el, ground);
     const rt = ratio(got, ground);
     if (marked || native) {
@@ -130,7 +132,7 @@ export function measureGallery({ rows, tokens, grades, partMap, exemptIds, noGra
     if (el.closest("svg") || skip(el) || exemptOf(el) || !visible(el)) continue;
     const ink = parse(textColorOf(el));
     if (!ink || ink[3] === 0) continue;
-    judge("text", el, ink, 4.5, t.slice(0, 40));
+    judge("text", el, ink, 4.5, t.slice(0, 40), slotFill(el));
   }
   scope.querySelectorAll("input:not([type=checkbox]):not([type=radio]), textarea").forEach((el) => {
     if (skip(el) || exemptOf(el) || !visible(el)) return;

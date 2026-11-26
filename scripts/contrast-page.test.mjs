@@ -351,6 +351,12 @@ test("scan: text right inside a closed details is not measured, its summary is, 
   assert.deepEqual([none.text, none.below.map((b) => b.text)], [1, ["title"]]);
   const black = slotted({}, { display: "block", contentVisibility: "visible", color: "rgb(0, 0, 0)" });
   assert.deepEqual([black.text, black.below.map((b) => b.text)], [2, ["title"]]);
+  // A slot hidden by visibility hides its text even when display contents leaves it no box.
+  const unseen = slotted({}, { display: "contents", contentVisibility: "hidden", visibility: "hidden" });
+  assert.deepEqual([unseen.text, unseen.below.map((b) => b.text)], [1, ["title"]]);
+  // The slot's own fill is the ground under its text: white on a dark slot passes on a white page.
+  const filled = slotted({ open: "" }, { display: "block", contentVisibility: "visible", color: "rgb(255, 255, 255)", backgroundColor: "rgb(34, 34, 34)" });
+  assert.deepEqual([filled.text, filled.below.map((b) => b.text)], [2, ["title"]]);
 });
 
 test("rowShown, svgInks and measureMarks leave out what the browser does not render", () => {
@@ -1062,6 +1068,10 @@ test("measureGallery: text right inside a closed details is not measured, its su
   assert.deepEqual(run({ open: "" }, "visible", { display: "none" }), ["title"]);
   // The text takes the slot's color: black on white passes, so only the title is below.
   assert.deepEqual(run({}, "visible", { color: "rgb(0, 0, 0)" }), ["title"]);
+  // A slot hidden by visibility hides its text even when display contents leaves it no box.
+  assert.deepEqual(run({}, "hidden", { display: "contents", visibility: "hidden" }), ["title"]);
+  // The slot's own fill is the ground under its text: white on a dark slot passes on a white page.
+  assert.deepEqual(run({ open: "" }, "visible", { color: "rgb(255, 255, 255)", backgroundColor: "rgb(34, 34, 34)" }), ["title"]);
 });
 
 test("measureGallery: marks outside the frozen cells and exemptions are counted and judged", () => {
