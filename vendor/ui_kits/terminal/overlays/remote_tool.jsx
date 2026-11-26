@@ -7,6 +7,7 @@ import { Input } from "../../../components/forms/Input.jsx";
 import { Select } from "../../../components/forms/Select.jsx";
 import { ic, Icon } from "../chrome.jsx";
 import { Scrim, Spinner } from "./shared.jsx";
+import { tt } from "./remote_tool_copy.js";
 
 // Tasty UI kit — Remote connections popup (Tools › Remote connections…).
 // Redesign of the former single-SSH ssh_tool into a TYPE-AGNOSTIC remote-profile
@@ -574,7 +575,7 @@ function ConfirmDelete({ noun, name, hint, onConfirm, onCancel }) {
 // passes the runtime "displayable protocol set"). State is an EXCLUDED set —
 // empty = no filter (default). Apply-on-confirm: edits stay in a draft until
 // Apply. Never written to disk; tasty restarts with the full set selected.
-function ProtocolFilter({ protocols, hidden, onApply }) {
+function ProtocolFilter({ protocols, hidden, onApply, lang = "en" }) {
   const [open, setOpen] = React.useState(false);
   const [draft, setDraft] = React.useState(() => new Set(hidden));
   const activeHidden = protocols.filter((p) => hidden.has(p));
@@ -610,7 +611,7 @@ function ProtocolFilter({ protocols, hidden, onApply }) {
             <div className="tasty-scroll" style={{ maxHeight: "var(--tasty-remote-filter-list-max-height)", overflow: "auto", padding: "var(--tasty-space-sm) var(--tasty-space-md)",
               display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
               {protocols.length === 0 ? (
-                <span style={{ ...rtCaption, fontStyle: "var(--tasty-font-style-absent)" }}>No protocols.</span>
+                <span style={{ ...rtCaption, fontStyle: "var(--tasty-font-style-absent)" }}>{tt("remote_tool.filter_empty", lang)}</span>
               ) : protocols.map((proto) => (
                 <div key={proto} style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)" }}>
                   <Checkbox checked={!draft.has(proto)} onChange={() => toggle(proto)}
