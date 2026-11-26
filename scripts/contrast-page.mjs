@@ -140,9 +140,11 @@ export function pageLib() {
   // The dashed annotation marks a specimen draws only to explain it (RULES.md "Annotation marks"): an outline or a border
   // side that is dashed, wider than 0 and painted in the color --tasty-specimen-annotation-border resolves to on that
   // element. The token resolves through a child probe's computed color, because the custom property itself can stay a
-  // color-mix() string. A mark is one element however many sides it dashes. An outline with a negative offset and a
-  // border stand on the element's own fill (a background reaches under the border), an outline outside stands on the
-  // ground under the element. Each paint is judged at 3:1 on its lowest ground; a picture ground is counted, not judged.
+  // color-mix() string. A mark is one element however many sides it dashes. An outline with a negative offset stands on
+  // the element's own fill, an outline outside on the ground under the element. A border stands on the element's own
+  // fill when the background reaches under it (background-clip border-box), else on the ground under the element.
+  // Each paint is judged at 3:1 on its ground, a border on the side with the lowest ratio. A ground that is a picture, or
+  // a gradient of more than one color, is counted, not judged: a line across it meets colors no stop holds.
   const MARK_TOKEN = "var(--tasty-specimen-annotation-border)";
   const SIDES = ["Top", "Right", "Bottom", "Left"];
   const sameColor = (a, b) => near(a, b) && Math.abs(a[3] - b[3]) < 0.01;
@@ -161,22 +163,23 @@ export function pageLib() {
     for (const el of scope.querySelectorAll("*")) {
       const s = getComputedStyle(el);
       const paints = [];
-      if (s.outlineStyle === "dashed" && parseFloat(s.outlineWidth) > 0) paints.push({ name: "outline", color: s.outlineColor, own: parseFloat(s.outlineOffset) < 0 });
+      if (s.outlineStyle === "dashed" && parseFloat(s.outlineWidth) > 0) paints.push({ name: "outline", colors: [s.outlineColor], own: parseFloat(s.outlineOffset) < 0 });
       const sides = SIDES.filter((d) => s[`border${d}Style`] === "dashed" && parseFloat(s[`border${d}Width`]) > 0);
       if (paints.length === 0 && sides.length === 0) continue;
       if (left(el) || !visible(el)) continue;
       const token = markToken(el);
       if (!token) continue;
-      const matched = paints.filter((p) => { const c = parse(p.color); return c && sameColor(c, token); });
+      const matched = paints.filter((p) => { const c = parse(p.colors[0]); return c && sameColor(c, token); });
       const borderSides = sides.filter((d) => { const c = parse(s[`border${d}Color`]); return c && sameColor(c, token); });
-      if (borderSides.length) matched.push({ name: borderSides.map((d) => d.toLowerCase()).join(","), color: s[`border${borderSides[0]}Color`], own: true });
+      const clipped = s.backgroundClip === "padding-box" || s.backgroundClip === "content-box";
+      if (borderSides.length) matched.push({ name: borderSides.map((d) => d.toLowerCase()).join(","), colors: borderSides.map((d) => s[`border${d}Color`]), own: !clipped });
       if (matched.length === 0) continue;
       res.marks += 1;
       for (const m of matched) {
         const { grounds, picture } = groundsOf(el, m.own);
-        if (picture) { res.picture += 1; continue; }
+        if (picture || grounds.length > 1) { res.picture += 1; continue; }
         res.judged += 1;
-        const low = lowest(parse(m.color), el, grounds);
+        const low = m.colors.map((c) => lowest(parse(c), el, grounds)).reduce((x, y) => (y.ratio < x.ratio ? y : x));
         if (low.ratio < 3) res.below.push({ kind: "edge", ratio: +low.ratio.toFixed(2), grade: 3, got: hex(low.got), ground: hex(low.ground), spec: label(el), text: `annotation ${m.name}` });
       }
     }

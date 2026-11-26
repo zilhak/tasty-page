@@ -804,6 +804,24 @@ test("measureMarks: a dashed border stands on the element's own fill", () => {
   assert.deepEqual([r.marks, r.below.length, r.below[0]?.text], [1, 1, "annotation top"]);
   const clear = runMarks(markTree([el("div", { style: { ...border, backgroundColor: "rgba(0, 0, 0, 0)" } })]));
   assert.deepEqual([clear.marks, clear.below.length], [1, 0]);
+  // A fill clipped to the padding box does not reach under the border, so the ground below the element is read.
+  for (const clip of ["padding-box", "content-box"]) {
+    const r2 = runMarks(markTree([el("div", { style: { ...border, backgroundClip: clip } })]));
+    assert.deepEqual([r2.marks, r2.below.length], [1, 0], clip);
+  }
+});
+
+test("measureMarks: a border is judged on the matching side with the lowest ratio", () => {
+  // On white #949494 is 3.03 and #959595 2.995; both are within the token's tolerance of #949494.
+  const style = { borderTopStyle: "dashed", borderTopWidth: "1px", borderTopColor: "rgb(148, 148, 148)", borderRightStyle: "dashed", borderRightWidth: "1px", borderRightColor: "rgb(149, 149, 149)" };
+  const r = runMarks(markTree([el("div", { style })], { bg: "rgb(255, 255, 255)", vars: { [TOKEN_VAR]: "rgb(148, 148, 148)" } }));
+  assert.deepEqual([r.marks, r.below.length, r.below[0]?.got, r.below[0]?.text], [1, 1, "#959595", "annotation top,right"]);
+});
+
+test("measureMarks: the probe that resolves the token is removed again", () => {
+  const mark = el("div", dashedOutline());
+  runMarks(markTree([mark]));
+  assert.equal(mark.children.length, 0);
 });
 
 test("measureMarks: one dashed side or four is one mark", () => {
@@ -814,7 +832,7 @@ test("measureMarks: one dashed side or four is one mark", () => {
   assert.deepEqual([four.marks, four.below.length, four.below[0].text], [1, 1, "annotation top,right,bottom,left"]);
 });
 
-test("measureMarks: a solid line, another color, a transparent copy, outline none and a 0px dash or border are not marks", () => {
+test("measureMarks: a solid line, another color, a transparent copy, outline none, a 0px dash or border and a hidden element are not marks", () => {
   const cases = [
     { style: { outlineStyle: "solid", outlineWidth: "1px", outlineColor: MARK, outlineOffset: "0px" } },
     dashedOutline("0px", "rgb(255, 0, 0)"),
@@ -822,6 +840,8 @@ test("measureMarks: a solid line, another color, a transparent copy, outline non
     { style: { outlineStyle: "none", outlineWidth: "3px", outlineColor: MARK, outlineOffset: "0px" } },
     { style: { outlineStyle: "dashed", outlineWidth: "0px", outlineColor: MARK, outlineOffset: "0px" } },
     { style: { borderTopStyle: "dashed", borderTopWidth: "0px", borderTopColor: MARK } },
+    { style: { borderTopStyle: "solid", borderTopWidth: "1px", borderTopColor: MARK } },
+    { style: { ...dashedOutline().style, display: "none" } },
   ];
   for (const c of cases) assert.equal(runMarks(markTree([el("div", c)])).marks, 0, JSON.stringify(c.style));
 });
@@ -841,11 +861,41 @@ test("measureMarks: the token resolves on each element, so a re-pointed scope co
   assert.deepEqual([r.marks, r.judged], [1, 1]);
 });
 
-test("measureMarks: a gradient of one color is a ground, an image is a picture", () => {
+test("measureMarks: a gradient of one color is a ground, a gradient of two colors or an image is a picture", () => {
   const solid = el("div", { style: { backgroundImage: "linear-gradient(rgb(147, 153, 178), rgb(147, 153, 178)), none" } }, [el("div", dashedOutline())]);
   const r = runMarks(markTree([solid]));
   assert.deepEqual([r.judged, r.picture, r.below.length, r.below[0]?.ground], [1, 0, 1, "#9399b2"]);
+  const blend = el("div", { style: { backgroundImage: "linear-gradient(rgb(0, 0, 0), rgb(255, 255, 255))" } }, [el("div", dashedOutline())]);
+  const b = runMarks(markTree([blend]));
+  assert.deepEqual([b.marks, b.judged, b.picture, b.below.length], [1, 0, 1, 0]);
   const image = el("div", { style: { backgroundImage: "url(x.png)" } }, [el("div", dashedOutline())]);
   const p = runMarks(markTree([image]));
   assert.deepEqual([p.marks, p.judged, p.picture], [1, 0, 1]);
+});
+
+test("measureGallery: marks outside the frozen cells and exemptions are counted and judged", () => {
+  const free = el("div", dashedOutline());
+  const exempt = el("div", { attrs: { "data-audit-exempt": "demo" } }, [el("div", dashedOutline())]);
+  const cell = el("div", { attrs: { "data-contract": "x", "data-state": "rest", "data-host": "base" } }, [el("div", dashedOutline())]);
+  const scope = el("div", { attrs: { "data-gallery-page": "" }, style: { backgroundColor: "rgb(147, 153, 178)" } }, [free, exempt, cell]);
+  scope.vars = { [TOKEN_VAR]: MARK };
+  const root = el("html", {}, [scope]);
+  globalThis.document = {
+    documentElement: root,
+    createElement: (tag) => el(tag),
+    querySelectorAll: (sel) => (sel === "[data-gallery-page] [data-contract]" ? [] : []),
+    querySelector: (sel) => (sel === "[data-gallery-page]" ? scope : null),
+    createTreeWalker: () => ({ nextNode: () => null }),
+  };
+  globalThis.window = { __contrast: lib };
+  globalThis.NodeFilter = { SHOW_TEXT: 4 };
+  try {
+    const m = measureGallery({ rows: [], tokens: {}, grades: {}, partMap: {}, exemptIds: ["demo"], noGradeTokens: [], theme: "mocha" });
+    assert.deepEqual([m.marks, m.marksJudged, m.marksPicture], [1, 1, 0]);
+    assert.deepEqual(m.below.map((b) => b.text), ["annotation outline"]);
+  } finally {
+    delete globalThis.window;
+    delete globalThis.document;
+    delete globalThis.NodeFilter;
+  }
 });
