@@ -1,4 +1,4 @@
-<!-- source-hash: f57db017afd4 -->
+<!-- source-hash: 4ceb9db81476 -->
 # CLI response delays and connection diagnostics
 
 Read this page when a `tasty` command replies slowly, cannot connect, or ends with an error such as `Error (-32061)`. It covers the difference between the reply wait bound and the task wait time, what to do for each error code, checking what this Tasty supports, and the connection counts, request queues and database state shown by `tasty list pressure`. If you are new to the CLI, start with [Driving terminals with the tasty CLI](../agents/cli.md).
@@ -31,6 +31,7 @@ When a command ends with an error line containing `"sent":false`, the Tasty you 
 
 ## What to do for each error
 
+- **`tasty port` exits with code 3** — The adjacent `tasty.instance` records the same port, and its recorded process has exited or its PID now belongs to a different process. The command reports the stale port file on standard error (stderr) without printing a port number. If `tasty.instance` is missing, the command prints the recorded port. A printed port alone does not tell you whether Tasty is accepting connections.
 - **The command exits with a UTF-8 error** — `tasty` reports the position of the first argument that contains invalid UTF-8 on one line of standard error (stderr) and exits with code 2. The message leaves out the argument itself. Even with `--help`, the command exits before showing help, starting Tasty, or sending a request to a running instance.
   The message uses Tasty’s language. If the third argument is the first to contain invalid UTF-8, it reads `Error: argument 3 contains invalid UTF-8. The first argument after the program name is numbered 1. Nothing was executed or sent.` If the program name itself contains invalid UTF-8, the message has no position number and reads `Error: the program name (argv[0]) contains invalid UTF-8. Nothing was executed or sent.` The command exits with code 2 in this case as well.
   If the message shows a position number, count the arguments actually passed after the program name to find the value. The first corresponds to the shell’s `$1`, and subcommands and options count too. If the shell code or script that builds the arguments slices the input by byte, first decode the input using its original encoding. Then slice the decoded string, for example with a Python string. If you pass the result as bytes, encode it as UTF-8.

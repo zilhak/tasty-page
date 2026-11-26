@@ -1,4 +1,4 @@
-<!-- source-hash: 5299c9441dd8 -->
+<!-- source-hash: 3a90fccb1342 -->
 <a id="远程附加"></a>
 
 # 继续远程工作（attach）
@@ -87,6 +87,8 @@ tasty remote workspaces --profile host-attach  # 远程工作区列表（id、�
 ```
 
 `remote check` 找到端口并实际收到响应后，才会判定为 alive。如果程序已退出，仅留下端口文件，则显示为 `dead`。失败原因分为四种：SSH 连接失败／远程实例未运行／响应解析失败／超时。
+
+如果找到了远程端口，但没有进程在侦听，`tasty remote check` 和远程工作区列表会报告这一情况。请确认远程计算机上的 Tasty 正在提示中的端口上运行。通过 SSH 自动探测时，如果远程 `tasty port` 返回退出码 3，Tasty 会报告远程实例已退出，并跳过从文件探测端口。
 
 连接尝试不会无限等待。上限为 SSH 连接 10 秒、每个阶段 20 秒、总计 45 秒。线路较慢时，可通过 ssh 配置档的 `--option ConnectTimeout=30` 等选项自行延长。
 

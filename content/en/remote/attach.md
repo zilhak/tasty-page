@@ -1,4 +1,4 @@
-<!-- source-hash: 5299c9441dd8 -->
+<!-- source-hash: 3a90fccb1342 -->
 <a id="remote-attach"></a>
 
 # Working remotely (attach)
@@ -87,6 +87,8 @@ tasty remote workspaces --profile host-attach  # list of remote Workspaces (id Â
 ```
 
 `remote check` only reports alive once it has found the port and actually received a response. If the program has stopped but its port file remains, the result is `dead`. The failure cause is reported as one of four kinds: SSH connection failure / remote instance not running / response could not be parsed / timeout.
+
+If the remote port is found but nothing is listening on it, `tasty remote check` and the remote workspace list report that condition. Check that Tasty is running on the remote computer on the reported port. With automatic discovery over SSH, if the remote `tasty port` exits with code 3, Tasty reports that the remote instance has stopped and skips file-based port discovery.
 
 Connection attempts do not wait forever â€” 10 seconds for the SSH connection, 20 seconds per step, 45 seconds total. On a slow link, raise it yourself with something like `--option ConnectTimeout=30` on the ssh profile.
 
