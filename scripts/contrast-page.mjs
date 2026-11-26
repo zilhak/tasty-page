@@ -60,17 +60,13 @@ export function pageLib() {
   // details body sits in a slot whose content-visibility is hidden, and its color can lag behind a theme switch.
   // checkVisibility() with no options sees that; opacity and visibility are judged below, since opacity is composited.
   const rendered = (el) => typeof el.checkVisibility !== "function" || el.checkVisibility();
-  // A closed details shows its first summary only. inClosedSlot: el is such a details, so the text right inside it is in
-  // the hidden slot. inClosedBody: el sits in the body of a closed details, outside that summary.
-  const isClosedDetails = (e) => e.tagName.toLowerCase() === "details" && e.getAttribute("open") === null;
-  const inClosedSlot = (el) => isClosedDetails(el);
-  const inClosedBody = (el) => {
-    for (let c = el, p = el.parentElement; p; c = p, p = p.parentElement) {
-      if (!isClosedDetails(p)) continue;
-      const summary = [...p.children].find((k) => k.tagName.toLowerCase() === "summary");
-      if (c !== summary) return true;
-    }
-    return false;
+  // Text right inside a details whose content slot is hidden (closed, by default) is not drawn, though the details
+  // itself is rendered. The slot's computed content-visibility says so, which also follows author CSS that shows the
+  // body of a closed details; where the browser does not report it, a details without the open attribute counts.
+  const inClosedSlot = (el) => {
+    if (el.tagName.toLowerCase() !== "details") return false;
+    const v = getComputedStyle(el, "::details-content").contentVisibility;
+    return v ? v === "hidden" : el.getAttribute("open") === null;
   };
   const visible = (el) => {
     if (!rendered(el)) return false;
@@ -523,12 +519,7 @@ export function pageLib() {
     return r ? { ...r, frame } : { frame, at: where(el), got: "none", ground: "none", ratio: 0, inkOk: false, below: false };
   };
 
-  // Whether a pointer row's target counts as found: shown, or with a shown parent, since the target can have no box until
-  // the pointer reaches its host (display: none until :hover). A target in a closed details body is not found through its
-  // parent: the body is not drawn whatever the pointer does.
-  const pointerCandidate = (e) => visible(e) || (!inClosedBody(e) && e.parentElement !== null && visible(e.parentElement));
-
-  return { selectParts, validateParts, expectedTheme, parse, over, ratio, hex, near, overlays, opacityOf, visible, svgInks, shapeInks, rowInks, rowShown, judgeInks, judgeSvgPart, inkOn, measureRows, scan, alternatives, pseudoOf, bare, pick, aim, measureAimed, measureFocus, measureMarks, inClosedSlot, pointerCandidate };
+  return { selectParts, validateParts, expectedTheme, parse, over, ratio, hex, near, overlays, opacityOf, visible, svgInks, shapeInks, rowInks, rowShown, judgeInks, judgeSvgPart, inkOn, measureRows, scan, alternatives, pseudoOf, bare, pick, aim, measureAimed, measureFocus, measureMarks, inClosedSlot };
 }
 
 export const installPageLib = (tab) => tab.addScriptTag({ content: `window.__contrast = (${pageLib})();` });

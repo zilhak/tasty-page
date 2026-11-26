@@ -248,7 +248,7 @@ async function recordAlts(tab, t, rules, page, rankOf) {
   await installPageLib(tab);
   const found = await tab.evaluate((list) => {
     const lib = window.__contrast;
-    return list.flatMap((row) => lib.alternatives(row.selector).filter((alt) => lib.pick(alt).some((e) => lib.pointerCandidate(e))).map((alt) => `${row.id}\n${alt}`));
+    return list.flatMap((row) => lib.alternatives(row.selector).filter((alt) => lib.pick(alt).some((e) => lib.visible(e) || e.parentElement && lib.visible(e.parentElement))).map((alt) => `${row.id}\n${alt}`));
   }, pointerRows(rules));
   recordFound(t.altsFound, found, page, rankOf);
 }

@@ -1014,8 +1014,9 @@ test("measureMarks: the own pseudo-element is not under a border, the color take
 
 test("measureGallery: text right inside a closed details is not measured, its summary is, and an open details is", () => {
   // Light grey on white is below the text grade, so each measured text is a below record.
-  const run = (attrs) => {
-    const details = el("details", { style: { color: "rgb(200, 200, 200)" }, attrs, rendered: true, text: "body" }, [el("summary", { style: { color: "rgb(200, 200, 200)" }, rendered: true, text: "title" })]);
+  const run = (attrs, slot) => {
+    const pseudo = slot ? { "::details-content": { contentVisibility: slot } } : {};
+    const details = el("details", { style: { color: "rgb(200, 200, 200)" }, attrs, pseudo, rendered: true, text: "body" }, [el("summary", { style: { color: "rgb(200, 200, 200)" }, rendered: true, text: "title" })]);
     const scope = el("div", { attrs: { "data-gallery-page": "" }, style: { backgroundColor: "rgb(255, 255, 255)" } }, [details]);
     globalThis.document = {
       documentElement: el("html", {}, [scope]),
@@ -1036,34 +1037,10 @@ test("measureGallery: text right inside a closed details is not measured, its su
   };
   assert.deepEqual(run({}), ["title"]);
   assert.deepEqual(run({ open: "" }), ["body", "title"]);
-});
-
-test("pointerCandidate: a target with a shown parent counts unless it sits in a closed details body", () => {
-  const host = (child) => el("div", { rendered: true }, [child]);
-  // Shown itself.
-  const shown = el("button", { rendered: true });
-  host(shown);
-  assert.equal(lib.pointerCandidate(shown), true);
-  // No box until the pointer reaches its host (display: none, so not rendered): found through the parent.
-  const reveal = el("span", { rendered: false, style: { display: "none" } });
-  host(reveal);
-  assert.equal(lib.pointerCandidate(reveal), true);
-  // In a closed details body, even right inside it, it is not found; in the first summary it is; open, it is.
-  const inBody = el("button", { rendered: false });
-  const inSummary = el("button", { rendered: false, style: { display: "none" } });
-  const closed = el("details", { rendered: true }, [el("summary", { rendered: true }, [inSummary]), inBody]);
-  host(closed);
-  assert.deepEqual([lib.pointerCandidate(inBody), lib.pointerCandidate(inSummary)], [false, true]);
-  const deep = el("span", { rendered: false });
-  const nested = el("details", { rendered: true }, [el("summary", { rendered: true }), el("div", { rendered: true }, [deep])]);
-  host(nested);
-  assert.equal(lib.pointerCandidate(deep), false);
-  nested.attrs.open = "";
-  assert.equal(lib.pointerCandidate(deep), true);
-  // A second summary is body, not the shown summary.
-  const second = el("button", { rendered: false });
-  host(el("details", { rendered: true }, [el("summary", { rendered: true }), el("summary", { rendered: true }, [second])]));
-  assert.equal(lib.pointerCandidate(second), false);
+  // The slot's computed content-visibility decides where the browser reports it: author CSS can show the body of a
+  // closed details, and a hidden slot hides it whatever the attribute says.
+  assert.deepEqual(run({}, "visible"), ["body", "title"]);
+  assert.deepEqual(run({ open: "" }, "hidden"), ["title"]);
 });
 
 test("measureGallery: marks outside the frozen cells and exemptions are counted and judged", () => {
