@@ -1,4 +1,4 @@
-<!-- source-hash: 3591d312fae2 -->
+<!-- source-hash: c490b5ab842a -->
 # Working with the terminal
 
 You can copy the output you need, search terminal history, and open file paths as you work. You can also select text without a mouse and receive notifications when work finishes.
@@ -145,7 +145,7 @@ Hold `Ctrl` and hover a URL or path and a blue underline appears; click to open 
 Right-click an underlined link to open a link menu.
 
 - **Select** — selects the whole link text.
-- **Copy** — copies the link text as shown on screen. If you assign a key to **Copy link** in the keybinding settings, the "Copied" notice shows that key on its right, and pressing it over a link copies without the menu. It has no default key.
+- **Copy** — copies the link text as shown on screen. If you assign a key to **Copy link:** in the keybinding settings, the "Copied" notice shows that key on its right, and pressing it over a link copies without the menu. It has no default key.
 - **Open With…** — instead of opening right away, shows a list to choose which program opens it. `http(s)://` addresses can be chosen too; picking the HTML viewer, for example, opens the page in a Tasty tab instead of the browser. This list appears within the terminal surface where you opened the link. It opens separately on other surfaces. For a path in a remotely attached terminal, it lists only handlers that can open the file remotely. If none are available, a **Download and run** dialog opens.
 
 Even while a program that uses the mouse (vim · tmux and so on) is running, right-clicking a link shows this menu instead of going to that program. Right-clicking anywhere else works as before.
