@@ -56,7 +56,8 @@ export const SPECIMEN_ROUTES = [{ key: "tokens", path: "design/tokens/" }];
 const SKIPPED = new Set(["ENOENT", "ENOTDIR", "ELOOP"]);
 function statOrNull(path) {
   try {
-    return statSync(path);
+    // bigint, so two large inode numbers cannot round to the same Number in the ancestor check below.
+    return statSync(path, { bigint: true });
   } catch (error) {
     if (SKIPPED.has(error.code)) return null;
     throw error;
@@ -96,7 +97,7 @@ export function sitePages(dist) {
       } else if (name === "index.html") pages.push(rel ? `${rel}/` : "");
     }
   };
-  if (existsSync(dist)) walk(dist, "", new Set([idOf(statSync(dist))]));
+  if (existsSync(dist)) walk(dist, "", new Set([idOf(statSync(dist, { bigint: true }))]));
   return pages;
 }
 
