@@ -119,7 +119,7 @@ function WarnBadge({ children, title, raised = false }) {
   return (
     <span title={title} style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-tag-gap)", height: "var(--tasty-tag-size)",
       padding: "0 var(--tasty-tag-padding-x)", borderRadius: "var(--tasty-tag-radius)", whiteSpace: "nowrap",
-      fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-tag-font-size)", fontWeight: "var(--tasty-font-weight-medium)", lineHeight: 1,
+      fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-tag-font-size)", fontWeight: "var(--tasty-font-weight-medium)", lineHeight: "var(--tasty-line-height-tight)",
       color: "var(--tasty-tag-warning-fg)",
       border: "var(--tasty-border-width) solid var(--tasty-tag-warning-border)",
       background: "var(--tasty-tint-warning-bg)" }}>
