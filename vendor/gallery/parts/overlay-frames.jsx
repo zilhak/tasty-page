@@ -3072,22 +3072,21 @@ function RemoteAttachFrame({ state = "loaded", newPhase = "rest", newSelected, e
 // --tasty-bg-panel frame, same as remote_tool / Add remote workspace.
 // inert (2026-10-21, folder mode): a file row that is listed for orientation but can't be selected —
 // ink state-disabled-fg (never opacity), no hover overlay, skipped by ↑↓, tooltip "Only folders can be selected."
-function FpRow({ kind, name, size, mod, selected, focus, multi, checked, dim, inert, tip }) {
+function FpRow({ kind, name, size, mod, selected, focus, multi, checked, inert, tip }) {
   const isFolder = kind === "folder";
   return (
     <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-fp-row-pad-y) var(--tasty-fp-inset-start)", position: "relative", cursor: "default",
       background: selected ? "var(--tasty-surface-active)" : "transparent",
       boxShadow: selected ? "inset var(--tasty-selection-edge-width) 0 0 var(--tasty-accent-primary)" : "none",
-      outline: focus ? "1px solid var(--tasty-accent-primary)" : "none", outlineOffset: -1,
-      opacity: dim ? 0.5 : 1 }}>
+      outline: focus ? "1px solid var(--tasty-accent-primary)" : "none", outlineOffset: -1 }}>
       {multi && <span style={{ display: "inline-flex", flex: "none" }}><Checkbox checked={!!checked} /></span>}
       <span style={{ flex: "none", display: "inline-flex", color: inert ? "var(--tasty-fp-folder-file-fg)" : isFolder ? "var(--tasty-accent-primary-raised)" : "var(--tasty-text-muted)" }}>
         <Icon name={isFolder ? "folder" : "file"} size="var(--tasty-icon-size-md)" />
       </span>
       <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-        fontSize: 13, fontWeight: isFolder ? 500 : 400, color: inert ? "var(--tasty-fp-folder-file-fg)" : selected ? "var(--tasty-text-on-active)" : "var(--tasty-text-secondary)" }}>{name}</span>
-      <span style={{ flex: "none", width: "var(--tasty-fp-size-col-width)", textAlign: "right", fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: inert ? "var(--tasty-fp-folder-file-fg)" : selected ? "var(--tasty-text-on-active)" : "var(--tasty-text-muted)" }}>{size}</span>
-      <span style={{ flex: "none", width: "var(--tasty-fp-modified-col-width)", textAlign: "right", fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: inert ? "var(--tasty-fp-folder-file-fg)" : selected ? "var(--tasty-text-on-active)" : "var(--tasty-text-muted)" }}>{mod}</span>
+        fontSize: "var(--tasty-font-size-body)", fontWeight: isFolder ? 500 : 400, color: inert ? "var(--tasty-fp-folder-file-fg)" : selected ? "var(--tasty-text-on-active)" : "var(--tasty-text-secondary)" }}>{name}</span>
+      <span style={{ flex: "none", width: "var(--tasty-fp-size-col-width)", textAlign: "right", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: inert ? "var(--tasty-fp-folder-file-fg)" : selected ? "var(--tasty-text-on-active)" : "var(--tasty-text-muted)" }}>{size}</span>
+      <span style={{ flex: "none", width: "var(--tasty-fp-modified-col-width)", textAlign: "right", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: inert ? "var(--tasty-fp-folder-file-fg)" : selected ? "var(--tasty-text-on-active)" : "var(--tasty-text-muted)" }}>{mod}</span>
       {tip && (
         <span role="tooltip" style={{ position: "absolute", left: "calc(1 * var(--tasty-fp-inset-start) + 1 * var(--tasty-fp-specimen-row-tooltip-left))", top: "100%", marginTop: "var(--tasty-space-xs)", zIndex: 4, whiteSpace: "nowrap",
           padding: "var(--tasty-tooltip-padding-y) var(--tasty-tooltip-padding-x)", background: "var(--tasty-tooltip-bg)", border: "var(--tasty-border-width) solid var(--tasty-tooltip-border)",
@@ -3384,7 +3383,7 @@ function FilePickerFrame({ state = "loaded", remote = false, indicator = "badge"
           </div>
         )}
         <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)" }}>
-          {multi && <span style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>3 selected</span>}
+          {multi && <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>3 selected</span>}
           <div style={{ flex: 1, minWidth: 0 }} />
           <span style={{ flex: "none", display: "flex" }}><Button variant="ghost">{folderMode ? FC.cancel : "Cancel"}</Button></span>
           <span style={{ flex: "none", display: "flex" }}>
