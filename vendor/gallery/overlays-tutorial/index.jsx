@@ -59,6 +59,8 @@ function Scrim() { return <div style={{ position: "absolute", inset: 0, backgrou
 // ── Callout ──
 // Every callout here is the ko copy, so its buttons read the app's ko values: tutorial.btn_skip, btn_back, btn_next.
 // As the app's callout.rs, btn_skip is a ghost Sm button, btn_back a secondary Sm and btn_next a primary Sm.
+// The ghost sits on the raised callout, so it takes ground="raised" (button-ghost-raised-fg). The app's callout.rs passes
+// no ground and gets the panel ink, button-ghost-fg, which is 4.05:1 on raised in Latte: the app should pass the raised ground.
 const CALLOUT_KO = { skip: "목록", back: "이전", next: "다음" };
 
 function Callout({ tail = "up", step, total = 5, title, body, first, style }) {
