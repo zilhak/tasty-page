@@ -66,10 +66,17 @@ before(() => {
   for (const name of LINKED) symlinkSync(join(repo, name), join(root, name));
   cpSync(dist, join(root, "dist"), { recursive: true, verbatimSymlinks: true });
   mkdirSync(join(root, "cases"));
+  // A dist that is itself a link is copied as the link, so the copy would be the real build.
+  if (!lstatSync(join(root, "dist")).isDirectory()) throw new Error("dist is a link, which the copy cannot keep apart. Build into a real folder.");
   // A link in the copy that leads outside it would let a case reach the real build or another folder.
-  const inside = realpathSync(join(root, "dist")) + sep;
+  const top = realpathSync(join(root, "dist"));
   const out = walkLinks(join(root, "dist")).filter((p) => {
-    try { return !realpathSync(p).startsWith(inside); } catch { return true; }
+    try {
+      const real = realpathSync(p);
+      return real !== top && !real.startsWith(top + sep);
+    } catch {
+      return true;
+    }
   });
   if (out.length > 0) throw new Error(`The build holds links that lead outside it or nowhere, which the copy cannot keep apart: ${out.join(", ")}`);
 });
@@ -99,57 +106,84 @@ const running = (stat) => stat !== null && stat.state !== "Z";
 const keyOf = (pid, start) => `${pid}:${start}`;
 
 // The case's own processes. Two ways find them, and each confirms the process is the one it saw by its start time:
-// - seen: while the check runs, every descendant of the check (by parent links) is recorded with its start time;
+// - seen: while the check runs, every descendant of the check by parent links. A link counts only when, read again after
+//   the scan, the child still has the same parent and start time, the parent the same start time, and the child started
+//   no earlier than the parent, so a parent pid reused during the scan cannot pass an unrelated process off as the case's;
 // - marked: a process whose environment holds the case's marker entry, read between two stat reads of the same start.
-// A process found either way is the case's, so only those are signalled.
+// A process found either way is the case's, so only those are signalled. A pid that cannot be read is skipped by the scan
+// and its error kept in errors, so the case fails but its cleanup goes on.
 function createTracker(marker) {
   const entry = `CONTRAST_CLI_TEST_CASE=${marker}`;
   const owned = new Map();
-  const remember = (pid, stat, how) => {
-    const key = keyOf(pid, stat.start);
-    if (!owned.has(key)) owned.set(key, { pid, start: stat.start, how, cmd: cmdline(pid) });
+  const errors = [];
+  const statOf = (pid) => {
+    try {
+      return procStat(pid);
+    } catch (error) {
+      if (errors.length < 20) errors.push(`${pid}: ${error.code || error.message}`);
+      return null;
+    }
   };
   const cmdline = (pid) => {
     try { return readFileSync(`/proc/${pid}/cmdline`, "utf8").split("\0").join(" "); } catch { return ""; }
   };
+  const remember = (pid, stat, how) => {
+    const key = keyOf(pid, stat.start);
+    if (!owned.has(key)) owned.set(key, { pid, start: stat.start, how, cmd: cmdline(pid) });
+  };
+  const ids = () => {
+    try {
+      return procIds();
+    } catch (error) {
+      errors.push(`/proc: ${error.message}`);
+      return [];
+    }
+  };
   return {
     owned,
-    // Records the descendants of root as they are now.
-    descendants(root) {
+    errors,
+    // Records the descendants of the root process (pid and start time) as they are now.
+    descendants(rootPid, rootStart) {
       const stats = new Map();
-      for (const pid of procIds()) {
-        const stat = procStat(pid);
+      for (const pid of ids()) {
+        const stat = statOf(pid);
         if (stat !== null) stats.set(pid, stat);
       }
-      const below = new Set([root]);
+      const below = new Map([[rootPid, rootStart]]);
       let grew = true;
       while (grew) {
         grew = false;
         for (const [pid, stat] of stats) {
-          if (!below.has(pid) && below.has(stat.ppid)) {
-            below.add(pid);
-            grew = true;
-            remember(pid, stat, "seen");
-          }
+          if (below.has(pid) || !below.has(stat.ppid)) continue;
+          const parentStart = below.get(stat.ppid);
+          if (BigInt(stat.start) < BigInt(parentStart)) continue;
+          const child = statOf(pid);
+          const parent = statOf(stat.ppid);
+          if (child === null || parent === null || child.start !== stat.start || child.ppid !== stat.ppid || parent.start !== parentStart) continue;
+          below.set(pid, stat.start);
+          grew = true;
+          remember(pid, stat, "seen");
         }
       }
     },
     // Records the marked processes as they are now.
     marked() {
-      for (const pid of procIds()) {
-        const first = procStat(pid);
-        if (!running(first)) continue;
+      for (const pid of ids()) {
         let env;
         try { env = readFileSync(`/proc/${pid}/environ`, "utf8"); } catch { continue; }
-        const second = procStat(pid);
-        if (!running(second) || second.start !== first.start) continue;
-        if (env.split("\0").includes(entry)) remember(pid, first, "marked");
+        if (!env.split("\0").includes(entry)) continue;
+        const first = statOf(pid);
+        if (!running(first)) continue;
+        try { env = readFileSync(`/proc/${pid}/environ`, "utf8"); } catch { continue; }
+        const second = statOf(pid);
+        if (running(second) && second.start === first.start && env.split("\0").includes(entry)) remember(pid, first, "marked");
       }
     },
-    // The owned processes that still run: same start time, not a zombie.
+    // The owned processes that still run: same start time, not a zombie. One that cannot be read counts as running.
     live() {
       return [...owned.values()].filter((p) => {
-        const now = procStat(p.pid);
+        let now;
+        try { now = procStat(p.pid); } catch { return true; }
         return running(now) && now.start === p.start;
       });
     },
@@ -168,17 +202,18 @@ const within = (promise, ms) => new Promise((done) => {
 async function settle(tracker, waitMs, killMs) {
   tracker.marked();
   let live = tracker.live();
-  const waitEnd = performance.now() + waitMs;
+  const waitEnd = performance.now() + Math.max(waitMs, 0);
   while (live.length > 0 && performance.now() < waitEnd) {
     await pause(100);
     tracker.marked();
     live = tracker.live();
   }
   const killed = [];
-  const killEnd = performance.now() + killMs;
+  const killEnd = performance.now() + Math.max(killMs, 0);
   while (live.length > 0) {
     for (const p of live) {
-      const now = procStat(p.pid);
+      let now;
+      try { now = procStat(p.pid); } catch { continue; }
       if (!running(now) || now.start !== p.start) continue;
       if (!killed.includes(p)) killed.push(p);
       try { process.kill(p.pid, "SIGKILL"); } catch { /* gone */ }
@@ -245,6 +280,8 @@ async function runCase(name, args, { moves = [], fifo = false } = {}) {
     if (fifo) execFileSync("mkfifo", [join(dir, "fifo")]);
     for (const p of moves) moved.push(moveAside(p));
     seen.before = listAll(dir);
+    // Setup may have used the time the cleanup needs.
+    if (left() <= CLEANUP_MS) throw new Error(`the ${BUDGET_MS / 1000}s budget ran short before the check started`);
     fds.push(openSync(join(dir, "stdout.txt"), "w"));
     fds.push(openSync(join(dir, "stderr.txt"), "w"));
     const child = spawn(process.execPath, [join(root, "scripts/check-contrast.mjs"), ...args], {
@@ -262,9 +299,14 @@ async function runCase(name, args, { moves = [], fifo = false } = {}) {
     for (const fd of fds.splice(0)) closeSync(fd);
     if (child.pid) {
       const self = procStat(child.pid);
-      if (self) tracker.owned.set(keyOf(child.pid, self.start), { pid: child.pid, start: self.start, how: "check", cmd: "" });
-      watching = setInterval(() => tracker.descendants(child.pid), 50);
-      tracker.descendants(child.pid);
+      if (self) {
+        tracker.owned.set(keyOf(child.pid, self.start), { pid: child.pid, start: self.start, how: "check", cmd: "" });
+        const look = () => {
+          try { tracker.descendants(child.pid, self.start); } catch (error) { tracker.errors.push(`scan: ${error.message}`); }
+        };
+        watching = setInterval(look, 50);
+        look();
+      }
     }
     const cliMs = Math.min(CLI_MS, left() - CLEANUP_MS);
     seen.end = await within(ended, cliMs);
@@ -275,7 +317,7 @@ async function runCase(name, args, { moves = [], fifo = false } = {}) {
     if (seen.end === null) {
       errors.push(`the check did not exit within ${Math.round(cliMs / 1000)}s`);
       try { child.kill("SIGKILL"); } catch { /* gone */ }
-      seen.end = (await within(ended, 2000)) || { code: null };
+      seen.end = (await within(ended, Math.min(2000, Math.max(left(), 0)))) || { code: null };
     }
     if (seen.end.error) errors.push(`the check did not start: ${seen.end.error.message}`);
   } catch (error) {
@@ -283,7 +325,8 @@ async function runCase(name, args, { moves = [], fifo = false } = {}) {
   } finally {
     if (watching !== null) clearInterval(watching);
     try {
-      const { killed, left: still } = await settle(tracker, 3000, 2000);
+      // Each wait ends at its own limit or at the budget, whichever comes first; one kill pass runs whatever is left.
+      const { killed, left: still } = await settle(tracker, Math.min(3000, left()), Math.min(2000, left()));
       if (killed.length > 0) errors.push(`still running after the check exited, killed: ${killed.map((p) => `${p.pid} (${p.how}) ${p.cmd}`).join(", ")}`);
       if (still.length > 0) {
         aborted = `${name}: still running after SIGKILL: ${still.map((p) => p.pid).join(", ")}`;
@@ -293,6 +336,7 @@ async function runCase(name, args, { moves = [], fifo = false } = {}) {
       aborted = `${name}: could not look for its processes: ${error.message}`;
       errors.push(aborted);
     }
+    if (tracker.errors.length > 0) errors.push(`some processes could not be read: ${tracker.errors.join(", ")}`);
     for (const fd of fds) {
       try { closeSync(fd); } catch { /* closed */ }
     }
