@@ -60,6 +60,12 @@ jobs:
 
       - run: npm run build
 
+      # Runs the contrast check itself against the build, with a stand-in
+      # browser, so it needs the build but not Chromium.
+      - name: Test the contrast checker's exits
+        timeout-minutes: 3
+        run: node --test scripts/contrast-cli.test.mjs
+
       # Install the Chromium build that matches playwright-core, so the contrast
       # check renders with the same browser version everywhere it runs.
       - run: npx playwright-core install --with-deps chromium
