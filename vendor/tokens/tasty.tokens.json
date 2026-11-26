@@ -2595,7 +2595,7 @@
     },
     "caret-specimen-field-width": {
       "$type": "dimension",
-      "$value": "{primitive.size-260}"
+      "$value": "{semantic.field-width-lg}"
     },
     "caret-specimen-height": {
       "$type": "dimension",

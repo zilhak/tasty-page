@@ -149,7 +149,7 @@
   --tasty-input-gap:               var(--tasty-space-sm);
   --tasty-input-radius:            var(--tasty-radius);
   --tasty-input-font-size:         var(--tasty-font-size-body);
-  --tasty-caret-specimen-field-width: var(--tasty-size-260); /* 2026-11-26 Components › Text caret specimen: the focused field's width */
+  --tasty-caret-specimen-field-width: var(--tasty-field-width-lg); /* 2026-11-26 Components › Text caret specimen: the focused field's width, the app gallery's Input at field_width_lg (200, was 260) */
   --tasty-caret-specimen-height: calc(1.3077 * var(--tasty-input-font-size)); /* 2026-11-26 Components › Text caret specimen: the drawn caret of the app's default Input, proportional font (first face Ubuntu-Light). egui extends the 15px text row 1.5 above and below to 18, the field clip leaves 17 = 1.3077 × the size at 13 */
   --tasty-input-bg:                var(--tasty-surface-field); /* 2026-11-05 ground-ink rules */
   --tasty-input-fg:                var(--tasty-text-primary);
