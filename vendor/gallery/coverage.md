@@ -8,13 +8,15 @@ Foundations and the token page own no contract beyond the tint box rows below. T
 
 ## Summary
 
-| Measure | Count | Missing before this change | Missing now |
-|---|---|---|---|
-| Contracts | 85 | 4 | 0 |
-| Locations | 41 | 5 | 0 |
-| Frozen cells (component, state, host) with `data-contract` | 428 | 414 | 0 |
+The 2026-11-27 column shows current counts from the rules file, and the three 2026-11-05 columns show the survey counts and how many were missing before and after the change.
 
-The 4 contracts and 5 locations had no gallery specimen and now have one. Each page's `states.jsx` names the contracts it owns, and `parts/contract-cells.jsx` draws their cells.
+| Measure | Current count (2026-11-27) | Survey count (2026-11-05) | Missing before (2026-11-05) | Missing after (2026-11-05) |
+|---|---|---|---|---|
+| Contracts | 86 | 85 | 4 | 0 |
+| Locations | 43 | 41 | 5 | 0 |
+| Frozen cells (component, state, host) with `data-contract` | 433 | 428 | 414 | 0 |
+
+On 2026-11-05, 4 contracts and 5 locations lacked a gallery specimen, and each gained one in that change. Each page's `states.jsx` names the contracts it owns, and `parts/contract-cells.jsx` draws their cells.
 
 ## Contracts
 
@@ -153,3 +155,4 @@ The 4 contracts and 5 locations had no gallery specimen and now have one. Each p
 | Scrim over raised | `scrim@raised` | `overlays-dialogs#scrimgrounds` | demo and states |
 | Scrim over active | `scrim@active` | `overlays-dialogs#scrimgrounds` | demo and states |
 | Scrim over term | `scrim@term` | `overlays-dialogs#scrimgrounds` | exists in #scrim; also added here |
+| Git diff | `crust` | `overlays-windows#gitviewer` | exists |
