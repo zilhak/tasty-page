@@ -116,6 +116,8 @@ function LRow({ name = "build-farm", status = "running", active, hover, attached
 const LnbBed = ({ children }) => <div style={{ background: "var(--tasty-bg-sidebar)", padding: "var(--tasty-space-xs) 0" }}>{children}</div>;
 
 // ── rail avatar: 36 box · initial · corner chips · attached ring · overlay ring ──
+// mirror: true draws the live remote chip, "offline" the not-live one (border-control edge, glyph-dim glyph), as the
+// saved remote row's rail chip in ui_kits/terminal/overlays/remote_row.jsx. The refusal chip only goes with "offline".
 function LAv({ ch = "B", state = "idle", notif, ring, mirror, move, refused, loading, keycap, boxes, rm }) {
   const bg = state === "active" ? "var(--tasty-overlay-active)" : state === "hover" ? "var(--tasty-overlay-hover)" : "transparent";
   const chip = { position: "absolute", pointerEvents: "none", display: "inline-flex", alignItems: "center", justifyContent: "center", boxSizing: "border-box", borderRadius: "var(--tasty-radius-pill)", background: "var(--tasty-bg-sidebar)", boxShadow: "0 0 0 var(--tasty-size-2) var(--tasty-bg-sidebar)" };
@@ -126,7 +128,7 @@ function LAv({ ch = "B", state = "idle", notif, ring, mirror, move, refused, loa
       <LoadingOverlay kind="rail" visible={!!loading} reducedMotion={rm} style={boxes ? BOX : undefined} />
       {ring && <span style={{ position: "absolute", inset: 1, borderRadius: "var(--tasty-radius)", outline: "var(--tasty-status-dot-attached-ring-width) solid var(--tasty-accent-attached)", outlineOffset: "var(--tasty-status-dot-attached-ring-offset)", pointerEvents: "none" }} />}
       {notif && <span style={{ position: "absolute", top: -1, right: -1, pointerEvents: "none" }}><Badge dot variant="primary" style={{ boxShadow: "0 0 0 var(--tasty-size-2) var(--tasty-bg-sidebar)" }} /></span>}
-      {mirror && <span style={{ ...chip, bottom: -1, right: -1, width: "var(--tasty-workspace-mirror-chip-size)", height: "var(--tasty-workspace-mirror-chip-size)", border: "var(--tasty-border-width) solid var(--tasty-workspace-mirror-chip-border)", background: "var(--tasty-workspace-mirror-chip-bg)", color: "var(--tasty-workspace-mirror-fg)" }}><Icon name="remote" size="var(--tasty-size-8)" /></span>}
+      {mirror && <span style={{ ...chip, bottom: -1, right: -1, width: "var(--tasty-workspace-mirror-chip-size)", height: "var(--tasty-workspace-mirror-chip-size)", border: "var(--tasty-border-width) solid " + (mirror === "offline" ? "var(--tasty-border-control)" : "var(--tasty-workspace-mirror-chip-border)"), background: "var(--tasty-workspace-mirror-chip-bg)", color: mirror === "offline" ? "var(--tasty-glyph-dim)" : "var(--tasty-workspace-mirror-fg)" }}><Icon name="remote" size="var(--tasty-size-8)" /></span>}
       {move && <span style={{ ...chip, bottom: -1, left: -1, width: "var(--tasty-move-source-chip-size)", height: "var(--tasty-move-source-chip-size)", color: "var(--tasty-move-source-glyph)" }}><Icon name="move" size="var(--tasty-move-source-chip-glyph-size)" /></span>}
       {refused && <span style={{ ...chip, top: -1, left: -1, width: "var(--tasty-attach-refusal-chip-size)", height: "var(--tasty-attach-refusal-chip-size)", color: "var(--tasty-attach-refusal-glyph)" }}><Icon name="alertTriangle" size="var(--tasty-attach-refusal-chip-glyph-size)" /></span>}
       {keycap && <span style={{ position: "absolute", top: "50%", left: "50%", width: "var(--tasty-switch-overlay-size)", height: "var(--tasty-switch-overlay-size)", transform: "translate(-50%,-50%)" }}><SwitchCap n={keycap} active={state === "active"} /></span>}
@@ -254,8 +256,8 @@ function GalleryLoadingOverlay() {
             <Themed key={label} attr={attr}>
               <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label}</span>
               <div style={{ display: "flex", gap: "var(--tasty-space-lg)", flexWrap: "wrap" }}>
-                {[["idle", {}], ["active", { state: "active" }], ["hover", { state: "hover" }], ["notif", { notif: true }], ["attached ring", { ring: true }], ["mirror", { mirror: true }], ["move", { move: true }], ["refused", { refused: true }],
-                  ["all marks", { notif: true, ring: true, mirror: true, move: true, refused: true, state: "active" }], ["keycap above", { keycap: "2" }]].map(([c, p]) => (
+                {[["idle", {}], ["active", { state: "active" }], ["hover", { state: "hover" }], ["notif", { notif: true }], ["attached ring", { ring: true }], ["mirror", { mirror: true }], ["move", { move: true }], ["remote refused", { mirror: "offline", refused: true }],
+                  ["active with all four corners", { notif: true, mirror: "offline", move: true, refused: true, state: "active" }], ["keycap above", { keycap: "2" }]].map(([c, p]) => (
                   <Pair key={c} label={c} off={<RailBed><LAv {...p} /></RailBed>} on={<RailBed><LAv {...p} loading /></RailBed>} />
                 ))}
               </div>
