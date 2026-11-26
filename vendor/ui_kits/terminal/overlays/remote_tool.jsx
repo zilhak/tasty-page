@@ -345,6 +345,7 @@ function PasskeyRow({ k, revealed, onReveal, onEdit, onDelete }) {
 
 function PasskeyForm({ draft, isNew, error, onField, onSave, onCancel, onBrowse }) {
   const [show, setShow] = React.useState(false);
+  const [fieldFocus, setFieldFocus] = React.useState(false);
   return (
     <>
       <div className="tasty-scroll" style={rtScrollPad}>
@@ -381,12 +382,15 @@ function PasskeyForm({ draft, isNew, error, onField, onSave, onCancel, onBrowse 
           ) : (
             <div>
               <div style={{ position: "relative" }}>
+                {/* Input field shape: field fill and border-control rest edge, the shared focus edge + ring. */}
                 <textarea value={draft.value} onChange={(e) => onField("value", e.target.value)}
+                  onFocus={() => setFieldFocus(true)} onBlur={() => setFieldFocus(false)}
                   placeholder="Paste secret / key contents" rows={3} spellCheck={false}
                   style={{ width: "100%", boxSizing: "border-box", resize: "none",
-                    padding: "var(--tasty-space-sm) var(--tasty-remote-reveal-pad-right) var(--tasty-space-sm) var(--tasty-space-sm)", border: "var(--tasty-border-width) solid var(--tasty-border-default)",
-                    borderRadius: "var(--tasty-radius)", background: "var(--tasty-surface-raised)",
-                    color: "var(--tasty-text-primary)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)",
+                    padding: "var(--tasty-space-sm) var(--tasty-remote-reveal-pad-right) var(--tasty-space-sm) var(--tasty-space-sm)", border: `var(--tasty-border-width) solid var(--tasty-${fieldFocus ? "input-border-focus" : "input-border"})`,
+                    borderRadius: "var(--tasty-radius)", background: "var(--tasty-input-bg)",
+                    boxShadow: fieldFocus ? "0 0 0 var(--tasty-border-width) var(--tasty-input-border-focus)" : "none",
+                    color: "var(--tasty-input-fg)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)",
                     lineHeight: "var(--tasty-line-height-ui)", outline: "none",
                     WebkitTextSecurity: show ? "none" : "disc", textSecurity: show ? "none" : "disc" }} />
                 <span style={{ position: "absolute", top: "var(--tasty-remote-reveal-inset)", right: "var(--tasty-remote-reveal-inset)" }}>
