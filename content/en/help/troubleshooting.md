@@ -1,4 +1,4 @@
-<!-- source-hash: ec3d74b1cd95 -->
+<!-- source-hash: 0a0e361d33a1 -->
 # Troubleshooting
 
 Causes and remedies for Tasty installation, input, display, restoration, and notification issues are organized by symptom. For CLI connection failures or slow responses, also see connection diagnostics. If the problem remains, report it with your environment details and logs.
@@ -150,7 +150,7 @@ Wayland, macOS or Windows.
 
 - **`No running tasty instance found (port file not found at …)`** — there is no port file at the path checked by the CLI. If the path in the message is not `~/.tasty/tasty.port`, the command is looking at a different home directory (`TASTY_HOME`). The message follows your configured language (`general.language`, English by default), so it is worded differently if you set another one. A wrong argument (broken JSON, a `--cwd` folder that does not exist, and so on) is reported before this message, so if you see this message the argument checks performed before connecting passed.
 - **The port file exists but it cannot connect** — it may be left over from an earlier run, or the CLI may be looking at another instance’s path. Check the path in the error and `TASTY_HOME`, then confirm that the Tasty instance using that file has stopped. Only delete the file if it belongs to that stopped instance. Do not delete it solely because a process-name search found nothing. Tasty may leave this file on exit if it was replaced after startup or another process is saving it.
-  Use `tasty port` to check the port file. Exit code 3 means the Tasty instance that wrote it has exited.
+  Use `tasty port` to check the port file. Exit code 3 means the process start time for the matching port differs from the record or cannot be checked. The diagnostic on standard error includes the port and PID.
 - **Startup reports a port-file save error** — check that your account can read and write the file and its parent folder. Tasty keeps an original it cannot read. Replacing the complete file also requires write access to the parent folder.
 - **It connects, but replies are slow or end with a line such as `Error (-32061)` or `Error (-32065)`** — If there is no reply, do not stop `tasty` with a shell `timeout` and repeat the same request. Closing the connection does not cancel a request already sent. Requests that build up while Tasty is busy may run together later; if the commands send input, that input is repeated.
 
