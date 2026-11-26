@@ -1,5 +1,5 @@
 import React from "react";
-import { IconButton, AutoComplete, Button, Input, Spinner } from "../../components/index.js";
+import { Icon, IconButton, AutoComplete, Button, Input, Spinner } from "../../components/index.js";
 import { GIcon } from "./specimen.jsx";
 
 const ic = {
@@ -92,23 +92,32 @@ function SegToggle({ value = "detail", hover = null }) {
   );
 }
 
+// The sidebar rows follow the app's explorer sidebar. Caption (sidebar_caption): space-xs above and below, the label
+// space-sm in, micro caps in text-muted. Tree and favorite rows are the app's tree_row, drawn with the TreeRow
+// tokens: tree-row-height tall, tree-row-gap before the chevron slot and between its parts, depth x tree-row-indent,
+// space-sm on the right, an icon-size-sm chevron slot (kept empty on a leaf and on a favorite) and an icon-size-sm
+// glyph. The rows stack with no gap and no side inset, as the app's sidebar sets item spacing y to 0.
+const SIDE_GLYPH = "var(--tasty-icon-size-sm)";
+const sideRow = (depth) => ({ display: "flex", alignItems: "center", gap: "var(--tasty-tree-row-gap)", height: "var(--tasty-tree-row-height)", flex: "none",
+  padding: `0 var(--tasty-space-sm) 0 calc(1 * var(--tasty-tree-row-gap) + ${depth} * var(--tasty-tree-row-indent))`,
+  borderRadius: "var(--tasty-radius-sm)", fontSize: "var(--tasty-tree-row-font-size)", cursor: "default" });
+const sideSlot = { width: SIDE_GLYPH, height: SIDE_GLYPH, flex: "none", display: "inline-flex", alignItems: "center", justifyContent: "center" };
+
 function SideHead({ children, trailing }) {
   return (
-    <div style={{ display: "flex", alignItems: "center", padding: "10px 10px 4px" }}>
-      <span style={{ flex: 1, fontFamily: "var(--tasty-font-label)", fontSize: 10, textTransform: "uppercase", letterSpacing: ".07em", color: "var(--tasty-text-muted)" }}>{children}</span>
+    <div style={{ display: "flex", alignItems: "center", padding: "var(--tasty-space-xs) var(--tasty-space-sm)" }}>
+      <span style={{ flex: 1, fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-micro)", textTransform: "uppercase", letterSpacing: "var(--tasty-letter-spacing-caps-wide)", color: "var(--tasty-text-muted)" }}>{children}</span>
       {trailing}
     </div>
   );
 }
 
 function TreeNode({ label, depth = 0, open, leaf, active }) {
+  const ink = active ? "var(--tasty-text-on-active)" : "var(--tasty-text-secondary)";
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 4, height: 22, paddingRight: 8, paddingLeft: 6 + depth * 12,
-      borderRadius: "var(--tasty-radius-sm)", fontSize: 13, cursor: "default",
-      color: active ? "var(--tasty-text-on-active)" : "var(--tasty-text-secondary)",
-      background: active ? "var(--tasty-surface-active)" : "transparent" }}>
-      <span style={{ width: 12, display: "inline-flex", color: active ? "var(--tasty-text-on-active)" : "var(--tasty-text-secondary)", flex: "none" }}>{leaf ? null : (open ? ic.chevD : ic.chevRsm)}</span>
-      <span style={{ display: "inline-flex", color: active ? "var(--tasty-text-on-active)" : "var(--tasty-text-secondary)", flex: "none" }}>{ic.folder}</span>
+    <div style={{ ...sideRow(depth), color: ink, background: active ? "var(--tasty-surface-active)" : "transparent" }}>
+      <span style={{ ...sideSlot, color: ink }}>{leaf ? null : <Icon name={open ? "chevronDown" : "chevronRight"} size="var(--tasty-icon-size-xs)" />}</span>
+      <span style={{ display: "inline-flex", color: ink, flex: "none" }}><Icon name="folder" size={SIDE_GLYPH} /></span>
       <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{label}</span>
     </div>
   );
@@ -116,9 +125,9 @@ function TreeNode({ label, depth = 0, open, leaf, active }) {
 
 function FavRow({ name, active }) {
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 6, height: 22, flex: "none", padding: "0 6px", borderRadius: "var(--tasty-radius-sm)",
-      fontSize: 13, color: active ? "var(--tasty-text-on-active)" : "var(--tasty-text-secondary)", background: active ? "var(--tasty-surface-active)" : "transparent" }}>
-      <span style={{ display: "inline-flex", color: active ? "var(--tasty-text-on-active)" : "var(--tasty-accent-warning-raised)", flex: "none" }}>{ic.starFill}</span>
+    <div style={{ ...sideRow(0), color: active ? "var(--tasty-text-on-active)" : "var(--tasty-text-secondary)", background: active ? "var(--tasty-surface-active)" : "transparent" }}>
+      <span style={sideSlot} />
+      <span style={{ display: "inline-flex", color: active ? "var(--tasty-text-on-active)" : "var(--tasty-accent-warning-raised)", flex: "none" }}><Icon name="starFill" size={SIDE_GLYPH} /></span>
       <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{name}</span>
     </div>
   );

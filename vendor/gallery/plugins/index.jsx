@@ -168,10 +168,10 @@ function ExpSidebar({ favorites = FAVS_DEFAULT, tree = "short", height }) {
   return (
     <div style={{ width: "var(--tasty-explorer-sidebar-width)", height: height || "100%", flex: "none", display: "flex", flexDirection: "column",
       background: "var(--tasty-bg-sidebar)", borderRight: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
-      {/* region A — Files: fills the remainder, scrolls on its own */}
-      <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}>
+      {/* region A — Files: fills the remainder, scrolls on its own. The app adds space-xs above its caption here only. */}
+      <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", paddingTop: "var(--tasty-space-xs)" }}>
         <SideHead>Files</SideHead>
-        <div className="tasty-scroll" style={{ flex: 1, minHeight: 0, overflowY: "auto", padding: "0 6px 6px", display: "flex", flexDirection: "column", gap: 1 }}>
+        <div className="tasty-scroll" style={{ flex: 1, minHeight: 0, overflowY: "auto", display: "flex", flexDirection: "column" }}>
           {rows.map((r, i) => <TreeNode key={i} {...r} />)}
         </div>
       </div>
@@ -182,7 +182,7 @@ function ExpSidebar({ favorites = FAVS_DEFAULT, tree = "short", height }) {
         {favorites.length === 0 ? (
           <FavoritesEmpty />
         ) : (
-          <div className="tasty-scroll" style={{ flex: 1, minHeight: 0, overflowY: "auto", padding: "0 6px 8px", display: "flex", flexDirection: "column", gap: 1 }}>
+          <div className="tasty-scroll" style={{ flex: 1, minHeight: 0, overflowY: "auto", display: "flex", flexDirection: "column" }}>
             {favorites.map(([n, a]) => <FavRow key={n} name={n} active={a} />)}
           </div>
         )}
