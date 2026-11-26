@@ -1,4 +1,4 @@
-<!-- source-hash: 654565ce05e1 -->
+<!-- source-hash: 4fd449994168 -->
 # Working with Claude and Codex
 
 Run Claude Code and Codex CLI in Tasty terminals and follow their status. Install each CLI separately. To delegate work across agents, configure both the hooks and the parent’s result delivery path.
@@ -103,7 +103,7 @@ tasty codex spawn --workspace workers --cwd ~/proj --sandbox read-only \
 | `--prompt <text>` | First instruction sent right after launch |
 | `--surface <ID>` | Parent Surface (default: yourself) |
 
-`spawn` **returns immediately**. There is no separate wait command. With the child’s hooks and [receiving setup](#4-receiving-completion-notifications) in place, the child’s reported idle state is delivered to the parent. Idle does not establish task success. A Claude child is not idle when one of its subagents finishes or when it ends a response while background work is still running. It is reported once the background work finishes and the response that follows ends. A child with only Monitor remaining is considered idle, as described below. The same holds when a [Stop gate](#8-claude-session-profiles-and-the-stop-gate) sends the checklist back and the response continues: the child is reported idle once the response passes the gate and ends. If it leaves a command running in the background that never ends, such as a dev server, it never becomes idle. While a child waits on background work, the parent is notified once if there is no output. The default threshold is 10 minutes; the rules depend on whether Tasty finds the output files and whether only Monitor tasks remain ([no-output notifications in section 4](#4-receiving-completion-notifications)).
+`spawn` **returns immediately**. There is no separate wait command. With the child’s hooks and [receiving setup](#4-receiving-completion-notifications) in place, the child’s reported idle state is delivered to the parent. Idle does not establish task success. A Claude child is not idle when one of its subagents finishes or when it ends a response while background work is still running. It is reported once the background work finishes and the response that follows ends. The same holds when a [Stop gate](#8-claude-session-profiles-and-the-stop-gate) sends the checklist back and the response continues: the child is reported idle once the response passes the gate and ends. If it leaves a command running in the background that never ends, such as a dev server, it never becomes idle. While a child waits on background work, the parent is notified once if there is no output. The default threshold is 10 minutes; the rules depend on whether Tasty finds the output files ([no-output notifications in section 4](#4-receiving-completion-notifications)).
 
 It is safer for the parent to put children in a **different Workspace** than its own. See “[Creating children in an attached remote workspace](#creating-children-in-an-attached-remote-workspace)” below for remote child execution and result delivery requirements. Children run with the tools and settings on the remote computer.
 
@@ -127,20 +127,6 @@ A Claude child started without a prompt is `idle` once its input screen appears.
 
 When there are too many children, the spawn response includes a warning. Change the threshold under **Settings** › **Plugins** in **Claude Code** › **Child count warning threshold** or **Codex** › **Spawn child warning threshold**. Both settings default to 6.
 
-### Idle checks for Claude children
-
-From a parent Claude or a shell, run `tasty claude idle-check --surface <child>` to set an idle check without sending the child a message.
-
-```sh
-tasty claude idle-check --surface 57
-```
-
-If the child shows neither activity (`active`) nor a turn ending for 2 minutes (120 seconds), the parent receives one warning line, once. Activity restarts the 2-minute count. The check is removed without a notification when the turn it is waiting for ends.
-
-If you send `tell` to a working child, the check ends when the turn that handles the message ends, rather than when the turn already in progress ends. If you answer a child waiting on a question with `tell`, the check ends when the turn handling that answer ends. `tell`, and `spawn` or `respawn` with `--prompt`, automatically set the same check.
-
-After a warning, inspect the child's state and output, and set another check if needed. Tasty does not recover the child automatically.
-
 ### Model and effort for a Claude child
 
 Set a model and effort for this child session only.
@@ -155,6 +141,8 @@ tasty claude spawn --workspace workers --cwd ~/proj --model opus --effort high \
 Omitted options follow existing Claude settings. Parent, other child and global settings stay unchanged. With `--profile-file` or `--profile`, explicit model and effort options take precedence without editing the profile. When the hooks run successfully, they are kept when restoring or rebooting the same session. A fresh respawn does not inherit them.
 
 A returned command does not mean the model has answered. If the provider rejects a model, Tasty does not retry with another model. Check Claude's screen for the actual model and effort.
+
+<a id="idle-checks-for-claude-children"></a>
 
 ## 4. Receiving completion notifications
 
@@ -176,21 +164,17 @@ When a Claude child ended its turn on an API error, the end of the completion li
 
 The default threshold for a Claude child’s no-output notification is 10 minutes (600 seconds). It can be changed to 60–86400 seconds in [Settings > Plugins > Claude Code](../plugins/index.md#settings-added-by-plugins), without restarting Tasty. There is no value that disables the notification.
 
-The existing notification for children with no output for a long time (10 minutes by default) remains in place. Only a parent with an idle check set on that child receives an idle-check line for the same silence.
-
 For a child waiting on a background shell or subagent, if all located task output files remain unchanged for the configured time, one line naming the work is written once per wait. In English, it reads `[warning] surface 12: background work <name> has written no output for <min> min`. If Tasty cannot find the work’s output, it writes one line per wait after screen output remains unchanged for the greater of 10 minutes and the configured time. In English, this reads `[warning] surface 12: waiting on background work (<kind>) for <min> min, with no output meanwhile`. Actual notifications follow the app language.
 
-Monitor produces output only when an event occurs, so silence is normal. When a child finishes its work and ends its turn with only Monitor running, it shows as `idle` and the parent receives one completion notification. It also appears as `idle` in `tasty claude children` and does not become `stale`. A Monitor event briefly makes it `active` before it returns to `idle`. Without a new `spawn` or `tell`, no further completion notifications are sent.
+Monitor produces output only when an event occurs. If Monitor is still running in the background when the child finishes its response, the child stays `active`, just as it does when waiting for other background work. There is no `claude-idle` hook event or normal completion notification, and DAG nodes waiting for `spawn` or `tell` to complete keep waiting.
 
-The waiting `spawn` and `tell` nodes in a task graph (DAG) also finish at this point, so the next node can start while Monitor is still running.
-
-A child with only Monitor remaining does not trigger a no-output notification. If background Bash work or subagents remain alongside Monitor, the child stays `active` (waiting), and only the other work is checked for no output. Bash work with no output triggers a notification. Once Bash finishes and only Monitor remains, the child becomes `idle` and sends a completion notification.
+Tasty excludes tasks it recognizes as Monitor from no-output checks. If a background Bash task or subagent is still running alongside Monitor, Tasty checks only the other work for output.
 
 The no-output notification is recorded in the completion log and wakes a new turn in a parent Claude Code with the mod or Monitor receiving setup described below. This notification path does not apply to children created from a Codex parent conversation. Codex parents receive turn results through the separate return path below.
 
 During a turn that is not waiting on background work, an error in the latest output sets a fixed 30-second threshold. Neither the 30 seconds after an error nor the minimum 5-minute interval between notifications is configurable. Each stretch of silence is reported only once. This setting is separate from the 120-second threshold for `stale` in `tasty claude children`, so `stale` can appear before the notification. A notification does not establish that work has stopped.
 
-To get the new hooks that distinguish Monitor, run `tasty claude install` again, then start a new Claude Code process. Until then, Monitor is treated as shell work, the child keeps waiting, and no-output notifications may be sent.
+If you have older hooks installed, run `tasty claude install` again and start a new Claude Code process. If a hook reports Monitor as shell work, a no-output notification may be sent.
 
 A supported Codex parent conversation receives a result reference when the child’s response ends. Use the event ID in that reference with `tasty codex result` to read the answer. See [Automatic delivery to a Codex parent](#automatic-delivery-to-a-codex-parent) below for connection requirements and supported paths.
 

@@ -1,4 +1,4 @@
-<!-- source-hash: aceb653fc48b -->
+<!-- source-hash: 8af66f66ce12 -->
 # CLI command reference
 
 Find commands beyond the introduction, including `read since-mark`, surface state, message queues, and shared memory, organized by purpose. Use `tasty help` for the full list of arguments and options.
@@ -66,11 +66,7 @@ For `tasty <command> …`, add `--permission ipc.invoke:<command>` — `tasty ma
 `ipc.invoke:markdown`, and a `-` in the command name becomes `_`. Without it the call is refused and a permission approval request goes to a person.
 A Claude started with `tasty claude spawn` already holds the permissions for `tasty claude …` and `tasty codex …`.
 
-## Idle checks for Claude children
-
-`tasty claude idle-check --surface <child>` sets an idle check from a parent Claude or a shell without sending the child a message. `--surface` is required and selects the child to watch. The optional `--caller-surface` selects the Surface that receives the warning line.
-
-For timing, automatic checks and when checks end, see [Working with Claude and Codex](claude-codex.md#idle-checks-for-claude-children).
+<a id="idle-checks-for-claude-children"></a>
 
 ## Sending notifications
 

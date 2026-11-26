@@ -1,4 +1,4 @@
-<!-- source-hash: aceb653fc48b -->
+<!-- source-hash: 8af66f66ce12 -->
 # CLI コマンドリファレンス
 
 読み取り位置を指定する `read since-mark`、サーフェスの状態、メッセージキュー、共有メモリなど、入門で扱わないコマンドを目的別に説明します。すべての引数とオプションは `tasty help` で確認できます。
@@ -68,11 +68,7 @@ tasty session revoke --token <トークン>
 `ipc.invoke:markdown` で、コマンド名に `-` がある場合は `_` に置き換えます。指定せずに呼び出すと拒否され、人に権限の承認リクエストが届きます。
 `tasty claude spawn` で起動した Claude には、`tasty claude …` · `tasty codex …` の権限がすでに与えられています。
 
-## Claude の子の idle チェック
-
-`tasty claude idle-check --surface <子>` は、親 Claude またはシェルから子にメッセージを送らずに idle チェックを設定するコマンドです。`--surface` は必須で、監視する子を指定します。任意の `--caller-surface` で警告行を受け取るサーフェスを指定できます。
-
-チェックの時間、自動チェック、解除条件は [Claude・Codex と一緒に使う](claude-codex.md#claude-の子の-idle-チェック)を参照してください。
+<a id="claude-の子の-idle-チェック"></a>
 
 ## 通知を送る
 

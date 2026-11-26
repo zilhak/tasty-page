@@ -1,4 +1,4 @@
-<!-- source-hash: 654565ce05e1 -->
+<!-- source-hash: 4fd449994168 -->
 # 配合 Claude 和 Codex 使用
 
 在 Tasty 终端中运行 Claude Code 和 Codex CLI 并查看状态。两个 CLI 需要单独安装。要将任务分配给多个智能体，请同时配置钩子和父智能体的结果接收路径。
@@ -103,7 +103,7 @@ tasty codex spawn --workspace workers --cwd ~/proj --sandbox read-only \
 | `--prompt <文本>` | 启动后立即发送的第一条指令 |
 | `--surface <ID>` | 父 Surface（默认：自身） |
 
-`spawn` **立即返回**。没有单独的等待命令。完成子智能体的钩子和[接收配置](#4-接收完成通知)后，会将子智能体报告的空闲状态传递给父智能体。空闲不表示任务成功。Claude 子智能体的子智能体结束，或响应结束但仍有后台任务时，不视为空闲。后台任务完成且接续的响应也结束后才会通知。但仅剩 Monitor 时，如下文所述，视为空闲。[Stop Gate](#8-claude-会话配置档和-stop-gate) 发送检查清单让响应继续时，也不视为空闲，通过 Gate 并结束响应后才会通知。如果留下永不结束的后台命令（如开发服务器），就不会进入空闲状态。等待后台任务期间没有输出时，会向父智能体通知一次。默认阈值为 10 分钟，具体取决于是否找到输出文件及是否仅剩 Monitor（[第 4 节的无输出通知](#4-接收完成通知)）。
+`spawn` **立即返回**。没有单独的等待命令。完成子智能体的钩子和[接收配置](#4-接收完成通知)后，会将子智能体报告的空闲状态传递给父智能体。空闲不表示任务成功。Claude 子智能体的子智能体结束，或响应结束但仍有后台任务时，不视为空闲。后台任务完成且接续的响应也结束后才会通知。[Stop Gate](#8-claude-会话配置档和-stop-gate) 发送检查清单让响应继续时，也不视为空闲，通过 Gate 并结束响应后才会通知。如果留下永不结束的后台命令（如开发服务器），就不会进入空闲状态。等待后台任务期间没有输出时，会向父智能体通知一次。默认阈值为 10 分钟，具体取决于是否找到输出文件（[第 4 节的无输出通知](#4-接收完成通知)）。
 
 父智能体将子智能体放在自身工作区以外的**其他工作区**中更安全。在已附加的远程工作区中运行子智能体的方法及结果接收条件，见下方“[在已附加的远程工作区中创建子智能体](#在已附加的远程工作区中创建子智能体)”一节。子智能体使用远程计算机的工具和设置运行。
 
@@ -127,20 +127,6 @@ tasty claude parent --surface 57                            # 此子智能体的
 
 子智能体过多时，spawn 响应会附带警告。可在**设置** <!-- en: Settings --> › **插件** <!-- en: Plugins --> 中通过 **Claude Code** › **子数量警告阈值** <!-- en: Child count warning threshold --> 或 **Codex** › **Spawn 子实例警告阈值** <!-- en: Spawn child warning threshold --> 更改阈值。两项默认值均为 6。
 
-### Claude 子智能体的 idle 检查
-
-在父 Claude 或 Shell 中执行 `tasty claude idle-check --surface <子智能体>`，可在不向子智能体发送消息的情况下设置 idle 检查。
-
-```sh
-tasty claude idle-check --surface 57
-```
-
-如果子智能体在 2 分钟（120 秒）内既没有活动（`active`）也没有结束回合，父智能体会收到一行警告，仅发送一次。检测到活动时，重新计算 2 分钟。检查所等待的回合结束后，会解除检查，不另行通知。
-
-向正在工作的子智能体发送 `tell` 时，会在处理该消息的回合结束后解除检查，而不是在原先进行中的回合结束时解除。用 `tell` 回答正在提问等待的子智能体时，也会在处理该回答的回合结束后解除检查。`tell` 以及带有 `--prompt` 的 `spawn`、`respawn` 会自动设置相同的检查。
-
-父智能体收到警告后，请查看子智能体的状态和输出，并在需要时重新设置检查。Tasty 不会自动恢复子智能体。
-
 ### 子 Claude 的模型和 effort
 
 可仅为本次子会话指定模型和 effort。
@@ -155,6 +141,8 @@ tasty claude spawn --workspace workers --cwd ~/proj --model opus --effort high \
 省略的选项遵循现有 Claude 设置。不会更改父智能体、其他子智能体或全局设置。与 `--profile-file` 或 `--profile` 一起使用时，显式指定的模型和 effort 优先，配置档文件保持不变。钩子正常运行后，恢复或 reboot 同一会话时也会保留这些值。新的 respawn 不继承这些值。
 
 命令返回不表示模型已响应。如果提供方拒绝该模型，Tasty 不会换用其他模型重试。请在 Claude 画面中查看实际模型和 effort。
+
+<a id="claude-子智能体的-idle-检查"></a>
 
 ## 4. 接收完成通知
 
@@ -175,21 +163,17 @@ tasty claude spawn --workspace workers --cwd ~/proj --model opus --effort high \
 
 Claude 子智能体的无输出通知默认以 10 分钟（600 秒）为阈值。可在[设置 > 插件 > Claude Code](../plugins/index.md#插件添加的设置) 中改为 60～86400 秒，无需重启即可生效。没有关闭通知的取值。
 
-原有针对长时间无输出的子智能体的通知（默认为 10 分钟）保持不变。但只有对该子智能体设置了 idle 检查的父智能体，会针对同一段无输出收到 idle 检查的一行通知。
-
 等待后台 Shell 或子智能体的子智能体，在找到的所有任务输出文件持续配置时长未变化时，每次等待仅写入一行带任务名称的记录。英文为 `[warning] surface 12: background work <名称> has written no output for <分钟> min`。如果找不到任务输出，则在画面输出持续未变化的时间达到 10 分钟与配置值中的较大值时，每次等待仅写入一行。此时英文为 `[warning] surface 12: waiting on background work (<种类>) for <分钟> min, with no output meanwhile`。实际通知遵循应用语言。
 
-Monitor 仅在有事件时输出，因此无输出是正常情况。子智能体完成工作、仅保持 Monitor 运行并结束轮次后，会显示为 `idle`，父智能体会收到一次完成通知。`tasty claude children` 中也显示为 `idle`，不会变为 `stale`。收到 Monitor 事件时，会短暂变为 `active`，然后回到 `idle`。没有新的 `spawn` 或 `tell` 时，不会再发送完成通知。
+Monitor 仅在有事件时输出。子智能体结束响应时，如果 Monitor 仍在后台运行，就会像等待其他后台任务一样保持 `active`。此时不会发送 `claude-idle` 钩子事件或正常完成通知，DAG 中等待 `spawn` 或 `tell` 完成的节点也会继续等待。
 
-任务图（DAG）中等待 `spawn`、`tell` 完成的节点也会在此时结束，因此 Monitor 仍在运行时，下一个节点就可能开始。
-
-仅剩 Monitor 的子智能体不会触发无输出通知。Monitor 与后台 Bash、子智能体同时保留时，仍为 `active`（等待），仅根据 Monitor 以外的任务判定是否无输出。没有输出的 Bash 会触发通知。Bash 结束、仅剩 Monitor 时，才会变为 `idle` 并发送完成通知。
+Tasty 在判定无输出通知时会排除识别为 Monitor 的任务。如果 Monitor 与后台 Bash 任务或子智能体同时运行，则只检查其他任务的输出。
 
 无输出通知会写入完成日志，并唤醒已完成下方 mod 或 Monitor 接收配置的父 Claude Code，启动新回合。此通知路径不适用于从父 Codex 对话中创建的子智能体。父 Codex 通过下方的结果返回路径接收回合结果。
 
 在非等待后台任务的回合中，如果最后的输出包含错误文本，阈值固定为 30 秒。错误后的 30 秒和重复通知的最小间隔 5 分钟不可配置。同一段无输出期间仅通知一次。此设置与 `tasty claude children` 中 `stale` 标记的 120 秒阈值相互独立，因此可能在通知前先看到 `stale`。不能仅凭通知断定任务已停止。
 
-要获取能区分 Monitor 的新钩子，请重新执行 `tasty claude install`，然后启动新的 Claude Code 进程。此前会将 Monitor 也视为 Shell 任务，子智能体会继续等待，并可能发送无输出通知。
+如果仍在使用旧版钩子，重新执行 `tasty claude install`，然后启动新的 Claude Code 进程。如果钩子将 Monitor 报告为 Shell 任务，可能会发送无输出通知。
 
 受支持的父 Codex 对话会收到结果引用，表示子智能体已结束响应。用引用中的事件 ID 执行 `tasty codex result` 读取回答。连接条件和支持的路径见下方[自动传递给父 Codex](#自动传递给父-codex) 一节。
 
