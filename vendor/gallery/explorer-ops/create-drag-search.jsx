@@ -369,15 +369,15 @@ function DragSection() {
             </div>
           </XCol>
           <XCol label="Sidebar — tree node · favorite" w={196}>
-            <div style={{ ...box, background: "var(--tasty-bg-sidebar)", paddingBottom: 6 }}>
+            <div style={{ ...box, background: "var(--tasty-bg-sidebar)", paddingBottom: "var(--tasty-space-xs)" }}>
               <XK.SideHead>Files</XK.SideHead>
-              <div style={{ padding: "0 6px", display: "flex", flexDirection: "column", gap: 1 }}>
+              <div style={{ display: "flex", flexDirection: "column" }}>
                 <XK.TreeNode label="Home" open />
                 <XK.TreeNode label="Downloads" depth={1} open active />
                 <XRing><XK.TreeNode label="Projects" depth={1} /></XRing>
               </div>
               <XK.SideHead>Favorites</XK.SideHead>
-              <div style={{ padding: "0 6px", display: "flex", flexDirection: "column", gap: 1 }}>
+              <div style={{ display: "flex", flexDirection: "column" }}>
                 <XRing><XK.FavRow name="tasty" /></XRing>
                 <XK.FavRow name="screenshots" />
               </div>

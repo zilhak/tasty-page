@@ -781,13 +781,13 @@ function Page() {
 
         <Spec id="sidebar-favorites-populated-vs-empty-state" title="Sidebar Favorites — populated vs. empty state"
           when={<>The Favorites caption stays visible at zero favorites. Populated rows show a filled star and the folder name. The empty state shares the caption’s 8px inset and shows a <span className="tok">--tasty-glyph-dim</span> star at <span className="tok">--tasty-icon-size-sm</span> (14px) and “No favorites yet” in <span className="tok">--tasty-text-muted</span> at <span className="tok">--tasty-font-size-caption</span> (11px). The add hint below uses <span className="tok">--tasty-text-placeholder</span> with “Add to Favorites” in <span className="tok">--tasty-text-muted</span> and wraps to two lines at 196px.</>}>
-          <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 18, flexWrap: "wrap" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>with favorites</div>
+          <Stage variant="solo center" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
+              <div className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>with favorites</div>
               <div style={{ height: 300, display: "flex", border: "1px solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}><ExpSidebar height={300} /></div>
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>empty — caption persists</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
+              <div className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>empty — caption persists</div>
               <div style={{ height: 300, display: "flex", border: "1px solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}><ExpSidebar height={300} favorites={[]} /></div>
             </div>
           </Stage>
