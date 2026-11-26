@@ -118,12 +118,16 @@ test("a scoped theme value other than latte maps to Mocha", () => {
 
 // A small stand-in for the DOM the row paints are read from. Selectors are comma lists of tag names, .classes and
 // [attributes]; a node's computed style is its style object over the defaults below. As in a browser a shape fills
-// black unless its style says otherwise, and a shape under a display: none svg has no box.
+// black unless its style says otherwise, and a shape under a display: none svg has no box. A node given rendered has
+// checkVisibility() returning it, and one given text holds that text node before its children; a node given neither
+// has no checkVisibility and no text, as before.
 const SVG_NS = "http://www.w3.org/2000/svg";
 const DEFAULT_STYLE = { display: "inline", visibility: "visible", opacity: "1", stroke: "none", strokeWidth: "1px", strokeOpacity: "1", fill: "rgb(0, 0, 0)", fillOpacity: "1", color: "rgb(0, 0, 0)", backgroundColor: "rgba(0, 0, 0, 0)", backgroundImage: "none", content: "none", position: "static" };
 class Node_ {
-  constructor(tag, { style = {}, cls = [], attrs = {}, box = [10, 10], ns, pseudo = {} } = {}, children = []) {
+  constructor(tag, { style = {}, cls = [], attrs = {}, box = [10, 10], ns, pseudo = {}, rendered, text } = {}, children = []) {
     this.tagName = tag.toUpperCase();
+    if (rendered !== undefined) this.checkVisibility = () => rendered;
+    this.text = text === undefined ? null : { textContent: text, parentElement: this };
     // A pseudo element's computed style, by name. One not given reads the node's own style.
     this.pseudoStyle = Object.fromEntries(Object.entries(pseudo).map(([name, st]) => [name, { ...DEFAULT_STYLE, ...st }]));
     this.namespaceURI = ns ?? (["svg", "path", "rect", "line", "circle", "g", "defs", "text", "use", "polyline", "polygon", "ellipse"].includes(tag) ? SVG_NS : "html");
@@ -162,6 +166,12 @@ class Node_ {
   get childNodes() { return []; }
 }
 const el = (tag, opts, children) => new Node_(tag, opts, children);
+// A TreeWalker over the text nodes under root, in document order.
+const textWalker = (root) => {
+  const nodes = [root, ...root.descendants()].map((e) => e.text).filter(Boolean);
+  let i = 0;
+  return { nextNode: () => nodes[i++] ?? null };
+};
 // A color that reads a custom property resolves through the nearest ancestor's vars, as a browser's computed color does.
 globalThis.getComputedStyle = (node, pseudo) => {
   const st = (pseudo && node.pseudoStyle[pseudo]) || node.style;
@@ -300,6 +310,50 @@ const page = (children) => {
   return body;
 };
 const hovered = (node) => { const own = node.matches.bind(node); node.matches = (sel) => sel === ":hover" || own(sel); return node; };
+
+// scan over a page whose text nodes the walker returns. Dark grey on white is 1.6:1, below the text grade.
+const scanPage = (children) => {
+  const body = page(children);
+  globalThis.document.createTreeWalker = (root) => textWalker(root);
+  globalThis.NodeFilter = { SHOW_TEXT: 4 };
+  try {
+    return lib.scan(body, { exemptIds: [], noGradeInks: [], grades: { text: 4.5, nonText: 3, display: 3, displayMinPx: 24, displayBoldMinPx: 18.66 } });
+  } finally {
+    delete globalThis.document;
+    delete globalThis.NodeFilter;
+  }
+};
+const LOW = { style: { color: "rgb(200, 200, 200)" } };
+
+test("scan: text the browser does not render is not measured, its rendered sibling is", () => {
+  const r = scanPage([el("div", {}, [el("p", { ...LOW, rendered: false, text: "hidden" }), el("p", { ...LOW, rendered: true, text: "shown" })])]);
+  assert.deepEqual([r.text, r.below.length, r.below[0]?.text], [1, 1, "shown"]);
+});
+
+test("scan: text right inside a closed details is not measured, its summary is, and an open details is", () => {
+  const details = (attrs) => el("details", { ...LOW, attrs, rendered: true, text: "body" }, [el("summary", { ...LOW, rendered: true, text: "title" })]);
+  const closed = scanPage([details({})]);
+  assert.deepEqual([closed.text, closed.below.map((b) => b.text)], [1, ["title"]]);
+  const open = scanPage([details({ open: "" })]);
+  assert.deepEqual([open.text, open.below.map((b) => b.text).sort()], [2, ["body", "title"]]);
+});
+
+test("rowShown, svgInks and measureMarks leave out what the browser does not render", () => {
+  assert.equal(lib.rowShown(el("span", { rendered: false })), false);
+  assert.equal(lib.rowShown(el("span", { rendered: true })), true);
+  const svg = el("svg", {}, [el("path", { ...stroke("rgb(0, 0, 0)"), rendered: false }), el("path", { ...stroke("rgb(0, 0, 0)"), rendered: true })]);
+  assert.equal(lib.svgInks(svg, () => {}).length, 1);
+  assert.equal(lib.rowShown(el("line", { ...stroke("rgb(0, 0, 0)"), rendered: false, box: [24, 0] })), false);
+  const mark = (rendered) => el("div", { rendered, style: { outlineStyle: "dashed", outlineWidth: "1px", outlineColor: "rgb(127, 132, 156)", outlineOffset: "0px" } });
+  const scope = el("div", { style: { backgroundColor: "rgb(30, 30, 46)" } }, [mark(false), mark(true)]);
+  scope.vars = { "--tasty-specimen-annotation-border": "rgb(127, 132, 156)" };
+  globalThis.document = { createElement: (tag) => el(tag) };
+  try {
+    assert.equal(lib.measureMarks(scope, () => false, () => "spec").marks, 1);
+  } finally {
+    delete globalThis.document;
+  }
+});
 
 test("measureAimed: a pointer row fails on a second svg paint off the token", () => {
   const svg = el("svg", {}, [el("path", stroke("rgb(0, 0, 0)")), el("path", stroke("rgb(64, 64, 64)"))]);

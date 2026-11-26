@@ -56,7 +56,12 @@ export function pageLib() {
     return c && c[3] > 0 ? c : null;
   }).filter(Boolean);
   const opacityOf = (el) => { let o = 1; for (let e = el; e; e = e.parentElement) o *= Number(getComputedStyle(e).opacity); return o; };
+  // Content the browser does not render is not on screen, though its box and computed style are still there: a closed
+  // details body sits in a slot whose content-visibility is hidden, and its color can lag behind a theme switch.
+  // checkVisibility() with no options sees that; opacity and visibility are judged below, since opacity is composited.
+  const rendered = (el) => typeof el.checkVisibility !== "function" || el.checkVisibility();
   const visible = (el) => {
+    if (!rendered(el)) return false;
     const s = getComputedStyle(el);
     if (s.visibility !== "visible" || s.display === "none") return false;
     // Fully transparent is not on screen. Any other opacity is measured, composited.
@@ -65,12 +70,12 @@ export function pageLib() {
     return r.width > 0 && r.height > 0;
   };
   // The paints of one shape: its stroke, then its fill (a line has no fill), each through its own stroke-opacity or
-  // fill-opacity. A shape that is hidden, fully transparent, has no box, or sits in a defs-like container paints nothing.
+  // fill-opacity. A shape that is hidden, not rendered, fully transparent, has no box, or sits in a defs-like container paints nothing.
   // paint names the one property to read ("stroke" or "fill"), so the other is neither read nor counted as a paint server.
   const SHAPES = "path, circle, rect, line, polyline, polygon, ellipse, use, text";
   const isShape = (el) => el.namespaceURI === "http://www.w3.org/2000/svg" && el.matches(SHAPES);
   const shapeShown = (shape) => {
-    if (shape.closest("defs, clipPath, mask, symbol, pattern, marker")) return false;
+    if (shape.closest("defs, clipPath, mask, symbol, pattern, marker") || !rendered(shape)) return false;
     const s = getComputedStyle(shape);
     if (s.display === "none" || s.visibility !== "visible" || opacityOf(shape) === 0) return false;
     const r = shape.getBoundingClientRect();
@@ -430,6 +435,8 @@ export function pageLib() {
       const t = n.textContent.trim();
       if (!t) continue;
       const el = n.parentElement;
+      // Text right inside a closed details is in its hidden slot, though the details itself is rendered.
+      if (el.tagName.toLowerCase() === "details" && el.getAttribute("open") === null) continue;
       if (el.closest("svg") || skip(el) || exemptOf(el) || !visible(el)) continue;
       const ink = parse(getComputedStyle(el).color);
       if (!ink || ink[3] === 0) continue;
