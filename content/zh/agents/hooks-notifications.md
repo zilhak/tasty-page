@@ -1,4 +1,4 @@
-<!-- source-hash: 0b5f7ed5be20 -->
+<!-- source-hash: b6aee5cc0fa5 -->
 # 钩子、通知和 Webhook
 
 钩子按 Tasty 事件执行操作，通知在应用内显示待查看事项。Webhook 接收外部服务的 HTTP 请求。按需选择并配置。
@@ -35,7 +35,7 @@ tasty unset hook --hook <HOOK_ID>
 | `claude-stop-failure` | Claude Code 的轮次因 API 错误（服务器过载、请求限制、认证失败等）结束时。通常与 `claude-idle` 一同到达；若仍有后台任务，则只发送此事件 |
 | `claude-error` | Claude Code 屏幕输出出现已知错误文本时 |
 | `claude-error-stalled` | Claude Code 输出默认 10 分钟（可配置）未变化时。未等待后台任务且近期输出包含错误时，阈值固定为 30 秒。Tasty 仅从无输出判定中排除识别为 Monitor 的任务。如果旧版钩子将 Monitor 报告为 Shell 任务，该任务仍在通知判定范围内（[各类等待的阈值和接收条件](claude-codex.md#4-接收完成通知)） |
-| `claude-quiet-released` | `tasty claude quiet` 暂存了无输出警告，且声明到期、指定任务结束、声明解除或由暂存切换为丢弃时 |
+| `claude-quiet-released` | `tasty claude quiet` 暂存了无输出警告，且声明到期、指定任务结束、声明解除或将同一范围改为 `-1` 时 |
 
 - 加上 `--once` 后，首次匹配事件时会删除钩子，即使命令未能执行。默认保留注册。
 - 钩子命令在后台执行，不阻塞终端输入。标准输入、标准输出和标准错误均连接到空设备。要保留输出，可将输出重定向到文件，或用 `tasty notify` 发送消息。Shell 退出后，钩子执行结束。Shell 启动的后台任务仍可继续运行。

@@ -1,4 +1,4 @@
-<!-- source-hash: 1075f86c5b2e -->
+<!-- source-hash: 488f0e314389 -->
 # Working with Claude and Codex
 
 Run Claude Code and Codex CLI in Tasty terminals and follow their status. Install each CLI separately. To delegate work across agents, configure both the hooks and the parent’s result delivery path.
@@ -174,9 +174,13 @@ The no-output notification is recorded in the completion log and wakes a new tur
 
 Outside a background wait, error text in recent output sets a fixed 30-second no-output threshold. To choose the tag, Tasty reads the terminal screen just before the notification. It uses `[error]` if it finds error text and `[warning]` otherwise. The 30-second threshold and the minimum 5-minute interval between notifications are fixed. Each stretch of silence is reported only once. This setting is separate from the 120-second threshold for `stale` in `tasty claude children`, so `stale` can appear before the notification. A notification does not establish that work has stopped.
 
-If you expect a long task to produce no output, declare a quiet period with a command such as `tasty claude quiet --surface 12 --secs 900`. Omit `--surface` to target the Surface where you run the command. Use `--task <id>` to target just one background task. The ID is Bash’s `backgroundTaskId` or Agent’s `agentId`.
+If you expect a long task to produce no output, declare a quiet period with a command such as `tasty claude quiet --surface 12 --secs 900`. The target must be a Surface the Claude plugin is tracking. You can omit `--surface` if the calling environment has a valid `TASTY_SURFACE_ID`. Use `--task <id>` to limit the declaration to one background task. Find the ID in the Claude Code background tool result. Use `backgroundTaskId` for Bash and `agentId` for an asynchronous Agent (formerly `Task`).
 
-A positive `--secs` holds no-output warnings and sends them as one line to the parent’s completion log when the time expires, the specified task ends, or you pass `--clear`. Use `--secs -1` to discard those warnings during the quiet period. With no task specified, `--clear` ends all declarations on the Surface. State and error notices still arrive. An error ends every declaration on the Surface and appends any held warnings to the error line.
+Pass either `--secs` or `--clear`. `--secs` accepts a positive integer or `-1` and rejects `0` and other negative values. A positive duration has no separate time limit and holds no-output warnings during the declaration. `--secs -1` discards the warnings and has no automatic expiry. A task-specific declaration ends when the plugin detects that task has finished. Use `--clear` to end a declaration immediately. Without `--task`, `--clear` ends every declaration on the Surface.
+
+`claude-quiet-released` fires when a declaration with held no-output warnings expires, its task ends, you clear it, or you change the same scope to `-1`. A parent Surface with the notification hook registered gets one line in its completion log for each released declaration. Clearing several declarations at once can produce several lines. A Codex parent conversation does not register this notification hook.
+
+State and error notifications still arrive during a declaration. When the Claude plugin treats an error as a notification, it ends every declaration on that Surface. When the parent’s completion log records the error, any held warnings go at the end of that line and `claude-quiet-released` does not fire. If the plugin detects error text and emits only `claude-error` while output continues, that event alone leaves the declarations in place.
 
 If you have older hooks installed, run `tasty claude install` again and start a new Claude Code process. If a hook reports Monitor as shell work, a no-output notification may be sent.
 
