@@ -1,4 +1,4 @@
-<!-- source-hash: b7e0742d904c -->
+<!-- source-hash: b8c2b93d9ba8 -->
 # Working with Claude and Codex
 
 Run Claude Code and Codex CLI in Tasty terminals and follow their status. Install each CLI separately. To delegate work across agents, configure both the hooks and the parent’s result delivery path.
@@ -162,12 +162,23 @@ For a Claude Code or ordinary terminal parent, state notifications are written o
 Sending tell to the same child several times still writes one line per state change. When another parent sends tell to the same child, its notifications go to that parent's log separately.
 Input requests,
 interruptions, errors, and process exits are state notifications too; they do not establish task success.
-When a Claude child ended its turn on an API error, the end of the completion line says so and names the error kind (for example `overloaded`). If background work is still running and the child keeps waiting, a single line saying so is written instead of a completion line.
+
+Child notification lines start with a fixed tag followed by a space, regardless of the app language.
+
+| Child | `[info]` | `[warning]` | `[error]` |
+|-------|----------|-------------|-----------|
+| Claude | Normal end of a turn (`idle`), stored remote result | Waiting for input (`needs_input`), prolonged silence during a turn without an error, no screen or task-file output while waiting on background work, a summary of held no-output notices | Turn ended on an API error, API error with background work still running, output stalled after an error, process exit (`exited`) |
+| Codex | Ordinary state change, stored remote result | Waiting for tool approval (`needs_input`) | Process exit (`exited`), completion line with a sandbox initialization failure hint |
+
+If a script looked for `surface <N>: ` at the start of the line, read past the tag and its trailing space first. To select just no-output warnings, start with `^\[warning\] `, then use the message text to exclude input and approval waits. Stalls after an error are logged as `[error]`.
+
+When a Claude child ended its turn on an API error, the end of the completion line says so and names the error kind (for example `overloaded`). If background work is still running and the child keeps waiting, a single line saying so is written instead of a completion line. For example, an English log can contain `[error] surface 12: the turn ended on an API error (overloaded), but background work (shell) is still running, so the child keeps waiting`.
+
 The default threshold for a Claude child’s no-output notification is 10 minutes (600 seconds). It can be changed to 60–86400 seconds in [Settings > Plugins > Claude Code](../plugins/index.md#settings-added-by-plugins), without restarting Tasty. There is no value that disables the notification.
 
 The existing notification for children with no output for a long time (10 minutes by default) remains in place. Only a parent with an idle check set on that child receives an idle-check line for the same silence.
 
-For a child waiting on a background shell or subagent, if all located task output files remain unchanged for the configured time, one line naming the work is written once per wait. In English, it reads `background work <name> has written no output for <min> min`. If Tasty cannot find the work’s output, it writes one line per wait after screen output remains unchanged for the greater of 10 minutes and the configured time. In English, this reads `waiting on background work (<kind>) for <min> min, with no output meanwhile`. Actual notifications follow the app language.
+For a child waiting on a background shell or subagent, if all located task output files remain unchanged for the configured time, one line naming the work is written once per wait. In English, it reads `[warning] surface 12: background work <name> has written no output for <min> min`. If Tasty cannot find the work’s output, it writes one line per wait after screen output remains unchanged for the greater of 10 minutes and the configured time. In English, this reads `[warning] surface 12: waiting on background work (<kind>) for <min> min, with no output meanwhile`. Actual notifications follow the app language.
 
 Monitor produces output only when an event occurs, so silence is normal. When a child finishes its work and ends its turn with only Monitor running, it shows as `idle` and the parent receives one completion notification. It also appears as `idle` in `tasty claude children` and does not become `stale`. A Monitor event briefly makes it `active` before it returns to `idle`. Without a new `spawn` or `tell`, no further completion notifications are sent.
 
@@ -319,7 +330,7 @@ tasty claude spawn --workspace 7 --prompt "Run the tests"    # 7 is the attached
   tasty claude remote-results                         # list stored results (without their text)
   ```
 
-  The wording of the result line is translated into Tasty's language setting. For example, in English it reads `surface 12: turn result 0123456789abcdef (turn_ended) is stored. Read it with: tasty claude remote-results --id 0123456789abcdef`, and in Korean `surface 12: 턴 결과 0123456789abcdef (turn_ended)을(를) 저장했습니다. 읽기: tasty claude remote-results --id 0123456789abcdef`. When a script looks for result lines, do not match words such as `turn result` or any hex number in the line; take claude/codex and the id (16 lowercase hex digits) together from the command at the end of the line, `tasty claude remote-results --id <ID>` or `tasty codex remote-results --id <ID>`. For example: `grep -E '(^| )tasty (claude|codex) remote-results --id ([0-9a-f]{16})$'`
+  The wording of the result line is translated into Tasty's language setting. For example, in English it reads `[info] surface 12: turn result 0123456789abcdef (turn_ended) is stored. Read it with: tasty claude remote-results --id 0123456789abcdef`, and in Korean `[info] surface 12: 턴 결과 0123456789abcdef (turn_ended)을(를) 저장했습니다. 읽기: tasty claude remote-results --id 0123456789abcdef`. When a script looks for result lines, do not match words such as `turn result` or any hex number in the line; take claude/codex and the id (16 lowercase hex digits) together from the command at the end of the line, `tasty claude remote-results --id <ID>` or `tasty codex remote-results --id <ID>`. For example: `grep -E '(^| )tasty (claude|codex) remote-results --id ([0-9a-f]{16})$'`
 
   Results stay for 7 days, even after the child is closed. If the parent's session changed or the parent was closed after the instruction, the result is stored without a notice; find it in the list. During a connection failure the same result line can arrive twice; it carries the same id, so reading it again is harmless.
 - Only the parent that created a remote child can `tell` it. A `tell` from another parent (including a new Claude conversation started in the same pane) is refused so that replies cannot go to the wrong parent. Spawn a new child for that parent instead. A remote child whose creating parent is unknown, such as one spawned before this rule existed, refuses every `tell`; spawn a new one.

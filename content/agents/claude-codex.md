@@ -160,12 +160,23 @@ tasty claude spawn --workspace workers --cwd ~/proj --model opus --effort high \
 Claude Code 부모나 일반 터미널 부모의 상태 알림은 자식이 Claude인지 Codex인지에 관계없이 부모의 완료 로그에 한 줄씩 쌓입니다. Codex 부모 대화는 아래의 별도 결과 반환 경로를 사용합니다.
 같은 자식에 tell을 여러 번 보내도 상태가 한 번 바뀌면 한 줄만 남습니다. 다른 부모가 같은 자식에 보낸 tell의 알림은 그 부모의 로그에 따로 남습니다.
 입력 요청·중단·오류·프로세스 종료도 상태 알림이므로, 알림을 작업 성공으로 단정하지 마세요.
-Claude 자식이 API 에러로 턴을 끝냈으면 완료 알림 줄 끝에 그 사실과 에러 종류(예: `overloaded`)가 붙습니다. 백그라운드 작업이 남아 자식이 계속 기다리는 경우에는 완료 줄 대신 그 사실을 적은 줄이 한 번 남습니다.
+
+자식 알림 줄은 앱 언어와 관계없이 같은 표지와 공백으로 시작합니다.
+
+| 자식 | `[info]` | `[warning]` | `[error]` |
+|------|----------|-------------|-----------|
+| Claude | 정상 턴 종료(`idle`), 원격 결과 저장 | 입력 대기(`needs_input`), 오류 없는 턴의 장시간 무출력, 백그라운드 작업 대기 중 화면 또는 작업 파일에 출력 없음, 보류한 무출력 알림을 모아 보낸 줄 | API 오류로 끝난 턴, 백그라운드 작업이 남아 있는 API 오류, 오류 뒤 출력 정지, 프로세스 종료(`exited`) |
+| Codex | 일반 상태 변경, 원격 결과 저장 | 도구 승인 대기(`needs_input`) | 프로세스 종료(`exited`), 샌드박스 초기화 실패 안내가 붙은 완료 줄 |
+
+줄 처음에서 `surface <N>: `를 찾던 스크립트는 표지와 뒤따르는 공백을 건너뛴 다음 읽으세요. 무출력 알림만 고르려면 먼저 `^\[warning\] `로 줄을 좁힌 뒤, 본문에서 입력·승인 대기 줄을 제외하세요. 오류 뒤 출력 정지는 `[error]`로 기록됩니다.
+
+Claude 자식이 API 에러로 턴을 끝냈으면 완료 알림 줄 끝에 그 사실과 에러 종류(예: `overloaded`)가 붙습니다. 백그라운드 작업이 남아 자식이 계속 기다리는 경우에는 완료 줄 대신 그 사실을 적은 줄이 한 번 남습니다. 예를 들어 영어 로그에는 `[error] surface 12: the turn ended on an API error (overloaded), but background work (shell) is still running, so the child keeps waiting`처럼 남습니다.
+
 Claude 자식의 출력 없음 알림은 기본 10분(600초)을 기준으로 합니다. [설정 > 플러그인 > Claude Code](../plugins/index.md#플러그인이-추가하는-설정)에서 60~86400초로 바꿀 수 있으며, 재시작 없이 반영됩니다. 알림을 끄는 값은 없습니다.
 
 기존의 오래 출력이 없는 자식에 대한 알림(기본 10분)은 그대로입니다. 다만 그 자식에 idle 체크를 걸어 둔 부모만 같은 조용함을 idle 체크 한 줄로 받습니다.
 
-백그라운드 셸이나 서브에이전트를 기다리는 자식은 찾은 작업 출력 파일이 모두 설정 시간 동안 바뀌지 않으면 작업 이름을 적은 줄을 대기 한 번에 한 번 남깁니다. 영어 줄은 `background work <이름> has written no output for <분> min`입니다. 작업 출력을 찾지 못하면 화면 출력이 10분과 설정값 중 큰 값 동안 바뀌지 않을 때 대기 한 번에 한 번 남깁니다. 이때 영어 줄은 `waiting on background work (<종류>) for <분> min, with no output meanwhile`입니다. 실제 알림은 앱 언어를 따릅니다.
+백그라운드 셸이나 서브에이전트를 기다리는 자식은 찾은 작업 출력 파일이 모두 설정 시간 동안 바뀌지 않으면 작업 이름을 적은 줄을 대기 한 번에 한 번 남깁니다. 영어 줄은 `[warning] surface 12: background work <이름> has written no output for <분> min`입니다. 작업 출력을 찾지 못하면 화면 출력이 10분과 설정값 중 큰 값 동안 바뀌지 않을 때 대기 한 번에 한 번 남깁니다. 이때 영어 줄은 `[warning] surface 12: waiting on background work (<종류>) for <분> min, with no output meanwhile`입니다. 실제 알림은 앱 언어를 따릅니다.
 
 Monitor는 이벤트가 있을 때만 출력하므로 조용한 것이 정상입니다. 일을 마치고 Monitor만 켜 둔 채 턴을 끝낸 자식은 `idle`로 보이고 부모에게 완료 알림이 한 번 갑니다. `tasty claude children`에도 `idle`로 나오며 `stale`로 바뀌지 않습니다. Monitor 이벤트가 오면 잠깐 `active`가 되었다가 다시 `idle`이 됩니다. 새 `spawn`·`tell`이 없으면 완료 알림은 더 오지 않습니다.
 
@@ -317,7 +328,7 @@ tasty claude spawn --workspace 7 --prompt "테스트를 돌려 줘"    # 7 은 �
   tasty claude remote-results                         # 저장된 결과 목록 (본문 제외)
   ```
 
-  결과 줄의 문구는 Tasty 의 언어 설정에 따라 번역됩니다. 예를 들어 영어로는 `surface 12: turn result 0123456789abcdef (turn_ended) is stored. Read it with: tasty claude remote-results --id 0123456789abcdef`, 한국어로는 `surface 12: 턴 결과 0123456789abcdef (turn_ended)을(를) 저장했습니다. 읽기: tasty claude remote-results --id 0123456789abcdef` 처럼 옵니다. 스크립트로 결과 줄을 찾을 때는 `turn result` 같은 문구나 줄 안의 아무 16진수가 아니라 줄 끝의 `tasty claude remote-results --id <ID>`·`tasty codex remote-results --id <ID>` 명령 부분에서 claude/codex 와 ID(16자리 소문자 16진수)를 함께 꺼내세요. 예: `grep -E '(^| )tasty (claude|codex) remote-results --id ([0-9a-f]{16})$'`
+  결과 줄의 문구는 Tasty 의 언어 설정에 따라 번역됩니다. 예를 들어 영어로는 `[info] surface 12: turn result 0123456789abcdef (turn_ended) is stored. Read it with: tasty claude remote-results --id 0123456789abcdef`, 한국어로는 `[info] surface 12: 턴 결과 0123456789abcdef (turn_ended)을(를) 저장했습니다. 읽기: tasty claude remote-results --id 0123456789abcdef` 처럼 옵니다. 스크립트로 결과 줄을 찾을 때는 `turn result` 같은 문구나 줄 안의 아무 16진수가 아니라 줄 끝의 `tasty claude remote-results --id <ID>`·`tasty codex remote-results --id <ID>` 명령 부분에서 claude/codex 와 ID(16자리 소문자 16진수)를 함께 꺼내세요. 예: `grep -E '(^| )tasty (claude|codex) remote-results --id ([0-9a-f]{16})$'`
 
   결과는 자식을 닫은 뒤에도 7일 동안 남습니다. 지시한 뒤 부모 세션이 바뀌었거나 부모가 닫혔으면 결과는 저장만 하고 알리지 않으니 목록에서 찾으세요. 연결 장애 중에는 같은 결과 줄이 한 번 더 올 수 있지만 같은 ID 이므로 다시 읽어도 됩니다.
 - 원격 자식에게는 그 자식을 만든 부모만 `tell` 할 수 있습니다. 다른 부모(같은 화면에서 새로 시작한 Claude 대화 포함)가 보내면 응답이 엉뚱한 부모에게 가지 않도록 거절합니다. 그 부모용 자식을 새로 만드세요. 이 규칙이 생기기 전에 만든 원격 자식처럼 만든 부모를 알 수 없는 자식에게는 아무도 `tell` 할 수 없으니 새로 만드세요.

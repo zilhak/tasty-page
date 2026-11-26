@@ -1,4 +1,4 @@
-<!-- source-hash: b7e0742d904c -->
+<!-- source-hash: b8c2b93d9ba8 -->
 # 配合 Claude 和 Codex 使用
 
 在 Tasty 终端中运行 Claude Code 和 Codex CLI 并查看状态。两个 CLI 需要单独安装。要将任务分配给多个智能体，请同时配置钩子和父智能体的结果接收路径。
@@ -161,12 +161,23 @@ tasty claude spawn --workspace workers --cwd ~/proj --model opus --effort high \
 无论子智能体是 Claude 还是 Codex，父 Claude Code 或普通终端的状态通知都会逐行写入父智能体的完成日志。父 Codex 对话使用下方单独的结果返回路径。
 即使向同一子智能体多次发送 tell，每次状态变化也只留下一个记录行。其他父智能体向同一子智能体发送 tell 的通知，会单独写入该父智能体的日志。
 输入请求、中断、错误和进程退出也属于状态通知，不要将通知直接视为任务成功。
-如果 Claude 子智能体因 API 错误结束回合，完成通知行末会附上该情况和错误种类（如 `overloaded`）。如果仍有后台任务且子智能体继续等待，则不会写入完成行，而是仅写入一行说明该情况。
+
+无论应用使用哪种语言，子智能体的通知行都以固定标记和一个半角空格开头。
+
+| 子智能体 | `[info]` | `[warning]` | `[error]` |
+|----------|----------|-------------|-----------|
+| Claude | 轮次正常结束（`idle`）、远程结果已保存 | 等待输入（`needs_input`）、轮次中无错误但长时间无输出、等待后台任务时屏幕或任务文件无输出、汇总暂缓发送的无输出通知 | 轮次因 API 错误结束、后台任务仍在运行时发生 API 错误、错误后输出停止、进程退出（`exited`） |
+| Codex | 普通状态变化、远程结果已保存 | 等待工具审批（`needs_input`） | 进程退出（`exited`）、带有沙盒初始化失败提示的完成行 |
+
+原先在行首查找 `surface <N>: ` 的脚本需先跳过标记和后面的空格。只筛选无输出警告时，先匹配 `^\[warning\] `，再按正文排除等待输入和审批的行。错误后输出停止会记为 `[error]`。
+
+如果 Claude 子智能体因 API 错误结束回合，完成通知行末会附上该情况和错误种类（如 `overloaded`）。如果仍有后台任务且子智能体继续等待，则不会写入完成行，而是仅写入一行说明该情况。例如，英文日志可能出现 `[error] surface 12: the turn ended on an API error (overloaded), but background work (shell) is still running, so the child keeps waiting`。
+
 Claude 子智能体的无输出通知默认以 10 分钟（600 秒）为阈值。可在[设置 > 插件 > Claude Code](../plugins/index.md#插件添加的设置) 中改为 60～86400 秒，无需重启即可生效。没有关闭通知的取值。
 
 原有针对长时间无输出的子智能体的通知（默认为 10 分钟）保持不变。但只有对该子智能体设置了 idle 检查的父智能体，会针对同一段无输出收到 idle 检查的一行通知。
 
-等待后台 Shell 或子智能体的子智能体，在找到的所有任务输出文件持续配置时长未变化时，每次等待仅写入一行带任务名称的记录。英文为 `background work <名称> has written no output for <分钟> min`。如果找不到任务输出，则在画面输出持续未变化的时间达到 10 分钟与配置值中的较大值时，每次等待仅写入一行。此时英文为 `waiting on background work (<种类>) for <分钟> min, with no output meanwhile`。实际通知遵循应用语言。
+等待后台 Shell 或子智能体的子智能体，在找到的所有任务输出文件持续配置时长未变化时，每次等待仅写入一行带任务名称的记录。英文为 `[warning] surface 12: background work <名称> has written no output for <分钟> min`。如果找不到任务输出，则在画面输出持续未变化的时间达到 10 分钟与配置值中的较大值时，每次等待仅写入一行。此时英文为 `[warning] surface 12: waiting on background work (<种类>) for <分钟> min, with no output meanwhile`。实际通知遵循应用语言。
 
 Monitor 仅在有事件时输出，因此无输出是正常情况。子智能体完成工作、仅保持 Monitor 运行并结束轮次后，会显示为 `idle`，父智能体会收到一次完成通知。`tasty claude children` 中也显示为 `idle`，不会变为 `stale`。收到 Monitor 事件时，会短暂变为 `active`，然后回到 `idle`。没有新的 `spawn` 或 `tell` 时，不会再发送完成通知。
 
@@ -318,7 +329,7 @@ tasty claude spawn --workspace 7 --prompt "运行测试"    # 7 是已附加的�
   tasty claude remote-results                         # 已保存的结果列表（不含正文）
   ```
 
-  结果行的文本会根据 Tasty 的语言设置翻译。例如，英文为 `surface 12: turn result 0123456789abcdef (turn_ended) is stored. Read it with: tasty claude remote-results --id 0123456789abcdef`，韩文为 `surface 12: 턴 결과 0123456789abcdef (turn_ended)을(를) 저장했습니다. 읽기: tasty claude remote-results --id 0123456789abcdef`。用脚本查找结果行时，请从行末的 `tasty claude remote-results --id <ID>`、`tasty codex remote-results --id <ID>` 命令部分同时提取 claude/codex 和 ID（16 位小写十六进制数），不要匹配 `turn result` 等文本或行内任意十六进制数。例如：`grep -E '(^| )tasty (claude|codex) remote-results --id ([0-9a-f]{16})$'`
+  结果行的文本会根据 Tasty 的语言设置翻译。例如，英文为 `[info] surface 12: turn result 0123456789abcdef (turn_ended) is stored. Read it with: tasty claude remote-results --id 0123456789abcdef`，韩文为 `[info] surface 12: 턴 결과 0123456789abcdef (turn_ended)을(를) 저장했습니다. 읽기: tasty claude remote-results --id 0123456789abcdef`。用脚本查找结果行时，请从行末的 `tasty claude remote-results --id <ID>`、`tasty codex remote-results --id <ID>` 命令部分同时提取 claude/codex 和 ID（16 位小写十六进制数），不要匹配 `turn result` 等文本或行内任意十六进制数。例如：`grep -E '(^| )tasty (claude|codex) remote-results --id ([0-9a-f]{16})$'`
 
   子智能体关闭后，结果仍保留 7 天。如果下达指令后父会话已更换或父智能体已关闭，则仅保存结果而不通知，请在列表中查找。连接故障期间，同一结果行可能再到达一次，但 ID 相同，可以再次读取。
 - 只有创建远程子智能体的父智能体才能向其发送 `tell`。其他父智能体（包括在同一画面中新启动的 Claude 对话）发送时会被拒绝，以免响应传递给错误的父智能体。请为该父智能体新建子智能体。对于无法确定创建者的子智能体（如在此规则出现前创建的远程子智能体），任何父智能体都无法发送 `tell`，请重新创建。

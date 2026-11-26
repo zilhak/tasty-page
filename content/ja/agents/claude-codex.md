@@ -1,4 +1,4 @@
-<!-- source-hash: b7e0742d904c -->
+<!-- source-hash: b8c2b93d9ba8 -->
 # Claude・Codex と一緒に使う
 
 Claude Code と Codex CLI を Tasty のターミナルで実行し、状態を確認します。両方の CLI は別途インストールする必要があります。複数のエージェントにタスクを分担させるには、フックと親の結果受信経路をあわせて設定してください。
@@ -161,12 +161,23 @@ tasty claude spawn --workspace workers --cwd ~/proj --model opus --effort high \
 親が Claude Code または通常のターミナルの場合、子が Claude か Codex かに関係なく、状態通知は親の完了ログに 1 行ずつ蓄積されます。Codex の親会話は、後述の別の結果返却経路を使用します。
 同じ子に tell を複数回送っても、状態が 1 回変わると 1 行だけ記録されます。別の親が同じ子に送った tell の通知は、その親のログに別途記録されます。
 入力要求・中断・エラー・プロセス終了も状態通知なので、通知をタスクの成功と断定しないでください。
-Claude の子が API エラーでターンを終了した場合は、完了通知行の末尾にその事実とエラーの種類（例: `overloaded`）が付きます。バックグラウンドタスクが残っていて子が待ち続けている場合は、完了行の代わりに、その事実を記した行が 1 回記録されます。
+
+子の通知行は、アプリの言語にかかわらず、共通のタグと半角空白で始まります。
+
+| 子 | `[info]` | `[warning]` | `[error]` |
+|----|----------|-------------|-----------|
+| Claude | 正常なターン終了（`idle`）、リモート結果の保存 | 入力待ち（`needs_input`）、エラーのないターンで長時間出力がない場合、バックグラウンド作業の待機中に画面またはタスクファイルに出力がない場合、保留した出力なし通知のまとめ | API エラーで終わったターン、バックグラウンド作業が残っているときの API エラー、エラー後の出力停止、プロセス終了（`exited`） |
+| Codex | 通常の状態変更、リモート結果の保存 | ツールの承認待ち（`needs_input`） | プロセス終了（`exited`）、サンドボックス初期化の失敗を示す案内が付いた完了行 |
+
+行頭の `surface <N>: ` を探していたスクリプトでは、タグとその直後の空白を飛ばしてから読み取ってください。出力なしの警告だけを選ぶには、まず `^\[warning\] ` で絞り込み、本文で入力待ちと承認待ちの行を除外してください。エラー後の出力停止は `[error]` で記録されます。
+
+Claude の子が API エラーでターンを終了した場合は、完了通知行の末尾にその事実とエラーの種類（例: `overloaded`）が付きます。バックグラウンドタスクが残っていて子が待ち続けている場合は、完了行の代わりに、その事実を記した行が 1 回記録されます。 たとえば、英語のログには `[error] surface 12: the turn ended on an API error (overloaded), but background work (shell) is still running, so the child keeps waiting` と記録されます。
+
 Claude の子の出力なし通知は、デフォルトで 10 分（600 秒）を基準とします。[設定 > プラグイン > Claude Code](../plugins/index.md#プラグインが追加する設定)で 60～86400 秒に変更でき、再起動せずに反映されます。通知を無効にする値はありません。
 
 長時間出力がない子への既存の通知（デフォルトは 10 分）はそのままです。ただし、その子に idle チェックを設定した親だけは、同じ無出力に対して idle チェックの行を受け取ります。
 
-バックグラウンドシェルやサブエージェントを待っている子は、見つかったタスク出力ファイルがすべて設定時間の間変化しないと、タスク名を記した行を 1 回の待機につき 1 回記録します。英語の行は `background work <名前> has written no output for <分> min` です。タスクの出力が見つからない場合は、画面出力が 10 分と設定値のうち大きいほうの時間にわたって変化しないと、1 回の待機につき 1 回記録します。このときの英語の行は `waiting on background work (<種類>) for <分> min, with no output meanwhile` です。実際の通知はアプリの言語に従います。
+バックグラウンドシェルやサブエージェントを待っている子は、見つかったタスク出力ファイルがすべて設定時間の間変化しないと、タスク名を記した行を 1 回の待機につき 1 回記録します。英語の行は `[warning] surface 12: background work <名前> has written no output for <分> min` です。タスクの出力が見つからない場合は、画面出力が 10 分と設定値のうち大きいほうの時間にわたって変化しないと、1 回の待機につき 1 回記録します。このときの英語の行は `[warning] surface 12: waiting on background work (<種類>) for <分> min, with no output meanwhile` です。実際の通知はアプリの言語に従います。
 
 Monitor はイベントがあるときだけ出力するため、静かなのが正常です。子が作業を終え、Monitor だけを動かしたままターンを終了すると、`idle` と表示され、親に完了通知が 1 回届きます。`tasty claude children` でも `idle` と表示され、`stale` には変わりません。Monitor のイベントが届くと一時的に `active` になり、その後 `idle` に戻ります。新しい `spawn`・`tell` がなければ、完了通知は追加で届きません。
 
@@ -318,7 +329,7 @@ tasty claude spawn --workspace 7 --prompt "テストを実行して"    # 7 は�
   tasty claude remote-results                         # 保存された結果の一覧 (本文を除く)
   ```
 
-  結果行の文言は、Tasty の言語設定に応じて翻訳されます。たとえば、英語では `surface 12: turn result 0123456789abcdef (turn_ended) is stored. Read it with: tasty claude remote-results --id 0123456789abcdef`、韓国語では `surface 12: 턴 결과 0123456789abcdef (turn_ended)을(를) 저장했습니다. 읽기: tasty claude remote-results --id 0123456789abcdef` のように届きます。スクリプトで結果行を探すときは、`turn result` のような文言や行内の任意の 16 進数ではなく、行末の `tasty claude remote-results --id <ID>`・`tasty codex remote-results --id <ID>` というコマンド部分から、claude/codex と ID（16 桁の小文字の 16 進数）を一緒に取り出してください。例: `grep -E '(^| )tasty (claude|codex) remote-results --id ([0-9a-f]{16})$'`
+  結果行の文言は、Tasty の言語設定に応じて翻訳されます。たとえば、英語では `[info] surface 12: turn result 0123456789abcdef (turn_ended) is stored. Read it with: tasty claude remote-results --id 0123456789abcdef`、韓国語では `[info] surface 12: 턴 결과 0123456789abcdef (turn_ended)을(를) 저장했습니다. 읽기: tasty claude remote-results --id 0123456789abcdef` のように届きます。スクリプトで結果行を探すときは、`turn result` のような文言や行内の任意の 16 進数ではなく、行末の `tasty claude remote-results --id <ID>`・`tasty codex remote-results --id <ID>` というコマンド部分から、claude/codex と ID（16 桁の小文字の 16 進数）を一緒に取り出してください。例: `grep -E '(^| )tasty (claude|codex) remote-results --id ([0-9a-f]{16})$'`
 
   結果は子を閉じた後も 7 日間残ります。指示後に親セッションが変わった場合や親が閉じた場合は、結果を保存するだけで通知しないため、一覧から探してください。接続障害中は同じ結果行がもう 1 回届くことがありますが、同じ ID なので再度読んでも構いません。
 - リモートの子に `tell` できるのは、その子を作成した親だけです。別の親（同じ画面で新しく開始した Claude の会話を含む）から送信すると、応答が誤った親に届かないよう拒否します。その親用の子を新しく作成してください。このルールができる前に作成したリモートの子など、作成した親が不明な子には誰も `tell` できないため、新しく作成してください。
