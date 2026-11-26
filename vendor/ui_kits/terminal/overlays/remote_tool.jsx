@@ -753,11 +753,16 @@ function RemoteTool({ onClose, onFlash }) {
   const pEdit = (p) => { setPDraft({ ...blankProfile(), ...p, fields: (p.fields || []).map((f) => ({ ...f })) }); setPErr(""); setPView({ type: "form", isNew: false }); };
   const pField = (k, v) => { setPDraft((d) => ({ ...d, [k]: v })); if (pErr) setPErr(""); };
   const pSetFields = (fields) => setPDraft((d) => ({ ...d, fields }));
+  // The app stores the result of a real SSH probe, so a re-detect can end either way. The kit has no network: a
+  // host in 203.0.113.0/24 (TEST-NET-3, a documentation range nothing answers on) fails, any other host succeeds.
+  // legacy-box sits there, so Re-detect on it shows the failed result again; editing its host to another address
+  // lets the next probe succeed.
+  const probeReaches = (p) => !/^203\.0\.113\./.test((p.host || "").trim());
   const pRedetect = (p) => {
     setProfiles((ps) => ps.map((x) => (x.id === p.id ? { ...x, state: "detecting" } : x)));
     onFlash && onFlash(`Re-detecting ${p.name}…`);
     clearTimeout(timers.current[p.id]);
-    timers.current[p.id] = setTimeout(() => setProfiles((ps) => ps.map((x) => (x.id === p.id ? { ...x, state: "ok", failed: false } : x))), 1400);
+    timers.current[p.id] = setTimeout(() => setProfiles((ps) => ps.map((x) => (x.id === p.id ? { ...x, state: "ok", failed: !probeReaches(x) } : x))), 1400);
   };
   const pSave = () => {
     const ssh = isSshType(pDraft.type);
