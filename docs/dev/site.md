@@ -536,7 +536,7 @@ mocha 로 시작한다. 첫 페인트 전에 인라인 스크립트가 적용해
 
 ### Lucide 아이콘 라이선스 파일
 
-디자인 갤러리의 아이콘 79개 중 44개는 여기서 그렸다. 17개는 Lucide 아이콘과 도형이 같고, 18개는 Lucide 도형을 바탕으로 수정했다. `vendor/icons.json`의 `source` 필드에 이 35개를 표시한다. Lucide는 ISC 라이선스를 적용하며, Feather에서 가져온 부분에는 MIT 라이선스가 적용된다.
+디자인 갤러리의 아이콘 79개 중 35개는 `vendor/icons.json`의 `source` 필드에 Lucide 출처를 표시하고, 나머지 44개에는 출처 표시가 없다. Lucide 아이콘과 도형이 같은 17개는 `Same shape as`로 표시한다. 도형 비교에서 유사성이 확인된 18개는 보수적으로 `Adapted from`으로 표시한다. Lucide는 ISC 라이선스를 적용하며, Feather에서 가져온 부분에는 MIT 라이선스가 적용된다.
 
 `vendor/icons/`의 `LICENSE-lucide.txt`와 `LICENSE-feather.txt`를 `public/icons/`에 바이트 그대로 복사한다. 빌드는 두 파일을 사이트의 `/icons/`에 내보낸다. 라이선스 파일은 sitemap에 넣지 않으며 `check-sitemap`은 빌드된 HTML 페이지만 대조한다.
 
@@ -552,7 +552,7 @@ mocha 로 시작한다. 첫 페인트 전에 인라인 스크립트가 적용해
 - 저작권자 이름은 이 줄에 적지 않는다. OFL 파일 머리와 글꼴 메타데이터에 있고 두 표기가 다르므로, 한쪽을 골라 다시 적지 않는다.
 - 내려받기 안내가 아니다. 글꼴 링크를 사이트에 두지 않는다.
 
-모든 페이지의 글꼴 고지 아래에 아이콘 고지를 둔다. `Base.astro`가 같은 `.site-footer__font` 클래스와 두 `span`을 쓴다. 첫째는 Lucide와 도형이 같거나 Lucide 도형을 바탕으로 수정한 아이콘이 있음을 알리고(`footerIconNote`), Lucide의 `ISC License`(`footerIconLicense`)와 Feather의 `MIT License`(`footerIconMitLicense`)를 각각 `/icons/LICENSE-lucide.txt`와 `/icons/LICENSE-feather.txt`로 연결한다. 둘째는 출처 문구(`footerIconSource`)와 Lucide 공식 사이트 링크를 묶는다. 저작권자 이름은 라이선스 전문에 있다. [Lucide](https://lucide.dev)
+모든 페이지의 글꼴 고지 아래에 아이콘 고지를 둔다. `Base.astro`가 같은 `.site-footer__font` 클래스와 두 `span`을 쓴다. 첫째는 Lucide와 도형이 같거나 파생 형태로 분류한 아이콘의 출처를 고지하고(`footerIconNote`), Lucide의 `ISC License`(`footerIconLicense`)와 Feather의 `MIT License`(`footerIconMitLicense`)를 각각 `/icons/LICENSE-lucide.txt`와 `/icons/LICENSE-feather.txt`로 연결한다. 둘째는 출처 문구(`footerIconSource`)와 Lucide 공식 사이트 링크를 묶는다. 저작권자 이름은 라이선스 전문에 있다. [Lucide](https://lucide.dev)
 
 ## 언어별 글꼴과 줄바꿈
 

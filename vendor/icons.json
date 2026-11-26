@@ -1,7 +1,7 @@
 {
   "_about": "Canonical Tasty icon set. SOURCE OF TRUTH = the individual files in icons/<name>.svg (one 24x24 currentColor glyph each). This JSON is the machine-readable manifest generated from those files; the DS Icon component (components/core/Icon.jsx) embeds the same registry so UI renders a glyph by name (<Icon name=\"close\"/>) with no inline SVG. Regenerate this file and Icon.jsx's ICON_PATHS whenever an icons/*.svg is added or changed. No color/size is baked into a glyph: color = currentColor from the wrapping control, size = the size prop / control CSS.",
   "_pathsFormat": "Each icon's `paths` is an array of raw SVG child element strings (mostly <path>, plus <circle>/<rect> where a glyph needs them). Reconstruct an icon by wrapping the joined children: <svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\">{paths.join('')}</svg>. Names, groups, and roles mirror gallery/icons.jsx exactly.",
-  "_sourceFormat": "The optional `source` string begins with 'Same shape as' for 17 icons or 'Adapted from' for 18 icons. It names the Lucide icon, package and version, and gives the Lucide ISC and Feather MIT licenses and their file paths. Only these 35 icons carry this field.",
+  "_sourceFormat": "The optional `source` string gives the Lucide attribution for 35 icons. It begins with 'Same shape as' for 17 icons and 'Adapted from' for 18 icons credited as a precaution based on shape comparisons. It names the Lucide icon, package and version, and gives the Lucide ISC and Feather MIT licenses and their file paths. The other 44 icons have no `source` field.",
   "iconSystem": {
     "viewBox": "0 0 24 24",
     "stroke": 2,
