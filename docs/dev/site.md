@@ -219,7 +219,7 @@ npm run stamp content/en/index.md
 | `/design/tokens/` · `/<언어>/design/tokens/` | 3티어 토큰 표본(`vendor/gallery/tokens/`). `client:load` 없이 정적으로 그려 토큰 JSON을 브라우저로 보내지 않는다. 내용은 영어 고정이다. 기본 언어 경로만 색인하고 sitemap에 넣는다. 다른 언어 경로는 `noindex, follow`다 |
 | `/design/gallery/**` · `/<언어>/design/gallery/**` | 레퍼런스 갤러리 15 페이지. 머리글, 푸터, 검색, 언어 전환은 경로의 언어이고 내용은 영어 고정이며 표본은 같은 소스다. 모든 언어 경로를 `noindex, follow`로 색인에서 빼고 sitemap에도 넣지 않는다 |
 | `/fonts/D2Coding-ligature-Regular.ttf` · `/fonts/D2Coding-ligature-Bold.ttf` · `/fonts/D2Coding-OFL.txt` | D2Coding 원본 글꼴과 OFL 전문(`public/fonts/`). 페이지가 아니므로 sitemap에 넣지 않는다. 푸터의 고지가 OFL 전문으로 연결한다. 아래 "D2Coding 글꼴 파일" 참고 |
-| `/icons/LICENSE-lucide.txt` | Lucide 아이콘 라이선스 전문(`public/icons/`). 푸터의 아이콘 고지가 이 파일로 연결한다. 글꼴 파일과 마찬가지로 sitemap에 넣지 않는다. 아래 "Lucide 아이콘 라이선스 파일" 참고 |
+| `/icons/LICENSE-lucide.txt` · `/icons/LICENSE-feather.txt` | Lucide의 ISC 라이선스와 Feather의 MIT 라이선스 전문(`public/icons/`). 푸터의 아이콘 고지가 두 파일로 연결한다. 글꼴 파일과 마찬가지로 sitemap에 넣지 않는다. 아래 "Lucide 아이콘 라이선스 파일" 참고 |
 | `/robots.txt` | 전체 허용과 `Sitemap:` 줄. `Disallow`를 넣지 않는다. 막으면 크롤러가 갤러리의 `noindex`를 읽지 못한다 |
 | `/sitemap.xml` | 랜딩, 가이드, privacy의 모든 언어와 색인 대상인 디자인 페이지. 언어는 언어 목록 하나에서 읽는다. 랜딩과 privacy의 경로는 언어 행에, 가이드와 디자인은 `buildPages`와 `DESIGN_PAGES`에 있어 페이지를 추가하면 자동으로 들어간다. 디자인 페이지는 `indexed` 값으로 정해진다. 갤러리는 넣지 않는다. `lastmod`, `changefreq`, `priority`는 정확한 값을 얻을 근거가 없어 넣지 않는다. `npm run check-sitemap`이 빌드된 HTML 중 `<head>`에 `noindex`가 없는 페이지(`404.html` 제외)를 공개 페이지로 보고 `<loc>`와 대조한다. 빠진 공개 페이지, 없는 페이지나 `noindex` 페이지를 가리키는 `<loc>`, 중복, 비어 있거나 없는 sitemap은 실패다 |
 | `/search-index.json` (en) · `/search-index.ko.json` · `/search-index.ja.json` · `/search-index.zh.json` | 검색 인덱스. 파일 이름은 언어 행의 `searchIndex`이고 라우트는 `src/pages/[searchIndex].ts` 하나다. 페이지마다 제목·섹션과 본문 앞 600자를 싣는다(`src/lib/search.ts`). 찾기는 부분 일치라 띄어쓰기 없는 일본어와 중국어도 찾는다. 입력기가 조합 중인 키는 검색 상자가 처리하지 않는다. 코드 블록과 HTML 태그는 빼고, 인라인 코드는 글자로 남기며, 단어 안의 하이픈은 지워지지 않아 `task-await` 같은 명령 이름이 입력한 그대로 맞는다. 명령 이름으로 찾게 하려면 그 이름을 제목이나 첫 문단에 쓴다 |
@@ -536,11 +536,14 @@ mocha 로 시작한다. 첫 페인트 전에 인라인 스크립트가 적용해
 
 ### Lucide 아이콘 라이선스 파일
 
-디자인 갤러리에서 사용하는 아이콘 중 7개가 Lucide에서 왔다. Lucide의 기본 라이선스는 ISC License이며, Feather에서 가져온 일부에는 MIT 라이선스가 적용된다. `vendor/icons/LICENSE-lucide.txt`의 전문을 `public/icons/LICENSE-lucide.txt`로 바이트 그대로 복사한다. 빌드는 이를 `/icons/LICENSE-lucide.txt`로 내보낸다. 라이선스 파일은 sitemap에 넣지 않으며 `check-sitemap`은 빌드된 HTML 페이지만 대조한다.
+디자인 갤러리의 아이콘 79개 중 44개는 여기서 그렸다. 17개는 Lucide 아이콘과 도형이 같고, 18개는 Lucide 도형을 바탕으로 수정했다. `vendor/icons.json`의 `source` 필드에 이 35개를 표시한다. Lucide는 ISC 라이선스를 적용하며, Feather에서 가져온 부분에는 MIT 라이선스가 적용된다.
+
+`vendor/icons/`의 `LICENSE-lucide.txt`와 `LICENSE-feather.txt`를 `public/icons/`에 바이트 그대로 복사한다. 빌드는 두 파일을 사이트의 `/icons/`에 내보낸다. 라이선스 파일은 sitemap에 넣지 않으며 `check-sitemap`은 빌드된 HTML 페이지만 대조한다.
 
 | 파일 | sha256 | 크기(byte) |
 |---|---|---|
 | `LICENSE-lucide.txt` | `1e7290b35280a048667bbf0ebabac1c7fd52a75300e8b2946ac165715997f2bc` | 880 |
+| `LICENSE-feather.txt` | `308028e93fcf84972523cdf6e616f73168546b4953895f516d01287f16fe7bee` | 1082 |
 
 ### 라이선스 고지
 
@@ -549,7 +552,7 @@ mocha 로 시작한다. 첫 페인트 전에 인라인 스크립트가 적용해
 - 저작권자 이름은 이 줄에 적지 않는다. OFL 파일 머리와 글꼴 메타데이터에 있고 두 표기가 다르므로, 한쪽을 골라 다시 적지 않는다.
 - 내려받기 안내가 아니다. 글꼴 링크를 사이트에 두지 않는다.
 
-모든 페이지의 글꼴 고지 아래에 아이콘 고지를 둔다. `Base.astro`가 같은 `.site-footer__font` 클래스를 쓰고, 사전의 `footerIconNote`, `footerIconLicense`, `footerIconSource`를 읽는다. 디자인 갤러리의 일부 아이콘이 Lucide에서 왔음을 밝히고, `ISC License`는 `/icons/LICENSE-lucide.txt`로 연결한다. 출처 링크는 Lucide 공식 사이트로 연결한다. 저작권자 이름은 라이선스 전문에 있다. [Lucide](https://lucide.dev)
+모든 페이지의 글꼴 고지 아래에 아이콘 고지를 둔다. `Base.astro`가 같은 `.site-footer__font` 클래스와 두 `span`을 쓴다. 첫째는 Lucide와 도형이 같거나 Lucide 도형을 바탕으로 수정한 아이콘이 있음을 알리고(`footerIconNote`), Lucide의 `ISC License`(`footerIconLicense`)와 Feather의 `MIT License`(`footerIconMitLicense`)를 각각 `/icons/LICENSE-lucide.txt`와 `/icons/LICENSE-feather.txt`로 연결한다. 둘째는 출처 문구(`footerIconSource`)와 Lucide 공식 사이트 링크를 묶는다. 저작권자 이름은 라이선스 전문에 있다. [Lucide](https://lucide.dev)
 
 ## 언어별 글꼴과 줄바꿈
 
