@@ -57,10 +57,14 @@ export const ICON_PATHS = {
   star: '<path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.68a2.12 2.12 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.12 2.12 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.12 2.12 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.12 2.12 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.12 2.12 0 0 0 1.597-1.16z"/>',
   starFill: '<path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.68a2.12 2.12 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.12 2.12 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.12 2.12 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.12 2.12 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.12 2.12 0 0 0 1.597-1.16z"/>',
   // navigation
+  // From Lucide "chevron-right" (lucide-static 0.460.0, ISC License, icons/LICENSE-lucide.txt).
   chevronRight: '<path d="m9 18 6-6-6-6"/>',
   arrowRight: '<path d="M5 12h14"/><path d="m13 6 6 6-6 6"/>',
+  // From Lucide "chevron-down" (lucide-static 0.460.0, ISC License, icons/LICENSE-lucide.txt).
   chevronDown: '<path d="m6 9 6 6 6-6"/>',
+  // From Lucide "chevron-up" (lucide-static 0.460.0, ISC License, icons/LICENSE-lucide.txt).
   chevronUp: '<path d="m18 15-6-6-6 6"/>',
+  // From Lucide "chevron-left" (lucide-static 0.460.0, ISC License, icons/LICENSE-lucide.txt).
   chevronLeft: '<path d="m15 18-6-6 6-6"/>',
   chevronsLeft: '<path d="m11 17-5-5 5-5M18 17l-5-5 5-5"/>',
   chevronsRight: '<path d="m13 17 5-5-5-5M6 17l5-5-5-5"/>',
@@ -80,6 +84,7 @@ export const ICON_PATHS = {
   file: '<path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2z"/>',
   image: '<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/>',
   list: '<path d="M4 6h16M4 10h16M4 14h10M4 18h7"/>',
+  // From Lucide "layout-grid" (lucide-static 0.460.0, ISC License, icons/LICENSE-lucide.txt).
   layoutGrid: '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/>',
   layoutDetail: '<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M7 13h10M7 16.5h6"/>',
   listView: '<path d="M8 6h13M8 12h13M8 18h13"/><path d="M3 6h.01M3 12h.01M3 18h.01"/>',
@@ -101,6 +106,7 @@ export const ICON_PATHS = {
   // status
   alertTriangle: '<path d="M10.3 3.9 1.8 18a1 1 0 0 0 .9 1.5h18.6a1 1 0 0 0 .9-1.5L13.7 3.9a1 1 0 0 0-1.7 0z"/><path d="M12 9v4M12 17h.01"/>',
   alertCircle: '<circle cx="12" cy="12" r="9"/><path d="M12 8v4m0 4h.01"/>',
+  // From Lucide "circle-help" (lucide-static 0.460.0, ISC License, icons/LICENSE-lucide.txt).
   helpCircle: '<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/>',
   shieldCheck: '<path d="M12 3l7 3v6c0 4-3 6.5-7 9-4-2.5-7-5-7-9V6z"/><path d="M9 12l2 2 4-4"/>',
   bell: '<path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/>',
@@ -116,6 +122,7 @@ export const ICON_PATHS = {
   sun: '<circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M18.4 5.6l-1.4 1.4M7 17l-1.4 1.4"/>',
   hash: '<path d="M4 9h16M4 15h16M10 3 8 21M16 3l-2 18"/>',
   // modifier keys (macOS keycap symbols — vector, never the unicode char)
+  // From Lucide "command" (lucide-static 0.460.0, ISC License, icons/LICENSE-lucide.txt).
   cmdKey: '<path d="M15 6v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3V6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3"/>',
   optionKey: '<path d="M3 18h5.5L16 6H21"/><path d="M3 6h5"/>',
   shiftKey: '<path d="M12 3 4 11h4v10h8V11h4z"/>',

@@ -185,6 +185,7 @@
     },
     {
       "name": "chevronRight",
+      "source": "Lucide chevron-right (lucide-static 0.460.0, ISC License, icons/LICENSE-lucide.txt)",
       "group": "navigation",
       "role": "collapsed row · forward",
       "paths": [
@@ -204,6 +205,7 @@
     },
     {
       "name": "chevronDown",
+      "source": "Lucide chevron-down (lucide-static 0.460.0, ISC License, icons/LICENSE-lucide.txt)",
       "group": "navigation",
       "role": "expanded row",
       "paths": [
@@ -213,6 +215,7 @@
     },
     {
       "name": "chevronUp",
+      "source": "Lucide chevron-up (lucide-static 0.460.0, ISC License, icons/LICENSE-lucide.txt)",
       "group": "navigation",
       "role": "collapsed row · previous / up",
       "paths": [
@@ -222,6 +225,7 @@
     },
     {
       "name": "chevronLeft",
+      "source": "Lucide chevron-left (lucide-static 0.460.0, ISC License, icons/LICENSE-lucide.txt)",
       "group": "navigation",
       "role": "back",
       "paths": [
@@ -395,6 +399,7 @@
     },
     {
       "name": "layoutGrid",
+      "source": "Lucide layout-grid (lucide-static 0.460.0, ISC License, icons/LICENSE-lucide.txt)",
       "group": "surfaces",
       "role": "gallery / grid view mode",
       "fill": false,
@@ -589,6 +594,7 @@
     },
     {
       "name": "helpCircle",
+      "source": "Lucide circle-help (lucide-static 0.460.0, ISC License, icons/LICENSE-lucide.txt)",
       "group": "status",
       "role": "help hint / (?) tooltip trigger",
       "paths": [
@@ -714,6 +720,7 @@
     },
     {
       "name": "cmdKey",
+      "source": "Lucide command (lucide-static 0.460.0, ISC License, icons/LICENSE-lucide.txt)",
       "group": "keys",
       "role": "macOS Command key symbol (⌘ keycap glyph)",
       "paths": [
