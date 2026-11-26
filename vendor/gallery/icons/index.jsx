@@ -278,7 +278,9 @@ function Icons() {
             ]}
             tokens={[
               { tok: "--tasty-text-secondary", use: "keycap glyph", color: "var(--tasty-text-secondary)" },
-              { tok: "--tasty-surface-raised", use: "cap / trigger fill", color: "var(--tasty-surface-raised)" },
+              { tok: "--tasty-surface-raised", use: "cap fill", color: "var(--tasty-surface-raised)" },
+              { tok: "--tasty-select-bg", use: "trigger fill", color: "var(--tasty-select-bg)" },
+              { tok: "--tasty-select-border", use: "trigger border", color: "var(--tasty-select-border)" },
               { tok: "--tasty-border-strong", use: "cap border", color: "var(--tasty-border-strong)" },
               { tok: "--tasty-overlay-hover", use: "active option row", color: "var(--tasty-overlay-hover)" },
             ]} />
