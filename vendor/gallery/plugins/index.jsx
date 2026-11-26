@@ -1,14 +1,15 @@
 import React from "react";
+import { PopupFocusEdge } from "../../ui_kits/terminal/overlays/shared.jsx";
 import { PageStates } from "../parts/specimen.jsx";
 import { STATES } from "./states.jsx";
 import { Icon as PIcon, IconButton, Button, Input, AutoComplete, MenuItem, Switch, Kbd, Spinner, Checkbox, Select, Tag } from "../../components/index.js";
-import { HtmlAddressSurfaceG } from "../../ui_kits/terminal/overlays/html_address_bar.jsx";
+import { HtmlAddressSurfaceG, HtmlPageState } from "../../ui_kits/terminal/overlays/html_address_bar.jsx";
 import { HtmlAddressContrastSpec as PluginsHtmlContrast_HtmlAddressContrastSpec } from "./html-address-ink.jsx";
 import { MdAddressBar as B, MdAddressSpecs as PluginsMdAddress_MdAddressSpecs } from "./markdown-address.jsx";
 import { Section, Spec, Stage, Meta, Note, Dont, GIcon, Views, View } from "../parts/specimen.jsx";
 import { focusViews } from "../parts/surface-focus-views.jsx";
 import { SurfaceLeaf, surfaceBed } from "../../ui_kits/terminal/surface_focus.jsx";
-import { ic, PathField, SegToggle, SideHead, TreeNode, FavRow, DetailHeader, DetailRow, GridCell, ExpState, CtxMenu } from "../parts/explorer-kit.jsx";
+import { ic, PathField, SegToggle, SideHead, TreeNode, FavRow, DetailHeader, DetailRow, GridCell, ExpState, CtxMenu, ExplorerRenamePopup } from "../parts/explorer-kit.jsx";
 
 const BASE = `${import.meta.env.BASE_URL.replace(/\/$/, "")}/`;
 
@@ -83,17 +84,21 @@ function ExpToolbar() {
 
 // Favorites empty state — the section CAPTION stays even at 0 favorites, so the
 // feature is always discoverable; a muted line + faint hint fill the slot. Tone
-// matches the content-area "This folder is empty" state (text-muted). i18n key:
-// explorer.sidebar.favorites_empty ("아직 즐겨찾기가 없습니다").
+// matches the content-area "This folder is empty" state (text-muted). Copy, quoted from the app's lang/en.toml:
+// explorer.sidebar.favorites_empty and favorites_empty_hint ("Right-click a folder → {}."), with {} filled by
+// explorer.context_menu.add_to_favorites ("Add to Favorites"), which the app draws in text-muted.
+// Metrics follow the app's favorites_empty: space-xs above, space-sm inset and below, no added vertical spacing between the empty-state label row and the hint block,
+// a 14 star (icon-size-sm) space-xs before caption-size text. The star recedes as glyph-dim, an opaque role, like the
+// ports window's empty star; the app's two tones for it (0.55 here, 0.37 there) converge on that role.
 function FavoritesEmpty() {
   return (
-    <div style={{ padding: "2px 10px 10px", display: "flex", flexDirection: "column", gap: 3 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 6, color: "var(--tasty-text-muted)" }}>
-        <span style={{ display: "inline-flex", flex: "none" }}>{ic.star}</span>
-        <span style={{ fontSize: 12 }}>No favorites yet</span>
+    <div style={{ padding: "var(--tasty-space-xs) var(--tasty-space-sm) var(--tasty-space-sm)", display: "flex", flexDirection: "column" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-xs)", color: "var(--tasty-text-muted)" }}>
+        <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-glyph-dim)" }}><PIcon name="star" size="var(--tasty-icon-size-sm)" /></span>
+        <span style={{ fontSize: "var(--tasty-font-size-caption)", lineHeight: "var(--tasty-line-height-ui)" }}>No favorites yet</span>
       </div>
-      <div style={{ fontSize: 11, lineHeight: 1.45, color: "var(--tasty-text-placeholder)" }}>
-        Right-click a folder → <span style={{ color: "var(--tasty-text-muted)" }}>Add to favorites</span>.
+      <div style={{ fontSize: "var(--tasty-font-size-caption)", lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-text-placeholder)" }}>
+        Right-click a folder → <span style={{ color: "var(--tasty-text-muted)" }}>Add to Favorites</span>.
       </div>
     </div>
   );
@@ -164,10 +169,10 @@ function ExpSidebar({ favorites = FAVS_DEFAULT, tree = "short", height }) {
   return (
     <div style={{ width: "var(--tasty-explorer-sidebar-width)", height: height || "100%", flex: "none", display: "flex", flexDirection: "column",
       background: "var(--tasty-bg-sidebar)", borderRight: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
-      {/* region A — Files: fills the remainder, scrolls on its own */}
-      <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column" }}>
+      {/* region A — Files: fills the remainder, scrolls on its own. The app adds space-xs above its caption here only. */}
+      <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", paddingTop: "var(--tasty-space-xs)" }}>
         <SideHead>Files</SideHead>
-        <div className="tasty-scroll" style={{ flex: 1, minHeight: 0, overflowY: "auto", padding: "0 6px 6px", display: "flex", flexDirection: "column", gap: 1 }}>
+        <div className="tasty-scroll" style={{ flex: 1, minHeight: 0, overflowY: "auto", display: "flex", flexDirection: "column" }}>
           {rows.map((r, i) => <TreeNode key={i} {...r} />)}
         </div>
       </div>
@@ -178,7 +183,7 @@ function ExpSidebar({ favorites = FAVS_DEFAULT, tree = "short", height }) {
         {favorites.length === 0 ? (
           <FavoritesEmpty />
         ) : (
-          <div className="tasty-scroll" style={{ flex: 1, minHeight: 0, overflowY: "auto", padding: "0 6px 8px", display: "flex", flexDirection: "column", gap: 1 }}>
+          <div className="tasty-scroll" style={{ flex: 1, minHeight: 0, overflowY: "auto", display: "flex", flexDirection: "column" }}>
             {favorites.map(([n, a]) => <FavRow key={n} name={n} active={a} />)}
           </div>
         )}
@@ -202,9 +207,11 @@ function ExpDetail({ focused = true }) {
   );
 }
 
-function ExplorerFrame({ focused = true }) {
+// The full layout stage keeps the frame at its width. fluid: the focus views below fill their grid cell up to that width,
+// as they did before, so their narrower pane ends its names in an ellipsis at the pane edge and adds no scroll at 1440.
+function ExplorerFrame({ focused = true, fluid = false }) {
   return (
-    <div style={{ width: "100%", maxWidth: 760, display: "flex", flexDirection: "column", height: 420,
+    <div style={{ ...(fluid ? { width: "100%", maxWidth: "var(--tasty-explorer-full-specimen-width)" } : { width: "var(--tasty-explorer-full-specimen-width)", flex: "none" }), display: "flex", flexDirection: "column", height: 420,
       background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
       <ExpInternalTabs />
       <ExpToolbar />
@@ -249,8 +256,8 @@ function ViewModeColumn({ title, sub, children }) {
   return (
     <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}>
       <div style={{ marginBottom: 6 }}>
-        <div style={{ fontSize: 12, fontWeight: 600, color: "var(--tasty-text-secondary)" }}>{title}</div>
-        <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{sub}</div>
+        <div className="g-cap" style={{ fontSize: 12, fontWeight: 600, color: "var(--tasty-text-secondary)" }}>{title}</div>
+        <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{sub}</div>
       </div>
       <div style={{ height: 200, display: "flex", flexDirection: "column", border: "1px solid var(--tasty-separator)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>{children}</div>
     </div>
@@ -353,8 +360,9 @@ function MdAddressBar({ editing = false, path = "~/work/tasty/docs/architecture.
 // Large-file (>1MB) confirm — surface-scoped popup, same 360px shell as markdown_open.
 function MdLargeFilePopup() {
   return (
-    <div style={{ width: 360, maxWidth: "100%", background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-strong)",
+    <div style={{ position: "relative", width: 360, maxWidth: "100%", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)",
       borderRadius: "var(--tasty-radius)", overflow: "hidden", boxShadow: "var(--tasty-shadow-modal)" }}>
+      <PopupFocusEdge />
       <div style={{ padding: "14px 14px 0" }}>
         <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 3 }}>Open large file?</div>
         <div style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 10, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>~/work/tasty/docs/CHANGELOG-full.md</div>
@@ -438,7 +446,7 @@ function MarkdownDoc({ editing = false, focused = true }) {
       {/* 2026-10-06: GitHub alerts / Obsidian callouts — both forms (blockquote and collapsible details) read md-quote-bar-width; colour per alert type */}
       {/* 2026-10-07: drawn as the renderer does — type colour at tint-fill-alpha, 16px type icon before the label, radius; note = accent-primary */}
       {[["Note", "var(--tasty-accent-primary)", "alertCircle", "Non-collapsible: > [!note]", false], ["Warning", "var(--tasty-accent-warning)", "alertTriangle", "Collapsible: > [!warning]- (closed until clicked)", true]].map(([t, c, glyph, body, fold]) => (
-        <div key={t} style={{ borderLeft: "var(--tasty-md-quote-bar-width) solid " + c, borderRadius: "var(--tasty-radius)", background: "color-mix(in srgb, " + c + " calc(var(--tasty-tint-fill-alpha) * 100%), transparent)", padding: "var(--tasty-space-sm) var(--tasty-space-md)", margin: "0 0 12px", fontSize: 13, lineHeight: 1.6, color: "var(--tasty-md-quote-fg)" }}>
+        <div key={t} style={{ borderLeft: "var(--tasty-md-quote-bar-width) solid " + c, borderRadius: "var(--tasty-radius)", background: c.replace("--tasty-accent-", "--tasty-tint-").replace(")", "-bg)"), padding: "var(--tasty-space-sm) var(--tasty-space-md)", margin: "0 0 12px", fontSize: 13, lineHeight: 1.6, color: "var(--tasty-md-quote-fg)" }}>
           <div style={{ color: c.replace(")", "-raised)"), fontWeight: 600, display: "flex", alignItems: "center", gap: "var(--tasty-md-callout-icon-gap)" }}>{fold ? <PIcon name="chevronRight" size="var(--tasty-md-callout-marker-size)" /> : null}<PIcon name={glyph} size="var(--tasty-icon-size-md)" />{t}</div>
           {!fold && <div style={{ color: "var(--tasty-text-primary)" }}>{body}</div>}
           {fold && <div style={{ fontSize: 11, color: "var(--tasty-text-primary)" }}>{body}</div>}
@@ -456,7 +464,7 @@ function MarkdownDoc({ editing = false, focused = true }) {
 // writes Tasty tokens into --md-* CSS variables; hljs_css() maps highlight.js classes
 // to palette roles. Rendered as text+swatch so the mapping is the source of truth.
 function Sw({ c }) {
-  return <span style={{ display: "inline-block", width: 12, height: 12, flex: "none", borderRadius: 2, border: "1px solid var(--tasty-separator)", background: c, verticalAlign: "middle" }} />;
+  return <span style={{ display: "inline-block", width: 12, height: 12, flex: "none", borderRadius: "var(--tasty-radius-sm)", border: "var(--tasty-border-width) solid var(--tasty-swatch-border)", background: c, verticalAlign: "middle" }} />;
 }
 const MD_VAR_MAP = [
   ["--md-bg", "document bed, follows focus", "--tasty-surface-bed-focused"],
@@ -491,7 +499,7 @@ function MdInjectionMap() {
   return (
     <div style={{ display: "flex", flexWrap: "wrap", gap: 24, alignItems: "flex-start" }}>
       <div style={{ flex: "1 1 380px", minWidth: 320 }}>
-        <div style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 6, textTransform: "uppercase", letterSpacing: ".05em" }}>theme_css() --md-* → Tasty token</div>
+        <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 6, textTransform: "uppercase", letterSpacing: ".05em" }}>theme_css() --md-* → Tasty token</div>
         <div style={{ border: "1px solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden", background: "var(--tasty-bg-panel)" }}>
           <table style={{ borderCollapse: "collapse", width: "100%" }}>
             <thead><tr><th style={head}>CSS variable</th><th style={head}>draws</th><th style={head}>token</th></tr></thead>
@@ -510,7 +518,7 @@ function MdInjectionMap() {
         </div>
       </div>
       <div style={{ flex: "1 1 240px", minWidth: 220 }}>
-        <div style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 6, textTransform: "uppercase", letterSpacing: ".05em" }}>hljs_css() highlight role → palette</div>
+        <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 6, textTransform: "uppercase", letterSpacing: ".05em" }}>hljs_css() highlight role → palette</div>
         <div style={{ border: "1px solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden", background: "var(--tasty-bg-panel)" }}>
           <table style={{ borderCollapse: "collapse", width: "100%" }}>
             <tbody>
@@ -530,23 +538,41 @@ function MdInjectionMap() {
   );
 }
 
-function HtmlTile({ state, bed = "var(--tasty-bg-panel)", idleGlyph = "var(--tasty-text-disabled)" }) {
-  const center = (glyph, glyphColor, title, titleColor, sub) => (
-    <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8, textAlign: "center", padding: 16 }}>
-      <span style={{ display: "inline-flex", color: glyphColor, transform: "scale(1.5)" }}>{glyph}</span>
-      <div style={{ fontSize: 13, color: titleColor }}>{title}</div>
-      {sub && <div style={{ fontSize: 11, fontFamily: "var(--tasty-font-mono)", color: "var(--tasty-text-muted)", maxWidth: 220, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{sub}</div>}
+// The gallery's chrome tile = the webview page tile (HtmlPageState) in a fixed 220 x 150 specimen rect on the host bed.
+// Not a second size: the part fills the rect it is given. No border of its own; stages add the specimen frame.
+const TILE_KIND = { boundary: "boundary", placeholder: "empty", loading: "loading", error: "failed", "native-wayland": "native-wayland", "native-wayland-x": "native-wayland-x", "gdk-backend": "gdk-backend", "gtk-init": "gtk-init" };
+function HtmlTile({ state, bed = "var(--tasty-bg-panel)", width = 220, height = 150, lang }) {
+  return (
+    <div style={{ width, height, display: "flex", flexDirection: "column", background: bed, overflow: "hidden" }}>
+      <HtmlPageState kind={TILE_KIND[state]} url="https://offline.example" hint={false} lang={lang} />
     </div>
   );
-  const body = {
-    boundary: <div style={{ flex: 1 }} />, /* 2026-10-06: plain tile while an egui overlay hides the loaded WebView — no glyph, no text */
-    placeholder: center(ic.globe, idleGlyph, "No page loaded", "var(--tasty-text-muted)"),
-    loading: center(<Spinner />, "var(--tasty-spinner-indicator)", "Loading…", "var(--tasty-text-muted)"),
-    error: center(ic.alert, "var(--tasty-accent-danger-raised)", "Failed to load", "var(--tasty-accent-danger-raised)", "https://offline.example"),
-  }[state];
+}
+
+// Display-backend notices: the three causes in the order the guide names them, then GTK init failure (no fix line).
+const DB_CAUSES = [["native-wayland", "cause 1 · no XWayland"], ["native-wayland-x", "cause 1b · X server in DISPLAY unreachable"], ["gdk-backend", "cause 2 · GDK_BACKEND without x11"], ["gtk-init", "GTK init failed · X11 window"]];
+const DB_TILE_LANGS = ["en", "ko", "ja", "zh-Hans"];
+// Tiles whose notice block is taller than the rect (render of 2026-11-11): the fix line is only reached by scrolling.
+// [kind, lang, width] — 220 x 150: cause 2 en and ja, cause 1b ja; 160 x 150: every cause (ja). gtk-init has no fix
+// line and fits at both sizes in every language (render of 2026-11-11), so it has no entry. The cause 2 entries
+// still hold for its value-free title (render after that change, 2026-11-11).
+const DB_OVERFLOW = [["gdk-backend", "en", 220], ["gdk-backend", "ja", 220], ["native-wayland-x", "ja", 220], ["native-wayland", "ja", 160], ["native-wayland-x", "ja", 160], ["gdk-backend", "ja", 160]];
+// Freezes a frame at the end of its notice scroll, so the fix line shows without scrolling by hand. Gallery only:
+// it moves the scroll position of the part's own scroll area and paints nothing.
+function ScrolledToEnd({ children }) {
+  const ref = React.useRef(null);
+  React.useEffect(() => {
+    const area = ref.current && ref.current.querySelector("[data-page-notice]");
+    if (area) area.scrollTop = area.scrollHeight;
+  }, []);
+  return <div ref={ref}>{children}</div>;
+}
+function Framed({ cap, children, theme }) {
   return (
-    <div style={{ width: 220, height: 150, display: "flex", flexDirection: "column", background: bed,
-      border: "1px solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>{body}</div>
+    <div data-theme={theme} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", ...(theme ? { padding: "var(--tasty-space-sm)", background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)" } : null) }}>
+      <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
+      <div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>{children}</div>
+    </div>
   );
 }
 
@@ -560,7 +586,7 @@ function HtmlSettings() {
     <div style={{ width: 320, display: "flex", flexDirection: "column", gap: 8, padding: 14,
       background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
       <div style={{ fontFamily: "var(--tasty-font-label)", fontSize: 10, textTransform: "uppercase", letterSpacing: ".06em", color: "var(--tasty-text-muted)" }}>HTML viewer</div>
-      <Row label="Default zoom"><div style={{ display: "flex", alignItems: "center", gap: 4 }}><Input style={{ width: 72 }} defaultValue="100" /><span style={{ fontSize: 12, color: "var(--tasty-text-muted)" }}>%</span></div></Row>
+      <Row label="Default zoom"><div style={{ display: "flex", alignItems: "center", gap: 4 }}><Input style={{ width: "var(--tasty-field-width-xs)" }} defaultValue="100" /><span style={{ fontSize: 12, color: "var(--tasty-text-muted)" }}>%</span></div></Row>
       <Row label="Color scheme"><Select options={["follow", "light", "dark"]} style={{ width: 160 }} /></Row>
       <Row label="Allow remote content"><Switch /></Row>
       <Row label="Sandbox scripts"><Switch defaultChecked /></Row>
@@ -591,7 +617,7 @@ function ImgCanvas({ children, panned, focused = true }) {
     <div style={{ flex: 1, minHeight: 0, position: "relative", background: surfaceBed(focused), display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
       <div style={{ position: "relative", width: panned ? 280 : 200, height: panned ? 200 : 132, transform: panned ? "translate(24px,-12px)" : "none",
         background: "linear-gradient(135deg, var(--tasty-surface-raised), var(--tasty-bg-panel))",
-        border: "1px solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius-sm)", display: "flex", alignItems: "center", justifyContent: "center",
+        border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius-sm)", display: "flex", alignItems: "center", justifyContent: "center",
         color: "var(--tasty-text-disabled)" }}>
         <span style={{ display: "inline-flex", transform: "scale(1.4)" }}>{ic.image}</span>
         {children}
@@ -650,7 +676,7 @@ function ImgSurface({ mode, panned, floating, focused = true }) {
           <span style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>Brush</span>
           <span style={{ width: 60, height: 4, borderRadius: 2, background: "var(--tasty-surface-active)", position: "relative" }}><span style={{ position: "absolute", left: "40%", top: -3, width: 10, height: 10, borderRadius: "50%", background: "var(--tasty-text-muted)" }} /></span>
           <span style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>Color</span>
-          <span style={{ width: 16, height: 16, borderRadius: "var(--tasty-radius-sm)", background: "var(--tasty-accent-danger)", border: "1px solid var(--tasty-border-strong)" }} />
+          <span style={{ width: 16, height: 16, borderRadius: "var(--tasty-radius-sm)", background: "var(--tasty-accent-danger)", border: "var(--tasty-border-width) solid var(--tasty-swatch-border)" }} />
           <span style={{ flex: 1 }} />
           <ZoomGroup />
         </ImgBar>
@@ -660,6 +686,9 @@ function ImgSurface({ mode, panned, floating, focused = true }) {
   );
 }
 
+// A New Image size field is image-size-input-width across, border included, as the app sizes the whole field. Input
+// passes its style to the inner <input>, so the width sits on a box around it.
+const imgSizeField = { display: "flex", width: "var(--tasty-image-size-input-width)", flex: "none" };
 function Page() {
   return (
     <>
@@ -670,7 +699,7 @@ function Page() {
             <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 300px)", gap: 20, justifyContent: "center" }}>
               {[["Explorer context — folderOpen · recent directories", ic.folderOpen, "~/Downloads", EXP_RECENT], ["Markdown context — file · recent files", ic.file, "~/work/tasty/docs/architecture.md", MD_RECENT]].map(([label, icon, path, candidates]) => (
                 <div key={label} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
+                  <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
                   <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                     <span style={{ width: 54, flex: "none", fontFamily: "var(--tasty-font-mono)", fontSize: 10, color: "var(--tasty-text-muted)" }}>idle</span>
                     <PathField icon={icon} path={path} />
@@ -690,8 +719,8 @@ function Page() {
             </div>
           </Stage>
           <Meta
-            specs={[["display", "mono path · ellipsis · text-secondary"], ["editing", "focus ring (2px) + caret · text-primary"], ["suggestions", <>editing → <a href="../components/#forms">AutoComplete</a> dropdown (recent paths)</>], ["leading icon", "per-surface slot — folderOpen / file"], ["candidates", "per-surface — recent dirs / recent files"], ["Go", "arrow-right · IconButton sm · ↵ also confirms"], ["navigate", "↵ / Go → typed path · Esc reverts"], ["height / radius", <>28 · <span className="tok">--tasty-radius</span></>]]}
-            tokens={[{ tok: "--tasty-input-bg", use: "field fill", color: "var(--tasty-input-bg)" }, { tok: "--tasty-input-border", use: "idle border", color: "var(--tasty-input-border)" }, { tok: "--tasty-input-border-focus", use: "editing border", color: "var(--tasty-input-border-focus)" }, { tok: "--tasty-border-focus", use: "focus ring (35%)", color: "var(--tasty-border-focus)" }, { tok: "--tasty-autocomplete-menu-bg", use: "dropdown fill", color: "var(--tasty-autocomplete-menu-bg)" }, { tok: "--tasty-autocomplete-row-bg-active", use: "keyboard-active row", color: "var(--tasty-autocomplete-row-bg-active)" }, { tok: "--tasty-input-icon-fg", use: "leading icon", color: "var(--tasty-input-icon-fg)" }, { tok: "--tasty-accent-primary", use: "caret + Go glyph", color: "var(--tasty-accent-primary-raised)" }]} />
+            specs={[["display", "mono path · ellipsis · text-secondary"], ["editing", "Input focus: input-border-focus edge + 1px ring flush outside, no halo · caret · text-primary"], ["suggestions", <>editing → <a href="../components/#forms">AutoComplete</a> dropdown (recent paths)</>], ["leading icon", "per-surface slot — folderOpen / file"], ["candidates", "per-surface — recent dirs / recent files"], ["Go", "arrow-right · IconButton sm · ↵ also confirms"], ["navigate", "↵ / Go → typed path · Esc reverts"], ["height / radius", <>28 · <span className="tok">--tasty-radius</span></>]]}
+            tokens={[{ tok: "--tasty-input-bg", use: "field fill", color: "var(--tasty-input-bg)" }, { tok: "--tasty-input-border", use: "idle border", color: "var(--tasty-input-border)" }, { tok: "--tasty-input-border-focus", use: "editing border", color: "var(--tasty-input-border-focus)" }, { tok: "--tasty-input-border-focus", use: "editing ring: 1px solid, flush outside the edge (border-width), no halo", color: "var(--tasty-input-border-focus)" }, { tok: "--tasty-autocomplete-menu-bg", use: "dropdown fill", color: "var(--tasty-autocomplete-menu-bg)" }, { tok: "--tasty-autocomplete-row-bg-active", use: "keyboard-active row", color: "var(--tasty-autocomplete-row-bg-active)" }, { tok: "--tasty-input-icon-fg", use: "leading icon", color: "var(--tasty-input-icon-fg)" }, { tok: "--tasty-accent-primary", use: "caret + Go glyph", color: "var(--tasty-accent-primary-raised)" }]} />
           <Note>Open questions resolved (design SoT): <b>(1) leading icon</b> is a per-surface slot — Explorer <span className="ic">folderOpen</span>, Markdown <span className="ic">file</span> — mirroring <code>forms/Input</code>'s leading-icon slot. <b>(2)</b> Explorer's <b>breadcrumb</b> (<code>Crumb</code> + chevron) is <b>dropped</b> for the plain editable field; a hybrid crumb↔edit form was <b>rejected</b>. <b>(3) Go</b> button on both surfaces. <b>(4)</b> only the field + dropdown are shared; the outer bar stays per-surface. <b>(5 — new)</b> the edit-time candidate dropdown is the formal <b><a href="../components/#forms">AutoComplete</a></b> component (full state matrix — filtered / overflow-scroll / empty / hover vs keyboard-active — lives on the Components page), replacing the source-only <code>Combobox</code>. Source home: extract <code>PathField</code> into <code>crates/tasty-ui-widgets</code> composing the renamed <code>AutoComplete</code> (was <code>Combobox</code>); recent-path candidate source + wiring/i18n tracked separately from this design pass.</Note>
         </Spec>
         <Spec id="explorer-surface-full-layout-detail-view" title="Explorer surface — full layout (Detail view)"
@@ -699,11 +728,28 @@ function Page() {
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)" }}>
             <ExplorerFrame />
           </Stage>
-          {focusViews("explorer-full-layout", (focused) => <ExplorerFrame focused={focused} />)}
+          {focusViews("explorer-full-layout", (focused) => <ExplorerFrame focused={focused} fluid />)}
           <Meta
-            specs={[["focus", <>the file area takes the bed, <span className="tok">--tasty-surface-bed-focused</span> or <span className="tok">--tasty-surface-bed-unfocused</span>; tabs, toolbar, sidebar, header and status line stay</>], ["surface", "fills a work-area tile"], ["internal tabs", <>28px · per-cwd, with <span className="ic">×</span> + <span className="ic">＋</span></>], ["toolbar", "44px · nav · path field · view toggle"], ["sidebar", <>196px — Files tree + Favorites</>], ["splitter", <>1px <span className="tok">--tasty-separator</span>, drag to resize</>], ["row height", <>28 (Detail) · <span className="tok">--tasty-table-cell-height</span> — the shared Table</>], ["detail header", "shared Table header — UI font · table-header-font-size 11 · weight medium · caps"], ["min height", <>180 · <span className="tok">--tasty-explorer-min-height</span> — the split drag stops here (tabs 28 + toolbar 44 + header 28 + 2 rows + status 24)</>], ["selected row", <span className="tok">--tasty-surface-active</span>]]}
-            tokens={[{ tok: "--tasty-bg-panel", use: "toolbar + active tab", color: "var(--tasty-bg-panel)" }, { tok: "--tasty-surface-bed-focused", use: "file area, focused", color: "var(--tasty-surface-bed-focused)" }, { tok: "--tasty-surface-bed-unfocused", use: "file area, unfocused", color: "var(--tasty-surface-bed-unfocused)" }, { tok: "--tasty-bg-sidebar", use: "tabs + sidebar + header", color: "var(--tasty-bg-sidebar)" }, { tok: "--tasty-surface-raised", use: "view toggle container", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-segtoggle-on-bg", use: "view toggle — selected segment", color: "var(--tasty-segtoggle-on-bg)" }, { tok: "--tasty-input-bg", use: "path field", color: "var(--tasty-input-bg)" }, { tok: "--tasty-surface-active", use: "selected row (rows only)", color: "var(--tasty-surface-active)" }, { tok: "--tasty-accent-warning", use: "favorite star", color: "var(--tasty-accent-warning-raised)" }, { tok: "--tasty-accent-primary", use: "active tab bar", color: "var(--tasty-accent-primary-raised)" }]} />
+            specs={[["focus", <>the file area takes the bed, <span className="tok">--tasty-surface-bed-focused</span> or <span className="tok">--tasty-surface-bed-unfocused</span>; tabs, toolbar, sidebar, header and status line stay</>], ["surface", "fills a work-area tile"], ["internal tabs", <>28px · per-cwd, with <span className="ic">×</span> + <span className="ic">＋</span></>], ["toolbar", "44px · nav · path field · view toggle"], ["sidebar", <>196px — Files tree + Favorites</>], ["splitter", <>1px <span className="tok">--tasty-separator</span>, drag to resize</>], ["row height", <>28 (Detail) · <span className="tok">--tasty-table-cell-height</span> — the shared Table</>], ["detail columns", <>Size 80 · Date modified 132 · Type 92, fixed (not resizable) · Name takes the rest, floor 140 <span className="tok">--tasty-explorer-detail-name-col-min-width</span> · narrower pane → the table is clipped on the right, no horizontal scroll · header and rows share one track list</>], ["row name", "ellipsis at its Name cell end or at the pane's clip edge, whichever comes first · room = clip edge − name start"], ["detail header", "shared Table header — UI font · table-header-font-size 11 · weight medium · caps"], ["min height", <>180 · <span className="tok">--tasty-explorer-min-height</span> — the split drag stops here (tabs 28 + toolbar 44 + header 28 + 2 rows + status 24)</>], ["selected row", <span className="tok">--tasty-surface-active</span>]]}
+            tokens={[{ tok: "--tasty-bg-panel", use: "toolbar + active tab", color: "var(--tasty-bg-panel)" }, { tok: "--tasty-surface-bed-focused", use: "file area, focused", color: "var(--tasty-surface-bed-focused)" }, { tok: "--tasty-surface-bed-unfocused", use: "file area, unfocused", color: "var(--tasty-surface-bed-unfocused)" }, { tok: "--tasty-bg-sidebar", use: "tabs + sidebar + header", color: "var(--tasty-bg-sidebar)" }, { tok: "--tasty-surface-raised", use: "view toggle container", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-segtoggle-on-bg", use: "view toggle — selected segment", color: "var(--tasty-segtoggle-on-bg)" }, { tok: "--tasty-input-bg", use: "path field", color: "var(--tasty-input-bg)" }, { tok: "--tasty-surface-active", use: "selected row (rows only)", color: "var(--tasty-surface-active)" }, { tok: "--tasty-accent-warning-glyph", use: "filled star at rest", color: "var(--tasty-accent-warning-glyph)" }, { tok: "--tasty-accent-warning-on-active", use: "filled star on selected row", color: "var(--tasty-accent-warning-on-active)" }, { tok: "--tasty-accent-primary", use: "active tab bar", color: "var(--tasty-accent-primary-raised)" }]} />
           <Note>Defaults chosen (briefs left these open): <b>Detail</b> is the default view; the right-hand preview panel is <b>dropped</b> in favour of a wider content area (re-add later as a toggle if needed); no in-toolbar filter search in this pass; the tree is rooted at <b>Home</b>. Favorites are global across surfaces.</Note>
+        </Spec>
+
+        <Spec id="explorer-detail-narrow-pane" title="Explorer Detail — narrow pane"
+          when={<>The Detail table in a pane narrower than its columns, as the app draws it. Size, Date modified and Type keep 80, 132 and 92 (the table is not resizable). Name takes the rest and stops at 140. Below that the table is clipped on the right, with no horizontal scroll. The pane keeps its own width: the floor never widens what holds the table.</>}>
+          <Stage variant="solo" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 16, flexWrap: "wrap", alignItems: "flex-start" }}>
+            {[["var(--tasty-size-460)", "460 — Name at its 140 floor, every column whole"], ["var(--tasty-size-320)", "320 — Name stays 140, Date modified and Type clipped"]].map(([w, cap]) => (
+              <div key={w} style={{ flex: "none", display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
+                <div className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</div>
+                <div style={{ width: w, height: "var(--tasty-size-200)", display: "flex", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
+                  <ExpDetail />
+                </div>
+              </div>
+            ))}
+          </Stage>
+          <Meta
+            specs={[["columns", <>Size 80 · Date modified 132 · Type 92, fixed · Name the rest, floor 140 <span className="tok">--tasty-explorer-detail-name-col-min-width</span></>], ["narrower pane", "the table is clipped on the right · no horizontal scroll · header and rows clip on the same lines"], ["pane width", "set by the layout, never by the table"], ["460 box", "1px edge each side, so the table has 458: the side inset loses 2, every column whole"]]}
+            tokens={[{ tok: "--tasty-explorer-detail-name-col-min-width", use: "Name floor → size-140" }, { tok: "--tasty-explorer-detail-size-col-width", use: "Size → size-80" }, { tok: "--tasty-explorer-detail-date-col-width", use: "Date modified → size-132" }, { tok: "--tasty-explorer-detail-type-col-width", use: "Type → size-92" }]} />
         </Spec>
 
         <Spec id="view-toggle-segtoggle-a-segment-so-it-fills-settled" title="View toggle (SegToggle) — a segment, so it fills (settled)"
@@ -713,14 +759,14 @@ function Page() {
               <div key={label} {...(attr ? { "data-theme": attr } : {})}
                 style={{ display: "flex", flexDirection: "column", gap: 10, padding: 14, background: "var(--tasty-bg-app)",
                   border: "1px solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
-                <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
+                <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
                 {[["on = detail · off = grid, list", { value: "detail" }], ["hover on an off segment (list)", { value: "detail", hover: "list" }], ["on = grid", { value: "grid" }]].map(([cap, props]) => (
                   <div key={cap} style={{ display: "flex", alignItems: "center", gap: 12 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: 8, height: 44, padding: "0 8px", background: "var(--tasty-bg-panel)", borderRadius: "var(--tasty-radius)", border: "1px solid var(--tasty-border-default)" }}>
                       <PathField icon={ic.folderOpen} path="~/Downloads" />
                       <SegToggle {...props} />
                     </div>
-                    <span style={{ width: 190, fontSize: 11, color: "var(--tasty-text-muted)" }}>{cap}</span>
+                    <span className="g-cap" style={{ width: 190, fontSize: 11, color: "var(--tasty-text-muted)" }}>{cap}</span>
                   </div>
                 ))}
               </div>
@@ -734,25 +780,25 @@ function Page() {
         </Spec>
 
         <Spec id="sidebar-favorites-populated-vs-empty-state" title="Sidebar Favorites — populated vs. empty state"
-          when={<>The sidebar <b>Favorites</b> section caption is <b>always shown</b>, even at zero favorites — so the feature never disappears and reads as unimplemented. With favorites it lists STAR rows (left); empty, the caption stays and an <b>empty state</b> fills the slot: a faint outline star + <b>"No favorites yet"</b> in <span className="tok">--tasty-text-muted</span>, then a dimmer one-line hint pointing at the add path. Same tone as the content-area "This folder is empty" state — left-aligned to fit the 196px column.</>}>
+          when={<>The Favorites caption stays visible at zero favorites. Populated rows show a filled star and the folder name. The empty state shares the caption’s 8px inset and shows a <span className="tok">--tasty-glyph-dim</span> star at <span className="tok">--tasty-icon-size-sm</span> (14px) and “No favorites yet” in <span className="tok">--tasty-text-muted</span> at <span className="tok">--tasty-font-size-caption</span> (11px). The add hint below uses <span className="tok">--tasty-text-placeholder</span> with “Add to Favorites” in <span className="tok">--tasty-text-muted</span> and wraps within the available width of the sidebar. The line count depends on the font and language.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 18, flexWrap: "wrap" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>with favorites</div>
+              <div className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>with favorites</div>
               <div style={{ height: 300, display: "flex", border: "1px solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}><ExpSidebar height={300} /></div>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>empty — caption persists</div>
+              <div className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>empty — caption persists</div>
               <div style={{ height: 300, display: "flex", border: "1px solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}><ExpSidebar height={300} favorites={[]} /></div>
             </div>
           </Stage>
           <Meta
-            specs={[["caption", "always shown — micro caps, text-muted"], ["empty line", <>outline star + "No favorites yet" · <span className="tok">--tasty-text-muted</span></>], ["hint", <>1 line · <span className="tok">--tasty-text-placeholder</span></>], ["align", "left, inside 196px column"], ["condition", "was: hide section at 0 → now: always show"]]}
-            tokens={[{ tok: "--tasty-text-muted", use: "caption + empty line", color: "var(--tasty-text-muted)" }, { tok: "--tasty-text-placeholder", use: "hint line", color: "var(--tasty-text-placeholder)" }, { tok: "--tasty-accent-warning", use: "filled star (populated)", color: "var(--tasty-accent-warning-raised)" }]} />
-          <Note>New string <InlineCode>explorer.sidebar.favorites_empty</InlineCode> — en "No favorites yet" · ko "아직 즐겨찾기가 없습니다" · add to <InlineCode>lang/&#123;en,ko,ja&#125;.toml</InlineCode>. The hint reuses existing "Add to favorites" copy. Implementer: replace <InlineCode>if !favorites.is_empty()</InlineCode> in <InlineCode>explorer.rs sidebar()</InlineCode> with an always-rendered caption + empty branch.</Note>
+            specs={[["caption", "always shown — micro caps, text-muted"], ["empty line", <>14px outline star · <span className="tok">--tasty-icon-size-sm</span> · <span className="tok">--tasty-glyph-dim</span> + 11px "No favorites yet" · <span className="tok">--tasty-text-muted</span></>], ["hint", <>Wraps within the available width of the sidebar (line count depends on the font and language) · <span className="tok">--tasty-text-placeholder</span> · menu label in <span className="tok">--tasty-text-muted</span></>], ["align", "left, inside 196px column"], ["condition", "was: hide section at 0 → now: always show"]]}
+            tokens={[{ tok: "--tasty-text-muted", use: "caption + empty line", color: "var(--tasty-text-muted)" }, { tok: "--tasty-text-placeholder", use: "hint line", color: "var(--tasty-text-placeholder)" }, { tok: "--tasty-accent-warning-glyph", use: "filled star at rest", color: "var(--tasty-accent-warning-glyph)" }, { tok: "--tasty-accent-warning-on-active", use: "filled star on selected row", color: "var(--tasty-accent-warning-on-active)" }, { tok: "--tasty-glyph-dim", use: "empty favorites star", color: "var(--tasty-glyph-dim)" }]} />
+          <Note><InlineCode>explorer.sidebar.favorites_empty</InlineCode> supplies the empty label. <InlineCode>explorer.sidebar.favorites_empty_hint</InlineCode> supplies the hint, with <InlineCode>{"{}"}</InlineCode> replaced by the label from <InlineCode>explorer.context_menu.add_to_favorites</InlineCode>.</Note>
         </Spec>
 
         <Spec id="sidebar-layout-favorites-pinned-to-the-bottom-2-region-split" title="Sidebar layout — Favorites PINNED to the bottom (2-region split)"
-          when={<>The sidebar is <b>not one scroll column</b> any more. It splits into two independent regions: <b>Files</b> takes the remainder at the top and scrolls on its own, and <b>Favorites</b> is <b>pinned to the bottom</b> at a computed fixed height — so however deep the tree gets, the favorites list is always on screen. The boundary is a <b>fixed 1px <span className="tok">--tasty-explorer-split-border</span></b> at a screen coordinate: it does <b>not</b> flow with content, so a short tree leaves empty <span className="tok">--tasty-bg-sidebar</span> above the line rather than pulling the line up. Pin height = <b>240</b> (<span className="tok">--tasty-explorer-favorites-pin-height</span>) while the sidebar body is ≥ <b>600</b> (<span className="tok">--tasty-explorer-favorites-pin-threshold</span>); below that it becomes <b>40%</b> of the body height (<span className="tok">--tasty-explorer-favorites-pin-ratio</span>), snapped to the 4px grid and floored at <b>120</b> (<span className="tok">--tasty-explorer-favorites-pin-min-height</span>). Row, caption and empty-state visuals are unchanged — this is a layout change only.</>}>
+          when={<>The sidebar is <b>not one scroll column</b> any more. It splits into two independent regions: <b>Files</b> takes the remainder at the top and scrolls on its own, and <b>Favorites</b> is <b>pinned to the bottom</b> at a computed fixed height — so however deep the tree gets, the favorites list is always on screen. The boundary is a <b>fixed 1px <span className="tok">--tasty-explorer-split-border</span></b> at a screen coordinate: it does <b>not</b> flow with content, so a short tree leaves empty <span className="tok">--tasty-bg-sidebar</span> above the line rather than pulling the line up. Pin height = <b>240</b> (<span className="tok">--tasty-explorer-favorites-pin-height</span>) while the sidebar body is ≥ <b>600</b> (<span className="tok">--tasty-explorer-favorites-pin-threshold</span>); below that it becomes <b>40%</b> of the body height (<span className="tok">--tasty-explorer-favorites-pin-ratio</span>), snapped to the 4px grid and floored at <b>120</b> (<span className="tok">--tasty-explorer-favorites-pin-min-height</span>). This specimen specifies only the layout and uses the TreeRow rows, caption and empty state shown in the Sidebar Favorites specimen.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", flexDirection: "column", gap: 18 }}>
             <div style={{ display: "flex", gap: 18, flexWrap: "wrap", justifyContent: "center" }}>
               {[["long tree — Files scrolls, pin holds", "tree overflows · favorites intact", { tree: "long", favorites: FAVS_DEFAULT }],
@@ -760,8 +806,8 @@ function Page() {
                 ["Favorites empty — caption + hint persist", "pinned region keeps its height", { tree: "long", favorites: [] }],
                 ["many favorites — region scrolls itself", "list never expands past the pin", { tree: "long", favorites: FAVS_MANY }]].map(([label, sub, props]) => (
                 <div key={label} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                  <div style={{ fontSize: 11, color: "var(--tasty-text-secondary)" }}>{label}</div>
-                  <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{sub}</div>
+                  <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-secondary)" }}>{label}</div>
+                  <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{sub}</div>
                   <div style={{ display: "flex", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
                     <ExpSidebar height={620} {...props} />
                   </div>
@@ -781,8 +827,8 @@ function Page() {
             </div>
           </Stage>
           <Meta
-            specs={[["structure", "2 regions · independent scroll state"], ["Files region", "flex 1 · own scroll · caption pinned at its top"], ["Favorites region", <>fixed height, bottom-pinned · <span className="tok">--tasty-explorer-favorites-pin-height</span></>], ["pin height", "body ≥ 600 → 240 · else 40% (4px-snapped) · min 120"], ["boundary", <>1px <span className="tok">--tasty-explorer-split-border</span> at a fixed coordinate</>], ["sidebar width", <>196 unchanged · <span className="tok">--tasty-explorer-sidebar-width</span></>], ["resize", "recomputed from the live body height — no drag handle"], ["row visuals", "unchanged (tree row · star row · empty state)"]]}
-            tokens={[{ tok: "--tasty-explorer-sidebar-width", use: "196 column" }, { tok: "--tasty-explorer-favorites-pin-height", use: "pinned region height" }, { tok: "--tasty-explorer-favorites-pin-threshold", use: "small-surface switch" }, { tok: "--tasty-explorer-favorites-pin-min-height", use: "lower clamp" }, { tok: "--tasty-explorer-split-border", use: "fixed boundary line", color: "var(--tasty-separator)" }, { tok: "--tasty-bg-sidebar", use: "both regions' fill", color: "var(--tasty-bg-sidebar)" }, { tok: "--tasty-accent-warning", use: "filled star", color: "var(--tasty-accent-warning-raised)" }]} />
+            specs={[["structure", "2 regions · independent scroll state"], ["Files region", "flex 1 · own scroll · caption pinned at its top"], ["Favorites region", <>fixed height, bottom-pinned · <span className="tok">--tasty-explorer-favorites-pin-height</span></>], ["pin height", "body ≥ 600 → 240 · else 40% (4px-snapped) · min 120"], ["boundary", <>1px <span className="tok">--tasty-explorer-split-border</span> at a fixed coordinate</>], ["sidebar width", <>196 unchanged · <span className="tok">--tasty-explorer-sidebar-width</span></>], ["resize", "recomputed from the live body height — no drag handle"], ["row visuals", "TreeRow rows · caption, star and empty state as in Sidebar Favorites"]]}
+            tokens={[{ tok: "--tasty-explorer-sidebar-width", use: "196 column" }, { tok: "--tasty-explorer-favorites-pin-height", use: "pinned region height" }, { tok: "--tasty-explorer-favorites-pin-threshold", use: "small-surface switch" }, { tok: "--tasty-explorer-favorites-pin-min-height", use: "lower clamp" }, { tok: "--tasty-explorer-split-border", use: "fixed boundary line", color: "var(--tasty-separator)" }, { tok: "--tasty-bg-sidebar", use: "both regions' fill", color: "var(--tasty-bg-sidebar)" }, { tok: "--tasty-accent-warning-glyph", use: "filled star at rest", color: "var(--tasty-accent-warning-glyph)" }, { tok: "--tasty-accent-warning-on-active", use: "filled star on selected row", color: "var(--tasty-accent-warning-on-active)" }]} />
           <Note>Open decisions resolved (design SoT): <b>(1) threshold basis</b> = the <b>sidebar body height</b> (the split container itself), not the whole explorer tab — the pin only competes with the tree, and this keeps the rule local to <InlineCode>sidebar()</InlineCode>. <b>(2) scrollbar</b> = the shared <InlineCode>.tasty-scroll</InlineCode> behaviour, hover-revealed like every other scroll area — the pinned region gets no special always-on bar. <b>(3) slack space</b> at 0–1 favorites stays <b>empty <span className="tok">--tasty-bg-sidebar</span></b>: no filler padding, no vertical centering, so rows always start directly under the caption. <b>(4) boundary weight</b> = the <b>same</b> 1px separator as before — no shadow, no tint; "pinned" is communicated by behaviour (the line never moves, each side scrolls alone), not by extra decoration. <b>(5) 240 ↔ 40% jump</b> is left as a <b>hard switch</b> (no interpolation) as the requester allows, with a <b>120 floor</b> added so a very short surface still shows caption + ~3 rows. Implementer: split the single <InlineCode>ScrollArea</InlineCode> in <InlineCode>explorer.rs sidebar()</InlineCode> into two — <InlineCode>ScrollArea::vertical().id_salt("exp_tree")</InlineCode> in the top allocation and <InlineCode>id_salt("exp_favs")</InlineCode> inside a bottom-up allocated strip of the computed height — and draw the separator as the strip's top edge instead of an inline <InlineCode>ui.separator()</InlineCode>.</Note>
         </Spec>
 
@@ -828,45 +874,57 @@ function Page() {
         </Spec>
 
         <Spec id="right-click-context-menu-target-resolves-to-4-shapes" title="Right-click context menu — target resolves to 4 shapes"
-          when={<>Finder/VS Code rule: right-clicking an item <b>inside the selection</b> targets the whole selection; <b>outside</b> it, selection collapses to that one item; on the <b>empty background</b>, the target is the current directory (cwd). Menu items appear/disappear accordingly, grouped by divider into <b>clipboard · file ops · system</b>.</>}>
+          when={<>Finder/VS Code rule: right-clicking an item <b>inside the selection</b> targets the whole selection; <b>outside</b> it, selection collapses to that one item; on the <b>empty background</b>, the target is the current directory (cwd). The rows follow the target. A row the target's kind never takes is left out (Add to Favorites on a file); a row that only waits on the state is <b>shown disabled</b> (Paste with nothing that can be pasted). Rows are grouped by divider into <b>clipboard · file ops · system</b>.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)" }}>
             <div style={{ display: "flex", gap: 18, flexWrap: "wrap", justifyContent: "center" }}>
-              <CtxMenu title="Background (empty area) → cwd">
-                <MenuItem label="Copy path" icon={ic.link} />
-                <MenuItem label="Add to favorites" icon={ic.star} />
+              <CtxMenu title="Background (empty area) → cwd · a pasteable list held">
+                <MenuItem label="Copy Path" icon={ic.link} />
+                <MenuItem label="Add to Favorites" icon={ic.star} />
                 <MenuItem label="Paste" icon={ic.paste} shortcut={<Kbd keys="Ctrl+V" />} />
               </CtxMenu>
               <CtxMenu title="Single file">
-                <MenuItem label="Copy path" icon={ic.link} />
+                <MenuItem label="Copy Path" icon={ic.link} />
                 <MenuItem label="Copy" icon={ic.copy} shortcut={<Kbd keys="Ctrl+C" />} />
                 <MenuItem label="Cut" icon={ic.scissors} shortcut={<Kbd keys="Ctrl+X" />} />
-                <MenuItem separator />
-                <MenuItem label="Rename" icon={ic.rename} shortcut={<Kbd keys="F2" />} />
-                <MenuItem label="Move to Trash" icon={ic.trash} danger shortcut={<Kbd keys="Del" />} />
-              </CtxMenu>
-              <CtxMenu title="Single folder">
-                <MenuItem label="Copy path" icon={ic.link} />
-                <MenuItem label="Add to favorites" icon={ic.star} />
-                <MenuItem label="Copy" icon={ic.copy} shortcut={<Kbd keys="Ctrl+C" />} />
-                <MenuItem label="Cut" icon={ic.scissors} shortcut={<Kbd keys="Ctrl+X" />} />
-                <MenuItem label="Paste into" icon={ic.paste} />
                 <MenuItem separator />
                 <MenuItem label="Rename" icon={ic.rename} shortcut={<Kbd keys="F2" />} />
                 <MenuItem label="Move to Trash" icon={ic.trash} danger shortcut={<Kbd keys="Del" />} />
                 <MenuItem separator />
                 <MenuItem label="Open in system" icon={ic.external} />
+                <MenuItem label="Show in File Manager" icon={<PIcon name="folderOpen" />} />
+                <MenuItem separator />
+                <MenuItem label="Properties" icon={<PIcon name="info" />} />
+              </CtxMenu>
+              <CtxMenu title="Single folder · a pasteable list held">
+                <MenuItem label="Copy Path" icon={ic.link} />
+                <MenuItem label="Add to Favorites" icon={ic.star} />
+                <MenuItem label="Copy" icon={ic.copy} shortcut={<Kbd keys="Ctrl+C" />} />
+                <MenuItem label="Cut" icon={ic.scissors} shortcut={<Kbd keys="Ctrl+X" />} />
+                <MenuItem label="Paste (into)" icon={ic.paste} />
+                <MenuItem separator />
+                <MenuItem label="Rename" icon={ic.rename} shortcut={<Kbd keys="F2" />} />
+                <MenuItem label="Move to Trash" icon={ic.trash} danger shortcut={<Kbd keys="Del" />} />
+                <MenuItem separator />
+                <MenuItem label="Open in system" icon={ic.external} />
+                <MenuItem label="Show in File Manager" icon={<PIcon name="folderOpen" />} />
+                <MenuItem separator />
+                <MenuItem label="Properties" icon={<PIcon name="info" />} />
               </CtxMenu>
               <CtxMenu title="Multiple selected (3)">
-                <MenuItem label="Copy paths" icon={ic.link} />
+                <MenuItem label="Copy Paths" icon={ic.link} />
                 <MenuItem label="Copy" icon={ic.copy} shortcut={<Kbd keys="Ctrl+C" />} />
                 <MenuItem label="Cut" icon={ic.scissors} shortcut={<Kbd keys="Ctrl+X" />} />
                 <MenuItem separator />
                 <MenuItem label="Move to Trash" icon={ic.trash} danger shortcut={<Kbd keys="Del" />} />
+                <MenuItem separator />
+                <MenuItem label="Open in system" icon={ic.external} />
+                <MenuItem separator />
+                <MenuItem label="Properties" icon={<PIcon name="info" />} />
               </CtxMenu>
             </div>
           </Stage>
           <Meta
-            specs={[["target", "in-selection → all · out → that one · empty → cwd"], ["favorites", "folder + cwd only"], ["paste", "shown when the clipboard holds files"], ["open in system", "single folder only"], ["groups", "clipboard · file ops · system (dividers)"]]}
+            specs={[["target", "in-selection → all · out → that one · empty → cwd"], ["favorites", "folder + cwd only"], ["paste", "always on cwd and a single folder · enabled here: the samples hold a list that can be pasted · disabled when nothing can be pasted (Explorer file ops › Undo / Redo rows › empty history) or the list comes from another source (D6)"], ["open in system", "every item target (one file, one folder, several) · Show in Finder / File Explorer / File Manager one item only · mirror cell: both disabled with a reason (Explorer file ops › D6) · order and icons as Explorer file ops › Properties OS rows"], ["groups", "clipboard · file ops · system (dividers) · item menus end with a separator and Properties on its own"]]}
             tokens={[{ tok: "--tasty-menu-bg", use: "menu fill", color: "var(--tasty-menu-bg)" }, { tok: "--tasty-menu-border", use: "1px edge" }, { tok: "--tasty-shadow-popover", use: "float" }, { tok: "--tasty-accent-danger", use: "Trash (danger item)", color: "var(--tasty-accent-danger-raised)" }]} />
           <Note>Reuses the shared <span className="ic">MenuItem</span> / Popup visual language — no bespoke menu chrome. Shortcut hints are representative; real keys come from Keybindings settings.</Note>
         </Spec>
@@ -874,7 +932,7 @@ function Page() {
         <Spec id="empty-permission-loading-read-error-favorite-rename-popups" title="Empty / permission / loading / read error · favorite + rename popups"
           when={<>Status screens fill the content area; the two small editors reuse the Popup/rename visual language. <b>Read error (2026-10-07)</b>: any failure that is not a permission denial (path gone, not a directory, I/O error, remote read failure) gets its own state instead of falling through to “This folder is empty”: <b>alertTriangle</b> in <span className="tok">--tasty-explorer-error-fg</span> (→ accent-danger, as in the file picker error), title <b>“Can't read this folder”</b>, the <b>OS reason</b> as one mono caption line (text-muted, max 200, untranslated), and two buttons: <b>Retry</b> (secondary sm — re-reads the same path) and <b>Go up</b> (ghost sm — opens the parent; hidden at a root). Toolbar, tree and status line stay usable.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", flexDirection: "column", gap: 16 }}>
-            <div style={{ display: "flex", gap: 12, width: "100%", maxWidth: 700 }}>
+            <div style={{ display: "flex", gap: 12, width: "var(--tasty-explorer-state-specimen-row-width)", flex: "none" }}>
               <ExpState glyph={ic.folderOpen} title="This folder is empty" />
               <ExpState glyph={ic.lock} glyphColor="var(--tasty-accent-warning-raised)" title="Permission denied" sub="You don't have access to read this folder." />
               <ExpState glyph={<Spinner />} title="Loading…" />
@@ -882,7 +940,7 @@ function Page() {
                 actions={<><Button variant="secondary" size="sm">Retry</Button><Button variant="ghost" size="sm">Go up</Button></>} />
             </div>
             <div style={{ display: "flex", gap: 18, flexWrap: "wrap", justifyContent: "center" }}>
-              <div style={{ width: 300, background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", overflow: "hidden" }}>
+              <div style={{ width: 300, background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", overflow: "hidden" }}>
                 <div style={{ padding: "12px 14px 10px" }}>
                   <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 10 }}>Add to favorites</div>
                   <div style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 4 }}>Path</div>
@@ -894,22 +952,21 @@ function Page() {
                   <Button variant="ghost" size="sm">Cancel</Button><Button variant="primary" size="sm">Add</Button>
                 </div>
               </div>
-              <div style={{ width: 300, background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", overflow: "hidden" }}>
-                <div style={{ padding: "12px 14px 10px" }}>
-                  <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 2 }}>Rename</div>
-                  <div style={{ fontSize: 12, color: "var(--tasty-text-muted)", marginBottom: 10 }}>Press <Kbd keys="↵" /> to confirm, <Kbd keys="Esc" /> to cancel.</div>
-                  <Input block autoFocus defaultValue="diagram.png" />
-                  <div style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginTop: 6 }}>Extension <b style={{ color: "var(--tasty-text-secondary)" }}>.png</b> preserved.</div>
-                </div>
-                <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, padding: "0 14px 12px" }}>
-                  <Button variant="ghost" size="sm">Cancel</Button><Button variant="primary" size="sm">Rename</Button>
-                </div>
-              </div>
+              <ExplorerRenamePopup value="diagram.png" />
             </div>
           </Stage>
-          {focusViews("explorer-read-error", (focused) => <ExpState glyph={<PIcon name="alertTriangle" size="var(--tasty-icon-size-md)" />} glyphColor="var(--tasty-explorer-error-fg)" title="Can't read this folder" reason="No such file or directory (os error 2)" bg={surfaceBed(focused)} />, { display: "flex", width: "100%", maxWidth: 420 })}
+          <Views>
+            <View name="explorer-rename-popup-languages" label="Rename popup in every language — the app's explorer.popup.rename title and button and button.cancel, idle and with a name the pre-check refuses (explorer.name.invalid_char, Rename disabled)">
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-md)", alignItems: "flex-start" }}>
+                {["en", "ko", "ja", "zh-Hans"].map((l) => <ExplorerRenamePopup key={l} lang={l} value="diagram.png" />)}
+                {["en", "ko", "ja", "zh-Hans"].map((l) => <ExplorerRenamePopup key={`${l}-error`} lang={l} value="report/final.pdf" error={RENAME_INVALID_CHAR[l]} />)}
+              </div>
+            </View>
+            <View name="explorer-read-error-focused" label="Focused"><div style={{ display: "flex", width: "100%", maxWidth: 420 }}><ExpState glyph={<PIcon name="alertTriangle" size="var(--tasty-icon-size-md)" />} glyphColor="var(--tasty-explorer-error-fg)" title="Can't read this folder" reason="No such file or directory (os error 2)" bg={surfaceBed(true)} /></div></View>
+            <View name="explorer-read-error-unfocused" label="Unfocused"><div style={{ display: "flex", width: "100%", maxWidth: 420 }}><ExpState glyph={<PIcon name="alertTriangle" size="var(--tasty-icon-size-md)" />} glyphColor="var(--tasty-explorer-error-fg)" title="Can't read this folder" reason="No such file or directory (os error 2)" bg={surfaceBed(false)} /></div></View>
+          </Views>
           <Meta
-            specs={[["empty", "centered glyph + line"], ["permission", "warning (peach) tone"], ["loading", <>Spinner — busy-indicator policy</>], ["popups", "Popup language · ghost + primary footer"]]}
+            specs={[["empty", "centered glyph + line"], ["permission", "warning (peach) tone"], ["loading", <>Spinner — busy-indicator policy</>], ["popups", "Popup language · ghost + primary footer"], ["rename popup", "the app's parts only: title explorer.popup.rename.title · field · validation line when the pre-check refuses the name (explorer.name.empty / invalid_char / edge_space / reserved, caption, explorer-name-error-fg, Input invalid, Rename disabled) · a name that exists is found only when the rename runs · one line slot, empty while idle (the remote waiting line takes it) · Cancel (button.cancel) + Rename (explorer.popup.rename.rename) · no hint line, no extension line, no path line: the app draws none of them"]]}
             tokens={[{ tok: "--tasty-accent-warning", use: "permission tone", color: "var(--tasty-accent-warning-raised)" }, { tok: "--tasty-spinner-indicator", use: "loading", color: "var(--tasty-spinner-indicator)" }, { tok: "--tasty-shadow-modal", use: "popup lift" }]} />
           <Note>Explorer font (family + size, 14px cap) gets an <b>Appearance › Explorer</b> sub-tab mirroring the Terminal/Markdown font sections — same control layout, deferred to the Settings specimen.</Note>
         </Spec>
@@ -942,7 +999,7 @@ function Page() {
                     </div>
                     <div style={{ height: 16, background: "var(--tasty-md-code-bg)", border: "1px solid var(--tasty-md-code-border)", borderRadius: "var(--tasty-radius)" }} />
                   </div>
-                  <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
+                  <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
                 </div>
               ))}
             </div>
@@ -958,14 +1015,14 @@ function Page() {
                 </MdFocused.Provider>
               </View>
             ))}
-            {["boundary", "placeholder", "loading", "error"].map((state) => [true, false].map((focused) => (
+            {["boundary", "placeholder", "loading", "error", "native-wayland", "native-wayland-x", "gdk-backend", "gtk-init"].map((state) => [true, false].map((focused) => (
               <View key={state + focused} name={`markdown-tile-${state}-${focused ? "focused" : "unfocused"}`} label={`Chrome tile, ${state}, ${focused ? "focused" : "unfocused"}`}>
-                <HtmlTile state={state} bed={surfaceBed(focused)} idleGlyph="var(--tasty-glyph-dim)" />
+                <HtmlTile state={state} bed={surfaceBed(focused)} />
               </View>
             )))}
           </Views>
           <Meta
-            specs={[["focused", "Mocha #000000, Latte #ffffff"], ["unfocused", "Mocha base #1e1e2e, Latte crust #dce0e8"], ["same as the terminal", "yes, one pair of beds"], ["motion", "0ms, one frame"], ["stays", "body ink, links, code fill, table header and grid, address band"], ["unknown focus", "unfocused values"], ["no page glyph", <><span className="tok">--tasty-glyph-dim</span> on these beds</>]]}
+            specs={[["focused", "Mocha #000000, Latte #ffffff"], ["unfocused", "Mocha base #1e1e2e, Latte crust #dce0e8"], ["same as the terminal", "yes, one pair of beds"], ["motion", "0ms, one frame"], ["stays", "body ink, links, code fill, table header and grid, address band"], ["unknown focus", "unfocused values"], ["no page glyph", <>html, <span className="tok">--tasty-glyph-dim</span> on these beds, the same part and glyph as the html tile</>]]}
             tokens={[{ tok: "--tasty-surface-bed-focused", use: "--md-bg, focused", color: "var(--tasty-surface-bed-focused)" }, { tok: "--tasty-surface-bed-unfocused", use: "--md-bg, unfocused", color: "var(--tasty-surface-bed-unfocused)" }, { tok: "--tasty-md-table-row-bg", use: "row, focused", color: "var(--tasty-md-table-row-bg)" }, { tok: "--tasty-md-table-row-bg-unfocused", use: "row, unfocused", color: "var(--tasty-md-table-row-bg-unfocused)" }, { tok: "--tasty-md-table-row-bg-zebra", use: "zebra, focused", color: "var(--tasty-md-table-row-bg-zebra)" }, { tok: "--tasty-md-table-row-bg-zebra-unfocused", use: "zebra, unfocused", color: "var(--tasty-md-table-row-bg-zebra-unfocused)" }, { tok: "--tasty-md-code-bg", use: "code fill → --md-code-bg", color: "var(--tasty-md-code-bg)" }, { tok: "--tasty-md-table-border", use: "grid → --md-border", color: "var(--tasty-md-table-border)" }]} />
           <Note>Implementing side: <code>[surfaces.markdown]</code> gets <code>focused_bg</code> and <code>unfocused_bg</code> from these two beds in Mocha and Latte, and the renderer stops reading a single bed. <code>focused_fg</code> and <code>unfocused_fg</code> stay in the file, and the document reads neither: its body ink is the same in both states.</Note>
           <Dont><b>Don't</b> reload the document or rewrite its HTML to change the bed. Scroll, selection and find state must survive a focus change.</Dont>
@@ -1002,16 +1059,16 @@ function Page() {
           when={<>The address bar is a browser-style path field. <b>Display</b> shows the current file path (mono, secondary); <b>click</b> to edit (focus ring + caret) and type a new path — <span className="ic">↵</span> or the <b>Go</b> button opens it in place, <span className="ic">Esc</span> reverts to the original. A non-<code>.md</code> extension still opens as markdown. Opening a file <b>over 1 MB</b> first raises a <b>surface-scoped</b> confirm — clamped to the tile (not a window scrim), same 360px shell as <code>markdown_open</code> — with Open / Cancel; Cancel opens nothing.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", flexDirection: "column", gap: 16 }}>
             <div style={{ width: 440, maxWidth: "100%", display: "flex", flexDirection: "column", gap: 10 }}>
-              <div><div style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 6 }}>display (idle)</div>
+              <div><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 6 }}>display (idle)</div>
                 <div style={{ border: "1px solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}><MdAddressBar /></div></div>
-              <div><div style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 6 }}>editing (focus)</div>
+              <div><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 6 }}>editing (focus)</div>
                 <div style={{ border: "1px solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}><MdAddressBar editing path="~/work/tasty/docs/design/systems/theme.md" /></div></div>
             </div>
             <div style={{ position: "relative", width: 440, maxWidth: "100%", height: 232, background: "var(--tasty-bg-panel)",
               border: "1px solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
               <MdAddressBar path="~/work/tasty/docs/CHANGELOG-full.md" />
               <div data-audit-exempt="under-scrim" style={{ padding: "14px 18px" }}><div style={{ ...MD_H[1], margin: 0 }}>Changelog</div><div style={mdBody}>A very long history…</div></div>
-              <div style={{ position: "absolute", inset: "40px 0 0 0", background: "rgba(0,0,0,.5)", display: "flex", alignItems: "center", justifyContent: "center", padding: 12 }}>
+              <div style={{ position: "absolute", inset: "40px 0 0 0", background: "var(--tasty-scrim-bg)", display: "flex", alignItems: "center", justifyContent: "center", padding: 12 }}>
                 <MdLargeFilePopup />
               </div>
             </div>
@@ -1058,16 +1115,47 @@ function Page() {
 
       <Section id="html" title="HTML viewer">
         <Spec id="html-webview-chrome-4-states" title="HTML — webview chrome (4 states)"
-          when={<>The html surface is <b>thin chrome + a native OS WebView overlay</b> — tasty does <b>not</b> theme the page pixels. What tasty paints is the tile skeleton before/instead of the overlay: <b>boundary</b> (region marker), <b>placeholder</b> (no URL), <b>loading</b> (Spinner), <b>error</b> (danger). Same tile (<span className="tok">--tasty-bg-panel</span> + 1px border), centered content. The address bar band above these states is specified below (2026-10-12).</>}>
+          when={<>The html surface is <b>thin chrome + a native OS WebView overlay</b> — tasty does <b>not</b> theme the page pixels. What tasty paints is the tile skeleton before/instead of the overlay: <b>boundary</b> (region marker), <b>placeholder</b> (no URL), <b>loading</b> (Spinner), <b>error</b> (danger). All four are one part, the <b>webview page tile</b> (<code>HtmlPageState</code>), drawn on the page bed with no outline of its own: the frame around each specimen is the gallery's, not the app's. The same part fills the page rect under the address band below, the html mirror notices and the load-failed state, so the tile is that part in a fixed rect, not a second size. Its block is glyph, title and a sub line that is <b>always reserved</b>, centred as one, so loading, no page and failed swap without moving the glyph. The address bar band above these states is specified below (2026-10-12).</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 14, flexWrap: "wrap" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>boundary</div><HtmlTile state="boundary" /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>placeholder</div><HtmlTile state="placeholder" /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>loading</div><HtmlTile state="loading" /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>error</div><HtmlTile state="error" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>boundary</div><div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}><HtmlTile state="boundary" /></div></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>placeholder</div><div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}><HtmlTile state="placeholder" /></div></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>loading</div><div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}><HtmlTile state="loading" /></div></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>error</div><div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}><HtmlTile state="error" /></div></div>
           </Stage>
           <Meta
-            specs={[["content", "native OS WebView (token-agnostic)"], ["tile", <><span className="tok">--tasty-bg-panel</span> + 1px <span className="tok">--tasty-border-default</span></>], ["boundary (2026-10-06)", "plain tile only (bg-panel + 1px border) — shown only while an egui overlay hides a loaded page; no glyph, label or URL / path"], ["placeholder", "GLOBE (disabled) + 'No page loaded'"], ["loading", "Spinner + 'Loading…'"], ["error", "ALERT (danger) + URL"]]}
-            tokens={[{ tok: "--tasty-text-muted", use: "placeholder / loading label", color: "var(--tasty-text-muted)" }, { tok: "--tasty-text-disabled", use: "placeholder / URL", color: "var(--tasty-text-disabled)" }, { tok: "--tasty-spinner-indicator", use: "loading", color: "var(--tasty-spinner-indicator)" }, { tok: "--tasty-accent-danger", use: "error", color: "var(--tasty-accent-danger-raised)" }]} />
+            specs={[["content", "native OS WebView (token-agnostic)"], ["part", "HtmlPageState — one part for the page rect at every size; it fills the rect the host gives"], ["tile", <>page bed (<span className="tok">--tasty-bg-panel</span>) · no border, no shadow · the band's 1px separator is the only rule</>], ["block", "glyph 16 · space-sm · title (body × line-height-ui) · space-sm · sub line (caption × line-height-ui), always reserved · centred as one · padding space-md"], ["boundary (2026-10-06)", "the bare bed — shown only while an egui overlay hides a loaded page; no glyph, label or URL / path"], ["placeholder", "html glyph (glyph-dim) + 'No page loaded' · sub line holds the address hint when the surface has a band"], ["loading", "Spinner + 'Loading…' · sub line empty"], ["error", "alertCircle (glyph-danger) + 'Failed to load' (text-danger) + URL mono"]]}
+            tokens={[{ tok: "--tasty-text-muted", use: "placeholder / loading title · sub line · URL", color: "var(--tasty-text-muted)" }, { tok: "--tasty-glyph-dim", use: "placeholder glyph", color: "var(--tasty-glyph-dim)" }, { tok: "--tasty-spinner-indicator", use: "loading", color: "var(--tasty-spinner-indicator)" }, { tok: "--tasty-accent-danger", use: "error glyph (glyph-danger)", color: "var(--tasty-accent-danger)" }, { tok: "--tasty-accent-danger-raised", use: "error title (text-danger)", color: "var(--tasty-accent-danger-raised)" }]} />
+        </Spec>
+        <Spec id="html-display-backend-notice" title="HTML and Markdown — display backend notice"
+          when={<>On Linux the webview cannot be created when Tasty runs on <b>native Wayland</b> (no XWayland, cause 1; or the X server in <code>DISPLAY</code> unreachable, cause 1b) or was started with a <b><code>GDK_BACKEND</code> value that does not allow x11</b> (cause 2: <code>wayland</code>, <code>broadway</code> or any other value without x11, so its title names no value), and when GTK failed to initialize for any other reason (<b>gtk-init</b>: the window is X11 and <code>GDK_BACKEND</code> is unset or allows x11). Instead of the bare tile, the page rect shows a notice for as long as the surface is visible: <b>title = what is off and why, sub = the fix</b>. The same notice covers html, markdown and the html mirror, including a remote web address: there is no separate remote state. Cause 2 and gtk-init also name the tray icon, which is off for the same reason; this title is the only notice for it. gtk-init names GTK init failure as the cause and nothing else: Tasty does not know why GTK failed, so there is no fix to offer and the sub line stays empty. Menus are not named: where the native menu cannot open, Tasty opens its fallback menu. Neither the clipboard nor file drops are named. No kind has a button or a link, and none opens the user guide: the fix for causes 1, 1b and 2 is done outside Tasty and needs a restart, and gtk-init has none. It is the webview page tile with four more kinds; its fix line <b>wraps and never ellipsizes</b>, because a cut fix fails the notice.</>}>
+          <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
+            {DB_CAUSES.map(([kind, cap]) => <Framed key={kind} cap={cap}><HtmlTile state={kind} /></Framed>)}
+            <Framed cap="html surface with its band · cause 1"><HtmlAddressSurfaceG width="var(--tasty-size-460)" height={240} bar={{ kind: "local", address: "~/work/tasty/target/report.html" }} page="native-wayland" /></Framed>
+            <Framed cap="html mirror, remote web address · cause 2"><HtmlAddressSurfaceG width="var(--tasty-size-460)" height={240} label={`${BASE}design/gallery/`} bar={{ kind: "remote", address: "build-eu ↦ https://intranet.example/status" }} page="gdk-backend" /></Framed>
+            {DB_CAUSES.map(([kind, cap]) => <Framed key={"latte" + kind} theme="latte" cap={`Latte · ${cap}`}><HtmlTile state={kind} /></Framed>)}
+          </Stage>
+          <Views>
+            {DB_CAUSES.map(([kind]) => DB_TILE_LANGS.map((lang) => (
+              <View key={kind + lang} name={`html-notice-${kind}-${lang}`} label={`${kind}, ${lang}, 220 x 150`}>
+                <HtmlTile state={kind} lang={lang} />
+              </View>
+            )))}
+            {DB_CAUSES.map(([kind]) => (
+              <View key={"narrow" + kind} name={`html-notice-${kind}-narrow`} label={`${kind}, ja, narrow 160 x 150`}>
+                <HtmlTile state={kind} lang="ja" width={160} />
+              </View>
+            ))}
+            {DB_OVERFLOW.map(([kind, lang, width]) => (
+              <View key={"end" + kind + lang + width} name={`html-notice-${kind}-${lang}-${width}-scrolled-end`} label={`${kind}, ${lang}, ${width} x 150, scrolled to the end (fix line)`}>
+                <ScrolledToEnd><HtmlTile state={kind} lang={lang} width={width} /></ScrolledToEnd>
+              </View>
+            ))}
+          </Views>
+          <Meta
+            specs={[["kinds", "native-wayland (1) · native-wayland-x (1b) · gdk-backend (2) · gtk-init (GTK init failed, X11 window) — one at a time; 1 never holds with 2 or gtk-init in one window, and 2 and gtk-init exclude each other"], ["where", "the page rect of html, markdown and html mirror surfaces; the band stays above it"], ["when", "the webview could not be created; the notice stays while the surface is visible, until Tasty restarts"], ["glyph", <>info · <span className="tok">--tasty-glyph-dim</span></>], ["title", <>cause · body · <span className="tok">--tasty-text-muted</span> · wraps, balanced lines</>], ["sub", <>fix (gtk-init: none, the line stays reserved and empty) · caption · <span className="tok">--tasty-text-muted</span> · wraps, balanced lines · <b>never ellipsis</b> · min one caption line box, grows by whole lines</>], ["block", "centred while it fits · otherwise starts at the top padding and the rect scrolls vertically (standard scrollbar, tasty-scroll) — never clipped"], ["button", "none, and no link, for every kind including gtk-init: no notice opens the user guide (decided 2026-11-11) · the 1 / 1b / 2 fix is outside Tasty and needs a restart · gtk-init has no fix"], ["copy", "webview.native_wayland(_sub) · webview.native_wayland_x_failed(_sub) · webview.gdk_backend(_sub) · webview.gtk_init_failed (no _sub) — display_backend_copy.js, four languages"], ["file drops (J2, decided 2026-11-11)", "not named: Tasty takes file drops from other apps on native Wayland too, so no title mentions them"]]}
+            tokens={[{ tok: "--tasty-glyph-dim", use: "info glyph", color: "var(--tasty-glyph-dim)" }, { tok: "--tasty-text-muted", use: "title · fix line", color: "var(--tasty-text-muted)" }, { tok: "--tasty-font-size-caption", use: "fix line" }, { tok: "--tasty-space-md", use: "padding" }, { tok: "--tasty-space-sm", use: "glyph · title · fix gaps" }]} />
+          <Note>The Views draw every cause in all four languages at the gallery tile size and the Japanese text at 160 wide. Where the block is taller than the rect the tile scrolls, so the fix is reached by scrolling, never cut: at 220 x 150 cause 2 in en and ja and cause 1b in ja, and at 160 wide every cause. Those tiles also appear scrolled to the end, with the fix line in view. gtk-init has no fix line and fits at both sizes in all four languages, so it has no scrolled frame. The copy is the app's, from <code>display_backend_copy.js</code>; the rest of the gallery stays en-only.</Note>
+          <Dont><b>Don't</b> put the fix in a tooltip or behind a link, add a button such as one that opens the user guide, or ellipsize the fix. The notice must name the cause and the fix where it is read.</Dont>
         </Spec>
         <Spec id="html-focus-edge" title="HTML — focus edge above the band"
           when={<>The host cannot paint the page, so html shows focus only on the <a href="../layouts/#surface-focus-every-kind">surface focus edge</a>, above the address band. Its bed cannot follow focus the way a terminal's does: author CSS owns it, and a sandboxed page may run no script. Stack from the top: <b>edge → address band → size banner → script banner → page</b>. The band, the banners and the chrome tiles look the same in both states. A focused field keeps its blue ring, on a focused surface and only there.</>}>
@@ -1102,33 +1190,33 @@ function Page() {
               ["7b · input error — no base for a relative path", { kind: "empty", address: "docs/index.html", state: "error", canBack: false, error: "Can't resolve a relative path — no document or working folder" }, "empty"],
             ].map(([cap, bar, page]) => (
               <div key={cap} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
                 <div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
                   <HtmlAddressSurfaceG width="var(--tasty-size-460)" height={240} bar={bar} page={page} url="https://offline.example" />
                 </div>
               </div>
             ))}
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
-              <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>8 · with the script banner — band, then the inset banner, then the page</span>
+              <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>8 · with the script banner — band, then the inset banner, then the page</span>
               <div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
                 <HtmlAddressSurfaceG width="var(--tasty-size-560)" height={300} bar={{ kind: "local", address: "~/work/tasty/target/report.html" }} banners={["script"]} />
               </div>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
-              <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>9 · mirror — read-only field, Reload only</span>
+              <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>9 · mirror — read-only field, Reload only</span>
               <div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
-                <HtmlAddressSurfaceG width="var(--tasty-size-460)" height={240} bar={{ kind: "remote", address: "build-eu:~/work/site/index.html" }} />
+                <HtmlAddressSurfaceG width="var(--tasty-size-460)" height={240} bar={{ kind: "remote", address: "/home/me/work/site/index.html" }} />
               </div>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
-              <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>10 · narrow (360 &lt; 440) — Forward hidden</span>
+              <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>10 · narrow (360 &lt; 440) — Forward hidden</span>
               <div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
                 <HtmlAddressSurfaceG width="var(--tasty-size-360)" height={300} narrow bar={{ kind: "web", address: "https://docs.example.com/guide/getting-started", canBack: true, canForward: true }} banners={["script"]} />
               </div>
             </div>
             {[["Latte · local + editing", { kind: "local", address: "~/work/tasty/target/rep", state: "editing" }, "page"], ["Latte · input error", { kind: "local", address: "/tmp/x/missing.html", state: "error", error: "File not found: /tmp/x/missing.html" }, "page"], ["Latte · empty tab", { kind: "empty", canBack: false }, "empty"]].map(([cap, bar, page]) => (
               <div key={cap} data-theme="latte" style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", padding: "var(--tasty-space-sm)", background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
                 <div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
                   <HtmlAddressSurfaceG width="var(--tasty-size-460)" height={220} bar={bar} page={page} />
                 </div>
@@ -1136,7 +1224,7 @@ function Page() {
             ))}
           </Stage>
           <Meta
-            specs={[["band", "40 · bg-sidebar · 1px separator below · padding-x 8"], ["nav", "Back · Forward · Reload — IconButton sm 24, gap 4 · disabled at history ends"], ["field", "PathField box (input tokens, 28, mono) · no Go · leading glyph file / link / html / remote"], ["address", "local = path (~ for home) · web = full URL · typed and shown the same"], ["loading", "Spinner in the Reload cell, not clickable"], ["error", "danger edge + 24 row in the band · clears on keystroke / Esc / successful open"], ["stack", "band → size banner → script banner → page · 8 / 8 / 8"], ["narrow", "< banner-narrow-below 440 → Forward hidden · field floor 96"], ["mirror", "read-only field + Reload only · band hidden while mirror HTML is a placeholder"], ["tooltips", "top — never down into the WebView"], ["empty", "keep glyph + 'No page loaded' · add hint + Alt+L / ⌘L"]]}
+            specs={[["band", "40 · bg-sidebar · 1px separator below · padding-x 8"], ["nav", "Back · Forward · Reload — IconButton sm 24, gap 4 · disabled at history ends"], ["field", "PathField box (input tokens, 28, mono) · no Go · leading glyph file / link / html / remote"], ["address", "local = path (~ for home) · mirror = the remote absolute path as it is, no host prefix and no ~ · web = full URL · typed and shown the same"], ["loading", "Spinner in the Reload cell, not clickable"], ["error", "danger edge + 24 row in the band · clears on keystroke / Esc / successful open"], ["stack", "band → size banner → script banner → page · 8 / 8 / 8"], ["narrow", "< banner-narrow-below 440 → Forward hidden · field floor 96"], ["mirror", "read-only field + Reload only · band hidden while mirror HTML is a placeholder"], ["tooltips", "top — never down into the WebView"], ["empty", "keep glyph + 'No page loaded' · add hint + Alt+L / ⌘L"]]}
             tokens={[{ tok: "--tasty-html-address-bar-height", use: "→ size-40" }, { tok: "--tasty-html-address-bar-bg", use: "→ bg-sidebar", color: "var(--tasty-html-address-bar-bg)" }, { tok: "--tasty-html-address-bar-border", use: "→ separator", color: "var(--tasty-html-address-bar-border)" }, { tok: "--tasty-html-address-bar-padding-x", use: "→ space-sm" }, { tok: "--tasty-html-address-bar-gap", use: "→ space-sm" }, { tok: "--tasty-html-address-bar-nav-gap", use: "→ space-xs" }, { tok: "--tasty-html-address-field-min-width", use: "→ size-96" }, { tok: "--tasty-html-address-error-height", use: "→ size-24" }, { tok: "--tasty-html-address-error-glyph", use: "→ accent-danger", color: "var(--tasty-html-address-error-glyph)" }, { tok: "--tasty-input-border-invalid", use: "field edge on error", color: "var(--tasty-input-border-invalid)" }]} />
           <Note>An agent changing the address while the user edits does not touch the typed text or focus, and gets no extra marker — Esc reverts to whatever the current address is by then.</Note>
         </Spec>
@@ -1150,34 +1238,34 @@ function Page() {
               ["3 · cumulative limit reached", { banners: ["limit"], page: "paused" }],
               ["4 · size banner + script banner", { banners: ["size", "script"], page: "paused", height: 360 }],
               ["5 · after declining — page shown, “2 skipped” in the field", { banners: [], page: "page", skipped: 2 }],
-              ["6 · macOS 11–13, remote web address", { banners: [], page: "macos", address: "build-eu ↦ https://intranet.example/status" }],
+              ["6 · macOS 11–26, remote web address", { banners: [], page: "macos", address: "build-eu ↦ https://intranet.example/status" }],
               ["7 · disconnected before the page arrived", { banners: [], page: "disconnected", disconnected: true }],
             ].map(([cap, o]) => (
               <div key={cap} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
                 <div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
-                  <HtmlAddressSurfaceG width="var(--tasty-size-560)" height={o.height || 280} label={`${BASE}design/gallery/`} bar={{ kind: "remote", address: o.address || "build-eu:~/work/site/index.html", skipped: o.skipped, disconnected: o.disconnected }} banners={o.banners} page={o.page} progress={o.progress} />
+                  <HtmlAddressSurfaceG width="var(--tasty-size-560)" height={o.height || 280} label={`${BASE}design/gallery/`} bar={{ kind: "remote", address: o.address || "/home/me/work/site/index.html", skipped: o.skipped, disconnected: o.disconnected }} banners={o.banners} page={o.page} progress={o.progress} />
                 </div>
               </div>
             ))}
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
-              <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>8 · narrow (360) — actions wrap under the body</span>
+              <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>8 · narrow (360) — actions wrap under the body</span>
               <div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
-                <HtmlAddressSurfaceG width="var(--tasty-size-360)" height={320} narrow label={`${BASE}design/gallery/`} bar={{ kind: "remote", address: "build-eu:~/work/site/index.html" }} banners={["size"]} page="paused" />
+                <HtmlAddressSurfaceG width="var(--tasty-size-360)" height={320} narrow label={`${BASE}design/gallery/`} bar={{ kind: "remote", address: "/home/me/work/site/index.html" }} banners={["size"]} page="paused" />
               </div>
             </div>
             {[["Latte · large file", ["size"]], ["Latte · limit", ["limit"]]].map(([cap, b]) => (
               <div key={cap} data-theme="latte" style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", padding: "var(--tasty-space-sm)", background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
                 <div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
-                  <HtmlAddressSurfaceG width="var(--tasty-size-560)" height={260} label={`${BASE}design/gallery/`} bar={{ kind: "remote", address: "build-eu:~/work/site/index.html" }} banners={b} page="paused" />
+                  <HtmlAddressSurfaceG width="var(--tasty-size-560)" height={260} label={`${BASE}design/gallery/`} bar={{ kind: "remote", address: "/home/me/work/site/index.html" }} banners={b} page="paused" />
                 </div>
               </div>
             ))}
           </Stage>
           <Meta
-            specs={[["placement", "inset, same as the script banner · above it when both show"], ["large file", "download glyph (info) · title · path (left-ellipsis) + size Tag warning · Decline ghost / Allow secondary"], ["several files", "one at a time · '+N more waiting'"], ["limit", "alertTriangle (warning) · received total · Stop ghost / Continue secondary"], ["dismiss", "no × · no keyboard focus · click only"], ["receiving", "Spinner + bytes · files (mono)"], ["paused", "static download glyph + 'Paused — answer the notice above'"], ["declined", "'N skipped' Tag in the read-only field, tooltip lists names · cleared by Reload"], ["macOS 11–13", "info glyph + copy in the page rect · band stays"], ["disconnected", "Reload disabled (tooltip says why) · page rect notice if nothing arrived; a received page stays"]]}
-            tokens={[{ tok: "--tasty-html-size-banner-glyph", use: "→ accent-info", color: "var(--tasty-html-size-banner-glyph)" }, { tok: "--tasty-html-limit-banner-glyph", use: "→ accent-warning", color: "var(--tasty-html-limit-banner-glyph)" }, { tok: "--tasty-html-receiving-fg", use: "→ text-muted", color: "var(--tasty-html-receiving-fg)" }, { tok: "--tasty-html-receiving-glyph", use: "→ glyph-dim", color: "var(--tasty-html-receiving-glyph)" }, { tok: "--tasty-banner-inset-gap", use: "between banners + below the last" }]} />
+            specs={[["placement", "inset, same as the script banner · above it when both show"], ["large file", "download glyph (info) · title · path (left-ellipsis) + size Tag warning · Decline ghost / Allow secondary"], ["several files", "one at a time · '+N more waiting'"], ["limit", "alertTriangle (warning) · received total · Stop ghost / Continue secondary"], ["dismiss", "no × · no keyboard focus · click only"], ["receiving", "Spinner + bytes · files (mono)"], ["paused", "static download glyph + 'Paused — answer the notice above'"], ["declined", "'N skipped' Tag in the read-only field, tooltip lists names · cleared by Reload"], ["macOS 11–26", "info glyph + copy in the page rect · band stays"], ["disconnected", "Reload disabled (tooltip says why) · page rect notice if nothing arrived; a received page stays"]]}
+            tokens={[{ tok: "--tasty-html-size-banner-glyph", use: "→ accent-info", color: "var(--tasty-html-size-banner-glyph)" }, { tok: "--tasty-html-limit-banner-glyph", use: "→ accent-warning", color: "var(--tasty-html-limit-banner-glyph)" }, { tok: "--tasty-text-muted", use: "receiving / paused / notice copy", color: "var(--tasty-text-muted)" }, { tok: "--tasty-glyph-dim", use: "static glyph while paused · notices", color: "var(--tasty-glyph-dim)" }, { tok: "--tasty-banner-inset-gap", use: "between banners + below the last" }]} />
         </Spec>
         <Spec id="html-settings-appearance-html-viewer" title="HTML — settings (Appearance › HTML viewer)">
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)" }}>
@@ -1194,8 +1282,8 @@ function Page() {
         <Spec id="image-viewer-edit-paint-modes" title="Image — viewer & edit (paint) modes"
           when={<>The image surface is a single horizontal <b>control bar</b> over a <b>canvas</b>. Two modes toggle the bar: <b>viewer</b> (◀ ▶ ↻ ✎ ＋ · filename (i/n) · right-aligned zoom group) and <b>edit / paint</b> (Save · Cancel · undo/redo · brush size · color · zoom). Canvas fills with the bed for the focus state, <span className="tok">--tasty-surface-bed-focused</span> or <span className="tok">--tasty-surface-bed-unfocused</span>, so the image floats; ≤100% fits to window, &gt;100% pans on drag. ◀ ▶ show only when sibling images exist.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 16, flexWrap: "wrap" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>viewer · fit (100%)</div><ImgSurface mode="viewer" /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>viewer · zoomed + panned (250%)</div><ImgSurface mode="viewer" panned /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>viewer · fit (100%)</div><ImgSurface mode="viewer" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>viewer · zoomed + panned (250%)</div><ImgSurface mode="viewer" panned /></div>
           </Stage>
           {focusViews("image-viewer", (focused) => <ImgSurface mode="viewer" focused={focused} />, { width: "fit-content" })}
           <Meta
@@ -1205,18 +1293,18 @@ function Page() {
         <Spec id="image-paint-bar-floating-selection-popups" title="Image — paint bar · floating selection · popups"
           when={<>Edit mode swaps in the paint bar (undo/redo with disabled state, brush-size slider, color swatch defaulting to <span className="tok">--tasty-accent-danger</span>). A pasted image becomes a <b>floating selection</b> — accent border + 8 resize handles — that you move/resize before committing. <b>New Image</b> and <b>Save As</b> are small popups.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 16, flexWrap: "wrap" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>edit · floating selection</div><ImgSurface mode="edit" floating /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>edit · floating selection</div><ImgSurface mode="edit" floating /></div>
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              <div style={{ width: "var(--tasty-image-popup-width)", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", overflow: "hidden" }}>
+              <div style={{ width: "var(--tasty-image-popup-width)", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", overflow: "hidden" }}>
                 <div style={{ padding: "var(--tasty-image-popup-pad-top) var(--tasty-image-popup-pad-x) var(--tasty-image-popup-gap)" }}>
                   <div style={{ fontSize: "var(--tasty-image-popup-title-font-size)", fontWeight: "var(--tasty-image-popup-title-weight)", marginBottom: "var(--tasty-image-popup-gap)" }}>New Image</div>
                   <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-image-popup-btn-gap)", fontSize: 13, color: "var(--tasty-text-secondary)" }}>
-                    <span>Width</span><Input style={{ width: "var(--tasty-image-size-input-width)", flex: "none" }} defaultValue="800" /><span style={{ color: "var(--tasty-text-muted)" }}>×</span><span>Height</span><Input style={{ width: "var(--tasty-image-size-input-width)", flex: "none" }} defaultValue="600" />
+                    <span>Width</span><span style={imgSizeField}><Input block defaultValue="800" /></span><span style={{ color: "var(--tasty-text-muted)" }}>×</span><span>Height</span><span style={imgSizeField}><Input block defaultValue="600" /></span>
                   </div>
                 </div>
                 <div style={{ display: "flex", justifyContent: "flex-end", gap: "var(--tasty-image-popup-btn-gap)", padding: "0 var(--tasty-image-popup-pad-x) var(--tasty-image-popup-pad-top)" }}><Button variant="ghost" size="sm">Cancel</Button><Button variant="primary" size="sm">OK</Button></div>
               </div>
-              <div style={{ width: "var(--tasty-image-popup-width)", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", overflow: "hidden" }}>
+              <div style={{ width: "var(--tasty-image-popup-width)", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", overflow: "hidden" }}>
                 <div style={{ padding: "var(--tasty-image-popup-pad-top) var(--tasty-image-popup-pad-x) var(--tasty-image-popup-gap)" }}>
                   <div style={{ fontSize: "var(--tasty-image-popup-title-font-size)", fontWeight: "var(--tasty-image-popup-title-weight)", marginBottom: "var(--tasty-image-popup-gap)" }}>Save As</div>
                   <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-image-path-row-gap)" }}>
@@ -1236,14 +1324,14 @@ function Page() {
         <Spec id="image-empty-canvas-vs-load-failed-save-as-name-clash" title="Image — empty canvas vs load failed · Save As name clash"
           when={<>The canvas reuses the <b>explorer state screen</b> (glyph · title · sub / OS reason · buttons, and its one-line <b>compact</b> form when the canvas is under 120) on the canvas bed, the same <span className="tok">--tasty-surface-bed-focused</span> and <span className="tok">--tasty-surface-bed-unfocused</span> pair as the viewer. The state screen is the canvas, so it shows focus the way the canvas does and needs no mark of its own. <b>Empty</b> (surface opened without a file) keeps the single muted line “No image loaded” and no buttons. <b>Load failed</b> is split by cause, each with its own title: <b>missing</b> (path gone or moved), <b>permission</b> (lock glyph, warning tone — the explorer's permission state), <b>decode</b> (damaged or unsupported; the decoder message goes on the mono reason line instead of only the log). Every failure has one button, <b>Retry</b> (secondary sm = the toolbar refresh). The file watcher still reloads by itself within 1 s, and ◀ ▶ in the bar keep working when the folder has other images. Save As opened because a <code>.png</code> of the same name exists gets a <b>caption above the field</b> in accent-warning-raised and the field pre-filled with the next free name, stem selected.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", flexDirection: "column", gap: 12 }}>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 12, width: "100%", maxWidth: 760 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 12, width: "var(--tasty-image-state-specimen-grid-width)", flex: "none" }}>
               {IMAGE_STATES.map((st) => <ImgState key={st} state={st} focused />)}
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 8, width: "100%", maxWidth: 440 }}>
               <div style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 10, color: "var(--tasty-text-muted)" }}>canvas under 120 → compact row</div>
               <ImgState state="decode" focused compact />
             </div>
-            <div style={{ width: "var(--tasty-image-popup-width)", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", overflow: "hidden" }}>
+            <div style={{ width: "var(--tasty-image-popup-width)", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", overflow: "hidden" }}>
               <div style={{ padding: "var(--tasty-image-popup-pad-top) var(--tasty-image-popup-pad-x) var(--tasty-image-popup-gap)" }}>
                 <div style={{ fontSize: "var(--tasty-image-popup-title-font-size)", fontWeight: "var(--tasty-image-popup-title-weight)", marginBottom: "var(--tasty-image-popup-gap)" }}>Save As</div>
                 <div style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-accent-warning-raised)", marginBottom: "var(--tasty-space-xs)" }}>diagram.png already exists. Save the PNG under another name.</div>
@@ -1290,6 +1378,10 @@ export const page = {
   content: <Page />,
 };
 
+// explorer.name.invalid_char filled with /, quoted from tasty lang/*.toml. The pre-check refuses an empty
+// name, a forbidden character, an edge space and a reserved name; a name that already exists is only
+// found when the rename runs, so it is not drawn here.
+const RENAME_INVALID_CHAR = { en: "A name can't contain “/”.", ko: "이름에 “/” 문자를 쓸 수 없습니다.", ja: "名前に「/」は使えません。", "zh-Hans": "名称不能包含“/”。" };
 export default function GalleryRoute() {
   return <PageStates value={STATES}>{page.content}</PageStates>;
 }

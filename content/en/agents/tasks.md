@@ -1,4 +1,4 @@
-<!-- source-hash: a5e99f1be7d9 -->
+<!-- source-hash: a9ffb9100518 -->
 <a id="task-dag"></a>
 
 # Task workflows (DAG)
@@ -18,6 +18,8 @@ tasty agent task-run --workspace 2 --action start
 tasty agent task-run --workspace 2 --action status
 tasty agent task-run --workspace 2 --action stop
 ```
+
+`stop` returns as soon as it accepts the stop request. The runner stops dispatching new tasks and finishes any dispatch, status check, or postprocess cleanup already in progress. There is no fixed upper bound on how long stopping takes. During cleanup, `status` returns `state: stopping`, and `start` does not launch another runner. To start the runner again, wait until `status` returns `state: stopped` before running `start`.
 
 Restarting Tasty does not start the runner again automatically. The tasks themselves are still there, so `start` again and it picks up where it left off. A task that was waiting for an external completion signal before the restart is not finished by that signal afterwards; once its wait time runs out, a running runner ends it as a timeout failure. When the runner is stopped, the runner pill on the DAG screen says so, and hovering it shows the command that starts it again. In a DAG tab that command is also spelled out on the header line.
 
@@ -199,7 +201,7 @@ An `agent` task sends one instruction to an agent session such as Claude or Code
  "output_schema": {"type": "enum", "values": ["approve", "revise"]}}
 ```
 
-- `provider` names the plugin that runs the session: `claude` for the Claude plugin and `codex` for the Codex plugin. Other plugins that support agent tasks use their own name. If that plugin is not installed, is turned off, or lacks the turn-report permission, creating the task is refused with the reason. If you turn the plugin off after creating the task, the task fails when it runs.
+- `provider` names the plugin that runs the session: `claude` for the Claude plugin and `codex` for the Codex plugin. Other plugins that support agent tasks use their own name. If that plugin is not installed or is turned off, creating the task is refused with the reason. If you turn the plugin off after creating the task, the task fails when it runs.
 - The `workspace_id` in `command` is the workspace a new session opens in. `task-submit` hands the value to the workspace the task lives in, and the guidance appended to the instruction carries that number.
 - With `session` set to `{"kind": "new", "parent_surface": <surface>}`, a new session starts under that surface and gets the instruction. Add `"cwd": "<path>"` to set the new session's working folder. With `{"kind": "existing", "surface_id": <surface>}`, the instruction goes to a session that is already open.
 - An open session gets the instruction only when it is idle. If you are talking to it, the task waits until you finish, so the conversations do not mix. A one-line marker for that run is added to the end of the instruction, and only a turn started with that marker counts as the task's turn. Tasks that use the same session run one after another.
@@ -318,7 +320,7 @@ You can run several unrelated graphs in one Workspace. The list groups a chunk c
 | **Cancelled** · **Skipped** | A person cancelled it, or something before it failed and it was skipped |
 | **Not selected** | Another branch was chosen, so it did not run. This is not a failure |
 | **Needs input** | A running Claude or Codex session is waiting for a person's answer. The DAG state stays running |
-| **Unknown** | The result is not known. Click the node to see the reason in the details. The command ended while Tasty was restarting, or Tasty kept watching it after the restart and it ended later; either way its exit code could not be collected (a restarted Tasty cannot receive that command's exit code). Later tasks wait until you run it again (`task-retry`) or cancel it. Tasks holding a semaphore or lease behave the same way: if the command is still running, it keeps the resource until it ends and then gives it back |
+| **Unknown** | Tasty could not determine the task result. Click the node to see the reason in the details. The command ended while Tasty was restarting, or Tasty kept watching it after the restart and it ended later; either way its exit code could not be collected (a restarted Tasty cannot receive that command's exit code). Later tasks wait until you run it again (`task-retry`) or cancel it. Tasks holding a semaphore or lease behave the same way: if the command is still running, it keeps the resource until it ends and then gives it back |
 
 To see it from a terminal:
 

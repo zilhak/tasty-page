@@ -18,6 +18,8 @@ tasty agent task-run --workspace 2 --action status
 tasty agent task-run --workspace 2 --action stop
 ```
 
+`stop`은 정지 요청을 받으면 바로 응답합니다. 러너는 아직 보내지 않은 작업의 실행을 시작하지 않고, 이미 진행 중인 실행 요청·상태 확인·후처리 정리를 마칩니다. 정지 완료까지 걸리는 시간에는 정해진 상한이 없습니다. 정리 중에는 `status`가 `state: stopping`을 반환하고 `start`를 보내도 새 러너가 켜지지 않습니다. 다시 켜려면 `status`가 `state: stopped`를 반환한 뒤 `start`를 실행하세요.
+
 tasty 를 재시작하면 러너는 자동으로 켜지지 않습니다. 작업 자체는 남아 있으니 다시 `start` 하면 이어서 진행합니다. 재시작 전에 외부 완료 신호를 기다리던 작업은 재시작 뒤 그 신호로는 끝나지 않고, 정해 둔 대기 시간이 지나면 실행 중인 러너가 시간 초과 실패로 끝냅니다. 러너가 멈춰 있으면 DAG 화면의 러너 표시에도 그 사실이 나오고, 표시 위에 마우스를 올리면 다시 켜는 명령이 그대로 보입니다. DAG 탭에서는 그 명령이 머리말에 한 줄로도 적힙니다.
 
 ## 작업 만들기
@@ -198,7 +200,7 @@ Tasty 가 메모리 파일을 열지 못해 [임시 메모리](cli-reference.md#
  "output_schema": {"type": "enum", "values": ["approve", "revise"]}}
 ```
 
-- `provider` 는 세션을 맡을 플러그인의 이름입니다. Claude 플러그인은 `claude`, Codex 플러그인은 `codex` 이고, 에이전트 작업을 지원하는 다른 플러그인도 자기 이름으로 쓸 수 있습니다. 그 플러그인이 설치돼 있지 않거나, 꺼져 있거나, 턴 보고 권한이 없으면 작업을 만들 때 이유와 함께 거절됩니다. 만든 뒤에 플러그인을 끄면 그 작업은 실행할 때 실패합니다.
+- `provider` 는 세션을 맡을 플러그인의 이름입니다. Claude 플러그인은 `claude`, Codex 플러그인은 `codex` 이고, 에이전트 작업을 지원하는 다른 플러그인도 자기 이름으로 쓸 수 있습니다. 그 플러그인이 설치돼 있지 않거나, 꺼져 있으면 작업을 만들 때 이유와 함께 거절됩니다. 만든 뒤에 플러그인을 끄면 그 작업은 실행할 때 실패합니다.
 - `command` 의 `workspace_id` 는 새 세션을 띄울 워크스페이스입니다. 값을 내는 `task-submit` 은 작업이 있는 워크스페이스로 보내며, 지시문 끝에 붙는 안내에 그 번호가 들어 있습니다.
 - `session` 이 `{"kind": "new", "parent_surface": <서피스>}` 면 그 서피스 아래에 새 세션을 띄워 지시합니다. 여기에 `"cwd": "<경로>"` 를 더하면 새 세션의 작업 폴더가 됩니다. `{"kind": "existing", "surface_id": <서피스>}` 면 이미 열린 세션에 보냅니다.
 - 이미 열린 세션은 비어 있을 때만 지시를 받습니다. 직접 대화하는 중이면 끝날 때까지 기다리므로 대화가 섞이지 않습니다. 지시 끝에는 그 실행을 알아보는 표지 한 줄이 붙고, 그 표지로 시작한 턴만 작업의 턴으로 봅니다. 같은 세션을 쓰는 작업은 차례로 실행됩니다.
@@ -317,7 +319,7 @@ DAG id 는 `tasty agent dag-list` 에서 봅니다. 다시 실행(retry)한 작�
 | **취소** <!-- en: Cancelled --> · **건너뜀** <!-- en: Skipped --> | 사람이 취소했거나, 앞이 실패해 건너뛰었습니다 |
 | **선택 안 됨** <!-- en: Not selected --> | 갈래에서 다른 쪽이 골라져 실행하지 않았습니다. 실패가 아닙니다 |
 | **입력 대기** <!-- en: Needs input --> | 실행 중인 Claude·Codex 세션이 사람의 답을 기다립니다. DAG 상태는 실행 중 그대로입니다 |
-| **알수없음** <!-- en: Unknown --> | 결과를 알 수 없습니다. 노드를 누르면 상세에 그 이유가 나옵니다. Tasty 가 다시 시작되는 사이 명령이 끝났거나, 다시 시작한 뒤 이어서 지켜보던 명령이 나중에 끝나 종료 코드를 받지 못한 경우입니다(다시 시작한 Tasty 는 그 명령의 종료 코드를 받을 수 없습니다). 뒤 작업은 기다리고, 다시 실행(`task-retry`)하거나 취소해야 진행됩니다. 세마포어·lease 를 쥔 작업도 같습니다. 명령이 아직 실행 중이면 끝날 때까지 자원을 쥐고 있다가 끝난 뒤 내놓습니다 |
+| **알 수 없음** <!-- en: Unknown --> | Tasty가 작업 결과를 확인할 수 없는 상태입니다. 노드를 누르면 상세에 그 이유가 나옵니다. Tasty 가 다시 시작되는 사이 명령이 끝났거나, 다시 시작한 뒤 이어서 지켜보던 명령이 나중에 끝나 종료 코드를 받지 못한 경우입니다(다시 시작한 Tasty 는 그 명령의 종료 코드를 받을 수 없습니다). 뒤 작업은 기다리고, 다시 실행(`task-retry`)하거나 취소해야 진행됩니다. 세마포어·lease 를 쥔 작업도 같습니다. 명령이 아직 실행 중이면 끝날 때까지 자원을 쥐고 있다가 끝난 뒤 내놓습니다 |
 
 터미널에서 보려면:
 
@@ -342,7 +344,7 @@ tasty agent task-graph --workspace 2 --format dot   # Graphviz 로 그리기
 
 ```sh
 tasty agent task-await --workspace 2 --id "$TEST"             # 끝날 때까지 대기
-tasty agent task-retry --workspace 2 --id "$TEST"             # 실패·취소·건너뜀·알수없음 작업 재시도
+tasty agent task-retry --workspace 2 --id "$TEST"             # 실패·취소·건너뜀·알 수 없음 작업 재시도
 tasty agent task-cancel --workspace 2 --id "$TEST"
 tasty agent task-set-result --workspace 2 --id "$MANUAL" --state succeeded
 tasty agent task-purge --workspace 2 --states succeeded

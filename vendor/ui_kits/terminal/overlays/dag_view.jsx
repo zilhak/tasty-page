@@ -6,6 +6,7 @@ import { Kbd } from "../../../components/core/Kbd.jsx";
 import { Tag } from "../../../components/core/Tag.jsx";
 import { ListCtrl } from "../../../components/data/ListCtrl.jsx";
 import { StatusDot } from "../../../components/feedback/StatusDot.jsx";
+import { Spinner } from "../../../components/feedback/Spinner.jsx";
 import { Checkbox } from "../../../components/forms/Checkbox.jsx";
 import { Input } from "../../../components/forms/Input.jsx";
 import { Select } from "../../../components/forms/Select.jsx";
@@ -24,7 +25,8 @@ import { Scrim } from "./shared.jsx";
 //   2 routing    orthogonal elbows (4px corner radius)
 //   3 minimap    yes, ≥560px surfaces only
 //   4 LOD        3 tiers by zoom: full ≥0.7 · compact ≥0.4 · block <0.4
-//   5 detail     right side panel (288) → bottom sheet (220) when narrow
+//   5 detail     2026-11-10: a 288 drawer laid OVER the canvas (graph_view.jsx GraphDrawer); the side
+//                panel and the bottom sheet that shrank the canvas are gone
 //   6 running    STATIC only — accent wash + ◑ glyph + accent bar (0ms policy)
 //   7 progress   "7/12" mono text
 //   8 node time  duration on the meta row, full LOD only
@@ -93,11 +95,11 @@ const DAG_PHASE = {
 function nodeLook(node) {
   const st = DAG_STATUS[node.status];
   const ph = node.status === "running" && node.phase ? DAG_PHASE[node.phase] : null;
-  if (!ph) return { glyph: st.glyph, label: st.label, tone: node.status, tok: sTok(node.status), bg: sBg(node.status), lbl: sLabel(node.status) };
+  if (!ph) return { glyph: st.glyph, label: st.label, tone: node.status, tok: sTok(node.status), bg: sBg(node.status), blk: sBlock(node.status), lbl: sLabel(node.status) };
   const label = ph.showRun && node.run ? `${ph.label} \u00b7 run ${node.run}` : ph.label;
   const t = ph.tone === "awaiting"
-    ? { tok: "var(--tasty-dag-phase-awaiting)", bg: "var(--tasty-dag-phase-awaiting-bg)", lbl: "var(--tasty-dag-phase-awaiting-label)" }
-    : { tok: sTok("running"), bg: sBg("running"), lbl: sLabel("running") };
+    ? { tok: "var(--tasty-dag-phase-awaiting)", bg: "var(--tasty-dag-phase-awaiting-bg)", blk: "var(--tasty-dag-phase-awaiting-block-bg)", lbl: "var(--tasty-dag-phase-awaiting-label)" }
+    : { tok: sTok("running"), bg: sBg("running"), blk: sBlock("running"), lbl: sLabel("running") };
   return { glyph: ph.glyph, label, tone: ph.tone, ...t };
 }
 // Hover text: "name — label", then the why-line for skipped / unknown / awaiting.
@@ -127,6 +129,8 @@ const DAG_REL = {
 const tk = (s) => String(s).replace(/_/g, "-");
 const sTok = (s) => `var(--tasty-dag-status-${tk(s)})`;
 const sBg = (s) => `var(--tasty-dag-status-${tk(s)}-bg)`;
+// Block tier fill — the status color mixed into the card ground (no ink on it).
+const sBlock = (s) => `var(--tasty-dag-status-${tk(s)}-block-bg)`;
 // Text tone — readable at 10px even for the weak states (see components.css).
 const sLabel = (s) => `var(--tasty-dag-status-${tk(s)}-label)`;
 
@@ -301,13 +305,13 @@ function DagNode({ node, lod = "full", selected = false, dimmed = false, onSelec
   const tip = nodeTitle(node);
   const base = {
     position: "absolute", boxSizing: "border-box", textAlign: "left",
-    width: "var(--tasty-dag-node-width)", height: "var(--tasty-dag-node-height)",
+    width: "var(--tasty-dag-node-width)", height: "var(--tasty-dag-node-height)", lineHeight: "var(--tasty-line-height-ui)",
     display: "flex", alignItems: "stretch", gap: 0, padding: 0, cursor: "pointer",
     borderRadius: "var(--tasty-dag-node-radius)",
     border: `var(--tasty-border-width) solid ${node.status === "waiting" || node.status === "cancelled" || node.status === "skipped" ? "var(--tasty-dag-node-border)" : accent}`,
     background: st.bg,
     outline: selected ? `var(--tasty-dag-node-selected-ring-width) solid var(--tasty-dag-node-selected-ring)` : "none",
-    outlineOffset: "var(--tasty-size-1)",
+    outlineOffset: "var(--tasty-dag-node-selected-ring-offset)",
     opacity: dimmed ? "var(--tasty-dag-node-dim-opacity)" : 1,
     fontFamily: "var(--tasty-font-ui)", color: "var(--tasty-text-on-active)",
     ...style,
@@ -316,7 +320,7 @@ function DagNode({ node, lod = "full", selected = false, dimmed = false, onSelec
     return (
       <button type="button" aria-label={`${node.name} — ${st.label}`} title={tip}
         onClick={() => onSelect && onSelect(node.id)} onMouseEnter={() => setHot(true)} onMouseLeave={() => setHot(false)}
-        style={{ ...base, background: `color-mix(in srgb, ${accent} 55%, var(--tasty-surface-raised))`, borderColor: accent }} />
+        style={{ ...base, background: st.blk, borderColor: accent }} />
     );
   }
   return (
@@ -343,7 +347,7 @@ function DagNode({ node, lod = "full", selected = false, dimmed = false, onSelec
             fontSize: "var(--tasty-dag-node-meta-font-size)", letterSpacing: "var(--tasty-letter-spacing-caps)" }}>
             <span aria-hidden="true" style={{ flex: "none", color: st.lbl, fontFamily: "var(--tasty-font-mono)" }}>{st.glyph}</span>
             <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-              textTransform: "uppercase", color: st.lbl }}>{st.label}</span>
+              textTransform: "uppercase", fontFamily: "var(--tasty-font-label)", color: st.lbl }}>{st.label}</span>
             {node.dur && (
               <span style={{ flex: "none", fontFamily: "var(--tasty-font-mono)", letterSpacing: "var(--tasty-letter-spacing-ui)",
                 color: "var(--tasty-dag-node-meta-status-fg)" }}>{node.dur}</span>
@@ -391,12 +395,16 @@ function RunnerBadge({ runner, hint = true }) {
 }
 
 // ── Canvas chrome ───────────────────────────────────────────────────
-function ZoomCluster({ z, onZoom, onFit, dir, onDir, compact }) {
-  const btn = (label, glyph, fn, key) => (
-    <button key={key} type="button" aria-label={label} title={label} onClick={fn}
-      style={{ appearance: "none", cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center",
+// dirDisabled (2026-11-10, graph view): a graph whose flow is fixed (the child graph, always left → right)
+// keeps the direction button in place, disabled, with dirTitle saying why — not hidden, so the cluster
+// keeps one shape on both graphs. Disabled ink = text-disabled, no grade (RULES section 12).
+function ZoomCluster({ z, onZoom, onFit, dir, onDir, compact, dirDisabled = false, dirTitle }) {
+  const btn = (label, glyph, fn, key, disabled) => (
+    <button key={key} type="button" aria-label={label} title={label} onClick={disabled ? undefined : fn} aria-disabled={disabled || undefined}
+      {...(disabled ? { "data-ink-grade": "none", "data-ink-why": "disabled" } : {})}
+      style={{ appearance: "none", cursor: disabled ? "default" : "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center",
         width: "var(--tasty-dag-chrome-height)", height: "var(--tasty-dag-chrome-height)", padding: 0, border: "none",
-        background: "transparent", color: "var(--tasty-dag-chrome-fg)", fontFamily: "var(--tasty-font-mono)",
+        background: "transparent", color: disabled ? "var(--tasty-text-disabled)" : "var(--tasty-dag-chrome-fg)", fontFamily: "var(--tasty-font-mono)",
         fontSize: "var(--tasty-font-size-body)" }}>
       {typeof glyph === "string" ? glyph : glyph}
     </button>
@@ -415,12 +423,13 @@ function ZoomCluster({ z, onZoom, onFit, dir, onDir, compact }) {
       {btn("Zoom in", "+", () => onZoom(1), "in")}
       <span style={{ width: "var(--tasty-border-width)", alignSelf: "stretch", background: "var(--tasty-dag-chrome-border)" }} />
       {btn("Fit to view", <Icon name="move" size="var(--tasty-icon-size-sm)" />, onFit, "fit")}
-      {btn(dir === "lr" ? "Flow top to bottom" : "Flow left to right", <Icon name="swap" size="var(--tasty-icon-size-sm)" />, onDir, "dir")}
+      {btn(dirDisabled ? (dirTitle || "Direction is fixed") : dir === "lr" ? "Flow top to bottom" : "Flow left to right", <Icon name="swap" size="var(--tasty-icon-size-sm)" />, onDir, "dir", dirDisabled)}
     </div>
   );
 }
 
-function Minimap({ g, dag, z, ox, oy, vw, vh, dir }) {
+// colorOf (2026-11-10): the child graph passes its own state colour; the DAG keeps the status colour.
+function Minimap({ g, dag, z, ox, oy, vw, vh, dir, colorOf }) {
   const pad = 4;
   const mw = 160, mh = 112;
   const k = Math.min((mw - pad * 2) / g.width, (mh - pad * 2) / g.height);
@@ -432,8 +441,9 @@ function Minimap({ g, dag, z, ox, oy, vw, vh, dir }) {
       <svg width={mw} height={mh} style={{ display: "block", position: "absolute", inset: 0 }} aria-hidden="true">
         {dag.nodes.map((n) => {
           const p = g.pos[n.id];
+          if (!p) return null;
           return <rect key={n.id} x={dx + p.x * k} y={dy + p.y * k} width={Math.max(2, NODE_W * k)} height={Math.max(2, NODE_H * k)}
-            fill={DIM_STATUS.has(n.status) ? "var(--tasty-dag-minimap-node-dim)" : sTok(n.status)} />;
+            fill={colorOf ? colorOf(n) : DIM_STATUS.has(n.status) ? "var(--tasty-dag-minimap-node-dim)" : sTok(n.status)} />;
         })}
         <rect x={dx + (-ox / z) * k} y={dy + (-oy / z) * k} width={(vw / z) * k} height={(vh / z) * k}
           fill="none" stroke="var(--tasty-dag-minimap-viewport)" strokeWidth="1" />
@@ -459,10 +469,17 @@ function CycleBanner({ ids }) {
 }
 
 // ── Empty states ────────────────────────────────────────────────────
-function DagEmpty({ variant = "surface", query = "" }) {
+// 2026-11-10 (graph view): DagEmpty is the graph component's one status block, for both graphs.
+//   "missing"  the DAG a surface points at is gone (existing app copy dag.empty.missing*)
+//   copy       { icon, title, body } — the child graph's and the shared states' own copy
+//   loading    a Spinner takes the glyph slot; the block does not move between loading → empty
+//   action     one button under the hint (base closed: select base surface)
+function DagEmpty({ variant = "surface", query = "", copy: own, loading = false, action = null }) {
   // "popup" (2026-10-10 b12): the DAG list popup with no DAG in any workspace — no workspace-scoped command.
   // "filtered" (2026-10-12): no match with an empty/blank query — status filter or "This workspace only" emptied the list.
-  const copy = variant === "search"
+  const copy = own ? own : variant === "missing"
+    ? { icon: "gitTree", title: `DAG not found: ${query}`, body: "It may have been deleted. Pick another from the header." }
+    : variant === "search"
     ? { icon: "search", title: `No DAGs match “${query}”`, body: "Clear the filter or widen the scope to all workspaces." }
     : variant === "filtered"
     ? { icon: "filter", title: "No DAGs match the current filters", body: "Clear the filter or widen the scope to all workspaces." }
@@ -472,11 +489,12 @@ function DagEmpty({ variant = "surface", query = "" }) {
   return (
     <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
       gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-xl)", textAlign: "center", fontFamily: "var(--tasty-font-ui)" }}>
-      <span style={{ display: "inline-flex", color: "var(--tasty-glyph-dim)" }}><Icon name={copy.icon} size="var(--tasty-size-24)" /></span>
+      <span style={{ display: "inline-flex", color: "var(--tasty-glyph-dim)" }}>{loading ? <Spinner size={24} label={copy.title} /> : <Icon name={copy.icon} size="var(--tasty-size-24)" />}</span>
       <span style={{ fontSize: "var(--tasty-font-size-body)", fontWeight: "var(--tasty-font-weight-semibold)", color: "var(--tasty-text-secondary)" }}>{copy.title}</span>
-      <span style={{ maxWidth: "var(--tasty-measure-sm)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)", textWrap: "pretty" }}>{copy.body}</span>
+      {copy.body && <span style={{ maxWidth: "var(--tasty-measure-sm)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)", textWrap: "pretty" }}>{copy.body}</span>}
+      {action && <span style={{ display: "flex", marginTop: "var(--tasty-space-xs)" }}>{action}</span>}
     </div>
   );
 }
 
-export { DAG_STATUS, DAG_STATUS_ORDER, DAG_ROLLUP_ORDER, DAG_PHASE, dagRollup, nodeLook, nodeTitle, DAG_KIND, DAG_REL, DIM_STATUS, sTok, sBg, sLabel, DAG_BUILD, DAG_INDEX, DAG_CYCLE, DAG_DENSE, DAG_PARTIAL, DAG_LIST, ERR_TAIL, dagLayout, elbow, DagNode, RunnerBadge, ZoomCluster, Minimap, CycleBanner, DagEmpty, NODE_W, NODE_H };
+export { DAG_STATUS, DAG_STATUS_ORDER, DAG_ROLLUP_ORDER, DAG_PHASE, dagRollup, nodeLook, nodeTitle, DAG_KIND, DAG_REL, DIM_STATUS, sTok, sBg, sBlock, sLabel, DAG_BUILD, DAG_INDEX, DAG_CYCLE, DAG_DENSE, DAG_PARTIAL, DAG_LIST, ERR_TAIL, dagLayout, elbow, DagNode, RunnerBadge, ZoomCluster, Minimap, CycleBanner, DagEmpty, NODE_W, NODE_H };

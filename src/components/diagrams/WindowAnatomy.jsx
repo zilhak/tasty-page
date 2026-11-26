@@ -22,14 +22,23 @@ const session = {
   lines: [<Prompt branch="main" />, <><span style={{ color: "var(--tasty-accent-agent-raised)" }}>❯</span> tasty list tree</>],
 };
 
-/** `grow` marks the one region that should absorb the leftover height. */
+/** `grow` marks the one region that should absorb the leftover height. The kit
+ * inside is a picture, not controls: it is inert and hidden from assistive
+ * technology, while the region label stays readable. The wrapper has no box
+ * (display: contents), so the kit lays out as before. */
 const Part = ({ label, grow, children }) => (
-  <div className="anat" data-label={label} data-grow={grow ? "" : undefined}>{children}</div>
+  <div className="anat" data-label={label} data-grow={grow ? "" : undefined}>
+    <div className="anat__kit" aria-hidden="true" inert="">{children}</div>
+  </div>
 );
 
 export function WindowAnatomy({ labels }) {
   return (
-    <div className="anat-window">
+    // The window scrolls sideways when the column is narrower than the kit, so it is a Tab stop
+    // (as browsers make a scroller with nothing focusable inside), named for what it shows.
+    // It is a region, not a group: WebKitGTK reports a group as a panel, and screen readers there
+    // skip focus on panels, so the name would not be spoken.
+    <div className="anat-window" role="region" aria-label={labels.name} tabIndex={0}>
       <div className="shell">
         <Part label={labels.titlebar}><TitleBar workspace="agents-prod" /></Part>
         <div className="shell__body">
@@ -49,9 +58,13 @@ export function WindowAnatomy({ labels }) {
               </div>
             </Part>
             <Part label={labels.statusbar}>
-              <div className="shell__status">
-                <StatusBar surfaceId="s_01" theme="Mocha" onTheme={noop} onPalette={noop} />
-              </div>
+              {/* Static markup cannot read the page theme, so the diagram carries one
+                  status bar per theme and app-shell.css shows the page's. */}
+              {["Mocha", "Latte"].map((theme) => (
+                <div key={theme} className="shell__status" data-anat-theme={theme.toLowerCase()}>
+                  <StatusBar surfaceId="s_01" theme={theme} onTheme={noop} onPalette={noop} />
+                </div>
+              ))}
             </Part>
           </div>
         </div>

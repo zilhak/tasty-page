@@ -37,9 +37,9 @@ const Keycap = ({ n, active }) => (
     fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-kbd-font-size)", fontWeight: "var(--tasty-font-weight-medium)", lineHeight: 1 }}>{n}</span>
 );
 
-function CountRow({ name, count = 0, state = "rest", attached, loading, keycap, ni, done, refused, move, mirror, subtitle, description }) {
+function CountRow({ name, count = 0, state = "rest", attached, loading, keycap, ni, done, move, mirror, subtitle, description }) {
   const selected = state.startsWith("selected");
-  const tail = refused || move || ni != null || done != null;
+  const tail = move || ni != null || done != null;
   return (
     <div style={{ display: "flex", alignItems: "flex-start", gap: "var(--tasty-workspace-dot-gap)", boxSizing: "border-box",
       padding: "var(--tasty-space-sm) var(--tasty-space-sm) var(--tasty-space-sm) var(--tasty-workspace-row-padding-x)",
@@ -57,7 +57,6 @@ function CountRow({ name, count = 0, state = "rest", attached, loading, keycap, 
           {tail && (
             <span style={{ flex: "none", display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-sm)" }}>
               {move && <span aria-label="Move source inside" style={{ display: "inline-flex", color: "var(--tasty-move-source-glyph)" }}><Icon name="move" size="var(--tasty-move-source-glyph-size)" /></span>}
-              {refused && <span aria-label="Attach refused" style={{ display: "inline-flex", color: "var(--tasty-attach-refusal-glyph)" }}><Icon name="alertTriangle" size="var(--tasty-move-source-glyph-size)" /></span>}
               {(ni != null || done != null) && (
                 <BadgeGroup>
                   {ni != null && <Badge variant="warning">{ni}</Badge>}
@@ -151,10 +150,10 @@ export function RunningCountSpec() {
         <View name="running-count-attention" label="Beside attention: the left number is activity, the filled pills at the far end are attention">
           <Rows rows={[["no attention", { name: "docs-site", count: 2 }], ["NeedsInput only", { name: "data-etl", count: 1, ni: 1 }], ["Completion only", { name: "docs-site", count: 0, done: 3 }], ["both", { name: "tasty-core", count: 2, ni: 2, done: 5 }], ["one surface counted twice — permission dialog", { name: "agent", count: 1, ni: 1 }], ["overflow on all three", { name: "monorepo", count: 128, ni: "99+", done: "99+" }]]} />
         </View>
-        <View name="running-count-narrowest" label="Narrowest case: long name, both badges at 99+, refusal mark and move glyph. The name gives way and the number stays">
+        <View name="running-count-narrowest" label="Narrowest case: long name, both badges at 99+, and move glyph. The name gives way and the number stays">
           <ThreeWidths>
-            <CountRow name={LONG} count={3} ni="99+" done="99+" refused move />
-            <CountRow name={LONG} count={12} state="selected" ni="99+" done="99+" refused move />
+            <CountRow name={LONG} count={3} ni="99+" done="99+" move />
+            <CountRow name={LONG} count={12} state="selected" ni="99+" done="99+" move />
             <CountRow name={LONG} count={0} />
           </ThreeWidths>
         </View>

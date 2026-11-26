@@ -37,7 +37,7 @@ Tasty의 셸, 글꼴, 언어 등은 설정 윈도우에서 바꾸거나 `~/.tast
 - 저장한 설정을 적용하지 못하면 오류 알림이 뜨고 설정은 그대로입니다. 화면에는 적용됐지만 `config.toml` 에 쓰지 못했다면 경고 알림이 뜹니다. 이때 바뀐 설정은 Tasty를 다시 시작하면 사라집니다.
 - Tasty가 읽은 뒤 다른 프로그램이 `config.toml`을 바꾸면 그 파일을 덮어쓰지 않고 저장 실패를 알립니다. 외부에서 바꾼 설정을 읽으려면 Tasty를 다시 시작하세요.
 - 처음 시작할 때 보정한 설정과 확인한 셸 경로는 함께 저장합니다. 저장 결과를 기다리는 동안 로딩 화면은 계속 갱신됩니다. 실행 중 저장이 대기 중이어도 새 윈도우는 이번 실행에 적용된 최신 설정을 사용합니다.
-- **언어** <!-- en: Language --> 는 저장 후 Tasty를 다시 시작해야 적용됩니다. 성능 설정은 저장한 뒤 새로 여는 터미널부터 적용되며, 이미 열린 터미널은 바로 바뀌지 않습니다.
+- **언어:** <!-- en: Language: --> 설정은 저장 후 Tasty를 다시 시작해야 적용됩니다. **터미널** 탭의 **성능** <!-- en: Performance --> 섹션에 있는 세 설정은 저장 후 새로 여는 터미널부터 적용됩니다. **프레임 레이트** <!-- en: Frame rate --> 설정은 저장하면 열려 있는 모든 윈도우에 바로 적용되며, Tasty를 다시 시작할 필요가 없습니다.
 - 숫자 칸은 **입력**해서 바꿉니다. 드래그해서 올리거나 내리는 칸은 없습니다. 입력 중에는 값을 자동으로 보정하지 않고, 칸을 떠나거나 `Enter` 를 누를 때 허용 범위 안으로 맞춰집니다 — 범위를 벗어난 값을 쳐 두면 칸 테두리가 경고 색으로 바뀌고 그 아래에 허용 범위와 실제로 저장될 값이 한 줄로 나옵니다.
 - 정수 칸은 값 전체가 보이도록 값 길이에 맞춰 넓어지고, 입력하는 동안에도 글자마다 넓어집니다. 단위는 칸 뒤에 표시됩니다. 설정 파일에 범위보다 큰 값이 적혀 있으면 그대로 보여 주는 항목도 있습니다. 다만 `[remote_attach] heartbeat_timeout_secs`가 10~600 범위를 벗어나면 읽을 때 기본값 30으로 되돌려 설정 파일에 다시 저장하고, 경고는 로그에만 남깁니다.
 - 설정 윈도우를 아주 좁게 줄여 항목의 칸이 이름 옆에 들어가지 않으면, 그 항목만 이름 아래 줄로 칸이 내려갑니다. 다시 넓히면 옆으로 돌아옵니다.
@@ -48,12 +48,12 @@ Tasty의 셸, 글꼴, 언어 등은 설정 윈도우에서 바꾸거나 `~/.tast
 
 | 섹션 | 항목 |
 |------|------|
-| **일반** | **시작 시 레이아웃 복원** <!-- en: Restore layout on startup --> · **재시작 시 서피스 내용 복원** <!-- en: Restore surface content on restart --> (터미널 스크롤백) · **워크스페이스 카테고리(폴더)** <!-- en: Workspace categories (folders) --> · **다음/이전 워크스페이스로 이동할 때 다른 카테고리도 포함** <!-- en: Next/prev workspace crosses categories --> · **탐색기: 파일 정보 자동 갱신** <!-- en: Explorer: refresh file details --> (기본 끔 — 켜면 열린 폴더 안 파일의 크기·수정 시각 변경도 몇 초 안에 반영하지만 확인할 때마다 그 폴더 항목을 모두 읽습니다. [파일 탐색기](../using/files.md)) · **종료 동작** <!-- en: Close behavior --> (물어보기 / 백그라운드로 최소화 / 종료) · **휠 스크롤 거리** <!-- en: Wheel scroll distance --> (10~200pt, 기본 50) — 휠 한 칸이 스크롤하는 거리이며 윈도우 안 모든 곳에 같이 적용됩니다 · **언어** (English / 한국어 / 日本語 + 설치한 [언어팩](#언어-추가하기-언어팩)) · **속성 창 시각 형식** <!-- en: Time format in Properties --> (분까지 / 초까지 / 초 + UTC 오프셋, 기본 분까지 — 탐색기 속성 창의 수정 시각·만든 시각·대상 수정 시각에 쓰며 이 컴퓨터의 시간대 기준입니다. 열린 속성 창에도 바로 적용됩니다) · **다른 컴퓨터의 웹훅 호출 받기** <!-- en: Accept webhook calls from other computers --> (기본 끔, 다음 시작부터 적용 — [웹훅](../agents/hooks-notifications.md)) |
-| **알림** <!-- en: Notifications --> | **알림 활성화** <!-- en: Notifications enabled --> · **소리** <!-- en: Sound --> · **알림 병합 간격 (ms)** <!-- en: Coalesce interval (ms) --> |
+| **일반** | **시작 시 레이아웃 복원:** <!-- en: Restore layout on startup: --> · **재시작 시 서피스 내용 복원:** <!-- en: Restore surface content on restart: --> (터미널 스크롤백) · **워크스페이스 카테고리(폴더):** <!-- en: Workspace categories (folders): --> · **다음/이전 워크스페이스로 이동할 때 다른 카테고리도 포함:** <!-- en: Next/prev workspace crosses categories: --> · **탐색기: 파일 정보 자동 갱신:** <!-- en: Explorer: refresh file details: --> (기본 끔 — 켜면 열린 폴더 안 파일의 크기·수정 시각 변경도 몇 초 안에 반영하지만 확인할 때마다 그 폴더 항목을 모두 읽습니다. [파일 탐색기](../using/files.md)) · **종료 동작:** <!-- en: Close behavior: --> (물어보기 / 백그라운드로 최소화 / 종료) · **휠 스크롤 거리:** <!-- en: Wheel scroll distance: --> (10~200pt, 기본 50) — 휠 한 칸이 스크롤하는 거리이며 윈도우 안 모든 곳에 같이 적용됩니다 · **언어:** <!-- en: Language: --> (English / 한국어 / 日本語 + 설치한 [언어팩](#언어-추가하기-언어팩)) · **속성 창 시각 형식** <!-- en: Time format in Properties --> (분까지 / 초까지 / 초 + UTC 오프셋, 기본 분까지 — 탐색기 속성 창의 수정 시각·만든 시각·대상 수정 시각에 쓰며 이 컴퓨터의 시간대 기준입니다. 열린 속성 창에도 바로 적용됩니다) · **다른 컴퓨터의 웹훅 호출 받기:** <!-- en: Accept webhook calls from other computers: --> (기본 끔, 다음 시작부터 적용 — [웹훅](../agents/hooks-notifications.md)) |
+| **알림** <!-- en: Notifications --> | **알림 활성화** <!-- en: Notifications enabled --> · **소리** <!-- en: Sound --> · **알림 병합 간격 (ms):** <!-- en: Coalesce interval (ms): --> |
 | **접근성** <!-- en: Accessibility --> | **모션 줄이기** <!-- en: Reduced motion --> (토스트·오버레이 페이드, 로딩 스피너 회전, 모달 흔들기를 끕니다) · **수식키 힌트 표시** <!-- en: Show modifier key hints --> |
 | **오버레이** <!-- en: Overlay --> | **토스트 표시 시간** <!-- en: Toast duration --> (1~10초) |
 | **원격 전송** <!-- en: Remote transfer --> | **저장 폴더** <!-- en: Save folder --> (기본 `~/.tasty/transfers/`) · **최대 용량** <!-- en: Maximum size --> (MiB) — 원격 워크스페이스에서 받은 파일이 저장되는 곳 |
-| **원격 Attach** <!-- en: Remote attach --> | **Attach 연결** <!-- en: Attach connections --> 아래 **끊기 전 대기 시간** <!-- en: Disconnect after --> — 초 단위, 기본 30, 범위 10~600. 원격 attach 연결에서 상대가 응답하지 않을 때 끊기까지 기다리는 시간 |
+| **원격 Attach** <!-- en: Remote attach --> | **Attach 연결** <!-- en: Attach connections --> 아래 **끊기 전 대기 시간** <!-- en: Disconnect after --> — 초 단위, 기본 30, 범위 10~600. 원격 attach 연결에서 상대가 응답하지 않을 때 끊기까지 기다리는 시간 · **재연결 시도 시간** <!-- en: Keep reconnecting for --> — 기본 300초, 범위 0~3600초 |
 | **표시** <!-- en: Display --> (macOS 만) | **Cmd 키 표시** · **Option 키 표시** · **Shift 키 표시** — 단축키 표기를 텍스트 / 심볼 중에서 고릅니다 |
 | **권한** <!-- en: Permissions --> (macOS 만) | **전체 디스크 접근 권한** <!-- en: Full Disk Access --> · **화면 기록** <!-- en: Screen recording --> 상태, **모든 권한 요청하기** <!-- en: Request all permissions --> (폴더 · 화면 기록을 한 번에 요청), 전체 디스크 접근 권한 행의 **시스템 설정 열기** <!-- en: Open System Settings --> |
 
@@ -63,15 +63,26 @@ Tasty의 셸, 글꼴, 언어 등은 설정 윈도우에서 바꾸거나 `~/.tast
 
 **설정** <!-- en: Settings --> › **일반** <!-- en: General --> › **원격 Attach**에서 **끊기 전 대기 시간**을 바꿉니다. 범위 밖 숫자는 Enter를 누르거나 다른 칸으로 이동해 입력을 확정할 때 10초 미만이면 10초, 600초 초과이면 600초로 맞춥니다. 저장한 값은 재시작 없이 새 연결부터 적용되며 이미 열린 연결은 그대로입니다. 양쪽 Tasty는 각자 자기 값을 쓰므로 상대가 먼저 끊을 수 있습니다. 설정 파일을 읽지 않는 CLI attach는 30초를 사용합니다.
 
+**설정** <!-- en: Settings --> › **일반** <!-- en: General --> › **원격 Attach** <!-- en: Remote attach -->의 **재연결 시도 시간** <!-- en: Keep reconnecting for -->은 저장된 원격 행의 연결이 끊긴 뒤 자동 재연결을 시도하는 시간입니다. 기본 300초, 범위 0~3600초이며 0이면 자동 재연결을 끕니다. 직접 끊은 연결에는 적용하지 않습니다. 설정 파일의 키는 `[remote_attach] reconnect_timeout_secs`입니다.
+
+### 원격 연결의 클립보드와 알림 설정
+
+양쪽 Tasty가 이 기능을 지원하고 내 컴퓨터에서 GUI로 붙으면, 원격 프로그램의 OSC 52 읽기 요청에는 내 쪽 `config.toml`의 `[general]`에 있는 `allow_clipboard_read` 설정이 적용됩니다. 기본값은 꺼짐입니다. 알림 소리를 재생할지는 내 컴퓨터의 `notification.sound`만 따릅니다.
+
+GUI 서버에 붙었을 때는 서버의 `notification.enabled`가 켜져 있어야 OSC 알림이 소리로 이어집니다. 벨 알림에는 서버의 `general.bell_notification`도 필요합니다. 헤드리스 서버에 붙었을 때는 내 컴퓨터의 `notification.enabled`와 `general.bell_notification`에 따라 내 쪽 Tasty에서 OSC 알림과 벨 알림을 만듭니다. 자세한 동작은 [원격 연결 중 알림](../agents/hooks-notifications.md#remote-attach-notifications)을 참고하세요.
+
 ### 터미널
 
 | 섹션 | 항목 |
 |------|------|
-| **일반** | **셸** <!-- en: Shell --> · **시작 명령어** <!-- en: Startup command --> · **스크롤백 줄 수** <!-- en: Scrollback lines --> (기본 10000) · **실행 중 프로세스 닫기 확인** <!-- en: Confirm close running process --> · **작업 디렉토리 상속** <!-- en: Inherit working directory --> · **화면 반전 플래시 (DECSCNM)** <!-- en: Reverse-screen flash (DECSCNM) --> · **벨 알림 표시** <!-- en: Show bell notification --> · **링크 클릭 수식키** <!-- en: Link click modifier --> (Ctrl / Alt / 좌클릭 열기 끄기) · macOS: **Option 을 Meta 로 사용** <!-- en: Use Option as Meta --> · Windows: **셸 모드** <!-- en: Shell mode --> |
+| **일반** | **셸:** <!-- en: Shell: --> · **시작 명령어:** <!-- en: Startup command: --> · **스크롤백 줄 수:** <!-- en: Scrollback lines: --> (기본 10000) · **실행 중 프로세스 닫기 확인:** <!-- en: Confirm close running process: --> · **작업 디렉토리 상속:** <!-- en: Inherit working directory: --> · **화면 반전 플래시 (DECSCNM):** <!-- en: Reverse-screen flash (DECSCNM): --> · **벨 알림 표시:** <!-- en: Show bell notification: --> · **링크 클릭 수식키:** <!-- en: Link click modifier: --> (Ctrl / Alt / 좌클릭 열기 끄기) · macOS: **Option을 Meta로 사용:** <!-- en: Use Option as Meta: --> |
 | **입력** <!-- en: Input --> | 터미널 앱별 **Shift+Enter로 줄바꿈 문자 보내기** <!-- en: Send a newline with Shift+Enter --> 규칙 — 실행 파일 이름(예: `claude`)을 추가하고 켜면 그 앱이 입력을 받는 동안 `Shift+Enter` 가 줄바꿈 문자(LF)를 보냅니다. 끄거나 규칙이 없으면 플랫폼 기본 방식으로 보냅니다 |
-| **마우스 캡처** <!-- en: Mouse Capture --> | **마우스 캡처 안내 표시** <!-- en: Show mouse-capture hint --> · **클릭을 Tasty가 처리할 프로그램** <!-- en: Let Tasty handle clicks in these programs --> · **캡처 안내를 다시 보지 않을 프로그램** <!-- en: Don't show the capture notice for these programs --> — 프로세스 이름 또는 `ht*` 같은 패턴 |
-| **TUI** | **클립보드 읽기 허용 (OSC 52)** <!-- en: Allow clipboard read (OSC 52) --> — 기본 꺼짐. 켜면 터미널 안 프로그램이 클립보드를 읽을 수 있습니다 |
+| **마우스 캡처** <!-- en: Mouse Capture --> | **마우스 캡처 안내 표시:** <!-- en: Show mouse-capture hint: --> · **클릭을 Tasty가 처리할 프로그램** <!-- en: Let Tasty handle clicks in these programs --> · **캡처 안내를 다시 보지 않을 프로그램** <!-- en: Don't show the capture notice for these programs --> — 프로세스 이름 또는 `ht*` 같은 패턴 |
+| **TUI** | **클립보드 읽기 허용 (OSC 52):** <!-- en: Allow clipboard read (OSC 52): --> — 기본 꺼짐. 켜면 터미널 안 프로그램이 클립보드를 읽을 수 있습니다 |
 | **성능** <!-- en: Performance --> | **선택적 PTY 폴링** <!-- en: Targeted PTY polling --> · **스크롤백 디스크 스왑** <!-- en: Scrollback disk swap --> (스크롤백 줄 수를 넘은 줄을 디스크로 옮김) · **디스크 보관 줄 수** <!-- en: Lines kept on disk --> (기본 10000, -1 은 무제한 — 스크롤백 줄 수와 별도이며 넘으면 오래된 줄부터 버림). 칸 뒤에 단위 **줄** <!-- en: lines --> 이 붙고, -1 이면 단위 대신 **무제한** <!-- en: no limit --> 이 표시됩니다. 범위를 벗어난 값을 쳐 두면 칸 아래에 "-1 또는 0부터 100000000까지의 수를 입력하세요." 가 나옵니다. 탭 맨 위 안내대로 세 설정 모두 저장 후 새로 여는 터미널부터 적용되며, 이미 열린 터미널은 바로 바뀌지 않습니다 |
+| **프레임 레이트** <!-- en: Frame rate --> | **출력 프레임 레이트** <!-- en: Output frame rate --> (기본 30 fps) · **입력 프레임 레이트** <!-- en: Input frame rate --> (기본 60 fps) |
+
+**프레임 레이트**의 두 목록에는 15, 30, 60, 120, 144, 240 fps 중 연결된 모니터의 가장 높은 주사율을 반올림한 값 이하의 항목과 **모니터에 맞춤** <!-- en: Match monitor --> 이 표시됩니다. 주사율을 알 수 없는 모니터는 60 Hz로 봅니다. 저장된 값이 이 기준보다 높으면 **{n} fps (모니터 초과)** <!-- en: {n} fps (above monitor) --> 로 표시되고 그 값이 선택된 상태로 남습니다. 실제로 그리는 빈도는 **모니터에 맞춤**을 선택해도 각 윈도우가 있는 모니터의 주사율을 넘지 않습니다.
 
 **링크 클릭 수식키**를 **좌클릭 열기 끄기** <!-- en: Disable left-click opening --> 로 두면 좌클릭으로 링크를 열지 않습니다. 수식키 없이 링크에 마우스를 올려 표시할 수 있고 링크 위 우클릭 메뉴는 계속 사용할 수 있습니다. 팝업이나 배너 위에서는 링크 표시가 차단될 수 있습니다. 마우스 캡처 항목의 의미는 [터미널 다루기](../using/terminal.md).
 
@@ -81,9 +92,9 @@ Tasty의 셸, 글꼴, 언어 등은 설정 윈도우에서 바꾸거나 `~/.tast
 |------|------|
 | **테마** <!-- en: Theme --> | 테마 카드 목록 — [테마](themes.md) |
 | **색상** <!-- en: Colors --> | 현재 테마의 색을 항목별로 덮어쓰기 — [테마](themes.md) |
-| **일반** | **기본 폰트 설정** <!-- en: Default Font Settings -->: **폰트** <!-- en: Font family --> · **커스텀 폰트 파일** <!-- en: Custom font file --> · **글자 크기** <!-- en: Font size --> (기본 14) · **줄 높이** <!-- en: Line height --> · **폰트 DPI 스케일링** <!-- en: Font DPI scaling --> (자동 / 고정). 그리고 **합자(Ligatures)** <!-- en: Ligatures --> · **배경 투명도** <!-- en: Background opacity --> |
+| **일반** | **기본 폰트 설정** <!-- en: Default Font Settings -->: **폰트:** <!-- en: Font family: --> · **커스텀 폰트 파일:** <!-- en: Custom font file: --> · **글자 크기:** <!-- en: Font size: --> (기본 14) · **줄 높이:** <!-- en: Line height: --> · **폰트 DPI 스케일링:** <!-- en: Font DPI scaling: --> (자동 / 고정). 그리고 **합자(Ligatures):** <!-- en: Ligatures: --> · **배경 투명도:** <!-- en: Background opacity: --> |
 | **디스플레이** <!-- en: Display --> | **UI 배율** <!-- en: UI Scale --> — 작게 / 보통 / 크게 |
-| **Tasty** | 버튼·사이드바·탭의 색 — **액센트** <!-- en: Accent --> · **사이드바 배경** <!-- en: Sidebar background --> · **활성 탭 인디케이터** <!-- en: Active tab indicator --> (밑줄 / 채움 / 점) |
+| **Tasty** | 버튼·사이드바·탭의 색 — **강조색** <!-- en: Accent --> · **사이드바 배경** <!-- en: Sidebar background --> · **활성 탭 표시** <!-- en: Active tab indicator --> (밑줄 / 채움 / 점) |
 | **터미널** | 터미널 서피스의 **포커스 배경** <!-- en: Focused background --> · **비포커스 배경** <!-- en: Unfocused background --> 과 개별 폰트 설정 |
 | **탐색기** <!-- en: Explorer --> | 탐색기 전용 개별 폰트 설정 |
 | **Markdown** · **HTML** | 플러그인이 추가한 페이지 — 마크다운 개별 폰트 설정과 **원격 콘텐츠 허용** <!-- en: Allow remote content -->, HTML 뷰어의 **기본 확대** <!-- en: Default zoom --> · **색 구성표** <!-- en: Color scheme --> · **원격 콘텐츠 허용** · **스크립트 샌드박스** <!-- en: Sandbox scripts --> |
@@ -114,7 +125,6 @@ Tasty의 셸, 글꼴, 언어 등은 설정 윈도우에서 바꾸거나 `~/.tast
 - **스크립트** <!-- en: Scripts --> — 단축키나 이벤트로 실행할 Lua 스크립트를 등록합니다 ([Lua 스크립트](scripts.md)). 파일 경로(예: `~/.tasty/scripts/my-script.lua`)와 표시 이름을 넣고, 단축키는 **단축키** > **스크립트 실행** 에서 붙입니다. 등록 뒤 파일이 바뀌면 **변경됨** <!-- en: changed --> 표시가 붙고 다음 실행 때 확인을 묻습니다.
 - **작업 파이프라인** <!-- en: Task pipeline --> — 작업 그래프의 report 에 남기는 기록의 크기 상한입니다. **기록 한 건 상한** <!-- en: Note size limit --> 을 넘는 기록은 잘리고, **회차 report 상한** <!-- en: Attempt report limit --> 을 넘는 기록은 저장하지 않고 개수만 셉니다. 앞의 값은 항상 뒤의 값보다 작아야 합니다 ([작업 report](../agents/tasks.md)).
 - **이상 탐지** <!-- en: Anomaly detection --> — 메모리 증가·반복 호출·호출 폭주의 알림 표시와 기준값을 바꿉니다. 정상 작업에서도 걸릴 수 있는 후보 신호입니다. 반복 호출은 응답 지연이 아니라 같은 호출의 반복 횟수를 셉니다. 알림을 꺼도 탐지와 기록은 계속되며 숫자는 편집할 수 있습니다. 저장한 값은 다음 판정부터 적용됩니다. 범위 밖 숫자는 Enter 또는 다른 칸으로 이동할 때 보정되고, 취소하면 편집 내용을 버립니다.
-- Windows 에서는 **Tastyrc** 섹션이 추가됩니다.
 
 ### 플러그인
 
@@ -186,7 +196,7 @@ about = "Créer une ressource"
 
 ### 고르기
 
-설정 윈도우 › **일반** › **언어** 목록에 팩이 함께 나옵니다. 고르고 **저장** 한 다음 Tasty 를
+설정 윈도우 › **일반** › **언어:** <!-- en: Language: --> 목록에 팩이 함께 나옵니다. 고르고 **저장** 한 다음 Tasty 를
 다시 시작하면 적용됩니다.
 
 ### 플러그인 문구 바꾸기
@@ -242,7 +252,15 @@ title = "내 클립보드"
 
 일반 설정은 이 파일에 저장됩니다. 핸들러 표와 테마 파일 등은 위에서 설명한 별도 경로를 사용합니다. 없는 키는 기본값으로 읽히므로 필요한 것만 적어도 됩니다.
 
-`[remote_attach]`의 `heartbeat_timeout_secs`는 원격 attach 연결에서 상대의 응답 없이 기다리는 시간입니다. 단위는 초이며 기본값은 30, 범위는 10~600입니다. 파일 값이 범위 밖이면 기본값 30으로 되돌려 설정 파일에 다시 저장하고, 경고는 로그에만 남깁니다. 설정 파일을 직접 편집한 내용은 Tasty를 다음에 시작할 때 읽습니다. 재시작 없이 새 연결에 적용하려면 설정 윈도우에서 바꾸고 저장하세요.
+**출력 프레임 레이트** <!-- en: Output frame rate --> 에 해당하는 `[performance]`의 `output_redraw_fps`는 터미널 출력이 일으키는 화면 다시 그리기의 초당 상한이며 기본값은 30입니다. **입력 프레임 레이트** <!-- en: Input frame rate --> 에 해당하는 `input_redraw_fps`는 키·마우스 등 사용자 입력이 일으키는 다시 그리기의 초당 상한이며 기본값은 60입니다. 입력 직후 같은 터미널에 돌아온 에코 출력도 입력 쪽 상한을 따릅니다. 쉬던 화면의 첫 입력은 기다리지 않고 바로 그립니다.
+
+두 키에 쓸 수 있는 값은 `15`, `30`, `60`, `120`, `144`, `240`, `-1`입니다. `-1`은 **모니터에 맞춤** <!-- en: Match monitor --> 에 해당하며 별도의 초당 상한을 두지 않습니다. 저장한 값이 윈도우가 있는 모니터의 주사율보다 높아도 값은 그대로 유지되며, 실제로 그리는 빈도는 그 모니터의 주사율까지만 올라갑니다. 이 목록에 없는 값은 파일을 읽을 때 각 키의 기본값으로 바뀝니다.
+
+설정 윈도우의 **터미널** 탭에서 **프레임 레이트**를 바꿀 수 있습니다. `config.toml`을 직접 고쳤다면 Tasty를 다시 시작해야 적용됩니다.
+
+`[remote_attach]`의 `heartbeat_timeout_secs`는 원격 attach 연결에서 상대의 응답 없이 기다리는 시간입니다. 단위는 초이며 기본값은 30, 범위는 10~600입니다. 파일의 두 값 중 하나라도 범위 밖이면 `[remote_attach]` 전체를 기본값(`heartbeat_timeout_secs = 30`, `reconnect_timeout_secs = 300`)으로 되돌려 설정 파일에 다시 저장하고, 경고는 로그에만 남깁니다. 설정 파일을 직접 편집한 내용은 Tasty를 다음에 시작할 때 읽습니다. 재시작 없이 새 연결에 적용하려면 설정 윈도우에서 바꾸고 저장하세요.
+
+`[remote_attach]`의 `reconnect_timeout_secs`는 저장된 원격 행의 자동 재연결 시도 시간입니다. 단위는 초이며 기본값은 300, 범위는 0~3600입니다. 0이면 자동 재연결을 끄고, 직접 끊은 연결에는 이 재시도를 적용하지 않습니다. 파일의 두 값 중 하나라도 범위 밖이면 `[remote_attach]` 전체를 기본값(`heartbeat_timeout_secs = 30`, `reconnect_timeout_secs = 300`)으로 되돌려 설정 파일에 다시 저장하고, 경고는 로그에만 남깁니다.
 
 설정 파일에 적은 글꼴 값(`[appearance.default_font]`의 `font_family` 등)을 쓸 수 없으면 Tasty를 시작한 뒤 메인 윈도우에 값마다 경고 알림이 하나씩 뜹니다. 알림 본문에는 해당 값이 표시되며, 화면은 다른 폰트로 표시됩니다. 알림이 뜨는 윈도우와 표시 시간은 위 외관 설명을 따릅니다. 에이전트가 명령으로 적용한 글꼴 값은 쓸 수 없어도 경고 알림 없이 로그에만 남깁니다.
 
@@ -298,6 +316,8 @@ enabled = true
 toast_duration_ms = 2000
 
 [performance]
+output_redraw_fps = 30          # 터미널 출력의 초당 다시 그리기 상한 (-1은 모니터에 맞춤)
+input_redraw_fps = 60           # 사용자 입력의 초당 다시 그리기 상한 (-1은 모니터에 맞춤)
 targeted_pty_polling = true
 scrollback_disk_swap = false
 scrollback_disk_lines = 10000     # 디스크에 남길 줄 수, -1 이면 무제한
@@ -307,6 +327,7 @@ dir = ""                         # 비우면 ~/.tasty/transfers/
 max_mb = 500
 
 [remote_attach]
+reconnect_timeout_secs = 300     # 재연결 시도 시간(초), 0~3600, 0이면 자동 재연결 끔
 heartbeat_timeout_secs = 30      # 상대 응답 없이 기다리다 끊는 시간(초), 10~600, 새 연결부터 적용
 
 [webhook]
@@ -351,6 +372,8 @@ tasty settings set-remote-transfer --dir ~/incoming --max-mb 1000
 
 `~/.tasty/config.toml`은 설정 파일입니다. 배치 저장소와 플러그인 자료는 별도로 관리합니다. 배치 복원 문제를 해결하기 위해 저장소 파일을 직접 편집하거나 지우지 마세요.
 
+`TASTY_HOME`을 지정하면 아래 파일도 그 폴더에 있습니다. 로그의 보관 시점과 신고 방법은 [크래시·멈춤 리포트와 로그](../help/error-reports.md)를 참고하세요.
+
 | 경로 | 내용 |
 |------|------|
 | `config.toml` | 위 설정 |
@@ -362,6 +385,8 @@ tasty settings set-remote-transfer --dir ~/incoming --max-mb 1000
 | `scripts/` | Lua 스크립트를 두는 관례 위치 — [Lua 스크립트](scripts.md) |
 | `transfers/` | 원격에서 받은 파일 기본 저장 폴더 |
 | `tasty.port` · `debug.log` | 실행 중 인스턴스의 포트, 경고 이상 로그 — [문제 해결](../help/troubleshooting.md) |
+| `crash-reports/` | 크래시·멈춤 리포트 |
+| `hook-failures.log` · `hook-failures.log.1` | 훅 실패 기록 |
 
 <a id="다음-읽을-것"></a>
 

@@ -6,7 +6,8 @@ import React from "react";
  * Wraps any trigger; the bubble shows on hover of the anchor or keyboard
  * focus within it. Motion is minimal — a short fade with a small show delay,
  * suppressed under prefers-reduced-motion. Pass `open` to force it visible
- * (used by specimens / always-on demos).
+ * (used by specimens / always-on demos). A closed bubble is out of the layout (display: none), as the app draws
+ * no closed tooltip: its box never widens a scroll area or reaches past the stage's start.
  *
  * <Tooltip content="Explanation…" placement="top"><HelpHint … /></Tooltip>
  *
@@ -35,17 +36,21 @@ const CSS = `
   line-height: var(--tasty-tooltip-line-height);
   text-align: left;
   white-space: normal;
+  display: none;
   opacity: 0;
-  visibility: hidden;
   pointer-events: none;
-  transition: opacity var(--tasty-motion-ui-fast) var(--tasty-ease-ui);
+  transition: opacity var(--tasty-motion-ui-fast) var(--tasty-ease-ui), display var(--tasty-motion-ui-fast) allow-discrete;
 }
 .tasty-tooltip:hover > .tasty-tooltip__bubble,
 .tasty-tooltip:focus-within > .tasty-tooltip__bubble,
 .tasty-tooltip.is-open > .tasty-tooltip__bubble {
+  display: block;
   opacity: 1;
-  visibility: visible;
   transition-delay: var(--tasty-tooltip-delay);
+}
+@starting-style {
+  .tasty-tooltip:hover > .tasty-tooltip__bubble,
+  .tasty-tooltip:focus-within > .tasty-tooltip__bubble { opacity: 0; }
 }
 .tasty-tooltip.is-open > .tasty-tooltip__bubble { transition-delay: 0s; }
 /* placement */

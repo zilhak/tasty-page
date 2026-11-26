@@ -7,7 +7,8 @@ import { Spec, Stage, Meta, Note, Do, Dont } from "../parts/specimen.jsx";
 // Tasty Gallery — Overlays · Popups › Over a web page, opaque mode (2026-10-21)
 //jsx).
 // Each screen A–D is shown in three columns: transparent (unchanged) · opaque (this request) · current (page hidden → boundary tile).
-// Dashed amber outline = a rect the host can paint over the page (popup box, dropdown box). Drawn 2px outside the box for legibility.
+// Dashed outline = a rect the host can paint over the page (popup box, dropdown box). Drawn 2px outside the box for legibility.
+// The rejected blotch column draws none: there the rect would lie on a scrim, where nothing is drawn.
 
 
 
@@ -22,7 +23,7 @@ const COLS = [
 ];
 
 function MdPage() {
-  const cell = { padding: "4px 8px", borderBottom: "var(--tasty-border-width) solid var(--tasty-border-strong)", textAlign: "left" };
+  const cell = { padding: "4px 8px", borderBottom: "var(--tasty-border-width) solid var(--tasty-md-table-border)", textAlign: "left" };
   return (
     <div style={{ position: "absolute", inset: 0, overflow: "hidden", padding: "20px 24px", display: "flex", flexDirection: "column", gap: 10,
       background: "var(--tasty-surface-markdown-focused-bg)", color: "var(--tasty-surface-markdown-focused-fg)", fontFamily: "var(--tasty-font-ui)" }}>
@@ -47,7 +48,7 @@ function Tile() {
 }
 function Term() {
   return (
-    <div style={{ position: "absolute", inset: 0, padding: "12px 14px", display: "flex", flexDirection: "column", gap: 4,
+    <div data-terminal-content="" style={{ position: "absolute", inset: 0, padding: "12px 14px", display: "flex", flexDirection: "column", gap: 4,
       background: "var(--tasty-surface-terminal-focused-bg)", color: "var(--tasty-surface-terminal-focused-fg)", fontFamily: "var(--tasty-font-mono)", fontSize: 12 }}>
       <span><span style={{ color: "var(--tasty-accent-success-raised)" }}>❯</span> cargo build --release</span>
       <span>   Compiling tasty v0.14.0</span>
@@ -58,7 +59,7 @@ function Term() {
 }
 const Scrim = ({ style }) => <div style={{ position: "absolute", inset: 0, background: "var(--tasty-scrim-bg)", ...style }} />;
 const Host = ({ on, children, style }) => (
-  <div style={{ display: "flex", outline: on ? "var(--tasty-border-width) dashed var(--tasty-accent-warning)" : "none", outlineOffset: 2, ...style }}>{children}</div>
+  <div style={{ display: "flex", outline: on ? "var(--tasty-border-width) dashed var(--tasty-specimen-annotation-border)" : "none", outlineOffset: 2, ...style }}>{children}</div>
 );
 function Frame({ w = 560, h = 340, children }) {
   return (
@@ -90,6 +91,8 @@ function SceneA({ mode }) {
 // B — command palette (window scrim) across a markdown page | terminal split
 function SceneB({ mode }) {
   const op = mode === "opaque" || mode === "blotch";
+  // the blotch column keeps the opaque box but not its mark: half the mark would lie on the scrim
+  const mark = mode === "opaque";
   return (
     <Frame>
       <div style={{ position: "absolute", top: 0, bottom: 0, left: 0, width: 279 }}>{ground(mode)}</div>
@@ -98,13 +101,13 @@ function SceneB({ mode }) {
       {(mode === "transparent" || mode === "hidden") && <Scrim />}
       {mode === "blotch" && <Scrim style={{ left: 279 }} />}
       <div style={{ position: "absolute", top: 36, left: 0, right: 0, display: "flex", justifyContent: "center" }}>
-        <Host on={op}><PaletteFrame opaque={op} /></Host>
+        <Host on={mark}><PaletteFrame opaque={op} /></Host>
       </div>
     </Frame>
   );
 }
 // C — Tools menu (scrim-less, shadow-popover) straddling sidebar | page
-const TOOLS = ["Command palette…", "Listening ports…", "Remote connections…", "Presets", "Tutorial…", "Task DAGs", "Open File…"];
+const TOOLS = ["Command palette…", "Listening ports…", "Remote connections…", "Presets", "Tutorial…", "Task DAGs", "Open child graph", "Open File…"];
 function SceneC({ mode }) {
   const op = mode === "opaque";
   return (
@@ -138,7 +141,7 @@ function SceneD({ mode }) {
         <FilePickerFrame w={440} h={188} deep opaque={op} />
       </Host>
       <Host on={op} style={{ position: "absolute", left: PX + 44, top: PY + PATH_BOTTOM + 4 }}>
-        <FpCrumbMenu items={["Users", "maya", "tasty", "config", "keybindings", "exports"]} opaque={op} style={{ position: "static", marginTop: 0 }} />
+        <FpCrumbMenu items={["home", "me", "tasty", "config", "keybindings", "exports"]} opaque={op} style={{ position: "static", marginTop: 0 }} />
       </Host>
     </Frame>
   );
@@ -147,10 +150,10 @@ function SceneD({ mode }) {
 function Grid({ Scene, h = 340, extra }) {
   const cols = extra ? [...COLS, extra] : COLS;
   const row = (theme) => (
-    <div data-theme={theme === "Latte" ? "latte" : undefined} style={{ display: "flex", gap: "var(--tasty-space-lg)", flexWrap: "wrap", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)" }}>
+    <div data-theme={theme === "Latte" ? "latte" : "mocha"} style={{ display: "flex", gap: "var(--tasty-space-lg)", flexWrap: "wrap", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)" }}>
       {cols.map((c) => (
         <div key={c.mode} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
-          <span style={{ fontSize: "var(--tasty-font-size-caption)", color: c.mode === "opaque" ? "var(--tasty-text-primary)" : "var(--tasty-text-muted)" }}>{theme} · {c.label}</span>
+          <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: c.mode === "opaque" ? "var(--tasty-text-primary)" : "var(--tasty-text-muted)" }}>{theme} · {c.label}</span>
           <div style={{ zoom: ZOOM }}><Scene mode={c.mode} /></div>
         </div>
       ))}
@@ -160,7 +163,7 @@ function Grid({ Scene, h = 340, extra }) {
     <Stage variant="solo" eager style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", flexDirection: "column", gap: "var(--tasty-space-md)", alignItems: "flex-start" }}>
       {row("Mocha")}{row("Latte")}
       <span style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>
-        <span style={{ width: 16, height: 10, outline: "var(--tasty-border-width) dashed var(--tasty-accent-warning)" }} />
+        <span style={{ width: 16, height: 10, outline: "var(--tasty-border-width) dashed var(--tasty-specimen-annotation-border)" }} />
         host-drawable rect over the page (popup box · dropdown box) — every pixel inside is opaque, nothing outside it can change
       </span>
     </Stage>
@@ -179,7 +182,7 @@ function GalleryWebviewOpaque() {
   return (
     <>
       <Spec id="contract-popup-over-a-page-in-opaque-mode" title="Contract — popup over a page in opaque mode"
-        when={<>A markdown or html page is a native WebView. Where the host cannot composite over it with transparency (e.g. Linux X11 with no compositing manager), the host paints only inside the <b>popup box rect</b> and each <b>dropdown box rect</b>; those pixels are fully opaque and the page outside them cannot change. Transparent mode is unchanged. The mode is decided by the environment; there is no user setting and no on-screen indicator. Toasts and passive popups keep the current rule (overlapped page hidden).</>}>
+        when={<>A markdown or html page is a native WebView. Where the host cannot composite over it with transparency (e.g. Linux X11 with no compositing manager), the host paints only inside the <b>popup box rect</b> and each <b>dropdown box rect</b>; those pixels are fully opaque and the page outside them cannot change. Transparent mode is unchanged. The mode is decided by the environment; there is no user setting and no on-screen indicator. Toasts and passive popups keep the current rule: the overlapped page is hidden, except a page that takes keys, which is never hidden. A toast card over a page that takes keys is drawn in a hole cut out of the page (2026-11-14), see Toast over a page that takes keys, below.</>}>
         <Meta
           specs={[
             ["1 · corner", "square — box reads webview-opaque-radius (0); nothing to fill outside an arc"],
@@ -223,4 +226,4 @@ function GalleryWebviewOpaque() {
   );
 }
 
-export { GalleryWebviewOpaque };
+export { GalleryWebviewOpaque, MdPage, Tile, Frame, Host };

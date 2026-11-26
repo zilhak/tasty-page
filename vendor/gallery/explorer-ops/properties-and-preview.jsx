@@ -1,4 +1,5 @@
 import React from "react";
+import { PopupFocusEdge } from "../../ui_kits/terminal/overlays/shared.jsx";
 import { XCol, XThemes, XCell } from "./create-drag-search.jsx";
 import * as QK from "../parts/explorer-kit.jsx";
 import { Section as QSection, Spec as QSpec, Stage as QStage, Meta as QMeta, Note as QNote } from "../parts/specimen.jsx";
@@ -7,10 +8,11 @@ import { QIconButton, QIcon, QBody, QROWS } from "./address-and-toolbar.jsx";
 // ── Properties (b12) — local copy of the YProps frame (explorer-ops/index.jsx mounts after this file) ──
 function QProps({ glyph = QK.ic.file, glyphColor, name, children }) {
   return (
-    <div style={{ width: "var(--tasty-explorer-props-width)", maxWidth: "100%", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", overflow: "hidden" }}>
+    <div style={{ position: "relative", width: "var(--tasty-explorer-props-width)", maxWidth: "100%", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", overflow: "hidden" }}>
+      <PopupFocusEdge />
       <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-explorer-props-padding-x) var(--tasty-space-sm)" }}>
         <span style={{ display: "inline-flex", flex: "none", color: glyphColor || "var(--tasty-text-muted)" }}>{glyph}</span>
-        <span style={{ flex: 1, minWidth: 0, fontSize: "var(--tasty-font-size-max)", fontWeight: "var(--tasty-font-weight-normal)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{name}</span>
+        <span style={{ flex: 1, minWidth: 0, fontSize: "var(--tasty-font-size-max)", fontWeight: "var(--tasty-font-weight-semibold)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{name}</span>
         <QIconButton size="sm" aria-label="Close" title="Close">{QK.ic.x}</QIconButton>
       </div>
       <div style={{ padding: "0 var(--tasty-explorer-props-padding-x) var(--tasty-space-md)", display: "flex", flexDirection: "column" }}>{children}</div>
@@ -39,7 +41,7 @@ function QPreview({ h, low }) {
         <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>PNG image · 640 × 400 · 96 KB</span>
       </div>
       {!low && <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-sidebar)" }}>
-        <div style={{ width: "100%", aspectRatio: "16 / 10", display: "flex", alignItems: "center", justifyContent: "center", border: "var(--tasty-border-width) solid var(--tasty-separator)", borderRadius: "var(--tasty-radius-sm)", background: "var(--tasty-surface-raised)", color: "var(--tasty-text-muted)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)" }}>image · fit</div>
+        <div style={{ width: "100%", aspectRatio: "16 / 10", display: "flex", alignItems: "center", justifyContent: "center", border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius-sm)", background: "var(--tasty-surface-raised)", color: "var(--tasty-text-muted)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)" }}>image · fit</div>
       </div>}
     </div>
   );
@@ -100,13 +102,13 @@ function RemainingB12Section() {
       </QSpec>
 
       <QSpec id="preview-panel-in-a-low-cell-header-only" title="Preview panel in a low cell — header only"
-        when={<>When the body under the preview header would be shorter than <span className="tok">--tasty-explorer-preview-body-min-height</span> 120, the body is <b>hidden</b> and only the header stays (name + kind · size), without its bottom rule. A 30 px thumbnail says nothing; the header still tells the user what is selected. The panel keeps its width, and the width rules (hide under preview-min + list-min) are unchanged.</>}>
-        <QStage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 16, flexWrap: "wrap", alignItems: "flex-start" }}>
-          <XCol label="tall cell — body shown" w={640}>
-            <XCell w={640} h={300} status="5 items"><QBody>{QROWS.map((r, i) => <QK.DetailRow key={i} {...r} state={i === 3 ? "selected" : undefined} />)}</QBody><QPreview /></XCell>
+        when={<>When the body under the preview header would be shorter than <span className="tok">--tasty-explorer-preview-body-min-height</span> 120, the body is <b>hidden</b> and only the header stays (name + kind · size), without its bottom rule. A 30 px thumbnail says nothing; the header still tells the user what is selected. The panel keeps its width, and the width rules (hide under list-min + separator + preview-min) are unchanged.</>}>
+        <QStage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 16, flexWrap: "wrap", alignItems: "flex-start", justifyContent: "safe center" }}>
+          <XCol label="tall cell — body shown" w={640} preview>
+            <XCell w={640} h={300} preview status="5 items"><QBody>{QROWS.map((r, i) => <QK.DetailRow key={i} {...r} state={i === 3 ? "selected" : undefined} />)}</QBody><QPreview /></XCell>
           </XCol>
-          <XCol label="180 cell — body < 120 → header only" w={640}>
-            <XCell w={640} h={180} status="5 items"><QBody>{QROWS.slice(2).map((r, i) => <QK.DetailRow key={i} {...r} state={i === 1 ? "selected" : undefined} />)}</QBody><QPreview low /></XCell>
+          <XCol label="180 cell — body < 120 → header only" w={640} preview>
+            <XCell w={640} h={180} preview status="5 items"><QBody>{QROWS.slice(2).map((r, i) => <QK.DetailRow key={i} {...r} state={i === 1 ? "selected" : undefined} />)}</QBody><QPreview low /></XCell>
           </XCol>
         </QStage>
         <QMeta

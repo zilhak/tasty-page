@@ -11,7 +11,7 @@ const DIAGRAMS = {
   "workflow-layout": (copy) => <WorkflowLayout copy={copy} />,
   "background-task": (copy) => <WorkflowLayout copy={copy} background />,
   "window-anatomy": (copy) => <WindowAnatomy labels={copy.windowAnatomy} />,
-  "settings-window": () => <SettingsAnatomy />,
+  "settings-window": (copy) => <SettingsAnatomy labels={copy.settingsWindow} />,
 };
 
 export const isDiagram = (name) => Object.hasOwn(DIAGRAMS, name);

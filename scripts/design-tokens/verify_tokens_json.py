@@ -4,7 +4,8 @@
 usage: verify_tokens_json.py <project-dir> <json>
   e.g. verify_tokens_json.py vendor vendor/tokens/tasty.tokens.json
 
-Names, values, aliases and Latte values must match. Exits 1 on any difference.
+Names, values, aliases and Latte values must match, and each $type must be the type
+gen_tokens_json.py infers from the CSS value. Exits 1 on any difference.
 """
 import json, os, sys
 
@@ -13,7 +14,7 @@ sys.dont_write_bytecode = True  # keep __pycache__ out of the working tree
 import gen_tokens_json as g
 
 after,json_path=sys.argv[1],sys.argv[2]
-d=json.load(open(json_path,encoding='utf-8'))
+with open(json_path,encoding='utf-8') as f: d=json.load(f)
 T=g.collect(after);own=g.tier_of(T)
 tot=0;errs=[]
 for t in g.TIERS:
@@ -24,11 +25,13 @@ for t in g.TIERS:
     nv=al=la=0
     for k,v in j.items():
         if k not in base: continue
-        e=g.alias(base[k],own)
+        e=g.alias(base[k],own,f'{t}.{k}')
         if str(v['$value'])!=e: errs.append((t,k,'value',v['$value'],e))
+        it=g.infer_type(k,t,base[k],T,own)
+        if v.get('$type')!=it: errs.append((f'{t}.{k}.$type',v.get('$type'),it))
         nv+=1; al+=str(v['$value']).startswith('{')
         jl=v.get('$extensions',{}).get('com.tasty.mode',{}).get('latte')
-        cl=g.alias(lat[k],own) if k in lat else None
+        cl=g.alias(lat[k],own,f'{t}.{k} (latte)') if k in lat else None
         if jl!=cl: errs.append((t,k,'latte',jl,cl))
         la+=cl is not None
     print(f'{t}: css {len(base)} json {len(j)} css-only {len(a)} json-only {len(b)} | aliases {al} | latte css {len(lat)} json {sum("$extensions" in v for v in j.values())} matched {la}')

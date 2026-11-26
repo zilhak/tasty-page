@@ -1,4 +1,5 @@
 import React from "react";
+import { PopupFocusEdge } from "../../ui_kits/terminal/overlays/shared.jsx";
 import { Button, IconButton, Icon, Checkbox, Spinner, Select, MenuItem } from "../../components/index.js";
 import { XCol, XThemes } from "./create-drag-search.jsx";
 import * as K from "../parts/explorer-kit.jsx";
@@ -40,10 +41,11 @@ const pMono = { fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-fon
 // Properties frame (same as YProps / QProps) + optional Open footer
 function PProps({ glyph = K.ic.file, glyphColor, name, children, note, footer, w }) {
   return (
-    <div style={{ width: w || "var(--tasty-explorer-props-width)", maxWidth: "100%", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", overflow: "hidden" }}>
+    <div style={{ position: "relative", width: w || "var(--tasty-explorer-props-width)", maxWidth: "100%", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", overflow: "hidden" }}>
+      <PopupFocusEdge />
       <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-explorer-props-padding-x) var(--tasty-space-sm)" }}>
         <span style={{ display: "inline-flex", flex: "none", color: glyphColor || "var(--tasty-text-muted)" }}>{glyph}</span>
-        <span style={{ flex: 1, minWidth: 0, fontSize: "var(--tasty-font-size-max)", fontWeight: "var(--tasty-font-weight-normal)", color: "var(--tasty-text-primary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{name}</span>
+        <span style={{ flex: 1, minWidth: 0, fontSize: "var(--tasty-font-size-max)", fontWeight: "var(--tasty-font-weight-semibold)", color: "var(--tasty-text-primary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{name}</span>
         <IconButton size="sm" aria-label="Close" title="Close">{K.ic.x}</IconButton>
       </div>
       <div style={{ padding: "0 var(--tasty-explorer-props-padding-x) var(--tasty-space-md)", display: "flex", flexDirection: "column" }}>
@@ -245,10 +247,12 @@ function PermNarrowSpec() {
 
 function PropsActionsSection() {
   const L = PA.en, broken = "var(--tasty-explorer-link-broken-fg)", partial = "var(--tasty-explorer-props-partial-fg)";
-  const ctxTail = (show) => (
+  // mirror: the OS rows stay, disabled, reason in the tooltip (Remote explorer › D6)
+  const why = (mirror) => (mirror ? "This action is only available for files and folders on this computer." : undefined);
+  const ctxTail = (show, mirror = false) => (
     <>
       <MenuItem label="Move to Trash" icon={K.ic.trash} danger />
-      {show !== false && <><MenuItem separator /><MenuItem label="Open in system" icon={K.ic.external} />{show && <MenuItem label={show} icon={<Icon name="folderOpen" />} />}</>}
+      <MenuItem separator /><MenuItem label="Open in system" icon={K.ic.external} disabled={mirror} title={why(mirror)} />{show && <MenuItem label={show} icon={<Icon name="folderOpen" />} disabled={mirror} title={why(mirror)} />}
       <MenuItem separator />
       <MenuItem label="Properties" icon={<Icon name="info" />} />
     </>
@@ -329,7 +333,7 @@ function PropsActionsSection() {
               <PField k="Kind" v="File" />
               <PField k="Size" v="2.1 MB" />
               <PField k="Modified" v="2026-10-09 08:12" time />
-              <PField k="Location" v="build-eu:~/logs" mono copy />
+              <PField k="Path" v="/home/me/logs/build-0412.log" mono copy />
             </PProps>
           </XCol>
           <XCol label="several items — no footer" w={360}>
@@ -413,21 +417,21 @@ function PropsActionsSection() {
       <PermNarrowSpec />
 
       <Spec id="already-built-context-menu-os-rows-link-note-partial-read-check" title="Already built — context menu OS rows · link note · partial read (check)"
-        when={<>Confirmed with two changes. <b>Order</b>: Move to Trash · separator · <b>Open in system</b> · <b>Show in Finder / File Explorer / File Manager</b> (one item only) · separator · Properties — the OS rows get their own group so Properties stays the last row on its own. <b>Label</b>: “Open in system” in sentence case, as the existing menu row already reads (“Show in Finder” keeps the product name). Icons: <code>external</code> for Open in system, <code>folderOpen</code> for Show in …. Remote cells hide both rows and the group's separator. The <b>link note</b> wording and place (muted note under the fields, same as the remote note) are confirmed. <b>Some items couldn't be read</b> under Kinds and <b>—</b> for a remote Total size with folders are confirmed as built.</>}>
+        when={<>Confirmed with two changes. <b>Order</b>: Move to Trash · separator · <b>Open in system</b> · <b>Show in Finder / File Explorer / File Manager</b> (one item only) · separator · Properties — the OS rows get their own group so Properties stays the last row on its own. <b>Label</b>: “Open in system” in sentence case, as the existing menu row already reads (“Show in Finder” keeps the product name). Icons: <code>external</code> for Open in system, <code>folderOpen</code> for Show in …. A mirror (remote) cell shows both rows and the separator <b>disabled</b>, with the reason in the tooltip (Remote explorer › D6). The <b>link note</b> wording and place (muted note under the fields, same as the remote note) are confirmed. <b>Some items couldn't be read</b> under Kinds and <b>—</b> for a remote Total size with folders are confirmed as built.</>}>
         <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 18, flexWrap: "wrap", alignItems: "flex-start" }}>
           <K.CtxMenu title="One file · macOS">{ctxTail("Show in Finder")}</K.CtxMenu>
           <K.CtxMenu title="One folder · Windows">{ctxTail("Show in File Explorer")}</K.CtxMenu>
           <K.CtxMenu title="Several items · Linux">{ctxTail(null)}</K.CtxMenu>
-          <K.CtxMenu title="Remote cell">{ctxTail(false)}</K.CtxMenu>
+          <K.CtxMenu title="Mirror cell · one file · Linux — disabled">{ctxTail("Show in File Manager", true)}</K.CtxMenu>
           <XCol label="remote · several with a folder" w={360}>
             <PProps glyph={<Icon name="layers" />} name="4 items" note="Remote — only what the remote host lists is shown.">
               <PField k="Kinds" v="3 files, 1 folder" />
               <PField k="Total size" v="—" />
-              <PField k="Location" v="build-eu:~/logs" mono copy />
+              <PField k="Location" v="/home/me/logs" mono copy />
             </PProps>
           </XCol>
         </Stage>
-        <Note>Strings unchanged except the label case: <code>explorer.menu.open_in_system</code> “Open in system” / “시스템에서 열기” / “システムで開く” · <code>.reveal_macos</code> “Show in Finder” / “Finder에서 보기” / “Finder で表示” · <code>.reveal_windows</code> “Show in File Explorer” / “파일 탐색기에서 보기” / “エクスプローラーで表示” · <code>.reveal_linux</code> “Show in File Manager” / “파일 관리자에서 보기” / “ファイルマネージャーで表示” · <code>explorer.props.link_note</code> as requested.</Note>
+        <Note>Strings unchanged except the label case: <code>explorer.context_menu.open_in_system</code> “Open in system” / “시스템에서 열기” / “システムで開く” · <code>.reveal_finder</code> “Show in Finder” / “Finder에서 보기” / “Finder で表示” · <code>.reveal_explorer</code> “Show in File Explorer” / “파일 탐색기에서 보기” / “エクスプローラーで表示” · <code>.reveal_files</code> “Show in File Manager” / “파일 관리자에서 보기” / “ファイルマネージャーで表示” · <code>explorer.props.link_note</code> as requested.</Note>
       </Spec>
     </Section>
   );

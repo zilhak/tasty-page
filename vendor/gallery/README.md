@@ -26,8 +26,8 @@ The 15 URLs do not change, so `/design/gallery/<key>/` keeps its current path. E
 | Foundations | Location map | `rules-map` | Every location in Mocha and Latte |
 | Components | Components | `components` | Buttons, Badge, Tag, Kbd, form controls, Tab, TreeRow, MenuItem, feedback, CenterState, HelpHint, Tooltip, hint text, Table, ListCtrl, Scrollbar |
 | Overlays | Dialogs | `overlays-dialogs` | Scrim and frame, scrim over each ground, approval, convert, file handler, preset, markdown open, rename, category, transfer, info modal, script confirm, delete permanently |
-| Overlays | Windows | `overlays-windows` | Palette, ports, remote, remote attach, file picker, settings, permissions, plugins window, keybinding import, scripts, git viewer, clipboard, notifications, move and resize, preset editor |
-| Overlays | Popups and menus | `overlays-popups` | Tools menu, search bar, switch overlays, modifier hints, categories, notice column, opaque mode over a page |
+| Overlays | Windows | `overlays-windows` | Palette, ports, remote, remote attach, file picker, settings, permissions, plugins window, keybinding import, scripts, git viewer, clipboard, notifications, capture region select, move and resize, preset editor |
+| Overlays | Popups and menus | `overlays-popups` | Tools menu, fallback context menu, search bar, switch overlays, modifier hints, categories, notice column, opaque mode over a page |
 | Overlays | Banners | `overlays-banners` | Banner family and its instances |
 | Overlays | Tutorial | `overlays-tutorial` | Marker, callout, topic list, composite |
 | Shell | Layouts | `layouts` | Sidebar and rail, tab strip, list idioms, tiers, divider, surface focus on every kind, attention, move source, loading, notification summary, status bar, title bar |
@@ -50,13 +50,17 @@ Every specimen has a stable `id` on its `Spec`, because the Rust gallery and the
 | Views | What the demo hides, drawn as frames | No |
 | Specs | Dimensions and tokens, always shown | No |
 
+Faces: a specimen draws in the app's faces (`--tasty-font-ui`, `--tasty-font-mono`) and the writing around it in `--tasty-font-prose`. A caption that names the specimen under it (state, case, variant) is that writing: it carries `className="g-cap"`. A specimen draws no ligatures, as the app's UI does not. A block of terminal content carries `data-terminal-content` and keeps D2Coding's ligatures. UI drawn over that block (a link tooltip, a drop overlay) carries `data-terminal-ui` and draws none again (`parts/specimen.css`).
+
 ### Fixed states
 
 **`StateGrid` draws one contract: a row per host, a column per state, from the `components` rows of `tokens/ground-ink-rules.json`.** Column order is `rest`, `hover`, `press`, `focus`, `selected`, `selected+hover`, `selected+press`, `keyboard-active`, `disabled`, `invalid`, `readonly`. A state or host the contract does not have gets no column or row. An empty intersection stays blank. Each cell paints the host ground and carries `data-contract`, `data-state` and `data-host`, spelled as in the file.
 
+Fixed views can also place contract cells around rendered kit parts. Use `data-parts`, a JSON array of part names, to select the contract rows a cell measures. The general contrast scan skips the whole cell subtree, so wrap only the selected ink.
+
 **How a cell freezes.** `mirrorPseudoStates` copies each `:hover`, `:active`, `:focus`, `:focus-visible` and `:focus-within` rule right after its original, with the pseudo-class replaced by `[data-force~="hover"]`, `[data-force~="press"]` or `[data-force~="focus"]`. The specificity and the order stay, so a cell shows what the component's own CSS shows and nothing is restyled. `hover` is forced alone, `press` as `hover press` because a pressed control is also hovered, and `selected`, `disabled`, `invalid` and `readonly` come from the component's real props. Inside a cell, `pointer-events`, `transition` and `animation` are off, and the control takes `tabindex="-1"`.
 
-**The mirror has three limits.** A rule on a pseudo-element, such as `::-webkit-scrollbar-thumb:hover`, takes no attribute, so draw that part plainly. A component that holds hover in JS state takes a prop instead: `SearchableSelect` does, with `hoverIndex`. A part with no component, such as a title bar or a DAG node, is written with the contract's tokens directly.
+**The mirror has three limits.** A rule on a pseudo-element, such as `::-webkit-scrollbar-thumb:hover`, takes no attribute, so draw that part plainly. A component that holds hover in JS state takes a prop instead: `SearchableSelect` does, with `hoverIndex`. Some grid specimens, such as the title bar states and DAG nodes, draw directly with the contract's tokens. The Layouts title bar views mount the UI kits and mark the kits' title, buttons and close button as their own cells.
 
 **Renderers.** `render(state, host)` for each contract lives in the owner page's folder. `coverage.md` names the owner of each contract.
 
@@ -86,20 +90,19 @@ The toggle goes. Specs are always on, because they are what the app is built fro
 
 ### The check
 
-The rules are in `RULES.md` section 14. `contract-audit.js` is a reference for the frozen-cell part and covers the Button family's parts. When this was decided, it ran on the same mock at 113 cells and 241 rows, with no mismatch in either theme against the sources, and the ratios it computed matched the file's to 0.03. Those figures are a record.
+The rules are in `RULES.md` section 14. `measureGallery()` in [`scripts/contrast-gallery.mjs`](../../scripts/contrast-gallery.mjs) and `run()` in [`scripts/check-contrast.mjs`](../../scripts/check-contrast.mjs) implement the rendered gallery check. The browser uses `selectParts()`, `validateParts()` and `expectedTheme()` from `pageLib()` in [`scripts/contrast-page.mjs`](../../scripts/contrast-page.mjs).
 
-| What | Rule |
+`contract-audit.js` is a historical reference for the Button family's frozen cells. The original mock run measured 113 cells and 241 rows in each theme, with zero token mismatches and ratios within 0.03 of those in the rule file.
+
+| What | Check |
 |---|---|
-| Every row of `components` | Has a frozen cell on some page, or the check fails |
-| A cell's part | Its ink equals the row's token within 1/255 per channel, because `color-mix` rounds |
-| A cell's part with a grade | Meets the grade |
-| Other text on the page | 4.5, composited through any opacity |
-| Other glyphs | 3 |
+| Contract cells | Part selection, row coverage, and each part's expected token and grade |
+| Text and glyphs outside cells | Contrast on the composited ground |
 | `data-audit-exempt="<id>"` | Skips its subtree. The id must be in `exceptions[].id` with `audit: "subtree"`. Each use is listed in the output |
 | `data-ink-grade="none" data-ink-why="disabled\|ornament"` | Outside a cell, marks an ink with no grade. It is not an exception, as `RULES.md` section 12 says |
-| Scope | `[data-gallery-page]`. Site header, sidebar and footer carry `data-site-chrome` and are not part of these rules |
+| Scope | Specimens are under `[data-gallery-page]`. Individual below-grade and wrong-ink records for site rows in the shared UI, such as the header, sidebar and footer marked with `data-site-chrome`, also fail the gallery check (see `chromeFailures()` in [`scripts/contrast-site.mjs`](../../scripts/contrast-site.mjs) and its tests in [`scripts/contrast-page.test.mjs`](../../scripts/contrast-page.test.mjs)). |
 
-Exempt ids: `ansi-content`, `terminal-attributes`, `html-page`, `plugin-webview`, `third-party-plugin`, `image-content`, `code-highlight`, `brand`, `os-window-controls`, `dimmed`, `under-scrim`, `decorative-grid`. Opacity alone never exempts anything.
+Exempt ids: `ansi-content`, `terminal-attributes`, `html-page`, `plugin-webview`, `third-party-plugin`, `image-content`, `capture-picture`, `code-highlight`, `brand`, `os-window-controls`, `dimmed`, `under-scrim`, `decorative-grid`. Opacity alone never exempts anything.
 
 The check walks ancestors for the ground, so a specimen paints its ground on an ancestor. A sibling laid over ink, as with a scrim, is not seen: mark what is under it `under-scrim`.
 
@@ -114,7 +117,7 @@ The check walks ancestors for the ground, so a specimen paints its ground on an 
 | `shell.jsx` | `parts/specimen.jsx` (Section, Spec, Stage, Cluster, Meta, Note, Do, Dont). Page shell goes to the site layout |
 | `gallery.css` | `parts/specimen.css`, with the shell, top bar and nav rules removed |
 | `state-grid.jsx` | `parts/state-grid.jsx` |
-| `contract-audit.js` | The check. Not shipped |
+| `contract-audit.js` | Historical frozen-cell reference |
 | `foundations.jsx` | `foundations/index.jsx` |
 | `icons.jsx` | `icons/index.jsx` |
 | `rules.jsx` | `rules/index.jsx` |
@@ -200,12 +203,12 @@ exact dimensions, and the tokens it consumes — and why.
 ## Pages
 | File | Catalog | Covers |
 |------|---------|--------|
-| `index.html` | **Foundations** | **Brand** (logo and wordmark, watermelon palette, terminal specimen), **raw palette** in Mocha and Latte, Color (elevation ramp, overlays, text, accent roles), **Elevation — floating surfaces (the two shadows + the scope rule)**, Type (mono, UI sans, weights, label family), Spacing, Radius/border, heights, motion — each token shown inside the thing it builds, plus **Role gaps — settled** (borrowed color roles, half-pixel type snapping, the one tinted-box opacity pair). |
+| `index.html` | **Foundations** | **Brand** (logo and wordmark, watermelon palette, terminal specimen), **raw palette** in Mocha and Latte, Color (elevation ramp, overlays, text, accent roles), **Elevation — floating surfaces (the two shadows + the scope rule)**, Type (mono, UI face, weights, label family), Spacing, Radius/border, heights, motion — each token shown inside the thing it builds, plus **Role gaps — settled** (borrowed color roles, half-pixel type snapping, the one tinted-box opacity pair). |
 | `icons.html` | **Icons** | The canonical glyph set (`icons/<name>.svg`, mirrored in `icons.json` + `Icon.jsx`), rendered by name through `<Icon>`. |
 | `rules.html` | **Rules** | Every ground × role cell of `tokens/ground-ink-rules.json`, painted with the real tokens, with the measured contrast of the current theme. |
 | `rules-map.html` | **Location map** | Each window location with its ground and the child grounds it may hold, in Mocha and Latte side by side. |
 | `components.html` | **Components** | Live primitives: Button, IconButton, Badge, Tag, Kbd, Input, Select, MultiSelect, Checkbox, Switch, Tab, TreeRow, MenuItem, StatusDot, Spinner, Toast (+ Toast stack), Hint text, Table, ListCtrl, Scrollbar (`components-scrollbar.jsx`). Hover/focus respond for real. **Selected row** — meaning glyphs, match run, `+`, muted on bg-app (2026-11-05). Also the **dot family** (generic 8 vs compact 6, attached ring geometry, toast gap), **one keycap** (palette converges on Kbd) and **glyph vs font sizes**. **SearchableSelect** (2026-10-19, `components-searchselect.jsx`: trigger states, open list, filter / no match / loading / pinned, Appearance › General font rows). |
-| `overlays-dialogs.html` | **Overlays · Dialogs** | Centered modal confirm/edit surfaces: scrim recipe, **scrim over each ground** (`overlays-scrim-grounds.jsx`), agent approval, convert, file-handler picker, apply preset, markdown open, rename, **remote transfer (progress + failed popups)**, **Explorer delete permanently** (loads `explorer-delete-frame.jsx`), and **scrim scope** — a surface-bound popup dims its own surface only (both split directions · clamped popup · parent + child picker with one scrim). |
+| `overlays-dialogs.html` | **Overlays · Dialogs** | Centered modal confirm/edit surfaces: scrim recipe, **scrim over each ground** (`overlays-scrim-grounds.jsx`), agent approval, convert, file-handler picker, apply preset, markdown open, rename, **remote transfer (progress + failed popups)**, **Explorer delete permanently** (loads `explorer-delete-frame.jsx`), and **scrim scope** — a surface-bound popup dims its own surface only (both split directions · parent + child picker with one scrim), and **collapse** — a surface popup that does not fit leaves only a show button and opens over the window when pressed (`overlays-dialogs/collapsed-popup.jsx`). |
 | `overlays-windows.html` | **Overlays · Windows** | Large modal surfaces (own internal nav): command palette, listening ports, remote connections, **preset editor (PresetView window)**, two-tier settings, **git worktree viewer**, **clipboard viewer**, **popup move & resize** (drag handles · 8-way resize · cursors · constraints · z-order), two-tier settings incl. **General › Remote transfer** subtab, **file picker — open + save mode** (one footer confirm · overwrite · deep-path elision), **Keybindings · Import / Export** incl. the resolved open values (export failure · stacked bundle notices · parse-failure copy · multi-conflict summary · modifier placeholder), the **path-bar allocation** rule at 400×360, **From ssh config** hosts under the remote profiles, **segmented vs tab-strip active states**, the **Process column minimum**, the **git diff toolbar height**, the **one numeric-input shape** and **Hook Handlers** origin/remove rules. **Notifications popup + fullscreen** (2026-10-17). Plugins window **unverified warning + Add anyway / Register anyway** (2026-10-19, `overlays-windows-plugin-trust.jsx`). **Handler › File Detectors · File Handlers** (2026-10-20 — two-line rows, add card, pending add/remove, empty; `overlays-windows-file-handlers.jsx`). **Misc › Anomaly detection** (2026-10-27, `overlays-windows-anomaly.jsx` + kit `settings_anomaly.jsx`) · Plugins **trusted verdict contrast** (2026-10-27) · Notifications **warning glyph contrast** (2026-10-27) · Plugins **Needs attention › reserved id** (2026-11-08 — not an official plugin, remove only, `overlays-windows-plugin-trust.jsx`) · **Appearance › rejected font** (2026-11-09 — file field, family row and toast, `overlays-windows/settings-font.jsx`). |
 | `overlays-popups.html` | **Overlays · Popups & menus** | Anchored, scrim-less surfaces: tools menu, search bar, switch-number overlay (modifier-hold tab/workspace numbers). **Notice column** (2026-10-19, `overlays-popups-notices.jsx`): non-focus restore-failure / save-halt notice, response-wait chip placement. **Over a web page — opaque mode** (2026-10-21, `overlays-popups-webview.jsx`): screens A–D × transparent / opaque / current-hidden, Mocha + Latte, host-rect outlines. |
 | `overlays-banners.html` | **Overlays · Banners** | The **Banner** family (4th overlay family) — floating top notice, TTL countdown + queue + cross-scope stacking; the **mouse-capture** banner instance (anatomy · hit-zone), its **⋯ more menu** (per-app opt-out rows) + its **capture blacklist** editor. · HTML mirror large-file / limit notices (2026-10-12). · Secondary, Kbd, Tag and state ink in both themes (2026-11-05). |

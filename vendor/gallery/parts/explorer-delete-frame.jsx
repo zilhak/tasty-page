@@ -21,7 +21,7 @@ const XD_COPY = {
     title: "영구 삭제할까요?",
     file: (n) => <>“{n}” 항목을 삭제합니다. 휴지통으로 가지 않습니다.</>,
     folder: (n) => <>“{n}” 폴더와 그 안의 모든 내용을 삭제합니다. 휴지통으로 가지 않습니다.</>,
-    link: (n) => <>링크 “{n}”을(를) 삭제합니다. 링크가 가리키는 항목은 남습니다.</>,
+    link: (n) => <>“{n}” 링크를 삭제합니다. 링크가 가리키는 항목은 남습니다.</>,
     many: (n, k) => <>항목 {n}개를 삭제합니다{k ? <>. 폴더 {k}개의 안쪽 내용도 함께 삭제됩니다</> : null}. 휴지통으로 가지 않습니다.</>,
     warn: "되돌릴 수 없습니다.",
     cancel: "취소", ok: "영구 삭제", folderTag: "폴더 · 내용 포함", linkTag: "링크", brokenTag: "깨진 링크",
@@ -64,7 +64,7 @@ function ExplorerDeleteFrame({ lang = "en", items, focus = "cancel", okState, wi
   const summary = one ? (one.kind === "folder" ? c.folder(one.name) : one.kind === "file" ? c.file(one.name) : c.link(one.name)) : c.many(items.length, folders);
   const ring = (on, node) => <span style={{ display: "inline-flex", borderRadius: "var(--tasty-radius)", outline: on ? "var(--tasty-focus-ring-width) solid var(--tasty-border-focus)" : "none", outlineOffset: "var(--tasty-border-width)" }}>{node}</span>;
   return (
-    <div role="alertdialog" aria-label={c.title} style={{ width: width || "var(--tasty-info-modal-width)", maxWidth: "100%", maxHeight: "var(--tasty-info-modal-max-height)", display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", overflow: "hidden", textAlign: "left" }}>
+    <div role="alertdialog" aria-label={c.title} style={{ width: width || "var(--tasty-info-modal-width)", maxWidth: "100%", maxHeight: "var(--tasty-info-modal-max-height)", display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", overflow: "hidden", textAlign: "left" }}>
       <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-size-14) 0", minHeight: 0, flex: "1 1 auto" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)" }}>
           <span style={{ display: "inline-flex", color: "var(--tasty-accent-danger-raised)" }}><Icon name="trash" size="var(--tasty-icon-size-md)" /></span>

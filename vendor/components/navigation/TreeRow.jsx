@@ -15,6 +15,7 @@ const CSS = `
   display: flex;
   align-items: center;
   gap: var(--tasty-tree-row-gap);
+  flex: none;
   height: var(--tasty-control-height-tree);
   padding: 0 var(--tasty-space-sm) 0 var(--tasty-space-xs);
   border-radius: var(--tasty-radius-sm);

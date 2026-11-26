@@ -1,4 +1,4 @@
-<!-- source-hash: d8383ee3faf0 -->
+<!-- source-hash: 7ea402fe31b6 -->
 # Settings
 
 Tasty’s shell, fonts, language, and other preferences can be configured in the settings window or by editing `~/.tasty/config.toml` directly. Keybindings and themes have their own guides.
@@ -38,7 +38,7 @@ Press the same shortcut again to close the settings window.
 - If saved settings cannot be applied, an error notice appears and the settings stay as they were. If they were applied on screen but could not be written to `config.toml`, a warning notice appears instead; those changes are lost when Tasty restarts.
 - If another program changes `config.toml` after Tasty reads it, Tasty reports a save failure and preserves that file. Restart Tasty to load the changes made outside the app.
 - Startup corrections and the confirmed shell path are saved together. The loading screen keeps updating while the save completes. During normal use, new windows use the latest settings applied in this run even if a save is still pending.
-- Changes to **Language** take effect after you save and restart Tasty. Performance settings apply to terminals you open after saving; terminals that are already open don't change right away.
+- Changes to **Language:** take effect after you save and restart Tasty. The three settings in the **Performance** section of the **Terminal** tab apply to terminals you open after saving. Saving **Frame rate** settings applies them immediately to all open windows without restarting Tasty.
 - Numeric entries are **typed**, never dragged. Values are not adjusted while you type; they are brought into the allowed range when you leave the field or press `Enter`. Type something outside the range and the field's border takes the warning colour, with one line under it naming the range and the value that will actually be saved.
 - Whole-number fields widen to show the entire value, and grow with each character as you type. The unit sits after the field. Some entries show an oversized value from the settings file unchanged. However, when `[remote_attach] heartbeat_timeout_secs` is outside 10–600, Tasty resets it to the default of 30 when reading the file, saves the corrected value back to the settings file, and writes a warning only to the log.
 - If the settings window is so narrow that an entry's control no longer fits beside its name, that entry moves the control onto the line below the name. Widen the window and it moves back beside it.
@@ -49,12 +49,12 @@ Press the same shortcut again to close the settings window.
 
 | Section | Entries |
 |------|------|
-| **General** | **Restore layout on startup** · **Restore surface content on restart** (terminal scrollback) · **Workspace categories (folders)** · **Next/prev workspace crosses categories** · **Explorer: refresh file details** (off by default — when on, size and modified-time changes of files in the open folder show up within a few seconds too, but every check reads all items of that folder; see [Files](../using/files.md)) · **Close behavior** (Ask / Minimize to background / Quit) · **Wheel scroll distance** (10-200pt, default 50) - how far one wheel notch scrolls, applied the same everywhere in the window · **Language** (English / 한국어 / 日本語 plus any [language pack](#adding-a-language-language-packs) you install) · **Time format in Properties** (Minutes / Seconds / Seconds and UTC offset, default Minutes — used for Modified, Created and Target modified in Explorer Properties, in this computer's time zone; an open Properties popup follows right away) · **Accept webhook calls from other computers** (off by default, applies from the next start — [webhooks](../agents/hooks-notifications.md)) |
-| **Notifications** | **Notifications enabled** · **Sound** · **Coalesce interval (ms)** |
+| **General** | **Restore layout on startup:** · **Restore surface content on restart:** (terminal scrollback) · **Workspace categories (folders):** · **Next/prev workspace crosses categories:** · **Explorer: refresh file details:** (off by default — when on, size and modified-time changes of files in the open folder show up within a few seconds too, but every check reads all items of that folder; see [Files](../using/files.md)) · **Close behavior:** (Ask / Minimize to background / Quit) · **Wheel scroll distance:** (10-200pt, default 50) - how far one wheel notch scrolls, applied the same everywhere in the window · **Language:** (English / 한국어 / 日本語 plus any [language pack](#adding-a-language-language-packs) you install) · **Time format in Properties** (Minutes / Seconds / Seconds and UTC offset, default Minutes — used for Modified, Created and Target modified in Explorer Properties, in this computer's time zone; an open Properties popup follows right away) · **Accept webhook calls from other computers:** (off by default, applies from the next start — [webhooks](../agents/hooks-notifications.md)) |
+| **Notifications** | **Notifications enabled** · **Sound** · **Coalesce interval (ms):** |
 | **Accessibility** | **Reduced motion** (turns off toast and overlay fades, the loading spinner's rotation, and the modal shake) · **Show modifier key hints** |
 | **Overlay** | **Toast duration** (1~10 seconds) |
 | **Remote transfer** | **Save folder** (default `~/.tasty/transfers/`) · **Maximum size** (MiB) — where files received from a remote Workspace are saved |
-| **Remote attach** | **Disconnect after**, under **Attach connections** — seconds, default 30, range 10–600. How long an established remote attach connection waits without receiving anything from the other side before disconnecting |
+| **Remote attach** | **Disconnect after**, under **Attach connections** — seconds, default 30, range 10–600. How long an established remote attach connection waits without receiving anything from the other side before disconnecting · **Keep reconnecting for** — default 300 s, range 0–3600 s |
 | **Display** (macOS only) | **Cmd key display** · **Option key display** · **Shift key display** — choose text or symbols for keybinding notation |
 | **Permissions** (macOS only) | **Full Disk Access** · **Screen recording** status, **Request all permissions** (asks for the folders and screen recording in one go), and **Open System Settings** in the Full Disk Access row |
 
@@ -64,15 +64,26 @@ Turn off **Restore surface content on restart** and earlier terminal content no 
 
 Change **Disconnect after** under **Settings** › **General** › **Remote attach**. When you commit an entry by pressing Enter or leaving the field, values below 10 seconds become 10 and values above 600 become 600. Saved values apply to new connections without restarting; open connections keep their existing value. Each Tasty uses its own value, so the other side may disconnect first. CLI attach that does not read the settings file uses 30 seconds.
 
+**Keep reconnecting for** under **Settings** › **General** › **Remote attach** controls how long automatic retries continue after a saved remote row’s connection drops. The default is 300 seconds, with a range of 0–3600; 0 disables automatic reconnecting. It does not apply to connections you end yourself. The configuration key is `[remote_attach] reconnect_timeout_secs`.
+
+### Clipboard and notification settings during attach
+
+When you attach from the GUI and both versions of Tasty support this feature, OSC 52 read requests from remote programs follow `allow_clipboard_read` under `[general]` in your local `config.toml`. It is off by default. Only your local `notification.sound` setting controls whether a notification sound plays.
+
+With a GUI server, the server's `notification.enabled` must be on for OSC notifications to make a sound. Bell notifications also require the server's `general.bell_notification`. With a headless server, your local Tasty creates OSC and bell notifications according to your local `notification.enabled` and `general.bell_notification` settings. For details, see [Notifications during attach](../agents/hooks-notifications.md#remote-attach-notifications).
+
 ### Terminal
 
 | Section | Entries |
 |------|------|
-| **General** | **Shell** · **Startup command** · **Scrollback lines** (default 10000) · **Confirm close running process** · **Inherit working directory** · **Reverse-screen flash (DECSCNM)** · **Show bell notification** · **Link click modifier** (Ctrl / Alt / Disable left-click opening) · macOS: **Use Option as Meta** · Windows: **Shell mode** |
+| **General** | **Shell:** · **Startup command:** · **Scrollback lines:** (default 10000) · **Confirm close running process:** · **Inherit working directory:** · **Reverse-screen flash (DECSCNM):** · **Show bell notification:** · **Link click modifier:** (Ctrl / Alt / Disable left-click opening) · macOS: **Use Option as Meta:** |
 | **Input** | Per-app **Send a newline with Shift+Enter** rules — add an executable name (for example `claude`) and turn it on, and `Shift+Enter` sends a newline (LF) while that app takes the input. Turned off, or with no rule, it uses the platform's default encoding |
-| **Mouse Capture** | **Show mouse-capture hint** · **Let Tasty handle clicks in these programs** · **Don't show the capture notice for these programs** — process names or patterns such as `ht*` |
-| **TUI** | **Allow clipboard read (OSC 52)** — off by default. When on, programs inside the terminal can read the clipboard |
+| **Mouse Capture** | **Show mouse-capture hint:** · **Let Tasty handle clicks in these programs** · **Don't show the capture notice for these programs** — process names or patterns such as `ht*` |
+| **TUI** | **Allow clipboard read (OSC 52):** — off by default. When on, programs inside the terminal can read the clipboard |
 | **Performance** | **Targeted PTY polling** · **Scrollback disk swap** (moves lines past the scrollback line count to disk) · **Lines kept on disk** (default 10000, -1 = unlimited — separate from the scrollback line count; the oldest lines past it are dropped). The unit **lines** follows the field, and at -1 **no limit** takes its place. Type a value outside the range and "Use -1 or a number from 0 to 100000000." appears under the field. As the note at the top of the tab says, all three apply to terminals you open after saving, and terminals that are already open don't change right away |
+| **Frame rate** | **Output frame rate** (default 30 fps) · **Input frame rate** (default 60 fps) |
+
+Both **Frame rate** lists offer **Match monitor** and any of 15, 30, 60, 120, 144, and 240 fps up to the rounded refresh rate of the fastest connected monitor. A monitor with no reported refresh rate counts as 60 Hz. A saved value above that limit stays selected and appears as **{n} fps (above monitor)**. The actual redraw rate never exceeds the refresh rate of the monitor the window is on, even with **Match monitor**.
 
 Set **Link click modifier** to **Disable left-click opening** to prevent left-clicks from opening links. You can still hover a link without a modifier and use its right-click menu. Popups and banners can block link highlighting. The meaning of the mouse capture entries is in [Working in the terminal](../using/terminal.md).
 
@@ -82,7 +93,7 @@ Set **Link click modifier** to **Disable left-click opening** to prevent left-cl
 |------|------|
 | **Theme** | The theme card list — [Themes](themes.md) |
 | **Colors** | Override the current theme's colours entry by entry — [Themes](themes.md) |
-| **General** | **Default Font Settings**: **Font family** · **Custom font file** · **Font size** (default 14) · **Line height** · **Font DPI scaling** (Auto / Fixed). Plus **Ligatures** · **Background opacity** |
+| **General** | **Default Font Settings**: **Font family:** · **Custom font file:** · **Font size:** (default 14) · **Line height:** · **Font DPI scaling:** (Auto / Fixed). Plus **Ligatures:** · **Background opacity:** |
 | **Display** | **UI Scale** — Small / Medium / Large |
 | **Tasty** | Button, sidebar, and tab colours — **Accent** · **Sidebar background** · **Active tab indicator** (Underline / Fill / Dot) |
 | **Terminal** | The terminal Surface's **Focused background** · **Unfocused background** and font override |
@@ -115,7 +126,6 @@ These tables are stored not in `config.toml` but in `~/.tasty/file-handlers.toml
 - **Scripts** — Register Lua scripts to run from a keybinding or an event ([Lua scripts](scripts.md)). Enter the file path (for example `~/.tasty/scripts/my-script.lua`) and a display name; attach the keybinding under **Keybindings** > **Run Scripts**. If the file changes after registration, a **changed** marker appears and you are asked to confirm on the next run.
 - **Task pipeline** — Size limits for the notes kept in a task graph's report. A note longer than the **Note size limit** is cut, and notes past the **Attempt report limit** are not stored, only counted. The first value must always be smaller than the second ([Task report](../agents/tasks.md)).
 - **Anomaly detection** — Change notification switches and thresholds for memory growth, repeated calls and call bursts. These are heuristic signals that normal work can trigger. Repeated calls counts the same call, rather than response latency. Turning notifications off keeps detection, recording and numeric editing active. Saved values apply from the next check. Out-of-range numbers are clamped on Enter or when leaving the field; Cancel discards the draft.
-- On Windows a **Tastyrc** section is added.
 
 ### Plugins
 
@@ -190,7 +200,7 @@ about = "Créer une ressource"
 
 ### Selecting it
 
-The pack appears in Settings › **General** › **Language**. Select it, press
+The pack appears in Settings › **General** › **Language:**. Select it, press
 **Save**, then restart Tasty.
 
 ### Changing plugin text
@@ -252,7 +262,15 @@ the text that language ships with stays on screen, and you never get a blank spo
 
 General settings are stored in this file. Handler tables, theme files, and other items described above use their separate paths. Missing keys are read as defaults, so you only need to write the ones you need.
 
-`heartbeat_timeout_secs` in `[remote_attach]` sets how long a remote attach connection waits without receiving anything from the other side. The unit is seconds, the default is 30, and the range is 10–600. An out-of-range file value is reset to the default of 30 and saved back to the settings file; a warning is written only to the log. Direct edits to the settings file are read the next time Tasty starts. To apply a change to new connections without restarting, change it in the settings window and save.
+In `[performance]`, `output_redraw_fps` (**Output frame rate**) caps screen redraws caused by terminal output per second and defaults to 30. `input_redraw_fps` (**Input frame rate**) caps redraws caused by user input, such as keys and mouse actions, per second and defaults to 60. Echo output returned to the same terminal immediately after input also follows the input cap. The first input after the screen has been idle redraws immediately without waiting.
+
+Both keys accept `15`, `30`, `60`, `120`, `144`, `240`, or `-1`. With `-1` (**Match monitor**), there is no separate redraw cap per second. If a saved value exceeds the refresh rate of the monitor the window is on, the value stays unchanged and the actual redraw rate is capped at that monitor’s refresh rate. Values outside this list fall back to each key’s default when the file is read.
+
+You can change **Frame rate** settings in the **Terminal** tab of the settings window. If you edit `config.toml` directly, restart Tasty to apply the changes.
+
+`heartbeat_timeout_secs` in `[remote_attach]` sets how long a remote attach connection waits without receiving anything from the other side. The unit is seconds, the default is 30, and the range is 10–600. If either file value is out of range, the entire `[remote_attach]` section is reset to its defaults (`heartbeat_timeout_secs = 30`, `reconnect_timeout_secs = 300`) and saved back to the settings file; a warning is written only to the log. Direct edits to the settings file are read the next time Tasty starts. To apply a change to new connections without restarting, change it in the settings window and save.
+
+`reconnect_timeout_secs` in `[remote_attach]` is the automatic reconnect window for saved remote rows, in seconds: default 300, range 0–3600. At 0, automatic reconnecting is disabled. It does not retry connections you end yourself. If either file value is out of range, the entire `[remote_attach]` section is reset to its defaults (`heartbeat_timeout_secs = 30`, `reconnect_timeout_secs = 300`) and saved back to the settings file; a warning is written only to the log.
 
 If font values in the settings file (such as `font_family` in `[appearance.default_font]`) cannot be used, one warning notification appears in the main window for each value after Tasty starts. The notification body shows the value, and another font is used for display. The window where notifications appear and their duration follow the appearance description above. Unusable font values applied by an agent through commands are recorded only in the log, without warning notifications.
 
@@ -308,6 +326,8 @@ enabled = true
 toast_duration_ms = 2000
 
 [performance]
+output_redraw_fps = 30          # terminal output redraw cap per second (-1 = Match monitor)
+input_redraw_fps = 60           # user input redraw cap per second (-1 = Match monitor)
 targeted_pty_polling = true
 scrollback_disk_swap = false
 scrollback_disk_lines = 10000     # lines kept on disk, -1 = unlimited
@@ -317,6 +337,7 @@ dir = ""                         # empty = ~/.tasty/transfers/
 max_mb = 500
 
 [remote_attach]
+reconnect_timeout_secs = 300     # reconnect window in seconds, 0–3600; 0 disables automatic reconnecting
 heartbeat_timeout_secs = 30      # seconds of peer silence before disconnecting, 10-600, applies to new connections
 
 [webhook]
@@ -361,6 +382,8 @@ Commands that change settings (`set-remote-transfer`, `set-input-rule`, `tasty w
 
 `~/.tasty/config.toml` stores settings. Layouts and plugin data are managed separately. Do not edit or delete the layout store to troubleshoot restoration.
 
+If you set `TASTY_HOME`, the files below are in that folder instead. See [Crash and hang reports and logs](../help/error-reports.md) for when to save logs and how to report a problem.
+
 | Path | Contents |
 |------|------|
 | `config.toml` | The settings above |
@@ -372,6 +395,8 @@ Commands that change settings (`set-remote-transfer`, `set-input-rule`, `tasty w
 | `scripts/` | The conventional place for Lua scripts — [Lua scripts](scripts.md) |
 | `transfers/` | Default save folder for files received from a remote |
 | `tasty.port` · `debug.log` | The running instance's port, and the warning-and-above log — [Troubleshooting](../help/troubleshooting.md) |
+| `crash-reports/` | Crash and hang reports |
+| `hook-failures.log` · `hook-failures.log.1` | Hook failure records |
 
 <a id="what-to-read-next"></a>
 

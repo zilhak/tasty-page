@@ -31,7 +31,7 @@ const CSS = `
 .tasty-codearea__band { position: absolute; left: 0; right: 0; pointer-events: none;
   top: calc(var(--tasty-codearea-padding-y) + (var(--ln) - 1) * var(--tasty-codearea-font-size) * var(--tasty-codearea-line-height));
   height: calc(var(--tasty-codearea-font-size) * var(--tasty-codearea-line-height));
-  background: color-mix(in srgb, var(--tasty-accent-danger) calc(var(--tasty-tint-fill-alpha) * 100%), transparent); }
+  background: var(--tasty-tint-danger-bg); }
 .tasty-codearea textarea { position: relative; display: block; width: 100%; box-sizing: border-box; margin: 0; border: 0; outline: 0; resize: none;
   padding: var(--tasty-codearea-padding-y) var(--tasty-codearea-padding-x); background: transparent; color: inherit; font: inherit;
   white-space: pre; overflow: hidden; }

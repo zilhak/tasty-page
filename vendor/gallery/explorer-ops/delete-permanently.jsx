@@ -27,7 +27,7 @@ function Scrimmed({ children, h = 340 }) {
 
 function PermanentDeleteSection() {
   const { YResult, YProgressStatus, YStatusRight, YToastAt } = Y();
-  const cap = (t) => <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-secondary)" }}>{t}</span>;
+  const cap = (t) => <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-secondary)" }}>{t}</span>;
   return (
     <Section id="permdelete" title="Delete permanently — confirm and results">
       <Spec id="context-menu-delete-permanently-right-after-move-to-trash" title="Context menu — “Delete permanently…” right after Move to Trash"
@@ -35,7 +35,7 @@ function PermanentDeleteSection() {
         <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 18, flexWrap: "wrap", alignItems: "flex-start" }}>
           {[["Windows / Linux", "Shift+Delete"], ["macOS", "⌘⌥⌫"]].map(([os, key]) => (
             <K.CtxMenu key={os} title={"File · " + os}>
-              <MenuItem label="Copy path" icon={K.ic.link} />
+              <MenuItem label="Copy Path" icon={K.ic.link} />
               <MenuItem label="Copy" icon={K.ic.copy} shortcut={<Kbd keys={os === "macOS" ? "⌘C" : "Ctrl+C"} />} />
               <MenuItem label="Cut" icon={K.ic.scissors} shortcut={<Kbd keys={os === "macOS" ? "⌘X" : "Ctrl+X"} />} />
               <MenuItem separator />
@@ -64,7 +64,7 @@ function PermanentDeleteSection() {
           <XCol label="6 items from search results · different folders · long names · list scrolls" w={440}><ExplorerDeleteFrame items={XD_ITEMS.many} /></XCol>
         </Stage>
         <Meta
-          specs={[["scope", "Window scrim (existing centred-confirm policy) · bound to the source explorer"], ["frame", "info-modal-width 440 · max info-modal-max-height 360 · bg-panel · 1px border-strong · shadow-modal"], ["padding", "space-md top · size-14 sides (dialog shell)"], ["title", "trash glyph icon-size-md accent-danger · font-size-max semibold"], ["summary", "body · text-secondary · names the one item or counts top-level items + folders"], ["list", "bg-app well · 1px border-default · rows: glyph 14 · name body · tag caption · parent mono caption, front ellipsis · scroll past explorer-delete-list-max-height 160"], ["warning", "alertTriangle accent-danger + “This can't be undone.” text-primary semibold"], ["footer", "Cancel ghost sm · Delete permanently danger sm · right-aligned · wraps on narrow"], ["link", "link glyph · “The item it points to is kept.” · broken link glyph in explorer-link-broken-fg"]]}
+          specs={[["scope", "Window scrim (existing centred-confirm policy) · bound to the source explorer"], ["frame", "info-modal-width 440 · max info-modal-max-height 360 · bg-panel · 1px border-frame · shadow-modal"], ["padding", "space-md top · size-14 sides (dialog shell)"], ["title", "trash glyph icon-size-md accent-danger · font-size-max semibold"], ["summary", "body · text-secondary · names the one item or counts top-level items + folders"], ["list", "bg-app well · 1px border-default · rows: glyph 14 · name body · tag caption · parent mono caption, front ellipsis · scroll past explorer-delete-list-max-height 160"], ["warning", "alertTriangle accent-danger + “This can't be undone.” text-primary semibold"], ["footer", "Cancel ghost sm · Delete permanently danger sm · right-aligned · wraps on narrow"], ["link", "link glyph · “The item it points to is kept.” · broken link glyph in explorer-link-broken-fg"]]}
           tokens={[{ tok: "--tasty-info-modal-width", use: "frame width", color: null }, { tok: "--tasty-info-modal-max-height", use: "frame max" }, { tok: "--tasty-explorer-delete-list-max-height", use: "new · → size-160" }, { tok: "--tasty-accent-danger", use: "glyphs", color: "var(--tasty-accent-danger-raised)" }, { tok: "--tasty-scrim-bg", use: "window dim" }]} />
       </Spec>
 

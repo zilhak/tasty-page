@@ -45,9 +45,9 @@ function CommandPalette({ onClose, onRun }) {
   const items = all.filter((i) => i.label.toLowerCase().includes(q.toLowerCase()));
   return (
     <Scrim onClose={onClose} align="top">
-      <div style={{ width: "var(--tasty-palette-width)", background: "var(--tasty-surface-raised)", border: "var(--tasty-border-width) solid var(--tasty-border-strong)",
+      <div style={{ width: "var(--tasty-palette-width)", background: "var(--tasty-surface-raised)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)",
         borderRadius: "var(--tasty-radius)", overflow: "hidden", boxShadow: "var(--tasty-shadow-modal)" }}>
-        <div style={{ padding: "var(--tasty-space-md)", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
+        <div style={{ padding: "var(--tasty-space-md)", borderBottom: "var(--tasty-border-width) solid var(--tasty-border-strong)" }}>
           <Input block ground="raised" autoFocus icon={ic.search} placeholder="Type to search commands…"
             value={q} onChange={(e) => setQ(e.target.value)} />
         </div>
@@ -59,7 +59,7 @@ function CommandPalette({ onClose, onRun }) {
               onClick={() => onRun(i.label)} />
           ))}
         </div>
-        <div style={{ display: "flex", gap: 14, padding: "var(--tasty-space-sm) var(--tasty-space-md)", borderTop: "var(--tasty-border-width) solid var(--tasty-separator)",
+        <div style={{ display: "flex", gap: 14, padding: "var(--tasty-space-sm) var(--tasty-space-md)", borderTop: "var(--tasty-border-width) solid var(--tasty-border-strong)",
           fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted-raised)" }}>
           <span>↑↓ navigate</span><span>↵ run</span><span>esc close</span>
         </div>

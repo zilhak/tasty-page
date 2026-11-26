@@ -1,4 +1,4 @@
-<!-- source-hash: 5b61af467604 -->
+<!-- source-hash: 5fd5baa8c993 -->
 # Installation
 
 Tasty installation files for Windows, macOS, and Linux are available on GitHub Releases, organized by architecture. macOS support is for Apple Silicon.
@@ -9,11 +9,13 @@ Download the installer from the [GitHub releases page](https://github.com/zilhak
 
 `{ver}` stands for the version (e.g. `0.10.3`).
 
+**All Linux builds of Tasty require glibc 2.39 or later.** The requirements listed for each file format also apply to ARM64. A `+` after a version means that version or later.
+
 | OS | Architecture | File | Notes |
 |----|---------|------|------|
-| Linux | x86_64 | `tasty_{ver}-1_amd64.deb` | Debian / Ubuntu / Mint |
-| Linux | x86_64 | `tasty-{ver}-1.x86_64.rpm` | Fedora / RHEL / openSUSE |
-| Linux | x86_64 | `Tasty-{ver}-x86_64.AppImage` | Distribution-independent single file |
+| Linux | x86_64 | `tasty_{ver}-1_amd64.deb` | Ubuntu 24.04+ / Linux Mint 22+ / Debian 13+ |
+| Linux | x86_64 | `tasty-{ver}-1.x86_64.rpm` | Fedora 40+ / openSUSE Leap 16.0+ / Tumbleweed |
+| Linux | x86_64 | `Tasty-{ver}-x86_64.AppImage` | Single file. Requires glibc 2.39+ |
 | Linux | x86_64 | `tasty-{ver}-linux-x64.tar.gz` | Archive for manual installation |
 | Linux | aarch64 | `_arm64.deb` / `.aarch64.rpm` / `-aarch64.AppImage` / `-linux-arm64.tar.gz` | ARM64 |
 | Linux | x86_64 | `tasty-headless-{ver}-linux-x64.tar.gz` | [Headless build](#headless-build) (runs on a server without a window) |
@@ -33,12 +35,21 @@ The download button on the site's front page links straight to a file only when 
 
 ## Linux
 
+The same glibc minimum applies to distributions outside the table. Installing the `.deb` or `.rpm` also requires package repositories that provide the necessary libraries.
+
+RHEL 10 ships with glibc 2.39, which meets the minimum. Its official repositories lack WebKitGTK, so they cannot provide the library needed to install the `.rpm`.
+
+Ubuntu 22.04, Debian 12, RHEL 9, and openSUSE Leap 15.6 ship with older versions of glibc. This can cause a glibc dependency error during package installation or `GLIBC_2.39 not found` at startup. Run `ldd --version` and check the first line for the glibc version. No separate build is provided for older distributions.
+
 ```sh
-# .deb (Debian / Ubuntu / Mint)
+# .deb (Ubuntu 24.04+ / Linux Mint 22+ / Debian 13+)
 sudo apt install ./tasty_{ver}-1_amd64.deb
 
-# .rpm (Fedora / RHEL / openSUSE)
+# .rpm (Fedora 40+)
 sudo dnf install ./tasty-{ver}-1.x86_64.rpm
+
+# .rpm (openSUSE Leap 16.0+ / Tumbleweed)
+sudo zypper install ./tasty-{ver}-1.x86_64.rpm
 
 # .AppImage — run without installing
 chmod +x Tasty-{ver}-x86_64.AppImage && ./Tasty-{ver}-x86_64.AppImage
@@ -52,11 +63,10 @@ tar -xzf tasty-{ver}-linux-x64.tar.gz && ./tasty-linux-x64/tasty
 - `.deb` / `.rpm` put the `tasty` command on PATH and add an icon to the app menu. The package manager installs the required libraries.
 - GPU acceleration (Vulkan) is used when `libvulkan1` / `vulkan-loader` is present. Without it, Tasty still installs and runs, using OpenGL, or software rendering if that fails too.
 - `zenity` is a recommended package. Tasty uses it to show a notice when a new launch cannot be handed to the Tasty that is already running. Without it, a desktop notification is shown instead.
-- `.AppImage` bundles libraries used to run Tasty. You register it in the app menu yourself (use `appimaged`, or put a `.desktop` file in `~/.local/share/applications/`).
+- `.AppImage` bundles some of the libraries Tasty uses and relies on the system's glibc. You register it in the app menu yourself (use `appimaged`, or put a `.desktop` file in `~/.local/share/applications/`).
 - `.tar.gz` requires you to set up PATH and the menu entry yourself. If a required system library is missing, `tasty` tells you what is missing and exits.
 - The licence notices (Tasty's MIT text, the licence texts of the bundled font and markdown rendering engines, and the third-party notice document) travel inside the artifacts. `.deb` keeps them in `/usr/share/doc/tasty/`, `.rpm` and `.AppImage` in `usr/share/licenses/tasty/`, and `.tar.gz` at the top of the extracted directory.
-- The build baseline is Ubuntu 24.04 (glibc 2.39), so on older distributions (Ubuntu 20.04, Debian 11, etc.) it may fail to start with a `GLIBC_2.39 not found` error. No separate build is provided for older distributions.
-- The HTML and Markdown viewers need WebKitGTK 2.40 or later. The `libwebkit2gtk-4.1` of the Ubuntu 24.04 build baseline meets this.
+- The HTML and Markdown viewers need WebKitGTK 2.40 or later. On Ubuntu 24.04, the `libwebkit2gtk-4.1-0` package provides this library.
 
 ## macOS
 
@@ -134,6 +144,8 @@ On macOS, a file downloaded with a browser may show an "unidentified developer" 
 
 The headless build's `tasty` starts without a window even with no options, and you create and drive its terminals only through the `tasty` CLI. From another computer you can bring its workspaces in with [remote attach](../remote/attach.md). Running a GUI build with `--headless` does not start it without a window; it starts the GUI as usual.
 
+To run two Tasty instances at once, give each its own data folder with `TASTY_HOME`. If a running Tasty still holds the lock on the same data folder, the headless build writes a message to standard error and exits with code 1. See [Running Tasty again](../help/troubleshooting.md#running-tasty-again) for details.
+
 Where no archive is published (for example, an Intel Mac), build it yourself from source on a machine with Rust installed.
 
 ```sh
@@ -161,9 +173,13 @@ Settings · sessions · themes all live in `~/.tasty/`, so they survive updates.
 | Linux `.rpm` | `sudo dnf remove tasty` | Same as above |
 | Linux AppImage / tar.gz | Delete the file · folder | Same as above |
 | macOS | Move `Tasty.app` to the Trash | Same as above |
-| Windows `.msi` | Uninstall Tasty from **Settings > Apps** | **`~/.tasty/` is deleted along with it** — back it up before uninstalling if you want to keep settings · sessions · themes |
+| Windows `.msi` | Uninstall Tasty from **Settings > Apps** | `~/.tasty` is kept by default |
 | Windows `.zip` | Delete the extracted folder | `~/.tasty/` remains. Delete it yourself |
 | Headless archive (any OS) | Delete the extracted folder | `~/.tasty/` remains. Delete it yourself |
+
+To delete user data as well, choose **Modify** → **Remove** for Tasty in the Windows Settings app list, or run the `.msi` again and choose **Remove**. Select **Permanently delete settings, history, saved logins and profiles in .tasty** on the removal screen. After a successful uninstall with this box checked, the installer tries to delete `~/.tasty`. If any files could not be deleted and data remains, the installer shows a **Tasty data deletion incomplete** dialog.
+
+Choosing **Uninstall** directly from the app list or removing Tasty with `msiexec /qn` or `msiexec /qb` keeps your data. Upgrades and repairs also keep it.
 
 On Windows, `~` is `%USERPROFILE%` (usually `C:\Users\<name>`).
 

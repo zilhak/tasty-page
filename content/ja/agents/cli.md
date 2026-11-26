@@ -1,4 +1,4 @@
-<!-- source-hash: ea95539b4b25 -->
+<!-- source-hash: b87652f21e5b -->
 # tasty CLI でターミナルを操作する
 
 `tasty` CLI は、実行中の Tasty に接続してターミナルを作成し、入力を送り、出力を読むコマンドを提供します。接続と対象 ID を確認してからコマンドを送り、`read since-mark` でマークした位置以降の出力を読んでください。スクリプトと AI エージェントが同じコマンドを使えます。
@@ -7,7 +7,7 @@
 
 ## 準備
 
-- Tasty が実行中である必要があります。CLI は `~/.tasty/tasty.port` に記載されたポートで、実行中のインスタンスに接続します。
+- Tasty が実行中である必要があります。CLI はデフォルトで、自分のデータフォルダーにある `tasty.port` を読み取ります。`TASTY_HOME` を指定しなければ、配布版は `~/.tasty/tasty.port`、開発用ビルドは `~/.tasty-debug/tasty.port` を読み取ります。デフォルトのポートファイルを使う場合は、接続先の Tasty と CLI が同じデータフォルダーを参照するように `TASTY_HOME` をそろえてください。実行中の Tasty が別のポートファイルを使う場合は、CLI にも `--port-file` で同じファイルを指定してください。
 - Tasty が開いたターミナル内では、`tasty` はすでに PATH にあります。外部（別のターミナルアプリ）で使うには、Tasty の実行ファイルがあるパスを PATH に追加してください。インストール方法別のパスは[インストール](../getting-started/install.md#インストール先)にあります。
 - Tasty が起動したシェルには、`TASTY_SURFACE_ID` 環境変数が設定されています。`--surface` を省略したコマンドの多くはこの値を使うため（`tasty new workspace` · `tasty output observe start` は例外）、自分のターミナルを操作するときは ID を書く必要がありません。
 - Codex プラグインがインストールされている場合、Codex のコマンド実行内（`CODEX_THREAD_ID` がある環境）では、そのシェルの `TASTY_SURFACE_ID` が別のターミナルの値である可能性があるため、プラグインが追加したコマンド（例: `tasty codex …`、`tasty claude …`）はこの値で `--surface` を補いません。対象が必要な場合は `--surface` で指定してください。`CODEX_THREAD_ID` の値が正しくない場合、`tasty codex …`・`tasty claude …` は実行されず、ほかのプラグインコマンドは通常どおり実行されます。

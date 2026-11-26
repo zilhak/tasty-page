@@ -54,14 +54,14 @@ const NOT_A_WINDOW: &[NotAWindow] = &[
     NotAWindow {
         path: "content/using/files.md",
         phrase: "주소창",
-        count: 14,
-        evidence: "낱말이 다르다 — 탐색기·마크다운·HTML 화면의 address bar 다. Window 를 가리키지 않는다",
+        count: 17,
+        evidence: "낱말이 다르다 — 탐색기·마크다운·HTML 화면의 address bar 다. 파일 선택 창이 열리는 자리를 설명하는 '마크다운 주소창의 폴더 버튼'도 같다. HTML 주소 칸 키 문단의 '주소창으로 이동' 두 번은 단축키 이름이다. Window 를 가리키지 않는다",
     },
     NotAWindow {
         path: "content/remote/attach.md",
         phrase: "주소창",
-        count: 6,
-        evidence: "낱말이 다르다 — 원격 마크다운 문서 맨 위의 address bar 다. Window 를 가리키지 않는다",
+        count: 7,
+        evidence: "낱말이 다르다 — 원격 마크다운 문서 맨 위의 address bar 와, 새 탭 생성 대기 중 거는 탐색기 동작 라벨 \"주소창으로 이동\"(Go to the address bar)이다. Window 를 가리키지 않는다",
     },
     NotAWindow {
         path: "content/remote/attach.md",
@@ -78,8 +78,8 @@ const NOT_A_WINDOW: &[NotAWindow] = &[
     NotAWindow {
         path: "content/using/files.md",
         phrase: "파일 선택 창",
-        count: 10,
-        evidence: "파일 선택 팝업이다. 별도 OS View가 아니다. 열기 표, 중복 요청 시 기존 선택을 마치거나 취소하는 안내, 헤더를 끌어 옮기고 닫는 설명, 긴 파일명 설명, 부모 팝업과 함께 숨고 복원되는 설명, HTML 절의 새 HTML... 이 여는 피커와 원격에서 열리지 않는다는 설명, 마크다운 주소창 폴더 버튼이 여는 피커와 이미 떠 있을 때의 안내, 이미지 다른 이름으로 저장의 찾아보기 안내를 합친 열 문구다.",
+        count: 9,
+        evidence: "파일 선택 팝업이다. 별도 OS View가 아니다. 열기 표, 열리는 자리와 같은 자리 중복 요청 거절 설명, 헤더를 끌어 옮기고 닫는 설명, 긴 파일명 설명, 부모 팝업과 함께 숨고 복원되는 설명, HTML 절의 새 HTML... 이 여는 피커와 원격에서 열리지 않는다는 설명, 마크다운 주소창 폴더 버튼이 여는 피커와 이미 떠 있을 때의 안내, 이미지 다른 이름으로 저장의 찾아보기 안내를 합친 아홉 문구다.",
     },
     NotAWindow {
         path: "content/getting-started/first-look.md",

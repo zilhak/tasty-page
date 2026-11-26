@@ -49,7 +49,7 @@ function RestoreNotice({ variant = "restore", cause = "denied", path = "~/.local
     <div role="status" aria-live="polite" aria-label={v.title}
       style={{ width: width || "var(--tasty-restore-notice-width)", maxWidth: "100%", boxSizing: "border-box", display: "flex", flexDirection: "column",
         background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)",
-        boxShadow: "var(--tasty-shadow-popover)", overflow: "hidden", ...style }}>
+        boxShadow: "var(--tasty-shadow-popover)", overflow: "hidden", pointerEvents: "auto", ...style }}>
       {TitleBar && <TitleBar title={v.title} onClose={onContinue} closeLabel={c.close} />}
       <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-restore-notice-gap)", padding: "var(--tasty-restore-notice-padding)" }}>
         <div style={{ display: "flex", alignItems: "flex-start", gap: "var(--tasty-space-sm)" }}>
@@ -76,12 +76,15 @@ function RestoreNotice({ variant = "restore", cause = "denied", path = "~/.local
 
 // The window's top-right notice column. Children stack in priority order (restore / halt notice, then
 // PendingIndicator). topOffset = window banner height + gap, and/or the top-right pane's open search bar.
+// Input (2026-11-24): the column and its slots pass the pointer through. Only the restore / halt notice takes it
+// (its own root sets pointer-events auto); the PendingIndicator is not a pointer target, so clicks, drags and the
+// wheel over it reach the terminal underneath.
 function NoticeColumn({ children, topOffset = "0px", style }) {
   return (
     <div style={{ position: "absolute", top: "calc(var(--tasty-notice-column-inset) + " + topOffset + ")", right: "var(--tasty-notice-column-inset)", zIndex: 30,
       width: "var(--tasty-notice-column-width)", maxWidth: "calc(100% - 2 * var(--tasty-notice-column-inset))",
       display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "var(--tasty-notice-column-gap)", pointerEvents: "none", ...style }}>
-      {React.Children.map(children, (ch) => ch && <div style={{ pointerEvents: "auto", maxWidth: "100%", display: "flex" }}>{ch}</div>)}
+      {React.Children.map(children, (ch) => ch && <div style={{ maxWidth: "100%", display: "flex" }}>{ch}</div>)}
     </div>
   );
 }

@@ -4,6 +4,12 @@ import * as React from "react";
  * @startingPoint section="Forms" subtitle="Text field with icon, addon, states" viewport="700x280"
  */
 export interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "size"> {
+  /** Style of the box (2026-11-25). A width here is the whole box, border and padding included. */
+  style?: React.CSSProperties;
+  /** Class of the box. */
+  className?: string;
+  /** Style of the inner text element, for what belongs to the text (text-align, font-family). */
+  inputStyle?: React.CSSProperties;
   /** Leading icon element inside the field. */
   icon?: React.ReactNode;
   /** Trailing text addon (e.g. a unit or count). */

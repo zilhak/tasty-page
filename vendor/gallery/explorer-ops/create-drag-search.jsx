@@ -1,7 +1,7 @@
 import React from "react";
 import * as XDS from "../../components/index.js";
 import * as XK from "../parts/explorer-kit.jsx";
-import { Section, Spec, Stage, Meta, Note } from "../parts/specimen.jsx";
+import { Section, Spec, Stage, Meta, Note, Views, View } from "../parts/specimen.jsx";
 
 // Tasty Gallery — Explorer file operations (2026-10-09, batch 9), part 1:
 // shared cell frame + Create / Drag & drop / Search sections.
@@ -13,8 +13,18 @@ const { IconButton: XIconButton, Button: XButton, Input: XInput, MenuItem: XMenu
 
 const xCap = { fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" };
 function XLbl({ children }) { return <div style={xCap}>{children}</div>; }
-function XCol({ label, children, w }) {
-  return <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", width: w, maxWidth: "100%", minWidth: 0 }}><XLbl>{label}</XLbl>{children}</div>;
+// Preview panel width in the app: inside a cell narrower than preview-min 200 + separator 1 + list-min 200 (401)
+// the panel hides. Otherwise the wanted width is the remembered width x UI scale, or 288 when none is remembered.
+// The panel takes the wanted width clamped to 200..460, then cut to at most (cell - 1 - 200), and never under 200.
+// The listing takes cell - panel - 1. So the remembered width applies at every cell width, not only wide ones:
+// cell 450, remembered 220 -> panel 220, listing 229; cell 500, remembered 460 -> panel 299, listing 200;
+// cell 450, none remembered -> panel 249, listing 200. The specimen cells show the default width with the listing
+// at its minimum or more, so they never draw narrower than 490: that is only the specimen's outer width
+// (488 inside + two border lines), not an app threshold. On a narrow page such a cell scrolls inside its stage
+// instead of squeezing the listing (390: the Detail pane was 18px).
+const xPreviewCellMin = "calc(var(--tasty-explorer-preview-width) + var(--tasty-explorer-list-min-width) + 2 * var(--tasty-border-width))";
+function XCol({ label, children, w, preview }) {
+  return <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", width: w, maxWidth: "100%", minWidth: preview ? xPreviewCellMin : 0 }}><XLbl>{label}</XLbl>{children}</div>;
 }
 function XThemes({ render, gap = "var(--tasty-space-lg)" }) {
   return (
@@ -32,14 +42,15 @@ function XSep() { return <span style={{ width: "var(--tasty-border-width)", heig
 
 // Toolbar with the 2026-10-09 command groups: nav · PathField · [create] | [find · preview] · SegToggle.
 // narrow (cell < explorer-toolbar-compact-below 440): create + view groups fold into one More menu.
-function XToolbar({ narrow, remote, denied, preview, search, path = "~/Downloads", view = "detail" }) {
+// deniedReason: the disabled create buttons' tooltip; a remote sample passes its write refusal reason.
+function XToolbar({ narrow, remote, denied, deniedReason = "Can't write to this folder", preview, search, path = "~/Downloads", view = "detail" }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", flex: "none", height: 44, padding: "0 var(--tasty-space-sm)", background: "var(--tasty-bg-panel)", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 1 }}>{xtb("Back", XK.ic.back)}{xtb("Forward", XK.ic.fwd, { disabled: true })}{xtb("Up", XK.ic.up)}{xtb("Refresh", XK.ic.refresh)}</div>
       <XK.PathField icon={XK.ic.folderOpen} path={path} />
       {narrow ? xtb("More", <XIcon name="more" />) : (
         <div style={{ display: "flex", alignItems: "center", gap: 1 }}>
-          {!remote && <>{xtb(denied ? "Can't write to this folder" : "New folder", <XIcon name="folderPlus" />, { disabled: denied, key: "nf" })}{xtb(denied ? "Can't write to this folder" : "New file", <XIcon name="filePlus" />, { disabled: denied, key: "nfile" })}<XSep /></>}
+          {!remote && <>{xtb(denied ? deniedReason : "New folder", <XIcon name="folderPlus" />, { disabled: denied, key: "nf" })}{xtb(denied ? deniedReason : "New file", <XIcon name="filePlus" />, { disabled: denied, key: "nfile" })}<XSep /></>}
           {xtb("Find", <XIcon name="search" />, { active: search })}
           {xtb("Preview panel", <XIcon name="columns" />, { active: preview })}
         </div>
@@ -56,9 +67,16 @@ function XStatus({ children, right }) {
     </div>
   );
 }
-function XCell({ w = 640, h = 300, toolbar, bar, status, statusRight, children, overlay }) {
+// The app folds the file commands into More when the toolbar itself (the cell inside its border) is narrower than
+// explorer-toolbar-compact-below, so a box drawing the wide toolbar is at least that plus its two border lines. A cell never
+// draws narrower than that floor or its own width, whichever is smaller; a narrower column scrolls the stage instead of
+// squeezing the cell and cutting the toolbar's end. A cell whose subject is not the toolbar but draws the wide one takes
+// w={xWideToolbarMin}, so it is as narrow as the app still shows those commands.
+const xWideToolbarMin = "calc(var(--tasty-explorer-toolbar-compact-below) + 2 * var(--tasty-border-width))";
+const xCellMin = (w) => `min(${typeof w === "number" ? `${w}px` : w}, ${xWideToolbarMin})`;
+function XCell({ w = 640, h = 300, toolbar, bar, status, statusRight, children, overlay, preview }) {
   return (
-    <div style={{ position: "relative", width: "100%", maxWidth: w, height: h, display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
+    <div style={{ position: "relative", width: "100%", maxWidth: w, minWidth: preview ? xPreviewCellMin : xCellMin(w), height: h, display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
       {toolbar || <XToolbar />}
       {bar}
       <div style={{ flex: 1, minHeight: 0, display: "flex", position: "relative" }}>{children}</div>
@@ -78,16 +96,26 @@ function XDetail({ rows = XROWS, states = {}, before, ring = {}, bg = "var(--tas
   return (
     <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", background: bg }}>
       <XK.DetailHeader />
-      <div style={{ flex: 1, overflow: "hidden" }}>
+      {/* The body clip starts one border-width above the first row, over the header's last line, as the app
+          draws the name editor after the table with the surface's clip: an editing first row keeps its whole
+          focus ring. The negative margin and the padding cancel, so no row moves. */}
+      <div style={{ flex: 1, overflow: "hidden", marginTop: "calc(-1 * var(--tasty-border-width))", paddingTop: "var(--tasty-border-width)" }}>
         {before}
         {rows.map((r, i) => ring[i] ? <XRing key={i}><XK.DetailRow {...r} /></XRing> : <XK.DetailRow key={i} {...r} state={states[i]} />)}
       </div>
     </div>
   );
 }
-// Drop target — 1px inset accent ring + tint fill. Never moves layout.
+// Drop target — 1px inset accent ring + tint fill. Never moves layout. The tint is the box's own fill, under the
+// rows; the ring is a last child laid over them, so an opaque header or row fill never hides it (RULES section 3, State grounds:
+// parent, tint, row fill, ink, then the ring), as the app paints the ring after the table.
 function XRing({ children, radius = "var(--tasty-radius-sm)", style }) {
-  return <div style={{ background: "var(--tasty-explorer-drop-target-bg)", boxShadow: "inset 0 0 0 var(--tasty-border-width) var(--tasty-explorer-drop-target-border)", borderRadius: radius, ...style }}>{children}</div>;
+  return (
+    <div style={{ position: "relative", background: "var(--tasty-explorer-drop-target-bg)", borderRadius: radius, ...style }}>
+      {children}
+      <span aria-hidden="true" style={{ position: "absolute", inset: 0, borderRadius: radius, pointerEvents: "none", boxShadow: "inset 0 0 0 var(--tasty-border-width) var(--tasty-explorer-drop-target-border)" }} />
+    </div>
+  );
 }
 
 // Rows under a body tint: a kind glyph reads the neutral glyph cell, because glyph-info is forbidden on the tint.
@@ -104,6 +132,10 @@ function XBedDrop({ focused, body }) {
 }
 
 // ── Create ────────────────────────────────────────────────
+// explorer.name.exists in four languages. {} is the typed name, verbatim. The ko value puts its particle on
+// 항목, never on the name, so it reads for a name ending in a vowel or a consonant (was “{}” 이(가)).
+// ko written by Codex; en, ja and zh-Hans are tasty lang/*.toml as they stand.
+const NAME_EXISTS = { key: "explorer.name.exists", en: "“{}” already exists in this folder.", ko: "이 폴더에 “{}” 항목이 이미 있습니다.", ja: "このフォルダーには「{}」がすでにあります。", "zh-Hans": "此文件夹中已存在“{}”。" };
 function XNameError({ text, left = 34 }) {
   return (
     <div role="alert" style={{ position: "absolute", top: "100%", left, zIndex: 2, marginTop: 2, maxWidth: "var(--tasty-explorer-name-error-max-width)", padding: "var(--tasty-space-xs) var(--tasty-space-sm)", background: "var(--tasty-menu-bg)", border: "var(--tasty-border-width) solid var(--tasty-explorer-name-error-fg)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-popover)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-primary)", lineHeight: "var(--tasty-line-height-ui)" }}>{text}</div>
@@ -112,13 +144,13 @@ function XNameError({ text, left = 34 }) {
 function XDetailEdit({ glyph = XK.ic.folder, value = "New folder", error }) {
   return (
     <div style={{ position: "relative" }}>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 80px 132px 92px", alignItems: "center", height: "var(--tasty-table-cell-height)", padding: "0 10px", background: "var(--tasty-surface-active)" }}>
-        <span style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
+      <XK.DetailLine style={{ background: "var(--tasty-surface-active)" }}>
+        <span style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", minWidth: 0, paddingRight: "var(--tasty-space-sm)" }}>
           <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-text-secondary)" }}>{glyph}</span>
           <span style={{ flex: 1, minWidth: 0 }}><XInput block defaultValue={value} invalid={!!error} /></span>
         </span>
         <span /><span /><span />
-      </div>
+      </XK.DetailLine>
       {error && <XNameError text={error} />}
     </div>
   );
@@ -156,10 +188,10 @@ function CreateSection() {
       <Spec id="toolbar-create-group-and-view-group-wide-narrow-remote-read-only" title="Toolbar — create group and view group (wide · narrow · remote · read-only)"
         when={<>Two small icon groups sit between the <b>PathField</b> and the <b>SegToggle</b>: <b>create</b> (New folder · New file) and, after a 1px separator, <b>view</b> (Find · Preview panel, both toggles with the IconButton <code>active</code> state). Icon-only, sm, tooltip = the command name. Delete, Rename and the clipboard stay in the context menu and on keys; the toolbar holds only what has no selection target. When the <b>cell</b> is narrower than <span className="tok">--tasty-explorer-toolbar-compact-below</span> (440) both groups fold into one <b>More</b> IconButton whose menu lists the same four rows; the PathField keeps flex 1 and the nav group never folds. A <b>remote (mirror)</b> explorer hides the create group (Find and Preview stay). A folder the user can't write to keeps the buttons <b>disabled</b> with the tooltip “Can't write to this folder”.</>}>
         <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", flexDirection: "column", gap: 14, alignItems: "stretch" }}>
-          <XCol label="wide · local"><div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden", maxWidth: 640 }}><XToolbar /></div></XCol>
-          <XCol label="wide · preview on · find on"><div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden", maxWidth: 640 }}><XToolbar preview search /></div></XCol>
-          <XCol label="remote (mirror) — create group hidden"><div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden", maxWidth: 640 }}><XToolbar remote path="build-eu:~/logs" /></div></XCol>
-          <XCol label="permission denied — create disabled"><div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden", maxWidth: 640 }}><XToolbar denied path="/usr/share" /></div></XCol>
+          <XCol label="wide · local"><div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden", maxWidth: 640, minWidth: xWideToolbarMin }}><XToolbar /></div></XCol>
+          <XCol label="wide · preview on · find on"><div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden", maxWidth: 640, minWidth: xWideToolbarMin }}><XToolbar preview search /></div></XCol>
+          <XCol label="remote (mirror) — create group hidden"><div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden", maxWidth: 640, minWidth: xWideToolbarMin }}><XToolbar remote path="/home/me/logs" /></div></XCol>
+          <XCol label="permission denied — create disabled"><div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden", maxWidth: 640, minWidth: xWideToolbarMin }}><XToolbar denied path="/usr/share" /></div></XCol>
           <div style={{ display: "flex", gap: 18, flexWrap: "wrap", alignItems: "flex-start" }}>
             <XCol label="narrow cell (< 440) — More" w={400}><div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}><XToolbar narrow /></div></XCol>
             <XK.CtxMenu title="More menu">
@@ -185,18 +217,18 @@ function CreateSection() {
               <XMenuItem label="New folder" icon={<XIcon name="folderPlus" />} />
               <XMenuItem label="New file" icon={<XIcon name="filePlus" />} />
               <XMenuItem separator />
-              <XMenuItem label="Copy path" icon={XK.ic.link} />
-              <XMenuItem label="Add to favorites" icon={XK.ic.star} />
+              <XMenuItem label="Copy Path" icon={XK.ic.link} />
+              <XMenuItem label="Add to Favorites" icon={XK.ic.star} />
               <XMenuItem label="Paste" icon={XK.ic.paste} shortcut={<XKbd keys="Ctrl+V" />} />
               <XMenuItem separator />
               <XMenuItem label="Properties" icon={<XIcon name="info" />} />
             </XK.CtxMenu>
             <XK.CtxMenu title="Single folder">
-              <XMenuItem label="Copy path" icon={XK.ic.link} />
-              <XMenuItem label="Add to favorites" icon={XK.ic.star} />
+              <XMenuItem label="Copy Path" icon={XK.ic.link} />
+              <XMenuItem label="Add to Favorites" icon={XK.ic.star} />
               <XMenuItem label="Copy" icon={XK.ic.copy} shortcut={<XKbd keys="Ctrl+C" />} />
               <XMenuItem label="Cut" icon={XK.ic.scissors} shortcut={<XKbd keys="Ctrl+X" />} />
-              <XMenuItem label="Paste into" icon={XK.ic.paste} />
+              <XMenuItem label="Paste (into)" icon={XK.ic.paste} />
               <XMenuItem separator />
               <XMenuItem label="New folder" icon={<XIcon name="folderPlus" />} />
               <XMenuItem label="New file" icon={<XIcon name="filePlus" />} />
@@ -233,7 +265,7 @@ function CreateSection() {
           </XCol>
         </Stage>
         <Meta
-          specs={[["placement", "top of the listing while typing → sorted place after ↵"], ["editor", "Input (control-height 28) in the name slot · Detail row stays 28 · List row grows 22 → 28 while editing · Grid: 160 wide, centred under the glyph"], ["defaults", "“New folder” all selected · “untitled.txt” stem selected · taken → “… 2”"], ["↵ / Esc", "confirm / cancel (nothing on disk)"], ["blur", "valid → confirm · empty or invalid → cancel"], ["after", "sorted place, selected — only if the user still views that folder"], ["write fails", "error Toast + reload (unchanged)"]]}
+          specs={[["placement", "top of the listing while typing → sorted place after ↵"], ["editor", "Input (control-height 28) in the name slot · Detail row stays 28 · Detail field = Name cell − glyph 16 − space-sm 8 − space-sm 8 at the cell end (140 → 108) · List row grows 22 → 28 while editing · Grid: 160 wide, centred under the glyph"], ["defaults", "“New folder” all selected · “untitled.txt” stem selected · taken → “… 2”"], ["↵ / Esc", "confirm / cancel (nothing on disk)"], ["blur", "valid → confirm · empty or invalid → cancel"], ["after", "sorted place, selected — only if the user still views that folder"], ["focus ring, first row", "whole ring shows: drawn over the header's last line, never clipped by the list body"], ["write fails", "error Toast + reload (unchanged)"]]}
           tokens={[{ tok: "--tasty-surface-active", use: "editing row", color: "var(--tasty-surface-active)" }, { tok: "--tasty-input-border-focus", use: "editor focus", color: "var(--tasty-input-border-focus)" }, { tok: "--tasty-table-cell-height", use: "row 28" }]} />
       </Spec>
 
@@ -248,10 +280,22 @@ function CreateSection() {
             </div>
           )} />
         </Stage>
+        <Views>
+          <View name="explorer-name-exists-languages" wide label="Already exists in every language, on the list edit row — ko puts its particle on 항목, so a name ending in a vowel or a consonant reads the same">
+            <div inert="" style={{ pointerEvents: "none", display: "flex", flexDirection: "column", gap: "var(--tasty-explorer-name-error-specimen-row-room)", width: "var(--tasty-explorer-name-error-specimen-width)", maxWidth: "100%", paddingBottom: "var(--tasty-space-xl)" }}>
+              {[["en", "Documents"], ["ko", "Documents"], ["ko", "사진"], ["ko", "노트"], ["ja", "Documents"], ["zh-Hans", "Documents"]].map(([l, n]) => (
+                <div key={l + n} lang={l} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
+                  <div className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{l} · {n}</div>
+                  <XListEdit value={n} error={NAME_EXISTS[l].replace("{}", n)} />
+                </div>
+              ))}
+            </div>
+          </View>
+        </Views>
         <Meta
           specs={[["input", "Input invalid (danger border)"], ["message", "under the field · menu-bg · 1px explorer-name-error-fg · caption 11 · text-primary · max explorer-name-error-max-width 240 · overlaps rows below"], ["empty", "“Enter a name.”"], ["invalid", "“A name can't contain “{char}”.” · also reserved names on Windows: “This name is reserved by the system.”"], ["exists", "“{name}” already exists in this folder. — checked on ↵"], ["after an error", "input stays open, text kept"]]}
           tokens={[{ tok: "--tasty-explorer-name-error-fg", use: "→ accent-danger", color: "var(--tasty-explorer-name-error-fg)" }, { tok: "--tasty-menu-bg", use: "message box", color: "var(--tasty-menu-bg)" }, { tok: "--tasty-shadow-popover", use: "message lift" }]} />
-        <Note>i18n: <code>explorer.new.folder_default</code> “New folder” · <code>explorer.new.file_default</code> “untitled.txt” · <code>explorer.name.empty</code> · <code>explorer.name.invalid_char</code> · <code>explorer.name.reserved</code> · <code>explorer.name.exists</code>. The default names are translated; the extension of the file default is not.</Note>
+        <Note>i18n: <code>explorer.new.folder_default</code> “New folder” · <code>explorer.new.file_default</code> “untitled.txt” · <code>explorer.name.empty</code> · <code>explorer.name.invalid_char</code> · <code>explorer.name.reserved</code> · <code>explorer.name.exists</code>. The default names are translated; the extension of the file default is not. <code>explorer.name.exists</code> ko is “{NAME_EXISTS.ko}” (was “이 폴더에 “{"{}"}” 이(가) 이미 있습니다.”); en, ja and zh-Hans are unchanged.</Note>
       </Spec>
     </Section>
   );
@@ -325,15 +369,15 @@ function DragSection() {
             </div>
           </XCol>
           <XCol label="Sidebar — tree node · favorite" w={196}>
-            <div style={{ ...box, background: "var(--tasty-bg-sidebar)", paddingBottom: 6 }}>
+            <div style={{ ...box, background: "var(--tasty-bg-sidebar)", paddingBottom: "var(--tasty-space-xs)" }}>
               <XK.SideHead>Files</XK.SideHead>
-              <div style={{ padding: "0 6px", display: "flex", flexDirection: "column", gap: 1 }}>
+              <div style={{ display: "flex", flexDirection: "column" }}>
                 <XK.TreeNode label="Home" open />
                 <XK.TreeNode label="Downloads" depth={1} open active />
                 <XRing><XK.TreeNode label="Projects" depth={1} /></XRing>
               </div>
               <XK.SideHead>Favorites</XK.SideHead>
-              <div style={{ padding: "0 6px", display: "flex", flexDirection: "column", gap: 1 }}>
+              <div style={{ display: "flex", flexDirection: "column" }}>
                 <XRing><XK.FavRow name="tasty" /></XRing>
                 <XK.FavRow name="screenshots" />
               </div>
@@ -357,32 +401,32 @@ function DragSection() {
           )} />
         </Stage>
         <Meta
-          specs={[["paint order", "bed · tint · row fill · ink · ring"], ["ink", "the drop-target@* cell, with no tint over it"], ["image row, list body", "glyph → text-secondary · glyph-info is forbidden on the tint"], ["image row, outside a tint", "glyph-info → accent-info-raised"], ["match run", "accent-primary-raised"], ["opaque row fill", "hides the tint on that row · the ring still shows"]]}
+          specs={[["paint order", "bed · tint · row fill · ink · ring"], ["ink", "the drop-target@* cell, with no tint over it"], ["image row, list body", "glyph → text-secondary · glyph-info is forbidden on the tint"], ["image row, outside a tint", "glyph-info → accent-info-raised"], ["match run", "explorer-match-fg"], ["opaque row fill", "hides the tint on that row · the ring still shows"]]}
           tokens={[{ tok: "--tasty-explorer-drop-target-bg", use: "tint, under the row", color: "var(--tasty-explorer-drop-target-bg)" }, { tok: "--tasty-explorer-drop-target-border", use: "ring, last", color: "var(--tasty-explorer-drop-target-border)" }, { tok: "--tasty-surface-bed-focused", use: "focused bed", color: "var(--tasty-surface-bed-focused)" }, { tok: "--tasty-surface-bed-unfocused", use: "unfocused bed", color: "var(--tasty-surface-bed-unfocused)" }]} />
       </Spec>
 
       <Spec id="files-from-the-os-copy-into-the-explorer-not-open" title="Files from the OS — copy into the explorer, not open"
         when={<>Files dragged in from the OS and dropped <b>on an explorer cell</b> are now <b>copied into</b> the target folder (folder row, or the folder being shown). Over an explorer cell the window drop overlay is <b>not drawn</b>; the explorer shows its own ring and a chip that always reads <b>Copy to</b> (an OS drag is never a move). Everywhere else in the window the existing overlay and “open with handler” stay as they are. A remote explorer refuses the OS drop and says so in the chip. Dragging items <b>out</b> of the explorer (for example into a terminal to paste a path) is left for a later pass.</>}>
         <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 18, flexWrap: "wrap", alignItems: "flex-start" }}>
-          <XCol label="OS files over a local explorer" w={420}>
+          <XCol label="OS files over a local explorer" w={xWideToolbarMin}>
             <div style={{ position: "relative" }}>
-              <XCell w={420} h={240} status="5 items">
-                <XRing radius="0" style={{ flex: 1, display: "flex" }}><XDetail bg="transparent" rows={xUnderTint(XROWS)} /></XRing>
+              <XCell w={xWideToolbarMin} h={240} status="5 items">
+                <XRing radius="0" style={{ flex: 1, minWidth: 0, display: "flex" }}><XDetail bg="transparent" rows={xUnderTint(XROWS)} /></XRing>
               </XCell>
               <XDragChip glyph={<XIcon name="layers" />} label="2 items" op="copy" target="Downloads" style={{ position: "absolute", left: 140, top: 150 }} />
             </div>
           </XCol>
-          <XCol label="OS files over a remote explorer" w={420}>
+          <XCol label="OS files over a remote explorer" w={xWideToolbarMin}>
             <div style={{ position: "relative" }}>
-              <XCell w={420} h={240} toolbar={<XToolbar remote path="build-eu:~/logs" />} status="5 items"><XDetail /></XCell>
+              <XCell w={xWideToolbarMin} h={240} toolbar={<XToolbar remote path="/home/me/logs" />} status="5 items"><XDetail /></XCell>
               <XDragChip glyph={<XIcon name="layers" />} label="2 items" op="refused" reason="remote folders are read-only" style={{ position: "absolute", left: 120, top: 150 }} />
             </div>
           </XCol>
           <XCol label="elsewhere — window file-drop overlay (tokens b10)" w={420}>
             <XThemes gap="var(--tasty-space-sm)" render={() => (
-              <div style={{ position: "relative", width: 420, maxWidth: "100%", height: 160, background: "var(--tasty-surface-terminal-focused-bg)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)", padding: "var(--tasty-space-sm)", boxSizing: "border-box" }}>
+              <div data-terminal-content="" style={{ position: "relative", width: 420, maxWidth: "100%", height: 160, background: "var(--tasty-surface-terminal-focused-bg)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)", padding: "var(--tasty-space-sm)", boxSizing: "border-box" }}>
                 ~/work/tasty ❯
-                <div style={{ position: "absolute", inset: "var(--tasty-space-sm)", display: "flex", alignItems: "center", justifyContent: "center", gap: "var(--tasty-space-sm)", background: "var(--tasty-file-drop-overlay-bg)", border: "var(--tasty-border-width) solid var(--tasty-file-drop-overlay-border)", borderRadius: "var(--tasty-radius)", color: "var(--tasty-file-drop-overlay-fg)", fontFamily: "var(--tasty-font-ui)", fontSize: "var(--tasty-font-size-body)" }}>
+                <div data-terminal-ui="" style={{ position: "absolute", inset: "var(--tasty-space-sm)", display: "flex", alignItems: "center", justifyContent: "center", gap: "var(--tasty-space-sm)", background: "var(--tasty-file-drop-overlay-bg)", border: "var(--tasty-border-width) solid var(--tasty-file-drop-overlay-border)", borderRadius: "var(--tasty-radius)", color: "var(--tasty-file-drop-overlay-fg)", fontFamily: "var(--tasty-font-ui)", fontSize: "var(--tasty-font-size-body)" }}>
                   <XIcon name="download" size="var(--tasty-icon-size-md)" />Drop to open
                 </div>
               </div>
@@ -402,7 +446,7 @@ function DragSection() {
 function XHi({ text, q, selected }) {
   const i = text.toLowerCase().indexOf(q.toLowerCase());
   if (!q || i < 0) return text;
-  return <>{text.slice(0, i)}<span style={{ color: selected ? "var(--tasty-explorer-match-fg-active)" : "var(--tasty-accent-primary-raised)" }}>{text.slice(i, i + q.length)}</span>{text.slice(i + q.length)}</>;
+  return <>{text.slice(0, i)}<span style={{ color: selected ? "var(--tasty-explorer-match-fg-active)" : "var(--tasty-explorer-match-fg)" }}>{text.slice(i, i + q.length)}</span>{text.slice(i + q.length)}</>;
 }
 function XFindBar({ value = "", deep = false, right, remote }) {
   return (
@@ -449,14 +493,15 @@ function SearchSection() {
               <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
                 <XK.DetailHeader />
                 <XK.DetailRow glyph={XK.ic.file} name={<XHi text="report.pdf" q="re" selected />} size="2.4 MB" date="2026-06-24 09:12" type="PDF" state="selected" />
-                <XK.DetailRow glyph={XK.ic.folder} name={<XHi text="mockup-exports" q="re" />} size="—" date="2026-06-20 14:30" type="Folder" />
+                {/* an unselected row that matches, so the resting match run shows beside the selected one */}
+                <XK.DetailRow glyph={XK.ic.folder} name={<XHi text="screenshots" q="re" />} size="—" date="2026-06-20 14:30" type="Folder" />
               </div>
             </XCell>
           )} />
         </Stage>
         <Meta
           specs={[["placement", "bar under the toolbar · full cell width · explorer-search-bar-height 36"], ["field", "Input + search icon · placeholder “Filter this folder”"], ["match", "substring, case-insensitive · matched part in explorer-match-fg"], ["count", "mono caption · “{shown} of {total}”"], ["type-ahead", "off in the field · on the list it cycles visible rows"], ["Esc", "clear → close"], ["closes on", "× · Back · Up · address bar · folder change"], ["remote", "filter yes"]]}
-          tokens={[{ tok: "--tasty-explorer-search-bar-height", use: "→ size-36" }, { tok: "--tasty-accent-primary-raised", use: "match run on the bed", color: "var(--tasty-accent-primary-raised)" }, { tok: "--tasty-input-bg", use: "field", color: "var(--tasty-input-bg)" }]} />
+          tokens={[{ tok: "--tasty-explorer-search-bar-height", use: "→ size-36" }, { tok: "--tasty-explorer-match-fg", use: "match run on the bed → accent-primary-raised", color: "var(--tasty-explorer-match-fg)" }, { tok: "--tasty-input-bg", use: "field", color: "var(--tasty-input-bg)" }]} />
       </Spec>
 
       <Spec id="subfolders-recursive-search-searching-no-results-errors-stopped" title="Subfolders — recursive search · searching · no results · errors · stopped"
@@ -500,4 +545,4 @@ function SearchSection() {
   );
 }
 
-export { XCol, XThemes, XToolbar, XCell, XDetail, XROWS, XListRow, XHi, XFindBar, XListEdit, XDragChip, CreateSection, DragSection, SearchSection };
+export { XCol, XThemes, XToolbar, XCell, xWideToolbarMin, XDetail, XROWS, XListRow, XHi, XFindBar, XListEdit, XDragChip, CreateSection, DragSection, SearchSection };

@@ -18,3 +18,8 @@ publish = false
 clap = "4"
 tasty-cli = { path = "../.tasty-src/crates/tasty-cli" }
 tasty-doc-guards = { path = "../.tasty-src/crates/tasty-doc-guards" }
+
+# This crate is its own workspace, so the Tasty workspace's [patch] table does not reach it.
+# A patch is not written here: an older Tasty ref (release, a tag) may lack the vendored
+# copy, and Cargo stops on a patch path that does not exist. The cargo test step in
+# .github/workflows/checks.yml passes it with --config when the copy is there.

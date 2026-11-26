@@ -8,6 +8,22 @@
   /* A specimen's popups keep their real z-index, and it only ranks them against each other. The page's menu, header and skip link stay above the whole gallery. */
   isolation: isolate;
 }
+/* A specimen part that sets its own language draws in that language's UI family (tokens/base.css, RULES section 8). An element
+   inherits the family its ancestor resolved, not the token, so the element with lang reads font-ui again. No specificity: a family
+   the element sets itself wins. A mono, terminal content or prose run keeps its family, whether the lang sits on the run itself or
+   inside it; a run that sets font-family to font-mono only inline counts too (the attribute as the server writes it and as the
+   browser writes it after a client render; a custom property whose name holds "font-mono" does not). UI drawn over terminal content is UI again. */
+:where([data-gallery-page] [lang]:not(:is(code, kbd, pre, samp, .tasty-mono, :is([style^="font-family:var(--tasty-font-mono"], [style^="font-family: var(--tasty-font-mono"], [style*=";font-family:var(--tasty-font-mono"], [style*="; font-family: var(--tasty-font-mono"]), [data-terminal-content], .g-intro, .g-section > h2, .spec-head, .part-h, .spec-note, .do, .dont, .spec-table, .g-cap, .icontile .irole), :is(code, kbd, pre, samp, .tasty-mono, :is([style^="font-family:var(--tasty-font-mono"], [style^="font-family: var(--tasty-font-mono"], [style*=";font-family:var(--tasty-font-mono"], [style*="; font-family: var(--tasty-font-mono"]), [data-terminal-content], .g-intro, .g-section > h2, .spec-head, .part-h, .spec-note, .do, .dont, .spec-table, .g-cap, .icontile .irole) *),
+  [data-gallery-page] :is([data-terminal-ui][lang], [data-terminal-ui] [lang]):not(:is(code, kbd, pre, samp, .tasty-mono, :is([style^="font-family:var(--tasty-font-mono"], [style^="font-family: var(--tasty-font-mono"], [style*=";font-family:var(--tasty-font-mono"], [style*="; font-family: var(--tasty-font-mono"])), [data-terminal-ui] :is(code, kbd, pre, samp, .tasty-mono, :is([style^="font-family:var(--tasty-font-mono"], [style^="font-family: var(--tasty-font-mono"], [style*=";font-family:var(--tasty-font-mono"], [style*="; font-family: var(--tasty-font-mono"])) *)) { font-family: var(--tasty-font-ui); }
+/* The writing about a specimen reads font-prose: headings, descriptions, notes, spec tables, the caption over a specimen (.g-cap)
+   and an icon's role. The specimen itself inherits font-ui from the page, as the app draws it. */
+.g-intro, .g-section > h2, .spec-head, .part-h, .spec-note, .do, .dont, .spec-table, .g-cap, .icontile .irole { font-family: var(--tasty-font-prose); }
+/* Ligatures. The app shapes terminal content only. Its UI text, mono runs, keycaps and form controls are laid out glyph by glyph
+   (a control does not inherit the root value, so it is named), and they draw no contextual alternates. A terminal content block carries data-terminal-content and keeps D2Coding's. */
+[data-gallery-page], [data-gallery-page] :is(button, input, select, textarea, option, code, kbd, pre, samp, .tasty-mono) { font-variant-ligatures: none; }
+[data-gallery-page] [data-terminal-content], [data-gallery-page] [data-terminal-content] * { font-variant-ligatures: contextual; }
+/* UI drawn over terminal content (a link tooltip, a drop overlay, a gallery id) carries data-terminal-ui and draws none again. */
+[data-gallery-page] [data-terminal-content] [data-terminal-ui], [data-gallery-page] [data-terminal-content] [data-terminal-ui] * { font-variant-ligatures: none; }
 [data-gallery-page] [data-theme] { color: var(--tasty-text-primary); }
 [data-gallery-page] a { color: inherit; }
 [data-gallery-page] h1 { margin: 0 0 var(--tasty-space-sm); font-size: var(--tasty-font-size-max); font-weight: var(--tasty-font-weight-semibold); }
@@ -55,7 +71,9 @@
 }
 .stage.tight { padding: 0; overflow: hidden; overflow-x: auto; }
 .stage.column { flex-direction: column; }
-.stage.center { justify-content: center; align-items: center; }
+/* Safe: content wider than the stage starts at its left edge and scrolls inside it, instead of
+   overflowing to both sides with the left part out of scroll reach. */
+.stage.center { justify-content: safe center; align-items: safe center; }
 .stage.checker {
   background-image:
     linear-gradient(45deg, var(--tasty-separator) 25%, transparent 25%),
@@ -80,7 +98,7 @@
   font-size: var(--tasty-font-size-micro);
   cursor: pointer;
 }
-.stage-overlay-toggle[aria-pressed="true"] { color: var(--tasty-text-primary); border-color: var(--tasty-border-strong); }
+.stage-overlay-toggle[aria-pressed="true"] { color: var(--tasty-text-primary); border-color: var(--tasty-border-control); }
 .cluster { display: flex; flex-direction: column; gap: var(--tasty-space-sm); }
 .cluster > .lbl {
   font-family: var(--tasty-font-mono);
@@ -97,8 +115,9 @@
 .spec-table thead th { border-top: 0; font-weight: var(--tasty-font-weight-semibold); color: var(--tasty-text-secondary); white-space: nowrap; }
 .spec-table td { color: var(--tasty-text-primary); }
 .spec-table .m { font-family: var(--tasty-font-mono); }
+.spec-table :is(.tok, code) { font-family: var(--tasty-font-mono); }
 .spec-table .d { color: var(--tasty-text-secondary); }
-.spec-table .sw { display: inline-block; width: var(--tasty-icon-size-xs); height: var(--tasty-icon-size-xs); margin-right: var(--tasty-space-xs); border: var(--tasty-border-width) solid var(--tasty-border-default); border-radius: var(--tasty-radius-sm); vertical-align: middle; }
+.spec-table .sw { display: inline-block; width: var(--tasty-icon-size-xs); height: var(--tasty-icon-size-xs); margin-right: var(--tasty-space-xs); border: var(--tasty-border-width) solid var(--tasty-swatch-border); border-radius: var(--tasty-radius-sm); vertical-align: middle; }
 .spec-table:focus-visible, .sg-scroll:focus-visible { outline: var(--tasty-focus-ring-width) solid var(--tasty-border-focus); outline-offset: var(--tasty-border-width); }
 
 /* State grid */
@@ -141,8 +160,8 @@
 .spec-note a { color: var(--tasty-accent-primary-raised); text-decoration: underline; }
 .spec-note code, .ic { padding: 0 var(--tasty-space-xs); border: var(--tasty-border-width) solid var(--tasty-border-default); border-radius: var(--tasty-radius-sm); background: var(--tasty-surface-raised); color: var(--tasty-text-secondary-raised); font-family: var(--tasty-font-mono); font-size: var(--tasty-font-size-caption); }
 .do, .dont { margin: var(--tasty-space-sm) 0 0; padding: var(--tasty-space-sm) var(--tasty-space-md); border-radius: var(--tasty-radius-sm); }
-.do { background: color-mix(in srgb, var(--tasty-accent-success) calc(var(--tasty-tint-fill-alpha) * 100%), transparent); color: var(--tasty-text-primary); border-left: var(--tasty-tint-edge-width) solid var(--tasty-accent-success); }
-.dont { background: color-mix(in srgb, var(--tasty-accent-danger) calc(var(--tasty-tint-fill-alpha) * 100%), transparent); color: var(--tasty-text-primary); border-left: var(--tasty-tint-edge-width) solid var(--tasty-accent-danger); }
+.do { background: var(--tasty-tint-success-bg); color: var(--tasty-text-primary); border-left: var(--tasty-tint-edge-width) solid var(--tasty-accent-success); }
+.dont { background: var(--tasty-tint-danger-bg); color: var(--tasty-text-primary); border-left: var(--tasty-tint-edge-width) solid var(--tasty-accent-danger); }
 .do b { color: var(--tasty-accent-success-raised); }
 .dont b { color: var(--tasty-accent-danger-raised); }
 
@@ -155,7 +174,7 @@
   background-size: var(--tasty-size-4) var(--tasty-size-4);
 }
 .tasty-scroll::-webkit-scrollbar { width: var(--tasty-size-10); height: var(--tasty-size-10); }
-.tasty-scroll::-webkit-scrollbar-thumb { border: var(--tasty-size-2) solid transparent; border-radius: var(--tasty-radius-full); background: var(--tasty-scrollbar-thumb); background-clip: padding-box; }
+.tasty-scroll::-webkit-scrollbar-thumb { border: var(--tasty-size-2) solid transparent; border-radius: var(--tasty-radius-pill); background: var(--tasty-scrollbar-thumb); background-clip: padding-box; }
 .tasty-scroll::-webkit-scrollbar-thumb:hover { border: var(--tasty-size-2) solid transparent; background: var(--tasty-scrollbar-thumb-hover); background-clip: padding-box; }
 
 @media (max-width: 900px) {
@@ -370,6 +389,7 @@
   --tasty-accent-agent-raised: var(--tasty-accent-agent-on-active);
   --tasty-accent-warning-glyph: var(--tasty-accent-warning-on-active);
   --tasty-explorer-match-fg: var(--tasty-explorer-match-fg-active);
+  --tasty-specimen-annotation-border: var(--tasty-text-on-active);
   --tasty-port-star-on: var(--tasty-port-star-on-active);
   --sg-chip-base: var(--tasty-surface-raised);
 }

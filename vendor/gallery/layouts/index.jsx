@@ -6,7 +6,9 @@ import { GalleryLoadingPrelayout } from "./loading-prelayout.jsx";
 import { GalleryLoadingOverlay } from "./loading-overlay.jsx";
 import { GalleryMoveSource } from "./move-source.jsx";
 import { GalleryTabStrip } from "./tab-strip.jsx";
-import { GalleryTitleBar } from "./title-bar.jsx";
+import { GalleryTitleBar, GalleryTitleBarLinux, GalleryTitleBarWindows } from "./title-bar.jsx";
+import { RemoteStatusBarSpec, RemoteLinkSpec } from "./remote-location.jsx";
+import { RemoteRowEmptySpec, RemoteRowLastScreenSpec, RemoteRowMarksSpec } from "./remote-row.jsx";
 import { RunningCountSpec } from "./running-count.jsx";
 import { WorkspaceRunningCount } from "../../ui_kits/terminal/chrome.jsx";
 import { GallerySurfaceFocus } from "./surface-focus.jsx";
@@ -37,6 +39,8 @@ const NAV = [
   { id: "loading", label: "Loading overlay" },
   { id: "notifsummary", label: "Notifications summary" },
   { id: "statusbar", label: "Workspace status bar" },
+  { id: "remotelink", label: "Path link on a mirror" },
+  { id: "remoterow", label: "Saved remote workspace" },
   { id: "titlebar", label: "Title bar" },
 ];
 
@@ -169,11 +173,11 @@ function RailMarksBoard({ theme }) {
     <div {...(theme ? { "data-theme": theme } : {})} style={{ display: "flex", gap: "var(--tasty-space-lg)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-sidebar)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", flexWrap: "wrap", alignItems: "flex-start" }}>
       {rail}
       <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-lg)", minWidth: 0 }}>
-        <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-secondary)" }}>{theme ? "Latte" : "Mocha"} — category line</span>
+        <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-secondary)" }}>{theme ? "Latte" : "Mocha"} — category line</span>
         <div style={{ display: "flex", gap: "var(--tasty-space-md)", flexWrap: "wrap" }}>
           {col("idle", <RailCatLine />)}{col("hover", <RailCatLine state="hover" />)}{col("pressed", <RailCatLine state="pressed" />)}{col("modifier held", <RailCatLine cap="2" />)}
         </div>
-        <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-secondary)" }}>{theme ? "Latte" : "Mocha"} — mirror chip</span>
+        <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-secondary)" }}>{theme ? "Latte" : "Mocha"} — mirror chip</span>
         <div style={{ display: "flex", gap: "var(--tasty-space-md)", flexWrap: "wrap" }}>
           {col("idle", <RailAv ch="E" />)}{col("active", <RailAv ch="T" state="active" />)}{col("hover", <RailAv ch="E" state="hover" />)}{col("+ notif", <RailAv ch="E" notif />)}{col("+ attached ring", <RailAv ch="E" ring />)}
         </div>
@@ -330,11 +334,11 @@ function fakePane(label, focused, agent) {
         {agent ? <StatusDot status="agent" pulse label={label} /> : <StatusDot status={focused ? "running" : "idle"} label={label} />}
         <span style={{ marginLeft: "auto" }}><Tag>{focused ? "s_01HX" : "s_02KQ"}</Tag></span>
       </div>
-      <div style={{ padding: "10px 12px", fontFamily: "var(--tasty-font-mono)", fontSize: 12.5,
+      <div data-terminal-content="" style={{ padding: "10px 12px", fontFamily: "var(--tasty-font-mono)", fontSize: 12.5,
         color: focused ? "var(--tasty-surface-terminal-focused-fg)" : "var(--tasty-surface-terminal-unfocused-fg)", lineHeight: 1.5 }}>
-        <div><span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-color-green)" }}>~/tasty</span> <span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-color-blue)" }}>main</span></div>
+        <div><span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-ansi-green)" }}>~/tasty</span> <span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-ansi-blue)" }}>main</span></div>
         <div style={{ display: "flex", alignItems: "center", marginTop: 2 }}>
-          <span style={{ color: agent ? "var(--tasty-accent-agent-raised)" : "var(--tasty-color-mauve)" }} data-audit-exempt="ansi-content">❯&nbsp;</span>
+          <span style={{ color: "var(--tasty-ansi-magenta)" }} data-audit-exempt="ansi-content">❯&nbsp;</span>
           {focused && <span style={{ width: 8, height: 15, background: "var(--tasty-surface-terminal-focused-fg)", display: "inline-block", animation: "tasty-blink 1.1s step-end infinite" }} />}
         </div>
       </div>
@@ -376,7 +380,7 @@ function occPane(kind) {
             label: "completed", sub: "clears on focus", who: "done" },
   }[kind];
   return (
-    <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", background: "var(--tasty-surface-terminal-focused-bg)",
+    <div style={{ flex: 1, minWidth: "max-content", display: "flex", flexDirection: "column", background: "var(--tasty-surface-terminal-focused-bg)",
       border: `${cfg.width} solid ${cfg.color}`, borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 10px",
         borderBottom: "1px solid var(--tasty-separator)", background: "var(--tasty-bg-panel)" }}>
@@ -385,11 +389,11 @@ function occPane(kind) {
         <span style={{ fontSize: 10, color: "var(--tasty-text-muted)" }}>· {cfg.sub}</span>
         {cfg.readonly && <span style={{ marginLeft: "auto" }}><IconButton size="sm" aria-label="Force detach">{ic.close}</IconButton></span>}
       </div>
-      <div style={{ padding: "10px 12px", fontFamily: "var(--tasty-font-mono)", fontSize: 12.5,
-        color: cfg.readonly ? "var(--tasty-surface-terminal-unfocused-fg)" : "var(--tasty-color-neutral-1100)", lineHeight: 1.5 }}>
-        <div><span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-color-green)" }}>~/tasty</span> <span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-color-blue)" }}>main</span></div>
+      <div data-terminal-content="" style={{ padding: "10px 12px", fontFamily: "var(--tasty-font-mono)", fontSize: 12.5,
+        color: cfg.readonly ? "var(--tasty-surface-terminal-unfocused-fg)" : "var(--tasty-surface-terminal-focused-fg)", lineHeight: 1.5 }}>
+        <div><span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-ansi-green)" }}>~/tasty</span> <span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-ansi-blue)" }}>main</span></div>
         <div style={{ display: "flex", alignItems: "center", marginTop: 2 }}>
-          <span style={{ color: cfg.who === "agent" ? "var(--tasty-accent-agent)" : "var(--tasty-color-mauve)" }} data-audit-exempt="ansi-content">❯&nbsp;</span>
+          <span style={{ color: "var(--tasty-ansi-magenta)" }} data-audit-exempt="ansi-content">❯&nbsp;</span>
           {cfg.who === "agent" && <span style={{ color: "var(--tasty-text-secondary)" }}>running tests…</span>}
           {cfg.who === "done" && <span style={{ color: "var(--tasty-text-secondary)" }}>build passed ✓</span>}
         </div>
@@ -423,7 +427,7 @@ function AttentionScale() {
           <span className="tok" style={{ fontSize: 11 }}>--tasty-{k.role}</span>
           <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <span style={{ width: 18, height: 18, borderRadius: "var(--tasty-radius-sm)", background: swatch(k),
-              border: k.live ? "none" : "1px dashed var(--tasty-border-strong)" }} />
+              border: k.live ? "none" : "var(--tasty-border-width) dashed var(--tasty-swatch-border)" }} />
             {k.live && <Badge variant={k.id === "needs-input" ? "warning" : "primary"}>3</Badge>}
           </span>
         </div>
@@ -539,9 +543,9 @@ function attPane(kind) {
         <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 11, fontWeight: 600, color: "var(--tasty-text-primary)" }}>{cfg.label}</span>
         <span style={{ fontSize: 10, color: "var(--tasty-text-muted)" }}>· {cfg.sub}</span>
       </div>
-      <div style={{ padding: "10px 12px", fontFamily: "var(--tasty-font-mono)", fontSize: 12.5, color: "var(--tasty-color-neutral-1100)", lineHeight: 1.5 }}>
-        <div><span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-color-green)" }}>~/tasty</span> <span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-color-blue)" }}>main</span></div>
-        <div style={{ marginTop: 2 }}><span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-color-mauve)" }}>❯&nbsp;</span><span style={{ color: "var(--tasty-text-secondary)" }}>{cfg.line}</span></div>
+      <div data-terminal-content="" style={{ padding: "10px 12px", fontFamily: "var(--tasty-font-mono)", fontSize: 12.5, color: "var(--tasty-surface-terminal-focused-fg)", lineHeight: 1.5 }}>
+        <div><span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-ansi-green)" }}>~/tasty</span> <span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-ansi-blue)" }}>main</span></div>
+        <div style={{ marginTop: 2 }}><span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-ansi-magenta)" }}>❯&nbsp;</span><span style={{ color: "var(--tasty-text-secondary)" }}>{cfg.line}</span></div>
       </div>
     </div>
   );
@@ -572,7 +576,7 @@ function DrillDownDemo({ initial = null }) {
   const cell = { padding: "6px 12px", borderBottom: "1px solid var(--tasty-separator)", fontSize: 13, display: "flex", alignItems: "center" };
   return (
     <div style={{ width: 560, height: 320, display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)",
-      border: "1px solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
+      border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
       <div style={{ flex: 1, minHeight: 0 }}>
         <DrillDown
           view={view}
@@ -722,7 +726,7 @@ function Layouts() {
               </div>
               <div style={{ flex: 1, padding: 18, display: "flex", flexDirection: "column", gap: 12, minWidth: 0 }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <span style={{ fontSize: 15, fontWeight: 600 }}>git-helper</span>
+                  <span style={{ fontSize: "var(--tasty-font-size-max)", fontWeight: 600 }}>git-helper</span>
                   <Tag variant="agent">plugin</Tag><Tag variant="success" dot>running</Tag>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
@@ -934,7 +938,7 @@ function Layouts() {
           <Meta
             specs={[["kinds (live)", "needs-input · completion"], ["reserved", "error (rank 40) · approval (rank 20)"], ["rank spacing", "10 — a future kind slots between without renumbering"], ["collision rule", "highest rank takes the single visual slot"], ["contrast", "fill × on-accent fg — both live kinds clear 4.5:1"]]}
             tokens={[{ tok: "--tasty-attention-needs-input", use: "blocked, waiting on the human (→ yellow)", color: "var(--tasty-attention-needs-input)" }, { tok: "--tasty-attention-completion", use: "task finished, FYI (→ blue)", color: "var(--tasty-attention-completion)" }, { tok: "--tasty-attention-needs-input-fg", use: "glyph atop the yellow fill", color: "var(--tasty-attention-needs-input-fg)" }, { tok: "--tasty-attention-completion-fg", use: "glyph atop the blue fill", color: "var(--tasty-attention-completion-fg)" }, { tok: "--tasty-attention-rank-needs-input", use: "30" }, { tok: "--tasty-attention-rank-completion", use: "10" }]} />
-          <Note><b>NeedsInput outranks everything</b> because it is the only kind that is a <i>request</i> — work has stopped until the human answers. Completion is an <i>FYI</i> and clears on focus. No attention kind mints a new hue; a kind that can't honestly borrow an existing accent role is a sign the role list is missing something.</Note>
+          <Note><b>NeedsInput outranks everything</b> because it is the only kind that is a <i>request</i> — work has stopped until the human answers. Completion is an <i>FYI</i>. Both highlights clear under the same focus conditions. No attention kind mints a new hue; a kind that can't honestly borrow an existing accent role is a sign the role list is missing something.</Note>
         </Spec>
 
         <Spec id="workspace-row-one-or-two-count-badges" title="Workspace row — one or two count badges"
@@ -975,7 +979,7 @@ function Layouts() {
           <Meta
             specs={[["tab — needs-input", <span className="tok">--tasty-tab-fg-needs-input</span>], ["tab — completion", <span className="tok">--tasty-tab-fg-completion</span>], ["tab — active", <span className="tok">--tasty-tab-fg-active</span>], ["tab — rest", <span className="tok">--tasty-tab-fg</span>], ["border — needs-input", "2px, inside"], ["border priority", "needs-input > occupancy > completion"]]}
             tokens={[{ tok: "--tasty-tab-fg-needs-input", use: "blocked tab title", color: "var(--tasty-tab-fg-needs-input)" }, { tok: "--tasty-tab-fg-completion", use: "finished tab title", color: "var(--tasty-tab-fg-completion)" }, { tok: "--tasty-surface-highlight-input-border", use: "blocked surface edge", color: "var(--tasty-surface-highlight-input-border)" }, { tok: "--tasty-surface-highlight-input-width", use: "2px — matches completion" }]} />
-          <Note><b>Why NeedsInput outranks occupancy.</b> Occupancy reads as “held, working, as expected” — which is exactly the state a blocked prompt would hide behind. A session that has stopped to ask you something must not look like a session that is busy. Completion stays below occupancy, as before. Attention clears only when the surface <b>actually receives focus</b> (focused pane, current workspace, window focused). The <b>visible focused tab</b> therefore never shows a tint; an <i>active</i> tab in an unfocused pane or another workspace can hold attention and keeps its tint by the ladder above (needs-input / completion over active).</Note>
+          <Note><b>Why NeedsInput outranks occupancy.</b> Occupancy reads as “held, working, as expected” — which is exactly the state a blocked prompt would hide behind. A session that has stopped to ask you something must not look like a session that is busy. Completion stays below occupancy, as before. On redraw, if the OS window is focused (including when a web page holds keyboard focus) and no fullscreen stage is showing, the app clears attention on the <b>surface of the focused pane's selected tab</b> in the current workspace unless that surface is hard occupied. Marking a surface's last unread notification as read (by check mark, expansion, or Mark all read) also clears its attention unless the surface is hard occupied. While the OS window is inactive, a fullscreen stage is showing, or the surface is hard occupied, attention can stay and a <b>visible active tab</b> can keep its tint. The surface shows the highest-priority ring. A hard occupancy ring hides completion, and needs input shows over occupancy. An <i>active</i> tab in an unfocused pane or another workspace can hold attention and keeps its tint by the ladder above (needs-input / completion over active).</Note>
           <Dont><b>Don't</b> stack the two edges (a 1px occupancy line inside a 2px NeedsInput line). One channel, one color — stacked edges read as a rendering bug at these widths.</Dont>
         </Spec>
       </Section>
@@ -1004,7 +1008,7 @@ function Layouts() {
               ["not a repo — the branch item is absent", 470, { branch: null, drop: 2 }],
               ["detached HEAD — short sha in the branch slot", 470, { branch: "@ 4f9c1ab", drop: 2 }]].map(([label, w, o]) => (
               <div key={label} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
+                <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
                 <div style={{ width: w, height: "var(--tasty-status-bar-height)", display: "flex", alignItems: "center", gap: 10, padding: "0 10px",
                   background: "var(--tasty-bg-sidebar)", border: "1px solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius-sm)",
                   fontSize: 11, color: "var(--tasty-text-muted)", overflow: "hidden" }}>
@@ -1025,7 +1029,7 @@ function Layouts() {
             ))}
           </Stage>
           <Meta
-            specs={[["height", <>24 — <span className="tok">--tasty-status-bar-height</span>, outside the UI scale</>], ["left", "branch · surface id · shell · grid"], ["right", "palette shortcut · theme glyph"], ["glyphs", <span className="tok">--tasty-statusbar-glyph</span>], ["theme", <>a <code>sun</code> / <code>theme</code> glyph, <b>not</b> a coloured dot</>], ["drop order", "1 grid → 2 shell → 3 surface id → 4 palette cap → 5 branch text (glyph stays)"], ["never drops", "theme glyph"], ["no value", "the item is absent — never a dash"], ["detached HEAD", "short sha in the branch slot"], ["interaction", "read-only; no item moves focus"], ["refresh", "1Hz cache — unchanged"]]}
+            specs={[["height", <>24 — <span className="tok">--tasty-status-bar-height</span>, outside the UI scale</>], ["left", "branch · surface id · shell · grid"], ["mirror", "remote item first in the left cluster — see the remote item specimen"], ["right", "palette shortcut · theme glyph"], ["glyphs", <span className="tok">--tasty-statusbar-glyph</span>], ["theme", <>a <code>sun</code> / <code>theme</code> glyph, <b>not</b> a coloured dot</>], ["drop order", "1 grid → 2 shell → 3 surface id → 4 palette cap → 5 branch text (glyph stays) → 6 remote host text (mirror only, glyph stays)"], ["never drops", "theme glyph · remote glyph"], ["no value", "the item is absent — never a dash"], ["detached HEAD", "short sha in the branch slot"], ["interaction", "read-only; no item moves focus"], ["refresh", "1Hz cache — unchanged"]]}
             tokens={[{ tok: "--tasty-status-bar-height", use: "24px bar" }, { tok: "--tasty-statusbar-glyph", use: "item glyphs", color: "var(--tasty-statusbar-glyph)" }, { tok: "--tasty-statusbar-theme-glyph", use: "theme indicator", color: "var(--tasty-statusbar-theme-glyph)" }, { tok: "--tasty-statusbar-dot-size", use: "6 — when a surface dot is shown" }]} />
           <Note>The theme indicator used to borrow <b>accent-warning</b> for light and <b>accent-agent</b> for dark. Light-vs-dark is not a warning and not an agent, so it becomes a <b>glyph in dim ink</b> — no colour role is minted for it.</Note>
           <Dont><b>Don't</b> add counts, clocks, CPU meters or notification badges. Anything that changes faster than the bar's 1Hz read, or that is not a property of the focused surface, belongs elsewhere.</Dont>
@@ -1036,7 +1040,7 @@ function Layouts() {
           <Stage variant="solo" style={{ padding: 20, background: "var(--tasty-bg-app)", flexDirection: "column", gap: 16, alignItems: "stretch" }}>
             {[["Mocha", "mocha"], ["Latte", "latte"]].map(([label, attr]) => (
               <div key={label} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
+                <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
                 <div {...(attr ? { "data-theme": attr } : {})} style={{ display: "flex", gap: 14, flexWrap: "wrap", alignItems: "flex-end",
                   background: "var(--tasty-bg-app)", padding: 12, borderRadius: "var(--tasty-radius)", border: "1px solid var(--tasty-border-default)" }}>
                   {[0.85, 1, 1.2].map((s) => (
@@ -1065,10 +1069,23 @@ function Layouts() {
           <Note>The two glyphs sit side by side here <b>only to compare them</b>. In the product the cell carries exactly one: <code>sun</code> in Latte, <code>theme</code> in Mocha, with the theme name beside it.</Note>
           <Dont><b>Don't</b> give <code>sun</code> its own size token to cancel the overshoot. A size that changes with theme state turns a dimension into a state, and the same overshoot would follow <code>sun</code> into every other place it is drawn. Optical parity belongs in the glyph.</Dont>
         </Spec>
+        <RemoteStatusBarSpec />
+      </Section>
+
+      <Section id="remotelink" title="Path link on a mirror">
+        <RemoteLinkSpec />
+      </Section>
+
+      <Section id="remoterow" title="Saved remote workspace">
+        <RemoteRowMarksSpec />
+        <RemoteRowEmptySpec />
+        <RemoteRowLastScreenSpec />
       </Section>
 
       <Section id="titlebar" title="Title bar">
         {GalleryTitleBar && <GalleryTitleBar />}
+        {GalleryTitleBarLinux && <GalleryTitleBarLinux />}
+        {GalleryTitleBarWindows && <GalleryTitleBarWindows />}
       </Section>
 
     </>

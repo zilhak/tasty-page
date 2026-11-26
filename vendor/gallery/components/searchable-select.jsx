@@ -17,7 +17,7 @@ import { Spec, Stage, Meta, Note } from "../parts/specimen.jsx";
 
   const Cell = ({ label, h, children }) => (
     <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", minHeight: h, alignItems: "stretch" }}>
-      <div style={cap}>{label}</div>{children}
+      <div className="g-cap" style={cap}>{label}</div>{children}
     </div>
   );
   const Themed = ({ attr, children, style }) => (
@@ -43,7 +43,7 @@ import { Spec, Stage, Meta, Note } from "../parts/specimen.jsx";
           <Stage variant="solo" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 16, flexWrap: "wrap", alignItems: "flex-start" }}>
             {THEMES.map(([label, attr]) => (
               <Themed key={label} attr={attr}>
-                <div style={cap}>{label} · same trigger, side by side (200 wide)</div>
+                <div className="g-cap" style={cap}>{label} · same trigger, side by side (200 wide)</div>
                 <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
                   {[["Select", <Select key="s" options={["Catppuccin Mocha", "Catppuccin Latte"]} style={W} />],
                     ["Searchable · no value", <SearchableSelect key="sp" options={FONTS} value={null} placeholder="Choose a font" style={W} />],
@@ -58,7 +58,7 @@ import { Spec, Stage, Meta, Note } from "../parts/specimen.jsx";
           <Stage variant="solo" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 16, flexWrap: "wrap", alignItems: "flex-start" }}>
             {THEMES.map(([label, attr]) => (
               <Themed key={label} attr={attr}>
-                <div style={cap}>{label} · trigger states</div>
+                <div className="g-cap" style={cap}>{label} · trigger states</div>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 200px)", gap: "var(--tasty-space-md) var(--tasty-space-lg)" }}>
                   <Cell label="closed"><SearchableSelect options={FONTS} value="JetBrains Mono" block /></Cell>
                   <Cell label="hover — border-strong"><SearchableSelect options={FONTS} value="JetBrains Mono" hoverTrigger block /></Cell>
@@ -73,7 +73,7 @@ import { Spec, Stage, Meta, Note } from "../parts/specimen.jsx";
           <Stage variant="solo" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 16, flexWrap: "wrap", alignItems: "flex-start" }}>
             {THEMES.map(([label, attr]) => (
               <Themed key={label} attr={attr}>
-                <div style={cap}>{label} · open list</div>
+                <div className="g-cap" style={cap}>{label} · open list</div>
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 200px)", gap: "var(--tasty-space-lg)" }}>
                   <Cell label="open — focus in search, selected = check" h={340}><SearchableSelect block open focusSearch query="" activeIndex={1} options={FONTS} pinned={PIN} value="JetBrains Mono" searchPlaceholder="Search fonts" /></Cell>
                   <Cell label="typed “co” → filtered, active = 1st match" h={340}><SearchableSelect block open focusSearch query="co" activeIndex={1} options={FONTS} pinned={PIN} value="JetBrains Mono" searchPlaceholder="Search fonts" /></Cell>
@@ -125,7 +125,7 @@ import { Spec, Stage, Meta, Note } from "../parts/specimen.jsx";
           <Stage variant="solo" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 16, flexWrap: "wrap", alignItems: "flex-start" }}>
             {THEMES.map(([label, attr]) => [false, true].map((open) => (
               <Themed key={label + open} attr={attr} style={{ width: 440, minHeight: open ? 420 : undefined }}>
-                <div style={cap}>{label} · Appearance › General · {open ? "open + typed “mono”" : "closed"}</div>
+                <div className="g-cap" style={cap}>{label} · Appearance › General · {open ? "open + typed “mono”" : "closed"}</div>
                 <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-settings-row-gap)" }}>
                   <SettingsRow label="Font family:">
                     {open

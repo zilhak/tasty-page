@@ -86,11 +86,11 @@ function TerminalPane({ session, focused, searchOpen, onSearchClose }) {
       {focused && searchOpen && (
         <SearchBar lines={session.plainLines || []} onClose={onSearchClose} />
       )}
-      <div className="tasty-scroll" style={{ padding: "var(--tasty-space-sm) var(--tasty-space-md)", overflow: "auto", flex: 1 }}>
+      <div data-terminal-content="" className="tasty-scroll" style={{ padding: "var(--tasty-space-sm) var(--tasty-space-md)", overflow: "auto", flex: 1 }}>
         {session.lines.map((ln, i) => <div key={i}>{ln}</div>)}
         <div style={{ display: "flex", alignItems: "center" }}>
           <span style={{ color: C.mauve }}>❯&nbsp;</span>
-          {focused && <span style={{ width: "var(--tasty-size-8)", height: "var(--tasty-size-16)", background: "var(--tasty-color-neutral-1100)",
+          {focused && <span style={{ width: "var(--tasty-size-8)", height: "var(--tasty-size-16)", background: "var(--tasty-surface-terminal-focused-fg)",
             display: "inline-block", animation: "tasty-blink 1.1s step-end infinite" }} />}
         </div>
       </div>
@@ -159,8 +159,8 @@ function StatusBar({ surfaceId, theme = "Mocha", onTheme, onPalette }) {
       <button type="button" style={btn} onClick={onTheme} aria-label="Toggle theme"
         onMouseEnter={(e) => (e.currentTarget.style.color = "var(--tasty-text-secondary)")}
         onMouseLeave={(e) => (e.currentTarget.style.color = "var(--tasty-text-muted)")}>
-        <span style={{ width: "var(--tasty-size-8)", height: "var(--tasty-size-8)", borderRadius: "var(--tasty-radius-pill)",
-          background: /latte/i.test(theme) ? "var(--tasty-color-yellow)" : "var(--tasty-color-mauve)" }} />{" "}
+        <span style={{ display: "inline-flex", color: "var(--tasty-statusbar-theme-glyph)" }}>
+          <MdI name={/latte/i.test(theme) ? "sun" : "theme"} size="var(--tasty-statusbar-glyph-size)" /></span>{" "}
         {theme ? theme.charAt(0).toUpperCase() + theme.slice(1) : "Mocha"}
       </button>
     </div>

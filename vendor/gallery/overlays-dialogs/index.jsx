@@ -6,8 +6,12 @@ import { ConvertSurfacePopup, ThemeNotFoundModal, DbInitErrorModal, Notification
 import { PermissionNoticeModal } from "../../ui_kits/terminal/overlays/macos_permissions.jsx";
 import { ExplorerDeleteFrame as ExplorerDeleteFrame_ExplorerDeleteFrame, XD_ITEMS as ExplorerDeleteFrame_XD_ITEMS } from "../parts/explorer-delete-frame.jsx";
 import { GalleryScrimGrounds } from "./scrim-grounds.jsx";
-import { Backdrop, ApprovalFrame, FileHandlerFrame, FhFooter, PresetFrame, MarkdownOpenFrame, RenameFrame, CategoryEditFrame, CategoryDeleteFrame, TransferProgressFrame, TransferErrorFrame, ShellMock } from "../parts/overlay-frames.jsx";
-import { Section, Spec, Stage, Meta, Note, Do, Dont } from "../parts/specimen.jsx";
+import { CollapsedPopupSpec, CollapseFlowSpec } from "./collapsed-popup.jsx";
+import { PopupFocusSpec } from "./popup-focus.jsx";
+import { Backdrop, ApprovalFrame, FileHandlerFrame, FhFooter, PresetFrame, MarkdownOpenFrame, RenameFrame, CategoryEditFrame, CategoryDeleteFrame, TransferProgressFrame, TransferErrorFrame, DownloadRunFrame, DownloadRunLargeFrame, ShellMock } from "../parts/overlay-frames.jsx";
+import { Section, Spec, Stage, Meta, Note, Do, Dont, Views, View } from "../parts/specimen.jsx";
+import { ThemePair } from "../parts/theme-frame.jsx";
+import { CloseOnRemoteDialog } from "../../ui_kits/terminal/overlays/remote_row.jsx";
 
 
 // Tasty Gallery — Overlays · Dialogs (modal confirm/edit surfaces)
@@ -26,7 +30,7 @@ const SCRIPT_CONFIRM_COPY = {
 function ScriptConfirmG({ lang = "en" }) {
   const [title, tag, body, run, cancel] = SCRIPT_CONFIRM_COPY[lang];
   return (
-    <div style={{ width: "var(--tasty-size-360)", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", overflow: "hidden" }}>
+    <div style={{ width: "var(--tasty-size-360)", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", overflow: "hidden" }}>
       <div style={{ padding: "var(--tasty-space-md) var(--tasty-size-14)", display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
         <div style={{ fontSize: "var(--tasty-font-size-body)", fontWeight: "var(--tasty-font-weight-semibold)", color: "var(--tasty-text-primary)" }}>{title}</div>
         <div style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>~/.config/tasty/scripts/deploy-preview-with-long-name.sh</div>
@@ -54,9 +58,11 @@ const NAV = [
   { id: "rename", label: "Rename popup" },
   { id: "category", label: "Workspace category" },
   { id: "transfer", label: "Remote transfer" },
+  { id: "downloadrun", label: "Download and run" },
   { id: "permnotice", label: "Info modal shell" },
   { id: "scriptconfirm", label: "Script changed confirm" },
   { id: "permdelete", label: "Explorer delete permanently" },
+  { id: "closeonremote", label: "Close remote workspace" },
 ];
 
 function Page() {
@@ -64,19 +70,19 @@ function Page() {
     <>
 <Section id="scrim" title="Scrim & frame — the shared recipe">
         <Spec id="every-overlay-sits-on-the-same-scrim" title="Every overlay sits on the same scrim"
-          when={<>Modals are the <b>one place</b> the system uses shadow. The recipe: a <b>50% black scrim</b> (+1px blur) over the app, a frame of <b>--tasty-bg-panel</b> (or <b>--tasty-surface-raised</b> for the palette) with a <b>1px --tasty-border-strong</b> edge and a soft drop shadow. Click-scrim or <Kbd keys="Esc" /> dismisses.</>}>
+          when={<>A floating frame is the <b>one place</b> the system uses shadow, and it takes one of two. The recipe: a <b>50% black scrim</b> (+1px blur) over the app, a frame of <b>--tasty-bg-panel</b> (or <b>--tasty-surface-raised</b> for the palette) with a <b>1px --tasty-border-frame</b> edge (the popup frame outline, on base and on raised alike) and <b>--tasty-shadow-modal</b>. A frame with <b>no scrim</b> under it, such as the saved remote row popup on a workspace with no screen, takes <b>--tasty-shadow-popover</b> instead. Click-scrim or <Kbd keys="Esc" /> dismisses.</>}>
           <Stage variant="solo center">
             <Backdrop height={300} blur>
-              <div align="center" style={{ width: 320, background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-strong)",
+              <div align="center" style={{ width: 320, background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)",
                 borderRadius: "var(--tasty-radius)", padding: 18, boxShadow: "var(--tasty-shadow-modal)", textAlign: "center" }}>
                 <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 6 }}>This is the frame</div>
-                <div style={{ fontSize: 12.5, color: "var(--tasty-text-muted)" }}>--tasty-bg-panel · 1px --tasty-border-strong · soft shadow · sits on a 50% scrim</div>
+                <div className="g-cap" style={{ fontSize: 12.5, color: "var(--tasty-text-muted)" }}>--tasty-bg-panel · 1px --tasty-border-frame · soft shadow · sits on a 50% scrim</div>
               </div>
             </Backdrop>
           </Stage>
           <Meta
-            specs={[["scrim", "rgba(0,0,0,.5) + blur(1px)"], ["frame fill", <span className="tok">--tasty-bg-panel</span>], ["border", <>1px <span className="tok">--tasty-border-strong</span></>], ["shadow", "0 20px 60px / .55 (modals only)"], ["dismiss", <>scrim click · <span className="ic">Esc</span></>]]}
-            tokens={[{ tok: "--tasty-bg-panel", use: "frame", color: "var(--tasty-bg-panel)" }, { tok: "--tasty-border-strong", use: "edge", color: "var(--tasty-border-strong)" }, { tok: "--tasty-radius", use: "4px corners" }]} />
+            specs={[["scrim", <><span className="tok">--tasty-scrim-bg</span> (black 50%) + blur(<span className="tok">--tasty-scrim-blur</span>, 1px)</>], ["frame fill", <span className="tok">--tasty-bg-panel</span>], ["border", <>1px <span className="tok">--tasty-border-frame</span> · not border-strong, the partition edge for raised only · the app's shared popup shell already draws border_frame</>], ["shadow", <><span className="tok">--tasty-shadow-modal</span> on a scrim · <span className="tok">--tasty-shadow-popover</span> when the frame has no scrim · in the app the saved remote row popup already picks this way (modal over a screen, popover on a workspace with no screen) · Approval and Notifications have no scrim, so they take the popover shadow · the app draws Approval with the popover shadow and still draws Notifications with the modal shadow</>], ["dismiss", <>scrim click · <span className="ic">Esc</span></>]]}
+            tokens={[{ tok: "--tasty-scrim-bg", use: "scrim" }, { tok: "--tasty-bg-panel", use: "frame", color: "var(--tasty-bg-panel)" }, { tok: "--tasty-border-frame", use: "edge", color: "var(--tasty-border-frame)" }, { tok: "--tasty-shadow-modal", use: "lift on a scrim" }, { tok: "--tasty-shadow-popover", use: "lift with no scrim" }, { tok: "--tasty-radius", use: "4px corners" }]} />
           <Note>The two anchor positions: <b>centered</b> (dialogs, settings) and <b>top-aligned</b> (command palette, ~40px from top). Nothing else.</Note>
         </Spec>
 
@@ -87,7 +93,7 @@ function Page() {
               ["rejected — window scrim for a surface popup", "window", "var(--tasty-accent-danger-raised)"],
               ["rejected — no scrim at all", "none", "var(--tasty-accent-danger-raised)"]].map(([label, scope, c]) => (
               <div key={scope} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                <div style={{ fontSize: 11, color: c }}>{label}</div>
+                <div className="g-cap" style={{ fontSize: 11, color: c }}>{label}</div>
                 <ShellMock scope={scope} />
               </div>
             ))}
@@ -99,23 +105,29 @@ function Page() {
           <Dont><b>Don't</b> read this as an input rule. The scrim marks <b>what the popup belongs to</b>; which input it swallows is the host's existing contract and is unchanged here.</Dont>
         </Spec>
 
-        <Spec id="both-split-directions-a-clamped-popup-and-a-child-picker" title="Both split directions, a clamped popup, and a child picker"
-          when={<>The boundary has to read in every arrangement. Side-by-side and stacked splits show the divider staying lit between a dimmed and an undimmed surface. In a <b>narrow</b> surface the popup clamps to the rect (it never grows past its surface, and focus is never moved to win space). When a <b>child</b> picker opens from the popup, the scrim is drawn <b>once</b> — the parent shell stays fully painted under the child, which sits above it with its own shadow. Two shells, one scrim, no accumulated darkness.</>}>
+        <Spec id="both-split-directions-a-clamped-popup-and-a-child-picker" title="Both split directions, a narrow surface, and a child picker"
+          when={<>The boundary has to read in every arrangement. Side-by-side and stacked splits show the divider staying lit between a dimmed and an undimmed surface. In a <b>narrow</b> surface the popup does not shrink to the rect: when it does not fit, it collapses to the show button (next specimen). It never grows past its surface, and focus is never moved to win space. When a <b>child</b> picker opens from the popup, the scrim is drawn <b>once</b> — the parent shell stays fully painted under the child, which sits above it with its own shadow. Two shells, one scrim, no accumulated darkness.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 18, flexWrap: "wrap", alignItems: "flex-start" }}>
             {[["horizontal split", { scope: "surface", split: "h" }],
-              ["narrow surface — popup clamped", { scope: "surface", narrow: true, clamp: true }],
+              ["narrow surface — popup collapsed to the show button", { scope: "surface", narrow: true, collapsed: "label", ring: true }],
               ["parent + child picker — one scrim", { scope: "surface", child: true }]].map(([label, props]) => (
               <div key={label} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
+                <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
                 <ShellMock {...props} />
               </div>
             ))}
           </Stage>
           <Meta
-            specs={[["scrim count", "one per scope — never composited twice"], ["depth", "scrim z0 · parent shell z1 · child shell z2"], ["parent under child", "full ink, not dimmed further"], ["clamp", "popup shrinks to the surface rect, min 320 → surface width wins"], ["surface hidden", "popup shell AND scrim hide with it; both return on re-show"], ["host popups", "same rule when they declare a surface scope"]]}
-            tokens={[{ tok: "--tasty-fp-popup-min-width", use: "picker floor, surface overrides it" }, { tok: "--tasty-scrim-bg", use: "drawn once", color: "var(--tasty-scrim-bg)" }, { tok: "--tasty-shadow-modal", use: "both shells" }]} />
+            specs={[["scrim count", "one per scope — never composited twice"], ["depth", "scrim z0 · parent shell z1 · child shell z2"], ["parent under child", "full ink, not dimmed further"], ["narrow", "no shrink to the surface rect — when the popup's own size is larger than the surface bounds it collapses to the show button (next specimen); there is no shrink range"], ["popup size", "drawn at its own size in every expanded frame (280 here, bounds 288.5 side by side) — never shrunk to fit"], ["surface hidden", "popup shell AND scrim hide with it; both return on re-show"], ["host popups", "same rule when they declare a surface scope"]]}
+            tokens={[{ tok: "--tasty-fp-popup-min-width", use: "picker floor — the surface no longer overrides it" }, { tok: "--tasty-scrim-bg", use: "drawn once", color: "var(--tasty-scrim-bg)" }, { tok: "--tasty-shadow-modal", use: "both shells" }]} />
           <Note><b>convert_surface</b> and any other host popup bound to a surface gain this scrim (they have none today); host popups with no target binding stay on the window scrim. Child-lifetime and draft policy are the host's, unchanged by this visual rule.</Note>
         </Spec>
+
+        <CollapsedPopupSpec />
+
+        <CollapseFlowSpec />
+
+        <PopupFocusSpec />
       </Section>
 
 <Section id="scrimgrounds" title="Scrim over each ground">
@@ -125,10 +137,10 @@ function Page() {
       <Section id="approval" title="Agent approval">
         <Spec id="approval-popup-the-mauve-gate" title="Approval popup — the mauve gate"
           when={<>Shown when an agent requests a privileged or destructive action. The <b>mauve agent accent</b> in the header and tag makes it unmistakable. Show the <b>exact command</b>, the requesting plugin, the target surface ID, and the permission tags. Three responses: deny / allow once / always.</>}>
-          <Stage variant="solo center"><Backdrop height={420}><ApprovalFrame /></Backdrop></Stage>
+          <Stage variant="solo center"><Backdrop height={420} scrim={false}><ApprovalFrame /></Backdrop></Stage>
           <Meta
-            specs={[["width", "440px"], ["header dot", <span className="tok">--tasty-accent-agent</span>], ["command", "mono on #000"], ["actions", "ghost / secondary / agent"]]}
-            tokens={[{ tok: "--tasty-accent-agent", use: "agent gate", color: "var(--tasty-accent-agent-raised)" }, { tok: "--tasty-accent-danger", use: "destructive tag", color: "var(--tasty-accent-danger-raised)" }, { tok: "--tasty-bg-panel", use: "frame", color: "var(--tasty-bg-panel)" }]} />
+            specs={[["width", "--tasty-approval-width"], ["scrim", "none · the window under it keeps taking input"], ["shadow", <span className="tok">--tasty-shadow-popover</span>], ["header dot", <span className="tok">--tasty-accent-agent</span>], ["command", "mono on #000"], ["actions", "ghost / secondary / agent"]]}
+            tokens={[{ tok: "--tasty-accent-agent", use: "agent gate", color: "var(--tasty-accent-agent-raised)" }, { tok: "--tasty-accent-danger", use: "destructive tag", color: "var(--tasty-accent-danger-raised)" }, { tok: "--tasty-bg-panel", use: "frame", color: "var(--tasty-bg-panel)" }, { tok: "--tasty-shadow-popover", use: "lift with no scrim" }]} />
           <Do><b>Do</b> name the actor and show the literal command. The user is granting authority — make the stakes legible.</Do>
         </Spec>
         <Spec id="danger-choice-tinted-fill-with-readable-ink" title="Danger choice — tinted fill with readable ink"
@@ -136,7 +148,7 @@ function Page() {
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 16, flexWrap: "wrap" }}>
             {[["Mocha", "mocha", "9.18 : 1"], ["Latte", "latte", "5.80 : 1"]].map(([lab, th, cr]) => (
               <div key={lab} {...(th ? { "data-theme": th } : {})} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md)", background: "var(--tasty-surface-raised)", borderRadius: "var(--tasty-radius)", width: 300 }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{lab} · popup surface-raised · label {cr}</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{lab} · popup surface-raised · label {cr}</span>
                 {[["Allow once", false], ["Always allow in this workspace", false], ["Allow and skip future checks", true]].map(([t, dz]) => (
                   <div key={t} style={{ height: "var(--tasty-control-height)", display: "flex", alignItems: "center", padding: "0 var(--tasty-space-md)", borderRadius: "var(--tasty-radius)", fontSize: "var(--tasty-font-size-body)",
                     background: dz ? "var(--tasty-approval-danger-bg)" : "var(--tasty-bg-panel)", color: dz ? "var(--tasty-approval-danger-fg)" : "var(--tasty-text-primary)",
@@ -157,11 +169,11 @@ function Page() {
           when={<>A small list popup that converts a surface to another kind <b>without losing the running process or scrollback</b> — only the renderer changes. The shared popup title bar, then one <b>MenuItem</b> per kind the surface can become; click (or ↵ on the highlighted row) converts, × / Esc close. This is the product's shape and the target — the earlier 400-wide From / To dialog is retired. Width is <span className="tok">--tasty-convert-popup-width</span> (<b>240</b>, was a literal 200) and <b>scales with ui_scale</b> like every popup width; height = title bar + rows.</>}>
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>Mocha · en · ui_scale 1.0</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>Mocha · en · ui_scale 1.0</span>
                 <div style={{ zoom: 1 }}><ConvertSurfacePopup title="Surface Type" /></div>
               </div>
             <div data-theme="latte" style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>Latte · en · ui_scale 1.0</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>Latte · en · ui_scale 1.0</span>
                 <div style={{ zoom: 1 }}><ConvertSurfacePopup title="Surface Type" /></div>
               </div>
           </Stage>
@@ -174,14 +186,14 @@ function Page() {
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
             {[["Mocha", "mocha", "1.0", "rest · hover (Image) · active (Markdown) · collision · long"], ["Latte", "latte", "1.0", "same states"]].map(([th, dt, sc, cap]) => (
               <div key={th} data-theme={dt || undefined} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{th} · en · {sc} — {cap}</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{th} · en · {sc} — {cap}</span>
                 <ConvertSurfacePopup title="Surface Type" active={0} hover={1}
                   kinds={[["markdown", "Markdown", "M"], ["image", "Image", "I"], ["html", "HTML", "H"], ["file", "Mermaid (plugin)", null], ["file", "Notebook viewer with outputs (plugin)", "N"]]} />
               </div>
             ))}
             {[["Mocha", "mocha", "ko", "서피스 타입 전환", [["terminal", "터미널", "T"], ["image", "이미지", "I"], ["gitTree", "DAG", "D"], ["html", "HTML", "H"], ["folder", "탐색기", "E"]]], ["Mocha", "mocha", "ja", "サーフェスタイプ切替", [["terminal", "ターミナル", "T"], ["markdown", "マークダウン", "M"], ["image", "画像", "I"], ["html", "HTML", "H"], ["folder", "エクスプローラー", "E"]]], ["Latte", "latte", "ja", "サーフェスタイプ切替", [["terminal", "ターミナル", "T"], ["markdown", "マークダウン", "M"], ["image", "画像", "I"], ["html", "HTML", "H"], ["folder", "エクスプローラー", "E"]]]].map(([th, dt, lang, t, k], n) => (
               <div key={n} data-theme={dt || undefined} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{th} · {lang} · {lang === "ko" ? "1.0" : "1.2 (240 × 1.2, fits)"}</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{th} · {lang} · {lang === "ko" ? "1.0" : "1.2 (240 × 1.2, fits)"}</span>
                 <div style={{ zoom: lang === "ko" ? 1 : 1.2 }}><ConvertSurfacePopup title={t} kinds={k} active={0} /></div>
               </div>
             ))}
@@ -195,19 +207,19 @@ function Page() {
           when={<>Every popup width is a token and is multiplied by ui_scale, the same as the title and the reserve. Scaling alone keeps the ratio, so the base width must fit the longest locale title at 1.0: the ja title <i>サーフェスタイプ切替</i> is ≈ 139, and 200 leaves a band of 200 − 2 × 32 = 136 — it cuts at every scale. The convert popup's base therefore goes to <b>240</b> (band 176), and at 1.2 everything scales together (288 / 211 / ≈ 167). A title that still overflows ellipsises inside the symmetric band (unchanged), and <b>only then</b> shows the full title in a Tooltip on hover (shared placement: top, then bottom). No content-driven widening: the width stays a token.</>}>
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>Mocha · ja · 1.2 — before: literal 200 (cuts)</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>Mocha · ja · 1.2 — before: literal 200 (cuts)</span>
                 <div style={{ zoom: 1.2, ["--tasty-convert-popup-width"]: "calc(200px / 1.2)" }}><ConvertSurfacePopup title="サーフェスタイプ切替" /></div>
               </div>
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>Mocha · ja · 1.2 — convert-popup-width 240 × 1.2 (fits)</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>Mocha · ja · 1.2 — convert-popup-width 240 × 1.2 (fits)</span>
                 <div style={{ zoom: 1.2 }}><ConvertSurfacePopup title="サーフェスタイプ切替" /></div>
               </div>
             <div data-theme="latte" style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>Latte · ja · 1.2 — convert-popup-width 240 × 1.2 (fits)</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>Latte · ja · 1.2 — convert-popup-width 240 × 1.2 (fits)</span>
                 <div style={{ zoom: 1.2 }}><ConvertSurfacePopup title="サーフェスタイプ切替" /></div>
               </div>
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>Mocha · still too long — ellipsis + hover tooltip</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>Mocha · still too long — ellipsis + hover tooltip</span>
                 <div style={{ zoom: 1 }}><ConvertSurfacePopup title="Convert this surface to another type" /></div>
               </div>
           </Stage>
@@ -232,16 +244,16 @@ function Page() {
           when={<>The picker always says <b>what it thinks the file is</b>. The detector value (<code>markdown</code> · <code>html</code> · <code>$directory</code>) sits as an <b>accent Tag</b> on the title row, opposite the title; the path sits under it in mono. When detection fails the Tag reads <b>“format unknown”</b> in the neutral outline variant — an unknown format is a fact, not an error.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 18, flexWrap: "wrap" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>detected</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>detected</div>
               <FileHandlerFrame />
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>not detected → fallback</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>not detected → fallback</div>
               <FileHandlerFrame state="fallback" />
             </div>
           </Stage>
           <Meta
-            specs={[["place", "title row, right-aligned"], ["detected", <>Tag <span className="tok">accent</span></>], ["unknown", "Tag default (outline)"], ["path", <>mono 11 · <span className="tok">--tasty-text-muted</span></>], ["long path", "elide at the FRONT in the model, then render LTR"]]}
+            specs={[["place", "title row, right-aligned"], ["detected", <>Tag <span className="tok">accent</span></>], ["unknown", "Tag default (outline) — also a remote target opened from the link menu's open action, which runs no detector (see Remote path)"], ["remote by name", "Tag accent — the format the extension or file name settled; the host mark on the path line says it is remote · a path link Ctrl+click is identified by name too"], ["path", <>mono 11 · <span className="tok">--tasty-text-muted</span></>], ["long path", "elide at the FRONT in the model, then render LTR"]]}
             tokens={[{ tok: "--tasty-accent-primary", use: "format Tag", color: "var(--tasty-accent-primary-raised)" }, { tok: "--tasty-font-mono", use: "path" }, { tok: "--tasty-text-muted", use: "path ink", color: "var(--tasty-text-muted)" }]} />
           <Do><b>Do</b> cut long paths at the <b>front</b> — the filename is the tail and the tail identifies the file. Elide in the <b>model</b> (drop leading segments, prefix <code>…/</code>) and render the result left-to-right. <b>Don't</b> reach for <code>direction: rtl</code> + <code>text-overflow</code>: it reorders the run and clips the informative end.</Do>
         </Spec>
@@ -269,7 +281,7 @@ function Page() {
                 <span style={{ flex: "none", width: 80, fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: "var(--tasty-text-muted)" }}>{span}</span>
                 <span style={{ flex: "none", width: 120, fontFamily: "var(--tasty-font-mono)", fontSize: 12, color: "var(--tasty-text-primary)" }}>{en}</span>
                 <span style={{ flex: "none", width: "var(--tasty-fh-when-width)", fontSize: 11, color: "var(--tasty-text-muted)", background: "var(--tasty-surface-raised)", padding: "2px 0", textAlign: "left", paddingLeft: 4, boxSizing: "border-box" }}>{sample === "—" ? en : sample}</span>
-                <span style={{ flex: 1, fontSize: 11, color: "var(--tasty-text-muted)" }}>{span === "≥ 7 d" ? "absolute date — locale-neutral, 10 chars, the column's reserve" : span === "< 60 s" ? "the only non-numeric bucket besides yesterday" : ""}</span>
+                <span className="g-cap" style={{ flex: 1, fontSize: 11, color: "var(--tasty-text-muted)" }}>{span === "≥ 7 d" ? "absolute date — locale-neutral, 10 chars, the column's reserve" : span === "< 60 s" ? "the only non-numeric bucket besides yesterday" : ""}</span>
               </div>
             ))}
           </Stage>
@@ -280,20 +292,52 @@ function Page() {
         </Spec>
 
         <Spec id="header-path-where-the-front-cut-lands-settled-t5" title="Header path — where the front cut lands (settled T5)"
-          when={<>The header's path line is one mono-11 row inside the 420 frame: <b>390px</b> after the 1px frame borders and the 14px insets (420 − 2 − 28), which is <b>65 characters</b> at this font: D2Coding 11px is 5.56px nominal, but each glyph advances a whole <b>6px</b> once rounded, so 390 / 6 = 65. The cut is a <b>measure, not a count</b>: drop whole leading segments and prefix <code>…/</code> until the remainder fits the line box. The 65-char figure is the derived cap for a path that cannot be measured. The one time a cut falls mid-segment is a single segment longer than the whole line — then the filename itself elides at the front, by characters. The 48-char provisional cap was cutting paths that fit by a wide margin.</>}>
+          when={<>The header's path line is one mono-11 row inside the 420 frame: <b>390px</b> after the 1px frame borders and the 14px insets (420 − 2 − 28), which is <b>65 characters</b> at this font: D2Coding 11px is 5.56px nominal, but each glyph advances a whole <b>6px</b> once rounded, so 390 / 6 = 65. The cut is a <b>measure, not a count</b>: drop whole leading segments and prefix <code>…/</code> until the remainder fits the line box. The 65-char figure is the derived cap for a path that cannot be measured. When <code>…/</code> + the last segment does not fit but <code>…</code> + it does, only the slash drops and the filename stays whole. The one time a cut falls mid-segment is when even <code>…</code> + the last segment does not fit the line — then the filename itself elides at the front, by characters. The 48-char provisional cap was cutting paths that fit by a wide margin.</>}>
           <Stage variant="solo" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 18, flexWrap: "wrap", alignItems: "flex-start" }}>
             {[["65 chars — fits exactly, no cut", "packages/design-system/src/components/navigation/federated/Bar.ts"],
               ["93 → 57 chars — leading segments dropped at a boundary", "…/navigation/federation/SidebarCategoryHeaderContrast.tsx"],
               ["one 72-char segment → 65 — mid-segment, front", "…on-federation-sidebar-category-header-contrast-exploration-v2.md"]].map(([label, p]) => (
               <div key={label} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
+                <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
                 <FileHandlerFrame path={p} />
               </div>
             ))}
           </Stage>
           <Meta
-            specs={[["line box", "390 = 420 − 1 × 2 (frame border) − 14 × 2"], ["cap", "65 mono chars @ 11px (390 / 6 — rounded advance, D2Coding)"], ["was", "70 / 5.5 nominal — overran the line by ~30px (2026-10-06)"], ["rule", "measure first; the count is the fallback"], ["boundary", "segment — drop whole leading segments, prefix …/"], ["mid-segment", "only when one segment exceeds the line; then front-elide by characters, prefix …"], ["row id", "unchanged — 34 chars, front, the id line is narrower"], ["was", "48 chars provisional — retired"]]}
+            specs={[["line box", "390 = 420 − 1 × 2 (frame border) − 14 × 2"], ["cap", "65 mono chars @ 11px (390 / 6 — rounded advance, D2Coding)"], ["was", "70 / 5.5 nominal — overran the line by ~30px (2026-10-06)"], ["rule", "measure first; the count is the fallback"], ["boundary", "segment — drop whole leading segments, prefix …/"], ["mid-segment", "only when … + the last segment exceeds the line; then front-elide by characters, prefix … · if … + the whole segment fits, only the slash of …/ drops"], ["row id", "unchanged — 34 chars, front, the id line is narrower"], ["was", "48 chars provisional — retired"]]}
             tokens={[{ tok: "--tasty-font-mono", use: "path" }, { tok: "--tasty-text-muted", use: "path ink", color: "var(--tasty-text-muted)" }]} />
+        </Spec>
+
+        <Spec id="file-handler-remote-path" title="Remote path — the host leads the path line"
+          when={<>A path link in a <b>mirror</b> terminal names a file on the remote host, and the same string can name a different local file. So when the picker's target is remote, the header's <b>path line leads with the host mark</b>: remote glyph + host in <span className="tok">--tasty-fh-remote-fg</span>, mono caption, no fill — the form the explorer uses for remote work. It sits on the line it qualifies, so the path reads as <i>this path on that host</i>. The host text names the <b>remote machine</b> (the host text rule, below). It has its own cap (<span className="tok">--tasty-fh-remote-max-width</span>, 160, the same cap as the status bar) and elides its end inside it. The path keeps its front elision, measured against <b>what the mark leaves</b>: 390 − mark − 8 — 258px (43 chars) beside <code>work-laptop-attach</code>, 206px (34 chars) at the host cap — so neither cuts the other and the filename stays. A <b>local</b> path has no mark. A remote file's contents are not read, so the title row's Tag says only what the <b>name</b> settled. When the file is identified <b>by name</b> — a path link <b>Ctrl+click</b>, a double-click in the mirror explorer, the file open tool, a plugin (an agent's open runs the first handler that can open it and shows no picker) — and its extension or file name matches a format, the Tag is that format in the <b>accent</b> variant, as a local detection: it is the format the candidates were chosen by, and the host mark on the path line already says the file is remote. A path link <b>Ctrl+click</b> opens the picker only when the <b>first</b> handler cannot open the file on the remote host and another candidate can, so there the detector has always matched: when no detector matches, the download-and-run dialog opens instead, and when the first handler can open the file on the remote host it runs with no picker. The <b>open action in the link's right-click menu</b> opens the picker with no detector, so its candidates are the fallback: the Tag reads <b>format unknown</b> in the neutral outline, and the list is the <b>All handlers</b> group with its <b>one-time strip</b>, as a failed local detection — over the remote handlers only. The body is the handler list, and it holds only the handlers that can open the file <b>on the remote host</b>; no row carries the <b>default</b> Tag, because the app sets no default for a remote target. The picker opens for a remote path only when the remote host has a handler for it, so a remote path never shows the empty state. With none it does not open, and every route the user takes gets the same answer: the download-and-run dialog (Remote file — download and run) opens instead, from a path link and from an open by name alike. A request from outside (the CLI, an agent) opens nothing and is logged. <b>Host text rule</b> (shared by the host marks: status bar, link tooltip, this picker, the download-and-run dialog; the task graph drawer leaves its Attach profile row out instead, Task DAG › Across machines): the <b>attach profile name</b> (R-57); for an attach with <b>no profile name</b> (<code>--ssh</code> or <code>--target-port</code> from the CLI or IPC, or a profile saved with an empty name) the word <b>Remote</b> (<code>attach.mirror_pill_label</code>) in the label font and the same remote ink. It is never <code>127.0.0.1:&lt;port&gt;</code>: that is this computer's end of the tunnel, so the mark would read as a path on this computer. The path box is measured against whichever the slot holds. The host can also be <b>empty</b> when the mirror's connection info is not there yet (between the attach install and the first location sync); whether a picker opens in that span is not settled, and whatever the entry (path link, mirror explorer, file open tool, plugin), the app draws the word <b>Remote</b> for an empty host — the same form. The host text is set once when the picker opens and does not change after a drop. While an <b>agent mirror</b> is <b>reconnecting</b> with no scrim (attaching again after a resync, or between its drop and its cleanup) the mark takes the status bar's reconnecting form: glyph and host drop to neutral ink and the status word <b>reconnecting</b> follows the host. When a <b>saved remote row</b> drops while the picker is open (into reconnecting too), the picker <b>closes</b>: it is not left under the scrim, and it does not open again when the row connects again.</>}>
+          <Stage variant="solo" style={{ padding: 20, background: "var(--tasty-bg-app)" }}>
+            <ThemePair render={() => (
+              <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+                {[["local path — no mark", { path: "docs/architecture.md" }],
+                  ["remote path identified by name (path link Ctrl+click, mirror explorer, file open tool, plugin) — profile host, the format its name settled keeps the accent Tag · Ctrl+click opens it only when the first handler cannot open the file remotely and another can", { remote: { host: "host", format: "markdown" }, path: "docs/architecture.md" }],
+                  ["remote path from the link menu's open action — no detector: format unknown, All handlers and the one-time strip, remote handlers only", { state: "fallback", remote: { host: "host" }, path: "src/main.rs" }],
+                  ["remote path · agent mirror reconnecting (resync, or drop → cleanup) — neutral ink + status word, as the status bar", { remote: { host: "work-laptop-attach", state: "reconnecting", format: "markdown" }, path: "docs/architecture.md" }],
+                  ["93-char path beside work-laptop-attach (link menu) — 258px box, 43 chars: whole segments drop, the filename stays", { state: "fallback", remote: { host: "work-laptop-attach" }, path: "…/SidebarCategoryHeaderContrast.tsx" }],
+                  ["same path at the host cap (link menu) — 206px box, 34 chars: …/ + the 33-char file name is 35, so only the slash drops — … + the whole file name", { state: "fallback", remote: { host: "build-runner-eu-west-07-staging-attach" }, path: "…SidebarCategoryHeaderContrast.tsx" }]].map(([label, o]) => (
+                  <div key={label} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                    <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
+                    <FileHandlerFrame {...o} />
+                  </div>
+                ))}
+              </div>
+            )} />
+          </Stage>
+          <Views>
+            <View name="file-handler-remote-no-host" label="No profile name (--ssh or --target-port from the CLI or IPC) — the word Remote in the host slot, label font, remote ink">
+              <ThemePair render={() => <FileHandlerFrame remote={{ host: "", format: "markdown" }} path="docs/architecture.md" />} />
+            </View>
+          </Views>
+          <Meta
+            specs={[["where", "path line, before the path — never in the title row"], ["mark", "remote glyph 12 + host · mono caption · no fill"], ["ink", <><span className="tok">--tasty-fh-remote-fg</span> → accent-remote-raised · base 10.54 · 6.63</>], ["gap", <>glyph ↔ host <span className="tok">--tasty-fh-remote-gap</span> 4 · mark ↔ path space-sm 8</>], ["host cap", <><span className="tok">--tasty-fh-remote-max-width</span> 160 on the host text (glyph and gap outside it) · end-elided with …</>], ["host text", "the host text rule: attach profile name, as it was at connect time (R-57) · set once when the picker opens, unchanged after a drop · no profile name (--ssh or --target-port from the CLI or IPC, a profile saved with an empty name) → the word Remote (next row) · never 127.0.0.1:<port>, the local end of the tunnel"], ["no host", <><code>attach.mirror_pill_label</code> in the host slot · <span className="tok">--tasty-font-label</span> (mono in en and ko, font-ui in ja and zh-Hans, with D2Coding first in the UI stack) · <span className="tok">--tasty-fh-remote-fg</span>, glyph unchanged · never elides · for an attach with no profile name: --ssh (whatever its value, 127.0.0.1:&lt;port&gt; included) or --target-port from the CLI or IPC, a profile saved with an empty name · the app draws the same word for any empty host, also one from missing connection info (before the first location sync) — whether a picker opens in that span is not settled</>], ["no-host path box", "390 − (12 + 4 + word) − 8, measured · when the measure is not valid or not one character fits, the common cap 34, the same as an unknown host width — no per-language estimate"], ["widths", "6px advance: 'host' 24 · 'work-laptop-attach' 108 · cap 160"], ["path box", "390 − mark − 8; mark = 12 + 4 + host text"], ["path measure", "front elision against the path box: 1 whole leading segments drop, prefix …/ · 2 when …/ + the last segment does not fit but … + it does, drop the slash · 3 only when … + the last segment does not fit is the segment cut at its front by characters, prefix …"], ["path cap, unmeasured", "floor((366 − min(6 × host chars, 160)) / 6): 'host' 57 · 'work-laptop-attach' 43 · at the cap 34 (also when the host width is unknown) · reconnecting: also subtract 4 + the status word's width from 366; when its width is not known, take 6 per mono cell in en and ko (a Hangul syllable is two cells: reconnecting 72, 재연결 중 54) and 12 per character in ja and zh-Hans, one 11px em rounded up (再接続中 48, 重新连接中 60)"], ["reconnecting", <>glyph <span className="tok">--tasty-glyph-dim</span> · host <span className="tok">--tasty-text-muted</span> · then <code>status_bar.remote_reconnecting</code> in <span className="tok">--tasty-font-label</span>, text-muted · gap 4 · no spinner, no pulse — the status bar's reconnecting form</>], ["reconnecting path box", "the word is part of the mark: 390 − (12 + 4 + host + 4 + word) − 8, measured — the word reads --tasty-font-label (mono in en and ko, font-ui in ja and zh-Hans, with D2Coding first in the UI stack), so a character count does not give its width"], ["state", "agent mirror: follows its session state while the picker is open · saved remote row that drops while it is open, into reconnecting too: the picker closes, is not left under the scrim and does not open again when the row connects again (decided, Q1-a)"], ["disconnected", "no form (user decision, R-58 Q1: the scrim takes the pointer, drawn on Layouts › Saved remote workspace) — on a saved remote row that is not connected, reconnecting included, nothing under the scrim answers, so no link opens the picker, so it has no form here · an agent mirror is closed once it drops (R-58 decision 23-4), so it has no disconnected form"], ["reconnecting form", "the agent mirror's, with no scrim: while it attaches again after a resync (whatever its anchor or origin), and in the short span between its drop and its cleanup · both short, not measured"], ["format Tag", "identified by name (path link Ctrl+click, mirror explorer, file open tool, plugin) → Tag accent, the format its extension or file name settled, beside the host mark, over the remote handler list · the link menu's open action → no detector, so the fallback: the All handlers group and the one-time strip, over the remote handlers only, Tag format unknown (default, outline)"], ["Ctrl+click opens", "the picker only when the first handler cannot open the file on the remote host and another candidate can, so its detector has always matched — no match → the download-and-run dialog, no picker · the first handler can open it remotely → it runs, no picker"], ["local path", "no mark — the line is the path alone"], ["body", "the handler list, never the empty state — a remote path with no remote handler does not open the picker · every user route (path link, open by name) opens the download-and-run dialog instead · an outside request (CLI, agent) opens nothing and is logged"], ["rows", "only the handlers that can open the file on the remote host (the app filters them) · no default Tag on any row — the app sets no default for a remote target"], ["copy", <>none new — the status word reuses <code>status_bar.remote_reconnecting</code>, the no-host word <code>attach.mirror_pill_label</code></>]]}
+            tokens={[{ tok: "--tasty-fh-remote-fg", use: "host mark", color: "var(--tasty-fh-remote-fg)" }, { tok: "--tasty-fh-remote-gap", use: "glyph ↔ host ↔ word" }, { tok: "--tasty-glyph-dim", use: "glyph, reconnecting", color: "var(--tasty-glyph-dim)" }, { tok: "--tasty-fh-remote-max-width", use: "host cap" }, { tok: "--tasty-text-muted", use: "path ink · host + word, reconnecting", color: "var(--tasty-text-muted)" }]} />
+          <Dont><b>Don't</b> join host and path into one string (<code>host:/src/main.rs</code>). The path line elides at the front, so the host would be the first thing cut. The title row is not the place either: it already holds the format Tag, and a host there is not attached to the path it qualifies.</Dont>
+          <Note>The File Picker keeps its tinted host badge in the title row: there the host is the context for a whole browsing window, here it qualifies one path.</Note>
+          <Note><b>For the implementing side — the app at tasty 580c8d1ee0, mark by mark.</b> <b>Common change:</b> an attach with no profile name (<code>--ssh</code>, <code>--target-port</code>) supplies <code>127.0.0.1:&lt;port&gt;</code> as its host text; supply an empty host instead. A profile saved with an empty name already supplies one. <b>No other change for the host marks:</b> with an empty host, the picker, the download-and-run dialog, the link tooltip and the status bar item (the word in the label font, folded at the host's collapse step, no host line on hover) already draw the forms here, so supplying the empty value is all they need. <b>Task graph drawer, separate:</b> the app's drawer has no Attach profile row yet, so it shows no host text today; when it takes the gallery's row, the row holds the profile name and is left out with no profile name — it never draws the word Remote or <code>127.0.0.1:&lt;port&gt;</code>.</Note>
         </Spec>
 
         <Spec id="no-suggestions-the-whole-catalog-one-time-only" title="No suggestions — the whole catalog, one time only"
@@ -306,7 +350,7 @@ function Page() {
         </Spec>
 
         <Spec id="empty-nothing-to-pick-from" title="Empty — nothing to pick from"
-          when={<>No handler is registered anywhere in the system. The list area is replaced by a centered block — muted file glyph, <b>“No handlers registered.”</b>, one line of instruction, and a <b>secondary button into Settings › Handlers</b>. <b>Open</b> stays disabled; Cancel still works. This is the only state where the frame offers an <b>exit to somewhere else</b>.</>}>
+          when={<>No handler is registered anywhere in the system. The list area is replaced by a centered block — muted file glyph, <b>“No handlers registered.”</b>, one line of instruction, and a <b>secondary button into Settings › Handlers</b>. <b>Open</b> stays disabled; Cancel still works. This is the only state where the frame offers an <b>exit to somewhere else</b>. <b>Local files only:</b> a remote file with no remote handler never reaches this state — it gets the download-and-run dialog (Remote file — download and run).</>}>
           <Stage variant="solo center"><Backdrop height={340}><div align="center"><FileHandlerFrame state="empty" /></div></Backdrop></Stage>
           <Meta
             specs={[["block", "32/14 padding, centered, 8px gap"], ["glyph", <><span className="tok">--tasty-text-disabled</span></>], ["action", "Button secondary sm → Settings › Handlers"], ["Open", "disabled"]]}
@@ -327,11 +371,11 @@ function Page() {
           when={<>The picker is <b>headless</b> (no common popup titlebar): the frame draws its own header so the path appears <b>once</b>, in mono, truncated from the front. Using the shared titlebar puts the path in two places at two truncations — the reading below. Same precedent as Transfer progress.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 18, flexWrap: "wrap" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-accent-success-raised)" }}>headless — one header</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-accent-success-raised)" }}>headless — one header</div>
               <FileHandlerFrame />
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-accent-danger-raised)" }}>titlebar + header — path twice</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-accent-danger-raised)" }}>titlebar + header — path twice</div>
               <FileHandlerFrame headless={false} state="long" />
             </div>
           </Stage>
@@ -348,8 +392,8 @@ function Page() {
               ["rejected (a) — persists a binding with nowhere to undo it", "checkbox"],
               ["rejected (c) — an affordance that does nothing", "disabled"]].map(([label, v], i) => (
               <div key={v} style={{ display: "flex", flexDirection: "column", gap: 6, width: 420 }}>
-                <div style={{ fontSize: 11, color: i === 0 ? "var(--tasty-accent-success-raised)" : "var(--tasty-text-muted)" }}>{label}</div>
-                <div style={{ border: "1px solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", background: "var(--tasty-bg-panel)", overflow: "hidden" }}>
+                <div className="g-cap" style={{ fontSize: 11, color: i === 0 ? "var(--tasty-accent-success-raised)" : "var(--tasty-text-muted)" }}>{label}</div>
+                <div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", background: "var(--tasty-bg-panel)", overflow: "hidden" }}>
                   <FhFooter variant={v} />
                 </div>
               </div>
@@ -374,11 +418,11 @@ function Page() {
           when={<>The picker no longer appears when one handler clearly wins — the implementation dispatches the top match directly. So it opens in three cases only: <b>ambiguous candidates</b>, <b>no match</b>, or an <b>explicit “Open with…”</b>. The <b>default</b> Tag is kept for the first and third: in an ambiguous list it names the handler that would have run, and on an explicit open it tells the user what they are overriding. In the <b>fallback</b> state nothing is default, so no Tag appears. Interaction contract below.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 18, flexWrap: "wrap" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>ambiguous / explicit — default Tag shown</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>ambiguous / explicit — default Tag shown</div>
               <FileHandlerFrame />
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>no match — no default</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>no match — no default</div>
               <FileHandlerFrame state="fallback" />
             </div>
           </Stage>
@@ -404,8 +448,8 @@ function Page() {
           when={<>A two-choice confirm shown when opening a <code>.md</code> file: <b>rendered preview</b> or <b>raw text</b> in the editor. Two equal card-buttons with the default pre-selected (accent ring), filename in mono, cancel + confirm. The pattern for any “open as A or B” fork.</>}>
           <Stage variant="solo center"><Backdrop height={300}><div align="center"><MarkdownOpenFrame /></div></Backdrop></Stage>
           <Meta
-            specs={[["width", "420px"], ["choices", "2 equal card-buttons"], ["default", "accent ring + fill"], ["confirm", "names the choice"]]}
-            tokens={[{ tok: "--tasty-accent-primary", use: "selected choice", color: "var(--tasty-accent-primary-raised)" }, { tok: "--tasty-surface-raised", use: "choice fill", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-border-default", use: "unselected edge" }]} />
+            specs={[["width", "420px"], ["choices", "2 equal card-buttons"], ["default", "accent edge + flush ring + accent glyph"], ["confirm", "names the choice"]]}
+            tokens={[{ tok: "--tasty-accent-primary", use: "selected choice", color: "var(--tasty-accent-primary-raised)" }, { tok: "--tasty-surface-raised", use: "choice fill", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-border-strong", use: "unselected edge" }]} />
         </Spec>
       </Section>
 
@@ -424,11 +468,11 @@ function Page() {
           when={<>Creating and renaming a workspace category reuses the <b>360px single-field Rename dialog</b> verbatim — title, keyboard hint, one autofocused Input, cancel/confirm. Name validation runs on confirm and shows an inline error under the field (the confirm button disables): <b>empty</b> after trim, the reserved word <b>“normal”</b>, or a <b>case-insensitive duplicate</b>.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 18, flexWrap: "wrap" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>new — empty field</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>new — empty field</div>
               <CategoryEditFrame mode="new" />
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>validation — duplicate name</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>validation — duplicate name</div>
               <CategoryEditFrame mode="new" error="duplicate" />
             </div>
           </Stage>
@@ -449,15 +493,15 @@ function Page() {
 
       <Section id="transfer" title="Remote transfer">
         <Spec id="transfer-progress-auto-closing-status-popup" title="Transfer progress — auto-closing status popup"
-          when={<>Shown while a file is being received from an attached remote workspace over the bulk channel (begin/chunk/commit). A <b>PopupDef</b> frame on the shared scrim, headless header: download glyph · <b>Receiving file</b> · a right-aligned mono <b>percent</b>. Body: the <b>filename</b> (mono, middle of the frame, ellipsized), the system's first <b>determinate progress bar</b> — a recessed 4px track with an accent fill, <b>no animation</b> (the fill tracks bytes; motion stays 0ms) — and a mono stats line: <b>transferred / total</b> left, rate right. It <b>auto-closes on completion</b>; the single ghost <b>Cancel</b> aborts the transfer. It does <b>not</b> close on outside click — dismissing progress by mis-click would read as an abort.</>}>
+          when={<>Shown while a file is being received from an attached remote workspace over the bulk channel (begin/chunk/commit). A <b>PopupDef</b> frame on the shared scrim, headless header: download glyph · <b>Receiving file</b> · a right-aligned mono <b>percent</b>. Body: the <b>filename</b> (mono, middle of the frame, ellipsized), the system's first <b>determinate progress bar</b> — a recessed 4px track with an accent fill, <b>no animation</b> (the fill tracks bytes; motion stays 0ms) — and a mono stats line: <b>transferred / total</b> left, rate right. It <b>auto-closes on completion</b>. It does <b>not</b> close on <b>Esc</b> or an <b>outside click</b> — a slip should not take the progress away: on an upload it would hide the only view of a transfer that goes on, and on a download it would read as a stop. The only ways out are the one button and the auto-close when every row is done. <b>The one button means two things by use (2026-11-10):</b> on an <b>upload</b> (paste into a mirror) the ghost <b>Cancel</b> only <b>hides the popup</b> and the transfer goes on; on a <b>download and run</b> the button <b>stops the download</b> and discards what was received, so it is labelled <b>Stop download</b> under its own title — next section.</>}>
           <Stage variant="solo center"><Backdrop height={300}><div align="center"><TransferProgressFrame /></div></Backdrop></Stage>
           <Meta
-            specs={[["width", <span className="tok">--tasty-transfer-popup-width</span>], ["header", "download glyph · title · mono %"], ["filename", "mono 13 · ellipsized"], ["bar", "4px track + accent fill · no animation"], ["stats", "done / total · rate (mono, muted)"], ["close", "auto on completion · Cancel aborts"], ["outside click", "does not dismiss"]]}
+            specs={[["width", <span className="tok">--tasty-transfer-popup-width</span>], ["header", "download glyph · title · mono %"], ["filename", "mono 13 · ellipsized"], ["bar", "4px track + accent fill · no animation"], ["stats", "done / total · rate (mono, muted)"], ["close", "auto on completion"], ["upload button", "Cancel (transfer.progress.cancel) — hides the popup, the upload goes on"], ["download-and-run button", "Stop download (transfer.progress.stop) — stops and discards"], ["Esc / outside click", "do not close the popup (upload and download alike) — only the button and the auto-close on completion do"]]}
             tokens={[{ tok: "--tasty-progress-track-bg", use: "recessed track", color: "var(--tasty-progress-track-bg)" }, { tok: "--tasty-progress-fill-bg", use: "determinate fill", color: "var(--tasty-progress-fill-bg)" }, { tok: "--tasty-progress-height", use: "4px thickness" }, { tok: "--tasty-bg-panel", use: "frame", color: "var(--tasty-bg-panel)" }]} />
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
             {[["ui_scale 0.85", 0.85], ["ui_scale 1", 1], ["ui_scale 1.2", 1.2]].map(([cap, z]) => (
               <div key={cap} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap} — width and insets scale together</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap} — width and insets scale together</span>
                 <div style={{ zoom: z }}><TransferProgressFrame /></div>
               </div>
             ))}
@@ -472,11 +516,11 @@ function Page() {
           when={<>Shown when a transfer is <b>rejected before it starts</b> (capacity exceeded) or <b>fails mid-transfer</b> (channel dropped). Danger glyph + <b>Transfer failed</b> title; the body names the <b>file</b> (mono) and quotes the <b>reason</b> verbatim in a mono well — the same command-well pattern as agent approval, so the machine-reported cause is legible and copyable. Rejected → a single <b>Dismiss</b>; mid-transfer failure → <b>Retry</b> (secondary) beside a ghost Dismiss — retry is only offered when re-sending can succeed.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 18, flexWrap: "wrap", alignItems: "flex-start" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>rejected — capacity exceeded, no retry</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>rejected — capacity exceeded, no retry</div>
               <TransferErrorFrame />
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>failed mid-transfer — retry offered</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>failed mid-transfer — retry offered</div>
               <TransferErrorFrame retry reason="connection lost — remote workspace detached at 34.6 MiB" />
             </div>
           </Stage>
@@ -488,13 +532,102 @@ function Page() {
         </Spec>
       </Section>
 
+      <Section id="downloadrun" title="Remote file — download and run">
+        <Spec id="download-run-dialog" title="No remote handler — the one place download and run is offered"
+          when={<>Opening a file in a <b>mirror</b> when <b>nothing on the remote host can open it</b>, from any route the user takes: a mirror terminal path link (Ctrl+click, or the open action in its right-click menu), a double-click in the mirror explorer, a remote file chosen in the file open tool (Tools or its shortcut), or a plugin's open of a mirror path (whether or not the plugin proves a user gesture). This dialog takes the place of the old window toast <code>explorer.state.remote_open_unsupported</code>: a toast never takes focus and expires, so it cannot carry an action. It is <b>not the handler picker</b> — no list, no Open, no Settings exit (registering a local handler cannot open a remote file). The header names the file the way the picker does: title, then the path line led by the <b>host mark</b>. The copy runs as statement, then question (user decision 16, 2026-11-10): the <b>title states</b> that nothing on the remote host can open this file, and the <b>body asks</b> whether to download it to this computer and open it with the local handler, adding that the file on the remote host stays unchanged — the question the <b>Download and run</b> button answers. “This file” covers every entry above — a terminal path link (either way it opens) names a file, as an explorer row, the file open tool and a plugin's open do. On its own line the body says it takes <b>one file only</b>. The title wraps rather than elides. The footer offers <b>Download and run</b> (primary, download glyph) beside a ghost <b>Cancel</b>. Nothing starts until the button is pressed. Same frame family as the transfer popups it leads into. <b>By route:</b> every entry above gets this dialog, the ones that open the file by name (explorer double-click, file open tool, plugin) as well as a path link — user decision 16 does not depend on the route. A request from outside (the CLI, an agent's <code>file_handler.dispatch</code>) shows no dialog: it ends with a log line. <b>The toast stays in its other use:</b> opening a file-based kind from the new-tab picker in a mirror workspace (html excepted when the remote host has an entry point) still shows <code>explorer.state.remote_open_unsupported</code> as a window toast — no dialog, no action there.</>}>
+          <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)" }}>
+            <ThemePair render={() => <DownloadRunFrame />} />
+          </Stage>
+          <Views>
+            <View name="download-run-old-server" label="Older Tasty on the remote host — the action is disabled and the reason is on the dialog">
+              <div style={{ display: "flex", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
+                <DownloadRunFrame server="old" />
+                <DownloadRunFrame server="old" lang="ko" host="work-laptop-attach" />
+              </div>
+            </View>
+            <View name="download-run-no-profile" label="No profile name (--ssh or --target-port from the CLI or IPC) — the word Remote in the host slot, label font, remote ink">
+              <div style={{ display: "flex", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
+                <DownloadRunFrame host="" />
+                <DownloadRunFrame host="" lang="ko" />
+              </div>
+            </View>
+            <View name="download-run-long-path" label="Long path — front-elided before render, measured against what the host mark leaves (242px box beside work-laptop-attach → 40 chars)">
+              <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
+                <div style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>packages/design-system/src/navigation/federation/SidebarCategoryHeaderContrast.tsx → …/SidebarCategoryHeaderContrast.tsx</div>
+                <DownloadRunFrame host="work-laptop-attach" path="…/SidebarCategoryHeaderContrast.tsx" />
+              </div>
+            </View>
+          </Views>
+          <Meta
+            specs={[["when", "a mirror file, no remote handler — never for a local file, never by default"], ["entries", "every user route: path link Ctrl+click · the link menu's open action · mirror explorer double-click · file open tool (remote file) · a plugin's open of a mirror path, gesture proven or not · outside request (CLI, agent): no dialog, a log line"], ["frame", <><span className="tok">--tasty-transfer-popup-width</span> 400 · transfer insets · scrim · shadow-modal</>], ["header", "title 14 / 600 · path line = host mark + path (picker rules: the host text rule, host cap 160) · no profile name → the word Remote, as the picker"], ["path", "front-elided in the model layer before render, at a segment boundary (picker T5 rule); the span only clips. Box = 374 − mark − 8 (400 − 2 border − 2 × transfer-pad-x 12 = 374; mark = 12 + 4 + host text), so 350 − host text; unmeasured cap floor((350 − min(6 × host chars, 160)) / 6): 'host' 54 · 'work-laptop-attach' 40 (242px) · at the host cap 31"], ["Esc · scrim click", "same as Cancel — the dialog closes and nothing starts"], ["body", "description 13 · text-secondary · then the one-file line 11 · text-muted"], ["footer", "Cancel ghost · Download and run primary + download glyph"], ["older server", <>no <code>ipc.stream.file-download</code> capability → primary disabled + reason well (surface-raised, info glyph, 11 · text-secondary). Always drawn — a disabled button's tooltip would hide the reason</>], ["after the press", "≤ 1 MiB → progress popup straight away · > 1 MiB → the size question below, once (the size is known only from the stat answer after the press)"], ["capability", "a property of the attach connection, known when the dialog opens; a reconnect to another server can change it, so read it each time the dialog opens"], ["handler opens a tab while a mirror is active", "the general handler fallback — a new workspace when the current one cannot open it, named automatically; nothing specific to download and run, no new string"], ["toast kept", "explorer.state.remote_open_unsupported stays for the new-tab picker in a mirror workspace"], ["copy", "download_run.dialog.* — title, description, single_file, run, cancel, unsupported_server"]]}
+            tokens={[{ tok: "--tasty-fh-remote-fg", use: "host mark", color: "var(--tasty-fh-remote-fg)" }, { tok: "--tasty-text-secondary", use: "description", color: "var(--tasty-text-secondary)" }, { tok: "--tasty-text-muted", use: "one-file line · path", color: "var(--tasty-text-muted)" }, { tok: "--tasty-surface-raised", use: "older-server well", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-accent-info-raised", use: "well glyph", color: "var(--tasty-accent-info-raised)" }]} />
+          <Dont><b>Don't</b> put the action in a toast or make it the double-click result. It is a deliberate, one-file step the user takes after being told the remote host cannot open the file.</Dont>
+          <Dont><b>Don't</b> describe it as editing, copying or syncing, and don't show where the file lands. It downloads one file and hands it to the local handler; the remote file is untouched.</Dont>
+        </Spec>
+
+        <Spec id="download-run-large-file" title="Over 1 MiB — asked once, after the press"
+          when={<>When the file is larger than <b>1 MiB</b> (1,048,576 bytes; one byte more asks) the download waits for one answer. The question is the title; the body shows the <b>file name</b> (mono, ellipsized) and its <b>size</b>. Attention glyph — nothing is wrong, it may just take a while. <b>Download and run</b> is the same label as the button that led here, so the answer repeats the choice; Cancel drops it and nothing is received.</>}>
+          <Stage variant="solo center"><Backdrop height={240}><div align="center"><DownloadRunLargeFrame /></div></Backdrop></Stage>
+          <Meta
+            specs={[["frame", "same as the dialog above"], ["header", "attention glyph · question title"], ["body", "file glyph + name mono 13 · size sentence 13 · text-secondary"], ["size", "formatted by the app into download_run.large.body {}: one decimal, rounded UP to the next 0.1, unit MiB below 1024 MiB and GiB from there (3.2 MiB · 1.2 GiB). Order: round up in MiB first; if that gives 1024.0 MiB or more, use GiB and round up again there (1,073,741,800 bytes → 1024.0 MiB → 1.0 GiB). Rounding up keeps every size that asks above 1.0: 1,048,577 bytes reads 1.1 MiB, never 1.0 MiB"], ["footer", "Cancel ghost · Download and run primary (download_run.dialog.run)"], ["Esc · scrim click", "same as Cancel — the waiting download is dropped and nothing is received"], ["threshold", "unchanged product rule: > 1,048,576 bytes"]]}
+            tokens={[{ tok: "--tasty-accent-attention-raised", use: "glyph", color: "var(--tasty-accent-attention-raised)" }, { tok: "--tasty-text-primary", use: "file name", color: "var(--tasty-text-primary)" }]} />
+        </Spec>
+
+        <Spec id="download-run-progress" title="Download progress — the button stops"
+          when={<>The transfer progress popup, reused as is, with two changes that keep its two uses apart. The <b>title</b> says what is happening and why — <b>Downloading to open locally</b> — and the one ghost button reads <b>Stop download</b>, not Cancel: pressing it stops the download, discards what was received and opens nothing. The upload popup keeps <b>Receiving file</b> and a Cancel that only hides the view. On completion the popup closes and the local handler opens the file.</>}>
+          <Stage variant="solo center"><Backdrop height={300}><div align="center"><TransferProgressFrame name="build-artifacts.tar.gz" pct={41} done="1.3 MiB" total="3.2 MiB" rate="0.8 MiB/s" title="Downloading to open locally" action="Stop download" /></div></Backdrop></Stage>
+          <Meta
+            specs={[["frame", "TransferProgressFrame — unchanged layout and tokens"], ["title", "transfer.progress.title_download_run"], ["button", "transfer.progress.stop · ghost · stops and discards"], ["Esc / outside click", "do not close the popup and do not stop — only Stop download and the auto-close on completion do"], ["completion", "auto-close, then the local handler runs"]]}
+            tokens={[{ tok: "--tasty-progress-fill-bg", use: "fill", color: "var(--tasty-progress-fill-bg)" }]} />
+          <Note>The button stays ghost: stopping loses nothing on the remote host, so it is not a danger action.</Note>
+        </Spec>
+
+        <Spec id="download-run-failed" title="Download failed — one reason line per cause"
+          when={<>The transfer error popup with the title <b>Download failed</b>. The body keeps the existing line (<code>transfer.error.body_suffix</code>, “<i>name</i> could not be received.”) and the well carries a <b>sentence per cause</b> instead of the raw reason code. Because it is a translated sentence, not a machine-reported cause to copy, the well text is set in the <b>UI face at body size</b> (<code>reasonKind="sentence"</code>); the well, its ground and the danger ink stay. The mono well remains for verbatim causes such as the upload capacity limit. A <b>folder</b> is refused here too: it is the same answer to the same press, and the sentence restates the one-file rule. A folder reaches the dialog only through a mirror terminal path link (Ctrl+click, or the link action from the right-click menu); an explorer double-click enters the folder. Whether the target is a folder is not known until the server's stat answer after the press, so there is no question before it: the refusal comes here, nothing is received and no handler runs. Every cause ends with a single <b>Dismiss</b> — nothing was opened, nothing is left behind, and opening the file again is the way to retry.</>}>
+          <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 18, flexWrap: "wrap", alignItems: "flex-start" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>folder — refused before anything is sent</div>
+              <TransferErrorFrame title="Download failed" reasonKind="sentence" name="assets" reason="Folders are not supported. “Download and run” supports one file only." />
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>connection lost mid-download</div>
+              <TransferErrorFrame title="Download failed" reasonKind="sentence" name="build-artifacts.tar.gz" reason="The connection to the remote host was lost during the download." />
+            </div>
+          </Stage>
+          <Views>
+            <View name="download-run-failed-reasons" label="Every cause — the well sentence for each">
+              <div style={{ display: "flex", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
+                {[["not_regular", "fifo", "The target is not a regular file and cannot be downloaded."],
+                  ["not_found", "main.rs", "The file no longer exists on the remote host."],
+                  ["permission_denied", "secrets.env", "The remote host denied permission to read the file."],
+                  ["changed", "server.log", "The file changed on the remote host during the download."],
+                  ["io", "main.rs", "The remote host could not read the file."],
+                  ["local_write", "build-artifacts.tar.gz", "The file could not be written on this computer."],
+                  ["timeout", "build-artifacts.tar.gz", "The remote host did not respond in time during the download."],
+                  ["bad_response", "main.rs", "The remote host sent file data in an unexpected format."],
+                  ["not_attached", "main.rs", "The remote host refused the download because this client is no longer attached to the workspace."]].map(([code, name, reason]) => (
+                  <div key={code} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                    <div style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: "var(--tasty-text-muted)" }}>{code}</div>
+                    <TransferErrorFrame title="Download failed" reasonKind="sentence" name={name} reason={reason} />
+                  </div>
+                ))}
+              </div>
+            </View>
+          </Views>
+          <Meta
+            specs={[["frame", "TransferErrorFrame — unchanged layout; reason text in the sentence face"], ["well text", <><span className="tok">--tasty-font-ui</span> · <span className="tok">--tasty-font-size-body</span> · line-height-ui · danger ink — not mono: a translated sentence, not a quoted cause</>], ["title", "transfer.error.title_download_run"], ["body", "transfer.error.body_suffix — kept"], ["well", "download_run.reason.<cause> — directory · not_regular · not_found · permission_denied · changed · io · disconnected · local_write · timeout · bad_response · not_attached"], ["timeout vs disconnected", "timeout = one request got no answer within the request limit while the connection may still be up; disconnected = the connection itself was lost. The sentence names no number of seconds"], ["bad_response vs io", "bad_response = the data the remote host sent did not match the expected form (chunk position, size, end marker); io = the remote host failed to read the file"], ["not_attached", "the remote host refused because this client no longer holds the workspace — another client took it over or this mirror was already detached; the sentence names neither, so it is true for both · subject this client in every language, paired with attached by another client (attach.held_workspace_body) · key renamed from attached_elsewhere"], ["not_attached vs disconnected", "not_attached = the remote host answered with a refusal, so the connection is up; disconnected = the connection itself was lost"], ["every cause", "the received part is deleted and no handler runs — the well does not repeat it"],["buttons", "Dismiss only (transfer.error.dismiss) for every cause"], ["folder form", "this popup, not a toast — the answer to the press stays in the layer the press opened"]]}
+            tokens={[{ tok: "--tasty-accent-danger", use: "glyph + reason", color: "var(--tasty-accent-danger-raised)" }, { tok: "--tasty-bg-app", use: "reason well", color: "var(--tasty-bg-app)" }]} />
+          <Note>No Retry here: a retry would be a new path into the download that skips the dialog. Opening the file again shows the dialog again.</Note>
+        </Spec>
+      </Section>
+
       <Section id="permnotice" title="Info modal shell — notice queue">
         <Spec id="one-shell-for-every-queued-message" title="One shell for every queued message"
           when={<>Boot and runtime notices share one queue and one <b>shell</b>, shown one at a time. The shell rules apply to <b>every</b> message: <b>440</b> wide, <b>140–360</b> tall; the <b>title sits in the popup title bar</b> (fixed strip, 14 / 600, 1px rule below, always drawn); body <b>13 · text-secondary</b>, paragraph gap 12, scrolls when it overflows; a <b>1px scroll edge</b> above the button row only while content is hidden below; buttons are the DS <b>Button</b>, right-aligned, dismiss = <b>Primary, rightmost</b>. Bodies are <b>plain text</b> — emphasis (paths, lead-ins, command chip) is authored by the permissions notice only. Below: a one-sentence message and the one message that ends the app.</>}>
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
             {[["Theme not found — one sentence, min height", "theme", null], ["Database initialization error — quits", "db", null], ["Theme not found — Latte", "theme", "latte"], ["Database initialization error — Latte", "db", "latte"]].map(([cap, k, theme]) => (
               <div key={cap} {...(theme ? { "data-theme": theme } : {})} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
                 {k === "theme" ? <ThemeNotFoundModal /> : <DbInitErrorModal />}
               </div>
             ))}
@@ -509,9 +642,9 @@ function Page() {
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
             {[["Mocha", "mocha"], ["Latte", "latte"]].map(([label, theme]) => (
               <div key={label} {...(theme ? { "data-theme": theme } : {})} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · two buttons · short title</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · two buttons · short title</span>
                 <NotificationsPopupHead />
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · two buttons · long title ellipsises in the symmetric band</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · two buttons · long title ellipsises in the symmetric band</span>
                 <NotificationsPopupHead title="Notifications from every workspace and remote host" />
               </div>
             ))}
@@ -526,7 +659,7 @@ function Page() {
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
             {[["scrolled to top", "top", null], ["mid-way", "mid", null], ["at the end", "bottom", null], ["top — Latte", "top", "latte"]].map(([cap, sc, theme]) => (
               <div key={cap} {...(theme ? { "data-theme": theme } : {})} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
                 <PermissionNoticeModal scroll={sc} />
               </div>
             ))}
@@ -541,7 +674,7 @@ function Page() {
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
             {[["never — no grant on record", "never", null], ["stale — granted before, app changed", "stale", null], ["stale — Latte", "stale", "latte"], ["revoked — turned off outside Tasty", "revoked", null]].map(([cap, fda, theme]) => (
               <div key={cap} {...(theme ? { "data-theme": theme } : {})} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
                 <PermissionNoticeModal scroll="bottom" fda={fda} />
               </div>
             ))}
@@ -557,7 +690,7 @@ function Page() {
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
             {[["en", null], ["ko", null], ["ja", null], ["ja · Latte", "latte"]].map(([lang, th]) => (
               <div key={lang} {...(th ? { "data-theme": th } : {})} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{lang}</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{lang}</span>
                 <ScriptConfirmG lang={lang.slice(0, 2)} />
               </div>
             ))}
@@ -575,6 +708,27 @@ function Page() {
           <Meta
             specs={[["width", "info-modal-width 440"], ["max height", "info-modal-max-height 360 · list scrolls past explorer-delete-list-max-height 160"], ["buttons", "Cancel ghost (default focus) · Delete permanently danger"], ["dismiss", "Esc · close · scrim click = cancel"]]}
             tokens={[{ tok: "--tasty-accent-danger", use: "glyph + button", color: "var(--tasty-accent-danger-raised)" }, { tok: "--tasty-explorer-delete-list-max-height", use: "list" }]} />
+        </Spec>
+      </Section>
+
+      <Section id="closeonremote" title="Close remote workspace">
+        <Spec id="close-remote-workspace-destructive-confirm" title="Close remote workspace — destructive confirm"
+          when={<>On a <b>connected</b> saved remote row, <b>Close remote workspace…</b> ends the workspace on the remote Tasty, with every process in it. That cannot be undone and happens on another machine, so a centred confirm on the scrim gates it, in the Delete category tone: danger glyph, the workspace in the title, what ends and where in the body, <b>Cancel</b> and a danger button that repeats the action. Closing the <b>last tab or pane</b> of a connected remote row also closes the workspace on the remote, so it opens the <b>same confirm</b> with one more line first. A local workspace still closes with its last tab without asking; the confirm is only for the remote one. <b>Close locally</b> never asks.</>}>
+          <Stage variant="solo center"><Backdrop height={300}><div align="center"><CloseOnRemoteDialog /></div></Backdrop></Stage>
+          <Stage variant="solo center"><Backdrop height={320}><div align="center"><CloseOnRemoteDialog last /></div></Backdrop></Stage>
+          <Views>
+            <View name="close-remote-workspace-languages" label="ko, ja, zh-Hans — the last-tab form">
+              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                {["ko", "ja", "zh-Hans"].map((lang) => <Backdrop key={lang} height={340}><div align="center"><CloseOnRemoteDialog lang={lang} last /></div></Backdrop>)}
+              </div>
+            </View>
+          </Views>
+          <Meta
+            specs={[["scope", "Window · centred on the scrim · shadow-modal"], ["width", "info-modal-width 440, at most the window"], ["head", "alertTriangle 16 in accent-danger-raised · title (font-size-max, semibold) with the workspace name"], ["body", "last-tab line (only when opened by closing the last tab or pane) · then what ends on which profile · text-secondary"], ["buttons", "Cancel ghost (default focus) · danger button with the action"], ["dismiss", "Esc, Cancel — nothing happens"], ["opened by", "Close remote workspace… in the row menu · closing the last tab or pane of a connected saved remote row"], ["not for", "Close locally · a local workspace's last tab · an agent mirror"]]}
+            tokens={[{ tok: "--tasty-accent-danger", use: "glyph + button", color: "var(--tasty-accent-danger-raised)" }, { tok: "--tasty-bg-panel", use: "frame", color: "var(--tasty-bg-panel)" }, { tok: "--tasty-info-modal-width", use: "width 440" }]} />
+          <Note>Copy: <code>remote.row.close_remote.title</code> (workspace name) · <code>.last</code> · <code>.body</code> (attach profile name) · <code>.confirm</code>. Cancel is the common key. No new tokens.</Note>
+          <Note><b>After it closes (R-58 Q4).</b> When this Tasty closes the workspace on the remote, from this confirm or by closing the last tab or pane, the <b>row goes away</b> with it. When the remote workspace is closed <b>elsewhere</b> (another client, the remote Tasty itself), the row <b>stays</b> and says why: disconnected, titled <code>remote.row.popup.closed_title</code> over the workspace-missing reason (<code>remote.row.reason.workspace_missing</code>), with Reconnect disabled in the popup and in the row menu, drawn on Layouts › Saved remote workspace and Popups › Saved remote workspace row menu.</Note>
+          <Dont><b>Don't</b> skip the confirm for the last tab because a local workspace does. Locally it only drops a layout; here it ends processes on another machine.</Dont>
         </Spec>
       </Section>
     </>

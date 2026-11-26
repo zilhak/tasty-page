@@ -3,9 +3,11 @@ const BASE = `${import.meta.env.BASE_URL.replace(/\/$/, "")}/`;
 
 // Tasty UI kit — CSD titlebar · macOS
 // ─────────────────────────────────────────────────────────────────────────
-// ⚠ NON-PRODUCT / EXPLORATION. The shipping product uses the NATIVE titlebar on
-//   every OS (WindowAttributes::default(); zero decoration overrides). This file
-//   designs what Tasty would draw if it switched to Client-Side Decorations —
+// ⚠ NON-PRODUCT / EXPLORATION. Tasty's MAIN window on macOS keeps the native
+//   window buttons: it makes the titlebar transparent, extends the content
+//   view under it and hides the title, so the OS still draws the traffic
+//   lights. The settings window keeps the OS frame on macOS. This file designs
+//   what Tasty would draw if it turned the OS decorations off on macOS as well;
 //   adopting it requires WindowAttributes::with_decorations(false) + custom
 //   drag/controls in code. Do NOT treat this as an implemented surface.
 //

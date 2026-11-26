@@ -1,5 +1,5 @@
 import React from "react";
-import { IconButton, AutoComplete } from "../../components/index.js";
+import { Icon, IconButton, AutoComplete, Button, Input, Spinner, TreeRow } from "../../components/index.js";
 import { GIcon } from "./specimen.jsx";
 
 const ic = {
@@ -15,10 +15,7 @@ const ic = {
   list: <GIcon d={<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />} />,
   detail: <GIcon d={<path d="M3 5h18M3 12h18M3 19h18M3 5v14" />} />,
   star: <GIcon d={<path d="m12 3 2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 18l-5.8 3 1.1-6.5L2.6 9.8l6.5-.9z" />} />,
-  starFill: <GIcon fill="currentColor" d={<path d="m12 3 2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 18l-5.8 3 1.1-6.5L2.6 9.8l6.5-.9z" />} />,
   image: <GIcon d={<><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="9" cy="9" r="2" /><path d="m21 15-5-5L5 21" /></>} />,
-  chevD: <GIcon d={<path d="m6 9 6 6 6-6" />} />,
-  chevRsm: <GIcon d={<path d="m9 18 6-6-6-6" />} />,
   copy: <GIcon d={<><rect x="9" y="9" width="11" height="11" rx="2" /><path d="M5 15V5a2 2 0 0 1 2-2h8" /></>} />,
   scissors: <GIcon d={<><circle cx="6" cy="6" r="3" /><circle cx="6" cy="18" r="3" /><path d="M20 4 8.1 15.9M14.5 12.5 20 20M8.1 8.1 12 12" /></>} />,
   paste: <GIcon d={<><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /><rect x="8" y="2" width="8" height="4" rx="1" /></>} />,
@@ -58,7 +55,7 @@ function PathField({ icon, path, editing = false, candidates = null, open = fals
       <div style={{ flex: 1, minWidth: 0, display: "flex", alignItems: "center", gap: 6, height: 28, padding: "0 8px",
         background: "var(--tasty-input-bg)", borderRadius: "var(--tasty-radius)",
         border: "1px solid " + (editing ? "var(--tasty-input-border-focus)" : "var(--tasty-input-border)"),
-        boxShadow: editing ? "0 0 0 2px color-mix(in srgb, var(--tasty-border-focus) 35%, transparent)" : "none" }}>
+        boxShadow: editing ? "0 0 0 var(--tasty-border-width) var(--tasty-input-border-focus)" : "none" }}>
         <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-input-icon-fg)" }}>{icon}</span>
         <span style={{ flex: 1, minWidth: 0, fontFamily: "var(--tasty-font-mono)", fontSize: 12,
           color: editing ? "var(--tasty-text-primary)" : "var(--tasty-text-secondary)",
@@ -78,7 +75,7 @@ function SegToggle({ value = "detail", hover = null }) {
   const items = [["grid", ic.grid], ["list", ic.list], ["detail", ic.detail]];
   return (
     <div style={{ display: "flex", alignItems: "center", flex: "none", height: 28, padding: "var(--tasty-space-xs)", gap: "var(--tasty-space-xs)", boxSizing: "border-box",
-      background: "var(--tasty-surface-raised)", border: "1px solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
+      background: "var(--tasty-surface-raised)", border: "1px solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)" }}>
       {items.map(([k, glyph]) => {
         const active = k === value;
         const hov = k === hover && !active;
@@ -92,68 +89,113 @@ function SegToggle({ value = "detail", hover = null }) {
   );
 }
 
+// The sidebar rows follow the app's explorer sidebar. Caption (sidebar_caption): space-xs above and below, the label
+// space-sm in, micro caps in text-muted. Tree and favorite rows are the app's tree_row, so they are the shared TreeRow
+// (components/navigation/TreeRow): its height, indent, chevron slot (kept empty on a leaf and on a favorite), glyph
+// slot, inks, selected fill and label ellipsis. The rows stack with no gap and no side inset, as the app's sidebar
+// sets item spacing y to 0.
+
 function SideHead({ children, trailing }) {
   return (
-    <div style={{ display: "flex", alignItems: "center", padding: "10px 10px 4px" }}>
-      <span style={{ flex: 1, fontFamily: "var(--tasty-font-label)", fontSize: 10, textTransform: "uppercase", letterSpacing: ".07em", color: "var(--tasty-text-muted)" }}>{children}</span>
+    <div style={{ display: "flex", alignItems: "center", padding: "var(--tasty-space-xs) var(--tasty-space-sm)" }}>
+      <span style={{ flex: 1, fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-micro)", textTransform: "uppercase", letterSpacing: "var(--tasty-letter-spacing-caps-wide)", color: "var(--tasty-text-muted)" }}>{children}</span>
       {trailing}
     </div>
   );
 }
 
+// Each row passes its glyph's ink with the glyph, as the app's explorer paints its own folder and star (RULES section 7,
+// Meaning). The folder is a shape glyph: TreeRow's icon ink at rest and the row ink (text-on-active) on the selected
+// row, where TreeRow's own icon ink would be the selection-mark accent.
 function TreeNode({ label, depth = 0, open, leaf, active }) {
+  const folder = active ? <span style={{ display: "inline-flex", color: "var(--tasty-text-on-active)" }}><Icon name="folder" /></span> : <Icon name="folder" />;
+  return <TreeRow label={label} level={depth} expandable={!leaf} open={!!open} selected={!!active} icon={folder} />;
+}
+
+// The favorite star is a hue glyph: accent-warning-glyph on the sidebar and accent-warning-on-active on the selected
+// row, which holds 3:1 under hover and press.
+function FavRow({ name, active }) {
+  const star = active ? "var(--tasty-accent-warning-on-active)" : "var(--tasty-accent-warning-glyph)";
+  return <TreeRow label={name} selected={!!active} icon={<span style={{ display: "inline-flex", color: star }}><Icon name="starFill" /></span>} />;
+}
+
+// Detail columns, one track list for the header and every row, as the app's Detail table draws them. Size, Date
+// modified and Type are fixed (the app's table is not resizable). Name takes what is left and stops at
+// explorer-detail-name-col-min-width (140); a narrower pane clips the table on the right, with no horizontal
+// scroll. Header labels and row names still end in an ellipsis inside their cell.
+const DETAIL_COLUMNS = "minmax(0, 1fr) var(--tasty-explorer-detail-size-col-width) var(--tasty-explorer-detail-date-col-width) var(--tasty-explorer-detail-type-col-width)";
+// The Name floor is held by the line's width, not by the track: the grid is never narrower than the four columns
+// at their floor (plus the side inset). A width with a percentage counts as auto when an ancestor sizes to its
+// content, so the floor never widens the pane, a card or a stage around the table: they keep the width the table's
+// content gives them. DetailLine wraps each grid in a box that takes the pane's width and clips the overflow
+// on the right only (overflow-x clip), so a focus ring inside a row still shows above and below. A row name
+// still ends in an ellipsis at that clip edge (DetailName).
+const DETAIL_MIN_WIDTH = "calc(var(--tasty-explorer-detail-name-col-min-width) + var(--tasty-explorer-detail-size-col-width) + var(--tasty-explorer-detail-date-col-width) + var(--tasty-explorer-detail-type-col-width) + 2 * var(--tasty-explorer-detail-padding-x))";
+const DetailClip = React.createContext(null);
+function DetailLine({ style, children }) {
+  const clip = React.useRef(null);
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 4, height: 22, paddingRight: 8, paddingLeft: 6 + depth * 12,
-      borderRadius: "var(--tasty-radius-sm)", fontSize: 13, cursor: "default",
-      color: active ? "var(--tasty-text-on-active)" : "var(--tasty-text-secondary)",
-      background: active ? "var(--tasty-surface-active)" : "transparent" }}>
-      <span style={{ width: 12, display: "inline-flex", color: active ? "var(--tasty-text-on-active)" : "var(--tasty-text-secondary)", flex: "none" }}>{leaf ? null : (open ? ic.chevD : ic.chevRsm)}</span>
-      <span style={{ display: "inline-flex", color: active ? "var(--tasty-text-on-active)" : "var(--tasty-text-secondary)", flex: "none" }}>{ic.folder}</span>
-      <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{label}</span>
+    <div ref={clip} style={{ minWidth: 0, overflowX: "clip" }}>
+      <DetailClip.Provider value={clip}>
+        <div style={{ display: "grid", gridTemplateColumns: DETAIL_COLUMNS, width: `max(100%, ${DETAIL_MIN_WIDTH})`, alignItems: "center", height: "var(--tasty-table-cell-height)", padding: "0 var(--tasty-explorer-detail-padding-x)", ...style }}>{children}</div>
+      </DetailClip.Provider>
     </div>
   );
 }
-
-function FavRow({ name, active }) {
-  return (
-    <div style={{ display: "flex", alignItems: "center", gap: 6, height: 22, flex: "none", padding: "0 6px", borderRadius: "var(--tasty-radius-sm)",
-      fontSize: 13, color: active ? "var(--tasty-text-on-active)" : "var(--tasty-text-secondary)", background: active ? "var(--tasty-surface-active)" : "transparent" }}>
-      <span style={{ display: "inline-flex", color: active ? "var(--tasty-text-on-active)" : "var(--tasty-accent-warning-raised)", flex: "none" }}>{ic.starFill}</span>
-      <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{name}</span>
-    </div>
-  );
+// A row name ends in an ellipsis at whichever comes first: its Name cell's end or the line's clip edge. The app
+// measures the room the same way, from the name's left to the table's clip end (explorer detail_view, room =
+// clip right - cursor left). A narrow pane hides the Name cell's end, so without this the name was cut at the
+// pane edge with no ellipsis. Only a name that crosses the clip edge gets a max width; nothing else moves.
+function DetailName({ style, children }) {
+  const clip = React.useContext(DetailClip);
+  const ref = React.useRef(null);
+  React.useEffect(() => {
+    const el = ref.current;
+    const box = clip && clip.current;
+    if (!el || !box) return undefined;
+    const fit = () => {
+      el.style.maxWidth = "";
+      const edge = box.getBoundingClientRect().right;
+      const r = el.getBoundingClientRect();
+      if (r.right > edge + 0.5) el.style.maxWidth = `${Math.max(0, edge - r.left)}px`;
+    };
+    fit();
+    if (typeof ResizeObserver === "undefined") return undefined;
+    const ro = new ResizeObserver(fit);
+    ro.observe(box);
+    return () => ro.disconnect();
+  }, [clip]);
+  return <span ref={ref} style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", ...style }}>{children}</span>;
 }
 
 function DetailRow({ glyph, name, size, date, type, state, glyphColor }) {
   const bg = state === "selected" ? "var(--tasty-surface-active)" : state === "hover" ? "var(--tasty-overlay-hover)" : "transparent";
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 80px 132px 92px", alignItems: "center", height: "var(--tasty-table-cell-height)", padding: "0 10px",
-      fontSize: 13, background: bg, cursor: "default",
+    <DetailLine style={{ fontSize: 13, background: bg, cursor: "default",
       color: state === "selected" ? "var(--tasty-text-on-active)" : state === "cut" ? "var(--tasty-cut-pending-fg)" : "var(--tasty-text-secondary)" }}>
       <span style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
         <span style={{ display: "inline-flex", flex: "none", color: state === "selected" ? "var(--tasty-text-on-active)" : glyphColor || "var(--tasty-text-secondary)" }}>{glyph}</span>
-        <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontStyle: state === "cut" ? "var(--tasty-cut-pending-font-style)" : undefined }}>{name}</span>
+        <DetailName style={{ fontStyle: state === "cut" ? "var(--tasty-cut-pending-font-style)" : undefined }}>{name}</DetailName>
       </span>
       <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: state === "selected" ? "var(--tasty-text-on-active)" : "var(--tasty-text-muted)", textAlign: "right", paddingRight: 8 }}>{size}</span>
       <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: state === "selected" ? "var(--tasty-text-on-active)" : "var(--tasty-text-muted)" }}>{date}</span>
       <span style={{ fontSize: 12, color: state === "selected" ? "var(--tasty-text-on-active)" : "var(--tasty-text-muted)" }}>{type}</span>
-    </div>
+    </DetailLine>
   );
 }
 
 function DetailHeader() {
   const cols = [["Name", true], ["Size", false], ["Date modified", false], ["Type", false]];
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 80px 132px 92px", alignItems: "center", height: "var(--tasty-table-cell-height)", padding: "0 10px",
-      background: "var(--tasty-table-header-bg)", borderBottom: "1px solid var(--tasty-separator)",
+    <DetailLine style={{ background: "var(--tasty-table-header-bg)", borderBottom: "1px solid var(--tasty-separator)",
       fontFamily: "var(--tasty-font-ui)", fontSize: "var(--tasty-table-header-font-size)", fontWeight: "var(--tasty-table-header-font-weight)", textTransform: "uppercase", letterSpacing: "var(--tasty-table-header-tracking)", color: "var(--tasty-table-header-fg)" }}>
       {cols.map(([c, sorted], i) => (
-        <span key={c} style={{ display: "flex", alignItems: "center", gap: 3, justifyContent: i === 1 ? "flex-end" : "flex-start",
+        <span key={c} style={{ display: "flex", alignItems: "center", gap: 3, justifyContent: i === 1 ? "flex-end" : "flex-start", minWidth: 0, overflow: "hidden",
           paddingRight: i === 1 ? 8 : 0, color: sorted ? "var(--tasty-text-secondary)" : "var(--tasty-text-muted)" }}>
-          {c}{sorted && <span style={{ fontSize: 9 }}>▲</span>}
+          <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c}</span>{sorted && <span style={{ flex: "none", fontSize: 9 }}>▲</span>}
         </span>
       ))}
-    </div>
+    </DetailLine>
   );
 }
 
@@ -185,7 +227,7 @@ function GridCell({ glyph, name, state, glyphColor }) {
 function CtxMenu({ title, children }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-      <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{title}</div>
+      <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{title}</div>
       <div style={{ width: 220, background: "var(--tasty-menu-bg)", border: "1px solid var(--tasty-menu-border)",
         borderRadius: "var(--tasty-menu-radius)", padding: 6, boxShadow: "var(--tasty-shadow-popover)" }}>
         {children}
@@ -221,4 +263,32 @@ function ExpState({ glyph, glyphColor, title, sub, reason, actions, compact, bod
   );
 }
 
-export { DetailHeader, ic, DetailRow, SegToggle, CtxMenu, PathField, GridCell, SideHead, TreeNode, FavRow, ExpState };
+// Explorer Rename popup, shared by Plugin surfaces and Explorer file ops. It has the app's parts and no
+// others: title (explorer.popup.rename.title), the field, a validation line under the field when the
+// pre-check refuses the name (explorer.name.empty / invalid_char / edge_space / reserved,
+// explorer-name-error-fg) with Rename disabled until the name passes, one line slot, Cancel (button.cancel) + Rename
+// (explorer.popup.rename.rename). The confirm is the popup's own verb, not button.save (Save / 저장): a button
+// names what it does, and the popup renames, it does not save a file. Words are quoted from tasty lang/*.toml in every language. The slot holds
+// the remote waiting line (Spinner + explorer.remote.renaming, passed in as waitingText) and stays empty,
+// at the same height, while idle, so nothing moves when the popup starts waiting. No hint line and no path
+// line: the app draws neither (explorer.popup.rename.path is in the catalog but unused).
+const EXPLORER_RENAME_COPY = {
+  en: { title: "Rename", cancel: "Cancel", rename: "Rename" },
+  ko: { title: "이름 변경", cancel: "취소", rename: "이름 변경" },
+  ja: { title: "名前を変更", cancel: "キャンセル", rename: "名前を変更" },
+  "zh-Hans": { title: "重命名", cancel: "取消", rename: "重命名" },
+};
+function ExplorerRenamePopup({ lang = "en", value, error = null, waitingText = null }) {
+  const t = EXPLORER_RENAME_COPY[lang] || EXPLORER_RENAME_COPY.en;
+  const waiting = waitingText != null;
+  return (
+    <div lang={lang} style={{ width: "var(--tasty-size-360)", maxWidth: "100%", background: "var(--tasty-dialog-bg)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", padding: "var(--tasty-space-md) var(--tasty-explorer-props-padding-x)", display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
+      <span style={{ fontSize: "var(--tasty-font-size-max)", fontWeight: "var(--tasty-font-weight-semibold)", color: "var(--tasty-text-primary)" }}>{t.title}</span>
+      <Input block readOnly={waiting} invalid={!!error} defaultValue={value} />
+      {error && <span role="alert" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-explorer-name-error-fg)" }}>{error}</span>}
+      <span style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", minHeight: "var(--tasty-icon-size-sm)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{waiting && <><Spinner size="var(--tasty-icon-size-sm)" />{waitingText}</>}</span>
+      <div style={{ display: "flex", justifyContent: "flex-end", gap: "var(--tasty-space-sm)" }}><Button variant="ghost" size="sm" disabled={waiting}>{t.cancel}</Button><Button variant="primary" size="sm" disabled={waiting || !!error}>{t.rename}</Button></div>
+    </div>
+  );
+}
+export { DetailHeader, DetailLine, DETAIL_COLUMNS, ic, DetailRow, SegToggle, CtxMenu, PathField, GridCell, SideHead, TreeNode, FavRow, ExpState, ExplorerRenamePopup, EXPLORER_RENAME_COPY };

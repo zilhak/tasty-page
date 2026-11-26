@@ -89,6 +89,14 @@
                "Noto Sans Mono", "DejaVu Sans Mono", "Liberation Mono", "Droid Sans Mono",
                var(--font-cjk), monospace;
 }
+/* The ja and zh UI stacks open with "D2Coding Hangul Latin", which only the design zone declares
+   (styles/d2coding.css). Elsewhere the next names in those stacks are CJK fonts, so the Latin in
+   the app pictures on the landing and guide pages would draw in them. Outside the zone the UI
+   face keeps the stack every language shares. */
+:root:not([data-design-zone]):lang(ja), :root:not([data-design-zone]) [lang]:lang(ja),
+:root:not([data-design-zone]) [data-theme]:lang(ja),
+:root:not([data-design-zone]):lang(zh), :root:not([data-design-zone]) [lang]:lang(zh),
+:root:not([data-design-zone]) [data-theme]:lang(zh) { --tasty-font-ui: var(--tasty-font-family-ui); }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

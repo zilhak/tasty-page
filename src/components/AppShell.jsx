@@ -126,6 +126,9 @@ export function AppShell({ heading = "Workspaces", task = "run tests", doc }) {
   const [collapsed, setCollapsed] = React.useState(false);
   const [uiScale, setUiScale] = React.useState("md");
   const [toast, setToast] = React.useState(null);
+  // The settings the window saved last. Save keeps the draft and closes, as the kit app and the app do;
+  // Cancel and close drop it.
+  const [savedSettings, setSavedSettings] = React.useState(undefined);
   const seq = React.useRef(4);
   const toastTimer = React.useRef(0);
 
@@ -317,7 +320,8 @@ export function AppShell({ heading = "Workspaces", task = "run tests", doc }) {
         {toolsAnchor && <ToolsMenu anchor={toolsAnchor} onClose={() => setToolsAnchor(null)} onAction={runTool} />}
         {overlay === "palette" && <CommandPalette onClose={() => setOverlay(null)} onRun={runCmd} />}
         {overlay === "settings" && <SettingsWindow theme={theme} onTheme={setTheme}
-          uiScale={uiScale} onUiScale={setUiScale} onClose={() => setOverlay(null)} />}
+          uiScale={uiScale} onUiScale={setUiScale} onClose={() => setOverlay(null)}
+          saved={savedSettings} onSave={(values) => { setSavedSettings(values); setOverlay(null); }} />}
         {overlay === "ports" && <PortsWindow onClose={() => setOverlay(null)} onFlash={flash} />}
         {overlay === "remote" && <RemoteTool onClose={() => setOverlay(null)} onFlash={flash} />}
         {overlay === "plugins" && <PluginsWindow onClose={() => setOverlay(null)} onFlash={flash}

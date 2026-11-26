@@ -1,4 +1,4 @@
-<!-- source-hash: ea95539b4b25 -->
+<!-- source-hash: b87652f21e5b -->
 # 使用 tasty CLI 操作终端
 
 `tasty` CLI 连接到运行中的 Tasty，支持创建终端、发送输入和读取输出。检查连接和目标 ID 后发送命令，再用 `read since-mark` 读取标记位置之后的输出。脚本和 AI 智能体可以使用相同的命令。
@@ -7,7 +7,7 @@
 
 ## 准备
 
-- Tasty 必须正在运行。CLI 通过 `~/.tasty/tasty.port` 中记录的端口连接到运行中的实例。
+- Tasty 必须正在运行。CLI 默认读取自身数据文件夹中的 `tasty.port`。未指定 `TASTY_HOME` 时，发布版读取 `~/.tasty/tasty.port`，开发版读取 `~/.tasty-debug/tasty.port`。使用默认端口文件时，通过 `TASTY_HOME` 让 CLI 与要连接的 Tasty 使用同一数据文件夹。如果运行中的 Tasty 使用自定义端口文件，也为 CLI 加上 `--port-file`，指定同一文件。
 - 在 Tasty 打开的终端中，`tasty` 已在 PATH 中。要在外部（其他终端应用）使用，将 Tasty 可执行文件所在路径加入 PATH。各安装方式的路径见[安装](../getting-started/install.md#安装位置)。
 - Tasty 启动的 Shell 中有 `TASTY_SURFACE_ID` 环境变量。大多数省略 `--surface` 的命令使用此值（`tasty new workspace` · `tasty output observe start` 除外），因此操作自己的终端时可以不写 ID。
 - 安装 Codex 插件后，在 Codex 执行命令的环境中（存在 `CODEX_THREAD_ID` 的环境），该 Shell 的 `TASTY_SURFACE_ID` 可能属于其他终端，因此插件添加的命令（如 `tasty codex …`、`tasty claude …`）不会用此值填充 `--surface`。需要目标时用 `--surface` 指定。如果 `CODEX_THREAD_ID` 值无效，`tasty codex …`、`tasty claude …` 不会执行，其他插件命令照常执行。

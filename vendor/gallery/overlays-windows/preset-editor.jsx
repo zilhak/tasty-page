@@ -378,7 +378,7 @@ import { Section, Spec, Stage, Meta, Note, Do, Dont } from "../parts/specimen.js
           <div style={{ flex: 1 }} />
           {dirty && (
             <span title="Draft — applied on OK" style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-xs)", flex: "none", fontSize: 11, color: "var(--tasty-text-muted)" }}>
-              <span style={{ width: 6, height: 6, borderRadius: "var(--tasty-radius-full)", background: "var(--tasty-preset-cfg-draft-fg)" }} />unsaved
+              <span style={{ width: 6, height: 6, borderRadius: "var(--tasty-radius-pill)", background: "var(--tasty-preset-cfg-draft-fg)" }} />unsaved
             </span>
           )}
         </div>
@@ -652,8 +652,8 @@ import { Section, Spec, Stage, Meta, Note, Do, Dont } from "../parts/specimen.js
 
     return (
       <EditCtx.Provider value={ctx}>
-      <div style={{ width: "100%", maxWidth: 680, minWidth: 0, height: 452, display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)",
-        border: "1px solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", overflow: "hidden", boxShadow: "var(--tasty-shadow-modal)" }}>
+      <div style={{ width: "var(--tasty-preset-window-width)", flex: "none", height: "var(--tasty-preset-window-height)", display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)",
+        border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden", boxShadow: "var(--tasty-shadow-modal)" }}>
         {/* title bar */}
         <div style={{ display: "flex", alignItems: "center", gap: 8, height: 36, flex: "none", padding: "0 12px", borderBottom: "1px solid var(--tasty-separator)", background: "var(--tasty-bg-sidebar)" }}>
           <span style={{ display: "inline-flex", color: "var(--tasty-text-muted)" }}>{I.layers}</span>
@@ -707,7 +707,7 @@ import { Section, Spec, Stage, Meta, Note, Do, Dont } from "../parts/specimen.js
             <div style={{ display: "flex", alignItems: "center", gap: 8, height: 44, flex: "none", padding: "0 12px", borderBottom: "1px solid var(--tasty-separator)" }}>
               {edit ? (
                 <input defaultValue={cur.name} aria-label="Preset name"
-                  style={{ width: 150, height: 26, border: "1px solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", background: "var(--tasty-surface-raised)", color: "var(--tasty-text-primary)", font: "inherit", fontSize: 13, padding: "0 8px" }} />
+                  style={{ width: 150, height: 26, border: "var(--tasty-border-width) solid var(--tasty-input-border)", borderRadius: "var(--tasty-radius)", background: "var(--tasty-input-bg)", color: "var(--tasty-input-fg)", font: "inherit", fontSize: 13, padding: "0 8px" }} />
               ) : (
                 <>
                   <span style={{ fontSize: 14, fontWeight: 600 }}>{cur.name}</span>
@@ -752,8 +752,8 @@ import { Section, Spec, Stage, Meta, Note, Do, Dont } from "../parts/specimen.js
     React.useEffect(() => { if (bodyRef.current && scrollTo) bodyRef.current.scrollTop = scrollTo; }, []);
     return (
       <div style={{ display: "flex", flexDirection: "column", gap: 6, minWidth: 0 }}>
-        <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
-        <div style={{ width, height, display: "flex", border: "1px solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
+        <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
+        <div style={{ width, height, display: "flex", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
           <SurfaceSettings draft={draft} orig={base} path={path} bodyRef={bodyRef} onChange={setDraft}
             onConfirm={() => setBase(draft)} onCancel={() => setDraft(base)} />
         </div>
@@ -769,7 +769,7 @@ import { Section, Spec, Stage, Meta, Note, Do, Dont } from "../parts/specimen.js
           when={<>The modeless window behind <b>Tools › Presets</b>. <b>L1 tabs</b> pick the scope (Workspace / Tab / Pane); a <b>left list</b> of saved presets for that scope feeds a <b>right detail</b> = a toolbar (rename · duplicate · delete · <b>Edit</b>) over a <b>live demo-layout preview</b>. The selected row uses the surface-fill + 2px accent left-bar (the file-handler / sidebar idiom). Click a preset, switch its mini tabs, then hit <b>Edit</b> — structure edits happen on the preview, a leaf's gear opens its settings screen in this same column.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)" }}><PresetWindow /></Stage>
           <Meta
-            specs={[["frame", "up to 680 × 452 (adaptive)"], ["L1 tabs", "40px, accent underline"], ["list", "196px, fill + 2px bar"], ["toolbar", "44px, Edit on the right"], ["preview", "flex, on --tasty-bg-app"]]}
+            specs={[["frame width", "--tasty-preset-window-width"], ["frame height", "--tasty-preset-window-height"], ["L1 tabs", "40px, accent underline"], ["list", "196px, fill + 2px bar"], ["toolbar", "44px, Edit on the right"], ["preview", "flex, on --tasty-bg-app"]]}
             tokens={[{ tok: "--tasty-bg-sidebar", use: "L1 + list", color: "var(--tasty-bg-sidebar)" }, { tok: "--tasty-bg-panel", use: "detail", color: "var(--tasty-bg-panel)" }, { tok: "--tasty-surface-active", use: "selected preset", color: "var(--tasty-surface-active)" }, { tok: "--tasty-accent-primary", use: "active tab / select bar", color: "var(--tasty-accent-primary-raised)" }]} />
           <Note>This is the <b>2-depth idiom</b> (L1 fixed scope tabs → growable L2 list → detail), reused from Settings — not a new shell. The detail column has two fillings: the demo-layout preview (below) and, while a surface is being configured, the <b>surface settings screen</b> (last spec). Try <b>six</b> › Edit › select a small cell › gear.</Note>
         </Spec>
@@ -795,11 +795,11 @@ import { Section, Spec, Stage, Meta, Note, Do, Dont } from "../parts/specimen.js
           <Stage variant="solo" style={{ padding: 18, background: "var(--tasty-bg-app)", flexDirection: "column", gap: 14, alignItems: "stretch" }}>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
               <div>
-                <div style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>View — read-only</div>
+                <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>View — read-only</div>
                 <LivePreview scope="pane" build={buildEditDemo} edit={false} height={232} />
               </div>
               <div>
-                <div style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>Edit — hover an edge to split, click center to select, gear / double-click for settings</div>
+                <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>Edit — hover an edge to split, click center to select, gear / double-click for settings</div>
                 <LivePreview scope="pane" build={buildEditDemo} edit={true} height={232} />
               </div>
             </div>

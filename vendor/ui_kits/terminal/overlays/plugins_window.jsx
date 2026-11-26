@@ -10,6 +10,7 @@ import { Input } from "../../../components/forms/Input.jsx";
 import { Switch } from "../../../components/forms/Switch.jsx";
 import { ic, Icon } from "../chrome.jsx";
 import { Scrim, Spinner as TastyKit_Spinner } from "./shared.jsx";
+import { attnEmpty, installedEmpty } from "./plugins_attention_copy.js";
 
 // Tasty UI kit — Plugins window (lifecycle: install / enable / uninstall).
 // Mirrors zilhak/tasty → src/view/plugins.rs + src/view/plugins/ui/{list,add}.rs
@@ -28,35 +29,35 @@ const PLUGIN_LIST = [
     installed: true, status: "running", agent: false, installs: "126k", rating: "4.9", builtin: true,
     homepage: "https://github.com/zilhak/tasty-git-helper", kinds: ["git-blame", "git-branches"],
     desc: "Inline git status, blame, and one-key staging inside any terminal surface. Adds a gutter ribbon and a compact branch switcher to the tab strip.",
-    perms: ["fs:read", "clipboard", "ipc:git-helper.*"], cmd: "git-helper: open panel", key: "Ctrl+Alt+G" },
+    cmd: "git-helper: open panel", key: "Ctrl+Alt+G" },
   { id: "ai-review", name: "ai-review", author: "tasty-labs", version: "0.9.0", cat: "AI",
     installed: true, status: "agent", agent: true, installs: "84k", rating: "4.7",
     desc: "Agent-driven review of staged diffs. Streams suggested patches into a side surface and lets you apply them hunk by hunk.",
-    perms: ["fs:read", "fs:write", "net", "ipc:ai-review.*"], cmd: "ai-review: review staged", key: "Ctrl+Alt+R" },
+    cmd: "ai-review: review staged", key: "Ctrl+Alt+R" },
   { id: "docker", name: "docker", author: "community", version: "2.1.0", cat: "DevOps",
     installed: true, status: "idle", agent: false, installs: "203k", rating: "4.6",
     desc: "A surface for container logs, exec sessions, and compose control. Attaches to the local Docker socket and mirrors `docker ps` live.",
-    perms: ["ipc:docker.*", "net"], cmd: "docker: containers", key: "Ctrl+Alt+D" },
+    cmd: "docker: containers", key: "Ctrl+Alt+D" },
   { id: "k8s-lens", name: "k8s-lens", author: "community", version: "0.6.3", cat: "DevOps",
     installed: true, status: "error", agent: false, installs: "57k", rating: "4.1",
     desc: "Kubernetes context switcher and pod log streamer. Currently failing to reach the configured cluster — check kubeconfig.",
-    perms: ["net", "fs:read", "ipc:k8s-lens.*"], cmd: "k8s-lens: switch context", key: "Ctrl+Alt+K" },
+    cmd: "k8s-lens: switch context", key: "Ctrl+Alt+K" },
   { id: "vim-mode", name: "vim-mode", author: "ophen", version: "3.2.1", cat: "Editing",
     installed: false, status: "idle", agent: false, installs: "418k", rating: "4.8",
     desc: "Modal editing keybindings for every text surface — normal/insert/visual modes, registers, and the operators you actually use.",
-    perms: ["clipboard", "ipc:vim-mode.*"], cmd: "vim-mode: toggle", key: "Ctrl+Alt+V" },
+    cmd: "vim-mode: toggle", key: "Ctrl+Alt+V" },
   { id: "theme-studio", name: "theme-studio", author: "tasty-labs", version: "1.0.4", cat: "Appearance",
     installed: false, status: "idle", agent: false, installs: "92k", rating: "4.9",
     desc: "Live-edit surface colors and export a Catppuccin-compatible theme. Hot-reloads every open pane as you drag.",
-    perms: ["fs:read", "fs:write"], cmd: "theme-studio: open", key: "Ctrl+Alt+T" },
+    cmd: "theme-studio: open", key: "Ctrl+Alt+T" },
   { id: "s3-browser", name: "s3-browser", author: "community", version: "0.4.0", cat: "Cloud",
     installed: false, status: "idle", agent: false, installs: "31k", rating: "4.3",
     desc: "Browse, preview, and stream from S3 buckets as a first-class surface. Drag objects between buckets and your local tree.",
-    perms: ["net", "fs:read", "fs:write"], cmd: "s3-browser: open bucket", key: "" },
+    cmd: "s3-browser: open bucket", key: "" },
   { id: "pomodoro", name: "pomodoro", author: "kettle", version: "2.0.0", cat: "Productivity",
     installed: false, status: "idle", agent: false, installs: "19k", rating: "4.5",
     desc: "A focus timer that lives in the status bar, logs sessions per workspace, and dims inactive panes while you're in a sprint.",
-    perms: ["ipc:pomodoro.*"], cmd: "pomodoro: start", key: "" },
+    cmd: "pomodoro: start", key: "" },
 ];
 
 // ── Needs-attention cases ───────────────────────────────────────────────
@@ -71,16 +72,19 @@ const ATTN = {
     blurb: "Signed by a key that isn't in your trust store. Not registered — you can register it anyway." },
   "signature-invalid":  { sev: "danger",  label: "Signature invalid", unverified: "signature-error",
     blurb: "Signature missing or failed verification. Not registered — you can register it anyway." },
-  "permissions-changed":{ sev: "warning", label: "Permissions changed",
-    blurb: "Manifest permissions changed since you trusted it — re-approval required. Permissions limit what the plugin can ask Tasty to do; they don't isolate the plugin program." },
   "health-error":       { sev: "warning", label: "Runtime error",
-    blurb: "Enabled, but failing at runtime." },
+    blurb: "Enabled, but failing at runtime. See the log for details." },
   // 2026-11-08 (plugin-attention-unknown-official-id): a com.tasty.* id that is not on the official list.
   // Never registered; the only action is Remove. Identity = folder name + id (no manifest text).
   "reserved-id":        { sev: "danger",  label: "Not an official plugin", removeOnly: true,
     blurb: "Registration was rejected because its id uses the com.tasty. prefix, which is reserved for official Tasty plugins, and this is not one of them. You can only remove it." },
 };
 const SEV_COLOR = { danger: "var(--tasty-accent-danger)", warning: "var(--tasty-accent-warning)" };
+// 2026-11-17 — four reasons (unknown key · signature invalid · reserved id · runtime error). TEXT in the
+// severity colour (list label, banner title, status text) takes the -raised ink for every reason, as the
+// reserved-id label already did: plain accent-danger is 4.46:1 on Latte mantle and accent-warning far less.
+// Dots, the selection edge and banner tints keep SEV_COLOR.
+const SEV_INK = { danger: "var(--tasty-accent-danger-raised)", warning: "var(--tasty-accent-warning-raised)" };
 
 // Rejected / unregistered plugins — these never made it into the installed list.
 const ATTENTION_LIST = [
@@ -89,10 +93,6 @@ const ATTENTION_LIST = [
     desc: "Bundled cluster fleet sync. Its publisher key was rotated and the signature no longer matches a trusted key.",
     detail: { fingerprint: "a13c 4e7f 2b08 9d51  ·  ed25519",
       note: "The built-in publisher key rotated this release; the bundled signature was made with a key not yet in your trust store. Update Tasty or import the new key to restore it." } },
-  { id: "secrets-vault", name: "secrets-vault", author: "community", version: "0.8.4", cat: "Cloud",
-    reason: "permissions-changed",
-    desc: "Reads and injects secrets into surfaces. You trusted v0.7 — v0.8.4 requests a different permission set.",
-    detail: { added: ["fs:write", "net"], removed: ["clipboard"] } },
   { id: "remote-shell", name: "remote-shell", author: "community", version: "1.0.0", cat: "DevOps",
     reason: "signature-invalid", homepage: "https://example.invalid/remote-shell",
     desc: "Opens remote SSH surfaces. The bundle's signature file is missing or corrupt.",
@@ -142,7 +142,6 @@ const SAMPLE_MANIFEST = {
   id: "com.aurelia.logwatch", name: "logwatch", version: "0.3.1", author: "aurelia",
   trusted: false, fingerprint: "9f2c 4ad1 b770 e3a6  ·  ed25519",
   desc: "Tails and highlights structured log files as a dedicated surface — severity filters, a jump-to-error gutter, and live follow on the active workspace.",
-  perms: ["fs:read", "fs:watch", "ipc:logwatch.*"],
   surfaces: ["logwatch.viewer"],
   path: "~/dev/tasty-logwatch",
 };
@@ -169,7 +168,10 @@ function FingerprintLine({ value, onCopy }) {
 }
 
 // Add plugin — a verified manifest that can't be added (2026-09-29): the button stays in its slot,
-// DISABLED (shared ink rule), and the reason replaces "Grants N permissions" on the left of the bar.
+// DISABLED (shared ink rule), and the reason sits on the left of the bar.
+// 2026-11-17 (plugin permissions removed): the left of the bar holds ONLY that reason. When Add is not
+// blocked the left is empty — the manifest card and the trust box above already say everything, so the
+// bar adds no summary line. The buttons keep their right-aligned slot; the bar height does not change.
 //   manifest.blocked: "installed" | "missing-pubkey" | "signature-error"
 //   2026-10-06: "unsigned-no-key" → "missing-pubkey". The host state (UntrustedNoPubkey) IS signed — by a key
 //   not in the trust store — and the .pub that would let us trust it is missing or unreadable.
@@ -178,19 +180,19 @@ function FingerprintLine({ value, onCopy }) {
 const ADD_BLOCKED = {
   "installed": "Already installed",
 };
-const grantsLabel = (n) => n === 0 ? "No permissions" : n === 1 ? "Grants 1 permission" : "Grants " + n + " permissions";
 
-// Trust judgment box (2026-10-06) — one box, five kinds. Tone: success = can add as is · warning = can add,
-// adding trusts the key · danger = blocked. Box = tint-fill + tint-border of the tone, pad space-md / 14,
+// Trust judgment box (2026-10-06) — one box. 2026-11-17: five kinds (trusted + the four unverified);
+// "permissions-changed" left with plugin permissions, so no trust box is warning-toned any more.
+// Tone: success = can add as is · danger = unverified, added only by an explicit choice. Box = tint-fill + tint-border of the tone, pad space-md / 14,
 // title row (glyph md + 13/600 in the tone) > body (term-sm, text-secondary) > fingerprint line (absent
 // when there is no fingerprint — signature-error never has one).
-//   manifest.trust: "trusted" | "unknown-key" | "permissions-changed" | "missing-pubkey" | "signature-error"
+//   manifest.trust: "trusted" | "unknown-key" | "missing-pubkey" | "unsigned" | "signature-error"
 //   2026-10-19 (plugin-install-warning-and-choice): the four UNVERIFIED kinds (unknown-key · missing-pubkey ·
 //   unsigned · signature-error) share ONE danger box: same title, same risk paragraph; only the cause line
 //   differs. All four are addable through an explicit "Add anyway" (danger button, never the initial focus).
 //   Title ink is text-primary (accent titles failed 4.5:1 in Latte); only the glyph carries the tone.
 const UNVERIFIED_TITLE = "Unverified plugin";
-const UNVERIFIED_RISK = "Tasty can't confirm who made this plugin or that its files are unchanged. A plugin runs as a program with your account's access: it can read and change your files, use the network, and start other programs. The permissions above only limit what it can ask Tasty to do. Add it only if you trust where it came from.";
+const UNVERIFIED_RISK = "Tasty can't confirm who made this plugin or that its files are unchanged. A plugin runs as a program with your account's access: it can read and change your files, use the network, and start other programs. Add it only if you trust where it came from.";
 const UNVERIFIED_CAUSE = {
   "unknown-key":     "It is signed by a key that isn't in your trust store.",
   "missing-pubkey":  "It is signed, but the publisher's public key file (tasty-plugin.toml.pub) is missing or unreadable.",
@@ -199,8 +201,6 @@ const UNVERIFIED_CAUSE = {
 };
 const TRUST_KIND = {
   "trusted":             { tone: "success", glyph: "shieldCheck",  title: null },
-  "permissions-changed": { tone: "warning", glyph: "alertTriangle", title: "Permissions changed",
-    body: "This publisher is trusted, but this version asks for permissions the trusted version did not have. Review the list above; adding it trusts the new set. These permissions limit what the plugin can ask Tasty to do; they don't isolate the plugin program from your files, network or other programs." },
   "unknown-key":         { tone: "danger", glyph: "alertCircle", title: UNVERIFIED_TITLE, unverified: true, after: "Adding it also trusts this key." },
   "missing-pubkey":      { tone: "danger", glyph: "alertCircle", title: UNVERIFIED_TITLE, unverified: true },
   "unsigned":            { tone: "danger", glyph: "alertCircle", title: UNVERIFIED_TITLE, unverified: true, noFingerprint: true },
@@ -210,28 +210,25 @@ const trustKindOf = (m) => m.trust || (m.trusted ? "trusted" : "unknown-key");
 function TrustBox({ manifest }) {
   const kind = trustKindOf(manifest);
   const k = TRUST_KIND[kind];
-  const acc = "var(--tasty-accent-" + k.tone + ")";
-  const box = { display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-size-14)",
+  const box = { display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-plugins-inset)",
     borderRadius: "var(--tasty-radius)", color: "var(--tasty-text-secondary)",
-    background: "color-mix(in srgb, " + acc + " calc(var(--tasty-tint-fill-alpha) * 100%), transparent)",
-    border: "var(--tasty-border-width) solid color-mix(in srgb, " + acc + " calc(var(--tasty-tint-border-alpha) * 100%), transparent)" };
+    background: "var(--tasty-tint-" + k.tone + "-bg)",
+    border: "var(--tasty-border-width) solid var(--tasty-tint-" + k.tone + "-border)" };
   if (kind === "trusted") return (
     <div style={{ ...box, flexDirection: "row", alignItems: "center", fontSize: "var(--tasty-font-size-term-sm)" }}>
       {/* 2026-10-27: inks split from the tone — glyph + body → accent-success-ink (Latte ≥ 5.5:1 on mantle/base+tint); fill/border keep accent-success */}
-      <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-plugin-trust-glyph-success)" }}><Icon name="shieldCheck" size={16} /></span>
+      <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-plugin-trust-glyph-success)" }}><Icon name="shieldCheck" size="var(--tasty-icon-size-md)" /></span>
       <span style={{ color: "var(--tasty-plugin-trust-body-trusted-fg)" }}>Signed by a <b>trusted publisher</b> — its key is in your trust store.</span>
     </div>
   );
   const p = { margin: 0, fontSize: "var(--tasty-font-size-term-sm)", lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-plugin-trust-body-fg)", overflowWrap: "anywhere" };
   return (
     <div style={box} role={k.unverified ? "alert" : undefined}>
-      <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", color: "var(--tasty-plugin-trust-title-fg)", fontSize: 13, fontWeight: 600 }}>
-        <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-plugin-trust-glyph-" + k.tone + ")" }}><Icon name={k.glyph} size={16} /></span><span>{k.title}</span>
+      <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", color: "var(--tasty-plugin-trust-title-fg)", fontSize: "var(--tasty-font-size-heading)", fontWeight: "var(--tasty-font-weight-semibold)" }}>
+        <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-plugin-trust-glyph-" + k.tone + ")" }}><Icon name={k.glyph} size="var(--tasty-icon-size-md)" /></span><span>{k.title}</span>
       </div>
-      {k.unverified ? <>
-        <p style={p}>{UNVERIFIED_CAUSE[kind]}</p>
-        <p style={p}>{UNVERIFIED_RISK}{k.after ? " " + k.after : ""}</p>
-      </> : <p style={p}>{k.body}</p>}
+      <p style={p}>{UNVERIFIED_CAUSE[kind]}</p>
+      <p style={p}>{UNVERIFIED_RISK}{k.after ? " " + k.after : ""}</p>
       {!k.noFingerprint && <FingerprintLine value={manifest.fingerprint} />}
     </div>
   );
@@ -241,7 +238,6 @@ function TrustBox({ manifest }) {
 function addActionLabel(m) {
   const kind = trustKindOf(m);
   if (kind === "trusted") return "Add plugin";
-  if (kind === "permissions-changed") return "Trust & add";
   return kind === "unknown-key" ? "Trust key & add anyway" : "Add anyway";
 }
 function AddPluginForm({ onAdded, onCancel }) {
@@ -264,25 +260,25 @@ function AddPluginForm({ onAdded, onCancel }) {
   const pick = () => setPathReset("~/dev/tasty-logwatch"); // stands in for the native rfd folder picker
 
   const Mono = ({ children }) => (
-    <div style={{ fontFamily: "var(--tasty-font-label)", fontSize: 10, textTransform: "uppercase",
+    <div style={{ fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-micro)", textTransform: "uppercase",
       letterSpacing: "var(--tasty-letter-spacing-caps)", color: "var(--tasty-text-muted)" }}>{children}</div>
   );
   const code = { fontFamily: "var(--tasty-font-mono)", color: "var(--tasty-text-secondary)" };
 
   return (
     <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
-      <div className="tasty-scroll" style={{ flex: 1, overflow: "auto", padding: "var(--tasty-size-22) var(--tasty-space-xl)",
+      <div className="tasty-scroll" style={{ flex: 1, overflow: "auto", padding: "var(--tasty-plugins-add-pad-y) var(--tasty-space-xl) var(--tasty-plugins-add-pad-bottom)",
         display: "flex", flexDirection: "column", gap: "var(--tasty-space-lg)" }}>
         {/* path picker */}
         <div style={{ maxWidth: "var(--tasty-measure-xl)", display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
           <Mono>Plugin folder</Mono>
-          <div style={{ display: "flex", gap: 8 }}>
+          <div style={{ display: "flex", gap: "var(--tasty-space-sm)" }}>
             <Input mono icon={ic.folder} placeholder="~/dev/my-plugin"
               value={path} onChange={(e) => setPathReset(e.target.value)} style={{ flex: 1 }} />
             <Button variant="secondary" leadingIcon={ic.folder} onClick={pick}>Find folder…</Button>
             <Button variant="primary" disabled={!path.trim() && !manifest} onClick={verify}>Verify</Button>
           </div>
-          <p style={{ margin: 0, fontSize: 12, lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-text-muted)" }}>
+          <p style={{ margin: 0, fontSize: "var(--tasty-font-size-term-sm)", lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-text-muted)" }}>
             Point Tasty at a local folder containing a <code style={code}>tasty-plugin.toml</code>. Verifying reads its
             manifest and checks the signature; adding copies it into <code style={code}>~/.tasty/plugins</code>.
           </p>
@@ -292,39 +288,35 @@ function AddPluginForm({ onAdded, onCancel }) {
             A manifest that can't be read takes the same box, solid accent-danger edge — see gallery Plugins › Add plugin read error. */}
         {!manifest ? (
           <div style={{ maxWidth: "var(--tasty-measure-xl)", display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)",
-            padding: "var(--tasty-size-14) var(--tasty-space-lg)", borderRadius: "var(--tasty-radius)", border: "var(--tasty-border-width) dashed var(--tasty-border-default)",
+            padding: "var(--tasty-plugins-inset) var(--tasty-space-lg)", borderRadius: "var(--tasty-radius)", border: "var(--tasty-border-width) dashed var(--tasty-border-default)",
             color: "var(--tasty-text-muted)", fontSize: "var(--tasty-font-size-term-sm)" }}>
             <span style={{ display: "inline-flex", color: "var(--tasty-text-muted)" }}>{ic.folder}</span>
             <span>Choose a folder and press <b style={{ color: "var(--tasty-text-secondary)" }}>Verify</b> to read its manifest.</span>
           </div>
         ) : (
-          <div style={{ maxWidth: "var(--tasty-measure-xl)", display: "flex", flexDirection: "column", gap: 14 }}>
+          <div style={{ maxWidth: "var(--tasty-measure-xl)", display: "flex", flexDirection: "column", gap: "var(--tasty-plugins-inset)" }}>
             {/* manifest preview */}
-            <div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)",
-              background: "var(--tasty-surface-raised)", padding: 16, display: "flex", flexDirection: "column", gap: "var(--tasty-space-md)" }}>
-              <div style={{ display: "flex", gap: 12, alignItems: "flex-start" }}>
+            <div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)",
+              background: "var(--tasty-surface-raised)", padding: "var(--tasty-space-lg)", display: "flex", flexDirection: "column", gap: "var(--tasty-space-md)" }}>
+              <div style={{ display: "flex", gap: "var(--tasty-space-md)", alignItems: "flex-start" }}>
                 <PluginAvatar plugin={manifest} size="lg" />
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", flexWrap: "wrap" }}>
                     <span style={{ fontSize: "var(--tasty-font-size-max)", fontWeight: "var(--tasty-font-weight-semibold)", color: "var(--tasty-text-primary)" }}>{manifest.name}</span>
                     <Tag mono>{"v" + manifest.version}</Tag>
                   </div>
-                  <div style={{ marginTop: 3, fontFamily: "var(--tasty-font-mono)", fontSize: 11,
+                  <div style={{ marginTop: "var(--tasty-plugins-manifest-meta-gap)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)",
                     color: "var(--tasty-text-muted)" }}>{manifest.id} · {manifest.author}</div>
                 </div>
               </div>
-              <p style={{ margin: 0, fontSize: 13, lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-text-secondary)" }}>{manifest.desc}</p>
-              <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
-                <Mono>Permissions</Mono>
-                <div style={{ display: "flex", gap: "var(--tasty-space-sm)", flexWrap: "wrap" }}>{manifest.perms.map((p) => <Tag key={p} mono>{p}</Tag>)}</div>
-              </div>
+              <p style={{ margin: 0, fontSize: "var(--tasty-font-size-body)", lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-text-secondary)" }}>{manifest.desc}</p>
               <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
                 <Mono>Surface kinds</Mono>
                 <div style={{ display: "flex", gap: "var(--tasty-space-sm)", flexWrap: "wrap" }}>{manifest.surfaces.map((s) => <Tag key={s} mono>{s}</Tag>)}</div>
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
                 <Mono>Source</Mono>
-                <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 12, color: "var(--tasty-text-secondary)",
+                <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-term-sm)", color: "var(--tasty-text-secondary)",
                   overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{manifest.path}</span>
               </div>
             </div>
@@ -338,16 +330,15 @@ function AddPluginForm({ onAdded, onCancel }) {
       {/* action bar */}
       {/* 2026-10-19: wraps on narrow windows (buttons drop under the reason, right-aligned). Unverified verdict:
           initial focus = Cancel (Enter on it cancels), Esc = Cancel, Tab → "Add anyway". No implicit default button. */}
-      <div onKeyDown={onBarKey} style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-size-14)",
+      <div onKeyDown={onBarKey} style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-plugins-inset)",
         borderTop: "var(--tasty-border-width) solid var(--tasty-separator)", flex: "none" }}>
-        {manifest && (
+        {manifest && manifest.blocked ? (
           <span style={{ flex: "1 1 auto", minWidth: 0, fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>
-            {manifest.blocked ? ADD_BLOCKED[manifest.blocked] : grantsLabel(manifest.perms.length)}
+            {ADD_BLOCKED[manifest.blocked]}
           </span>
-        )}
-        {!manifest && <div style={{ flex: 1 }} />}
+        ) : <div style={{ flex: 1 }} />}
         <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", marginLeft: "auto" }}>
-          {busy && <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-sm)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}><PwSpinner size={14} label="Adding" />Adding…</span>}
+          {busy && <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-sm)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}><PwSpinner size="var(--tasty-icon-size-sm)" label="Adding" />Adding…</span>}
           <Button key={manifest ? manifest.path + trustKindOf(manifest) : "none"} variant="ghost" autoFocus={!!manifest && TRUST_KIND[trustKindOf(manifest)].unverified} disabled={busy} onClick={onCancel}>Cancel</Button>
           {manifest && (manifest.blocked
             ? <Button variant="primary" disabled>Add plugin</Button>
@@ -364,7 +355,7 @@ function RegisterAnyway({ name, onFlash }) {
   React.useEffect(() => setBusy(false), [name]);
   return (
     <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-sm)" }}>
-      {busy && <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-sm)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}><PwSpinner size={14} label="Registering" />Registering…</span>}
+      {busy && <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-sm)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}><PwSpinner size="var(--tasty-icon-size-sm)" label="Registering" />Registering…</span>}
       <Button variant="danger" disabled={busy} aria-busy={busy || undefined}
         onClick={() => { setBusy(true); setTimeout(() => { setBusy(false); onFlash && onFlash("Registered " + name); }, 900); }}>
         Register anyway
@@ -379,7 +370,7 @@ function RemoveReserved({ item, confirming, busy, onBusy, onConfirm, onCancel, o
   if (!confirming)
     return (
       <>
-        <span style={{ fontSize: 12, color: "var(--tasty-accent-danger-raised)", display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-sm)" }}>
+        <span style={{ fontSize: "var(--tasty-font-size-term-sm)", color: "var(--tasty-accent-danger-raised)", display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-sm)" }}>
           <span style={{ width: "var(--tasty-status-dot-size)", height: "var(--tasty-status-dot-size)", borderRadius: "50%", background: "var(--tasty-accent-danger)" }} />
           Not registered
         </span>
@@ -389,13 +380,13 @@ function RemoveReserved({ item, confirming, busy, onBusy, onConfirm, onCancel, o
     );
   return (
     <>
-      <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-accent-attention-raised)" }}><Icon name="alertTriangle" size={16} /></span>
+      <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-accent-attention-raised)" }}><Icon name="alertTriangle" size="var(--tasty-icon-size-md)" /></span>
       <div style={{ flex: "1 1 auto", minWidth: 0, display: "flex", flexDirection: "column" }}>
         <span style={{ fontSize: "var(--tasty-font-size-body)", color: "var(--tasty-text-primary)", overflowWrap: "anywhere" }}>Remove {item.name}?</span>
         <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>Its folder is deleted from your plugins folder.</span>
       </div>
       <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", marginLeft: "auto" }}>
-        {busy && <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-sm)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}><PwSpinner size={14} label="Removing" />Removing…</span>}
+        {busy && <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-sm)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}><PwSpinner size="var(--tasty-icon-size-sm)" label="Removing" />Removing…</span>}
         <Button variant="ghost" autoFocus disabled={busy} onClick={onCancel}>Cancel</Button>
         <Button variant="danger" disabled={busy} aria-busy={busy || undefined}
           onClick={() => { onBusy(true); setTimeout(() => { onBusy(false); onRemove && onRemove(item); onFlash && onFlash("Removed '" + item.name + "'."); }, 700); }}>Remove</Button>
@@ -403,7 +394,7 @@ function RemoveReserved({ item, confirming, busy, onBusy, onConfirm, onCancel, o
     </>
   );
 }
-function AttentionPanel({ items, onFlash, onConfigure, onRemove }) {
+function AttentionPanel({ items, onFlash, onConfigure, onRemove, lang = "en" }) {
   const [selId, setSelIdRaw] = React.useState(items[0] ? items[0].id : null);
   const [confirmId, setConfirmId] = React.useState(null);
   const [removing, setRemoving] = React.useState(false); // reserved-id removal in progress: no cancel path
@@ -417,35 +408,37 @@ function AttentionPanel({ items, onFlash, onConfigure, onRemove }) {
   }, [confirmId, removing]);
 
   const Mono = ({ children }) => (
-    <div style={{ fontFamily: "var(--tasty-font-label)", fontSize: 10, textTransform: "uppercase",
+    <div style={{ fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-micro)", textTransform: "uppercase",
       letterSpacing: "var(--tasty-letter-spacing-caps)", color: "var(--tasty-text-muted)" }}>{children}</div>
   );
 
-  if (items.length === 0)
+  if (items.length === 0) {
+    const [emptyTitle, emptyBody, emptyLang] = attnEmpty(lang);
     return (
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center",
-        justifyContent: "center", gap: 12, color: "var(--tasty-text-muted)", padding: 24 }}>
-        <span style={{ display: "inline-flex", width: 46, height: 46, borderRadius: "var(--tasty-radius)",
-          alignItems: "center", justifyContent: "center", color: "var(--tasty-accent-success-raised)",
-          background: "color-mix(in srgb, var(--tasty-accent-success) 12%, transparent)",
-          border: "var(--tasty-border-width) solid color-mix(in srgb, var(--tasty-accent-success) 30%, transparent)" }}>
-          <Icon name="shieldCheck" size={20} />
-        </span>
-        <div style={{ fontSize: "var(--tasty-font-size-body)", color: "var(--tasty-text-secondary)" }}>No plugins need attention</div>
-        <div style={{ fontSize: 12, maxWidth: "var(--tasty-measure-sm)", textAlign: "center", lineHeight: "var(--tasty-line-height-ui)" }}>
-          Rejected or failing plugins show up here with the reason and what to do next.
+      <React.Fragment>
+        {/* The app keeps the (empty) list panel and draws two lines of text, no glyph, on the default
+            panel (mantle): the title 8 + 2 × space-xl (56) below the detail panel edge, the lines
+            8 apart (item spacing 4 + space-xs 4), no width cap: [plugins] attn_empty_title, attn_empty_body. */}
+        <div style={{ width: "var(--tasty-plugins-attention-list-width)", flex: "none", background: "var(--tasty-bg-sidebar)",
+          borderRight: "var(--tasty-border-width) solid var(--tasty-separator)" }} />
+        <div lang={emptyLang} style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", alignItems: "center", background: "var(--tasty-bg-sidebar)",
+          gap: "var(--tasty-space-sm)", color: "var(--tasty-text-muted)", padding: "calc(var(--tasty-space-sm) + 2 * var(--tasty-space-xl)) var(--tasty-space-sm) 0" }}>
+          <div style={{ fontSize: "var(--tasty-font-size-body)", color: "var(--tasty-text-secondary)" }}>{emptyTitle}</div>
+          <div style={{ fontSize: "var(--tasty-font-size-term-sm)", textAlign: "center", lineHeight: "var(--tasty-line-height-ui)" }}>{emptyBody}</div>
         </div>
-      </div>
+      </React.Fragment>
     );
+  }
 
   const meta = sel && ATTN[sel.reason];
   const c = sel && SEV_COLOR[meta.sev];
+  const ink = sel && SEV_INK[meta.sev];
   return (
     <React.Fragment>
       {/* list */}
-      <div className="tasty-scroll" style={{ width: "var(--tasty-plugins-list-width)", flex: "none", overflow: "auto", padding: 8,
+      <div className="tasty-scroll" style={{ width: "var(--tasty-plugins-attention-list-width)", flex: "none", overflow: "auto", padding: "var(--tasty-space-sm)",
         background: "var(--tasty-bg-sidebar)", borderRight: "var(--tasty-border-width) solid var(--tasty-separator)",
-        display: "flex", flexDirection: "column", gap: 3 }}>
+        display: "flex", flexDirection: "column", gap: "var(--tasty-plugins-list-row-gap)" }}>
         {items.map((p) => {
           const on = p.id === sel.id;
           const pc = SEV_COLOR[ATTN[p.reason].sev];
@@ -456,9 +449,9 @@ function AttentionPanel({ items, onFlash, onConfigure, onRemove }) {
               boxShadow: on ? `inset var(--tasty-selection-edge-width) 0 0 ${pc}` : "none" }}>
               <PluginAvatar plugin={p} size="sm" />
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 13, color: on ? "var(--tasty-text-on-active)" : "var(--tasty-text-secondary)",
+                <div style={{ fontSize: "var(--tasty-font-size-body)", color: on ? "var(--tasty-text-on-active)" : "var(--tasty-text-secondary)",
                   overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.name}</div>
-                <div style={{ fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-micro)", color: on ? "var(--tasty-text-on-active)" : ATTN[p.reason].removeOnly ? "var(--tasty-accent-danger-raised)" : pc,
+                <div style={{ fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-micro)", color: on ? "var(--tasty-text-on-active)" : SEV_INK[ATTN[p.reason].sev],
                   overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{ATTN[p.reason].label}</div>
               </div>
               <span style={{ flex: "none", width: "var(--tasty-status-dot-size)", height: "var(--tasty-status-dot-size)", borderRadius: "50%", background: pc }} />
@@ -470,22 +463,22 @@ function AttentionPanel({ items, onFlash, onConfigure, onRemove }) {
       {/* detail */}
       <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
         <div className="tasty-scroll" style={{ flex: 1, overflow: "auto", padding: "var(--tasty-space-lg)",
-          display: "flex", flexDirection: "column", gap: 16 }}>
+          display: "flex", flexDirection: "column", gap: "var(--tasty-space-lg)" }}>
           {/* identity */}
           <div style={{ display: "flex", gap: "var(--tasty-space-md)", alignItems: "flex-start" }}>
             <PluginAvatar plugin={sel} size="lg" />
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", flexWrap: "wrap" }}>
                 <span style={{ fontSize: "var(--tasty-font-size-max)", fontWeight: "var(--tasty-font-weight-normal)", color: "var(--tasty-text-primary)", overflowWrap: "anywhere" }}>{sel.name}</span>
                 {sel.version && <Tag mono>{"v" + sel.version}</Tag>}
                 {sel.builtin && <Tag>built-in</Tag>}
               </div>
-              <div style={{ marginTop: 4, fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: "var(--tasty-text-muted)",
-                display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+              <div style={{ marginTop: "var(--tasty-space-xs)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)",
+                display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", flexWrap: "wrap" }}>
 {/* 2026-10-09 b10 — each separator travels WITH the item after it (one nowrap span), so a wrapped item never leaves a dangling · */}
 {/* 2026-11-08 — reserved id: the meta line is the id alone (no author, no homepage) */}
-                {meta.removeOnly ? <span style={{ overflowWrap: "anywhere" }}>{sel.id}</span> : [sel.author, sel.id, sel.reason !== "signature-invalid" && sel.homepage && /^https?:\/\//.test(sel.homepage) && <a href={sel.homepage} target="_blank" rel="noreferrer" style={{ color: "var(--tasty-accent-primary-raised)", textDecoration: "underline", textUnderlineOffset: 2 }}>{sel.homepage.replace(/^https?:\/\//, "")}</a>].filter(Boolean).map((part, i) => (
-                  <span key={i} style={{ display: "inline-flex", gap: 8, whiteSpace: "nowrap" }}>{i > 0 && <span>·</span>}{part}</span>
+                {meta.removeOnly ? <span style={{ overflowWrap: "anywhere" }}>{sel.id}</span> : [sel.author, sel.id, sel.reason !== "signature-invalid" && sel.homepage && /^https?:\/\//.test(sel.homepage) && <a href={sel.homepage} target="_blank" rel="noreferrer" style={{ color: "var(--tasty-accent-primary-raised)", textDecoration: "underline", textUnderlineOffset: "var(--tasty-plugins-link-underline-offset)" }}>{sel.homepage.replace(/^https?:\/\//, "")}</a>].filter(Boolean).map((part, i) => (
+                  <span key={i} style={{ display: "inline-flex", gap: "var(--tasty-space-sm)", whiteSpace: "nowrap" }}>{i > 0 && <span>·</span>}{part}</span>
                 ))}
               </div>
             </div>
@@ -497,57 +490,33 @@ function AttentionPanel({ items, onFlash, onConfigure, onRemove }) {
             ? <p style={{ margin: 0, fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>Description hidden — it is not an official plugin.</p>
             : sel.reason === "signature-invalid"
             ? <p style={{ margin: 0, fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>Description hidden — the signature is invalid.</p>
-            : sel.desc && <p style={{ margin: 0, fontSize: 13, lineHeight: "var(--tasty-line-height-ui)",
+            : sel.desc && <p style={{ margin: 0, fontSize: "var(--tasty-font-size-body)", lineHeight: "var(--tasty-line-height-ui)",
             color: "var(--tasty-text-secondary)", maxWidth: "var(--tasty-measure-lg)" }}>{sel.desc}</p>}
 
           {/* reason banner — 2026-10-19: signature reasons take the shared unverified box (same risk copy as Add) */}
           {meta.unverified ? <TrustBox manifest={{ trust: meta.unverified, fingerprint: null }} /> :
           meta.removeOnly ? (
-          <div role="alert" style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-size-14)", borderRadius: "var(--tasty-radius)",
-            background: "color-mix(in srgb, var(--tasty-accent-danger) calc(var(--tasty-tint-fill-alpha) * 100%), transparent)",
-            border: "var(--tasty-border-width) solid color-mix(in srgb, var(--tasty-accent-danger) calc(var(--tasty-tint-border-alpha) * 100%), transparent)" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", color: "var(--tasty-plugin-trust-title-fg)", fontSize: 13, fontWeight: 600 }}>
-              <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-plugin-trust-glyph-danger)" }}><Icon name="alertCircle" size={16} /></span>
+          <div role="alert" style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-plugins-inset)", borderRadius: "var(--tasty-radius)",
+            background: "var(--tasty-tint-danger-bg)",
+            border: "var(--tasty-border-width) solid var(--tasty-tint-danger-border)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", color: "var(--tasty-plugin-trust-title-fg)", fontSize: "var(--tasty-font-size-heading)", fontWeight: "var(--tasty-font-weight-semibold)" }}>
+              <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-plugin-trust-glyph-danger)" }}><Icon name="alertCircle" size="var(--tasty-icon-size-md)" /></span>
               <span>{meta.label}</span>
             </div>
             <p style={{ margin: 0, fontSize: "var(--tasty-font-size-term-sm)", lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-plugin-trust-body-fg)", overflowWrap: "anywhere" }}>{meta.blurb}</p>
           </div>) :
-          <div style={{ display: "flex", flexDirection: "column", gap: 8, padding: "var(--tasty-space-md) var(--tasty-size-14)",
+          <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-plugins-inset)",
             borderRadius: "var(--tasty-radius)", color: "var(--tasty-text-secondary)",
-            background: `color-mix(in srgb, ${c} 11%, transparent)`,
-            border: `1px solid color-mix(in srgb, ${c} 36%, transparent)` }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", color: c, fontSize: 13, fontWeight: 600 }}>
-              <Icon name={meta.sev === "danger" ? "alertCircle" : "alertTriangle"} size={16} />
+            background: `var(--tasty-tint-${meta.sev}-bg)`,
+            border: `var(--tasty-border-width) solid var(--tasty-tint-${meta.sev}-border)` }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", color: ink, fontSize: "var(--tasty-font-size-heading)", fontWeight: "var(--tasty-font-weight-semibold)" }}>
+              <Icon name={meta.sev === "danger" ? "alertCircle" : "alertTriangle"} size="var(--tasty-icon-size-md)" />
               <span>{meta.label}</span>
             </div>
             <p style={{ margin: 0, fontSize: "var(--tasty-font-size-term-sm)", lineHeight: "var(--tasty-line-height-ui)" }}>{meta.blurb}</p>
           </div>}
 
           {/* reason-specific detail */}
-          {sel.reason === "permissions-changed" && (
-            <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
-              <Mono>Permission changes</Mono>
-              <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
-                {(sel.detail.added || []).map((p) => (
-                  <div key={p} style={{ display: "flex", alignItems: "center", gap: 8,
-                    fontFamily: "var(--tasty-font-mono)", fontSize: 12 }}>
-                    <span style={{ color: "var(--tasty-accent-success-raised)", fontWeight: 700, width: 10 }}>+</span>
-                    <span style={{ color: "var(--tasty-text-secondary)" }}>{p}</span>
-                    <span style={{ fontFamily: "var(--tasty-font-label)", fontSize: 11, color: "var(--tasty-text-muted)" }}>newly requested</span>
-                  </div>
-                ))}
-                {(sel.detail.removed || []).map((p) => (
-                  <div key={p} style={{ display: "flex", alignItems: "center", gap: 8,
-                    fontFamily: "var(--tasty-font-mono)", fontSize: 12 }}>
-                    <span style={{ color: "var(--tasty-text-muted)", fontWeight: 700, width: 10 }}>−</span>
-                    <span style={{ color: "var(--tasty-text-muted)", textDecoration: "line-through" }}>{p}</span>
-                    <span style={{ fontFamily: "var(--tasty-font-label)", fontSize: 11, color: "var(--tasty-text-muted)" }}>no longer used</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
           {(sel.reason === "unknown-key" || sel.reason === "signature-invalid") && (
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
               <Mono>Signature</Mono>
@@ -568,31 +537,29 @@ function AttentionPanel({ items, onFlash, onConfigure, onRemove }) {
             </div>
           )}
 
-          {sel.reason === "health-error" && sel.detail.error && (
-            <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
-              <Mono>Error</Mono>
-              <pre style={{ margin: 0, background: "var(--tasty-bg-app)", border: "var(--tasty-border-width) solid var(--tasty-separator)",
-                borderRadius: "var(--tasty-radius)", padding: "var(--tasty-space-md) var(--tasty-space-md)", fontFamily: "var(--tasty-font-mono)",
-                fontSize: 12, lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-accent-danger-raised)", whiteSpace: "pre-wrap" }}>{sel.detail.error}</pre>
+          {/* 2026-11-17: the runtime-error detail shows where the log is, not an error message. Header "Log"
+              (plugins.attn_error), path in the same muted, selectable mono as Folder above and the Installed "Log:" line. */}
+          {sel.reason === "health-error" && sel.detail.logPath && (
+            <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", minWidth: 0 }}>
+              <Mono>Log</Mono>
+              <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)",
+                wordBreak: "break-all", userSelect: "text" }}>{sel.detail.logPath}</span>
             </div>
           )}
         </div>
 
         {/* action bar */}
-        <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-size-14)",
+        <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-plugins-inset)",
           borderTop: "var(--tasty-border-width) solid var(--tasty-separator)", flex: "none" }}>
           {meta.removeOnly ? (
             <RemoveReserved item={sel} confirming={confirmId === sel.id} busy={removing} onBusy={setRemoving} onConfirm={() => setConfirmId(sel.id)}
               onCancel={() => setConfirmId(null)} onRemove={(it) => { setConfirmId(null); onRemove && onRemove(it); }} onFlash={onFlash} />
           ) : (<>
-          <span style={{ fontSize: 12, color: c, display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-sm)" }}>
+          <span style={{ fontSize: "var(--tasty-font-size-term-sm)", color: ink, display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-sm)" }}>
             <span style={{ width: "var(--tasty-status-dot-size)", height: "var(--tasty-status-dot-size)", borderRadius: "50%", background: c }} />
             {meta.sev === "danger" ? "Not registered" : "Needs review"}
           </span>
           <div style={{ flex: 1 }} />
-          {sel.reason === "permissions-changed" && (
-            <Button variant="primary" onClick={() => onFlash && onFlash("Re-approve " + sel.name)}>Re-approve</Button>
-          )}
           {sel.reason === "health-error" && (
             <Button variant="ghost" leadingIcon={ic.settings}
               onClick={() => onConfigure && onConfigure()}>Configure</Button>
@@ -607,13 +574,39 @@ function AttentionPanel({ items, onFlash, onConfigure, onRemove }) {
   );
 }
 
-function PluginsWindow({ onClose, onFlash, onConfigure, removedAttention, onRemoveAttention }) {
+// One header tab. It is a component of its own, not one made inside PluginsWindow's render, so a hover that
+// re-renders the window keeps the same button and its keyboard focus.
+function PluginsSeg({ value, label, count, danger, on, hover, onPick, onPointer }) {
+  return (
+    <button onClick={() => onPick(value)} onMouseEnter={() => onPointer(value)} onMouseLeave={() => onPointer((t) => (t === value ? null : t))} style={{ appearance: "none", cursor: "pointer", border: 0,
+      height: "var(--tasty-plugins-tab-height)", padding: "0 var(--tasty-space-md)", borderRadius: "var(--tasty-radius)", display: "inline-flex",
+      alignItems: "center", gap: "var(--tasty-space-sm)", fontFamily: "var(--tasty-font-ui)", fontSize: "var(--tasty-font-size-term-sm)",
+      fontWeight: on ? "var(--tasty-font-weight-semibold)" : "var(--tasty-font-weight-normal)", color: on ? "var(--tasty-text-primary)" : "var(--tasty-text-muted)",
+      background: on ? "var(--tasty-surface-raised)" : hover ? "var(--tasty-overlay-hover)" : "transparent",
+      boxShadow: on ? "inset 0 0 0 var(--tasty-border-width) var(--tasty-border-strong)" : "none",
+      /* as the app: the tabs sit side by side on the header's mantle, and only the selected one is filled (raised,
+         1px border-strong, the partition edge on raised). An unselected tab under the pointer takes the overlay-hover fill; its ink stays.
+         The keyboard focus ring is base.css's, 1px off the tab, on mantle: border-focus. */
+      outlineOffset: "var(--tasty-focus-ring-offset)" }}>
+      {label}
+      {count != null && !danger && <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)",
+        color: on ? "var(--tasty-text-secondary-raised)" : "var(--tasty-text-muted)" }}>{count}</span>}
+      {danger && count > 0 && <Badge variant="danger">{count}</Badge>}
+    </button>
+  );
+}
+
+// hoverTab: a frame pins the pointer hover on one header tab ("installed" | "attention" | "add").
+// lang: the language of the empty Attention tab and empty Installed list copy, the filter's no-match text included
+// (en, ko, ja, zh-Hans; plugins_attention_copy.js). Other copy is English.
+function PluginsWindow({ onClose, onFlash, onConfigure, removedAttention, onRemoveAttention, hoverTab = null, lang = "en" }) {
   // 2026-11-08 — removed reserved-id folders. The app keeps this (so the sidebar badge drops too); a
   // standalone window falls back to its own state.
   const [ownRemoved, setOwnRemoved] = React.useState([]);
   const removed = removedAttention || ownRemoved;
   const removeAttention = (it) => onRemoveAttention ? onRemoveAttention(it.id) : setOwnRemoved((r) => [...r, it.id]);
   const [tab, setTab] = React.useState("installed"); // installed | attention | add
+  const [pointerTab, setPointerTab] = React.useState(null);
   const [q, setQ] = React.useState("");
   const [installed, setInstalled] = React.useState(() =>
     Object.fromEntries(PLUGIN_LIST.map((p) => [p.id, p.installed])));
@@ -630,14 +623,18 @@ function PluginsWindow({ onClose, onFlash, onConfigure, removedAttention, onRemo
     return () => window.removeEventListener("keydown", onKey, true);
   }, [confirmId]);
 
+  // As the app's list.rs: the filter looks at the name, the authors and the description, not the category.
   const matches = (p) => {
     const n = q.trim().toLowerCase();
-    return !n || `${p.name} ${p.author} ${p.cat} ${p.desc}`.toLowerCase().includes(n);
+    return !n || `${p.name} ${p.author} ${p.desc}`.toLowerCase().includes(n);
   };
   // The list is INSTALLED-ONLY. There is no catalog/marketplace browse — adding a
   // plugin means pointing Tasty at a LOCAL folder (the “Add plugin” tab). Online
   // catalog browse + install-by-id are deferred (docs/dev-guide/plugin-packaging.md).
   const list = PLUGIN_LIST.filter((p) => installed[p.id] && matches(p));
+  // As the app's list.rs: nothing installed reads plugins.empty before the filter is looked at, so a leftover or
+  // blank query never turns it into no_matches. no_matches is only for installed plugins the query hides.
+  const [installedEmptyText, installedEmptyLang] = installedEmpty(lang, PLUGIN_LIST.some((p) => installed[p.id]));
   const sel = PLUGIN_LIST.find((p) => p.id === selId);
   const selVisible = sel && installed[sel.id] && matches(sel);
 
@@ -656,29 +653,15 @@ function PluginsWindow({ onClose, onFlash, onConfigure, removedAttention, onRemo
     .filter((p) => installed[p.id] && enabled[p.id] && p.status === "error")
     .map((p) => ({ id: p.id, name: p.name, author: p.author, version: p.version, cat: p.cat,
       reason: "health-error", desc: p.desc,
-      detail: { error: "Failed to reach the configured cluster at https://10.0.4.11:6443\nkubeconfig context \"prod\" — connection refused" } }));
+      detail: { logPath: `/home/tasty/.local/state/tasty/plugins/${p.id}/plugin.log` } }));
   const attention = [...ATTENTION_LIST.filter((p) => !removed.includes(p.id)), ...healthErrors];
   const attentionCount = attention.length;
 
-  const Seg = ({ value, label, count, danger }) => {
-    const on = tab === value;
-    return (
-      <button onClick={() => setTab(value)} style={{ appearance: "none", cursor: "pointer", border: 0,
-        height: 26, padding: "0 var(--tasty-space-md)", borderRadius: "var(--tasty-radius-sm)", display: "inline-flex",
-        alignItems: "center", gap: "var(--tasty-space-sm)", fontFamily: "var(--tasty-font-ui)", fontSize: "var(--tasty-font-size-term-sm)",
-        fontWeight: on ? 600 : 400, color: on ? "var(--tasty-text-primary)" : "var(--tasty-text-on-active)",
-        background: on ? "var(--tasty-surface-raised)" : "transparent",
-        boxShadow: on ? "inset 0 0 0 var(--tasty-border-width) var(--tasty-border-default)" : "none" }}>
-        {label}
-        {count != null && !danger && <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)",
-          color: on ? "var(--tasty-text-secondary-raised)" : "var(--tasty-text-on-active)" }}>{count}</span>}
-        {danger && count > 0 && <Badge variant="danger">{count}</Badge>}
-      </button>
-    );
-  };
+  const segProps = (value) => ({ value, on: tab === value, hover: tab !== value && (hoverTab || pointerTab) === value,
+    onPick: setTab, onPointer: setPointerTab });
 
   const Mono = ({ children }) => (
-    <div style={{ fontFamily: "var(--tasty-font-label)", fontSize: 10, textTransform: "uppercase",
+    <div style={{ fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-micro)", textTransform: "uppercase",
       letterSpacing: "var(--tasty-letter-spacing-caps)", color: "var(--tasty-text-muted)" }}>{children}</div>
   );
 
@@ -686,7 +669,7 @@ function PluginsWindow({ onClose, onFlash, onConfigure, removedAttention, onRemo
     if (!sel || !selVisible)
       return (
         <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center",
-          fontSize: 13, color: "var(--tasty-text-muted)" }}>
+          fontSize: "var(--tasty-font-size-body)", color: "var(--tasty-text-muted)" }}>
           {list.length ? "Select a plugin" : "No plugins to show"}
         </div>
       );
@@ -695,52 +678,48 @@ function PluginsWindow({ onClose, onFlash, onConfigure, removedAttention, onRemo
     return (
       <>
         <div className="tasty-scroll" style={{ flex: 1, overflow: "auto", padding: "var(--tasty-space-lg)",
-          display: "flex", flexDirection: "column", gap: 16 }}>
+          display: "flex", flexDirection: "column", gap: "var(--tasty-space-lg)" }}>
           {/* identity */}
           <div style={{ display: "flex", gap: "var(--tasty-space-md)", alignItems: "flex-start" }}>
             <PluginAvatar plugin={sel} size="lg" />
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", flexWrap: "wrap" }}>
                 <span style={{ fontSize: "var(--tasty-font-size-max)", fontWeight: "var(--tasty-font-weight-normal)", color: "var(--tasty-text-primary)" }}>{sel.name}</span>
                 <Tag mono>{"v" + sel.version}</Tag>
                 {sel.builtin && <Tag>built-in</Tag>}
                 {sel.agent && <Tag variant="agent">agent</Tag>}
               </div>
               {/* 2026-10-09 — meta: author(s) · plugin id · homepage link (each optional; id always present) */}
-              <div style={{ marginTop: 4, fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: "var(--tasty-text-muted)",
-                display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+              <div style={{ marginTop: "var(--tasty-space-xs)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)",
+                display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", flexWrap: "wrap" }}>
 {/* 2026-10-09 b10 — each separator travels WITH the item after it (one nowrap span), so a wrapped item never leaves a dangling · */}
-                {[sel.author, sel.id, sel.homepage && <a href={sel.homepage} target="_blank" rel="noreferrer" style={{ color: "var(--tasty-accent-primary-raised)", textDecoration: "underline", textUnderlineOffset: 2 }}>{sel.homepage.replace(/^https?:\/\//, "")}</a>].filter(Boolean).map((part, i) => (
-                  <span key={i} style={{ display: "inline-flex", gap: 8, whiteSpace: "nowrap" }}>{i > 0 && <span>·</span>}{part}</span>
+                {[sel.author, sel.id, sel.homepage && <a href={sel.homepage} target="_blank" rel="noreferrer" style={{ color: "var(--tasty-accent-primary-raised)", textDecoration: "underline", textUnderlineOffset: "var(--tasty-plugins-link-underline-offset)" }}>{sel.homepage.replace(/^https?:\/\//, "")}</a>].filter(Boolean).map((part, i) => (
+                  <span key={i} style={{ display: "inline-flex", gap: "var(--tasty-space-sm)", whiteSpace: "nowrap" }}>{i > 0 && <span>·</span>}{part}</span>
                 ))}
               </div>
             </div>
 
           </div>
 
-          <p style={{ margin: 0, fontSize: 13, lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-text-secondary)", maxWidth: "var(--tasty-measure-lg)" }}>{sel.desc}</p>
+          <p style={{ margin: 0, fontSize: "var(--tasty-font-size-body)", lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-text-secondary)", maxWidth: "var(--tasty-measure-lg)" }}>{sel.desc}</p>
 
           {sel.status === "error" && isInstalled && isOn && (
-            <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "var(--tasty-space-sm) var(--tasty-space-md)",
+            <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-sm) var(--tasty-space-md)",
               borderRadius: "var(--tasty-radius)", fontSize: "var(--tasty-font-size-term-sm)", color: "var(--tasty-accent-danger-raised)",
-              background: "color-mix(in srgb, var(--tasty-accent-danger) 12%, transparent)",
-              border: "var(--tasty-border-width) solid color-mix(in srgb, var(--tasty-accent-danger) 35%, transparent)" }}>
-              <Icon name="alertCircle" size={16} />
+              background: "var(--tasty-tint-danger-bg)",
+              border: "var(--tasty-border-width) solid var(--tasty-tint-danger-border)" }}>
+              <Icon name="alertCircle" size="var(--tasty-icon-size-md)" />
               <span>Failed to connect. Check the plugin's configuration in Settings.</span>
             </div>
           )}
 
-          <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
-            <Mono>Permissions</Mono>
-            <div style={{ display: "flex", gap: "var(--tasty-space-sm)", flexWrap: "wrap" }}>
-              {sel.perms.map((p) => <Tag key={p} mono>{p}</Tag>)}
-            </div>
-          </div>
-
+          {/* 2026-11-17 — the Permissions section left with plugin permissions. Order: identity · description ·
+              (health box) · Command · Surface kinds (when any) · Install path. The column gap (16) is the only
+              spacing between sections, so nothing is added where Permissions was. */}
           {sel.cmd && (
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
               <Mono>Command</Mono>
-              <div style={{ display: "flex", alignItems: "center", gap: 16, minHeight: "var(--tasty-settings-row-min-height)",
+              <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-lg)", minHeight: "var(--tasty-settings-row-min-height)",
                 borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
                 <span style={{ flex: 1, fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-term-sm)", color: "var(--tasty-text-secondary)" }}>{sel.cmd}</span>
                 {sel.key && <Kbd keys={kbdKeys(sel.key)} />}
@@ -776,12 +755,12 @@ function PluginsWindow({ onClose, onFlash, onConfigure, removedAttention, onRemo
         </div>
 
         {/* action bar */}
-        <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-size-14)",
+        <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-plugins-inset)",
           borderTop: "var(--tasty-border-width) solid var(--tasty-separator)", flex: "none" }}>
           {isInstalled && confirmId === sel.id && (
             <>
               {/* 2026-10-09 — uninstall confirm REPLACES the bar contents in place. b10: the bar grows with its text (max(text, control 28) + space-md × 2); the note may wrap. */}
-              <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-accent-attention-raised)" }}><Icon name="alertTriangle" size={16} /></span>
+              <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-accent-attention-raised)" }}><Icon name="alertTriangle" size="var(--tasty-icon-size-md)" /></span>
               <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}>
                 <span style={{ fontSize: "var(--tasty-font-size-body)", color: "var(--tasty-text-primary)" }}>Uninstall {sel.name}?</span>
                 <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>
@@ -794,9 +773,9 @@ function PluginsWindow({ onClose, onFlash, onConfigure, removedAttention, onRemo
           )}
           {isInstalled && confirmId !== sel.id && (
             <>
-              <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
+              <label style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", cursor: "pointer" }}>
                 <Switch checked={isOn} onChange={() => toggleEnabled(sel)} />
-                <span style={{ fontSize: 13, color: "var(--tasty-text-secondary)" }}>{isOn ? "Enabled" : "Disabled"}</span>
+                <span style={{ fontSize: "var(--tasty-font-size-body)", color: "var(--tasty-text-secondary)" }}>{isOn ? "Enabled" : "Disabled"}</span>
               </label>
               <div style={{ flex: 1 }} />
               <Button variant="ghost" leadingIcon={ic.settings}
@@ -812,27 +791,29 @@ function PluginsWindow({ onClose, onFlash, onConfigure, removedAttention, onRemo
 
   return (
     <Scrim onClose={onClose}>
-      <div style={{ width: 820, height: 540, display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)",
-        border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", overflow: "hidden",
+      <div style={{ width: "var(--tasty-plugins-window-width)", height: "var(--tasty-plugins-window-height)", display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)",
+        border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden",
         boxShadow: "var(--tasty-shadow-modal)" }}>
         {/* header */}
-        <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", height: 48, flex: "none", padding: "0 var(--tasty-size-14)",
+        <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", height: "var(--tasty-plugins-header-height)", flex: "none", paddingLeft: "var(--tasty-plugins-header-pad-left)", paddingRight: "var(--tasty-plugins-header-pad-right)",
           borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)", background: "var(--tasty-bg-sidebar)" }}>
-          <span style={{ display: "inline-flex", color: "var(--tasty-brand-melon-flesh)" }}>
-            <Icon name="plug" size={16} />
+          {/* the header ornament reads plugins-header-glyph (accent-decorative, no contrast target), as the app does */}
+          {/* plug to title 12 and search to close 16: the header gap is the app's item spacing 8, and the app adds
+              hspace(spacing_xs) after the plug and hspace(spacing_sm) before the close button */}
+          <span data-ink-grade="none" data-ink-why="ornament" style={{ display: "inline-flex", color: "var(--tasty-plugins-header-glyph)", marginRight: "var(--tasty-space-xs)" }}>
+            <Icon name="plug" size="var(--tasty-icon-size-md)" />
           </span>
-          <span style={{ fontSize: 14, fontWeight: 700, color: "var(--tasty-text-primary)", letterSpacing: "var(--tasty-letter-spacing-ui)" }}>Plugins</span>
-          <span style={{ width: 1, height: 20, background: "var(--tasty-separator)", margin: "0 var(--tasty-space-sm)" }} />
-          <div style={{ display: "flex", gap: 2, padding: 2, borderRadius: "var(--tasty-radius)",
-            background: "var(--tasty-surface-active)" }}>
-            <Seg value="installed" label="Installed" count={installedCount} />
-            <Seg value="attention" label="Attention" count={attentionCount} danger />
-            <Seg value="add" label="Add plugin" />
+          <span style={{ fontSize: "var(--tasty-font-size-max)", fontWeight: "var(--tasty-font-weight-bold)", color: "var(--tasty-text-primary)", letterSpacing: "var(--tasty-letter-spacing-ui)" }}>Plugins</span>
+          <span style={{ width: "var(--tasty-border-width)", height: "var(--tasty-plugins-header-divider-height)", background: "var(--tasty-separator)", margin: "0 var(--tasty-space-sm)" }} />
+          <div style={{ display: "flex", gap: "var(--tasty-plugins-tab-gap)" }}>
+            <PluginsSeg {...segProps("installed")} label="Installed" count={installedCount} />
+            <PluginsSeg {...segProps("attention")} label="Attention" count={attentionCount} danger />
+            <PluginsSeg {...segProps("add")} label="Add plugin" />
           </div>
           <div style={{ flex: 1 }} />
           {tab === "installed" && (
             <Input icon={ic.search} placeholder="Filter installed…"
-              value={q} onChange={(e) => setQ(e.target.value)} style={{ width: "var(--tasty-field-width-lg)" }} />
+              value={q} onChange={(e) => setQ(e.target.value)} style={{ width: "var(--tasty-field-width-lg)", marginRight: "var(--tasty-space-sm)" }} />
           )}
           <IconButton aria-label="Close" onClick={onClose}>
             <Icon name="close" />
@@ -845,13 +826,13 @@ function PluginsWindow({ onClose, onFlash, onConfigure, removedAttention, onRemo
               onAdded={(m) => { onFlash && onFlash("Added " + m.name); setTab("installed"); }}
               onCancel={() => setTab("installed")} />
           ) : tab === "attention" ? (
-            <AttentionPanel items={attention} onFlash={onFlash} onConfigure={onConfigure} onRemove={removeAttention} />
+            <AttentionPanel items={attention} onFlash={onFlash} onConfigure={onConfigure} onRemove={removeAttention} lang={lang} />
           ) : (
           <React.Fragment>
           {/* list */}
-          <div className="tasty-scroll" style={{ width: "var(--tasty-plugins-list-width)", flex: "none", overflow: "auto", padding: 8,
+          <div className="tasty-scroll" style={{ width: "var(--tasty-plugins-list-width)", flex: "none", overflow: "auto", padding: "var(--tasty-space-sm)",
             background: "var(--tasty-bg-sidebar)", borderRight: "var(--tasty-border-width) solid var(--tasty-separator)",
-            display: "flex", flexDirection: "column", gap: 3 }}>
+            display: "flex", flexDirection: "column", gap: "var(--tasty-plugins-list-row-gap)" }}>
             {list.map((p) => {
               const on = p.id === selId;
               const isOn = installed[p.id] && enabled[p.id];
@@ -863,7 +844,7 @@ function PluginsWindow({ onClose, onFlash, onConfigure, removedAttention, onRemo
                   <PluginAvatar plugin={p} size="sm" />
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)" }}>
-                      <span style={{ fontSize: 13, color: on ? "var(--tasty-text-on-active)" : "var(--tasty-text-secondary)",
+                      <span style={{ fontSize: "var(--tasty-font-size-body)", color: on ? "var(--tasty-text-on-active)" : "var(--tasty-text-secondary)",
                         overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.name}</span>
                     </div>
                     <div style={{ fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-micro)", color: on ? "var(--tasty-text-on-active)" : "var(--tasty-text-muted)",
@@ -872,18 +853,18 @@ function PluginsWindow({ onClose, onFlash, onConfigure, removedAttention, onRemo
                     </div>
                   </div>
                   {installed[p.id] ? (
-                    !isOn && <span style={{ flex: "none", fontFamily: "var(--tasty-font-label)", fontSize: 10,
+                    !isOn && <span style={{ flex: "none", fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-micro)",
                       color: on ? "var(--tasty-text-on-active)" : "var(--tasty-text-muted)" }}>off</span>
                   ) : (
-                    <span style={{ flex: "none", fontFamily: "var(--tasty-font-label)", fontSize: 10,
+                    <span style={{ flex: "none", fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-micro)",
                       color: "var(--tasty-text-muted)" }}>{p.cat}</span>
                   )}
                 </div>
               );
             })}
             {list.length === 0 && (
-              <div style={{ padding: 14, fontSize: "var(--tasty-font-size-term-sm)", color: "var(--tasty-text-muted)", textAlign: "center" }}>
-                {q ? "No matches" : tab === "installed" ? "Nothing installed yet" : "All caught up"}
+              <div lang={installedEmptyLang} style={{ padding: "var(--tasty-space-lg) 0 0", fontSize: "var(--tasty-font-size-body)", color: "var(--tasty-text-muted)" }}>
+                {installedEmptyText}
               </div>
             )}
           </div>

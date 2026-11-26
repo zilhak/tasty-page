@@ -1,4 +1,4 @@
-<!-- source-hash: 0dbca77a03e7 -->
+<!-- source-hash: 86c0448c5ab6 -->
 # Tasty 指南
 
 Tasty 是适用于 Windows、macOS、Linux 的 GPU 加速终端，通过工作区区分项目，通过窗格和标签页排列终端和文档。
@@ -15,3 +15,4 @@ Tasty 是适用于 Windows、macOS、Linux 的 GPU 加速终端，通过工作�
 - [连接 Claude 和 Codex](agents/claude-codex.md)
 - [连接远程 Tasty](remote/attach.md)
 - [故障排除](help/troubleshooting.md)
+- [崩溃、无响应报告与日志](help/error-reports.md)

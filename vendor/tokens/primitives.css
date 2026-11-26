@@ -5,7 +5,9 @@
    colors / pixels / ms. Numeric scales, no roles, no opinions.
 
    • DO read these from the SEMANTIC layer.
-   • DO NOT reference these directly from components or app code.
+   • DO NOT reference these directly from app code. A component token
+     reads one only for a part-only size, radius or duration measure
+     (TOKENS.md, "Part-only measures").
 
    Theme: Catppuccin. Mocha (dark) is the :root baseline; Latte
    (light) re-points the theme-scoped primitives under
@@ -97,9 +99,11 @@
   /* fixed control dimensions (off-grid, but real product values) */
   --tasty-size-20:  20px;  /* modifier-hint empty-row min height (2026-10-07) */
   --tasty-size-22:  22px;
+  --tasty-size-26:  26px;  /* 2026-11-26 plugins window header tab height, the app's 26 */
   --tasty-size-28:  28px;
   --tasty-size-32:  32px;
   --tasty-size-36:  36px;  /* titlebar height (CSD) */
+  --tasty-size-35: 35px; /* 2026-11-26 remote connections tab height (with its 1px bar edge, the bar is 36) */
   --tasty-size-40:  40px;  /* image zoom-percent label min width (2026-10-07) */
   --tasty-size-44:  44px;  /* preset-window detail toolbar / surface-settings header height */
   --tasty-size-46:  46px;  /* Windows caption button width */
@@ -110,22 +114,28 @@
   --tasty-size-150: 150px;
   --tasty-size-196: 196px; /* explorer sidebar width */
   --tasty-size-240: 240px; /* tooltip max-width · explorer favorites pin height */
+  --tasty-size-260: 260px; /* 2026-11-26 caret specimen field */
   --tasty-size-320: 320px; /* toast / popover max-width */
   --tasty-size-352: 352px;  /* notifications popup default width */
   /* layout / form-control / measure widths (fixed product dimensions; like 22/46
      above, some are off the 4px grid — real control widths, not spacing rhythm) */
   --tasty-size-64:  64px;  /* file-picker ancestor-crumb floor */
+  --tasty-size-76:  76px;  /* listening ports Proto column */
+  --tasty-size-80:  80px;  /* explorer Detail Size column */
+  --tasty-size-84:  84px;  /* listening ports Port column */
   --tasty-size-88:  88px;
   --tasty-size-90:  90px;
+  --tasty-size-92:  92px;  /* explorer Detail Type column */
   --tasty-size-96:  96px;  /* file-picker current-folder crumb floor */
   --tasty-size-110: 110px;
   --tasty-size-112: 112px;
+  --tasty-size-132: 132px; /* explorer Detail Date modified column */
   --tasty-size-140: 140px; /* keybinding replacement-slot min width */
   --tasty-size-160: 160px;
   --tasty-size-168: 168px; /* DAG node card width */
   --tasty-size-180: 180px;
   --tasty-size-200: 200px;
-  --tasty-size-220: 220px; /* autocomplete dropdown default max-height (~7 rows) */
+  --tasty-size-220: 220px; /* dropdown-max-height (~7 rows) */
   --tasty-size-288: 288px;
   --tasty-size-300: 300px;
   --tasty-size-360: 360px; /* info modal max height (boot notice queue) */
@@ -138,6 +148,13 @@
   --tasty-size-620: 620px; /* settings content column max width */
   --tasty-size-540: 540px; /* command palette card width (2026-10-06) */
   --tasty-size-700: 700px; /* settings window height (2026-10-06) */
+  --tasty-size-520: 520px; /* 2026-11-25 listening ports window height */
+  --tasty-size-640: 640px; /* 2026-11-25 preset window height */
+  --tasty-size-660: 660px; /* 2026-11-25 listening ports window width */
+  --tasty-size-680: 680px; /* 2026-11-25 remote workspace picker width */
+  --tasty-size-960: 960px; /* 2026-11-25 preset window width */
+  --tasty-size-760: 760px; /* 2026-11-25 image state grid in the gallery */
+  --tasty-size-880: 880px; /* 2026-11-25 plugins window default width */
   --tasty-size-1100: 1100px; /* settings window width (2026-10-06) */
 
   /* ── Radius scale ─────────────────────────────────────────── */
@@ -152,6 +169,23 @@
                             "Noto Sans", "Helvetica Neue", Arial, sans-serif;
   --tasty-font-family-mono: "D2Coding", "SF Mono", "Cascadia Code",
                             "JetBrains Mono", ui-monospace, "Menlo", "Consolas", monospace;
+  /* The UI family: D2Coding first, the face the design sets UI text in, then the system sans for
+     the letters D2Coding lacks (most Han) and for a page that has not loaded the font. Not the mono stack: what
+     follows D2Coding here draws running text, not cells. */
+  --tasty-font-family-ui:   "D2Coding", -apple-system, BlinkMacSystemFont, "Segoe UI",
+                            "Noto Sans", "Helvetica Neue", Arial, sans-serif;
+  /* The UI family in Japanese and in Simplified Chinese. "D2Coding Hangul Latin" is D2Coding with a
+     unicode-range that leaves out Han, kana, CJK punctuation and full-width forms, so it still draws
+     Latin, digits, Hangul and symbols. The language's own CJK fonts draw the rest, so the Han in one
+     word never comes from two faces. Read through tokens/base.css, RULES section 8. */
+  --tasty-font-family-ui-ja: "D2Coding Hangul Latin", "Hiragino Sans", "Hiragino Kaku Gothic ProN",
+                             "Yu Gothic UI", "Yu Gothic", "Meiryo", "Noto Sans CJK JP", "Noto Sans JP",
+                             -apple-system, BlinkMacSystemFont, "Segoe UI",
+                             "Noto Sans", "Helvetica Neue", Arial, sans-serif;
+  --tasty-font-family-ui-zh-hans: "D2Coding Hangul Latin", "PingFang SC", "Hiragino Sans GB",
+                             "Microsoft YaHei UI", "Microsoft YaHei", "Noto Sans CJK SC", "Noto Sans SC",
+                             -apple-system, BlinkMacSystemFont, "Segoe UI",
+                             "Noto Sans", "Helvetica Neue", Arial, sans-serif;
   /* The same names without D2Coding and without the generic family, in the same order. For a place that
      must not draw in D2Coding, and so that a language's own font names can come before the generic family. */
   --tasty-font-family-mono-system: "SF Mono", "Cascadia Code", "JetBrains Mono", ui-monospace, "Menlo", "Consolas";

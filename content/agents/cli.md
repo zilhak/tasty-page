@@ -6,7 +6,7 @@
 
 ## 준비
 
-- Tasty 가 실행 중이어야 합니다. CLI 는 `~/.tasty/tasty.port` 에 적힌 포트로 실행 중인 인스턴스에 접속합니다.
+- Tasty가 실행 중이어야 합니다. CLI는 기본적으로 자신의 데이터 폴더에 있는 `tasty.port`를 읽습니다. `TASTY_HOME`을 지정하지 않으면 배포판은 `~/.tasty/tasty.port`, 개발용 빌드는 `~/.tasty-debug/tasty.port`를 읽습니다. 기본 포트 파일을 쓸 때는 연결할 Tasty와 CLI가 같은 데이터 폴더를 보도록 `TASTY_HOME`을 맞추세요. 실행 중인 Tasty가 별도 포트 파일을 쓴다면 CLI에도 `--port-file`로 같은 파일을 지정하세요.
 - Tasty 가 띄운 터미널 안에서는 `tasty` 가 이미 PATH 에 있습니다. 밖(다른 터미널 앱)에서 쓰려면 Tasty 실행 파일이 있는 경로를 PATH 에 넣습니다. 설치 방식별 경로는 [설치](../getting-started/install.md#설치-위치) 에 있습니다.
 - Tasty 가 띄운 셸에는 `TASTY_SURFACE_ID` 환경변수가 들어 있습니다. `--surface` 를 생략한 명령은 대부분 이 값을 쓰므로(`tasty new workspace` · `tasty output observe start` 는 예외), 자기 터미널을 조작할 때는 ID 를 적지 않아도 됩니다.
 - Codex 플러그인이 설치돼 있으면, Codex 의 명령 실행 안(`CODEX_THREAD_ID` 가 있는 환경)에서는 그 셸의 `TASTY_SURFACE_ID` 가 다른 터미널의 값일 수 있어 plugin 이 추가한 명령(예: `tasty codex …`, `tasty claude …`)은 이 값으로 `--surface` 를 채우지 않습니다. 대상이 필요하면 `--surface` 로 지정합니다. `CODEX_THREAD_ID` 값이 올바르지 않으면 `tasty codex …`·`tasty claude …` 는 실행되지 않고, 다른 plugin 명령은 평소처럼 실행됩니다.

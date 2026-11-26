@@ -14,14 +14,15 @@
 
 - 사이트 소스: [한국어](../../content/getting-started/install.md) · [영어](../../content/en/getting-started/install.md)
 - 역할: 설치 파일 선택부터 첫 실행까지.
-- 보여 줄 항목: OS·아키텍처, 지원 조건, 파일 종류, 첫 실행, Windows에서 Tasty가 지원하는 셸 범위(Git for Windows의 Git Bash만)와 셸 선택 화면이 뜨는 경우, 업데이트·제거, headless의 별도 목적.
+- 보여 줄 항목: OS·아키텍처, 지원 조건, Linux 최소 glibc 버전, Linux 배포판 지원 범위, 파일 종류, 첫 실행, Windows에서 Tasty가 지원하는 셸 범위(Git for Windows의 Git Bash만)와 셸 선택 화면이 뜨는 경우, 업데이트·제거, headless의 별도 목적.
 - 넣지 않을 항목: 패키지 매니저 저장소 제공 약속, Intel Mac 지원 약속, 기본 사용자에게 빌드 지시, Windows 셸 범위를 OS 제약으로 설명, Git Bash가 아닌 셸의 우회·설정 예시.
 - 구성: 설치 파일 표, GPU 요구사항, OS별 첫 실행, Windows ARM 지원, headless의 용도를 보여 준다.
+- 헤드리스 빌드에서 보여 줄 항목: 동시 실행 시 `TASTY_HOME` 분리, 같은 데이터 폴더의 잠금이 계속 잡혀 있을 때 종료 코드 1과 문제 해결 안내 연결.
 
 ## 첫 화면 둘러보기
 
 - 사이트 소스: [한국어](../../content/getting-started/first-look.md) · [영어](../../content/en/getting-started/first-look.md)
 - 역할: 화면의 이름과 첫 조작 연결.
-- 보여 줄 항목: 화면 구성, 두 단계 분할, 튜토리얼 진입, 짧은 첫 조작, 다음 실습 링크.
+- 보여 줄 항목: 화면 구성, 두 단계 분할, 탭 바의 분할 버튼이 있는 페인과 다른 페인에 포커스가 있을 때의 동작, 튜토리얼 진입, 짧은 첫 조작, 종료 동작 설정별 마지막 작업 윈도우 닫기, Windows·X11·XWayland의 트레이 생성 여부에 따른 최소화와 트레이 메뉴 복귀, macOS의 상태 보관과 Dock·메뉴 막대 복귀, 네이티브 Wayland 최소화 요청, X11·XWayland와 네이티브 Wayland의 트레이 문제 해결 및 복귀 안내 링크, X11·XWayland의 GTK 초기화 실패 안내 연결, 다음 실습 링크.
 - 넣지 않을 항목: 상태바 축소 우선순위·모든 단축키를 초반 필수 암기로 제시.
 - 구성: 튜토리얼, 네 가지 화면 구성 단위와 두 단계 분할, 최소 조작을 먼저 보여 준다. 상태바 세부 정보는 접힌 참조로, 전체 단축키와 복원 상세는 해당 가이드로 연결한다.

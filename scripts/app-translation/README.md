@@ -4,6 +4,8 @@ Tasty 언어 파일 10개의 중국어 간체(`zh-Hans`) 번역을 Codex에 나�
 
 **번역문은 Codex만 쓴다.** 값이 틀리면 키와 사유를 `repair`나 `retranslate`로 다시 보낸다. raw 파일과 조립 결과를 손으로 고치지 않는다.
 
+zh-Hans는 tasty `cbab01edd`에서 내장 언어로 등록됐다. 그래서 이 레포에 두던 넘길 때의 사본은 지웠고, 등록 뒤 앱 문구의 zh-Hans 수정은 tasty 쪽 경로로 처리한다. 이 레포에 남는 것은 용어집 `vendor/i18n/zh-Hans/glossary.json`이다.
+
 ## Codex 실행 방식
 
 도구는 묶음마다 아래 명령을 새 프로세스로 실행한다. 재료는 전부 표준 입력으로 넘기고, Codex는 셸과 파일을 쓰지 않는다. 출력 파일은 샌드박스 밖의 CLI 프로세스가 쓴다.
@@ -58,7 +60,7 @@ python3 $T check --state $S --json review.json
 python3 $T repair --state $S --chunk <묶음>
 python3 $T retranslate --state $S --keys <id,id 또는 파일> --reason "<사유>"
 python3 $T decide --state $S --key <id> --keep --reason "<사유>"
-python3 $T assemble --state $S --out vendor/i18n/zh-Hans/app
+python3 $T assemble --state $S --out <출력 폴더>
 ```
 
 `check`, `run`, `assemble`은 기본으로 `vendor/i18n/zh-Hans/glossary.json`을 읽는다. 다른 파일은 `--glossary`로 넘긴다.
@@ -127,7 +129,7 @@ python3 $T prepare --tasty <tasty 경로> --commit $N --state <상태 폴더>/$N
 python3 $T status --state <상태 폴더>/$N
 python3 $T run --state <상태 폴더>/$N --pending
 python3 $T check --state <상태 폴더>/$N
-python3 $T assemble --state <상태 폴더>/$N --out vendor/i18n/zh-Hans/app
+python3 $T assemble --state <상태 폴더>/$N --out <출력 폴더>
 ```
 
 - `prepare`는 `added`(새 항목), `changed`(en이 바뀐 항목), `removed`(없어진 항목)를 id까지 출력한다. 묶음은 `added`와 `changed`로만 만든다.
@@ -137,7 +139,7 @@ python3 $T assemble --state <상태 폴더>/$N --out vendor/i18n/zh-Hans/app
 - 규칙의 원본 시험 파일이 바뀌었으면 `prepare`가 경고한다. `rules.py`와 비교한 뒤 진행한다.
 - 이미 `zh-Hans.toml`이 있는 커밋은 거부한다. 등록 뒤의 수정은 tasty 쪽 경로로 처리한다.
 
-`vendor/i18n/zh-Hans/app/`은 넘길 때의 사본이다. tasty 등록이 main에 들어간 뒤 지운다.
+조립 결과는 tasty에 넘길 때의 사본이었다. tasty 등록(`cbab01edd`)이 main에 들어가 이 레포의 사본은 지웠다.
 
 ## 검사
 
@@ -189,9 +191,9 @@ en과 같은 값은 세 갈래다. ① `is_language_neutral` 통과 ② 기준 �
 ## 결과
 
 ```
-vendor/i18n/zh-Hans/app/MANIFEST.json
-vendor/i18n/zh-Hans/app/lang/zh-Hans.toml
-vendor/i18n/zh-Hans/app/crates/tasty-plugin-<id>/lang/zh-Hans.toml   (9개)
+<출력 폴더>/MANIFEST.json
+<출력 폴더>/lang/zh-Hans.toml
+<출력 폴더>/crates/tasty-plugin-<id>/lang/zh-Hans.toml   (9개)
 ```
 
 `ko.toml`을 틀로 값만 바꾼다. 키 순서, 절 순서, 주석은 그대로이고 첫 줄 언어 표시 주석만 바꾼다. 상대 경로는 tasty와 같다.

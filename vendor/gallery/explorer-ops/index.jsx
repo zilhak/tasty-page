@@ -1,11 +1,12 @@
 import React from "react";
+import { PopupFocusEdge } from "../../ui_kits/terminal/overlays/shared.jsx";
 import * as YDS from "../../components/index.js";
 import { FollowupsB11Section as ExplorerOpsB11_FollowupsB11Section } from "./results-and-refusals.jsx";
 import { RemainingSection as ExplorerOpsB11_RemainingSection } from "./remaining-states.jsx";
 import { FollowupsB12Section as ExplorerOpsB12_FollowupsB12Section } from "./address-and-toolbar.jsx";
 import { RemainingB12Section as ExplorerOpsB12_RemainingB12Section } from "./properties-and-preview.jsx";
 import { PermanentDeleteSection as ExplorerOpsDelete_PermanentDeleteSection } from "./delete-permanently.jsx";
-import { XCol, XThemes, XToolbar, XCell, XDetail, XROWS, XListRow, XHi, XFindBar, XListEdit, CreateSection, DragSection, SearchSection } from "./create-drag-search.jsx";
+import { XCol, XThemes, XToolbar, XCell, xWideToolbarMin, XDetail, XROWS, XListRow, XHi, XFindBar, XListEdit, CreateSection, DragSection, SearchSection } from "./create-drag-search.jsx";
 import { PropsActionsSection as ExplorerOpsPropsActions_PropsActionsSection } from "./properties-actions.jsx";
 import { RemoteWriteSection as ExplorerOpsRemote_RemoteWriteSection } from "./remote-writes.jsx";
 import { StagingLeftSection as ExplorerOpsStaging_StagingLeftSection } from "./staging-left.jsx";
@@ -82,7 +83,8 @@ function YConflict({ many, folder }) {
     </div>
   );
   return (
-    <div style={{ width: "var(--tasty-explorer-conflict-width)", maxWidth: "100%", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", overflow: "hidden" }}>
+    <div style={{ position: "relative", width: "var(--tasty-explorer-conflict-width)", maxWidth: "100%", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", overflow: "hidden" }}>
+      <PopupFocusEdge />
       <div style={{ padding: "var(--tasty-space-md) var(--tasty-size-14) var(--tasty-space-sm)", display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
         <div style={{ fontSize: "var(--tasty-font-size-max)", fontWeight: "var(--tasty-font-weight-semibold)", color: "var(--tasty-text-primary)" }}>{folder ? "A folder named “assets” already exists" : "“report.pdf” already exists"}</div>
         <div style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>in ~/Documents</div>
@@ -214,10 +216,11 @@ function YField({ k, v, mono, copy, spin }) {
 }
 function YProps({ glyph = YK.ic.file, glyphColor, name, children, note }) {
   return (
-    <div style={{ width: "var(--tasty-explorer-props-width)", maxWidth: "100%", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", overflow: "hidden" }}>
+    <div style={{ position: "relative", width: "var(--tasty-explorer-props-width)", maxWidth: "100%", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", overflow: "hidden" }}>
+      <PopupFocusEdge />
       <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-explorer-props-padding-x) var(--tasty-space-sm)" }}>
         <span style={{ display: "inline-flex", flex: "none", color: glyphColor || "var(--tasty-text-muted)" }}>{glyph}</span>
-        <span style={{ flex: 1, minWidth: 0, fontSize: "var(--tasty-font-size-max)", fontWeight: "var(--tasty-font-weight-normal)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{name}</span>
+        <span style={{ flex: 1, minWidth: 0, fontSize: "var(--tasty-font-size-max)", fontWeight: "var(--tasty-font-weight-semibold)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{name}</span>
         <YIconButton size="sm" aria-label="Close" title="Close">{YK.ic.x}</YIconButton>
       </div>
       <div style={{ padding: "0 var(--tasty-explorer-props-padding-x) var(--tasty-space-md)", display: "flex", flexDirection: "column" }}>
@@ -235,7 +238,7 @@ function YPreview({ kind }) {
   );
   else if (kind === "image") body = (
     <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-sidebar)" }}>
-      <div style={{ width: "100%", aspectRatio: "16 / 9", display: "flex", alignItems: "center", justifyContent: "center", border: "var(--tasty-border-width) solid var(--tasty-separator)", borderRadius: "var(--tasty-radius-sm)", background: "var(--tasty-surface-raised)", color: "var(--tasty-text-muted)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)" }}>image · fit</div>
+      <div style={{ width: "100%", aspectRatio: "16 / 9", display: "flex", alignItems: "center", justifyContent: "center", border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius-sm)", background: "var(--tasty-surface-raised)", color: "var(--tasty-text-muted)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)" }}>image · fit</div>
     </div>
   );
   else {
@@ -275,7 +278,7 @@ function PropertiesSection() {
   return (
     <YSection id="properties" title="Properties · preview panel · Grid thumbnails">
       <YSpec id="properties-popup-for-one-item-folder-several-remote" title="Properties — popup for one item · folder · several · remote"
-        when={<>Opened from the <b>Properties</b> context-menu row or the app's properties action, as a popup scoped to the explorer cell (same family as Rename; no scrim needed, <span className="ic">Esc</span> or × closes). It shows the item it was <b>opened for</b> and does not follow later selection changes. Fields are a two-column list: caption label (96) and value; paths and permissions are mono and wrap anywhere, with a Copy button on Location and Link target. Sizes that take time (folders, several items) show a Spinner and fill in when the background count ends; the popup never blocks the list. A <b>remote</b> item shows only what the host lists (name, kind, size, modified, location) and says so.</>}>
+        when={<>Opened from the <b>Properties</b> context-menu row or the app's properties action, as a popup scoped to the explorer cell (same family as Rename; no scrim needed, <span className="ic">Esc</span> or × closes). It shows the item it was <b>opened for</b> and does not follow later selection changes. Fields are a two-column list: caption label (96) and value; paths and permissions are mono and wrap anywhere, with a Copy button on Location and Link target. Sizes that take time (folders, several items) show a Spinner and fill in when the background count ends; the popup never blocks the list. A <b>remote</b> item shows only what the host lists (name, kind, size, modified, path) and says so. Its Path is the <b>remote absolute path</b> as it is (one item: the full path; several: Location, the common parent), with no host prefix and no <span className="ic">~</span>. It is a value the Copy button hands out, so an attach with <b>no profile name</b> (<code>--ssh</code> or <code>--target-port</code> from the CLI or IPC, a profile saved with an empty name) changes nothing here: no word Remote is added, and <code>127.0.0.1:&lt;port&gt;</code> is never shown. The note already says the item is remote.</>}>
         <YStage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 16, flexWrap: "wrap", alignItems: "flex-start" }}>
           <XThemes render={() => (
             <YProps glyph={YK.ic.image} name="diagram.png">
@@ -314,23 +317,23 @@ function PropertiesSection() {
               <YField k="Kind" v="File" />
               <YField k="Size" v="2.1 MB" />
               <YField k="Modified" v="2026-10-09 08:12" mono />
-              <YField k="Location" v="build-eu:~/logs" mono copy />
+              <YField k="Path" v="/home/me/logs/build-0412.log" mono copy />
             </YProps>
           </XCol>
         </YStage>
         <YMeta
-          specs={[["open", "context menu Properties (every shape) · keybinding action explorer.properties"], ["popup", "explorer-props-width 360 · scoped to the cell · shadow-modal · Esc / ×"], ["title", "glyph + name · 14 semibold · ellipsis"], ["fields", "label explorer-props-label-width 96 · caption muted · value body 13 (mono caption for paths / dates / mode) · wrap anywhere"], ["local file", "Kind · Size (with bytes) · Modified · Created · Location · Permissions"], ["folder", "Size counts in the background (Spinner) · item count"], ["symlink", "Link target + Copy"], ["several", "“{n} items” · Kinds · Total size · Location (common parent)"], ["remote", "Kind · Size · Modified · Location · muted note"], ["selection change", "popup keeps its item"]]}
+          specs={[["open", "context menu Properties (every shape) · keybinding action explorer.properties"], ["popup", "explorer-props-width 360 · scoped to the cell · shadow-modal · Esc / ×"], ["title", "glyph + name · 14 semibold · ellipsis"], ["fields", "label explorer-props-label-width 96 · caption muted · value body 13 (mono caption for paths / dates / mode) · wrap anywhere"], ["local file", "Kind · Size (with bytes) · Modified · Created · Location · Permissions"], ["folder", "Size counts in the background (Spinner) · item count"], ["symlink", "Link target + Copy"], ["several", "“{n} items” · Kinds · Total size · Location (common parent)"], ["remote", "Kind · Size · Modified · Path · muted note"], ["remote Path", "the remote absolute path as it is — one item: Path (full path) · several: Location (common parent) · no host prefix, no ~ · no profile name: the same, no word Remote — Copy gives a path · never 127.0.0.1:<port>"], ["selection change", "popup keeps its item"]]}
           tokens={[{ tok: "--tasty-explorer-props-width", use: "→ size-360" }, { tok: "--tasty-explorer-props-label-width", use: "→ size-96" }, { tok: "--tasty-shadow-modal", use: "popup" }, { tok: "--tasty-spinner-indicator", use: "counting", color: "var(--tasty-spinner-indicator)" }]} />
       </YSpec>
 
       <YSpec id="preview-panel-text-image-other-loading-too-large-unreadable" title="Preview panel — text · image · other · loading · too large · unreadable"
         when={<>The preview panel <b>comes back as a toggle</b> (toolbar view group). It docks on the right of the listing at <span className="tok">--tasty-explorer-preview-width</span> (288), resizable by a splitter between 200 and 460; the width is remembered per explorer. A 40 header shows the name and “kind · size” (image: pixel size). <b>Text</b> files (UTF-8, by extension or content) show their first 64 KB in mono; <b>images</b> fit the panel; anything else, folders included, shows “No preview for this file type” and leaves the facts to the header. A new selection clears the old preview at once and shows <b>Loading preview…</b> until the read ends. Over 1 MB or unreadable shows a state, never content. Remote explorers preview text and images the host returns.</>}>
-        <YStage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 16, flexWrap: "wrap", alignItems: "flex-start" }}>
-          <XCol label="text" w={640}>
-            <XCell w={640} h={250} toolbar={<XToolbar preview />} status="5 items · 1 selected"><XDetail states={{ 4: "selected" }} /><YPreview kind="text" /></XCell>
+        <YStage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 16, flexWrap: "wrap", alignItems: "flex-start", justifyContent: "safe center" }}>
+          <XCol label="text" w={640} preview>
+            <XCell w={640} h={250} preview toolbar={<XToolbar preview />} status="5 items · 1 selected"><XDetail states={{ 4: "selected" }} /><YPreview kind="text" /></XCell>
           </XCol>
-          <XCol label="image" w={640}>
-            <XCell w={640} h={250} toolbar={<XToolbar preview />} status="5 items · 1 selected"><XDetail states={{ 3: "selected" }} /><YPreview kind="image" /></XCell>
+          <XCol label="image" w={640} preview>
+            <XCell w={640} h={250} preview toolbar={<XToolbar preview />} status="5 items · 1 selected"><XDetail states={{ 3: "selected" }} /><YPreview kind="image" /></XCell>
           </XCol>
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
             {["none", "loading", "large", "error"].map((k) => (
@@ -381,26 +384,26 @@ function FollowupsSection() {
   return (
     <YSection id="followups" title="Follow-ups — find · names · results · properties">
       <YSpec id="find-every-view-highlights-while-filtering-no-matches-skipped-ca" title="Find — every view highlights · `..` while filtering · no matches · skipped · cap · More rows"
-        when={<>The matched part takes <span className="tok">--tasty-accent-primary-raised</span> in <b>all three views</b> (Detail, List, Grid), filter and search alike. While <b>filtering</b> the <code>..</code> row stays at the top: it is navigation, never matched, never counted in “{"{shown}"} of {"{total}"}”; recursive results drop it (they replace the listing). A filter with <b>no matches</b> keeps the bar (“0 of 6”) and shows the state screen with a filter line — <b>“No names match “{"{query}"}””</b>, no sub-line. One unreadable folder reads <b>“1 folder skipped”</b>. A recursive search <b>stops at 5,000</b> results: the bar reads “5,000+ found · stopped”, the results stay, and a muted line asks for a longer query. Native menus have no check mark, so the <b>More</b> rows say the action: <b>Find / Close find</b>, <b>Show preview / Hide preview</b> — and Preview folds into More with the rest of the view group under 440.</>}>
+        when={<>The matched part takes <span className="tok">--tasty-explorer-match-fg</span> in <b>all three views</b> (Detail, List, Grid), filter and search alike. While <b>filtering</b> the <code>..</code> row stays at the top: it is navigation, never matched, never counted in “{"{shown}"} of {"{total}"}”; recursive results drop it (they replace the listing). A filter with <b>no matches</b> keeps the bar (“0 of 6”) and shows the state screen with a filter line — <b>“No names match “{"{query}"}””</b>, no sub-line. One unreadable folder reads <b>“1 folder skipped”</b>. A recursive search <b>stops at 5,000</b> results: the bar reads “5,000+ found · stopped”, the results stay, and a muted line asks for a longer query. Native menus have no check mark, so the <b>More</b> rows say the action: <b>Find / Close find</b>, <b>Show preview / Hide preview</b> — and Preview folds into More with the rest of the view group under 440.</>}>
         <YStage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 16, flexWrap: "wrap", alignItems: "flex-start" }}>
-          <XCol label="List — filter “re” · .. kept" w={360}>
-            <XCell w={360} h={190} toolbar={<XToolbar search view="list" />} bar={<XFindBar value="re" right="2 of 6" />} status="2 of 6 items">
+          <XCol label="List — filter “po” · .. kept" w={xWideToolbarMin}>
+            <XCell w={xWideToolbarMin} h={190} toolbar={<XToolbar search view="list" />} bar={<XFindBar value="po" right="2 of 6" />} status="2 of 6 items">
               <div style={{ flex: 1, padding: 4, display: "flex", flexDirection: "column" }}>
                 <XListRow glyph={YK.ic.folder} name=".." />
-                <XListRow glyph={YK.ic.file} name={<XHi text="report.pdf" q="re" selected />} state="selected" />
-                <XListRow glyph={YK.ic.folder} name={<XHi text="mockup-exports" q="re" />} />
+                <XListRow glyph={YK.ic.file} name={<XHi text="report.pdf" q="po" selected />} state="selected" />
+                <XListRow glyph={YK.ic.folder} name={<XHi text="mockup-exports" q="po" />} />
               </div>
             </XCell>
           </XCol>
-          <XCol label="Grid — same highlight" w={360}>
-            <XCell w={360} h={190} toolbar={<XToolbar search view="grid" />} bar={<XFindBar value="re" right="2 of 6" />}>
+          <XCol label="Grid — same highlight" w={xWideToolbarMin}>
+            <XCell w={xWideToolbarMin} h={190} toolbar={<XToolbar search view="grid" />} bar={<XFindBar value="po" right="2 of 6" />}>
               <div style={{ flex: 1, display: "flex", gap: 4, padding: 8 }}>
-                <YGridHit name=".." q="" glyph={YK.ic.folder} /><YGridHit name="report.pdf" q="re" /><YGridHit name="mockup-exports" q="re" glyph={YK.ic.folder} />
+                <YGridHit name=".." q="" glyph={YK.ic.folder} /><YGridHit name="report.pdf" q="po" /><YGridHit name="mockup-exports" q="po" glyph={YK.ic.folder} />
               </div>
             </XCell>
           </XCol>
-          <XCol label="filter — no matches" w={360}>
-            <XCell w={360} h={190} toolbar={<XToolbar search />} bar={<XFindBar value="rezzz" right="0 of 6" />}>
+          <XCol label="filter — no matches" w={xWideToolbarMin}>
+            <XCell w={xWideToolbarMin} h={190} toolbar={<XToolbar search />} bar={<XFindBar value="rezzz" right="0 of 6" />}>
               <YK.ExpState glyph={<YIcon name="search" />} title="No names match “rezzz”" />
             </XCell>
           </XCol>
@@ -420,7 +423,7 @@ function FollowupsSection() {
         </YStage>
         <YMeta
           specs={[["highlight", "Detail · List · Grid — filter and search"], [".. row", "kept while filtering (not counted) · dropped from recursive results"], ["filter 0", "bar “0 of {total}” · search glyph · “No names match “{query}”” · no sub-line"], ["skipped", "explorer.find.skipped_one “1 folder skipped” · skipped “{n} folders skipped”"], ["cap", "5,000 results · “{n}+ found · stopped” · status line hint · results kept"], ["More rows", "Find ↔ Close find · Show preview ↔ Hide preview · no check marks on any OS"], ["narrow", "< 440: New folder · New file · Find · Preview all fold into More"]]}
-          tokens={[{ tok: "--tasty-accent-primary-raised", use: "all views", color: "var(--tasty-accent-primary-raised)" }, { tok: "--tasty-explorer-toolbar-compact-below", use: "→ 440" }, { tok: "--tasty-accent-warning", use: "skipped", color: "var(--tasty-accent-warning-raised)" }]} />
+          tokens={[{ tok: "--tasty-explorer-match-fg", use: "all views → accent-primary-raised", color: "var(--tasty-explorer-match-fg)" }, { tok: "--tasty-explorer-toolbar-compact-below", use: "→ 440" }, { tok: "--tasty-accent-warning", use: "skipped", color: "var(--tasty-accent-warning-raised)" }]} />
         <YNote>i18n (new): <code>explorer.find.none_filter</code> “No names match “{"{query}"}”” · <code>explorer.find.skipped_one</code> “1 folder skipped” · <code>explorer.find.capped</code> “{"{n}"}+ found · stopped” · <code>explorer.find.capped_hint</code> “Showing the first {"{n}"}. Type more to narrow the search.” · <code>explorer.more.find_close</code> “Close find” · <code>explorer.more.preview_show</code> “Show preview” · <code>explorer.more.preview_hide</code> “Hide preview”.</YNote>
       </YSpec>
 
@@ -475,8 +478,8 @@ function FollowupsSection() {
           ))}
         </YStage>
         <YMeta
-          specs={[["can't read", "title = item glyph + name · alertTriangle + “Can't read properties” (explorer-error-fg) · reason mono · Retry (secondary sm)"], ["title weight", "regular (font-weight-normal) at 14 — rule for every popup title until a semibold UI face ships"], ["none selected", "“Select a file” (unchanged)"], ["several", "layers glyph · “{n} items selected” · “Select one file to preview it.”"], ["pixel limit", "same screen as > 1 MB · sub “Over {px} px on a side, or needs more than {mem} to decode.” · reason = real size"], ["units", "binary sizes say MiB (256 MiB here, 512 MiB in the image viewer)"], ["Kind", "“{TYPE} image” · Folder · Symbolic link · “{EXT} file” · File"], ["list min", "explorer-list-min-width 200"], ["tokens", "props-padding-x 14 · props-row-min-height 24 · props-row-line 20 · props-row-pad-top 2 · preview-header-height 40"]]}
-          tokens={[{ tok: "--tasty-explorer-props-padding-x", use: "→ size-14" }, { tok: "--tasty-explorer-props-row-min-height", use: "→ size-24" }, { tok: "--tasty-explorer-props-row-line", use: "→ size-20" }, { tok: "--tasty-explorer-props-row-pad-top", use: "→ size-2" }, { tok: "--tasty-explorer-preview-header-height", use: "→ size-40" }, { tok: "--tasty-explorer-error-fg", use: "can't read", color: "var(--tasty-explorer-error-fg)" }]} />
+          specs={[["can't read", "title = item glyph + name · alertTriangle + “Can't read properties” (explorer-error-fg) · reason mono · Retry (secondary sm)"], ["title weight", "semibold (font-weight-semibold) at 14 (font-size-max) — the same as every popup title"], ["none selected", "“Select a file” (unchanged)"], ["several", "layers glyph · “{n} items selected” · “Select one file to preview it.”"], ["pixel limit", "same screen as > 1 MB · sub “Over {px} px on a side, or needs more than {mem} to decode.” · reason = real size"], ["units", "binary sizes say MiB (256 MiB here, 512 MiB in the image viewer)"], ["Kind", "“{TYPE} image” · Folder · Symbolic link · “{EXT} file” · File"], ["list min", "explorer-list-min-width 200"], ["tokens", "props-padding-x 12 · props-row-min-height 24 · props-row-line 20 · props-row-pad-top 2 · preview-header-height 40"]]}
+          tokens={[{ tok: "--tasty-explorer-props-padding-x", use: "→ space-md" }, { tok: "--tasty-explorer-props-row-min-height", use: "→ size-24" }, { tok: "--tasty-explorer-props-row-line", use: "→ size-20" }, { tok: "--tasty-explorer-props-row-pad-top", use: "→ size-2" }, { tok: "--tasty-explorer-preview-header-height", use: "→ size-40" }, { tok: "--tasty-explorer-error-fg", use: "can't read", color: "var(--tasty-explorer-error-fg)" }]} />
         <YNote>i18n (new): <code>explorer.props.unreadable</code> “Can't read properties” · <code>explorer.preview.multi</code> “{"{n}"} items selected” · <code>explorer.preview.multi_sub</code> “Select one file to preview it.” · <code>explorer.preview.too_large_pixels_sub</code> “Over {"{px}"} px on a side, or needs more than {"{mem}"} to decode.” · <code>explorer.kind.image</code> “{"{type}"} image” · <code>explorer.kind.ext_file</code> “{"{ext}"} file”.</YNote>
       </YSpec>
     </YSection>

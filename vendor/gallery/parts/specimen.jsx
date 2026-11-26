@@ -25,6 +25,9 @@ const flat = (children) => React.Children.toArray(children).flatMap((c) => (c &&
 
 export function Spec({ id, title, badges, when, children }) {
   const states = useContext(StatesContext);
+  // A page whose specs appear after a fetch (Rules, Rules map) has no stage to start the hash entry, and the browser
+  // found no target when it loaded, so the spec starts it too.
+  useEffect(() => { startHashEntry(); }, []);
   const kids = flat(children);
   const metas = kids.filter((c) => c && c.type === Meta);
   const views = kids.filter((c) => c && c.type === Views);
@@ -67,13 +70,62 @@ export function Views({ children }) {
   );
 }
 
-export function View({ name, label, children }) {
+// wide: the frame takes a whole row, for a view too wide to read in a grid cell.
+export function View({ name, label, wide, children }) {
   return (
-    <figure className="fixed-view" data-view={name}>
+    <figure className="fixed-view" data-view={name} style={wide ? { gridColumn: "1 / -1" } : undefined}>
       <figcaption>{label || name}</figcaption>
       <div>{children}</div>
     </figure>
   );
+}
+
+// A page opened at #id, or a link to #id on the page, mounts every stage up to that id at once, then keeps the id at
+// the top while those stages lay out. Mounting them only near the viewport let each one grow after the jump and push
+// the id down. The hold checks the id's place every 150ms and puts it back when it moved. It ends when the id has stayed
+// put for 600ms, after 5s, or at the reader's first wheel, touch, key or pointer press.
+const hashListeners = new Set();
+// A hash that does not decode (#%) names no target, so the page opens as it does without one.
+const hashTarget = () => {
+  let id = "";
+  try { id = decodeURIComponent(window.location.hash.slice(1)); } catch (e) { return null; }
+  return id ? document.getElementById(id) : null;
+};
+const upToTarget = (el, target) => !!target && (el === target || el.contains(target) || target.contains(el)
+  || !!(el.compareDocumentPosition(target) & Node.DOCUMENT_POSITION_FOLLOWING));
+let hashHold = null;
+const HOLD_TICK = 150;
+const HOLD_STILL = 4;
+const HOLD_MAX = 5000;
+function holdHashTarget() {
+  if (hashHold) hashHold();
+  const target = hashTarget();
+  if (!target) return;
+  let at = 0, still = 0;
+  const place = () => { target.scrollIntoView({ block: "start", behavior: "instant" }); at = target.getBoundingClientRect().top; };
+  const ends = ["wheel", "touchstart", "keydown", "pointerdown"];
+  const tick = setInterval(() => {
+    if (Math.abs(target.getBoundingClientRect().top - at) > 1) { place(); still = 0; } else if (++still >= HOLD_STILL) stop();
+  }, HOLD_TICK);
+  const cap = setTimeout(stop, HOLD_MAX);
+  function stop() {
+    clearInterval(tick); clearTimeout(cap);
+    ends.forEach((e) => window.removeEventListener(e, stop, true));
+    if (hashHold === stop) hashHold = null;
+  }
+  ends.forEach((e) => window.addEventListener(e, stop, { capture: true, passive: true }));
+  hashHold = stop;
+  place();
+}
+let hashStarted = false;
+function startHashEntry() {
+  if (hashStarted || typeof window === "undefined") return;
+  hashStarted = true;
+  window.addEventListener("hashchange", () => {
+    hashListeners.forEach((f) => f());
+    holdHashTarget();
+  });
+  if (window.location.hash) requestAnimationFrame(holdHashTarget);
 }
 
 // A live demo mounts once it scrolls near the viewport, so a page with many specimens renders a few stages at a time.
@@ -86,6 +138,8 @@ function useNearViewport(ref, eager) {
     const el = ref.current;
     if (!el) return undefined;
     if (new URLSearchParams(window.location.search).has("audit")) { setShown(true); return undefined; }
+    startHashEntry();
+    if (upToTarget(el, hashTarget())) { setShown(true); return undefined; }
     const near = () => {
       const r = el.getBoundingClientRect();
       const vh = window.innerHeight || document.documentElement.clientHeight;
@@ -100,11 +154,14 @@ function useNearViewport(ref, eager) {
       last = now;
       if (near()) { setShown(true); cleanup(); }
     };
+    const onHash = () => { if (upToTarget(el, hashTarget())) { setShown(true); cleanup(); } };
     const cleanup = () => {
       if (io) io.disconnect();
+      hashListeners.delete(onHash);
       window.removeEventListener("scroll", onScroll, true);
       window.removeEventListener("resize", onScroll);
     };
+    hashListeners.add(onHash);
     if (typeof IntersectionObserver !== "undefined") {
       io = new IntersectionObserver((es) => { if (es.some((e) => e.isIntersecting)) { setShown(true); cleanup(); } }, { rootMargin: LAZY_MARGIN + "px 0px" });
       io.observe(el);
@@ -172,13 +229,39 @@ const bareNode = (node) => {
   return node;
 };
 
+// The Token cell of a spec row: every token name in it reads mono, the words around it read the prose face.
+const tokNode = (node) => {
+  if (typeof node === "string") {
+    const parts = node.split(/(--tasty-[\w-]+)/);
+    return parts.length === 1 ? node : parts.map((p, i) => (i % 2 ? <span key={i} className="tok">{bareTok(p)}</span> : p));
+  }
+  if (Array.isArray(node)) return node.map((n, i) => <React.Fragment key={i}>{tokNode(n)}</React.Fragment>);
+  if (node && node.props && node.props.className === "tok") return bareNode(node);
+  if (node && node.props && node.props.children !== undefined) return React.cloneElement(node, undefined, tokNode(node.props.children));
+  return node;
+};
+
+// A length token that is a calc() resolves through a measured width, so the table shows its px value.
+function resolveLength(name) {
+  const raw = resolveToken(name);
+  if (!/calc\(/.test(raw)) return raw;
+  const el = document.createElement("div");
+  el.style.cssText = `position:absolute;visibility:hidden;width:var(--tasty-${name})`;
+  document.body.appendChild(el);
+  const px = getComputedStyle(el).width;
+  el.remove();
+  return px && px !== "auto" ? px : raw;
+}
+
 function ResolvedLength({ name }) {
   const [v, set] = useState("");
-  useEffect(() => { set(resolveToken(name)); }, [name]);
+  useEffect(() => { set(resolveLength(name)); }, [name]);
   return <>{v}</>;
 }
 
 // specs: [[label, valueNode], ...]   tokens: [{ tok, use, color }]
+// A spec row with a token shows it in the Token cell and its resolved value, mono, in the Value cell. A row with no
+// token is a description, so its Value cell reads the prose face; token names and code inside a cell stay mono.
 export function Meta({ specs, tokens }) {
   return (
     <>
@@ -192,8 +275,8 @@ export function Meta({ specs, tokens }) {
                 return (
                   <tr key={i}>
                     <td>{bareNode(k)}</td>
-                    <td className="m">{m ? bareNode(v) : null}</td>
-                    <td className="m">{m ? <ResolvedLength name={m[1]} /> : bareNode(v)}</td>
+                    <td>{m ? tokNode(v) : null}</td>
+                    <td className={m ? "m" : undefined}>{m ? <ResolvedLength name={m[1]} /> : bareNode(v)}</td>
                   </tr>
                 );
               })}

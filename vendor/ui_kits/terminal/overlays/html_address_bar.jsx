@@ -2,11 +2,11 @@ import React from "react";
 import { Button } from "../../../components/core/Button.jsx";
 import { Icon as HaIcon } from "../../../components/core/Icon.jsx";
 import { IconButton } from "../../../components/core/IconButton.jsx";
-import { Kbd } from "../../../components/core/Kbd.jsx";
 import { Tag } from "../../../components/core/Tag.jsx";
 import { Spinner } from "../../../components/feedback/Spinner.jsx";
 import { Tooltip } from "../../../components/feedback/Tooltip.jsx";
 import { HsTab, HsPage, HtmlScriptBanner } from "./html_script_banner.jsx";
+import { HtmlPageState, PS_COPY } from "./html_page_state.jsx";
 
 // HTML surface — ADDRESS BAR band + remote-mirror size banners + receiving state.
 // Designed 2026-10-12.
@@ -41,8 +41,8 @@ import { HsTab, HsPage, HtmlScriptBanner } from "./html_script_banner.jsx";
 const HA_COPY = {
   placeholder: "Enter a file path or URL",
   back: "Back", forward: "Forward", reload: "Reload",
-  emptyTitle: "No page loaded",
-  emptyHint: "Type a path or URL in the address bar",
+  emptyTitle: PS_COPY.emptyTitle,
+  emptyHint: PS_COPY.emptyHint,
   notFound: "File not found: /tmp/x/missing.html",
   noBase: "Can't resolve a relative path — no document or working folder",
   sizeTitle: "The remote wants to send a large file",
@@ -50,12 +50,12 @@ const HA_COPY = {
   limitTitle: "2.1 MB received from the remote. Continue?",
   limitBody: "Automatic receiving pauses after 2 MB per document.",
   cont: "Continue", stop: "Stop",
-  receiving: "Receiving remote files…",
-  paused: "Paused — answer the notice above",
-  macos: "Remote web pages can't be shown on this macOS version.",
-  macosSub: "Requires macOS 14 or later.",
-  disconnected: "Disconnected from the remote",
-  disconnectedSub: "Reconnect to load this page.",
+  receiving: PS_COPY.receiving,
+  paused: PS_COPY.paused,
+  macos: PS_COPY.macos,
+  macosSub: PS_COPY.macosSub,
+  disconnected: PS_COPY.disconnected,
+  disconnectedSub: PS_COPY.disconnectedSub,
   skipped: (n) => `${n} skipped`,
 };
 
@@ -85,7 +85,7 @@ function HtmlAddressField({ kind = "local", address = "", state = "idle", skippe
     <div style={{ flex: 1, minWidth: "var(--tasty-html-address-field-min-width)", display: "flex", alignItems: "center", gap: "var(--tasty-input-gap)",
       height: "var(--tasty-input-height)", padding: "0 var(--tasty-space-sm)", borderRadius: "var(--tasty-input-radius)",
       background: readOnly ? "var(--tasty-input-readonly-bg)" : "var(--tasty-input-bg)", border: "var(--tasty-border-width) solid " + border,
-      boxShadow: editing ? "0 0 0 var(--tasty-focus-ring-width) color-mix(in srgb, " + (state === "error" ? "var(--tasty-input-border-invalid)" : "var(--tasty-border-focus)") + " 35%, transparent)" : "none" }}>
+      boxShadow: editing ? "0 0 0 var(--tasty-border-width) " + border : "none" }}>
       <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-input-icon-fg)" }}><HaIcon name={glyph} size="var(--tasty-icon-size-sm)" /></span>
       <span style={{ flex: 1, minWidth: 0, fontFamily: empty ? "var(--tasty-font-ui)" : "var(--tasty-font-mono)", fontSize: "var(--tasty-input-font-size)",
         color: empty ? "var(--tasty-input-placeholder)" : editing ? "var(--tasty-input-fg)" : readOnly ? "var(--tasty-input-readonly-fg)" : "var(--tasty-html-address-value-fg)",
@@ -152,7 +152,7 @@ function HtmlSizeBanner({ kind = "file", name = "assets/hero-video.mp4", size = 
             <div style={{ fontSize: "var(--tasty-banner-body-font-size)", lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-banner-body-fg)" }}>{HA_COPY.limitBody}</div>
           )}
         </div>
-        <span style={{ flex: "none", display: "flex", gap: "var(--tasty-space-sm)", marginLeft: narrow ? "calc(var(--tasty-icon-size-md) + var(--tasty-banner-gap))" : 0, width: narrow ? "100%" : "auto" }}>
+        <span style={{ flex: "none", display: "flex", gap: "var(--tasty-space-sm)", marginLeft: narrow ? "calc(var(--tasty-icon-size-md) + var(--tasty-banner-gap))" : 0, width: narrow ? "calc(100% - var(--tasty-icon-size-md) - var(--tasty-banner-gap))" : "auto" }}>
           <Button size="sm" variant="ghost" ground="raised" style={{ whiteSpace: "nowrap" }}>{file ? HA_COPY.decline : HA_COPY.stop}</Button>
           <Button size="sm" variant="secondary" style={{ whiteSpace: "nowrap" }}>{file ? HA_COPY.allow : HA_COPY.cont}</Button>
         </span>
@@ -161,28 +161,7 @@ function HtmlSizeBanner({ kind = "file", name = "assets/hero-video.mp4", size = 
   );
 }
 
-// Host states painted in the page rect. receiving: spinner while auto-receiving; paused (a size banner waits): static glyph.
-function HaCenter({ glyph, glyphColor, spin, title, titleColor = "var(--tasty-html-receiving-fg)", sub, mono }) {
-  return (
-    <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md)", textAlign: "center" }}>
-      <span style={{ display: "inline-flex", color: glyphColor }}>{spin ? <Spinner /> : <HaIcon name={glyph} size="var(--tasty-icon-size-md)" />}</span>
-      <span style={{ fontSize: "var(--tasty-font-size-body)", color: titleColor }}>{title}</span>
-      {sub && <span style={{ fontFamily: mono ? "var(--tasty-font-mono)" : "var(--tasty-font-ui)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)", maxWidth: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{sub}</span>}
-    </div>
-  );
-}
-function HtmlPageState({ kind = "empty", progress = "1.4 MB · 12 files", url }) {
-  switch (kind) {
-    case "empty": return <HaCenter glyph="html" glyphColor="var(--tasty-text-disabled)" title={HA_COPY.emptyTitle} sub={<span style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-xs)" }}>{HA_COPY.emptyHint} · <Kbd keys={["Alt", "L"]} /></span>} />;
-    case "loading": return <HaCenter spin title="Loading…" />;
-    case "failed": return <HaCenter glyph="alertCircle" glyphColor="var(--tasty-accent-danger-raised)" title="Failed to load" titleColor="var(--tasty-accent-danger)" sub={url} mono />;
-    case "receiving": return <HaCenter spin title={HA_COPY.receiving} sub={progress} mono />;
-    case "paused": return <HaCenter glyph="download" glyphColor="var(--tasty-html-receiving-glyph)" title={HA_COPY.receiving} sub={HA_COPY.paused} />;
-    case "macos": return <HaCenter glyph="info" glyphColor="var(--tasty-html-receiving-glyph)" title={HA_COPY.macos} sub={HA_COPY.macosSub} />;
-    case "disconnected": return <HaCenter glyph="remote" glyphColor="var(--tasty-html-receiving-glyph)" title={HA_COPY.disconnected} sub={HA_COPY.disconnectedSub} />;
-    default: return null;
-  }
-}
+// Host states painted in the page rect: HtmlPageState (html_page_state.jsx), the one webview page tile.
 
 // Whole surface: tab strip → band → inset banner stack → page. banners: ["size" | "size-more" | "limit" | "script"]
 function HtmlAddressSurfaceG({ width, height = 300, label = "report.html", bar = {}, banners = [], page = "page", pageLabel, progress, url, narrow = false, noBand = false }) {

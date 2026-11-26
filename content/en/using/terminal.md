@@ -1,4 +1,4 @@
-<!-- source-hash: 832bf2c9d921 -->
+<!-- source-hash: 5d6bf36f53f7 -->
 # Working with the terminal
 
 You can copy the output you need, search terminal history, and open file paths as you work. You can also select text without a mouse and receive notifications when work finishes.
@@ -11,7 +11,7 @@ Set under **Settings** > **Terminal**.
 
 - **Shell** — the shell to run. On Windows, Tasty runs only Git Bash (`bash.exe` from Git for Windows). An empty value uses Git Bash found in the default install locations. If it is installed elsewhere, enter its `bash.exe` path.
 - **Startup command** — one line entered at the start of every new terminal.
-- **Inherit working directory** — starts a new terminal in the current terminal's directory (on by default).
+- **Inherit working directory** — new tabs, splits, and workspaces inherit the working directory from the Surface selected when you enter the command (on by default). Tasty reads the directory when it creates the item. If the source is a terminal and you run `cd` there in the meantime, Tasty uses the updated directory. For local commands, if the source Surface closes before Tasty reads its directory, there is no directory to inherit. See [Working remotely](../remote/attach.md) for remote tabs and splits. Markdown, image, and HTML files use their containing folder, and Explorer uses its root folder.
 - **Confirm close running process** — asks for confirmation when closing a terminal in which a program is running.
 
 bash (4.4 or later) and zsh get shell integration with no extra setup. The Tab name follows the current directory, the git branch appears in the status bar, and you can attach hooks to command completion ([Hooks · notifications](../agents/hooks-notifications.md)). Other shells such as fish need to be set up by hand, and until then the **Shell integration not detected** banner may appear. It does not appear on terminals you view by attaching to a remote Tasty. It closes on its own after 10 seconds, and waits while the pointer is over it.
@@ -22,7 +22,7 @@ When the program exits and the shell ends, that Surface closes automatically.
 
 Terminal programs can distinguish arrow keys pressed with `Shift`, `Ctrl`, or `Alt` from plain arrow keys. **For these combinations on macOS, use the physical `Option` key, not `Cmd`.** For example, press `Option+↑` when a program displays `⌥ + ↑`. The program inside the terminal determines the action.
 
-Modified arrow keys are forwarded with **Option as Meta** either on or off. That setting only controls whether Option+character input on macOS produces a composed character or a Meta key sequence. Keys consumed by a Tasty shortcut, copy mode, or an overlay that captures keyboard input are not also sent to the program.
+Modified arrow keys are forwarded with **Use Option as Meta:** either on or off. That setting only controls whether Option+character input on macOS produces a composed character or a Meta key sequence. Keys consumed by a Tasty shortcut, copy mode, or an overlay that captures keyboard input are not also sent to the program.
 
 ## Shift+Enter per application
 
@@ -61,7 +61,7 @@ Press `Ctrl+Alt+S` and pick an area of the screen: the PNG file is saved under `
 
 ### Selecting
 
-Drag (characters) · double-click (word) · triple-click (line). Selection extends into the scrollback. Right-click after selecting and a menu appears with **Copy** · **Copy Without Line Breaks** · **Copy Terminal ID**. If the selected text is an actual file · folder path, **Open File** / **Open Folder** also appear.
+Drag (characters) · double-click (word) · triple-click (line). Selection extends into the scrollback. The right-click menu starts with **Copy** and **Copy Without Line Breaks**. Both items are disabled when no text is selected. The menu also includes **Copy Terminal ID**. If the selected text is an actual file · folder path, **Open File** / **Open Folder** also appear.
 
 While typing a command in a shell, click once on the input line to move the cursor there. The cursor does not move in programs other than a shell, while you are scrolled back, or in programs that capture the mouse. To turn this off, put `click_to_move_cursor = false` under `[general]` in `config.toml` ([Settings](../customize/settings.md)).
 
@@ -77,7 +77,7 @@ If Tasty cannot enter copy mode, a notice tells you why.
 - You cannot enter it on a surface that is not a terminal, such as the explorer. You also cannot enter it while a markdown or HTML surface takes keyboard input, but then the notice may be hidden behind that surface's page.
 - If you are already in copy mode, Tasty tells you so instead of entering again.
 
-While a modal or popup takes keyboard input, the shortcut goes there, so neither copy mode nor a notice appears. Click the terminal and press it again.
+While a popup receives keyboard input, the copy-mode shortcut goes there too. See [Popups](panes-tabs-splits.md#popups) for how to close or collapse it.
 
 For example, run `printf '\033[2J\033[HABCDE\n'` in a shell to leave `ABCDE` at the top of the screen. Enter copy mode and check that the cursor sits on `A`. Release `Ctrl` and `Shift`, then press `v` `l` `l` `y` in turn: `ABC` is copied to the clipboard and copy mode ends.
 
@@ -96,11 +96,17 @@ For example, run `printf '\033[2J\033[HABCDE\n'` in a shell to leave `ABCDE` at 
 
 Copy notices appear only after the clipboard accepts the write. If access is unavailable or a transfer fails, Tasty shows a notice and keeps your selection. With a selection, a failed Ctrl+C copy does not interrupt the program. A failed paste sends no input; an empty clipboard does nothing.
 
-On Linux, terminal copy and paste use X11, through XWayland to exchange clipboard content with other apps in a Wayland session when `DISPLAY` is set and the X server is reachable. When Tasty runs on native Wayland because `DISPLAY` is unset or the X server cannot be reached, it cannot exchange clipboard content with external apps and shows a notice explaining this.
+On Linux, terminal copy and paste use X11 when Tasty runs on X11. In a Wayland session with `DISPLAY` set and the X server reachable, they exchange content with other apps through XWayland. When Tasty runs on native Wayland because `DISPLAY` is unset or the X server cannot be reached, the terminal also supports copying and pasting text to and from other apps. If another app copied only an image without text, pasting saves it as a PNG file and inserts its path.
+
+On native Wayland, copying with `"*` in vi copy mode does not reach other apps. Copy with `"+` or without specifying a target instead. Explorer file copy, cut, and paste cannot use the OS file clipboard and use only the list kept in this Tasty.
+
+If the compositor does not support the clipboard, neither the terminal nor text fields can exchange content with other apps through copy and paste. In this case, copying and pasting in the terminal and copying and cutting in text fields show warning toasts with the cause and a remedy using XWayland. Copying with `"*` and Explorer file copy, cut, and paste also show warning toasts. See [Linux native Wayland troubleshooting](../help/troubleshooting.md#linux-native-wayland).
 
 ### Clipboard access by programs (OSC 52)
 
-A program inside the terminal (tmux, remote vim, and so on) can request a **write** to the clipboard. Tasty reports success only when the write succeeds and reports unavailable access or failure otherwise. **Reading** requires turning on **Settings** > **Terminal** > **Allow clipboard read (OSC 52)**. It is off by default; be aware that once on, a program on the far side of SSH can also take the clipboard contents.
+A program inside the terminal (tmux, remote vim, and so on) can request a **write** to the clipboard. Tasty reports success only when the write succeeds and reports unavailable access or failure otherwise. To allow programs to **read** the clipboard, go to **Settings** › **Terminal** › **TUI** and turn on **Allow clipboard read (OSC 52):**. It is off by default. Turning it on also lets programs on the far side of SSH read the clipboard.
+
+When you attach from the GUI and both versions of Tasty support this feature, [OSC 52 writes and reads from the remote terminal](../remote/attach.md#osc-52-during-attach) use your computer's clipboard, and reads follow your local setting.
 
 ### Writing to the clipboard from a script
 
@@ -132,11 +138,13 @@ Right-click an underlined link to open a link menu.
 
 - **Select** — selects the whole link text.
 - **Copy** — copies the link text as shown on screen. If you assign a key to **Copy link** in the keybinding settings, the "Copied" notice shows that key on its right, and pressing it over a link copies without the menu. It has no default key.
-- **Open With…** — instead of opening right away, shows a list to choose which program opens it. `http(s)://` addresses can be chosen too; picking the HTML viewer, for example, opens the page in a Tasty tab instead of the browser. A path in a remotely attached terminal cannot be opened on this computer, so the list is empty.
+- **Open With…** — instead of opening right away, shows a list to choose which program opens it. `http(s)://` addresses can be chosen too; picking the HTML viewer, for example, opens the page in a Tasty tab instead of the browser. This list appears within the terminal surface where you opened the link. It opens separately on other surfaces. For a path in a remotely attached terminal, it lists only handlers that can open the file remotely. If none are available, a **Download and run** dialog opens.
 
 Even while a program that uses the mouse (vim · tmux and so on) is running, right-clicking a link shows this menu instead of going to that program. Right-clicking anywhere else works as before.
 
 Under **Settings** > **Terminal** > **Link click modifier**, choose `Ctrl`, `Alt`, or **Disable left-click opening**. The last option prevents left-clicks from opening links. You can still hover a link without a modifier and use its right-click menu. Popups and banners can block link highlighting.
+
+When you open a local file link in a Tasty tab by clicking it or choosing a handler from **Open With…**, the tab opens in the pane containing the terminal where you used the link. Moving focus while it opens does not change the destination. If that pane closes first, the file does not open.
 
 How files are opened (Markdown · image · Explorer) is in [Managing and viewing files](files.md). Dropping a file onto the terminal (**Drop to open**) opens it by the same rules.
 
@@ -158,7 +166,7 @@ When a program that uses the mouse directly, such as vim (`:set mouse=a`) · hto
 - `Shift+drag` — select text. `Shift+double-click` selects a word.
 - `Shift+right-click` — Tasty's copy menu.
 - The banner closes by itself when the program ends. You can also close it right away with `×`.
-- In **More options**, which appears when you hover the banner, choose **Don't show again for {program}** or **Let Tasty handle clicks in {program}**. When Tasty handles the clicks, clicks over that program act as selection as usual and only the wheel goes to the program. When Tasty can't tell which program is running, such as in a terminal you view by attaching to a remote Tasty, both items are dimmed and can't be chosen. A note at the top of the menu says why.
+- In **More options**, which appears when you hover the banner, choose **Don't show again for {program}** or **Let Tasty handle clicks in {program}**. When Tasty handles the clicks, clicks over that program act as selection as usual and only the wheel goes to the program. When Tasty can't tell which program is running, such as in a terminal you view by attaching to a remote Tasty, both items are dimmed and can't be chosen. A note at the top of the menu says why. This menu opens within the surface containing the banner. This menu opens separately for each surface.
 
 The same items are under **Settings** > **Terminal** > **Mouse Capture** — the **Show mouse-capture hint** toggle, the **Let Tasty handle clicks in these programs** list, and the **Don't show the capture notice for these programs** list. Names match partially and take wildcards such as `ht*`.
 
@@ -180,7 +188,7 @@ To send a notification directly from a script, `tasty notify "build done" --titl
 
 ## Platform notes
 
-- **macOS** — turn on **Settings** > **Terminal** > **Use Option as Meta** and combinations such as `Option+F` are sent as the readline · Emacs Meta key instead of special characters (off by default).
+- **macOS** — turn on **Settings** > **Terminal** > **Use Option as Meta:** and combinations such as `Option+F` are sent as the readline · Emacs Meta key instead of special characters (off by default).
 - **Windows** — the terminal may stop responding after waking from sleep. Tasty tries to wake it and, if it still appears stuck, tells you with a notification. In that case open a new terminal.
 - If programs that flash the whole screen (readline's visible bell and so on) bother you, turn off **Settings** > **Terminal** > **Reverse-screen flash (DECSCNM)**.
 

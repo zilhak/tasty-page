@@ -61,7 +61,7 @@ function MdField({ remote, path, editing, error, off }) {
   return (
     <div style={{ flex: 1, minWidth: "var(--tasty-md-address-field-min-width)", display: "flex", alignItems: "center", gap: "var(--tasty-input-gap)", height: "var(--tasty-input-height)", boxSizing: "border-box",
       padding: "0 var(--tasty-space-sm)", borderRadius: "var(--tasty-input-radius)", background: off ? "var(--tasty-input-readonly-bg)" : "var(--tasty-input-bg)", border: "var(--tasty-border-width) solid " + border,
-      boxShadow: ring ? "0 0 0 var(--tasty-focus-ring-width) color-mix(in srgb, " + (error ? "var(--tasty-input-border-invalid)" : "var(--tasty-border-focus)") + " 35%, transparent)" : "none" }}>
+      boxShadow: ring ? "0 0 0 var(--tasty-border-width) " + border : "none" }}>
       <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-input-icon-fg)" }}><MIcon name={remote ? "remote" : "file"} size="var(--tasty-icon-size-sm)" /></span>
       <span style={{ flex: 1, minWidth: 0, fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-input-font-size)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", direction: "rtl", textAlign: "left",
         color: off ? "var(--tasty-text-muted-raised)" : editing || error ? "var(--tasty-input-fg)" : "var(--tasty-md-address-value-fg)" }}>
@@ -116,14 +116,14 @@ const MaPair = ({ children, cols }) => (
   <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-lg)", alignItems: "flex-start" }}>
     {[["Mocha", "mocha"], ["Latte", "latte"]].map(([label, t]) => (
       <div key={label} {...(t ? { "data-theme": t } : {})} style={{ flex: "1 1 var(--tasty-size-440)", minWidth: 0, maxWidth: "100%", display: "flex", flexDirection: "column", gap: "var(--tasty-space-md)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)" }}>
-        <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label}</span>{children}
+        <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label}</span>{children}
       </div>
     ))}
   </div>
 );
 const MaCase = ({ label, w, h, children }) => (
   <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", width: w || "100%", maxWidth: "100%" }}>
-    <span style={{ fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" }}>{label}</span>
+    <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" }}>{label}</span>
     <div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "visible", background: "var(--tasty-md-doc-bg)", minHeight: h }}>{children}</div>
   </div>
 );

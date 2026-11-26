@@ -198,7 +198,7 @@ function makeSamples() {
   },
   err: {
     id: "write-failed", glyph: bic.warn, glyphColor: "var(--tasty-accent-danger)",
-    title: "Couldn’t write ~/.tastyrc",
+    title: "Couldn’t write config.toml",
     body: "Permission denied. Check the file owner, or open it to resolve the conflict.",
     actions: (<><Button variant="secondary" size="sm">Retry</Button><Button variant="ghost" ground="raised" size="sm">Open file</Button></>),
   },
@@ -247,7 +247,7 @@ function BannerHost() {
 
       {/* faux scope: tab bar (must stay clear) + terminal content + the banner zone */}
       <div style={{ position: "relative", width: "100%", height: 320, borderRadius: "var(--tasty-radius)", overflow: "hidden",
-        border: "var(--tasty-border-width) solid var(--tasty-border-default)", background: "var(--tasty-color-black)",
+        border: "var(--tasty-border-width) solid var(--tasty-border-default)", background: "var(--tasty-surface-terminal-focused-bg)",
         opacity: bg ? 0.55 : 1, transition: "opacity var(--tasty-banner-fade) var(--tasty-ease-ui)" }}>
         <div style={{ display: "flex", alignItems: "stretch", height: 28, flex: "none",
           background: "var(--tasty-bg-sidebar)", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
@@ -259,9 +259,9 @@ function BannerHost() {
               boxShadow: i === 2 ? "inset 0 -2px 0 var(--tasty-accent-primary)" : "none" }}>{t}</div>
           ))}
         </div>
-        <div style={{ padding: "var(--tasty-space-md) var(--tasty-size-14)", fontFamily: "var(--tasty-font-mono)",
-          fontSize: "var(--tasty-font-size-term-sm)", lineHeight: 1.6, color: "var(--tasty-color-neutral-1100)", opacity: 0.4 }}>
-          <div><span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-color-green)" }}>~/tasty</span> $ vim src/main.rs</div>
+        <div data-terminal-content="" style={{ padding: "var(--tasty-space-md) var(--tasty-size-14)", fontFamily: "var(--tasty-font-mono)",
+          fontSize: "var(--tasty-font-size-term-sm)", lineHeight: 1.6, color: "var(--tasty-surface-terminal-focused-fg)", opacity: 0.4 }}>
+          <div><span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-ansi-green)" }}>~/tasty</span> $ vim src/main.rs</div>
           <div>-- VISUAL --   1,1   Top</div>
         </div>
         {/* banner zone — 8px below the tab bar, 8px side margins, no bottom margin */}

@@ -88,8 +88,9 @@ function SearchBar({ lines = [], onClose }) {
       <Toggle label="Aa" active={matchCase} title="Match case" onClick={() => setMatchCase((v) => !v)} />
       <Toggle label=".*" active={regex} title="Regular expression" onClick={() => setRegex((v) => !v)} />
       <Toggle label="ab" active={wholeWord} title="Match whole word" onClick={() => setWholeWord((v) => !v)} />
+      {/* A divider on the raised bar reads the raised cell of the separator role (RULES.md section 6). */}
       <span style={{ flex: "none", width: 1, alignSelf: "stretch", margin: "0 var(--tasty-size-2)",
-        background: "var(--tasty-separator)" }}></span>
+        background: "var(--tasty-border-strong)" }}></span>
       <IconButton size="sm" aria-label="Close search" title="Close (Esc)" onClick={onClose}>
         <Icon name="close" size={14} />
       </IconButton>
