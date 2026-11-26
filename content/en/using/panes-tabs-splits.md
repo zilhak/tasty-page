@@ -1,4 +1,4 @@
-<!-- source-hash: e352c9f2f97f -->
+<!-- source-hash: 54cf71a51be2 -->
 # Panes, tabs, and splits
 
 Tasty’s pane splits create areas with independent tab switching, while surface splits divide views that stay together within one tab. Choose either level to build the layout you need.
@@ -155,6 +155,10 @@ When an expanded popup is receiving keys, a click inside the window but outside 
 When popups are open in several places, each keeps its focus and only the topmost popup receives keys. If an expanded popup is receiving keys, `Esc` collapses it first. The same press leaves the notification list and other popups underneath it open. In other cases, `Esc` can close only one popup at a time. Some popups stay open and only release focus.
 
 A popup for a Surface, Tab, Pane, or workspace shows a focus bar along its top edge when it has keyboard focus. When a collapsed popup has keyboard focus, the bar appears along the top edge of the frame containing the **Show popup** button. Expanded popups and popups that open over the whole window have no focus bar. Use `Tab` to focus **Collapse popup** or **Show popup** and display the button’s tooltip.
+
+When a search bar takes keyboard focus, even the selected Surface in the Tab appears unfocused. Its focus indicator returns when keyboard focus goes back to the Surface. A popup that leaves keyboard focus in place, such as a context menu, leaves the Surface’s indicator in place too.
+
+HTML and plugin Surfaces show keyboard focus in a strip at the top by default. The strip takes up the same space in both states, so the content stays in place as focus changes. The Markdown and image viewers indicate focus through their backgrounds.
 
 ## Fullscreen
 
