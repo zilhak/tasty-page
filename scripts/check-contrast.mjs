@@ -25,7 +25,7 @@
  * verdict line. A timed out run exits 3 whatever its partial report did. After 1 or 3 the file may be missing, empty or
  * cut short. The child shares this process's stdout and stderr, so /dev/stdout and /dev/stderr reach the caller as paths,
  * with limits: on a pipe the report mixes with what else goes to that stream (the summary and verdict lines on stdout,
- * the timeout lines on stderr); on a regular file the child opens it again
+ * the timeout or "nothing measured" lines on stderr); on a regular file the child opens it again
  * from the start, so the report overwrites what was written before it and a later line can overwrite the report; on a
  * socket it cannot be opened (ENXIO), so a finished run exits 1 and a timed out run 3. A separate file is the safe path.
  * scripts/contrast-cli.test.mjs runs this file with a stand-in browser to pin the exits before the browser and on a timeout.
@@ -53,7 +53,8 @@ const THEMES = ["mocha", "latte"];
 const EXPECTED_PAGES = 15;
 // A full run takes about 230s here and 250-330s in CI. The total limit is about three times that, and leaves room in the
 // Design job's 20 minutes: up to 65s before the build, the exit tests' step (capped at 180s), 900s, 10s to close and write,
-// 2s to reap the writer and 2s to flush come to about 1159s. The stall limit
+// 2s to reap the writer and 2s to flush come to about 1159s. That is a subtotal: npm ci, the build, the Chromium install
+// and the steps after this one share the remaining 41s with any overrun of those estimates. The stall limit
 // is above the longest single wait with a limit of its own, 180s (launch, gallery goto and networkidle).
 const TOTAL_S = 900;
 const STALL_S = 300;
