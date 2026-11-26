@@ -6,7 +6,8 @@ import { rt } from "../../ui_kits/terminal/overlays/remote_row_copy.js";
 // shared settings number field: no clamp while typing, Enter or leaving the field commits and clamps, a
 // non-number returns to the last committed value. The range line shows only while the typed value is out of range.
 // Row 1 Disconnect after: 10 to 600, default 30. Row 2 Keep reconnecting for (R-58): 0 to 3600, default 300, 0 = off;
-// it counts from the moment row 1 ends the connection, and applies to saved remote rows only (an agent mirror does not reconnect).
+// it counts from when Tasty detects the drop (row 1's timeout, a remote end of stream or any other read or write failure),
+// and applies to saved remote rows only (an agent mirror does not reconnect).
 
 const MIN = 10;
 const MAX = 600;
