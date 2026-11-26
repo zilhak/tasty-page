@@ -7,21 +7,24 @@
  * The check finds its dist next to its own scripts folder, so the test copies scripts/ and dist/ to a scratch root and links
  * the rest. Each case moves files in the copy only, and puts them back. CHROMIUM_PATH names a stand-in that never answers,
  * so the run stalls at launch and the 1s stall limit ends it. Each case runs in its own folder with its stdout and stderr in
- * files there. Every process of a case carries a marker in its environment, and after the command exits the case looks for
- * marked processes still running: one that had to be killed fails the case.
+ * files there. A case's processes are the check's descendants seen while it runs and the processes whose environment
+ * holds the case's marker, each matched by its start time. After the check exits the case waits for them to end: one
+ * that had to be killed fails the case, and no other process is signalled. A copy whose links lead outside it is refused,
+ * and a file is moved aside only inside the copy, so the real build is never touched.
  */
 import assert from "node:assert/strict";
 import { execFileSync, spawn } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import {
-  chmodSync, closeSync, cpSync, existsSync, lstatSync, mkdirSync, mkdtempSync, openSync, readFileSync, readdirSync, readlinkSync,
+  chmodSync, closeSync, cpSync, existsSync, lstatSync, mkdirSync, mkdtempSync, openSync, readFileSync, readdirSync, realpathSync,
   renameSync, rmSync, symlinkSync, unlinkSync, writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, isAbsolute, join, resolve } from "node:path";
+import { dirname, join, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { after, before, test } from "node:test";
 import { DEFAULT_LANG, LANGS } from "../src/lib/langs.mjs";
+import { sitePages } from "./contrast-site.mjs";
 
 const repo = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const LINKED = ["src", "vendor", "node_modules", "package.json"];
@@ -58,13 +61,17 @@ before(() => {
   const dist = join(repo, "dist");
   const missing = NEEDED.filter((p) => !existsSync(join(dist, p)));
   if (missing.length > 0) throw new Error(`The build lacks ${missing.join(", ")}. Run npm run build first.`);
-  // A link that points outside the copy would let a case reach the real build.
-  const absolute = walkLinks(dist).filter((p) => isAbsolute(readlinkSync(p)));
-  if (absolute.length > 0) throw new Error(`The build holds absolute links, which the copy cannot keep apart: ${absolute.join(", ")}`);
   root = mkdtempSync(join(tmpdir(), "contrast-cli-root-"));
   cpSync(join(repo, "scripts"), join(root, "scripts"), { recursive: true });
   for (const name of LINKED) symlinkSync(join(repo, name), join(root, name));
   cpSync(dist, join(root, "dist"), { recursive: true, verbatimSymlinks: true });
+  mkdirSync(join(root, "cases"));
+  // A link in the copy that leads outside it would let a case reach the real build or another folder.
+  const inside = realpathSync(join(root, "dist")) + sep;
+  const out = walkLinks(join(root, "dist")).filter((p) => {
+    try { return !realpathSync(p).startsWith(inside); } catch { return true; }
+  });
+  if (out.length > 0) throw new Error(`The build holds links that lead outside it or nowhere, which the copy cannot keep apart: ${out.join(", ")}`);
 });
 
 after(() => {
@@ -75,42 +82,78 @@ after(() => {
   rmSync(root, { recursive: true, force: true });
 });
 
-// The state and start time of a process, or null when it is gone. The name in /proc/<pid>/stat may hold spaces or
+// A process's parent, state and start time, or null when it is gone. The name in /proc/<pid>/stat may hold spaces or
 // brackets, so the fields are read after the last ")".
 function procStat(pid) {
   try {
     const text = readFileSync(`/proc/${pid}/stat`, "utf8");
     const fields = text.slice(text.lastIndexOf(")") + 2).split(" ");
-    return { state: fields[0], start: fields[19] };
+    return { state: fields[0], ppid: Number(fields[1]), start: fields[19] };
   } catch (error) {
     if (error.code === "ENOENT" || error.code === "ESRCH") return null;
     throw error;
   }
 }
+const procIds = () => readdirSync("/proc").filter((name) => /^\d+$/.test(name)).map(Number);
+const running = (stat) => stat !== null && stat.state !== "Z";
+const keyOf = (pid, start) => `${pid}:${start}`;
 
-// The marked processes that still run (not gone, not a zombie). A process whose environment cannot be read is not ours,
-// unless it is a known pid of the case, which then counts as running.
-function marked(marker, known) {
+// The case's own processes. Two ways find them, and each confirms the process is the one it saw by its start time:
+// - seen: while the check runs, every descendant of the check (by parent links) is recorded with its start time;
+// - marked: a process whose environment holds the case's marker entry, read between two stat reads of the same start.
+// A process found either way is the case's, so only those are signalled.
+function createTracker(marker) {
   const entry = `CONTRAST_CLI_TEST_CASE=${marker}`;
-  const found = [];
-  for (const name of readdirSync("/proc")) {
-    if (!/^\d+$/.test(name)) continue;
-    const pid = Number(name);
-    let env;
-    try {
-      env = readFileSync(`/proc/${pid}/environ`, "utf8");
-    } catch (error) {
-      if (known.has(pid) && error.code !== "ENOENT" && error.code !== "ESRCH") {
+  const owned = new Map();
+  const remember = (pid, stat, how) => {
+    const key = keyOf(pid, stat.start);
+    if (!owned.has(key)) owned.set(key, { pid, start: stat.start, how, cmd: cmdline(pid) });
+  };
+  const cmdline = (pid) => {
+    try { return readFileSync(`/proc/${pid}/cmdline`, "utf8").split("\0").join(" "); } catch { return ""; }
+  };
+  return {
+    owned,
+    // Records the descendants of root as they are now.
+    descendants(root) {
+      const stats = new Map();
+      for (const pid of procIds()) {
         const stat = procStat(pid);
-        if (stat && stat.state !== "Z") found.push({ pid, ...stat, unreadable: true });
+        if (stat !== null) stats.set(pid, stat);
       }
-      continue;
-    }
-    if (!env.split("\0").includes(entry)) continue;
-    const stat = procStat(pid);
-    if (stat && stat.state !== "Z") found.push({ pid, ...stat });
-  }
-  return found;
+      const below = new Set([root]);
+      let grew = true;
+      while (grew) {
+        grew = false;
+        for (const [pid, stat] of stats) {
+          if (!below.has(pid) && below.has(stat.ppid)) {
+            below.add(pid);
+            grew = true;
+            remember(pid, stat, "seen");
+          }
+        }
+      }
+    },
+    // Records the marked processes as they are now.
+    marked() {
+      for (const pid of procIds()) {
+        const first = procStat(pid);
+        if (!running(first)) continue;
+        let env;
+        try { env = readFileSync(`/proc/${pid}/environ`, "utf8"); } catch { continue; }
+        const second = procStat(pid);
+        if (!running(second) || second.start !== first.start) continue;
+        if (env.split("\0").includes(entry)) remember(pid, first, "marked");
+      }
+    },
+    // The owned processes that still run: same start time, not a zombie.
+    live() {
+      return [...owned.values()].filter((p) => {
+        const now = procStat(p.pid);
+        return running(now) && now.start === p.start;
+      });
+    },
+  };
 }
 
 const pause = (ms) => new Promise((done) => setTimeout(done, ms));
@@ -119,27 +162,31 @@ const within = (promise, ms) => new Promise((done) => {
   promise.then((value) => { clearTimeout(timer); done(value); });
 });
 
-// Waits for the marked processes to end by themselves. Any that do not within waitMs are killed (each after its start
-// time is checked again) and named in killed; those still running after killMs more are in left.
-async function settle(marker, known, waitMs, killMs) {
-  let live = marked(marker, known);
+// Waits up to waitMs for the case's processes to end by themselves, looking for marked ones again each round. Any still
+// running are killed (after their start time is checked again) and named in killed; those running after killMs more are
+// in left.
+async function settle(tracker, waitMs, killMs) {
+  tracker.marked();
+  let live = tracker.live();
   const waitEnd = performance.now() + waitMs;
   while (live.length > 0 && performance.now() < waitEnd) {
     await pause(100);
-    live = marked(marker, known);
+    tracker.marked();
+    live = tracker.live();
   }
   const killed = [];
   const killEnd = performance.now() + killMs;
   while (live.length > 0) {
     for (const p of live) {
       const now = procStat(p.pid);
-      if (!now || now.start !== p.start) continue;
-      if (!killed.some((k) => k.pid === p.pid)) killed.push(p);
+      if (!running(now) || now.start !== p.start) continue;
+      if (!killed.includes(p)) killed.push(p);
       try { process.kill(p.pid, "SIGKILL"); } catch { /* gone */ }
     }
     if (performance.now() >= killEnd) break;
     await pause(100);
-    live = marked(marker, known);
+    tracker.marked();
+    live = tracker.live();
   }
   return { killed, left: live };
 }
@@ -152,49 +199,81 @@ const readIf = (path) => {
     throw error;
   }
 };
+// Every path under dir, relative to it, folders ending in "/".
+const listAll = (dir, rel = "") => readdirSync(join(dir, rel)).sort().flatMap((name) => {
+  const path = rel ? `${rel}/${name}` : name;
+  return lstatSync(join(dir, path)).isDirectory() ? [`${path}/`, ...listAll(dir, path)] : [path];
+});
 
-// Runs the check once in a case folder and returns what it left: exit, stdout, stderr, whether the stand-in browser
-// started, the report and the folder's new entries. Files named in moves are moved aside in the copied dist meanwhile.
+// Moves a file of the copied dist aside, after checking that its real path is inside the copy and that the place it
+// moves to is free, so a case can never move a file of the real build or overwrite one.
+function moveAside(p) {
+  const from = join(root, "dist", p);
+  const real = realpathSync(from);
+  const inside = realpathSync(join(root, "dist")) + sep;
+  if (!real.startsWith(inside)) throw new Error(`${p} is outside the copied dist (${real})`);
+  const to = `${from}.moved-${randomUUID()}`;
+  if (existsSync(to)) throw new Error(`${to} is taken`);
+  renameSync(from, to);
+  return { from, to };
+}
+
+// Cleanup needs at most this much after the check's own wait: 2s for a killed check, 3s for its processes, 2s to kill
+// the rest, and room for the file work.
+const CLEANUP_MS = 10000;
+
+// Runs the check once in a case folder and returns what it left: exit, stdout, stderr, the stand-in browser's pid file,
+// the report, the case folder's entries and which of the case's processes still ran when the check exited. Files named in
+// moves are moved aside in the copied dist meanwhile.
 async function runCase(name, args, { moves = [], fifo = false } = {}) {
   if (aborted !== null) assert.fail(`not started, an earlier case could not clean up: ${aborted}`);
-  if (left() <= 0) assert.fail(`not started, the ${BUDGET_MS / 1000}s budget is spent`);
-  const dir = mkdtempSync(join(tmpdir(), `contrast-cli-${name}-`));
+  if (left() <= CLEANUP_MS) assert.fail(`not started, the ${BUDGET_MS / 1000}s budget is spent`);
+  const dir = mkdtempSync(join(root, "cases", `${name}-`));
   const marker = randomUUID();
   const pidFile = join(dir, "browser.pid");
-  const known = new Set();
+  const tracker = createTracker(marker);
   const errors = [];
   const seen = {};
   const moved = [];
   const fds = [];
-  let child = null;
-  let ended = null;
+  let watching = null;
   try {
     const browser = join(dir, "browser.sh");
-    writeFileSync(browser, `#!/bin/bash\necho $$ > ${JSON.stringify(pidFile)}\nexec sleep 60\n`);
+    writeFileSync(browser, '#!/bin/bash\necho $$ > "$CONTRAST_CLI_TEST_PID_FILE"\nexec sleep 60\n');
     chmodSync(browser, 0o755);
     mkdirSync(join(dir, "tmp"));
     if (fifo) execFileSync("mkfifo", [join(dir, "fifo")]);
-    for (const p of moves) {
-      renameSync(join(root, "dist", p), join(root, "dist", `${p}.moved`));
-      moved.push(p);
-    }
-    seen.before = readdirSync(dir);
+    for (const p of moves) moved.push(moveAside(p));
+    seen.before = listAll(dir);
     fds.push(openSync(join(dir, "stdout.txt"), "w"));
     fds.push(openSync(join(dir, "stderr.txt"), "w"));
-    child = spawn(process.execPath, [join(root, "scripts/check-contrast.mjs"), ...args], {
+    const child = spawn(process.execPath, [join(root, "scripts/check-contrast.mjs"), ...args], {
       cwd: dir,
       stdio: ["ignore", fds[0], fds[1]],
-      env: { ...process.env, CHROMIUM_PATH: browser, CONTRAST_STALL_S: "1", CONTRAST_TIMEOUT_S: "5", TMPDIR: join(dir, "tmp"), CONTRAST_CLI_TEST_CASE: marker },
+      env: {
+        ...process.env, CHROMIUM_PATH: browser, CONTRAST_STALL_S: "1", CONTRAST_TIMEOUT_S: "5", TMPDIR: join(dir, "tmp"),
+        CONTRAST_CLI_TEST_CASE: marker, CONTRAST_CLI_TEST_PID_FILE: pidFile,
+      },
     });
-    ended = new Promise((done) => {
+    const ended = new Promise((done) => {
       child.once("error", (error) => done({ error }));
       child.once("exit", (code, signal) => done({ code, signal }));
     });
-    if (child.pid) known.add(child.pid);
     for (const fd of fds.splice(0)) closeSync(fd);
-    seen.end = await within(ended, Math.min(CLI_MS, left()));
+    if (child.pid) {
+      const self = procStat(child.pid);
+      if (self) tracker.owned.set(keyOf(child.pid, self.start), { pid: child.pid, start: self.start, how: "check", cmd: "" });
+      watching = setInterval(() => tracker.descendants(child.pid), 50);
+      tracker.descendants(child.pid);
+    }
+    const cliMs = Math.min(CLI_MS, left() - CLEANUP_MS);
+    seen.end = await within(ended, cliMs);
+    clearInterval(watching);
+    watching = null;
+    tracker.marked();
+    seen.atExit = tracker.live().filter((p) => p.pid !== child.pid);
     if (seen.end === null) {
-      errors.push(`the check did not exit within ${Math.round(Math.min(CLI_MS, left()) / 1000)}s`);
+      errors.push(`the check did not exit within ${Math.round(cliMs / 1000)}s`);
       try { child.kill("SIGKILL"); } catch { /* gone */ }
       seen.end = (await within(ended, 2000)) || { code: null };
     }
@@ -202,13 +281,12 @@ async function runCase(name, args, { moves = [], fifo = false } = {}) {
   } catch (error) {
     errors.push(`setup: ${error.message}`);
   } finally {
+    if (watching !== null) clearInterval(watching);
     try {
-      const pid = readIf(pidFile);
-      if (pid !== null && /^\d+\s*$/.test(pid)) known.add(Number(pid));
-      const { killed, left: still } = await settle(marker, known, 3000, 2000);
-      if (killed.length > 0) errors.push(`still running after the check exited, killed: ${killed.map((p) => `${p.pid} ${p.state}`).join(", ")}`);
+      const { killed, left: still } = await settle(tracker, 3000, 2000);
+      if (killed.length > 0) errors.push(`still running after the check exited, killed: ${killed.map((p) => `${p.pid} (${p.how}) ${p.cmd}`).join(", ")}`);
       if (still.length > 0) {
-        aborted = `${name}: still running after SIGKILL: ${still.map((p) => `${p.pid} ${p.state}`).join(", ")}`;
+        aborted = `${name}: still running after SIGKILL: ${still.map((p) => p.pid).join(", ")}`;
         errors.push(aborted);
       }
     } catch (error) {
@@ -218,32 +296,37 @@ async function runCase(name, args, { moves = [], fifo = false } = {}) {
     for (const fd of fds) {
       try { closeSync(fd); } catch { /* closed */ }
     }
-    for (const p of moved) {
+    for (const { from, to } of moved) {
       try {
-        renameSync(join(root, "dist", `${p}.moved`), join(root, "dist", p));
+        renameSync(to, from);
       } catch (error) {
-        aborted = `${name}: could not put back ${p}: ${error.message}`;
+        aborted = `${name}: could not put back ${from}: ${error.message}`;
         errors.push(aborted);
       }
     }
     try {
       seen.stdout = readIf(join(dir, "stdout.txt")) ?? "";
       seen.stderr = readIf(join(dir, "stderr.txt")) ?? "";
-      seen.started = existsSync(pidFile);
+      seen.pid = readIf(pidFile);
       seen.report = readIf(join(dir, "out.json"));
-      seen.added = readdirSync(dir).filter((n) => !(seen.before || []).includes(n)).sort();
+      seen.fifoKept = fifo ? lstatSync(join(dir, "fifo")).isFIFO() : null;
+      seen.added = listAll(dir).filter((n) => !(seen.before || []).includes(n));
     } catch (error) {
       errors.push(`reading the results: ${error.message}`);
     }
     try {
       rmSync(dir, { recursive: true, force: true });
     } catch (error) {
-      errors.push(`removing ${dir}: ${error.message}`);
+      aborted = `${name}: could not remove its folder: ${error.message}`;
+      errors.push(aborted);
     }
   }
   if (left() < 0) errors.push(`the ${BUDGET_MS / 1000}s budget ran out during this case`);
   if (errors.length > 0) assert.fail(`${name}: ${errors.join("; ")}`);
-  return { code: seen.end.code, stdout: seen.stdout, stderr: seen.stderr, lines: seen.stderr.split("\n"), started: seen.started, report: seen.report, added: seen.added };
+  return {
+    code: seen.end.code, stdout: seen.stdout, stderr: seen.stderr, lines: seen.stderr.split("\n"), pid: seen.pid,
+    started: seen.pid !== null, report: seen.report, fifoKept: seen.fifoKept, added: seen.added, atExit: seen.atExit,
+  };
 }
 
 const VERDICT = /check-contrast: (passed|FAILED)/;
@@ -252,7 +335,7 @@ const assertTimedOut = (run) => {
   assert.ok(run.lines.some((l) => /^check-contrast: TIMED OUT \(stall\) after \d+s$/.test(l)), run.stderr);
   assert.ok(run.stderr.includes("start: launch"), run.stderr);
   assert.doesNotMatch(run.stdout, VERDICT);
-  assert.equal(run.started, true, "the stand-in browser was started");
+  assert.match(run.pid ?? "", /^\d+\n$/, "the stand-in browser was started once");
 };
 const PAGE = ["--gallery-only", "--page", "icons"];
 
@@ -271,6 +354,8 @@ test("a timed out run whose report path is a FIFO with no reader says so and exi
   assert.equal(run.stdout, "");
   assert.ok(run.lines.includes("  writing fifo did not finish within 10s"), run.stderr);
   assert.doesNotMatch(run.stderr, /not seen to exit/);
+  assert.equal(run.fifoKept, true, "the report path is still the FIFO");
+  assert.deepEqual(run.atExit.filter((p) => p.cmd.includes("--input-type=commonjs")), [], "the writer was gone when the check exited");
 });
 
 test("a timed out run whose report cannot be written says why and exits 3", async () => {
@@ -285,7 +370,7 @@ test("a timed out run without --json writes no report and exits 3", async () => 
   assertTimedOut(run);
   assert.equal(run.stdout, "");
   assert.doesNotMatch(run.stderr, /writing /);
-  assert.deepEqual(run.added, ["browser.pid", "stderr.txt", "stdout.txt"]);
+  assert.deepEqual(run.added, ["browser.pid", "stderr.txt", "stdout.txt"], "no report anywhere in the case folder, tmp/ included");
 });
 
 test("a missing required page is refused before a wrong page key, and before the browser", async () => {
@@ -307,20 +392,15 @@ test("a build missing another page's index still runs a page it has, gallery onl
   assert.equal(refused.started, false);
 });
 
-// The gallery pages under a language path, as the check counts them.
-const countUnder = (dir) => readdirSync(dir).reduce((n, name) => {
-  const path = join(dir, name);
-  const stat = lstatSync(path);
-  if (stat.isDirectory()) return n + countUnder(path);
-  return n + (name === "index.html" ? 1 : 0);
-}, 0);
+// The gallery pages under a language path, listed as the check lists them.
+const countUnder = (prefix) => sitePages(join(root, "dist")).filter((p) => p.startsWith(`${prefix}design/gallery/`)).length;
 
 test("--site-only skips the gallery list but counts each language's gallery pages", async () => {
-  const counts = LANGS.filter((row) => row.code !== DEFAULT_LANG).map((row) => `${row.code} ${countUnder(join(root, "dist", `${row.prefix}design/gallery`))}`);
+  const counts = LANGS.filter((row) => row.code !== DEFAULT_LANG).map((row) => `${row.code} ${countUnder(row.prefix)}`);
   const run = await runCase("site-only", ["--site-only"], { moves: ["design/gallery/index.html"] });
   assertTimedOut(run);
   assert.ok(run.stdout.split("\n").includes(`gallery pages per language path, shared parts only: ${counts.join(", ")}`), run.stdout);
-  const short = countUnder(join(root, "dist", `${otherLang.prefix}design/gallery`)) - 1;
+  const short = countUnder(otherLang.prefix) - 1;
   const refused = await runCase("language-short", ["--site-only"], { moves: [`${otherLang.prefix}design/gallery/components/index.html`] });
   assert.equal(refused.code, 2, refused.stderr);
   assert.match(refused.stderr, new RegExp(`Expected \\d+ gallery pages per language, found ${otherLang.code} ${short}`));
