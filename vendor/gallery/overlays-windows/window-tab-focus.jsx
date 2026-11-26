@@ -157,7 +157,7 @@ function PluginsHeaderCrop({ hoverTab, live }) {
 function PluginsTabHoverSpec() {
   return (
     <Spec id="plugins-window-header-tab-hover" title="Plugins window — header tab hover"
-      when={<>Installed (with a count), Attention (with a danger badge for its count), and Add plugin sit side by side on the Plugins window header's mantle. Only the selected tab has a <span className="tok">surface-raised</span> fill and a 1px <span className="tok">border-default</span> border that stay the same on hover, while an unselected tab under the pointer takes the <span className="tok">overlay-hover</span> fill and keeps its label and count ink. You can hover a tab in the live stage, which is cropped below the header, while the two frames below pin hover on Add plugin and Attention for the gallery check.</>}>
+      when={<>Installed (with a count), Attention (with a danger badge for its count), and Add plugin sit side by side on the Plugins window header's mantle. Only the selected tab has a <span className="tok">surface-raised</span> fill and a 1px <span className="tok">border-strong</span> border that stay the same on hover, while an unselected tab under the pointer takes the <span className="tok">overlay-hover</span> fill and keeps its label and count ink. You can hover a tab in the live stage, which is cropped below the header, while the two frames below pin hover on Add plugin and Attention for the gallery check.</>}>
       <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)" }}>
         <div style={col}><span className="g-cap" style={cap}>live · hover a tab</span><PluginsHeaderCrop live /></div>
       </Stage>
@@ -170,7 +170,7 @@ function PluginsTabHoverSpec() {
         </View>
       </Views>
       <Meta
-        specs={[["rest", "unselected: no fill · label text-muted"], ["hover", <>unselected: <span className="tok">--tasty-overlay-hover</span> over the header mantle · radius 4 · label and count ink unchanged</>], ["selected", "surface-raised · 1px border-default inside · label text-primary · no hover change"], ["badge", "Attention count stays the danger badge on hover"]]}
+        specs={[["rest", "unselected: no fill · label text-muted"], ["hover", <>unselected: <span className="tok">--tasty-overlay-hover</span> over the header mantle · radius 4 · label and count ink unchanged</>], ["selected", "surface-raised · 1px border-strong inside · label text-primary · no hover change"], ["badge", "Attention count stays the danger badge on hover"]]}
         tokens={[{ tok: "--tasty-overlay-hover", use: "hover fill" }, { tok: "--tasty-surface-raised", use: "selected tab", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-text-muted", use: "unselected label", color: "var(--tasty-text-muted)" }]} />
     </Spec>
   );

@@ -583,9 +583,9 @@ function PluginsSeg({ value, label, count, danger, on, hover, onPick, onPointer 
       alignItems: "center", gap: "var(--tasty-space-sm)", fontFamily: "var(--tasty-font-ui)", fontSize: "var(--tasty-font-size-term-sm)",
       fontWeight: on ? "var(--tasty-font-weight-semibold)" : "var(--tasty-font-weight-normal)", color: on ? "var(--tasty-text-primary)" : "var(--tasty-text-muted)",
       background: on ? "var(--tasty-surface-raised)" : hover ? "var(--tasty-overlay-hover)" : "transparent",
-      boxShadow: on ? "inset 0 0 0 var(--tasty-border-width) var(--tasty-border-default)" : "none",
+      boxShadow: on ? "inset 0 0 0 var(--tasty-border-width) var(--tasty-border-strong)" : "none",
       /* as the app: the tabs sit side by side on the header's mantle, and only the selected one is filled (raised,
-         1px border-default). An unselected tab under the pointer takes the overlay-hover fill; its ink stays.
+         1px border-strong, the partition edge on raised). An unselected tab under the pointer takes the overlay-hover fill; its ink stays.
          The keyboard focus ring is base.css's, 1px off the tab, on mantle: border-focus. */
       outlineOffset: "var(--tasty-focus-ring-offset)" }}>
       {label}
