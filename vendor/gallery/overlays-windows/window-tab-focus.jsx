@@ -170,7 +170,7 @@ function PluginsTabHoverSpec() {
         </View>
       </Views>
       <Meta
-        specs={[["rest", "unselected: no fill · label text-muted"], ["hover", <>unselected: <span className="tok">--tasty-overlay-hover</span> over the header mantle · radius 4 · label and count ink unchanged</>], ["selected", "surface-raised · 1px border-strong inside · label text-primary · no hover change"], ["badge", "Attention count stays the danger badge on hover"]]}
+        specs={[["rest", "unselected: no fill · label text-muted"], ["hover", <>unselected: <span className="tok">--tasty-overlay-hover</span> over the header mantle · radius 4 · label and count ink unchanged</>], ["selected", "surface-raised · 1px border-strong inside · label text-primary · no hover change"], ["badge", "Attention count stays the danger badge on hover"], ["narrow window", "close and Installed-only filter keep size at right \u00b7 title and tabs clip at end in remaining width \u00b7 focus ring stays visible top and bottom"]]}
         tokens={[{ tok: "--tasty-overlay-hover", use: "hover fill" }, { tok: "--tasty-surface-raised", use: "selected tab", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-text-muted", use: "unselected label", color: "var(--tasty-text-muted)" }]} />
     </Spec>
   );
