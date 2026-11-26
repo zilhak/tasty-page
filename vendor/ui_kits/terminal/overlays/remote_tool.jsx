@@ -679,7 +679,7 @@ function LocalSshSection({ state = "hosts", hosts = SSH_CONFIG_HOSTS, profileTar
             </div>
             {have
               ? <Tag>in profiles</Tag>
-              : <Button variant="ghost" size="sm" leadingIcon={<Icon name="plus" size="var(--tasty-icon-size-sm)" />} onClick={() => onImport && onImport(h)}>Add profile</Button>}
+              : <Button variant="ghost" size="sm" leadingIcon={<Icon name="plus" size="var(--tasty-icon-size-md)" />} onClick={() => onImport && onImport(h)}>Add profile</Button>}
           </div>
         );
       })}
