@@ -741,8 +741,10 @@ function RemoteTool({ onClose, onFlash }) {
   React.useEffect(() => {
     const h = (e) => { if (e.key === "Escape") onClose && onClose(); };
     window.addEventListener("keydown", h);
-    return () => { window.removeEventListener("keydown", h); Object.values(timers.current).forEach(clearTimeout); };
+    return () => window.removeEventListener("keydown", h);
   }, [onClose]);
+  // detection timers end only when the window unmounts; a host that passes a new onClose each render must not cancel them
+  React.useEffect(() => () => Object.values(timers.current).forEach(clearTimeout), []);
 
   const switchTab = (t) => { setTab(t); setPView({ type: "list" }); setKView({ type: "list" }); setAView({ type: "list" }); setPErr(""); setKErr(""); setAErr(""); };
 
