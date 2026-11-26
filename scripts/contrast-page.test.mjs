@@ -173,7 +173,9 @@ const textWalker = (root) => {
   return { nextNode: () => nodes[i++] ?? null };
 };
 // A color that reads a custom property resolves through the nearest ancestor's vars, as a browser's computed color does.
+// A ::details-content not given has an empty style, as a browser returns for a pseudo-element it does not support.
 globalThis.getComputedStyle = (node, pseudo) => {
+  if (pseudo === "::details-content" && !node.pseudoStyle[pseudo]) return {};
   const st = (pseudo && node.pseudoStyle[pseudo]) || node.style;
   const m = /^var\((--[\w-]+)\)$/.exec(st.color || "");
   if (!m) return st;
@@ -336,6 +338,19 @@ test("scan: text right inside a closed details is not measured, its summary is, 
   assert.deepEqual([closed.text, closed.below.map((b) => b.text)], [1, ["title"]]);
   const open = scanPage([details({ open: "" })]);
   assert.deepEqual([open.text, open.below.map((b) => b.text).sort()], [2, ["body", "title"]]);
+  // The slot as the browser draws it decides: display contents shows a hidden slot, display none hides a visible one,
+  // and the text takes the slot's color, which inherits the host's unless author CSS gives it one.
+  const slotted = (attrs, slot) => {
+    const d = details(attrs);
+    d.pseudoStyle = { "::details-content": { color: "rgb(200, 200, 200)", ...slot } };
+    return scanPage([d]);
+  };
+  const contents = slotted({}, { display: "contents", contentVisibility: "hidden" });
+  assert.deepEqual([contents.text, contents.below.map((b) => b.text).sort()], [2, ["body", "title"]]);
+  const none = slotted({ open: "" }, { display: "none", contentVisibility: "visible" });
+  assert.deepEqual([none.text, none.below.map((b) => b.text)], [1, ["title"]]);
+  const black = slotted({}, { display: "block", contentVisibility: "visible", color: "rgb(0, 0, 0)" });
+  assert.deepEqual([black.text, black.below.map((b) => b.text)], [2, ["title"]]);
 });
 
 test("rowShown, svgInks and measureMarks leave out what the browser does not render", () => {
@@ -1014,8 +1029,9 @@ test("measureMarks: the own pseudo-element is not under a border, the color take
 
 test("measureGallery: text right inside a closed details is not measured, its summary is, and an open details is", () => {
   // Light grey on white is below the text grade, so each measured text is a below record.
-  const run = (attrs, slot) => {
-    const pseudo = slot ? { "::details-content": { contentVisibility: slot } } : {};
+  const run = (attrs, slot, more = {}) => {
+    // The slot inherits the host's color unless author CSS gives it one.
+    const pseudo = slot ? { "::details-content": { display: "block", contentVisibility: slot, color: "rgb(200, 200, 200)", ...more } } : {};
     const details = el("details", { style: { color: "rgb(200, 200, 200)" }, attrs, pseudo, rendered: true, text: "body" }, [el("summary", { style: { color: "rgb(200, 200, 200)" }, rendered: true, text: "title" })]);
     const scope = el("div", { attrs: { "data-gallery-page": "" }, style: { backgroundColor: "rgb(255, 255, 255)" } }, [details]);
     globalThis.document = {
@@ -1041,6 +1057,11 @@ test("measureGallery: text right inside a closed details is not measured, its su
   // closed details, and a hidden slot hides it whatever the attribute says.
   assert.deepEqual(run({}, "visible"), ["body", "title"]);
   assert.deepEqual(run({ open: "" }, "hidden"), ["title"]);
+  // display contents leaves no slot box for content-visibility to hide; display none hides it whatever that says.
+  assert.deepEqual(run({}, "hidden", { display: "contents" }), ["body", "title"]);
+  assert.deepEqual(run({ open: "" }, "visible", { display: "none" }), ["title"]);
+  // The text takes the slot's color: black on white passes, so only the title is below.
+  assert.deepEqual(run({}, "visible", { color: "rgb(0, 0, 0)" }), ["title"]);
 });
 
 test("measureGallery: marks outside the frozen cells and exemptions are counted and judged", () => {

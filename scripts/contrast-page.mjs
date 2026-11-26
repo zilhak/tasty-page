@@ -60,14 +60,25 @@ export function pageLib() {
   // details body sits in a slot whose content-visibility is hidden, and its color can lag behind a theme switch.
   // checkVisibility() with no options sees that; opacity and visibility are judged below, since opacity is composited.
   const rendered = (el) => typeof el.checkVisibility !== "function" || el.checkVisibility();
-  // Text right inside a details whose content slot is hidden (closed, by default) is not drawn, though the details
-  // itself is rendered. The slot's computed content-visibility says so, which also follows author CSS that shows the
-  // body of a closed details; where the browser does not report it, a details without the open attribute counts.
+  // Text right inside a details sits in its content slot (::details-content), not in the details' own box: it shows
+  // when the slot does, and it takes the slot's color. A closed details hides the slot by default (content-visibility
+  // hidden); author CSS can show it (content-visibility visible, or display contents, which leaves no box for
+  // content-visibility to hide) or hide it (display none). Where the browser reports no slot style, a details without
+  // the open attribute counts as hidden and the text takes the details' color.
+  const slotStyle = (el) => {
+    if (el.tagName.toLowerCase() !== "details") return null;
+    const s = getComputedStyle(el, "::details-content");
+    // A browser without the slot pseudo-element returns an empty style for it.
+    return s.contentVisibility ? s : null;
+  };
   const inClosedSlot = (el) => {
     if (el.tagName.toLowerCase() !== "details") return false;
-    const v = getComputedStyle(el, "::details-content").contentVisibility;
-    return v ? v === "hidden" : el.getAttribute("open") === null;
+    const s = slotStyle(el);
+    if (!s) return el.getAttribute("open") === null;
+    return s.display === "none" || (s.display !== "contents" && s.contentVisibility === "hidden");
   };
+  // The color a text node right inside el is drawn in.
+  const textColorOf = (el) => (slotStyle(el)?.color || getComputedStyle(el).color);
   const visible = (el) => {
     if (!rendered(el)) return false;
     const s = getComputedStyle(el);
@@ -446,7 +457,7 @@ export function pageLib() {
       // Text right inside a closed details is in its hidden slot, though the details itself is rendered.
       if (inClosedSlot(el)) continue;
       if (el.closest("svg") || skip(el) || exemptOf(el) || !visible(el)) continue;
-      const ink = parse(getComputedStyle(el).color);
+      const ink = parse(textColorOf(el));
       if (!ink || ink[3] === 0) continue;
       judge("text", el, ink, textGrade(el), t.slice(0, 40));
     }
@@ -519,7 +530,7 @@ export function pageLib() {
     return r ? { ...r, frame } : { frame, at: where(el), got: "none", ground: "none", ratio: 0, inkOk: false, below: false };
   };
 
-  return { selectParts, validateParts, expectedTheme, parse, over, ratio, hex, near, overlays, opacityOf, visible, svgInks, shapeInks, rowInks, rowShown, judgeInks, judgeSvgPart, inkOn, measureRows, scan, alternatives, pseudoOf, bare, pick, aim, measureAimed, measureFocus, measureMarks, inClosedSlot };
+  return { selectParts, validateParts, expectedTheme, parse, over, ratio, hex, near, overlays, opacityOf, visible, svgInks, shapeInks, rowInks, rowShown, judgeInks, judgeSvgPart, inkOn, measureRows, scan, alternatives, pseudoOf, bare, pick, aim, measureAimed, measureFocus, measureMarks, inClosedSlot, textColorOf };
 }
 
 export const installPageLib = (tab) => tab.addScriptTag({ content: `window.__contrast = (${pageLib})();` });
