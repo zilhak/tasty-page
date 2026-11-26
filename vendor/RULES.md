@@ -2458,7 +2458,7 @@ The site's landing, guide and design pages use the same grounds, roles and table
 
 **Inline code.** A chip reads `site-inline-code`, with a 1px `border-default` edge. Mocha keeps `raised`. In Latte `raised` is darker than a page of running text wants, so the chip steps back to `mantle`.
 
-**Figures of the app.** The site draws the app window on the landing page and the window diagrams in the guide. The page itself draws these figures, so the `ansi-content` exception does not cover them. Their lines read the text cells for `term` and `base`. See [section 14](#14-gallery-check) for gallery specimens.
+**Figures of the app.** The site draws the app window and CLI terminal on the landing page, the window diagrams in the guide, and the terminal panes in workflow diagrams. The `ansi-content` exception does not cover figures drawn by the site. Their lines read the text cells for `term` and `base`. See [section 14](#14-gallery-check) for gallery specimens.
 
 **Links.** A link reads `accent-primary-raised`. In running text it also takes an underline at rest, because in Latte that ink is too close to body text to tell apart by lightness. In a note it takes body ink and the underline, because a second hue on a tint is forbidden.
 
