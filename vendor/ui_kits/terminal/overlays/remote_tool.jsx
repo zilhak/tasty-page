@@ -757,12 +757,27 @@ function RemoteTool({ onClose, onFlash }) {
   // host in 203.0.113.0/24 (TEST-NET-3, a documentation range nothing answers on) fails, any other host succeeds.
   // legacy-box sits there, so Re-detect on it shows the failed result again; editing its host to another address
   // lets the next probe succeed.
-  const probeReaches = (p) => !/^203\.0\.113\./.test((p.host || "").trim());
+  // Only an IPv4 literal in that range fails: a name such as 203.0.113.example.com is another host.
+  const probeReaches = (p) => {
+    const m = /^203\.0\.113\.(\d{1,3})$/.exec((p.host || "").trim());
+    return !(m && Number(m[1]) <= 255);
+  };
+  // The probe runs on the profile as it was when Re-detect was pressed. Like the app, which rejects the result when
+  // the stored profile changed in the meantime, a row saved during the probe keeps its own status.
+  // Saving copies the row through blankProfile(), so the comparison fills the same defaults and ignores key order.
+  const recordOf = (p) => {
+    const { state, failed, ...rest } = { ...blankProfile(), ...p };
+    return JSON.stringify(Object.keys(rest).sort().map((k) => [k, rest[k]]));
+  };
   const pRedetect = (p) => {
+    const started = recordOf(p);
     setProfiles((ps) => ps.map((x) => (x.id === p.id ? { ...x, state: "detecting" } : x)));
     onFlash && onFlash(`Re-detecting ${p.name}…`);
     clearTimeout(timers.current[p.id]);
-    timers.current[p.id] = setTimeout(() => setProfiles((ps) => ps.map((x) => (x.id === p.id ? { ...x, state: "ok", failed: !probeReaches(x) } : x))), 1400);
+    timers.current[p.id] = setTimeout(() => setProfiles((ps) => ps.map((x) => {
+      if (x.id !== p.id) return x;
+      return recordOf(x) === started ? { ...x, state: "ok", failed: !probeReaches(p) } : { ...x, state: "ok" };
+    })), 1400);
   };
   const pSave = () => {
     const ssh = isSshType(pDraft.type);
