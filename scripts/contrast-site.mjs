@@ -51,7 +51,18 @@ const TAB_STOPS = 14;
 
 // Specimen pages outside design/gallery. They are measured like a gallery page and do not count as one.
 export const SPECIMEN_ROUTES = [{ key: "tokens", path: "design/tokens/" }];
-const isFile = (path) => existsSync(path) && statSync(path).isFile();
+// A listed entry that cannot be followed is not a page: a link to nothing (ENOENT), a link through a file (ENOTDIR) or a
+// link loop (ELOOP). Any other error, such as EACCES, is thrown.
+const SKIPPED = new Set(["ENOENT", "ENOTDIR", "ELOOP"]);
+function statOrNull(path) {
+  try {
+    return statSync(path);
+  } catch (error) {
+    if (SKIPPED.has(error.code)) return null;
+    throw error;
+  }
+}
+const isFile = (path) => statOrNull(path)?.isFile() === true;
 
 // The built gallery pages: the foundations page first, then each folder under design/gallery with a built index.html in name
 // order, then the specimen routes. The foundations page and the specimen routes must be built, so any of them without an
@@ -64,23 +75,28 @@ export function galleryPages(dist) {
   const sub = [];
   for (const name of readdirSync(dir).sort()) {
     const path = join(dir, name);
-    if (statSync(path).isDirectory() && isFile(join(path, "index.html"))) sub.push({ key: name, path: `design/gallery/${name}/` });
+    if (statOrNull(path)?.isDirectory() && isFile(join(path, "index.html"))) sub.push({ key: name, path: `design/gallery/${name}/` });
   }
   return { pages: [required[0], ...sub, ...SPECIMEN_ROUTES], missing };
 }
 
+// The built site pages, as paths under dist. A link back to a folder the walk is already inside (such as `loop -> .`) is
+// not entered, so the walk ends; a link to any other folder is walked under the link's own path too.
 export function sitePages(dist) {
   const pages = [];
-  const walk = (dir, rel) => {
+  const idOf = (stat) => `${stat.dev}:${stat.ino}`;
+  const walk = (dir, rel, above) => {
     for (const name of readdirSync(dir).sort()) {
       const path = join(dir, name);
       const next = rel ? `${rel}/${name}` : name;
-      if (statSync(path).isDirectory()) {
-        if (next !== "design/gallery" && next !== "_astro") walk(path, next);
+      const stat = statOrNull(path);
+      if (stat === null) continue;
+      if (stat.isDirectory()) {
+        if (next !== "design/gallery" && next !== "_astro" && !above.has(idOf(stat))) walk(path, next, new Set([...above, idOf(stat)]));
       } else if (name === "index.html") pages.push(rel ? `${rel}/` : "");
     }
   };
-  if (existsSync(dist)) walk(dist, "");
+  if (existsSync(dist)) walk(dist, "", new Set([idOf(statSync(dist))]));
   return pages;
 }
 
