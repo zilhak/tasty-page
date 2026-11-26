@@ -874,12 +874,12 @@ function Page() {
         </Spec>
 
         <Spec id="right-click-context-menu-target-resolves-to-4-shapes" title="Right-click context menu — target resolves to 4 shapes"
-          when={<>Finder/VS Code rule: right-clicking an item <b>inside the selection</b> targets the whole selection; <b>outside</b> it, selection collapses to that one item; on the <b>empty background</b>, the target is the current directory (cwd). The rows follow the target. A row the target's kind never takes is left out (Add to favorites on a file); a row that only waits on the state is <b>shown disabled</b> (Paste with nothing that can be pasted). Rows are grouped by divider into <b>clipboard · file ops · system</b>.</>}>
+          when={<>Finder/VS Code rule: right-clicking an item <b>inside the selection</b> targets the whole selection; <b>outside</b> it, selection collapses to that one item; on the <b>empty background</b>, the target is the current directory (cwd). The rows follow the target. A row the target's kind never takes is left out (Add to Favorites on a file); a row that only waits on the state is <b>shown disabled</b> (Paste with nothing that can be pasted). Rows are grouped by divider into <b>clipboard · file ops · system</b>.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)" }}>
             <div style={{ display: "flex", gap: 18, flexWrap: "wrap", justifyContent: "center" }}>
               <CtxMenu title="Background (empty area) → cwd · a pasteable list held">
                 <MenuItem label="Copy path" icon={ic.link} />
-                <MenuItem label="Add to favorites" icon={ic.star} />
+                <MenuItem label="Add to Favorites" icon={ic.star} />
                 <MenuItem label="Paste" icon={ic.paste} shortcut={<Kbd keys="Ctrl+V" />} />
               </CtxMenu>
               <CtxMenu title="Single file">
@@ -897,7 +897,7 @@ function Page() {
               </CtxMenu>
               <CtxMenu title="Single folder · a pasteable list held">
                 <MenuItem label="Copy path" icon={ic.link} />
-                <MenuItem label="Add to favorites" icon={ic.star} />
+                <MenuItem label="Add to Favorites" icon={ic.star} />
                 <MenuItem label="Copy" icon={ic.copy} shortcut={<Kbd keys="Ctrl+C" />} />
                 <MenuItem label="Cut" icon={ic.scissors} shortcut={<Kbd keys="Ctrl+X" />} />
                 <MenuItem label="Paste into" icon={ic.paste} />
