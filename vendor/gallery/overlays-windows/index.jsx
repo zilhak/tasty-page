@@ -22,6 +22,9 @@ import { CaptureRegionSection } from "./capture-region.jsx";
 import { SettingsTitleBarLinuxSpec } from "./settings-titlebar-linux.jsx";
 import { WindowTabFocusSpec, PluginsTabHoverSpec } from "./window-tab-focus.jsx";
 import { Section, Spec, Stage, Meta, Note, Do, Dont, Views, View } from "../parts/specimen.jsx";
+import { PaletteCard as Kit_PaletteCard } from "../../ui_kits/terminal/overlays/command_palette.jsx";
+import { PortsWindow as Kit_PortsWindow } from "../../ui_kits/terminal/overlays/port_scanner.jsx";
+import { ScrimRoom as Kit_ScrimRoom } from "../../ui_kits/terminal/overlays/shared.jsx";
 import { KbImportExportSubtab as Kit_KbImportExportSubtab, IE_GROUPS as KIT_IE_GROUPS } from "../../ui_kits/terminal/overlays/kb_import_export.jsx";
 
 // Tasty Gallery — Overlays · Windows (large modal surfaces)
@@ -710,6 +713,15 @@ function Page() {
         <Spec id="command-palette-k" title="Command palette — ⌘K"
           when={<>Top-anchored launcher. A search Input header, a scrollable MenuItem list with the first row pre-highlighted, and a monospace hint footer. The fastest path to any command — every action should be reachable here.</>}>
           <Stage variant="solo center"><Backdrop height={400}><PaletteFrame /></Backdrop></Stage>
+          {/* The kit's own card in a room as short as a small screen leaves it: the same column the landing palette lays
+              out, so the list gives up its height first and scrolls, and the search and the footer stay whole. */}
+          <Views>
+            <View name="palette-short-screen" label="Command palette — a short-screen layout (scrolling list)">
+              <div style={{ display: "flex", width: "var(--tasty-palette-width)", height: "var(--tasty-short-screen-specimen-height)" }}>
+                <Kit_ScrimRoom align="top"><Kit_PaletteCard /></Kit_ScrimRoom>
+              </div>
+            </View>
+          </Views>
           <Meta
             specs={[["width", "--tasty-palette-width"], ["anchor", "top, ~40–90px"], ["header", <>Input + <span className="tok">--tasty-border-strong</span> line below</>], ["rows", <>28px MenuItem · first active</>], ["footer", <>mono hints ↑↓ ↵ esc · <span className="tok">--tasty-border-strong</span> line above</>], ["short screen", "palette clamped to screen \u00b7 search and footer keep height \u00b7 list scrolls in remaining space, min 1 row"], ["frame edge", <>1px <span className="tok">--tasty-border-frame</span> — the popup frame, on the raised shell as on a base one</>]]}
             tokens={[{ tok: "--tasty-surface-raised", use: "frame", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-border-frame", use: "frame edge", color: "var(--tasty-border-frame)" }, { tok: "--tasty-border-strong", use: "header and footer lines — a divider on raised", color: "var(--tasty-border-strong)" }, { tok: "--tasty-surface-active", use: "highlight", color: "var(--tasty-surface-active)" }, { tok: "--tasty-font-mono", use: "hints" }]} />
@@ -734,6 +746,18 @@ function Page() {
         <Spec id="listening-ports-the-table-popup" title="Listening ports — the Table popup"
           when={<>Tools › Listening ports. A <b>660×520</b> modal built directly on the <b>Table</b> component — the canonical example of a data-table surface. Header carries a live filter + refresh; a <b>Show all</b> checkbox toggles between Tasty-owned and system-wide ports; the scan state shows a <b>Spinner</b>. Rows are sortable; the State column renders a StatusDot.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)" }}><PortsFrame /></Stage>
+          {/* The kit's own window on a narrow screen, cut below its filter row: the right cluster keeps its size at the
+              right edge and the left group is cut at its end. It opens on the scanned table (scanMs 0), so the frame
+              does not change after the scan. */}
+          <Views>
+            <View name="ports-narrow-window" label="Listening ports — the header in a narrow window (icon, title and count clipped at the end)">
+              <div inert="" style={{ overflow: "hidden", width: "var(--tasty-narrow-window-specimen-width)", height: "var(--tasty-size-120)", pointerEvents: "none" }}>
+                <div style={{ position: "relative", height: "var(--tasty-ports-window-height)" }}>
+                  <Kit_PortsWindow scanMs={0} onClose={() => {}} />
+                </div>
+              </div>
+            </View>
+          </Views>
           <Meta
             specs={[["frame width", "--tasty-ports-window-width"], ["frame height", "--tasty-ports-window-height"], ["built on", <span className="ic">Table</span>], ["header", "filter Input + refresh"], ["narrow window", "filter, refresh and close keep size at right \u00b7 icon, title and listening count use remaining width and clip at end"], ["scan", <>Spinner \u2192 \u201cCollecting\u2026\u201d</>], ["footer", "count · Copy address · Close"]]}
             tokens={[{ tok: "--tasty-bg-panel", use: "frame", color: "var(--tasty-bg-panel)" }, { tok: "--tasty-surface-active", use: "selected row", color: "var(--tasty-surface-active)" }, { tok: "--tasty-accent-success", use: "LISTEN dot", color: "var(--tasty-accent-success-raised)" }, { tok: "--tasty-font-mono", use: "port/addr/pid" }]} />

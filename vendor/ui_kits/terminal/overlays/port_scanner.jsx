@@ -153,21 +153,23 @@ function FavoritesSection({ favs, onToggle }) {
   );
 }
 
-function PortsWindow({ onClose, onFlash, favorites = FAVS_DEFAULT }) {
+// scanMs: how long the mock scan shows "scanning…". 0 opens on the scanned table, for a gallery frame that must not change.
+function PortsWindow({ onClose, onFlash, favorites = FAVS_DEFAULT, scanMs = 750 }) {
   const [q, setQ] = React.useState("");
   const [sort, setSort] = React.useState({ key: "port", dir: "asc" });
   const [sel, setSel] = React.useState(null);
   const [showAll, setShowAll] = React.useState(false);
-  const [loading, setLoading] = React.useState(true);
+  const [loading, setLoading] = React.useState(scanMs > 0);
   const [favs, setFavs] = React.useState(favorites);
   const timer = React.useRef(null);
 
   // Kick off a (mock) scan on open and whenever the scope changes / refresh.
   const scan = React.useCallback(() => {
-    setLoading(true);
     clearTimeout(timer.current);
-    timer.current = setTimeout(() => setLoading(false), 750);
-  }, []);
+    if (scanMs <= 0) { setLoading(false); return; }
+    setLoading(true);
+    timer.current = setTimeout(() => setLoading(false), scanMs);
+  }, [scanMs]);
   React.useEffect(() => { scan(); return () => clearTimeout(timer.current); }, [scan, showAll]);
 
   const toggleFav = React.useCallback((key) => {

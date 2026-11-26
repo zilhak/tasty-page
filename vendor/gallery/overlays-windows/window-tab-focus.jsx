@@ -154,6 +154,32 @@ function PluginsHeaderCrop({ hoverTab, live }) {
   );
 }
 
+// The kit window on a narrow screen, cut below its header. The left group scrolls sideways there, as Tab moving focus
+// scrolls it, so each frame gives one tab keyboard focus and scrolls the group until that tab and its ring, with the
+// group's 1px of spare reach, meet the group's start (the first tab) or its end (the last tab, the group at its far end): the ring stays whole at the edge.
+function PluginsNarrowCrop({ tab, end }) {
+  const ref = React.useRef(null);
+  React.useEffect(() => {
+    const root = ref.current;
+    const group = root && root.querySelector("[data-plugins-header-start]");
+    const el = root && byText("button", tab)(root);
+    if (!group || !el) return;
+    if (end) { group.scrollLeft = group.scrollWidth; return; }
+    // the ring's reach from the tokens: this runs before FocusOn forces the focus, so the outline is not drawn yet
+    const rootStyle = getComputedStyle(document.documentElement);
+    const reach = parseFloat(rootStyle.getPropertyValue("--tasty-focus-ring-width")) + parseFloat(rootStyle.getPropertyValue("--tasty-focus-ring-offset"))
+      + parseFloat(rootStyle.getPropertyValue("--tasty-border-width"));
+    group.scrollLeft += el.getBoundingClientRect().left - reach - group.getBoundingClientRect().left;
+  });
+  return (
+    <FocusOn crop="var(--tasty-size-120)" pick={byText("button", tab)}>
+      <div ref={ref} style={{ position: "relative", width: "var(--tasty-narrow-window-specimen-width)", height: "var(--tasty-plugins-window-height)" }}>
+        <Kit_PluginsWindow onClose={noop} onFlash={noop} onConfigure={noop} />
+      </div>
+    </FocusOn>
+  );
+}
+
 function PluginsTabHoverSpec() {
   return (
     <Spec id="plugins-window-header-tab-hover" title="Plugins window — header tab hover"
@@ -167,6 +193,12 @@ function PluginsTabHoverSpec() {
         </View>
         <View name="plugins-tab-hover-badge" wide label="Plugins — an unselected tab with its danger badge under the pointer (Attention, while Installed is open)">
           <div style={col}><span className="g-cap" style={cap}>plugins · tab bar · hover with badge</span><PluginsHeaderCrop hoverTab="attention" /></div>
+        </View>
+        <View name="plugins-narrow-start" label="Plugins — the first tab with keyboard focus (Installed, at the start of the scroll area)">
+          <div style={col}><span className="g-cap" style={cap}>plugins · tab bar · keyboard focus at start</span><PluginsNarrowCrop tab="Installed" /></div>
+        </View>
+        <View name="plugins-narrow-end" label="Plugins — the last tab with keyboard focus (Add plugin, at the end of the scroll area)">
+          <div style={col}><span className="g-cap" style={cap}>plugins · tab bar · keyboard focus at end</span><PluginsNarrowCrop tab="Add plugin" end /></div>
         </View>
       </Views>
       <Meta

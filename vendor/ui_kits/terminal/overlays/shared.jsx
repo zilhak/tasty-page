@@ -63,9 +63,16 @@ function Scrim({ onClose, children, align = "center" }) {
     <div onClick={onClose} style={{ position: "absolute", inset: 0, background: "var(--tasty-scrim-bg)",
       backdropFilter: "blur(var(--tasty-scrim-blur))", display: "flex",
       paddingTop: align === "top" ? "var(--tasty-overlay-top-offset)" : 0, zIndex: 50 }}>
-      <div className="tasty-kit-scrim__room" onClick={closeOnSelf} style={{ justifyContent: align === "top" ? "flex-start" : "center" }}>{children}</div>
+      <ScrimRoom onClick={closeOnSelf} align={align}>{children}</ScrimRoom>
     </div>
   );
 }
 
-export { Scrim, Spinner, PopupFocusEdge };
+// The room inside the scrim that holds and bounds the window (max 100% of the room, as clamp_to_screen). The gallery
+// sets one in a box of a chosen size to draw a window on a small screen with the kit's own layout.
+function ScrimRoom({ align = "center", style, children, ...rest }) {
+  ensureScrimCss();
+  return <div className="tasty-kit-scrim__room" {...rest} style={{ justifyContent: align === "top" ? "flex-start" : "center", ...style }}>{children}</div>;
+}
+
+export { Scrim, ScrimRoom, Spinner, PopupFocusEdge };

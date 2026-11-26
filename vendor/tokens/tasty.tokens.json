@@ -4804,6 +4804,14 @@
       "$type": "dimension",
       "$value": "{primitive.size-760}"
     },
+    "short-screen-specimen-height": {
+      "$type": "dimension",
+      "$value": "{primitive.size-240}"
+    },
+    "narrow-window-specimen-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-400}"
+    },
     "specimen-annotation-border": {
       "$type": "color",
       "$value": "{semantic.border-control-raised}"
