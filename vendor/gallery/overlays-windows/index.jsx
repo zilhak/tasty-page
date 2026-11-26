@@ -1222,7 +1222,11 @@ function Page() {
 <Section id="settings" title="Settings window">
         <Spec id="settings-two-tier-navigation" title="Settings — two-tier navigation"
           when={<>The largest dialog. <b>L1</b> = a small, fixed set of top tabs (General / Appearance / Keybindings / Plugins). <b>L2</b> = a growable, filterable left sidebar of sections (plugins contribute here). This split keeps top-level navigation stable while the content tree scales. Reuse it for any settings-like surface.</>}>
-          <Stage variant="solo center"><Backdrop height={420}><SettingsFrame /></Backdrop></Stage>
+          <Stage variant="solo center column">
+            {/* The frame is drawn smaller than the window: it shows the two navigation tiers, and the spec table gives the size the app opens at. */}
+            <div className="g-cap" style={{ alignSelf: "flex-start", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>620 × 380 reduced navigation schematic, L1 tabs and L2 sidebar only. Settings opens at the 1100 × 700 frame size below.</div>
+            <Backdrop height={420}><SettingsFrame /></Backdrop>
+          </Stage>
           <Meta
             specs={[["frame width", "--tasty-settings-window-width"], ["frame height: macOS, Windows, Linux with OS decorations", "--tasty-settings-window-height"], ["frame height: Linux with the title bar Tasty draws (see below)", "--tasty-settings-window-csd-height"], ["L1 tabs", "--tasty-settings-l1-height"], ["L1 active tab", "accent underline"], ["L2 sidebar", "200px, filter + list"], ["footer", "Cancel / Save, right"]]}
             tokens={[{ tok: "--tasty-bg-sidebar", use: "L1 + L2", color: "var(--tasty-bg-sidebar)" }, { tok: "--tasty-bg-panel", use: "content", color: "var(--tasty-bg-panel)" }, { tok: "--tasty-accent-primary", use: "active tab", color: "var(--tasty-accent-primary)" }, { tok: "--tasty-surface-active", use: "active section", color: "var(--tasty-surface-active)" }]} />
