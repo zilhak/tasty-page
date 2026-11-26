@@ -16,9 +16,12 @@ const BASE = `${import.meta.env.BASE_URL.replace(/\/$/, "")}/`;
 // Linux has NO single convention — the button set, order, and side vary by
 // desktop environment and user setting (GNOME: Close only, right; KDE/Breeze:
 // min·max·close, movable to either side). So the layout is DATA-DRIVEN: pass
-// `buttons` (subset/order of min·max·close) and `side` (left|right). On Wayland
-// the window draws rounded top corners + a 1px border + a soft shadow whose
-// margin holds the resize edges. All color/size from --tasty-* tokens.
+// `buttons` (subset/order of min·max·close) and `side` (left|right). The kit
+// rounds the top corners (titlebar-csd-radius), and the titlebar-csd-* tokens
+// also set a 1px window outline and a soft shadow whose margin holds the resize
+// edges. The app draws none of these yet (2026-11-26): its undecorated main
+// window is square and takes the resize drag from an 8px band inside the window
+// edge. All color/size from --tasty-* tokens.
 // The buttons are the window button part of the Title bar and Title bar (inactive) contracts (RULES.md
 // section 9, Layouts › Title bar): no fill at rest, the hover or press fill under the pointer, and the
 // title ink on the glyph throughout. Close under the pointer is the Window close button.
