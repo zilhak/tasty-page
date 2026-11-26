@@ -1478,7 +1478,7 @@ function MarkdownOpenFrame() {
   const Choice = ({ icon, title, sub, on }) => (
     <button style={{ appearance: "none", cursor: "pointer", textAlign: "left", flex: 1, display: "flex", flexDirection: "column", gap: 6,
       padding: 12, borderRadius: "var(--tasty-radius)", background: "var(--tasty-surface-raised)",
-      border: on ? "1px solid var(--tasty-accent-primary)" : "1px solid var(--tasty-border-default)",
+      border: on ? "1px solid var(--tasty-accent-primary)" : "1px solid var(--tasty-border-strong)",
       boxShadow: on ? "0 0 0 1px var(--tasty-accent-primary)" : "none" }}>
       <span style={{ display: "inline-flex", color: on ? "var(--tasty-accent-primary-raised)" : "var(--tasty-text-muted)" }}>{icon}</span>
       <span style={{ fontSize: 13, fontWeight: 600, color: "var(--tasty-text-primary)" }}>{title}</span>
@@ -2380,7 +2380,7 @@ function RemoteFormFrame({ variant = "ssh", error }) {
          Apply-preset scope and the clipboard type segment). surface-active is the
          row-selection fill and is not used here. Tab STRIPS keep the underline. */
       background: active ? "var(--tasty-accent-primary)" : "var(--tasty-surface-raised)", color: active ? "var(--tasty-text-on-accent)" : "var(--tasty-text-secondary)",
-      border: "var(--tasty-border-width) solid " + (active ? "var(--tasty-accent-primary)" : "var(--tasty-border-default)") }}>{label}</div>
+      border: "var(--tasty-border-width) solid " + (active ? "var(--tasty-accent-primary)" : "var(--tasty-border-strong)") }}>{label}</div>
   );
   return (
     <div style={{ width: "var(--tasty-remote-form-specimen-width)", flex: "none", height: "var(--tasty-remote-form-specimen-height)", display: "flex", flexDirection: "column",

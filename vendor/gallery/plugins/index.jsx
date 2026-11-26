@@ -613,7 +613,7 @@ function ImgCanvas({ children, panned, focused = true }) {
     <div style={{ flex: 1, minHeight: 0, position: "relative", background: surfaceBed(focused), display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
       <div style={{ position: "relative", width: panned ? 280 : 200, height: panned ? 200 : 132, transform: panned ? "translate(24px,-12px)" : "none",
         background: "linear-gradient(135deg, var(--tasty-surface-raised), var(--tasty-bg-panel))",
-        border: "1px solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius-sm)", display: "flex", alignItems: "center", justifyContent: "center",
+        border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius-sm)", display: "flex", alignItems: "center", justifyContent: "center",
         color: "var(--tasty-text-disabled)" }}>
         <span style={{ display: "inline-flex", transform: "scale(1.4)" }}>{ic.image}</span>
         {children}

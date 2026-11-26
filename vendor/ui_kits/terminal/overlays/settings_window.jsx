@@ -953,7 +953,7 @@ function SettingsWindow({ theme, onTheme, uiScale, onUiScale, onClose, os = DEFA
                 return (
                   <button key={key} onClick={() => onUiScale(key)} style={{
                     appearance: "none", cursor: "pointer", textAlign: "left",
-                    border: on ? "var(--tasty-border-width) solid var(--tasty-accent-primary)" : "var(--tasty-border-width) solid var(--tasty-border-default)",
+                    border: on ? "var(--tasty-border-width) solid var(--tasty-accent-primary)" : "var(--tasty-border-width) solid var(--tasty-border-strong)",
                     boxShadow: on ? "0 0 0 var(--tasty-border-width) var(--tasty-accent-primary)" : "none",
                     background: "var(--tasty-surface-raised)", borderRadius: "var(--tasty-radius)", padding: "var(--tasty-space-md) var(--tasty-space-md)",
                     display: "flex", flexDirection: "column", gap: 8 }}>

@@ -449,7 +449,7 @@ function Page() {
           <Stage variant="solo center"><Backdrop height={300}><div align="center"><MarkdownOpenFrame /></div></Backdrop></Stage>
           <Meta
             specs={[["width", "420px"], ["choices", "2 equal card-buttons"], ["default", "accent ring + fill"], ["confirm", "names the choice"]]}
-            tokens={[{ tok: "--tasty-accent-primary", use: "selected choice", color: "var(--tasty-accent-primary-raised)" }, { tok: "--tasty-surface-raised", use: "choice fill", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-border-default", use: "unselected edge" }]} />
+            tokens={[{ tok: "--tasty-accent-primary", use: "selected choice", color: "var(--tasty-accent-primary-raised)" }, { tok: "--tasty-surface-raised", use: "choice fill", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-border-strong", use: "unselected edge" }]} />
         </Spec>
       </Section>
 
