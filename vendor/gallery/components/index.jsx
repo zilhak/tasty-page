@@ -22,15 +22,26 @@ function CaretField({ value }) {
     const input = root && root.querySelector("input");
     if (!input) return undefined;
     let live = true;
+    // The value is laid out in a hidden span set in the input's own font, so the width is the page's text layout
+    // with the loaded web face (a canvas measure can run on a fallback face before the face loads).
     const measure = () => {
       if (!live) return;
-      const ctx = document.createElement("canvas").getContext("2d");
-      ctx.font = getComputedStyle(input).font;
-      setX(input.getBoundingClientRect().left - root.getBoundingClientRect().left + ctx.measureText(input.value).width);
+      const cs = getComputedStyle(input);
+      const probe = document.createElement("span");
+      Object.assign(probe.style, { position: "absolute", visibility: "hidden", whiteSpace: "pre", font: cs.font, letterSpacing: cs.letterSpacing, fontKerning: cs.fontKerning });
+      probe.textContent = input.value;
+      root.appendChild(probe);
+      const w = probe.getBoundingClientRect().width;
+      root.removeChild(probe);
+      setX(input.getBoundingClientRect().left - root.getBoundingClientRect().left + w);
     };
     measure();
-    if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
-    return () => { live = false; };
+    const fonts = document.fonts;
+    if (fonts) {
+      fonts.ready.then(measure);
+      fonts.addEventListener("loadingdone", measure);
+    }
+    return () => { live = false; if (fonts) fonts.removeEventListener("loadingdone", measure); };
   }, [value]);
   return (
     <div ref={box} style={{ position: "relative", display: "inline-flex" }}>
