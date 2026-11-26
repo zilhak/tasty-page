@@ -382,8 +382,10 @@ function PasskeyForm({ draft, isNew, error, onField, onSave, onCancel, onBrowse 
           ) : (
             <div>
               <div style={{ position: "relative" }}>
+                {/* the empty textarea's hint takes the Input placeholder ink, not the browser default */}
+                <style>{`.rt-secret-field::placeholder{color:var(--tasty-input-placeholder)}`}</style>
                 {/* Input field shape: field fill and border-control rest edge, the shared focus edge + ring. */}
-                <textarea value={draft.value} onChange={(e) => onField("value", e.target.value)}
+                <textarea className="rt-secret-field" value={draft.value} onChange={(e) => onField("value", e.target.value)}
                   onFocus={() => setFieldFocus(true)} onBlur={() => setFieldFocus(false)}
                   placeholder="Paste secret / key contents" rows={3} spellCheck={false}
                   style={{ width: "100%", boxSizing: "border-box", resize: "none",
