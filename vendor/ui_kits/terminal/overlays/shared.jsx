@@ -38,11 +38,13 @@ function PopupFocusEdge({ lit = true, top = 0 }) {
 }
 
 // As the app's popup clamp_to_screen: a window is drawn at its own size, cut down to the room the scrim leaves, and
-// placed inside it. A window wider or taller than the room shrinks to it (its frame clips the content) instead of
-// spilling past both edges. The window keeps its own width and height wherever it fits.
+// placed inside it. The room is the scrim's content box: the box under the window fills it, so its size is known,
+// and the window itself takes max-width and max-height of that room. A window wider or taller than the room shrinks
+// to it, both ways, and its frame clips the content; a window whose body is a flex column with a scrolling middle
+// (settings) keeps its footer at the bottom edge. The window keeps its own width and height wherever it fits.
 const SCRIM_CSS = `
-.tasty-kit-scrim__window { display: flex; flex-direction: column; min-width: 0; min-height: 0; max-width: 100%; max-height: 100%; }
-.tasty-kit-scrim__window > * { max-width: 100%; min-height: 0; }
+.tasty-kit-scrim__room { flex: 1 1 0; align-self: stretch; min-width: 0; min-height: 0; display: flex; justify-content: center; }
+.tasty-kit-scrim__room > * { max-width: 100%; max-height: 100%; min-width: 0; min-height: 0; }
 `;
 function ensureScrimCss() {
   if (typeof document === "undefined" || document.getElementById("tasty-kit-scrim-css")) return;
@@ -54,11 +56,13 @@ function ensureScrimCss() {
 
 function Scrim({ onClose, children, align = "center" }) {
   ensureScrimCss();
+  // A click on the scrim or on the empty room around the window closes; a click inside the window does not.
+  const closeOnSelf = (e) => { e.stopPropagation(); if (e.target === e.currentTarget && onClose) onClose(e); };
   return (
     <div onClick={onClose} style={{ position: "absolute", inset: 0, background: "var(--tasty-scrim-bg)",
-      backdropFilter: "blur(var(--tasty-scrim-blur))", display: "flex", alignItems: align === "top" ? "flex-start" : "center",
-      justifyContent: "center", paddingTop: align === "top" ? "var(--tasty-overlay-top-offset)" : 0, zIndex: 50 }}>
-      <div className="tasty-kit-scrim__window" onClick={(e) => e.stopPropagation()}>{children}</div>
+      backdropFilter: "blur(var(--tasty-scrim-blur))", display: "flex",
+      paddingTop: align === "top" ? "var(--tasty-overlay-top-offset)" : 0, zIndex: 50 }}>
+      <div className="tasty-kit-scrim__room" onClick={closeOnSelf} style={{ alignItems: align === "top" ? "flex-start" : "center" }}>{children}</div>
     </div>
   );
 }
