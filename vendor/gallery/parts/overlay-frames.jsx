@@ -77,9 +77,9 @@ function Backdrop({ height = 360, blur = false, scrim = true, children }) {
     <div style={{ position: "relative", display: "grid", width: "100%", minWidth: "max-content", height, boxSizing: "border-box", borderRadius: "var(--tasty-radius)", overflow: "hidden",
       border: "1px solid var(--tasty-border-default)", background: "var(--tasty-bg-app)" }}>
       {/* hint of app chrome behind */}
-      <div style={{ position: "absolute", inset: 0, padding: 14, opacity: 0.5 }}>
+      <div style={{ position: "absolute", inset: 0, padding: 14, opacity: 0.5, display: "flex", flexDirection: "column" }}>
         <div style={{ height: 28, background: "var(--tasty-bg-sidebar)", borderRadius: "var(--tasty-radius)", marginBottom: 10 }} />
-        <div style={{ display: "flex", gap: 10, height: "calc(100% - 38px)" }}>
+        <div style={{ display: "flex", gap: 10, flex: 1, minHeight: 0 }}>
           <div style={{ width: 120, background: "var(--tasty-bg-sidebar)", borderRadius: "var(--tasty-radius)" }} />
           <div style={{ flex: 1, background: "var(--tasty-surface-terminal-focused-bg)", borderRadius: "var(--tasty-radius)" }} />
         </div>
@@ -682,7 +682,7 @@ function RemoteTabBtnG({ children, on }) {
       color: on ? "var(--tasty-text-primary)" : "var(--tasty-text-muted)", fontWeight: on ? "var(--tasty-font-weight-semibold)" : "var(--tasty-font-weight-normal)",
       borderBottom: on ? "var(--tasty-tab-indicator-width) solid var(--tasty-accent-primary)" : "var(--tasty-tab-indicator-width) solid transparent",
       /* keyboard focus: the kit's inset ring (remote_tool TabBtn), inside the tab and clear of the underline */
-      outlineOffset: "calc(-1 * (2 * var(--tasty-focus-ring-width) + var(--tasty-focus-ring-offset)))", borderRadius: "var(--tasty-radius-none)" }}>{children}</span>
+      outlineOffset: "calc(-2 * var(--tasty-focus-ring-width) + -1 * var(--tasty-focus-ring-offset))", borderRadius: "var(--tasty-radius-none)" }}>{children}</span>
   );
 }
 function RemoteChromeG({ tab }) {
@@ -1129,7 +1129,7 @@ function SearchBarFrame({ value = "tasty", focused = false, invalid = false, hei
         <div>    Finished release [optimized] target(s)</div>
       </div>
       {/* the search bar */}
-      <div role="search" style={{ position: "absolute", top: 8, right: 8, width: 360, maxWidth: "calc(100% - 16px)",
+      <div role="search" style={{ position: "absolute", top: "var(--tasty-space-sm)", right: "var(--tasty-space-sm)", left: "var(--tasty-space-sm)", marginLeft: "auto", maxWidth: 360,
         display: "flex", alignItems: "center", gap: 4, padding: 4, background: "var(--tasty-surface-raised)",
         border: "var(--tasty-border-width) solid var(--tasty-search-bar-border)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-popover)", overflow: "hidden" }}>
         <PopupFocusEdge lit={focused} />
@@ -1735,7 +1735,7 @@ function BannerScope({ height = 240, tab = "vim", children }) {
   return (
     <div style={{ position: "relative", width: "100%", maxWidth: 600, height, borderRadius: "var(--tasty-radius)", overflow: "hidden",
       border: "1px solid var(--tasty-border-default)", background: "var(--tasty-surface-terminal-focused-bg)" }}>
-      <div style={{ display: "flex", alignItems: "stretch", height: 28, background: "var(--tasty-bg-sidebar)", borderBottom: "1px solid var(--tasty-separator)" }}>
+      <div style={{ display: "flex", alignItems: "stretch", height: "var(--tasty-control-height)", background: "var(--tasty-bg-sidebar)", borderBottom: "1px solid var(--tasty-separator)" }}>
         {["server", "dev", tab].map((t, i) => (
           <div key={t} style={{ display: "flex", alignItems: "center", padding: "0 12px", fontSize: 13, borderRight: "1px solid var(--tasty-separator)",
             background: i === 2 ? "var(--tasty-bg-panel)" : "transparent", color: i === 2 ? "var(--tasty-text-primary)" : "var(--tasty-text-muted)",
@@ -1746,7 +1746,7 @@ function BannerScope({ height = 240, tab = "vim", children }) {
         <div><span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-ansi-green)" }}>~/tasty</span> $ vim src/main.rs</div>
         <div>-- VISUAL --   1,1   Top</div>
       </div>
-      <div style={{ position: "absolute", top: "calc(28px + var(--tasty-banner-margin))",
+      <div style={{ position: "absolute", top: "calc(1 * var(--tasty-control-height) + 1 * var(--tasty-banner-margin))",
         left: "var(--tasty-banner-margin)", right: "var(--tasty-banner-margin)" }}>{children}</div>
     </div>
   );
@@ -1865,7 +1865,7 @@ function MouseCaptureBannerG({ glyph = true, body, lines, app = "vim", lang = "e
             <span style={{ position: "relative", display: "inline-flex" }}>
               <IconButton size="sm" aria-label="More options" aria-expanded={open} active={open}><Icon name="more" /></IconButton>
               {open && (
-                <div style={{ position: "absolute", top: "calc(100% + var(--tasty-banner-more-menu-offset))", right: 0, zIndex: 2 }}>
+                <div style={{ position: "absolute", top: "100%", marginTop: "var(--tasty-banner-more-menu-offset)", right: 0, zIndex: 2 }}>
                   <BannerMoreMenuG app={app} hovered={hovered} danger={danger} lang={lang} />
                 </div>
               )}
@@ -1913,7 +1913,7 @@ function BannerMoreDemoG({ defaultOpen = false }) {
                     <IconButton size="sm" aria-label="More options" aria-expanded={open} active={open}
                       onClick={() => setOpen((o) => !o)}><Icon name="more" /></IconButton>
                     {open && (
-                      <div style={{ position: "absolute", top: "calc(100% + var(--tasty-banner-more-menu-offset))", right: 0, zIndex: 2 }}>
+                      <div style={{ position: "absolute", top: "100%", marginTop: "var(--tasty-banner-more-menu-offset)", right: 0, zIndex: 2 }}>
                         <div role="menu" aria-label="Banner options" style={{
                           minWidth: "var(--tasty-banner-more-menu-min-width)", maxWidth: "var(--tasty-banner-more-menu-max-width)",
                           background: "var(--tasty-banner-more-menu-bg)", border: "1px solid var(--tasty-banner-more-menu-border)",
@@ -1951,7 +1951,7 @@ function MouseCaptureHitZone() {
     <div style={{ position: "relative", width: "100%", maxWidth: 560, height: 250, borderRadius: "var(--tasty-radius)", overflow: "hidden",
       border: "1px solid var(--tasty-border-default)", background: "var(--tasty-surface-terminal-focused-bg)" }}>
       {/* tab bar — banner must never cover this */}
-      <div style={{ display: "flex", alignItems: "stretch", height: 28, background: "var(--tasty-bg-sidebar)", borderBottom: "1px solid var(--tasty-separator)" }}>
+      <div style={{ display: "flex", alignItems: "stretch", height: "var(--tasty-control-height)", background: "var(--tasty-bg-sidebar)", borderBottom: "1px solid var(--tasty-separator)" }}>
         {["server", "dev", "htop"].map((t, i) => (
           <div key={t} style={{ display: "flex", alignItems: "center", padding: "0 12px", fontSize: 13, borderRight: "1px solid var(--tasty-separator)",
             background: i === 2 ? "var(--tasty-bg-panel)" : "transparent", color: i === 2 ? "var(--tasty-text-primary)" : "var(--tasty-text-muted)",
@@ -1959,11 +1959,11 @@ function MouseCaptureHitZone() {
         ))}
       </div>
       {/* surface body — pass-through */}
-      <div style={{ position: "absolute", inset: "28px 0 0 0", display: "flex", alignItems: "flex-end", padding: 12 }}>
+      <div style={{ position: "absolute", inset: "var(--tasty-control-height) 0 0 0", display: "flex", alignItems: "flex-end", padding: 12 }}>
         <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: "var(--tasty-text-muted)" }}>↑ surface body — pass-through · clicks/drag reach the app</span>
       </div>
       {/* the banner card, with an explicit consume-zone outline */}
-      <div style={{ position: "absolute", top: "calc(28px + var(--tasty-banner-margin))", left: "var(--tasty-banner-margin)", right: "var(--tasty-banner-margin)" }}>
+      <div style={{ position: "absolute", top: "calc(1 * var(--tasty-control-height) + 1 * var(--tasty-banner-margin))", left: "var(--tasty-banner-margin)", right: "var(--tasty-banner-margin)" }}>
         <div style={{ position: "relative" }}>
           <MouseCaptureBannerG />
           <span style={{ position: "absolute", top: -7, left: 8, fontFamily: "var(--tasty-font-mono)", fontSize: 9, letterSpacing: ".04em",
@@ -2851,7 +2851,7 @@ function ModifierHintPanelG({ style, held = "Ctrl", sections = MH_SECTIONS, show
           and the close button is centred in that square. The labels keep their full width, as the app's horizontal labels
           do, so a long held combo runs on under the button and is cut at the panel edge, not at the square. */}
       <div style={{ position: "relative", display: "flex", alignItems: "center", flex: "none", height: "var(--tasty-modhint-header-height)",
-        padding: "0 calc(var(--tasty-modhint-header-height) - var(--tasty-border-width)) 0 10px", cursor: "move", userSelect: "none",
+        padding: "0 calc(1 * var(--tasty-modhint-header-height) + -1 * var(--tasty-border-width)) 0 10px", cursor: "move", userSelect: "none",
         background: "var(--tasty-modhint-header-bg)", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
         <span style={{ display: "flex", alignItems: "center", gap: 8, flex: 1, minWidth: 0, whiteSpace: "nowrap" }}>
           <span style={{ display: "flex", flex: "none" }}><Kbd keys={held} /></span>
@@ -3089,7 +3089,7 @@ function FpRow({ kind, name, size, mod, selected, focus, multi, checked, dim, in
       <span style={{ flex: "none", width: 68, textAlign: "right", fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: inert ? "var(--tasty-fp-folder-file-fg)" : selected ? "var(--tasty-text-on-active)" : "var(--tasty-text-muted)" }}>{size}</span>
       <span style={{ flex: "none", width: 108, textAlign: "right", fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: inert ? "var(--tasty-fp-folder-file-fg)" : selected ? "var(--tasty-text-on-active)" : "var(--tasty-text-muted)" }}>{mod}</span>
       {tip && (
-        <span role="tooltip" style={{ position: "absolute", left: "calc(var(--tasty-fp-inset-start) + var(--tasty-size-96))", top: "100%", marginTop: "var(--tasty-space-xs)", zIndex: 4, whiteSpace: "nowrap",
+        <span role="tooltip" style={{ position: "absolute", left: "calc(1 * var(--tasty-fp-inset-start) + 1 * var(--tasty-size-96))", top: "100%", marginTop: "var(--tasty-space-xs)", zIndex: 4, whiteSpace: "nowrap",
           padding: "var(--tasty-tooltip-padding-y) var(--tasty-tooltip-padding-x)", background: "var(--tasty-tooltip-bg)", border: "var(--tasty-border-width) solid var(--tasty-tooltip-border)",
           borderRadius: "var(--tasty-tooltip-radius)", boxShadow: "var(--tasty-tooltip-shadow)", color: "var(--tasty-tooltip-fg)", fontSize: "var(--tasty-tooltip-font-size)", lineHeight: "var(--tasty-tooltip-line-height)" }}>{tip}</span>
       )}
@@ -3345,7 +3345,7 @@ function FilePickerFrame({ state = "loaded", remote = false, indicator = "badge"
             </div>
             {live && (
               <div style={{ display: "flex", alignItems: "flex-start", gap: "var(--tasty-space-xs)", fontSize: "var(--tasty-font-size-micro)", lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-fp-folder-hint-fg)" }}>
-                <span style={{ display: "inline-flex", flex: "none", height: "calc(var(--tasty-font-size-micro) * var(--tasty-line-height-ui))", alignItems: "center" }}><Icon name="folder" size="var(--tasty-icon-size-sm)" /></span>
+                <span style={{ display: "inline-flex", flex: "none", height: "1lh", alignItems: "center" }}><Icon name="folder" size="var(--tasty-icon-size-sm)" /></span>
                 <span style={{ minWidth: 0, overflowWrap: "anywhere" }}>{folderPick === "row" ? FC.hintSel("configs") : FC.hintCur}</span>
               </div>
             )}
