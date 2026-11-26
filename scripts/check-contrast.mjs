@@ -52,7 +52,8 @@ let opts = null;
 const THEMES = ["mocha", "latte"];
 const EXPECTED_PAGES = 15;
 // A full run takes about 230s here and 250-330s in CI. The total limit is about three times that, and leaves room in the
-// Design job's 20 minutes: up to 65s before the build, the exit tests' step (capped at 180s), 900s, 10s to close and write,
+// Design job's 20 minutes: up to 65s for the steps before npm ci (the estimate first made for every step before this one,
+// kept for that shorter span), the exit tests' step (capped at 180s), 900s, 10s to close and write,
 // 2s to reap the writer and 2s to flush come to about 1159s. That is a subtotal: npm ci, the build, the Chromium install
 // and the steps after this one share the remaining 41s with any overrun of those estimates. The stall limit
 // is above the longest single wait with a limit of its own, 180s (launch, gallery goto and networkidle).
