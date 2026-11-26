@@ -143,7 +143,7 @@ A chain may pass through several component tokens (`--tasty-notification-item-un
 
 A component token may hold a literal (no `var()`) only in the kinds below. Each is theme-invariant and has no scale in `primitives.css` to read.
 
-Review each new component literal in the commit that adds it to `LITERALS` in [`verify_token_tiers.py`](../scripts/design-tokens/verify_token_tiers.py). When a component literal moves to a shared semantic role, remove its key from `LITERALS` in [`verify_token_tiers.py`](../scripts/design-tokens/verify_token_tiers.py) and the matching entry from `LITERAL_DECLS` in [`test_verify_token_tiers.py`](../scripts/design-tokens/test_verify_token_tiers.py). In the same commit, update the count expectations in `test_defaults_pass_and_count` and any tests in that file that name the moved key.
+Review each new component literal in the commit that adds it to `LITERALS` in [`verify_token_tiers.py`](../scripts/design-tokens/verify_token_tiers.py). When a component literal moves to a shared semantic role, remove its key from `LITERALS` in [`verify_token_tiers.py`](../scripts/design-tokens/verify_token_tiers.py) and the matching entry from `LITERAL_DECLS` in [`test_verify_token_tiers.py`](../scripts/design-tokens/test_verify_token_tiers.py). In the same commit, update every expectation in `test_verify_token_tiers.py` that pins the literal total, per-kind counts, declaration counts, or output text that includes those counts, along with any tests that name the moved key. Make sure all tests in the file pass.
 
 | Kind | Example | Why no scale fits |
 |------|---------|-------------------|
