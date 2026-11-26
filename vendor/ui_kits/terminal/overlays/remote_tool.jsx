@@ -60,7 +60,7 @@ const SEED_ATTACHES = [
     port: "22", shell: "auto", passkeyRef: "edge-pem", remoteTasty: "/opt/tasty/bin/tasty",
     portMode: "file-unix", portFile: "/run/user/1000/tasty/port", state: "ok" },
   { id: "a3", name: "legacy-attach", label: "", mode: "ref", sshRef: "legacy-box",
-    remoteTasty: "tasty", portMode: "subcommand", portFile: "", state: "inactive" },
+    remoteTasty: "tasty", portMode: "subcommand", portFile: "", state: "ok" },
 ];
 const SEED_PASSKEYS = [
   { id: "k1", name: "ed25519-main", kind: "path", value: "~/.ssh/id_ed25519" },
@@ -419,9 +419,13 @@ function PasskeyForm({ draft, isNew, error, onField, onSave, onCancel, onBrowse 
 // ════════════════════════════════════════════════════════════════════════
 // TAB C — Attach (tasty-attach targets)
 // ════════════════════════════════════════════════════════════════════════
-function AttachRow({ a, sshProfileNames, onEdit, onDelete }) {
-  const inactive = a.state === "inactive";
-  const dangling = a.mode === "ref" && a.sshRef && !sshProfileNames.includes(a.sshRef);
+function AttachRow({ a, sshProfiles, onEdit, onDelete }) {
+  // Derived as the app derives it: a reference with no ssh profile of that name is "profile missing"; a reference whose
+  // ssh profile failed detection (disabled), or an inline target whose own detection failed, is "inactive".
+  const ref = a.mode === "ref";
+  const referenced = ref ? sshProfiles.find((p) => p.name === a.sshRef) : null;
+  const dangling = ref && !referenced;
+  const inactive = ref ? referenced?.state === "failed" : a.state === "failed";
   return (
     <div style={{ display: "flex", alignItems: "flex-start", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-space-xs)",
       borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
@@ -720,7 +724,6 @@ function RemoteTool({ onClose, onFlash }) {
   const timers = React.useRef({});
   const passkeyNames = passkeys.map((k) => k.name);
   const sshProfiles = profiles.filter((p) => isSshType(p.type));
-  const sshProfileNames = sshProfiles.map((p) => p.name);
   // dynamic protocol set (known types first, then unknowns alpha) + filtered view
   const protocols = React.useMemo(() => {
     const seen = [];
@@ -878,7 +881,7 @@ function RemoteTool({ onClose, onFlash }) {
             <ListShell addLabel="Add attach" onAdd={aNew} hasItems={attaches.length > 0}
               empty={'No attach targets yet. Click \u201CAdd attach\u201D to create one.'}>
               {attaches.map((a) => (
-                <AttachRow key={a.id} a={a} sshProfileNames={sshProfileNames}
+                <AttachRow key={a.id} a={a} sshProfiles={sshProfiles}
                   onEdit={aEdit} onDelete={(x) => setAView({ type: "confirm", attach: x })} />
               ))}
             </ListShell>
