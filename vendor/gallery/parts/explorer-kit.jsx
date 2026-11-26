@@ -1,5 +1,5 @@
 import React from "react";
-import { Icon, IconButton, AutoComplete, Button, Input, Spinner } from "../../components/index.js";
+import { Icon, IconButton, AutoComplete, Button, Input, Spinner, TreeRow } from "../../components/index.js";
 import { GIcon } from "./specimen.jsx";
 
 const ic = {
@@ -90,15 +90,10 @@ function SegToggle({ value = "detail", hover = null }) {
 }
 
 // The sidebar rows follow the app's explorer sidebar. Caption (sidebar_caption): space-xs above and below, the label
-// space-sm in, micro caps in text-muted. Tree and favorite rows are the app's tree_row, drawn with the TreeRow
-// tokens: tree-row-height tall, tree-row-gap before the chevron slot and between its parts, depth x tree-row-indent,
-// space-sm on the right, an icon-size-sm chevron slot (kept empty on a leaf and on a favorite) and an icon-size-sm
-// glyph. The rows stack with no gap and no side inset, as the app's sidebar sets item spacing y to 0.
-const SIDE_GLYPH = "var(--tasty-icon-size-sm)";
-const sideRow = (depth) => ({ display: "flex", alignItems: "center", gap: "var(--tasty-tree-row-gap)", height: "var(--tasty-tree-row-height)", flex: "none",
-  padding: `0 var(--tasty-space-sm) 0 calc(1 * var(--tasty-tree-row-gap) + ${depth} * var(--tasty-tree-row-indent))`,
-  borderRadius: "var(--tasty-radius-sm)", fontSize: "var(--tasty-tree-row-font-size)", cursor: "default" });
-const sideSlot = { width: SIDE_GLYPH, height: SIDE_GLYPH, flex: "none", display: "inline-flex", alignItems: "center", justifyContent: "center" };
+// space-sm in, micro caps in text-muted. Tree and favorite rows are the app's tree_row, so they are the shared TreeRow
+// (components/navigation/TreeRow): its height, indent, chevron slot (kept empty on a leaf and on a favorite), glyph
+// slot, inks, selected fill and label ellipsis. The rows stack with no gap and no side inset, as the app's sidebar
+// sets item spacing y to 0.
 
 function SideHead({ children, trailing }) {
   return (
@@ -109,25 +104,19 @@ function SideHead({ children, trailing }) {
   );
 }
 
+// Each row passes its glyph's ink with the glyph, as the app's explorer paints its own folder and star (RULES section 7,
+// Meaning). The folder is a shape glyph: TreeRow's icon ink at rest and the row ink (text-on-active) on the selected
+// row, where TreeRow's own icon ink would be the selection-mark accent.
 function TreeNode({ label, depth = 0, open, leaf, active }) {
-  const ink = active ? "var(--tasty-text-on-active)" : "var(--tasty-text-secondary)";
-  return (
-    <div style={{ ...sideRow(depth), color: ink, background: active ? "var(--tasty-surface-active)" : "transparent" }}>
-      <span style={{ ...sideSlot, color: ink }}>{leaf ? null : <Icon name={open ? "chevronDown" : "chevronRight"} size="var(--tasty-icon-size-xs)" />}</span>
-      <span style={{ display: "inline-flex", color: ink, flex: "none" }}><Icon name="folder" size={SIDE_GLYPH} /></span>
-      <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{label}</span>
-    </div>
-  );
+  const folder = active ? <span style={{ display: "inline-flex", color: "var(--tasty-text-on-active)" }}><Icon name="folder" /></span> : <Icon name="folder" />;
+  return <TreeRow label={label} level={depth} expandable={!leaf} open={!!open} selected={!!active} icon={folder} />;
 }
 
+// The favorite star is a hue glyph: accent-warning-glyph on the sidebar and accent-warning-on-active on the selected
+// row, which holds 3:1 under hover and press.
 function FavRow({ name, active }) {
-  return (
-    <div style={{ ...sideRow(0), color: active ? "var(--tasty-text-on-active)" : "var(--tasty-text-secondary)", background: active ? "var(--tasty-surface-active)" : "transparent" }}>
-      <span style={sideSlot} />
-      <span style={{ display: "inline-flex", color: active ? "var(--tasty-text-on-active)" : "var(--tasty-accent-warning-raised)", flex: "none" }}><Icon name="starFill" size={SIDE_GLYPH} /></span>
-      <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{name}</span>
-    </div>
-  );
+  const star = active ? "var(--tasty-accent-warning-on-active)" : "var(--tasty-accent-warning-glyph)";
+  return <TreeRow label={name} selected={!!active} icon={<span style={{ display: "inline-flex", color: star }}><Icon name="starFill" /></span>} />;
 }
 
 // Detail columns, one track list for the header and every row, as the app's Detail table draws them. Size, Date
