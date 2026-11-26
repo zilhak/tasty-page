@@ -177,9 +177,9 @@ cargo build --release --no-default-features
 | Windows `.zip` | 删除解压后的文件夹 | 保留 `~/.tasty/`。需手动删除 |
 | 无界面压缩包（所有 OS） | 删除解压后的文件夹 | 保留 `~/.tasty/`。需手动删除 |
 
-如需一并删除用户数据，在 Windows 设置的应用列表中为 Tasty 选择**修改** → **Remove**，或重新运行 `.msi` 并选择 **Remove**。在卸载界面勾选 **Permanently delete settings, history, saved logins and profiles in .tasty**。勾选后成功卸载时，安装程序会删除 `~/.tasty`。
+如需一并删除用户数据，在 Windows 设置的应用列表中为 Tasty 选择**修改** <!-- en: Modify --> → **Remove**，或重新运行 `.msi` 并选择 **Remove**。在卸载界面勾选 **Permanently delete settings, history, saved logins and profiles in .tasty**。勾选后成功卸载时，安装程序会删除 `~/.tasty`。
 
-直接在应用列表中选择**卸载**，或用 `msiexec /qn` 或 `msiexec /qb` 卸载，都会保留数据。升级和修复也会保留数据。
+直接在应用列表中选择**卸载** <!-- en: Uninstall -->，或用 `msiexec /qn` 或 `msiexec /qb` 卸载，都会保留数据。升级和修复也会保留数据。
 
 在 Windows 上，`~` 表示 `%USERPROFILE%`（通常为 `C:\Users\<姓名>`）。
 

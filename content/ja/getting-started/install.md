@@ -177,9 +177,9 @@ cargo build --release --no-default-features
 | Windows `.zip` | 解凍したフォルダーを削除してください | `~/.tasty/` は残ります。自分で削除してください |
 | ヘッドレス圧縮ファイル（すべての OS） | 解凍したフォルダーを削除してください | `~/.tasty/` は残ります。自分で削除してください |
 
-ユーザーデータも削除するには、Windows の設定アプリの一覧で Tasty の **変更** → **Remove** を選ぶか、`.msi` を再実行して **Remove** を選んでください。アンインストール画面で **Permanently delete settings, history, saved logins and profiles in .tasty** にチェックを入れてください。その状態でアンインストールが正常に完了すると、`~/.tasty` が削除されます。
+ユーザーデータも削除するには、Windows の設定アプリの一覧で Tasty の **変更** <!-- en: Modify --> → **Remove** を選ぶか、`.msi` を再実行して **Remove** を選んでください。アンインストール画面で **Permanently delete settings, history, saved logins and profiles in .tasty** にチェックを入れてください。その状態でアンインストールが正常に完了すると、`~/.tasty` が削除されます。
 
-アプリの一覧で直接 **アンインストール** を選ぶか、`msiexec /qn` または `msiexec /qb` でアンインストールすると、ユーザーデータは残ります。アップグレードと修復でも残ります。
+アプリの一覧で直接 **アンインストール** <!-- en: Uninstall --> を選ぶか、`msiexec /qn` または `msiexec /qb` でアンインストールすると、ユーザーデータは残ります。アップグレードと修復でも残ります。
 
 Windows では `~` は `%USERPROFILE%`（通常は `C:\Users\<名前>`）です。
 
