@@ -598,6 +598,20 @@ function Components() {
               <Tab label="server.log" icon={ic.term} />
             </div>
           </Stage>
+          {/* The app's three active tab indicators (Appearance › Active tab indicator) draw apart: Underline and Dot keep the
+              strip's fill and add a tab-indicator mark, Fill takes tab-bg-active and draws no mark. Captions quote lang/en.toml. */}
+          <Stage variant="column" style={{ alignItems: "flex-start", gap: "var(--tasty-space-md)" }}>
+            <div className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>Active tab indicator</div>
+            {[["underline", "Underline"], ["fill", "Fill"], ["dot", "Dot"]].map(([ind, cap]) => (
+              <div key={ind} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
+                <div className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</div>
+                <div style={{ display: "flex", background: "var(--tasty-bg-sidebar)", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
+                  <Tab label="build.sh" icon={ic.term} active indicator={ind} status="busy" />
+                  <Tab label="server.log" icon={ic.term} />
+                </div>
+              </div>
+            ))}
+          </Stage>
           {/* As the app's tab_title_color, attention outranks active: an active tab whose attention could not clear keeps the tint. */}
           <Stage variant="column" style={{ alignItems: "flex-start", gap: "var(--tasty-space-md)" }}>
             {[["needs-input", "deploy.sh", "active · needs-input · OS window inactive"], ["completion", "README.md", "active · completion · surface hard occupied"]].map(([att, label, cap]) => (
@@ -826,7 +840,7 @@ function Components() {
           when={<>Dots come in <b>one role</b> and <b>two footprints</b>. The generic status dot is <b>8</b> (badges, tags, list rows). Inside <b>24px-tall chrome</b> — the pane tab strip, the workspace status bar, the collapsed sidebar rail — it is <b>6</b> (<span className="tok">--tasty-status-dot-size-compact</span>): 8 crowds a 24px row the moment a ring or a label sits beside it. That settles three drifting numbers at once — the tab busy dot keeps its 6 (it is <b>not</b> an alias of the generic 8 any more), the status bar's <b>7 becomes 6</b>, and the rail's 6 is now named rather than hard-coded. The <b>active tab marker</b> stays <b>4</b>: a different role (position, not state) and untouched. The <b>attached ring</b> adopts the token pair <b>2 / 2</b> — offset measured from the <b>dot's outer edge to the ring's inner edge</b> — replacing the 1.5 / 1.5 the product drew; in 24px chrome the whole mark is 6 + 2×(2+2) = <b>14</b> (11.9 / 14 / 16.8). <b>Corrected 2026-09-28:</b> the one place a ring actually ships is the expanded-sidebar <b>workspace row</b>, a list row on the generic 8 — its mark is 8 + 2×(2+2) = <b>16</b> (13.6 / 16 / 19.2) and it sits in a reserved 16px slot (next spec). The 14 figure applies to no shipping surface today.</>}>
           <Stage variant="solo" style={{ padding: 20, background: "var(--tasty-bg-app)", flexDirection: "column", gap: 18, alignItems: "flex-start" }}>
             <div style={{ display: "flex", gap: 28, alignItems: "flex-end", flexWrap: "wrap" }}>
-              {[["generic · 8", "var(--tasty-status-dot-size)", null], ["dense chrome · 6", "var(--tasty-status-dot-size-compact)", null], ["attached · 6 + ring 2/2", "var(--tasty-status-dot-size-compact)", true], ["tab marker · 4 (other role)", "4px", null]].map(([label, size, ring]) => (
+              {[["generic · 8", "var(--tasty-status-dot-size)", null], ["dense chrome · 6", "var(--tasty-status-dot-size-compact)", null], ["attached · 6 + ring 2/2", "var(--tasty-status-dot-size-compact)", true], ["tab marker · 4 (other role)", "var(--tasty-tab-indicator-dot-size)", null]].map(([label, size, ring]) => (
                 <div key={label} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
                   <div style={{ height: 24, display: "flex", alignItems: "center", justifyContent: "center", width: 40, background: "var(--tasty-bg-sidebar)", borderRadius: "var(--tasty-radius-sm)" }}>
                     <span style={{ width: size, height: size, borderRadius: "var(--tasty-radius-pill)",

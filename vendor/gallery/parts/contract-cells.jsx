@@ -130,6 +130,7 @@ const CELLS = {
   "Tab.inactive": tabParts({}),
   "Tab.hover": tabParts({ "data-force": "hover" }),
   "Tab.active": tabParts({ active: true }),
+  "Tab.active (fill)": tabParts({ active: true, indicator: "fill" }),
   TreeRow: treeRow,
   "ListCtrl row": (state) => <ListCtrl items={listItems(state)} selectedId={selected(state) ? "a" : null} activeId={state === "keyboard-active" ? "a" : null} onSelect={noop} />,
   "Table row": (state) => (

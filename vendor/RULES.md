@@ -36,7 +36,7 @@ Exceptions exist only in the `exceptions` list of the file and in [section 12](#
 |---|---|---|---|---|
 | `crust` | `bg-app` | #11111b | #dce0e8 | Window chrome, title bar, sidebar category band, recessed progress track, DAG log. |
 | `mantle` | `bg-sidebar` | #181825 | #e6e9ef | Sidebar, tab strip, address bars, table header, DAG chrome and detail, code gutter, notice path box. |
-| `base` | `bg-panel` | #1e1e2e | #eff1f5 | Panels, active tab, dialogs, popups, windows, modifier hint. |
+| `base` | `bg-panel` | #1e1e2e | #eff1f5 | Panels, active tab with the Fill indicator, dialogs, popups, windows, modifier hint. |
 | `raised` | `surface-raised` | #313244 | #ccd0da | Menus, tooltips, toasts, banners, cards, keycaps, Tags, DAG nodes, code blocks. |
 | `on-raised` | `surface-on-raised` | #45475a | #eff1f5 | A control fill on a raised shell (banner Secondary). |
 | `field` | `surface-field` | #313244 | #eff1f5 | Fill of an enterable control: Input, Select, Checkbox box. |
@@ -195,7 +195,7 @@ Each location has one ground. It may hold only the listed children, to the liste
 | Collapsed rail | `mantle` | 2 | `mantle+hover`, `mantle+press`, `active`, `raised`, filled controls | Avatar fill, count Badge, mirror chip. |
 | Sidebar | `mantle` | 2 | `crust`, `mantle+hover`, `mantle+press`, `active`, `active+hover`, `active+press`, `raised`, `field`, `track`, filled controls, tint boxes over `mantle` | Category band is crust. Selected workspace row is active. |
 | Workspace status bar | `crust` | 1 | `crust+hover`, `crust+press` | Glyphs and text only. |
-| Tab bar | `mantle` | 1 | `tab-hover`, `base`, `mantle+hover`, `mantle+press`, `raised` | Active tab is base. Scroll arrow cell is raised. |
+| Tab bar | `mantle` | 1 | `tab-hover`, `base`, `mantle+hover`, `mantle+press`, `raised` | Active tab keeps mantle with the Underline and Dot indicators and is base with Fill. Scroll arrow cell is raised. |
 | Pane body | `base` | 1 | `term`, `term-unfocused`, `crust`, `mantle`, `raised` | Holds one surface. See Surface focus for what shows focus on each kind. |
 | Surface head and split line | `mantle` | 2 | `field`, `mantle+hover`, `mantle+press`, `raised`, filled controls, tint boxes over `mantle` | Address bar band: mantle. Split lines take border-frame. |
 | Terminal surface, focused | `term` | 2 | `term-selection`, `term-cursor`, `match@term-selection`, `match-active@term-selection`, `match@term`, `match-active@term`, `file-drop@term`, `raised` | Banner, toast and search bar float on raised. A default cell, bold or dim, takes text-primary in an ordinary search match. It takes text-on-active in a selection. A selected match cell takes search-match-selected-fg. |
@@ -1666,7 +1666,25 @@ Sits on: `tab-hover`
 
 ### Tab.active
 
+Sits on: `mantle`
+
+The active tab with the Underline indicator, the default, or the Dot indicator. Both keep the inactive fill, and `indicator` is the top bar or the dot.
+
+| Part | Token | States | Ground | Lowest, Mocha · Latte |
+|---|---|---|---|---|
+| label | `tab-fg-active` | rest | `mantle` | 12.14 · 6.57 |
+| label.needs-input | `tab-fg-needs-input` | rest | `mantle` | 13.81 · 6.65 |
+| label.completion | `tab-fg-completion` | rest | `mantle` | 8.34 · 6.83 |
+| icon | `text-secondary` | rest | `mantle` | 9.91 · 5.14 |
+| close | `text-secondary` | rest | `mantle` | 9.91 · 5.14 |
+| dot | `accent-success-raised` | rest | `mantle` | 11.81 · 6.23 |
+| indicator | `tab-indicator` | rest | `mantle` | 8.34 · 4.04 |
+
+### Tab.active (fill)
+
 Sits on: `base`
+
+The active tab with the Fill indicator. It takes `tab-bg-active` and draws no mark.
 
 | Part | Token | States | Ground | Lowest, Mocha · Latte |
 |---|---|---|---|---|
@@ -1676,7 +1694,6 @@ Sits on: `base`
 | icon | `text-secondary` | rest | `base` | 9.26 · 5.53 |
 | close | `text-secondary` | rest | `base` | 9.26 · 5.53 |
 | dot | `accent-success-raised` | rest | `base` | 11.03 · 6.70 |
-| indicator | `tab-indicator` | rest | `base` | 7.79 · 4.34 |
 
 ### TreeRow
 

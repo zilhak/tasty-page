@@ -48,7 +48,8 @@ export const STATES = {
   "tab": [
     "Tab.inactive",
     "Tab.hover",
-    "Tab.active"
+    "Tab.active",
+    "Tab.active (fill)"
   ],
   "treerow": [
     "TreeRow"

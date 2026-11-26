@@ -3038,6 +3038,10 @@
       "$type": "dimension",
       "$value": "{semantic.selection-edge-width}"
     },
+    "tab-indicator-dot-size": {
+      "$type": "dimension",
+      "$value": "{primitive.size-4}"
+    },
     "tab-dot-size": {
       "$type": "dimension",
       "$value": "{component.status-dot-size-compact}"

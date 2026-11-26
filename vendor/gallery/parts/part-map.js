@@ -56,7 +56,7 @@ export const PART_MAP = {
   "SearchableSelect status row": { status: { sel: ".tasty-sselect__status", prop: "color" } },
   "Checkbox.off": check, "Checkbox.on": check,
   "Switch.off": sw, "Switch.off (on raised)": sw, "Switch.on": sw,
-  "Tab.inactive": tab, "Tab.hover": tab, "Tab.active": tab,
+  "Tab.inactive": tab, "Tab.hover": tab, "Tab.active": tab, "Tab.active (fill)": tab,
   TreeRow: {
     label: { sel: ".tasty-treerow__label" }, chevron: { sel: ".tasty-treerow__chevron", prop: "svg" }, meta: { sel: ".tasty-treerow__meta" },
     icon: { sel: ".tasty-treerow__icon", prop: "svg" }, "icon.selected": { sel: ".tasty-treerow--selected .tasty-treerow__icon", prop: "svg" },

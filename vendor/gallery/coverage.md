@@ -51,7 +51,8 @@ The 4 contracts and 5 locations had no gallery specimen and now have one. Each p
 | Switch.on | `components#forms` | Switch | 8 | rest, focus | `crust`, `mantle`, `base`, `raised` | demo and states |
 | Tab.inactive | `components#nav` | Tab | 1 | rest | `mantle` | demo and states |
 | Tab.hover | `components#nav` | Tab | 1 | rest | `tab-hover` | demo and states |
-| Tab.active | `components#nav` | Tab | 1 | rest | `base` | demo and states |
+| Tab.active | `components#nav` | Tab | 1 | rest | `mantle` | demo and states |
+| Tab.active (fill) | `components#nav` | Tab | 1 | rest | `base` | demo and states |
 | TreeRow | `components#nav` | TreeRow | 12 | rest, hover, press, selected, selected+hover, selected+press | `mantle`, `base` | demo and states |
 | ListCtrl row | `components#listctrl` | ListCtrl | 16 | rest, hover, press, selected, selected+hover, selected+press, keyboard-active, disabled | `base`, `mantle` | demo and states |
 | Table row | `components#data` | Table | 12 | rest, hover, press, selected, selected+hover, selected+press | `base`, `mantle` | demo and states |

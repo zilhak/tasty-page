@@ -5,8 +5,14 @@ export interface TabProps extends React.HTMLAttributes<HTMLDivElement> {
   label: React.ReactNode;
   /** Optional leading icon (surface kind). */
   icon?: React.ReactNode;
-  /** Active/focused tab — adopts panel color + accent top bar. */
+  /** Active tab — draws the active indicator and the active title ink. */
   active?: boolean;
+  /**
+   * Active tab indicator, as the app's Appearance setting: `underline` (default,
+   * inactive fill + top bar), `fill` (tab-bg-active, no mark) or `dot` (inactive
+   * fill + a small dot at the top). Read only when `active`.
+   */
+  indicator?: "underline" | "fill" | "dot";
   /**
    * Live-activity dot, MIRRORING the product surface model: the body exposes
    * one activity bool per surface, so the tab shows one dot — busy=green,
@@ -17,7 +23,8 @@ export interface TabProps extends React.HTMLAttributes<HTMLDivElement> {
   status?: "idle" | "busy";
   /**
    * Attention kind — tints the title (tab-fg-needs-input / tab-fg-completion).
-   * Ignored on the active tab (attention clears on focus). Replaces the removed
+   * Outranks the active ink, so an active tab keeps the tint until attention
+   * clears (attention.rs tab_title_color). Replaces the removed
    * `attached` / `notif` props (2026-10-07) — the product tab draws neither.
    */
   attention?: "needs-input" | "completion" | null;
@@ -27,6 +34,6 @@ export interface TabProps extends React.HTMLAttributes<HTMLDivElement> {
 
 /**
  * One tab in the tab strip. 24px tall, 150px wide, with a hover-revealed
- * close button and an accent bar on the active tab.
+ * close button and the active indicator on the active tab.
  */
 export function Tab(props: TabProps): JSX.Element;
