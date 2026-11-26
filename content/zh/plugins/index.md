@@ -1,4 +1,4 @@
-<!-- source-hash: ff2e07df3e32 -->
+<!-- source-hash: 4f433685b9ef -->
 # 插件
 
 Markdown、图像、HTML 查看及 Claude Code、Codex 集成等功能由插件提供。可以管理内置插件或安装新插件。
@@ -93,9 +93,9 @@ Markdown 查看器、图像查看器、Claude Code 集成等功能由 **插件**
 
 以 `com.tasty.` 开头的 id 为 Tasty 官方插件专用。不在 Tasty 官方列表中的 `com.tasty.*` id，在所有构建中都会于签名验证前被拒绝，也无法通过 **仍然添加** <!-- en: Add anyway --> 或 `--allow-unverified` 安装。此检查仅检查 id，官方列表中的 id 仍需经过签名验证。将官方列表外的 `com.tasty.*` id 对应文件夹直接放入插件文件夹下时，若清单可读取，则不会注册，而会显示在 **待处理** 标签页中，可在那里移除。
 
-插件可通过清单中的可选项 `min_tasty_version` 指定所需的最低 Tasty 版本。版本由三段数字组成，例如 `0.14.1`。格式无效时会显示清单错误。
+插件可通过清单中的可选项 `min_tasty_version` 指定所需的最低 Tasty 版本。该值是包含三段以点分隔的数字的字符串，例如 `"0.14.1"`。带预发布或构建后缀等格式无效的值会导致清单错误。
 
-在发布构建中，如果插件需要更高版本，**添加插件**标签页会显示所需版本和当前版本，并阻止添加。`tasty plugin install` 和 `tasty plugin doctor` 也使用同一标准检查。`tasty plugin upgrade-builtins` 会检查将要复制或替换的随附插件。调试构建会警告版本不足，然后继续处理。将 Tasty 更新到所需版本或更高版本，或选择同一插件的兼容版本。**仍然添加**和 `--allow-unverified` 仅适用于签名验证。
+如果插件需要更高版本的 Tasty，**添加插件**标签页会显示所需版本和当前版本，并阻止添加。`tasty plugin install` 和 `tasty plugin doctor` 也会报告版本错误。`tasty plugin upgrade-builtins` 会对将要复制或替换的随附插件应用相同规则。请将 Tasty 更新到所需版本或更高版本，或选择同一插件的兼容版本。**仍然添加**和 `--allow-unverified` 仅适用于签名验证。
 
 1. 在 **插件文件夹** <!-- en: Plugin folder --> 输入框中输入包含 `tasty-plugin.toml` 的文件夹，或通过 **查找文件夹…** <!-- en: Find folder… --> 选择。在 Tasty 文件夹选择器中，可以选择子文件夹，也可以不选择任何行，直接确认当前文件夹。双击进入文件夹，Enter 确认。取消后输入保持不变。
 2. 通过查找文件夹确认后会立即验证。若直接输入路径，点击 **验证** <!-- en: Verify -->。输入框正下方会显示清单卡片，包含名称 · 版本 · id · 作者 · 描述 · Surface 种类 · 源路径。主页为 `http://` · `https://` 地址时，可点击带下划线的链接在浏览器中打开（无法启动浏览器时，会显示无法打开的通知），其他值仅显示为文本。有多位作者时，第一位作者后显示 `+N`，悬停可查看完整列表。修改路径会清除卡片，需再次点击 **验证**。若文件夹中没有 `tasty-plugin.toml`，或格式错误而无法读取，会以 **无法读取 tasty-plugin.toml** <!-- en: Can't read tasty-plugin.toml --> 提示框代替卡片，下方一行显示读取错误原文。若文件可读取但内容不符合规则（例如指定的可执行文件不在文件夹中），同一位置会显示 **tasty-plugin.toml 无效** <!-- en: tasty-plugin.toml is not valid --> 提示框，下方一行显示错误内容。不在官方列表中的 `com.tasty.*` id 也会通过此提示框说明拒绝原因。下方一行显示英文原文 `plugin id '<id>' uses the reserved com.tasty. prefix but is not an official Tasty plugin`，不显示预览和添加按钮。修改路径后再次点击 **验证**。
