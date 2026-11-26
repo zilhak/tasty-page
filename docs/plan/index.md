@@ -51,8 +51,8 @@
 | 원격 작업 이어가기 (attach) | [한국어](../../content/remote/attach.md) · [영어](../../content/en/remote/attach.md) | [guide-remote-help](guide-remote-help.md) |
 | 플러그인 | [한국어](../../content/plugins/index.md) · [영어](../../content/en/plugins/index.md) | [guide-remote-help](guide-remote-help.md) |
 | 문제 해결 | [한국어](../../content/help/troubleshooting.md) · [영어](../../content/en/help/troubleshooting.md) | [guide-remote-help](guide-remote-help.md) |
-| CLI 응답 지연과 연결 진단 | [한국어](../../content/help/cli-diagnostics.md) · [영어](../../content/en/help/cli-diagnostics.md) | [guide-remote-help](guide-remote-help.md) |
 | 크래시·멈춤 리포트와 로그 | [한국어](../../content/help/error-reports.md) · [영어](../../content/en/help/error-reports.md) | [guide-remote-help](guide-remote-help.md) |
+| CLI 응답 지연과 연결 진단 | [한국어](../../content/help/cli-diagnostics.md) · [영어](../../content/en/help/cli-diagnostics.md) | [guide-remote-help](guide-remote-help.md) |
 
 ## 포함하지 않는 범위
 
