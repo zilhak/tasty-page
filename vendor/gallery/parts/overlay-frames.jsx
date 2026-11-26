@@ -3082,7 +3082,7 @@ function FpRow({ kind, name, size, mod, selected, focus, multi, checked, dim, in
       opacity: dim ? 0.5 : 1 }}>
       {multi && <span style={{ display: "inline-flex", flex: "none" }}><Checkbox checked={!!checked} /></span>}
       <span style={{ flex: "none", display: "inline-flex", color: inert ? "var(--tasty-fp-folder-file-fg)" : isFolder ? "var(--tasty-accent-primary-raised)" : "var(--tasty-text-muted)" }}>
-        <Icon name={isFolder ? "folder" : "file"} size={16} />
+        <Icon name={isFolder ? "folder" : "file"} size="var(--tasty-icon-size-md)" />
       </span>
       <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
         fontSize: 13, fontWeight: isFolder ? 500 : 400, color: inert ? "var(--tasty-fp-folder-file-fg)" : selected ? "var(--tasty-text-on-active)" : "var(--tasty-text-secondary)" }}>{name}</span>
