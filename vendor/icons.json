@@ -21,6 +21,7 @@
   "icons": [
     {
       "name": "plus",
+      "source": "Same shape as Lucide \"plus\" (lucide-static 0.460.0, ISC License, with Feather portions under the MIT License; icons/LICENSE-lucide.txt, icons/LICENSE-feather.txt)",
       "group": "actions",
       "role": "create / add",
       "paths": [
@@ -30,6 +31,7 @@
     },
     {
       "name": "close",
+      "source": "Same shape as Lucide \"x\" (lucide-static 0.460.0, ISC License, with Feather portions under the MIT License; icons/LICENSE-lucide.txt, icons/LICENSE-feather.txt)",
       "group": "actions",
       "role": "dismiss overlay (header X)",
       "paths": [
@@ -76,6 +78,7 @@
     },
     {
       "name": "refresh",
+      "source": "Adapted from Lucide \"rotate-cw\" (lucide-static 0.460.0, ISC License, with Feather portions under the MIT License; icons/LICENSE-lucide.txt, icons/LICENSE-feather.txt)",
       "group": "actions",
       "role": "re-scan / reload (ports, re-detect)",
       "paths": [
@@ -85,6 +88,7 @@
     },
     {
       "name": "edit",
+      "source": "Adapted from Lucide \"pen-line\" (lucide-static 0.460.0, ISC License, with Feather portions under the MIT License; icons/LICENSE-lucide.txt, icons/LICENSE-feather.txt)",
       "group": "actions",
       "role": "edit a row / value",
       "paths": [
@@ -94,6 +98,7 @@
     },
     {
       "name": "trash",
+      "source": "Adapted from Lucide \"trash\" (lucide-static 0.460.0, ISC License, with Feather portions under the MIT License; icons/LICENSE-lucide.txt, icons/LICENSE-feather.txt)",
       "group": "actions",
       "role": "delete / remove",
       "paths": [
@@ -113,6 +118,7 @@
     },
     {
       "name": "check",
+      "source": "Same shape as Lucide \"check\" (lucide-static 0.460.0, ISC License, with Feather portions under the MIT License; icons/LICENSE-lucide.txt, icons/LICENSE-feather.txt)",
       "group": "actions",
       "role": "confirm / saved / done",
       "paths": [
@@ -150,6 +156,7 @@
     },
     {
       "name": "more",
+      "source": "Adapted from Lucide \"ellipsis\" (lucide-static 0.460.0, ISC License, with Feather portions under the MIT License; icons/LICENSE-lucide.txt, icons/LICENSE-feather.txt)",
       "group": "actions",
       "role": "more actions (overflow menu trigger)",
       "paths": [
@@ -168,6 +175,7 @@
     },
     {
       "name": "star",
+      "source": "Adapted from Lucide \"star\" (lucide-static 0.460.0, ISC License, with Feather portions under the MIT License; icons/LICENSE-lucide.txt, icons/LICENSE-feather.txt)",
       "group": "actions",
       "role": "favorite (outline)",
       "fill": false,
@@ -177,6 +185,7 @@
     },
     {
       "name": "starFill",
+      "source": "Adapted from Lucide \"star\" (lucide-static 0.460.0, ISC License, with Feather portions under the MIT License; icons/LICENSE-lucide.txt, icons/LICENSE-feather.txt)",
       "group": "actions",
       "role": "favorite (active / filled)",
       "fill": true,
@@ -186,7 +195,7 @@
     },
     {
       "name": "chevronRight",
-      "source": "Lucide chevron-right (lucide-static 0.460.0, ISC License, icons/LICENSE-lucide.txt)",
+      "source": "Same shape as Lucide \"chevron-right\" (lucide-static 0.460.0, ISC License, with Feather portions under the MIT License; icons/LICENSE-lucide.txt, icons/LICENSE-feather.txt)",
       "group": "navigation",
       "role": "collapsed row · forward",
       "paths": [
@@ -196,6 +205,7 @@
     },
     {
       "name": "arrowRight",
+      "source": "Adapted from Lucide \"arrow-right\" (lucide-static 0.460.0, ISC License, with Feather portions under the MIT License; icons/LICENSE-lucide.txt, icons/LICENSE-feather.txt)",
       "group": "navigation",
       "role": "Go — navigate to the typed address",
       "paths": [
@@ -206,7 +216,7 @@
     },
     {
       "name": "chevronDown",
-      "source": "Lucide chevron-down (lucide-static 0.460.0, ISC License, icons/LICENSE-lucide.txt)",
+      "source": "Same shape as Lucide \"chevron-down\" (lucide-static 0.460.0, ISC License, with Feather portions under the MIT License; icons/LICENSE-lucide.txt, icons/LICENSE-feather.txt)",
       "group": "navigation",
       "role": "expanded row",
       "paths": [
@@ -216,7 +226,7 @@
     },
     {
       "name": "chevronUp",
-      "source": "Lucide chevron-up (lucide-static 0.460.0, ISC License, icons/LICENSE-lucide.txt)",
+      "source": "Same shape as Lucide \"chevron-up\" (lucide-static 0.460.0, ISC License, with Feather portions under the MIT License; icons/LICENSE-lucide.txt, icons/LICENSE-feather.txt)",
       "group": "navigation",
       "role": "collapsed row · previous / up",
       "paths": [
@@ -226,7 +236,7 @@
     },
     {
       "name": "chevronLeft",
-      "source": "Lucide chevron-left (lucide-static 0.460.0, ISC License, icons/LICENSE-lucide.txt)",
+      "source": "Same shape as Lucide \"chevron-left\" (lucide-static 0.460.0, ISC License, with Feather portions under the MIT License; icons/LICENSE-lucide.txt, icons/LICENSE-feather.txt)",
       "group": "navigation",
       "role": "back",
       "paths": [
@@ -236,6 +246,7 @@
     },
     {
       "name": "chevronsLeft",
+      "source": "Same shape as Lucide \"chevrons-left\" (lucide-static 0.460.0, ISC License, with Feather portions under the MIT License; icons/LICENSE-lucide.txt, icons/LICENSE-feather.txt)",
       "group": "navigation",
       "role": "collapse sidebar",
       "paths": [
@@ -245,6 +256,7 @@
     },
     {
       "name": "chevronsRight",
+      "source": "Same shape as Lucide \"chevrons-right\" (lucide-static 0.460.0, ISC License, with Feather portions under the MIT License; icons/LICENSE-lucide.txt, icons/LICENSE-feather.txt)",
       "group": "navigation",
       "role": "expand sidebar rail",
       "paths": [
@@ -254,6 +266,7 @@
     },
     {
       "name": "move",
+      "source": "Same shape as Lucide \"move\" (lucide-static 0.460.0, ISC License, with Feather portions under the MIT License; icons/LICENSE-lucide.txt, icons/LICENSE-feather.txt)",
       "group": "navigation",
       "role": "move / reposition (4-way)",
       "paths": [
@@ -361,6 +374,7 @@
     },
     {
       "name": "folderOpen",
+      "source": "Adapted from Lucide \"folder-open\" (lucide-static 0.460.0, ISC License, with Feather portions under the MIT License; icons/LICENSE-lucide.txt, icons/LICENSE-feather.txt)",
       "group": "surfaces",
       "role": "folder / workspace (open state)",
       "fill": false,
@@ -380,6 +394,7 @@
     },
     {
       "name": "image",
+      "source": "Adapted from Lucide \"image\" (lucide-static 0.460.0, ISC License, with Feather portions under the MIT License; icons/LICENSE-lucide.txt, icons/LICENSE-feather.txt)",
       "group": "surfaces",
       "role": "image surface / preview",
       "paths": [
@@ -400,7 +415,7 @@
     },
     {
       "name": "layoutGrid",
-      "source": "Lucide layout-grid (lucide-static 0.460.0, ISC License, icons/LICENSE-lucide.txt)",
+      "source": "Same shape as Lucide \"layout-grid\" (lucide-static 0.460.0, ISC License, with Feather portions under the MIT License; icons/LICENSE-lucide.txt, icons/LICENSE-feather.txt)",
       "group": "surfaces",
       "role": "gallery / grid view mode",
       "fill": false,
@@ -423,6 +438,7 @@
     },
     {
       "name": "listView",
+      "source": "Same shape as Lucide \"list\" (lucide-static 0.460.0, ISC License, with Feather portions under the MIT License; icons/LICENSE-lucide.txt, icons/LICENSE-feather.txt)",
       "group": "surfaces",
       "role": "list view mode (rows + markers)",
       "fill": false,
@@ -482,6 +498,7 @@
     },
     {
       "name": "remote",
+      "source": "Same shape as Lucide \"terminal\" (lucide-static 0.460.0, ISC License, with Feather portions under the MIT License; icons/LICENSE-lucide.txt, icons/LICENSE-feather.txt)",
       "group": "surfaces",
       "role": "remote connection",
       "paths": [
@@ -514,6 +531,7 @@
     },
     {
       "name": "gitTree",
+      "source": "Same shape as Lucide \"git-commit-vertical\" (lucide-static 0.460.0, ISC License, with Feather portions under the MIT License; icons/LICENSE-lucide.txt, icons/LICENSE-feather.txt)",
       "group": "surfaces",
       "role": "git tree / lineage",
       "paths": [
@@ -523,6 +541,7 @@
     },
     {
       "name": "eye",
+      "source": "Adapted from Lucide \"eye\" (lucide-static 0.460.0, ISC License, with Feather portions under the MIT License; icons/LICENSE-lucide.txt, icons/LICENSE-feather.txt)",
       "group": "visibility",
       "role": "reveal value",
       "paths": [
@@ -552,6 +571,7 @@
     },
     {
       "name": "globe",
+      "source": "Adapted from Lucide \"globe\" (lucide-static 0.460.0, ISC License, with Feather portions under the MIT License; icons/LICENSE-lucide.txt, icons/LICENSE-feather.txt)",
       "group": "visibility",
       "role": "remote content allowed (network)",
       "paths": [
@@ -563,6 +583,7 @@
     },
     {
       "name": "globeOff",
+      "source": "Adapted from Lucide \"globe\" (lucide-static 0.460.0, ISC License, with Feather portions under the MIT License; icons/LICENSE-lucide.txt, icons/LICENSE-feather.txt)",
       "group": "visibility",
       "role": "remote content blocked (network)",
       "paths": [
@@ -585,6 +606,7 @@
     },
     {
       "name": "alertCircle",
+      "source": "Adapted from Lucide \"circle-alert\" (lucide-static 0.460.0, ISC License, with Feather portions under the MIT License; icons/LICENSE-lucide.txt, icons/LICENSE-feather.txt)",
       "group": "status",
       "role": "error / failed",
       "paths": [
@@ -595,7 +617,7 @@
     },
     {
       "name": "helpCircle",
-      "source": "Lucide circle-help (lucide-static 0.460.0, ISC License, icons/LICENSE-lucide.txt)",
+      "source": "Same shape as Lucide \"circle-help\" (lucide-static 0.460.0, ISC License, with Feather portions under the MIT License; icons/LICENSE-lucide.txt, icons/LICENSE-feather.txt)",
       "group": "status",
       "role": "help hint / (?) tooltip trigger",
       "paths": [
@@ -617,6 +639,7 @@
     },
     {
       "name": "bell",
+      "source": "Adapted from Lucide \"bell\" (lucide-static 0.460.0, ISC License, with Feather portions under the MIT License; icons/LICENSE-lucide.txt, icons/LICENSE-feather.txt)",
       "group": "status",
       "role": "notification",
       "paths": [
@@ -673,6 +696,7 @@
     },
     {
       "name": "theme",
+      "source": "Adapted from Lucide \"moon\" (lucide-static 0.460.0, ISC License, with Feather portions under the MIT License; icons/LICENSE-lucide.txt, icons/LICENSE-feather.txt)",
       "group": "system",
       "role": "theme toggle (Mocha / Latte)",
       "paths": [
@@ -702,6 +726,7 @@
     },
     {
       "name": "sun",
+      "source": "Adapted from Lucide \"sun-medium\" (lucide-static 0.460.0, ISC License, with Feather portions under the MIT License; icons/LICENSE-lucide.txt, icons/LICENSE-feather.txt)",
       "group": "system",
       "role": "empty state / no settings",
       "paths": [
@@ -712,6 +737,7 @@
     },
     {
       "name": "hash",
+      "source": "Same shape as Lucide \"hash\" (lucide-static 0.460.0, ISC License, with Feather portions under the MIT License; icons/LICENSE-lucide.txt, icons/LICENSE-feather.txt)",
       "group": "system",
       "role": "number / tab-switch digits",
       "paths": [
@@ -721,7 +747,7 @@
     },
     {
       "name": "cmdKey",
-      "source": "Lucide command (lucide-static 0.460.0, ISC License, icons/LICENSE-lucide.txt)",
+      "source": "Same shape as Lucide \"command\" (lucide-static 0.460.0, ISC License, with Feather portions under the MIT License; icons/LICENSE-lucide.txt, icons/LICENSE-feather.txt)",
       "group": "keys",
       "role": "macOS Command key symbol (⌘ keycap glyph)",
       "paths": [
@@ -771,6 +797,7 @@
     },
     {
       "name": "info",
+      "source": "Adapted from Lucide \"info\" (lucide-static 0.460.0, ISC License, with Feather portions under the MIT License; icons/LICENSE-lucide.txt, icons/LICENSE-feather.txt)",
       "group": "status",
       "role": "properties / information",
       "paths": [
@@ -781,6 +808,7 @@
     },
     {
       "name": "link",
+      "source": "Adapted from Lucide \"link\" (lucide-static 0.460.0, ISC License, with Feather portions under the MIT License; icons/LICENSE-lucide.txt, icons/LICENSE-feather.txt)",
       "group": "files",
       "role": "symbolic link (explorer Properties / rows)",
       "paths": [

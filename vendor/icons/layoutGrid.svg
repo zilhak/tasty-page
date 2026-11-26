@@ -4,4 +4,4 @@
   <rect x="14" y="14" width="7" height="7" rx="1"></rect>
   <rect x="3" y="14" width="7" height="7" rx="1"></rect>
 </svg>
-<!-- Lucide "layout-grid" (lucide-static 0.460.0), ISC License. See LICENSE-lucide.txt in this folder. -->
+<!-- Same shape as Lucide "layout-grid" (lucide-static 0.460.0), ISC License, with Feather portions under the MIT License. See LICENSE-lucide.txt and LICENSE-feather.txt in this folder. -->
