@@ -177,7 +177,9 @@ class Canon(Base):
         self.assertEqual(got["primitive-latte"], (0, 0, 0, 0))
         total, kinds = got["literals"]
         self.assertEqual(total, sum(kinds.values()))
-        self.assertEqual(kinds, dict(collections.Counter(vt.LITERALS.values())))
+        self.assertEqual(kinds, dict(collections.Counter(vt.LITERALS.values())),
+                         "each name in verify_token_tiers.LITERALS must be declared once as a "
+                         "literal in the base component block; drop a name that now reads a var()")
 
     def test_defaults_pass_and_count(self):
         out = self.ok(files(sem_latte={"accent": "var(--tasty-color-base)", "focus": "var(--tasty-bg)"},
