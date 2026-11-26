@@ -1,4 +1,4 @@
-<!-- source-hash: 990188815a88 -->
+<!-- source-hash: 559f73298e43 -->
 # Troubleshooting
 
 Causes and remedies for Tasty installation, input, display, restoration, and notification issues are organized by symptom. For CLI connection failures or slow responses, also see connection diagnostics. If the problem remains, report it with your environment details and logs.
@@ -287,6 +287,7 @@ The name contains a character that is not allowed, such as an uppercase letter o
 
 ## A plugin has stopped
 
+- **An error says a plugin requires a newer Tasty version** — Update Tasty to at least the version shown in the error, or install a release of the plugin compatible with your current version. See [Add plugin](../plugins/index.md#add-plugin) for when the version check applies.
 - **`tasty plugin list` shows enabled but not running** — the plugin may be waiting for an automatic retry. If a plugin cannot start or connect when the app launches, Tasty retries after 10 seconds, then after another 20 seconds if it fails again. The same applies if an automatic restart fails after a running plugin stops responding or exits. After three consecutive failures, Tasty turns that plugin off automatically. A separate rule also stops a plugin if the process itself fails to launch three times within 10 seconds.
 
   A successful connection resets the consecutive failure count. Turning a plugin off or on yourself clears its retry history, and disabled or removed plugins are not retried. The reason for an automatic disable appears in a notification, and the plugin appears as **Runtime error** under **Plugins › Attention**. Notifications for failures during app startup are left after the first workspace is created. Check notifications and **Attention**, review the cause with `tasty plugin logs <id>`, then turn the plugin on again with `tasty plugin enable <id>`.

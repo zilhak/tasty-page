@@ -1,4 +1,4 @@
-<!-- source-hash: b13783033cb0 -->
+<!-- source-hash: d2091c0e9c36 -->
 # Plugins
 
 Plugins provide Markdown, image, and HTML viewers, along with Claude Code and Codex integrations. Manage bundled plugins or install new ones.
@@ -92,6 +92,8 @@ When one of these folders is newly found, one warning per folder is left in the 
 The **Add plugin** tab.
 
 Plugin ids starting with `com.tasty.` are reserved for official Tasty plugins. A `com.tasty.*` id absent from Tasty’s official list is rejected in every build before signature verification and cannot be installed with **Add anyway** or `--allow-unverified`. This check examines only the id; ids on the official list still undergo signature verification. A folder with a `com.tasty.*` id absent from the official list is not registered even if placed directly under the plugins folder; if its manifest can be read, it appears in **Attention**, where you can remove it.
+
+If a plugin’s `min_tasty_version` is higher than the running version, verifying its manifest in the **Add plugin** tab shows the required and current versions and blocks the addition. The same version check applies to `tasty plugin install`, `tasty plugin doctor`, and `tasty plugin upgrade-builtins`. Update Tasty to at least the required version or choose a compatible release of the plugin. **Add anyway** and `--allow-unverified` apply only to signature verification.
 
 1. In the **Plugin folder** field, enter a folder containing `tasty-plugin.toml`, or pick one with **Find folder…**. The Tasty folder picker confirms the selected subfolder, or the current folder when no row is selected. Double-click enters a folder; Enter confirms it. Cancelling keeps the field unchanged.
 2. Choosing a folder validates it immediately. If you typed a path, press **Verify**. The manifest card appears right under the field: name · version · id · authors · description · surface kinds · source path, plus the homepage when the plugin has one. An `http://` or `https://` address is an underlined link that opens in your browser (if the browser can't be started, a notice says it couldn't be opened); any other value is shown as plain text. With several authors, the first one is followed by `+N`; hover to see them all. Editing the path clears the card, so press **Verify** again. If the folder has no `tasty-plugin.toml` or the file can't be parsed, a **Can't read tasty-plugin.toml** box takes the card's place with the reader's error on the line below. If the file reads but breaks a manifest rule (for example, the listed binary is not in the folder), a **tasty-plugin.toml is not valid** box appears in the same place with what is wrong on the line below. A `com.tasty.*` id absent from the official list is also rejected with this box. The line below shows the original English reason, `plugin id '<id>' uses the reserved com.tasty. prefix but is not an official Tasty plugin`, and no preview or add button appears. Fix the path and press **Verify** again.
