@@ -1,4 +1,4 @@
-<!-- source-hash: 9a805b0c1662 -->
+<!-- source-hash: 1075f86c5b2e -->
 # Working with Claude and Codex
 
 Run Claude Code and Codex CLI in Tasty terminals and follow their status. Install each CLI separately. To delegate work across agents, configure both the hooks and the parent’s result delivery path.
@@ -324,6 +324,7 @@ tasty claude spawn --workspace 7 --prompt "Run the tests"    # 7 is the attached
 - Only the parent that created a remote child can `tell` it. A `tell` from another parent (including a new Claude conversation started in the same pane) is refused so that replies cannot go to the wrong parent. Spawn a new child for that parent instead. A remote child whose creating parent is unknown, such as one spawned before this rule existed, refuses every `tell`; spawn a new one.
 - If the connection drops, Tasty may report that it cannot tell whether the instruction ran. Check with `children` before trying again. If you disconnect and attach again yourself, it is a new connection, and results of instructions sent over the earlier connection are not received.
 - Give `--cwd` and `--profile-file` as absolute paths on the remote computer. A relative path, or a path that does not exist on the remote computer, is refused and no child is created.
+  If you omit `--cwd`, the child inherits the remote working directory of the Surface selected on your side in the target Pane’s selected Tab. Turning off local `general.inherit_cwd` disables inheritance on remote versions that support this behavior.
 - While attached, the user on the remote side cannot `tell`, `kill`, `respawn`, or `reboot` that child. Only the attached side can drive it.
 - `respawn` and `broadcast` are not available for remote children.
 
