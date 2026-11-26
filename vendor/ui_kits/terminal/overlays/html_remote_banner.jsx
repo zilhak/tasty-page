@@ -98,9 +98,9 @@ function HtmlRemoteBanner({ state = "blocked", hover = false, narrow = false, we
           <div style={{ fontSize: "var(--tasty-banner-body-font-size)", lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-banner-body-fg)", textWrap: "pretty" }}>{web ? (sandboxOff ? RC_COPY.bodyWebSandboxOff : RC_COPY.bodyWeb) : RC_COPY.body}</div>
         </div>
         {/* Narrow: the action takes its own line at the body's left edge, as the app's ActionRow places it. The line
-            box is the content width less that indent, so it ends at the content edge instead of 28 past it. */}
-        <span style={{ flex: "none", display: "flex", marginLeft: narrow ? "calc(1 * var(--tasty-icon-size-md) + 1 * var(--tasty-banner-gap))" : 0,
-          width: narrow ? "calc(1 * 100% + -1 * var(--tasty-icon-size-md) + -1 * var(--tasty-banner-gap))" : "auto" }}>{action}</span>
+            box spans the content width and the indent is its left padding, so it ends at the content edge. */}
+        <span style={{ flex: "none", display: "flex", width: narrow ? "100%" : "auto",
+          paddingLeft: narrow ? "calc(1 * var(--tasty-icon-size-md) + 1 * var(--tasty-banner-gap))" : 0 }}>{action}</span>
       </div>
       <span style={{ position: "absolute", top: "var(--tasty-banner-padding-y)", right: "var(--tasty-space-sm)", display: "flex",
         opacity: showX ? 1 : 0, transition: "opacity var(--tasty-banner-fade) var(--tasty-ease-ui)" }}>
