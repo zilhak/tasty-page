@@ -1,7 +1,7 @@
 import React from "react";
 import { PageStates, Views, View } from "../parts/specimen.jsx";
 import { STATES } from "./states.jsx";
-import { IconButton, Kbd, Tag, Button as BButton, Icon as BIcon, Badge as BBadge, BadgeGroup as BBadgeGroup, Spinner as BSpinner } from "../../components/index.js";
+import { IconButton, Kbd, Tag, Button as BButton, Icon as BIcon, Spinner as BSpinner } from "../../components/index.js";
 import { HtmlSizeBanner, HtmlAddressBar } from "../../ui_kits/terminal/overlays/html_address_bar.jsx";
 import { HtmlRemoteSurfaceG, HtmlRemoteBanner, HtmlRemoteMarker, RC_WEB } from "../../ui_kits/terminal/overlays/html_remote_banner.jsx";
 import { HtmlScriptBanner, HtmlSurfaceG, TermSurfaceG, HsTab } from "../../ui_kits/terminal/overlays/html_script_banner.jsx";
@@ -20,12 +20,6 @@ import { Section, Spec, Stage, Meta, Note, Do, Dont } from "../parts/specimen.js
 
 
 
-// 2026-10-07 — auto-attach mapping refused. Workspace-scope banner + a persistent sidebar row mark.
-const REFUSAL = {
-  self: { target: "127.0.0.1:7420", reason: "This mapping points at this Tasty, so it was not attached." },
-  profile: { target: "prod-web", reason: "No SSH profile with this name." },
-  resolve: { target: "build-eu:7420", reason: "The endpoint could not be resolved." },
-};
 // Narrow rule (2026-10-09 b10, banner-narrow-scope): under --tasty-banner-narrow-below (judged on the SCOPE content width) the
 // action button wraps under the text, starting at the body's left edge; × stays in the top-right like the HTML banner.
 function BannerActionsG({ narrow, action, children }) {
@@ -41,21 +35,7 @@ function BannerActionsG({ narrow, action, children }) {
     </div>
   );
 }
-function AttachRefusalBannerG({ kind = "self", narrow }) {
-  const r = REFUSAL[kind];
-  return (
-    <BannerShellG>
-      <BannerActionsG narrow={narrow} action={<BButton variant="secondary" size="sm" style={{ background: "var(--tasty-banner-button-bg)", borderColor: "var(--tasty-banner-button-border)" }}>Remove mapping</BButton>}>
-        <span style={{ display: "inline-flex", flex: "none", marginTop: "var(--tasty-banner-glyph-offset)", color: "var(--tasty-accent-warning-raised)" }}><BIcon name="alertTriangle" size="var(--tasty-icon-size-md)" /></span>
-        <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-banner-text-gap)" }}>
-          <span style={{ fontSize: "var(--tasty-banner-title-font-size)", fontWeight: "var(--tasty-font-weight-semibold)" }}>Remote not attached — <span style={{ fontFamily: "var(--tasty-font-mono)", fontWeight: "var(--tasty-font-weight-normal)" }}>{r.target}</span></span>
-          <span style={{ fontSize: "var(--tasty-banner-body-font-size)", color: "var(--tasty-banner-body-fg)" }}>{r.reason} Change or remove the mapping for this workspace.</span>
-        </div>
-      </BannerActionsG>
-    </BannerShellG>
-  );
-}
-// 2026-10-09 — attach mirror terminal-size sync failed (after the one automatic retry). Same family as the refusal banner.
+// 2026-10-09 — attach mirror terminal-size sync failed (after the one automatic retry).
 // Body = TWO lines (b10, attach-sync-banner-body-cut): names line (one line, names ellipsise) + fixed copy line (wraps, never cut).
 // b11 (attach-sync-name-floor): the 40 floor applies only while shrinking — box = min(natural, max(floor, shrunk)).
 // A name shorter than the floor keeps its own width, so ", " / " +n" follow right after it.
@@ -91,7 +71,7 @@ function useScopeNarrow(on, scope) {
   return [ref, narrow];
 }
 // The same narrow rule for the other banners in the ink tables that have a narrow layout (HTML script, remote content,
-// size, auto-attach refusal): children is a function of the judged narrow value.
+// size): children is a function of the judged narrow value.
 function ScopeNarrowG({ children, scope }) {
   const [ref, narrow] = useScopeNarrow(true, scope);
   return <div ref={ref} style={{ minWidth: 0 }}>{children(narrow)}</div>;
@@ -128,38 +108,6 @@ function AttachSizeSyncBannerG({ names = ["build"], retrying = false, narrow: na
   );
   return auto ? <div ref={scopeRef} style={{ minWidth: 0 }}>{banner}</div> : banner;
 }
-function RefusalRowG({ name, active, refused, move, ni, done }) {
-  return (
-    <div title={refused ? "Remote not attached — 127.0.0.1:7420 points at this Tasty." : undefined} style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", height: "var(--tasty-size-28)", padding: "0 var(--tasty-space-sm)", borderRadius: "var(--tasty-radius-sm)",
-      background: active ? "var(--tasty-surface-active)" : "transparent", color: active ? "var(--tasty-text-on-active)" : "var(--tasty-text-secondary)", fontSize: "var(--tasty-font-size-body)" }}>
-      <span style={{ width: "var(--tasty-status-dot-size)", height: "var(--tasty-status-dot-size)", borderRadius: "var(--tasty-radius-pill)", background: "var(--tasty-status-idle)", flex: "none" }} />
-      <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{name}</span>
-      {move && <span aria-label="Move source inside" style={{ display: "inline-flex", flex: "none", color: "var(--tasty-move-source-glyph)" }}><BIcon name="move" size="var(--tasty-move-source-glyph-size)" /></span>}
-      {refused && <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-attach-refusal-glyph)" }}><BIcon name="alertTriangle" size="var(--tasty-icon-size-sm)" /></span>}
-      {(ni != null || done != null) && BBadgeGroup && (
-        <BBadgeGroup>
-          {ni != null && <BBadge variant="warning">{ni}</BBadge>}
-          {done != null && <BBadge variant="primary">{done}</BBadge>}
-        </BBadgeGroup>
-      )}
-    </div>
-  );
-}
-
-// Collapsed rail: the refusal chip takes the free top-left corner (TR attention dot · BR mirror chip · BL move chip).
-function RefusalRailG({ ch, refused, dot, move }) {
-  const chip = { position: "absolute", pointerEvents: "none", display: "inline-flex", alignItems: "center", justifyContent: "center", borderRadius: "var(--tasty-radius-pill)", background: "var(--tasty-bg-sidebar)" };
-  return (
-    <div title={refused ? "Remote not attached — 127.0.0.1:7420 points at this Tasty." : undefined} style={{ position: "relative", width: "var(--tasty-size-28)", height: "var(--tasty-size-28)", display: "inline-flex", alignItems: "center", justifyContent: "center",
-      borderRadius: "var(--tasty-radius)", background: "var(--tasty-surface-raised)", fontFamily: "var(--tasty-font-mono)", fontWeight: "var(--tasty-font-weight-bold)", fontSize: "var(--tasty-font-size-body)", color: "var(--tasty-text-secondary)" }}>
-      {ch}
-      {refused && <span aria-label="Remote not attached" style={{ ...chip, top: "calc(-1 * var(--tasty-border-width))", left: "calc(-1 * var(--tasty-border-width))", width: "var(--tasty-attach-refusal-chip-size)", height: "var(--tasty-attach-refusal-chip-size)", color: "var(--tasty-attach-refusal-glyph)" }}><BIcon name="alertTriangle" size="var(--tasty-attach-refusal-chip-glyph-size)" /></span>}
-      {dot && <span aria-hidden style={{ ...chip, top: "var(--tasty-size-1)", right: "var(--tasty-size-1)", width: "var(--tasty-status-dot-size-compact)", height: "var(--tasty-status-dot-size-compact)", background: `var(--tasty-status-dot-${dot})`, boxShadow: "0 0 0 var(--tasty-status-dot-ring-width) var(--tasty-status-dot-ring)" }} />}
-      {move && <span aria-label="Move source inside" style={{ ...chip, bottom: "calc(-1 * var(--tasty-border-width))", left: "calc(-1 * var(--tasty-border-width))", width: "var(--tasty-move-source-chip-size)", height: "var(--tasty-move-source-chip-size)", color: "var(--tasty-move-source-glyph)" }}><BIcon name="move" size="var(--tasty-move-source-chip-glyph-size)" /></span>}
-    </div>
-  );
-}
-
 const NAV = [
   { id: "banner", label: "Banner" },
   { id: "shellintegration", label: "Shell integration missing" },
@@ -167,7 +115,6 @@ const NAV = [
   { id: "more", label: "Banner more menu" },
   { id: "blacklist", label: "Capture blacklist" },
   { id: "htmlscript", label: "HTML script notice" },
-  { id: "attachrefusal", label: "Auto-attach refused" },
   { id: "attachsizesync", label: "Attach size sync failed" },
   { id: "htmlremotesize", label: "HTML mirror size notices" },
   { id: "htmlremote", label: "HTML remote content notice" },
@@ -298,7 +245,6 @@ function BodyInkGrid({ label, theme }) {
     ["HTML script · web page", <ScopeNarrowG>{(n) => <HtmlScriptBanner web narrow={n} />}</ScopeNarrowG>],
     ["HTML mirror · large file, more waiting", <ScopeNarrowG>{(n) => <HtmlSizeBanner more={2} narrow={n} />}</ScopeNarrowG>],
     ["HTML mirror · cumulative limit", <ScopeNarrowG>{(n) => <HtmlSizeBanner kind="limit" narrow={n} />}</ScopeNarrowG>],
-    ["auto-attach refused", <ScopeNarrowG>{(n) => <AttachRefusalBannerG narrow={n} />}</ScopeNarrowG>],
     ["attach size sync · names line", <AttachSizeSyncBannerG names={["build", "build", "logs"]} narrow="auto" />],
     ["shell integration missing · TTL", <TtlBannerG ttl={10} glyph={<BIcon name="alertTriangle" size="var(--tasty-icon-size-md)" />} glyphColor="var(--tasty-accent-warning-raised)" title="Shell integration not detected" body="Command-completion hooks (docker build, just run, etc.) need OSC 133 shell integration. See docs/features/hooks for setup." />],
   ];
@@ -395,7 +341,7 @@ function Page() {
           <Meta
             specs={[["no action", "TTL — countdown, auto-dismiss at 0"], ["has action", "no TTL — until the action or ×"], ["×", "not an action"], ["exception", "developer-directed, code comment at the definition (none in use for mouse capture since 2026-11-03)"], ["plugin banners", "same rule as authoring guidance (host can't see plugin content)"]]}
             tokens={[{ tok: "--tasty-banner-countdown-fg", use: "TTL seconds", color: "var(--tasty-banner-countdown-fg)" }]} />
-          <Note>Host banners today: <b>TTL</b> — preset applied (6 s), shell integration missing (10 s). <b>No TTL</b> — mouse capture (⋯ rows), auto-attach refused (Remove mapping), attach size sync (Retry), HTML script notice (Allow), HTML remote content (Allow), HTML mirror size / aggregate (Allow · Continue).</Note>
+          <Note>Host banners today: <b>TTL</b> — preset applied (6 s), shell integration missing (10 s). <b>No TTL</b> — mouse capture (⋯ rows), attach size sync (Retry), HTML script notice (Allow), HTML remote content (Allow), HTML mirror size / aggregate (Allow · Continue).</Note>
         </Spec>
         <Spec id="dismiss-ttl-countdown-top-right-one-slot" title="Dismiss & TTL countdown — top-right, one slot"
           when={<>The top-right corner is an <b>affordance column</b> holding <b>one</b> dismiss slot (a banner that carries a ⋯ overflow trigger adds it to the left of that slot — see <i>Banner more menu</i>). A banner <b>with an action</b> (no TTL) keeps its <b>×</b> <b>hidden until you hover</b> the banner. An <b>action-less</b> banner (TTL) shows a <b>seconds countdown</b> there instead, flipping to the × on hover; at <b>0</b> it auto-dismisses. The countdown <b>pauses</b> while the banner is hovered or its scope is backgrounded, then resumes. Appear/dismiss is a <b>120ms alpha fade</b> — the banner never moves.</>}>
@@ -632,7 +578,7 @@ function Page() {
           <Dont><b>Don't</b> inject the notice into the document DOM (⒞): the page could hide or forge it, and its button can't run with scripts off. <b>Don't</b> build three native overlays (⒝) for one notice.</Dont>
         </Spec>
         <Spec id="banner-states" title="Banner states"
-          when={<>Informational, not a warning: blocking is the default working as intended. Leading glyph <b>lock</b> in <span className="tok">--tasty-html-script-banner-glyph</span> (→ accent-info). One action, <b>[Allow for this document]</b>, Secondary / Sm — a relaxation should not be the loudest thing on screen, and there is no second action (the global switch lives in Settings › Appearance › HTML). Title and body <b>wrap and never clamp</b> — the card grows (Tasty-owned copy, same rule as refusal / size sync / mouse capture, 2026-10-10 b12); the button never wraps. The scope ("this document", "until Tasty restarts") is in the body copy. After Allow the document reloads once: the action is replaced by a spinner + <i>Reloading with scripts allowed</i>, × is withheld, and the banner fades out (120ms) when the new load commits.</>}>
+          when={<>Informational, not a warning: blocking is the default working as intended. Leading glyph <b>lock</b> in <span className="tok">--tasty-html-script-banner-glyph</span> (→ accent-info). One action, <b>[Allow for this document]</b>, Secondary / Sm — a relaxation should not be the loudest thing on screen, and there is no second action (the global switch lives in Settings › Appearance › HTML). Title and body <b>wrap and never clamp</b> — the card grows (Tasty-owned copy, same rule as size sync / mouse capture, 2026-10-10 b12); the button never wraps. The scope ("this document", "until Tasty restarts") is in the body copy. After Allow the document reloads once: the action is replaced by a spinner + <i>Reloading with scripts allowed</i>, × is withheld, and the banner fades out (120ms) when the new load commits.</>}>
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", flexDirection: "column", gap: "var(--tasty-space-md)", alignItems: "stretch" }}>
             {[["1 · blocked (default)", {}], ["2 · hover — × revealed", { hover: true }], ["3 · after Allow — reloading", { state: "reloading" }], ["4 · surface loading a new document — Allow disabled until commit (tooltip on hover)", { state: "loading" }], ["remote content also blocked — body branch", { remote: true }]].map(([cap, p]) => (
               <div key={cap} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", maxWidth: "var(--tasty-size-600)" }}>
@@ -703,61 +649,9 @@ function Page() {
           <Note><b>Firing:</b> only when the user views the document (opened it, or selected the surface). Agent/IPC opens, session restore and background loads keep a "has scripts" flag and show the banner the first time the user looks at that surface.</Note>
         </Spec>
       </Section>
-      <Section id="attachrefusal" title="Auto-attach refused — mapping notice">
-        <Spec id="persistent-row-mark-workspace-banner-no-toast" title="Persistent row mark + workspace banner, no toast"
-          when={<>A workspace mapped with <code>tasty set workspace --ssh / --ssh-profile</code> whose target <b>is this Tasty</b> is not attached (a self-mirror would lock local input). Two signals, both <b>persistent</b> and neither takes focus: a <b>warning glyph</b> on the workspace's <b>sidebar row</b> (visible whether or not it is active, tooltip = target + reason), and a <b>Workspace-scope banner</b> at the top of that workspace's content while it is active — target in mono, the reason, and what to do. <b>Remove mapping</b> (banner button) clears the mapping as <code>tasty set workspace --id … --clear-mapping</code> would; × hides the banner for this activation only — the row mark stays until the mapping changes, is removed, or a profile re-check succeeds. <b>No toast</b>: the condition outlives a toast and must be findable later. The same pair covers the other mapping errors (profile not found, endpoint not resolvable) with their own reason line.</>}>
-          <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
-            {[["Mocha", "mocha"], ["Latte", "latte"]].map(([label, th]) => (
-              <div key={label} {...(th ? { "data-theme": th } : {})} style={{ display: "flex", gap: "var(--tasty-space-md)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", alignItems: "flex-start" }}>
-                <div style={{ width: "var(--tasty-size-200)", display: "flex", flexDirection: "column", gap: "var(--tasty-size-1)", padding: "var(--tasty-space-xs)", background: "var(--tasty-bg-sidebar)", borderRadius: "var(--tasty-radius)" }}>
-                  <RefusalRowG name="tasty-core" />
-                  <RefusalRowG name="staging-mirror" active refused />
-                  <RefusalRowG name="scratch" />
-                </div>
-                <div style={{ width: "var(--tasty-size-460)", display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
-                  <AttachRefusalBannerG kind="self" />
-                  <div style={{ height: "var(--tasty-size-64)", borderRadius: "var(--tasty-radius)", background: "var(--tasty-surface-terminal-focused-bg)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)", padding: "var(--tasty-space-sm)" }}>local terminal — still usable</div>
-                </div>
-              </div>
-            ))}
-          </Stage>
-          <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", flexDirection: "column", gap: "var(--tasty-space-sm)", alignItems: "stretch" }}>
-            <div className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>other mapping errors — same banner, own reason</div>
-            <div style={{ maxWidth: "var(--tasty-size-560)" }}><AttachRefusalBannerG kind="profile" /></div>
-            <div style={{ maxWidth: "var(--tasty-size-560)" }}><AttachRefusalBannerG kind="resolve" /></div>
-          </Stage>
-          <Meta
-            specs={[["row mark", "alertTriangle 14 · accent-warning · trailing slot of the workspace row · tooltip = target + reason"], ["banner scope", "Workspace · shown while that workspace is active"], ["glyph", "alertTriangle 16 · accent-warning"], ["title", "Remote not attached — {target} (target mono)"], ["body", "{reason} Change or remove the mapping for this workspace."], ["action", "Remove mapping · banner button (secondary sm on banner-button tokens)"], ["×", "hides for this activation; the row mark stays"], ["clears", "mapping changed / removed · profile re-check succeeds"], ["focus", "never moved — agent-made mappings included"], ["toast", "none"]]}
-            tokens={[{ tok: "--tasty-accent-warning", use: "glyph + row mark", color: "var(--tasty-accent-warning-raised)" }, { tok: "--tasty-banner-bg", use: "shell", color: "var(--tasty-banner-bg)" }, { tok: "--tasty-banner-button-bg", use: "Remove mapping", color: "var(--tasty-banner-button-bg)" }, { tok: "--tasty-banner-body-font-size", use: "reason 11" }]} />
-          <Note>Strings (en): <code>remote.refusal.title</code> “Remote not attached — {"{target}"}” · <code>remote.refusal.self</code> “This mapping points at this Tasty, so it was not attached.” · <code>remote.refusal.profile_missing</code> “No SSH profile with this name.” · <code>remote.refusal.unresolved</code> “The endpoint could not be resolved.” · <code>remote.refusal.hint</code> “Change or remove the mapping for this workspace.” · <code>remote.refusal.remove</code> “Remove mapping”. No new tokens.</Note>
-          <Note><b>Saved remote workspaces (R-58).</b> A remote workspace added from the GUI has no mapping, so this banner never shows on it: its connection state, reason and Connect button live in one connection popup over its workspace (Layouts › Saved remote workspace). It keeps this pair's <b>row mark</b> and <b>rail chip</b> for a failed connection, with the reason in the tooltip, so a mapped workspace and a saved remote row warn in the same place.</Note>
-        </Spec>
-        <Spec id="collapsed-rail-beside-the-attention-badges" title="Collapsed rail · beside the attention badges"
-          when={<><b>Rail:</b> the refusal takes the one free avatar corner, <b>top-left</b>, as a 12px chip (alertTriangle 8 on bg-sidebar) — top-right stays the attention dot, bottom-right the mirror chip, bottom-left the move chip; all four can show at once, so there is no priority rule. Same tooltip as the row. <b>Row:</b> order after the name is <b>move glyph · refusal mark · badge group</b>, gap = the row item spacing (space-sm). The badges stay rightmost so the counts line up down the list; the two persistent marks sit before them. The mark never replaces a badge.</>}>
-          <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
-            {[["Mocha", "mocha"], ["Latte", "latte"]].map(([label, th]) => (
-              <div key={label} {...(th ? { "data-theme": th } : {})} style={{ display: "flex", gap: "var(--tasty-space-md)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", alignItems: "flex-start" }}>
-                <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-sm)", background: "var(--tasty-bg-sidebar)", borderRadius: "var(--tasty-radius)" }}>
-                  <RefusalRailG ch="T" />
-                  <RefusalRailG ch="S" refused />
-                  <RefusalRailG ch="D" refused dot="warning" move />
-                </div>
-                <div style={{ width: "var(--tasty-size-200)", display: "flex", flexDirection: "column", gap: "var(--tasty-size-1)", padding: "var(--tasty-space-xs)", background: "var(--tasty-bg-sidebar)", borderRadius: "var(--tasty-radius)" }}>
-                  <RefusalRowG name="tasty-core" done={3} />
-                  <RefusalRowG name="staging-mirror" active refused ni={1} done={5} />
-                  <RefusalRowG name="data-etl" refused move ni={2} />
-                </div>
-              </div>
-            ))}
-          </Stage>
-          <Meta
-            specs={[["rail chip", "top-left · 12 · alertTriangle 8 · accent-warning on bg-sidebar"], ["rail corners", "TR attention dot · BR mirror · BL move · TL refusal — no priority"], ["row order", "name · move · refusal · badges"], ["row gap", "space-sm (row item spacing)"], ["tooltip", "same as the row · not clickable"]]}
-            tokens={[{ tok: "--tasty-attach-refusal-glyph", use: "→ accent-warning", color: "var(--tasty-attach-refusal-glyph)" }, { tok: "--tasty-attach-refusal-chip-size", use: "→ avatar-chip-size 12" }, { tok: "--tasty-attach-refusal-chip-glyph-size", use: "→ avatar-chip-glyph-size 8" }]} />
-        </Spec>
-      </Section>
       <Section id="attachsizesync" title="Attach mirror — terminal size sync failed">
         <Spec id="workspace-banner-default-retrying-several-surfaces" title="Workspace banner · default · retrying · several surfaces"
-          when={<>An attached mirror asks the remote to resize each terminal to the local pane. When the remote does not answer within 5 s (or refuses) Tasty retries <b>once</b> on its own; if that also fails this banner appears in the <b>mirror workspace</b> that owns the surface. Same family as the refusal banner: <b>alertTriangle</b> in accent-warning, a semibold title, one muted body line, one banner-button action and the <b>×</b> dismiss. <b>Retry</b> re-sends only the failed surfaces' size requests (the connection and other surfaces are untouched). While waiting the button is <b>disabled with a leading Spinner</b> and keeps its label, so the width does not jump between languages; success removes the banner, failure returns it to the default state. <b>Several surfaces</b> failing together share <b>one card</b>: “N surfaces — a, b +n”, and the action reads <b>Retry all</b>. The banner also clears by itself when a later resize succeeds. A reconnecting mirror shows the reconnect notice instead (it wins the slot). Queue rules are the normal Workspace-scope ones: one card per scope.</>}>
+          when={<>An attached mirror asks the remote to resize each terminal to the local pane. When the remote does not answer within 5 s (or refuses) Tasty retries <b>once</b> on its own; if that also fails this banner appears in the <b>mirror workspace</b> that owns the surface. The banner uses <b>alertTriangle</b> in accent-warning, a semibold title, one muted body line, one banner-button action and the <b>×</b> dismiss. <b>Retry</b> re-sends only the failed surfaces' size requests (the connection and other surfaces are untouched). While waiting the button is <b>disabled with a leading Spinner</b> and keeps its label, so the width does not jump between languages; success removes the banner, failure returns it to the default state. <b>Several surfaces</b> failing together share <b>one card</b>: “N surfaces — a, b +n”, and the action reads <b>Retry all</b>. The banner also clears by itself when a later resize succeeds. A reconnecting mirror shows the reconnect notice instead (it wins the slot). Queue rules are the normal Workspace-scope ones: one card per scope.</>}>
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
             {[["Mocha", "mocha"], ["Latte", "latte"]].map(([label, th]) => (
               <div key={label} {...(th ? { "data-theme": th } : {})} style={{ width: "var(--tasty-size-460)", display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
@@ -775,7 +669,7 @@ function Page() {
             ))}
           </Stage>
           <Meta
-            specs={[["boxes", "glyph 16 · text column (flex 1) · action group (Retry + ×, gap 4)"], ["glyph", "alertTriangle 16 · attach-sync-glyph → accent-warning (same as refusal)"], ["title", "banner-title 13 · semibold · never truncated"], ["body", "banner-body 11 · banner-body-fg · TWO lines (b10): ① names — one line ② “The remote may still be using the old size.” — wraps, never cut"], ["name", "text-secondary-raised · each name ≤ attach-sync-name-max-width 160, shrinks to fit the line down to attach-sync-name-min-width 40, then ellipsis · the floor applies only while shrinking: box = min(natural, max(40, shrunk)) — a short name keeps its own width (b11) · first two entries, then +n; separators, ×k and +n never shrink"], ["same name (b11)", "equal display names collapse into one entry + “ ×k” (text-muted, never shrinks) · “N surfaces” counts surfaces · +n counts remaining entries · Retry all retries every surface"], ["body lines (b11 · b12)", "Tasty-owned banner copy (refusal · size sync · mouse capture · HTML script) never clamps — the card grows · plugin-supplied body clamps at 3 lines, then ellipsis + full text in the tooltip"], ["plugin body rows (b12)", "rows = min(3, floor(content height ÷ body line height)) — a fixed size_hint that holds fewer lines clamps at what fits; the ellipsis sits on the last row that fits"], ["plugin tooltip (b12)", "drawn by the HOST, not inside the plugin mesh: the widget reports “truncated + full text” for the frame and the host shows the standard Tooltip BELOW the banner card (left = body x, offset tooltip-offset 4, max tooltip-max-width 240, delay tooltip-delay) — never over the pointer, never clipped by the content rect · interim (no channel yet): the widget opens its tooltip below the body inside the content rect, never above"], ["retrying", "Retry disabled + leading Spinner 14, label unchanged"], ["many", "one card · “N surfaces — a, b +n” · Retry all"], ["×", "IconButton sm · hides this card; a new failure shows it again"], ["clears", "Retry success · later resize success · surface closed"], ["priority", "reconnect notice wins the slot"]]}
+            specs={[["boxes", "glyph 16 · text column (flex 1) · action group (Retry + ×, gap 4)"], ["glyph", "alertTriangle 16 · attach-sync-glyph → accent-warning"], ["title", "banner-title 13 · semibold · never truncated"], ["body", "banner-body 11 · banner-body-fg · TWO lines (b10): ① names — one line ② “The remote may still be using the old size.” — wraps, never cut"], ["name", "text-secondary-raised · each name ≤ attach-sync-name-max-width 160, shrinks to fit the line down to attach-sync-name-min-width 40, then ellipsis · the floor applies only while shrinking: box = min(natural, max(40, shrunk)) — a short name keeps its own width (b11) · first two entries, then +n; separators, ×k and +n never shrink"], ["same name (b11)", "equal display names collapse into one entry + “ ×k” (text-muted, never shrinks) · “N surfaces” counts surfaces · +n counts remaining entries · Retry all retries every surface"], ["body lines (b11 · b12)", "Tasty-owned banner copy (size sync · mouse capture · HTML script) never clamps — the card grows · plugin-supplied body clamps at 3 lines, then ellipsis + full text in the tooltip"], ["plugin body rows (b12)", "rows = min(3, floor(content height ÷ body line height)) — a fixed size_hint that holds fewer lines clamps at what fits; the ellipsis sits on the last row that fits"], ["plugin tooltip (b12)", "drawn by the HOST, not inside the plugin mesh: the widget reports “truncated + full text” for the frame and the host shows the standard Tooltip BELOW the banner card (left = body x, offset tooltip-offset 4, max tooltip-max-width 240, delay tooltip-delay) — never over the pointer, never clipped by the content rect · interim (no channel yet): the widget opens its tooltip below the body inside the content rect, never above"], ["retrying", "Retry disabled + leading Spinner 14, label unchanged"], ["many", "one card · “N surfaces — a, b +n” · Retry all"], ["×", "IconButton sm · hides this card; a new failure shows it again"], ["clears", "Retry success · later resize success · surface closed"], ["priority", "reconnect notice wins the slot"]]}
             tokens={[{ tok: "--tasty-attach-sync-glyph", use: "→ accent-warning", color: "var(--tasty-attach-sync-glyph)" }, { tok: "--tasty-attach-sync-name-max-width", use: "→ size-160" }, { tok: "--tasty-attach-sync-name-min-width", use: "→ size-40 (new, b11)" }, { tok: "--tasty-banner-button-bg", use: "Retry", color: "var(--tasty-banner-button-bg)" }, { tok: "--tasty-spinner-indicator", use: "retrying", color: "var(--tasty-spinner-indicator)" }]} />
           <Note>Strings (en): <code>remote.size_sync.title</code> “Couldn't sync the terminal size with the remote” · <code>remote.size_sync.names</code> “{"{names}"}” (line 1) · <code>remote.size_sync.hint</code> “The remote may still be using the old size.” (line 2; replaces <code>remote.size_sync.body</code>) · <code>remote.size_sync.many</code> “{"{n}"} surfaces — {"{names}"}” · <code>remote.size_sync.retry</code> “Retry” · <code>remote.size_sync.retry_all</code> “Retry all”.</Note>
         </Spec>
@@ -784,9 +678,7 @@ function Page() {
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
             {[["Mocha", "mocha"], ["Latte", "latte"]].map(([label, th]) => (
               <div key={label} {...(th ? { "data-theme": th } : {})} style={{ width: "var(--tasty-size-360)", display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
-                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} — refused · 360</span>
-                <AttachRefusalBannerG kind="self" narrow />
-                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>size sync · one surface</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} — size sync · one surface · 360</span>
                 <AttachSizeSyncBannerG names={["build"]} narrow />
                 <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>size sync · 3 surfaces · Retry all</span>
                 <AttachSizeSyncBannerG names={["release-pipeline-watch-logs-eu-west", "build", "tests"]} narrow />
