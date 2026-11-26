@@ -3070,15 +3070,20 @@ function RemoteAttachFrame({ state = "loaded", newPhase = "rest", newSelected, e
 // a remote attach host — differing only in the header host indicator (the
 // breadcrumb root is the path root, / or C:\, in both). Popup language: Scrim · content-drawn header ·
 // --tasty-bg-panel frame, same as remote_tool / Add remote workspace.
-// Row focus (target spec, not in the app yet): the keyboard current row of the list, apart from the
-// selection, drawn as the explorer's current item is: a 1px inset ring painted after the row, so it sits on
-// top of the selection fill and bar, and it never moves layout. It shows only while the list holds key focus
-// and the last input to it was a key; a click on a row moves the focus there and hides the ring until the
-// next key. Ring ink: fp-row-focus-ring on rest, hover and selected; fp-row-focus-ring-selected-hover on a
-// selected row under the pointer, where fp-row-focus-ring falls under 3:1 in Mocha.
-// hover: overlay-hover over the row's ground (base+hover, or active+hover on a selected row), inks one step
-// raised as the cells for those grounds say. The wash is the inner box's own fill, so the bar and the
-// selection fill stay on the outer box under it.
+// Row focus (target spec, not in the app yet): the keyboard's place in the list, apart from the selection,
+// drawn as the explorer's current item is: a 1px inset ring painted after the row, so it sits on top of the
+// selection fill and bar, and it never moves layout. The keys and when the ring shows are in the specimen's
+// Meta table (row-focus-and-list-keys).
+// Every part reads the cell of the row's ground (RULES.md section 6), as rows.rs and row_ink.rs paint it:
+//   ring (focus-ring)        base, base+hover fp-row-focus-ring (border-focus) · active fp-row-focus-ring-selected
+//                            (accent-primary-raised) · active+hover fp-row-focus-ring-selected-hover (accent-primary-on-active)
+//   bar (selection-bar)      active and active+hover accent-primary-on-active, painted over the fill and any hover wash
+//   hover (base+hover)       name text-secondary-raised · size, date text-muted · file glyph text-secondary · folder
+//                            glyph accent-primary
+//   selected+hover           name, size, date text-on-active-hover · file glyph text-on-active · folder glyph
+//                            accent-primary-on-active
+// Rest and selected keep their earlier inks (file glyph text-muted, folder glyph accent-primary-raised).
+// The hover wash is the inner box's own fill, so a selected row under the pointer reads active+hover.
 // inert (2026-10-21, folder mode): a file row that is listed for orientation but can't be selected —
 // ink state-disabled-fg (never opacity), no hover overlay, skipped by ↑↓, tooltip "Only folders can be selected."
 // The row focus never lands on an inert row: every list key skips it, so inert takes neither focus nor hover.
@@ -3086,25 +3091,26 @@ function FpRow({ kind, name, size, mod, selected, multi, checked, inert, tip, fo
   const isFolder = kind === "folder";
   const hov = hover && !inert;
   const ink = (rest, restHover, sel, selHover) => inert ? "var(--tasty-fp-folder-file-fg)" : selected ? (hov ? selHover : sel) : (hov ? restHover : rest);
+  const ring = selected ? (hov ? "var(--tasty-fp-row-focus-ring-selected-hover)" : "var(--tasty-fp-row-focus-ring-selected)") : "var(--tasty-fp-row-focus-ring)";
   return (
     <div data-fp-row={name} style={{ position: "relative", cursor: "default",
-      background: selected ? "var(--tasty-surface-active)" : "transparent",
-      boxShadow: selected ? "inset var(--tasty-selection-edge-width) 0 0 var(--tasty-accent-primary)" : "none" }}>
+      background: selected ? "var(--tasty-surface-active)" : "transparent" }}>
       <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-fp-row-pad-y) var(--tasty-fp-inset-start)",
         background: hov ? "var(--tasty-overlay-hover)" : "transparent" }}>
       {multi && <span style={{ display: "inline-flex", flex: "none" }}><Checkbox checked={!!checked} /></span>}
       <span style={{ flex: "none", display: "inline-flex", color: isFolder
-        ? ink("var(--tasty-accent-primary-raised)", "var(--tasty-accent-primary-raised)", "var(--tasty-accent-primary-raised)", "var(--tasty-accent-primary-on-active)")
-        : ink("var(--tasty-text-muted)", "var(--tasty-text-muted-raised)", "var(--tasty-text-muted)", "var(--tasty-text-on-active)") }}>
+        ? ink("var(--tasty-accent-primary-raised)", "var(--tasty-accent-primary)", "var(--tasty-accent-primary-raised)", "var(--tasty-accent-primary-on-active)")
+        : ink("var(--tasty-text-muted)", "var(--tasty-text-secondary)", "var(--tasty-text-muted)", "var(--tasty-text-on-active)") }}>
         <Icon name={isFolder ? "folder" : "file"} size="var(--tasty-icon-size-md)" />
       </span>
       <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
         fontSize: "var(--tasty-font-size-body)", fontWeight: isFolder ? 500 : 400, color: ink("var(--tasty-text-secondary)", "var(--tasty-text-secondary-raised)", "var(--tasty-text-on-active)", "var(--tasty-text-on-active-hover)") }}>{name}</span>
-      <span style={{ flex: "none", width: "var(--tasty-fp-size-col-width)", textAlign: "right", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: ink("var(--tasty-text-muted)", "var(--tasty-text-muted-raised)", "var(--tasty-text-on-active)", "var(--tasty-text-on-active-hover)") }}>{size}</span>
-      <span style={{ flex: "none", width: "var(--tasty-fp-modified-col-width)", textAlign: "right", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: ink("var(--tasty-text-muted)", "var(--tasty-text-muted-raised)", "var(--tasty-text-on-active)", "var(--tasty-text-on-active-hover)") }}>{mod}</span>
+      <span style={{ flex: "none", width: "var(--tasty-fp-size-col-width)", textAlign: "right", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: ink("var(--tasty-text-muted)", "var(--tasty-text-muted)", "var(--tasty-text-on-active)", "var(--tasty-text-on-active-hover)") }}>{size}</span>
+      <span style={{ flex: "none", width: "var(--tasty-fp-modified-col-width)", textAlign: "right", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: ink("var(--tasty-text-muted)", "var(--tasty-text-muted)", "var(--tasty-text-on-active)", "var(--tasty-text-on-active-hover)") }}>{mod}</span>
       </div>
+      {selected && <span aria-hidden="true" data-fp-row-bar="" style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: "var(--tasty-selection-edge-width)", pointerEvents: "none", background: "var(--tasty-accent-primary-on-active)" }} />}
       {focus && !inert && <span aria-hidden="true" data-fp-row-focus="" style={{ position: "absolute", inset: 0, pointerEvents: "none", borderRadius: "var(--tasty-radius-sm)",
-        boxShadow: "inset 0 0 0 var(--tasty-fp-row-focus-ring-width) " + (selected && hov ? "var(--tasty-fp-row-focus-ring-selected-hover)" : "var(--tasty-fp-row-focus-ring)") }} />}
+        boxShadow: "inset 0 0 0 var(--tasty-fp-row-focus-ring-width) " + ring }} />}
       {tip && (
         <span role="tooltip" style={{ position: "absolute", left: "calc(1 * var(--tasty-fp-inset-start) + 1 * var(--tasty-fp-specimen-row-tooltip-left))", top: "100%", marginTop: "var(--tasty-space-xs)", zIndex: 4, whiteSpace: "nowrap",
           padding: "var(--tasty-tooltip-padding-y) var(--tasty-tooltip-padding-x)", background: "var(--tasty-tooltip-bg)", border: "var(--tasty-border-width) solid var(--tasty-tooltip-border)",

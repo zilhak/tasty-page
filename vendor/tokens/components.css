@@ -1076,8 +1076,9 @@
   --tasty-fp-folder-hint-fg:          var(--tasty-text-muted);        /* folder mode — footer hint line under the Folder row */
   /* 2026-11-27 row focus: the keyboard current row of the list, apart from the selection. Same shape as the explorer
      current item: a 1px inset ring painted after the row, over the selection fill. Ink is the focus-ring cell of the row's ground. */
-  --tasty-fp-row-focus-ring:               var(--tasty-accent-primary-raised);   /* on base, base+hover and active: Mocha 7.79 · 6.16 · 3.17, Latte 7.34 · 6.16 · 3.84 */
-  --tasty-fp-row-focus-ring-selected-hover: var(--tasty-accent-primary-on-active); /* on active+hover: Mocha 3.44 · Latte 3.57 (fp-row-focus-ring would be 2.61 in Mocha) */
+  --tasty-fp-row-focus-ring:               var(--tasty-border-focus);            /* focus-ring cell on base and base+hover: Mocha 7.79 · 6.16, Latte 4.34 · 3.64 */
+  --tasty-fp-row-focus-ring-selected:      var(--tasty-accent-primary-raised);   /* focus-ring cell on active: Mocha 3.17 · Latte 3.84 (border-focus would be 2.27 in Latte) */
+  --tasty-fp-row-focus-ring-selected-hover: var(--tasty-accent-primary-on-active); /* focus-ring cell on active+hover: Mocha 3.44 · Latte 3.57 (fp-row-focus-ring-selected would be 2.61 in Mocha) */
   --tasty-fp-row-focus-ring-width:         var(--tasty-border-width);            /* 1, inset — never moves layout */
   --tasty-fp-filter-max-width:        var(--tasty-field-width-md); /* 160 — READ-ONLY filter chip: content width up to this, then front-kept ellipsis + tooltip with the full list (2026-10-06) */
   /* File picker host badge (remote mode, beside the header title): remote glyph + host text in an info tint box.

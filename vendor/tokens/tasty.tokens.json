@@ -7242,6 +7242,10 @@
     },
     "fp-row-focus-ring": {
       "$type": "color",
+      "$value": "{semantic.border-focus}"
+    },
+    "fp-row-focus-ring-selected": {
+      "$type": "color",
       "$value": "{semantic.accent-primary-raised}"
     },
     "fp-row-focus-ring-selected-hover": {
