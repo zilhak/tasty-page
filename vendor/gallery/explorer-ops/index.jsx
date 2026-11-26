@@ -388,7 +388,7 @@ function FollowupsSection() {
         <YStage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 16, flexWrap: "wrap", alignItems: "flex-start" }}>
           <XCol label="List — filter “po” · .. kept" w={xWideToolbarMin}>
             <XCell w={xWideToolbarMin} h={190} toolbar={<XToolbar search view="list" />} bar={<XFindBar value="po" right="2 of 6" />} status="2 of 6 items">
-              <div style={{ flex: 1, padding: 4, display: "flex", flexDirection: "column" }}>
+              <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
                 <XListRow glyph={YK.ic.folder} name=".." />
                 <XListRow glyph={YK.ic.file} name={<XHi text="report.pdf" q="po" selected />} state="selected" />
                 <XListRow glyph={YK.ic.folder} name={<XHi text="mockup-exports" q="po" />} />

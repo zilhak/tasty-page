@@ -264,7 +264,7 @@ function CreateSection() {
             <div style={{ height: 172, display: "flex", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}><XDetail rows={XROWS.slice(1)} before={<XDetailEdit />} /></div>
           </XCol>
           <XCol label="List — new file" w={220}>
-            <div style={{ height: 172, padding: "6px 4px", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
+            <div style={{ height: 172, background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
               <XListEdit glyph={XK.ic.file} value="untitled.txt" />
               {XROWS.slice(0, 4).map((r) => <XListRow key={r.name} glyph={r.glyph} name={r.name} glyphColor={r.glyphColor} />)}
             </div>
@@ -367,7 +367,7 @@ function DragSection() {
           </XCol>
           <XCol label="List body — onto the current folder (over a file / empty space)" w={300}>
             <div style={{ ...box, height: 172 }}>
-              <XRing radius="var(--tasty-radius)" style={{ height: "100%", padding: "6px 4px", boxSizing: "border-box" }}>
+              <XRing radius="var(--tasty-radius)" style={{ height: "100%", boxSizing: "border-box" }}>
                 {xUnderTint(XROWS).map((r) => <XListRow key={r.name} glyph={r.glyph} name={r.name} glyphColor={r.glyphColor} />)}
               </XRing>
               <XDragChip glyph={<XIcon name="layers" />} label="2 items" op="copy" target="Downloads" style={{ position: "absolute", left: 110, top: 96 }} />
