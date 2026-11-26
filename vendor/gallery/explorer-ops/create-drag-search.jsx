@@ -172,11 +172,15 @@ function XListEdit({ glyph = XK.ic.folder, value = "New folder", error }) {
   );
 }
 // A List view row is the app's tree_row at depth 0 (explorer list_view), so it is the shared TreeRow: its height,
-// empty chevron slot, icon slot, inks, selected fill and label ellipsis. The kind glyph keeps its ink (text-secondary,
-// TreeRow's icon ink at rest) and turns text-on-active on the selected row, as the app's entry_icon does.
-function XListRow({ glyph, name, state }) {
+// empty chevron slot, icon slot, inks, selected fill and label ellipsis. The glyph ink follows the app's entry_icon:
+// a folder or file glyph is text-secondary at rest (TreeRow's icon ink) and text-on-active on the selected row; an
+// image glyph is accent-info-raised at rest and accent-info-on-active selected. Under a drop tint the caller passes
+// no glyphColor (xUnderTint), so the image glyph is neutral there.
+const X_LIST_GLYPH_ON_ACTIVE = { "var(--tasty-accent-info-raised)": "var(--tasty-accent-info-on-active)" };
+function XListRow({ glyph, name, state, glyphColor }) {
   const selected = state === "selected";
-  const icon = selected ? <span style={{ display: "inline-flex", color: "var(--tasty-text-on-active)" }}>{glyph}</span> : glyph;
+  const ink = selected ? X_LIST_GLYPH_ON_ACTIVE[glyphColor] || "var(--tasty-text-on-active)" : glyphColor;
+  const icon = ink ? <span style={{ display: "inline-flex", color: ink }}>{glyph}</span> : glyph;
   return <XDS.TreeRow label={name} icon={icon} selected={selected} />;
 }
 function XGridEdit({ glyph = XK.ic.file, value = "untitled.txt", error }) {
@@ -262,7 +266,7 @@ function CreateSection() {
           <XCol label="List — new file" w={220}>
             <div style={{ height: 172, padding: "6px 4px", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
               <XListEdit glyph={XK.ic.file} value="untitled.txt" />
-              {XROWS.slice(0, 4).map((r) => <XListRow key={r.name} glyph={r.glyph} name={r.name} />)}
+              {XROWS.slice(0, 4).map((r) => <XListRow key={r.name} glyph={r.glyph} name={r.name} glyphColor={r.glyphColor} />)}
             </div>
           </XCol>
           <XCol label="Grid — new file (editor spans 160, centred)" w={300}>
@@ -364,7 +368,7 @@ function DragSection() {
           <XCol label="List body — onto the current folder (over a file / empty space)" w={300}>
             <div style={{ ...box, height: 172 }}>
               <XRing radius="var(--tasty-radius)" style={{ height: "100%", padding: "6px 4px", boxSizing: "border-box" }}>
-                {XROWS.map((r) => <XListRow key={r.name} glyph={r.glyph} name={r.name} />)}
+                {xUnderTint(XROWS).map((r) => <XListRow key={r.name} glyph={r.glyph} name={r.name} glyphColor={r.glyphColor} />)}
               </XRing>
               <XDragChip glyph={<XIcon name="layers" />} label="2 items" op="copy" target="Downloads" style={{ position: "absolute", left: 110, top: 96 }} />
             </div>
