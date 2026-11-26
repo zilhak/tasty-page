@@ -20,15 +20,19 @@ import React from "react";
  *
  * `attention` tints the TITLE — the product's one attention channel on a tab
  * (tab_bar.rs): needs-input (tab-fg-needs-input) › completion (tab-fg-completion)
- * › active › rest, on the active tab too (attention.rs tab_title_color). Attention
- * clears only on the surface that holds key focus in a frame (redraw.rs
- * focus_observed_effect), and only while the OS window is focused and the surface's
- * content is not hidden by occupancy (a hard lock, or a member of an occupied
- * workspace; frame_effect.rs FocusObserved). No surface holds key focus while a
- * popup has the keys or a fullscreen stage shows. Any other surface keeps its
- * attention, so an active tab keeps the tint too: the active tab of an unfocused pane
- * or another workspace, or the focused one while the window is inactive (the Tab
- * specimen's needs-input strip) or its surface is hard occupied (the completion strip). (2026-10-07: the old `attached`
+ * › active › rest, on the active tab too (attention.rs tab_title_color). The
+ * focus-driven clear in redraw touches only the surface that holds key focus in a
+ * frame (redraw.rs focus_observed_effect), and only while the OS window is focused
+ * and the surface's content is not hidden by occupancy (a hard lock, or a member of
+ * an occupied workspace; frame_effect.rs FocusObserved). No surface holds key focus
+ * while a popup has the keys or a fullscreen stage shows. That clear passes over
+ * every other surface, so an active tab keeps the tint too: the active tab of an
+ * unfocused pane or another workspace, or the focused one while the window is
+ * inactive (the Tab specimen's needs-input strip) or its surface is hard occupied
+ * (the completion strip). Separately, reading a surface's last unread notification
+ * clears its attention locally (attention.rs mark_notification_read →
+ * clear_attention_local), and the read is passed on to the other windows' engines
+ * too (dispatch_domain.rs cascade_notification_read). (2026-10-07: the old `attached`
  * ring and `notif` label were removed — the product tab draws neither; attach
  * lives on the workspace row.) The dot is static (no pulse).
  *
