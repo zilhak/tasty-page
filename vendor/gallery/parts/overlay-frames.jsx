@@ -704,29 +704,32 @@ function RemoteChromeG({ tab }) {
 
 // ── Remote connections — 520×460, three top tabs, list view ──
 function RemoteFrame({ tab = "profiles", ssh = "hosts" }) {
-  // The Passkeys tab's store. A profile row whose passkey name is not in it draws the passkey missing badge, as the
-  // app's draw_profile_row does.
+  // The Passkeys tab draws these four sample rows. Profile rows check their reference against the kit's seed store
+  // names instead (remote_tool.jsx SEED_PASSKEYS), as the app gallery's remote.rs keeps PASSKEY_NAMES apart from
+  // its Passkeys tab sample. A name outside the store draws the passkey missing badge.
+  const passkeyNames = ["ed25519-main", "edge-pem", "nas-cred", "deploy-token"];
   const passkeys = [{ name: "ed25519-main", kind: "file", value: "~/.ssh/id_ed25519" },
     { name: "deploy-key-with-a-very-long-name", kind: "file", value: "/Users/someone/Library/Application Support/tasty/keys/deploy/ci-runner/id_ed25519_deploy", revealed: true },
     { name: "vault-token", kind: "secret", value: "••••••••" },
     { name: "legacy", kind: "agent-x", value: "••••••••", unknown: true }];
   const Caption = ({ children }) => <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)", fontFamily: "var(--tasty-font-mono)" }}>{children}</span>;
-  const ProfileRow = ({ name, label, type, target, passkey, detecting }) => (
+  const ProfileRow = ({ name, label, type, target, passkey, detecting, failed }) => (
     <div style={{ display: "flex", alignItems: "flex-start", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-space-xs)", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
       <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: "var(--tasty-remote-row-line-gap)" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)" }}>
-          <span style={{ fontSize: "var(--tasty-font-size-heading)", fontWeight: "var(--tasty-font-weight-semibold)" }}>{name}{label && <span style={{ fontWeight: "var(--tasty-font-weight-normal)", color: "var(--tasty-text-muted)" }}>  ({label})</span>}</span>
-          <Tag>{type}</Tag>
+          <span style={{ fontSize: "var(--tasty-font-size-heading)", fontWeight: "var(--tasty-font-weight-semibold)", color: failed ? "var(--tasty-text-muted)" : "var(--tasty-text-primary)" }}>{name}{label && <span style={{ fontWeight: "var(--tasty-font-weight-normal)", color: "var(--tasty-text-muted)" }}>  ({label})</span>}</span>
+          {["ssh", "smb", "http"].includes(type) ? <Tag>{type}</Tag> : <WarnBadge title="Unknown type — no core feature or plugin handles it.">{type}</WarnBadge>}
         </div>
         <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{target}</span>
         <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)" }}>
           <Caption>passkey: {passkey || "—"}</Caption>
-          {passkey && !passkeys.some((k) => k.name === passkey) && <WarnBadge title="Referenced passkey not found.">passkey missing</WarnBadge>}
+          {passkey && !passkeyNames.includes(passkey) && <WarnBadge title="Referenced passkey not found.">passkey missing</WarnBadge>}
           {detecting && <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-xs)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}><Spinner size="var(--tasty-remote-detect-spinner-size)" /> detecting…</span>}
+          {failed && <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-accent-danger-raised)" }}>detection failed (disabled)</span>}
         </div>
       </div>
       <div style={{ display: "flex", gap: "var(--tasty-remote-row-action-gap)", flex: "none" }}>
-        <IconButton size="sm" aria-label="Re-detect">{ic.refresh}</IconButton>
+        {type === "ssh" && <IconButton size="sm" aria-label="Re-detect" disabled={detecting}>{ic.refresh}</IconButton>}
         <IconButton size="sm" aria-label="Edit">{ic.edit}</IconButton>
         <IconButton size="sm" aria-label="Delete"><Icon name="trash" /></IconButton>
       </div>
@@ -829,8 +832,10 @@ function RemoteFrame({ tab = "profiles", ssh = "hosts" }) {
       <div style={{ flex: 1, minHeight: 0, overflow: "auto", padding: "0 var(--tasty-remote-pad-x) var(--tasty-space-sm)" }}>
         <ProfileRow name="prod-web" label="us-east" type="ssh" target="deploy@10.0.4.12" passkey="ed25519-main" />
         <ProfileRow name="db-primary" type="ssh" target="postgres@db.internal:2222" passkey="" />
-        <ProfileRow name="edge-cache" label="staging" type="ssh" target="root@edge.example.com" passkey="vault-token" detecting />
+        <ProfileRow name="edge-cache" label="staging" type="ssh" target="root@edge.example.com" passkey="edge-pem" detecting />
+        <ProfileRow name="legacy-box" type="ssh" target="admin@203.0.113.40" passkey="old-rsa" failed />
         <ProfileRow name="media-nas" label="lab" type="smb" target="host=nas.local  share=media" passkey="nas-cred" />
+        <ProfileRow name="scratch" type="snb" target="endpoint=10.2.2.9" passkey="" />
         {ssh !== "none" && <LocalSshSection state={ssh} />}
       </div>
       </>
