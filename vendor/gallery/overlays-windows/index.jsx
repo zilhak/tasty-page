@@ -759,7 +759,7 @@ function Page() {
             </View>
           </Views>
           <Meta
-            specs={[["frame width", "--tasty-ports-window-width"], ["frame height", "--tasty-ports-window-height"], ["built on", <span className="ic">Table</span>], ["header", "filter Input + refresh"], ["narrow window", "filter, refresh and close keep size at right \u00b7 icon, title and listening count use remaining width and clip at end"], ["scan", <>Spinner \u2192 \u201cCollecting\u2026\u201d</>], ["footer", "count · Copy address · Close"]]}
+            specs={[["frame width", "--tasty-ports-window-width"], ["frame height", "--tasty-ports-window-height"], ["built on", <span className="ic">Table</span>], ["header", "filter Input + refresh"], ["narrow window", "filter, refresh and close keep their size at the right in the kit and app · the design clips the icon, title and listening count at the end of the remaining width · the app still draws the filter over the title and count"], ["scan", <>Spinner \u2192 \u201cCollecting\u2026\u201d</>], ["footer", "count · Copy address · Close"]]}
             tokens={[{ tok: "--tasty-bg-panel", use: "frame", color: "var(--tasty-bg-panel)" }, { tok: "--tasty-surface-active", use: "selected row", color: "var(--tasty-surface-active)" }, { tok: "--tasty-accent-success", use: "LISTEN dot", color: "var(--tasty-accent-success-raised)" }, { tok: "--tasty-font-mono", use: "port/addr/pid" }]} />
           <Note>The 660px width is <b>design-canonical</b> — the 7-column table (Port · Proto · Address · Process · Workspace · Tab · State) needs it, plus a <b>tight 28px leading star column</b>. Don't narrow the frame; let columns truncate instead.</Note>
         </Spec>

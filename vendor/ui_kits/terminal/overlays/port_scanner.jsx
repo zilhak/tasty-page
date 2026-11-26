@@ -236,9 +236,11 @@ function PortsWindow({ onClose, onFlash, favorites = FAVS_DEFAULT, scanMs = 750 
       <div style={{ width: "var(--tasty-ports-window-width)", maxHeight: "var(--tasty-ports-window-height)", display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)",
         border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden",
         boxShadow: "var(--tasty-shadow-modal)" }}>
-        {/* header — as the app's draw_header_row (port_scanner.rs): the right cluster (close, refresh, filter) is laid
-            out from the right edge first and keeps its size; the left group (icon, heading, count) takes what is left
-            and is cut at its end when the window is narrower than both. */}
+        {/* header — the right cluster (close, refresh, filter) sits at the right edge and keeps its size, as in the app's
+            draw_header_row (port_scanner.rs), which lays it out right to left after the heading. When the window is
+            narrower than both, the left group (icon, heading, count) takes what is left and is cut at its end. That cut
+            is the canon: the app has no clip on the left group yet, so there the filter is drawn over the heading and
+            the count (app handoff). */}
         <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-ports-pad-x)", flex: "none",
           borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
           <div style={{ flex: "1 1 0", minWidth: 0, overflow: "hidden", display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)" }}>
