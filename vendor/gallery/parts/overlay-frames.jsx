@@ -3070,15 +3070,16 @@ function RemoteAttachFrame({ state = "loaded", newPhase = "rest", newSelected, e
 // a remote attach host — differing only in the header host indicator (the
 // breadcrumb root is the path root, / or C:\, in both). Popup language: Scrim · content-drawn header ·
 // --tasty-bg-panel frame, same as remote_tool / Add remote workspace.
+// No row focus ring: the app moves the selection with the keys it reads (folder mode ↑↓) and draws no
+// separate keyboard focus on a row.
 // inert (2026-10-21, folder mode): a file row that is listed for orientation but can't be selected —
 // ink state-disabled-fg (never opacity), no hover overlay, skipped by ↑↓, tooltip "Only folders can be selected."
-function FpRow({ kind, name, size, mod, selected, focus, multi, checked, inert, tip }) {
+function FpRow({ kind, name, size, mod, selected, multi, checked, inert, tip }) {
   const isFolder = kind === "folder";
   return (
     <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-fp-row-pad-y) var(--tasty-fp-inset-start)", position: "relative", cursor: "default",
       background: selected ? "var(--tasty-surface-active)" : "transparent",
-      boxShadow: selected ? "inset var(--tasty-selection-edge-width) 0 0 var(--tasty-accent-primary)" : "none",
-      outline: focus ? "1px solid var(--tasty-accent-primary)" : "none", outlineOffset: -1 }}>
+      boxShadow: selected ? "inset var(--tasty-selection-edge-width) 0 0 var(--tasty-accent-primary)" : "none" }}>
       {multi && <span style={{ display: "inline-flex", flex: "none" }}><Checkbox checked={!!checked} /></span>}
       <span style={{ flex: "none", display: "inline-flex", color: inert ? "var(--tasty-fp-folder-file-fg)" : isFolder ? "var(--tasty-accent-primary-raised)" : "var(--tasty-text-muted)" }}>
         <Icon name={isFolder ? "folder" : "file"} size="var(--tasty-icon-size-md)" />
@@ -3314,8 +3315,7 @@ function FilePickerFrame({ state = "loaded", remote = false, indicator = "badge"
                 tip={folderMode && fileHover && f.name === "README.md" ? FC.fileTip : null}
                 multi={multi}
                 checked={multi && f.pick && ["README.md", "package.json", "pipeline.yaml"].includes(f.name)}
-                selected={folderMode ? folderPick === "row" && f.name === "configs" : folderSel ? f.name === "configs" : saving ? f.name === saveSelected : !multi && f.name === "README.md"}
-                focus={!folderMode && !saving && !multi && !folderSel && f.name === "pipeline.yaml"} />
+                selected={folderMode ? folderPick === "row" && f.name === "configs" : folderSel ? f.name === "configs" : saving ? f.name === saveSelected : !multi && f.name === "README.md"} />
             ))}
           </div>
         )}
