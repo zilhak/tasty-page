@@ -172,6 +172,7 @@ function RenameFrame() {
   );
 }
 
+const THEME_PRESET_SWATCHES = ["var(--tasty-bg-app)", "var(--tasty-bg-panel)", "var(--tasty-accent-primary)", "var(--tasty-accent-agent)", "var(--tasty-accent-success)"];
 function SettingsFrame() {
   const L1 = ["General", "Appearance", "Keybindings", "Plugins"];
   const L2 = ["Theme", "General", "Terminal"];
@@ -205,11 +206,12 @@ function SettingsFrame() {
           <div style={{ flex: 1, padding: 18, display: "flex", flexDirection: "column", gap: 12 }}>
             <div style={{ fontFamily: "var(--tasty-font-label)", fontSize: 10, textTransform: "uppercase", letterSpacing: ".06em", color: "var(--tasty-text-muted)" }}>Theme preset</div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-              {[["Catppuccin Mocha", ["#11111b", "#1e1e2e", "#89b4fa", "#cba6f7", "#a6e3a1"], true],
-                ["Catppuccin Latte", ["#dce0e8", "#eff1f5", "#1e66f5", "#8839ef", "#40a02b"], false]].map(([label, cols, on]) => (
+              {/* Each card shows its own preset, whatever the page theme: the swatch strip takes that theme's
+                  data-theme and reads its roles (app, panel, primary, agent, success). */}
+              {[["Catppuccin Mocha", "mocha", true], ["Catppuccin Latte", "latte", false]].map(([label, preset, on]) => (
                 <div key={label} style={{ border: on ? "1px solid var(--tasty-accent-primary)" : "1px solid var(--tasty-border-default)",
                   borderRadius: "var(--tasty-radius)", overflow: "hidden", boxShadow: on ? "0 0 0 1px var(--tasty-accent-primary)" : "none" }}>
-                  <div style={{ display: "flex", height: 34 }}>{cols.map((c, i) => <div key={i} style={{ flex: 1, background: c }} />)}</div>
+                  <div data-theme={preset} style={{ display: "flex", height: 34 }}>{THEME_PRESET_SWATCHES.map((c) => <div key={c} style={{ flex: 1, background: c }} />)}</div>
                   <div style={{ padding: "6px 9px", background: "var(--tasty-bg-panel)", fontSize: 12 }}>{label}</div>
                 </div>
               ))}
