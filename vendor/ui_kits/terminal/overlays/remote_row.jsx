@@ -85,7 +85,7 @@ export function RemoteDotSlot({ state = "connected", status = "idle", attached, 
   return <StatusDot status={status} attached={attached} pulse={pulse} />;
 }
 
-// The warning mark in the title line's trailing slot: the auto-attach refusal mark, reused.
+// The warning mark in the title line's trailing slot (attach-refusal-glyph tokens).
 export function RemoteWarnMark({ title }) {
   return (
     <span title={title} aria-label="Remote not connected" style={{ display: "inline-flex", flex: "none", color: "var(--tasty-attach-refusal-glyph)" }}>
@@ -95,7 +95,7 @@ export function RemoteWarnMark({ title }) {
 }
 
 // Rail marks over a 36 avatar: BR remote chip (live: sky, as before · not live: neutral edge and dim glyph),
-// a 28 spinner ring while trying (the rail loading ring), TL warning chip on a reason (the refusal chip).
+// a 28 spinner ring while trying (the rail loading ring), TL warning chip on a reason (attach-refusal-chip tokens).
 export function RemoteRailMarks({ state = "connected", warn = false, title }) {
   const live = state === "connected";
   const chip = { position: "absolute", pointerEvents: "none", display: "inline-flex", alignItems: "center", justifyContent: "center",
