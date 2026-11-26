@@ -1,4 +1,4 @@
-<!-- source-hash: ca0c4a96ff03 -->
+<!-- source-hash: 5fd5baa8c993 -->
 # 安装
 
 Tasty 的 Windows、macOS 和 Linux 安装文件可在 GitHub 发布页面按架构下载。macOS 支持 Apple Silicon。

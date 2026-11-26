@@ -1,4 +1,4 @@
-<!-- source-hash: ca0c4a96ff03 -->
+<!-- source-hash: 5fd5baa8c993 -->
 # Installation
 
 Tasty installation files for Windows, macOS, and Linux are available on GitHub Releases, organized by architecture. macOS support is for Apple Silicon.

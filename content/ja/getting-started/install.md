@@ -1,4 +1,4 @@
-<!-- source-hash: ca0c4a96ff03 -->
+<!-- source-hash: 5fd5baa8c993 -->
 # インストール
 
 Tasty の Windows・macOS・Linux 用インストールファイルは、GitHub リリースページからアーキテクチャ別にダウンロードできます。macOS は Apple Silicon をサポートしています。
