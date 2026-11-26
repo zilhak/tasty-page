@@ -37,12 +37,28 @@ function PopupFocusEdge({ lit = true, top = 0 }) {
     height: "var(--tasty-popup-focus-edge-width)", background: "var(--tasty-popup-focus-edge-focused)", pointerEvents: "none" }} />;
 }
 
+// As the app's popup clamp_to_screen: a window is drawn at its own size, cut down to the room the scrim leaves, and
+// placed inside it. A window wider or taller than the room shrinks to it (its frame clips the content) instead of
+// spilling past both edges. The window keeps its own width and height wherever it fits.
+const SCRIM_CSS = `
+.tasty-kit-scrim__window { display: flex; flex-direction: column; min-width: 0; min-height: 0; max-width: 100%; max-height: 100%; }
+.tasty-kit-scrim__window > * { max-width: 100%; min-height: 0; }
+`;
+function ensureScrimCss() {
+  if (typeof document === "undefined" || document.getElementById("tasty-kit-scrim-css")) return;
+  const el = document.createElement("style");
+  el.id = "tasty-kit-scrim-css";
+  el.textContent = SCRIM_CSS;
+  document.head.appendChild(el);
+}
+
 function Scrim({ onClose, children, align = "center" }) {
+  ensureScrimCss();
   return (
     <div onClick={onClose} style={{ position: "absolute", inset: 0, background: "var(--tasty-scrim-bg)",
       backdropFilter: "blur(var(--tasty-scrim-blur))", display: "flex", alignItems: align === "top" ? "flex-start" : "center",
       justifyContent: "center", paddingTop: align === "top" ? "var(--tasty-overlay-top-offset)" : 0, zIndex: 50 }}>
-      <div onClick={(e) => e.stopPropagation()}>{children}</div>
+      <div className="tasty-kit-scrim__window" onClick={(e) => e.stopPropagation()}>{children}</div>
     </div>
   );
 }
