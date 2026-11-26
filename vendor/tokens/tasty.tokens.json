@@ -325,6 +325,10 @@
       "$type": "dimension",
       "$value": "12px"
     },
+    "size-13": {
+      "$type": "dimension",
+      "$value": "13px"
+    },
     "size-14": {
       "$type": "dimension",
       "$value": "14px"
@@ -4923,6 +4927,10 @@
     "fp-bar-hysteresis": {
       "$type": "dimension",
       "$value": "{primitive.size-8}"
+    },
+    "fp-crumb-glyph-size": {
+      "$type": "dimension",
+      "$value": "{primitive.size-13}"
     },
     "fp-popup-min-width": {
       "$type": "dimension",

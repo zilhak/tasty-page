@@ -3131,7 +3131,7 @@ function FpCrumbs({ items, elide = false, single = false, inert = false }) {
     <div style={{ display: "flex", alignItems: "center", gap: 2, minWidth: 0, flex: 1, flexWrap: "nowrap", overflow: "hidden" }}>
       {shown.map((it, i) => (
         <React.Fragment key={i}>
-          {i > 0 && <span style={{ flex: "none", display: "inline-flex", color: "var(--tasty-text-disabled)" }}><Icon name="chevronRight" size={13} /></span>}
+          {i > 0 && <span style={{ flex: "none", display: "inline-flex", color: "var(--tasty-text-disabled)" }}><Icon name="chevronRight" size="var(--tasty-fp-crumb-glyph-size)" /></span>}
           <span title={it.hidden && !inert ? "Show " + it.hidden + (it.hidden === 1 ? " hidden folder" : " hidden folders") : undefined}
             aria-disabled={inert && !it.current ? true : undefined} data-ink-grade={inert && !it.current ? "none" : undefined} data-ink-why={inert && !it.current ? "disabled" : undefined}
             style={{ ...alloc(it, i, shown.length), overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",

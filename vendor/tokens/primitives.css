@@ -93,6 +93,7 @@
   --tasty-size-8:   8px;
   --tasty-size-10:  10px; /* off-grid inset kept from the transfer popup (footer pad-y · body gap · well pad-x) — 2026-10-06 */
   --tasty-size-12:  12px;
+  --tasty-size-13:  13px; /* the app's 13px picker glyph: path bar chevron (CRUMB_GLYPH) */
   --tasty-size-14:  14px;
   --tasty-size-16:  16px;
   --tasty-size-24:  24px;
