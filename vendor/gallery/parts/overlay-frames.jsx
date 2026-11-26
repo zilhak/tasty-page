@@ -751,7 +751,7 @@ function RemoteFrame({ tab = "profiles", ssh = "hosts" }) {
       <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: "var(--tasty-remote-row-line-gap)" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)" }}>
           <span style={{ fontSize: "var(--tasty-font-size-heading)", fontWeight: "var(--tasty-font-weight-semibold)", color: failed ? "var(--tasty-text-muted)" : "var(--tasty-text-primary)" }}>{name}{label && <span style={{ fontWeight: "var(--tasty-font-weight-normal)", color: "var(--tasty-text-muted)" }}>  ({label})</span>}</span>
-          {["ssh", "smb", "http"].includes(type) ? <Tag>{type}</Tag> : <WarnBadge title="Unknown type — no core feature or plugin handles it.">{type}</WarnBadge>}
+          {["ssh", "smb", "http"].includes(type) ? <Tag mono>{type}</Tag> : <WarnBadge title="Unknown type — no core feature or plugin handles it.">{type}</WarnBadge>}
         </div>
         <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{target}</span>
         <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)" }}>
@@ -807,7 +807,7 @@ function RemoteFrame({ tab = "profiles", ssh = "hosts" }) {
                     <span style={{ fontSize: "var(--tasty-font-size-heading)", fontWeight: "var(--tasty-font-weight-semibold)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{k.name}</span>
                     {k.unknown
                       ? <span style={{ flex: "none", display: "inline-flex" }}><WarnBadge title="Unknown kind.">{k.kind}</WarnBadge></span>
-                      : <span style={{ flex: "none", display: "inline-flex" }}><Tag>{k.kind}</Tag></span>}
+                      : <span style={{ flex: "none", display: "inline-flex" }}><Tag mono>{k.kind}</Tag></span>}
                   </div>
                   <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{k.kind} · {k.revealed ? k.value : "••••••••"}</span>
                 </div>

@@ -149,7 +149,7 @@ function ProfileRow({ p, passkeyNames, onRedetect, onEdit, onDelete }) {
           </span>
           {unknown
             ? <WarnBadge title="Unknown type — no core feature or plugin handles it.">{p.type}</WarnBadge>
-            : <Tag>{p.type}</Tag>}
+            : <Tag mono>{p.type}</Tag>}
         </div>
         {/* row 2 — target summary */}
         <div style={{ ...rtMono, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{profileSummary(p)}</div>
@@ -320,7 +320,7 @@ function PasskeyRow({ k, revealed, onReveal, onEdit, onDelete }) {
         <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", minWidth: 0 }}>
           <span style={{ fontSize: "var(--tasty-font-size-heading)", fontWeight: "var(--tasty-font-weight-semibold)", lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-text-primary)",
             overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{k.name}</span>
-          {unknownKind ? <WarnBadge title="Unknown kind.">{k.kind}</WarnBadge> : <Tag>{k.kind}</Tag>}
+          {unknownKind ? <WarnBadge title="Unknown kind.">{k.kind}</WarnBadge> : <Tag mono>{k.kind}</Tag>}
         </div>
         <div style={{ ...rtMono, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
           {k.kind} · {revealed ? k.value : MASK}
