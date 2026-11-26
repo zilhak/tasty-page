@@ -106,9 +106,10 @@ const running = (stat) => stat !== null && stat.state !== "Z";
 const keyOf = (pid, start) => `${pid}:${start}`;
 
 // The case's own processes. Two ways find them, and each confirms the process is the one it saw by its start time:
-// - seen: while the check runs, every descendant of the check by parent links. A link counts only when, read again after
-//   the scan, the child still has the same parent and start time, the parent the same start time, and the child started
-//   no earlier than the parent, so a parent pid reused during the scan cannot pass an unrelated process off as the case's;
+// - seen: while the check runs, every descendant of the check by parent links. A link counts only when the child started
+//   no earlier than the parent and, read again after the scan, has the same start time and either the same parent with
+//   the same start time or another parent (the first one ended and the child was handed on). A parent pid reused during
+//   the scan therefore cannot pass an unrelated process off as the case's;
 // - marked: a process whose environment holds the case's marker entry, read between two stat reads of the same start.
 // A process found either way is the case's, so only those are signalled. A pid that cannot be read is skipped by the scan
 // and its error kept in errors, so the case fails but its cleanup goes on.
@@ -158,8 +159,13 @@ function createTracker(marker) {
           const parentStart = below.get(stat.ppid);
           if (BigInt(stat.start) < BigInt(parentStart)) continue;
           const child = statOf(pid);
-          const parent = statOf(stat.ppid);
-          if (child === null || parent === null || child.start !== stat.start || child.ppid !== stat.ppid || parent.start !== parentStart) continue;
+          if (child === null || child.start !== stat.start) continue;
+          // Still under the same parent pid: that parent must be the one first seen, or the pid was reused. Under another
+          // parent: the first parent ended and the child was handed on, so the link seen first stands.
+          if (child.ppid === stat.ppid) {
+            const parent = statOf(stat.ppid);
+            if (parent === null || parent.start !== parentStart) continue;
+          }
           below.set(pid, stat.start);
           grew = true;
           remember(pid, stat, "seen");
@@ -196,20 +202,21 @@ const within = (promise, ms) => new Promise((done) => {
   promise.then((value) => { clearTimeout(timer); done(value); });
 });
 
-// Waits up to waitMs for the case's processes to end by themselves, looking for marked ones again each round. Any still
-// running are killed (after their start time is checked again) and named in killed; those running after killMs more are
-// in left.
-async function settle(tracker, waitMs, killMs) {
+// Waits for the case's processes to end by themselves until waitMs from now, looking for marked ones again each round.
+// Any still running are then killed (after their start time is checked again) and named in killed, and checked until
+// killMs after that; those still running are in left. No wait runs past deadline, but one kill pass always runs.
+async function settle(tracker, waitMs, killMs, deadline) {
+  const until = (end) => Math.max(0, Math.min(end, deadline) - performance.now());
   tracker.marked();
   let live = tracker.live();
-  const waitEnd = performance.now() + Math.max(waitMs, 0);
-  while (live.length > 0 && performance.now() < waitEnd) {
-    await pause(100);
+  const waitEnd = performance.now() + waitMs;
+  while (live.length > 0 && until(waitEnd) > 0) {
+    await pause(Math.min(100, until(waitEnd)));
     tracker.marked();
     live = tracker.live();
   }
   const killed = [];
-  const killEnd = performance.now() + Math.max(killMs, 0);
+  const killEnd = performance.now() + killMs;
   while (live.length > 0) {
     for (const p of live) {
       let now;
@@ -218,8 +225,8 @@ async function settle(tracker, waitMs, killMs) {
       if (!killed.includes(p)) killed.push(p);
       try { process.kill(p.pid, "SIGKILL"); } catch { /* gone */ }
     }
-    if (performance.now() >= killEnd) break;
-    await pause(100);
+    if (until(killEnd) <= 0) break;
+    await pause(Math.min(100, until(killEnd)));
     tracker.marked();
     live = tracker.live();
   }
@@ -280,10 +287,10 @@ async function runCase(name, args, { moves = [], fifo = false } = {}) {
     if (fifo) execFileSync("mkfifo", [join(dir, "fifo")]);
     for (const p of moves) moved.push(moveAside(p));
     seen.before = listAll(dir);
-    // Setup may have used the time the cleanup needs.
-    if (left() <= CLEANUP_MS) throw new Error(`the ${BUDGET_MS / 1000}s budget ran short before the check started`);
     fds.push(openSync(join(dir, "stdout.txt"), "w"));
     fds.push(openSync(join(dir, "stderr.txt"), "w"));
+    // Setup may have used the time the cleanup needs. The finally below closes the files.
+    if (left() <= CLEANUP_MS) throw new Error(`the ${BUDGET_MS / 1000}s budget ran short before the check started`);
     const child = spawn(process.execPath, [join(root, "scripts/check-contrast.mjs"), ...args], {
       cwd: dir,
       stdio: ["ignore", fds[0], fds[1]],
@@ -325,8 +332,8 @@ async function runCase(name, args, { moves = [], fifo = false } = {}) {
   } finally {
     if (watching !== null) clearInterval(watching);
     try {
-      // Each wait ends at its own limit or at the budget, whichever comes first; one kill pass runs whatever is left.
-      const { killed, left: still } = await settle(tracker, Math.min(3000, left()), Math.min(2000, left()));
+      // Both waits end at their own limits or at the end of the budget, whichever comes first; one kill pass always runs.
+      const { killed, left: still } = await settle(tracker, 3000, 2000, firstStart + BUDGET_MS);
       if (killed.length > 0) errors.push(`still running after the check exited, killed: ${killed.map((p) => `${p.pid} (${p.how}) ${p.cmd}`).join(", ")}`);
       if (still.length > 0) {
         aborted = `${name}: still running after SIGKILL: ${still.map((p) => p.pid).join(", ")}`;
