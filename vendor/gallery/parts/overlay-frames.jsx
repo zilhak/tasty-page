@@ -738,6 +738,18 @@ function RemoteFilterMenuG() {
   );
 }
 
+// The stored profiles RemoteFrame lists, which its ssh config section also answers from. An ssh profile keeps user,
+// host and port, and its target line leaves out port 22 (the kit's sshTarget). Other types show their fields.
+const REMOTE_FRAME_PROFILES = [
+  { name: "prod-web", label: "us-east", type: "ssh", user: "deploy", host: "10.0.4.12", port: "22", passkey: "ed25519-main" },
+  { name: "db-primary", type: "ssh", user: "postgres", host: "db.internal", port: "2222", passkey: "" },
+  { name: "edge-cache", label: "staging", type: "ssh", user: "root", host: "edge.example.com", port: "22", passkey: "edge-pem", detecting: true },
+  { name: "legacy-box", type: "ssh", user: "admin", host: "203.0.113.40", port: "22", passkey: "old-rsa", failed: true },
+  { name: "media-nas", label: "lab", type: "smb", fields: "host=nas.local  share=media", passkey: "nas-cred" },
+  { name: "scratch", type: "snb", fields: "endpoint=10.2.2.9", passkey: "" },
+];
+const remoteFrameTarget = (p) => (p.type === "ssh" ? `${p.user}@${p.host}${p.port !== "22" ? ":" + p.port : ""}` : p.fields);
+
 // ── Remote connections — 520×460, three top tabs, list view ──
 function RemoteFrame({ tab = "profiles", ssh = "hosts" }) {
   // The Passkeys tab draws these four sample rows. Profile rows check their reference against the kit's seed store
@@ -844,12 +856,7 @@ function RemoteFrame({ tab = "profiles", ssh = "hosts" }) {
         <RemoteFilterButtonG />
       </div>
       <div style={{ flex: 1, minHeight: 0, overflow: "auto", padding: "0 var(--tasty-remote-pad-x) var(--tasty-space-sm)" }}>
-        <ProfileRow name="prod-web" label="us-east" type="ssh" target="deploy@10.0.4.12" passkey="ed25519-main" />
-        <ProfileRow name="db-primary" type="ssh" target="postgres@db.internal:2222" passkey="" />
-        <ProfileRow name="edge-cache" label="staging" type="ssh" target="root@edge.example.com" passkey="edge-pem" detecting />
-        <ProfileRow name="legacy-box" type="ssh" target="admin@203.0.113.40" passkey="old-rsa" failed />
-        <ProfileRow name="media-nas" label="lab" type="smb" target="host=nas.local  share=media" passkey="nas-cred" />
-        <ProfileRow name="scratch" type="snb" target="endpoint=10.2.2.9" passkey="" />
+        {REMOTE_FRAME_PROFILES.map((p) => <ProfileRow key={p.name} {...p} target={remoteFrameTarget(p)} />)}
         {ssh !== "none" && <LocalSshSection state={ssh} />}
       </div>
       </>
@@ -869,12 +876,14 @@ function RemoteFrame({ tab = "profiles", ssh = "hosts" }) {
 //   · a host already imported shows a muted "in profiles" Tag and no action
 // Empty / failure are one muted line each — a missing ssh config is not an error.
 // The kit component ui_kits/terminal/overlays/remote_tool.jsx › LocalSshSection is the definition, and its
-// measures are the app's (remote_tool.rs ssh section). The specimen draws it with the kit's sample hosts and the host
-// fields of the ssh profile rows RemoteFrame draws above it: the db.internal alias equals db-primary's host, so that row
-// shows the "in profiles" Tag (the app's imported_as matches the alias against the host field, not the target line).
-const REMOTE_FRAME_SSH_HOSTS = ["10.0.4.12", "db.internal", "edge.example.com", "203.0.113.40"];
+// measures are the app's (remote_tool.rs ssh section). The specimen draws it with the kit's sample hosts against the
+// host fields of the same profiles RemoteFrame lists above it (REMOTE_FRAME_PROFILES), as the app answers from the stored
+// profiles: db.internal matches db-primary by alias alone and shows the "in profiles" Tag, while edge matches edge-cache
+// by its target line alone and still offers Add profile (the app's imported_as compares the alias with a stored ssh
+// profile's host field and never reads the target line).
 function LocalSshSection({ state = "hosts" }) {
-  return <KitLocalSshSection state={state} profileHosts={REMOTE_FRAME_SSH_HOSTS} />;
+  const profileHosts = REMOTE_FRAME_PROFILES.filter((p) => p.type === "ssh").map((p) => p.host);
+  return <KitLocalSshSection state={state} profileHosts={profileHosts} />;
 }
 
 // ── ShellMock — the whole window at 1/1 scale, small: CSD titlebar · sidebar ·

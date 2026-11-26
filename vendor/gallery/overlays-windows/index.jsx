@@ -880,7 +880,7 @@ function Page() {
           when={<>Hosts parsed out of <code>~/.ssh/config</code> sit <b>below the profiles, in the same scroll</b> — it is the same question (“which machine?”), and a separate tab would hide the answer. Everything about the section says <b>one tier down</b>: a section header instead of a card, the <b>source path in mono</b> so the origin is unambiguous, <b>two lines</b> per row instead of the profile row's three, secondary ink on the alias, and <b>no per-row icon buttons</b> — one ghost <b>Add profile</b>, which is the import action that already exists. An already-imported host shows a muted <b>in profiles</b> Tag and no action, so importing twice is not offered.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 18, flexWrap: "wrap", alignItems: "flex-start" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>3 hosts · one already a profile · long alias</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>4 hosts · alias match · target-only match · ellipsised alias</div>
               <RemoteFrame />
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>

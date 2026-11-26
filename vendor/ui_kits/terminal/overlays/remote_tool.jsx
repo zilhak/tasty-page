@@ -655,11 +655,17 @@ function ProtocolFilter({ protocols, hidden, onApply, lang = "en" }) {
 //                  alias is what a stored profile can match; the target line is a
 //                  hint only and never decides it.
 //   onImport(host) the existing import action (one ghost button per row)
-// The sample: db.internal is a config Host with no HostName, so its target line names the alias (as local_target_hint)
-// and the db-primary profile's host field holds the same alias.
+// The sample sets the two ways of matching apart, against the stored profiles (SEED_PROFILES here, the same four ssh
+// profiles in the gallery's RemoteFrame):
+//   db.internal  alias only. A config Host with no HostName, so its target line names the alias (as local_target_hint),
+//                with the config's own user and port. db-primary's host field holds the alias, so the row is in profiles,
+//                although the target line differs from db-primary's postgres@db.internal:2222.
+//   edge         target only. Its target line is edge-cache's user@host:port letter for letter, but the alias is not a
+//                stored host field, so the row offers Add profile.
 const SSH_CONFIG_HOSTS = [
   { alias: "host", target: "maya@host.local:22" },
-  { alias: "db.internal", target: "postgres@db.internal:2222" },
+  { alias: "db.internal", target: "maya@db.internal:22" },
+  { alias: "edge", target: "root@edge.example.com:22" },
   { alias: "eu-west-build-farm-bastion-01", target: "ci-runner@bastion-01.eu-west.build.example.com:2222" },
 ];
 function LocalSshSection({ state = "hosts", hosts = SSH_CONFIG_HOSTS, profileHosts = [], onImport }) {
