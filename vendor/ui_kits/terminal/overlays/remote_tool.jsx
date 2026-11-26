@@ -148,7 +148,7 @@ function ProfileRow({ p, passkeyNames, onRedetect, onEdit, onDelete }) {
             {p.name}{p.label && <span style={{ fontWeight: "var(--tasty-font-weight-normal)", color: "var(--tasty-text-muted)" }}>  ({p.label})</span>}
           </span>
           {unknown
-            ? <WarnBadge title="Unknown type — no core feature or plugin handles it.">{p.type}</WarnBadge>
+            ? <WarnBadge title="This type is not supported yet. You can save it, but it cannot be used until Tasty or a plugin supports it.">{p.type}</WarnBadge>
             : <Tag mono>{p.type}</Tag>}
         </div>
         {/* row 2 — target summary */}
@@ -238,7 +238,7 @@ function ProfileForm({ draft, isNew, error, passkeys, onField, onFields, onSave,
         {unknown && (
           <p style={{ margin: "var(--tasty-space-sm) 0 0 calc(1 * var(--tasty-remote-label-col) + 1 * var(--tasty-space-md))",
             fontSize: "var(--tasty-font-size-caption)", lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-accent-warning-raised)" }}>
-            Unknown type — will be saved but not handled until a plugin or core supports it.
+            This type is not supported yet. You can save it, but it cannot be used until Tasty or a plugin supports it.
           </p>
         )}
 
@@ -611,7 +611,7 @@ function ProtocolFilter({ protocols, hidden, onApply }) {
                 <div key={proto} style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)" }}>
                   <Checkbox checked={!draft.has(proto)} onChange={() => toggle(proto)}
                     label={proto} /* 2026-10-06: shared Checkbox label (body, UI font) */ />
-                  {isUnknownType(proto) && <WarnBadge raised title="Unknown type — no core feature or plugin handles it.">unknown</WarnBadge>}
+                  {isUnknownType(proto) && <WarnBadge raised title="This type is not supported yet. You can save it, but it cannot be used until Tasty or a plugin supports it.">unknown</WarnBadge>}
                 </div>
               ))}
             </div>

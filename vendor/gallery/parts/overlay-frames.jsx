@@ -718,7 +718,7 @@ function RemoteFilterMenuG() {
         {[["ssh", true, false], ["smb", true, false], ["http", true, false], ["snb", false, true]].map(([p, on, unknown]) => (
           <div key={p} style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)" }}>
             <Checkbox checked={on} readOnly label={p} />
-            {unknown && <WarnBadge raised>unknown</WarnBadge>}
+            {unknown && <WarnBadge raised title="This type is not supported yet. You can save it, but it cannot be used until Tasty or a plugin supports it.">unknown</WarnBadge>}
           </div>
         ))}
       </div>
@@ -751,7 +751,7 @@ function RemoteFrame({ tab = "profiles", ssh = "hosts" }) {
       <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: "var(--tasty-remote-row-line-gap)" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)" }}>
           <span style={{ fontSize: "var(--tasty-font-size-heading)", fontWeight: "var(--tasty-font-weight-semibold)", color: failed ? "var(--tasty-text-muted)" : "var(--tasty-text-primary)" }}>{name}{label && <span style={{ fontWeight: "var(--tasty-font-weight-normal)", color: "var(--tasty-text-muted)" }}>  ({label})</span>}</span>
-          {["ssh", "smb", "http"].includes(type) ? <Tag mono>{type}</Tag> : <WarnBadge title="Unknown type — no core feature or plugin handles it.">{type}</WarnBadge>}
+          {["ssh", "smb", "http"].includes(type) ? <Tag mono>{type}</Tag> : <WarnBadge title="This type is not supported yet. You can save it, but it cannot be used until Tasty or a plugin supports it.">{type}</WarnBadge>}
         </div>
         <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{target}</span>
         <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)" }}>
