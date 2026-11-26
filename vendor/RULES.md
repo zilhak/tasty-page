@@ -1671,6 +1671,8 @@ Sits on: `base`
 | Part | Token | States | Ground | Lowest, Mocha · Latte |
 |---|---|---|---|---|
 | label | `tab-fg-active` | rest | `base` | 11.34 · 7.06 |
+| label.needs-input | `tab-fg-needs-input` | rest | `base` | 12.91 · 7.15 |
+| label.completion | `tab-fg-completion` | rest | `base` | 7.79 · 7.34 |
 | icon | `text-secondary` | rest | `base` | 9.26 · 5.53 |
 | close | `text-secondary` | rest | `base` | 9.26 · 5.53 |
 | dot | `accent-success-raised` | rest | `base` | 11.03 · 6.70 |

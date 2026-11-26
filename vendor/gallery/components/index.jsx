@@ -598,6 +598,18 @@ function Components() {
               <Tab label="server.log" icon={ic.term} />
             </div>
           </Stage>
+          {/* As the app's tab_title_color, attention outranks active: an active tab whose attention could not clear keeps the tint. */}
+          <Stage variant="column" style={{ alignItems: "flex-start", gap: "var(--tasty-space-md)" }}>
+            {[["needs-input", "deploy.sh", "active · needs-input · OS window inactive"], ["completion", "README.md", "active · completion · surface hard occupied"]].map(([att, label, cap]) => (
+              <div key={att} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
+                <div className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</div>
+                <div style={{ display: "flex", background: "var(--tasty-bg-sidebar)", borderBottom: "1px solid var(--tasty-separator)" }}>
+                  <Tab label={label} icon={att === "completion" ? ic.md : ic.term} active attention={att} />
+                  <Tab label="server.log" icon={ic.term} />
+                </div>
+              </div>
+            ))}
+          </Stage>
           <Meta
             specs={[["height", <>24px <span className="tok">--tasty-control-height-tab</span></>], ["width", <>150px <span className="tok">--tasty-tab-width</span></>], ["active", "accent top bar + panel fill"], ["close", "hover-revealed"], ["title", "needs-input › completion › active › rest"], ["cluster", <>busy dot · close, 4 apart · <span className="tok">--tasty-tab-status-gap</span></>], ["keyboard focus", "none: the strip is no Tab stop and draws no ring, tabs move by shortcut (the app still lets egui focus reach a pane tab; taking it out is pending app work)"], ["web host Tab stop", <>ring <span className="tok">--tasty-focus-ring-width</span> 2px inside the tab · close keeps <span className="tok">--tasty-focus-ring-offset</span> 1px off</>]]}
             tokens={[{ tok: "--tasty-bg-panel", use: "active fill", color: "var(--tasty-bg-panel)" }, { tok: "--tasty-accent-primary", use: "active bar", color: "var(--tasty-accent-primary-raised)" }, { tok: "--tasty-tab-fg-needs-input", use: "needs-input title", color: "var(--tasty-tab-fg-needs-input)" }, { tok: "--tasty-tab-fg-completion", use: "completion title", color: "var(--tasty-tab-fg-completion)" }, { tok: "--tasty-tab-status-gap", use: "→ space-xs 4" }, { tok: "--tasty-separator", use: "dividers" }]} />

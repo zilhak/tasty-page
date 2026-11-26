@@ -20,7 +20,9 @@ import React from "react";
  *
  * `attention` tints the TITLE — the product's one attention channel on a tab
  * (tab_bar.rs): needs-input (tab-fg-needs-input) › completion (tab-fg-completion)
- * › active › rest. Attention clears on focus. (2026-10-07: the old `attached`
+ * › active › rest, on the active tab too (attention.rs tab_title_color). Attention
+ * clears on focus, so an active tab holds it only while the window is inactive, a
+ * fullscreen stage shows, or the surface is hard occupied. (2026-10-07: the old `attached`
  * ring and `notif` label were removed — the product tab draws neither; attach
  * lives on the workspace row.) The dot is static (no pulse).
  *
@@ -101,8 +103,8 @@ function ensureCss() {
 export function Tab({ label, icon = null, active = false, status = "idle", attention = null, onClose, className = "", ...rest }) {
   ensureCss();
   const busy = status === "busy";
-  const att = active ? null : attention;
-  const cls = ["tasty-tab", active ? "tasty-tab--active" : "", att ? "tasty-tab--" + att : "", className].filter(Boolean).join(" ");
+  // As the app's tab_title_color: attention outranks active, so an active tab keeps its attention tint.
+  const cls = ["tasty-tab", active ? "tasty-tab--active" : "", attention ? "tasty-tab--" + attention : "", className].filter(Boolean).join(" ");
   return (
     <div className={cls} {...rest}>
       {icon && <span className="tasty-tab__icon">{icon}</span>}

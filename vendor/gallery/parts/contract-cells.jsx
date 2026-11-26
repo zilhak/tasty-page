@@ -35,8 +35,8 @@ const selectCell = (ground) => () => (
 const tabParts = (extra) => () => (
   <>
     <Tab label="Tab" icon={<Icon name="terminal" />} status="busy" {...extra} data-part="tab" />
-    {!extra.active && <Tab label="Needs input" attention="needs-input" {...extra} />}
-    {!extra.active && <Tab label="Done" attention="completion" {...extra} />}
+    <Tab label="Needs input" attention="needs-input" {...extra} />
+    <Tab label="Done" attention="completion" {...extra} />
   </>
 );
 const treeRow = (state) => (
