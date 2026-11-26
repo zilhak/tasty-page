@@ -1,5 +1,5 @@
 {
-  "$description": "Tasty Design System — W3C DTCG token export. 3 tiers: primitive → semantic → component. Aliases ({tier.key}) mirror the CSS var() chain. Theme-scoped primitives & semantic role-remaps carry a Latte value under $extensions[\"com.tasty.mode\"].latte; baseline $value is Catppuccin Mocha. Generated from tokens/{primitives,semantic,components}.css — full parity, do not hand-edit.",
+  "$description": "Tasty Design System tokens in DTCG format with Tasty extensions, including the fontStyle type. Each $type is inferred from its CSS value. Dimensions, shadows and dash patterns are stored as CSS strings. The three tiers and their aliases are generated from token CSS, with Mocha as the base and Latte overrides under $extensions[\"com.tasty.mode\"].latte.",
   "$extensions": {
     "com.tasty.themes": [
       "mocha (default)",
@@ -341,6 +341,10 @@
       "$type": "dimension",
       "$value": "22px"
     },
+    "size-26": {
+      "$type": "dimension",
+      "$value": "26px"
+    },
     "size-28": {
       "$type": "dimension",
       "$value": "28px"
@@ -352,6 +356,10 @@
     "size-36": {
       "$type": "dimension",
       "$value": "36px"
+    },
+    "size-35": {
+      "$type": "dimension",
+      "$value": "35px"
     },
     "size-46": {
       "$type": "dimension",
@@ -381,6 +389,10 @@
       "$type": "dimension",
       "$value": "240px"
     },
+    "size-260": {
+      "$type": "dimension",
+      "$value": "260px"
+    },
     "size-320": {
       "$type": "dimension",
       "$value": "320px"
@@ -397,6 +409,10 @@
       "$type": "dimension",
       "$value": "90px"
     },
+    "size-92": {
+      "$type": "dimension",
+      "$value": "92px"
+    },
     "size-110": {
       "$type": "dimension",
       "$value": "110px"
@@ -404,6 +420,10 @@
     "size-112": {
       "$type": "dimension",
       "$value": "112px"
+    },
+    "size-132": {
+      "$type": "dimension",
+      "$value": "132px"
     },
     "size-140": {
       "$type": "dimension",
@@ -504,6 +524,18 @@
     "font-family-mono": {
       "$type": "fontFamily",
       "$value": "\"D2Coding\", \"SF Mono\", \"Cascadia Code\", \"JetBrains Mono\", ui-monospace, \"Menlo\", \"Consolas\", monospace"
+    },
+    "font-family-ui": {
+      "$type": "fontFamily",
+      "$value": "\"D2Coding\", -apple-system, BlinkMacSystemFont, \"Segoe UI\", \"Noto Sans\", \"Helvetica Neue\", Arial, sans-serif"
+    },
+    "font-family-ui-ja": {
+      "$type": "fontFamily",
+      "$value": "\"D2Coding Hangul Latin\", \"Hiragino Sans\", \"Hiragino Kaku Gothic ProN\", \"Yu Gothic UI\", \"Yu Gothic\", \"Meiryo\", \"Noto Sans CJK JP\", \"Noto Sans JP\", -apple-system, BlinkMacSystemFont, \"Segoe UI\", \"Noto Sans\", \"Helvetica Neue\", Arial, sans-serif"
+    },
+    "font-family-ui-zh-hans": {
+      "$type": "fontFamily",
+      "$value": "\"D2Coding Hangul Latin\", \"PingFang SC\", \"Hiragino Sans GB\", \"Microsoft YaHei UI\", \"Microsoft YaHei\", \"Noto Sans CJK SC\", \"Noto Sans SC\", -apple-system, BlinkMacSystemFont, \"Segoe UI\", \"Noto Sans\", \"Helvetica Neue\", Arial, sans-serif"
     },
     "font-family-mono-system": {
       "$type": "fontFamily",
@@ -669,6 +701,18 @@
       "$type": "dimension",
       "$value": "64px"
     },
+    "size-76": {
+      "$type": "dimension",
+      "$value": "76px"
+    },
+    "size-80": {
+      "$type": "dimension",
+      "$value": "80px"
+    },
+    "size-84": {
+      "$type": "dimension",
+      "$value": "84px"
+    },
     "size-96": {
       "$type": "dimension",
       "$value": "96px"
@@ -696,6 +740,34 @@
     "size-700": {
       "$type": "dimension",
       "$value": "700px"
+    },
+    "size-520": {
+      "$type": "dimension",
+      "$value": "520px"
+    },
+    "size-640": {
+      "$type": "dimension",
+      "$value": "640px"
+    },
+    "size-660": {
+      "$type": "dimension",
+      "$value": "660px"
+    },
+    "size-680": {
+      "$type": "dimension",
+      "$value": "680px"
+    },
+    "size-960": {
+      "$type": "dimension",
+      "$value": "960px"
+    },
+    "size-760": {
+      "$type": "dimension",
+      "$value": "760px"
+    },
+    "size-880": {
+      "$type": "dimension",
+      "$value": "880px"
     },
     "size-1100": {
       "$type": "dimension",
@@ -1099,6 +1171,10 @@
       "$type": "number",
       "$value": "10"
     },
+    "count-display-max": {
+      "$type": "number",
+      "$value": "99"
+    },
     "accent-macos-close": {
       "$type": "color",
       "$value": "{primitive.color-os-macos-close}"
@@ -1180,9 +1256,25 @@
       "$type": "color",
       "$value": "{primitive.alpha-black-50}"
     },
+    "scrim-blur": {
+      "$type": "dimension",
+      "$value": "{primitive.size-1}"
+    },
     "overlay-top-offset": {
       "$type": "dimension",
       "$value": "{primitive.size-88}"
+    },
+    "capture-dim-bg": {
+      "$type": "color",
+      "$value": "{primitive.alpha-black-50}"
+    },
+    "capture-edge-light": {
+      "$type": "color",
+      "$value": "{primitive.color-white}"
+    },
+    "capture-edge-dark": {
+      "$type": "color",
+      "$value": "{primitive.color-black}"
     },
     "space-xs": {
       "$type": "dimension",
@@ -1240,6 +1332,14 @@
       "$type": "dimension",
       "$value": "{primitive.size-200}"
     },
+    "field-width-xl": {
+      "$type": "dimension",
+      "$value": "{primitive.size-320}"
+    },
+    "dropdown-max-height": {
+      "$type": "dimension",
+      "$value": "{primitive.size-220}"
+    },
     "border-width": {
       "$type": "dimension",
       "$value": "{primitive.size-1}"
@@ -1247,6 +1347,10 @@
     "focus-ring-width": {
       "$type": "dimension",
       "$value": "{primitive.size-2}"
+    },
+    "focus-ring-offset": {
+      "$type": "dimension",
+      "$value": "{primitive.size-1}"
     },
     "radius": {
       "$type": "dimension",
@@ -1275,6 +1379,10 @@
     "control-height-tab": {
       "$type": "dimension",
       "$value": "{primitive.size-24}"
+    },
+    "chip-height": {
+      "$type": "dimension",
+      "$value": "{primitive.size-22}"
     },
     "tab-width": {
       "$type": "dimension",
@@ -1308,6 +1416,18 @@
       "$type": "dimension",
       "$value": "{primitive.size-24}"
     },
+    "avatar-chip-size": {
+      "$type": "dimension",
+      "$value": "{primitive.size-12}"
+    },
+    "avatar-chip-glyph-size": {
+      "$type": "dimension",
+      "$value": "{primitive.size-8}"
+    },
+    "icon-size-window-caption": {
+      "$type": "dimension",
+      "$value": "{primitive.size-10}"
+    },
     "state-disabled-fg": {
       "$type": "color",
       "$value": "{semantic.text-disabled}"
@@ -1340,6 +1460,10 @@
     "state-dim-opacity": {
       "$type": "number",
       "$value": "{primitive.opacity-disabled}"
+    },
+    "state-recessed-opacity": {
+      "$type": "number",
+      "$value": "{primitive.opacity-recessed}"
     },
     "state-disabled-opacity": {
       "$type": "number",
@@ -1375,11 +1499,15 @@
     },
     "font-ui": {
       "$type": "fontFamily",
-      "$value": "{primitive.font-family-sans}"
+      "$value": "{primitive.font-family-ui}"
     },
     "font-mono": {
       "$type": "fontFamily",
       "$value": "{primitive.font-family-mono}"
+    },
+    "font-prose": {
+      "$type": "fontFamily",
+      "$value": "{primitive.font-family-sans}"
     },
     "font-label": {
       "$type": "fontFamily",
@@ -1449,6 +1577,10 @@
       "$type": "fontWeight",
       "$value": "{primitive.font-weight-700}"
     },
+    "font-style-absent": {
+      "$type": "fontStyle",
+      "$value": "italic"
+    },
     "line-height-tight": {
       "$type": "number",
       "$value": "{primitive.line-height-100}"
@@ -1473,6 +1605,10 @@
       "$type": "dimension",
       "$value": "{primitive.letter-spacing-07}"
     },
+    "letter-spacing-brand-lockup": {
+      "$type": "dimension",
+      "$value": "{primitive.letter-spacing-n1px}"
+    },
     "motion-term": {
       "$type": "duration",
       "$value": "{primitive.duration-0}"
@@ -1496,6 +1632,10 @@
     "motion-hold-reveal": {
       "$type": "duration",
       "$value": "{primitive.duration-500}"
+    },
+    "motion-busy-delay": {
+      "$type": "duration",
+      "$value": "{primitive.duration-200}"
     },
     "ease-ui": {
       "$type": "cubicBezier",
@@ -2021,6 +2161,34 @@
       "$type": "color",
       "$value": "color-mix(in srgb, var(--tasty-accent-agent) calc(var(--tasty-tint-fill-alpha) * 100%), transparent)"
     },
+    "tint-primary-border": {
+      "$type": "color",
+      "$value": "color-mix(in srgb, var(--tasty-accent-primary) calc(var(--tasty-tint-border-alpha) * 100%), transparent)"
+    },
+    "tint-info-border": {
+      "$type": "color",
+      "$value": "color-mix(in srgb, var(--tasty-accent-info) calc(var(--tasty-tint-border-alpha) * 100%), transparent)"
+    },
+    "tint-success-border": {
+      "$type": "color",
+      "$value": "color-mix(in srgb, var(--tasty-accent-success) calc(var(--tasty-tint-border-alpha) * 100%), transparent)"
+    },
+    "tint-warning-border": {
+      "$type": "color",
+      "$value": "color-mix(in srgb, var(--tasty-accent-warning) calc(var(--tasty-tint-border-alpha) * 100%), transparent)"
+    },
+    "tint-attention-border": {
+      "$type": "color",
+      "$value": "color-mix(in srgb, var(--tasty-accent-attention) calc(var(--tasty-tint-border-alpha) * 100%), transparent)"
+    },
+    "tint-danger-border": {
+      "$type": "color",
+      "$value": "color-mix(in srgb, var(--tasty-accent-danger) calc(var(--tasty-tint-border-alpha) * 100%), transparent)"
+    },
+    "tint-attached-border": {
+      "$type": "color",
+      "$value": "color-mix(in srgb, var(--tasty-accent-attached) calc(var(--tasty-tint-border-alpha) * 100%), transparent)"
+    },
     "vi-cursor-fg": {
       "$type": "color",
       "$value": "{primitive.color-neutral-0}",
@@ -2321,6 +2489,30 @@
       "$type": "color",
       "$value": "{semantic.border-default}"
     },
+    "tag-success-border": {
+      "$type": "color",
+      "$value": "{semantic.tint-success-border}"
+    },
+    "tag-warning-border": {
+      "$type": "color",
+      "$value": "{semantic.tint-warning-border}"
+    },
+    "tag-attention-border": {
+      "$type": "color",
+      "$value": "{semantic.tint-attention-border}"
+    },
+    "tag-danger-border": {
+      "$type": "color",
+      "$value": "{semantic.tint-danger-border}"
+    },
+    "tag-info-border": {
+      "$type": "color",
+      "$value": "{semantic.tint-info-border}"
+    },
+    "tag-attached-border": {
+      "$type": "color",
+      "$value": "{semantic.tint-attached-border}"
+    },
     "tag-disabled-bg": {
       "$type": "color",
       "$value": "{semantic.state-disabled-fill}"
@@ -2400,6 +2592,14 @@
     "input-font-size": {
       "$type": "dimension",
       "$value": "{semantic.font-size-body}"
+    },
+    "caret-specimen-field-width": {
+      "$type": "dimension",
+      "$value": "{semantic.field-width-lg}"
+    },
+    "caret-specimen-height": {
+      "$type": "dimension",
+      "$value": "calc(1.3077 * var(--tasty-input-font-size))"
     },
     "input-bg": {
       "$type": "color",
@@ -2588,7 +2788,7 @@
     },
     "multiselect-menu-max-height": {
       "$type": "dimension",
-      "$value": "{component.autocomplete-max-height}"
+      "$value": "{semantic.dropdown-max-height}"
     },
     "multiselect-menu-max-width": {
       "$type": "dimension",
@@ -2972,7 +3172,7 @@
     },
     "autocomplete-max-height": {
       "$type": "dimension",
-      "$value": "{primitive.size-220}"
+      "$value": "{semantic.dropdown-max-height}"
     },
     "autocomplete-menu-bg": {
       "$type": "color",
@@ -3170,6 +3370,14 @@
       "$type": "dimension",
       "$value": "{primitive.size-240}"
     },
+    "link-remote-fg": {
+      "$type": "color",
+      "$value": "{semantic.accent-remote-raised}"
+    },
+    "link-remote-gap": {
+      "$type": "dimension",
+      "$value": "{semantic.space-xs}"
+    },
     "tooltip-offset": {
       "$type": "dimension",
       "$value": "{semantic.space-xs}"
@@ -3260,7 +3468,7 @@
     },
     "banner-recessed-opacity": {
       "$type": "number",
-      "$value": "{primitive.opacity-recessed}"
+      "$value": "{semantic.state-recessed-opacity}"
     },
     "banner-fade": {
       "$type": "duration",
@@ -3297,6 +3505,10 @@
     "html-script-marker-hover-bg": {
       "$type": "color",
       "$value": "{semantic.overlay-hover}"
+    },
+    "html-surface-specimen-min-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-288}"
     },
     "html-remote-banner-glyph": {
       "$type": "color",
@@ -3353,6 +3565,14 @@
     "html-address-field-min-width": {
       "$type": "dimension",
       "$value": "{primitive.size-96}"
+    },
+    "address-field-focus-halo": {
+      "$type": "color",
+      "$value": "color-mix(in srgb, var(--tasty-border-focus) 35%, transparent)"
+    },
+    "address-field-invalid-halo": {
+      "$type": "color",
+      "$value": "color-mix(in srgb, var(--tasty-accent-danger) 35%, transparent)"
     },
     "html-address-error-height": {
       "$type": "dimension",
@@ -3558,9 +3778,33 @@
       "$type": "dimension",
       "$value": "{semantic.icon-size-xs}"
     },
+    "statusbar-remote-fg": {
+      "$type": "color",
+      "$value": "{semantic.accent-remote-raised}"
+    },
+    "statusbar-remote-gap": {
+      "$type": "dimension",
+      "$value": "{semantic.space-xs}"
+    },
+    "statusbar-remote-max-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-160}"
+    },
     "git-toolbar-height": {
       "$type": "dimension",
       "$value": "{semantic.toolbar-height}"
+    },
+    "git-diff-hunk-bg": {
+      "$type": "color",
+      "$value": "{semantic.tint-info-bg}"
+    },
+    "git-diff-add-bg": {
+      "$type": "color",
+      "$value": "{semantic.tint-success-bg}"
+    },
+    "git-diff-del-bg": {
+      "$type": "color",
+      "$value": "{semantic.tint-danger-bg}"
     },
     "workspace-mirror-fg": {
       "$type": "color",
@@ -3640,7 +3884,7 @@
     },
     "workspace-running-count-max": {
       "$type": "number",
-      "$value": "99"
+      "$value": "{semantic.count-display-max}"
     },
     "move-source-ring": {
       "$type": "color",
@@ -3668,11 +3912,11 @@
     },
     "move-source-chip-size": {
       "$type": "dimension",
-      "$value": "{primitive.size-12}"
+      "$value": "{semantic.avatar-chip-size}"
     },
     "move-source-chip-glyph-size": {
       "$type": "dimension",
-      "$value": "{primitive.size-8}"
+      "$value": "{semantic.avatar-chip-glyph-size}"
     },
     "attach-refusal-glyph": {
       "$type": "color",
@@ -3680,11 +3924,11 @@
     },
     "attach-refusal-chip-size": {
       "$type": "dimension",
-      "$value": "{component.move-source-chip-size}"
+      "$value": "{semantic.avatar-chip-size}"
     },
     "attach-refusal-chip-glyph-size": {
       "$type": "dimension",
-      "$value": "{component.move-source-chip-glyph-size}"
+      "$value": "{semantic.avatar-chip-glyph-size}"
     },
     "spinner-size": {
       "$type": "dimension",
@@ -3709,7 +3953,7 @@
     },
     "loading-overlay-delay": {
       "$type": "duration",
-      "$value": "{semantic.motion-ui-fade}",
+      "$value": "{semantic.motion-busy-delay}",
       "$description": "show only if still loading after 200ms; hide is immediate"
     },
     "loading-overlay-surface-size": {
@@ -3786,7 +4030,7 @@
     },
     "notification-badge-max": {
       "$type": "number",
-      "$value": 99
+      "$value": "{semantic.count-display-max}"
     },
     "notification-summary-pad": {
       "$type": "dimension",
@@ -3846,7 +4090,7 @@
     },
     "notification-item-line-gap": {
       "$type": "dimension",
-      "$value": "{primitive.size-2}"
+      "$value": "{semantic.label-detail-gap}"
     },
     "notification-item-glyph-size": {
       "$type": "dimension",
@@ -3981,6 +4225,14 @@
       "$value": "{semantic.bg-sidebar}"
     },
     "surface-focus-edge-width": {
+      "$type": "dimension",
+      "$value": "{semantic.selection-edge-width}"
+    },
+    "popup-focus-edge-focused": {
+      "$type": "color",
+      "$value": "{semantic.text-secondary}"
+    },
+    "popup-focus-edge-width": {
       "$type": "dimension",
       "$value": "{semantic.selection-edge-width}"
     },
@@ -4244,6 +4496,10 @@
       "$type": "dimension",
       "$value": "{primitive.size-112}"
     },
+    "port-favorites-state-min-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-112}"
+    },
     "port-star-col-width": {
       "$type": "dimension",
       "$value": "{primitive.size-28}"
@@ -4255,6 +4511,30 @@
     "port-addr-col-min-width": {
       "$type": "dimension",
       "$value": "{primitive.size-140}"
+    },
+    "port-port-col-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-84}"
+    },
+    "port-proto-col-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-76}"
+    },
+    "port-workspace-col-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-120}"
+    },
+    "port-tab-col-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-80}"
+    },
+    "port-state-col-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-140}"
+    },
+    "port-process-specimen-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-960}"
     },
     "port-star-on": {
       "$type": "color",
@@ -4278,11 +4558,75 @@
     },
     "plugins-list-width": {
       "$type": "dimension",
-      "$value": "{primitive.size-288}"
+      "$value": "{primitive.size-240}"
+    },
+    "plugins-attention-list-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-240}"
+    },
+    "plugins-window-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-880}"
+    },
+    "plugins-inset": {
+      "$type": "dimension",
+      "$value": "{primitive.size-14}"
+    },
+    "plugins-header-pad-left": {
+      "$type": "dimension",
+      "$value": "calc(var(--tasty-size-20) + -1 * var(--tasty-border-width))"
+    },
+    "plugins-header-pad-right": {
+      "$type": "dimension",
+      "$value": "calc(var(--tasty-space-lg) + -1 * var(--tasty-border-width))"
+    },
+    "plugins-window-height": {
+      "$type": "dimension",
+      "$value": "{primitive.size-560}"
+    },
+    "plugins-header-height": {
+      "$type": "dimension",
+      "$value": "{primitive.size-48}"
+    },
+    "plugins-tab-height": {
+      "$type": "dimension",
+      "$value": "{primitive.size-26}"
+    },
+    "plugins-tab-gap": {
+      "$type": "dimension",
+      "$value": "calc(1 * var(--tasty-space-sm) + 1 * var(--tasty-size-2))"
+    },
+    "plugins-list-row-gap": {
+      "$type": "dimension",
+      "$value": "calc(1 * var(--tasty-space-xs) + 1 * var(--tasty-size-2))"
+    },
+    "plugins-manifest-meta-gap": {
+      "$type": "dimension",
+      "$value": "{primitive.size-3}"
+    },
+    "plugins-header-divider-height": {
+      "$type": "dimension",
+      "$value": "{primitive.size-20}"
+    },
+    "plugins-add-pad-y": {
+      "$type": "dimension",
+      "$value": "calc(1 * var(--tasty-space-sm) + 1 * var(--tasty-space-md))"
+    },
+    "plugins-add-pad-bottom": {
+      "$type": "dimension",
+      "$value": "{primitive.size-22}"
+    },
+    "plugins-link-underline-offset": {
+      "$type": "dimension",
+      "$value": "{primitive.size-2}"
     },
     "plugins-header-glyph": {
       "$type": "color",
       "$value": "{semantic.accent-decorative}"
+    },
+    "plugins-tab-focus-ring": {
+      "$type": "color",
+      "$value": "{semantic.accent-primary-raised}"
     },
     "plugin-avatar-size-sm": {
       "$type": "dimension",
@@ -4351,6 +4695,94 @@
     "settings-content-max-width": {
       "$type": "dimension",
       "$value": "{primitive.size-620}"
+    },
+    "collapsed-popup-specimen-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-440}"
+    },
+    "collapsed-popup-specimen-tooltip-room": {
+      "$type": "dimension",
+      "$value": "{primitive.size-96}"
+    },
+    "collapsed-popup-specimen-frame-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-288}"
+    },
+    "collapsed-popup-specimen-flow-max-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-560}"
+    },
+    "remote-row-specimen-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-480}"
+    },
+    "remote-row-specimen-height": {
+      "$type": "dimension",
+      "$value": "{primitive.size-288}"
+    },
+    "remote-row-specimen-narrow-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-320}"
+    },
+    "remote-row-specimen-rail-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-288}"
+    },
+    "explorer-state-specimen-row-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-700}"
+    },
+    "image-state-specimen-grid-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-760}"
+    },
+    "tutorial-marker-glow-inner": {
+      "$type": "color",
+      "$value": "color-mix(in srgb, var(--tasty-accent-primary) 22%, transparent)"
+    },
+    "tutorial-marker-glow-outer": {
+      "$type": "color",
+      "$value": "color-mix(in srgb, var(--tasty-accent-primary) 45%, transparent)"
+    },
+    "tutorial-topic-selected-border": {
+      "$type": "color",
+      "$value": "color-mix(in srgb, var(--tasty-accent-primary) 40%, transparent)"
+    },
+    "tutorial-step-specimen-min-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-440}"
+    },
+    "tutorial-marker-specimen-min-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-320}"
+    },
+    "remote-form-specimen-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-460}"
+    },
+    "remote-form-specimen-height": {
+      "$type": "dimension",
+      "$value": "{component.remote-window-height}"
+    },
+    "git-viewer-specimen-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-640}"
+    },
+    "clipboard-specimen-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-460}"
+    },
+    "mod-hint-specimen-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-560}"
+    },
+    "explorer-full-specimen-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-760}"
+    },
+    "specimen-annotation-border": {
+      "$type": "color",
+      "$value": "{semantic.border-control-raised}"
     },
     "perm-granted-fg": {
       "$type": "color",
@@ -4532,6 +4964,46 @@
       "$type": "dimension",
       "$value": "{semantic.field-width-md}"
     },
+    "fp-host-badge-height": {
+      "$type": "dimension",
+      "$value": "{semantic.chip-height}"
+    },
+    "fp-host-badge-padding-x": {
+      "$type": "dimension",
+      "$value": "{semantic.space-sm}"
+    },
+    "fp-host-badge-gap": {
+      "$type": "dimension",
+      "$value": "{semantic.space-xs}"
+    },
+    "fp-host-badge-icon-size": {
+      "$type": "dimension",
+      "$value": "{semantic.icon-size-xs}"
+    },
+    "fp-host-badge-font-size": {
+      "$type": "dimension",
+      "$value": "{semantic.font-size-caption}"
+    },
+    "fp-host-badge-bg": {
+      "$type": "color",
+      "$value": "{semantic.tint-info-bg}"
+    },
+    "fp-host-badge-border": {
+      "$type": "color",
+      "$value": "color-mix(in srgb, var(--tasty-accent-info) calc(var(--tasty-tint-border-alpha) * 100%), transparent)"
+    },
+    "fp-host-badge-fg": {
+      "$type": "color",
+      "$value": "{semantic.accent-remote-raised}"
+    },
+    "fp-specimen-view-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-400}"
+    },
+    "fp-specimen-view-height": {
+      "$type": "dimension",
+      "$value": "{primitive.size-300}"
+    },
     "popup-title-btn-size": {
       "$type": "dimension",
       "$value": "{component.icon-button-size-sm}"
@@ -4560,6 +5032,18 @@
       "$type": "dimension",
       "$value": "{primitive.size-56}"
     },
+    "fh-remote-fg": {
+      "$type": "color",
+      "$value": "{semantic.accent-remote-raised}"
+    },
+    "fh-remote-gap": {
+      "$type": "dimension",
+      "$value": "{semantic.space-xs}"
+    },
+    "fh-remote-max-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-160}"
+    },
     "swatch-size": {
       "$type": "dimension",
       "$value": "{primitive.size-16}"
@@ -4568,9 +5052,25 @@
       "$type": "dimension",
       "$value": "{semantic.radius-sm}"
     },
+    "swatch-border": {
+      "$type": "color",
+      "$value": "{semantic.border-control}"
+    },
+    "remote-row-popup-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-360}"
+    },
     "remote-label-col": {
       "$type": "dimension",
       "$value": "{primitive.size-112}"
+    },
+    "remote-port-field-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-96}"
+    },
+    "remote-type-suggest-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-64}"
     },
     "remote-filter-menu-width": {
       "$type": "dimension",
@@ -4708,7 +5208,7 @@
       "$value": "{semantic.text-muted}"
     },
     "cut-pending-font-style": {
-      "$type": "strokeStyle",
+      "$type": "fontStyle",
       "$value": "italic"
     },
     "switch-overlay-size": {
@@ -4883,9 +5383,17 @@
       "$type": "dimension",
       "$value": "{primitive.size-46}"
     },
+    "titlebar-caption-glyph-size": {
+      "$type": "dimension",
+      "$value": "{semantic.icon-size-window-caption}"
+    },
     "titlebar-window-button-size": {
       "$type": "dimension",
       "$value": "{primitive.size-24}"
+    },
+    "titlebar-window-glyph-size": {
+      "$type": "dimension",
+      "$value": "calc(0.44 * var(--tasty-titlebar-window-button-size))"
     },
     "titlebar-csd-radius": {
       "$type": "dimension",
@@ -5047,6 +5555,10 @@
       "$type": "dimension",
       "$value": "{semantic.focus-ring-width}"
     },
+    "dag-node-selected-ring-offset": {
+      "$type": "dimension",
+      "$value": "{semantic.border-width}"
+    },
     "dag-node-dim-opacity": {
       "$type": "number",
       "$value": "{semantic.node-dim-opacity}"
@@ -5171,6 +5683,46 @@
       "$type": "color",
       "$value": "{semantic.accent-warning-strong}"
     },
+    "dag-status-waiting-block-bg": {
+      "$type": "color",
+      "$value": "color-mix(in srgb, var(--tasty-glyph-dim-raised) 55%, var(--tasty-surface-raised))"
+    },
+    "dag-status-ready-block-bg": {
+      "$type": "color",
+      "$value": "color-mix(in srgb, var(--tasty-accent-info-raised) 55%, var(--tasty-surface-raised))"
+    },
+    "dag-status-running-block-bg": {
+      "$type": "color",
+      "$value": "color-mix(in srgb, var(--tasty-accent-primary-raised) 55%, var(--tasty-surface-raised))"
+    },
+    "dag-status-succeeded-block-bg": {
+      "$type": "color",
+      "$value": "color-mix(in srgb, var(--tasty-accent-success-raised) 55%, var(--tasty-surface-raised))"
+    },
+    "dag-status-failed-block-bg": {
+      "$type": "color",
+      "$value": "color-mix(in srgb, var(--tasty-accent-danger-raised) 55%, var(--tasty-surface-raised))"
+    },
+    "dag-status-cancelled-block-bg": {
+      "$type": "color",
+      "$value": "color-mix(in srgb, var(--tasty-glyph-dim-raised) 55%, var(--tasty-surface-raised))"
+    },
+    "dag-status-skipped-block-bg": {
+      "$type": "color",
+      "$value": "color-mix(in srgb, var(--tasty-glyph-dim-raised) 55%, var(--tasty-surface-raised))"
+    },
+    "dag-status-unknown-block-bg": {
+      "$type": "color",
+      "$value": "color-mix(in srgb, var(--tasty-accent-warning-raised) 55%, var(--tasty-surface-raised))"
+    },
+    "dag-status-partially-failed-block-bg": {
+      "$type": "color",
+      "$value": "color-mix(in srgb, var(--tasty-accent-attention-raised) 55%, var(--tasty-surface-raised))"
+    },
+    "dag-phase-awaiting-block-bg": {
+      "$type": "color",
+      "$value": "color-mix(in srgb, var(--tasty-accent-warning-strong) 55%, var(--tasty-surface-raised))"
+    },
     "dag-header-count-fg": {
       "$type": "color",
       "$value": "{component.dag-row-count-fg}"
@@ -5237,7 +5789,7 @@
     },
     "dag-edge-dim-opacity": {
       "$type": "number",
-      "$value": "{primitive.opacity-recessed}"
+      "$value": "{semantic.state-recessed-opacity}"
     },
     "dag-edge-dim": {
       "$type": "color",
@@ -5423,6 +5975,62 @@
       "$type": "dimension",
       "$value": "{primitive.size-460}"
     },
+    "graph-drawer-width": {
+      "$type": "dimension",
+      "$value": "{component.dag-detail-width}"
+    },
+    "graph-drawer-cover-below": {
+      "$type": "dimension",
+      "$value": "{primitive.size-480}"
+    },
+    "graph-drawer-head-height": {
+      "$type": "dimension",
+      "$value": "{component.graph-toolbar-height}"
+    },
+    "graph-drawer-motion": {
+      "$type": "duration",
+      "$value": "{semantic.motion-ui}"
+    },
+    "graph-reveal-margin": {
+      "$type": "dimension",
+      "$value": "{semantic.space-lg}"
+    },
+    "graph-push-motion": {
+      "$type": "duration",
+      "$value": "{semantic.motion-ui}"
+    },
+    "graph-toolbar-height": {
+      "$type": "dimension",
+      "$value": "{component.drilldown-backbar-height}"
+    },
+    "graph-child-popup-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-600}"
+    },
+    "graph-child-popup-height": {
+      "$type": "dimension",
+      "$value": "{component.dag-popup-height}"
+    },
+    "graph-base-chip-height": {
+      "$type": "dimension",
+      "$value": "{primitive.size-16}"
+    },
+    "graph-base-chip-gap": {
+      "$type": "dimension",
+      "$value": "{semantic.space-xs}"
+    },
+    "graph-base-chip-padding-x": {
+      "$type": "dimension",
+      "$value": "{semantic.space-xs}"
+    },
+    "graph-base-picker-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-360}"
+    },
+    "graph-base-picker-height": {
+      "$type": "dimension",
+      "$value": "{primitive.size-400}"
+    },
     "palette-list-max-height": {
       "$type": "dimension",
       "$value": "{primitive.size-320}"
@@ -5430,6 +6038,10 @@
     "remote-filter-dropdown-width": {
       "$type": "dimension",
       "$value": "{primitive.size-240}"
+    },
+    "remote-filter-list-max-height": {
+      "$type": "dimension",
+      "$value": "{primitive.size-168}"
     },
     "palette-width": {
       "$type": "dimension",
@@ -5443,13 +6055,105 @@
       "$type": "dimension",
       "$value": "{primitive.size-700}"
     },
+    "settings-l1-height": {
+      "$type": "dimension",
+      "$value": "{primitive.size-44}"
+    },
+    "settings-window-csd-height": {
+      "$type": "dimension",
+      "$value": "calc(var(--tasty-settings-window-height) + var(--tasty-titlebar-height))"
+    },
+    "approval-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-480}"
+    },
+    "ports-window-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-660}"
+    },
+    "ports-window-height": {
+      "$type": "dimension",
+      "$value": "{primitive.size-520}"
+    },
+    "ports-pad-x": {
+      "$type": "dimension",
+      "$value": "{primitive.size-14}"
+    },
+    "remote-window-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-520}"
+    },
+    "remote-window-height": {
+      "$type": "dimension",
+      "$value": "{primitive.size-460}"
+    },
+    "remote-pad-x": {
+      "$type": "dimension",
+      "$value": "{primitive.size-14}"
+    },
+    "remote-content-pad-top": {
+      "$type": "dimension",
+      "$value": "{primitive.size-10}"
+    },
+    "remote-detect-spinner-size": {
+      "$type": "dimension",
+      "$value": "{semantic.font-size-caption}"
+    },
+    "remote-tab-height": {
+      "$type": "dimension",
+      "$value": "{primitive.size-35}"
+    },
+    "remote-tab-gap": {
+      "$type": "dimension",
+      "$value": "{primitive.size-2}"
+    },
+    "remote-row-line-gap": {
+      "$type": "dimension",
+      "$value": "{primitive.size-2}"
+    },
+    "remote-row-action-gap": {
+      "$type": "dimension",
+      "$value": "{primitive.size-1}"
+    },
+    "remote-ssh-line-pad-top": {
+      "$type": "dimension",
+      "$value": "{primitive.size-2}"
+    },
+    "remote-reveal-inset": {
+      "$type": "dimension",
+      "$value": "{primitive.size-6}"
+    },
+    "remote-reveal-pad-right": {
+      "$type": "dimension",
+      "$value": "calc(1 * var(--tasty-remote-reveal-inset) + 1 * var(--tasty-icon-button-size-sm) + 1 * var(--tasty-size-2))"
+    },
+    "segmented-gap": {
+      "$type": "dimension",
+      "$value": "{primitive.size-6}"
+    },
+    "remote-picker-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-680}"
+    },
+    "remote-picker-height": {
+      "$type": "dimension",
+      "$value": "{primitive.size-460}"
+    },
+    "preset-window-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-960}"
+    },
+    "preset-window-height": {
+      "$type": "dimension",
+      "$value": "{primitive.size-640}"
+    },
     "toast-stack-offset-bottom": {
       "$type": "dimension",
       "$value": "{primitive.size-36}"
     },
     "loading-lockup-tracking": {
       "$type": "dimension",
-      "$value": "{primitive.letter-spacing-n1px}"
+      "$value": "{semantic.letter-spacing-brand-lockup}"
     },
     "loading-lockup-font-size": {
       "$type": "dimension",
@@ -5513,7 +6217,7 @@
     },
     "search-bar-border": {
       "$type": "color",
-      "$value": "{component.menu-border}"
+      "$value": "{semantic.border-strong}"
     },
     "popup-content-margin": {
       "$type": "dimension",
@@ -5549,7 +6253,7 @@
     },
     "trigger-menu-max-height": {
       "$type": "dimension",
-      "$value": "{component.autocomplete-max-height}"
+      "$value": "{semantic.dropdown-max-height}"
     },
     "image-handle-size": {
       "$type": "dimension",
@@ -5642,6 +6346,18 @@
     "tools-menu-max-width": {
       "$type": "dimension",
       "$value": "{primitive.size-240}"
+    },
+    "fallback-menu-min-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-160}"
+    },
+    "fallback-menu-max-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-320}"
+    },
+    "fallback-menu-edge-margin": {
+      "$type": "dimension",
+      "$value": "{semantic.space-sm}"
     },
     "explorer-state-compact-below": {
       "$type": "dimension",
@@ -5848,6 +6564,26 @@
       "$value": "{primitive.size-36}",
       "$description": "filter / search bar under the toolbar"
     },
+    "explorer-detail-size-col-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-80}"
+    },
+    "explorer-detail-date-col-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-132}"
+    },
+    "explorer-detail-type-col-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-92}"
+    },
+    "explorer-detail-name-col-min-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-140}"
+    },
+    "explorer-detail-padding-x": {
+      "$type": "dimension",
+      "$value": "{semantic.space-sm}"
+    },
     "explorer-search-folder-col-width": {
       "$type": "dimension",
       "$value": "{primitive.size-160}",
@@ -5855,7 +6591,7 @@
     },
     "explorer-match-fg": {
       "$type": "color",
-      "$value": "{component.autocomplete-match-fg}",
+      "$value": "{semantic.accent-primary-raised}",
       "$description": "matched part of a name while filtering"
     },
     "explorer-match-fg-active": {
@@ -5871,6 +6607,14 @@
       "$type": "dimension",
       "$value": "{primitive.size-240}",
       "$description": "name error message box max width (new item / rename)"
+    },
+    "explorer-name-error-specimen-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-560}"
+    },
+    "explorer-name-error-specimen-row-room": {
+      "$type": "dimension",
+      "$value": "{primitive.size-56}"
     },
     "explorer-list-min-width": {
       "$type": "dimension",
@@ -6069,7 +6813,7 @@
     },
     "explorer-address-pending-delay": {
       "$type": "duration",
-      "$value": "{semantic.motion-ui-fade}",
+      "$value": "{semantic.motion-busy-delay}",
       "$description": "remote address check: spinner appears only after 200ms (no flash on a fast round trip)"
     },
     "explorer-remote-queue-head-gap": {
@@ -6155,6 +6899,22 @@
       "$type": "color",
       "$value": "{semantic.accent-success-ink}",
       "$description": "trusted one-line body (plugins.trust_trusted_body)"
+    },
+    "plugin-trust-specimen-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-560}"
+    },
+    "plugin-trust-specimen-width-sm": {
+      "$type": "dimension",
+      "$value": "{primitive.size-440}"
+    },
+    "plugin-trust-specimen-width-narrow": {
+      "$type": "dimension",
+      "$value": "{primitive.size-320}"
+    },
+    "plugin-trust-attn-empty-height": {
+      "$type": "dimension",
+      "$value": "{primitive.size-240}"
     },
     "notice-column-inset": {
       "$type": "dimension",
@@ -6273,12 +7033,12 @@
     },
     "pending-indicator-delay": {
       "$type": "duration",
-      "$value": "{component.loading-overlay-delay}",
+      "$value": "{semantic.motion-busy-delay}",
       "$description": "show only if still pending after 200ms (same as LoadingOverlay)"
     },
     "select-placeholder": {
       "$type": "color",
-      "$value": "{component.input-placeholder}",
+      "$value": "{semantic.text-placeholder}",
       "$description": "Select(placeholder) trigger ink while no value is chosen"
     },
     "file-handler-form-bg": {
@@ -6646,6 +7406,82 @@
     "site-inline-code-bg": {
       "$type": "color",
       "$value": "{semantic.code-inline-bg}"
+    },
+    "capture-band-height": {
+      "$type": "dimension",
+      "$value": "{semantic.toolbar-height}"
+    },
+    "capture-stage-inset": {
+      "$type": "dimension",
+      "$value": "{semantic.space-sm}"
+    },
+    "capture-edge-width": {
+      "$type": "dimension",
+      "$value": "{semantic.border-width}"
+    },
+    "capture-min-drag": {
+      "$type": "dimension",
+      "$value": "{semantic.space-xs}"
+    },
+    "android-tab-height": {
+      "$type": "dimension",
+      "$value": "{primitive.size-32}"
+    },
+    "android-tab-min-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-96}"
+    },
+    "android-tab-max-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-240}"
+    },
+    "android-tab-button-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-40}"
+    },
+    "android-tab-button-reach": {
+      "$type": "dimension",
+      "$value": "{semantic.space-sm}"
+    },
+    "android-tab-logo-size": {
+      "$type": "dimension",
+      "$value": "{primitive.size-20}"
+    },
+    "android-popup-max-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-320}"
+    },
+    "android-popup-margin": {
+      "$type": "dimension",
+      "$value": "{semantic.space-lg}"
+    },
+    "android-popup-title-height": {
+      "$type": "dimension",
+      "$value": "{primitive.size-48}"
+    },
+    "android-popup-row-height": {
+      "$type": "dimension",
+      "$value": "{primitive.size-48}"
+    },
+    "android-popup-padding-x": {
+      "$type": "dimension",
+      "$value": "{semantic.space-lg}"
+    },
+    "android-popup-font-size": {
+      "$type": "dimension",
+      "$value": "{semantic.font-size-max}"
+    },
+    "android-popup-lane-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-24}"
+    },
+    "android-popup-lane-glyph": {
+      "$type": "dimension",
+      "$value": "{semantic.icon-size-md}"
+    },
+    "android-popup-thumb-width": {
+      "$type": "dimension",
+      "$value": "{semantic.space-xs}"
     }
   }
 }

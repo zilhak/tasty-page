@@ -37,6 +37,43 @@
       "fill": false
     },
     {
+      "name": "windowMinimize",
+      "group": "actions",
+      "role": "Linux window button and Windows caption button: minimize",
+      "paths": [
+        "<path d=\"M6 12h12\"/>"
+      ],
+      "fill": false
+    },
+    {
+      "name": "windowMaximize",
+      "group": "actions",
+      "role": "Linux window button: maximize",
+      "paths": [
+        "<path d=\"M6.5 6.5h11v11h-11z\"/>"
+      ],
+      "fill": false
+    },
+    {
+      "name": "captionMaximize",
+      "group": "actions",
+      "role": "Windows caption button: maximize",
+      "paths": [
+        "<rect x=\"6.5\" y=\"6.5\" width=\"11\" height=\"11\" rx=\"1\"/>"
+      ],
+      "fill": false
+    },
+    {
+      "name": "captionRestore",
+      "group": "actions",
+      "role": "Windows caption button: restore, on a maximized window",
+      "paths": [
+        "<rect x=\"6.6\" y=\"9\" width=\"8.4\" height=\"8.4\" stroke-linejoin=\"miter\"/>",
+        "<path d=\"M9 6.6h8.4V9\"/>"
+      ],
+      "fill": false
+    },
+    {
       "name": "refresh",
       "group": "actions",
       "role": "re-scan / reload (ports, re-detect)",
@@ -226,6 +263,15 @@
       "fill": false,
       "paths": [
         "<path d=\"M4 9V5a1 1 0 0 1 1-1h4M15 4h4a1 1 0 0 1 1 1v4M20 15v4a1 1 0 0 1-1 1h-4M9 20H5a1 1 0 0 1-1-1v-4\"/>"
+      ]
+    },
+    {
+      "name": "shrink",
+      "group": "navigation",
+      "role": "collapse an expanded popup back to its show button — popup title bar",
+      "fill": false,
+      "paths": [
+        "<path d=\"M9 4v4a1 1 0 0 1-1 1H4M20 9h-4a1 1 0 0 1-1-1V4M15 20v-4a1 1 0 0 1 1-1h4M4 15h4a1 1 0 0 1 1 1v4\"/>"
       ]
     },
     {

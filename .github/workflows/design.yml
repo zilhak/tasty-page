@@ -2,12 +2,13 @@ name: Design
 
 # Guards the design source in vendor/, which the Tasty app follows.
 # Every change builds the site and checks that the design pages keep their
-# contrast, that tasty.tokens.json is exactly what the token CSS generates,
-# and that the icon files and the icon component draw the same glyphs.
+# contrast, that the token tiers follow their rules, that both token lists
+# match the token CSS, and that the icon files and the icon component draw
+# the same glyphs.
 
 on:
   push:
-    branches: [main]
+    branches: [develop, release, main]
   pull_request:
 
 concurrency:
@@ -34,9 +35,36 @@ jobs:
         with:
           python-version: "3.x"
 
+      # The build reads the committed token JSON, so the tiers and the JSON are
+      # checked against the token CSS before anything is built.
+      - name: Check token tiers
+        run: |
+          python3 -B scripts/design-tokens/test_verify_token_tiers.py -v
+          python3 -B scripts/design-tokens/test_gen_tokens_json.py -v
+          python3 -B scripts/design-tokens/verify_token_tiers.py vendor
+
+      # Generate the DTCG token JSON from the CSS and compare it with the committed file.
+      - name: Check that the token JSON matches the token CSS
+        run: |
+          python3 scripts/design-tokens/gen_tokens_json.py vendor vendor/tokens/tasty.tokens.json vendor/tokens/tasty.tokens.json
+          git diff --exit-code vendor/tokens/tasty.tokens.json
+          python3 scripts/design-tokens/verify_tokens_json.py vendor vendor/tokens/tasty.tokens.json
+
+      - name: Test the ground-ink token verifier
+        run: python3 -B scripts/design-tokens/test_verify_ground_ink_tokens.py -v
+
+      - name: Test the contrast checker
+        run: node --test scripts/contrast-page.test.mjs scripts/contrast-site.test.mjs scripts/contrast-watchdog.test.mjs scripts/contrast-args.test.mjs scripts/contrast-report.test.mjs
+
       - run: npm ci
 
       - run: npm run build
+
+      # Runs the contrast check itself against the build, with a stand-in
+      # browser, so it needs the build but not Chromium.
+      - name: Test the contrast checker's exits
+        timeout-minutes: 3
+        run: node --test scripts/contrast-cli.test.mjs
 
       # Install the Chromium build that matches playwright-core, so the contrast
       # check renders with the same browser version everywhere it runs.
@@ -44,12 +72,8 @@ jobs:
 
       - run: npm run check-contrast
 
-      # The JSON must be regenerated from the CSS, never edited by hand.
-      - name: Check that the token JSON matches the token CSS
-        run: |
-          python3 scripts/design-tokens/gen_tokens_json.py vendor vendor/tokens/tasty.tokens.json vendor/tokens/tasty.tokens.json
-          git diff --exit-code vendor/tokens/tasty.tokens.json
-          python3 scripts/design-tokens/verify_tokens_json.py vendor vendor/tokens/tasty.tokens.json
+      - name: Check that the ground-ink token list matches the token CSS
+        run: python3 scripts/design-tokens/verify_ground_ink_tokens.py vendor vendor/tokens/ground-ink-rules.json
 
       # tokens.css repeats tier 1 values that the token tools read from primitives.css.
       - run: npm run check-tokens-copy

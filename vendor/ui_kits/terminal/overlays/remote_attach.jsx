@@ -93,7 +93,7 @@ const raCaption = { fontSize: 11, color: "var(--tasty-text-muted)" };
 function RaInUseBadge() {
   return (
     <Tag variant="attached" title="Already attached on another client — can't mirror it here."
-      style={{ color: "var(--tasty-tag-attached-fg)", borderColor: "color-mix(in srgb, var(--tasty-accent-attached) 40%, transparent)" }}>in use</Tag>
+      style={{ color: "var(--tasty-tag-attached-fg)", borderColor: "var(--tasty-tag-attached-border)" }}>in use</Tag>
   );
 }
 
@@ -269,7 +269,7 @@ function RemoteAttach({ onClose, onFlash }) {
   return (
     <Scrim onClose={() => {}}>
       <div style={{ width: 680, height: 460, display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)",
-        border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", overflow: "hidden",
+        border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden",
         boxShadow: "var(--tasty-shadow-modal)" }}>
 
         {/* header (headless / content-drawn — matches remote_tool) */}

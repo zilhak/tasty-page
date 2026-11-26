@@ -3,9 +3,54 @@ import { PageStates } from "../parts/specimen.jsx";
 import { STATES } from "./states.jsx";
 import { Icon as CIcon, Button, IconButton, Badge, BadgeGroup, Tag, Kbd, Input, Select, MultiSelect, AutoComplete, Checkbox, Switch, Tab, TreeRow, MenuItem, StatusDot, Toast, Table, Spinner, HelpHint, Tooltip, ListCtrl, CenterState } from "../../components/index.js";
 import { WorkspaceRunningCount } from "../../ui_kits/terminal/chrome.jsx";
+import { DB_LANGS, dbt } from "../../ui_kits/terminal/overlays/display_backend_copy.js";
+import { CLIPBOARD_TOAST_LANGS, ctt } from "../../ui_kits/terminal/overlays/clipboard_toast_copy.js";
 import { GalleryScrollbar } from "./scrollbar.jsx";
 import { GallerySearchableSelect } from "./searchable-select.jsx";
-import { Section, Spec, Stage, Cluster, Meta, Note, Do, Dont, GIcon } from "../parts/specimen.jsx";
+import { Section, Spec, Stage, Cluster, Meta, Note, Do, Dont, GIcon, Views, View } from "../parts/specimen.jsx";
+
+// Text caret specimen: the shared Input, focused, with the steady caret drawn over it. A native <input> draws its own
+// caret only under real focus, blinking, at the font's height, so the field hides it and the specimen paints a
+// border-width bar of --tasty-caret-specimen-height at the end of the value, centred on the field. The bar's x is
+// measured from the input's own box and font, so it follows the Input's padding and face without restating them. It
+// appears once the page runs, as the Detail name fit does.
+function CaretField({ value }) {
+  const box = React.useRef(null);
+  const [x, setX] = React.useState(null);
+  React.useEffect(() => {
+    const root = box.current;
+    const input = root && root.querySelector("input");
+    if (!input) return undefined;
+    let live = true;
+    // The value is laid out in a hidden span set in the input's own font, so the width is the page's text layout
+    // with the loaded web face (a canvas measure can run on a fallback face before the face loads).
+    const measure = () => {
+      if (!live) return;
+      const cs = getComputedStyle(input);
+      const probe = document.createElement("span");
+      Object.assign(probe.style, { position: "absolute", visibility: "hidden", whiteSpace: "pre", font: cs.font, letterSpacing: cs.letterSpacing, fontKerning: cs.fontKerning });
+      probe.textContent = input.value;
+      root.appendChild(probe);
+      const w = probe.getBoundingClientRect().width;
+      root.removeChild(probe);
+      setX(input.getBoundingClientRect().left - root.getBoundingClientRect().left + w);
+    };
+    measure();
+    const fonts = document.fonts;
+    if (fonts) {
+      fonts.ready.then(measure);
+      fonts.addEventListener("loadingdone", measure);
+    }
+    return () => { live = false; if (fonts) fonts.removeEventListener("loadingdone", measure); };
+  }, [value]);
+  return (
+    <div ref={box} style={{ position: "relative", display: "inline-flex" }}>
+      <Input focused value={value} onChange={() => {}} tabIndex={-1}
+        style={{ width: "var(--tasty-caret-specimen-field-width)", pointerEvents: "none" }} inputStyle={{ caretColor: "transparent" }} />
+      {x != null && <span aria-hidden="true" style={{ position: "absolute", left: x, top: 0, bottom: 0, marginBlock: "auto", width: "var(--tasty-border-width)", height: "var(--tasty-caret-specimen-height)", background: "var(--tasty-text-primary)" }} />}
+    </div>
+  );
+}
 
 // Tasty Gallery — Components. Live, interactive specimens of the DS
 // primitives. Hover / focus work for real on the page; persistent
@@ -34,14 +79,14 @@ function SelRow({ active, children }) {
   );
 }
 const SelGlyph = ({ name, color }) => <span style={{ display: "inline-flex", flex: "none", color }}><CIcon name={name} size="var(--tasty-icon-size-sm)" /></span>;
-const SelTag = ({ variant, children }) => <Tag variant={variant} style={{ flex: "none", color: "var(--tasty-tag-" + variant + "-fg)", ...(variant === "attached" ? { borderColor: "color-mix(in srgb, var(--tasty-accent-attached) 40%, transparent)" } : null) }}>{children}</Tag>;
+const SelTag = ({ variant, children }) => <Tag variant={variant} style={{ flex: "none", color: "var(--tasty-tag-" + variant + "-fg)", ...(variant === "attached" ? { borderColor: "var(--tasty-tag-attached-border)" } : null) }}>{children}</Tag>;
 const SEL_CASES = [
   ["Port popup · favorite star", (a) => <><SelGlyph name="starFill" color={a ? "var(--tasty-port-star-on-active)" : "var(--tasty-port-star-on)"} /><SelGlyph name="star" color={a ? "var(--tasty-port-star-off-active)" : "var(--tasty-port-star-off)"} /><span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)" }}>127.0.0.1:5173</span></>],
   ["Settings list · plugin dot", (a) => <><span style={{ flex: "none", width: "var(--tasty-size-6)", height: "var(--tasty-size-6)", borderRadius: "var(--tasty-radius-pill)", background: a ? "var(--tasty-accent-agent-on-active)" : "var(--tasty-accent-agent)" }} /><span>git-helper</span></>],
   ["File handlers · plugin glyph", (a) => <><SelGlyph name="plug" color={a ? "var(--tasty-accent-agent-on-active)" : "var(--tasty-accent-agent)"} /><span>Open with image viewer</span></>],
   ["Sidebar · dot, mirror glyph, Remote Tag", (a) => <><StatusDot status="running" /><SelGlyph name="remote" color={a ? "var(--tasty-workspace-mirror-fg-active)" : "var(--tasty-workspace-mirror-fg)"} /><span>Project A</span><SelTag variant="info">remote</SelTag></>],
   ["Remote attach · chips", () => <><StatusDot status="idle" attached /><span>build</span><SelTag variant="attached">in use</SelTag><SelTag variant="warning">inactive</SelTag></>],
-  ["Explorer, file picker · kind glyph, match run", (a) => <><SelGlyph name="folder" color={a ? "var(--tasty-text-on-active)" : "var(--tasty-text-secondary)"} /><SelGlyph name="image" color={a ? "var(--tasty-text-on-active)" : "var(--tasty-accent-info-raised)"} /><span>dia<span data-match-run="" style={a ? { color: "var(--tasty-explorer-match-fg-active)", textDecoration: "underline", textDecorationThickness: "var(--tasty-autocomplete-match-underline-width)", textUnderlineOffset: "var(--tasty-autocomplete-match-underline-offset)" } : { color: "var(--tasty-accent-primary-raised)" }}>gram</span>.png</span></>],
+  ["Explorer, file picker · kind glyph, match run", (a) => <><SelGlyph name="folder" color={a ? "var(--tasty-text-on-active)" : "var(--tasty-text-secondary)"} /><SelGlyph name="image" color={a ? "var(--tasty-text-on-active)" : "var(--tasty-accent-info-raised)"} /><span>dia<span data-match-run="" style={a ? { color: "var(--tasty-explorer-match-fg-active)", textDecoration: "underline", textDecorationThickness: "var(--tasty-autocomplete-match-underline-width)", textUnderlineOffset: "var(--tasty-autocomplete-match-underline-offset)" } : { color: "var(--tasty-explorer-match-fg)" }}>gram</span>.png</span></>],
   ["Shortcut · Kbd +", (a) => <><span style={{ flex: 1 }}>Split pane right</span><Kbd keys="Ctrl" /><span style={{ color: a ? "var(--tasty-kbd-plus-fg-active)" : "var(--tasty-kbd-plus-fg)", fontSize: "var(--tasty-font-size-micro)", fontFamily: "var(--tasty-font-mono)" }}>+</span><Kbd keys="D" /></>],
   ["Status dots", () => <><StatusDot status="running" /><StatusDot status="waiting" /><StatusDot status="error" /><StatusDot status="agent" /><StatusDot status="needs-input" /><StatusDot status="completion" /><StatusDot status="idle" /></>],
 ];
@@ -51,7 +96,7 @@ function SelRowGrid({ label, theme }) {
       <span style={{ fontSize: "var(--tasty-font-size-body)", fontWeight: "var(--tasty-font-weight-semibold)", color: "var(--tasty-text-primary)" }}>{label}</span>
       {SEL_CASES.map(([cap, draw]) => (
         <div key={cap} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", minWidth: 0 }}>
-          <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
+          <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
           <SelRow active={false}>{draw(false)}</SelRow>
           <SelRow active>{draw(true)}</SelRow>
         </div>
@@ -75,10 +120,10 @@ const SEL_INK = [
   ["Kbd + on selected row", "surface-active", null, "kbd-plus-fg-active", "+", "4.62", "5.39"],
   ["Match run at rest, menu", "surface-raised", null, "autocomplete-match-fg", "gram", "5.97", "5.37"],
   ["Match run, pointer hover", "surface-raised", "overlay-hover", "autocomplete-match-fg", "gram", "4.66", "4.52"],
-  ["Match run at rest, panel", "bg-panel", null, "explorer-match-fg", "gram", "7.79", "7.32"],
-  ["Match run at rest, focused bed", "surface-bed-focused", null, "accent-primary-raised", "gram", "9.97", "8.30"],
-  ["Match run at rest, unfocused bed", "surface-bed-unfocused", null, "accent-primary-raised", "gram", "7.79", "6.28"],
-  ["Match run under press, unfocused bed", "surface-bed-unfocused", "overlay-active", "accent-primary-raised", "gram", "5.39", "4.81"],
+  ["Match run at rest, panel", "bg-panel", null, "explorer-match-fg", "gram", "7.79", "7.34"],
+  ["Match run at rest, focused bed", "surface-bed-focused", null, "explorer-match-fg", "gram", "9.97", "8.30"],
+  ["Match run at rest, unfocused bed", "surface-bed-unfocused", null, "explorer-match-fg", "gram", "7.79", "6.28"],
+  ["Match run under press, unfocused bed", "surface-bed-unfocused", "overlay-active", "explorer-match-fg", "gram", "5.39", "4.81"],
   ["Tag attached", "tag-bg", null, "tag-attached-fg", "in use", "7.03", "5.29"],
   ["Muted on bg-app", "bg-app", null, "text-muted", "muted", "8.42", "4.73"],
   ["Muted on bg-sidebar", "bg-sidebar", null, "text-muted", "muted", "7.89", "5.14"],
@@ -223,7 +268,7 @@ function Components() {
             <Cluster label={'ghost ground="raised" — on surface-raised the label takes button-ghost-raised-fg → text-secondary-raised (Latte 5.17:1, was 4.05) (2026-10-21)'}>
               {[["Mocha", "mocha"], ["Latte", "latte"]].map(([label, t]) => (
                 <div key={label} {...(t ? { "data-theme": t } : {})} style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md)", background: "var(--tasty-surface-raised)", borderRadius: "var(--tasty-radius)" }}>
-                  <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-secondary-raised)" }}>{label}</span>
+                  <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-secondary-raised)" }}>{label}</span>
                   <Button variant="ghost" size="sm" ground="raised">Cancel (panel)</Button>
                   <Button variant="ghost" size="sm" ground="raised">Cancel (raised)</Button>
                 </div>
@@ -246,7 +291,7 @@ function Components() {
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-md)", flexWrap: "wrap", alignItems: "flex-start" }}>
             {[["Mocha", "mocha"], ["Latte", "latte"]].map(([label, attr]) => (
               <div key={label} {...(attr ? { "data-theme": attr } : {})} style={{ display: "grid", gridTemplateColumns: "auto auto auto", gap: "var(--tasty-space-sm) var(--tasty-space-md)", alignItems: "center", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label}</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label}</span>
                 <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" }}>enabled</span>
                 <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" }}>disabled</span>
                 {["primary", "agent", "danger", "secondary", "ghost"].map((v) => (
@@ -319,33 +364,22 @@ function Components() {
           <Stage>
             <Cluster label="shortcuts"><Kbd keys="Ctrl+K" /><Kbd keys="Ctrl+Shift+N" /><Kbd keys={["⌘", ","]} /><Kbd keys="Esc" /></Cluster>
           </Stage>
-          <Meta tokens={[{ tok: "--tasty-font-mono", use: "keycap" }, { tok: "--tasty-surface-raised", use: "cap fill", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-border-default", use: "cap border" }]} />
+          <Meta tokens={[{ tok: "--tasty-font-mono", use: "keycap" }, { tok: "--tasty-surface-raised", use: "cap fill", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-border-strong", use: "cap border" }]} />
         <Spec id="one-keycap-no-palette-variant" title="One keycap, no palette variant"
-          when={<>The command palette drew its own keycaps — <b>18</b> square, <b>5</b> side padding, <b>4</b> gap, <b>11</b>px type — against <b>Kbd</b>'s 16 / 4 / 3 / 10. That is drift, not a variant: nothing about a palette row asks for a bigger key, and a second size would have to be maintained in two places. The palette <b>converges on Kbd</b>. In a <b>28px</b> palette row a 16px cap leaves 6px of air above and below and still centres on the row's text baseline, so no row height or alignment changes.</>}>
-          <Stage variant="solo" style={{ padding: 20, background: "var(--tasty-bg-app)", flexDirection: "column", gap: 14, alignItems: "flex-start" }}>
-            {[["settled — Kbd (16 / 4 / 3 / 10)", true], ["dropped — palette-only cap (18 / 5 / 4 / 11)", false]].map(([label, canonical]) => (
-              <div key={label} style={{ display: "flex", flexDirection: "column", gap: 6, width: 380 }}>
-                <div style={{ fontSize: 11, color: canonical ? "var(--tasty-accent-success-raised)" : "var(--tasty-text-muted)" }}>{label}</div>
-                <div style={{ background: "var(--tasty-surface-raised)", border: "1px solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", padding: 4 }}>
-                  {[["Split pane right", "Ctrl+Shift+D"], ["Open file…", "Ctrl+P"]].map(([cmd, keys]) => (
-                    <div key={cmd} style={{ height: 28, display: "flex", alignItems: "center", gap: 8, padding: "0 8px", borderRadius: "var(--tasty-radius-sm)" }}>
-                      <span style={{ flex: 1, fontSize: 13, color: "var(--tasty-text-secondary)" }}>{cmd}</span>
-                      {canonical
-                        ? <Kbd keys={keys} />
-                        : <span style={{ display: "inline-flex", gap: 4 }}>{keys.split("+").map((k) => (
-                            <span key={k} style={{ minWidth: 18, height: 18, padding: "0 5px", display: "inline-flex", alignItems: "center", justifyContent: "center",
-                              fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: "var(--tasty-kbd-fg)", background: "var(--tasty-kbd-bg)",
-                              border: "1px solid var(--tasty-kbd-border)", borderRadius: "var(--tasty-radius-sm)",
-                              boxShadow: "0 var(--tasty-kbd-shadow-depth) 0 var(--tasty-kbd-border)" }}>{k}</span>))}
-                          </span>}
-                    </div>
-                  ))}
+          when={<>Both command palette rows use the shared Kbd keycap. The palette needs no larger cap, so there is only one size to maintain. A 16px cap centers on the text in a 28px row with 6px above and below.</>}>
+          {/* The palette's keycaps are the shared Kbd. The dropped palette-only cap is not drawn: the git history keeps it. */}
+          <Stage variant="solo">
+            <div style={{ width: "100%", maxWidth: "var(--tasty-palette-width)", background: "var(--tasty-surface-raised)", border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", padding: "var(--tasty-space-xs)" }}>
+              {[["Split pane right", "Ctrl+Shift+D"], ["Open file…", "Ctrl+P"]].map(([cmd, keys]) => (
+                <div key={cmd} style={{ height: "var(--tasty-control-height)", display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "0 var(--tasty-space-sm)", borderRadius: "var(--tasty-radius-sm)" }}>
+                  <span style={{ flex: 1, fontSize: "var(--tasty-font-size-body)", color: "var(--tasty-text-secondary-raised)" }}>{cmd}</span>
+                  <Kbd keys={keys} />
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </Stage>
           <Meta
-            specs={[["min side", <>16 — <span className="tok">--tasty-kbd-size</span> (was 18)</>], ["padding-x", <>4 — <span className="tok">--tasty-kbd-padding-x</span> (was 5)</>], ["gap", <>3 — <span className="tok">--tasty-kbd-gap</span> (was 4)</>], ["font", <>10 — <span className="tok">--tasty-kbd-font-size</span> (was 11)</>], ["bottom edge", <>unchanged — <span className="tok">--tasty-kbd-shadow-depth</span></>], ["row", "28px palette row — unchanged, 6px air per side"], ["new tokens", "none"]]}
+            specs={[["min side", <>16px · <span className="tok">--tasty-kbd-size</span> (was 18px)</>], ["padding-x", <>4px · <span className="tok">--tasty-kbd-padding-x</span> (was 5px)</>], ["gap", <>4px · <span className="tok">--tasty-kbd-gap</span></>], ["font", <>10px · <span className="tok">--tasty-kbd-font-size</span> (was 11px)</>], ["bottom edge", <>2px bottom border · <span className="tok">--tasty-kbd-shadow-depth</span></>], ["row", "28px · 6px above and below the cap"], ["new tokens", "none"]]}
             tokens={[{ tok: "--tasty-kbd-size", use: "cap min side" }, { tok: "--tasty-kbd-padding-x", use: "cap side padding" }, { tok: "--tasty-kbd-gap", use: "between caps" }, { tok: "--tasty-kbd-font-size", use: "cap label" }]} />
           <Note>The switch-number overlay keycap already reads the Kbd tokens, so the palette was the last divergent cap. One keycap in the system now.</Note>
         </Spec>
@@ -376,29 +410,29 @@ function Components() {
           when={<>Single-line field. Use <code>mono</code> for paths, IDs, regex, hex. <code>icon</code> for a leading affordance (search), <code>addon</code> for a trailing unit. <code>invalid</code> turns the border + ring red. <code>readOnly</code> (2026-09-29) is for a value that can't be edited <b>now</b> but is still read: the disabled neutral box, the value in <span className="tok">--tasty-input-readonly-fg</span> (text-secondary-raised), focusable, selectable and copyable. <code>disabled</code> means the control itself is unavailable.</>}>
           <Stage variant="column" style={{ gap: 12 }}>
             <Cluster label="default · icon · addon — click to focus">
-              <Input placeholder="Workspace name" style={{ width: 200 }} />
-              <Input icon={ic.search} placeholder="Filter…" style={{ width: 200 }} />
+              <Input placeholder="Workspace name" style={{ width: "var(--tasty-field-width-lg)" }} />
+              <Input icon={ic.search} placeholder="Filter…" style={{ width: "var(--tasty-field-width-lg)" }} />
               <Input mono defaultValue="14" addon="px" style={{ width: "var(--tasty-field-width-color)" }} />
             </Cluster>
             <Cluster label="mono · invalid · disabled">
-              <Input mono defaultValue="s_01HXK9" style={{ width: 200 }} />
-              <Input invalid defaultValue="bad value" style={{ width: 160 }} />
-              <Input disabled placeholder="Disabled" style={{ width: 160 }} />
+              <Input mono defaultValue="s_01HXK9" style={{ width: "var(--tasty-field-width-lg)" }} />
+              <Input invalid defaultValue="bad value" style={{ width: "var(--tasty-field-width-md)" }} />
+              <Input disabled placeholder="Disabled" style={{ width: "var(--tasty-field-width-md)" }} />
             </Cluster>
             <Cluster label="readOnly vs disabled — same box, readable value (2026-09-29)">
               <Input mono readOnly defaultValue="#89b4fa" style={{ width: "var(--tasty-field-width-xs)" }} />
               <Input mono disabled defaultValue="#89b4fa" style={{ width: "var(--tasty-field-width-xs)" }} />
             </Cluster>
-            <Cluster label={'ground="raised" — on surface-raised, box steps down to bg-panel + border-strong (2026-10-14)'}>
-              <div style={{ display: "flex", gap: 12, padding: 12, background: "var(--tasty-surface-raised)", borderRadius: "var(--tasty-radius)" }}>
-                <Input ground="raised" placeholder="Editable" style={{ width: 140 }} />
+            <Cluster label={'ground="raised" — on surface-raised, box steps down to bg-panel + border-control-raised (2026-10-14)'}>
+              <div style={{ display: "flex", gap: "var(--tasty-space-md)", padding: "var(--tasty-space-md)", background: "var(--tasty-surface-raised)", borderRadius: "var(--tasty-radius)" }}>
+                <Input ground="raised" placeholder="Editable" style={{ width: "var(--tasty-field-width-md)" }} />
                 <Input ground="raised" mono readOnly defaultValue="#89b4fa" style={{ width: "var(--tasty-field-width-xs)" }} />
                 <Input ground="raised" mono disabled defaultValue="#89b4fa" style={{ width: "var(--tasty-field-width-xs)" }} />
               </div>
             </Cluster>
           </Stage>
           <Meta
-            specs={[["height", <>28px <span className="tok">--tasty-control-height</span></>], ["border", "1px → focus ring 2px"], ["padding", <>0 <span className="tok">--tasty-space-sm</span></>]]}
+            specs={[["height", <>28px <span className="tok">--tasty-control-height</span></>], ["border", "1px → focus: border-focus edge + 1px ring flush outside, no gap (one solid 2px edge, 1px past the box)"], ["padding", <>0 <span className="tok">--tasty-space-md</span></>], ["width", "style width sizes the whole box, border and padding included"]]}
             tokens={[{ tok: "--tasty-surface-raised", use: "fill", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-border-focus", use: "ring", color: "var(--tasty-border-focus)" }, { tok: "--tasty-accent-danger", use: "invalid", color: "var(--tasty-accent-danger-raised)" }, { tok: "--tasty-text-placeholder", use: "hint" }, { tok: "--tasty-input-readonly-fg", use: "read-only value → text-secondary-raised", color: "var(--tasty-input-readonly-fg)" }]} />
         </Spec>
 
@@ -422,13 +456,13 @@ function Components() {
           <Stage variant="column" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-md)" }}>
             {[["Mocha", "mocha"], ["Latte", "latte"]].map(([label, t]) => (
               <div key={label} {...(t ? { "data-theme": t } : {})} style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-md)", alignItems: "flex-end", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-panel)", borderRadius: "var(--tasty-radius)" }}>
-                <span style={{ width: "100%", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} — Select states (2026-10-21): hover / focus are pinned with the same border values the CSS applies</span>
-                {[["value", { defaultValue: "Tasty rc" }], ["hover", { defaultValue: "Tasty rc", style: { borderColor: "var(--tasty-border-strong)" } }],
+                <span className="g-cap" style={{ width: "100%", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} — Select states (2026-10-21): hover / focus are pinned with the same border values the CSS applies</span>
+                {[["value", { defaultValue: "Tasty rc" }], ["hover", { defaultValue: "Tasty rc", style: { borderColor: "var(--tasty-border-control)" } }],
                   ["focus / open", { defaultValue: "Tasty rc", style: { borderColor: "var(--tasty-border-focus)", boxShadow: "0 0 0 var(--tasty-border-width) var(--tasty-border-focus)" } }],
                   ["no value → select-placeholder", { placeholder: "Select a profile…" }], ["disabled + value → state-disabled-fg", { disabled: true, defaultValue: "Tasty rc" }],
                   ["disabled + no value → state-disabled-fg", { disabled: true, placeholder: "Select a profile…" }]].map(([k, p]) => (
                   <div key={k} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", width: "var(--tasty-field-width-lg)" }}>
-                    <span style={{ fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" }}>{k}</span>
+                    <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" }}>{k}</span>
                     <Select block options={["Default (full rc)", "Tasty rc", "Custom"]} {...p} />
                   </div>
                 ))}
@@ -438,11 +472,11 @@ function Components() {
           <Stage variant="column" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-md)" }}>
             {[["Mocha", "mocha"], ["Latte", "latte"]].map(([label, t]) => (
               <div key={label} {...(t ? { "data-theme": t } : {})} style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-md)", alignItems: "flex-end", padding: "var(--tasty-space-md)", background: "var(--tasty-surface-raised)", borderRadius: "var(--tasty-radius)" }}>
-                <span style={{ width: "100%", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-secondary-raised)" }}>{label} — Select ground="raised" (2026-10-21): box bg-panel + border-strong in every state; ink and focus unchanged</span>
+                <span className="g-cap" style={{ width: "100%", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-secondary-raised)" }}>{label} — Select ground="raised" (2026-10-21): box bg-panel + border-control-raised in every state; ink and focus unchanged</span>
                 {[["value", { defaultValue: "Tasty rc" }], ["focus / open", { defaultValue: "Tasty rc", style: { borderColor: "var(--tasty-border-focus)", boxShadow: "0 0 0 var(--tasty-border-width) var(--tasty-border-focus)" } }],
                   ["no value", { placeholder: "Select a profile…" }], ["disabled", { disabled: true, defaultValue: "Tasty rc" }], ["panel ground (vanishes)", { defaultValue: "Tasty rc", ground: "panel" }]].map(([k, p]) => (
                   <div key={k} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", width: "var(--tasty-field-width-lg)" }}>
-                    <span style={{ fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-secondary-raised)" }}>{k}</span>
+                    <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-secondary-raised)" }}>{k}</span>
                     <Select block ground="raised" options={["Default (full rc)", "Tasty rc", "Custom"]} {...p} />
                   </div>
                 ))}
@@ -471,18 +505,18 @@ function Components() {
                 ["20 options → internal scroll at 220", <MultiSelect key="m" block open activeIndex={-1} options={MS_MANY} value={["opt-02", "opt-05"]} summary={msSummary} allToggle />, 230],
               ].map(([label, node, minH]) => (
                 <div key={label} style={{ display: "flex", flexDirection: "column", gap: 8, minHeight: minH, alignItems: "stretch" }}>
-                  <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
+                  <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
                   <div style={{ position: "relative" }}>{node}</div>
                 </div>
               ))}
             </div>
             <div style={{ display: "flex", gap: 16, alignItems: "flex-end", padding: "14px 16px", background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-default)", borderRadius: 4 }}>
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>Sort by — Select (one value)</div>
+                <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>Sort by — Select (one value)</div>
                 <Select options={["Started", "Name", "Duration"]} style={{ width: 160 }} />
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>Status — MultiSelect (many)</div>
+                <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>Status — MultiSelect (many)</div>
                 <MultiSelect options={MS_STATES} defaultValue={["waiting", "ready", "running"]} summary={msSummary} placeholder="No status" style={{ width: 160 }} />
               </div>
             </div>
@@ -519,7 +553,7 @@ function Components() {
                 ["hover (row 3) vs keyboard-active (row 1)", <AutoComplete key="h" block mono withGo icon={ic.folderOpen} rowIcon={ic.folderOpen} open activeIndex={1} hoverIndex={3} query="" items={AC_DIRS} maxDropdownHeight={220} />, 200],
               ].map(([label, node, minH]) => (
                 <div key={label} style={{ display: "flex", flexDirection: "column", gap: 8, minHeight: minH, alignItems: "stretch" }}>
-                  <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
+                  <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
                   <div style={{ position: "relative" }}>{node}</div>
                 </div>
               ))}
@@ -530,7 +564,7 @@ function Components() {
                 ["markdown context — file · recent files", ic.file, AC_FILES],
               ].map(([label, icon, items]) => (
                 <div key={label} style={{ display: "flex", flexDirection: "column", gap: 8, minHeight: 200 }}>
-                  <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
+                  <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
                   <div style={{ position: "relative" }}><AutoComplete block mono withGo icon={icon} rowIcon={icon} open activeIndex={0} query="" items={items} maxDropdownHeight={220} /></div>
                 </div>
               ))}
@@ -543,21 +577,19 @@ function Components() {
         </Spec>
         <Spec id="text-caret-steady-never-blinks" title="Text caret — steady, never blinks"
           when={<>The caret in every UI text field (palette search, settings fields, popup and modal inputs, single- and multi-line) is <b>steady</b>: always drawn while the field has focus and the window is focused, never blinking. This matches the terminal cursor (motion 0 ms) and keeps an idle focused field from waking the frame loop twice a second. Focus is already carried by the field's focus border, so the caret does not need motion to be found. Window not focused → no caret, as today.</>}>
-          <Stage variant="column" style={{ gap: 12, alignItems: "flex-start", maxWidth: 320 }}>
-            <div style={{ position: "relative", width: 260, height: "var(--tasty-control-height)", display: "flex", alignItems: "center", padding: "0 var(--tasty-space-sm)", background: "var(--tasty-input-bg, var(--tasty-surface-raised))", border: "var(--tasty-border-width) solid var(--tasty-border-focus)", borderRadius: "var(--tasty-radius)", fontSize: 13, color: "var(--tasty-text-primary)" }}>
-              open settings<span style={{ display: "inline-block", width: "var(--tasty-border-width)", height: 16, background: "var(--tasty-text-primary)", marginLeft: 1 }}></span>
-            </div>
+          <Stage variant="column" style={{ gap: "var(--tasty-space-md)", alignItems: "flex-start" }}>
+            <CaretField value="open settings" />
           </Stage>
           <Meta
-            specs={[["blink", "off · egui text_cursor.blink = false"], ["width", "1 · text-primary ink"], ["shown", "field focused AND window focused"], ["cost", "no idle repaint while a field is focused"]]}
-            tokens={[{ tok: "--tasty-border-focus", use: "focus edge", color: "var(--tasty-border-focus)" }]} />
+            specs={[["blink", "off · egui text_cursor.blink = false"], ["width", "1 · text-primary ink"], ["height", <>default Input uses the proportional UI font (Ubuntu-Light first) · egui caret extension 1.5 pt above and below the row · at 13 pt font size, row / drawn segment / visible after field clipping = 15 pt / 18 pt / 17 pt at 1.0 and 2.0 ppp, 14.40625 pt / 17.40625 pt / 16.40625 pt at 1.25 ppp · 17 pt = 34 device pixels at 2.0 ppp · web specimen visible height <span className="tok">--tasty-caret-specimen-height</span> = 1.3077 × <span className="tok">--tasty-input-font-size</span> = 17 CSS px at 13 CSS px</>], ["shown", "field focused AND window focused"], ["cost", "no idle repaint while a field is focused"]]}
+            tokens={[{ tok: "--tasty-border-focus", use: "focus edge", color: "var(--tasty-border-focus)" }, { tok: "--tasty-text-primary", use: "caret ink", color: "var(--tasty-text-primary)" }, { tok: "--tasty-caret-specimen-height", use: "caret height" }]} />
         </Spec>
       </Section>
 
       {/* NAV */}
       <Section id="nav" title="Tab · TreeRow · MenuItem">
         <Spec id="tab" title="Tab"
-          when={<>One tab in the pane tab strip. <b>24px tall × 150px wide</b>, accent bar on the active tab, hover-revealed close, and a <b>busy dot</b> mirroring the product surface model (busy=green, idle=no dot). The title carries <b>attention</b>: <code>needs-input</code> (yellow) outranks <code>completion</code> (blue); the active tab never shows it (attention clears on focus). States are exactly the product's (2026-10-07): busy · needs-input · completion — no attached ring and no separate notif tint on a tab. The 5-color owner×activity vocabulary lives on the workspace StatusDot, not on tabs — Tasty has no "unsaved" state.</>}>
+          when={<>One tab in the pane tab strip. <b>24px tall × 150px wide</b>, accent bar on the active tab, hover-revealed close, and a <b>busy dot</b> mirroring the product surface model (busy=green, idle=no dot). The title carries <b>attention</b>: <code>needs-input</code> (yellow) outranks <code>completion</code> (blue). Both outrank the active color, which outranks the rest color. An active tab keeps its attention color until attention clears, which can happen on redraw if the tab is selected in the current workspace's focused pane, the OS window is focused, no fullscreen stage is showing, and the surface is free of hard occupancy. States are exactly the product's (2026-10-07): busy · needs-input · completion — no attached ring and no separate notif tint on a tab. The 5-color owner×activity vocabulary lives on the workspace StatusDot, not on tabs — Tasty has no "unsaved" state.</>}>
           <Stage variant="tight">
             <div style={{ display: "flex", background: "var(--tasty-bg-sidebar)", borderBottom: "1px solid var(--tasty-separator)" }}>
               <Tab label="build.sh" icon={ic.term} active status="busy" />
@@ -567,7 +599,7 @@ function Components() {
             </div>
           </Stage>
           <Meta
-            specs={[["height", <>24px <span className="tok">--tasty-control-height-tab</span></>], ["width", <>150px <span className="tok">--tasty-tab-width</span></>], ["active", "accent top bar + panel fill"], ["close", "hover-revealed"], ["title", "needs-input › completion › active › rest"], ["cluster", <>busy dot · close, 4 apart · <span className="tok">--tasty-tab-status-gap</span></>]]}
+            specs={[["height", <>24px <span className="tok">--tasty-control-height-tab</span></>], ["width", <>150px <span className="tok">--tasty-tab-width</span></>], ["active", "accent top bar + panel fill"], ["close", "hover-revealed"], ["title", "needs-input › completion › active › rest"], ["cluster", <>busy dot · close, 4 apart · <span className="tok">--tasty-tab-status-gap</span></>], ["keyboard focus", "none: the strip is no Tab stop and draws no ring, tabs move by shortcut (the app still lets egui focus reach a pane tab; taking it out is pending app work)"], ["web host Tab stop", <>ring <span className="tok">--tasty-focus-ring-width</span> 2px inside the tab · close keeps <span className="tok">--tasty-focus-ring-offset</span> 1px off</>]]}
             tokens={[{ tok: "--tasty-bg-panel", use: "active fill", color: "var(--tasty-bg-panel)" }, { tok: "--tasty-accent-primary", use: "active bar", color: "var(--tasty-accent-primary-raised)" }, { tok: "--tasty-tab-fg-needs-input", use: "needs-input title", color: "var(--tasty-tab-fg-needs-input)" }, { tok: "--tasty-tab-fg-completion", use: "completion title", color: "var(--tasty-tab-fg-completion)" }, { tok: "--tasty-tab-status-gap", use: "→ space-xs 4" }, { tok: "--tasty-separator", use: "dividers" }]} />
         </Spec>
 
@@ -590,7 +622,7 @@ function Components() {
         <Spec id="menuitem" title="MenuItem"
           when={<>A <b>28px</b> row for context menus, the command palette, and tools menus — icon + label + trailing shortcut. <b>active</b> = keyboard-highlighted; <b>danger</b> for destructive; <code>separator</code> draws a thin rule.</>}>
           <Stage variant="tight">
-            <div style={{ background: "var(--tasty-surface-raised)", border: "1px solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", padding: 6, width: 280 }}>
+            <div style={{ background: "var(--tasty-menu-bg)", border: "var(--tasty-border-width) solid var(--tasty-menu-border)", borderRadius: "var(--tasty-radius)", padding: 6, width: 280 }}>
               <MenuItem label="New tab" icon={ic.term} shortcut={<Kbd keys="Ctrl+T" />} active />
               <MenuItem label="Split pane" icon={ic.split} shortcut={<Kbd keys="Ctrl+D" />} />
               <MenuItem label="Copy path" icon={ic.copy} />
@@ -610,7 +642,7 @@ function Components() {
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
             {[["Mocha", "mocha"], ["Latte", "latte"]].map(([label, attr]) => (
               <div key={label} data-theme={attr || undefined} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-panel)", borderRadius: "var(--tasty-radius)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} — rest · selected · rest · keyboard-active</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} — rest · selected · rest · keyboard-active</span>
                 <div role="menu" style={{ width: "var(--tasty-field-width-lg)", background: "var(--tasty-menu-bg)", border: "var(--tasty-border-width) solid var(--tasty-menu-border)", borderRadius: "var(--tasty-menu-radius)", padding: "var(--tasty-space-xs)", boxShadow: "var(--tasty-shadow-popover)" }}>
                   <MenuItem label="Ask" />
                   <MenuItem label="Minimize to background" selected />
@@ -620,7 +652,7 @@ function Components() {
               </div>
             ))}
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-panel)", borderRadius: "var(--tasty-radius)" }}>
-              <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>No value yet (2026-10-09) — trigger in placeholder ink, list = real options only</span>
+              <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>No value yet (2026-10-09) — trigger in placeholder ink, list = real options only</span>
               <div style={{ width: "var(--tasty-field-width-lg)", height: "var(--tasty-control-height)", boxSizing: "border-box", display: "flex", alignItems: "center", padding: "0 var(--tasty-space-md)", border: "var(--tasty-border-width) solid var(--tasty-border-focus)", borderRadius: "var(--tasty-radius)", background: "var(--tasty-surface-field)", fontSize: "var(--tasty-font-size-body)", color: "var(--tasty-text-placeholder)" }}>Choose an action</div>
               <div role="menu" style={{ width: "var(--tasty-field-width-lg)", background: "var(--tasty-menu-bg)", border: "var(--tasty-border-width) solid var(--tasty-menu-border)", borderRadius: "var(--tasty-menu-radius)", padding: "var(--tasty-space-xs)", boxShadow: "var(--tasty-shadow-popover)" }}>
                 <MenuItem label="Ask" active />
@@ -717,16 +749,50 @@ function Components() {
           <Stage variant="column" style={{ gap: 10, alignItems: "stretch", maxWidth: 380 }}>
             <Toast variant="success" hint={<Kbd keys="⌘⇧C" />}>Path copied</Toast>
             <Toast variant="success">Path copied</Toast>
+            <Toast variant="success">{ctt("toast.copied")}</Toast>
+            <Toast variant="success">{ctt("toast.cut")}</Toast>
             <Toast variant="success" hint={<Kbd keys="⌘C" />}>Copied 3 lines from the selection to the clipboard</Toast>
             <Toast variant="info">Copied (OSC 52)</Toast>
             <Toast variant="warning">Held by another client (readonly)</Toast>
             <Toast variant="warning">Could not load the font: ~/fonts/notes.txt. Using another font.</Toast>
             <Toast variant="danger">Force detach — connection dropped</Toast>
           </Stage>
+          <Views>
+            {["toast.copied", "toast.cut"].map((key) => (
+              <View key={key} name={`toast-clipboard-${key.slice(6).replace(/_/g, "-")}`} label={`${key}, en · ko · ja · zh-Hans`}>
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "var(--tasty-space-sm)" }}>
+                  {CLIPBOARD_TOAST_LANGS.map((lang) => <Toast key={lang} variant="success">{ctt(key, lang)}</Toast>)}
+                </div>
+              </View>
+            ))}
+          </Views>
           <Meta
-            specs={[["rail", "3px accent left edge"], ["radius", <span className="tok">--tasty-radius</span>], ["fill", <span className="tok">--tasty-surface-raised</span>], ["boxes", "rail · body (flex 1) · hint (flex none) · gap space-sm · pad space-sm / space-md"], ["hint", "Kbd of the action's binding · menu / mouse origin only · none when unbound"], ["hint position", "right end, first line · never truncated — body wraps first"], ["platform", "Kbd rule: ⌘ ⇧ ⌥ on macOS, Ctrl+Shift+ on Windows / Linux"], ["agent", "catalog only — host does not emit"], ["icon", "catalog only — host card has no icon"]]}
+            specs={[["copy and cut (2026-11-13)", "text copy raises toast.copied, text cut raises toast.cut (values in ui_kits/terminal/overlays/clipboard_toast_copy.js), except a host egui field where nothing was removed (next row) · a page cut counts when it goes through the host's cut command or a page script calls execCommand('cut') · a source that cannot tell copy from cut (a page script writing the clipboard) raises toast.copied · copy and cut never merge, their bodies differ"], ["cut where nothing can be edited (2026-11-14)", "exception to copy and cut, host egui only: a cut key or command on a selectable label or a read-only TextEdit in Tasty's own UI that produces copy output removes nothing: toast.copied, the card says what happened · in a host egui field toast.cut needs a signal that text was removed (egui's copy output carries only the text); without one, toast.copied · plugin egui fields (decided 2026-11-14): if the plugin's result can carry whether text was removed, as one more field in the same result, this row extends to them (toast.cut only when text was removed, otherwise toast.copied); if that needs a separate step, the copy and cut rule holds (the Cut request paired with its result raises toast.cut) and a read-only plugin field showing Text cut is accepted · web and markdown pages, a selection that cannot be edited: not part of this row, open until the engine behavior is checked; until then the page rule applies (toast.cut through the host's cut command)"], ["engine's own page cut (decided 2026-11-14)", "a cut the web engine makes without Tasty (its own cut key, the page context menu Cut): if the same path that notices a page copy (a document level copy and cut event, for example) also catches it without extra steps, the copy and cut rule applies, toast.cut when the cut is certain, toast.copied when copy and cut cannot be told apart · if it needs a separate step or handling per engine, it is not done: no toast"], ["kind (2026-11-13)", "success for a copy or cut the user made: toast.copied, toast.cut, toast.copied_path · info for a copy a program asked for: toast.copied_osc52"], ["rail", "3px accent left edge"], ["radius", <span className="tok">--tasty-radius</span>], ["fill", <span className="tok">--tasty-surface-raised</span>], ["boxes", "rail · body (flex 1) · hint (flex none) · gap space-sm · pad space-sm / space-md"], ["hint", "Kbd of the action's binding · menu / mouse origin only · none when unbound"], ["hint position", "right end, first line · never truncated — body wraps first"], ["platform", "Kbd rule: ⌘ ⇧ ⌥ on macOS, Ctrl+Shift+ on Windows / Linux"], ["agent", "catalog only — host does not emit"], ["icon", "catalog only — host card has no icon"]]}
             tokens={[{ tok: "--tasty-accent-success", use: "ok rail", color: "var(--tasty-accent-success-raised)" }, { tok: "--tasty-toast-hint-font-size", use: "hint · micro mono" }, { tok: "--tasty-surface-raised", use: "card", color: "var(--tasty-surface-raised)" }]} />
           <Note>A long unbroken value such as a path wraps inside the card. The font rejected toast is on Overlays › Windows, under Settings.</Note>
+        </Spec>
+
+        <Spec id="toast-display-backend" title="Toast — display backend notices"
+          when={<>On Linux, when Tasty runs on <b>native Wayland</b> (no XWayland, cause 1; or the X server in <code>DISPLAY</code> unreachable, cause 1b) or was started with a <b><code>GDK_BACKEND</code> value that does not allow x11</b> (cause 2), a copy or paste that cannot reach other apps raises a toast. Menus raise none: there Tasty opens its fallback menu. Each toast is the user's action answered: <b>what is off, why, and the fix</b>, in one card. <b>warning</b> rail: the action did not reach other apps for a reason in the environment, which is neither a failure of the action (danger) nor news (info). The fix is outside Tasty (turn on XWayland or fix the X server or XWayland connection, then restart Tasty), and for the copy mode <code>"*</code> register also a way inside Tasty: copy again with <code>"+</code>. No button, no link and no hint, so no toast opens the user guide: a toast takes no input, and the card says the fix in words.</>}>
+          <Stage variant="column" style={{ gap: 10, alignItems: "stretch", maxWidth: 380 }}>
+            <Toast variant="warning">{dbt("toast.clipboard_wayland_unsupported")}</Toast>
+            <Toast variant="warning">{dbt("toast.clipboard_primary_wayland_unsupported")}</Toast>
+            <Toast variant="warning">{dbt("toast.clipboard_files_wayland_copy")}</Toast>
+            <Toast variant="warning">{dbt("toast.clipboard_files_wayland_paste")}</Toast>
+          </Stage>
+          <Views>
+            {["toast.clipboard_wayland_unsupported", "toast.clipboard_wayland_x_failed", "toast.clipboard_primary_wayland_unsupported", "toast.clipboard_primary_wayland_x_failed", "toast.clipboard_files_wayland_copy", "toast.clipboard_files_wayland_paste", "toast.clipboard_files_wayland_x_failed_copy", "toast.clipboard_files_wayland_x_failed_paste"].map((key) => (
+              <View key={key} name={`toast-db-${key.slice(6).replace(/_/g, "-")}`} label={`${key}, en · ko · ja · zh-Hans`}>
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "var(--tasty-space-sm)" }}>
+                  {DB_LANGS.map((lang) => <Toast key={lang} variant="warning">{dbt(key, lang)}</Toast>)}
+                </div>
+              </View>
+            ))}
+          </Views>
+          <Meta
+            specs={[["variant", "warning (rail accent-warning)"], ["variant change", "the three clipboard toasts (terminal, Explorer copy, Explorer paste) are Info today; on native Wayland they become warning. The X11 failure toasts toast.clipboard_files_internal_copy / _paste keep their current variant"],["card", "the Toast card as it is · no icon, no hint, no button, no link · no action opens the user guide (decided 2026-11-11)"], ["body", "what is off · cause · fix · one string per key, at most 200 characters in every language, wraps in the 320 card"], ["native Wayland scope (2026-11-12)", "Tasty owns the Wayland clipboard: ordinary terminal copy and paste, text and images, reach other apps and raise none of these Wayland warning toasts (the usual copy success toasts such as toast.copied stay). Still off: (a) the copy mode \"* register, (b) Explorer files. (c) a desktop that gives Tasty no clipboard stops everything"], ["terminal clipboard (c)", "the desktop gives Tasty no clipboard: toast.clipboard_wayland_unsupported (1) · toast.clipboard_wayland_x_failed (1b), values unchanged · wins over (a)"], ["copy mode \"* register (a)", "a yank into \"* fails while \"+ works: toast.clipboard_primary_wayland_unsupported (1) · toast.clipboard_primary_wayland_x_failed (1b) · names \"*, points to \"+ and the restart fix, never says copy or paste with other apps is off"], ["Explorer clipboard (b)", "native Wayland: toast.clipboard_files_wayland_copy / _paste (1) · _x_failed_copy / _paste (1b), copy and cut share _copy · _paste values say only files from other apps can't be read (2026-11-12) · any other system clipboard failure keeps toast.clipboard_files_internal_copy / _paste"], ["cause 2 clipboard", "none: under cause 2 the window is X11, so by the code path the clipboard is not affected (not measured by running)"], ["tray (cause 2)", "named only in the cause 2 page notice title (webview.gdk_backend) · no toast when minimizing"], ["GTK init failed (gtk-init)", "no toast: the window is X11, so by the code path the clipboard is not affected (not measured by running) · the tray is named only in the gtk-init page notice title (webview.gtk_init_failed)"], ["file drops (J2, decided 2026-11-11)", "not named: Tasty takes file drops from other apps on native Wayland too, so no toast mentions them"]]}
+            tokens={[{ tok: "--tasty-accent-warning", use: "rail", color: "var(--tasty-accent-warning)" }, { tok: "--tasty-surface-raised", use: "card", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-toast-max-width", use: "card width cap (320)" }]} />
+          <Note>These notices are long for a toast, but their life is the global toast setting like every other toast (2 s by default); none of them has a life of its own.</Note>
         </Spec>
 
         <Spec id="toast-stack" title="Toast stack"
@@ -741,7 +807,7 @@ function Components() {
             </div>
           </Stage>
           <Meta
-            specs={[["anchor", "one corner (bottom-right)"], ["order", "newest bottom"], ["gap", <>8px <span className="tok">--tasty-space-sm</span></>], ["cap", "5 per scope → oldest dropped"], ["width", <>content width per card, cap <span className="tok">--tasty-toast-max-width</span> (320) · right edges align</>], ["window-scope offset (b2 · 2026-10-07)", <>main window: <span className="tok">--tasty-toast-stack-offset-bottom</span> (→ size-36 = status bar 24 + 12), OFF-SCALE like the status bar and the card dims · Settings window: <span className="tok">--tasty-toast-stack-offset-bottom-settings</span> (→ size-64 = footer 52 + 12), ON-SCALE like the footer — the stack sits above Cancel / Save</>], ["scale", "every structural toast dim (scope margin 12, padding 12 × 8, gap 8, main offset) is OFF-SCALE; only the Settings offset follows the zoom"], ["shared corner (2026-10-07)", "workspace- and pane-scope stacks that land on the same corner merge into ONE column, newest bottom, cap 5 across both"], ["link menu Copy hint (b2)", "own action copy_link ('Copy link'), unbound by default → no hint until the user binds it; never borrow the copy binding"], ["over a native WebView (b2)", "while a toast card's rect intersects a WebView, only THAT WebView is hidden for the card's life (its tile shows plain); others stay; keyboard focus is not reclaimed (a toast never takes focus). A WebView that is RECEIVING KEYS is not hidden, so the card stays under it — accepted (2026-10-07): typing must not be lost, and a toast is transient"]]}
+            specs={[["anchor", "one corner (bottom-right)"], ["order", "newest bottom"], ["gap", <>8px <span className="tok">--tasty-space-sm</span></>], ["cap", "5 per scope → oldest dropped"], ["width", <>content width per card, cap <span className="tok">--tasty-toast-max-width</span> (320) · right edges align</>], ["window-scope offset (b2 · 2026-10-07)", <>main window: <span className="tok">--tasty-toast-stack-offset-bottom</span> (→ size-36 = status bar 24 + 12), OFF-SCALE like the status bar and the card dims · Settings window: <span className="tok">--tasty-toast-stack-offset-bottom-settings</span> (→ size-64 = footer 52 + 12), ON-SCALE like the footer — the stack sits above Cancel / Save</>], ["scale", "every structural toast dim (scope margin 12, padding 12 × 8, gap 8, main offset) is OFF-SCALE; only the Settings offset follows the zoom"], ["shared corner (2026-10-07)", "workspace- and pane-scope stacks that land on the same corner merge into ONE column, newest bottom, cap 5 across both"], ["link menu Copy hint (b2)", "own action copy_link ('Copy link'), unbound by default → no hint until the user binds it; never borrow the copy binding"], ["over a native WebView (b2)", "while a toast card's rect intersects a WebView, only THAT WebView is hidden for the card's life (its tile shows plain); others stay; keyboard focus is not reclaimed (a toast never takes focus). A WebView that is RECEIVING KEYS is not hidden (typing must not be lost); instead the card's rect is cut out of it as a hole and the card is drawn there, square, for every toast whose card lands on it (2026-11-14). Where no hole can be cut (Linux without XFixes or SHAPE) the card stays under that page. Overlays › Popups and menus › Toast over a page that takes keys"]]}
             tokens={[{ tok: "--tasty-space-sm", use: "stack gap" }, { tok: "--tasty-surface-raised", use: "each card", color: "var(--tasty-surface-raised)" }]} />
           <Dont><b>Don’t</b> let the stack grow unbounded, and don’t fold the tail into a “+N more” row either. Hold the cap by dropping the oldest card — a wall of toasts buries the newest signal, and an overflow counter is one more thing to read instead of the notice itself.</Dont>
         <Spec id="the-dot-family-8-generic-6-in-dense-chrome-and-the-attached-ring" title="The dot family — 8 generic, 6 in dense chrome, and the attached ring"
@@ -794,7 +860,7 @@ function Components() {
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", flexDirection: "column", gap: "var(--tasty-space-lg)", alignItems: "flex-start" }}>
             {[["Mocha", "mocha"], ["Latte", "latte"]].map(([label, attr]) => (
               <div key={label} {...(attr ? { "data-theme": attr } : {})} style={{ display: "flex", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)", border: "var(--tasty-border-width) solid var(--tasty-border-default)" }}>
-                <span style={{ width: "100%", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · ui_scale 1</span>
+                <span className="g-cap" style={{ width: "100%", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · ui_scale 1</span>
                 {[["active", { active: true }], ["inactive", {}], ["hover", { hover: true }]].map(([st, p]) => (
                   <div key={st} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
                     <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" }}>{st}</span>
@@ -838,10 +904,10 @@ function Components() {
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", flexDirection: "column", gap: "var(--tasty-space-lg)", alignItems: "flex-start" }}>
             {[["file picker · remote attach", "fp"], ["Settings › Misc › Scripts", "scripts"]].map(([host, k]) => (
               <div key={k} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{host}</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{host}</span>
                 <div style={{ display: "flex", gap: "var(--tasty-space-md)", flexWrap: "wrap" }}>
                   {[["loading"], ["empty"], ["error"], ["error", true]].map(([v, act]) => (
-                    <div key={v + (act ? "-a" : "")} style={{ width: "var(--tasty-size-288)", height: k === "fp" ? "var(--tasty-size-220)" : "var(--tasty-size-160)", display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
+                    <div key={v + (act ? "-a" : "")} style={{ width: "var(--tasty-size-288)", height: k === "fp" ? "var(--tasty-size-220)" : "var(--tasty-size-160)", display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
                       <div style={{ height: "var(--tasty-control-height)", flex: "none", display: "flex", alignItems: "center", padding: "0 var(--tasty-space-sm)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)", borderBottom: "var(--tasty-border-width) solid var(--tasty-border-default)" }}>{k === "fp" ? "~/work/tasty/assets" : "Scripts · " + v + (act ? " + action" : "")}</div>
                       <CenterStateG variant={v} host={k} action={act} />
                     </div>
@@ -861,7 +927,7 @@ function Components() {
             {[["Mocha", "mocha"], ["Latte", "latte"]].map(([label, attr]) => (
               <div key={label} {...(attr ? { "data-theme": attr } : {})} style={{ display: "flex", gap: "var(--tasty-space-md)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
                 {[false, true].map((act) => (
-                  <div key={String(act)} style={{ width: "var(--tasty-size-220)", height: "var(--tasty-size-220)", display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
+                  <div key={String(act)} style={{ width: "var(--tasty-size-220)", height: "var(--tasty-size-220)", display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
                     <CenterStateG variant="error" host="fp" action={act} />
                   </div>
                 ))}
@@ -881,7 +947,7 @@ function Components() {
                 {[["empty", false], ["error + action", true]].map(([capt, act]) => (
                   <div key={capt} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
                     <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" }}>{label} · {capt}</span>
-                    <div style={{ width: "var(--tasty-size-220)", display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
+                    <div style={{ width: "var(--tasty-size-220)", display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
                       <CenterState natural variant={act ? "error" : "empty"} glyph="scriptFile" title={CS_COPY.scripts[act ? "error" : "empty"][0]} sub={CS_COPY.scripts[act ? "error" : "empty"][1]}
                         action={act ? <Button variant="secondary" size="sm" leadingIcon={<CIcon name="refresh" size="var(--tasty-icon-size-sm)" />}>Retry</Button> : null} />
                       <div style={{ height: "var(--tasty-control-height)", flex: "none", display: "flex", alignItems: "center", padding: "0 var(--tasty-space-sm)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)", borderTop: "var(--tasty-border-width) solid var(--tasty-border-default)" }}>next widget</div>
@@ -937,11 +1003,15 @@ function Components() {
 
         <Spec id="tooltip" title="Tooltip"
           when={<>The hover bubble itself — opaque raised card, 1px edge, popover lift, <b>no arrow</b> (calm, low-chrome). Wraps any anchor; shows on hover or keyboard focus after a short delay. Reusable beyond HelpHint. Shown here forced-open via <code>open</code>.</>}>
-          <Stage style={{ gap: 56, alignItems: "center", justifyContent: "center", paddingTop: 46, paddingBottom: 46, minHeight: 150 }}>
+          <Stage style={{ alignItems: "center", justifyContent: "safe center", minHeight: 150 }}>
+            {/* Each anchor sits centered in a cell as wide as the bubble's max width, with room above and below for a
+                top or bottom bubble, so every open bubble stays inside the stage when the cells wrap at a narrow width. */}
             {["top", "bottom", "left", "right"].map((p) => (
-              <Tooltip key={p} open placement={p} content={p === "left" || p === "right" ? "Terse hint." : "A short hint that wraps to two or three lines when the copy is longer."}>
-                <Tag>{p}</Tag>
-              </Tooltip>
+              <div key={p} style={{ display: "flex", justifyContent: "center", width: "var(--tasty-tooltip-max-width)", paddingTop: 46, paddingBottom: 46 }}>
+                <Tooltip open placement={p} content={p === "left" || p === "right" ? "Terse hint." : "A short hint that wraps to two or three lines when the copy is longer."}>
+                  <Tag>{p}</Tag>
+                </Tooltip>
+              </div>
             ))}
           </Stage>
           <Meta
@@ -971,7 +1041,7 @@ function Components() {
           <Stage variant="column" style={{ gap: 16, alignItems: "stretch", maxWidth: 420 }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
               <span style={{ fontSize: 13, color: "var(--tasty-text-primary)" }}>Remote tasty path</span>
-              <Input mono placeholder="/usr/local/bin/tasty" style={{ width: "100%" }} />
+              <Input block mono placeholder="/usr/local/bin/tasty" />
               <span style={{ fontSize: 11, color: "var(--tasty-text-muted)", lineHeight: 1.5 }}>Leave empty to auto-detect on first connect.</span>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
@@ -986,7 +1056,7 @@ function Components() {
           <Note>This is the same muted treatment used in the palette footer (<span className="ic">↑↓ navigate</span>), the Rename dialog hint, and every form sub-label — one consistent voice for “the quiet line.”</Note>
         </Spec>
         <Spec id="cli-runs-inside-ui-copy" title="CLI runs inside UI copy"
-          when={<>The proportional UI face joins two hyphens into one dash, so <code>--webhook-port</code> reads as an en dash. Any <b>CLI command, option or argument</b> inside a UI sentence (error screen, banner, settings caption, result card) is drawn as a <b>code run</b>: mono at the <b>sentence's own size</b>, a surface-raised fill, 4px side padding, no vertical padding (the line height does not change), radius-sm, text-primary ink. The run never breaks inside; the sentence wraps around it. The copy keeps the literal option, so it can be typed back. Terminal content is not affected.</>}>
+          when={<>Draw any <b>CLI command, option or argument</b> inside a UI sentence (error screen, banner, settings caption, result card) as a <b>code run</b> so it stands apart from the surrounding words. Use mono at the <b>sentence's own size</b>, a surface-raised fill, 4px side padding, no vertical padding (the line height does not change), radius-sm, and text-primary ink. The run never breaks inside; the sentence wraps around it. The copy keeps the literal option, so it can be typed back. Terminal content is not affected.</>}>
           <Stage variant="column" style={{ gap: 16, alignItems: "stretch", maxWidth: 420 }}>
             {[["13 body", 13, "var(--tasty-text-secondary)"], ["11 caption, muted", 11, "var(--tasty-text-muted)"]].map(([lab, fs, fg]) => (
               <div key={lab} style={{ display: "flex", flexDirection: "column", gap: 4 }}>
@@ -1002,7 +1072,7 @@ function Components() {
         <Spec id="code-runs-on-raised-containers-info-modal-chips-line-start-centr" title="Code runs — on raised containers · info modal chips · line start · centred hints"
           when={<><b>On a raised container</b> (toast card, tooltip, any surface-raised box) the run's fill would equal the card, so it switches to <span className="tok">--tasty-ui-code-bg-on-raised</span> (bg-panel — a recessed well; ink on it Mocha 11.34 · Latte 7.06). Rule: the fill is always one step <i>off</i> the container — surface-raised on panels and app bg, bg-panel on raised. <b>Info modal command chips</b> become ordinary code runs: sentence size, 4px padding, radius-sm (the caption-size chip without padding goes). <b>A run that starts a wrapped line</b> keeps its text on the column and lets the fill extend 4px outward — acceptable, because every container that holds copy has at least space-sm inset. <b>Centred hints</b> centre every line, including the line the run moved to.</>}>
           <Stage variant="column" style={{ gap: 16, alignItems: "stretch", maxWidth: 420 }}>
-            <div style={{ padding: "var(--tasty-space-sm) var(--tasty-space-md)", background: "var(--tasty-toast-bg, var(--tasty-surface-raised))", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", fontSize: 13, color: "var(--tasty-text-primary)", lineHeight: 1.5 }}>
+            <div style={{ padding: "var(--tasty-space-sm) var(--tasty-space-md)", background: "var(--tasty-toast-bg, var(--tasty-surface-raised))", border: "var(--tasty-border-width) solid var(--tasty-toast-border)", borderRadius: "var(--tasty-radius)", fontSize: 13, color: "var(--tasty-text-primary)", lineHeight: 1.5 }}>
               Copied. Run <code style={{ ...{ fontFamily: "var(--tasty-ui-code-font)", fontSize: "1em", color: "var(--tasty-ui-code-fg)", padding: "0 var(--tasty-ui-code-padding-x)", borderRadius: "var(--tasty-ui-code-radius)", whiteSpace: "nowrap" }, background: "var(--tasty-ui-code-bg-on-raised)" }}>tasty agent task-list</code> to see it.
             </div>
             <div style={{ fontSize: 13, color: "var(--tasty-text-secondary)", lineHeight: 1.5 }}>Reset the permission with <code style={{ ...{ fontFamily: "var(--tasty-ui-code-font)", fontSize: "1em", color: "var(--tasty-ui-code-fg)", padding: "0 var(--tasty-ui-code-padding-x)", borderRadius: "var(--tasty-ui-code-radius)", whiteSpace: "nowrap" }, background: "var(--tasty-ui-code-bg)" }}>tccutil reset</code>, then sign the build with <code style={{ ...{ fontFamily: "var(--tasty-ui-code-font)", fontSize: "1em", color: "var(--tasty-ui-code-fg)", padding: "0 var(--tasty-ui-code-padding-x)", borderRadius: "var(--tasty-ui-code-radius)", whiteSpace: "nowrap" }, background: "var(--tasty-ui-code-bg)" }}>./scripts/macos-codesign-identity.sh --create</code>.</div>
@@ -1061,7 +1131,7 @@ function Components() {
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-md)", flexWrap: "wrap", alignItems: "flex-start" }}>
             {[["Mocha", "mocha"], ["Latte", "latte"]].map(([label, attr]) => (
               <div key={label} {...(attr ? { "data-theme": attr } : {})} style={{ width: "var(--tasty-size-320)", display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label}</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label}</span>
                 <ListCtrl selectedId="default" items={[
                   { id: "default", label: "Default", description: "enabled · success Tag", trailing: <Tag variant="success" dot>Active</Tag> },
                   { id: "d-success", label: "Readline", description: "disabled · success Tag", trailing: <Tag variant="success" dot>Active</Tag>, disabled: true },

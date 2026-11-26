@@ -5,6 +5,7 @@ import { Tag } from "../../../components/core/Tag.jsx";
 import { Input } from "../../../components/forms/Input.jsx";
 import { Select } from "../../../components/forms/Select.jsx";
 import { Switch } from "../../../components/forms/Switch.jsx";
+import { useDraft } from "./settings_draft.jsx";
 
 // Tasty UI kit — Settings › Handler › File Detectors · File Handlers (2026-10-20;
 // 2026-10-21 follow-up: unprefixed detector ids, char rules,
@@ -111,6 +112,14 @@ const userRules = (d) => d.rules.filter((r) => r.src === "user");
 const hasUser = (d) => userRules(d).length > 0 || !!d.userMeta;
 const otherSrcs = (d) => [...new Set(d.rules.map((r) => r.src).filter((s) => s !== "user"))];
 const strip = (x) => { const { pending, prev, ...rest } = x; return rest; };
+// Save applies the pending marks: a removed row goes, an unpatched detector keeps only its non-user rules and
+// takes the state without the user contribution (baseOn, the state its pending row shows), and every other row
+// drops its mark (settings_draft.jsx). baseOn stays on the row: it belongs to the host and plugin contributions,
+// which are still there, so a user contribution added and removed again comes back to the same state.
+const unpatched = (x) => ({ ...strip(x), rules: x.rules.filter((r) => r.src !== "user"), userMeta: false, on: x.baseOn ?? x.on });
+const saveDetectors = (a) => a.filter((x) => x.pending !== "remove")
+  .map((x) => (x.pending === "unpatch" ? unpatched(x) : x.pending ? strip(x) : x));
+const saveHandlers = (a) => a.filter((x) => x.pending !== "remove").map((x) => (x.pending ? strip(x) : x));
 
 const fhHead = { fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-micro)", textTransform: "uppercase",
   letterSpacing: "var(--tasty-letter-spacing-caps)", color: "var(--tasty-text-muted)" };
@@ -294,7 +303,7 @@ function FileDetectorsPane({ lang = "en", empty = false, pending = false, unpatc
       : x.id === "log" ? { ...x, pending: "patch", prev: { ...x, rules: x.rules.filter((r) => r.src !== "user") } } : x));
     return a;
   };
-  const [xs, setXs] = React.useState(init);
+  const [xs, setXs] = useDraft("handler.fileDetectors", init, saveDetectors);
   const blank = { id: "", ext: "", glob: "" };
   const [adding, setAdding] = React.useState(adding0);
   const [d, setD] = React.useState({ ...blank, ...(draft0 || {}) });
@@ -352,10 +361,10 @@ function FileDetectorsPane({ lang = "en", empty = false, pending = false, unpatc
 
 function FileHandlersPane({ lang = "en", empty = false, pending = false, tie = false, adding: adding0 = false, draft: draft0, attempted = false }) {
   const L = FH_COPY[lang] || FH_COPY.en;
-  const [xs, setXs] = React.useState(() => {
+  const [xs, setXs] = useDraft("handler.fileHandlers", () => {
     const base = empty ? [] : tie ? [...HDL_SEED, ...TIE_HDL] : HDL_SEED;
     return pending ? [...base.map((x) => (x.origin === "user" ? { ...x, pending: "remove" } : x)), ...PENDING_HDL] : base;
-  });
+  }, saveHandlers);
   const blank = { short: "", det: "", prio: "", kind: "surface", surface: "", param: "", method: "" };
   const [adding, setAdding] = React.useState(adding0);
   const [d, setD] = React.useState({ ...blank, ...(draft0 || {}) });

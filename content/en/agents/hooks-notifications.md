@@ -1,4 +1,4 @@
-<!-- source-hash: 92f6a783624e -->
+<!-- source-hash: 21fd371b7d22 -->
 # Hooks, notifications, and webhooks
 
 Hooks run actions in response to Tasty events, notifications show items to check in the app, and webhooks receive HTTP requests from external services. Choose the path that fits your task.
@@ -34,11 +34,13 @@ tasty unset hook --hook <HOOK_ID>
 | `claude-idle` / `needs-input` / `codex-idle` | Events emitted by the Claude Code / Codex plugins ([Claude and Codex](claude-codex.md)) |
 | `claude-stop-failure` | When a Claude Code turn ends on an API error (server overload, rate limit, authentication failure, and so on). It usually comes with `claude-idle`; when background work is still running, only this one comes |
 | `claude-error` | When a known error message appears in Claude Code's screen output |
-| `claude-error-stalled` | When Claude Code output remains unchanged for 10 minutes by default (configurable). The threshold is fixed at 30 seconds for an error in the latest output during a turn; waits with only Monitor remaining are excluded ([wait-specific thresholds and receiving requirements](claude-codex.md#4-receiving-completion-notifications)) |
+| `claude-error-stalled` | When Claude Code output remains unchanged for 10 minutes by default (configurable). Outside a background wait, an error in recent output sets a fixed 30-second threshold. Tasty excludes only tasks it recognizes as Monitor from no-output checks. If an older hook reports Monitor as a shell task, that task still counts ([wait-specific thresholds and receiving requirements](claude-codex.md#4-receiving-completion-notifications)) |
 
-- Add `--once` and the hook is removed automatically after firing once. By default it stays.
-- Hook commands run in the background and do not block terminal input.
+- With `--once`, the hook is removed when the first matching event occurs, even if the command cannot run. By default the hook stays registered.
+- Hook commands run in the background without blocking terminal input. Standard input, standard output, and standard error all go to the null device. To keep the output, redirect it to a file or send a message with `tasty notify`. The hook run ends when the shell exits. Background jobs started by the shell can keep running.
 - `command-completed` never fires without shell integration. A guidance banner appears once on local Surfaces that lack shell integration and closes on its own after 10 seconds.
+
+Surface hook shell commands (`tasty set hook --command` or a shell command handler), shell commands run directly with `tasty hook-handler dispatch`, and global hooks (`tasty set global-hook`) share one executor. There are separate limits on how many commands can run at once and how many can wait. If all execution slots are in use and the queue is full, the command does not run or retry automatically. Commands that are still queued when Tasty exits are discarded without running or sending a notification.
 
 Event information reaches the command through environment variables.
 
@@ -56,7 +58,7 @@ Apart from `TASTY_HOOK_EVENT`, `TASTY_HOOK_SOURCE` and `TASTY_HOOK_SURFACE_ID`, 
 
 ## Global hooks
 
-Run on a time condition, independent of any Surface.
+Global hooks run on a time or file change condition without being tied to a Surface. Global hook commands inherit Tasty's standard input, standard output, and standard error.
 
 ```sh
 tasty set global-hook --condition interval:60 --command "df -h > ~/disk.log" --label "Disk log"
@@ -67,8 +69,14 @@ tasty unset global-hook --hook <HOOK_ID>
 
 | Condition | Meaning |
 |---|---|
-| `interval:<secs>` | Repeat every N seconds |
-| `once:<secs>` | Run once after N seconds, then delete |
+| `interval:<secs>` | Try to run every N seconds |
+| `once:<secs>` | After N seconds, remove the hook and try to run its command once |
+| `file:<path>` | Try to run when the file's modification time changes |
+
+If the same hook's previous command is queued or still running, Tasty skips that occurrence. The skip is recorded only in the debug log.
+
+- An `interval` hook waits a full interval from the time it was skipped.
+- Even if the file changes several times while the previous command is queued or running, a `file` hook makes one attempt when the next check after that command ends detects a change. If the shell command queue is full and the request is refused, the hook waits for the file's modification time to change again before trying to run.
 
 ## Hook handlers (reusable actions)
 
@@ -82,7 +90,13 @@ tasty hook-handler dispatch --id user/my-handler            # run directly to te
 tasty hook-handler reload                                   # re-read ~/.tasty/hook-handlers.toml
 ```
 
-`dispatch` first prints a line saying the run was accepted (with its `run` number), then waits until it finishes and prints the result line. The result's `state` is `succeeded` when every step worked, `partial` when only some did, `failed` when none did, and `unknown` when no answer came back so the outcome is not known; `result` and `steps` say which step failed and why. A shell command handler counts as succeeded once its process starts, and its exit code is shown for reference only once it ends. Unless the result is `succeeded`, the command exits with code 1. To skip waiting, add `--no-wait` and check later with `tasty hook-handler result --run <number>`.
+When `dispatch` accepts a request, it prints a line with the `run` number and waits for a result. An action list's final `state` is `succeeded`, `partial`, `failed`, or `unknown`. Check `result` for a summary and `steps` for each step's status and any error. The command exits with code 0 for `succeeded` and code 1 for other states.
+
+For a shell command handler, the state is `running` while the command is queued. When `dispatch` confirms that the process started, it reports `succeeded` and exits with code 0. If it cannot confirm the start in time, it exits with code 1, and a queued command can still run later. The lookup result shows the process exit code in `exit_code` once the code is known. Until then, `exit_code` is `null`. If the process exit itself cannot be confirmed, a lookup can show `failed`.
+
+If a request is refused before acceptance, `dispatch` prints an error without a `run` number and exits with code 1. With `--no-wait`, it prints only the acceptance reply. Use `tasty hook-handler result --run <number>` to look up the result.
+
+If the run record is evicted, the lookup fails even if the command is still queued. A `dispatch` that was waiting for the result leaves only the acceptance line on standard output, writes a message to standard error, and exits with code 1. The queued command can still run later.
 
 You can also **change or create** a handler from the command line. Anything you leave out
 stays as it was, so a handler can keep its name while what it does changes (every hook
@@ -118,7 +132,13 @@ args = ["notify", "Command failed", "--title", "hook"]
 
 With `kind = "ipc_sequence"` it runs a list of Tasty-internal actions (`calls = [{ method = "...", params = {} }]`) instead of a shell. TOML has no null, so when params need a null value, write them as a JSON string instead of `params`, as in `params_json = '{"a":null}'`. Saving with `tasty hook-handler upsert` writes this form for you.
 
-When a hook runs by itself and fails, the failure is left in the notification list. If it did not run at all, because its handler is gone or its command could not start, that is an **error**. If only some steps of an action list failed, or a step gave no answer in time so its result is unknown, that is a **warning**. A surface hook's notification is attached to the surface the hook is on. A shell command ending with a non-zero exit code is not counted as a failure. When the same failure repeats quickly, it is left once every 10 seconds.
+A surface hook's notification is attached to its Surface. If the Surface closes before the notification arrives, or if the notification comes from a global hook, it appears in the active workspace.
+
+If a shell command from a surface or global hook cannot be queued or started, the notification list shows an **error**. The title is `Hook failed` for a surface hook and `Global hook failed` for a global hook. When the shell command queue is full, the message looks like this.
+
+> `'echo hello' did not run because 256 hook commands were already waiting to start.`
+
+A missing surface hook handler or a failed action list leaves an **error**. An action list that partially fails or has an unknown outcome leaves a **warning**. If an action list is refused, the **error** notification shows the handler name and the reason. A nonzero shell exit code does not count as a failure. When the same failure repeats quickly, it is recorded once every 10 seconds. For a manual `dispatch`, the command response reports the failure.
 
 ## Notifications
 
@@ -154,7 +174,9 @@ Use `notify --workspace 12` for an alert without a Surface. This does not add a 
 - **Notification panel** — open it from the summary or with `Ctrl+Shift+I`. The newest-first list shows level, title, body, source, and elapsed time. Opening or closing the panel keeps unread notifications unchanged. Click a row or **More** to expand the full text and mark that notification as read. Use the check button for one notification or **Mark all read** for that window. **Jump** takes you to the source Surface or Workspace. A closed source keeps its notification history, with Jump disabled. The title bar lets you switch to fullscreen. New notifications do not open the panel automatically or scroll the list back to the top. Your reading position also stays in place when new content is merged into an existing notification and makes its body longer.
 - **Surface border** — a blue border on the Surface where the notification occurred. It disappears when you focus that Surface while the Tasty window is active. While you are in another app it stays, and it disappears when you return to the window.
 - **Sidebar badge** — a count badge on the row of any Workspace that has a Surface needing attention.
-- **Sound** — when enabled in settings, one system beep per notification.
+- **Sound** — when enabled in settings, one system beep per new notification. Merging into an existing notification plays no sound.
+
+During a remote attach, borders and badges depend on the server. See [Notifications during attach](#remote-attach-notifications).
 
 Notifications are not sent to the OS notification center (system notifications). To notice them while you use another app, turn on the sound.
 
@@ -169,8 +191,18 @@ sound = false         # sound
 coalesce_ms = 500     # notification coalescing interval (ms) — merges consecutive notifications from the same source into one
 
 [general]
-bell_notification = true   # show bell notifications (turning it off suppresses only the bell toast; bell hooks still fire)
+bell_notification = true   # show bell notifications (in the GUI, registered bell hooks still run when off)
 ```
+
+<a id="remote-attach-notifications"></a>
+
+### Notifications during attach
+
+When you attach from the GUI and both versions of Tasty support this feature, notification sounds for the attached workspace play on your computer. Your local `notification.sound` setting controls playback.
+
+- With a **GUI server**, your computer plays one sound per new server notification. If a connection issue or screen recovery causes you to miss a sound, the notification stays in the server's history. Reconnecting does not replay missed sounds. For an OSC notification or terminal bell to make a sound, the server has to create the corresponding notification. The server keeps its attention indicators and runs registered hooks. Your local notification settings also control whether OSC and bell notifications appear on your screen.
+- With a **headless server**, your local Tasty creates OSC and bell notifications. Turn on your local `notification.enabled` to receive them. Bell notifications also require `general.bell_notification`. These notifications appear in your notification panel. They do not add a border to the mirrored Surface or a badge to its Workspace row in the sidebar. OSC notifications and bells do not create server notifications or attention indicators or run server hooks. A notification the server creates from a separate request such as `tasty notify` stays in the server's history and can play a sound on your computer.
+- With a **CLI attach or an older GUI client**, a GUI server plays sounds according to its settings. A headless server itself stays silent.
 
 ### Waiting for a human decision (approval)
 
@@ -186,6 +218,7 @@ tasty approval await --id "$ID"            # wait until a response arrives, prin
 - The popup does not take keyboard focus. Whatever you were typing into a terminal or a document keeps going there. To pick with a number key, first click the popup's title or an empty part of it. Buttons can be clicked right away. While you are typing into a Markdown or HTML document, that document can cover the part of the popup it overlaps. The notification that goes out with the request shows it as well.
 - Digits typed while the comment field is focused go into the comment and do not pick a choice. To pick with a number key after writing a comment, leave the comment field with Tab or click an empty part of the popup.
 - `--severity info` sends only a notification with no popup; `warn`/`danger` show a popup plus a notification. `danger` must be answered by the user directly.
+- If a request is resolved while the approval popup is closed, it leaves the pending list and does not appear in the popup again.
 - The popup does not close on Esc (to prevent bypassing). Query with `tasty approval list` / `get` / `history`.
 - `approval await` is for the user only. An agent connected with a session token (`TASTY_SESSION_TOKEN`) cannot call it; check the state with `tasty approval get --id "$ID"` instead (this needs the `approval` permission).
 - `--metadata` cannot use `capability_elevation` as its `kind`. That value is reserved for agent permission requests, so the request is rejected. Ask for an agent permission with `tasty plugin request-permission` instead.
@@ -212,7 +245,7 @@ tasty --webhook-port 28500          # start with this port for this run only
 - **If you chose a port** (`--webhook-port` or `tasty webhook port <N>`; with both, `--webhook-port` wins), Tasty uses only that port. If another program holds it, Tasty does not move to another port and **starts without webhooks**. Terminals work as usual, and one warning in the notification list gives the port, the cause and how to fix it. Webhook URLs (including ones saved with `--persistent`) do not answer meanwhile, but the registrations stay, so after you fix the port and restart the same registrations answer again. Their URLs use the port opened in that run, so check the actual addresses with `tasty webhook list`. `tasty webhook port` shows `bound: false` and, under `unavailable`, the port it could not open and why. Start with another port, or, for a saved port, run `tasty webhook port --unset` (remove) or `tasty webhook port <free port>` (replace) and start again. These two commands edit `~/.tasty/webhooks.toml` directly when Tasty is not running and say so. When Tasty is running, they apply from the next start.
 - `tasty webhook config --port <N>` is the earlier name and is deprecated. It still works exactly like `tasty webhook port <N>`.
 - If the port moved off `28429` and you have webhooks saved with `--persistent`, Tasty leaves a warning in the notification list. The saved webhooks' URLs change port too, so check the new URLs with `tasty webhook list`. Choose a port if the URLs must not change.
-- If Tasty is already running and you launch it again with a different `--webhook-port`, the launch is not handed to the running Tasty; it explains why and ends. With the same port it opens a new window in the running Tasty as usual.
+- If you relaunch the released GUI build with the same data folder and specify `--webhook-port`, it queries the webhook port only after it has confirmed the running GUI instance’s connection details during the handoff. If the check finds a different port or no webhook listener, it shows a notice and exits with code 1 without forwarding the request. If the ports match, it tries to forward the request as usual. If the check fails, it logs a warning and still tries to forward the request. A headless launch does not forward requests or compare ports. If the data folder lock is still held at startup, it exits before opening webhooks. See [Running Tasty again](../help/troubleshooting.md#running-tasty-again) for details.
 - A `port = 28429` that an earlier version wrote automatically is removed on the first start, so the port is chosen automatically. Any other port you set stays.
 - **By default the webhook server accepts calls from this computer (`127.0.0.1`) only.** If other computers or CI must call it directly, turn on **Settings → General → Accept webhook calls from other computers** or run `tasty webhook allow-external on`, then restart Tasty. Writing `allow_external = true` under `[webhook]` in `~/.tasty/config.toml` does the same. When on, it accepts connections on all IPv4 network interfaces (`0.0.0.0`), so if the host firewall allows it, devices on the same network, such as an office LAN or public Wi-Fi, can reach it without router forwarding. Check firewall and authentication settings. Use a reverse proxy for HTTPS.
 

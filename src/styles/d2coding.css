@@ -17,13 +17,34 @@
   font-style: normal;
   font-display: swap;
 }
+/* The same files under a second family that leaves out Han, kana, CJK punctuation and fullwidth
+   forms, so the Japanese and Chinese UI stacks draw those in the language's CJK font (vendor/RULES.md
+   section 8, "CJK ranges"). The range is the complement of that list. Sharing the URLs keeps one
+   request per file. */
+@font-face {
+  font-family: "D2Coding Hangul Latin";
+  src: url("/fonts/D2Coding-ligature-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-2E7F, U+3130-318F, U+3200-33FF, U+4DC0-4DFF, U+A000-F8FF, U+FB00-FE0F, U+FE20-FE2F, U+FE70-FEFF, U+FFA0-FFDF, U+FFE7-FFFF, U+10000-1AFEF, U+1B170-1FFFF, U+40000-10FFFF;
+}
+@font-face {
+  font-family: "D2Coding Hangul Latin";
+  src: url("/fonts/D2Coding-ligature-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-2E7F, U+3130-318F, U+3200-33FF, U+4DC0-4DFF, U+A000-F8FF, U+FB00-FE0F, U+FE20-FE2F, U+FE70-FEFF, U+FFA0-FFDF, U+FFE7-FFFF, U+10000-1AFEF, U+1B170-1FFFF, U+40000-10FFFF;
+}
 
 [data-site-chrome] { --font-mono: var(--tasty-font-family-mono-system), monospace; }
-/* The token page lists names and values and is indexed, so it stays out too. Its [data-theme]
-   frames declare the tokens again, so they take the same values. */
+/* The token page lists names and values and is indexed, so it stays out too, for the UI face as
+   well as the mono. Its [data-theme] frames declare the tokens again, so they take the same values. */
 [data-gallery-page="tokens"],
 [data-gallery-page="tokens"] [data-theme] {
   --tasty-font-family-mono: var(--tasty-font-family-mono-system), monospace;
   --tasty-font-mono: var(--tasty-font-family-mono);
   --font-mono: var(--tasty-font-family-mono);
+  --tasty-font-ui: var(--tasty-font-family-sans);
 }

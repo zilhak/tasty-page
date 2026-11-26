@@ -41,7 +41,7 @@ const SEED_PROFILES = [
   { id: "p3", type: "ssh", name: "edge-cache", label: "staging", host: "edge.example.com", user: "root", port: "22",
     remoteTasty: "", shell: "auto", state: "detecting", passkeyRef: "edge-pem", fields: [] },
   { id: "p4", type: "ssh", name: "legacy-box", label: "", host: "203.0.113.40", user: "admin", port: "22",
-    remoteTasty: "", shell: "sh", state: "failed", passkeyRef: "old-rsa", fields: [] },
+    remoteTasty: "", shell: "sh", state: "ok", failed: true, passkeyRef: "old-rsa", fields: [] },
   { id: "p5", type: "smb", name: "media-nas", label: "lab", passkeyRef: "nas-cred", state: "ok",
     fields: [{ key: "host", value: "nas.local" }, { key: "share", value: "media" }] },
   { id: "p6", type: "http", name: "grafana", label: "", passkeyRef: "", state: "ok",
@@ -60,7 +60,7 @@ const SEED_ATTACHES = [
     port: "22", shell: "auto", passkeyRef: "edge-pem", remoteTasty: "/opt/tasty/bin/tasty",
     portMode: "file-unix", portFile: "/run/user/1000/tasty/port", state: "ok" },
   { id: "a3", name: "legacy-attach", label: "", mode: "ref", sshRef: "legacy-box",
-    remoteTasty: "tasty", portMode: "subcommand", portFile: "", state: "inactive" },
+    remoteTasty: "tasty", portMode: "subcommand", portFile: "", state: "ok" },
 ];
 const SEED_PASSKEYS = [
   { id: "k1", name: "ed25519-main", kind: "path", value: "~/.ssh/id_ed25519" },
@@ -87,15 +87,15 @@ const profileSummary = (p) => (isSshType(p.type) ? sshTarget(p) : genericSummary
 const MASK = "••••••••";
 
 // shared text styles (uniquely named — this file is concatenated into the bundle)
-const rtMono = { fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: "var(--tasty-text-muted)" };
-const rtCaption = { fontSize: 11, color: "var(--tasty-text-muted)" };
-const rtLabel = { fontSize: 13, color: "var(--tasty-text-muted)", textAlign: "right" };
-const rtFormTitle = { fontSize: 13, fontWeight: 600, color: "var(--tasty-text-primary)", marginBottom: 12 };
-const rtScrollPad = { flex: 1, minHeight: 0, overflow: "auto", padding: "var(--tasty-size-14) var(--tasty-space-lg)" };
-const rtFooter = { display: "flex", justifyContent: "flex-end", gap: 8, padding: "var(--tasty-space-md) var(--tasty-space-lg)", flex: "none",
+const rtMono = { fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" };
+const rtCaption = { fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" };
+const rtLabel = { fontSize: "var(--tasty-font-size-body)", color: "var(--tasty-text-muted)", textAlign: "right" };
+const rtFormTitle = { fontSize: "var(--tasty-font-size-heading)", fontWeight: "var(--tasty-font-weight-semibold)", color: "var(--tasty-text-primary)", marginBottom: "var(--tasty-space-lg)" };
+const rtScrollPad = { flex: 1, minHeight: 0, overflow: "auto", padding: "var(--tasty-space-md) var(--tasty-space-lg)" };
+const rtFooter = { display: "flex", justifyContent: "flex-end", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-space-lg)", flex: "none",
   borderTop: "var(--tasty-border-width) solid var(--tasty-separator)" };
 const rtLinkBtn = { appearance: "none", border: 0, background: "transparent", cursor: "pointer", padding: 0,
-  fontFamily: "var(--tasty-font-ui)", fontSize: 11, color: "var(--tasty-accent-primary-raised)" };
+  fontFamily: "var(--tasty-font-ui)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-accent-primary-raised)" };
 
 // icons (lucide-style, drawn through TastyKit.Icon)
 // glyph names from the canonical set (icons/*.svg via <Icon name>)
@@ -112,15 +112,18 @@ const RD = {
 };
 
 // ── small warning pill (type-unknown / dangling-ref / unknown-kind) ──────
-function WarnBadge({ children, title }) {
+// A warning tint box, as the app draws it: tint-warning fill and edge over its host. The label reads
+// the text-warning cell (tag-warning-fg, the Tag warning ink); the glyph reads the glyph-warning cell, which differs by host
+// (accent-warning-glyph on base, accent-warning-raised on a raised menu: pass `raised`).
+function WarnBadge({ children, title, raised = false }) {
   return (
-    <span title={title} style={{ display: "inline-flex", alignItems: "center", gap: 4, height: 16,
-      padding: "0 var(--tasty-space-sm)", borderRadius: "var(--tasty-radius-sm)", whiteSpace: "nowrap",
-      fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-micro)", fontWeight: 500, lineHeight: 1,
+    <span title={title} style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-tag-gap)", height: "var(--tasty-tag-size)",
+      padding: "0 var(--tasty-tag-padding-x)", borderRadius: "var(--tasty-tag-radius)", whiteSpace: "nowrap",
+      fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-tag-font-size)", fontWeight: "var(--tasty-font-weight-medium)", lineHeight: "var(--tasty-line-height-tight)",
       color: "var(--tasty-tag-warning-fg)",
-      border: "var(--tasty-border-width) solid color-mix(in srgb, var(--tasty-accent-warning) 40%, transparent)",
-      background: "var(--tasty-tag-bg)" }}>
-      <span style={{ display: "inline-flex" }}><Icon name={RD.warn} size={12} /></span>{children}
+      border: "var(--tasty-border-width) solid var(--tasty-tag-warning-border)",
+      background: "var(--tasty-tint-warning-bg)" }}>
+      <span style={{ display: "inline-flex", color: raised ? "var(--tasty-accent-warning-raised)" : "var(--tasty-accent-warning-glyph)" }}><Icon name={RD.warn} size="var(--tasty-icon-size-xs)" /></span>{children}
     </span>
   );
 }
@@ -131,27 +134,28 @@ function WarnBadge({ children, title }) {
 function ProfileRow({ p, passkeyNames, onRedetect, onEdit, onDelete }) {
   const ssh = isSshType(p.type);
   const unknown = isUnknownType(p.type);
-  const disabled = p.state === "failed";
+  // failed is the stored result of the last detection; state "detecting" runs beside it until a new result comes in
+  const disabled = !!p.failed;
   const dangling = p.passkeyRef && !passkeyNames.includes(p.passkeyRef);
   return (
     <div style={{ display: "flex", alignItems: "flex-start", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-space-xs)",
       borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
-      <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 2 }}>
+      <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: "var(--tasty-remote-row-line-gap)" }}>
         {/* row 1 — name + type badge */}
         <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", minWidth: 0 }}>
-          <span style={{ fontSize: 13, fontWeight: 600, lineHeight: "var(--tasty-line-height-ui)", flex: "0 1 auto",
-            color: disabled ? "var(--tasty-text-disabled)" : "var(--tasty-text-primary)",
+          <span style={{ fontSize: "var(--tasty-font-size-heading)", fontWeight: "var(--tasty-font-weight-semibold)", lineHeight: "var(--tasty-line-height-ui)", flex: "0 1 auto",
+            color: disabled ? "var(--tasty-text-muted)" : "var(--tasty-text-primary)",
             overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-            {p.name}{p.label && <span style={{ fontWeight: 400, color: "var(--tasty-text-muted)" }}>  ({p.label})</span>}
+            {p.name}{p.label && <span style={{ fontWeight: "var(--tasty-font-weight-normal)", color: "var(--tasty-text-muted)" }}>  ({p.label})</span>}
           </span>
           {unknown
-            ? <WarnBadge title="Unknown type — no core feature or plugin handles it.">{p.type}</WarnBadge>
-            : <Tag>{p.type}</Tag>}
+            ? <WarnBadge title="This type is not supported yet. You can save it, but it cannot be used until Tasty or a plugin supports it.">{p.type}</WarnBadge>
+            : <Tag mono>{p.type}</Tag>}
         </div>
         {/* row 2 — target summary */}
         <div style={{ ...rtMono, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{profileSummary(p)}</div>
         {/* row 3 — passkey ref + (ssh) shell/detect state */}
-        <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", marginTop: 1, minWidth: 0, flexWrap: "wrap" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", minWidth: 0, flexWrap: "wrap" }}>
           {p.passkeyRef
             ? (dangling
                 ? <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-sm)" }}>
@@ -165,29 +169,29 @@ function ProfileRow({ p, passkeyNames, onRedetect, onEdit, onDelete }) {
               <span style={rtCaption}>shell: <span style={{ fontFamily: "var(--tasty-font-mono)" }}>{p.shell}</span></span>
               {p.state === "detecting" && (
                 <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-xs)", ...rtCaption }}>
-                  <Spinner size={12} /> detecting…
+                  <Spinner size="var(--tasty-remote-detect-spinner-size)" /> detecting…
                 </span>
               )}
-              {p.state === "failed" && (
-                <span style={{ fontSize: 11, color: "var(--tasty-accent-danger-raised)" }}>detection failed (disabled)</span>
+              {p.failed && p.state !== "detecting" && (
+                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-accent-danger-raised)" }}>detection failed (disabled)</span>
               )}
             </span>
           )}
         </div>
       </div>
       {/* actions */}
-      <div style={{ display: "flex", alignItems: "center", gap: 1, flex: "none" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-remote-row-action-gap)", flex: "none" }}>
         {ssh && (
           <IconButton size="sm" aria-label="Re-detect" title="Probe the remote and update the discovery mode"
             disabled={p.state === "detecting"} onClick={() => onRedetect(p)}>
-            <Icon name={RD.refresh} size={16} />
+            <Icon name={RD.refresh} size="var(--tasty-icon-size-md)" />
           </IconButton>
         )}
         <IconButton size="sm" aria-label="Edit" title="Edit" onClick={() => onEdit(p)}>
-          <Icon name={RD.edit} size={16} />
+          <Icon name={RD.edit} size="var(--tasty-icon-size-md)" />
         </IconButton>
         <IconButton size="sm" aria-label="Delete" title="Delete" onClick={() => onDelete(p)}>
-          <Icon name={RD.trash} size={16} />
+          <Icon name={RD.trash} size="var(--tasty-icon-size-md)" />
         </IconButton>
       </div>
     </div>
@@ -224,7 +228,7 @@ function ProfileForm({ draft, isNew, error, passkeys, onField, onFields, onSave,
         <div style={rtFormTitle}>{isNew ? "New profile" : "Edit profile"}</div>
 
         {/* Type — editable combobox (datalist gives suggestions + free text) */}
-        <div style={{ display: "grid", gridTemplateColumns: "var(--tasty-remote-label-col) 1fr", columnGap: 12, rowGap: 8, alignItems: "center" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "var(--tasty-remote-label-col) 1fr", columnGap: "var(--tasty-space-md)", rowGap: "var(--tasty-space-sm)", alignItems: "center" }}>
           <label style={rtLabel}>Type</label>
           <div>
             <Input block mono list="rt-known-types" placeholder="ssh" value={draft.type}
@@ -233,10 +237,9 @@ function ProfileForm({ draft, isNew, error, passkeys, onField, onFields, onSave,
           </div>
         </div>
         {unknown && (
-          <p style={{ margin: "var(--tasty-space-sm) 0 0 calc(var(--tasty-remote-label-col) + var(--tasty-space-md))", display: "flex", alignItems: "flex-start", gap: "var(--tasty-space-sm)",
-            fontSize: 11, lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-accent-warning-raised)", maxWidth: 320 }}>
-            <span style={{ flex: "none", marginTop: 1 }}><Icon name={RD.warn} size={12} /></span>
-            Unknown type — will be saved but not handled until a plugin or core supports it.
+          <p style={{ margin: "var(--tasty-space-sm) 0 0 calc(1 * var(--tasty-remote-label-col) + 1 * var(--tasty-space-md))",
+            fontSize: "var(--tasty-font-size-caption)", lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-accent-warning-raised)" }}>
+            This type is not supported yet. You can save it, but it cannot be used until Tasty or a plugin supports it.
           </p>
         )}
 
@@ -244,7 +247,7 @@ function ProfileForm({ draft, isNew, error, passkeys, onField, onFields, onSave,
 
         {ssh ? (
           /* dedicated SSH form */
-          <div style={{ display: "grid", gridTemplateColumns: "var(--tasty-remote-label-col) 1fr", columnGap: 12, rowGap: 8, alignItems: "center" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "var(--tasty-remote-label-col) 1fr", columnGap: "var(--tasty-space-md)", rowGap: "var(--tasty-space-sm)", alignItems: "center" }}>
             {SSH_FIELDS.map((f) => (
               <React.Fragment key={f.key}>
                 <label style={rtLabel}>{f.label}</label>
@@ -260,7 +263,7 @@ function ProfileForm({ draft, isNew, error, passkeys, onField, onFields, onSave,
         ) : (
           /* generic key-value form (smb / http / unknown) */
           <>
-            <div style={{ display: "grid", gridTemplateColumns: "var(--tasty-remote-label-col) 1fr", columnGap: 12, rowGap: 8, alignItems: "center" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "var(--tasty-remote-label-col) 1fr", columnGap: "var(--tasty-space-md)", rowGap: "var(--tasty-space-sm)", alignItems: "center" }}>
               <label style={rtLabel}>Name</label>
               <Input block placeholder="media-nas" value={draft.name} onChange={(e) => onField("name", e.target.value)} />
               <label style={rtLabel}>Label</label>
@@ -268,13 +271,13 @@ function ProfileForm({ draft, isNew, error, passkeys, onField, onFields, onSave,
               <label style={rtLabel}>Passkey</label>
               <PasskeySelect value={draft.passkeyRef} passkeys={passkeys} onChange={(e) => onField("passkeyRef", e.target.value)} />
             </div>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", margin: "var(--tasty-size-14) 0 var(--tasty-space-sm)" }}>
-              <span style={{ fontFamily: "var(--tasty-font-label)", fontSize: 10, textTransform: "uppercase",
-                letterSpacing: "var(--tasty-letter-spacing-caps)", color: "var(--tasty-text-muted)" }}>Fields</span>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", margin: "var(--tasty-space-md) 0 var(--tasty-space-sm)" }}>
+              <span style={{ fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-caption)", textTransform: "uppercase",
+                color: "var(--tasty-text-muted)" }}>Fields</span>
               <Button variant="ghost" size="sm" leadingIcon={ic.plus} onClick={addField}>Add field</Button>
             </div>
             {(draft.fields || []).length === 0 ? (
-              <p style={{ ...rtCaption, fontStyle: "italic", margin: "var(--tasty-size-2) 0 0" }}>No fields. Add a key-value pair.</p>
+              <p style={{ ...rtCaption, fontStyle: "var(--tasty-font-style-absent)", margin: "0 0 0 calc(1 * var(--tasty-remote-label-col) + 1 * var(--tasty-space-md))" }}>No fields. Add a key-value pair.</p>
             ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
                 {draft.fields.map((f, i) => (
@@ -282,7 +285,7 @@ function ProfileForm({ draft, isNew, error, passkeys, onField, onFields, onSave,
                     <Input block mono placeholder="key" value={f.key} onChange={(e) => setField(i, "key", e.target.value)} />
                     <Input block mono placeholder="value" value={f.value} onChange={(e) => setField(i, "value", e.target.value)} />
                     <IconButton size="sm" aria-label="Remove field" title="Remove field" onClick={() => delField(i)}>
-                      <Icon name={RD.x} size={14} />
+                      <Icon name={RD.x} size="var(--tasty-icon-size-sm)" />
                     </IconButton>
                   </div>
                 ))}
@@ -292,11 +295,11 @@ function ProfileForm({ draft, isNew, error, passkeys, onField, onFields, onSave,
         )}
 
         {ssh && draft.shell === "auto" && (
-          <p style={{ margin: "var(--tasty-space-md) 0 0 calc(var(--tasty-remote-label-col) + var(--tasty-space-md))", ...rtCaption, lineHeight: "var(--tasty-line-height-ui)", maxWidth: "var(--tasty-measure-sm)" }}>
+          <p style={{ margin: "var(--tasty-space-md) 0 0 calc(1 * var(--tasty-remote-label-col) + 1 * var(--tasty-space-md))", ...rtCaption, lineHeight: "var(--tasty-line-height-ui)" }}>
             Auto-detects the remote shell once when saved (runs an SSH probe).
           </p>
         )}
-        {error && <p style={{ margin: "var(--tasty-space-md) 0 0 calc(var(--tasty-remote-label-col) + var(--tasty-space-md))", fontSize: 11, color: "var(--tasty-accent-danger-raised)" }}>{error}</p>}
+        {error && <p style={{ margin: "var(--tasty-space-md) 0 0 calc(1 * var(--tasty-remote-label-col) + 1 * var(--tasty-space-md))", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-accent-danger-raised)" }}>{error}</p>}
       </div>
       <div style={rtFooter}>
         <Button variant="ghost" onClick={onCancel}>Cancel</Button>
@@ -314,27 +317,27 @@ function PasskeyRow({ k, revealed, onReveal, onEdit, onDelete }) {
   return (
     <div style={{ display: "flex", alignItems: "flex-start", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-space-xs)",
       borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
-      <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 2 }}>
+      <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: "var(--tasty-remote-row-line-gap)" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", minWidth: 0 }}>
-          <span style={{ fontSize: 13, fontWeight: 600, lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-text-primary)",
+          <span style={{ fontSize: "var(--tasty-font-size-heading)", fontWeight: "var(--tasty-font-weight-semibold)", lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-text-primary)",
             overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{k.name}</span>
-          {unknownKind ? <WarnBadge title="Unknown kind.">{k.kind}</WarnBadge> : <Tag>{k.kind}</Tag>}
+          {unknownKind ? <WarnBadge title="Unknown kind.">{k.kind}</WarnBadge> : <Tag mono>{k.kind}</Tag>}
         </div>
         <div style={{ ...rtMono, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
           {k.kind} · {revealed ? k.value : MASK}
         </div>
       </div>
-      <div style={{ display: "flex", alignItems: "center", gap: 1, flex: "none" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-remote-row-action-gap)", flex: "none" }}>
         {/* 2026-10-06: revealed = IconButton active (accent glyph + overlay-active) AND eye → eyeOff. Row delete = trash on all three tabs (x is reserved for Close / Dismiss). */}
         <IconButton size="sm" active={revealed} aria-label="Reveal"
           title={revealed ? "Hide value" : "Show value (local only)"} onClick={() => onReveal(k)}>
-          <Icon name={revealed ? RD.eyeOff : RD.eye} size={16} />
+          <Icon name={revealed ? RD.eyeOff : RD.eye} size="var(--tasty-icon-size-md)" />
         </IconButton>
         <IconButton size="sm" aria-label="Edit" title="Edit" onClick={() => onEdit(k)}>
-          <Icon name={RD.edit} size={16} />
+          <Icon name={RD.edit} size="var(--tasty-icon-size-md)" />
         </IconButton>
         <IconButton size="sm" aria-label="Delete" title="Delete" onClick={() => onDelete(k)}>
-          <Icon name={RD.trash} size={16} />
+          <Icon name={RD.trash} size="var(--tasty-icon-size-md)" />
         </IconButton>
       </div>
     </div>
@@ -343,11 +346,12 @@ function PasskeyRow({ k, revealed, onReveal, onEdit, onDelete }) {
 
 function PasskeyForm({ draft, isNew, error, onField, onSave, onCancel, onBrowse }) {
   const [show, setShow] = React.useState(false);
+  const [fieldFocus, setFieldFocus] = React.useState(false);
   return (
     <>
       <div className="tasty-scroll" style={rtScrollPad}>
         <div style={rtFormTitle}>{isNew ? "New passkey" : "Edit passkey"}</div>
-        <div style={{ display: "grid", gridTemplateColumns: "var(--tasty-remote-label-col) 1fr", columnGap: 12, rowGap: 8, alignItems: "center" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "var(--tasty-remote-label-col) 1fr", columnGap: "var(--tasty-space-md)", rowGap: "var(--tasty-space-sm)", alignItems: "center" }}>
           <label style={rtLabel}>Name</label>
           <Input block placeholder="ed25519-main" value={draft.name} onChange={(e) => onField("name", e.target.value)} />
 
@@ -358,48 +362,54 @@ function PasskeyForm({ draft, isNew, error, onField, onSave, onCancel, onBrowse 
               const on = draft.kind === opt;
               return (
                 <button key={opt} onClick={() => onField("kind", opt)} style={{ appearance: "none", cursor: "pointer",
-                  border: 0, borderLeft: i ? "var(--tasty-border-width) solid var(--tasty-border-default)" : 0, padding: "0 var(--tasty-size-14)", height: 26,
-                  fontFamily: "var(--tasty-font-mono)", fontSize: 12,
+                  border: 0, borderLeft: i ? "var(--tasty-border-width) solid var(--tasty-border-default)" : 0, padding: "0 var(--tasty-space-md)", height: "calc(1 * var(--tasty-control-height) + -2 * var(--tasty-border-width))",
+                  fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-term-sm)",
                   color: on ? "var(--tasty-text-on-accent)" : "var(--tasty-text-secondary)",
                   background: on ? "var(--tasty-accent-primary)" : "transparent" }}>{opt}</button>
               );
             })}
           </div>
 
-          <label style={{ ...rtLabel, alignSelf: draft.kind === "inline" ? "start" : "center", marginTop: draft.kind === "inline" ? 6 : 0 }}>Value</label>
+          {/* beside the textarea the label keeps the box of a one-line field, so it stands where it stands beside the path Input */}
+          <label style={{ ...rtLabel, alignSelf: draft.kind === "inline" ? "start" : "center", ...(draft.kind === "inline" && { lineHeight: "var(--tasty-control-height)" }) }}>Value</label>
           {draft.kind === "path" ? (
             <div style={{ display: "flex", gap: "var(--tasty-space-sm)" }}>
               <Input block mono placeholder="~/.ssh/id_ed25519" value={draft.value}
                 onChange={(e) => onField("value", e.target.value)} />
               <Button variant="secondary" size="sm" leadingIcon={ic.folder ? undefined : undefined} onClick={onBrowse}>
-                <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-xs)" }}><Icon name={RD.folder} size={14} />Browse…</span>
+                <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-xs)" }}><Icon name={RD.folder} size="var(--tasty-icon-size-sm)" />Browse…</span>
               </Button>
             </div>
           ) : (
             <div>
               <div style={{ position: "relative" }}>
-                <textarea value={draft.value} onChange={(e) => onField("value", e.target.value)}
-                  placeholder="Paste secret / key contents" rows={4} spellCheck={false}
-                  style={{ width: "100%", boxSizing: "border-box", resize: "vertical", minHeight: 64,
-                    padding: "var(--tasty-space-sm) var(--tasty-size-32) var(--tasty-space-sm) var(--tasty-space-sm)", border: "var(--tasty-border-width) solid var(--tasty-border-default)",
-                    borderRadius: "var(--tasty-radius)", background: "var(--tasty-surface-raised)",
-                    color: "var(--tasty-text-primary)", fontFamily: "var(--tasty-font-mono)", fontSize: 11,
+                {/* the empty textarea's hint takes the Input placeholder ink, not the browser default */}
+                <style>{`.rt-secret-field::placeholder{color:var(--tasty-input-placeholder)}`}</style>
+                {/* Input field shape: field fill and border-control rest edge, the shared focus edge + ring. */}
+                <textarea className="rt-secret-field" value={draft.value} onChange={(e) => onField("value", e.target.value)}
+                  onFocus={() => setFieldFocus(true)} onBlur={() => setFieldFocus(false)}
+                  placeholder="Paste secret / key contents" rows={3} spellCheck={false}
+                  style={{ width: "100%", boxSizing: "border-box", resize: "none",
+                    padding: "var(--tasty-space-sm) var(--tasty-remote-reveal-pad-right) var(--tasty-space-sm) var(--tasty-space-sm)", border: `var(--tasty-border-width) solid var(--tasty-${fieldFocus ? "input-border-focus" : "input-border"})`,
+                    borderRadius: "var(--tasty-radius)", background: "var(--tasty-input-bg)",
+                    boxShadow: fieldFocus ? "0 0 0 var(--tasty-border-width) var(--tasty-input-border-focus)" : "none",
+                    color: "var(--tasty-input-fg)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)",
                     lineHeight: "var(--tasty-line-height-ui)", outline: "none",
                     WebkitTextSecurity: show ? "none" : "disc", textSecurity: show ? "none" : "disc" }} />
-                <span style={{ position: "absolute", top: 6, right: 6 }}>
+                <span style={{ position: "absolute", top: "var(--tasty-remote-reveal-inset)", right: "var(--tasty-remote-reveal-inset)" }}>
                   <IconButton size="sm" active={show} aria-label="Show value"
                     title={show ? "Hide value" : "Show value (local only)"} onClick={() => setShow((s) => !s)}>
-                    <Icon name={show ? RD.eyeOff : RD.eye} size={14} />
+                    <Icon name={show ? RD.eyeOff : RD.eye} size="var(--tasty-icon-size-sm)" />
                   </IconButton>
                 </span>
               </div>
             </div>
           )}
         </div>
-        <p style={{ margin: "var(--tasty-space-md) 0 0 calc(var(--tasty-remote-label-col) + var(--tasty-space-md))", ...rtCaption, lineHeight: "var(--tasty-line-height-ui)", maxWidth: 320 }}>
+        <p style={{ margin: "var(--tasty-space-md) 0 0 calc(1 * var(--tasty-remote-label-col) + 1 * var(--tasty-space-md))", ...rtCaption, lineHeight: "var(--tasty-line-height-ui)" }}>
           The value is local-only. Profiles reference this passkey by name; the secret is never shared.
         </p>
-        {error && <p style={{ margin: "var(--tasty-space-md) 0 0 calc(var(--tasty-remote-label-col) + var(--tasty-space-md))", fontSize: 11, color: "var(--tasty-accent-danger-raised)" }}>{error}</p>}
+        {error && <p style={{ margin: "var(--tasty-space-md) 0 0 calc(1 * var(--tasty-remote-label-col) + 1 * var(--tasty-space-md))", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-accent-danger-raised)" }}>{error}</p>}
       </div>
       <div style={rtFooter}>
         <Button variant="ghost" onClick={onCancel}>Cancel</Button>
@@ -412,19 +422,24 @@ function PasskeyForm({ draft, isNew, error, onField, onSave, onCancel, onBrowse 
 // ════════════════════════════════════════════════════════════════════════
 // TAB C — Attach (tasty-attach targets)
 // ════════════════════════════════════════════════════════════════════════
-function AttachRow({ a, sshProfileNames, onEdit, onDelete }) {
-  const inactive = a.state === "inactive";
-  const dangling = a.mode === "ref" && a.sshRef && !sshProfileNames.includes(a.sshRef);
+function AttachRow({ a, sshProfiles, onEdit, onDelete }) {
+  // Derived as the app derives it: a reference with no ssh profile of that name is "profile missing"; a reference whose
+  // ssh profile holds a failed detection result (its failed flag, the app's disabled), or an inline target whose own
+  // flag is set, is "inactive". A detection in progress leaves the flag as it was until its result arrives.
+  const ref = a.mode === "ref";
+  const referenced = ref ? sshProfiles.find((p) => p.name === a.sshRef) : null;
+  const dangling = ref && !referenced;
+  const inactive = ref ? !!referenced?.failed : !!a.failed;
   return (
     <div style={{ display: "flex", alignItems: "flex-start", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-space-xs)",
       borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
-      <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 2 }}>
+      <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: "var(--tasty-remote-row-line-gap)" }}>
         {/* row 1 — name + mode/state badge */}
         <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", minWidth: 0 }}>
-          <span style={{ fontSize: 13, fontWeight: 600, lineHeight: "var(--tasty-line-height-ui)", flex: "0 1 auto",
-            color: inactive ? "var(--tasty-text-disabled)" : "var(--tasty-text-primary)",
+          <span style={{ fontSize: "var(--tasty-font-size-heading)", fontWeight: "var(--tasty-font-weight-semibold)", lineHeight: "var(--tasty-line-height-ui)", flex: "0 1 auto",
+            color: inactive ? "var(--tasty-text-muted)" : "var(--tasty-text-primary)",
             overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-            {a.name}{a.label && <span style={{ fontWeight: 400, color: "var(--tasty-text-muted)" }}>  ({a.label})</span>}
+            {a.name}{a.label && <span style={{ fontWeight: "var(--tasty-font-weight-normal)", color: "var(--tasty-text-muted)" }}>  ({a.label})</span>}
           </span>
           <Tag>{a.mode === "ref" ? "profile" : "inline"}</Tag>
           {inactive && <WarnBadge title="Inactive — the referenced ssh profile or inline shell isn't reachable.">inactive</WarnBadge>}
@@ -435,18 +450,18 @@ function AttachRow({ a, sshProfileNames, onEdit, onDelete }) {
           {dangling && <WarnBadge title="Referenced ssh profile not found.">profile missing</WarnBadge>}
         </div>
         {/* row 3 — remote tasty + port mode */}
-        <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-md)", marginTop: 1, minWidth: 0, flexWrap: "wrap" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-md)", minWidth: 0, flexWrap: "wrap" }}>
           <span style={rtCaption}>tasty: <span style={{ fontFamily: "var(--tasty-font-mono)" }}>{a.remoteTasty || "tasty"}</span></span>
           <span style={rtCaption}>port: <span style={{ fontFamily: "var(--tasty-font-mono)" }}>{a.portMode}</span></span>
         </div>
       </div>
       {/* actions */}
-      <div style={{ display: "flex", alignItems: "center", gap: 1, flex: "none" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-remote-row-action-gap)", flex: "none" }}>
         <IconButton size="sm" aria-label="Edit" title="Edit" onClick={() => onEdit(a)}>
-          <Icon name={RD.edit} size={16} />
+          <Icon name={RD.edit} size="var(--tasty-icon-size-md)" />
         </IconButton>
         <IconButton size="sm" aria-label="Delete" title="Delete" onClick={() => onDelete(a)}>
-          <Icon name={RD.trash} size={16} />
+          <Icon name={RD.trash} size="var(--tasty-icon-size-md)" />
         </IconButton>
       </div>
     </div>
@@ -460,7 +475,7 @@ function AttachForm({ draft, isNew, error, sshProfiles, passkeys, onField, onSav
       <div className="tasty-scroll" style={rtScrollPad}>
         <div style={rtFormTitle}>{isNew ? "New attach" : "Edit attach"}</div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "var(--tasty-remote-label-col) 1fr", columnGap: 12, rowGap: 8, alignItems: "center" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "var(--tasty-remote-label-col) 1fr", columnGap: "var(--tasty-space-md)", rowGap: "var(--tasty-space-sm)", alignItems: "center" }}>
           <label style={rtLabel}>Name</label>
           <Input block placeholder="host" value={draft.name} onChange={(e) => onField("name", e.target.value)} />
           <label style={rtLabel}>Label</label>
@@ -474,8 +489,8 @@ function AttachForm({ draft, isNew, error, sshProfiles, passkeys, onField, onSav
               const on = draft.mode === opt;
               return (
                 <button key={opt} onClick={() => onField("mode", opt)} style={{ appearance: "none", cursor: "pointer",
-                  border: 0, borderLeft: i ? "var(--tasty-border-width) solid var(--tasty-border-default)" : 0, padding: "0 var(--tasty-size-14)", height: 26,
-                  fontFamily: "var(--tasty-font-ui)", fontSize: 12,
+                  border: 0, borderLeft: i ? "var(--tasty-border-width) solid var(--tasty-border-default)" : 0, padding: "0 var(--tasty-space-md)", height: "calc(1 * var(--tasty-control-height) + -2 * var(--tasty-border-width))",
+                  fontFamily: "var(--tasty-font-ui)", fontSize: "var(--tasty-font-size-term-sm)",
                   color: on ? "var(--tasty-text-on-accent)" : "var(--tasty-text-secondary)",
                   background: on ? "var(--tasty-accent-primary)" : "transparent" }}>{lbl}</button>
               );
@@ -487,7 +502,7 @@ function AttachForm({ draft, isNew, error, sshProfiles, passkeys, onField, onSav
 
         {ref ? (
           /* reference an existing ssh profile */
-          <div style={{ display: "grid", gridTemplateColumns: "var(--tasty-remote-label-col) 1fr", columnGap: 12, rowGap: 8, alignItems: "center" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "var(--tasty-remote-label-col) 1fr", columnGap: "var(--tasty-space-md)", rowGap: "var(--tasty-space-sm)", alignItems: "center" }}>
             <label style={rtLabel}>SSH profile</label>
             <Select block value={draft.sshRef} onChange={(e) => onField("sshRef", e.target.value)}>
               <option value="">(select a profile)</option>
@@ -496,7 +511,7 @@ function AttachForm({ draft, isNew, error, sshProfiles, passkeys, onField, onSav
           </div>
         ) : (
           /* inline ssh info — same fieldset as the ssh profile form */
-          <div style={{ display: "grid", gridTemplateColumns: "var(--tasty-remote-label-col) 1fr", columnGap: 12, rowGap: 8, alignItems: "center" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "var(--tasty-remote-label-col) 1fr", columnGap: "var(--tasty-space-md)", rowGap: "var(--tasty-space-sm)", alignItems: "center" }}>
             <label style={rtLabel}>Host</label>
             <Input block mono placeholder="10.0.4.12" value={draft.host} onChange={(e) => onField("host", e.target.value)} />
             <label style={rtLabel}>User</label>
@@ -510,11 +525,11 @@ function AttachForm({ draft, isNew, error, sshProfiles, passkeys, onField, onSav
           </div>
         )}
 
-        <div style={{ display: "flex", alignItems: "center", margin: "var(--tasty-size-14) 0 var(--tasty-space-sm)" }}>
-          <span style={{ fontFamily: "var(--tasty-font-label)", fontSize: 10, textTransform: "uppercase",
-            letterSpacing: "var(--tasty-letter-spacing-caps)", color: "var(--tasty-text-muted)" }}>Remote tasty</span>
+        <div style={{ display: "flex", alignItems: "center", margin: "var(--tasty-space-md) 0 var(--tasty-space-sm)" }}>
+          <span style={{ fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-caption)", textTransform: "uppercase",
+            color: "var(--tasty-text-muted)" }}>Remote tasty</span>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "var(--tasty-remote-label-col) 1fr", columnGap: 12, rowGap: 8, alignItems: "center" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "var(--tasty-remote-label-col) 1fr", columnGap: "var(--tasty-space-md)", rowGap: "var(--tasty-space-sm)", alignItems: "center" }}>
           <label style={rtLabel}>Executable</label>
           <Input block mono placeholder="tasty" value={draft.remoteTasty} onChange={(e) => onField("remoteTasty", e.target.value)} />
           <label style={rtLabel}>Port mode</label>
@@ -522,10 +537,10 @@ function AttachForm({ draft, isNew, error, sshProfiles, passkeys, onField, onSav
           <label style={rtLabel}>Port file</label>
           <Input block mono placeholder="optional — overrides port mode" value={draft.portFile} onChange={(e) => onField("portFile", e.target.value)} />
         </div>
-        <p style={{ margin: "var(--tasty-space-md) 0 0 calc(var(--tasty-remote-label-col) + var(--tasty-space-md))", ...rtCaption, lineHeight: "var(--tasty-line-height-ui)", maxWidth: "var(--tasty-measure-sm)" }}>
+        <p style={{ margin: "var(--tasty-space-md) 0 0 calc(1 * var(--tasty-remote-label-col) + 1 * var(--tasty-space-md))", ...rtCaption, lineHeight: "var(--tasty-line-height-ui)" }}>
           Point <span style={{ fontFamily: "var(--tasty-font-mono)" }}>Executable</span> at the remote <span style={{ fontFamily: "var(--tasty-font-mono)" }}>tasty</span> binary when it isn't on <span style={{ fontFamily: "var(--tasty-font-mono)" }}>PATH</span>. A <span style={{ fontFamily: "var(--tasty-font-mono)" }}>Port file</span> path takes precedence over the selected port mode.
         </p>
-        {error && <p style={{ margin: "var(--tasty-space-md) 0 0 calc(var(--tasty-remote-label-col) + var(--tasty-space-md))", fontSize: 11, color: "var(--tasty-accent-danger-raised)" }}>{error}</p>}
+        {error && <p style={{ margin: "var(--tasty-space-md) 0 0 calc(1 * var(--tasty-remote-label-col) + 1 * var(--tasty-space-md))", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-accent-danger-raised)" }}>{error}</p>}
       </div>
       <div style={rtFooter}>
         <Button variant="ghost" onClick={onCancel}>Cancel</Button>
@@ -540,8 +555,8 @@ function ConfirmDelete({ noun, name, hint, onConfirm, onCancel }) {
   return (
     <>
       <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", justifyContent: "center",
-        gap: 8, padding: "var(--tasty-space-lg) var(--tasty-space-lg)" }}>
-        <p style={{ margin: 0, fontSize: 13, lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-text-primary)" }}>
+        gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-lg) var(--tasty-space-lg)" }}>
+        <p style={{ margin: 0, fontSize: "var(--tasty-font-size-body)", lineHeight: "var(--tasty-line-height-ui)", color: "var(--tasty-text-primary)" }}>
           Delete {noun} <span style={{ fontFamily: "var(--tasty-font-mono)" }}>“{name}”</span>?
         </p>
         {hint && <p style={{ margin: 0, ...rtCaption, lineHeight: "var(--tasty-line-height-ui)" }}>{hint}</p>}
@@ -579,39 +594,39 @@ function ProtocolFilter({ protocols, hidden, onApply }) {
 
   return (
     <div style={{ position: "relative", flex: "none" }}>
-      <Button variant={filtered ? "primary" : "secondary"} size="sm" leadingIcon={<Icon name={RD.funnel} size={14} />}
+      <Button variant={filtered ? "primary" : "secondary"} size="sm" leadingIcon={<Icon name={RD.funnel} size="var(--tasty-icon-size-sm)" />}
         onClick={() => (open ? setOpen(false) : openPanel())}>
         Filter{filtered ? ` · ${selectedCount}/${protocols.length}` : ""}
       </Button>
       {open && (
         <>
           <div onClick={() => setOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 40 }} />
-          <div role="dialog" aria-label="Filter by protocol" style={{ position: "absolute", top: "calc(100% + var(--tasty-space-xs))", right: 0, zIndex: 41,
+          <div role="dialog" aria-label="Filter by protocol" style={{ position: "absolute", top: "100%", marginTop: "var(--tasty-space-xs)", right: 0, zIndex: 41,
             width: "var(--tasty-remote-filter-dropdown-width)", boxSizing: "border-box", background: "var(--tasty-menu-bg)", border: "var(--tasty-border-width) solid var(--tasty-menu-border)", /* 2026-10-06: every anchored popover = menu container tokens */
             borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-popover)", display: "flex", flexDirection: "column", overflow: "hidden" }}>
-            <div style={{ padding: "var(--tasty-space-sm) var(--tasty-space-md)", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)",
-              fontFamily: "var(--tasty-font-label)", fontSize: 10, textTransform: "uppercase",
+            <div style={{ padding: "var(--tasty-space-sm) var(--tasty-space-md)", borderBottom: "var(--tasty-border-width) solid var(--tasty-menu-separator)",
+              fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-micro)", textTransform: "uppercase",
               letterSpacing: "var(--tasty-letter-spacing-caps)", color: "var(--tasty-text-muted)" }}>Filter by protocol</div>
-            <div className="tasty-scroll" style={{ maxHeight: 168, overflow: "auto", padding: "var(--tasty-space-sm) var(--tasty-space-md)",
+            <div className="tasty-scroll" style={{ maxHeight: "var(--tasty-remote-filter-list-max-height)", overflow: "auto", padding: "var(--tasty-space-sm) var(--tasty-space-md)",
               display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
               {protocols.length === 0 ? (
-                <span style={{ ...rtCaption, fontStyle: "italic" }}>No protocols.</span>
+                <span style={{ ...rtCaption, fontStyle: "var(--tasty-font-style-absent)" }}>No protocols.</span>
               ) : protocols.map((proto) => (
                 <div key={proto} style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)" }}>
                   <Checkbox checked={!draft.has(proto)} onChange={() => toggle(proto)}
                     label={proto} /* 2026-10-06: shared Checkbox label (body, UI font) */ />
-                  {isUnknownType(proto) && <WarnBadge title="Unknown type — no core feature or plugin handles it.">unknown</WarnBadge>}
+                  {isUnknownType(proto) && <WarnBadge raised title="This type is not supported yet. You can save it, but it cannot be used until Tasty or a plugin supports it.">unknown</WarnBadge>}
                 </div>
               ))}
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-sm) var(--tasty-space-md)",
-              borderTop: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
+              borderTop: "var(--tasty-border-width) solid var(--tasty-menu-separator)" }}>
               <button onClick={() => setDraft(new Set())} style={rtLinkBtn}>Select all</button>
               <span data-ink-grade="none" data-ink-why="ornament" style={{ color: "var(--tasty-separator)" }}>·</span>
               <button onClick={() => setDraft(new Set(protocols))} style={rtLinkBtn}>Deselect all</button>
             </div>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "var(--tasty-space-sm)",
-              padding: "var(--tasty-space-sm) var(--tasty-space-md)", borderTop: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
+              padding: "var(--tasty-space-sm) var(--tasty-space-md)", borderTop: "var(--tasty-border-width) solid var(--tasty-menu-separator)" }}>
               <Button variant="ghost" size="sm" onClick={() => setDraft(new Set())}>Reset</Button>
               <Button variant="primary" size="sm" onClick={apply}>Apply</Button>
             </div>
@@ -641,10 +656,10 @@ const SSH_CONFIG_HOSTS = [
 ];
 function LocalSshSection({ state = "hosts", hosts = SSH_CONFIG_HOSTS, profileTargets = [], onImport }) {
   const caption = { fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" };
-  const line = { padding: "var(--tasty-size-2) var(--tasty-space-xs) var(--tasty-space-xs)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" };
+  const line = { padding: "var(--tasty-remote-ssh-line-pad-top) var(--tasty-space-xs) var(--tasty-space-xs)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" };
   return (
     <div style={{ marginTop: "var(--tasty-space-md)", paddingTop: "var(--tasty-space-sm)", borderTop: "var(--tasty-border-width) solid var(--tasty-border-frame)" }}>
-      <div style={{ display: "flex", alignItems: "baseline", gap: "var(--tasty-space-sm)", padding: "var(--tasty-size-2) var(--tasty-space-xs) var(--tasty-space-xs)" }}>
+      <div style={{ display: "flex", alignItems: "baseline", gap: "var(--tasty-space-sm)", padding: "var(--tasty-remote-ssh-line-pad-top) var(--tasty-space-xs) var(--tasty-space-xs)" }}>
         <span style={{ fontSize: "var(--tasty-font-size-caption)", letterSpacing: "var(--tasty-letter-spacing-caps)", textTransform: "uppercase", color: "var(--tasty-text-secondary)" }}>From ssh config</span>
         <span style={caption}>~/.ssh/config</span>
         <div style={{ flex: 1 }} />
@@ -676,14 +691,14 @@ function ListShell({ addLabel, onAdd, empty, children, hasItems, rightSlot }) {
   return (
     <>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "var(--tasty-space-sm)",
-        padding: "var(--tasty-space-md) var(--tasty-size-14) var(--tasty-space-sm)", flex: "none" }}>
+        padding: "var(--tasty-remote-content-pad-top) var(--tasty-remote-pad-x) var(--tasty-space-sm)", flex: "none" }}>
         <Button variant="secondary" size="sm" leadingIcon={ic.plus} onClick={onAdd}>{addLabel}</Button>
         {rightSlot}
       </div>
-      <div className="tasty-scroll" style={{ flex: 1, minHeight: 0, overflow: "auto", padding: "0 var(--tasty-size-14) var(--tasty-space-sm)" }}>
+      <div className="tasty-scroll" style={{ flex: 1, minHeight: 0, overflow: "auto", padding: "0 var(--tasty-remote-pad-x) var(--tasty-space-sm)" }}>
         {hasItems ? children : (
           <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center",
-            textAlign: "center", padding: "0 var(--tasty-space-xl)", fontSize: "var(--tasty-font-size-term-sm)", fontStyle: "italic", color: "var(--tasty-text-muted)" }}>
+            textAlign: "center", padding: "0 var(--tasty-space-xl)", fontSize: "var(--tasty-font-size-term-sm)", fontStyle: "var(--tasty-font-style-absent)", color: "var(--tasty-text-muted)" }}>
             {empty}
           </div>
         )}
@@ -713,7 +728,6 @@ function RemoteTool({ onClose, onFlash }) {
   const timers = React.useRef({});
   const passkeyNames = passkeys.map((k) => k.name);
   const sshProfiles = profiles.filter((p) => isSshType(p.type));
-  const sshProfileNames = sshProfiles.map((p) => p.name);
   // dynamic protocol set (known types first, then unknowns alpha) + filtered view
   const protocols = React.useMemo(() => {
     const seen = [];
@@ -727,8 +741,10 @@ function RemoteTool({ onClose, onFlash }) {
   React.useEffect(() => {
     const h = (e) => { if (e.key === "Escape") onClose && onClose(); };
     window.addEventListener("keydown", h);
-    return () => { window.removeEventListener("keydown", h); Object.values(timers.current).forEach(clearTimeout); };
+    return () => window.removeEventListener("keydown", h);
   }, [onClose]);
+  // detection timers end only when the window unmounts; a host that passes a new onClose each render must not cancel them
+  React.useEffect(() => () => Object.values(timers.current).forEach(clearTimeout), []);
 
   const switchTab = (t) => { setTab(t); setPView({ type: "list" }); setKView({ type: "list" }); setAView({ type: "list" }); setPErr(""); setKErr(""); setAErr(""); };
 
@@ -737,11 +753,31 @@ function RemoteTool({ onClose, onFlash }) {
   const pEdit = (p) => { setPDraft({ ...blankProfile(), ...p, fields: (p.fields || []).map((f) => ({ ...f })) }); setPErr(""); setPView({ type: "form", isNew: false }); };
   const pField = (k, v) => { setPDraft((d) => ({ ...d, [k]: v })); if (pErr) setPErr(""); };
   const pSetFields = (fields) => setPDraft((d) => ({ ...d, fields }));
+  // The app stores the result of a real SSH probe, so a re-detect can end either way. The kit has no network: a
+  // host in 203.0.113.0/24 (TEST-NET-3, a documentation range nothing answers on) fails, any other host succeeds.
+  // legacy-box sits there, so Re-detect on it shows the failed result again; editing its host to another address
+  // lets the next probe succeed.
+  // Only an IPv4 literal in that range fails: a name such as 203.0.113.example.com is another host.
+  const probeReaches = (p) => {
+    const m = /^203\.0\.113\.(\d{1,3})$/.exec((p.host || "").trim());
+    return !(m && Number(m[1]) <= 255);
+  };
+  // The probe runs on the profile as it was when Re-detect was pressed. Like the app, which rejects the result when
+  // the stored profile changed in the meantime, a row saved during the probe keeps its own status.
+  // Saving copies the row through blankProfile(), so the comparison fills the same defaults and ignores key order.
+  const recordOf = (p) => {
+    const { state, failed, ...rest } = { ...blankProfile(), ...p };
+    return JSON.stringify(Object.keys(rest).sort().map((k) => [k, rest[k]]));
+  };
   const pRedetect = (p) => {
+    const started = recordOf(p);
     setProfiles((ps) => ps.map((x) => (x.id === p.id ? { ...x, state: "detecting" } : x)));
     onFlash && onFlash(`Re-detecting ${p.name}…`);
     clearTimeout(timers.current[p.id]);
-    timers.current[p.id] = setTimeout(() => setProfiles((ps) => ps.map((x) => (x.id === p.id ? { ...x, state: "ok" } : x))), 1400);
+    timers.current[p.id] = setTimeout(() => setProfiles((ps) => ps.map((x) => {
+      if (x.id !== p.id) return x;
+      return recordOf(x) === started ? { ...x, state: "ok", failed: !probeReaches(p) } : { ...x, state: "ok" };
+    })), 1400);
   };
   const pSave = () => {
     const ssh = isSshType(pDraft.type);
@@ -753,7 +789,7 @@ function RemoteTool({ onClose, onFlash }) {
     }
     if (profiles.some((p) => p.name === pDraft.name.trim() && p.id !== pDraft.id)) return setPErr("A profile with this name already exists.");
     if (pDraft.id) {
-      setProfiles((ps) => ps.map((x) => (x.id === pDraft.id ? { ...pDraft, type: pDraft.type.trim(), state: x.state === "failed" ? "ok" : x.state } : x)));
+      setProfiles((ps) => ps.map((x) => (x.id === pDraft.id ? { ...pDraft, type: pDraft.type.trim(), state: x.state, failed: false } : x)));
     } else {
       setProfiles((ps) => [...ps, { ...pDraft, type: pDraft.type.trim(), id: "p" + Date.now(), state: "ok" }]);
     }
@@ -802,31 +838,35 @@ function RemoteTool({ onClose, onFlash }) {
     const on = tab === id;
     return (
       <button onClick={() => switchTab(id)} style={{ border: 0, background: "transparent", cursor: "pointer",
-        height: 35, padding: "0 var(--tasty-space-md)", fontFamily: "var(--tasty-font-ui)", fontSize: 13,
-        color: on ? "var(--tasty-text-primary)" : "var(--tasty-text-muted)", fontWeight: on ? 600 : 400,
-        borderBottom: on ? "var(--tasty-focus-ring-width) solid var(--tasty-accent-primary)" : "var(--tasty-focus-ring-width) solid transparent" }}>{children}</button>
+        height: "var(--tasty-remote-tab-height)", padding: "0 var(--tasty-space-md)", fontFamily: "var(--tasty-font-ui)", fontSize: "var(--tasty-font-size-body)",
+        color: on ? "var(--tasty-text-primary)" : "var(--tasty-text-muted)", fontWeight: on ? "var(--tasty-font-weight-semibold)" : "var(--tasty-font-weight-normal)",
+        borderBottom: on ? "var(--tasty-focus-ring-width) solid var(--tasty-accent-primary)" : "var(--tasty-focus-ring-width) solid transparent",
+        /* keyboard focus: the tabs stand 2px apart, so a ring 1px off the tab would reach 1px into the next tab and meet
+           its accent underline. As on the settings L1 tab, the 2px ring sits inside the tab, clear of the 2px underline
+           by the 1px ring offset, the same inset on every tab. */
+        outlineOffset: "calc(-2 * var(--tasty-focus-ring-width) + -1 * var(--tasty-focus-ring-offset))", borderRadius: "var(--tasty-radius-none)" }}>{children}</button>
     );
   };
 
   return (
     <Scrim onClose={() => {}}>
-      <div style={{ width: 520, height: 460, display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)",
-        border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", overflow: "hidden",
+      <div style={{ width: "var(--tasty-remote-window-width)", height: "var(--tasty-remote-window-height)", display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)",
+        border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden",
         boxShadow: "var(--tasty-shadow-modal)" }}>
         {/* common header */}
-        <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-space-md) var(--tasty-space-md) var(--tasty-size-14)", flex: "none",
+        <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-space-md) var(--tasty-space-md) var(--tasty-remote-pad-x)", flex: "none",
           borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
           <span style={{ display: "inline-flex", color: "var(--tasty-text-muted)" }}>
-            <Icon name="remote" size={16} />
+            <Icon name="remote" size="var(--tasty-icon-size-md)" />
           </span>
-          <span style={{ fontSize: 14, fontWeight: 600, color: "var(--tasty-text-primary)" }}>Remote connections</span>
+          <span style={{ fontSize: "var(--tasty-font-size-max)", fontWeight: "var(--tasty-font-weight-semibold)", color: "var(--tasty-text-primary)" }}>Remote connections</span>
           <div style={{ flex: 1 }} />
           <IconButton size="sm" aria-label="Close" title="Close" onClick={onClose}>
-            <Icon name={RD.x} size={16} />
+            <Icon name={RD.x} size="var(--tasty-icon-size-md)" />
           </IconButton>
         </div>
         {/* tab bar */}
-        <div style={{ display: "flex", alignItems: "center", gap: 2, padding: "0 var(--tasty-space-sm)", flex: "none",
+        <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-remote-tab-gap)", padding: "0 var(--tasty-space-sm)", flex: "none",
           borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)", background: "var(--tasty-bg-sidebar)" }}>
           <TabBtn id="profiles">Remote profiles</TabBtn>
           <TabBtn id="attach">Attach</TabBtn>
@@ -867,7 +907,7 @@ function RemoteTool({ onClose, onFlash }) {
             <ListShell addLabel="Add attach" onAdd={aNew} hasItems={attaches.length > 0}
               empty={'No attach targets yet. Click \u201CAdd attach\u201D to create one.'}>
               {attaches.map((a) => (
-                <AttachRow key={a.id} a={a} sshProfileNames={sshProfileNames}
+                <AttachRow key={a.id} a={a} sshProfiles={sshProfiles}
                   onEdit={aEdit} onDelete={(x) => setAView({ type: "confirm", attach: x })} />
               ))}
             </ListShell>
@@ -895,4 +935,4 @@ function RemoteTool({ onClose, onFlash }) {
   );
 }
 
-export { RemoteTool, LocalSshSection };
+export { RemoteTool, LocalSshSection, WarnBadge };

@@ -7,26 +7,33 @@
 - 문구: `src/lib/i18n/` (언어당 사전 하나. "언어 목록과 사전" 참고)
 - 산출물: 레포 루트 아래 `dist/` — 빌드가 만들며 Git에서 제외한다(경로 인용으로 안 적는다. 갓 클론한
   트리에는 없어서 좌표를 실재로 판정하는 CI의 경로 검사가 실패할 수 있다)
-- 배포: `.github/workflows/pages.yml`. `main`과 `release`의 push마다 `npm run build`로 빌드하고
+- 배포: `.github/workflows/pages.yml`. `develop`·`release`·`main`의 push마다 `npm run build`로 빌드하고
   `npm run check-links`로 산출물의 내부 링크와 `content/` 앵커의 실제 HTML 결과, 디자인 페이지 사이 링크의 언어 유지를 전수 판정하고, `npm run check-sitemap`으로
-  공개 페이지와 sitemap을 대조하고, `npm run check-translations`로 일본어·중국어 가이드를 한국어 원본과 대조한다.
-  **배포는 `release` push와 `release`에서 수동 실행할 때만** 한다. 공개 사이트는 사용자가 받을 수 있는
-  버전을 설명해야 하기 때문이다. `main`은 최신 페이지라 빌드와 검사만 한다. 표시 버전은 공개된 최신
+  공개 페이지와 sitemap을 대조하고, `npm run check-translations`로 영어·일본어·중국어 가이드를 한국어 원본과 대조한다.
+  **배포는 `main` push와 `main`에서 수동 실행할 때만** 한다. 공개 사이트는 사용자가 받을 수 있는
+  버전을 설명해야 하기 때문이다. `develop`은 최신 페이지, `release`는 릴리스 후보라 빌드와 검사만 한다. 표시 버전은 공개된 최신
   Tasty 릴리스(`release.json`)이고, 이 파일이 없는 로컬 빌드는 버전을 표시하지 않는다.
-- 승격: Tasty를 릴리스할 때 `release`를 `main`으로 fast-forward하고 Tasty 릴리스와 같은 태그를 붙여
-  `git push --atomic origin release <tag>`로 함께 push한다. 기능 설명이나 버전이 바뀌는 변경은 이때 함께 공개한다.
+- 승격: Tasty를 릴리스할 때 `develop`의 고른 시점을 `release`에 합쳐 검사를 통과시키고, `release`를 `main`에
+  merge 커밋으로 합친다. 그 커밋에 Tasty 릴리스와 같은 태그를 붙여 `git push --atomic origin main <tag>`로 함께 push한다.
+  `release`를 `main`에 합치는 단계는 pull request로 하지 않는다. `main` 쪽 검사는 태그로 Tasty 버전을 정하므로 태그가 붙기 전에는 직전 릴리스와 대조된다.
+  기능 설명이나 버전이 바뀌는 변경은 이때 함께 공개한다.
 - 게시용 수정: 공개된 Tasty 버전의 기능 설명이나 버전이 바뀌지 않는 변경(문구, 메타데이터 등)은 묻지 않고
-  `release`에 커밋해 태그 없이 배포한 뒤 곧바로 `release`를 `main`에 합친다([CLAUDE.md](../../CLAUDE.md) "게시용 페이지와 최신 페이지").
+  `main`에 커밋해 태그 없이 배포한 뒤 곧바로 `main`을 `release`와 `develop`에 합친다([CLAUDE.md](../../CLAUDE.md) "게시용 페이지와 최신 페이지").
+  배포 조건은 push된 커밋의 `pages.yml`이 정한다.
 - 다른 CI: `checks.yml`은 `checks/`의 Rust 시험으로 가이드를 Tasty 소스와 대조한다. Tasty 소스는
-  `.tasty-src`에 받으며, `main`에서는 Tasty `main`, `release`에서는 가장 가까운 태그와 같은 이름의 Tasty
-  태그다. 매일 한 번도 실행한다. `design.yml`은 `vendor/` 디자인 정본을 검사한다(아래 "vendor 검사").
+  `.tasty-src`에 받으며, `develop`과 그 밖의 브랜치에서는 Tasty `develop`, `release`에서는 Tasty `release`, `main`에서는 가장 가까운 태그와 같은 이름의 Tasty
+  태그다. 릴리스 후보는 태그가 생기기 전에 검사하므로 Tasty의 릴리스 후보와 대조한다. 그래서 `release`는 Tasty `release`와 같은 시점을 담을 때만 통과를 기대한다.
+  승격 사이에 게시용 수정을 `release`에 역병합하면 앞서 나간 Tasty `release`와 어긋나 실패할 수 있다. 배포에는 영향이 없다.
+  Tasty hotfix 릴리스는 Tasty가 `main`을 `release`에 역병합한 뒤에 승격한다. 그 전에 승격하면 `release`가 hotfix가 빠진 Tasty `release`와 대조된다. 매일 한 번 `develop`으로도 실행한다. 세 브랜치 모두 `design.yml`이 `vendor/` 디자인 정본을 검사한다(아래 "vendor 검사").
   `checks/Cargo.lock`은 추적하지 않는다. `checks/`의 의존성은 받은 Tasty 소스를 따라 움직이므로, CI는 실행할 때
   `.tasty-src/Cargo.lock`을 복사해 쓴다. 로컬에서 돌릴 때도 `cargo test` 전에 같은 복사를 한다.
+  `checks/`는 따로 선 workspace라 Tasty의 `[patch.crates-io]`를 받지 못한다. 받은 Tasty 소스에 `vendor/vtparse`가 있으면
+  `cargo test` 단계가 그 패치를 `--config`로 넘긴다. 로컬에서도 같은 인자를 준다. 정확한 조건과 인자는 `checks.yml`의 `cargo test` 단계에 있다.
 
 **`docs/` 는 발행하지 않는다.** 이 레포의 `docs/`는 사이트를 고치는 사람과 에이전트를 위한 개발 문서(`docs/dev/`)와
 기획서(`docs/plan/`)이고, 사이트는 Tasty 를 받아서 쓰는 사람을 위한 것이라 독자가 다르다. Tasty의 명세·설계·ADR은
 [Tasty 레포](https://github.com/zilhak/tasty)의 `docs/`에 있다. 사이트가 실을 내용은 전부 `content/` 에 사용자 시점으로
-따로 쓴다. 사용자에게 보이는 동작이 바뀌면 기획서를 기준으로 최신 페이지(`main`)의 가이드를 고친다.
+따로 쓴다. 사용자에게 보이는 동작이 바뀌면 기획서를 기준으로 최신 페이지(`develop`)의 가이드를 고친다.
 
 ## 사이트 문구와 어조
 
@@ -131,31 +138,33 @@
 
 ### 렌더링 대비 검사
 
-`npm run check-contrast`는 빌드 결과를 띄워 갤러리 페이지와 사이트 페이지를 Mocha와 Latte로 렌더링한다. `--site-only`와 `--gallery-only`로 한쪽만 실행하고, `--page <키>`는 갤러리 한 페이지만 잰다. 코드는 `scripts/check-contrast.mjs`(갤러리), `contrast-site.mjs`(사이트), `contrast-page.mjs`(페이지 안에서 실행하는 측정)에 있다.
+`npm run check-contrast`는 빌드 결과를 띄워 갤러리 페이지와 사이트 페이지를 Mocha와 Latte로 렌더링한다. `--site-only`와 `--gallery-only`로 한쪽만 실행하고, `--page <키>`는 갤러리 한 페이지만 잰다. 잘못된 인자는 브라우저를 띄우기 전에 거절하고 종료 코드 2로 끝난다. 알 수 없는 인자와 위치 인자, 같은 옵션의 반복, `--page`·`--json`의 값 누락이나 빈 값, `--site-only`를 `--gallery-only`나 `--page`와 함께 쓰는 경우, 빌드에 없는 페이지 키가 여기에 해당한다. 다음 옵션은 값으로 받지 않으므로 `--`로 시작하는 파일명은 `./--이름`으로 준다. `--site-only --json <파일>`과 `--gallery-only --page <키>`는 함께 쓸 수 있는 조합이다([`scripts/contrast-args.mjs`](../../scripts/contrast-args.mjs)의 `parseArgs()`와 [`scripts/contrast-args.test.mjs`](../../scripts/contrast-args.test.mjs) 참조). 하위 폴더의 페이지 키는 빌드 결과에서 `design/gallery/<이름>/index.html`이 일반 파일일 때만 갤러리 목록에 넣으며, `--site-only`에서는 이 목록을 건너뛴다([`scripts/contrast-site.mjs`](../../scripts/contrast-site.mjs)의 `galleryPages()`와 [`scripts/contrast-site.test.mjs`](../../scripts/contrast-site.test.mjs) 참조). 갤러리와 사이트 목록을 읽을 때 대상이 없거나(`ENOENT`), 파일을 거치거나(`ENOTDIR`), 고리를 이루어(`ELOOP`) 따라갈 수 없는 링크는 건너뛴다. 하위 폴더와 필수 페이지의 `index.html`에도 같은 규칙을 적용하며, `EACCES` 등 그 밖의 오류는 그대로 던진다. 사이트 목록의 `sitePages()`는 이미 들어와 있는 조상 폴더로 돌아가는 링크도 건너뛴다. 갤러리 목록을 읽는 실행은 `design/gallery/` 디렉터리가 없거나, 필수 페이지인 foundations(`design/gallery/`)와 토큰 페이지(`design/tokens/`) 중 어느 한쪽에라도 일반 파일인 `index.html`이 없으면 페이지 키 검증, 페이지 수 검사, 브라우저 실행 전에 종료 코드 2로 끝난다(`design/gallery/` 디렉터리가 없으면 갤러리 빌드가 없다고 알린다). 갤러리 측정은 [`scripts/contrast-gallery.mjs`](../../scripts/contrast-gallery.mjs)의 `measureGallery()`에, 결과 집계는 [`scripts/check-contrast.mjs`](../../scripts/check-contrast.mjs)의 `run()`에 있다. 사이트 측정은 `scripts/contrast-site.mjs`가 맡는다. 갤러리 측정이 실패해도 열린 탭을 닫으려 시도한다. 탭 닫기도 실패할 수 있다(`scripts/contrast-watchdog.mjs`의 `closingTab()`). 빌드 목록을 확인하고 `--page`가 있으면 페이지 키를 검증한 뒤부터 검사 전체 시간과 [진행](../../scripts/contrast-watchdog.mjs)(브라우저 호출 시작이나 `listen`·`launch`·컨텍스트 생성·닫기 등 실행 단계 표시)이 없는 시간(정체)을 잰다. 두 시간의 상한은 `scripts/check-contrast.mjs`의 `TOTAL_S`와 `STALL_S`에 두며, 환경 변수 `CONTRAST_TIMEOUT_S`와 `CONTRAST_STALL_S`로 각각 초 단위로 바꿀 수 있고 정체 상한은 전체 상한보다 작아야 한다. 보고서의 JSON 직렬화 등 검사 프로세스의 동기 작업 중에는 시간 제한이 작동하지 않는다. 읽는 쪽이 없는 FIFO처럼 파일 열기가 멈춰도 검사가 끝나도록 `--json` 보고서는 자식 Node 프로세스가 쓴다. 쓰기는 `CLOSE_GRACE_MS`까지 기다리며, 이 시간을 넘기면 자식에게 종료 신호를 보내고 `REAP_GRACE_MS`까지 회수를 기다린다. 보고서 경로로 `/dev/stdout`·`/dev/stderr`를 쓰면 자식이 물려받은 출력의 종류에 따라 동작이 달라진다. 파이프에서는 보고서가 같은 스트림에 쓰인 출력(예를 들어 `/dev/stdout`의 요약·판정 줄, `/dev/stderr`의 시간 초과 진단이나 `nothing measured` 줄)과 섞인다. `stdout`과 `stderr`를 따로 받으면 다른 스트림의 줄은 섞이지 않는다. 일반 파일은 처음부터 다시 열어 쓰므로 앞선 출력을 덮고, 뒤따르는 줄이 보고서를 덮을 수 있다. 소켓은 열기에 실패해(`ENXIO`) 측정을 마친 실행은 종료 코드 1, 시간 초과 실행은 종료 코드 3으로 끝난다. 보고서는 별도 파일 경로에 쓰는 편이 안전하다. 어느 상한이든 넘으면 브라우저 닫기를 시작하고 진행 중이던 작업을 출력한다. 브라우저 닫기(`CLOSE_GRACE_MS`까지)와 `--json`을 지정한 경우의 부분 보고서(`complete: false`) 쓰기를 함께 기다린다. 그 뒤 `stderr`가 비워지기를 `FLUSH_GRACE_MS`까지 기다리고 종료 코드 3으로 끝난다. 측정을 마친 실행은 시간 상한 감시를 멈춘 뒤 보고서 쓰기와 필요한 회수를 위 유예에 따라 기다린다. 쓰기가 실패하거나 늦으면 `stderr`에 진단 한 줄을 남기고 `FLUSH_GRACE_MS`까지 출력이 끝나기를 기다린 뒤 최종 판정 줄(`check-contrast: passed`·`check-contrast: FAILED`)을 생략한 채 각각 종료 코드 1과 3으로 끝난다. 쓰기에 성공했거나 `--json`을 지정하지 않았으면 측정 결과에 따라 0 또는 1로 끝난다. 종료 코드가 1이나 3이면 보고서가 없거나 비어 있거나 일부만 남을 수 있으므로 검사 결과는 종료 코드로 판단한다([`scripts/contrast-report.mjs`](../../scripts/contrast-report.mjs)의 `writeReport()`·`reportExit()`와 [`scripts/contrast-report.test.mjs`](../../scripts/contrast-report.test.mjs) 참조). [`scripts/contrast-cli.test.mjs`](../../scripts/contrast-cli.test.mjs)는 빌드 결과를 대상으로 검사 명령을 직접 실행해 브라우저 실행 전 거절(종료 코드 2)과 응답 없는 대역 브라우저로 인한 시간 초과(종료 코드 3)를 확인한다.
 
-갤러리 페이지와 토큰 페이지(`design/tokens/`)에서는 다음을 잰다. 토큰 페이지는 갤러리 수에 넣지 않고 `SPECIMEN_ROUTES`로 더한다. 기본 언어 경로에서 한 번만 잰다. 다른 언어 경로의 표본은 같은 소스라 다시 재지 않는다.
+갤러리 페이지와 토큰 페이지(`design/tokens/`)에서는 다음을 잰다. 토큰 페이지는 갤러리 수에 넣지 않고 [`scripts/contrast-site.mjs`](../../scripts/contrast-site.mjs)의 `SPECIMEN_ROUTES`로 더한다. 기본 언어 경로에서 한 번만 잰다. 다른 언어 경로의 표본은 같은 소스라 다시 재지 않는다.
 
-- 고정 셀: `vendor/tokens/ground-ink-rules.json`의 행마다 부품의 잉크가 지정 토큰인지(채널당 1/255 허용), 합성 바탕에서 등급을 넘는지 본다. 행에 셀이 없거나 부품을 찾지 못해도 실패한다. 부품 위치는 `vendor/gallery/parts/part-map.js`에 있다.
-- 나머지 글자·글리프·입력: 글자는 4.5, 글리프는 3을 기준으로 잰다. `data-audit-exempt`와 `data-ink-grade`의 규칙은 `vendor/RULES.md` 14절을 따르고, 쓰인 예외 id와 횟수를 출력한다. 완전히 투명한 요소만 화면에 없는 것으로 보며 그 밖의 opacity는 합성해 잰다.
+- 고정 셀은 `vendor/tokens/ground-ink-rules.json`의 계약에서 선택한 부품을 재고, 행별 측정 여부와 셀의 테마에서 기대하는 잉크 및 대비 등급을 확인한다. 부품 선택과 `data-parts` 검증, 기대 테마 판정은 [`scripts/contrast-page.mjs`](../../scripts/contrast-page.mjs)의 `pageLib()`에 있는 `selectParts()`, `validateParts()`, `expectedTheme()`가 맡는다. 부품 위치는 `vendor/gallery/parts/part-map.js`에 있다. 행이 읽는 SVG 칠마다 그 행에 적용되는 기준(토큰·대비 등급)으로 판정하고, 실패 상세에 읽은 칠 수와 토큰과 다른 칠 수를 붙인다(`scripts/contrast-page.mjs`의 `pageLib()`에 있는 `judgeSvgPart()`와 `scripts/contrast-page.test.mjs` 참조).
+- 나머지 글자·글리프·입력: 글자는 4.5, 글리프는 3을 기준으로 잰다. `data-audit-exempt`와 `data-ink-grade`의 규칙은 `vendor/RULES.md` 14절을 따르고, 쓰인 예외 id와 횟수를 출력한다. 완전히 투명한 요소와 브라우저가 그리지 않는 내용은 화면에 없는 것으로 보며, `details`의 첫 `summary`는 재고 본문(`details` 바로 아래의 텍스트 포함)은 본문 슬롯(`::details-content`)의 `visibility` 계산값이 `hidden`이나 `collapse`이면 `display` 값과 상관없이 건너뛰며, 그 외에는 `display` 계산값이 `none`이면 건너뛰고 `contents`이면 잰다. 그 밖의 `display` 값에서는 `content-visibility` 계산값이 `hidden`일 때 건너뛴다. 닫힌 `details`의 본문은 기본적으로 숨겨지며, 작성자 CSS에 따라 표시 여부가 달라질 수 있다. 브라우저가 슬롯의 계산 스타일을 빈 값으로 돌려주면 `open` 속성이 없는 `details`를 닫힌 것으로 본다. `details` 바로 아래의 텍스트는 슬롯 자체의 배경색을 바탕 위에 합성한 뒤 슬롯의 글자색으로 잰다. 슬롯은 `details`의 글자색을 상속하며 작성자 CSS로 글자색을 따로 지정할 수 있다. 슬롯의 글자색을 읽을 수 없으면 `details`의 글자색으로 잰다. 그 밖의 `opacity`는 합성해 잰다(`scripts/contrast-page.mjs`의 `pageLib()`에 있는 `rendered()`·`visible()`·`shapeShown()`·`inClosedSlot()`·`textColorOf()`·`slotFill()`과 `scripts/contrast-page.test.mjs` 참조).
 - SVG: 보이는 도형의 stroke와 fill을 각각 재고 도형 수를 출력한다. 도형 자신의 `stroke-opacity`·`fill-opacity`와 SVG 안 `<g>`를 포함한 모든 조상의 opacity를 곱한다. SVG 안 `<text>`는 fill을 글자 기준으로 잰다. 아무것도 칠하지 않는 SVG의 수도 출력한다. 바탕은 DOM 조상에서 읽으므로 같은 SVG 안에서 도형 아래 깔린 다른 도형은 바탕으로 보지 않는다. `<use>`의 대상 내부와 그라데이션·패턴 칠은 재지 않으며 그라데이션·패턴 칠의 수를 출력한다.
+- 표본이 설명용으로만 그리는 점선 표시(`vendor/RULES.md`의 “Annotation marks”)는 3:1을 기준으로 잰다. 고정 셀과 면제 영역 밖에서 보이는 요소의 `outline`이나 `border`의 한 변이 점선이고, 폭이 0보다 크며, 계산된 색이 해당 요소에서 구한 `--tasty-specimen-annotation-border`의 색과 허용 오차 안에서 일치하면 표시로 본다. 다른 토큰을 쓰거나 색을 직접 지정해도 같은 기준을 적용한다. 요소 하나를 표시 하나로 센다. 바깥쪽 `outline`은 요소 아래 바탕에서 재고, `outline-offset`이 음수인 `outline`은 요소 자체의 채움 위에서 잰다. 배경 레이어가 여러 개면 레이어마다 자기 `background-clip`을 따른다. `border` 아래에는 그 값이 `border-box`인 배경 레이어만 깔린 것으로 보며, 배경색은 마지막 레이어의 `background-clip`을 따른다. 테두리 아래에 깔린 배경 레이어가 없으면 요소 아래 바탕에서 잰다. 색이 일치하는 변이 여러 개면 대비가 가장 낮은 변으로 판정한다. 3:1에 못 미치면 페이지의 다른 대비 미달과 같이 실패로 센다. 바탕은 위 레이어부터 읽고, 선을 확실히 덮는 레이어가 나올 때까지 아래 레이어와 조상 배경을 계속 읽는다. 배경 이미지 레이어가 아래를 가리려면 `background-clip`이 `border-box`이고, 크기가 `auto`이며 양방향으로 반복되고, 레이어 안의 색을 모두 읽었고 그 색이 모두 불투명해야 한다. 배경색은 불투명하면 아래를 가린다. 두 경우 모두 배경을 칠한 요소와 모든 조상의 `opacity`가 1이어야 한다. 선 아래 드러나는 바탕에 이미지나 색이 둘 이상인 그라데이션이 있을 때만 그림 바탕으로 세며, 대비는 판정하지 않는다. 요약 줄에 찾은 표시 수, 판정한 칠 수, 그림 바탕 위에 놓인 칠 수를 출력한다. 조상 배경으로 칠한 scrim은 바탕 계산에 넣는다. `border` 아래에서는 요소 자신의 의사 요소를 읽지 않는다. 상자 안쪽에서 시작하면 테두리 아래에 닿지 않을 수 있다. 조상의 의사 요소와 `outline` 바탕의 의사 요소는 `position: absolute`로 배치되고 요소 상자를 덮을 만큼 큰 `::before`·`::after`의 배경색만 바탕 계산에 넣는다. 표시를 scrim 위에 두지 않는다는 배치 규칙은 이 검사에서 판정하지 않는다([`scripts/contrast-page.mjs`](../../scripts/contrast-page.mjs)의 `pageLib()`에 있는 `measureMarks()`와 [`scripts/contrast-page.test.mjs`](../../scripts/contrast-page.test.mjs) 참조).
 - 비활성 조상(`:disabled`, `aria-disabled="true"`, `data-ink-why="disabled"`) 안: 등급 없는 비활성 토큰만 등급을 면제한다. 그 밖의 잉크는 일반 기준으로 잰다.
 - 측정 0건, 알 수 없는 예외 id, 페이지 오류도 실패다.
-- 표본 밖의 머리글·사이드바·푸터도 같은 기준으로 잰다.
+- 표본 밖의 머리글·사이드바·푸터도 같은 기준으로 잰다. 사이트 패스와 같은 잉크 불일치 면제 판정을 적용하며, 사이트 행의 대비 미달(`below`)과 잉크 불일치(`wrong ink`) 기록은 건마다 갤러리 검사 실패로 센다. 행별 요소 발견 수, 측정 수, 지정 잉크 출현 수에 따른 판정은 사이트 패스가 맡는다([`scripts/contrast-site.mjs`](../../scripts/contrast-site.mjs)의 `chromeFailures()`와 [`scripts/contrast-page.test.mjs`](../../scripts/contrast-page.test.mjs) 참조).
 
-사이트 페이지는 기본 언어의 갤러리 밖에 있는 빌드된 페이지 전부(랜딩, 가이드, 디자인, privacy, 모든 언어)다. 다른 언어의 `design/gallery/*`도 여기에 들어가며, 사이트 패스는 `[data-gallery-page]` 안을 재지 않으므로 그 페이지에서는 표본을 뺀 공통 부분만 잰다. 기본 언어가 아닌 언어마다 갤러리 페이지 수가 맞지 않거나, 표본 페이지에 `[data-gallery-page]`가 정확히 1개가 아니면 실패한다. 언어 하나당 15페이지 × 2폭 × 2테마가 는다. 기준은 `vendor/tokens/ground-ink-rules.json`의 `site.places`이고 `vendor/RULES.md` 15절이 같은 내용을 설명한다.
+사이트 페이지는 기본 언어의 갤러리 밖에 있는 빌드된 페이지 전부(랜딩, 가이드, 디자인, privacy, 모든 언어)다. 다른 언어의 `design/gallery/*`도 여기에 들어가며, 사이트 패스는 `[data-gallery-page]` 안을 재지 않으므로 그 페이지에서는 표본을 뺀 공통 부분만 잰다. 기본 언어가 아닌 언어마다 갤러리 페이지 수가 맞지 않거나, 표본 페이지에 `[data-gallery-page]`가 정확히 1개가 아니면 실패한다. 언어 하나당 15페이지 × 2폭 × 2테마가 는다. 기준은 `vendor/tokens/ground-ink-rules.json`의 `site.places`이고 `vendor/RULES.md` 15절이 같은 내용을 설명한다. 검사 브라우저 컨텍스트의 언어는 기본 언어(`CHECK_LOCALE`, `en-US`)로 고정한다. 루트 랜딩은 저장된 언어 선택이 없으면 브라우저 언어에 맞는 다른 언어의 랜딩으로 보낼 수 있기 때문이다. 사이트 패스는 요청한 경로와 열린 문서의 경로가 다르면 실패한다(`scripts/contrast-site.mjs`의 `openPage()`).
 
-- 패스: 각 페이지를 넓은 화면(1440px)과 좁은 화면(390px)에서 잰다. 넓은 화면에서는 랜딩 창의 나머지 탭, 포인터 올림과 누름, 키보드 포커스, 검색 결과도 잰다.
-- 행: 선택자가 어느 페이지에서도 요소를 찾지 못하면 실패한다. 요소를 하나도 재지 못해도, 등급에 못 미쳐도, 어떤 행도 지정하지 않은 잉크를 보여도 실패한다.
+- 패스: 각 페이지를 넓은 화면(1440px)과 좁은 화면(390px)에서 잰다. 넓은 화면에서는 랜딩 창의 나머지 탭, 포인터 올림과 누름, 키보드 포커스, 검색 결과도 잰다. 포인터 패스는 행의 선택자 대안마다 그 대안이 나타나는 페이지 중 사이트 페이지 목록에서 가장 앞선 페이지를 고른다. 사이트 페이지 목록과 해당 대안이 나타나는 페이지 집합이 실행 간에 각각 같으면 같은 페이지를 기록한다(`scripts/contrast-site.mjs`의 `recordFound()`·`orderFound()`).
+- 키보드 포커스 패스는 랜딩, first-look 가이드, 설정 가이드를 연다. 처음 14번의 Tab에서는 `focus` 행에 해당하는 정지점을 모두 잰다. 그 뒤에는 `FOCUS_FRAMES`가 페이지마다 정한 스크롤 틀만 재고, 모든 종류를 한 번 이상 재거나 Tab을 총 120번 누르면 멈춘다. 틀은 `:focus-visible`에 맞고 윤곽선(`outline`)이 보여야 한다. `:focus-visible`에 맞지 않거나 윤곽선 스타일이 `none`이거나 폭이 0이거나 칠이 없으면 잉크 불일치(`wrong ink`)로 실패한다. 그 밖의 정지점은 행이 정한 속성을 읽는다(입력은 테두리). 정한 틀 종류를 한 번도 재지 못하면 사이트 검사가 실패하고, 페이지와 선택자를 실패 상세 줄과 `--json` 사이트 결과의 `focusMissing`에 남긴다([`scripts/contrast-site.mjs`](../../scripts/contrast-site.mjs)의 `walkFocus()`, [`scripts/contrast-page.mjs`](../../scripts/contrast-page.mjs)의 `measureFocus()`, [`scripts/contrast-page.test.mjs`](../../scripts/contrast-page.test.mjs) 참조).
+- 행: 선택자가 어느 페이지에서도 요소를 찾지 못하면 실패한다. 요소를 하나도 재지 못해도, 등급에 못 미쳐도, 어떤 행도 지정하지 않은 잉크를 보여도 실패한다. 행이 읽는 SVG 칠마다 그 행에 적용되는 기준(토큰·대비 등급)으로 판정하고, 실패 상세에 읽은 칠 수와 토큰과 다른 칠 수를 붙인다(`scripts/contrast-page.mjs`의 `pageLib()`에 있는 `rowInks()`·`judgeInks()`와 `scripts/contrast-page.test.mjs` 참조). 행이 토큰과 다른 잉크를 읽었을 때, 같은 요소를 가리키는 다른 행이 자기 토큰에 맞는 잉크를 읽으면 그 건의 잉크 불일치(`wrong ink`)를 면제한다. 이 면제는 사이트 패스의 일반 측정·랜딩 탭·메뉴·검색·언어 단계와 갤러리 페이지 공통 부분에서 `measureRows()`로 머문 상태를 재는 행에만 적용한다. 포인터 올림·누름은 `measureAimed()`로, 포커스는 `measureFocus()`로 잰다. 두 행은 같은 종류여야 하고 의사 요소(`::before`·`::after`·`::placeholder` 또는 없음)도 같아야 한다. 다른 행의 상태는 `focus`를 제외한 같은 상태이거나, 측정한 행이 일반(`rest`)일 때 선택(`selected`)이어야 한다. 대비 미달(`below`)과 지정 잉크 출현 수는 면제와 관계없이 센다(`scripts/contrast-page.mjs`의 `pageLib()`에 있는 `measureRows()`와 `scripts/contrast-page.test.mjs` 참조).
 - 여러 잉크를 묶는 행: 한 선택자를 여러 행이 나눠 쓰거나 `a`처럼 범위가 넓거나 `.shell`처럼 창 그림 전체를 가리키는 행이다. 해당 잉크가 한 번 이상 나타나면 되고, 요소마다 등급은 그대로 잰다.
-- 행이 없는 것: 보이는 글자, 생성 내용(`::before`, `::after`), 입력값, placeholder는 4.5로 잰다. 24px 이상 또는 18.66px 이상 굵은 글자는 3이다. SVG 도형은 3이다.
+- 행이 없는 것: 보이는 글자, 생성 내용(`::before`, `::after`), 입력값, placeholder는 4.5로 잰다. 24px 이상 또는 18.66px 이상 굵은 글자는 3이다. SVG 도형은 3이다. 브라우저가 그리지 않는 내용은 재지 않으며, `details`의 첫 `summary`는 재고 본문(`details` 바로 아래의 텍스트 포함)은 본문 슬롯(`::details-content`)의 `visibility` 계산값이 `hidden`이나 `collapse`이면 `display` 값과 상관없이 건너뛰며, 그 외에는 `display` 계산값이 `none`이면 건너뛰고 `contents`이면 잰다. 그 밖의 `display` 값에서는 `content-visibility` 계산값이 `hidden`일 때 건너뛴다. 닫힌 `details`의 본문은 기본적으로 숨겨지며, 작성자 CSS에 따라 표시 여부가 달라질 수 있다. 브라우저가 슬롯의 계산 스타일을 빈 값으로 돌려주면 `open` 속성이 없는 `details`를 닫힌 것으로 본다. `details` 바로 아래의 텍스트는 슬롯 자체의 배경색을 바탕 위에 합성한 뒤 슬롯의 글자색으로 잰다. 슬롯은 `details`의 글자색을 상속하며 작성자 CSS로 글자색을 따로 지정할 수 있다. 슬롯의 글자색을 읽을 수 없으면 `details`의 글자색으로 잰다(`scripts/contrast-page.mjs`의 `pageLib()`에 있는 `scan()`·`inClosedSlot()`·`textColorOf()`·`slotFill()`과 `scripts/contrast-page.test.mjs` 참조).
 - 바탕: 불투명한 칠까지 조상을 합성한다. 그라데이션은 색 지점마다 재서 가장 낮은 값을 쓰고, 그림 바탕 위 글자는 값을 잴 수 없어 실패한다. 재는 값은 바탕의 실제 값이며 행의 `grounds`와 대조하지는 않는다.
 - 예외: 규칙 파일의 `exceptions` id를 쓴 `data-audit-exempt`와 `data-ink-grade="none"`만 인정한다. 쓰인 횟수를 출력한다.
 - 고정 마크업: 릴리스 버전, 번역 상태, 가이드 본문에 따라 달라 빌드 결과에 없는 행(메모, 작은 제목, 링크 속 코드, 인용 속 링크, 버전 칩)은 `contrast-site.mjs`의 `FIXTURES`로 넣어 재고, 출력에 행 이름을 적는다. 규칙이 깨지면 다른 잉크가 나와 실패한다. 실제 페이지에 그 요소가 있다는 뜻은 아니다.
-- 재지 않는 것: 데모의 오버레이(설정 창, 명령 팔레트 등)는 갤러리에서 잰다. 포인터 패스는 행마다 첫 요소 하나만 잰다.
+- 재지 않는 것: 데모의 오버레이(설정 창, 명령 팔레트 등)는 갤러리에서 잰다. 일반 포인터 패스(`pointerPass()`)는 검색 결과와 언어 메뉴 선택자를 건너뛴다. 둘은 각각 검색 패스(`searchPass()`)와 언어 목록 패스(`langPass()`)에서 잰다. 일반 포인터 패스는 그 밖에 넓은 화면의 기본 측정에서 발견한 선택자 대안마다 앞서 정한 페이지에서 대상 하나의 측정을 시도한다. 대상은 `scripts/contrast-page.mjs`의 `aim()`이 고르며, `aria-current`가 없는 후보를 우선한다.
 
 측정은 시간이 아니라 조건을 기다린다. 스타일 변경은 transition의 프레임을 거쳐야 계산값에 나타난다. `global.css`의 reduced motion 규칙은 `transition-duration`만 0.01ms로 바꾸므로 기본값 `transition-property: all`과 합쳐져 모든 속성의 변경이 transition을 거친다. 그래서 탭 클릭, 포인터, 포커스, 검색 뒤의 모든 측정 전에 `contrast-page.mjs`의 `stylesSettled`가 끝이 있는 애니메이션이 모두 끝나기를 기다린다. 30초 안에 끝나지 않으면 실패한다. 고정 시간을 기다리면 부하가 걸렸을 때 옛 잉크를 읽고, `color-mix` 토큰의 진행 중 값은 `oklab()`이라 `parse`가 읽지 못해 그 요소나 바탕을 건너뛴다.
 
-`--json` 보고서의 `passes`(사이트), `chromePasses`(갤러리 머리글 등), 테마별 `passes`(갤러리 페이지)에 패스별 측정 수가 있다. 같은 `dist`의 두 실행은 이 값이 같아야 한다.
+`--json` 보고서의 `passes`(사이트), `chromePasses`(갤러리 머리글 등), 테마별 `passes`(갤러리 페이지)에 패스별 측정 수가 있다. 같은 `dist`의 두 실행은 이 값이 같아야 한다. `themes.<theme>.chromeRows`에는 `below`와 `mismatch` 배열이 있고, 각 기록의 `row`에 행 ID가 있다.
 
 브라우저는 `CHROMIUM_PATH`, Playwright 캐시의 Chromium, `/snap/bin/chromium` 순으로 찾는다. 의존성은 `playwright-core`뿐이라 `npm ci`는 브라우저를 받지 않는다. 로컬에서는 `npx playwright-core install chromium`으로 한 번 받는다. CI에서는 `design.yml`이 빌드 뒤 `npx playwright-core install --with-deps chromium`으로 `playwright-core`와 맞는 Chromium을 받아 이 검사를 실행한다.
 
@@ -166,13 +175,17 @@
 [`vendor/README.md`](../../vendor/README.md)에 있고, 변경 기록은 커밋 이력이다. Tasty 본체가 이 레포의 어느 커밋을
 따르는지는 [Tasty 레포](https://github.com/zilhak/tasty)가 기록한다.
 
-`design.yml`이 `main` push와 pull request마다 다음을 검사한다.
+`design.yml`은 `develop`·`release`·`main` push와 pull request마다 다음 순서로 실행한다. Python 설정 뒤 토큰 계층과 JSON을 빌드 전에 검사한다.
 
-- `npm run build`와 `npm run check-contrast`(위 "렌더링 대비 검사").
-- 토큰 JSON: `scripts/design-tokens/gen_tokens_json.py`로 `vendor/tokens/tasty.tokens.json`을 다시 만들어 차이가 없는지,
-  `scripts/design-tokens/verify_tokens_json.py`로 토큰 CSS와 대조한다. JSON은 손으로 고치지 않는다.
-- `npm run check-tokens-copy`: `vendor/tokens.css`가 되풀이하는 1단계 값이 `vendor/tokens/primitives.css`와 같은지 본다.
-- `npm run check-icons`: `vendor/icons/*.svg`와 `vendor/components/core/Icon.jsx`가 같은 글리프를 그리는지 원문으로 비교한다.
+- `test_verify_token_tiers.py`와 `test_gen_tokens_json.py`를 실행한 뒤 [`verify_token_tiers.py`](../../scripts/design-tokens/verify_token_tiers.py)로 세 토큰 CSS 파일에서 기계로 판정할 수 있는 계층 규칙만 검사하며,
+  합성 값의 재료와 토큰의 의미는 리뷰에서 판단한다.
+  변수 함수 표기와 토큰 이름 문법은 별개의 규칙이며, 세부 기준은 [`vendor/TOKENS.md`의 Adding a token](../../vendor/TOKENS.md#adding-a-token)과 검사기 docstring에 있다.
+- `scripts/design-tokens/gen_tokens_json.py`로 `vendor/tokens/tasty.tokens.json`을 다시 만들고 `git diff --exit-code`로 커밋된 파일과 차이가 없는지 확인한다. 이어 `scripts/design-tokens/verify_tokens_json.py`로 이름, 값, 별칭, Latte 값과 CSS에서 추론한 `$type`을 대조한다. 최상위 `$description` 한 필드를 제외하면 JSON은 손으로 고치지 않는다.
+- `test_verify_ground_ink_tokens.py`로 바탕·잉크 토큰 목록 대조 스크립트를 시험한 뒤 렌더링 대비 검사 스크립트의 단위 시험을 실행한다. 로컬에서도 [Design 워크플로](../../.github/workflows/design.yml#L56-L57)와 같은 파일 목록을 `node --test`에 명시한다. 인자 없는 `node --test`는 종료 경로 시험 파일도 자동으로 찾아 실행하므로, 빌드 결과(`dist`)가 없으면 실패한다.
+- `npm ci`와 `npm run build`를 실행한다. 빌드 직후 `node --test scripts/contrast-cli.test.mjs`를 별도 단계로 실행한다. 이 시험은 Linux 전용이며 `/proc`를 읽고 `mkfifo`로 FIFO를 만든다. 이어 Chromium을 설치하고 `npm run check-contrast`를 실행한다(위 "렌더링 대비 검사").
+- `scripts/design-tokens/verify_ground_ink_tokens.py`로 `vendor/tokens/ground-ink-rules.json`의 토큰 목록을 토큰 CSS와 대조한다.
+- `npm run check-tokens-copy`로 `vendor/tokens.css`가 되풀이하는 1단계 값이 `vendor/tokens/primitives.css`와 같은지 확인한다.
+- `npm run check-icons`로 `vendor/icons/*.svg`와 `vendor/components/core/Icon.jsx`가 같은 글리프를 그리는지 원문을 비교한다.
 
 ## 빌드
 
@@ -187,7 +200,7 @@ npm run check-sitemap   # 빌드 결과의 공개 페이지와 sitemap.xml 대�
 npm run check-contrast  # 빌드 결과의 갤러리·사이트 페이지 렌더링 대비 검사
 npm run check-icons     # vendor 아이콘 파일과 Icon 컴포넌트의 글리프 대조
 npm run check-tokens-copy  # vendor/tokens.css의 1단계 값과 primitives.css 대조
-npm run check-translations -- ja zh  # 번역 가이드와 한국어 원본의 구조 대조 (아래 "번역 구조 검사")
+npm run check-translations -- en ja zh  # 번역 가이드와 한국어 원본의 구조 대조 (아래 "번역 구조 검사")
 
 # 번역 파일에 원본 해시 스탬프 (아래 "번역 모델")
 npm run stamp content/en/index.md
@@ -365,14 +378,16 @@ npm run check-translations -- ja
 | `commands` | 코드 펜스 안의 `tasty ...` 줄이 다르다. `#` 뒤 주석은 뺀다. 원본에서 한글이 든 따옴표 값, `<자리 표시>`, 낱말은 예시 글이라 번역할 수 있다 |
 | `links` | 링크 대상 경로(앵커 제외)의 묶음이 다르다. 순서는 보지 않는다 |
 | `diagrams` | `tasty-diagram` 표식의 이름이나 순서가 다르다 |
-| `labels` | `<!-- en: ... -->` 값의 집합이 다르다 |
+| `labels` | 언어 행의 `code`가 `en`이면 원본의 `<!-- en: ... -->` 값이 영어 본문에 없다. 마크다운 서식은 걷고 `{n}` 같은 중괄호 자리 표시는 임의의 값과 맞춘다. 다른 언어는 주석 값의 집합이 다르다 |
 | `stamp` | 스탬프가 없거나 원본 해시와 다르다 |
 | `hangul` | 한글이 남아 있다. 앱 언어 이름 `한국어`와 앱의 한국어 표시 예시는 스크립트의 `ALLOWED_HANGUL`에 적어 뺀다 |
 | `kana` | `zh` 폴더에 가나가 있다 |
 
 `zh` 폴더에서 GB2312 밖의 한자는 번체 후보로 출력하며 실패가 아니다. 근사이므로 사람이 본다.
 
-`--counts`는 규칙별 수만 내고 항상 0으로 끝난다. 영어 번역은 이 검사보다 먼저 쓰였고 범위 밖이라 `labels`가 어긋난다(라벨 주석을 싣지 않는다). 그래서 CI는 영어를 판정하지 않고 `ja`, `zh`만 판정한다. `--skip-missing`은 없는 폴더를 건너뛴다.
+영어 번역은 라벨 주석을 싣지 않고 본문에 영어 라벨을 그대로 쓴다. CI는 `en`, `ja`, `zh`를 모두 판정한다.
+
+`--counts`는 규칙별 수만 내고 항상 0으로 끝난다. `--skip-missing`은 없는 폴더를 건너뛴다.
 
 ### 언어를 더할 때 고칠 곳
 
@@ -489,20 +504,24 @@ mocha 로 시작한다. 첫 페인트 전에 인라인 스크립트가 적용해
 
 - 브라우저는 그 글꼴로 글자를 처음 그릴 때 파일을 받는다. 파일이 4 MB가 넘으므로 어느 글자가 D2Coding을 읽는지가 전송량을 정한다.
 - `@font-face`는 `src/styles/d2coding.css`에 있고 `design.css`가 불러온다. 디자인 구역 밖 페이지에는 규칙이 없다.
-- 디자인 구역 안에서도 `[data-site-chrome]`과 토큰 페이지(`[data-gallery-page="tokens"]`)는 `--tasty-font-family-mono-system`을 읽어 파일을 요청하지 않는다. 공통 부분의 고정폭 글자 몇 개만으로 파일이 요청될 수 있기 때문이다. 토큰 페이지는 이름과 값의 표이고 검색에 노출된다.
-- 디자인 첫 페이지는 규칙이 있어도 D2Coding으로 그리는 글자가 없어 요청하지 않는다. 이 페이지나 토큰 페이지에 고정폭 글자를 더하면 요청이 생기는지 다시 잰다.
+- UI 글꼴 `--tasty-font-ui`도 D2Coding으로 시작한다. 디자인 구역의 `[data-site-chrome]`은 `--font-mono`를 시스템 고정폭 글꼴로 덮는다. 토큰 페이지(`[data-gallery-page="tokens"]`)는 고정폭 글꼴과 UI 글꼴을 모두 시스템 글꼴로 덮는다. 토큰 페이지는 이름과 값의 표이고 검색에 노출된다.
+- 디자인 첫 페이지와 갤러리의 머리말·묶음 설명(`.design-head`, `.ds-group`)은 설명용 글꼴 `--tasty-font-prose`를 읽는다. 디자인 첫 페이지는 글자를 이 글꼴로 그리므로 D2Coding 파일을 요청하지 않는다. 이 페이지나 토큰 페이지에 고정폭 글자를 더하면 요청이 생기는지 다시 잰다.
+- 갤러리의 섹션 제목, 표본 설명(`when`), Note, spec 표, 표본 캡션(`.g-cap`), 아이콘 역할 글자(`.icontile .irole`)도 `--tasty-font-prose`(시스템 sans)를 읽는다. 표본만 D2Coding으로 그린다.
+- `bcefcc7` 빌드를 Chromium으로 처음 열었을 때 1440px과 390px에서 `/design/`와 `/design/tokens/`는 각각 글꼴 파일을 0개 요청했고, `/design/gallery/components/`는 두 파일을 요청했다.
 - `font-display: swap`이다. `fallback`과 `optional`은 Slow 4G에서 같은 바이트를 다 받고도 그 페이지를 다른 글꼴로 남겼다. 파일을 받는 값을 그 페이지에서 보여 주는 쪽을 골랐다.
 - preload는 쓰지 않는다. 표본은 첫 렌더링에서 바로 요청하므로(약 1초) 끝나는 시각이 거의 같다. `local()`은 쓰지 않는다. 설치된 판이 다르면 표본이 앱과 달라진다.
 - 두 굵기를 모두 싣는다. 표본의 badge와 제목이 Bold를 쓰고 앱에도 Bold가 있다. 500은 Regular, 600 이상은 Bold로 그려진다.
-- 합자: `code, kbd, pre, samp`의 `font-variant-ligatures: contextual`은 그대로다. 범위 밖 페이지는 파일이 없어 명령 예시의 모양이 바뀌지 않는다.
+- 갤러리에서는 터미널 내용(`data-terminal-content`)만 `font-variant-ligatures: contextual`을 쓴다. 그 위 UI(`data-terminal-ui`)와 폼 컨트롤을 포함한 나머지는 `none`을 쓴다. 설명 글꼴과 합자의 적용 범위를 바꾸기 전후의 글꼴 요청 수는 같다. 갤러리 밖 페이지의 `code`, `kbd`, `pre`, `samp`는 `contextual`을 쓴다. 디자인 구역 밖 페이지는 파일이 없어 명령 예시의 모양이 바뀌지 않는다.
 
 측정(Linux, Chromium, 첫 방문, Slow 4G는 1.6 Mbps·150 ms). 글꼴 전송은 압축이 없을 때 값이고, gzip이면 Regular 2095509, Bold 2216213 byte다. GitHub Pages의 `.ttf` 압축은 배포 전에는 잴 수 없다.
 
-| 범위 | 글꼴을 받는 페이지(82쪽 중) | `/guide/` 전송량 |
+| 범위 | 글꼴을 받는 페이지(전체 168쪽 중) | `/guide/` 전송량 |
 |---|---|---|
-| 사이트 전체 | 82쪽, 두 파일 | 8656838 byte |
-| 디자인 구역 전체, chrome 포함 | 34쪽, 두 파일 | 33889 byte |
-| 지금: 갤러리 표본 | 30쪽. 22쪽은 두 파일, 8쪽(`icons`, `rules`, `rules-map`, `explorer-ops`)은 Regular만 | 34024 byte. 푸터 줄로 135 byte 늘었다 |
+| 사이트 전체에 적용할 경우 | 168쪽 모두 두 파일을 받는다. | 8656838 byte |
+| chrome을 포함한 디자인 구역 전체에 적용할 경우 | 68쪽 모두 두 파일을 받는다. | 33889 byte |
+| 현재 적용 범위(갤러리 표본) | `9e3bfaf` 빌드에서 첫 방문에 화면 너비 1440px로 끝까지 스크롤했다. 갤러리는 en·ko·ja·zh-Hans 각 15쪽, 합계 60쪽이다. 언어별로 `explorer-ops`를 포함한 12쪽(합계 48쪽)은 Regular·Bold 두 파일을 받고, `icons`, `rules`, `rules-map` 3쪽(합계 12쪽)은 Regular만 받는다. 각 언어의 디자인 홈과 토큰 페이지(합계 8쪽)는 글꼴 파일을 받지 않는다. | 34024 byte. 푸터 줄로 135 byte 늘었다. |
+
+쪽 수는 `9e3bfaf` 빌드 기준이며, 전송량은 각 행의 적용 범위를 정할 때 잰 값으로 다시 측정하지 않았다.
 
 | 지금의 페이지 | 전송량 | 글꼴 요청 | Slow 4G 글꼴 완료 | CLS 전 → 후 |
 |---|---|---|---|---|

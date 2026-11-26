@@ -1,8 +1,16 @@
 /* ============================================================
    Tasty — TIER 3 · COMPONENT tokens
    ------------------------------------------------------------
-   Per-component knobs. Every value references a SEMANTIC token
-   (never a primitive, never a literal). This is the contract an
+   Per-component knobs. A value references a SEMANTIC token unless
+   one of the cases below applies.
+   A measure that belongs to one part may read the size, radius or
+   duration primitive instead (TOKENS.md, "Part-only measures").
+   A part may read another component token of its own component or of
+   the component it is drawn as, belongs to the family of, or whose slot
+   it fills; never a peer's (TOKENS.md, "Component references"). A count, coefficient, dash pattern, keyword or the window
+   frame shadow may be a literal (TOKENS.md, "Literal parameters").
+   Color, type, opacity, easing and scale always go through a
+   semantic role. This is the contract an
    implementer reads: "Button background = --tasty-button-primary-bg".
    Re-theme a component by overriding only its tokens; the whole
    chain (primitive → semantic → component) keeps it consistent.
@@ -107,6 +115,13 @@
   --tasty-tag-info-fg:             var(--tasty-accent-info-raised);    /* 2026-11-05 Mocha 8.08 · Latte 4.87 (was 1.81) */
   --tasty-tag-attached-fg:         var(--tasty-accent-attached-raised); /* 2026-11-05 claimed by another client: Mocha 7.03 · Latte 5.29. The Tag keeps its own fill, so a selected row changes nothing */
   --tasty-tag-border:              var(--tasty-border-default);
+  /* 2026-11-25 hue Tag edges: the tint edge (0.36) of the variant's accent; the drawn 40% literal drifted from the tint pair */
+  --tasty-tag-success-border:      var(--tasty-tint-success-border);
+  --tasty-tag-warning-border:      var(--tasty-tint-warning-border);
+  --tasty-tag-attention-border:    var(--tasty-tint-attention-border);
+  --tasty-tag-danger-border:       var(--tasty-tint-danger-border);
+  --tasty-tag-info-border:         var(--tasty-tint-info-border);
+  --tasty-tag-attached-border:     var(--tasty-tint-attached-border);
   /* disabled (own prop or a disabled ListCtrl row) — neutral box + disabled ink; accent fill and tint edge drop out (2026-09-29) */
   --tasty-tag-disabled-bg:         var(--tasty-state-disabled-fill);
   --tasty-tag-disabled-border:     var(--tasty-state-disabled-border);
@@ -134,6 +149,8 @@
   --tasty-input-gap:               var(--tasty-space-sm);
   --tasty-input-radius:            var(--tasty-radius);
   --tasty-input-font-size:         var(--tasty-font-size-body);
+  --tasty-caret-specimen-field-width: var(--tasty-field-width-lg); /* 2026-11-26 Components › Text caret specimen: the focused field's width, the app gallery's Input at field_width_lg (200, was 260) */
+  --tasty-caret-specimen-height: calc(1.3077 * var(--tasty-input-font-size)); /* 2026-11-26 Components › Text caret specimen: the drawn caret of the app's default Input, proportional font (first face Ubuntu-Light). egui extends the 15px text row 1.5 above and below to 18, the field clip leaves 17 = 1.3077 × the size at 13 */
   --tasty-input-bg:                var(--tasty-surface-field); /* 2026-11-05 ground-ink rules */
   --tasty-input-fg:                var(--tasty-text-primary);
   --tasty-input-placeholder:       var(--tasty-text-placeholder);
@@ -175,7 +192,7 @@
   --tasty-select-raised-disabled-bg:     var(--tasty-state-disabled-fill-raised);
   --tasty-select-raised-disabled-border: var(--tasty-state-disabled-border-raised);
   --tasty-select-chevron-offset:   var(--tasty-space-sm);
-  --tasty-select-placeholder:      var(--tasty-input-placeholder); /* 2026-10-19 — Select(placeholder): trigger ink while no value is chosen → text-placeholder */
+  --tasty-select-placeholder:      var(--tasty-text-placeholder); /* 2026-10-19 — Select(placeholder): trigger ink while no value is chosen. 2026-11-25 reads the role the Input placeholder reads; a Select is not an Input */
 
   /* MultiSelect — the Select sibling that holds many values. The closed
      trigger deliberately aliases the Select tokens (one family in a form);
@@ -202,7 +219,7 @@
   --tasty-multiselect-menu-shadow:      var(--tasty-shadow-popover);         /* popover lift */
   --tasty-multiselect-menu-padding:     var(--tasty-space-xs);               /* 4 inner ring around the rows */
   --tasty-multiselect-menu-gap:         var(--tasty-space-xs);               /* 4 trigger → menu gap */
-  --tasty-multiselect-menu-max-height:  var(--tasty-autocomplete-max-height);/* → 220 (~7 rows), then scrolls */
+  --tasty-multiselect-menu-max-height:  var(--tasty-dropdown-max-height);    /* → 220 (~7 rows), then scrolls */
   --tasty-multiselect-menu-max-width:   var(--tasty-size-320);               /* menu may outgrow the trigger up to this */
   --tasty-multiselect-row-height:       var(--tasty-menu-item-height);       /* → control-height 28 */
   --tasty-multiselect-row-padding-x:    var(--tasty-menu-item-padding-x);    /* → space-md 12, matches the trigger */
@@ -334,7 +351,7 @@
      (a step stronger); keyboard-active wins when a row is both. Overflow past
      --tasty-autocomplete-max-height scrolls inside the dropdown via the shared
      .tasty-scroll bar (neutral-400 thumb) — no new scrollbar token. */
-  --tasty-autocomplete-max-height:      var(--tasty-size-220);        /* default dropdown cap (~7 rows) — caller overrides via maxDropdownHeight */
+  --tasty-autocomplete-max-height:      var(--tasty-dropdown-max-height); /* default dropdown cap (~7 rows) — caller overrides via maxDropdownHeight */
   --tasty-autocomplete-menu-bg:         var(--tasty-menu-bg);         /* → surface-raised */
   --tasty-autocomplete-menu-border:     var(--tasty-menu-border);     /* → border-strong (2026-10-07) */
   --tasty-autocomplete-menu-radius:     var(--tasty-menu-radius);     /* → radius */
@@ -400,6 +417,11 @@
   --tasty-tooltip-font-size:       var(--tasty-font-size-caption); /* 12 */
   --tasty-tooltip-line-height:     var(--tasty-line-height-ui);
   --tasty-tooltip-max-width:       var(--tasty-size-240);   /* wraps 2–3 sentences */
+  /* Terminal path link under the pointer on a mirror — a tooltip below the link run
+     says where the path lives: the "Remote" word in tooltip ink, then remote glyph +
+     host in the remote hue. Not shown for a local path or any URL with a scheme. */
+  --tasty-link-remote-fg:          var(--tasty-accent-remote-raised); /* raised 8.08 · 4.86 */
+  --tasty-link-remote-gap:         var(--tasty-space-xs);   /* 4 — glyph ↔ host */
   --tasty-tooltip-offset:          var(--tasty-space-xs);   /* 4 gap from anchor */
   --tasty-tooltip-delay:           var(--tasty-motion-ui-med); /* short hover reveal delay */
 
@@ -433,7 +455,7 @@
   --tasty-banner-countdown-font:      var(--tasty-font-mono);         /* TTL seconds, top-right */
   --tasty-banner-countdown-font-size: var(--tasty-font-size-micro);   /* 10 */
   --tasty-banner-countdown-fg:        var(--tasty-text-muted-raised); /* 2026-11-05 TTL seconds on banner-bg — Mocha 5.65 · Latte 5.17 (was text-muted: Latte 3.65) */
-  --tasty-banner-recessed-opacity:    var(--tasty-opacity-recessed);  /* lower-scope banner dimmed behind a higher one (≈60% transparent) */
+  --tasty-banner-recessed-opacity:    var(--tasty-state-recessed-opacity);  /* lower-scope banner dimmed behind a higher one (≈60% transparent) */
   --tasty-banner-fade:                var(--tasty-motion-ui);         /* 120ms alpha appear / dismiss — position never moves (non-terminal, so fade is allowed) */
   /* INSET placement — for a scope whose content is a native layer tasty cannot
      paint over (the HTML WebView). The banner keeps its shell but the content
@@ -449,6 +471,7 @@
   --tasty-html-script-marker-hit:     var(--tasty-size-16);           /* 16 square cell around the 12 glyph — lock click / hover target */
   --tasty-html-script-marker-hover-bg: var(--tasty-overlay-hover);    /* lock only; scriptFile has no hover fill */
   /* HTML surface — remote-content-blocked notice (inset banner) + address-field marker — 2026-11-01 */
+  --tasty-html-surface-specimen-min-width: var(--tasty-size-288); /* 2026-11-26 gallery inset-placement specimen: the narrowest each of the two side-by-side surfaces is drawn, so the narrow banner's Allow button fits inside the shell; a narrower column scrolls the stage */
   --tasty-html-remote-banner-glyph:   var(--tasty-accent-info-raised); /* 2026-11-05 ground-ink rules */
   --tasty-html-remote-marker-fg-hover: var(--tasty-text-muted-raised); /* 2026-11-05 the marker on its hover wash */
   --tasty-html-remote-marker-fg:      var(--tasty-glyph-dim-raised); /* 2026-11-05 ground-ink rules */
@@ -464,6 +487,12 @@
   --tasty-html-address-bar-gap:       var(--tasty-space-sm);          /* 8 — nav cluster ↔ field */
   --tasty-html-address-bar-nav-gap:   var(--tasty-space-xs);          /* 4 — back · forward · reload */
   --tasty-html-address-field-min-width: var(--tasty-size-96);         /* field floor before the band drops Forward */
+  /* 2026-11-25 editing address field (HTML, Markdown, explorer path): a soft halo outside the 1px focus or invalid edge.
+     The edge carries focus and error; the halo has no contrast target.
+     No consumer since the same day: the address fields take the Input focus shape (edge + 1px flush ring, no halo).
+     Kept because tokens are only added. */
+  --tasty-address-field-focus-halo:   color-mix(in srgb, var(--tasty-border-focus) 35%, transparent);
+  --tasty-address-field-invalid-halo: color-mix(in srgb, var(--tasty-accent-danger) 35%, transparent);
   --tasty-html-address-error-height:  var(--tasty-size-24);           /* inline error row under the band (part of the band) */
   --tasty-html-address-error-glyph:   var(--tasty-accent-danger);
   --tasty-html-address-value-fg:      var(--tasty-text-secondary-raised); /* 2026-10-21 idle real address on input-bg (surface0) — Mocha 7.10 · Latte 5.17 (was text-secondary 4.05) */
@@ -562,10 +591,23 @@
      which theme is active; sun/theme optical parity is corrected in the ASSET
      (icons/sun.svg ray extent), never by giving one glyph a different size. */
   --tasty-statusbar-glyph-size:    var(--tasty-icon-size-xs); /* 12 — smallest inline glyph step; scales with the UI scale like the rest */
+  /* Remote item — shown only while a mirror surface has focus. It leads the left
+     cluster: remote glyph + host label, both in the remote hue (the explorer host
+     mark form; the bar holds glyphs and text only, so no tag fill). Reconnecting
+     drops both to the bar's own neutral ink (text-muted, statusbar-glyph) and adds a
+     status word, so a lost link never reads as live. The host label is capped and
+     end-elided; it drops last of the text items, the glyph never drops. */
+  --tasty-statusbar-remote-fg:        var(--tasty-accent-remote-raised); /* crust 12.06 · 5.67 · mantle 11.29 · 6.17 */
+  --tasty-statusbar-remote-gap:       var(--tasty-space-xs);    /* 4 — glyph ↔ host ↔ status word */
+  --tasty-statusbar-remote-max-width: var(--tasty-size-160);    /* host label cap — the branch cap's value */
 
   /* Git viewer diff toolbar — a CONTAINER height, deliberately not button-height
      (28): the toolbar is a 32px bar that holds 28px controls with 2px of air. */
   --tasty-git-toolbar-height:      var(--tasty-toolbar-height); /* 32 — re-pointed at the shared container-toolbar role (value unchanged) */
+  /* 2026-11-25 diff line fills: the tint fill of the line's hue (0.12), over the diff body on bg-app (tint-<hue>@crust). Line ink is the hue's -raised ink; line numbers take text-muted-raised */
+  --tasty-git-diff-hunk-bg:        var(--tasty-tint-info-bg);    /* @@ hunk header line */
+  --tasty-git-diff-add-bg:         var(--tasty-tint-success-bg); /* + added line */
+  --tasty-git-diff-del-bg:         var(--tasty-tint-danger-bg);  /* - removed line */
 
   /* Workspace row — mirror (remote-linked) indicator. A small remote-link glyph
      leading the workspace name marks a row as a local MIRROR of a remote tasty
@@ -605,7 +647,7 @@
   --tasty-workspace-running-count-gap:       var(--tasty-size-2);  /* 2 — slot → numeral; clears the attached ring and the keycap */
   --tasty-workspace-running-count-min-width: var(--tasty-size-10); /* 10 — two D2Coding digits at micro, so 0 to 99 never move the name. Another mono font: the wider of this and its two digits */
   --tasty-workspace-running-count-font-size: var(--tasty-font-size-micro); /* 10 — mono, weight medium */
-  --tasty-workspace-running-count-max:       99; /* @kind other */ /* above → "99+", the one row whose column grows */
+  --tasty-workspace-running-count-max:       var(--tasty-count-display-max); /* 99 — above → "99+", the one row whose column grows */
 
   /* Move source — the pending "Move Surface / Tab / Pane" target (app-wide, max one).
      IS the target  → dashed ring drawn INSIDE the target rect (surface rect · tab cell
@@ -617,17 +659,17 @@
                       glyph. Static — no motion, so no reduced-motion variant. */
   --tasty-move-source-ring:        var(--tasty-accent-move-raised); /* 2026-11-05 ground-ink rules */
   --tasty-move-source-ring-width:  var(--tasty-focus-ring-width);  /* 2 — the "pointing ring" weight */
-  --tasty-move-source-dash:        var(--tasty-size-4);            /* 4 on */
-  --tasty-move-source-dash-gap:    var(--tasty-size-4);            /* 4 off */
+  --tasty-move-source-dash:        var(--tasty-size-4);            /* 4 on — zooms with the 2px ring; border-dash is the zoom-exempt 1px-border dash */
+  --tasty-move-source-dash-gap:    var(--tasty-size-4);            /* 4 off — same */
   --tasty-move-source-glyph:       var(--tasty-accent-move-raised); /* 2026-11-05 ground-ink rules */
   --tasty-move-source-glyph-size:  var(--tasty-icon-size-xs);      /* 12 — tab cell · workspace row */
-  --tasty-move-source-chip-size:   var(--tasty-size-12);           /* rail avatar corner chip (bottom-left) */
-  --tasty-move-source-chip-glyph-size: var(--tasty-size-8);
+  --tasty-move-source-chip-size:   var(--tasty-avatar-chip-size);  /* rail avatar corner chip (bottom-left) */
+  --tasty-move-source-chip-glyph-size: var(--tasty-avatar-chip-glyph-size);
 
   /* Auto-attach refused — rail avatar corner chip (top-left) · 2026-10-07 batch 5 */
   --tasty-attach-refusal-glyph:           var(--tasty-accent-warning-raised); /* 2026-11-05 ground-ink rules */
-  --tasty-attach-refusal-chip-size:       var(--tasty-move-source-chip-size);       /* 12 */
-  --tasty-attach-refusal-chip-glyph-size: var(--tasty-move-source-chip-glyph-size); /* 8 */
+  --tasty-attach-refusal-chip-size:       var(--tasty-avatar-chip-size);       /* 12 */
+  --tasty-attach-refusal-chip-glyph-size: var(--tasty-avatar-chip-glyph-size); /* 8 */
 
   /* Spinner — indeterminate scan/install progress */
   --tasty-spinner-size:            var(--tasty-size-16);
@@ -638,7 +680,7 @@
   /* Loading overlay — a Spinner laid over EXISTING content (surface · tab · LNB card · rail avatar),
      never a new slot. Non-blocking, no dim mask; a bed only as big as the slot it covers. 2026-10-16 */
   --tasty-loading-overlay-indicator:        var(--tasty-spinner-indicator);   /* arc ink, every placement (track = arc ink @ 22%, Spinner's own) */
-  --tasty-loading-overlay-delay:            var(--tasty-motion-ui-fade);      /* 200 — show only if still loading after this; hide is immediate */
+  --tasty-loading-overlay-delay:            var(--tasty-motion-busy-delay);   /* 200 — show only if still loading after this; hide is immediate */
   --tasty-loading-overlay-surface-size:     var(--tasty-spinner-size);        /* 16 */
   --tasty-loading-overlay-surface-bed-size: var(--tasty-size-24);             /* square bed, bottom-right of the surface rect */
   --tasty-loading-overlay-surface-bed-bg:   var(--tasty-surface-raised);
@@ -660,7 +702,7 @@
   --tasty-notification-badge-glyph-gap:     var(--tasty-size-2);
   --tasty-notification-badge-group-gap:     var(--tasty-space-xs);  /* 4 — badges side by side (LNB, popup toolbar) */
   --tasty-notification-badge-stack-gap:     var(--tasty-size-2);    /* 2 — badges stacked (rail) */
-  --tasty-notification-badge-max:           99; /* @kind other */                     /* above → "99+" */
+  --tasty-notification-badge-max:           var(--tasty-count-display-max); /* 99 — above → "99+" */
   --tasty-notification-summary-pad:         var(--tasty-space-sm);  /* 8 — block padding, same as the Tools block */
   --tasty-notification-summary-row-height:  var(--tasty-size-24);   /* line 1 = ghost sm button height */
   --tasty-notification-summary-pad-x:       var(--tasty-space-sm);
@@ -675,7 +717,7 @@
   --tasty-notification-rail-width:          var(--tasty-size-44);   /* rail block — fits "99+" with glyph */
   --tasty-notification-item-pad-x:          var(--tasty-space-md);  /* 12 */
   --tasty-notification-item-pad-y:          var(--tasty-space-sm);  /* 8 */
-  --tasty-notification-item-line-gap:       var(--tasty-size-2);
+  --tasty-notification-item-line-gap:       var(--tasty-label-detail-gap); /* title ↔ body */
   --tasty-notification-item-glyph-size:     var(--tasty-icon-size-sm);  /* 14 */
   --tasty-notification-item-glyph-gap:      var(--tasty-space-sm);
   --tasty-notification-item-error-glyph:    var(--tasty-notify-error);
@@ -739,6 +781,17 @@
   --tasty-surface-focus-edge-focused:   var(--tasty-text-secondary);
   --tasty-surface-focus-edge-unfocused: var(--tasty-bg-sidebar);
   --tasty-surface-focus-edge-width:     var(--tasty-selection-edge-width); /* 2 — hairline, zoom-exempt */
+
+  /* Popup focus edge. A popup whose scope is narrower than the window (surface,
+     tab, pane, workspace) can stay open while key focus sits on another surface.
+     The popup shell, host or plugin alike, lights a bar across the top of its
+     frame while it holds key focus: the same neutral signal as the surface focus
+     edge, so "keys go here" reads one way on a leaf and on a popup. Unfocused,
+     the frame is what it was: no bar, no second value. The bar sits inside the
+     1px border over the content margin, clipped by the radius, so nothing moves.
+     Window-scope popups draw none. The scrim does not change with focus. */
+  --tasty-popup-focus-edge-focused:     var(--tasty-text-secondary);
+  --tasty-popup-focus-edge-width:       var(--tasty-selection-edge-width); /* 2 — hairline, zoom-exempt */
 
   /* ─────────────────  DATA  ───────────────── */
 
@@ -851,9 +904,16 @@
   --tasty-port-favorites-border:     var(--tasty-separator);           /* boundary to the table */
   --tasty-port-favorites-row-height: var(--tasty-control-height-tree); /* 22 — denser than a table row */
   --tasty-port-favorites-max-height: var(--tasty-size-112);            /* 5 rows, then scroll */
+  --tasty-port-favorites-state-min-width: var(--tasty-size-112);       /* 2026-11-26 state column at a favorites row's end: the dot and its label sit right-aligned in it, so a long detail ellipsises before the dot. The app's ports_favorite_state_min_width */
   --tasty-port-star-col-width:       var(--tasty-size-28);             /* leading tight column in the table */
   --tasty-port-process-col-min-width: var(--tasty-size-200);           /* Process column — a MINIMUM, not a fixed width: the column grows with the table and never shrinks below this. The gallery specimen pins 200 only because its stage is fixed. */
   --tasty-port-addr-col-min-width:   var(--tasty-size-140);            /* 2026-10-08 (batch 8) — Address floor AND width: Address stays here; ALL spare width goes to Process */
+  --tasty-port-port-col-width:       var(--tasty-size-84);             /* Port column, fixed: its floor is its width */
+  --tasty-port-proto-col-width:      var(--tasty-size-76);             /* Proto column, fixed */
+  --tasty-port-workspace-col-width:  var(--tasty-size-120);            /* Workspace column, fixed */
+  --tasty-port-tab-col-width:        var(--tasty-size-80);             /* Tab column, fixed */
+  --tasty-port-state-col-width:      var(--tasty-size-140);            /* State column, fixed; past the popup width the table scrolls sideways to reach it */
+  --tasty-port-process-specimen-width: var(--tasty-size-960);         /* Overlays › Windows Process column specimen: the frame wider than the column budget */
   --tasty-port-star-on:              var(--tasty-accent-warning-glyph); /* 2026-11-05 ground-ink rules */
   --tasty-port-star-off:             var(--tasty-text-muted);          /* unregistered — muted outline */
   --tasty-port-star-on-active:       var(--tasty-accent-warning-on-active); /* 2026-11-05 selected row, registered: Mocha 5.25 · Latte 3.75 */
@@ -862,8 +922,24 @@
 
   /* ─────────────────  OVERLAYS (gallery specimen layouts)  ───────────────── */
   /* Plugins window */
-  --tasty-plugins-list-width:       var(--tasty-size-288); /* left installed-list column */
+  --tasty-plugins-list-width:       var(--tasty-size-240); /* left installed-list column. 2026-11-26 288 to 240: the app draws the Installed and Attention lists at one width (plugins_side_panel_width 240) so the panel edge stays put between tabs */
+  --tasty-plugins-attention-list-width: var(--tasty-size-240); /* 2026-11-25 left list column of the Attention tab (the app's 240 at 100%), empty or not */
+  --tasty-plugins-window-width:     var(--tasty-size-880); /* 2026-11-25 default inner width of the plugins window (the app opens it at 880 × 560) */
+  --tasty-plugins-inset:            var(--tasty-size-14); /* 2026-11-25 horizontal inset of the trust box, the Add and detail action bars and the manifest-read hint (also its vertical inset), and the card-to-trust-box gap. The app's PLUGIN_ADD_INSET, off the 4px grid by the app's own value */
+  --tasty-plugins-header-pad-left:  calc(var(--tasty-size-20) + -1 * var(--tasty-border-width)); /* 19 — sum of <number> * var(--tasty-…) terms, the form the app reads. Header padding inside the window's 1px border, so the window's outer edge to the plug glyph is 20: the app's panel frame 8 + spacing_md 12 */
+  --tasty-plugins-header-pad-right: calc(var(--tasty-space-lg) + -1 * var(--tasty-border-width)); /* 15 — sum of <number> * var(--tasty-…) terms, the form the app reads. Header padding inside the window's 1px border, so the window's outer edge to the close button is 16: the app's panel frame 8 + spacing_sm 8 */
+  --tasty-plugins-window-height:    var(--tasty-size-560); /* 2026-11-26 default inner height of the plugins window (the app opens it at 880 × 560) */
+  --tasty-plugins-header-height:    var(--tasty-size-48);  /* 2026-11-26 plugins window header band, the app's plugins_header_height */
+  --tasty-plugins-tab-height:       var(--tasty-size-26);  /* 2026-11-26 Installed, Attention and Add plugin header tabs, the app's 26 */
+  --tasty-plugins-tab-gap:          calc(1 * var(--tasty-space-sm) + 1 * var(--tasty-size-2)); /* 10 — sum of <number> * var(--tasty-…) terms, the form the app reads. Between header tabs: the app's item spacing 8 plus STRUCT_GAP_2 */
+  --tasty-plugins-list-row-gap:     calc(1 * var(--tasty-space-xs) + 1 * var(--tasty-size-2)); /* 6 — sum of <number> * var(--tasty-…) terms, the form the app reads. Between rows of the Installed and Attention lists: the app's item spacing 4 plus STRUCT_GAP_2 */
+  --tasty-plugins-manifest-meta-gap: var(--tasty-size-3); /* 2026-11-26 manifest card: name line to the id and author line, the app's STRUCT_GAP_3 */
+  --tasty-plugins-header-divider-height: var(--tasty-size-20); /* 2026-11-26 vertical rule between the header title and the tabs, the app's draw_header_divider 1 × 20 */
+  --tasty-plugins-add-pad-y:        calc(1 * var(--tasty-space-sm) + 1 * var(--tasty-space-md)); /* 20 — sum of <number> * var(--tasty-…) terms, the form the app reads. Add plugin tab: header edge to the path picker, the app's central panel frame 8 plus vspace(spacing_md). Top edge only since 2026-11-26: the bottom reads --tasty-plugins-add-pad-bottom */
+  --tasty-plugins-add-pad-bottom:   var(--tasty-size-22); /* 2026-11-26 Add plugin tab: scroll body bottom, the kit's 22 kept. The app's bottom is a separate action bar (item spacing 4, bar padding 12, panel frame 8), not this scroll body edge, so the top 20 does not carry to it */
+  --tasty-plugins-link-underline-offset: var(--tasty-size-2); /* 2026-11-26 homepage link in the detail and attention identity lines: underline below the text */
   --tasty-plugins-header-glyph:     var(--tasty-accent-decorative); /* window-header ornament — peach, but decorative: NOT accent-attention */
+  --tasty-plugins-tab-focus-ring:   var(--tasty-accent-primary-raised); /* 2026-11-25 keyboard focus ring of a tab on the tab bar's surface-active pill (RULES focus-ring: active ground). Unused since the tab bar follows the app (tabs on the header's mantle, no pill): the ring there is base.css's border-focus. Kept, as tokens are never removed */
   /* Plugin avatar — the square initial mark that stands in for a plugin icon
      (a plugin manifest carries no image). TWO sizes only: sm on list rows,
      lg on a detail/preview identity block. The tint is mixed into
@@ -889,6 +965,38 @@
   --tasty-settings-label-gap:       var(--tasty-space-lg); /* 16 label column → control column */
   --tasty-settings-row-caption-gap: var(--tasty-space-xs); /* 4 row → its own caption / callout directly under it */
   --tasty-settings-content-max-width: var(--tasty-size-620); /* content column cap — cards, tables and notice blocks all stop here */
+  /* Dialogs › Collapse (gallery specimen layout, not app chrome) — the tooltip and copy views */
+  --tasty-collapsed-popup-specimen-width:        var(--tasty-size-440); /* width of the tooltip views and the cap of the copy views */
+  --tasty-collapsed-popup-specimen-tooltip-room: var(--tasty-size-96);  /* space above the show or shrink button that holds the open tooltip */
+  --tasty-collapsed-popup-specimen-frame-width:  var(--tasty-size-288); /* 2026-11-24 — the headless plugin popup in the shrink views (was literal 280) */
+  --tasty-collapsed-popup-specimen-flow-max-width: var(--tasty-size-560); /* 2026-11-24 — cap of each step of the collapse and expand round trip (was literal 560) */
+  /* Layouts › Saved remote workspace (gallery specimen layout, not app chrome) — the workspace content area each popup sits in */
+  --tasty-remote-row-specimen-width:  var(--tasty-size-480);
+  --tasty-remote-row-specimen-height: var(--tasty-size-288);
+  --tasty-remote-row-specimen-narrow-width: var(--tasty-size-320); /* 2026-11-24 — the narrow workspace view: the popup takes the width less space-md each side */
+  --tasty-remote-row-specimen-rail-width:   var(--tasty-size-288); /* 2026-11-24 — the wrapping rail of avatars beside the rows */
+  /* Plugin surfaces › status screens (gallery specimen layout, not app chrome) — 2026-11-25 rows that keep their width and scroll the stage */
+  --tasty-explorer-state-specimen-row-width: var(--tasty-size-700); /* the four explorer status screens side by side */
+  --tasty-image-state-specimen-grid-width:   var(--tasty-size-760); /* 2026-11-25 Plugin surfaces › image: the five canvas states, three to a row */
+  /* Overlays › Tutorial (gallery specimen layout, not app chrome) — the composite step's faux window */
+  /* 2026-11-25 tutorial marker glow (around the 2px accent ring) and the topic list's selected-row edge */
+  --tasty-tutorial-marker-glow-inner:      color-mix(in srgb, var(--tasty-accent-primary) 22%, transparent); /* 3px spread right outside the ring */
+  --tasty-tutorial-marker-glow-outer:      color-mix(in srgb, var(--tasty-accent-primary) 45%, transparent); /* 16px blur, 2px spread */
+  --tasty-tutorial-topic-selected-border:  color-mix(in srgb, var(--tasty-accent-primary) 40%, transparent); /* edge of the selected topic row on surface-active */
+  --tasty-tutorial-step-specimen-min-width: var(--tasty-size-440); /* 2026-11-25 — floor of the composite step frame: it holds the callout (left 150 + 244 + tail) beside the sidebar, so a narrower column scrolls the stage instead of cutting the callout */
+  --tasty-tutorial-marker-specimen-min-width: var(--tasty-size-320); /* floor of each marker window: it holds the faux app's 116 sidebar, tab row and terminal line, so a narrower column scrolls the stage instead of cutting them */
+  /* Overlays › Windows (gallery specimen layout, not app chrome) — reduced window frames that keep their width, so a narrower column scrolls the stage instead of squeezing the frame and cutting its right side */
+  --tasty-remote-form-specimen-width: var(--tasty-size-460); /* remote profile and attach forms */
+  --tasty-remote-form-specimen-height: var(--tasty-remote-window-height); /* 2026-11-26 remote profile, attach and passkey form specimens: the window's 460 height (was a 408 literal) */
+  --tasty-git-viewer-specimen-width:  var(--tasty-size-640); /* git worktree viewer, list and diff */
+  --tasty-clipboard-specimen-width:   var(--tasty-size-460); /* clipboard viewer, every content state */
+  --tasty-mod-hint-specimen-width:    var(--tasty-size-560); /* Overlays › Popups: the modifier hint hold demo's faux app window */
+  --tasty-explorer-full-specimen-width: var(--tasty-size-760); /* Plugin surfaces: the Explorer full layout and its focus views (internal tabs, toolbar, sidebar, Detail) */
+  /* Gallery annotation (specimen layout, not app chrome) — a dashed outline that marks an implementer's box or a scope
+     rectangle. It has no fill, so the edge alone shows it: border-control role (2026-11-24). One mark can cross several
+     grounds, so it takes the raised cell, which holds 3:1 on raised and on every lower ground (2026-11-25, was
+     border-control: 2.57 / 2.82 on raised). On surface-active the gallery ground scope re-points it to that cell */
+  --tasty-specimen-annotation-border: var(--tasty-border-control-raised);
   /* Settings › General › Permissions (macOS) — four states, told apart by
      GLYPH + WORD, colour only as a third channel. Unknown and Not observable
      share the muted ink but never the glyph. */
@@ -961,6 +1069,20 @@
   --tasty-fp-folder-path-fg:          var(--tasty-input-readonly-fg); /* folder mode — target path readout ink (text-secondary) in the read-only box */
   --tasty-fp-folder-hint-fg:          var(--tasty-text-muted);        /* folder mode — footer hint line under the Folder row */
   --tasty-fp-filter-max-width:        var(--tasty-field-width-md); /* 160 — READ-ONLY filter chip: content width up to this, then front-kept ellipsis + tooltip with the full list (2026-10-06) */
+  /* File picker host badge (remote mode, beside the header title): remote glyph + host text in an info tint box.
+     Fill and edge are the tint pair (accent-info × tint-fill-alpha / tint-border-alpha) over the header (bg-panel = base).
+     Ink is accent-remote-raised, the text-remote and glyph-remote ink allowed on tint-info@base (RULES.md section 6). */
+  --tasty-fp-host-badge-height:       var(--tasty-chip-height);  /* 22 */
+  --tasty-fp-host-badge-padding-x:    var(--tasty-space-sm);        /* 8 */
+  --tasty-fp-host-badge-gap:          var(--tasty-space-xs);        /* 4 — glyph to host text, same as the host mark (workspace-mirror-gap) */
+  --tasty-fp-host-badge-icon-size:    var(--tasty-icon-size-xs);    /* 12 — same glyph step as the host mark (workspace-mirror-icon-size) */
+  --tasty-fp-host-badge-font-size:    var(--tasty-font-size-caption); /* 11 — host text, mono (or the label font for the word Remote) */
+  --tasty-fp-host-badge-bg:           var(--tasty-tint-info-bg);
+  --tasty-fp-host-badge-border:       color-mix(in srgb, var(--tasty-accent-info) calc(var(--tasty-tint-border-alpha) * 100%), transparent);
+  --tasty-fp-host-badge-fg:           var(--tasty-accent-remote-raised); /* host text and glyph on tint-info@base: Mocha 7.95 · Latte 5.93 */
+  /* Overlays › Windows › File picker (gallery specimen layout, not app chrome) — the reduced frame a fixed view draws several of side by side */
+  --tasty-fp-specimen-view-width:  var(--tasty-size-400);
+  --tasty-fp-specimen-view-height: var(--tasty-size-300);
 
   /* Popup over a WebView page in OPAQUE mode (2026-10-21).
      The host can paint only inside the popup rect and each dropdown rect; those pixels are fully opaque.
@@ -985,11 +1107,23 @@
      every frame — never reflows the id beside it. The when never shrinks and
      never drops: the id yields, it already has a front-elision rule. */
   --tasty-fh-when-width:              var(--tasty-size-56);
+  /* File HANDLER picker — remote mark. When the target is a path on a mirror's remote
+     host, the header's path line leads with remote glyph + host in the remote hue (the
+     explorer host mark form, no fill). The mark is capped and end-elided on its own;
+     the path keeps its front elision in the space left, so neither cuts the other. */
+  --tasty-fh-remote-fg:               var(--tasty-accent-remote-raised); /* base 10.54 · 6.63 */
+  --tasty-fh-remote-gap:              var(--tasty-space-xs);    /* 4 — glyph ↔ host */
+  --tasty-fh-remote-max-width:        var(--tasty-size-160);    /* host text cap; the path keeps 390 − 12 − 4 − 160 − 8 = 206 */
   /* Color swatch (settings color editor) */
   --tasty-swatch-size:              var(--tasty-size-16);
   --tasty-swatch-radius:            var(--tasty-radius-sm);
+  --tasty-swatch-border:            var(--tasty-border-control); /* 2026-11-24 — a swatch can paint the ground's own colour, and then its edge alone shows it is there: border-control role, 3:1 on crust · mantle · base. Dashed = a reserved, empty swatch */
+  /* Saved remote workspace popup (app chrome) */
+  --tasty-remote-row-popup-width:   var(--tasty-size-360); /* 2026-11-24 — Workspace-scope popup width; at most the content area less space-md each side */
   /* Remote tool */
   --tasty-remote-label-col:         var(--tasty-size-112); /* form label grid column */
+  --tasty-remote-port-field-width:  var(--tasty-size-96);  /* 2026-11-25 — Port field in the profile and attach forms, the whole box */
+  --tasty-remote-type-suggest-width: var(--tasty-size-64); /* 2026-11-26 — suggestion Select beside the profile form's Type field */
   --tasty-remote-filter-menu-width: var(--tasty-size-240); /* protocol-filter menu — BORDER-BOX width (outer edge to outer edge). Content = this minus the frame the popup crate draws (14 total at scale 1 → 226). The mock's 236 was a raw literal, snapped to the existing 240 primitive (same measure as tooltip max-width). All widths in this family read as border box. */
   /* Explorer view toggle (SegToggle — grid / list / detail). A SEGMENT: it picks a
      value (how the same listing is drawn), it does not switch content, so it takes the
@@ -1137,10 +1271,18 @@
 
   /* Windows caption-button hit width (Snap Layouts target on maximize) */
   --tasty-titlebar-caption-width:    var(--tasty-size-46);
+  /* Windows caption glyph: the span of its minimize line, maximize or restore squares, or close X, centered in the
+     caption cell and stroked at border-width (1px). The app draws it at 10 logical px as a fixed constant. Off the
+     UI zoom scale with the caption cell. */
+  --tasty-titlebar-caption-glyph-size: var(--tasty-icon-size-window-caption);
 
   /* Linux DE circular window buttons (min/max/close) — 24px, like caption-width
      this sits OUTSIDE the UI zoom scale (a fixed OS-affordance dimension). */
   --tasty-titlebar-window-button-size: var(--tasty-size-24);
+  /* Linux window button glyph: the span of its minimize line, maximize square or close X, centered in the
+     button and stroked at border-width (1px). 0.44 of the button, which is the app's 0.22 × diameter from the
+     center to each side (10.56 at 24). Off the UI zoom scale with the button. */
+  --tasty-titlebar-window-glyph-size: calc(0.44 * var(--tasty-titlebar-window-button-size)); /* coefficient first: the app reads calc terms as <number> * var(--tasty-…) */
 
   /* Wayland CSD framing — when Tasty draws its own decorations the client paints
      rounded top corners + a 1px outline + a soft drop shadow, and the shadow
@@ -1220,6 +1362,7 @@
   --tasty-dag-node-hover-bg:         var(--tasty-overlay-hover);
   --tasty-dag-node-selected-ring:    var(--tasty-accent-primary);
   --tasty-dag-node-selected-ring-width: var(--tasty-focus-ring-width); /* 2 */
+  --tasty-dag-node-selected-ring-offset: var(--tasty-border-width);   /* 1 — gap between the card and its selection ring */
   --tasty-dag-node-dim-opacity:      var(--tasty-node-dim-opacity);      /* skipped / cancelled node — 0.75 Mocha, 1 Latte */
 
   /* Task status — the 8 execution states. Colour is ONE of two channels; the
@@ -1264,6 +1407,18 @@
   --tasty-dag-phase-awaiting:       var(--tasty-accent-warning-strong); /* 2026-11-05 ground-ink rules */
   --tasty-dag-phase-awaiting-bg:    color-mix(in srgb, var(--tasty-attention-needs-input) 12%, var(--tasty-surface-raised));
   --tasty-dag-phase-awaiting-label: var(--tasty-accent-warning-strong); /* 2026-11-05 ground-ink rules */
+  /* 2026-11-25 block tier (zoom < 0.4): the card is a status fill only, no ink — the status color at 55% over the card ground.
+     Each reads the semantic role its dag-status-<s> (or dag-phase-awaiting) color points at, so the pair stays one color */
+  --tasty-dag-status-waiting-block-bg:        color-mix(in srgb, var(--tasty-glyph-dim-raised) 55%, var(--tasty-surface-raised));
+  --tasty-dag-status-ready-block-bg:          color-mix(in srgb, var(--tasty-accent-info-raised) 55%, var(--tasty-surface-raised));
+  --tasty-dag-status-running-block-bg:        color-mix(in srgb, var(--tasty-accent-primary-raised) 55%, var(--tasty-surface-raised));
+  --tasty-dag-status-succeeded-block-bg:      color-mix(in srgb, var(--tasty-accent-success-raised) 55%, var(--tasty-surface-raised));
+  --tasty-dag-status-failed-block-bg:         color-mix(in srgb, var(--tasty-accent-danger-raised) 55%, var(--tasty-surface-raised));
+  --tasty-dag-status-cancelled-block-bg:      color-mix(in srgb, var(--tasty-glyph-dim-raised) 55%, var(--tasty-surface-raised));
+  --tasty-dag-status-skipped-block-bg:        color-mix(in srgb, var(--tasty-glyph-dim-raised) 55%, var(--tasty-surface-raised));
+  --tasty-dag-status-unknown-block-bg:        color-mix(in srgb, var(--tasty-accent-warning-raised) 55%, var(--tasty-surface-raised));
+  --tasty-dag-status-partially-failed-block-bg:color-mix(in srgb, var(--tasty-accent-attention-raised) 55%, var(--tasty-surface-raised));
+  --tasty-dag-phase-awaiting-block-bg:          color-mix(in srgb, var(--tasty-accent-warning-strong) 55%, var(--tasty-surface-raised));
   --tasty-dag-header-count-fg:      var(--tasty-dag-row-count-fg); /* 2026-10-07 — tab header "6/8 done" = list row counter */
 
   /* Graph geometry — layer depth + sibling gap (4px grid). */
@@ -1284,7 +1439,7 @@
   --tasty-dag-edge-dash-reduce:      2 3; /* @kind other */
   --tasty-dag-edge-corner-radius:    var(--tasty-radius);   /* orthogonal elbow */
   --tasty-dag-edge-arrow-size:       var(--tasty-size-8);
-  --tasty-dag-edge-dim-opacity:      var(--tasty-opacity-recessed); /* DEPRECATED 2026-11-05: no reader. A dim edge reads dag-edge-dim */
+  --tasty-dag-edge-dim-opacity:      var(--tasty-state-recessed-opacity); /* DEPRECATED 2026-11-05: no reader. A dim edge reads dag-edge-dim */
   --tasty-dag-edge-dim:              var(--tasty-border-control); /* 2026-11-05 not selected, dead path. Solid, 3:1 floor. Hue drops, the dash keeps the relation */
   --tasty-dag-minimap-node-dim:      var(--tasty-border-control); /* 2026-11-05 skipped and cancelled nodes on the minimap. Solid, 3:1 floor */
   --tasty-dag-edge-highlight:        var(--tasty-accent-primary); /* edges of the selected node */
@@ -1346,16 +1501,60 @@
   --tasty-dag-popup-width:           var(--tasty-size-560);
   --tasty-dag-popup-height:          var(--tasty-size-460);
 
+  /* 2026-11-10 — Graph view: the child graph and the Task DAG share one graph component.
+     The dag-* tokens above stay the shared canvas, card, edge, chrome and detail-row values
+     (names never change); graph-* adds what the shared component gained. No colour here:
+     every ink and fill is an existing dag-* or semantic role. */
+  --tasty-graph-drawer-width:        var(--tasty-dag-detail-width);           /* 288 — drawer laid OVER the canvas, flush right, full canvas height */
+  --tasty-graph-drawer-cover-below:  var(--tasty-size-480);                   /* canvas narrower than this: the drawer covers the whole canvas (288 + one 168 card + 2 × 12 does not fit) */
+  --tasty-graph-drawer-head-height:  var(--tasty-graph-toolbar-height);       /* 36 — title + close, pinned while the body scrolls; one band height with the graph toolbar */
+  --tasty-graph-drawer-motion:       var(--tasty-motion-ui);                  /* 120 slide in / out from the right edge; reduced motion → instant */
+  --tasty-graph-reveal-margin:       var(--tasty-space-lg);                   /* 16 — a selected card under the drawer pans this far left of its edge */
+  --tasty-graph-push-motion:         var(--tasty-motion-ui);                  /* 120 child graph → DAG push to the left, back slides right; reduced motion → instant */
+  --tasty-graph-toolbar-height:      var(--tasty-drilldown-backbar-height);   /* 36 — popup toolbar = back bar, so the push never moves the canvas top */
+  --tasty-graph-child-popup-width:   var(--tasty-size-600);                   /* three columns at 100%: 3 × 168 + 2 × 32 + 2 × 16 */
+  --tasty-graph-child-popup-height:  var(--tasty-dag-popup-height);           /* 460 — the DAG popup height, so a pushed DAG fits as it does there */
+  --tasty-graph-base-chip-height:    var(--tasty-size-16);                    /* chip above the base surface's card */
+  --tasty-graph-base-chip-gap:       var(--tasty-space-xs);                   /* 4 — chip ↔ card top; 16 + 4 fits the 24 sibling gap */
+  --tasty-graph-base-chip-padding-x: var(--tasty-space-xs);                   /* 4 */
+  --tasty-graph-base-picker-width:   var(--tasty-size-360);                   /* base surface picker popover: window › category › workspace › pane › tab › surface at 12 indent */
+  --tasty-graph-base-picker-height:  var(--tasty-size-400);                   /* picker popover cap; only the tree scrolls */
+
   /* 2026-10-06 — command palette list cap · remote protocol filter */
   --tasty-palette-list-max-height:     var(--tasty-size-320); /* list grows to 11 rows then scrolls; ON-SCALE with control-height. List padding = space-sm on all four sides (no extra footer gap) */
   --tasty-remote-filter-dropdown-width: var(--tasty-size-240); /* BORDER-BOX width (includes the 1px border) of the protocol-filter popover; content = 240 − 2 */
+  --tasty-remote-filter-list-max-height: var(--tasty-size-168); /* 2026-11-26 protocol-filter list: scrolls past this height so the popover never grows out of the window. The app's FILTER_DROPDOWN_MAX_HEIGHT */
 
   /* 2026-10-06 (batch 2) — palette width · settings window · toast offset · brand lockup · font preview · CodeArea */
   --tasty-palette-width:               var(--tasty-size-540);  /* command palette card; ON-SCALE (× UI zoom) */
   --tasty-settings-window-width:       var(--tasty-size-1100); /* settings window inner + min size — OFF-SCALE (2026-10-07) */
   --tasty-settings-window-height:      var(--tasty-size-700);
+  --tasty-settings-l1-height:          var(--tasty-size-44);   /* L1 band (Settings label, divider, L1 tabs), 1px bottom line included. OFF-SCALE like the window */
+  --tasty-settings-window-csd-height:  calc(var(--tasty-settings-window-height) + var(--tasty-titlebar-height)); /* 736 — Linux settings window inner + min height when Tasty draws its own title bar: the 1100 × 700 below the title bar stays. OFF-SCALE like both terms */
+  /* 2026-11-25 — default sizes of four windows and popups, as the app opens them */
+  --tasty-approval-width:              var(--tasty-size-480);  /* agent approval popup width (the app's DEFAULT_WIDTH); height follows the content */
+  --tasty-ports-window-width:          var(--tasty-size-660);  /* listening ports window, default size */
+  --tasty-ports-window-height:         var(--tasty-size-520);
+  --tasty-ports-pad-x:                 var(--tasty-size-14);  /* 2026-11-26 listening ports window: left and right inset of the header, filter and footer rows. The app's PORTS_PANEL_PAD_X, off the 4px grid by the app's own value */
+  --tasty-remote-window-width:         var(--tasty-size-520); /* 2026-11-26 remote connections window, default size 520 × 460 */
+  --tasty-remote-window-height:        var(--tasty-size-460);
+  --tasty-remote-pad-x:                var(--tasty-size-14);  /* 2026-11-26 remote connections window: left inset of the header and both insets of the list toolbar and list. The app's PANEL_PAD_L, off the 4px grid by the app's own value */
+  --tasty-remote-content-pad-top:      var(--tasty-size-10);  /* 2026-11-26 remote connections window: tab bar to the list's Add row. The app's CONTENT_PAD_TOP, off the 4px grid by the app's own value */
+  --tasty-remote-detect-spinner-size:  var(--tasty-font-size-caption); /* 2026-11-26 the spinner beside "detecting…" on a profile row: the caption line's size, as the app sizes it */
+  --tasty-remote-tab-height:           var(--tasty-size-35);  /* 2026-11-26 remote tab; the tab bar is this plus its 1px bottom edge */
+  --tasty-remote-tab-gap:              var(--tasty-size-2);   /* 2026-11-26 between remote tabs */
+  --tasty-remote-row-line-gap:         var(--tasty-size-2);   /* 2026-11-26 between the name, target and caption lines of a profile, attach or passkey row */
+  --tasty-remote-row-action-gap:       var(--tasty-size-1);   /* 2026-11-26 between the small icon buttons at a row's end */
+  --tasty-remote-ssh-line-pad-top:     var(--tasty-size-2);   /* 2026-11-26 From ssh config section: above its heading and its empty line, the app's STRUCT_GAP_2 */
+  --tasty-remote-reveal-inset:         var(--tasty-size-6);   /* 2026-11-26 passkey form: the reveal button's offset from the textarea's top and right edges */
+  --tasty-remote-reveal-pad-right:     calc(1 * var(--tasty-remote-reveal-inset) + 1 * var(--tasty-icon-button-size-sm) + 1 * var(--tasty-size-2)); /* 32 — sum of <number> * var(--tasty-…) terms, the form the app reads. Textarea right padding that keeps text clear of the reveal button: inset 6 + small icon button 24 + 2 */
+  --tasty-segmented-gap:               var(--tasty-size-6);   /* 2026-11-26 between the pills of a segmented toggle, the app's SEGMENT_GAP (tasty-ui-widgets segmented) */
+  --tasty-remote-picker-width:         var(--tasty-size-680);  /* add remote workspace picker; not resizable */
+  --tasty-remote-picker-height:        var(--tasty-size-460);
+  --tasty-preset-window-width:         var(--tasty-size-960);  /* layout presets window, inner size when it opens */
+  --tasty-preset-window-height:        var(--tasty-size-640);
   --tasty-toast-stack-offset-bottom:   var(--tasty-size-36);   /* MAIN window-scope stack: status bar 24 + 12. OFF-SCALE — the status bar and the toast structural dims are outside the UI zoom (2026-10-07) */
-  --tasty-loading-lockup-tracking:     var(--tasty-letter-spacing-n1px); /* "tasty." 38px loading lockup */
+  --tasty-loading-lockup-tracking:     var(--tasty-letter-spacing-brand-lockup); /* "tasty." 38px loading lockup */
   --tasty-loading-lockup-font-size:    var(--tasty-font-size-brand-lockup); /* 38 — "tasty." loading lockup; BRANDING exception to the 14px UI cap */
   --tasty-font-preview-min-width:      var(--tasty-field-width-lg); /* one preview box narrower than this → Focused / Unfocused stack */
   --tasty-font-preview-padding-y:      var(--tasty-space-sm);
@@ -1373,7 +1572,7 @@
   --tasty-codearea-max-height:         var(--tasty-size-200);  /* then scrolls */
 
   /* 2026-10-07 (batch 3) */
-  --tasty-search-bar-border:           var(--tasty-menu-border);   /* floating find band — same edge as menus (→ border-strong) */
+  --tasty-search-bar-border:           var(--tasty-border-strong); /* floating find band — the edge menus also read; 2026-11-25 reads the role, not menu-border */
   --tasty-popup-content-margin:        var(--tasty-space-xs);      /* inner ring of EVERY popup frame: anchored menus (Tools menu, rail category menu, banner more-menu, multiselect) AND dialog-type popups that share popup::content_margin() — 4 */
   --tasty-modhint-grip-size:           var(--tasty-icon-size-xs);  /* 12 corner resize grip */
   --tasty-modhint-grip-inset:          var(--tasty-size-2);        /* grip offset from the right / bottom edge; ON-SCALE */
@@ -1382,7 +1581,7 @@
   --tasty-modhint-empty-row-min-height: var(--tasty-size-20);     /* empty-chord placeholder row */
   --tasty-modhint-row-gap:             var(--tasty-space-sm); /* 2026-11-05 ground-ink rules */
   --tasty-trigger-menu-min-width:      var(--tasty-field-width-lg);      /* Scripts "Add trigger…" menu — 200 */
-  --tasty-trigger-menu-max-height:     var(--tasty-autocomplete-max-height); /* → 220, then scrolls */
+  --tasty-trigger-menu-max-height:     var(--tasty-dropdown-max-height); /* → 220, then scrolls */
   --tasty-image-handle-size:           var(--tasty-size-6);        /* floating-selection corner handle; ON-SCALE; centred on the corner (offset = −size/2) */
   --tasty-image-popup-width:           var(--tasty-size-300);      /* New Image · Save As card */
   --tasty-image-popup-pad-top:         var(--tasty-space-md);      /* 12 */
@@ -1407,6 +1606,10 @@
   /* 2026-10-07 (batch 4) */
   --tasty-tools-menu-min-width:        var(--tasty-size-160);      /* Tools menu grows to its longest label; 160 is the floor */
   --tasty-tools-menu-max-width:        var(--tasty-size-240);      /* past this a label ellipsizes at the END */
+  /* 2026-11-11 — fallback context menu: the egui menu drawn only where the native menu cannot open (Linux: display backend causes 1, 1b, 2 or any other GTK init failure) */
+  --tasty-fallback-menu-min-width:     var(--tasty-size-160);      /* grows to its longest row; 160 is the floor */
+  --tasty-fallback-menu-max-width:     var(--tasty-size-320);      /* past this a label wraps (fixed copy), never ellipsizes */
+  --tasty-fallback-menu-edge-margin:   var(--tasty-space-sm);      /* 8 kept clear of every window edge; max height = window height - 2 x this, then the rows scroll */
   --tasty-explorer-state-compact-below: var(--tasty-size-120);     /* content body under this → status screens switch to the one-line compact row */
   --tasty-md-callout-icon-gap:         var(--tasty-space-xs);      /* callout header: marker → type icon → label, 4 each */
   --tasty-md-callout-marker-size:      var(--tasty-icon-size-sm);  /* collapsible callout chevron (replaces the <details> default marker) */
@@ -1456,13 +1659,21 @@
   --tasty-explorer-delete-list-max-height: var(--tasty-size-160); /* 2026-10-12 Delete permanently confirm: target list scrolls past ~4 two-line rows; frame = info-modal-width / max-height */
   --tasty-explorer-props-label-width: var(--tasty-size-96); /* Properties field label column */
   --tasty-explorer-search-bar-height: var(--tasty-size-36); /* filter / search bar under the toolbar */
+  --tasty-explorer-detail-size-col-width: var(--tasty-size-80);  /* 2026-11-24 — Detail Size column default width (was literal 80). Same as the app's column default; the app's table is not resizable, so the column stays 80 (its 64 floor is never used) */
+  --tasty-explorer-detail-date-col-width: var(--tasty-size-132); /* 2026-11-24 — Detail Date modified column default width (was literal 132). Fixed: the app's table is not resizable, so its 108 floor is never used */
+  --tasty-explorer-detail-type-col-width: var(--tasty-size-92);  /* 2026-11-24 — Detail Type column default width (was literal 92). Fixed: the app's table is not resizable, so its 72 floor is never used; the Name floor is explorer-detail-name-col-min-width */
+  --tasty-explorer-detail-name-col-min-width: var(--tasty-size-140); /* 2026-11-25 — Detail Name column floor. Name takes the width left after the fixed Size, Date modified and Type columns and stops at 140; a narrower pane clips the table on the right, with no horizontal scroll (the app's Detail table) */
+  --tasty-explorer-detail-padding-x:      var(--tasty-space-sm); /* 2026-11-24 — GALLERY SPECIMEN ONLY: side inset of the web Detail header and rows, 8 (was literal 10, off the 4px grid). The app's Detail header and rows have no outer inset (0): it separates the columns with item_spacing 8 and adds spacing_sm 8 to the right of the Size cell. The app reads nothing from this token */
   --tasty-explorer-search-folder-col-width: var(--tasty-size-160); /* Detail “Folder” column in recursive results */
-  --tasty-explorer-match-fg: var(--tasty-autocomplete-match-fg); /* matched part of a name while filtering */
+  --tasty-explorer-match-fg: var(--tasty-accent-primary-raised); /* matched part of a name while filtering, at rest: hue only, no underline (RULES.md, Explorer rows). 2026-11-25 was autocomplete-match-fg (strong), which the rows never drew */
   --tasty-explorer-match-fg-active: var(--tasty-autocomplete-part-fg-active); /* 2026-11-05 the same run on a selected row, with autocomplete-match-underline-* */
   /* 2026-10-09 batch 10 */
   --tasty-image-too-large-fg: var(--tasty-accent-warning-raised); /* 2026-11-05 ground-ink rules */
   --tasty-explorer-name-error-max-width: var(--tasty-size-240); /* name error message box max width (new item / rename) */
-  --tasty-explorer-list-min-width: var(--tasty-size-200); /* listing min width beside the preview panel; panel hides under preview-min + this (400) */
+  /* Explorer file ops › Name errors (gallery specimen layout, not app chrome) — the languages view */
+  --tasty-explorer-name-error-specimen-width:    var(--tasty-size-560); /* cap of each edit row; narrower pages shrink the row, never the name below the input's own floor */
+  --tasty-explorer-name-error-specimen-row-room: var(--tasty-size-56);  /* space from one edit row to the next sample's label: holds a two-line message box under the row */
+  --tasty-explorer-list-min-width: var(--tasty-size-200); /* listing min width beside the preview panel; panel hides under this + 1px separator + preview-min (401) */
   --tasty-explorer-props-padding-x: var(--tasty-space-md); /* 2026-11-05 ground-ink rules */
   --tasty-explorer-props-row-min-height: var(--tasty-size-24); /* Properties field row min height */
   --tasty-explorer-props-row-line: var(--tasty-size-20); /* Properties field label / value line height */
@@ -1503,7 +1714,7 @@
   --tasty-approval-danger-bg: color-mix(in srgb, var(--tasty-accent-danger) calc(var(--tasty-tint-fill-alpha) * 100%), var(--tasty-bg-panel)); /* agent approval danger choice fill — OPAQUE mix over bg-panel (Mocha 56,43,61 · Latte 236,214,222) */
   --tasty-approval-danger-border: var(--tasty-accent-danger); /* agent approval danger choice 1px border (vs surface-raised: Mocha 5.43 · Latte 3.52) */
   --tasty-approval-danger-fg: var(--tasty-text-primary); /* agent approval danger choice label (on fill: Mocha 9.18 · Latte 5.80) */
-  --tasty-explorer-address-pending-delay: var(--tasty-motion-ui-fade);
+  --tasty-explorer-address-pending-delay: var(--tasty-motion-busy-delay);
   --tasty-explorer-remote-queue-head-gap: var(--tasty-space-xs); /* 2026-10-14 — remote queue head “On ‹host› · one at a time”: gap between text pieces and host mark = a word space */ /* remote address check: spinner appears only after 200ms (no flash on a fast round trip) */
   --tasty-explorer-address-pending-size: var(--tasty-icon-size-sm); /* remote address check spinner in the address field trailing slot */
   --tasty-explorer-create-field-max-width: var(--tasty-size-240); /* create-in-folder / new item name field max width; caption follows at space-sm */
@@ -1522,6 +1733,10 @@
   --tasty-plugin-trust-glyph-warning: var(--tasty-accent-warning-glyph); /* permissions-changed glyph */
   --tasty-plugin-trust-glyph-success: var(--tasty-accent-success-ink); /* trusted glyph — 2026-10-27: was accent-success (Latte 2.45:1); Mocha identical */
   --tasty-plugin-trust-body-trusted-fg: var(--tasty-accent-success-ink); /* 2026-10-27: trusted one-line body (plugins.trust_trusted_body) — Latte ≥ 5.5:1 on mantle/base+tint */
+  --tasty-plugin-trust-specimen-width: var(--tasty-size-560); /* Overlays › Windows plugin trust specimens: default width of the Add panel and reserved-id detail frames */
+  --tasty-plugin-trust-specimen-width-sm: var(--tasty-size-440); /* the same specimens' narrower frames: Attention detail, reserved-id notice, ko / ja length */
+  --tasty-plugin-trust-specimen-width-narrow: var(--tasty-size-320); /* 2026-11-25 the same specimens' narrow 320 frames: Add panel and reserved-id detail with long name and path */
+  --tasty-plugin-trust-attn-empty-height: var(--tasty-size-240); /* 2026-11-25 height of the empty Needs attention specimen frame */
   --tasty-notice-column-inset: var(--tasty-space-sm); /* window top-right notice column: inset from the work area edge (under window banners / top-right search bar) */
   --tasty-notice-column-gap: var(--tasty-space-sm); /* gap between stacked notices in the column */
   --tasty-notice-column-width: var(--tasty-size-360); /* notice column width (= search bar width); max = work area − 2 × inset */
@@ -1545,7 +1760,7 @@
   --tasty-pending-indicator-sep-fg: var(--tasty-text-muted-raised); /* 2026-11-05 ground-ink rules */
   --tasty-pending-indicator-spinner-size: var(--tasty-icon-size-sm); /* chip spinner 14 */
   --tasty-pending-indicator-compact-below: var(--tasty-size-200); /* notice column narrower than this → spinner + time only */
-  --tasty-pending-indicator-delay: var(--tasty-loading-overlay-delay); /* show only if still pending after 200ms (same as LoadingOverlay) */
+  --tasty-pending-indicator-delay: var(--tasty-motion-busy-delay); /* show only if still pending after 200ms (the delay LoadingOverlay also reads) */
   /* 2026-10-19 — Settings › Handler › File Detectors / File Handlers: registered rows + user add card */
   --tasty-file-handler-form-bg: var(--tasty-surface-raised); /* add card fill (= Hook Handlers add card) */
   --tasty-file-handler-form-border: var(--tasty-border-default); /* add card 1px edge */
@@ -1607,6 +1822,30 @@
   --tasty-site-code-fg:        var(--tasty-code-fixed-fg);
   --tasty-site-code-comment:   var(--tasty-code-fixed-comment);
   --tasty-site-inline-code-bg: var(--tasty-code-inline-bg);
+
+  /* Capture region select. RULES section 4 */
+  --tasty-capture-band-height: var(--tasty-toolbar-height); /* the band above the picture */
+  --tasty-capture-stage-inset: var(--tasty-space-sm);       /* around the picture, so the picture frame and the selection edge always have room */
+  --tasty-capture-edge-width:  var(--tasty-border-width);   /* each of the two edge strokes */
+  --tasty-capture-min-drag:    var(--tasty-space-xs);       /* below this on either axis, in display px, there is no selection */
+
+  /* ── Android (2026-11-18). Sizes of the Android app, read only by vendor/android and the Android app. The desktop
+     UI never reads them. Each points at a canon token; colors stay the desktop roles. ── */
+  --tasty-android-tab-height:         var(--tasty-size-32); /* Bar height, and the height of a tab's target */
+  --tasty-android-tab-min-width:      var(--tasty-size-96); /* Narrowest tab. One whole tab fits a 180 pane that also holds + and the logo */
+  --tasty-android-tab-max-width:      var(--tasty-size-240); /* Widest tab, when the pane has room to share */
+  --tasty-android-tab-button-width:   var(--tasty-size-40); /* Width of the + and logo buttons, which is their target width */
+  --tasty-android-tab-button-reach:   var(--tasty-space-sm); /* How far the + and logo targets reach below the bar, into the pane's own terminal */
+  --tasty-android-tab-logo-size:      var(--tasty-size-20); /* Drawn logo mark inside its target */
+  --tasty-android-popup-max-width:    var(--tasty-size-320); /* Widest the popup gets. Narrower areas keep the side margin instead */
+  --tasty-android-popup-margin:       var(--tasty-space-lg); /* Space between the popup and the edge of the area it sits in, on every side */
+  --tasty-android-popup-title-height: var(--tasty-size-48); /* Title row, its rule included: the name of what was pressed */
+  --tasty-android-popup-row-height:   var(--tasty-size-48); /* The row unit. Every list item is one unit; an action row is also its target */
+  --tasty-android-popup-padding-x:    var(--tasty-space-lg); /* Inset of the title, headings and row labels */
+  --tasty-android-popup-font-size:    var(--tasty-font-size-max); /* Title and row labels */
+  --tasty-android-popup-lane-width:   var(--tasty-size-24); /* Scroll lane at the right of a list that scrolls. The rows give up this width */
+  --tasty-android-popup-lane-glyph:   var(--tasty-icon-size-md); /* Chevron at each end of the lane */
+  --tasty-android-popup-thumb-width:  var(--tasty-space-xs); /* Thumb in the lane */
 }
 
 

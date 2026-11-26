@@ -30,12 +30,12 @@ const CSS = `
 }
 .tasty-tag--accent { border-color: transparent; color: var(--tasty-text-on-accent); background: var(--tasty-accent-primary); }
 .tasty-tag--agent  { border-color: transparent; color: var(--tasty-text-on-accent); background: var(--tasty-accent-agent); }
-.tasty-tag--success{ color: var(--tasty-tag-success-fg); border-color: color-mix(in srgb, var(--tasty-accent-success) 40%, transparent); }
-.tasty-tag--warning{ color: var(--tasty-tag-warning-fg); border-color: color-mix(in srgb, var(--tasty-accent-warning) 40%, transparent); }
-.tasty-tag--attention{ color: var(--tasty-tag-attention-fg); border-color: color-mix(in srgb, var(--tasty-accent-attention) 40%, transparent); }
-.tasty-tag--danger { color: var(--tasty-tag-danger-fg);  border-color: color-mix(in srgb, var(--tasty-accent-danger) 40%, transparent); }
-.tasty-tag--info   { color: var(--tasty-tag-info-fg);    border-color: color-mix(in srgb, var(--tasty-accent-info) 40%, transparent); }
-.tasty-tag--attached { color: var(--tasty-tag-attached-fg); border-color: color-mix(in srgb, var(--tasty-accent-attached) 40%, transparent); }
+.tasty-tag--success{ color: var(--tasty-tag-success-fg); border-color: var(--tasty-tag-success-border); }
+.tasty-tag--warning{ color: var(--tasty-tag-warning-fg); border-color: var(--tasty-tag-warning-border); }
+.tasty-tag--attention{ color: var(--tasty-tag-attention-fg); border-color: var(--tasty-tag-attention-border); }
+.tasty-tag--danger { color: var(--tasty-tag-danger-fg);  border-color: var(--tasty-tag-danger-border); }
+.tasty-tag--info   { color: var(--tasty-tag-info-fg);    border-color: var(--tasty-tag-info-border); }
+.tasty-tag--attached { color: var(--tasty-tag-attached-fg); border-color: var(--tasty-tag-attached-border); }
 .tasty-tag--mono { font-family: var(--tasty-font-mono); }
 .tasty-tag--caps { text-transform: uppercase; letter-spacing: var(--tasty-letter-spacing-caps); }
 .tasty-tag--disabled { background: var(--tasty-tag-disabled-bg); border-color: var(--tasty-tag-disabled-border); color: var(--tasty-tag-disabled-fg); }

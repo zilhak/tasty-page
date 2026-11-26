@@ -1,4 +1,4 @@
-<!-- source-hash: a5e99f1be7d9 -->
+<!-- source-hash: a9ffb9100518 -->
 <a id="任务-dag"></a>
 
 # 任务顺序管理（DAG）
@@ -18,6 +18,8 @@ tasty agent task-run --workspace 2 --action start
 tasty agent task-run --workspace 2 --action status
 tasty agent task-run --workspace 2 --action stop
 ```
+
+`stop` 收到停止请求后立即响应。运行器停止派发新任务，并完成已经开始的派发、状态检查或后处理清理。停止所需时间没有固定上限。清理期间，`status` 返回 `state: stopping`，此时执行 `start` 不会启动新的运行器。要重新启动运行器，等 `status` 返回 `state: stopped` 后再执行 `start`。
 
 重启 tasty 后，运行器不会自动启动。任务本身仍会保留，再次 `start` 即可继续。重启前等待外部完成信号的任务，重启后不会再由该信号完成；设定的等待时间到期后，正在运行的运行器会将其以超时失败结束。运行器停止时，DAG 界面的运行器标记也会显示这一状态，将鼠标悬停在标记上可直接看到重新启动的命令。DAG 标签页的页首也会单独列出这一行命令。
 
@@ -199,7 +201,7 @@ Tasty 无法打开记忆文件而使用[临时记忆](cli-reference.md#智能体
  "output_schema": {"type": "enum", "values": ["approve", "revise"]}}
 ```
 
-- `provider` 是负责会话的插件名称。Claude 插件为 `claude`，Codex 插件为 `codex`，支持智能体任务的其他插件也可使用各自的名称。若插件未安装、已关闭或没有轮次报告权限，创建任务时会被拒绝并说明原因。创建后关闭插件，则该任务会在执行时失败。
+- `provider` 是负责会话的插件名称。Claude 插件为 `claude`，Codex 插件为 `codex`，支持智能体任务的其他插件也可使用各自的名称。若插件未安装、已关闭，创建任务时会被拒绝并说明原因。创建后关闭插件，则该任务会在执行时失败。
 - `command` 中的 `workspace_id` 是新会话所在的工作区。提交值的 `task-submit` 会发往任务所在的工作区，指令末尾附加的说明中包含该编号。
 - `session` 为 `{"kind": "new", "parent_surface": <Surface>}` 时，在该 Surface 下启动新会话并发送指令。添加 `"cwd": "<路径>"` 可指定新会话的工作文件夹。为 `{"kind": "existing", "surface_id": <Surface>}` 时，发送到已打开的会话。
 - 已打开的会话仅在空闲时接收指令。若正在直接对话，会等到对话结束，以免混合对话。指令末尾会附加一行用于识别该次执行的标记，只有由该标记发起的轮次才视为任务轮次。使用同一会话的任务会依次执行。
@@ -318,7 +320,7 @@ DAG id 可通过 `tasty agent dag-list` 查看。重新执行（retry）过的�
 | **已取消** <!-- en: Cancelled --> · **已跳过** <!-- en: Skipped --> | 人工取消，或因前序任务失败而跳过 |
 | **未选中** <!-- en: Not selected --> | 分支选择了其他路径，因此未执行。不属于失败 |
 | **需要输入** <!-- en: Needs input --> | 正在运行的 Claude·Codex 会话等待人工回答。DAG 状态仍为运行中 |
-| **未知** <!-- en: Unknown --> | 无法确定结果。点击节点可在详情中查看原因。命令在 Tasty 重启期间结束，或重启后继续监视的命令随后结束，未能收到退出码（重启后的 Tasty 无法接收该命令的退出码）。后续任务会等待，必须重新执行（`task-retry`）或取消后才能继续。持有信号量和 lease 的任务也相同。命令仍在运行时，会持续持有资源，直到结束后才释放 |
+| **未知** <!-- en: Unknown --> | Tasty 无法确定任务结果。点击节点可在详情中查看原因。命令在 Tasty 重启期间结束，或重启后继续监视的命令随后结束，未能收到退出码（重启后的 Tasty 无法接收该命令的退出码）。后续任务会等待，必须重新执行（`task-retry`）或取消后才能继续。持有信号量和 lease 的任务也相同。命令仍在运行时，会持续持有资源，直到结束后才释放 |
 
 要在终端中查看：
 

@@ -40,8 +40,8 @@ function S({ ink, children }) {
 
 function TerminalSample() {
   return (
-    <div style={{ width: "100%", padding: "var(--tasty-space-md) var(--tasty-space-lg)", background: "var(--tasty-surface-terminal-focused-bg)", color: "var(--tasty-surface-terminal-focused-fg)",
-      border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", fontFamily: MONO, fontSize: "var(--tasty-font-size-term)", lineHeight: "var(--tasty-line-height-140)", whiteSpace: "pre", overflowX: "auto" }}>
+    <div data-terminal-content="" style={{ width: "100%", padding: "var(--tasty-space-md) var(--tasty-space-lg)", background: "var(--tasty-surface-terminal-focused-bg)", color: "var(--tasty-surface-terminal-focused-fg)",
+      border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", fontFamily: MONO, fontSize: "var(--tasty-font-size-term)", lineHeight: "var(--tasty-line-height-term)", whiteSpace: "pre", overflowX: "auto" }}>
       <div><S ink="path">~/tasty</S> <S ink="branch">main</S> <S ink="dim">via</S> <S ink="tool">rust v1.84</S></div>
       <div><S ink="prompt">❯</S> cargo build --release</div>
       <div><S ink="dim">   Compiling</S> tasty-themes <S ink="dim">v0.7.0</S></div>
@@ -81,7 +81,7 @@ export function BrandSection() {
           <Mark size="var(--tasty-size-56)" />
           {MELON.map((name) => (
             <div key={name} style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-md)" }}>
-              <span style={{ width: "var(--tasty-size-56)", height: "var(--tasty-size-56)", flex: "none", background: `var(--tasty-brand-melon-${name})`, border: "var(--tasty-border-width) solid var(--tasty-separator)", borderRadius: "var(--tasty-radius)" }} />
+              <span style={{ width: "var(--tasty-size-56)", height: "var(--tasty-size-56)", flex: "none", background: `var(--tasty-brand-melon-${name})`, border: "var(--tasty-border-width) solid var(--tasty-swatch-border)", borderRadius: "var(--tasty-radius)" }} />
               <div>
                 <div style={{ fontSize: "var(--tasty-font-size-body)", fontWeight: "var(--tasty-font-weight-semibold)", color: "var(--tasty-text-primary)" }}>{name}</div>
                 <div style={{ fontFamily: MONO, fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" }}><Hex name={`brand-melon-${name}`} theme="mocha" /></div>

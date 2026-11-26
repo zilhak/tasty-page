@@ -1,4 +1,4 @@
-<!-- source-hash: ea95539b4b25 -->
+<!-- source-hash: b87652f21e5b -->
 # Driving terminals with the tasty CLI
 
 The `tasty` CLI connects to a running Tasty instance to create terminals, send input, and read output. Check the connection and target IDs, send a command, then use `read since-mark` to read output after a saved mark. Scripts and AI agents can use the same commands.
@@ -7,7 +7,7 @@ Follow this page in order the first time. Check the connection, find target IDs,
 
 ## Prerequisites
 
-- Tasty must be running. The CLI connects to the running instance through the port written in `~/.tasty/tasty.port`.
+- Tasty must be running. By default, the CLI reads `tasty.port` in its own data folder. Without `TASTY_HOME`, the released build reads `~/.tasty/tasty.port` and the development build reads `~/.tasty-debug/tasty.port`. When using the default port file, match `TASTY_HOME` so the CLI and the instance you want to reach use the same data folder. If the running Tasty uses a custom port file, point the CLI to that same file with `--port-file`.
 - Inside a terminal that Tasty opened, `tasty` is already on the PATH. To use it from outside (another terminal app), add the directory containing the Tasty executable to your PATH. The path for each install method is listed in [Install](../getting-started/install.md#install-locations).
 - A shell that Tasty opened carries the `TASTY_SURFACE_ID` environment variable. Most commands that omit `--surface` use this value (`tasty new workspace` · `tasty output observe start` do not), so you do not need to type an ID when driving your own terminal.
 - When the Codex plugin is installed, inside a command that Codex runs (an environment with `CODEX_THREAD_ID`), that shell’s `TASTY_SURFACE_ID` may belong to another terminal, so commands added by plugins (for example `tasty codex …` and `tasty claude …`) do not fill `--surface` from it. Pass `--surface` when a target is needed. If the `CODEX_THREAD_ID` value is not valid, `tasty codex …` and `tasty claude …` do not run, while other plugin commands run as usual.

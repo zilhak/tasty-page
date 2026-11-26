@@ -10,7 +10,8 @@
 import { existsSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { LANGS } from "../src/lib/langs.mjs";
-import { installPageLib, stylesSettled } from "./contrast-page.mjs";
+import { installPageLib, pageLib, stylesSettled } from "./contrast-page.mjs";
+import { NO_WATCHDOG, tracked } from "./contrast-watchdog.mjs";
 
 const VIEWPORTS = [{ name: "wide", width: 1440, height: 1000 }, { name: "narrow", width: 390, height: 844 }];
 const CONCURRENT_TABS = 6;
@@ -36,23 +37,67 @@ const injectFixtures = (tab, page) => Promise.all(FIXTURES.filter((f) => f.page 
 // The landing window starts on its third tab. The other two hold the rest of the drawn lines.
 const LANDING_PAGES = LANGS.map((row) => row.landing);
 const LANDING_TABS = ["claude · release", "README.md"];
-const FOCUS_PAGES = ["", "guide/getting-started/first-look/"];
+export const FOCUS_PAGES = ["", "guide/getting-started/first-look/", "guide/customize/settings/"];
+// The scroll frames each focus page must reach, by the focus row's selectors for them. After the first TAB_STOPS stops the
+// walk goes on, measuring frames only, until every one listed has been measured or FRAME_TAB_LIMIT stops have passed.
+export const FOCUS_FRAMES = {
+  "guide/getting-started/first-look/": [".table-wrap", ".anat-window"],
+  "guide/customize/settings/": [".anat-settings", ".table-wrap", "pre.astro-code"],
+};
+const FRAME_TAB_LIMIT = 120;
 const SEARCH_PAGE = "guide/";
 const DRAWER_PAGES = ["", "guide/", "design/"];
 const TAB_STOPS = 14;
 
+// Specimen pages outside design/gallery. They are measured like a gallery page and do not count as one.
+export const SPECIMEN_ROUTES = [{ key: "tokens", path: "design/tokens/" }];
+// A listed entry that cannot be followed is not a page: a link to nothing (ENOENT), a link through a file (ENOTDIR) or a
+// link loop (ELOOP). Any other error, such as EACCES, is thrown.
+const SKIPPED = new Set(["ENOENT", "ENOTDIR", "ELOOP"]);
+function statOrNull(path) {
+  try {
+    // bigint, so two large inode numbers cannot round to the same Number in the ancestor check below.
+    return statSync(path, { bigint: true });
+  } catch (error) {
+    if (SKIPPED.has(error.code)) return null;
+    throw error;
+  }
+}
+const isFile = (path) => statOrNull(path)?.isFile() === true;
+
+// The built gallery pages: the foundations page first, then each folder under design/gallery with a built index.html in name
+// order, then the specimen routes. The foundations page and the specimen routes must be built, so any of them without an
+// index.html file is listed in missing. pages is null when design/gallery itself is not built.
+export function galleryPages(dist) {
+  const dir = join(dist, "design/gallery");
+  if (!existsSync(dir) || !statSync(dir).isDirectory()) return { pages: null, missing: [] };
+  const required = [{ key: "foundations", path: "design/gallery/" }, ...SPECIMEN_ROUTES];
+  const missing = required.filter((p) => !isFile(join(dist, p.path, "index.html"))).map((p) => p.path);
+  const sub = [];
+  for (const name of readdirSync(dir).sort()) {
+    const path = join(dir, name);
+    if (statOrNull(path)?.isDirectory() && isFile(join(path, "index.html"))) sub.push({ key: name, path: `design/gallery/${name}/` });
+  }
+  return { pages: [required[0], ...sub, ...SPECIMEN_ROUTES], missing };
+}
+
+// The built site pages, as paths under dist. A link back to a folder the walk is already inside (such as `loop -> .`) is
+// not entered, so the walk ends; a link to any other folder is walked under the link's own path too.
 export function sitePages(dist) {
   const pages = [];
-  const walk = (dir, rel) => {
+  const idOf = (stat) => `${stat.dev}:${stat.ino}`;
+  const walk = (dir, rel, above) => {
     for (const name of readdirSync(dir).sort()) {
       const path = join(dir, name);
       const next = rel ? `${rel}/${name}` : name;
-      if (statSync(path).isDirectory()) {
-        if (next !== "design/gallery" && next !== "_astro") walk(path, next);
+      const stat = statOrNull(path);
+      if (stat === null) continue;
+      if (stat.isDirectory()) {
+        if (next !== "design/gallery" && next !== "_astro" && !above.has(idOf(stat))) walk(path, next, new Set([...above, idOf(stat)]));
       } else if (name === "index.html") pages.push(rel ? `${rel}/` : "");
     }
   };
-  if (existsSync(dist)) walk(dist, "");
+  if (existsSync(dist)) walk(dist, "", new Set([idOf(statSync(dist, { bigint: true }))]));
   return pages;
 }
 
@@ -75,7 +120,7 @@ export function emptySiteTally(rules) {
   return {
     pages: 0, text: 0, glyph: 0, inputs: 0, svgs: 0, pseudo: 0, paintServer: 0, below: [], picture: [], badExempt: [], exemptUses: {}, gradeNone: {},
     rows: Object.fromEntries(rules.rows.map((r) => [r.id, { found: 0, measured: 0, inkHits: 0, below: [], mismatch: [], notes: [] }])),
-    altsFound: {}, errors: [], passes: {},
+    altsFound: {}, errors: [], passes: {}, focusMissing: [],
   };
 }
 
@@ -88,6 +133,13 @@ function mergeScan(t, s, page, viewport) {
   for (const [why, n] of Object.entries(s.gradeNone)) t.gradeNone[why] = (t.gradeNone[why] || 0) + n;
 }
 
+// A row that read several svg paints keeps the lowest one as low: a below record shows that paint, a wrong ink record
+// the first paint off the token (see judgeInks in contrast-page.mjs).
+// low is not written to the report, nor otherRow: it only decides whether a wrong ink is recorded (mergeRow).
+export const belowRecord = ({ low, otherRow, ...rec }) => (low ? { ...rec, ...low } : rec);
+export const mismatchRecord = ({ low, otherRow, ...rec }) => rec;
+const inksNote = (b) => (b.inks === undefined ? "" : ` (${b.inks} paints, ${b.off} off the token)`);
+
 function mergeRow(t, rules, res, page, viewport) {
   const row = t.rows[res.id];
   row.found += res.found.length;
@@ -95,8 +147,8 @@ function mergeRow(t, rules, res, page, viewport) {
   row.inkHits += res.inkHits;
   res.results.forEach((r) => {
     const rec = { ...r, page, viewport };
-    if (r.below) row.below.push(rec);
-    if (!r.inkOk && !r.otherRow && !rules.family.has(res.id)) row.mismatch.push(rec);
+    if (r.below) row.below.push(belowRecord(rec));
+    if (!r.inkOk && !r.otherRow && !rules.family.has(res.id)) row.mismatch.push(mismatchRecord(rec));
     if (r.picture) t.picture.push({ at: r.at, text: res.id, page, viewport });
   });
 }
@@ -134,69 +186,279 @@ async function settle(tab) {
 
 const urlOf = (origin, page) => `${origin}/${page}`;
 
-// Records which page first shows each pointer row's element, since most pages do not have all of them.
-async function recordAlts(tab, t, rules, page) {
+// The language every check context reports. The root page sends a browser whose language matches another landing to that
+// landing, so without it the check would measure the browser's language there instead of the default one.
+export const CHECK_LOCALE = "en-US";
+
+// Opens page, waits for it to settle, then fails when the document it settled on has another path, so a page that sends
+// the browser elsewhere, at load or later, is never counted under its own name. Every pass opens its pages through here.
+async function openPage(tab, origin, page) {
+  const asked = urlOf(origin, page);
+  await tab.goto(asked, { waitUntil: "load", timeout: 120000 });
+  await settle(tab);
+  const got = new URL(tab.url()).pathname;
+  if (got !== new URL(asked).pathname) throw new Error(`asked for ${new URL(asked).pathname}, the page went to ${got}`);
+}
+const placeOf = (page) => page || "/";
+
+// Opens a tab as one in-flight entry of the watchdog, from before newPage until the pass is done with it. The pass sets
+// where.at as it moves, so the entry names the page and step it is on. Returns false, opening nothing, once the
+// watchdog has expired.
+async function withTab(env, at, fn) {
+  const where = { at };
+  const label = () => `${env.base} ${where.at}`;
+  const handle = env.watchdog.begin(`${label()} newPage`);
+  if (env.watchdog.expired) return false;
+  try {
+    const tab = tracked(await env.context.newPage(), env.watchdog, handle, label);
+    await fn(tab, where);
+  } finally {
+    handle.end();
+  }
+  return true;
+}
+
+const { alternatives } = pageLib();
+const pointerRows = (rules) => rules.rows.filter((r) => r.state === "hover" || r.state === "press");
+
+// Keeps, for each pointer row alternative, the page that shows it and comes first in the page list, so the page does not
+// depend on which tab finished first. The root page is "", which counts as found.
+export function recordFound(altsFound, keys, page, rankOf) {
+  for (const key of keys) {
+    if (!Object.hasOwn(altsFound, key) || rankOf(page) < rankOf(altsFound[key])) altsFound[key] = page;
+  }
+}
+
+// The found alternatives in rule row order, and within a row in the order of its selector's alternatives. Keys no row
+// names keep their place after those. The pointer pass visits them in this order and the --json report lists them so.
+export function orderFound(altsFound, rows) {
+  const ordered = {};
+  for (const row of rows) {
+    for (const alt of alternatives(row.selector)) {
+      const key = `${row.id}\n${alt}`;
+      if (Object.hasOwn(altsFound, key)) ordered[key] = altsFound[key];
+    }
+  }
+  for (const key of Object.keys(altsFound)) if (!Object.hasOwn(ordered, key)) ordered[key] = altsFound[key];
+  return ordered;
+}
+
+// Records which page shows each pointer row's element, since most pages do not have all of them (recordFound).
+async function recordAlts(tab, t, rules, page, rankOf) {
   await installPageLib(tab);
-  const rows = rules.rows.filter((r) => r.state === "hover" || r.state === "press");
   const found = await tab.evaluate((list) => {
     const lib = window.__contrast;
     return list.flatMap((row) => lib.alternatives(row.selector).filter((alt) => lib.pick(alt).some((e) => lib.visible(e) || e.parentElement && lib.visible(e.parentElement))).map((alt) => `${row.id}\n${alt}`));
-  }, rows);
-  found.forEach((key) => { if (!t.altsFound[key]) t.altsFound[key] = page; });
+  }, pointerRows(rules));
+  recordFound(t.altsFound, found, page, rankOf);
 }
 
-async function restPass(context, origin, pages, t, rules, theme, viewport) {
+async function restPass(env, origin, pages, t, rules, theme, viewport) {
   const queue = [...pages];
+  const rank = new Map(pages.map((page, i) => [page, i]));
+  const rankOf = (page) => rank.get(page);
   const worker = async () => {
     for (;;) {
+      if (env.watchdog.check()) return;
       const page = queue.shift();
       if (page === undefined) return;
-      const tab = await context.newPage();
-      tab.on("pageerror", (e) => t.errors.push(`${page}: ${String(e).slice(0, 200)}`));
-      try {
-        await tab.goto(urlOf(origin, page), { waitUntil: "load", timeout: 120000 });
-        await settle(tab);
-        if (SPECIMEN_PAGE.test(page)) {
-          const found = await tab.locator("[data-gallery-page]").count();
-          if (found !== 1) t.errors.push(`${page}: expected one [data-gallery-page], found ${found}`);
-        }
-        await injectFixtures(tab, page);
-        await measureRest(tab, t, rules, theme, page, viewport);
-        if (viewport === "wide") await recordAlts(tab, t, rules, page);
-        if (viewport === "wide" && LANDING_PAGES.includes(page)) {
-          for (const title of LANDING_TABS) {
-            await tab.getByText(title, { exact: true }).first().click();
-            await measureRest(tab, t, rules, theme, page, `${viewport}, tab ${title}`);
+      await withTab(env, `rest ${placeOf(page)}`, async (tab, where) => {
+        tab.on("pageerror", (e) => t.errors.push(`${page}: ${String(e).slice(0, 200)}`));
+        try {
+          await openPage(tab, origin, page);
+          if (SPECIMEN_PAGE.test(page)) {
+            const found = await tab.locator("[data-gallery-page]").count();
+            if (found !== 1) t.errors.push(`${page}: expected one [data-gallery-page], found ${found}`);
           }
+          await injectFixtures(tab, page);
+          await measureRest(tab, t, rules, theme, page, viewport);
+          if (viewport === "wide") await recordAlts(tab, t, rules, page, rankOf);
+          if (viewport === "wide" && LANDING_PAGES.includes(page)) {
+            for (const title of LANDING_TABS) {
+              where.at = `rest ${placeOf(page)} tab ${title}`;
+              await tab.getByText(title, { exact: true }).first().click();
+              await measureRest(tab, t, rules, theme, page, `${viewport}, tab ${title}`);
+            }
+          }
+        } catch (e) {
+          t.errors.push(`${page}: ${String(e).slice(0, 200)}`);
         }
-      } catch (e) {
-        t.errors.push(`${page}: ${String(e).slice(0, 200)}`);
-      }
-      await tab.close();
+        await tab.close();
+      });
     }
   };
   await Promise.all(Array.from({ length: CONCURRENT_TABS }, worker));
+  if (viewport === "wide") t.altsFound = orderFound(t.altsFound, pointerRows(rules));
 }
 
-async function pointerPass(context, origin, t, rules, theme) {
+async function pointerPass(env, origin, t, rules, theme) {
   const rows = rules.rows.filter((r) => r.state === "hover" || r.state === "press");
-  const tab = await context.newPage();
-  let at = null;
-  for (const row of rows) {
-    if (row.selector.includes(".search__results") || row.selector.includes(".lang-switch__menu")) continue;
-    const rec = t.rows[row.id];
-    const alts = Object.keys(t.altsFound).filter((k) => k.startsWith(`${row.id}\n`));
-    for (const key of alts) {
-      const alt = key.split("\n")[1];
-      const page = t.altsFound[key];
-      if (at !== page) {
-        await tab.goto(urlOf(origin, page), { waitUntil: "load", timeout: 120000 });
-        await settle(tab);
-        await injectFixtures(tab, page);
-        await installPageLib(tab);
-        at = page;
+  await withTab(env, "pointer (no page)", async (tab, where) => {
+    let at = null;
+    for (const row of rows) {
+      if (row.selector.includes(".search__results") || row.selector.includes(".lang-switch__menu")) continue;
+      const rec = t.rows[row.id];
+      const alts = Object.keys(t.altsFound).filter((k) => k.startsWith(`${row.id}\n`));
+      for (const [n, key] of alts.entries()) {
+        const alt = key.split("\n")[1];
+        const page = t.altsFound[key];
+        where.at = `pointer ${placeOf(page)} ${row.id} alt ${n + 1}`;
+        if (at !== page) {
+          await openPage(tab, origin, page);
+          await injectFixtures(tab, page);
+          await installPageLib(tab);
+          at = page;
+        }
+        const point = await tab.evaluate((a) => window.__contrast.aim(a), alt);
+        if (!point) continue;
+        rec.found += 1;
+        await tab.mouse.move(point.x, point.y);
+        if (row.state === "press") await tab.mouse.down();
+        await stylesSettled(tab);
+        const r = await tab.evaluate(({ row: x, tokens, name }) => window.__contrast.measureAimed(x, tokens, name), { row, tokens: rules.tokens, name: theme });
+        if (row.state === "press") { await tab.mouse.move(0, 0); await tab.mouse.up(); }
+        if (!r.reached) rec.notes.push(`pointer did not reach ${alt} on ${page}`);
+        if (!r.measured) continue;
+        rec.measured += 1;
+        if (r.inkOk) rec.inkHits += 1;
+        if (r.below) rec.below.push(belowRecord({ ...r, page, viewport: row.state }));
+        if (!r.inkOk) rec.mismatch.push(mismatchRecord({ ...r, page, viewport: row.state }));
       }
-      const point = await tab.evaluate((a) => window.__contrast.aim(a), alt);
+    }
+    await tab.close();
+  });
+}
+
+// Presses Tab on an open page: every stop of the first TAB_STOPS, then only the page's frames until each has been measured.
+// A frame never measured within FRAME_TAB_LIMIT stops is a focusMissing record.
+export async function walkFocus(tab, t, rules, theme, page, where = {}) {
+  const row = rules.rows.find((r) => r.state === "focus");
+  if (!row) return;
+  const rec = t.rows[row.id];
+  const frames = FOCUS_FRAMES[page] ?? [];
+  const left = new Set(frames);
+  for (let i = 0; i < TAB_STOPS || (left.size > 0 && i < FRAME_TAB_LIMIT); i += 1) {
+    where.at = `focus ${placeOf(page)} ${row.id} Tab ${i + 1}`;
+    await tab.keyboard.press("Tab");
+    await stylesSettled(tab);
+    const framesOnly = i >= TAB_STOPS;
+    const r = await tab.evaluate(({ row: x, tokens, name, frames: f, framesOnly: only }) => window.__contrast.measureFocus(x, tokens, name, f, only), { row, tokens: rules.tokens, name: theme, frames, framesOnly });
+    if (!r || (framesOnly && !r.frame)) continue;
+    if (r.frame) left.delete(r.frame);
+    rec.found += 1;
+    rec.measured += 1;
+    if (r.inkOk) rec.inkHits += 1;
+    if (r.below) rec.below.push(belowRecord({ ...r, page, viewport: "focus" }));
+    if (!r.inkOk) rec.mismatch.push(mismatchRecord({ ...r, page, viewport: "focus" }));
+  }
+  left.forEach((selector) => t.focusMissing.push({ page, selector, stops: Math.max(TAB_STOPS, FRAME_TAB_LIMIT) }));
+}
+
+async function focusPass(env, origin, t, rules, theme) {
+  if (!rules.rows.some((r) => r.state === "focus")) return;
+  for (const page of FOCUS_PAGES) {
+    const opened = await withTab(env, `focus ${placeOf(page)}`, async (tab, where) => {
+      await openPage(tab, origin, page);
+      await installPageLib(tab);
+      await walkFocus(tab, t, rules, theme, page, where);
+      await tab.close();
+    });
+    if (!opened) return;
+  }
+}
+
+// The narrow drawer is hidden until the menu button opens it, so its rows and its mantle ground are measured open.
+async function drawerPass(env, origin, t, rules, theme) {
+  const held = (r) => r.selector.includes(".site-menu") || r.selector.includes(".menu-btn[aria-expanded");
+  const rows = rules.rows.filter(held);
+  const sidebarRows = restRows(rules).filter((r) => !held(r) && /\.nav-(section|list|desc)/.test(r.selector));
+  for (const page of DRAWER_PAGES) {
+    const opened = await withTab(env, `drawer ${placeOf(page)}`, async (tab, where) => {
+      await openPage(tab, origin, page);
+      await installPageLib(tab);
+      await tab.click(".menu-btn");
+      await tab.mouse.move(0, 0);
+      await tab.waitForFunction(() => getComputedStyle(document.querySelector("#site-drawer")).visibility === "visible");
+      await stylesSettled(tab);
+      const m = await tab.evaluate(({ rows: x, allRows, family, tokens, name, scanArgs }) => {
+        const lib = window.__contrast;
+        return { rows: lib.measureRows(x, allRows, family, tokens, name), scan: lib.scan(document.querySelector("#site-drawer"), scanArgs) };
+      }, { rows: [...rows.filter((r) => r.state === "rest" || r.state === "selected"), ...sidebarRows], allRows: rules.rows, family: [...rules.family], tokens: rules.tokens, name: theme, scanArgs: needsScanArgs(rules, theme) });
+      mergeScan(t, m.scan, page, "drawer");
+      m.rows.forEach((res) => mergeRow(t, rules, res, page, "drawer"));
+      for (const row of rows.filter((r) => r.state === "hover")) {
+        const rec = t.rows[row.id];
+        where.at = `drawer ${placeOf(page)} ${row.id}`;
+        const point = await tab.evaluate((a) => window.__contrast.aim(a), row.selector);
+        if (!point) continue;
+        rec.found += 1;
+        await tab.mouse.move(point.x, point.y);
+        await stylesSettled(tab);
+        const r = await tab.evaluate(({ row: x, tokens, name }) => window.__contrast.measureAimed(x, tokens, name), { row, tokens: rules.tokens, name: theme });
+        if (!r.reached) rec.notes.push(`pointer did not reach ${row.selector}`);
+        if (!r.measured) continue;
+        rec.measured += 1;
+        if (r.inkOk) rec.inkHits += 1;
+        if (r.below) rec.below.push({ ...r, page, viewport: "drawer, pointer over" });
+        if (!r.inkOk) rec.mismatch.push({ ...r, page, viewport: "drawer, pointer over" });
+      }
+      await tab.close();
+    });
+    if (!opened) return;
+  }
+}
+
+async function searchPass(env, origin, t, rules, theme) {
+  const rows = rules.rows.filter((r) => r.selector.includes(".search__results"));
+  await withTab(env, `search ${SEARCH_PAGE}`, async (tab, where) => {
+    await openPage(tab, origin, SEARCH_PAGE);
+    await installPageLib(tab);
+    const measure = async (list) => {
+      await stylesSettled(tab);
+      const m = await tab.evaluate(({ rows: x, allRows, family, tokens, name, scanArgs }) => {
+        const lib = window.__contrast;
+        return { rows: lib.measureRows(x, allRows, family, tokens, name), scan: lib.scan(document.querySelector(".search__results"), scanArgs) };
+      }, { rows: list, allRows: rules.rows, family: [...rules.family], tokens: rules.tokens, name: theme, scanArgs: needsScanArgs(rules, theme) });
+      mergeScan(t, m.scan, SEARCH_PAGE, "search");
+      m.rows.forEach((res) => mergeRow(t, rules, res, SEARCH_PAGE, "search"));
+    };
+    where.at = `search ${SEARCH_PAGE} results`;
+    await tab.click(".search input");
+    await tab.fill(".search input", "tasty");
+    await tab.waitForSelector(".search__results[data-open] a", { timeout: 20000 });
+    await measure(rows.filter((r) => !r.selector.includes("[data-active]")));
+    where.at = `search ${SEARCH_PAGE} active`;
+    await tab.keyboard.press("ArrowDown");
+    await tab.waitForSelector(".search__results a[data-active]", { timeout: 5000 });
+    await measure(rows.filter((r) => r.selector.includes("[data-active]")));
+    where.at = `search ${SEARCH_PAGE} empty`;
+    await tab.fill(".search input", "zzzzqqqq");
+    await tab.waitForSelector(".search__empty", { timeout: 5000 });
+    await measure([]);
+    await tab.close();
+  });
+}
+
+// The list is closed in every other pass, so its rows and the open button are measured here, with the list open.
+async function langPass(env, origin, t, rules, theme) {
+  const held = (r) => r.selector.includes(".lang-switch__menu") || r.selector.includes("[open]");
+  const rows = rules.rows.filter(held);
+  await withTab(env, `language list ${placeOf(LANGS[0].landing)}`, async (tab, where) => {
+    await openPage(tab, origin, LANGS[0].landing);
+    await installPageLib(tab);
+    await tab.click(".lang-switch__toggle");
+    await tab.mouse.move(0, 0);
+    await stylesSettled(tab);
+    const m = await tab.evaluate(({ rows: x, allRows, family, tokens, name, scanArgs }) => {
+      const lib = window.__contrast;
+      return { rows: lib.measureRows(x, allRows, family, tokens, name), scan: lib.scan(document.querySelector(".lang-switch"), scanArgs) };
+    }, { rows: rows.filter((r) => r.state === "rest" || r.state === "selected"), allRows: rules.rows, family: [...rules.family], tokens: rules.tokens, name: theme, scanArgs: needsScanArgs(rules, theme) });
+    mergeScan(t, m.scan, LANGS[0].landing, "language list");
+    m.rows.forEach((res) => mergeRow(t, rules, res, LANGS[0].landing, "language list"));
+    for (const row of rows.filter((r) => r.state === "hover" || r.state === "press")) {
+      const rec = t.rows[row.id];
+      where.at = `language list ${placeOf(LANGS[0].landing)} ${row.id}`;
+      const point = await tab.evaluate((a) => window.__contrast.aim(a), row.selector);
       if (!point) continue;
       rec.found += 1;
       await tab.mouse.move(point.x, point.y);
@@ -204,162 +466,102 @@ async function pointerPass(context, origin, t, rules, theme) {
       await stylesSettled(tab);
       const r = await tab.evaluate(({ row: x, tokens, name }) => window.__contrast.measureAimed(x, tokens, name), { row, tokens: rules.tokens, name: theme });
       if (row.state === "press") { await tab.mouse.move(0, 0); await tab.mouse.up(); }
-      if (!r.reached) rec.notes.push(`pointer did not reach ${alt} on ${page}`);
-      if (!r.measured) continue;
-      rec.measured += 1;
-      if (r.inkOk) rec.inkHits += 1;
-      if (r.below) rec.below.push({ ...r, page, viewport: row.state });
-      if (!r.inkOk) rec.mismatch.push({ ...r, page, viewport: row.state });
-    }
-  }
-  await tab.close();
-}
-
-async function focusPass(context, origin, t, rules, theme) {
-  const row = rules.rows.find((r) => r.state === "focus");
-  if (!row) return;
-  const rec = t.rows[row.id];
-  for (const page of FOCUS_PAGES) {
-    const tab = await context.newPage();
-    await tab.goto(urlOf(origin, page), { waitUntil: "load", timeout: 120000 });
-    await settle(tab);
-    await installPageLib(tab);
-    for (let i = 0; i < TAB_STOPS; i += 1) {
-      await tab.keyboard.press("Tab");
-      await stylesSettled(tab);
-      const r = await tab.evaluate(({ row: x, tokens, name }) => window.__contrast.measureFocus(x, tokens, name), { row, tokens: rules.tokens, name: theme });
-      if (!r) continue;
-      rec.found += 1;
-      rec.measured += 1;
-      if (r.inkOk) rec.inkHits += 1;
-      if (r.below) rec.below.push({ ...r, page, viewport: "focus" });
-      if (!r.inkOk) rec.mismatch.push({ ...r, page, viewport: "focus" });
-    }
-    await tab.close();
-  }
-}
-
-// The narrow drawer is hidden until the menu button opens it, so its rows and its mantle ground are measured open.
-async function drawerPass(context, origin, t, rules, theme) {
-  const held = (r) => r.selector.includes(".site-menu") || r.selector.includes(".menu-btn[aria-expanded");
-  const rows = rules.rows.filter(held);
-  const sidebarRows = restRows(rules).filter((r) => !held(r) && /\.nav-(section|list|desc)/.test(r.selector));
-  for (const page of DRAWER_PAGES) {
-    const tab = await context.newPage();
-    await tab.goto(urlOf(origin, page), { waitUntil: "load", timeout: 120000 });
-    await settle(tab);
-    await installPageLib(tab);
-    await tab.click(".menu-btn");
-    await tab.mouse.move(0, 0);
-    await tab.waitForFunction(() => getComputedStyle(document.querySelector("#site-drawer")).visibility === "visible");
-    await stylesSettled(tab);
-    const m = await tab.evaluate(({ rows: x, allRows, family, tokens, name, scanArgs }) => {
-      const lib = window.__contrast;
-      return { rows: lib.measureRows(x, allRows, family, tokens, name), scan: lib.scan(document.querySelector("#site-drawer"), scanArgs) };
-    }, { rows: [...rows.filter((r) => r.state === "rest" || r.state === "selected"), ...sidebarRows], allRows: rules.rows, family: [...rules.family], tokens: rules.tokens, name: theme, scanArgs: needsScanArgs(rules, theme) });
-    mergeScan(t, m.scan, page, "drawer");
-    m.rows.forEach((res) => mergeRow(t, rules, res, page, "drawer"));
-    for (const row of rows.filter((r) => r.state === "hover")) {
-      const rec = t.rows[row.id];
-      const point = await tab.evaluate((a) => window.__contrast.aim(a), row.selector);
-      if (!point) continue;
-      rec.found += 1;
-      await tab.mouse.move(point.x, point.y);
-      await stylesSettled(tab);
-      const r = await tab.evaluate(({ row: x, tokens, name }) => window.__contrast.measureAimed(x, tokens, name), { row, tokens: rules.tokens, name: theme });
       if (!r.reached) rec.notes.push(`pointer did not reach ${row.selector}`);
       if (!r.measured) continue;
       rec.measured += 1;
       if (r.inkOk) rec.inkHits += 1;
-      if (r.below) rec.below.push({ ...r, page, viewport: "drawer, pointer over" });
-      if (!r.inkOk) rec.mismatch.push({ ...r, page, viewport: "drawer, pointer over" });
+      if (r.below) rec.below.push({ ...r, page: LANGS[0].landing, viewport: row.state });
+      if (!r.inkOk) rec.mismatch.push({ ...r, page: LANGS[0].landing, viewport: row.state });
     }
     await tab.close();
-  }
+  });
 }
 
-async function searchPass(context, origin, t, rules, theme) {
-  const rows = rules.rows.filter((r) => r.selector.includes(".search__results"));
-  const tab = await context.newPage();
-  await tab.goto(urlOf(origin, SEARCH_PAGE), { waitUntil: "load", timeout: 120000 });
-  await settle(tab);
-  await installPageLib(tab);
-  const measure = async (list) => {
-    await stylesSettled(tab);
-    const m = await tab.evaluate(({ rows: x, allRows, family, tokens, name, scanArgs }) => {
-      const lib = window.__contrast;
-      return { rows: lib.measureRows(x, allRows, family, tokens, name), scan: lib.scan(document.querySelector(".search__results"), scanArgs) };
-    }, { rows: list, allRows: rules.rows, family: [...rules.family], tokens: rules.tokens, name: theme, scanArgs: needsScanArgs(rules, theme) });
-    mergeScan(t, m.scan, SEARCH_PAGE, "search");
-    m.rows.forEach((res) => mergeRow(t, rules, res, SEARCH_PAGE, "search"));
-  };
-  await tab.click(".search input");
-  await tab.fill(".search input", "tasty");
-  await tab.waitForSelector(".search__results[data-open] a", { timeout: 20000 });
-  await measure(rows.filter((r) => !r.selector.includes("[data-active]")));
-  await tab.keyboard.press("ArrowDown");
-  await tab.waitForSelector(".search__results a[data-active]", { timeout: 5000 });
-  await measure(rows.filter((r) => r.selector.includes("[data-active]")));
-  await tab.fill(".search input", "zzzzqqqq");
-  await tab.waitForSelector(".search__empty", { timeout: 5000 });
-  await measure([]);
-  await tab.close();
-}
-
-// The list is closed in every other pass, so its rows and the open button are measured here, with the list open.
-async function langPass(context, origin, t, rules, theme) {
-  const held = (r) => r.selector.includes(".lang-switch__menu") || r.selector.includes("[open]");
-  const rows = rules.rows.filter(held);
-  const tab = await context.newPage();
-  await tab.goto(urlOf(origin, LANGS[0].landing), { waitUntil: "load" });
-  await settle(tab);
-  await installPageLib(tab);
-  await tab.click(".lang-switch__toggle");
-  await tab.mouse.move(0, 0);
-  await stylesSettled(tab);
-  const m = await tab.evaluate(({ rows: x, allRows, family, tokens, name, scanArgs }) => {
-    const lib = window.__contrast;
-    return { rows: lib.measureRows(x, allRows, family, tokens, name), scan: lib.scan(document.querySelector(".lang-switch"), scanArgs) };
-  }, { rows: rows.filter((r) => r.state === "rest" || r.state === "selected"), allRows: rules.rows, family: [...rules.family], tokens: rules.tokens, name: theme, scanArgs: needsScanArgs(rules, theme) });
-  mergeScan(t, m.scan, LANGS[0].landing, "language list");
-  m.rows.forEach((res) => mergeRow(t, rules, res, LANGS[0].landing, "language list"));
-  for (const row of rows.filter((r) => r.state === "hover" || r.state === "press")) {
-    const rec = t.rows[row.id];
-    const point = await tab.evaluate((a) => window.__contrast.aim(a), row.selector);
-    if (!point) continue;
-    rec.found += 1;
-    await tab.mouse.move(point.x, point.y);
-    if (row.state === "press") await tab.mouse.down();
-    await stylesSettled(tab);
-    const r = await tab.evaluate(({ row: x, tokens, name }) => window.__contrast.measureAimed(x, tokens, name), { row, tokens: rules.tokens, name: theme });
-    if (row.state === "press") { await tab.mouse.move(0, 0); await tab.mouse.up(); }
-    if (!r.reached) rec.notes.push(`pointer did not reach ${row.selector}`);
-    if (!r.measured) continue;
-    rec.measured += 1;
-    if (r.inkOk) rec.inkHits += 1;
-    if (r.below) rec.below.push({ ...r, page: LANGS[0].landing, viewport: row.state });
-    if (!r.inkOk) rec.mismatch.push({ ...r, page: LANGS[0].landing, viewport: row.state });
-  }
-  await tab.close();
-}
-
-export async function runSite({ browser, origin, dist, rules, theme, report }) {
+// The watchdog, when given, sees every browser call (see contrast-watchdog.mjs). It returns null, measuring nothing more,
+// once the watchdog has expired.
+export async function runSite({ browser, origin, dist, rules, theme, report, watchdog = NO_WATCHDOG }) {
   const pages = sitePages(dist);
   const t = emptySiteTally(rules);
   for (const vp of VIEWPORTS) {
-    const context = await browser.newContext({ viewport: { width: vp.width, height: vp.height }, reducedMotion: "reduce" });
-    await context.addInitScript((name) => localStorage.setItem("tasty-theme", name), theme);
-    if (vp.name === "narrow") await drawerPass(context, origin, t, rules, theme);
-    await restPass(context, origin, pages, t, rules, theme, vp.name);
-    if (vp.name === "wide") {
-      await pointerPass(context, origin, t, rules, theme);
-      await focusPass(context, origin, t, rules, theme);
-      await searchPass(context, origin, t, rules, theme);
-      await langPass(context, origin, t, rules, theme);
+    const base = `${theme} site ${vp.name}`;
+    // The context is an entry only while it is made and while it closes. Each tab is its own entry (withTab).
+    // An entry ends when its call settles, rejected too, so a failed call is not reported in flight.
+    const handle = watchdog.begin(`${base} newContext`);
+    if (watchdog.expired) return null;
+    let context;
+    try {
+      context = await browser.newContext({ viewport: { width: vp.width, height: vp.height }, reducedMotion: "reduce", locale: CHECK_LOCALE });
+      handle.update(`${base} addInitScript`);
+      if (watchdog.expired) return null;
+      await context.addInitScript((name) => localStorage.setItem("tasty-theme", name), theme);
+    } finally {
+      handle.end();
     }
-    await context.close();
+    const env = { context, watchdog, base };
+    if (vp.name === "narrow") await drawerPass(env, origin, t, rules, theme);
+    await restPass(env, origin, pages, t, rules, theme, vp.name);
+    if (vp.name === "wide") {
+      await pointerPass(env, origin, t, rules, theme);
+      await focusPass(env, origin, t, rules, theme);
+      await searchPass(env, origin, t, rules, theme);
+      await langPass(env, origin, t, rules, theme);
+    }
+    const closing = watchdog.begin(`${base} context close`);
+    try {
+      await context.close();
+    } finally {
+      closing.end();
+    }
   }
+  if (watchdog.check()) return null;
   return summarize(t, rules, theme, pages.length, report);
+}
+
+// One row's own failures as detail lines: each below record and each wrong ink record, with its paint count.
+const rowFailureLines = (row, r) => ({
+  below: r.below.map((b) => `${row.id} [${b.viewport}] ${b.page} ${b.at}: ${b.got} on ${b.ground} ${b.ratio} < ${row.grade}${inksNote(b)}`),
+  mismatch: r.mismatch.map((b) => `${row.id} [${b.viewport}] ${b.page} ${b.at}: ${b.got} on ${b.ground}, wants ${row.token}${inksNote(b)}`),
+});
+
+// Prints detail lines a few per row, so one broad failure does not hide another row. A repeated line prints once.
+const printPerRow = (lines, tag) => {
+  const shown = new Map();
+  new Set(lines).forEach((l) => {
+    const id = l.split(/[ :]/)[0];
+    shown.set(id, (shown.get(id) || 0) + 1);
+    if (shown.get(id) <= 5) console.log(`  ${tag} ${l}`);
+  });
+};
+
+// The row failures of the gallery chrome pass: the same below and wrong ink records the site pass counts for a row.
+// The rows' found, measured and ink counts are left out: those pages show only some of the site rows.
+export function chromeFailures(t, rules) {
+  const out = { below: [], mismatch: [], records: { below: [], mismatch: [] } };
+  for (const row of rules.rows) {
+    const r = t.rows[row.id];
+    const lines = rowFailureLines(row, r);
+    out.below.push(...lines.below);
+    out.mismatch.push(...lines.mismatch);
+    r.below.forEach((b) => out.records.below.push({ row: row.id, ...b }));
+    r.mismatch.forEach((b) => out.records.mismatch.push({ row: row.id, ...b }));
+  }
+  return out;
+}
+
+export function printChromeFailures(f) {
+  printPerRow(f.below, "chrome below");
+  printPerRow(f.mismatch, "chrome wrong ink");
+}
+
+// Prints the gallery chrome tally of one theme. Returns how many records fail the gallery and the row records for
+// the --json report. The counts are of every record, repeats included; only the detail lines are limited.
+export function reportChrome(chrome, rules, theme) {
+  const rows = chromeFailures(chrome, rules);
+  const bad = chrome.below.length + chrome.badExempt.length + chrome.picture.length + rows.records.below.length + rows.records.mismatch.length;
+  console.log(`${theme} gallery chrome: pages ${chrome.pages}, text ${chrome.text}, shapes ${chrome.glyph}, below ${chrome.below.length}, row below ${rows.records.below.length}, row wrong ink ${rows.records.mismatch.length}`);
+  chrome.below.slice(0, 100).forEach((b) => console.log(`  chrome ${b.page} ${b.at}: ${b.kind} "${b.text}" ${b.got} on ${b.ground} ${b.ratio} < ${b.grade}`));
+  printChromeFailures(rows);
+  return { bad, chromeRows: rows.records };
 }
 
 // Prints the tally and says whether this theme passed.
@@ -369,12 +571,13 @@ export function summarize(t, rules, theme, pageCount, report) {
     const r = t.rows[row.id];
     if (r.found === 0) unlocated.push(row.id);
     else if (r.measured === 0) unmeasured.push(row.id);
-    r.below.forEach((b) => below.push(`${row.id} [${b.viewport}] ${b.page} ${b.at}: ${b.got} on ${b.ground} ${b.ratio} < ${row.grade}`));
-    r.mismatch.forEach((b) => mismatch.push(`${row.id} [${b.viewport}] ${b.page} ${b.at}: ${b.got} on ${b.ground}, wants ${row.token}`));
+    const lines = rowFailureLines(row, r);
+    below.push(...lines.below);
+    mismatch.push(...lines.mismatch);
     if (r.measured > 0 && r.inkHits === 0) mismatch.push(`${row.id}: no element shows ${row.token}`);
     r.notes.forEach((n) => notes.push(`${row.id}: ${n}`));
   }
-  const bad = unlocated.length + unmeasured.length + below.length + mismatch.length + t.below.length + t.picture.length + t.badExempt.length + t.errors.length;
+  const bad = unlocated.length + unmeasured.length + below.length + mismatch.length + t.below.length + t.picture.length + t.badExempt.length + t.errors.length + t.focusMissing.length;
   const measured = t.text + t.glyph + t.inputs;
   console.log(`${theme} site: pages ${t.pages} of ${pageCount} (each wide and narrow), rows ${rules.rows.length} (unlocated ${unlocated.length}, nothing measured ${unmeasured.length}, below ${below.length}, wrong ink ${mismatch.length}), text ${t.text} (generated ${t.pseudo}), shapes ${t.glyph} in ${t.svgs} svgs (${t.paintServer} gradient paints not measured), inputs ${t.inputs}, below on page ${t.below.length}, on a picture ${t.picture.length}, page errors ${t.errors.length}`);
   console.log(`  measured through a fixture, no built page has the markup: ${FIXTURE_ROWS.join(", ")}`);
@@ -382,17 +585,9 @@ export function summarize(t, rules, theme, pageCount, report) {
   console.log(`  no grade: ${Object.entries(t.gradeNone).map(([k, v]) => `${k} ${v}`).join(", ") || "none"}`);
   unlocated.forEach((id) => console.log(`  no element for row ${id}`));
   unmeasured.forEach((id) => console.log(`  nothing measured for row ${id}`));
-  // A few lines per row, so one broad failure does not hide another row.
-  const perRow = (lines, tag) => {
-    const shown = new Map();
-    new Set(lines).forEach((l) => {
-      const id = l.split(/[ :]/)[0];
-      shown.set(id, (shown.get(id) || 0) + 1);
-      if (shown.get(id) <= 5) console.log(`  ${tag} ${l}`);
-    });
-  };
-  perRow(below, "below");
-  perRow(mismatch, "wrong ink");
+  t.focusMissing.forEach((m) => console.log(`  focus frame not measured on ${placeOf(m.page)}: ${m.selector} within ${m.stops} Tab stops`));
+  printPerRow(below, "below");
+  printPerRow(mismatch, "wrong ink");
   const seen = new Set();
   t.below.forEach((b) => {
     const key = `${b.at} ${b.text} ${b.got} ${b.ground}`;

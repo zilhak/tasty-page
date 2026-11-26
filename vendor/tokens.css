@@ -83,9 +83,11 @@
   --tasty-size-24: 24px;
   --tasty-size-20: 20px;
   --tasty-size-22: 22px;
+  --tasty-size-26: 26px;
   --tasty-size-28: 28px;
   --tasty-size-32: 32px;
   --tasty-size-36: 36px;
+  --tasty-size-35: 35px;
   --tasty-size-40: 40px;
   --tasty-size-44: 44px;
   --tasty-size-46: 46px;
@@ -96,14 +98,20 @@
   --tasty-size-150: 150px;
   --tasty-size-196: 196px;
   --tasty-size-240: 240px;
+  --tasty-size-260: 260px;
   --tasty-size-320: 320px;
   --tasty-size-352: 352px;
   --tasty-size-64: 64px;
+  --tasty-size-76: 76px;
+  --tasty-size-80: 80px;
+  --tasty-size-84: 84px;
   --tasty-size-88: 88px;
   --tasty-size-90: 90px;
+  --tasty-size-92: 92px;
   --tasty-size-96: 96px;
   --tasty-size-110: 110px;
   --tasty-size-112: 112px;
+  --tasty-size-132: 132px;
   --tasty-size-140: 140px;
   --tasty-size-160: 160px;
   --tasty-size-168: 168px;
@@ -122,6 +130,13 @@
   --tasty-size-620: 620px;
   --tasty-size-540: 540px;
   --tasty-size-700: 700px;
+  --tasty-size-520: 520px;
+  --tasty-size-640: 640px;
+  --tasty-size-660: 660px;
+  --tasty-size-680: 680px;
+  --tasty-size-960: 960px;
+  --tasty-size-760: 760px;
+  --tasty-size-880: 880px;
   --tasty-size-1100: 1100px;
   --tasty-radius-0: 0px;
   --tasty-radius-2: 2px;
@@ -159,14 +174,16 @@
   --tasty-scale-100: 1;
   --tasty-scale-120: 1.2;
   --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", "Helvetica Neue", Arial, sans-serif;
+  --tasty-font-family-ui: "D2Coding", -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", "Helvetica Neue", Arial, sans-serif;
+  --font-ui: var(--tasty-font-family-ui);
   --font-mono: "D2Coding", "SF Mono", "Cascadia Code", "JetBrains Mono", ui-monospace, "Menlo", "Consolas", monospace;
 }
-.tasty-type-body { font-family: var(--font-sans); font-size: 13px; line-height: 1.4; font-weight: 400; }
-.tasty-type-heading { font-family: var(--font-sans); font-size: 13px; line-height: 1.4; font-weight: 600; }
-.tasty-type-max { font-family: var(--font-sans); font-size: 14px; line-height: 1.4; font-weight: 400; }
-.tasty-type-caption { font-family: var(--font-sans); font-size: 11px; line-height: 1.4; font-weight: 400; }
-.tasty-type-micro { font-family: var(--font-sans); font-size: 10px; font-weight: 400; }
-.tasty-type-prose-h1 { font-family: var(--font-sans); font-size: 20px; }
+.tasty-type-body { font-family: var(--tasty-font-ui, var(--font-ui)); font-size: 13px; line-height: 1.4; font-weight: 400; }
+.tasty-type-heading { font-family: var(--tasty-font-ui, var(--font-ui)); font-size: 13px; line-height: 1.4; font-weight: 600; }
+.tasty-type-max { font-family: var(--tasty-font-ui, var(--font-ui)); font-size: 14px; line-height: 1.4; font-weight: 400; }
+.tasty-type-caption { font-family: var(--tasty-font-ui, var(--font-ui)); font-size: 11px; line-height: 1.4; font-weight: 400; }
+.tasty-type-micro { font-family: var(--tasty-font-ui, var(--font-ui)); font-size: 10px; font-weight: 400; }
+.tasty-type-prose-h1 { font-family: var(--tasty-font-ui, var(--font-ui)); font-size: 20px; }
 .tasty-type-brand-wordmark { font-family: var(--font-mono); font-size: 17px; }
 .tasty-type-brand-display { font-family: var(--font-mono); font-size: 30px; }
 .tasty-type-brand-lockup { font-family: var(--font-mono); font-size: 38px; }

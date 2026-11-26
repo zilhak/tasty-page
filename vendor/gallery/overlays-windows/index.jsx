@@ -6,17 +6,23 @@ import { Icon as WIcon, Checkbox as WCheckbox, Select as WSelect, Tag as WTag, T
 import { KbPluginsSubtab as Kit_KbPluginsSubtab, KbPluginsSubtab } from "../../ui_kits/terminal/overlays/kb_plugins_subtab.jsx";
 import { MacPermissionsPane } from "../../ui_kits/terminal/overlays/macos_permissions.jsx";
 import { Popup as GalleryNotifications_Popup } from "../parts/notifications.jsx";
-import { GroundThemes as WGroundThemes, GroundCap as WGroundCap, Backdrop, PaletteFrame, LocalSshSection, PortsFrame, PORTS_COLUMNS, PortsFavoritesG, PortStarG, RemoteFrame, SettingsFrame, SettingsGeneralOverlayFrame, SettingsRemoteTransferFrame, SettingsRemoteAttachFrame, ToastDragValue, GitViewerFrame, ClipboardFrame, RemoteFormFrame, RemoteAttachFrame, RaNewRow, RaWsPeek, FilePickerFrame, ScriptManagerFrame, ic } from "../parts/overlay-frames.jsx";
+import { GroundThemes as WGroundThemes, GroundCap as WGroundCap, Backdrop, PaletteFrame, LocalSshSection, PortsFrame, PORTS_COLUMNS, PortsFavoritesG, PortStarG, RemoteFrame, RemoteFilterButtonG, RemoteFilterMenuG, SettingsFrame, SettingsGeneralOverlayFrame, SettingsRemoteTransferFrame, SettingsRemoteAttachFrame, ToastDragValue, GitViewerFrame, ClipboardFrame, RemoteFormFrame, RemoteAttachFrame, RaNewRow, RaWsPeek, FilePickerFrame, FpHostBadge, ScriptManagerFrame, ic } from "../parts/overlay-frames.jsx";
 import { AnomalySection as OverlaysWindowsAnomaly_AnomalySection } from "./settings-anomaly.jsx";
 import { KbPluginsRecordSpec as OverlaysWindowsB12_KbPluginsRecordSpec } from "./kb-plugin-records.jsx";
 import { SettingsNarrowSection as OverlaysWindowsB12_SettingsNarrowSection } from "./settings-narrow.jsx";
 import { OptionKeySection as OverlaysWindowsB12_OptionKeySection } from "./option-key.jsx";
+import { AltKeySection as OverlaysWindowsR56_AltKeySection } from "./alt-key.jsx";
 import { FileHandlerSection as OverlaysWindowsFileHandlers_FileHandlerSection } from "./file-handlers.jsx";
 import { PerfSection as OverlaysWindowsPerf_PerfSection } from "./settings-performance.jsx";
+import { FrameRateSection as OverlaysWindowsFrameRate_FrameRateSection } from "./settings-frame-rate.jsx";
 import { FontOverrideG, FontFileRejectedSpec, FontToastSpec, FontFamilyRejectedSpec } from "./settings-font.jsx";
 import { TrustBox2 as OverlaysWindowsPluginTrust_TrustBox2, PluginTrustSpecs as OverlaysWindowsPluginTrust_PluginTrustSpecs } from "./plugin-trust.jsx";
 import { Section as PresetEditor_Section } from "./preset-editor.jsx";
-import { Section, Spec, Stage, Meta, Note, Do, Dont } from "../parts/specimen.jsx";
+import { CaptureRegionSection } from "./capture-region.jsx";
+import { SettingsTitleBarLinuxSpec } from "./settings-titlebar-linux.jsx";
+import { WindowTabFocusSpec, PluginsTabHoverSpec } from "./window-tab-focus.jsx";
+import { Section, Spec, Stage, Meta, Note, Do, Dont, Views, View } from "../parts/specimen.jsx";
+import { KbImportExportSubtab as Kit_KbImportExportSubtab, IE_GROUPS as KIT_IE_GROUPS } from "../../ui_kits/terminal/overlays/kb_import_export.jsx";
 
 // Tasty Gallery — Overlays · Windows (large modal surfaces)
 // One of the five Overlays sub-pages (dialogs · windows · popups · banners · tutorial). Frame components are shared from
@@ -46,43 +52,21 @@ function FpLineG({ value }) {
     </div>
   );
 }
-function AddBarG({ blocked, trusted = true, perms = 3 }) {
-  // 2026-10-06: "unsigned-no-key" → "missing-pubkey" (the state IS signed; only the .pub is missing / unreadable)
-  const why = { installed: "Already installed", "missing-pubkey": "Signed, but the publisher's public key file is missing", "signature-error": "Signature check failed" }[blocked];
-  const grants = perms === 0 ? "No permissions" : perms === 1 ? "Grants 1 permission" : "Grants " + perms + " permissions";
+function AddBarG({ blocked }) {
+  // 2026-11-17 (plugin permissions removed): the left holds only a blocked reason; otherwise it is empty.
+  // Untrusted verdicts and their danger "Add anyway" bar live in plugin-trust.jsx (Unverified plugin spec).
+  const why = { installed: "Already installed" }[blocked];
   return (
     <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-size-14)", borderTop: "var(--tasty-border-width) solid var(--tasty-separator)", background: "var(--tasty-bg-panel)" }}>
-      <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{why || grants}</span>
-      <div style={{ flex: 1 }} />
+      {why ? <span style={{ flex: "1 1 auto", minWidth: 0, fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{why}</span> : <div style={{ flex: 1 }} />}
       <Button variant="ghost">Cancel</Button>
-      {blocked ? <Button variant="primary" disabled>Add plugin</Button> : trusted ? <Button variant="primary">Add plugin</Button> : <Button variant="primary">Trust &amp; add</Button>}
+      <Button variant="primary" disabled={!!blocked}>Add plugin</Button>
     </div>
   );
 }
-// 2026-10-06 static specimen of plugins_window.jsx TrustBox (same copy + recipe)
-const TRUST_G = {
-  "unknown-key":         ["warning", "alertTriangle", "Unverified publisher", "This plugin isn't signed by a key in your trust store. It runs with the permissions above on every launch — review them, and only add plugins from sources you trust. Adding it also trusts this key."],
-  "permissions-changed": ["warning", "alertTriangle", "Permissions changed", "This publisher is trusted, but this version asks for permissions the trusted version did not have. Review the list above; adding it trusts the new set."],
-  "missing-pubkey":      ["danger", "alertCircle", "Public key file missing", "The manifest is signed by a key that isn't in your trust store, and tasty-plugin.toml.pub is missing or unreadable, so the key can't be added. Ask the publisher for this public key file."],
-  "signature-error":     ["danger", "alertCircle", "Signature check failed", "The signature could not be verified. The plugin can't be added until the publisher ships a valid signature."],
-};
+// 2026-10-19: the trust box is one copy in plugin-trust.jsx (TrustBox2); this name stays for the specs below.
 function TrustBoxG({ kind }) {
-  // 2026-10-19: the trust box moved to the unverified-warning recipe — one copy in overlays-windows-plugin-trust.jsx
-  if (true) return <OverlaysWindowsPluginTrust_TrustBox2 kind={kind} />;
-  const [tone, glyph, title, body] = kind === "trusted" ? ["success"] : TRUST_G[kind];
-  const acc = "var(--tasty-accent-" + tone + ")";
-  const box = { display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-size-14)", borderRadius: "var(--tasty-radius)", color: "var(--tasty-text-secondary)",
-    background: "color-mix(in srgb, " + acc + " calc(var(--tasty-tint-fill-alpha) * 100%), transparent)", border: "var(--tasty-border-width) solid color-mix(in srgb, " + acc + " calc(var(--tasty-tint-border-alpha) * 100%), transparent)" };
-  if (kind === "trusted") return (
-    <div style={{ ...box, flexDirection: "row", alignItems: "center", color: acc, fontSize: "var(--tasty-font-size-term-sm)" }}><WIcon name="shieldCheck" size={16} /><span>Signed by a <b>trusted publisher</b> — its key is in your trust store.</span></div>
-  );
-  return (
-    <div style={box}>
-      <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", color: acc, fontSize: 13, fontWeight: 600 }}><WIcon name={glyph} size={16} /><span>{title}</span></div>
-      <p style={{ margin: 0, fontSize: "var(--tasty-font-size-term-sm)", lineHeight: "var(--tasty-line-height-ui)" }}>{body}</p>
-      {kind !== "signature-error" && <FpLineG value="9f2c 4ad1 b770 e3a6  ·  ed25519" />}
-    </div>
-  );
+  return <OverlaysWindowsPluginTrust_TrustBox2 kind={kind} />;
 }
 function ExtMapG({ draft = "", detectors = true, custom = false, missing = false, long = false, pendingRemove = false, pendingReset = false }) {
   // 2026-10-06 (b2) — pending (draft) state: the button that changed the draft becomes Undo in the same slot,
@@ -136,7 +120,7 @@ function HookOverrideG() {
     { ev: "on_exit", act: "ipc: focus → save → close", origin: "host", on: true },
   ];
   return (
-    <div style={{ width: "var(--tasty-size-560)", maxWidth: "100%", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
+    <div style={{ width: "var(--tasty-size-560)", maxWidth: "100%", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
       {rows.map((r, i) => {
         const plugin = r.origin !== "host";
         const shownOn = r.pending ? true : r.on;
@@ -165,7 +149,7 @@ function HookOverrideG() {
 const ThemePair = ({ children }) => (
   <>{[["Mocha", "mocha"], ["Latte", "latte"]].map(([label, t]) => (
     <div key={label} {...(t ? { "data-theme": t } : {})} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)", minWidth: 0 }}>
-      <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label}</span>{children}
+      <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label}</span>{children}
     </div>
   ))}</>
 );
@@ -225,15 +209,18 @@ const NAV = [
   { id: "settingsnarrow", label: "Settings rows — narrow (b12)" },
   { id: "filehandlers", label: "Handler › File Detectors · Handlers" },
   { id: "perfapply", label: "Terminal › Performance — apply note" },
+  { id: "framerate", label: "Terminal › Frame rate — redraw caps" },
   { id: "permissions", label: "General › Permissions (macOS)" },
   { id: "kbimportexport", label: "Keybindings · Import / Export" },
-  { id: "optionkey", label: "Win · Super as option (b12)" },
+  { id: "optionkey", label: "Win · Super as extra (b12)" },
+  { id: "altkey", label: "Alt key (macOS) · link click keys" },
   { id: "pluginswindow", label: "Plugins window · avatar · disabled sites" },
   { id: "scripts", label: "Misc · Scripts" },
   { id: "anomaly", label: "Misc · Anomaly detection" },
   { id: "gitviewer", label: "Git viewer" },
   { id: "clipboard", label: "Clipboard viewer" },
   { id: "notifications", label: "Notifications" },
+  { id: "captureregion", label: "Capture region select" },
   { id: "moveresize", label: "Move & resize" },
 ];
 
@@ -299,7 +286,7 @@ function IeL2Tail() {
 function IeEntry() {
   const card = (glyph, title, desc, btn) => (
     <div style={{ display: "flex", alignItems: "flex-start", gap: 12, padding: "12px 14px", borderRadius: "var(--tasty-radius)",
-      background: "var(--tasty-surface-raised)", border: "1px solid var(--tasty-border-default)" }}>
+      background: "var(--tasty-surface-raised)", border: "1px solid var(--tasty-border-strong)" }}>
       <span style={{ display: "inline-flex", flex: "none", marginTop: 2, color: "var(--tasty-text-muted)" }}><WIcon name={glyph} size={16} /></span>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontSize: 13, color: "var(--tasty-text-primary)" }}>{title}</div>
@@ -324,7 +311,7 @@ function IeGrid() {
   const cell = { padding: "8px 12px", borderBottom: "1px solid var(--tasty-separator)", fontSize: 13, display: "flex", alignItems: "center" };
   const group = (label, counts, open = true) => (
     <div style={{ gridColumn: "1 / -1", display: "flex", alignItems: "center", gap: 8, padding: "8px 12px",
-      background: "var(--tasty-surface-raised)", borderBottom: "1px solid var(--tasty-separator)" }}>
+      background: "var(--tasty-surface-raised)", borderBottom: "1px solid var(--tasty-border-strong)" }}>
       <WCheckbox defaultChecked={open} aria-label={"Select all in " + label} />
       <span style={{ display: "inline-flex", color: "var(--tasty-text-muted)" }}><WIcon name={open ? "chevronDown" : "chevronRight"} size={14} /></span>
       <span style={{ ...ieCaps, color: "var(--tasty-text-secondary)" }}>{label}</span>
@@ -359,6 +346,19 @@ function IeGrid() {
   );
 }
 
+// The kit's import preview in the states the demo above does not show, rendered by the kit itself.
+const IE_NONE_SELECTED = Object.fromEntries(KIT_IE_GROUPS.flatMap((g) => g.rows.map((r) => [g.id + r.action, false])));
+const IE_FRAMES = [
+  { name: "import-applied-changed-only", label: "After Apply of Command palette: it leaves Changed only",
+    props: { seedBindings: { "Command palette": "Ctrl+Shift+P" } } },
+  { name: "import-applied-show-all", label: "After Apply, Show all: Current shows the drafted combo",
+    props: { seedBindings: { "Command palette": "Ctrl+Shift+P" }, changedOnly: false } },
+  { name: "import-unchanged-selected", label: "Only an unchanged row selected: Apply stays enabled",
+    props: { seedSel: { ...IE_NONE_SELECTED, generalCopy: true }, changedOnly: false } },
+  { name: "import-none-selected", label: "No row selected: Apply is disabled",
+    props: { seedSel: IE_NONE_SELECTED } },
+];
+
 function IeBackBarG({ unresolved }) {
   return (
     <div style={{ width: "100%", maxWidth: IE_W, display: "flex", alignItems: "center", gap: 8, height: 40, padding: "0 12px",
@@ -386,8 +386,8 @@ function IeNotices() {
         {" "}No <span style={ieMono}>option</span> bindings to migrate.
       </div>
       <div style={{ borderRadius: "var(--tasty-radius)", padding: "12px 14px",
-        background: "color-mix(in srgb, var(--tasty-accent-danger) 12%, transparent)",
-        border: "1px solid color-mix(in srgb, var(--tasty-accent-danger) 35%, transparent)" }}>
+        background: "var(--tasty-tint-danger-bg)",
+        border: "1px solid var(--tasty-tint-danger-border)" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, color: "var(--tasty-accent-danger-raised)", fontSize: 13, fontWeight: 600 }}>
           <WIcon name="alertCircle" size={16} /><span>This file can't be read as keybindings</span>
         </div>
@@ -404,13 +404,15 @@ function IeNotices() {
 // ── Import / Export — the six values the spec left open ───────────
 // Shared notice block recipe: tone + glyph + title + lines. Same geometry as
 // the parse-failure block, so failure / warning / info differ only in tone.
-function IeBlockG({ tone, glyph, title, count, children, action }) {
+// tone colours the title and count (the text-<hue> cell of the host tint); glyphTone colours the glyph
+// (the glyph-<hue> cell). They differ on tint-danger@raised: strong for text, raised for the glyph.
+function IeBlockG({ hue, tone, glyphTone = tone, glyph, title, count, children, action }) {
   return (
     <div style={{ width: "100%", maxWidth: "var(--tasty-settings-content-max-width)", borderRadius: "var(--tasty-radius)",
-      padding: "var(--tasty-kb-ie-notice-inset)", background: "color-mix(in srgb, " + tone + " 12%, transparent)",
-      border: "1px solid color-mix(in srgb, " + tone + " 35%, transparent)" }}>
+      padding: "var(--tasty-kb-ie-notice-inset)", background: "var(--tasty-tint-" + hue + "-bg)",
+      border: "1px solid var(--tasty-tint-" + hue + "-border)" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, color: tone, fontSize: 13, fontWeight: 600 }}>
-        <WIcon name={glyph} size={16} /><span>{title}</span>
+        <span style={{ display: "inline-flex", color: glyphTone }}><WIcon name={glyph} size={16} /></span><span>{title}</span>
         {count && <span style={{ marginLeft: "auto", ...ieMono, fontSize: 11, color: tone }}>{count}</span>}
       </div>
       <div style={{ margin: "4px 0 0", fontSize: 12, color: "var(--tasty-text-on-active)", lineHeight: "var(--tasty-line-height-ui)" }}>{children}</div>
@@ -431,7 +433,7 @@ function IeExportFailG({ reason = "readonly" }) {
   return (
     <div style={{ width: "100%", maxWidth: "var(--tasty-settings-content-max-width)", display: "flex", flexDirection: "column", gap: 8,
       padding: "var(--tasty-kb-ie-notice-inset)", borderRadius: "var(--tasty-radius)",
-      background: "var(--tasty-surface-raised)", border: "1px solid var(--tasty-border-default)" }}>
+      background: "var(--tasty-surface-raised)", border: "1px solid var(--tasty-border-strong)" }}>
       <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
         <span style={{ display: "inline-flex", flex: "none", marginTop: 2, color: "var(--tasty-text-muted)" }}><WIcon name="download" size={16} /></span>
         <div style={{ flex: 1, minWidth: 0 }}>
@@ -442,14 +444,18 @@ function IeExportFailG({ reason = "readonly" }) {
         </div>
         <span style={{ flex: "none" }}><Button variant="secondary" size="sm" disabled>Export…</Button></span>
       </div>
-      <IeBlockG tone="var(--tasty-accent-danger-strong)" glyph="alertCircle" title="The export wasn't written"
-        action={<><Button variant="secondary" size="sm">Try again</Button><Button variant="ghost" ground="active" size="sm">Choose another location…</Button></>}>
+      <IeBlockG hue="danger" tone="var(--tasty-accent-danger-strong)" glyphTone="var(--tasty-accent-danger-raised)" glyph="alertCircle" title="The export wasn't written">
         <span style={ieMono}>~/tasty/tasty-keybindings-2026-09-14.toml</span> — {clause} Nothing was written.
         {reason === "other" && (
           <div style={{ ...ieMono, marginTop: 4, fontSize: 11, color: "var(--tasty-text-on-active)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
             title="os error 28: No space left on device (os reported)">os error 28: No space left on device</div>
         )}
       </IeBlockG>
+      {/* actions under the tint, on the card's raised ground — Button has no tint-host contract */}
+      <div style={{ display: "flex", gap: 8 }}>
+        <Button variant="secondary" ground="raised" size="sm">Try again</Button>
+        <Button variant="ghost" ground="raised" size="sm">Choose another location…</Button>
+      </div>
     </div>
   );
 }
@@ -469,7 +475,7 @@ function IeBundleNoticesG({ one = false }) {
         <span style={{ display: "inline-flex", flex: "none", marginTop: 1 }}><WIcon name="helpCircle" size={14} /></span>
         <span>2 plugin overrides were dropped — those plugins aren't installed here (<span style={ieMono}>k8s-lens, s3-browser</span>).</span>
       </div>
-      <IeBlockG tone="var(--tasty-accent-warning-raised)" glyph="alertTriangle" title="Read with warnings" count={one ? "1 notice" : "4 notices"}
+      <IeBlockG hue="warning" tone="var(--tasty-accent-warning-raised)" glyph="alertTriangle" title="Read with warnings" count={one ? "1 notice" : "4 notices"}
         action={one ? null : <Button variant="ghost" size="sm">Show 1 more</Button>}>
         {one
           ? line(<>1 unknown action was skipped (<span style={ieMono}>tab.pin</span>).</>)
@@ -486,7 +492,7 @@ function IeBundleNoticesG({ one = false }) {
 // §3 — parsing failure with and without a line number.
 function IeParseFailG({ line = true }) {
   return (
-    <IeBlockG tone="var(--tasty-accent-danger-strong)" glyph="alertCircle" title="This file can't be read as keybindings"
+    <IeBlockG hue="danger" tone="var(--tasty-accent-danger-strong)" glyph="alertCircle" title="This file can't be read as keybindings"
       action={<Button variant="secondary" size="sm">Choose another file</Button>}>
       <span style={ieMono}>~/Downloads/settings.json</span> — expected a keybinding export (TOML, a <span style={ieMono}>[keybindings]</span> table);
       {line ? <> parsing stopped at line 1.</> : <> the file isn't TOML.</>} Nothing was changed.
@@ -515,8 +521,8 @@ function IeConflictSummaryG() {
   );
   return (
     <div style={{ width: "100%", maxWidth: "var(--tasty-settings-content-max-width)", borderRadius: "var(--tasty-radius)", padding: "var(--tasty-kb-ie-notice-inset)",
-      background: "color-mix(in srgb, var(--tasty-accent-warning) 11%, transparent)",
-      border: "1px solid color-mix(in srgb, var(--tasty-accent-warning) 36%, transparent)" }}>
+      background: "var(--tasty-tint-warning-bg)",
+      border: "1px solid var(--tasty-tint-warning-border)" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, color: "var(--tasty-accent-warning-raised)", fontSize: 13, fontWeight: 600 }}>
         <WIcon name="alertTriangle" size={16} /><span>Option bindings need a replacement</span>
         <span style={{ marginLeft: "auto", ...ieMono, fontSize: 11 }}>3 of 4 unresolved</span>
@@ -550,14 +556,15 @@ function IeModifierSelectG({ chosen = false }) {
 }
 
 // ── Move & resize — interaction spec helpers ──────────────────
-// A faux popup: mantle titlebar (drag handle) over a surface0 body.
+// A faux popup: crust titlebar (drag handle) over a surface0 body. The titlebar underline is part of the
+// popup frame (Foundations C1), so it reads border-frame like the outline.
 function FauxPopup({ title = "Listening ports", w = 240, h = 150, titlebar = true, region = false, grab = true, children, style }) {
   return (
-    <div style={{ width: w, background: "var(--tasty-surface-raised)", border: "1px solid var(--tasty-border-strong)",
+    <div style={{ width: w, background: "var(--tasty-surface-raised)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)",
       borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", overflow: "hidden", ...style }}>
       {titlebar && (
         <div style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "center", height: "var(--tasty-titlebar-height)",
-          background: "var(--tasty-bg-app)", borderBottom: "1px solid var(--tasty-separator)", cursor: grab ? "grab" : "default" }}>
+          background: "var(--tasty-bg-app)", borderBottom: "var(--tasty-border-width) solid var(--tasty-border-frame)", cursor: grab ? "grab" : "default" }}>
           <span style={{ fontSize: 12, color: "var(--tasty-titlebar-fg)" }}>{title}</span>
           <span style={{ position: "absolute", right: 4, top: "50%", transform: "translateY(-50%)", cursor: "default" }}>
             <IconButton size="sm" aria-label="Close" className="faux-close">{ic.x}</IconButton>
@@ -566,12 +573,14 @@ function FauxPopup({ title = "Listening ports", w = 240, h = 150, titlebar = tru
       )}
       {region && (
         <div style={{ display: "flex", alignItems: "center", gap: 6, height: "var(--tasty-titlebar-height)", padding: "0 6px",
-          background: "var(--tasty-bg-app)", borderBottom: "1px solid var(--tasty-separator)" }}>
+          background: "var(--tasty-bg-app)", borderBottom: "var(--tasty-border-width) solid var(--tasty-border-frame)" }}>
           <span style={{ display: "inline-flex", alignItems: "center", gap: 6, height: "100%", paddingRight: 8, cursor: "grab", color: "var(--tasty-text-secondary)" }}>
             <span style={{ display: "inline-flex", color: "var(--tasty-text-muted)" }}>{ic.port}</span><span style={{ fontSize: 12 }}>Ports</span>
           </span>
-          <div style={{ flex: 1, cursor: "text" }}><Input block icon={ic.search} placeholder="filter…" /></div>
-          <IconButton size="sm" aria-label="Close">{ic.x}</IconButton>
+          {/* The close button keeps the right end, as the app lays the header's widgets out from the right: the search
+              field takes what is left and shrinks, instead of pushing close out of a narrow popup. */}
+          <div style={{ flex: 1, minWidth: 0, cursor: "text" }}><Input block icon={ic.search} placeholder="filter…" /></div>
+          <span style={{ display: "inline-flex", flex: "none" }}><IconButton size="sm" aria-label="Close">{ic.x}</IconButton></span>
         </div>
       )}
       <div style={{ height: h, padding: 10, fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: "var(--tasty-text-muted)", lineHeight: 1.7 }}>{children}</div>
@@ -639,7 +648,7 @@ function CursorMatrix() {
 function ClampDemo() {
   return (
     <div style={{ position: "relative", width: 300, height: 200, background: "var(--tasty-bg-app)",
-      border: "1px dashed var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
+      border: "var(--tasty-border-width) dashed var(--tasty-specimen-annotation-border)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
       <span style={{ position: "absolute", top: 4, left: 6, fontFamily: "var(--tasty-font-mono)", fontSize: 9, color: "var(--tasty-text-muted)" }}>scope rect</span>
       <div style={{ position: "absolute", right: 0, bottom: 0 }}>
         <FauxPopup w={188} h={70} title="popup" grab>
@@ -676,11 +685,11 @@ function Page() {
           when={<>Top-anchored launcher. A search Input header, a scrollable MenuItem list with the first row pre-highlighted, and a monospace hint footer. The fastest path to any command — every action should be reachable here.</>}>
           <Stage variant="solo center"><Backdrop height={400}><PaletteFrame /></Backdrop></Stage>
           <Meta
-            specs={[["width", "480–540px"], ["anchor", "top, ~40–90px"], ["header", <>Input + <span className="tok">--tasty-separator</span></>], ["rows", <>28px MenuItem · first active</>], ["footer", "mono hints ↑↓ ↵ esc"]]}
-            tokens={[{ tok: "--tasty-surface-raised", use: "frame", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-surface-active", use: "highlight", color: "var(--tasty-surface-active)" }, { tok: "--tasty-font-mono", use: "hints" }]} />
+            specs={[["width", "--tasty-palette-width"], ["anchor", "top, ~40–90px"], ["header", <>Input + <span className="tok">--tasty-border-strong</span> line below</>], ["rows", <>28px MenuItem · first active</>], ["footer", <>mono hints ↑↓ ↵ esc · <span className="tok">--tasty-border-strong</span> line above</>], ["frame edge", <>1px <span className="tok">--tasty-border-frame</span> — the popup frame, on the raised shell as on a base one</>]]}
+            tokens={[{ tok: "--tasty-surface-raised", use: "frame", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-border-frame", use: "frame edge", color: "var(--tasty-border-frame)" }, { tok: "--tasty-border-strong", use: "header and footer lines — a divider on raised", color: "var(--tasty-border-strong)" }, { tok: "--tasty-surface-active", use: "highlight", color: "var(--tasty-surface-active)" }, { tok: "--tasty-font-mono", use: "hints" }]} />
         </Spec>
         <Spec id="search-field-ground-normal-focused" title="Search field ground — normal · focused"
-          when={<>The palette shell is <span className="tok">--tasty-surface-raised</span>, so its search field is an <b>Input ground="raised"</b> (the 10-14 rule, no exception). The box steps down to <code>bg-panel</code> with a <code>border-strong</code> edge, so it reads against the shell before it takes focus. The field opens focused (autoFocus); <b>normal</b> is the box after focus moves away. Width, icon, placeholder, list and footer are unchanged; no copy changes.</>}>
+          when={<>The palette shell is <span className="tok">--tasty-surface-raised</span>, so its search field is an <b>Input ground="raised"</b> (the 10-14 rule, no exception). The box steps down to <code>bg-panel</code> with a <code>border-control-raised</code> edge, so it reads against the shell before it takes focus. The field opens focused (autoFocus); <b>normal</b> is the box after focus moves away. Width, icon, placeholder, list and footer are unchanged; no copy changes.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)" }}>
             <WGroundThemes render={() => (
               <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-md)" }}>
@@ -690,7 +699,7 @@ function Page() {
             )} />
           </Stage>
           <Meta
-            specs={[["field ground", <>ground="raised" · no exception</>], ["normal", <>input-raised-bg → bg-panel · input-raised-border → border-strong</>], ["focused", <>bg unchanged · border-focus edge + 1px border-focus ring</>], ["Mocha", "bg-panel = base · border-strong = surface1 · shell surface-raised = surface0"], ["Latte", "bg-panel = base · border-strong = surface1 · shell surface-raised = surface0"], ["ink", "text-primary · placeholder text-placeholder · icon text-muted (unchanged)"]]}
+            specs={[["field ground", <>ground="raised" · no exception</>], ["normal", <>input-raised-bg → bg-panel · input-raised-border → border-control-raised</>], ["focused", <>bg unchanged · border-focus edge + 1px border-focus ring</>], ["Mocha", "bg-panel = base · border-control-raised = overlay1 · shell surface-raised = surface0"], ["Latte", "bg-panel = base · border-control-raised = subtext0 · shell surface-raised = surface0"], ["ink", "text-primary · placeholder text-placeholder · icon text-muted (unchanged)"]]}
             tokens={[{ tok: "--tasty-input-raised-bg", use: "field fill", color: "var(--tasty-input-raised-bg)" }, { tok: "--tasty-input-raised-border", use: "field edge", color: "var(--tasty-input-raised-border)" }, { tok: "--tasty-border-focus", use: "focused edge + ring", color: "var(--tasty-border-focus)" }, { tok: "--tasty-surface-raised", use: "shell", color: "var(--tasty-surface-raised)" }]} />
         </Spec>
       </Section>
@@ -700,7 +709,7 @@ function Page() {
           when={<>Tools › Listening ports. A <b>660×520</b> modal built directly on the <b>Table</b> component — the canonical example of a data-table surface. Header carries a live filter + refresh; a <b>Show all</b> checkbox toggles between Tasty-owned and system-wide ports; the scan state shows a <b>Spinner</b>. Rows are sortable; the State column renders a StatusDot.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)" }}><PortsFrame /></Stage>
           <Meta
-            specs={[["frame", "660 × 520 (canonical)"], ["built on", <span className="ic">Table</span>], ["header", "filter Input + refresh"], ["scan", <>Spinner \u2192 \u201cCollecting\u2026\u201d</>], ["footer", "count · Copy address · Close"]]}
+            specs={[["frame width", "--tasty-ports-window-width"], ["frame height", "--tasty-ports-window-height"], ["built on", <span className="ic">Table</span>], ["header", "filter Input + refresh"], ["scan", <>Spinner \u2192 \u201cCollecting\u2026\u201d</>], ["footer", "count · Copy address · Close"]]}
             tokens={[{ tok: "--tasty-bg-panel", use: "frame", color: "var(--tasty-bg-panel)" }, { tok: "--tasty-surface-active", use: "selected row", color: "var(--tasty-surface-active)" }, { tok: "--tasty-accent-success", use: "LISTEN dot", color: "var(--tasty-accent-success-raised)" }, { tok: "--tasty-font-mono", use: "port/addr/pid" }]} />
           <Note>The 660px width is <b>design-canonical</b> — the 7-column table (Port · Proto · Address · Process · Workspace · Tab · State) needs it, plus a <b>tight 28px leading star column</b>. Don't narrow the frame; let columns truncate instead.</Note>
         </Spec>
@@ -712,7 +721,7 @@ function Page() {
                 ["empty — caption persists", "one muted how-to line", "empty"],
                 ["7 favorites — section scrolls", "list capped at 112px (5 rows)", "scrolling"]].map(([label, sub, v]) => (
                 <div key={v} style={{ display: "flex", flexDirection: "column", gap: 6, width: 300 }}>
-                  <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
+                  <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
                   <div style={{ border: "1px solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
                     <PortsFavoritesG favorites={v} />
                   </div>
@@ -721,9 +730,9 @@ function Page() {
               ))}
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-              <span style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>star states</span>
-              <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><PortStarG /><span style={{ fontSize: 12, color: "var(--tasty-text-muted)" }}>unregistered</span></span>
-              <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><PortStarG on /><span style={{ fontSize: 12, color: "var(--tasty-text-muted)" }}>registered</span></span>
+              <span className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>star states</span>
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><PortStarG /><span className="g-cap" style={{ fontSize: 12, color: "var(--tasty-text-muted)" }}>unregistered</span></span>
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><PortStarG on /><span className="g-cap" style={{ fontSize: 12, color: "var(--tasty-text-muted)" }}>registered</span></span>
             </div>
           </Stage>
           <Meta
@@ -733,25 +742,25 @@ function Page() {
           <Note>New strings: <span className="ic">ports.favorites</span> ("Favorites") · <span className="ic">ports.favorites_empty</span> ("No favorites yet") · <span className="ic">ports.favorites_empty_hint</span> · <span className="ic">ports.state_none</span> ("NONE") · <span className="ic">ports.favorites_scope</span> ("system-wide"). Leave 20–40% growth room for ko/ja/de — the caption row and the empty line are single-line by design.</Note>
         </Spec>
         <Spec id="process-column-a-minimum-not-a-fixed-width-on-table-2026-10-08" title="Process column — a minimum, not a fixed width (on Table, 2026-10-08)"
-          when={<>Drawn on the shared <b>Table</b> with the popup's own columns (star · Port · Proto · Address · Process · Workspace · State), so header, row height, fonts and padding are the popup's. The <b>Process</b> column has a <b>floor</b>, <span className="tok">--tasty-port-process-col-min-width</span> (200), passed as the Table column's <code>minWidth</code>: it takes spare width and never shrinks below the floor. A column's <code>width</code> is also its floor, so the fixed columns never shrink. <b>Address</b> is fixed at its floor <span className="tok">--tasty-port-addr-col-min-width</span> (140, fits <span className="ic">255.255.255.255</span> and <span className="ic">::</span> forms; IPv6 ellipsises). <b>Process takes all the spare width</b>; Address never grows (2026-10-08). The sum is the popup's <b>column budget</b>. At the popup's own 660 the budget is a little wider, so the table body <b>scrolls horizontally</b>, the existing scroll policy of the popup. <b>No column shrinks away or hides</b>. Process text ellipsises inside its cell; the PID Tag stays visible.</>}>
+          when={<>Drawn on the shared <b>Table</b> with the popup's own columns (star · Port · Proto · Address · Process · Workspace · Tab · State), so header, row height, fonts and padding are the popup's. The <b>Process</b> column has a <b>floor</b>, <span className="tok">--tasty-port-process-col-min-width</span> (200), passed as the Table column's <code>minWidth</code>. It takes spare width and never shrinks below the floor. A column's <code>width</code> is also its floor, so the fixed columns never shrink. The star is 28, Port is 84, Proto is 76, Workspace is 120, Tab is 80 and State is 140. <b>Address</b> is fixed at its floor <span className="tok">--tasty-port-addr-col-min-width</span> (140). It fits <span className="ic">255.255.255.255</span> and <span className="ic">::</span> forms. Longer IPv6 addresses ellipsise. <b>Process takes all the spare width</b>. Address never grows (2026-10-08). The popup's <b>column budget</b> is 868. At the popup's own 660, 208 under budget, the table body <b>scrolls horizontally</b> under the popup's existing scroll policy. Scroll to reach State. <b>No column shrinks away or hides</b>. Process text ellipsises inside its cell. The PID Tag stays visible.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", flexDirection: "column", gap: "var(--tasty-space-lg)", alignItems: "flex-start" }}>
-            {[["860 — wider than the column budget: Process takes ALL the spare width, Address stays at 140", 860], ["660 — popup width, under the budget (836): the body scrolls sideways; nothing shrinks or hides", 660]].map(([label, tw]) => (
+            {[["960 — wider than the column budget. Process takes all the spare width, and Address stays at 140.", "var(--tasty-port-process-specimen-width)"], ["660 — popup width, 208 under the budget of 868. The body scrolls sideways to reach State. Nothing shrinks or hides.", "var(--tasty-ports-window-width)"]].map(([label, tw]) => (
               <div key={label} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
-                <div style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label}</div>
-                <div className="tasty-scroll" style={{ width: tw, overflowX: "auto", border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", background: "var(--tasty-bg-panel)" }}>
+                <div className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label}</div>
+                <div className="tasty-scroll" style={{ width: tw, overflowX: "auto", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", background: "var(--tasty-bg-panel)" }}>
                   <WTable columns={PORTS_COLUMNS} rowKey="port" rows={[
-                    { port: 3000, proto: "tcp", addr: "127.0.0.1", proc: "node /usr/local/bin/vite --host --strictPort", pid: 41822, ws: "Project A", state: "LISTEN" },
+                    { port: 3000, proto: "tcp", addr: "127.0.0.1", proc: "node /usr/local/bin/vite --host --strictPort", pid: 41822, ws: "Project A", tab: "dev", state: "LISTEN" },
                     { port: 5432, proto: "tcp", addr: "127.0.0.1", proc: "postgres: checkpointer", pid: 913, ws: null, state: "LISTEN" },
-                    { port: 8080, proto: "tcp", addr: "0.0.0.0", proc: "tasty-agent", pid: 50321, ws: "Project B", state: "LISTEN" },
+                    { port: 8080, proto: "tcp", addr: "0.0.0.0", proc: "tasty-agent", pid: 50321, ws: "Project B", tab: "agent", state: "LISTEN" },
                   ]} />
                 </div>
               </div>
             ))}
           </Stage>
           <Meta
-            specs={[["component", "Table — the popup's column defs, shared"], ["Process", <>strong · <code>minWidth</code> = <span className="tok">--tasty-port-process-col-min-width</span> · ellipsis</>], ["value", "200 — unchanged"], ["Address", <>fixed · <span className="tok">--tasty-port-addr-col-min-width</span> 140 (floor = width)</>], ["spare width", "100% to Process"], ["stage gaps", <>gallery Column stage <span className="tok">--tasty-space-lg</span> between tables · cluster caption <span className="tok">--tasty-space-sm</span></>], ["overflow", "body scrolls horizontally below the column budget (also at 660); no column hides"], ["fixed columns", "width = floor (star · Port · Proto · Workspace · State)"], ["metrics", "Table's own — row/header table-cell-height 28 · cell pad 12 · caps header"], ["zoom", "scales with the UI scale, like every width token"]]}
-            tokens={[{ tok: "--tasty-port-process-col-min-width", use: "Process floor" }, { tok: "--tasty-port-addr-col-min-width", use: "Address floor + width" }, { tok: "--tasty-port-star-col-width", use: "leading star column" }, { tok: "--tasty-table-cell-height", use: "header + rows" }]} />
-          <Note>Replaces the hand-built schematic (header 24 · rows 26 · mono 11 · PID column). There are no specimen-only numbers left to name: every metric comes from Table or the popup's column widths. New Table column option <code>minWidth</code> (additive).</Note>
+            specs={[["component", "Table — the popup's column defs, shared"], ["Process", <>strong · <code>minWidth</code> = <span className="tok">--tasty-port-process-col-min-width</span> · ellipsis</>], ["value", "200 — unchanged"], ["Address", <>fixed · <span className="tok">--tasty-port-addr-col-min-width</span> 140 (floor = width)</>], ["spare width", "100% to Process"], ["stage gaps", <>gallery Column stage <span className="tok">--tasty-space-lg</span> between tables · cluster caption <span className="tok">--tasty-space-sm</span></>], ["overflow", "body scrolls horizontally below the column budget (also at 660); no column hides"], ["fixed columns", "width = floor (star · Port · Proto · Workspace · Tab · State)"], ["metrics", "Table's own — row/header table-cell-height 28 · cell pad 12 · caps header"], ["zoom", "scales with the UI scale, like every width token"]]}
+            tokens={[{ tok: "--tasty-port-process-col-min-width", use: "Process floor" }, { tok: "--tasty-port-addr-col-min-width", use: "Address floor + width" }, { tok: "--tasty-port-star-col-width", use: "leading star column" }, { tok: "--tasty-port-port-col-width", use: "Port column" }, { tok: "--tasty-port-proto-col-width", use: "Proto column" }, { tok: "--tasty-port-workspace-col-width", use: "Workspace column" }, { tok: "--tasty-port-tab-col-width", use: "Tab column" }, { tok: "--tasty-port-state-col-width", use: "State column" }, { tok: "--tasty-port-process-specimen-width", use: "wide frame" }, { tok: "--tasty-table-cell-height", use: "header + rows" }]} />
+          <Note>Replaces the hand-built schematic (header 24 · rows 26 · mono 11 · PID column). Of the two table frame widths, only the 960 width is specimen-only (<span className="tok">--tasty-port-process-specimen-width</span>), while the 660 frame reads the popup's <span className="tok">--tasty-ports-window-width</span> and the tables' own metrics (header, row height, fonts, padding, column widths) come from Table or the popup's column width tokens. New Table column option <code>minWidth</code> (additive).</Note>
         </Spec>
       </Section>
 
@@ -759,78 +768,85 @@ function Page() {
         <Spec id="remote-connections-profiles-passkeys" title="Remote connections — profiles + passkeys"
           when={<>Tools › Remote connections. A <b>520×460</b> modal with <b>three top tabs</b>: a type-agnostic <b>remote-profile</b> store (ssh / smb / http / anything), an <b>Attach</b> store (tasty-attach targets), and a separate <b>Passkey</b> credential store. Each tab routes list → form → confirm-delete off a shared header. SSH profiles get a dedicated form; everything else uses a generic key-value editor. The Profiles add-bar carries a <b>protocol filter</b> (right) — a dropdown of the protocols present, checkbox-toggled with Select all / Deselect all / Reset, committed on <b>Apply</b>. Secrets live only in passkeys, referenced by name.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)" }}><RemoteFrame /></Stage>
+          <Stage variant="solo center" style={{ background: "var(--tasty-bg-app)", gap: "var(--tasty-space-xl)" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", alignItems: "flex-start" }}><div className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>closed · nothing hidden</div><RemoteFilterButtonG /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", alignItems: "flex-start" }}><div className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>closed · 1 of 4 hidden</div><RemoteFilterButtonG applied="3/4" /></div>
+          </Stage>
+          <Views>
+            <View name="remote-filter-open-draft" label="open · draft hides snb"><RemoteFilterMenuG /></View>
+          </Views>
           <Meta
             specs={[["frame", "520 × 460"], ["tabs", "Remote profiles · Attach · Passkeys"], ["routes", "list → form → confirm"], ["filter", <>protocol dropdown (Profiles only) · menu <span className="tok">--tasty-remote-filter-menu-width</span> = 240, measured as the <b>border box</b></>], ["dismiss", <>×/Close/<span className="ic">Esc</span> only</>]]}
-            tokens={[{ tok: "--tasty-bg-panel", use: "frame", color: "var(--tasty-bg-panel)" }, { tok: "--tasty-bg-sidebar", use: "tab bar", color: "var(--tasty-bg-sidebar)" }, { tok: "--tasty-accent-primary", use: "active tab / filter on", color: "var(--tasty-accent-primary-raised)" }, { tok: "--tasty-accent-warning", use: "unknown-type / dangling-ref", color: "var(--tasty-accent-warning-raised)" }]} />
+            tokens={[{ tok: "--tasty-bg-panel", use: "frame", color: "var(--tasty-bg-panel)" }, { tok: "--tasty-bg-sidebar", use: "tab bar", color: "var(--tasty-bg-sidebar)" }, { tok: "--tasty-accent-primary", use: "active tab / filter on", color: "var(--tasty-accent-primary)" }, { tok: "--tasty-menu-separator", use: "protocol filter menu rules", color: "var(--tasty-menu-separator)" }, { tok: "--tasty-tag-warning-fg", use: "shared warning badge label", color: "var(--tasty-tag-warning-fg)" }, { tok: "--tasty-tag-warning-border", use: "shared warning badge border", color: "var(--tasty-tag-warning-border)" }, { tok: "--tasty-accent-warning-glyph", use: "passkey missing / unknown type badge glyphs (base host)", color: "var(--tasty-accent-warning-glyph)" }, { tok: "--tasty-accent-warning-raised", use: "filter unknown badge glyph (raised menu)", color: "var(--tasty-accent-warning-raised)" }, { tok: "--tasty-accent-danger-raised", use: "detection failed (disabled) caption", color: "var(--tasty-accent-danger-raised)" }]} />
           <Do><b>Do</b> keep secrets in the Passkey store and reference them by name. A profile never holds a secret inline.</Do>
           <Note>The protocol filter is <b>Profiles-only</b> (Passkeys has no filter) and <b>session-only</b> — never persisted; Tasty restarts with every protocol selected. The button reads <span className="ic">Filter</span> when off and turns accent with a <span className="ic">selected/total</span> count when a filter is applied.</Note>
         </Spec>
         <Spec id="passkeys-tab-rows-reveal-unknown-kind" title="Passkeys tab — rows, reveal, unknown kind"
-          when={<>The <b>third tab</b>, same 520-wide frame. Each row: <b>name</b> (600) + kind <b>Tag</b> — or the warning badge when the stored kind is unknown — then a mono line <span className="ic">kind · value</span>, masked until revealed. Actions on the right: <b>reveal</b>, <b>edit</b>, <b>delete</b> (<code>trash</code>, as on the other two tabs), IconButton sm. Revealed = IconButton <b>active</b> and the glyph swaps <code>eye</code> → <code>eyeOff</code>. The value line <b>ellipsizes, revealed or not</b>; the action cluster is <code>flex: none</code> and is never pushed out of the row.</>}>
+          when={<>The <b>third tab</b>, same 520-wide frame. Each row: <b>name</b> (600) + kind <b>mono Tag</b> — or the warning badge when the stored kind is unknown — then a mono line <span className="ic">kind · value</span>, masked until revealed. Actions on the right: <b>reveal</b>, <b>edit</b>, <b>delete</b> (<code>trash</code>, as on the other two tabs), IconButton sm. Revealed = IconButton <b>active</b> and the glyph swaps <code>eye</code> → <code>eyeOff</code>. The value line <b>ellipsizes, revealed or not</b>; the action cluster is <code>flex: none</code> and is never pushed out of the row.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 20, flexWrap: "wrap" }}>
             <RemoteFrame tab="passkeys" />
             <div data-theme="latte"><RemoteFrame tab="passkeys" /></div>
           </Stage>
           <Meta
-            specs={[["row", "name 600 + Tag / warn badge · mono caption kind · value"], ["mask", "fixed 8-dot mask while hidden"], ["revealed", "IconButton active + eyeOff"], ["long value", "ellipsis at the end · actions flex none, never pushed out"], ["actions", "reveal · edit · trash · IconButton sm, gap 1"], ["add-bar", "Add passkey (Button secondary sm) · no filter"]]}
-            tokens={[{ tok: "--tasty-accent-warning", use: "unknown kind", color: "var(--tasty-accent-warning-raised)" }, { tok: "--tasty-text-muted", use: "value line", color: "var(--tasty-text-muted)" }]} />
+            specs={[["row", "name 600 + mono Tag / warn badge · mono caption kind · value"], ["mask", "fixed 8-dot mask while hidden"], ["revealed", "IconButton active + eyeOff"], ["long value", "ellipsis at the end · actions flex none, never pushed out"], ["actions", "reveal · edit · trash · IconButton sm, gap 1"], ["add-bar", "Add passkey (Button secondary sm) · no filter"]]}
+            tokens={[{ tok: "--tasty-tag-warning-fg", use: "unknown kind badge label", color: "var(--tasty-tag-warning-fg)" }, { tok: "--tasty-tag-warning-border", use: "unknown kind badge border", color: "var(--tasty-tag-warning-border)" }, { tok: "--tasty-accent-warning-glyph", use: "unknown kind badge glyph (base host)", color: "var(--tasty-accent-warning-glyph)" }, { tok: "--tasty-text-muted", use: "value line", color: "var(--tasty-text-muted)" }]} />
         </Spec>
         <Spec id="attach-tab-tasty-attach-targets" title="Attach tab — tasty-attach targets"
-          when={<>The <b>middle tab</b>. An <b>Attach</b> holds everything needed to attach to a <b>remote tasty instance</b> — it either <b>references</b> an ssh profile (<span className="ic">→ prod-web</span>) or carries <b>inline</b> ssh info, plus a <b>remote tasty</b> executable path and a <b>port discovery</b> mode. Splitting this off the ssh profile keeps ssh profiles pure connection info. Rows show name + (label), the reference/host summary, remote-tasty + port-mode captions, and an <b>inactive</b> badge when the referenced profile or inline shell isn't reachable.</>}>
+          when={<>The <b>middle tab</b>. An <b>Attach</b> holds everything needed to attach to a <b>remote tasty instance</b> — it either <b>references</b> an ssh profile (<span className="ic">→ prod-web</span>) or carries <b>inline</b> ssh info, plus a <b>remote tasty</b> executable path and a <b>port discovery</b> mode. Splitting this off the ssh profile keeps ssh profiles pure connection info. Rows show name + (label), the reference/host summary, and remote-tasty + port-mode captions. Both warning states are derived. A reference to a missing ssh profile keeps the name at normal emphasis and shows only the <b>profile missing</b> warning badge beside the target line. If detection fails for an existing referenced profile or the inline target itself, the row mutes the name and shows an <b>inactive</b> warning badge after the mode Tag. The specimen shows legacy-attach <span className="ic">→ legacy-box</span> (inactive) and old-attach <span className="ic">→ retired-box</span> (profile missing).</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)" }}><RemoteFrame tab="attach" /></Stage>
           <Meta
-            specs={[["rows", "name+label · target · tasty/port"], ["mode", "profile (→ ref) · inline"], ["target", <><span className="ic">→ profile</span> or <span className="ic">user@host</span></>], ["inactive", "peach badge (unreachable)"], ["add-bar", "Add attach (no protocol filter)"]]}
-            tokens={[{ tok: "--tasty-accent-warning", use: "inactive / profile-missing", color: "var(--tasty-accent-warning-raised)" }, { tok: "--tasty-text-disabled", use: "inactive name", color: "var(--tasty-text-disabled)" }, { tok: "--tasty-separator", use: "row dividers" }]} />
+            specs={[["rows", "name+label · target · tasty/port"], ["mode", "profile (→ ref) · inline"], ["target", <><span className="ic">→ profile</span> or <span className="ic">user@host</span></>], ["inactive", "warning badge (unreachable)"], ["profile missing", "warning badge (referenced profile missing)"], ["add-bar", "Add attach (no protocol filter)"]]}
+            tokens={[{ tok: "--tasty-tag-warning-fg", use: "inactive / profile missing badge label", color: "var(--tasty-tag-warning-fg)" }, { tok: "--tasty-tag-warning-border", use: "inactive / profile missing badge border", color: "var(--tasty-tag-warning-border)" }, { tok: "--tasty-accent-warning-glyph", use: "inactive / profile missing badge glyph (base host)", color: "var(--tasty-accent-warning-glyph)" }, { tok: "--tasty-text-muted", use: "inactive name", color: "var(--tasty-text-muted)" }, { tok: "--tasty-separator", use: "row dividers" }]} />
           <Do><b>Do</b> keep <span className="ic">remote_tasty</span> and port discovery on the Attach, not the ssh profile — an ssh profile is reusable connection info; how to find the remote tasty binary is attach-specific.</Do>
         </Spec>
         <Spec id="attach-form-reference-vs-inline" title="Attach form — reference vs. inline"
           when={<>The add/edit route on the Attach tab, on the shared [<span className="tok">--tasty-remote-label-col</span> · 1fr] grid. A <b>Connection</b> segmented toggle switches between <b>SSH profile</b> (an <span className="ic">ssh_ref</span> dropdown of existing ssh profiles) and <b>Direct (inline)</b> (the ssh profile fieldset — host / user / port / shell / passkey). Both share a <b>Remote tasty</b> group: <b>Executable</b> (default <span className="ic">tasty</span>), <b>Port mode</b> (<span className="ic">auto / subcommand / file-unix / file-windows</span>), and an optional <b>Port file</b> that overrides the mode.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 16, flexWrap: "wrap", alignItems: "flex-start" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>reference an ssh profile</div><RemoteFormFrame variant="attach-ref" /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>inline ssh info</div><RemoteFormFrame variant="attach-inline" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>reference an ssh profile</div><RemoteFormFrame variant="attach-ref" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>inline ssh info</div><RemoteFormFrame variant="attach-inline" /></div>
           </Stage>
           <Meta
             specs={[["toggle", "SSH profile ↔ Direct (inline)"], ["ref", "ssh_ref dropdown of ssh profiles"], ["inline", "host · user · port · shell · passkey"], ["remote tasty", "Executable (def. tasty)"], ["port", "auto / subcommand / file-unix / file-windows"], ["port file", "optional — overrides port mode"]]}
-            tokens={[{ tok: "--tasty-remote-label-col", use: "shared 112 label column" }, { tok: "--tasty-accent-primary", use: "active tab / segment", color: "var(--tasty-accent-primary-raised)" }, { tok: "--tasty-text-muted", use: "labels / hints", color: "var(--tasty-text-muted)" }]} />
+            tokens={[{ tok: "--tasty-remote-label-col", use: "shared 112 label column" }, { tok: "--tasty-accent-primary", use: "active tab / segment", color: "var(--tasty-accent-primary)" }, { tok: "--tasty-text-muted", use: "labels / hints", color: "var(--tasty-text-muted)" }]} />
         </Spec>
         <Spec id="profile-form-ssh-the-112px-1fr-row-grid" title="Profile form — SSH (the [112px · 1fr] row grid)"
-          when={<>The add/edit route inside the popup. Every row is the same grid: a <b>fixed 112px right-aligned label</b> + a <b>1fr</b> control (columnGap 12, rowGap 8) so labels never collapse/truncate and all controls share one left edge. SSH gets the dedicated fields (Type · Name · Host · User · Port · Label · Shell + hint · Passkey) — <b>remote_tasty moved to the Attach tab</b>. Body scrolls; the footer is pinned with a <b>full-width</b> separator and right-aligned <b>Cancel (ghost) / Save (primary)</b>. Right: the same form with a <b>validation error</b>.</>}>
+          when={<>The add/edit route inside the popup. Every row is the same grid: a <b>fixed 112px right-aligned label</b> + a <b>1fr</b> control (columnGap 12, rowGap 8) so labels never collapse/truncate and all controls share one left edge. SSH gets the dedicated fields (Type · Name · Host · User · Port · Label · Shell · Passkey + shell=auto hint) — <b>remote_tasty moved to the Attach tab</b>. Body scrolls; the footer is pinned with a <b>full-width</b> separator and right-aligned <b>Cancel (ghost) / Save (primary)</b>. Right: the same form with a <b>validation error</b>.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 16, flexWrap: "wrap", alignItems: "flex-start" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>SSH · add mode</div><RemoteFormFrame variant="ssh" /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>validation error</div><RemoteFormFrame variant="ssh" error="host" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>SSH · add mode</div><RemoteFormFrame variant="ssh" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>validation error</div><RemoteFormFrame variant="ssh" error="host" /></div>
           </Stage>
           <Meta
             specs={[["frame", "520 × 460 · resizable · headless"], ["row", <>[<span className="tok">--tasty-remote-label-col</span> 112 · 1fr] · gap 12/8</>], ["label", "right-aligned · text-muted · 13"], ["body/footer", "flex:1 scroll · pinned footer"], ["footer sep", "full-width 1px · buttons inset 16/12"], ["error", "accent-danger caption (11)"]]}
-            tokens={[{ tok: "--tasty-remote-label-col", use: "112px label column" }, { tok: "--tasty-text-muted", use: "labels / hints", color: "var(--tasty-text-muted)" }, { tok: "--tasty-separator", use: "footer + tab divider" }, { tok: "--tasty-accent-primary", use: "active tab · Save", color: "var(--tasty-accent-primary-raised)" }, { tok: "--tasty-accent-danger", use: "validation error", color: "var(--tasty-accent-danger-raised)" }]} />
+            tokens={[{ tok: "--tasty-remote-label-col", use: "112px label column" }, { tok: "--tasty-text-muted", use: "labels / hints", color: "var(--tasty-text-muted)" }, { tok: "--tasty-separator", use: "footer + tab divider" }, { tok: "--tasty-accent-primary", use: "active tab · Save", color: "var(--tasty-accent-primary)" }, { tok: "--tasty-accent-danger", use: "validation error", color: "var(--tasty-accent-danger-raised)" }]} />
           <Do><b>Do</b> keep the label column fixed at 112px (not 1fr-negotiated) — egui's auto grid collapsed it and truncated labels, so the form uses a manual two-column row.</Do>
         </Spec>
         <Spec id="generic-passkey-forms-badges" title="Generic & Passkey forms · badges"
-          when={<>A non-ssh Type swaps the SSH grid for a <b>generic key-value editor</b> (Type · Name · FIELDS rows `[112 · 1fr · 28]` + Add field · Passkey), with a peach <b>Unknown type</b> badge when the type isn't registered (still saves). The <b>Passkey</b> tab's form has Name · Kind (<span className="ic">path</span> / <span className="ic">inline</span> segmented) · Value — singleline path vs. 3-row multiline secret — plus the local-only note.</>}>
+          when={<>A non-ssh Type swaps the SSH grid for a <b>generic key-value editor</b> (Type · Name · FIELDS rows `[112 · 1fr · 28]` + Add field · Passkey), with an indented <b>unknown type</b> hint caption under the Type field, in accent-warning-raised, when the type isn't registered (still saves). The <b>Passkey</b> tab's form has Name · Kind (<span className="ic">path</span> / <span className="ic">inline</span> segmented) · Value — singleline path vs. 3-row multiline secret — plus the local-only note.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 16, flexWrap: "wrap", alignItems: "flex-start" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>generic · unknown type</div><RemoteFormFrame variant="generic" /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>passkey · kind = path</div><RemoteFormFrame variant="passkey-path" /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>passkey · kind = inline</div><RemoteFormFrame variant="passkey-inline" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>generic · unknown type</div><RemoteFormFrame variant="generic" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>passkey · kind = path</div><RemoteFormFrame variant="passkey-path" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>passkey · kind = inline</div><RemoteFormFrame variant="passkey-inline" /></div>
           </Stage>
           <Meta
-            specs={[["generic", "Type · Name · FIELDS · Passkey"], ["field row", "[112 key · 1fr value · 28 ✕]"], ["unknown type", "peach badge (saves anyway)"], ["passkey kind", "path = singleline · inline = 3-row"], ["secret", "name-reference only · note always shown"], ["footer", "ghost Cancel / primary Save (both forms)"]]}
-            tokens={[{ tok: "--tasty-accent-warning", use: "unknown-type / dangling badge", color: "var(--tasty-accent-warning-raised)" }, { tok: "--tasty-accent-primary", use: "selected kind segment (accent fill)", color: "var(--tasty-accent-primary-raised)" }, { tok: "--tasty-input-bg", use: "inline secret field", color: "var(--tasty-input-bg)" }, { tok: "--tasty-remote-label-col", use: "shared 112 column" }]} />
-          <Note>Other states (brief §5/§ST): <b>dangling passkey</b> reuses the same peach badge ("passkey missing"); <b>detecting</b> shows "detecting…" / "detection failed (disabled)" + Re-detect after a shell=auto save. Secrets live only in passkeys — a profile holds a <b>name reference</b>, never an inline secret.</Note>
+            specs={[["generic", "Type · Name · FIELDS · Passkey"], ["field row", "[112 key · 1fr value · 28 ✕]"], ["unknown type", "indented hint caption under Type · 11 · accent-warning-raised · wraps (saves anyway)"], ["passkey kind", "path = singleline · inline = 3-row"], ["secret", "name-reference only · note always shown"], ["footer", "ghost Cancel / primary Save (both forms)"]]}
+            tokens={[{ tok: "--tasty-accent-warning-raised", use: "unknown-type hint", color: "var(--tasty-accent-warning-raised)" }, { tok: "--tasty-accent-primary", use: "selected kind segment (accent fill)", color: "var(--tasty-accent-primary)" }, { tok: "--tasty-input-bg", use: "inline secret field", color: "var(--tasty-input-bg)" }, { tok: "--tasty-remote-label-col", use: "shared 112 column" }]} />
+          <Note>Other states (brief §5/§ST): <b>dangling passkey</b> shows the warning tint badge in the profile row ("passkey missing"); <b>detecting</b> shows "detecting…" / "detection failed (disabled)" + Re-detect after a shell=auto save. Secrets live only in passkeys — a profile holds a <b>name reference</b>, never an inline secret.</Note>
         </Spec>
         <Spec id="segmented-active-is-an-accent-fill-tab-strips-keep-the-underline" title="Segmented active is an accent fill — tab strips keep the underline"
           when={<>Two components were drifting into one another. A <b>tab strip</b> (the window's Profiles / Attach / Passkeys bar) marks the current tab with a <b>2px accent underline</b> and a weight change, no fill. A <b>segmented control</b> (the attach form's <code>profile</code> / <code>inline</code> switch, the clipboard type segment, the apply-preset scope) marks the active segment with an <b>accent-primary fill</b> and <span className="tok">--tasty-text-on-accent</span> ink. <span className="tok">--tasty-surface-active</span> is the <b>row-selection</b> fill and is not used by either — that was the gallery's bug, now fixed.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 18, flexWrap: "wrap", alignItems: "flex-start" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>tab strip — underline</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>tab strip — underline</div>
               <RemoteFrame tab="attach" ssh="none" />
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>segmented — accent fill</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>segmented — accent fill</div>
               <RemoteFormFrame variant="attach" />
             </div>
           </Stage>
           <Meta
             specs={[["tab strip", <>2px <span className="tok">--tasty-accent-primary</span> underline · weight 600</>], ["segmented", <>fill <span className="tok">--tasty-accent-primary</span> · ink <span className="tok">--tasty-text-on-accent</span></>], ["inactive segment", <span className="tok">--tasty-surface-raised</span>], ["scope", "every remote segment + clipboard type + preset scope"], ["not used", <><span className="tok">--tasty-surface-active</span> (row selection)</>]]}
-            tokens={[{ tok: "--tasty-accent-primary", use: "active segment / underline", color: "var(--tasty-accent-primary-raised)" }, { tok: "--tasty-text-on-accent", use: "active segment ink", color: "var(--tasty-text-on-accent)" }, { tok: "--tasty-surface-raised", use: "inactive segment", color: "var(--tasty-surface-raised)" }]} />
+            tokens={[{ tok: "--tasty-accent-primary", use: "active segment / underline", color: "var(--tasty-accent-primary)" }, { tok: "--tasty-text-on-accent", use: "active segment ink", color: "var(--tasty-text-on-accent)" }, { tok: "--tasty-surface-raised", use: "inactive segment", color: "var(--tasty-surface-raised)" }]} />
           <Note>Rule of thumb: an <b>underline</b> switches a <b>view</b>, a <b>fill</b> switches a <b>value</b>. The remote tab bar navigates; the attach switch sets a field.</Note>
         </Spec>
 
@@ -838,14 +854,14 @@ function Page() {
           when={<>Hosts parsed out of <code>~/.ssh/config</code> sit <b>below the profiles, in the same scroll</b> — it is the same question (“which machine?”), and a separate tab would hide the answer. Everything about the section says <b>one tier down</b>: a section header instead of a card, the <b>source path in mono</b> so the origin is unambiguous, <b>two lines</b> per row instead of the profile row's three, secondary ink on the alias, and <b>no per-row icon buttons</b> — one ghost <b>Add profile</b>, which is the import action that already exists. An already-imported host shows a muted <b>in profiles</b> Tag and no action, so importing twice is not offered.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 18, flexWrap: "wrap", alignItems: "flex-start" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>3 hosts · one already a profile · long alias</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>3 hosts · one already a profile · long alias</div>
               <RemoteFrame />
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               {[["no hosts", "empty"], ["no file", "missing"], ["unreadable config (any open error · directory · not UTF-8)", "unreadable"]].map(([label, st]) => (
                 <div key={st} style={{ display: "flex", flexDirection: "column", gap: 6, width: 300 }}>
-                  <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
-                  <div style={{ padding: "8px 12px", background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)" }}>
+                  <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
+                  <div style={{ padding: "8px 12px", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
                     <LocalSshSection state={st} />
                   </div>
                 </div>
@@ -865,18 +881,19 @@ function Page() {
           when={<>Sidebar workspaces-header / new-workspace(<span className="ic">+</span>) right click → <b>Add remote workspace</b>. A <b>680×460</b> modal in the <b>remote_tool</b> language (Scrim · content-drawn header · <span className="tok">--tasty-bg-panel</span> frame). It <b>consumes</b> the <b>tasty-attach</b> profiles registered on remote_tool's Attach tab — it never edits them. <b>Left (240px)</b>: the attach-profile list, single select, with an <b>inactive</b> badge on profiles whose last detection failed. <b>Right</b>: the selected profile's remote workspaces. <b>Footer</b>: <b>Connect</b> (primary, enabled <i>only</i> when a selectable remote workspace is chosen) · <b>Cancel</b> (ghost, always enabled — closes, aborting any in-flight connect).</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)" }}><RemoteAttachFrame state="loaded" /></Stage>
           <Meta
-            specs={[["frame", "680 × 460"], ["left", "240px attach-profile list (single select)"], ["right", "remote workspaces — 4 states"], ["ws row", "dot · name · panes · busy / in-use"], ["connect", "enabled only with a selectable ws"], ["cancel", "always enabled · aborts connect"], ["dismiss", <>×/Cancel/<span className="ic">Esc</span></>]]}
+            specs={[["frame width", "--tasty-remote-picker-width"], ["frame height", "--tasty-remote-picker-height"], ["left", "240px attach-profile list (single select)"], ["right", "remote workspaces — 4 states"], ["ws row", "dot · name · panes · busy / in-use / mirror"], ["mirror (chain)", "a remote workspace that is itself a mirror of another machine: shown, not selectable, name text-muted, idle dot, neutral Tag remote glyph + mirror, tooltip remote.row.reason.chain"], ["connect", "enabled only with a selectable ws"], ["cancel", "always enabled · aborts connect"], ["dismiss", <>×/Cancel/<span className="ic">Esc</span></>]]}
             tokens={[{ tok: "--tasty-bg-panel", use: "frame", color: "var(--tasty-bg-panel)" }, { tok: "--tasty-bg-sidebar", use: "left pane", color: "var(--tasty-bg-sidebar)" }, { tok: "--tasty-surface-active", use: "selected row", color: "var(--tasty-surface-active)" }, { tok: "--tasty-accent-primary", use: "selected bar · Connect", color: "var(--tasty-accent-primary-raised)" }, { tok: "--tasty-accent-attached", use: "in-use (claimed elsewhere)", color: "var(--tasty-accent-attached)" }, { tok: "--tasty-accent-success", use: "busy dot", color: "var(--tasty-accent-success-raised)" }]} />
           <Do><b>Do</b> block selection of a remote workspace already <b>attached on another client</b> (lavender <span className="ic">in use</span> badge, dot dimmed) — mirror it there, not twice. This is the same <span className="tok">--tasty-accent-attached</span> axis as the sidebar attached ring.</Do>
+          <Do><b>Do</b> keep a remote workspace that is <b>itself a mirror</b> of another machine in the list, disabled, with a neutral <span className="ic">mirror</span> Tag and the reason in its tooltip (R-58: a mirror cannot be mirrored again, and the server refuses it). Hiding it would leave you looking for a workspace you can see on the other machine. Neutral, not warning: nothing is wrong, it is just not a target.</Do>
           <Note>The right pane runs four states off the left selection: <b>initial</b> (nothing picked — placeholder), <b>connecting</b> (Spinner — SSH tunnel + list can take seconds), <b>error</b> (danger glyph + reason + <b>Retry</b>), and <b>loaded</b> (the workspace list, or a muted “no workspaces” empty when the remote is reachable but idle).</Note>
         </Spec>
         <Spec id="right-pane-states-initial-connecting-error-empty" title="Right-pane states — initial · connecting · error · empty"
           when={<>The three non-list states, plus the <b>empty</b> remote (plan B: the list path with the pre-selected “+ New workspace” row), driven by the left selection. Each is a centered column (glyph → title → one muted line), so the pane never looks broken while a connect is pending or failed.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 16, flexWrap: "wrap", alignItems: "flex-start" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>initial — nothing picked</div><RemoteAttachFrame state="initial" /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>connecting</div><RemoteAttachFrame state="loading" /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>error — retry</div><RemoteAttachFrame state="error" /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>empty — reachable, no workspaces (list path)</div><RemoteAttachFrame state="empty" emptyPlan="B" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>initial — nothing picked</div><RemoteAttachFrame state="initial" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>connecting</div><RemoteAttachFrame state="loading" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>error — retry</div><RemoteAttachFrame state="error" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>empty — reachable, no workspaces (list path)</div><RemoteAttachFrame state="empty" emptyPlan="B" /></div>
           </Stage>
           <Meta
             specs={[["initial", "remote glyph + prompt · Connect disabled"], ["connecting", "Spinner + “Connecting…”"], ["error", "danger glyph + reason + Retry"], ["empty", "caps header + pre-selected “+ New workspace” row + one muted line · Create & connect enabled"]]}
@@ -897,8 +914,8 @@ function Page() {
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 16, flexWrap: "wrap", alignItems: "flex-start" }}>
             {[["rest", {}], ["hover", { hover: true }], ["selected", { selected: true }], ["creating (list muted, Connect disabled)", { selected: true, phase: "creating" }], ["create failed — inline, list kept", { selected: true, phase: "failed" }]].map(([label, p]) => (
               <div key={label} style={{ display: "flex", flexDirection: "column", gap: 6, width: 440 }}>
-                <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
-                <div style={{ background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
+                <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
+                <div style={{ background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
                   <RaNewRow {...p} />
                   <RaWsPeek muted={p.phase === "creating"} />
                 </div>
@@ -914,8 +931,8 @@ function Page() {
         <Spec id="empty-remote-plan-a-center-state-cta-vs-plan-b-list-path" title="Empty remote — plan A (center-state + CTA) vs plan B (list path)"
           when={<>§6-1, the decision that sets the implementation's render branch. Before this change a reachable-but-empty remote ended at a center-state with nothing but <b>Cancel</b>. <b>Plan A</b> keeps that center-state and adds a CTA button. <b>Plan B</b> takes the <b>list</b> path even when empty: caps header + the one “+ New workspace” row, with a muted line explaining why nothing follows it.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 16, flexWrap: "wrap", alignItems: "flex-start" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>plan A — center-state + CTA</div><RemoteAttachFrame state="empty" emptyPlan="A" /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-accent-primary-raised)" }}>plan B — list path (recommended)</div><RemoteAttachFrame state="empty" emptyPlan="B" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>plan A — center-state + CTA</div><RemoteAttachFrame state="empty" emptyPlan="A" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-accent-primary-raised)" }}>plan B — list path (recommended)</div><RemoteAttachFrame state="empty" emptyPlan="B" /></div>
           </Stage>
           <Meta
             specs={[["recommendation", "plan B"], ["why", "one render path, one affordance, one confirm route"], ["plan B copy", "“‹host› is reachable but has no workspaces yet.”"], ["footer", "Create & connect, enabled (the row is pre-selected)"], ["plan A cost", "a second way to trigger the same action, confirmed differently"]]}
@@ -942,24 +959,36 @@ function Page() {
 
       <Section id="filepicker" title="File picker">
         <Spec id="native-file-picker-local-remote-one-component" title="Native file picker — local & remote, one component"
-          when={<>Tasty's own <b>Open file</b> dialog, replacing the OS-native picker so it can browse a <b>remote attach host</b> over the <b>same SSH mechanism</b> as attach — the OS picker only ever sees the local disk. It's a <b>select-and-confirm</b> dialog (pick a path, hand it back, close), <b>not</b> the Explorer surface (that's a free-roam tab). A <b>640×480</b> modal in the <b>remote_tool</b> popup language: Scrim · content-drawn header · <span className="tok">--tasty-bg-panel</span> frame. <b>Local and remote are the same component</b> — they differ only in the header host indicator and the breadcrumb root. Rows reuse the <span className="ic">folder</span>/<span className="ic">file</span> list language; folder <b>double-click</b> descends, file <b>click</b> fills the name field, file <b>double-click</b> = Open.</>}>
+          when={<>Tasty's own <b>Open file</b> dialog, replacing the OS-native picker so it can browse a <b>remote attach host</b> over the <b>same SSH mechanism</b> as attach — the OS picker only ever sees the local disk. It's a <b>select-and-confirm</b> dialog (pick a path, hand it back, close), <b>not</b> the Explorer surface (that's a free-roam tab). A <b>640×480</b> modal in the <b>remote_tool</b> popup language: Scrim · content-drawn header · <span className="tok">--tasty-bg-panel</span> frame. <b>Local and remote are the same component</b> — they differ only in the header host indicator; the breadcrumb root is the path root (<span className="ic">/</span> or <span className="ic">C:\</span>) in both. The badge holds the <b>host text</b> and follows the <b>host text rule</b> (Dialogs › File handler › Remote path): the attach profile name (R-57); for an attach with <b>no profile name</b> (<code>--ssh</code> or <code>--target-port</code> from the CLI or IPC, a profile saved with an empty name) the word <b>Remote</b> (<code>attach.mirror_pill_label</code>) in the label font and the same ink, never <code>127.0.0.1:&lt;port&gt;</code>. Rows reuse the <span className="ic">folder</span>/<span className="ic">file</span> list language; folder <b>double-click</b> descends, file <b>click</b> fills the name field, file <b>double-click</b> = Open.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 16, flexWrap: "wrap", alignItems: "flex-start" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>local</div><FilePickerFrame /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>remote (host badge — recommended)</div><FilePickerFrame remote indicator="badge" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>local</div><FilePickerFrame /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>remote (host badge — recommended)</div><FilePickerFrame remote indicator="badge" /></div>
           </Stage>
+          <Views>
+            <View name="file-picker-remote-no-profile" label="No profile name (--ssh or --target-port from the CLI or IPC) — the word Remote in the host badge, then the badge in every language">
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-lg)", alignItems: "flex-start" }}>
+                <FilePickerFrame remote indicator="badge" host="" />
+                <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-md)" }}>
+                  {["en", "ko", "ja", "zh-Hans"].map((l) => (
+                    <div key={l} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}><div className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{l}</div><div style={{ padding: "var(--tasty-space-sm)", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}><FpHostBadge host="" lang={l} /></div></div>
+                  ))}
+                </div>
+              </div>
+            </View>
+          </Views>
           <Meta
-            specs={[["frame", "640 × 480 · PopupDef"], ["header", "glyph · title · host indicator · ✕"], ["path bar", "breadcrumb + refresh · bg-sidebar"], ["row", "checkbox? · icon · name · size · modified"], ["footer", "name field · type filter · Cancel / Open"], ["open", "enabled only with a selection"], ["dismiss", <>×/Cancel/<span className="ic">Esc</span> · Open = <span className="ic">Enter</span></>]]}
-            tokens={[{ tok: "--tasty-bg-panel", use: "frame", color: "var(--tasty-bg-panel)" }, { tok: "--tasty-bg-sidebar", use: "path / list-header bar", color: "var(--tasty-bg-sidebar)" }, { tok: "--tasty-surface-active", use: "selected row", color: "var(--tasty-surface-active)" }, { tok: "--tasty-accent-primary", use: "selected bar · folder glyph · Open · crumb link", color: "var(--tasty-accent-primary-raised)" }, { tok: "--tasty-accent-info", use: "remote host indicator", color: "var(--tasty-accent-info-raised)" }, { tok: "--tasty-accent-danger", use: "error glyph", color: "var(--tasty-accent-danger-raised)" }]} />
-          <Do><b>Do</b> keep local and remote a single component with a single set of states — the target only changes the <b>host indicator</b> and the <b>breadcrumb root</b> (<span className="tok">--tasty-font-mono</span> <span className="ic">user@host</span> vs. <span className="ic">/</span>), never the layout.</Do>
+            specs={[["frame", "640 × 480 · PopupDef"], ["header", "glyph · title · host indicator · ✕"], ["host text", "badge: the host text rule (Dialogs › File handler › Remote path) — attach profile name (R-57), mono · never 127.0.0.1:<port>, the local end of the tunnel"], ["no host", "no profile name (--ssh, --target-port, a profile saved with an empty name) → attach.mirror_pill_label in --tasty-font-label, same ink, in the badge · never the empty host string, so the chip never holds the glyph alone · font-label reads mono in en and ko and font-ui in ja and zh-Hans, with D2Coding first in the UI stack (RULES section 8) · glyph and chip unchanged · never elides"], ["host badge", "after the title · height fp-host-badge-height 22 · padding-x fp-host-badge-padding-x 8 · gap fp-host-badge-gap 4 · remote glyph fp-host-badge-icon-size 12 · host text fp-host-badge-font-size 11, mono · radius 4 · 1px edge"], ["badge color", "fill fp-host-badge-bg (tint-info-bg, accent-info × 0.12) · edge fp-host-badge-border (accent-info × 0.36) · ink fp-host-badge-fg (accent-remote-raised) for text and glyph · ground tint-info@base: Mocha 7.95 · Latte 5.93 · raw accent-info as ink fails 4.5 in Latte"], ["breadcrumb root", "the path root (/ or C:\\) for local and remote alike — never the host"], ["path bar", "breadcrumb + refresh · bg-sidebar"], ["row", "checkbox? · icon · name · size · modified"], ["footer", "name field · type filter · Cancel / Open"], ["open", "enabled only with a selection"], ["dismiss", <>×/Cancel/<span className="ic">Esc</span> · Open = <span className="ic">Enter</span></>]]}
+            tokens={[{ tok: "--tasty-bg-panel", use: "frame", color: "var(--tasty-bg-panel)" }, { tok: "--tasty-bg-sidebar", use: "path / list-header bar", color: "var(--tasty-bg-sidebar)" }, { tok: "--tasty-surface-active", use: "selected row", color: "var(--tasty-surface-active)" }, { tok: "--tasty-accent-primary", use: "selected bar · folder glyph · Open · crumb link", color: "var(--tasty-accent-primary-raised)" }, { tok: "--tasty-fp-host-badge-bg", use: "host badge fill → tint-info-bg", color: "var(--tasty-fp-host-badge-bg)" }, { tok: "--tasty-fp-host-badge-border", use: "host badge edge → accent-info × tint-border-alpha", color: "var(--tasty-fp-host-badge-border)" }, { tok: "--tasty-fp-host-badge-fg", use: "host badge text + glyph → accent-remote-raised", color: "var(--tasty-fp-host-badge-fg)" }, { tok: "--tasty-accent-danger", use: "error glyph", color: "var(--tasty-accent-danger-raised)" }]} />
+          <Do><b>Do</b> keep local and remote a single component with a single set of states — the target only changes the <b>host indicator</b> (the host badge: <span className="tok">--tasty-font-mono</span> profile name, or the word Remote in <span className="tok">--tasty-font-label</span>), never the layout. The breadcrumb root is the path root (<span className="ic">/</span> or <span className="ic">C:\</span>) for both.</Do>
           <Note>Out of scope this pass (deferred, not designed): a favorites/recent-locations rail and per-host history. Multi-select is spec'd below but ships behind single-select by default.</Note>
         </Spec>
 
         <Spec id="remote-indicator-three-candidates" title="Remote indicator — three candidates"
           when={<>§6.1 open decision: how to signal "this dialog is looking at a remote host, not your local disk," clearly but not loudly. Three candidates on the same <span className="tok">--tasty-accent-info</span> axis. <b>Badge</b> (recommended): a mono <span className="ic">user@host</span> chip beside the title — explicit about <i>which</i> host, reuses the attach/remote visual language. <b>Glyph + host</b>: swap the header icon to <span className="ic">remote</span> and print the host inline — lighter, no chip. <b>Border</b>: tint the whole frame edge + a 2px top strip — unmissable but the heaviest; use only if remote/local confusion is a real hazard.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 16, flexWrap: "wrap", alignItems: "flex-start" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>A · host badge</div><FilePickerFrame remote indicator="badge" /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>B · glyph + host</div><FilePickerFrame remote indicator="glyph" /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>C · frame border</div><FilePickerFrame remote indicator="border" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>A · host badge</div><FilePickerFrame remote indicator="badge" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>B · glyph + host</div><FilePickerFrame remote indicator="glyph" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>C · frame border</div><FilePickerFrame remote indicator="border" /></div>
           </Stage>
           <Meta
             specs={[["A badge", "mono host chip · info-tinted · explicit"], ["B glyph", "remote icon + inline host · lightest"], ["C border", "info edge + 2px top strip · loudest"], ["shared axis", "--tasty-accent-info (never danger)"], ["local", "no indicator · file glyph · / root"]]}
@@ -968,16 +997,49 @@ function Page() {
         </Spec>
 
         <Spec id="states-loading-empty-permission-connection-lost-multi-select" title="States — loading · empty · permission · connection lost · multi-select"
-          when={<>The body region swaps between list and status states without changing the frame. <b>Loading</b>: Spinner while the directory reads (remote adds "over SSH"). <b>Empty</b>: muted <span className="ic">folderOpen</span> + "This folder is empty." <b>Permission denied</b> (local) and <b>Remote connection lost</b> share the layout — danger glyph · title · one reason line · action — but differ in copy and action (<b>Retry</b> vs. <b>Reconnect</b>, which resumes from the last folder). <b>Multi-select</b> (§6.2): a checkbox column, a comma-joined name field, and an <span className="ic">N selected</span> count — spec'd for the future, single-select is the default.</>}>
+          when={<>The body region swaps between list and status states without changing the frame. <b>Loading</b>: Spinner while the directory reads, with the app's line for a local or a remote read; neither names the host. <b>Empty</b>: muted <span className="ic">folderOpen</span> + "This folder is empty." <b>Permission denied</b> (local) and <b>Connection lost</b> (remote) share the layout — danger glyph · title · one reason line · action — but differ in copy and action but both buttons say <b>Retry</b> and do the same thing: read the current folder again. There is no reconnect action. A lost session (session_lost) has no mirror projection, so no read is ever sent: Retry and every path bar action (Refresh, Up, and the breadcrumb's root, ancestors and … menu) are disabled; the current folder's name stays as it was. A timeout keeps them enabled. <b>Multi-select</b> (§6.2): a checkbox column, a comma-joined name field, and an <span className="ic">N selected</span> count — spec'd for the future, single-select is the default.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 16, flexWrap: "wrap", alignItems: "flex-start" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>loading (remote)</div><FilePickerFrame remote state="loading" /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>empty folder</div><FilePickerFrame state="empty" /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>permission denied (local)</div><FilePickerFrame state="error-perm" /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>connection lost (remote)</div><FilePickerFrame remote state="error-conn" /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>multi-select (remote)</div><FilePickerFrame remote multi /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>loading (remote)</div><FilePickerFrame remote state="loading" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>empty folder</div><FilePickerFrame state="empty" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>permission denied (local)</div><FilePickerFrame state="error-perm" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>connection lost (remote)</div><FilePickerFrame remote state="error-conn" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>multi-select (remote)</div><FilePickerFrame remote multi /></div>
           </Stage>
+          <Views>
+            <View name="file-picker-remote-states-no-profile" wide label="No profile name (--ssh or --target-port from the CLI or IPC) — loading and both connection-lost causes with the app's host-free values">
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-lg)", alignItems: "flex-start" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}><div className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>loading (remote, no profile name)</div><FilePickerFrame remote host="" state="loading" w="var(--tasty-fp-specimen-view-width)" h="var(--tasty-fp-specimen-view-height)" /></div>
+                <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}><div className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>connection lost — session lost (remote, no profile name)</div><FilePickerFrame remote host="" state="error-conn" w="var(--tasty-fp-specimen-view-width)" h="var(--tasty-fp-specimen-view-height)" /></div>
+                <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}><div className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>connection lost — timeout (remote, no profile name)</div><FilePickerFrame remote host="" state="error-conn-timeout" w="var(--tasty-fp-specimen-view-width)" h="var(--tasty-fp-specimen-view-height)" /></div>
+              </div>
+            </View>
+            <View name="file-picker-remote-loading-languages" wide label="Remote loading in every language — the app's filepicker.loading and loading_body_remote">
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-lg)", alignItems: "flex-start" }}>
+                {["en", "ko", "ja", "zh-Hans"].map((l) => (
+                  <div key={l} lang={l} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}><div className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{l}</div><FilePickerFrame remote state="loading" lang={l} w="var(--tasty-fp-specimen-view-width)" h="var(--tasty-fp-specimen-view-height)" /></div>
+                ))}
+              </div>
+            </View>
+            <View name="file-picker-session-lost-navigation" wide label="Session lost — the path bar: Refresh, Up and the breadcrumb's root, ancestors and … are disabled; timeout keeps them enabled">
+              <div inert="" style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-lg)", alignItems: "flex-start", pointerEvents: "none" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}><div className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>session lost · full path</div><FilePickerFrame remote state="error-conn" w="var(--tasty-fp-specimen-view-width)" h="var(--tasty-fp-specimen-view-height)" /></div>
+                <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}><div className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>session lost · elided path (… disabled)</div><FilePickerFrame remote state="error-conn" elideStage w="var(--tasty-fp-specimen-view-width)" h="var(--tasty-fp-specimen-view-height)" /></div>
+                <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}><div className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>timeout · elided path (all enabled)</div><FilePickerFrame remote state="error-conn-timeout" elideStage w="var(--tasty-fp-specimen-view-width)" h="var(--tasty-fp-specimen-view-height)" /></div>
+              </div>
+            </View>
+            <View name="file-picker-conn-lost-causes-languages" wide label="Connection lost in every language — timeout (Retry enabled) and session lost (no mirror projection: Retry and the path bar actions disabled)">
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-lg)", alignItems: "flex-start" }}>
+                {["en", "ko", "ja", "zh-Hans"].map((l) => (
+                  <div key={l} lang={l} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
+                    <div className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{l} · timeout</div><FilePickerFrame remote state="error-conn-timeout" lang={l} w="var(--tasty-fp-specimen-view-width)" h="var(--tasty-fp-specimen-view-height)" />
+                    <div className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{l} · session lost</div><FilePickerFrame remote state="error-conn" lang={l} w="var(--tasty-fp-specimen-view-width)" h="var(--tasty-fp-specimen-view-height)" />
+                  </div>
+                ))}
+              </div>
+            </View>
+          </Views>
           <Meta
-            specs={[["loading", "Spinner · reads dir (remote: over SSH)"], ["empty", "folderOpen glyph + muted line"], ["error", "danger glyph · title · reason · action"], ["perm vs. conn", "Retry vs. Reconnect (resumes)"], ["multi", "checkbox col · joined names · N selected"], ["Open", "disabled while loading / error / empty"]]}
+            specs={[["loading", "Spinner · title filepicker.loading · body loading_body_remote (remote) or loading_body_local (local) · no host in either, so a host and no profile name read the same"], ["first remote read", "remote from the first frame: loading_body_remote and the host badge are drawn before the first answer arrives · never loading_body_local or a missing badge while a remote folder is read"], ["empty", "folderOpen glyph + muted line"], ["error", "danger glyph · title · reason · action"], ["perm vs. conn", "one action, Retry: reads the current folder again (Loading, then the list or the error) · perm: filepicker.error_perm.retry · conn: filepicker.error_conn.reconnect with the value Retry / 재시도 / 再試行 / 重试 (was Reconnect) · no reconnect action"], ["session_lost", "no mirror projection, so no read is ever sent · Retry, path bar Refresh and Up disabled (IconButton disabled) · breadcrumb root, ancestors and … in state-disabled-fg, no pointer, no tooltip, not links · current folder stays text-primary · timeout: all enabled"], ["error copy", "every block quotes the app: error_perm.title + reason_permission · error_conn.title + session_lost or timeout"], ["remote sentences", "every frame draws the app's values: loading filepicker.loading + loading_body_remote · connection lost filepicker.error_conn.title with session_lost or timeout by cause · with or without a host, so no profile name (--ssh, --target-port, a profile saved with an empty name) needs no new key · never 127.0.0.1:<port>"], ["multi", "checkbox col · joined names · N selected"], ["Open", "disabled while loading / error / empty"]]}
             tokens={[{ tok: "--tasty-accent-danger", use: "error glyph", color: "var(--tasty-accent-danger-raised)" }, { tok: "--tasty-text-placeholder", use: "empty glyph", color: "var(--tasty-text-placeholder)" }, { tok: "--tasty-spinner-track", use: "loading spinner" }]} />
           <Note>Row focus ring (keyboard nav) is shown on <span className="ic">pipeline.yaml</span> in the loaded frames — 1px <span className="tok">--tasty-accent-primary</span> outline, distinct from the filled selection background so focus and selection never merge visually.</Note>
         </Spec>
@@ -985,10 +1047,10 @@ function Page() {
         <Spec id="save-mode-one-confirm-in-the-footer" title="Save mode — one confirm, in the footer"
           when={<>The same picker, asked to <b>produce</b> a path instead of read one (Settings → Export, and every future save target — <code>rfd</code> blocks the calling thread, so no OS dialog). <b>There is exactly one confirm control, and it is the footer's primary button</b> — the <b>File name</b> row the picker already owns becomes editable and the button reads <b>Save</b>. No second row is appended below the view, because a second button would point at a second target and the screen could hold two answers at once.<br /><br /><b>One target.</b> Selecting a list row does not confirm anything — it <b>writes that row's name into the input</b>, and the input is the only thing the button reads. Typing after a pick keeps the row selected only while the name still matches; edit a character and the selection clears. So "the picked file" and "the typed name" are never two different paths.<br /><br /><b>Overwrite is inline, not a second dialog.</b> When the typed name already exists in this folder, a warning line appears above the buttons and the primary <b>relabels to Overwrite</b> — the decision stays on the button the user is already reaching for. A modal confirm on top of a modal picker would be a second scrim for a reversible write.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 16, flexWrap: "wrap", alignItems: "flex-start" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>save — typed name (new file)</div><FilePickerFrame mode="save" /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>save — existing file picked → Overwrite</div><FilePickerFrame mode="save" save="picked" /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>save — name edited after the pick → selection cleared</div><FilePickerFrame mode="save" save="edited" /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>deep path — fits at 640, nothing folds</div><FilePickerFrame mode="save" deep elideStage={false} /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>save — typed name (new file)</div><FilePickerFrame mode="save" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>save — existing file picked → Overwrite</div><FilePickerFrame mode="save" save="picked" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>save — name edited after the pick → selection cleared</div><FilePickerFrame mode="save" save="edited" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>deep path — fits at 640, nothing folds</div><FilePickerFrame mode="save" deep elideStage={false} /></div>
           </Stage>
           <Meta
             specs={[["title", "Save file (open mode: Open file)"], ["confirm", "footer primary only — one control"], ["labels", "Save · Overwrite when the name exists"], ["input", "editable · placeholder “Type a file name”"], ["list pick", "writes the name into the input → Overwrite"], ["selection", "clears as soon as the name diverges → Save"], ["overwrite", "11px warning line above the buttons"], ["disabled", "Save disabled while the name is empty"], ["breadcrumb", "folds only when the measured row doesn't fit — see Path bar"], ["footer", "never shrinks — the input absorbs it"]]}
@@ -1000,9 +1062,9 @@ function Page() {
         <Spec id="gestures-folder-targets-the-six-open-branches" title="Gestures &amp; folder targets — the six open branches"
           when={<>The save-mode decision left six branches undecided, and because <b>save and open are the same view</b>, each answer had to hold in both modes. One gesture table now covers them: <b>single click selects, double click descends</b> — in both modes, for both kinds. A <b>folder is never a save target</b>: the footer button still reads the input only, so a selected folder can't change what gets written; a muted line says so where the reading happens. In save mode a <b>file's double-click stops at select</b> — it writes the name, which <i>is</i> the overwrite state, and the warning line has to be readable before the write. Only open mode confirms on a file's double-click.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 16, flexWrap: "wrap", alignItems: "flex-start" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>save — folder selected · not a save target</div><FilePickerFrame mode="save" folderSel /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>open — folder selected · Open enters it</div><FilePickerFrame folderSel /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>… menu open — at the 320 picker floor, where the deep path really folds</div><FilePickerFrame mode="save" deep crumbMenu w={320} h={420} /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>save — folder selected · not a save target</div><FilePickerFrame mode="save" folderSel /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>open — folder selected · Open enters it</div><FilePickerFrame folderSel /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>… menu open — at the 320 picker floor, where the deep path really folds</div><FilePickerFrame mode="save" deep crumbMenu w={320} h={420} /></div>
           </Stage>
           <Meta
             specs={[["single click", "selects the row — file or folder, both modes"], ["double click folder", "descends — both modes"], ["double click file", "open: confirms · save: selects only"], ["folder + Save", "never a target — muted footer line, button unchanged"], ["folder + Open", "enters it (Open is the keyboard route to descend)"], ["elision", "overflow-driven — one ancestor at a time, no depth threshold"], ["… tooltip", "Show 3 hidden folders (singular: 1 hidden folder)"], ["… menu", "content-measured, 180–320 band = BORDER-BOX outer width, path order"], ["… menu rows", "shared MenuItem — 28 · pad-x 12 · folder 16 · text-primary"], ["specimen", <>320 (<span className="tok">--tasty-fp-popup-min-width</span>) — the width where it folds</>]]}
@@ -1016,21 +1078,21 @@ function Page() {
           <Stage variant="solo" style={{ padding: 20, background: "var(--tasty-bg-app)", flexDirection: "column", gap: 14, alignItems: "flex-start" }}>
             <div style={{ display: "flex", gap: 18, flexWrap: "wrap", alignItems: "flex-start" }}>
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>stage diagram (forced) — step 2 · parent at its 64 floor</div>
+                <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>stage diagram (forced) — step 2 · parent at its 64 floor</div>
                 <FilePickerFrame pathKind="longtwo" />
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>stage diagram (forced) — step 5 · … › current</div>
+                <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>stage diagram (forced) — step 5 · … › current</div>
                 <FilePickerFrame pathKind="longtwo" w={400} h={360} single />
               </div>
             </div>
             <div style={{ display: "flex", gap: 18, flexWrap: "wrap", alignItems: "flex-start" }}>
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>440×300 · long UNC root — capped at 180, nothing folds</div>
+                <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>440×300 · long UNC root — capped at 180, nothing folds</div>
                 <FilePickerFrame pathKind="longroot" w={440} h={300} />
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>stage diagram (forced) — save / overwrite · footer untouched</div>
+                <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>stage diagram (forced) — save / overwrite · footer untouched</div>
                 <FilePickerFrame pathKind="longtwo" mode="save" save="picked" w={400} h={360} single />
               </div>
             </div>
@@ -1045,10 +1107,10 @@ function Page() {
         <Spec id="file-type-filter-chip-a-read-only-readout" title="File-type filter chip — a read-only readout"
           when={<>The chip shows the filter <b>the caller</b> passed and nothing else: there is no menu and no way to change it, so it is drawn as a <b>readout</b>, not a control — no chevron, no fill, no hover, not focusable. Text is the extension list in mono (<code>*.toml, *.json</code>), lowercase, in the caller's order. <b>No filter → no chip</b>; the name field takes the width. Width is the content, capped at <span className="tok">--tasty-fp-filter-max-width</span>; past that the list ends in an ellipsis and the tooltip ("Showing …") carries all of it. Both consumers (Tools menu picker, the picker inside Settings) and both modes show the same chip. In save mode the filter does <b>not</b> touch the name field — no extension is appended.</>}>
           <Stage variant="solo" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 18, flexWrap: "wrap", alignItems: "flex-start" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>no filter — chip hidden</div><FilePickerFrame w={480} h={300} /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>one extension</div><FilePickerFrame w={480} h={300} filters={["toml"]} /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>two extensions — save mode</div><FilePickerFrame w={480} h={300} mode="save" filters={["toml", "json"]} /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>many — capped at 160, ellipsis + tooltip</div><FilePickerFrame w={480} h={300} filters={["png", "jpg", "jpeg", "gif", "webp", "svg"]} /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>no filter — chip hidden</div><FilePickerFrame w={480} h={300} /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>one extension</div><FilePickerFrame w={480} h={300} filters={["toml"]} /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>two extensions — save mode</div><FilePickerFrame w={480} h={300} mode="save" filters={["toml", "json"]} /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>many — capped at 160, ellipsis + tooltip</div><FilePickerFrame w={480} h={300} filters={["png", "jpg", "jpeg", "gif", "webp", "svg"]} /></div>
           </Stage>
           <Meta
             specs={[["role", "read-only readout — not a button, no menu, not in tab order"], ["label", "*.ext list, mono caption, caller order, joined by \", \""], ["no filter", "chip absent"], ["width", "content, ≤ fp-filter-max-width (160) · then end ellipsis"], ["tooltip", "Showing *.png, *.jpg, … (full list)"], ["height", "fp-filter-height = the Input beside it"], ["box", "1px separator · radius · no fill · pad-x space-sm"], ["save mode", "no extension auto-append"], ["i18n", "only the tooltip prefix is translated; the list is literal"]]}
@@ -1059,19 +1121,19 @@ function Page() {
         <Spec id="folder-mode-mode-folder-returns-a-folder" title={"Folder mode — mode=\"folder\" returns a folder"}
           when={<>The third mode of the same frame, for the three callers that used the OS folder dialog (Settings › Remote transfer › Save folder, Plugins › Add › Find folder…, Preset editor <code>dir</code>). Local only. The <b>target</b> is the selected folder row, or the <b>current folder</b> when nothing is selected, so <b>Select folder</b> is enabled whenever the folder reads (also when it is empty) and disabled while loading or on an error. The footer swaps the File name input for a <b>read-only Folder readout</b> of the full target path (front ellipsis, tooltip = full path) and one muted hint line. <b>Files stay listed</b> so the folder is recognisable. They are not selectable but they are read: <span className="tok">--tasty-fp-folder-file-fg</span> (text-muted), no hover, skipped by ↑↓, tooltip "Only folders can be selected." The filter chip is hidden: filters don't apply to folders. Not the same thing as <code>folderSel</code> above, which is a folder row in open / save mode.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 16, flexWrap: "wrap", alignItems: "flex-start" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>no row selected — target = current folder</div><FilePickerFrame mode="folder" /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>subfolder selected — target = configs</div><FilePickerFrame mode="folder" folderPick="row" /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>pointer on a file — inert, tooltip only</div><FilePickerFrame mode="folder" folderPick="row" fileHover /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>no row selected — target = current folder</div><FilePickerFrame mode="folder" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>subfolder selected — target = configs</div><FilePickerFrame mode="folder" folderPick="row" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>pointer on a file — inert, tooltip only</div><FilePickerFrame mode="folder" folderPick="row" fileHover /></div>
           </Stage>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 16, flexWrap: "wrap", alignItems: "flex-start" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>Settings chooser size 480×360 · empty folder — still selectable</div><FilePickerFrame mode="folder" state="empty" w={480} h={360} /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>480×360 · read error — Select folder disabled, path in disabled ink</div><FilePickerFrame mode="folder" state="error-perm" w={480} h={360} /></div>
-            <div data-theme="latte" style={{ display: "flex", flexDirection: "column", gap: 6, padding: 8, background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)" }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>Latte · 480×360 · subfolder selected</div><FilePickerFrame mode="folder" folderPick="row" w={480} h={360} /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>Settings chooser size 480×360 · empty folder — still selectable</div><FilePickerFrame mode="folder" state="empty" w={480} h={360} /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>480×360 · read error — Select folder disabled, path in disabled ink</div><FilePickerFrame mode="folder" state="error-perm" w={480} h={360} /></div>
+            <div data-theme="latte" style={{ display: "flex", flexDirection: "column", gap: 6, padding: 8, background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)" }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>Latte · 480×360 · subfolder selected</div><FilePickerFrame mode="folder" folderPick="row" w={480} h={360} /></div>
           </Stage>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 16, flexWrap: "wrap", alignItems: "flex-start" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>en · 640 · long folder names</div><FilePickerFrame mode="folder" pathKind="longtwo" folderPick="row" /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>ko · 480×360 · long names</div><FilePickerFrame mode="folder" lang="ko" pathKind="longtwo" w={480} h={360} /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>ja · 320 floor · long names, selected</div><FilePickerFrame mode="folder" lang="ja" pathKind="longtwo" folderPick="row" single w={320} h={420} /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>en · 640 · long folder names</div><FilePickerFrame mode="folder" pathKind="longtwo" folderPick="row" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>ko · 480×360 · long names</div><FilePickerFrame mode="folder" lang="ko" pathKind="longtwo" w={480} h={360} /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>ja · 320 floor · long names, selected</div><FilePickerFrame mode="folder" lang="ja" pathKind="longtwo" folderPick="row" single w={320} h={420} /></div>
           </Stage>
           <Meta
             specs={[["target", "selected folder row, else current folder — one path returned, picker closes"], ["header", "folder glyph + “Select folder” (14 semibold) — same header box"], ["footer row 1", "label fp-footer-label-width 64 (caption, ellipsis) · gap fp-section-gap 8 · readout flex 1, control-height 28, pad-x space-md, input-readonly-bg / -border, mono caption, fp-folder-path-fg, FRONT ellipsis, tooltip full path, not editable"],
@@ -1090,10 +1152,12 @@ function Page() {
           when={<>The largest dialog. <b>L1</b> = a small, fixed set of top tabs (General / Appearance / Keybindings / Plugins). <b>L2</b> = a growable, filterable left sidebar of sections (plugins contribute here). This split keeps top-level navigation stable while the content tree scales. Reuse it for any settings-like surface.</>}>
           <Stage variant="solo center"><Backdrop height={420}><SettingsFrame /></Backdrop></Stage>
           <Meta
-            specs={[["frame", "1100 × 700 (canonical)"], ["L1 tabs", "44px bar, accent underline"], ["L2 sidebar", "200px, filter + list"], ["footer", "Cancel / Save, right"]]}
-            tokens={[{ tok: "--tasty-bg-sidebar", use: "L1 + L2", color: "var(--tasty-bg-sidebar)" }, { tok: "--tasty-bg-panel", use: "content", color: "var(--tasty-bg-panel)" }, { tok: "--tasty-accent-primary", use: "active tab", color: "var(--tasty-accent-primary-raised)" }, { tok: "--tasty-surface-active", use: "active section", color: "var(--tasty-surface-active)" }]} />
+            specs={[["frame width", "--tasty-settings-window-width"], ["frame height: macOS, Windows, Linux with OS decorations", "--tasty-settings-window-height"], ["frame height: Linux with the title bar Tasty draws (see below)", "--tasty-settings-window-csd-height"], ["L1 tabs", "--tasty-settings-l1-height"], ["L1 active tab", "accent underline"], ["L2 sidebar", "200px, filter + list"], ["footer", "Cancel / Save, right"]]}
+            tokens={[{ tok: "--tasty-bg-sidebar", use: "L1 + L2", color: "var(--tasty-bg-sidebar)" }, { tok: "--tasty-bg-panel", use: "content", color: "var(--tasty-bg-panel)" }, { tok: "--tasty-accent-primary", use: "active tab", color: "var(--tasty-accent-primary)" }, { tok: "--tasty-surface-active", use: "active section", color: "var(--tasty-surface-active)" }]} />
           <Note>L1 stays small forever; growth happens only in L2. Plugins are their <b>own</b> L1 tab — never crammed into another group's sidebar.</Note>
         </Spec>
+        <SettingsTitleBarLinuxSpec />
+        <WindowTabFocusSpec />
 
         <Spec id="general-general-row-grid-row-captions-webhook-row" title="General › General — row grid, row captions, webhook row"
           when={<>Every settings subtab uses one <b>label column · control</b> grid. <b>Label column</b> = the subtab's longest label, clamped to <span className="tok">--tasty-settings-label-width</span> (150) … <span className="tok">--tasty-settings-label-max-width</span> (240); a label longer than 240 wraps. <b>Gap</b> 16 (<span className="tok">--tasty-settings-label-gap</span>). The app's own fit-to-longest measure is canonical with this clamp; the old 12 gap moves to 16. A description that belongs to <b>one row</b> sits directly under that row (<span className="tok">--tasty-settings-row-caption-gap</span> 4), at the row's left edge, measure-md: that is where the wheel-scroll and language-restart lines go. The webhook row keeps its always-shown warning callout the same way. Terminal › TUI's OSC 52 row follows the same rule (on the grid, callout measure-md).</>}>
@@ -1109,7 +1173,7 @@ function Page() {
                   </div>
                   {cap && <p style={{ margin: 0, fontSize: 12, color: "var(--tasty-text-muted)", maxWidth: "var(--tasty-measure-md)", lineHeight: "var(--tasty-line-height-ui)" }}>{cap}</p>}
                   {warn && <div style={{ display: "flex", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-sm) var(--tasty-space-md)", borderRadius: "var(--tasty-radius)", maxWidth: "var(--tasty-measure-md)",
-                    border: "var(--tasty-border-width) solid color-mix(in srgb, var(--tasty-accent-warning) 40%, transparent)", background: "color-mix(in srgb, var(--tasty-accent-warning) 12%, transparent)" }}>
+                    border: "var(--tasty-border-width) solid var(--tasty-tint-warning-border)", background: "var(--tasty-tint-warning-bg)" }}>
                     <span style={{ display: "inline-flex", flex: "none", marginTop: 1, color: "var(--tasty-accent-warning-raised)" }}><WIcon name="alertTriangle" size={16} /></span>
                     <p style={{ margin: 0, fontSize: 12, color: "var(--tasty-text-secondary)", lineHeight: "var(--tasty-line-height-ui)" }}>When on, the webhook listener takes every network interface, so anyone who can reach its port can call your registered webhooks. When off, only programs on this computer can. Applies from the next start.</p>
                   </div>}
@@ -1128,11 +1192,11 @@ function Page() {
           <Stage variant="solo" style={{ padding: 20, background: "var(--tasty-bg-panel)", gap: "var(--tasty-space-xl)", flexDirection: "column", alignItems: "flex-start" }}>
             {Kit_KbPluginsSubtab && <>
               <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", width: 620 }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>default — row 1 Custom (record slot, b12) · row 2 Inherit + caption · row 3 overridden (draft = saved, Reset enabled)</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>default — row 1 Custom (record slot, b12) · row 2 Inherit + caption · row 3 overridden (draft = saved, Reset enabled)</span>
                 <KbPluginsSubtab />
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", width: 620 }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>draft + invalid — row 1 holds unparsable config text (danger slot + error) · row 2 switched to None (dot)</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>draft + invalid — row 1 holds unparsable config text (danger slot + error) · row 2 switched to None (dot)</span>
                 <KbPluginsSubtab saved={{}} seedDrafts={{ "clipboard-viewer/open": { mode: "custom", keys: "ctrl+shft+h" }, "clipboard-viewer/paste-plain": { mode: "none" } }} />
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", width: 620 }}>
@@ -1156,14 +1220,14 @@ function Page() {
               {[["rest", "rest"], ["editing", "editing — focus border"], ["invalid", "out of range — commits as 10.0"]].map(([s, l]) => (
                 <div key={s} style={{ display: "flex", alignItems: "center", gap: 10 }}>
                   <ToastDragValue state={s} />
-                  <span style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{l}</span>
+                  <span className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{l}</span>
                 </div>
               ))}
             </div>
           </Stage>
           <Meta
             specs={[["L2 position", "4th — after Accessibility"], ["label", "Toast duration"], ["unit", "seconds — mono “2.0 s”"], ["range / step", "1.0–10.0 s, step 0.5"], ["default", "2.0 s (= DEFAULT_LIFETIME 2000ms)"], ["control", "mono Input (90) + static “s” — the Numbers in settings shape"], ["commit", "blur / ↵ · clamps to 1.0–10.0 and snaps to 0.5"], ["out of range", "danger border + “Between 1.0 and 10.0.” line"], ["hint", "12px muted line below the grid"]]}
-            tokens={[{ tok: "--tasty-surface-active", use: "active L2 row", color: "var(--tasty-surface-active)" }, { tok: "--tasty-field-width-xs", use: "field width 90" }, { tok: "--tasty-border-focus", use: "editing border", color: "var(--tasty-border-focus)" }, { tok: "--tasty-accent-danger", use: "out of range", color: "var(--tasty-accent-danger-raised)" }, { tok: "--tasty-font-mono", use: "value text" }]} />
+            tokens={[{ tok: "--tasty-surface-active", use: "active L2 row", color: "var(--tasty-surface-active)" }, { tok: "--tasty-field-width-xs", use: "field width 90" }, { tok: "--tasty-border-focus", use: "editing border", color: "var(--tasty-border-focus)" }, { tok: "--tasty-accent-danger", use: "out of range", color: "var(--tasty-accent-danger)" }, { tok: "--tasty-font-mono", use: "value text" }]} />
           <Note>Scope is <b>this one row only</b> — the tab name is the umbrella so future overlay settings (banner, marker…) can land here without inventing a new section. Existing General / Notifications / Accessibility content is untouched. Store the value in ms internally; only the display is in seconds.</Note>
         </Spec>
         <Spec id="settings-general-remote-transfer-5th-l2-subtab" title="Settings · General › Remote transfer — 5th L2 subtab"
@@ -1175,10 +1239,12 @@ function Page() {
           <Note>The unit is a static mono <b>MiB</b> suffix outside the field — not typed, not a Tag — mirroring how Toast duration carries its “s” unit. Exceeding <b>Maximum size</b> rejects new transfers before they start; the rejection surfaces as the <b>Transfer failed</b> popup (Overlays › Dialogs › Remote transfer).</Note>
         </Spec>
         <Spec id="settings-general-remote-attach-connections" title="Settings · General › Remote attach — 6th L2 subtab"
-          when={<>The <b>General</b> L1 tab gains a sixth L2 section, <b>Remote attach</b> (after Remote transfer, before the macOS-only subtabs), holding one row under an <b>Attach connections</b> heading. A section filter that matches L2 labels finds it by “remote” or “attach”, and “transfer” still finds Remote transfer. The row sets how long an attach connection can receive nothing before it disconnects: whole seconds, default 30, range 10 to 600. The caption carries when a saved value applies. Typing never corrects the value. While the typed number is out of range the field takes the <b>invalid</b> edge and one line under it names the range and the value to save. <span className="ic">Enter</span> or leaving the field commits and clamps, and a non-number returns to the last committed value. The first two frames are live.</>}>
+          when={<>The <b>General</b> L1 tab gains a sixth L2 section, <b>Remote attach</b> (after Remote transfer, before the macOS-only subtabs), holding two rows under an <b>Attach connections</b> heading. A section filter that matches L2 labels finds it by “remote” or “attach”, and “transfer” still finds Remote transfer. The row sets how long an attach connection can receive nothing before it disconnects: whole seconds, default 30, range 10 to 600. The caption carries when a saved value applies. A second row, <b>Keep reconnecting for</b> (R-58), sits under it: how long a dropped connection keeps retrying, counted from the moment the first row ends it — whole seconds, default 300, range 0 to 3600, and 0 turns automatic reconnecting off, so 0 is a valid value, not an error. It applies to <b>saved remote rows</b> only: an agent mirror made from the CLI or IPC does not reconnect and is closed as soon as it drops (R-58 decision 23-4). The caption does not name the scope. The app has a “Keep reconnecting for” row with the config key <code>reconnect_timeout_secs</code>. The two labels split the timeline: the first is the time to notice the loss, the second the time spent getting back; each caption says so. Typing never corrects the value. While the typed number is out of range the field takes the <b>invalid</b> edge and one line under it names the range and the value to save. <span className="ic">Enter</span> or leaving the field commits and clamps, and a non-number returns to the last committed value. The first two frames are live.</>}>
           {attachStage(<>
             {ATTACH_THEMES.map(([l, t]) => <AttachFrame key={"rest" + l} theme={t} label={l + " · rest · 30 · live"}><AttachConnectionsSection /></AttachFrame>)}
             {ATTACH_THEMES.map(([l, t]) => <AttachFrame key={"low" + l} theme={t} label={l + " · 5 typed · saves 10"}><AttachConnectionsSection text="5" focused /></AttachFrame>)}
+            {ATTACH_THEMES.map(([l, t]) => <AttachFrame key={"rc0" + l} theme={t} label={l + " · reconnect 0 typed · off, valid"}><AttachConnectionsSection reconnectText="0" reconnectFocused /></AttachFrame>)}
+            {ATTACH_THEMES.map(([l, t]) => <AttachFrame key={"rcHigh" + l} theme={t} label={l + " · reconnect 5000 typed · saves 3600"}><AttachConnectionsSection reconnectText="5000" reconnectFocused /></AttachFrame>)}
             {ATTACH_THEMES.map(([l, t]) => <AttachFrame key={"high" + l} theme={t} label={l + " · 1000 typed · saves 600"}><AttachConnectionsSection text="1000" focused /></AttachFrame>)}
             <AttachFrame theme="mocha" label="Mocha · ko · rest"><AttachConnectionsSection lang="ko" /></AttachFrame>
             <AttachFrame theme="latte" label="Latte · ko · 5 typed"><AttachConnectionsSection lang="ko" text="5" focused /></AttachFrame>
@@ -1190,17 +1256,17 @@ function Page() {
           <Stage variant="solo center"><Backdrop height={420}><SettingsRemoteAttachFrame /></Backdrop></Stage>
           <Stage variant="solo center"><Backdrop height={420}><SettingsRemoteAttachFrame attachText="5" /></Backdrop></Stage>
           <Meta
-            specs={[["L2 position", "6th, after Remote transfer. macOS Display and Permissions follow"], ["content inset", "--tasty-space-lg"], ["heading → row", "--tasty-settings-row-gap"], ["row → caption", "--tasty-settings-row-caption-gap"], ["row height", "--tasty-settings-row-min-height"], ["label column", "--tasty-settings-label-width"], ["label → field", "--tasty-settings-label-gap"], ["field floor", "--tasty-number-field-min-width"], ["field → unit", "--tasty-number-field-unit-gap"], ["caption and range line width", "--tasty-measure-md"], ["stacked gap", "--tasty-settings-row-stack-gap"], ["value", "mono, right aligned, grows with its length"], ["unit", "mono caption, outside the field"], ["bounds", "10 to 600 s, default 30"]]}
+            specs={[["rows", "Disconnect after (10–600, default 30) · Keep reconnecting for (0–3600, default 300, 0 = off) — same row grid, same number field"], ["reconnect scope", "saved remote rows only · an agent mirror is closed when it drops, with no reconnect"], ["L2 position", "6th, after Remote transfer. macOS Display and Permissions follow"], ["content inset", "--tasty-space-lg"], ["heading → row", "--tasty-settings-row-gap"], ["row → caption", "--tasty-settings-row-caption-gap"], ["row height", "--tasty-settings-row-min-height"], ["label column", "--tasty-settings-label-width"], ["label → field", "--tasty-settings-label-gap"], ["field floor", "--tasty-number-field-min-width"], ["field → unit", "--tasty-number-field-unit-gap"], ["caption and range line width", "--tasty-measure-md"], ["stacked gap", "--tasty-settings-row-stack-gap"], ["value", "mono, right aligned, grows with its length"], ["unit", "mono caption, outside the field"], ["bounds", "10 to 600 s, default 30 · 0 to 3600 s, default 300"]]}
             tokens={[{ tok: "--tasty-text-muted", use: "section heading, unit, caption", color: "var(--tasty-text-muted)" }, { tok: "--tasty-text-secondary", use: "row label", color: "var(--tasty-text-secondary)" }, { tok: "--tasty-accent-danger-raised", use: "range line", color: "var(--tasty-accent-danger-raised)" }, { tok: "--tasty-input-border-invalid", use: "invalid field edge", color: "var(--tasty-input-border-invalid)" }, { tok: "--tasty-font-size-micro", use: "section heading" }, { tok: "--tasty-letter-spacing-caps", use: "section heading" }, { tok: "--tasty-font-size-body", use: "row label" }, { tok: "--tasty-font-size-caption", use: "unit, caption, range line" }, { tok: "--tasty-line-height-ui", use: "label, caption, range line" }]} />
-          <Note><b>Copy.</b> The new tab label is <code>Remote attach</code>, ko <code>원격 Attach</code>, ja <code>リモートアタッチ</code>. The <code>Remote transfer</code> label stays as it is. The range line is <code>settings.number.range_between</code>, and the unit is <code>settings.number.unit_s</code> in every language. No token was added.</Note>
+          <Note><b>Copy.</b> The new tab label is <code>Remote attach</code>, ko <code>원격 Attach</code>, ja <code>リモートアタッチ</code>. The <code>Remote transfer</code> label stays as it is. The range line is <code>settings.number.range_between</code>, and the unit is <code>settings.number.unit_s</code> in every language. No token was added. The second row is <code>settings.remote_attach.reconnect_window</code> with <code>reconnect_window_desc</code> (values in <code>ui_kits/terminal/overlays/remote_row_copy.js</code>); its range line reuses <code>settings.number.range_between</code>.</Note>
           <Dont><b>Don't</b> name the 5 second signal or use the word heartbeat on screen, and don't add a stepper or slider. The caption says each Tasty uses its own value; it doesn't promise that the two sides agree.</Dont>
         </Spec>
         <Spec id="settings-misc-task-pipeline-report-limits" title="Settings · Misc › Task pipeline — Report limits"
-          when={<>A new Misc L2 subtab <b>Task pipeline</b> (after Scripts, before Tastyrc on Windows). The content column is one <b>mono micro uppercase</b> heading, <b>REPORT LIMITS</b>, then two settings rows in the row grid (label column = longest label clamped 150 … 240, gap 16), each a <b>mono numeric Input</b> (90) with the static unit <b>B</b>, its description caption directly under it (gap 4, measure-md), and a 1px separator between the rows. The two values are tied (note limit &lt; attempt limit): each field's range narrows to the other's current value, so a crossed pair can't be committed. The relation stays in the description copy; the range line appears <b>only when a value is out of range</b>, like every numeric field. Values are raw bytes with no grouping (they are typed, and match the config file); the unit stays <b>B</b>.</>}>
+          when={<>A new Misc L2 subtab <b>Task pipeline</b> (after Scripts). The content column is one <b>mono micro uppercase</b> heading, <b>REPORT LIMITS</b>, then two settings rows in the row grid (label column = longest label clamped 150 … 240, gap 16), each a <b>mono numeric Input</b> (90) with the static unit <b>B</b>, its description caption directly under it (gap 4, measure-md), and a 1px separator between the rows. The two values are tied (note limit &lt; attempt limit): each field's range narrows to the other's current value, so a crossed pair can't be committed. The relation stays in the description copy; the range line appears <b>only when a value is out of range</b>, like every numeric field. Values are raw bytes with no grouping (they are typed, and match the config file); the unit stays <b>B</b>.</>}>
           <Stage variant="solo" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 16, flexWrap: "wrap", alignItems: "flex-start" }}>
             {[["Mocha", "mocha", false], ["Latte · out of range", "latte", true]].map(([label, th, bad]) => (
               <div key={label} data-theme={th || undefined} style={{ width: 460, display: "flex", flexDirection: "column", gap: "var(--tasty-settings-row-gap)", padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
-                <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
+                <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
                 <div style={{ fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-micro)", textTransform: "uppercase", letterSpacing: "var(--tasty-letter-spacing-caps)", color: "var(--tasty-text-muted)" }}>Report limits</div>
                 {[["Note size limit", bad ? "70000" : "1024", "One note longer than this is cut at a UTF-8 boundary and marked as truncated. Must be smaller than the attempt limit.", bad ? "Between 64 and 16383. Commits as 16383." : null],
                   ["Attempt report limit", "16384", "Total note text kept for one task attempt. Notes past it are not stored, only counted.", null]].map(([lab, val, desc, err], i) => (
@@ -1209,7 +1275,7 @@ function Page() {
                     <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-settings-row-caption-gap)" }}>
                       <div style={{ display: "grid", gridTemplateColumns: "var(--tasty-settings-label-width) auto auto", columnGap: "var(--tasty-settings-label-gap)", alignItems: "center", justifyContent: "start", minHeight: "var(--tasty-settings-row-min-height)" }}>
                         <span style={{ fontSize: "var(--tasty-font-size-body)", color: "var(--tasty-text-secondary)" }}>{lab}</span>
-                        <span style={{ width: "var(--tasty-field-width-xs)" }}><Input block defaultValue={val} aria-invalid={err ? true : undefined} style={{ fontFamily: "var(--tasty-font-mono)", textAlign: "right", ...(err ? { borderColor: "var(--tasty-accent-danger)" } : null) }} /></span>
+                        <span style={{ width: "var(--tasty-field-width-xs)" }}><Input block defaultValue={val} invalid={!!err} aria-invalid={err ? true : undefined} inputStyle={{ fontFamily: "var(--tasty-font-mono)", textAlign: "right" }} /></span>
                         <span style={{ marginLeft: "calc(var(--tasty-space-sm) - var(--tasty-settings-label-gap))", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>B</span>
                       </div>
                       {err && <div style={{ marginLeft: "calc(var(--tasty-settings-label-width) + var(--tasty-settings-label-gap))", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-accent-danger-raised)" }}>{err}</div>}
@@ -1221,7 +1287,7 @@ function Page() {
             ))}
           </Stage>
           <Meta
-            specs={[["L2 position", "Misc · after Scripts · before Tastyrc (Windows)"], ["heading", "REPORT LIMITS · label micro uppercase · muted"], ["row grid", "label [150 … 240] · gap 16 (settings-label-gap — the request's 12 is superseded)"], ["field", "mono Input · field-width-xs 90 · right-aligned · unit B (static, muted, 8 after the field)"], ["caption", "under its row · gap 4 · caption 11 · muted · measure-md"], ["between rows", "1px separator · settings-row-gap 12"], ["ranges", "note 64 … min(65536, attempt − 1) · attempt max(128, note + 1) … 131072"], ["range line", "only when out of range (danger) · clamp on commit · directly UNDER THE INPUT, in the control column (label width + label gap) — b10, every numeric field"], ["numbers", "raw bytes, no grouping, no KiB"]]}
+            specs={[["L2 position", "Misc · after Scripts"], ["heading", "REPORT LIMITS · label micro uppercase · muted"], ["row grid", "label [150 … 240] · gap 16 (settings-label-gap — the request's 12 is superseded)"], ["field", "mono Input · field-width-xs 90 · right-aligned · unit B (static, muted, 8 after the field)"], ["caption", "under its row · gap 4 · caption 11 · muted · measure-md"], ["between rows", "1px separator · settings-row-gap 12"], ["ranges", "note 64 … min(65536, attempt − 1) · attempt max(128, note + 1) … 131072"], ["range line", "only when out of range (danger) · clamp on commit · directly UNDER THE INPUT, in the control column (label width + label gap) — b10, every numeric field"], ["numbers", "raw bytes, no grouping, no KiB"]]}
             tokens={[{ tok: "--tasty-settings-row-gap", use: "→ space-md 12 (2026-10-09)" }, { tok: "--tasty-settings-row-caption-gap", use: "row → caption 4" }, { tok: "--tasty-field-width-xs", use: "90" }, { tok: "--tasty-accent-danger", use: "out of range", color: "var(--tasty-accent-danger-raised)" }]} />
           <Note>i18n (given): en “Note size limit” / “Attempt report limit” · ko “기록 한 건 상한” / “회차 report 상한” · ja “記録 1 件の上限” / “試行 report 上限” · heading “Report limits”. Gallery spec id: <code>settings-task-pipeline</code>.</Note>
         </Spec>
@@ -1230,12 +1296,12 @@ function Page() {
           <Stage variant="solo" style={{ padding: 20, background: "var(--tasty-bg-app)", flexDirection: "column", gap: 16, alignItems: "flex-start" }}>
             {[["default", "150", false], ["out of range — clamp on commit", "420", true], ["disabled", "100", false, true]].map(([label, val, bad, dis]) => (
               <div key={label} style={{ display: "flex", flexDirection: "column", gap: 6, width: 420 }}>
-                <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
+                <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{label}</div>
                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                   <span style={{ flex: 1, fontSize: 13, color: dis ? "var(--tasty-text-disabled)" : "var(--tasty-text-secondary)" }} aria-disabled={dis || undefined}>Default zoom</span>
                   <span style={{ flex: "none", width: "var(--tasty-field-width-xs)" }}>
-                    <Input block defaultValue={val} disabled={dis} aria-invalid={bad || undefined}
-                      style={{ fontFamily: "var(--tasty-font-mono)", textAlign: "right", ...(bad ? { borderColor: "var(--tasty-accent-danger)" } : null) }} />
+                    <Input block defaultValue={val} disabled={dis} invalid={bad} aria-invalid={bad || undefined}
+                      inputStyle={{ fontFamily: "var(--tasty-font-mono)", textAlign: "right" }} />
                   </span>
                   <span style={{ flex: "none", width: 28, fontSize: 12, color: "var(--tasty-text-muted)" }}>%</span>
                 </div>
@@ -1255,7 +1321,7 @@ function Page() {
           <Stage variant="solo" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 16, flexWrap: "wrap", alignItems: "flex-start" }}>
             {[["Mocha", "mocha"], ["Latte", "latte"]].map(([label, th]) => (
               <div key={label} data-theme={th || undefined} style={{ width: 480, display: "flex", flexDirection: "column", gap: "var(--tasty-space-md)", padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
-                <div style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · Keybindings › General</div>
+                <div className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · Keybindings › General</div>
                 <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-kb-row-gap)" }}>
                   {[["New tab", ["Ctrl+T"]], ["Close tab", ["Ctrl+W", "Ctrl+F4"], 1], ["Split right", []]].map(([act, keys, hov]) => (
                     <div key={act} style={{ display: "grid", gridTemplateColumns: "var(--tasty-settings-label-width) 1fr", columnGap: "var(--tasty-settings-label-gap)", alignItems: "center" }}>
@@ -1290,7 +1356,7 @@ function Page() {
         <Spec id="hook-handlers-origin-decides-whether-a-row-can-be-removed" title="Hook Handlers — origin decides whether a row can be removed"
           when={<>The registry <b>re-seeds host and plugin defaults on every start</b>, so a remove button on those rows promises something the system undoes. Rows now carry their <b>origin</b> as a Tag — <b>host</b> / <b>you</b> / the <b>plugin</b> in mauve — and only <b>user</b> rows get the trash affordance. Host and plugin rows show a <b>lock glyph</b> in the same slot (not a disabled button: nothing is pending) with the tooltip “Provided by host — can't be removed”. <b>IpcSequence</b> stays a <b>one-line mono summary</b> with an <b>Edit</b> button that opens the sequence editor; editing a multi-step sequence inline inside a settings row has nowhere to put the steps.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)" }}>
-            <div style={{ width: 520, background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
+            <div style={{ width: 520, background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
               <div style={{ padding: "8px 12px", borderBottom: "1px solid var(--tasty-separator)", fontSize: 11, letterSpacing: ".06em", textTransform: "uppercase", color: "var(--tasty-text-secondary)" }}>Hook handlers</div>
               {[{ ev: "on_open", act: "open_markdown_preview", origin: "host" },
                 { ev: "on_open", act: "run: code -g {path}:{line}", origin: "you" },
@@ -1351,13 +1417,13 @@ function Page() {
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
             {[["Mocha", "mocha"], ["Latte", "latte"]].map(([label, theme]) => (
               <div key={label} {...(theme ? { "data-theme": theme } : {})} style={{ width: "var(--tasty-size-360)", display: "flex", flexDirection: "column", gap: "var(--tasty-label-detail-gap)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)", marginBottom: "var(--tasty-space-xs)" }}>{label}</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)", marginBottom: "var(--tasty-space-xs)" }}>{label}</span>
                 {[["accent", "#89b4fa", null], ["surface_bg", "#1e1e2e", "#181825"], ["selection", "#45475a", null]].map(([field, base, ov]) => (
                   <div key={field} style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", minHeight: "var(--tasty-control-height)" }}>
                     <span style={{ width: "var(--tasty-status-dot-size)", height: "var(--tasty-status-dot-size)", borderRadius: "var(--tasty-radius-pill)", flex: "none", background: ov ? "var(--tasty-accent-primary)" : "transparent" }} />
                     <span style={{ flex: 1, fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-term-sm)", color: ov ? "var(--tasty-text-primary)" : "var(--tasty-text-muted)" }}>{field}</span>
                     <span style={{ flex: "none", display: "flex", width: "var(--tasty-field-width-xs)" }}><Input block mono readOnly={!ov} defaultValue={ov || base} /></span>
-                    <span style={{ width: "var(--tasty-swatch-size)", height: "var(--tasty-swatch-size)", borderRadius: "var(--tasty-swatch-radius)", flex: "none", background: ov || base, border: "var(--tasty-border-width) solid var(--tasty-border-strong)" }} />
+                    <span style={{ width: "var(--tasty-swatch-size)", height: "var(--tasty-swatch-size)", borderRadius: "var(--tasty-swatch-radius)", flex: "none", background: ov || base, border: "var(--tasty-border-width) solid var(--tasty-swatch-border)" }} />
                     <WCheckbox label="Default" checked={!ov} />
                   </div>
                 ))}
@@ -1365,7 +1431,7 @@ function Page() {
             ))}
           </Stage>
           <Meta
-            specs={[["Default hex", "Input readOnly"], ["box", "state-disabled fill + border (same as disabled)"], ["value ink", "input-readonly-fg → text-secondary-raised (2026-10-21; Latte 5.17)"], ["select · copy", "allowed; focusable"], ["override", "normal Input"], ["disabled", "reserved for an unavailable control"]]}
+            specs={[["Default hex", "Input readOnly"], ["box", "state-disabled fill + border (same as disabled)"], ["value ink", "input-readonly-fg → text-secondary-raised (2026-10-21; Latte 5.17)"], ["select · copy", "allowed; focusable"], ["override", "normal Input"], ["disabled", "reserved for an unavailable control"], ["swatch edge", "swatch-border → border-control, 3:1 on the panel. A colour equal to the panel (surface_bg) leaves the edge as the only sign of the swatch"]]}
             tokens={[{ tok: "--tasty-input-readonly-bg", use: "→ state-disabled-fill", color: "var(--tasty-input-readonly-bg)" }, { tok: "--tasty-input-readonly-border", use: "→ state-disabled-border", color: "var(--tasty-input-readonly-border)" }, { tok: "--tasty-input-readonly-fg", use: "→ text-secondary-raised", color: "var(--tasty-input-readonly-fg)" }]} />
         </Spec>
         <Spec id="appearance-colors-terminal-specific-5-rows-active-match-ink-afte" title="Appearance › Colors › Terminal-specific — 5 rows, active match ink after its fill"
@@ -1373,13 +1439,13 @@ function Page() {
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
             {[["Mocha", "mocha", [["selection_bg", "#585b70"], ["vi_cursor_bg", "#f5e0dc"], ["search_match_bg", "#fab387"], ["search_match_active_bg", "#a6e3a1"], ["search_match_active_fg", "#1e1e2e"]]], ["Latte", "latte", [["selection_bg", "#acb0be"], ["vi_cursor_bg", "#dc8a78"], ["search_match_bg", "#fe640b"], ["search_match_active_bg", "#40a02b"], ["search_match_active_fg", "#4c4f69"]]]].map(([label, theme, rows]) => (
               <div key={label} {...(theme ? { "data-theme": theme } : {})} style={{ width: "var(--tasty-size-360)", display: "flex", flexDirection: "column", gap: "var(--tasty-label-detail-gap)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)", marginBottom: "var(--tasty-space-xs)" }}>{label} · Terminal-specific (5)</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)", marginBottom: "var(--tasty-space-xs)" }}>{label} · Terminal-specific (5)</span>
                 {rows.map(([field, base]) => (
                   <div key={field} style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", minHeight: "var(--tasty-control-height)" }}>
                     <span style={{ width: "var(--tasty-status-dot-size)", height: "var(--tasty-status-dot-size)", borderRadius: "var(--tasty-radius-pill)", flex: "none" }} />
                     <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-term-sm)", color: field === "search_match_active_fg" ? "var(--tasty-text-primary)" : "var(--tasty-text-muted)" }}>{field}</span>
                     <span style={{ flex: "none", display: "flex", width: "var(--tasty-field-width-xs)" }}><Input block mono readOnly defaultValue={base} /></span>
-                    <span style={{ width: "var(--tasty-swatch-size)", height: "var(--tasty-swatch-size)", borderRadius: "var(--tasty-swatch-radius)", flex: "none", background: base, border: "var(--tasty-border-width) solid var(--tasty-border-strong)" }} />
+                    <span style={{ width: "var(--tasty-swatch-size)", height: "var(--tasty-swatch-size)", borderRadius: "var(--tasty-swatch-radius)", flex: "none", background: base, border: "var(--tasty-border-width) solid var(--tasty-swatch-border)" }} />
                     <WCheckbox label="Default" checked />
                   </div>
                 ))}
@@ -1428,6 +1494,7 @@ function Page() {
       {<OverlaysWindowsB12_SettingsNarrowSection />}
       {<OverlaysWindowsFileHandlers_FileHandlerSection />}
       {<OverlaysWindowsPerf_PerfSection />}
+      {<OverlaysWindowsFrameRate_FrameRateSection />}
       {<OverlaysWindowsAnomaly_AnomalySection />}
       <Section id="permissions" title="Settings › General › Permissions (macOS)">
         <Spec id="status-table-one-action-per-row-one-request-button" title="Status table, one action per row, one request button"
@@ -1435,7 +1502,7 @@ function Page() {
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
             {[["A · nothing granted — Mocha", "none", false, null], ["A · nothing granted — Latte", "none", false, "latte"], ["B · all granted", "all", false, null], ["C · FDA unknown, screen granted", "fdaUnknown", false, null], ["F · FDA granted before an update — Mocha", "fdaStale", false, null], ["F · FDA granted before an update — Latte", "fdaStale", false, "latte"], ["G · FDA turned off outside Tasty (revoked, 2026-10-08)", "fdaRevoked", false, null], ["D · requesting", "requesting", false, null], ["E · debug build (4 rows)", "none", true, null], ["E · debug build — Latte", "all", true, "latte"]].map(([cap, sc, dbg, theme]) => (
               <div key={cap} {...(theme ? { "data-theme": theme } : {})} style={{ width: "var(--tasty-size-560)", display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", background: "var(--tasty-bg-app)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
                 <div style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)" }}>
                   <MacPermissionsPane scenario={sc} debug={dbg} />
                 </div>
@@ -1451,6 +1518,7 @@ function Page() {
       </Section>
 
       <Section id="pluginswindow" title="Plugins window · plugin avatar">
+        <PluginsTabHoverSpec />
         <Spec id="plugin-identity-mark-one-component-two-sizes" title="Plugin identity mark — one component, two sizes"
           when={<>A plugin manifest carries <b>no image</b>, so its identity in the Plugins window is a <b>square initial mark</b>: the first letter of the plugin name, mono, bold, in a tinted square at <span className="tok">--tasty-radius</span>. There are exactly <b>two sizes</b> — <b>sm (32)</b> on Installed / Attention list rows and <b>lg (46)</b> on a detail identity block and the <b>Add plugin</b> manifest preview (the old one-off 42px preview copy is gone; it was the same thing at different numbers). The tint is mixed into <span className="tok">--tasty-surface-raised</span>, a <b>fixed bed</b> — not the row background — so the mark is pixel-identical on a rest, hover and selected row. The initial's size is a <b>token per size</b>, not a ratio of the box: <b>13 at sm, 14 at lg</b> — inside the 14px UI cap, with no exception (2026-10-07; the earlier 16 is withdrawn). The two sizes differ by the box (32 / 46) and one type step. Weight is <b>regular</b>: no bold mono face ships, so colour and size carry the mark.</>}>
           <Stage variant="tight" grid>
@@ -1459,7 +1527,7 @@ function Page() {
                 {[["sm", "32 · list row"], ["lg", "46 · detail / preview"]].map(([s, l]) => (
                   <div key={s} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
                     <PluginAvatarG initial="G" size={s} />
-                    <span style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{l}</span>
+                    <span className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{l}</span>
                   </div>
                 ))}
               </div>
@@ -1478,35 +1546,32 @@ function Page() {
           <Dont><b>Don't</b> mix the tint into the row background to "blend" on a selected row — the mark would then shift colour with row state and stop being a stable identity. And don't re-derive the initial's size from the box (<code>round(size × 0.42)</code>): that produced 19px at lg, off the type scale and over the UI cap with no decision behind it.</Dont>
         </Spec>
         <Spec id="copy-fingerprint-add-plugin-that-can-t-be-added" title="Copy fingerprint · Add plugin that can't be added"
-          when={<><b>Copy fingerprint</b> moves out of the action bar: an <b>IconButton sm</b> <code>copy</code> right after the mono fingerprint, in Attention and in the Add plugin manifest card alike. No fingerprint → no line and no button (nothing to copy, so no disabled state). Attention's action bar has <b>no Details</b> for signature reasons (2026-10-06): the reason panel already shows the blurb and the fingerprint. <b>Add plugin</b> on a verified manifest that can't be added (already installed · signed but the public key file is missing · signature error) stays in its slot <b>disabled</b> — the variant it would have had, drawn with the shared disabled ink — and the reason replaces "Grants N permissions" on the left of the bar.</>}>
+          when={<><b>Copy fingerprint</b> moves out of the action bar: an <b>IconButton sm</b> <code>copy</code> right after the mono fingerprint, in Attention and in the Add plugin manifest card alike. No fingerprint → no line and no button (nothing to copy, so no disabled state). Attention's action bar has <b>no Details</b> for signature reasons (2026-10-06): the reason panel already shows the blurb and the fingerprint. <b>Add plugin</b> on a verified manifest that can't be added (already installed · signed but the public key file is missing · signature error) stays in its slot <b>disabled</b> — the variant it would have had, drawn with the shared disabled ink — and the reason sits on the left of the bar. <b>2026-11-17</b>: plugin permissions are gone, so the "Grants N permissions" line is gone too — when Add is not blocked the left of the bar is <b>empty</b> and the buttons keep their right-aligned slot.</>}>
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
             <ThemePair>
               <FpLineG value="a13c 4e7f 2b08 9d51  ·  ed25519" />
               <div style={{ width: "var(--tasty-size-560)", maxWidth: "100%", display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
                 <AddBarG />
-                <AddBarG trusted={false} />
                 <AddBarG blocked="installed" />
-                <AddBarG perms={1} />
-                <AddBarG perms={0} />
               </div>
             </ThemePair>
           </Stage>
           <Meta
-            specs={[["copy fingerprint", "IconButton sm copy · after the value · absent without a fingerprint"], ["attention bar", "no Details (2026-10-06) — the reason panel already shows the blurb + fingerprint"], ["add — blocked", "disabled Add plugin · reason on the left"], ["reasons", "Already installed (2026-10-19: missing .pub / signature error are addable now — Add anyway)"], ["untrusted + .pub", "Trust & add — Primary (agent is for AI-agent surfaces only)"], ["grants", "No permissions · Grants 1 permission · Grants N permissions"]]}
+            specs={[["copy fingerprint", "IconButton sm copy · after the value · absent without a fingerprint"], ["attention bar", "no Details (2026-10-06) — the reason panel already shows the blurb + fingerprint"], ["add — blocked", "disabled Add plugin · reason on the left"], ["reasons", "Already installed (2026-10-19: missing .pub / signature error are addable now — Add anyway)"], ["add — not blocked (2026-11-17)", "left empty (no summary line) · Cancel ghost · Add plugin primary · bar height unchanged"], ["unverified", "danger Add anyway / Trust key & add anyway — see Unverified plugin below"]]}
             tokens={[{ tok: "--tasty-state-disabled-fg", use: "disabled ink", color: "var(--tasty-state-disabled-fg)" }, { tok: "--tasty-text-muted", use: "reason", color: "var(--tasty-text-muted)" }]} />
         </Spec>
-        <Spec id="add-plugin-trust-judgment-six-kinds" title="Add plugin — trust judgment, six kinds"
-          when={<>One box under the manifest card, toned by <b>what Add will do</b>: <b>success</b> — adds as is; <b>warning</b> — adds, and adding trusts the key (unknown key) or the new permission set (permissions changed); <b>danger</b> — unverified (2026-10-19: no longer blocked; explicit <b>Add anyway</b>, see the next spec). The fingerprint line follows the body whenever a fingerprint exists (signature errors have none). Untrusted-but-addable uses <b>Trust &amp; add</b> in <b>Primary</b>: the agent variant is reserved for AI-agent surfaces.</>}>
+        <Spec id="add-plugin-trust-judgment-six-kinds" title="Add plugin — trust judgment, five kinds"
+          when={<>One box under the manifest card, toned by <b>what Add will do</b>: <b>success</b> — adds as is; <b>danger</b> — unverified (2026-10-19: no longer blocked; explicit <b>Add anyway</b>, see the next spec). <b>2026-11-17</b>: plugin permissions are gone, so <b>permissions changed</b> and its Trust &amp; add are gone and no kind is warning-toned. Order: trusted, then the four unverified kinds in cause order (unknown key · public key file missing · unsigned · signature error). The fingerprint line follows the body whenever a fingerprint exists (unsigned and signature errors have none).</>}>
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
             <ThemePair>
               <div style={{ width: "var(--tasty-size-560)", maxWidth: "100%", display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
-                {["trusted", "permissions-changed", "unknown-key", "missing-pubkey", "unsigned", "signature-error"].map((k) => <TrustBoxG key={k} kind={k} />)}
+                {["trusted", "unknown-key", "missing-pubkey", "unsigned", "signature-error"].map((k) => <TrustBoxG key={k} kind={k} />)}
               </div>
             </ThemePair>
           </Stage>
           <Meta
-            specs={[["tone", "success add · warning add + trust · danger blocked"], ["box", "tint-fill + tint-border of the tone · pad space-md / 14 · radius"], ["title", "glyph 16 + 13/600 in the tone"], ["body", "term-sm · text-secondary"], ["fingerprint", "after the body · absent for signature-error"], ["installed", "trust box as judged · bar reason 'Already installed' only (no second notice)"], ["Attention › signature invalid", "no fingerprint line (the signature it would identify is the broken part)"], ["homepage", "mono caption row 'Homepage' under Source · link text, opens the default browser"], ["homepage link (b2)", "text-secondary · 1px underline always · hover text-primary · focus = focus ring · pointer cursor (no accent: the row sits on surface-raised and text-secondary already clears 4.5:1)"], ["authors", "id · first author · +N (tooltip lists all)"], ["empty lists", "Permissions / Surface kinds: 'None' in text-muted, no Tag · font-size-caption (same as the mono caption rows it replaces)"], ["long fingerprint (b2)", "colon-hex over 16 bytes → first 8 + ' … ' + last 8 bytes, one line; tooltip + copy = full value"], ["Signature invalid (b2)", "header kept · fixed note 'The signature does not match this plugin's files.' · cause (key missing / mismatch …) as a mono caption text-muted line under it"], ["action-bar left text (b2)", "font-size-caption — the kit's 12 is corrected"], ["flow (b2)", "kit structure: path input, preview card directly under it, no 'Plugin information' title / second step"]]}
-            tokens={[{ tok: "--tasty-tint-fill-alpha", use: "box fill" }, { tok: "--tasty-tint-border-alpha", use: "box edge" }, { tok: "--tasty-accent-warning", use: "add + trust", color: "var(--tasty-accent-warning-raised)" }, { tok: "--tasty-accent-danger", use: "blocked", color: "var(--tasty-accent-danger-raised)" }, { tok: "--tasty-accent-success", use: "trusted", color: "var(--tasty-accent-success-raised)" }]} />
+            specs={[["tone", "success add · danger unverified (explicit Add anyway) · no warning kind (2026-11-17)"], ["box", "tint-fill + tint-border of the tone · pad space-md / 14 · radius"], ["title", "glyph 16 + 13/600 in the tone"], ["body", "term-sm · text-secondary"], ["fingerprint", "after the body · absent for signature-error"], ["installed", "trust box as judged · bar reason 'Already installed' only (no second notice)"], ["Attention › signature invalid", "no fingerprint line (the signature it would identify is the broken part)"], ["homepage", "mono caption row 'Homepage' under Source · link text, opens the default browser"], ["homepage link (b2)", "text-secondary · 1px underline always · hover text-primary · focus = focus ring · pointer cursor (no accent: the row sits on surface-raised and text-secondary already clears 4.5:1)"], ["authors", "id · first author · +N (tooltip lists all)"], ["empty lists", "Surface kinds (the only Tag list since 2026-11-17): 'None' in text-muted, no Tag · font-size-caption (same as the mono caption rows it replaces)"], ["long fingerprint (b2)", "colon-hex over 16 bytes → first 8 + ' … ' + last 8 bytes, one line; tooltip + copy = full value"], ["Signature invalid (b2)", "header kept · fixed note 'The signature does not match this plugin's files.' · cause (key missing / mismatch …) as a mono caption text-muted line under it"], ["action-bar left text (b2)", "font-size-caption — the kit's 12 is corrected"], ["flow (b2)", "kit structure: path input, preview card directly under it, no 'Plugin information' title / second step"]]}
+            tokens={[{ tok: "--tasty-tint-fill-alpha", use: "box fill" }, { tok: "--tasty-tint-border-alpha", use: "box edge" }, { tok: "--tasty-accent-danger", use: "unverified", color: "var(--tasty-accent-danger-raised)" }, { tok: "--tasty-accent-success", use: "trusted", color: "var(--tasty-accent-success-raised)" }]} />
         </Spec>
         {<OverlaysWindowsPluginTrust_PluginTrustSpecs />}
         <Spec id="add-plugin-dashed-empty-hint-manifest-read-error" title="Add plugin — dashed empty hint · manifest read error"
@@ -1538,7 +1603,7 @@ function Page() {
           <Note>The same dash pair draws the Scripts <b>Add trigger…</b> control (Misc › Scripts). Strings: <code>plugins.add.read_error</code> “Can't read tasty-plugin.toml” · <code>plugins.add.invalid</code> “tasty-plugin.toml is not valid”.</Note>
         </Spec>
         <Spec id="installed-detail-install-path-log-path-open-folder" title="Installed detail — install path · log path · Open folder"
-          when={<>Last section of the installed detail, after Command (identity · description · error · Permissions · Command · <b>Install path</b>). <b>Open folder</b> moves to the <b>caption row</b>, right-aligned, so the path never competes with it for width: at the 720 minimum and the 880 default the button is always whole. The install path and the log path are mono caption muted, <b>wrap at any character</b> and stay selectable, so nothing is cut and no tooltip is needed.</>}>
+          when={<>Last section of the installed detail, after Command and Surface kinds (identity · description · error · Command · Surface kinds · <b>Install path</b>; Permissions left on 2026-11-17 and nothing replaces it — the column gap 16 is the only spacing between sections). <b>Open folder</b> moves to the <b>caption row</b>, right-aligned, so the path never competes with it for width: at the 720 minimum and the 880 default the button is always whole. The install path and the log path are mono caption muted, <b>wrap at any character</b> and stay selectable, so nothing is cut and no tooltip is needed.</>}>
           <Stage variant="grid" style={{ display: "flex", flexWrap: "wrap", gap: 16, padding: 20, alignItems: "flex-start" }}>
             <div style={{ width: 380, boxSizing: "border-box", padding: 16, display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)",
                 border: "var(--tasty-border-width) solid var(--tasty-border-default)", background: "var(--tasty-bg-panel)" }}>
@@ -1562,7 +1627,7 @@ function Page() {
               </div>
           </Stage>
           <Meta
-            specs={[["order", "… Permissions · Command · Install path"], ["caption row", "INSTALL PATH (label 10 caps) · flex · Open folder"], ["Open folder", "Button secondary sm · folder icon · opens the OS file manager"], ["path", "mono caption 11 · text-muted · break-all · selectable"], ["log", "same style, “Log: ” prefix, own line"], ["widths", "left 380 ≈ 720 window · right 540 ≈ 880 window"], ["shown", "installed plugins only"]]}
+            specs={[["order", "… error · Command · Surface kinds (when any) · Install path"], ["section gap", "16 (column gap) — no extra space where Permissions was"], ["caption row", "INSTALL PATH (label 10 caps) · flex · Open folder"], ["Open folder", "Button secondary sm · folder icon · opens the OS file manager"], ["path", "mono caption 11 · text-muted · break-all · selectable"], ["log", "same style, “Log: ” prefix, own line"], ["widths", "left 380 ≈ 720 window · right 540 ≈ 880 window"], ["shown", "installed plugins only"]]}
             tokens={[{ tok: "--tasty-text-muted", use: "path text", color: "var(--tasty-text-muted)" }, { tok: "--tasty-font-size-caption", use: "11 path" }, { tok: "--tasty-space-sm", use: "8 row gap" }]} />
         </Spec>
         <Spec id="installed-detail-command-keycaps-per-platform" title="Installed detail — command keycaps per platform"
@@ -1570,7 +1635,7 @@ function Page() {
           <Stage variant="solo" style={{ padding: 20, background: "var(--tasty-bg-panel)", gap: "var(--tasty-space-md)", flexDirection: "column", alignItems: "flex-start" }}>
             {[["Windows / Linux", ["Ctrl", "Shift", "H"], ["Alt", "K"]], ["macOS · style text", ["Ctrl", "Shift", "H"], ["Cmd", "K"]], ["macOS · style symbol", ["Ctrl", "⇧", "H"], ["⌘", "K"]]].map(([lab, a, b]) => (
               <div key={lab} style={{ display: "grid", gridTemplateColumns: "var(--tasty-size-160) auto auto", columnGap: "var(--tasty-space-lg)", alignItems: "center" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{lab}</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{lab}</span>
                 <Kbd keys={a} /><Kbd keys={b} />
               </div>
             ))}
@@ -1593,7 +1658,7 @@ function Page() {
           </Stage>
           <Meta
             specs={[["L2 items", "one — “Import / Export”"], ["position", "last, after Plugins"], ["separator", "1px above the row (new axis)"], ["filtering", "separator hidden while filtering"], ["entry", "2 action rows, not a ListCtrl"], ["weights", "Import primary · Export secondary"], ["export feedback", "the window's own toast, carrying the path"], ["file picker", "popup on the window's PopupManager"]]}
-            tokens={[{ tok: "--tasty-separator", use: "L2 separator + row rules" }, { tok: "--tasty-surface-raised", use: "action row bed", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-border-default", use: "action row edge", color: "var(--tasty-border-default)" }, { tok: "--tasty-settings-sidebar-width", use: "200 — L2 column" }]} />
+            tokens={[{ tok: "--tasty-separator", use: "L2 separator + row rules" }, { tok: "--tasty-surface-raised", use: "action row bed", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-border-strong", use: "action row edge", color: "var(--tasty-border-strong)" }, { tok: "--tasty-settings-sidebar-width", use: "200 — L2 column" }]} />
           <Note><b>Why a popup for the file picker</b> and not another drill-down step: the drill-down is already spoken for by the preview (list ⇄ detail), and the same picker serves both directions — Export needs a save target, Import an open target. The settings window already runs a PopupManager for the shortcut-conflict confirm, so this adds a case, not a mechanism.</Note>
           <Dont><b>Don't</b> give export its own result screen. There is nothing to do after a write, so the confirmation is a <b>toast with the resolved path</b> and the user stays where they were.</Dont>
         </Spec>
@@ -1606,9 +1671,19 @@ function Page() {
               <IeGrid />
             </div>
           </Stage>
+          <Views>
+            {IE_FRAMES.map((f) => (
+              <View key={f.name} name={f.name} label={f.label} wide>
+                <div inert="" style={{ display: "flex", flexDirection: "column", width: "100%", maxWidth: "var(--tasty-settings-content-max-width)",
+                  background: "var(--tasty-bg-panel)", pointerEvents: "none" }}>
+                  <Kit_KbImportExportSubtab variant="detail" {...f.props} />
+                </div>
+              </View>
+            ))}
+          </Views>
           <Meta
-            specs={[["columns", "32px select · 1.6fr action · 1fr current · 1fr imported"], ["group header", "spans all columns, on surface-raised"], ["group content", "select-all · name (label 10 caps) · counts · chevron"], ["groups", "general · quick switch · scripts · plugin overrides"], ["default view", "changed only"], ["toggle", "“Show all {n}” in the back bar"], ["quick switch", "1 row per axis (3), slot count as sub-line"], ["plugin row", "command name + agent-dot plugin name, two lines"], ["changed cell", "accent-primary, colour only (no bold)"]]}
-            tokens={[{ tok: "--tasty-surface-raised", use: "group header bed", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-accent-primary", use: "changed imported value", color: "var(--tasty-accent-primary-raised)" }, { tok: "--tasty-accent-agent", use: "plugin dot", color: "var(--tasty-accent-agent-raised)" }, { tok: "--tasty-separator", use: "cell rules" }, { tok: "--tasty-letter-spacing-caps", use: "header + group name tracking" }]} />
+            specs={[["columns", "32px select · 1.6fr action · 1fr current · 1fr imported"], ["group header", "spans all columns, on surface-raised"], ["group content", "select-all · name (label 10 caps) · counts · chevron"], ["groups", "general · quick switch · scripts · plugin overrides"], ["default view", "changed only"], ["toggle", "“Show all {n}” in the back bar"], ["quick switch", "1 row per axis (3), slot count as sub-line"], ["plugin row", "command name + agent-dot plugin name, two lines"], ["changed cell", "accent-primary-raised, colour only (no bold)"]]}
+            tokens={[{ tok: "--tasty-surface-raised", use: "group header bed", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-accent-primary-raised", use: "changed imported value", color: "var(--tasty-accent-primary-raised)" }, { tok: "--tasty-accent-agent", use: "plugin dot", color: "var(--tasty-accent-agent-raised)" }, { tok: "--tasty-separator", use: "cell rules" }, { tok: "--tasty-letter-spacing-caps", use: "header + group name tracking" }]} />
           <Note><b>Apply writes the draft, Save commits it</b> — the same two-stage contract as Preset, and the intro line says so. The two never share a row: Apply sits in the back bar, Save in the window footer.</Note>
         </Spec>
 
@@ -1624,14 +1699,14 @@ function Page() {
               <IeParseFailG line={false} />
               <IeConflictSummaryG />
               <div style={{ display: "flex", flexDirection: "column", gap: 8, padding: "var(--tasty-kb-ie-notice-inset)", borderRadius: "var(--tasty-radius)",
-                background: "var(--tasty-surface-raised)", border: "1px solid var(--tasty-border-default)" }}>
+                background: "var(--tasty-surface-raised)", border: "1px solid var(--tasty-border-strong)" }}>
                 <IeModifierSelectG />
                 <IeModifierSelectG chosen />
               </div>
             </div>
           </Stage>
           <Meta
-            specs={[["export success", "toast with the resolved path"], ["export failure", "inline danger block in the Export row"], ["failure actions", "Try again · Choose another location…"], ["info line", "dropped overrides — muted, unchanged"], ["warning block", "one block, 1 line per notice, count in header"], ["notice order", "schema → unknown actions → empty groups"], ["fold", "3 lines, then “Show {n} more”"], ["parse copy", "line clause replaced by “the file isn't TOML.”"], ["conflicts", "count-first line from 2 up; row lines always"], ["placeholder", "“Select a modifier” · text-placeholder"]]}
+            specs={[["export success", "toast with the resolved path"], ["export failure", "inline danger block in the Export row"], ["failure actions", "Try again (secondary) · Choose another location… (ghost) · under the tint, on the raised card, ground=raised"], ["info line", "dropped overrides — muted, unchanged"], ["warning block", "one block, 1 line per notice, count in header"], ["notice order", "schema → unknown actions → empty groups"], ["fold", "3 lines, then “Show {n} more”"], ["parse copy", "line clause replaced by “the file isn't TOML.”"], ["conflicts", "count-first line from 2 up; row lines always"], ["placeholder", "“Select a modifier” · text-placeholder"]]}
             tokens={[{ tok: "--tasty-settings-content-max-width", use: "620 — content column cap (NEW)" }, { tok: "--tasty-kb-ie-select-column-width", use: "32 — diff select column (NEW)" }, { tok: "--tasty-kb-ie-action-column-width", use: "288 — action label column + sub-line indent (NEW)" }, { tok: "--tasty-kb-ie-from-column-width", use: "120 — original shortcut column (NEW)" }, { tok: "--tasty-kb-ie-slot-height", use: "24 — replacement slot chip (NEW)" }, { tok: "--tasty-kb-ie-slot-min-width", use: "140 — slot chip min width (NEW)" }, { tok: "--tasty-kb-ie-notice-inset", use: "12 — notice / card inset, both axes (NEW, was off-grid 14)" }, { tok: "--tasty-accent-warning", use: "warning block + Not set", color: "var(--tasty-accent-warning-raised)" }, { tok: "--tasty-accent-danger", use: "failure blocks + conflict count", color: "var(--tasty-accent-danger-raised)" }]} />
           <Note><b>Why the notices are one block and the info line is not in it.</b> Tone is the sorting key, not topic: a reader scans for "is anything wrong". Merging an unactionable fact into a warning-toned block makes the whole block unactionable-looking; splitting the four warnings into four blocks makes a wall where one thing is needed — read it, then go look at the table.</Note>
           <Dont><b>Don't</b> toast an export failure. A toast auto-dismisses and carries no retry, so the one case where the user must act is the one case that disappears on its own.</Dont>
@@ -1646,24 +1721,25 @@ function Page() {
             </div>
           </Stage>
           <Meta
-            specs={[["clause set", "read-only · permission · disk full · the write didn't finish."], ["OS text", "own line, mono 11, muted — never inside the sentence"], ["first / last sentence", "never change (same as parse failure)"], ["singular", "1 notice · 1 unknown action was skipped (…)"], ["fold link", "absent at 1 notice — nothing to fold"], ["620 cap", "the settings scroll column, every non-full-bleed subtab"], ["prose", "keeps --tasty-measure-md (reading measure, narrower)"]]}
-            tokens={[{ tok: "--tasty-settings-content-max-width", use: "620 — now set once on the settings content column" }, { tok: "--tasty-text-muted", use: "OS reason line", color: "var(--tasty-text-muted)" }, { tok: "--tasty-accent-danger", use: "failure block", color: "var(--tasty-accent-danger-raised)" }]} />
+            specs={[["clause set", "read-only · permission · disk full · the write didn't finish."], ["OS text", "own line, mono 11 · the muted role, which reads text-on-active on tint-danger@raised · never inside the sentence"], ["first / last sentence", "never change (same as parse failure)"], ["singular", "1 notice · 1 unknown action was skipped (…)"], ["fold link", "absent at 1 notice — nothing to fold"], ["620 cap", "the settings scroll column, every non-full-bleed subtab"], ["prose", "keeps --tasty-measure-md (reading measure, narrower)"]]}
+            tokens={[{ tok: "--tasty-settings-content-max-width", use: "620 — now set once on the settings content column" }, { tok: "--tasty-text-on-active", use: "OS reason line (the muted role on tint-danger@raised)", color: "var(--tasty-text-on-active)" }, { tok: "--tasty-accent-danger", use: "failure block", color: "var(--tasty-accent-danger-raised)" }]} />
           <Note><b>Where the 620 cap lives.</b> On the <b>settings content column itself</b> — the scrolling pane inside the Settings window — so every non-full-bleed L2 subtab inherits it, UI-kit subtabs included, and no block carries its own width. <b>Full-bleed subtabs are exempt</b>: they replace the column with their own layout (diff tables, editors). Body prose keeps <span className="tok">--tasty-measure-md</span> — a line-length measure, a different axis from the column cap and narrower than it.</Note>
           <Dont><b>Don't</b> build the OS message into the sentence (“… — os error 28: No space left on device.”). It breaks the sentence's grammar in three languages and buries the two parts the user can act on: which path, and that nothing was written.</Dont>
         </Spec>
       </Section>
 
       {<OverlaysWindowsB12_OptionKeySection />}
+      {<OverlaysWindowsR56_AltKeySection />}
       <Section id="scripts" title="Misc · Scripts (Lua script manager)">
         <Spec id="scripts-subsection-list-states-empty" title="Scripts subsection — list, states & empty"
           when={<>Settings › <b>Misc</b> › <b>Scripts</b>. A subsection (not a separate popup) that manages user <b>Lua scripts</b> run by a shortcut. Each <b>ScriptRow</b>: the display name, the absolute path (<b>middle-elided</b> — dir tail truncates, filename always shown), a bound-shortcut <span className="ic">Kbd</span> badge (or italic <b>Unbound</b>), a peach <b>changed</b> badge + help line when the file's SHA no longer matches the one recorded at registration (TOFU re-confirm on next run), and an <b>Auto-run</b> row: mono <b>trigger chips</b> for the host-lifecycle events the script fires on (click a chip to remove it) plus a dashed <b>Add trigger…</b> control offering the remaining events. Row actions: bind shortcut (→ Keybindings), rename (inline), remove (inline confirm).</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 16, flexWrap: "wrap", alignItems: "flex-start" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>registered scripts</div><ScriptManagerFrame /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>empty state</div><ScriptManagerFrame empty /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>registered scripts</div><ScriptManagerFrame /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>empty state</div><ScriptManagerFrame empty /></div>
           </Stage>
           <Meta
             specs={[["home", "Settings › Misc › Scripts (subsection)"], ["row", "name · path · shortcut · actions · auto-run"], ["shortcut", <><span className="ic">Kbd</span> badge or italic Unbound</>], ["changed", "peach badge + help line (SHA mismatch)"], ["auto-run", "trigger chips + Add trigger… (13 lifecycle events)"], ["Add trigger… edge", <>dashed · <span className="tok">--tasty-border-dash</span> / <span className="tok">--tasty-border-dash-gap</span> 4 / 4 · corners solid (2026-10-07)</>], ["trigger menu", <>min 200 · max 220 then scrolls · <span className="tok">--tasty-trigger-menu-min-width</span> / <span className="tok">-max-height</span> · menu-* container</>], ["all bound", "control stays, DISABLED (disabled ink) · tooltip All events already bound"], ["chip", "mono event · click removes · hover 12% overlay"], ["actions", "bind · rename · remove"], ["empty", "glyph + Add script prompt"]]}
-            tokens={[{ tok: "--tasty-accent-warning", use: "changed badge + help", color: "var(--tasty-accent-warning-raised)" }, { tok: "--tasty-border-default", use: "chip + add-control border", color: "var(--tasty-border-default)" }, { tok: "--tasty-overlay-active", use: "chip hover / menu open", color: "var(--tasty-overlay-active)" }, { tok: "--tasty-text-disabled", use: "Unbound", color: "var(--tasty-text-disabled)" }, { tok: "--tasty-font-mono", use: "path · trigger chips" }]} />
+            tokens={[{ tok: "--tasty-accent-warning", use: "changed badge + help", color: "var(--tasty-accent-warning-raised)" }, { tok: "--tasty-border-default", use: "chip + add-control border", color: "var(--tasty-border-default)" }, { tok: "--tasty-overlay-active", use: "chip hover / menu open", color: "var(--tasty-overlay-active)" }, { tok: "--tasty-text-muted", use: "Unbound", color: "var(--tasty-text-muted)" }, { tok: "--tasty-font-mono", use: "path · trigger chips" }]} />
           <Note>Two independent run paths: a <b>manual shortcut</b> (bound in the Keybindings tab, shown as the <span className="ic">Kbd</span> badge) and <b>auto-run triggers</b> (edited inline here — the script fires when the host emits a bound lifecycle event). A script can have either, both, or neither. The <span className="ic">changed</span> state is informational — the script still runs, but re-confirms once (TOFU) because the on-disk file drifted from the registered hash.</Note>
         </Spec>
       </Section>
@@ -1681,14 +1757,14 @@ function Page() {
           when={<>Clicking a file in Changes swaps the bottom pane (log → diff): a <b>Back</b> toolbar + file path, then unified hunks with an old/new line-number gutter. Hunk header in <span className="tok">--tasty-accent-info</span>, <code>+</code> in success, <code>-</code> in danger, context primary. Back returns to the log.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)" }}><GitViewerFrame diff /></Stage>
           <Meta
-            specs={[["trigger", "select a Changes row → diff"], ["toolbar", "Back + file path (muted/mono)"], ["gutter", "old / new line numbers (mono)"], ["hunk header", <span className="tok">--tasty-accent-info</span>], ["empty diff", "Back + 'No changes.'"], ["states", "non-repo · error · loading · already-open · 0 worktrees"]]}
-            tokens={[{ tok: "--tasty-accent-info", use: "hunk header", color: "var(--tasty-accent-info-raised)" }, { tok: "--tasty-accent-success", use: "added line", color: "var(--tasty-accent-success-raised)" }, { tok: "--tasty-accent-danger", use: "deleted line", color: "var(--tasty-accent-danger-raised)" }, { tok: "--tasty-text-disabled", use: "line-number gutter", color: "var(--tasty-text-disabled)" }]} />
+            specs={[["trigger", "select a Changes row → diff"], ["toolbar", "Back + file path (muted/mono)"], ["gutter", "old / new line numbers (mono) · text-muted cell of the row"], ["hunk header", <span className="tok">--tasty-accent-info</span>], ["empty diff", "Back + 'No changes.'"], ["states", "non-repo · error · loading · already-open · 0 worktrees"]]}
+            tokens={[{ tok: "--tasty-accent-info", use: "hunk header", color: "var(--tasty-accent-info-raised)" }, { tok: "--tasty-accent-success", use: "added line", color: "var(--tasty-accent-success-raised)" }, { tok: "--tasty-accent-danger", use: "deleted line", color: "var(--tasty-accent-danger-raised)" }, { tok: "--tasty-text-muted", use: "line numbers · context row (crust)", color: "var(--tasty-text-muted)" }, { tok: "--tasty-text-muted-raised", use: "line numbers · added / deleted row (tint over crust)", color: "var(--tasty-text-muted-raised)" }]} />
           <Note>Empty/edge states reuse <span className="ic">--tasty-text-muted</span> one-liners: "No git repository…", "No changes.", "No commits.", "No worktrees.", "Git viewer is already open." Errors are a single <span className="ic">--tasty-accent-danger</span> line above the (still shown) panes.</Note>
         </Spec>
         <Spec id="diff-toolbar-a-container-height-not-a-button-height" title="Diff toolbar — a container height, not a button height"
           when={<>The diff toolbar is <b>32px</b> tall and holds 28px controls with 2px of air above and below. It now has its own name — <span className="tok">--tasty-git-toolbar-height</span> — rather than borrowing <span className="tok">--tasty-control-height</span>: the two are different roles and, as it happens, different numbers (32 vs 28), so aliasing them would have been wrong in value as well as in meaning. The value does not change.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)" }}>
-            <div style={{ width: 460, background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
+            <div style={{ width: 460, background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
               <div style={{ height: "var(--tasty-git-toolbar-height)", display: "flex", alignItems: "center", gap: 6, padding: "0 8px",
                 background: "var(--tasty-bg-sidebar)", borderBottom: "1px solid var(--tasty-separator)" }}>
                 <Button variant="ghost" size="sm">Unified</Button>
@@ -1713,18 +1789,18 @@ function Page() {
         <Spec id="clipboard-viewer-read-only-snapshot-popup" title="Clipboard viewer — read-only snapshot popup"
           when={<>Tools → Clipboard Viewer (or a toggle shortcut). A <b>480×360</b> screen-centered popup that shows what's on the system clipboard <b>right now</b> — a one-time snapshot, <b>not</b> history. <b>Single column</b>: a header (clipboard icon + <span className="ic">snapshot</span> tag), a <b>type bar</b>, then a recessed mono <b>code well</b>. The type bar treats a <b>single type as first-class</b> — just a <span className="ic">Text</span> badge + live metadata (<span className="ic">284 chars · 6 lines · UTF-8</span>); two-plus types expand it into a <b>segmented switch</b> (Text / Image / Files / HTML / Other). <b>No rail.</b> At <b>5 segments</b> the switch compacts to <b>icon-only</b> (the active segment keeps its label; tooltips carry the names) so it survives 20–40% longer translations inside 480px. <b>HTML</b> is shown as <b>source text only — never rendered</b>; a <span className="ic">Pretty print</span> checkbox takes over the type bar's meta slot (metadata moves beside the mime in the footer) and re-indents the same source instantly (0ms). <b>Other</b> buckets every format that isn't text/image/files/html — one row per format: mono name + size, then its textualized content, separated by 1px rules, all of it scrolling in the same well (long content clamps with a muted <span className="ic">+N more lines</span>). <b>Read-only</b> — no copy/paste/edit/delete.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 16, flexWrap: "wrap" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>single type (Text)</div><ClipboardFrame /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>multi-type · segmented</div><ClipboardFrame state="multi" /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>HTML · source (Pretty print off)</div><ClipboardFrame state="html" /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>HTML · Pretty print on</div><ClipboardFrame state="htmlPretty" /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>Other · format buckets</div><ClipboardFrame state="other" /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>5 types · compact icon-only segments</div><ClipboardFrame state="five" /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>empty</div><ClipboardFrame state="empty" /></div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>read failed</div><ClipboardFrame state="failed" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>single type (Text)</div><ClipboardFrame /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>multi-type · segmented</div><ClipboardFrame state="multi" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>HTML · source (Pretty print off)</div><ClipboardFrame state="html" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>HTML · Pretty print on</div><ClipboardFrame state="htmlPretty" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>Other · format buckets</div><ClipboardFrame state="other" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>5 types · compact icon-only segments</div><ClipboardFrame state="five" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>empty</div><ClipboardFrame state="empty" /></div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}><div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>read failed</div><ClipboardFrame state="failed" /></div>
           </Stage>
           <Meta
             specs={[["frame", "480 × 360 · screen-center · dismiss outside"], ["layout", "single column — no rail"], ["type bar", "1 type = badge + meta · 2–4 = segmented · ≥5 = icon-only"], ["segment", "h 26 · pad 0 10 (icon-only 0 8, min-w 30)"], ["metadata", "chars · lines · encoding (mono 11, right) — moves to footer on HTML"], ["HTML body", "source only, never rendered · Pretty print = re-indent, 0ms"], ["Other body", "per format: mono 11 name + size / mono 12 content · 1px rules"], ["body", "recessed code well — bg-app · mono 12 · scroll"], ["empty / fail", "centered glyph + muted / danger one-liner"]]}
-            tokens={[{ tok: "--tasty-bg-panel", use: "frame", color: "var(--tasty-bg-panel)" }, { tok: "--tasty-bg-app", use: "code well", color: "var(--tasty-bg-app)" }, { tok: "--tasty-bg-sidebar", use: "type bar", color: "var(--tasty-bg-sidebar)" }, { tok: "--tasty-accent-primary", use: "selected type segment", color: "var(--tasty-accent-primary-raised)" }, { tok: "--tasty-accent-danger", use: "read-failed", color: "var(--tasty-accent-danger-raised)" }]} />
+            tokens={[{ tok: "--tasty-bg-panel", use: "frame", color: "var(--tasty-bg-panel)" }, { tok: "--tasty-bg-app", use: "code well", color: "var(--tasty-bg-app)" }, { tok: "--tasty-bg-sidebar", use: "type bar", color: "var(--tasty-bg-sidebar)" }, { tok: "--tasty-accent-primary-raised", use: "selected type segment", color: "var(--tasty-accent-primary-raised)" }, { tok: "--tasty-accent-danger", use: "read-failed", color: "var(--tasty-accent-danger-raised)" }]} />
           <Dont><b>Don't</b> add any mutate action (copy / re-copy / clear) or a master-detail type rail — this is a one-column snapshot inspector. Snapshot is taken once at open; no live polling, no history. <b>Don't</b> render the HTML payload (no live preview, no styled output) and <b>don't</b> let the type bar scroll horizontally or truncate labels with ellipsis — compact to icon-only instead.</Dont>
         </Spec>
       </Section>
@@ -1733,20 +1809,21 @@ function Page() {
         {true ? <GalleryNotifications_Popup /> : null}
       </Section>
 
+      <CaptureRegionSection />
       <Section id="moveresize" title="Move & resize — popup interaction spec">
         <Spec id="drag-handles-titlebar-region-none" title="Drag handles — TitleBar · Region · None"
           when={<>How a popup moves. A <b>titlebar</b> popup drags from the <b>whole bar</b> (the close button is excluded). A <b>headless</b> popup can declare a <b>Region</b> handle — a header band (currently the left half: icon + title) — while the header's own widgets (search, close) keep priority. <b>None</b> means the popup can't be moved. Affordance is the <b>cursor</b> only (grab → grabbing); no painted grip. Hover the bars below to feel the cursors.</>}>
           <Stage variant="solo center" style={{ padding: 24, background: "var(--tasty-bg-app)", gap: 20, flexWrap: "wrap", alignItems: "flex-start" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>TitleBar — whole bar drags</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>TitleBar — whole bar drags</div>
               <FauxPopup title="Listening ports"><div>title centered · close excluded from the handle</div></FauxPopup>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>Region — header band drags, widgets win</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>Region — header band drags, widgets win</div>
               <FauxPopup titlebar={false} region w={260}><div>left band = grab · search/close = their own cursor</div></FauxPopup>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>None — not movable</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>None — not movable</div>
               <FauxPopup title="apply preset" grab={false}><div>no handle · grab cursor never appears</div></FauxPopup>
             </div>
           </Stage>
@@ -1763,28 +1840,28 @@ function Page() {
           </Stage>
           <Meta
             specs={[["zones", "N · S · E · W + NW · NE · SW · SE"], ["band", "inside the border (token-width)"], ["corner", "wins over edge at the crossing"], ["edge drag", "that edge moves, opposite fixed"], ["grip", "none — cursor only"], ["persist", "user size sticks until the popup closes"]]}
-            tokens={[{ tok: "--tasty-accent-info", use: "zone labels (demo only)", color: "var(--tasty-accent-info-raised)" }, { tok: "--tasty-border-strong", use: "popup edge", color: "var(--tasty-border-strong)" }]} />
+            tokens={[{ tok: "--tasty-accent-info", use: "zone labels (demo only)", color: "var(--tasty-accent-info-raised)" }, { tok: "--tasty-border-frame", use: "popup edge", color: "var(--tasty-border-frame)" }]} />
           <Note>Once you resize, the size <b>sticks</b> (the sizer won't overwrite it); closing the popup resets it to its default size on next open.</Note>
         </Spec>
         <Spec id="constraints-z-order-quiet-limits-top-most-wins" title="Constraints & z-order — quiet limits, top-most wins"
           when={<>Limits are enforced <b>silently</b>. A popup can't shrink past its <b>min size</b> (or its default size if none is set), and <b>no part</b> may leave the scope rect (Window / Workspace / Pane / Tab / Surface) — drag or resize just stops at the boundary, and a shrinking scope <b>auto-repositions</b> the popup back inside. The scope edge is the effective max (there's no separate max size). When popups overlap, only the <b>top-most</b> one's handles/cursor respond; pressing a popup brings it to front.</>}>
           <Stage variant="solo center" style={{ padding: 24, background: "var(--tasty-bg-app)", gap: 28, flexWrap: "wrap", alignItems: "center" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>scope clamp — stops at the boundary</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>scope clamp — stops at the boundary</div>
               <ClampDemo />
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>z-order — only the front popup responds</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>z-order — only the front popup responds</div>
               <ZOrderDemo />
             </div>
           </Stage>
           <Meta
             specs={[["min size", "min_size, else default_size"], ["max", "scope rect is the cap (no max_size)"], ["clamp", "no part leaves the scope"], ["reposition", "shrinking scope pulls it back in"], ["limit signal", "none — quiet stop (no warning color)"], ["z-order", "top-most only · press = bring to front"]]}
-            tokens={[{ tok: "--tasty-border-strong", use: "scope rect (demo)", color: "var(--tasty-border-strong)" }, { tok: "--tasty-shadow-modal", use: "popup lift" }]} />
+            tokens={[{ tok: "--tasty-specimen-annotation-border", use: "scope rect (demo)", color: "var(--tasty-specimen-annotation-border)" }, { tok: "--tasty-shadow-modal", use: "popup lift" }]} />
           <Dont><b>Don't</b> flash a warning color (peach/red) when a popup hits min size or the scope edge — the limit is communicated by simply <b>not moving</b>. Reserve danger tones for actual errors.</Dont>
         </Spec>
       </Section>
-      <style>{`.rz-zone:hover{background:color-mix(in srgb,var(--tasty-accent-info) 14%,transparent);} .faux-close:hover{color:var(--tasty-titlebar-close-hover-fg);background:var(--tasty-titlebar-close-hover-bg);}`}</style>
+      <style>{`.faux-close:hover{color:var(--tasty-titlebar-close-hover-fg);background:var(--tasty-titlebar-close-hover-bg);}`}</style>
     </>
   );
 }

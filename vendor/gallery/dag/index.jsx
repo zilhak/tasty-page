@@ -5,6 +5,8 @@ import { Kbd, ListCtrl } from "../../components/index.js";
 import { DAG_STATUS, DAG_STATUS_ORDER, DAG_KIND, DAG_REL, sTok, DagNode, RunnerBadge, ZoomCluster, Minimap, CycleBanner, DagEmpty, DagCanvas, DagDetail, DagSurface, DagWindow, dagRowItems, dagLayout, elbow, DAG_BUILD, DAG_INDEX, DAG_CYCLE, DAG_DENSE, DAG_LIST, DAG_PARTIAL, DAG_ROLLUP_ORDER, dagRollup, nodeTitle } from "../../ui_kits/terminal/dag.js";
 import { Section, Spec, Stage, Meta, Note, Do, Dont } from "../parts/specimen.jsx";
 import { focusViews } from "../parts/surface-focus-views.jsx";
+import { GraphSharedSection } from "./graph-shared.jsx";
+import { ChildGraphSection } from "./child-graph.jsx";
 
 // Tasty Gallery — Surfaces · Task DAG
 // Specimens for the read-only Task DAG surface + workspace popup
@@ -24,9 +26,11 @@ const NAV = [
   { id: "chrome", label: "Canvas chrome" },
   { id: "runner", label: "Runner badge" },
   { id: "rows", label: "DAG list row" },
-  { id: "detail", label: "Node detail" },
+  { id: "detail", label: "Node detail · drawer" },
   { id: "states", label: "Empty · cycle" },
   { id: "surfaces", label: "Surface · popup" },
+  { id: "graph", label: "Graph view · shared" },
+  { id: "child", label: "Child graph" },
 ];
 
 // A node card outside the canvas: the card is absolutely positioned inside the
@@ -58,10 +62,47 @@ function EdgeSpecimen({ rel }) {
   );
 }
 
+// The back bar's actions (zoom cluster and runner badge) are what the detail view specimen is about. They sit at
+// the right of a 560 window, so in a narrower stage the stage opens scrolled to them: when they run past the
+// stage's visible right edge, the stage scrolls by that much plus its own padding, on first paint and whenever the
+// stage changes width. A stage that holds them whole does not move.
+function RevealBackBarActions({ children }) {
+  const ref = React.useRef(null);
+  React.useEffect(() => {
+    const box = ref.current;
+    const stage = box && box.closest(".stage");
+    if (!stage) return undefined;
+    const actions = () => {
+      let best = null;
+      for (const el of box.querySelectorAll("span, div")) {
+        if (!el.querySelector("button") || !/Runner/.test(el.textContent)) continue;
+        const r = el.getBoundingClientRect();
+        if (!best || r.width * r.height < best.r.width * best.r.height) best = { el, r };
+      }
+      return best && best.el;
+    };
+    const reveal = () => {
+      const el = actions();
+      if (!el) return;
+      const r = el.getBoundingClientRect(), s = stage.getBoundingClientRect();
+      const right = s.left + stage.clientLeft + stage.clientWidth;
+      const pad = parseFloat(getComputedStyle(stage).paddingRight) || 0;
+      if (r.right > right) stage.scrollLeft += r.right - right + pad;
+    };
+    reveal();
+    const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(reveal) : null;
+    if (ro) ro.observe(stage);
+    return () => { if (ro) ro.disconnect(); };
+  }, []);
+  return <div ref={ref}>{children}</div>;
+}
+
+// The scrim centers the 560 window in this box and the box clips it, so the box never gets narrower than the
+// window and a 16px margin on each side: in a narrower column the stage scrolls to the window instead of cutting it.
 function PopupStage() {
   const [open, setOpen] = React.useState(true);
   return (
-    <div style={{ position: "relative", width: "100%", height: 520, borderRadius: "var(--tasty-radius)", overflow: "hidden",
+    <div style={{ position: "relative", width: "100%", minWidth: "calc(var(--tasty-dag-popup-width) + 2 * var(--tasty-space-lg))", height: 520, borderRadius: "var(--tasty-radius)", overflow: "hidden",
       border: "var(--tasty-border-width) solid var(--tasty-border-default)", background: "var(--tasty-bg-app)" }}>
       {!open && (
         <button type="button" onClick={() => setOpen(true)}
@@ -134,7 +175,7 @@ function Page() {
             <NodeBox node={mk({ status: "succeeded" })} selected caption="selected (2px ring)" />
           </Stage>
           <Meta specs={[["full", "zoom ≥ 0.7"], ["compact", "0.4 – 0.7"], ["block", "< 0.4"], ["selection", "2px accent outline, 1px offset"], ["hover", "derived overlay-hover on the body"]]}
-            tokens={[{ tok: "--tasty-dag-node-selected-ring", use: "selection", color: "var(--tasty-dag-node-selected-ring)" }, { tok: "--tasty-dag-node-hover-bg", use: "hover wash" }, { tok: "--tasty-dag-node-dim-opacity", use: "skipped path" }]} />
+            tokens={[{ tok: "--tasty-dag-node-selected-ring", use: "selection", color: "var(--tasty-dag-node-selected-ring)" }, { tok: "--tasty-dag-node-selected-ring-offset", use: "1 between the card and the ring" }, { tok: "--tasty-dag-node-hover-bg", use: "hover wash" }, { tok: "--tasty-dag-node-dim-opacity", use: "skipped path" }]} />
           <Stage style={{ padding: 0, height: 360, display: "block" }}>
             <div style={{ height: 360, display: "flex" }}><DagCanvas dag={DAG_DENSE} dir="td" /></div>
           </Stage>
@@ -173,9 +214,9 @@ function Page() {
             ))}
           </Stage>
           <Stage style={{ padding: 0, display: "block" }}>
-            <div style={{ display: "flex", height: 360, background: "var(--tasty-bg-panel)" }}>
-              <DagDetail dag={{ nodes: [mk({ id: "a", kind: "agent", phase: "awaiting_input", provider: "claude", since: "2m 4s", name: "agent:review" })] }} id="a" onClose={() => {}} onSelect={() => {}} />
-              <DagDetail dag={{ nodes: [mk({ id: "u", status: "unknown", name: "deploy:site", dur: null, reason: "run result lost: pid 4242 ended after a host restart and its exit status could not be collected" })] }} id="u" onClose={() => {}} onSelect={() => {}} />
+            <div style={{ display: "flex", gap: 16, height: 360, padding: 16, background: "var(--tasty-bg-panel)" }}>
+              <DagDetail frame="panel" dag={{ nodes: [mk({ id: "a", kind: "agent", phase: "awaiting_input", provider: "claude", since: "2m 4s", name: "agent:review" })] }} id="a" onClose={() => {}} onSelect={() => {}} />
+              <DagDetail frame="panel" dag={{ nodes: [mk({ id: "u", status: "unknown", name: "deploy:site", dur: null, reason: "run result lost: pid 4242 ended after a host restart and its exit status could not be collected" })] }} id="u" onClose={() => {}} onSelect={() => {}} />
             </div>
           </Stage>
           <Note><b>Labels (i18n).</b> Why: · 이유: · 理由: — Why unknown · 알 수 없는 이유 · 不明の理由 — “Retry or cancel it to let the graph continue.” · “다시 실행하거나 취소해야 그래프가 이어집니다.” · “再実行またはキャンセルするとグラフが続行します。” — “Waiting for a person in the {"{provider}"} session” · “{"{provider}"} 세션이 사람의 입력을 기다리는 중” · “{"{provider}"} セッションが入力を待っています”. The reason text is the host's free text, shown as is.</Note>
@@ -272,19 +313,19 @@ function Page() {
         </Spec>
       </Section>
 
-      <Section id="detail" title="Node detail">
-        <Spec id="selected-task-side-panel-bottom-sheet" title="Selected task — side panel · bottom sheet"
-          when={<>Selecting a node opens a <b>288px right panel</b> on a wide surface and a <b>220px bottom sheet</b> when the surface is narrow (&lt; 640px) or inside the popup. Failure output can run to dozens of lines, so the error tail is its own bounded, scrollable, copyable block — never an expanding wall that pushes the graph off screen.</>}>
+      <Section id="detail" title="Node detail · drawer">
+        <Spec id="selected-task-side-panel-bottom-sheet" title="Selected task — the drawer over the canvas"
+          when={<>Selecting a node opens the shared <b>288px drawer over the canvas</b> from the right edge, in the tab surface and in the popup alike (2026-11-10: the right panel and the bottom sheet that split the canvas are gone; the child graph uses the same drawer — see <a href="#graph-drawer-over-the-canvas">Graph view</a>). Below 480px of canvas it covers the canvas. The body is unchanged: state and kind, the awaiting notice with <b>Open session</b>, why unknown, the rows, the command, the dependency rows that jump the selection, and the error tail as its own bounded, scrollable, copyable block — never an expanding wall.</>}>
           <Stage style={{ padding: 0, display: "block" }}>
-            <div style={{ display: "flex", height: 460, background: "var(--tasty-bg-panel)" }}>
-              <DagDetail dag={DAG_BUILD} id="build_linux" onClose={() => {}} onSelect={() => {}} />
-              <DagDetail dag={DAG_BUILD} id="unit" onClose={() => {}} onSelect={() => {}} />
+            <div style={{ display: "flex", gap: 16, height: 460, padding: 16, background: "var(--tasty-bg-panel)" }}>
+              <DagDetail dag={DAG_BUILD} id="build_linux" frame="panel" onClose={() => {}} onSelect={() => {}} />
+              <DagDetail dag={DAG_BUILD} id="unit" frame="panel" onClose={() => {}} onSelect={() => {}} />
             </div>
           </Stage>
           <Meta
-            specs={[["panel", "288 wide · 12 padding"], ["sheet", "220 tall (narrow)"], ["error tail", "max 160, scrolls, copy button"], ["output tail", "max 112, scrolls"], ["deps", "22px rows, click to jump"]]}
-            tokens={[{ tok: "--tasty-dag-detail-bg", use: "panel fill", color: "var(--tasty-dag-detail-bg)" }, { tok: "--tasty-dag-detail-log-bg", use: "log bed", color: "var(--tasty-dag-detail-log-bg)" }, { tok: "--tasty-dag-detail-log-max-height", use: "160 error tail" }]} />
-          <Note>Dependency rows are the graph's keyboard-free navigation: each row shows the upstream task's glyph + relation and jumps the selection there, so a failure can be walked back to its cause without hunting on the canvas.</Note>
+            specs={[["drawer", "288 · over the canvas · head 36 + scrolling body · 12 padding"], ["narrow", "covers the canvas below 480"], ["error tail", "max 160, scrolls, copy button"], ["output tail", "max 112, scrolls"], ["deps", "22px rows, click to jump"], ["sheet", "gone — dag-detail-sheet-height has no reader"]]}
+            tokens={[{ tok: "--tasty-dag-detail-bg", use: "drawer fill", color: "var(--tasty-dag-detail-bg)" }, { tok: "--tasty-graph-drawer-width", use: "288" }, { tok: "--tasty-dag-detail-log-bg", use: "log bed", color: "var(--tasty-dag-detail-log-bg)" }, { tok: "--tasty-dag-detail-log-max-height", use: "160 error tail" }]} />
+          <Note>Dependency rows are the graph's keyboard-free navigation: each row shows the upstream task's glyph + relation and jumps the selection there, so a failure can be walked back to its cause without hunting on the canvas. With the drawer over the canvas, the jump pans the newly selected card into view beside it.</Note>
         </Spec>
       </Section>
 
@@ -311,7 +352,7 @@ function Page() {
           <Stage variant="solo" style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 16, padding: 20 }}>
             {[["popup — no DAGs", "popup", ""], ["popup — filter “deploy”", "search", "deploy"]].map(([cap, v, q]) => (
               <div key={cap} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
                 <div style={{ display: "flex", height: 220, border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", background: "var(--tasty-bg-panel)" }}><DagEmpty variant={v} query={q} /></div>
               </div>
             ))}
@@ -319,14 +360,14 @@ function Page() {
           <Meta
             specs={[["shared", "DagEmpty — surface · search · popup"], ["position", "centred in the list area, both axes"], ["no match", "search glyph · “No DAGs match “{q}”” · “Clear the filter or widen the scope to all workspaces.”"], ["no DAGs", "gitTree glyph · “No DAGs yet” · “Tasks grouped by dependency appear here.” (existing keys)"], ["glyph", "24 · glyph-dim"]]}
             tokens={[{ tok: "--tasty-glyph-dim", use: "glyph", color: "var(--tasty-glyph-dim)" }, { tok: "--tasty-text-secondary", use: "title", color: "var(--tasty-text-secondary)" }, { tok: "--tasty-text-muted", use: "hint", color: "var(--tasty-text-muted)" }]} />
-          <Note>i18n: the search title is new — <code>dag.popup.no_match</code> “No DAGs match “{"{q}"}”” / ““{"{q}"}”와 일치하는 DAG 없음” / ““{"{q}"}” に一致する DAG はありません” · hint <code>dag.popup.no_match_hint</code> “Clear the filter or widen the scope to all workspaces.” / “필터를 지우거나 범위를 모든 워크스페이스로 넓히세요.” / “フィルターを消すか、範囲をすべてのワークスペースに広げてください。”. The old “No matching DAGs” / “Try a different filter.” go.</Note>
+          <Note>i18n: the search title is new — <code>dag.popup.no_match</code> “No DAGs match “{"{q}"}”” / ““{"{q}"}” 검색어와 일치하는 DAG 없음” / ““{"{q}"}” に一致する DAG はありません” · hint <code>dag.popup.no_match_hint</code> “Clear the filter or widen the scope to all workspaces.” / “필터를 지우거나 범위를 모든 워크스페이스로 넓히세요.” / “フィルターを消すか、範囲をすべてのワークスペースに広げてください。”. The old “No matching DAGs” / “Try a different filter.” go.</Note>
         </Spec>
         <Spec id="dag-list-popup-no-match-without-a-query" title="DAG list popup — no match without a query"
           when={<>The list can empty with <b>no search text</b>: the status filter or <b>This workspace only</b> alone filters everything out. There is no query to echo, so this is its own <code>filtered</code> variant: <b>filter</b> glyph (the cause is a filter, not the search field), a title without quotes, and the <b>same hint</b> as the search variant. Variant choice: trimmed query non-empty → <code>search</code> (echo the query only, even when status/scope filters are also on — the hint already says “clear the filter”); trimmed query empty and filters active → <code>filtered</code>; no DAG at all → <code>popup</code>.</>}>
           <Stage variant="solo" style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 16, padding: 20 }}>
             {[["Mocha — status = Failed, no query", null, "filtered", ""], ["Latte — workspace only, no query", "latte", "filtered", ""], ["Mocha — query “deploy” + status filter", null, "search", "deploy"]].map(([cap, th, v, q]) => (
               <div key={cap} {...(th ? { "data-theme": th } : {})} style={{ display: "flex", flexDirection: "column", gap: 6, background: "var(--tasty-bg-panel)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
                 <div style={{ display: "flex", height: 220, border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", background: "var(--tasty-bg-panel)" }}><DagEmpty variant={v} query={q} /></div>
               </div>
             ))}
@@ -340,26 +381,26 @@ function Page() {
 
       <Section id="surfaces" title="Surface · popup">
         <Spec id="full-tab-surface-wide-and-narrow" title="Full-tab surface — wide and narrow"
-          when={<>A whole terminal tab. Header: DAG name + <code>{"{done} / {total} done"}</code> (spaces around the slash in every language, 2026-10-09) (mono caption, <code>--tasty-dag-header-count-fg</code> = the list row counter, skip suffix after it, 2026-10-07), the DAG <code>Select</code>, the runner badge, refresh. Under <b>640px</b> the header wraps to two rows (identity above, controls below), the runner hint drops, the minimap goes, and the detail panel becomes a bottom sheet.</>}>
+          when={<>A whole terminal tab. Header: DAG name + <code>{"{done} / {total} done"}</code> (spaces around the slash in every language, 2026-10-09) (mono caption, <code>--tasty-dag-header-count-fg</code> = the list row counter, skip suffix after it, 2026-10-07), the DAG <code>Select</code>, the runner badge, refresh. Under <b>640px</b> the header wraps to two rows (identity above, controls below), the runner hint drops and the minimap goes. Node detail is the drawer over the canvas; below 480px of canvas it covers it (2026-11-10).</>}>
           <Stage style={{ padding: 16, display: "flex", gap: 16, alignItems: "stretch" }}>
-            <div style={{ flex: 1, minWidth: 0, height: 520, border: "var(--tasty-border-width) solid var(--tasty-border-strong)",
+            <div style={{ flex: 1, minWidth: 0, height: 520, border: "var(--tasty-border-width) solid var(--tasty-border-default)",
               borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
               <DagSurface dags={[DAG_BUILD, DAG_INDEX, DAG_DENSE, DAG_CYCLE]} />
             </div>
-            <div style={{ flex: "none", width: 320, height: 520, border: "var(--tasty-border-width) solid var(--tasty-border-strong)",
+            <div style={{ flex: "none", width: 320, height: 520, border: "var(--tasty-border-width) solid var(--tasty-border-default)",
               borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
               <DagSurface dags={[DAG_BUILD, DAG_INDEX]} narrow />
             </div>
           </Stage>
           {focusViews("dag-tab-surface", (focused) => <div style={{ height: 320, minWidth: 320 }}><DagSurface dags={[DAG_BUILD]} narrow focused={focused} /></div>)}
           <Meta
-            specs={[["focus", <>the canvas takes the bed, <span className="tok">--tasty-surface-bed-focused</span> or <span className="tok">--tasty-surface-bed-unfocused</span>. Header, nodes and detail stay. The workspace popup is not a surface, and its canvas stays <span className="tok">--tasty-dag-canvas-bg</span></>], ["header", "8/12 padding · wraps < 640"], ["canvas", "all remaining space"], ["detail", "288 side → 220 sheet"], ["narrow floor", "320px, nothing clipped"], ["DAG switch", "instant swap + auto-fit"]]}
-            tokens={[{ tok: "--tasty-bg-sidebar", use: "header band", color: "var(--tasty-bg-sidebar)" }, { tok: "--tasty-separator", use: "header hairline" }, { tok: "--tasty-dag-detail-sheet-height", use: "220 sheet" }]} />
+            specs={[["focus", <>the canvas takes the bed, <span className="tok">--tasty-surface-bed-focused</span> or <span className="tok">--tasty-surface-bed-unfocused</span>. Header, nodes and detail stay. The workspace popup is not a surface, and its canvas stays <span className="tok">--tasty-dag-canvas-bg</span></>], ["header", "8/12 padding · wraps < 640"], ["canvas", "all remaining space"], ["detail", "288 drawer over the canvas → covers it below 480"], ["narrow floor", "320px, nothing clipped · drawer covers the canvas"], ["DAG switch", "instant swap + auto-fit"]]}
+            tokens={[{ tok: "--tasty-bg-sidebar", use: "header band", color: "var(--tasty-bg-sidebar)" }, { tok: "--tasty-separator", use: "header hairline" }, { tok: "--tasty-graph-drawer-width", use: "288 drawer" }]} />
           <Note>Switching DAG in the header <code>Select</code> replaces the canvas instantly (0ms) and re-fits — a new graph has no position to preserve, so fit is the honest default. Within one DAG the view never re-fits on its own.</Note>
         </Spec>
 
         <Spec id="workspace-popup-list-single-dag" title="Workspace popup — list ⇄ single DAG"
-          when={<>A movable 560 × 460 popup. The list carries search, a <b>this workspace only</b> toggle and a status filter; picking a row swaps the whole area for that DAG's canvas via <code>DrillDown</code> — instant, with a back bar that keeps the runner badge in view. The bottom sheet holds node detail here, because 560px has no room for a side panel.</>}>
+          when={<>A movable 560 × 460 popup. The list carries search, a <b>this workspace only</b> toggle and a status filter; picking a row swaps the whole area for that DAG's canvas via <code>DrillDown</code> — instant, with a back bar that keeps the runner badge in view. Node detail is the same drawer as in the surface, over the canvas (2026-11-10: the bottom sheet is gone — popup and surface share one inside).</>}>
           <Stage style={{ padding: 0, display: "block" }}><PopupStage /></Stage>
           <Meta
             specs={[["frame", "560 × 460 · resizable"], ["titlebar", "28px drag strip"], ["list rows", "36px · ~8 visible"], ["swap", "DrillDown, 0ms"], ["dismiss", <>outside click · <span className="ic">Esc</span> · ×</>]]}
@@ -370,12 +411,16 @@ function Page() {
           when={<>The popup's list → detail flow reuses the graph screen, which drags the graph header along: the <b>runner badge</b>, the <b>DAG selector</b> and the <b>zoom cluster</b> all arrive in a view that shows one node — and the back bar's actions slot sits empty beneath them. Settled: <b>no second header</b>. The <b>back bar is the detail's chrome</b>, and its <b>actions slot</b> carries the <b>compact zoom cluster</b> (beside the graph it scales) and the <b>runner badge</b> (it describes the run the node belongs to). The <b>DAG selector is hidden</b>: the back-bar title already names the DAG, and switching DAGs under an open node detail has no meaning. Back restores the list, its header, and the selection.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 18, flexWrap: "wrap", alignItems: "flex-start" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>list — full header</div>
-              <DagWindow />
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>list — full header</div>
+              {/* the window's own 560 x 460 box: its scrim fills the nearest positioned box, so without one both
+                  windows filled the stage and were cut to its height */}
+              <div style={{ position: "relative", flex: "none", width: "var(--tasty-dag-popup-width)", height: "var(--tasty-dag-popup-height)" }}><DagWindow /></div>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>detail — open a row above: the back bar carries zoom + runner badge</div>
-              <DagWindow />
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>detail — the back bar carries zoom + runner badge</div>
+              <RevealBackBarActions>
+                <div style={{ position: "relative", flex: "none", width: "var(--tasty-dag-popup-width)", height: "var(--tasty-dag-popup-height)" }}><DagWindow initialOpen="build-and-deploy" /></div>
+              </RevealBackBarActions>
             </div>
           </Stage>
           <Meta
@@ -384,6 +429,9 @@ function Page() {
           <Note>The actions slot was empty in the current build; this fills it rather than inventing a second bar. If a future detail view needs no zoom, the slot simply goes back to empty.</Note>
         </Spec>
       </Section>
+
+      <GraphSharedSection />
+      <ChildGraphSection />
     </>
   );
 }

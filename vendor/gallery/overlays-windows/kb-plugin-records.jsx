@@ -11,11 +11,11 @@ function KbPluginsRecordSpec() {
       <WStage variant="solo" style={{ padding: 20, background: "var(--tasty-bg-panel)", gap: "var(--tasty-space-xl)", flexDirection: "column", alignItems: "flex-start" }}>
         {T && T.KbPluginsSubtab && <>
           <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", width: 620 }}>
-            <span style={wLbl}>recording — two keys + a third being recorded · a Custom command with no key shows the None slot</span>
+            <span className="g-cap" style={wLbl}>recording — two keys + a third being recorded · a Custom command with no key shows the None slot</span>
             <T.KbPluginsSubtab saved={{}} seedDrafts={{ "clipboard-viewer/open": { mode: "custom", keys: "ctrl+shift+h,ctrl+alt+v", recording: true }, "clipboard-viewer/clear": { mode: "custom", keys: "" } }} />
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", width: 460 }}>
-            <span style={wLbl}>narrow (460) — three keys wrap from the mode x · Reset last</span>
+            <span className="g-cap" style={wLbl}>narrow (460) — three keys wrap from the mode x · Reset last</span>
             <T.KbPluginsSubtab saved={{}} seedDrafts={{ "clipboard-viewer/open": { mode: "custom", keys: "ctrl+shift+h,ctrl+alt+v,ctrl+f5" } }} />
           </div>
         </>}

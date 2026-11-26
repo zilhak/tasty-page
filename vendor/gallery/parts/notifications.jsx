@@ -75,7 +75,7 @@ function Lnb() {
         when={<>A small block <b>directly above</b> the Tools · Plugins · Settings block, with its own top rule. The whole block is <b>one button</b>: click (or the existing notifications shortcut) toggles the popup. Line 1: bell · <b>Notifications</b> · one count pill per level with unread items, fixed order <b>error › warning › info</b>. Line 2 (only when something is unread): the <b>newest unread</b> title, one line, ellipsis, with its level glyph and elapsed time. With nothing unread the block is one muted line. Workspace rows get <b>no</b> new badge; their blue count stays the surface-attention count.</>}>
         {stage(THEMES.map(([label, attr]) => (
           <Themed key={label} attr={attr}>
-            <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label}</span>
+            <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label}</span>
             <div style={{ display: "flex", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
               {LNB_STATES.map(([c, p]) => (
                 <div key={c}><Cap>{c}</Cap><LnbBed><NotificationSummary {...p} /></LnbBed>
@@ -94,7 +94,7 @@ function Lnb() {
         when={<>The collapsed rail keeps the same block above Tools, as a <b>44-wide</b> button (wider than the 36 avatar, so <code>99+</code> fits with its glyph). Bell on top, then the level pills <b>stacked</b> error › warning › info, zeros skipped. With nothing unread it is the bell alone at button height. No line 2; the tooltip carries the full counts.</>}>
         {stage(THEMES.map(([label, attr]) => (
           <Themed key={label} attr={attr}>
-            <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label}</span>
+            <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label}</span>
             <div style={{ display: "flex", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-end" }}>
               {[["none", {}], ["three", { error: 2, warning: 1, info: 5 }], ["one", { info: 4 }], ["99+", { error: 3, warning: 140, info: 1200 }]].map(([c, counts]) => (
                 <div key={c}><Cap>{c}</Cap><RailBed><RailNotificationSummary counts={counts} /></RailBed></div>
@@ -113,7 +113,7 @@ function Lnb() {
         when={<>A 16 pill with the <b>level glyph</b> and the count, so the level reads without colour: <b>error</b> red (critical failure) · <b>warning</b> yellow (non-critical failure) · <b>info</b> the completion blue. Each pill has an aria-label / tooltip ("3 errors"). <code>0</code> draws nothing; above 99 reads <code>99+</code>.</>}>
         {stage(THEMES.map(([label, attr]) => (
           <Themed key={label} attr={attr}>
-            <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label}</span>
+            <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label}</span>
             {["error", "warning", "info"].map((lv) => (
               <div key={lv} style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-md)" }}>
                 <span style={{ ...mono, width: 56 }}>{lv}</span>
@@ -147,7 +147,7 @@ function Popup() {
         when={<>The existing popup, extended. Shared title bar (centred title, <b>fullscreen</b> fit + <b>close</b>). A 28 toolbar shows the same unread level pills as the LNB and <b>Mark all read</b>. The list is newest first. Each item: level glyph · title · elapsed time · unread dot / body (2 lines) / source · <b>✓</b> mark read · <b>Jump</b>. Unread = semibold title + blue dot; read = regular title, muted body. A source that has closed keeps its record, gets a <b>· closed</b> tag and a disabled Jump ("Source closed"). The first frame is live: click a row, ✓ or Mark all read.</>}>
         {stage(THEMES.map(([label, attr]) => (
           <Themed key={label} attr={attr}>
-            <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label}</span>
+            <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label}</span>
             <div style={{ display: "flex", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
               <div><Cap>live · unread + read mixed</Cap><Live /></div>
               <div><Cap>long body expanded · hover on next row</Cap><NotificationsPopup items={S.map((n, i) => (i === 0 ? Object.assign({}, n, { unread: false }) : n))} expandedId="n1" hoverId="n2" /></div>
@@ -156,15 +156,15 @@ function Popup() {
           </Themed>
         )))}
         <Meta
-          specs={[["frame", "352 × 400 · title 28 · toolbar 28 · list scrolls"], ["order", "newest first"], ["item", "pad 12 / 8 · glyph 14 · title 13 · body 12 · meta mono 10 · 1px rule"], ["unread", "title semibold text-primary · blue dot (badge-dot-size)"], ["read", "title text-secondary · body text-muted · no dot"], ["long body", "clamp 2 · More / Less (only when cut) · row click toggles · expanded = full, wraps, selectable"], ["source closed", "· closed tag · Jump disabled, tooltip Source closed"], ["empty", "No notifications. · No unread · Mark all read disabled"]]}
-          tokens={[{ tok: "--tasty-notifications-popup-height", use: "→ size-400" }, { tok: "--tasty-notifications-toolbar-height", use: "→ control-height 28" }, { tok: "--tasty-notification-item-title-fg", use: "→ text-primary (unread)", color: "var(--tasty-notification-item-title-fg)" }, { tok: "--tasty-notification-item-title-fg-read", use: "→ text-secondary", color: "var(--tasty-notification-item-title-fg-read)" }, { tok: "--tasty-notification-item-body-fg-read", use: "→ text-muted", color: "var(--tasty-notification-item-body-fg-read)" }, { tok: "--tasty-notification-item-unread-dot", use: "→ notify-unread → accent-primary", color: "var(--tasty-notification-item-unread-dot)" }, { tok: "--tasty-notification-item-closed-fg", use: "→ text-placeholder", color: "var(--tasty-notification-item-closed-fg)" }, { tok: "--tasty-notification-item-more-fg", use: "→ accent-primary", color: "var(--tasty-notification-item-more-fg)" }, { tok: "--tasty-notification-item-body-lines", use: "2" }]} />
+          specs={[["frame", "352 × 400 · title 28 · toolbar 28 · list scrolls"], ["scrim", "none · the window under it stays clickable"], ["keys", "a popup that takes keys · opened from the sidebar it takes key focus · the shortcut opens it without focus (the app today)"], ["shadow", <span className="tok">--tasty-shadow-popover</span>], ["order", "newest first"], ["item", "pad 12 / 8 · glyph 14 · title 13 · body 12 · meta mono 10 · 1px rule"], ["unread", "title semibold text-primary · blue dot (badge-dot-size)"], ["read", "title text-secondary · body text-muted · no dot"], ["long body", "clamp 2 · More / Less (only when cut) · row click toggles · expanded = full, wraps, selectable"], ["source closed", "· closed tag · Jump disabled, tooltip Source closed"], ["empty", "No notifications. · No unread · Mark all read disabled"]]}
+          tokens={[{ tok: "--tasty-notifications-popup-height", use: "→ size-400" }, { tok: "--tasty-shadow-popover", use: "lift with no scrim" }, { tok: "--tasty-notifications-toolbar-height", use: "→ control-height 28" }, { tok: "--tasty-notification-item-title-fg", use: "→ text-primary (unread)", color: "var(--tasty-notification-item-title-fg)" }, { tok: "--tasty-notification-item-title-fg-read", use: "→ text-secondary", color: "var(--tasty-notification-item-title-fg-read)" }, { tok: "--tasty-notification-item-body-fg-read", use: "→ text-muted", color: "var(--tasty-notification-item-body-fg-read)" }, { tok: "--tasty-notification-item-unread-dot", use: "→ notify-unread → accent-primary", color: "var(--tasty-notification-item-unread-dot)" }, { tok: "--tasty-notification-item-closed-fg", use: "→ text-placeholder", color: "var(--tasty-notification-item-closed-fg)" }, { tok: "--tasty-notification-item-more-fg", use: "→ accent-primary", color: "var(--tasty-notification-item-more-fg)" }, { tok: "--tasty-notification-item-body-lines", use: "2" }]} />
       </Spec>
 
       <Spec id="fullscreen-stage-same-list-wide" title="Fullscreen stage — same list, wide"
         when={<>The fit button moves the same list onto the fullscreen stage. Content, order, actions and read rules are identical; only the body clamp grows to <b>3 lines</b> and titles get the width.</>}>
         {stage(THEMES.map(([label, attr]) => (
           <Themed key={label} attr={attr} style={{ flex: "1 1 520px" }}>
-            <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · fullscreen</span>
+            <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · fullscreen</span>
             <div style={{ height: 440, minWidth: 0 }}><NotificationsPopup items={S} fullscreen selectedId="n2" /></div>
           </Themed>
         )))}
@@ -186,7 +186,7 @@ function Popup() {
           );
           return (
             <Themed key={label} attr={attr}>
-              <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label}</span>
+              <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label}</span>
               <div style={{ display: "flex", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
                 <div><Cap>popup list</Cap>{list(false)}</div>
                 <div><Cap>fullscreen list</Cap>{list(true)}</div>

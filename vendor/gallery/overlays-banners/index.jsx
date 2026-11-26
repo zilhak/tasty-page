@@ -1,10 +1,10 @@
 import React from "react";
 import { PageStates, Views, View } from "../parts/specimen.jsx";
 import { STATES } from "./states.jsx";
-import { IconButton, Kbd, Tag, Button as BButton, Icon as BIcon, Badge as BBadge, BadgeGroup as BBadgeGroup, Spinner as BSpinner } from "../../components/index.js";
+import { IconButton, Kbd, Tag, Button as BButton, Icon as BIcon, Spinner as BSpinner } from "../../components/index.js";
 import { HtmlSizeBanner, HtmlAddressBar } from "../../ui_kits/terminal/overlays/html_address_bar.jsx";
-import { HtmlRemoteSurfaceG, HtmlRemoteBanner, HtmlRemoteMarker } from "../../ui_kits/terminal/overlays/html_remote_banner.jsx";
-import { HtmlScriptBanner, HtmlSurfaceG, TermSurfaceG } from "../../ui_kits/terminal/overlays/html_script_banner.jsx";
+import { HtmlRemoteSurfaceG, HtmlRemoteBanner, HtmlRemoteMarker, RC_WEB } from "../../ui_kits/terminal/overlays/html_remote_banner.jsx";
+import { HtmlScriptBanner, HtmlSurfaceG, TermSurfaceG, HsTab } from "../../ui_kits/terminal/overlays/html_script_banner.jsx";
 import { BannerScope, MouseCaptureBannerG, MouseCaptureHitZone, BlacklistEditorG, BannerShellG, TtlBannerG, StackDemoG, BannerMoreMenuG, BannerMoreDemoG, ic } from "../parts/overlay-frames.jsx";
 import { Section, Spec, Stage, Meta, Note, Do, Dont } from "../parts/specimen.jsx";
 
@@ -20,12 +20,6 @@ import { Section, Spec, Stage, Meta, Note, Do, Dont } from "../parts/specimen.js
 
 
 
-// 2026-10-07 — auto-attach mapping refused. Workspace-scope banner + a persistent sidebar row mark.
-const REFUSAL = {
-  self: { target: "127.0.0.1:7420", reason: "This mapping points at this Tasty, so it was not attached." },
-  profile: { target: "prod-web", reason: "No SSH profile with this name." },
-  resolve: { target: "build-eu:7420", reason: "The endpoint could not be resolved." },
-};
 // Narrow rule (2026-10-09 b10, banner-narrow-scope): under --tasty-banner-narrow-below (judged on the SCOPE content width) the
 // action button wraps under the text, starting at the body's left edge; × stays in the top-right like the HTML banner.
 function BannerActionsG({ narrow, action, children }) {
@@ -41,21 +35,7 @@ function BannerActionsG({ narrow, action, children }) {
     </div>
   );
 }
-function AttachRefusalBannerG({ kind = "self", narrow }) {
-  const r = REFUSAL[kind];
-  return (
-    <BannerShellG>
-      <BannerActionsG narrow={narrow} action={<BButton variant="secondary" size="sm" style={{ background: "var(--tasty-banner-button-bg)", borderColor: "var(--tasty-banner-button-border)" }}>Remove mapping</BButton>}>
-        <span style={{ display: "inline-flex", flex: "none", marginTop: "var(--tasty-banner-glyph-offset)", color: "var(--tasty-accent-warning-raised)" }}><BIcon name="alertTriangle" size="var(--tasty-icon-size-md)" /></span>
-        <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-banner-text-gap)" }}>
-          <span style={{ fontSize: "var(--tasty-banner-title-font-size)", fontWeight: "var(--tasty-font-weight-semibold)" }}>Remote not attached — <span style={{ fontFamily: "var(--tasty-font-mono)", fontWeight: "var(--tasty-font-weight-normal)" }}>{r.target}</span></span>
-          <span style={{ fontSize: "var(--tasty-banner-body-font-size)", color: "var(--tasty-banner-body-fg)" }}>{r.reason} Change or remove the mapping for this workspace.</span>
-        </div>
-      </BannerActionsG>
-    </BannerShellG>
-  );
-}
-// 2026-10-09 — attach mirror terminal-size sync failed (after the one automatic retry). Same family as the refusal banner.
+// 2026-10-09 — attach mirror terminal-size sync failed (after the one automatic retry).
 // Body = TWO lines (b10, attach-sync-banner-body-cut): names line (one line, names ellipsise) + fixed copy line (wraps, never cut).
 // b11 (attach-sync-name-floor): the 40 floor applies only while shrinking — box = min(natural, max(floor, shrunk)).
 // A name shorter than the floor keeps its own width, so ", " / " +n" follow right after it.
@@ -71,9 +51,37 @@ function SyncNameG({ n }) {
   }, [n]);
   return <span ref={ref} style={{ flex: "0 1 auto", minWidth: floor, maxWidth: "var(--tasty-attach-sync-name-max-width)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "var(--tasty-text-secondary-raised)" }}>{n}</span>;
 }
+// The app's narrow rule for a banner whose scope is the box it sits in: narrow when that box's content width is under
+// --tasty-banner-narrow-below. The ink table passes narrow="auto", so at 390 the action wraps under the text as in the
+// app and the names line keeps its fixed pieces (", ", " ×k", " +n") inside the line instead of past its clip.
+// scope: a selector for an ancestor that stands for the app's surface. The judged width is then that box's outer width,
+// as the app measures the surface before the banner inset.
+function useScopeNarrow(on, scope) {
+  const ref = React.useRef(null);
+  const [narrow, setNarrow] = React.useState(false);
+  React.useLayoutEffect(() => {
+    const el = ref.current; if (!on || !el) return undefined;
+    const box = (scope && el.closest(scope)) || el;
+    // The fractional box width, not clientWidth: clientWidth rounds, so 439.5 would read 440 and stay wide.
+    const judge = () => setNarrow(box.getBoundingClientRect().width < parseFloat(getComputedStyle(el).getPropertyValue("--tasty-banner-narrow-below")));
+    judge();
+    const ro = new ResizeObserver(judge); ro.observe(box);
+    return () => ro.disconnect();
+  }, [on, scope]);
+  return [ref, narrow];
+}
+// The same narrow rule for the other banners in the ink tables that have a narrow layout (HTML script, remote content,
+// size): children is a function of the judged narrow value.
+function ScopeNarrowG({ children, scope }) {
+  const [ref, narrow] = useScopeNarrow(true, scope);
+  return <div ref={ref} style={{ minWidth: 0 }}>{children(narrow)}</div>;
+}
 // b11 (attach-sync-duplicate-names): equal display names collapse into one entry + a muted “×k” that never shrinks.
 // “N surfaces” still counts surfaces; +n counts the remaining entries.
-function AttachSizeSyncBannerG({ names = ["build"], retrying = false, narrow }) {
+function AttachSizeSyncBannerG({ names = ["build"], retrying = false, narrow: narrowProp }) {
+  const auto = narrowProp === "auto";
+  const [scopeRef, scopeNarrow] = useScopeNarrow(auto);
+  const narrow = auto ? scopeNarrow : narrowProp;
 
   const many = names.length > 1;
   const groups = [];
@@ -81,7 +89,7 @@ function AttachSizeSyncBannerG({ names = ["build"], retrying = false, narrow }) 
   const shown = groups.slice(0, 2);
   const rest = groups.length - shown.length;
   const body = { fontSize: "var(--tasty-banner-body-font-size)", color: "var(--tasty-banner-body-fg)" };
-  return (
+  const banner = (
     <BannerShellG>
       <BannerActionsG narrow={narrow} action={<BButton variant="secondary" size="sm" disabled={retrying} leadingIcon={retrying ? <BSpinner size="var(--tasty-icon-size-sm)" /> : undefined}
           style={retrying ? undefined : { background: "var(--tasty-banner-button-bg)", borderColor: "var(--tasty-banner-button-border)" }}>{many ? "Retry all" : "Retry"}</BButton>}>
@@ -98,39 +106,8 @@ function AttachSizeSyncBannerG({ names = ["build"], retrying = false, narrow }) 
       </BannerActionsG>
     </BannerShellG>
   );
+  return auto ? <div ref={scopeRef} style={{ minWidth: 0 }}>{banner}</div> : banner;
 }
-function RefusalRowG({ name, active, refused, move, ni, done }) {
-  return (
-    <div title={refused ? "Remote not attached — 127.0.0.1:7420 points at this Tasty." : undefined} style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", height: "var(--tasty-size-28)", padding: "0 var(--tasty-space-sm)", borderRadius: "var(--tasty-radius-sm)",
-      background: active ? "var(--tasty-surface-active)" : "transparent", color: active ? "var(--tasty-text-on-active)" : "var(--tasty-text-secondary)", fontSize: "var(--tasty-font-size-body)" }}>
-      <span style={{ width: "var(--tasty-status-dot-size)", height: "var(--tasty-status-dot-size)", borderRadius: "var(--tasty-radius-pill)", background: "var(--tasty-status-idle)", flex: "none" }} />
-      <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{name}</span>
-      {move && <span aria-label="Move source inside" style={{ display: "inline-flex", flex: "none", color: "var(--tasty-move-source-glyph)" }}><BIcon name="move" size="var(--tasty-move-source-glyph-size)" /></span>}
-      {refused && <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-attach-refusal-glyph)" }}><BIcon name="alertTriangle" size="var(--tasty-icon-size-sm)" /></span>}
-      {(ni != null || done != null) && BBadgeGroup && (
-        <BBadgeGroup>
-          {ni != null && <BBadge variant="warning">{ni}</BBadge>}
-          {done != null && <BBadge variant="primary">{done}</BBadge>}
-        </BBadgeGroup>
-      )}
-    </div>
-  );
-}
-
-// Collapsed rail: the refusal chip takes the free top-left corner (TR attention dot · BR mirror chip · BL move chip).
-function RefusalRailG({ ch, refused, dot, move }) {
-  const chip = { position: "absolute", pointerEvents: "none", display: "inline-flex", alignItems: "center", justifyContent: "center", borderRadius: "var(--tasty-radius-pill)", background: "var(--tasty-bg-sidebar)" };
-  return (
-    <div title={refused ? "Remote not attached — 127.0.0.1:7420 points at this Tasty." : undefined} style={{ position: "relative", width: "var(--tasty-size-28)", height: "var(--tasty-size-28)", display: "inline-flex", alignItems: "center", justifyContent: "center",
-      borderRadius: "var(--tasty-radius)", background: "var(--tasty-surface-raised)", fontFamily: "var(--tasty-font-mono)", fontWeight: "var(--tasty-font-weight-bold)", fontSize: "var(--tasty-font-size-body)", color: "var(--tasty-text-secondary)" }}>
-      {ch}
-      {refused && <span aria-label="Remote not attached" style={{ ...chip, top: "calc(-1 * var(--tasty-border-width))", left: "calc(-1 * var(--tasty-border-width))", width: "var(--tasty-attach-refusal-chip-size)", height: "var(--tasty-attach-refusal-chip-size)", color: "var(--tasty-attach-refusal-glyph)" }}><BIcon name="alertTriangle" size="var(--tasty-attach-refusal-chip-glyph-size)" /></span>}
-      {dot && <span aria-hidden style={{ ...chip, top: "var(--tasty-size-1)", right: "var(--tasty-size-1)", width: "var(--tasty-status-dot-size-compact)", height: "var(--tasty-status-dot-size-compact)", background: `var(--tasty-status-dot-${dot})`, boxShadow: "0 0 0 var(--tasty-status-dot-ring-width) var(--tasty-status-dot-ring)" }} />}
-      {move && <span aria-label="Move source inside" style={{ ...chip, bottom: "calc(-1 * var(--tasty-border-width))", left: "calc(-1 * var(--tasty-border-width))", width: "var(--tasty-move-source-chip-size)", height: "var(--tasty-move-source-chip-size)", color: "var(--tasty-move-source-glyph)" }}><BIcon name="move" size="var(--tasty-move-source-chip-glyph-size)" /></span>}
-    </div>
-  );
-}
-
 const NAV = [
   { id: "banner", label: "Banner" },
   { id: "shellintegration", label: "Shell integration missing" },
@@ -138,7 +115,6 @@ const NAV = [
   { id: "more", label: "Banner more menu" },
   { id: "blacklist", label: "Capture blacklist" },
   { id: "htmlscript", label: "HTML script notice" },
-  { id: "attachrefusal", label: "Auto-attach refused" },
   { id: "attachsizesync", label: "Attach size sync failed" },
   { id: "htmlremotesize", label: "HTML mirror size notices" },
   { id: "htmlremote", label: "HTML remote content notice" },
@@ -169,13 +145,13 @@ function RcThemeGrid({ label, attr }) {
       <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-md)", alignItems: "flex-start" }}>
         {RC_VARIANTS.map(([cap, p]) => (
           <div key={cap} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", width: "var(--tasty-size-480)" }}>
-            <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
+            <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
             <div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}><HtmlRemoteSurfaceG {...p} height={p.remote && p.script ? 400 : 300} /></div>
           </div>
         ))}
         {[["9a · narrow (360) — variant 1", { remote: "blocked" }, 340], ["9b · narrow (360) — variant 6a", { remote: "blocked", script: "blocked" }, 520]].map(([cap, p, h]) => (
           <div key={cap} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
-            <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
+            <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
             <div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}><HtmlRemoteSurfaceG {...p} narrow width="var(--tasty-size-360)" height={h} /></div>
           </div>
         ))}
@@ -184,18 +160,92 @@ function RcThemeGrid({ label, attr }) {
   );
 }
 
+// 2026-11-10 — top-level http(s) page (decisions 20 · 25). States of both notices with the web copy, wide and narrow.
+function RcWebStateGrid({ label, attr }) {
+
+  const cap = (t) => <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · {t}</span>;
+  const rows = [
+    ["remote · blocked", (n) => <HtmlRemoteBanner web narrow={n} />],
+    ["remote · hover — × revealed", (n) => <HtmlRemoteBanner web hover narrow={n} />],
+    ["remote · loading — Allow disabled until commit", (n) => <HtmlRemoteBanner web state="loading" narrow={n} />],
+    ["remote · reloading", (n) => <HtmlRemoteBanner web state="reloading" narrow={n} />],
+    ["remote · blocked · script sandbox off — network scripts listed, no script sentence", (n) => <HtmlRemoteBanner web sandboxOff narrow={n} />],
+    ["script · blocked (after the remote reload)", (n) => <HtmlScriptBanner web narrow={n} />],
+    ["script · loading — Allow disabled until commit", (n) => <HtmlScriptBanner web state="loading" narrow={n} />],
+    ["script · reloading", (n) => <HtmlScriptBanner web state="reloading" narrow={n} />],
+  ];
+  return (
+    <div {...(attr ? { "data-theme": attr } : {})} style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-lg)", alignItems: "flex-start", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
+      {[["wide (≥ 440)", false, "var(--tasty-size-560)"], ["narrow (< 440)", true, "var(--tasty-size-360)"]].map(([w, n, width]) => (
+        <div key={w} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", width, maxWidth: "100%" }}>
+          {rows.map(([t, draw]) => (
+            <React.Fragment key={t}>
+              {cap(`${w} · ${t}`)}
+              {draw(n)}
+            </React.Fragment>
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// The two markers on a web page: remote = end of the `web` address field, scripts = tab cell right cluster.
+function RcWebMarkerGrid({ label, attr }) {
+
+  const cap = (t) => <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · {t}</span>;
+  const frame = (child) => <div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>{child}</div>;
+  const tab = (marker) => frame(<div style={{ display: "flex", background: "var(--tasty-bg-sidebar)" }}><HsTab label={RC_WEB.label} icon="html" active marker={marker} markerWeb /></div>);
+  const bar = (marker) => frame(<HtmlAddressBar kind="web" address={RC_WEB.address} trailing={<HtmlRemoteMarker kind={marker} web />} />);
+  return (
+    <div {...(attr ? { "data-theme": attr } : {})} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", width: "var(--tasty-size-460)", maxWidth: "100%", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
+      {cap("remote marker · blocked (notice dismissed)")}{bar("blocked")}
+      {cap("remote marker · allowed (this showing)")}{bar("allowed")}
+      {cap("script marker · blocked (notice dismissed)")}{tab("blocked")}
+      {cap("script marker · allowed (this showing)")}{tab("allowed")}
+    </div>
+  );
+}
+
+// §4a flow, one frame per step (hidden states: they only follow each other in time). Follows the page theme.
+const RC_WEB_FLOW = [
+  ["web-flow-1-blocked", "1 · page viewed — the remote notice first shows when the load commits, already blocked · no marker · no script notice", { remote: "blocked" }],
+  ["web-flow-1-loading", "1 · first load, committed but not finished — the notice, blocked, over the host's Loading tile until the load finishes · Reload busy", { remote: "blocked", loading: true, page: "loading" }],
+  ["web-flow-2-reloading", "2 · Allow remote content — reloading · page area: the host's Loading tile until the load finishes · remote marker allowed at once (the allow is recorded before the reload)", { remote: "reloading", remoteMarker: "allowed", loading: true, page: "loading" }],
+  ["web-flow-2-script", "2 · reload committed — remote marker allowed, script notice takes the same slot", { script: "blocked", remoteMarker: "allowed", page: "styled" }],
+  ["web-flow-3-reloading", "3 · Allow scripts on this page — reloading, remote stays allowed · page area: the host's Loading tile until the load finishes · tab marker allowed at once (the allow is recorded before the reload)", { script: "reloading", remoteMarker: "allowed", scriptMarker: "allowed", page: "loading", loading: true }],
+  ["web-flow-3-allowed", "3 · reload committed — no notice · remote marker allowed · tab marker allowed", { remoteMarker: "allowed", scriptMarker: "allowed", page: "styled" }],
+  ["web-flow-4a-loading", "4a · user reload before Allow — page area: the host's Loading tile until the load finishes · the notice stays above it, loading: Allow disabled, Reload busy, until the reload commits", { remote: "loading", loading: true, page: "loading" }],
+  ["web-flow-4b-loading", "4b · user reload after Allow (from step 3) — page area: the host's Loading tile · no notice · remote and tab markers stay allowed until commit (that load's scripts do not run) · Reload busy", { remoteMarker: "allowed", scriptMarker: "allowed", page: "loading", loading: true }],
+  ["web-flow-4-reloaded", "4 · reload committed (4a or 4b; also another page, Back, restart) — both allows cleared, remote notice blocked as at step 1, shown even if dismissed before", { remote: "blocked" }],
+  ["web-flow-x-remote", "× at step 1 — globeOff marker only · no script notice while remote is blocked", { remoteMarker: "blocked" }],
+  ["web-flow-x-script", "× at step 2 — remote marker allowed · tab lock · marker click shows the notice again", { remoteMarker: "allowed", scriptMarker: "blocked", page: "styled" }],
+  ["web-flow-global-remote", "global Allow remote content on · sandbox on — script notice at once, no remote notice or marker", { script: "blocked", page: "styled" }],
+  ["web-flow-sandbox-off-1", "script sandbox off · step 1 — remote notice with the sandbox-off body (network scripts listed, no script sentence)", { remote: "blocked", sandboxOff: true }],
+  ["web-flow-sandbox-off-2", "script sandbox off · remote reload committed — remote marker allowed · no script notice · no tab marker", { remoteMarker: "allowed", page: "styled" }],
+];
+const RC_WEB_TIPS = [
+  ["web-tip-remote-allowed", "remote marker · allowed tooltip", () => <HtmlAddressBar kind="web" address={RC_WEB.address} trailing={<HtmlRemoteMarker kind="allowed" web open />} />],
+  ["web-tip-remote-blocked", "remote marker · blocked tooltip", () => <HtmlAddressBar kind="web" address={RC_WEB.address} trailing={<HtmlRemoteMarker kind="blocked" web open />} />],
+  ["web-tip-script-allowed", "script marker · allowed tooltip", () => <div style={{ display: "flex", background: "var(--tasty-bg-sidebar)" }}><HsTab label={RC_WEB.label} icon="html" active marker="allowed" markerWeb markerOpen /></div>],
+  ["web-tip-script-blocked", "script marker · blocked tooltip", () => <div style={{ display: "flex", background: "var(--tasty-bg-sidebar)" }}><HsTab label={RC_WEB.label} icon="html" active marker="blocked" markerWeb markerOpen /></div>],
+  ["web-tip-remote-loading", "remote notice · loading tooltip", () => <HtmlRemoteBanner web state="loading" tipOpen />],
+  ["web-tip-script-loading", "script notice · loading tooltip", () => <HtmlScriptBanner web state="loading" tipOpen />],
+];
+
 // 2026-11-05 — body ink on the banner shell, every banner kind in both themes.
 function BodyInkGrid({ label, theme }) {
 
   const rows = [
     ["mouse capture", <MouseCaptureBannerG />],
-    ["HTML script", <HtmlScriptBanner />],
-    ["HTML script · reloading", <HtmlScriptBanner state="reloading" />],
-    ["HTML remote content", <HtmlRemoteBanner />],
-    ["HTML mirror · large file, more waiting", <HtmlSizeBanner more={2} />],
-    ["HTML mirror · cumulative limit", <HtmlSizeBanner kind="limit" />],
-    ["auto-attach refused", <AttachRefusalBannerG />],
-    ["attach size sync · names line", <AttachSizeSyncBannerG names={["build", "build", "logs"]} />],
+    ["HTML script", <ScopeNarrowG>{(n) => <HtmlScriptBanner narrow={n} />}</ScopeNarrowG>],
+    ["HTML script · reloading", <ScopeNarrowG>{(n) => <HtmlScriptBanner state="reloading" narrow={n} />}</ScopeNarrowG>],
+    ["HTML remote content", <ScopeNarrowG>{(n) => <HtmlRemoteBanner narrow={n} />}</ScopeNarrowG>],
+    ["HTML remote content · web page", <ScopeNarrowG>{(n) => <HtmlRemoteBanner web narrow={n} />}</ScopeNarrowG>],
+    ["HTML script · web page", <ScopeNarrowG>{(n) => <HtmlScriptBanner web narrow={n} />}</ScopeNarrowG>],
+    ["HTML mirror · large file, more waiting", <ScopeNarrowG>{(n) => <HtmlSizeBanner more={2} narrow={n} />}</ScopeNarrowG>],
+    ["HTML mirror · cumulative limit", <ScopeNarrowG>{(n) => <HtmlSizeBanner kind="limit" narrow={n} />}</ScopeNarrowG>],
+    ["attach size sync · names line", <AttachSizeSyncBannerG names={["build", "build", "logs"]} narrow="auto" />],
     ["shell integration missing · TTL", <TtlBannerG ttl={10} glyph={<BIcon name="alertTriangle" size="var(--tasty-icon-size-md)" />} glyphColor="var(--tasty-accent-warning-raised)" title="Shell integration not detected" body="Command-completion hooks (docker build, just run, etc.) need OSC 133 shell integration. See docs/features/hooks for setup." />],
   ];
   return (
@@ -203,7 +253,7 @@ function BodyInkGrid({ label, theme }) {
       <span style={{ fontSize: "var(--tasty-font-size-body)", fontWeight: "var(--tasty-font-weight-semibold)", color: "var(--tasty-text-primary)" }}>{label}</span>
       {rows.map(([cap, el]) => (
         <div key={cap} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
-          <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
+          <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
           {el}
         </div>
       ))}
@@ -216,9 +266,9 @@ function RemainingInkGrid({ label, theme }) {
   const rows = [
     ["TTL countdown", <TtlBannerG ttl={10} glyph={<BIcon name="alertTriangle" size="var(--tasty-icon-size-md)" />} glyphColor="var(--tasty-accent-warning-raised)" title="Shell integration not detected" />],
     ["⋯ menu · program name unknown · reason line", <BannerMoreMenuG app={null} />],
-    ["large file · ghost Decline", <HtmlSizeBanner />],
-    ["cumulative limit · ghost Stop", <HtmlSizeBanner kind="limit" />],
-    ["long title · wraps, no clamp", <HtmlSizeBanner title="Long title sample: a longer translation or a future string wraps to as many lines as it needs and is never cut off, whether it runs to two lines, to three, or to more than that at this card width" />],
+    ["large file · ghost Decline", <ScopeNarrowG>{(n) => <HtmlSizeBanner narrow={n} />}</ScopeNarrowG>],
+    ["cumulative limit · ghost Stop", <ScopeNarrowG>{(n) => <HtmlSizeBanner kind="limit" narrow={n} />}</ScopeNarrowG>],
+    ["long title · wraps, no clamp", <ScopeNarrowG>{(n) => <HtmlSizeBanner title="Long title sample: a longer translation or a future string wraps to as many lines as it needs and is never cut off, whether it runs to two lines, to three, or to more than that at this card width" narrow={n} />}</ScopeNarrowG>],
     ["sample title ink", <TtlBannerG />],
   ];
   return (
@@ -226,7 +276,7 @@ function RemainingInkGrid({ label, theme }) {
       <span style={{ fontSize: "var(--tasty-font-size-body)", fontWeight: "var(--tasty-font-weight-semibold)", color: "var(--tasty-text-primary)" }}>{label}</span>
       {rows.map(([cap, el]) => (
         <div key={cap} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
-          <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
+          <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
           {el}
         </div>
       ))}
@@ -291,20 +341,20 @@ function Page() {
           <Meta
             specs={[["no action", "TTL — countdown, auto-dismiss at 0"], ["has action", "no TTL — until the action or ×"], ["×", "not an action"], ["exception", "developer-directed, code comment at the definition (none in use for mouse capture since 2026-11-03)"], ["plugin banners", "same rule as authoring guidance (host can't see plugin content)"]]}
             tokens={[{ tok: "--tasty-banner-countdown-fg", use: "TTL seconds", color: "var(--tasty-banner-countdown-fg)" }]} />
-          <Note>Host banners today: <b>TTL</b> — preset applied (6 s), shell integration missing (10 s). <b>No TTL</b> — mouse capture (⋯ rows), auto-attach refused (Remove mapping), attach size sync (Retry), HTML script notice (Allow), HTML remote content (Allow), HTML mirror size / aggregate (Allow · Continue).</Note>
+          <Note>Host banners today: <b>TTL</b> — preset applied (6 s), shell integration missing (10 s). <b>No TTL</b> — mouse capture (⋯ rows), attach size sync (Retry), HTML script notice (Allow), HTML remote content (Allow), HTML mirror size / aggregate (Allow · Continue).</Note>
         </Spec>
         <Spec id="dismiss-ttl-countdown-top-right-one-slot" title="Dismiss & TTL countdown — top-right, one slot"
           when={<>The top-right corner is an <b>affordance column</b> holding <b>one</b> dismiss slot (a banner that carries a ⋯ overflow trigger adds it to the left of that slot — see <i>Banner more menu</i>). A banner <b>with an action</b> (no TTL) keeps its <b>×</b> <b>hidden until you hover</b> the banner. An <b>action-less</b> banner (TTL) shows a <b>seconds countdown</b> there instead, flipping to the × on hover; at <b>0</b> it auto-dismisses. The countdown <b>pauses</b> while the banner is hovered or its scope is backgrounded, then resumes. Appear/dismiss is a <b>120ms alpha fade</b> — the banner never moves.</>}>
           <Stage variant="solo center" style={{ flexDirection: "column", gap: 16, padding: 20, background: "var(--tasty-bg-app)" }}>
             <div style={{ width: "100%", maxWidth: 480 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>has an action → no TTL · hover the banner to reveal ×</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>has an action → no TTL · hover the banner to reveal ×</div>
               <BannerShellG><div style={{ display: "flex", alignItems: "center", gap: 12, padding: "var(--tasty-banner-padding-y) var(--tasty-banner-padding-x)" }}>
                 <span style={{ flex: 1, fontSize: 13, color: "var(--tasty-banner-fg)" }}>Stays until the action or × (× on hover, top-right)</span>
                 <BButton variant="secondary" size="sm" style={{ background: "var(--tasty-banner-button-bg)", borderColor: "var(--tasty-banner-button-border)" }}>Retry</BButton>
                 <IconButton size="sm" aria-label="Dismiss">{ic.x}</IconButton></div></BannerShellG>
             </div>
             <div style={{ width: "100%", maxWidth: 480 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>no action → TTL 6s · live countdown · hover to pause + show ×</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>no action → TTL 6s · live countdown · hover to pause + show ×</div>
               <TtlBannerG />
             </div>
           </Stage>
@@ -330,7 +380,7 @@ function Page() {
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", flexDirection: "column", gap: "var(--tasty-space-md)", alignItems: "stretch" }}>
             {[["Mocha", "mocha"], ["Latte", "latte"]].map(([label, attr]) => (
               <div key={label} {...(attr ? { "data-theme": attr } : {})} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · live countdown · hover to pause + show ×</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · live countdown · hover to pause + show ×</span>
                 <div style={{ width: "100%", maxWidth: "var(--tasty-size-480)" }}>
                   <TtlBannerG ttl={10} glyph={<BIcon name="alertTriangle" size="var(--tasty-icon-size-md)" />} glyphColor="var(--tasty-accent-warning-raised)"
                     title="Shell integration not detected" body="Command-completion hooks (docker build, just run, etc.) need OSC 133 shell integration. See docs/features/hooks for setup." />
@@ -351,15 +401,15 @@ function Page() {
           when={<>The canonical use: a TUI app turns on mouse tracking (DECSET 1000/1002/1003), so drag-to-select and right-click stop working. The banner explains <b>why</b> and the <b>bypass</b>. It is <b>persistent</b> (no TTL — it doesn't time out), fires <b>once per tracking session</b> and only on a <b>real user click</b> (never from agent/IPC). The top-right × is hidden until you hover; dismissing it suppresses the banner for that session. Leading glyph = a mouse (open decision resolved: keep it, in <span className="tok">--tasty-banner-icon-fg</span> tone). Card height is <b>variable</b> — body wraps to 1–3 lines depending on locale.</>}>
           <Stage variant="solo center" style={{ flexDirection: "column", gap: 16, padding: 20, background: "var(--tasty-bg-app)" }}>
             <div style={{ width: "100%", maxWidth: 480 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>default · hover the card to reveal ×</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>default · hover the card to reveal ×</div>
               <MouseCaptureBannerG />
             </div>
             <div style={{ width: "100%", maxWidth: 480 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>one-line body (short locale)</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>one-line body (short locale)</div>
               <MouseCaptureBannerG body="Mouse captured — hold Shift to select." />
             </div>
             <div style={{ width: "100%", maxWidth: 480 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>recessed — dimmed behind a higher-scope banner</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>recessed — dimmed behind a higher-scope banner</div>
               <div data-audit-exempt="dimmed" style={{ opacity: "var(--tasty-banner-recessed-opacity)" }}><MouseCaptureBannerG /></div>
             </div>
           </Stage>
@@ -384,15 +434,15 @@ function Page() {
           when={<>The mouse-capture banner's two per-app opt-outs are <b>not</b> inline buttons — they sit behind a <b>⋯ trigger</b> in the banner's top-right affordance column, <b>left of the ×</b> with a <b>4px</b> gap. Both share the <b>same reveal rule</b>: hidden until the banner is hovered (this banner has no TTL, so no countdown competes for the slot), and the ⋯ additionally <b>stays lit while its menu is open</b>. The card's width and height are unchanged — only the body's right reserve grows from 28 to <b>56px</b>, so a 1-line body still fits on one line.</>}>
           <Stage variant="solo center" style={{ flexDirection: "column", gap: 16, padding: 20, background: "var(--tasty-bg-app)" }}>
             <div style={{ width: "100%", maxWidth: 480 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>idle — no affordance drawn</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>idle — no affordance drawn</div>
               <MouseCaptureBannerG />
             </div>
             <div style={{ width: "100%", maxWidth: 480 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>banner hovered — ⋯ then ×</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>banner hovered — ⋯ then ×</div>
               <MouseCaptureBannerG forceHover />
             </div>
             <div style={{ width: "100%", maxWidth: 480 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>menu open — trigger stays lit (active)</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>menu open — trigger stays lit (active)</div>
               <MouseCaptureBannerG open />
             </div>
           </Stage>
@@ -417,24 +467,24 @@ function Page() {
         <Spec id="elastic-width-the-interpolated-program-name" title="Elastic width — the interpolated program name"
           when={<>Every row interpolates a program name of arbitrary length, and word order differs by locale (en: name last; ko/ja: name first; zh-Hans: name in the middle). So a row's label is <b>two parts</b>: the <b>fixed text</b> (never truncates) and the <b>program name</b> in <b>mono</b> (same row ink as the fixed text: text-secondary at rest, text-primary on hover — 2026-10-08), which is the part that <b>shrinks and ellipsises</b>. The menu grows with the content between <b>200px</b> and <b>288px</b> (a wider band than the Tools menu's 160–240, since every row carries a program name) and the full name is available as the row's tooltip.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 18, alignItems: "flex-start", flexWrap: "wrap" }}>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>short name — content-sized (the vim row already passes the 200 floor)</div>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 6 }}>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>short name — content-sized (the vim row already passes the 200 floor)</div>
               <BannerMoreMenuG app="vim" />
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>medium — grows to fit</div>
-              <BannerMoreMenuG app="python3.11" hovered={0} />
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 6 }}>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>medium — grows to fit</div>
+              <BannerMoreMenuG app="python" hovered={0} />
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>long — capped at 288px, name ellipsises</div>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 6 }}>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>long — capped at 288px, name ellipsises</div>
               <BannerMoreMenuG app="some-very-long-tool-name" />
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>ja — fixed copy alone exceeds 288: that row wraps, menu stays 288 (2026-10-08)</div>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 6 }}>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>ja — fixed copy alone exceeds 288: that row wraps, menu stays 288 (2026-10-08)</div>
               <BannerMoreMenuG app="vim" hovered={1} wrapRows={[1]} texts={[["", " の通知をオフにする"], ["", " について、このプログラムのマウスキャプチャを常に無効にする"]]} />
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>rejected — danger tone on the capture row</div>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 6 }}>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>rejected — danger tone on the capture row</div>
               <BannerMoreMenuG app="vim" danger />
             </div>
           </Stage>
@@ -449,7 +499,7 @@ function Page() {
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 18, alignItems: "flex-start", flexWrap: "wrap" }}>
             {[["en", "vim"], ["ko", "vim"], ["ja", "vim"], ["zh-Hans", "vim"], ["en · long name", "some-very-long-tool-name", "en"], ["ja · long name", "some-very-long-tool-name", "ja"], ["zh-Hans · long name", "some-very-long-tool-name", "zh-Hans"]].map(([cap, app, l]) => (
               <div key={cap} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{cap}</div>
+                <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{cap}</div>
                 <BannerMoreMenuG app={app} lang={l || cap} />
               </div>
             ))}
@@ -463,14 +513,14 @@ function Page() {
           when={<>When the program name is unknown (remote attach mirror — no local PTY; before the first 1 Hz poll; OS lookup failed) the actions still exist but can't run, so they are <b>shown disabled, not hidden</b>. The ⋯ trigger is drawn exactly as with a known name (same hover reveal, lit while open, same 56 body reserve). The menu opens with a non-interactive <b>reason line</b> on top, a separator, then the <b>same two rows disabled</b> — worded with “this program” in place of the name. No “(unknown)” placeholder: a mono “(unknown)” would read as a process called that. Clicking a disabled row does nothing: nothing is saved, the menu stays open, the banner stays. Esc / outside click close as usual. Keyboard arrow navigation skips disabled rows (with both disabled, focus stays on the menu). If the name arrives while the menu is open the menu does not change; the next open shows the normal rows. On a remote mirror the name is always unknown, so this is the menu there — a note, no separate example.</>}>
           <Stage variant="solo center" style={{ flexDirection: "column", gap: 16, padding: 20, paddingBottom: 150, background: "var(--tasty-bg-app)" }}>
             <div style={{ width: "100%", maxWidth: 480 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>name unknown — menu open (en)</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>name unknown — menu open (en)</div>
               <MouseCaptureBannerG app={null} open />
             </div>
           </Stage>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 18, alignItems: "flex-start", flexWrap: "wrap" }}>
             {["en", "ko", "ja", "zh-Hans"].map((l) => (
               <div key={l} style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{l} · unknown</div>
+                <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>{l} · unknown</div>
                 <BannerMoreMenuG app={null} lang={l} />
               </div>
             ))}
@@ -488,11 +538,11 @@ function Page() {
           when={<>The companion settings (labels aligned with the ⋯ rows 2026-11-02): <b>Don't show the capture notice for these programs</b> (<code>mouse_capture_banner_blacklist</code>) and <b>Let Tasty handle clicks in these programs</b> (<code>mouse_capture_blacklist</code>) — process-name patterns where mouse capture is <b>disabled</b>, so clicks/drags are handled locally (select / tasty menu) instead of being sent to the app. Promoted from the old newline textarea to a <b>list editor</b> (rows + Add) — resolved open decision. Grouped with the <b>Show mouse-capture hint</b> switch since both govern the same feature. Default is an <b>empty list</b>. Remove uses <span className="ic">×</span> (it un-lists a program, it doesn't delete anything).</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 18, flexWrap: "wrap" }}>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>filled · one row hovered</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>filled · one row hovered</div>
               <BlacklistEditorG />
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>empty (default) · Add disabled</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>empty (default) · Add disabled</div>
               <BlacklistEditorG empty />
             </div>
           </Stage>
@@ -509,9 +559,14 @@ function Page() {
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", flexDirection: "column", gap: "var(--tasty-space-lg)", alignItems: "stretch" }}>
             {[["Mocha", "mocha"], ["Latte", "latte"]].map(([label, attr]) => (
               <div key={label} {...(attr ? { "data-theme": attr } : {})} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", background: "var(--tasty-bg-app)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · two surfaces side by side, banner on the HTML one only</span>
-                <div style={{ display: "flex", gap: "var(--tasty-border-width)", background: "var(--tasty-border-frame)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
-                  <HtmlSurfaceG />
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · two surfaces side by side, banner on the HTML one only</span>
+                {/* The row keeps each surface at least html-surface-specimen-min-width, so at a narrow column the stage scrolls instead of
+                    clipping the narrow banner's Allow button. Narrow is still judged on the HTML surface's own width, as the app does. */}
+                <div style={{ display: "flex", gap: "var(--tasty-border-width)", minWidth: "calc(2 * var(--tasty-html-surface-specimen-min-width) + 3 * var(--tasty-border-width))", background: "var(--tasty-border-frame)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
+                  {/* The app judges narrow on the surface's width before the banner inset: the slot is the HTML surface's box. */}
+                  <div style={{ flex: 1, minWidth: "var(--tasty-html-surface-specimen-min-width)" }}>
+                    <ScopeNarrowG>{(n) => <HtmlSurfaceG narrow={n} />}</ScopeNarrowG>
+                  </div>
                   <TermSurfaceG />
                 </div>
               </div>
@@ -523,21 +578,21 @@ function Page() {
           <Dont><b>Don't</b> inject the notice into the document DOM (⒞): the page could hide or forge it, and its button can't run with scripts off. <b>Don't</b> build three native overlays (⒝) for one notice.</Dont>
         </Spec>
         <Spec id="banner-states" title="Banner states"
-          when={<>Informational, not a warning: blocking is the default working as intended. Leading glyph <b>lock</b> in <span className="tok">--tasty-html-script-banner-glyph</span> (→ accent-info). One action, <b>[Allow for this document]</b>, Secondary / Sm — a relaxation should not be the loudest thing on screen, and there is no second action (the global switch lives in Settings › Appearance › HTML). Title and body <b>wrap and never clamp</b> — the card grows (Tasty-owned copy, same rule as refusal / size sync / mouse capture, 2026-10-10 b12); the button never wraps. The scope ("this document", "until Tasty restarts") is in the body copy. After Allow the document reloads once: the action is replaced by a spinner + <i>Reloading with scripts allowed</i>, × is withheld, and the banner fades out (120ms) when the new load commits.</>}>
+          when={<>Informational, not a warning: blocking is the default working as intended. Leading glyph <b>lock</b> in <span className="tok">--tasty-html-script-banner-glyph</span> (→ accent-info). One action, <b>[Allow for this document]</b>, Secondary / Sm — a relaxation should not be the loudest thing on screen, and there is no second action (the global switch lives in Settings › Appearance › HTML). Title and body <b>wrap and never clamp</b> — the card grows (Tasty-owned copy, same rule as size sync / mouse capture, 2026-10-10 b12); the button never wraps. The scope ("this document", "until Tasty restarts") is in the body copy. After Allow the document reloads once: the action is replaced by a spinner + <i>Reloading with scripts allowed</i>, × is withheld, and the banner fades out (120ms) when the new load commits.</>}>
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", flexDirection: "column", gap: "var(--tasty-space-md)", alignItems: "stretch" }}>
             {[["1 · blocked (default)", {}], ["2 · hover — × revealed", { hover: true }], ["3 · after Allow — reloading", { state: "reloading" }], ["4 · surface loading a new document — Allow disabled until commit (tooltip on hover)", { state: "loading" }], ["remote content also blocked — body branch", { remote: true }]].map(([cap, p]) => (
               <div key={cap} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", maxWidth: "var(--tasty-size-600)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</span>
                 <HtmlScriptBanner {...p} />
               </div>
             ))}
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
-              <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>6 · narrow surface (360) — action wraps under the body</span>
+              <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>6 · narrow surface (360) — action wraps under the body</span>
               <div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden", alignSelf: "flex-start" }}><HtmlSurfaceG width="var(--tasty-size-360)" narrow height={300} /></div>
             </div>
           </Stage>
           <Meta
-            specs={[["title", "\"Scripts in this document are blocked\" · 13/600"], ["body", "caption · banner-body-fg · wraps, never clamps (b12 — was ≤ 2 lines)"], ["remote branch", "network scripts stay blocked — says so"], ["action", "Secondary / Sm · no wrap"], ["reloading", "spinner + label · no × · fade out on commit"], ["loading (still blocked)", "Allow disabled from load start to commit · no delay · tooltip (top) \"Available when the document finishes loading\" · × kept"], ["narrow", "surface width < 440 (--tasty-banner-narrow-below) → action on its own line, body-aligned"], ["glyph nudge", "1 · --tasty-banner-glyph-offset"], ["title ↔ body", "2 · --tasty-banner-text-gap (every banner)"]]}
+            specs={[["title", "\"Scripts in this document are blocked\" · 13/600"], ["body", "caption · banner-body-fg · wraps, never clamps (b12 — was ≤ 2 lines)"], ["remote branch", "network scripts stay blocked — says so"], ["action", "Secondary / Sm · no wrap"], ["reloading", "spinner + label · no × · fade out on commit"], ["loading (still blocked)", "Allow disabled from load start to commit · no delay · tooltip (top) \"Available when loading finishes\" · × kept"], ["narrow", "surface width < 440 (--tasty-banner-narrow-below) → action on its own line, body-aligned"], ["glyph nudge", "1 · --tasty-banner-glyph-offset"], ["title ↔ body", "2 · --tasty-banner-text-gap (every banner)"]]}
             tokens={[{ tok: "--tasty-html-script-banner-glyph", use: "lock → accent-info", color: "var(--tasty-html-script-banner-glyph)" }, { tok: "--tasty-banner-title-font-size", use: "13" }, { tok: "--tasty-banner-body-font-size", use: "11" }]} />
         </Spec>
         <Spec id="a-button-on-the-banner-shell" title="A button on the banner shell"
@@ -545,9 +600,9 @@ function Page() {
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
             {[["Mocha", "mocha"], ["Latte", "latte"]].map(([label, attr]) => (
               <div key={label} {...(attr ? { "data-theme": attr } : {})} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", width: "var(--tasty-size-560)", maxWidth: "100%", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · blocked, hover the button</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · blocked, hover the button</span>
                 <HtmlScriptBanner />
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · loading — disabled on the shell</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · loading — disabled on the shell</span>
                 <HtmlScriptBanner state="loading" />
               </div>
             ))}
@@ -563,7 +618,7 @@ function Page() {
               <div key={label} {...(attr ? { "data-theme": attr } : {})} style={{ display: "flex", gap: "var(--tasty-space-md)", flexWrap: "wrap", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
                 {[["current — stale banner over the failure (wrong)", { banner: "blocked", marker: "blocked" }], ["decided — failure state only", { banner: null, marker: null }]].map(([cap, p]) => (
                   <div key={cap} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
-                    <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · {cap}</span>
+                    <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · {cap}</span>
                     <div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}><HtmlSurfaceG {...p} failed width="var(--tasty-size-360)" height={220} /></div>
                   </div>
                 ))}
@@ -571,8 +626,8 @@ function Page() {
             ))}
           </Stage>
           <Meta
-            specs={[["banner", "removed while failed"], ["tab marker", "lock / script glyph removed while failed"], ["failure state", "alertCircle md + Failed to load (accent-danger) · URL mono caption text-disabled"], ["reload commits", "banner + marker re-derived from the new document"]]}
-            tokens={[{ tok: "--tasty-accent-danger", use: "glyph + title", color: "var(--tasty-accent-danger-raised)" }, { tok: "--tasty-text-disabled", use: "URL", color: "var(--tasty-text-disabled)" }]} />
+            specs={[["banner", "removed while failed"], ["tab marker", "lock / script glyph removed while failed"], ["failure state", "the webview page tile, failed: alertCircle md (glyph-danger) + Failed to load (text-danger) · URL mono caption text-muted · sub line reserved"], ["reload commits", "banner + marker re-derived from the new document"]]}
+            tokens={[{ tok: "--tasty-accent-danger", use: "glyph", color: "var(--tasty-accent-danger)" }, { tok: "--tasty-accent-danger-raised", use: "title", color: "var(--tasty-accent-danger-raised)" }, { tok: "--tasty-text-muted", use: "URL", color: "var(--tasty-text-muted)" }]} />
         </Spec>
         <Spec id="after-and-after-allow-the-tab-strip-marker" title="After × and after Allow — the tab-strip marker"
           when={<>× hides the notice for this load; scripts stay blocked. A <b>lock</b> marker then sits in the surface's tab, first in the tab's right-hand status cluster (Layouts › Pane tab strip; <span className="tok">--tasty-html-script-marker-fg</span> → glyph-dim, 12px). Clicking it <b>shows the banner again</b> — it re-explains before offering Allow, and never allows on its own. Mouse only, no focus change. After Allow, the tab carries a <b>script</b> glyph in text-muted with a tooltip; it is not clickable. Navigating to another document clears both, and the new document starts over. <code>#fragment</code> moves keep them.</>}>
@@ -581,7 +636,7 @@ function Page() {
               <div key={label} {...(attr ? { "data-theme": attr } : {})} style={{ display: "flex", gap: "var(--tasty-space-md)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
                 {[["4a · dismissed — lock, click to re-show", "blocked"], ["4b · allowed this session", "allowed"]].map(([cap, m]) => (
                   <div key={m} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
-                    <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · {cap}</span>
+                    <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · {cap}</span>
                     <div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}><HtmlSurfaceG banner={null} marker={m} width="var(--tasty-size-240)" height={120} /></div>
                   </div>
                 ))}
@@ -594,78 +649,27 @@ function Page() {
           <Note><b>Firing:</b> only when the user views the document (opened it, or selected the surface). Agent/IPC opens, session restore and background loads keep a "has scripts" flag and show the banner the first time the user looks at that surface.</Note>
         </Spec>
       </Section>
-      <Section id="attachrefusal" title="Auto-attach refused — mapping notice">
-        <Spec id="persistent-row-mark-workspace-banner-no-toast" title="Persistent row mark + workspace banner, no toast"
-          when={<>A workspace mapped with <code>tasty set workspace --ssh / --ssh-profile</code> whose target <b>is this Tasty</b> is not attached (a self-mirror would lock local input). Two signals, both <b>persistent</b> and neither takes focus: a <b>warning glyph</b> on the workspace's <b>sidebar row</b> (visible whether or not it is active, tooltip = target + reason), and a <b>Workspace-scope banner</b> at the top of that workspace's content while it is active — target in mono, the reason, and what to do. <b>Remove mapping</b> (banner button) clears the mapping as <code>tasty set workspace --id … --clear-mapping</code> would; × hides the banner for this activation only — the row mark stays until the mapping changes, is removed, or a profile re-check succeeds. <b>No toast</b>: the condition outlives a toast and must be findable later. The same pair covers the other mapping errors (profile not found, endpoint not resolvable) with their own reason line.</>}>
-          <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
-            {[["Mocha", "mocha"], ["Latte", "latte"]].map(([label, th]) => (
-              <div key={label} {...(th ? { "data-theme": th } : {})} style={{ display: "flex", gap: "var(--tasty-space-md)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", alignItems: "flex-start" }}>
-                <div style={{ width: "var(--tasty-size-200)", display: "flex", flexDirection: "column", gap: "var(--tasty-size-1)", padding: "var(--tasty-space-xs)", background: "var(--tasty-bg-sidebar)", borderRadius: "var(--tasty-radius)" }}>
-                  <RefusalRowG name="tasty-core" />
-                  <RefusalRowG name="staging-mirror" active refused />
-                  <RefusalRowG name="scratch" />
-                </div>
-                <div style={{ width: "var(--tasty-size-460)", display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
-                  <AttachRefusalBannerG kind="self" />
-                  <div style={{ height: "var(--tasty-size-64)", borderRadius: "var(--tasty-radius)", background: "var(--tasty-surface-terminal-focused-bg)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)", padding: "var(--tasty-space-sm)" }}>local terminal — still usable</div>
-                </div>
-              </div>
-            ))}
-          </Stage>
-          <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", flexDirection: "column", gap: "var(--tasty-space-sm)", alignItems: "stretch" }}>
-            <div style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>other mapping errors — same banner, own reason</div>
-            <div style={{ maxWidth: "var(--tasty-size-560)" }}><AttachRefusalBannerG kind="profile" /></div>
-            <div style={{ maxWidth: "var(--tasty-size-560)" }}><AttachRefusalBannerG kind="resolve" /></div>
-          </Stage>
-          <Meta
-            specs={[["row mark", "alertTriangle 14 · accent-warning · trailing slot of the workspace row · tooltip = target + reason"], ["banner scope", "Workspace · shown while that workspace is active"], ["glyph", "alertTriangle 16 · accent-warning"], ["title", "Remote not attached — {target} (target mono)"], ["body", "{reason} Change or remove the mapping for this workspace."], ["action", "Remove mapping · banner button (secondary sm on banner-button tokens)"], ["×", "hides for this activation; the row mark stays"], ["clears", "mapping changed / removed · profile re-check succeeds"], ["focus", "never moved — agent-made mappings included"], ["toast", "none"]]}
-            tokens={[{ tok: "--tasty-accent-warning", use: "glyph + row mark", color: "var(--tasty-accent-warning-raised)" }, { tok: "--tasty-banner-bg", use: "shell", color: "var(--tasty-banner-bg)" }, { tok: "--tasty-banner-button-bg", use: "Remove mapping", color: "var(--tasty-banner-button-bg)" }, { tok: "--tasty-banner-body-font-size", use: "reason 11" }]} />
-          <Note>Strings (en): <code>remote.refusal.title</code> “Remote not attached — {"{target}"}” · <code>remote.refusal.self</code> “This mapping points at this Tasty, so it was not attached.” · <code>remote.refusal.profile_missing</code> “No SSH profile with this name.” · <code>remote.refusal.unresolved</code> “The endpoint could not be resolved.” · <code>remote.refusal.hint</code> “Change or remove the mapping for this workspace.” · <code>remote.refusal.remove</code> “Remove mapping”. No new tokens.</Note>
-        </Spec>
-        <Spec id="collapsed-rail-beside-the-attention-badges" title="Collapsed rail · beside the attention badges"
-          when={<><b>Rail:</b> the refusal takes the one free avatar corner, <b>top-left</b>, as a 12px chip (alertTriangle 8 on bg-sidebar) — top-right stays the attention dot, bottom-right the mirror chip, bottom-left the move chip; all four can show at once, so there is no priority rule. Same tooltip as the row. <b>Row:</b> order after the name is <b>move glyph · refusal mark · badge group</b>, gap = the row item spacing (space-sm). The badges stay rightmost so the counts line up down the list; the two persistent marks sit before them. The mark never replaces a badge.</>}>
-          <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
-            {[["Mocha", "mocha"], ["Latte", "latte"]].map(([label, th]) => (
-              <div key={label} {...(th ? { "data-theme": th } : {})} style={{ display: "flex", gap: "var(--tasty-space-md)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", alignItems: "flex-start" }}>
-                <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-sm)", background: "var(--tasty-bg-sidebar)", borderRadius: "var(--tasty-radius)" }}>
-                  <RefusalRailG ch="T" />
-                  <RefusalRailG ch="S" refused />
-                  <RefusalRailG ch="D" refused dot="warning" move />
-                </div>
-                <div style={{ width: "var(--tasty-size-200)", display: "flex", flexDirection: "column", gap: "var(--tasty-size-1)", padding: "var(--tasty-space-xs)", background: "var(--tasty-bg-sidebar)", borderRadius: "var(--tasty-radius)" }}>
-                  <RefusalRowG name="tasty-core" done={3} />
-                  <RefusalRowG name="staging-mirror" active refused ni={1} done={5} />
-                  <RefusalRowG name="data-etl" refused move ni={2} />
-                </div>
-              </div>
-            ))}
-          </Stage>
-          <Meta
-            specs={[["rail chip", "top-left · 12 · alertTriangle 8 · accent-warning on bg-sidebar"], ["rail corners", "TR attention dot · BR mirror · BL move · TL refusal — no priority"], ["row order", "name · move · refusal · badges"], ["row gap", "space-sm (row item spacing)"], ["tooltip", "same as the row · not clickable"]]}
-            tokens={[{ tok: "--tasty-attach-refusal-glyph", use: "→ accent-warning", color: "var(--tasty-attach-refusal-glyph)" }, { tok: "--tasty-attach-refusal-chip-size", use: "→ move-source-chip-size 12" }, { tok: "--tasty-attach-refusal-chip-glyph-size", use: "→ move-source-chip-glyph-size 8" }]} />
-        </Spec>
-      </Section>
       <Section id="attachsizesync" title="Attach mirror — terminal size sync failed">
         <Spec id="workspace-banner-default-retrying-several-surfaces" title="Workspace banner · default · retrying · several surfaces"
-          when={<>An attached mirror asks the remote to resize each terminal to the local pane. When the remote does not answer within 5 s (or refuses) Tasty retries <b>once</b> on its own; if that also fails this banner appears in the <b>mirror workspace</b> that owns the surface. Same family as the refusal banner: <b>alertTriangle</b> in accent-warning, a semibold title, one muted body line, one banner-button action and the <b>×</b> dismiss. <b>Retry</b> re-sends only the failed surfaces' size requests (the connection and other surfaces are untouched). While waiting the button is <b>disabled with a leading Spinner</b> and keeps its label, so the width does not jump between languages; success removes the banner, failure returns it to the default state. <b>Several surfaces</b> failing together share <b>one card</b>: “N surfaces — a, b +n”, and the action reads <b>Retry all</b>. The banner also clears by itself when a later resize succeeds. A reconnecting mirror shows the reconnect notice instead (it wins the slot). Queue rules are the normal Workspace-scope ones: one card per scope.</>}>
+          when={<>An attached mirror asks the remote to resize each terminal to the local pane. When the remote does not answer within 5 s (or refuses) Tasty retries <b>once</b> on its own; if that also fails this banner appears in the <b>mirror workspace</b> that owns the surface. The banner uses <b>alertTriangle</b> in accent-warning, a semibold title, one muted body line, one banner-button action and the <b>×</b> dismiss. <b>Retry</b> re-sends only the failed surfaces' size requests (the connection and other surfaces are untouched). While waiting the button is <b>disabled with a leading Spinner</b> and keeps its label, so the width does not jump between languages; success removes the banner, failure returns it to the default state. <b>Several surfaces</b> failing together share <b>one card</b>: “N surfaces — a, b +n”, and the action reads <b>Retry all</b>. The banner also clears by itself when a later resize succeeds. A reconnecting mirror shows the reconnect notice instead (it wins the slot). Queue rules are the normal Workspace-scope ones: one card per scope.</>}>
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
             {[["Mocha", "mocha"], ["Latte", "latte"]].map(([label, th]) => (
               <div key={label} {...(th ? { "data-theme": th } : {})} style={{ width: "var(--tasty-size-460)", display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} — default</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} — default</span>
                 <AttachSizeSyncBannerG names={["build"]} />
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>retrying (≤ 5 s)</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>retrying (≤ 5 s)</span>
                 <AttachSizeSyncBannerG names={["build"]} retrying />
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>3 surfaces · long tab title truncated</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>3 surfaces · long tab title truncated</span>
                 <AttachSizeSyncBannerG names={["release-pipeline-watch-logs-eu-west", "build", "tests"]} />
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>split tab · same name twice (b11)</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>split tab · same name twice (b11)</span>
                 <AttachSizeSyncBannerG names={["Shell", "Shell"]} />
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>duplicates + others (b11)</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>duplicates + others (b11)</span>
                 <AttachSizeSyncBannerG names={["Shell", "Shell", "build", "tests"]} />
               </div>
             ))}
           </Stage>
           <Meta
-            specs={[["boxes", "glyph 16 · text column (flex 1) · action group (Retry + ×, gap 4)"], ["glyph", "alertTriangle 16 · attach-sync-glyph → accent-warning (same as refusal)"], ["title", "banner-title 13 · semibold · never truncated"], ["body", "banner-body 11 · banner-body-fg · TWO lines (b10): ① names — one line ② “The remote may still be using the old size.” — wraps, never cut"], ["name", "text-secondary-raised · each name ≤ attach-sync-name-max-width 160, shrinks to fit the line down to attach-sync-name-min-width 40, then ellipsis · the floor applies only while shrinking: box = min(natural, max(40, shrunk)) — a short name keeps its own width (b11) · first two entries, then +n; separators, ×k and +n never shrink"], ["same name (b11)", "equal display names collapse into one entry + “ ×k” (text-muted, never shrinks) · “N surfaces” counts surfaces · +n counts remaining entries · Retry all retries every surface"], ["body lines (b11 · b12)", "Tasty-owned banner copy (refusal · size sync · mouse capture · HTML script) never clamps — the card grows · plugin-supplied body clamps at 3 lines, then ellipsis + full text in the tooltip"], ["plugin body rows (b12)", "rows = min(3, floor(content height ÷ body line height)) — a fixed size_hint that holds fewer lines clamps at what fits; the ellipsis sits on the last row that fits"], ["plugin tooltip (b12)", "drawn by the HOST, not inside the plugin mesh: the widget reports “truncated + full text” for the frame and the host shows the standard Tooltip BELOW the banner card (left = body x, offset tooltip-offset 4, max tooltip-max-width 240, delay tooltip-delay) — never over the pointer, never clipped by the content rect · interim (no channel yet): the widget opens its tooltip below the body inside the content rect, never above"], ["retrying", "Retry disabled + leading Spinner 14, label unchanged"], ["many", "one card · “N surfaces — a, b +n” · Retry all"], ["×", "IconButton sm · hides this card; a new failure shows it again"], ["clears", "Retry success · later resize success · surface closed"], ["priority", "reconnect notice wins the slot"]]}
+            specs={[["boxes", "glyph 16 · text column (flex 1) · action group (Retry + ×, gap 4)"], ["glyph", "alertTriangle 16 · attach-sync-glyph → accent-warning"], ["title", "banner-title 13 · semibold · never truncated"], ["body", "banner-body 11 · banner-body-fg · TWO lines (b10): ① names — one line ② “The remote may still be using the old size.” — wraps, never cut"], ["name", "text-secondary-raised · each name ≤ attach-sync-name-max-width 160, shrinks to fit the line down to attach-sync-name-min-width 40, then ellipsis · the floor applies only while shrinking: box = min(natural, max(40, shrunk)) — a short name keeps its own width (b11) · first two entries, then +n; separators, ×k and +n never shrink"], ["same name (b11)", "equal display names collapse into one entry + “ ×k” (text-muted, never shrinks) · “N surfaces” counts surfaces · +n counts remaining entries · Retry all retries every surface"], ["body lines (b11 · b12)", "Tasty-owned banner copy (size sync · mouse capture · HTML script) never clamps — the card grows · plugin-supplied body clamps at 3 lines, then ellipsis + full text in the tooltip"], ["plugin body rows (b12)", "rows = min(3, floor(content height ÷ body line height)) — a fixed size_hint that holds fewer lines clamps at what fits; the ellipsis sits on the last row that fits"], ["plugin tooltip (b12)", "drawn by the HOST, not inside the plugin mesh: the widget reports “truncated + full text” for the frame and the host shows the standard Tooltip BELOW the banner card (left = body x, offset tooltip-offset 4, max tooltip-max-width 240, delay tooltip-delay) — never over the pointer, never clipped by the content rect · interim (no channel yet): the widget opens its tooltip below the body inside the content rect, never above"], ["retrying", "Retry disabled + leading Spinner 14, label unchanged"], ["many", "one card · “N surfaces — a, b +n” · Retry all"], ["×", "IconButton sm · hides this card; a new failure shows it again"], ["clears", "Retry success · later resize success · surface closed"], ["priority", "reconnect notice wins the slot"]]}
             tokens={[{ tok: "--tasty-attach-sync-glyph", use: "→ accent-warning", color: "var(--tasty-attach-sync-glyph)" }, { tok: "--tasty-attach-sync-name-max-width", use: "→ size-160" }, { tok: "--tasty-attach-sync-name-min-width", use: "→ size-40 (new, b11)" }, { tok: "--tasty-banner-button-bg", use: "Retry", color: "var(--tasty-banner-button-bg)" }, { tok: "--tasty-spinner-indicator", use: "retrying", color: "var(--tasty-spinner-indicator)" }]} />
           <Note>Strings (en): <code>remote.size_sync.title</code> “Couldn't sync the terminal size with the remote” · <code>remote.size_sync.names</code> “{"{names}"}” (line 1) · <code>remote.size_sync.hint</code> “The remote may still be using the old size.” (line 2; replaces <code>remote.size_sync.body</code>) · <code>remote.size_sync.many</code> “{"{n}"} surfaces — {"{names}"}” · <code>remote.size_sync.retry</code> “Retry” · <code>remote.size_sync.retry_all</code> “Retry all”.</Note>
         </Spec>
@@ -674,13 +678,11 @@ function Page() {
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
             {[["Mocha", "mocha"], ["Latte", "latte"]].map(([label, th]) => (
               <div key={label} {...(th ? { "data-theme": th } : {})} style={{ width: "var(--tasty-size-360)", display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} — refused · 360</span>
-                <AttachRefusalBannerG kind="self" narrow />
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>size sync · one surface</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} — size sync · one surface · 360</span>
                 <AttachSizeSyncBannerG names={["build"]} narrow />
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>size sync · 3 surfaces · Retry all</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>size sync · 3 surfaces · Retry all</span>
                 <AttachSizeSyncBannerG names={["release-pipeline-watch-logs-eu-west", "build", "tests"]} narrow />
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>size sync · retrying</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>size sync · retrying</span>
                 <AttachSizeSyncBannerG names={["release-pipeline-watch-logs-eu-west", "build", "tests"]} narrow retrying />
               </div>
             ))}
@@ -696,16 +698,16 @@ function Page() {
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
             {[["Mocha", "mocha"], ["Latte", "latte"]].map(([th, dt]) => (
               <div key={th} data-theme={dt || undefined} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-panel)", borderRadius: "var(--tasty-radius)", width: "var(--tasty-size-560)" }}>
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{th} · large file · one file</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{th} · large file · one file</span>
                 <HtmlSizeBanner kind="file" />
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{th} · large file · more waiting, long path</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{th} · large file · more waiting, long path</span>
                 <HtmlSizeBanner kind="file" name="assets/media/marketing/2026/launch/hero-background-loop-4k.mp4" size="12.4 MB" more={2} />
-                <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{th} · cumulative limit</span>
+                <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{th} · cumulative limit</span>
                 <HtmlSizeBanner kind="limit" />
               </div>
             ))}
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-panel)", borderRadius: "var(--tasty-radius)", width: "var(--tasty-size-360)" }}>
-              <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>narrow (&lt; 440) — actions wrap under the body</span>
+              <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>narrow (&lt; 440) — actions wrap under the body</span>
               <HtmlSizeBanner kind="file" narrow />
               <HtmlSizeBanner kind="limit" narrow />
             </div>
@@ -721,29 +723,29 @@ function Page() {
           when={<>When the global <b>Allow remote content</b> is off and the document references <code>http(s)</code> stylesheets, images, fonts, frames, media or scripts, the HTML surface shows a second inset notice. Same shell, life rules and state names as the script notice; it is told apart by its glyph, <b>globeOff</b> (new), in the same informational tone (<span className="tok">--tasty-html-remote-banner-glyph</span> → accent-info). The title states the policy (“…is blocked”), which is true whether the reference was found by the static scan or seen blocked by the OS, so the copy never has to tell those apart. The body names the <b>kinds</b>, not counts: a static count can differ from what the page actually loads. Title and body wrap and never clamp (Tasty-owned copy, b12). One action <b>[Allow remote content]</b>, Secondary / Sm — distinct from the script notice's “Allow for this document” so two stacked notices never show the same button label.</>}>
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
             {[["Mocha", "mocha"], ["Latte", "latte"]].map(([label, attr]) => (
-              <div key={label} {...(attr ? { "data-theme": attr } : {})} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", width: "var(--tasty-size-560)", maxWidth: "100%", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
+              <div key={label} data-banner-scope {...(attr ? { "data-theme": attr } : {})} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", width: "var(--tasty-size-560)", maxWidth: "100%", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
                 {[["blocked", {}], ["hover — × revealed", { hover: true }], ["loading — Allow disabled until commit", { state: "loading" }], ["reloading — spinner, no ×", { state: "reloading" }]].map(([cap, p]) => (
                   <React.Fragment key={cap}>
-                    <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · {cap}</span>
-                    <HtmlRemoteBanner {...p} />
+                    <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · {cap}</span>
+                    <ScopeNarrowG scope="[data-banner-scope]">{(n) => <HtmlRemoteBanner {...p} narrow={n} />}</ScopeNarrowG>
                   </React.Fragment>
                 ))}
               </div>
             ))}
           </Stage>
           <Meta
-            specs={[["glyph", "globeOff 16 · html-remote-banner-glyph → accent-info"], ["title", "“Remote content in this document is blocked” · 13/600 · wraps"], ["body", "kinds, no counts · scope and lifetime last · 11 · banner-body-fg · wraps"], ["action", "Allow remote content · Secondary / Sm · no wrap"], ["loading", "disabled from load start to commit · tooltip top “Available when the document finishes loading” · × kept"], ["reloading", "Spinner 14 + “Reloading with remote content allowed” · body opacity-dimmed · no × · fades out on commit"], ["×", "hover only · hides the notice for this document, block stays"], ["focus", "never taken · click only"]]}
+            specs={[["glyph", "globeOff 16 · html-remote-banner-glyph → accent-info"], ["title", "“Remote content in this document is blocked” · 13/600 · wraps"], ["body", "kinds, no counts · scope and lifetime last · 11 · banner-body-fg · wraps"], ["action", "Allow remote content · Secondary / Sm · no wrap"], ["loading", "disabled from load start to commit · tooltip top “Available when loading finishes” · × kept"], ["reloading", "Spinner 14 + “Reloading with remote content allowed” · body opacity-dimmed · no × · fades out on commit"], ["×", "hover only · hides the notice for this document, block stays"], ["focus", "never taken · click only"]]}
             tokens={[{ tok: "--tasty-html-remote-banner-glyph", use: "→ accent-info", color: "var(--tasty-html-remote-banner-glyph)" }, { tok: "--tasty-banner-bg", use: "shell", color: "var(--tasty-banner-bg)" }, { tok: "--tasty-banner-button-bg", use: "Allow", color: "var(--tasty-banner-button-bg)" }]} />
-          <Note>Strings (en): <code>banner.html_remote.title</code> “Remote content in this document is blocked” · <code>banner.html_remote.body</code> “Stylesheets, images, fonts, frames and scripts from the network don't load, so the page may look incomplete. Allowing applies to this document only, until Tasty restarts.” · <code>banner.html_remote.action</code> “Allow remote content” · <code>banner.html_remote.reloading</code> “Reloading with remote content allowed” · <code>banner.html_remote.action_loading</code> “Available when the document finishes loading” (same text as the script key) · <code>banner.html_remote.marker_blocked</code> “Remote content blocked. Click for details.” · <code>banner.html_remote.marker_allowed</code> “Remote content allowed for this document until Tasty restarts”.</Note>
+          <Note>Strings (en): <code>banner.html_remote.title</code> “Remote content in this document is blocked” · <code>banner.html_remote.body</code> “Stylesheets, images, fonts, frames and scripts from the network don't load, so the page may look incomplete. Allowing applies to this document only, until Tasty restarts.” · <code>banner.html_remote.action</code> “Allow remote content” · <code>banner.html_remote.reloading</code> “Reloading with remote content allowed” · <code>banner.html_remote.action_loading</code> “Available when loading finishes” (same text as the script key; shared with web pages, so it names neither a document nor a page) · <code>banner.html_remote.marker_blocked</code> “Remote content blocked. Click for details.” · <code>banner.html_remote.marker_allowed</code> “Remote content allowed for this document until Tasty restarts”.</Note>
         </Spec>
         <Spec id="the-address-field-marker-always-findable" title="The address-field marker — always findable"
           when={<>The persistent signal lives at the <b>end of the address field</b>, after the mirror's “n skipped” Tag: the band is where the document's address and its loading state already are, and the tab cell's right cluster is kept for the script marker. Shown whenever the notice is <b>not</b> on screen. <b>Blocked</b> (× dismissed, or a block the OS observed without a static reference) = <b>globeOff</b> in glyph-dim inside a 20 hit cell with the hover fill; a click <b>shows the notice</b>, it never allows on its own. <b>Allowed</b> = <b>globe</b> in text-muted, tooltip only. Tooltips open <b>top</b>. Agent IPC/CLI queries and allows never change focus, the active tab or the marker drawing beyond the reload result. Failed (uncommitted) documents: no notice, no marker.</>}>
           <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
             {[["Mocha", "mocha"], ["Latte", "latte"]].map(([label, attr]) => (
               <div key={label} {...(attr ? { "data-theme": attr } : {})} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", width: "var(--tasty-size-460)", maxWidth: "100%", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
-                {[["blocked", { trailing: <HtmlRemoteMarker kind="blocked" /> }], ["blocked · hover", { trailing: <HtmlRemoteMarker kind="blocked" hover /> }], ["allowed", { trailing: <HtmlRemoteMarker kind="allowed" /> }], ["mirror · after a declined large file — Tag, then marker", { kind: "remote", address: "build-eu:~/reports/q3/report.html", skipped: 2, trailing: <HtmlRemoteMarker kind="blocked" /> }]].map(([cap, p]) => (
+                {[["blocked", { trailing: <HtmlRemoteMarker kind="blocked" /> }], ["blocked · hover", { trailing: <HtmlRemoteMarker kind="blocked" hover /> }], ["allowed", { trailing: <HtmlRemoteMarker kind="allowed" /> }], ["mirror · after a declined large file — Tag, then marker", { kind: "remote", address: "/home/me/reports/q3/report.html", skipped: 2, trailing: <HtmlRemoteMarker kind="blocked" /> }]].map(([cap, p]) => (
                   <React.Fragment key={cap}>
-                    <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · {cap}</span>
+                    <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · {cap}</span>
                     <div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}><HtmlAddressBar kind="local" address="~/reports/q3/report.html" {...p} /></div>
                   </React.Fragment>
                 ))}
@@ -761,7 +763,7 @@ function Page() {
             <RcThemeGrid label="Mocha" />
             <RcThemeGrid label="Latte" attr="latte" />
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
-              <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>mirror · all three notices — size → remote → script</span>
+              <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>mirror · all three notices — size → remote → script</span>
               <div style={{ alignSelf: "flex-start", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}><HtmlRemoteSurfaceG mirror size="file" remote="blocked" script="blocked" width="var(--tasty-size-560)" height={460} /></div>
             </div>
           </Stage>
@@ -769,6 +771,47 @@ function Page() {
             specs={[["order", "address band → size (mirror) → remote → script → WebView"], ["gaps", "banner-margin 8 top/sides · banner-inset-gap 8 between + below"], ["merge", "never — two cards, two independent allows"], ["script notice", "judged on runnable scripts (network scripts need remote allowed)"], ["bodyRemote", "kept as a key, copy revised: shown only alongside the remote notice"], ["static ref", "notice (when the user views)"], ["observed block, no ref", "marker only (Windows · Linux TBD)"], ["no signal, no ref", "nothing (macOS)"], ["narrow", "< 440 → each card wraps its action, stack order unchanged"], ["global on", "no notice · no marker"]]}
             tokens={[{ tok: "--tasty-banner-inset-gap", use: "8 between / below" }, { tok: "--tasty-banner-margin", use: "8 top / sides" }, { tok: "--tasty-banner-narrow-below", use: "→ size-440" }]} />
           <Note>Script notice <code>banner.html_script.body_remote</code> (en, revised): “Buttons and menus that need JavaScript may not respond. Allowing applies to this document only, until Tasty restarts. Scripts inside it run; scripts from the network also need remote content allowed.”</Note>
+        </Spec>
+        <Spec id="http-s-page-opened-in-the-address-field-remote-then-scripts" title="http(s) page opened in the address field — remote, then scripts"
+          when={<>A page the user opens by typing an <code>http(s)</code> address, while the global <b>Allow remote content</b> is off. The page itself loads; what it loads from the network does not. Tasty never reads the page, so the remote notice shows whenever the page is <b>viewed</b>, without waiting for a blocked request, on every OS. There is <b>no content fingerprint</b>: an allow covers <b>this showing</b> of the page only. The reload that Allow starts keeps it; the user's reload, any other page (same site too), Back and restart clear it. Remote allow does <b>not</b> enable scripts: with the script sandbox on, the <b>script notice takes the same slot</b> right after the remote reload commits. The two notices never stack on a web page. With the script sandbox <b>off</b> there is no script notice and the page's own scripts run from the start, so the remote notice takes its sandbox-off body: network scripts join the blocked list and the sentence about asking for scripts separately goes. Same shell, glyphs, states, markers, tokens and stacking order as the local document notices; only the copy changes (<code>_web</code> keys).</>}>
+          <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", flexDirection: "column", gap: "var(--tasty-space-lg)", alignItems: "stretch" }}>
+            <RcWebStateGrid label="Mocha" />
+            <RcWebStateGrid label="Latte" attr="latte" />
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-lg)", alignItems: "flex-start" }}>
+              <RcWebMarkerGrid label="Mocha" />
+              <RcWebMarkerGrid label="Latte" attr="latte" />
+            </div>
+          </Stage>
+          <Meta
+            specs={[["address field", "kind web · link glyph · remote marker at the field end (unchanged slot)"], ["remote notice", "globeOff · titleWeb / bodyWeb · Allow remote content · blocked / loading / reloading"], ["sandbox off", "remote notice body → bodyWebSandboxOff · no script notice, no tab marker"], ["body key", "picked every frame from the model's script sandbox value · setting changed while the notice is up → body swaps on the next frame · phase and dismissal unchanged"], ["script notice", "lock · titleWeb / bodyWeb · Allow scripts on this page · blocked / loading / reloading"], ["bodyRemote", "never on a web page (the notices never stack)"], ["markers", "same glyphs and inks · allowed tooltips read the _web copy"], ["narrow", "< 440 → action wraps under the body, same as local"], ["lifetime", "this showing · cleared by the user's reload, navigation, Back, restart"], ["new tokens", "none"]]}
+            tokens={[{ tok: "--tasty-html-remote-banner-glyph", use: "globeOff", color: "var(--tasty-html-remote-banner-glyph)" }, { tok: "--tasty-html-script-banner-glyph", use: "lock", color: "var(--tasty-html-script-banner-glyph)" }, { tok: "--tasty-html-remote-marker-allowed-fg", use: "globe", color: "var(--tasty-html-remote-marker-allowed-fg)" }, { tok: "--tasty-html-script-marker-allowed-fg", use: "scriptFile", color: "var(--tasty-html-script-marker-allowed-fg)" }]} />
+          <Note>Strings (en, new): <code>banner.html_remote.title_web</code> “Remote content on this page is blocked” (2026-11-10, was “Page loaded; remote content blocked”: the page area shows the Loading tile while the notice is up during a load) · <code>banner.html_remote.body_web</code> “Stylesheets, images, fonts, frames and media from the network are blocked, so the page may look incomplete. Allowing applies only to this showing of the page; reloading blocks remote content again. Permission to run scripts is requested separately.” (script sandbox on) · <code>banner.html_remote.body_web_sandbox_off</code> “Stylesheets, images, fonts, frames, media and scripts from the network are blocked, so the page may look incomplete. Allowing applies only to this showing of the page; reloading blocks remote content again.” (script sandbox off) · <code>banner.html_remote.marker_allowed_web</code> “Remote content allowed for this showing of the page; reloading blocks it again” · <code>banner.html_script.title_web</code> “Scripts on this page are blocked” · <code>banner.html_script.body_web</code> “This page may use scripts; buttons and menus that need JavaScript may not respond. Allowing applies only to this showing of the page; reloading asks again.” · <code>banner.html_script.action_web</code> “Allow scripts on this page” · <code>banner.html_script.marker_allowed_web</code> “Scripts allowed for this showing of the page; reloading blocks them again”. Shared with local documents: remote notice <code>banner.html_remote.action</code>, <code>reloading</code>, <code>action_loading</code>, <code>marker_blocked</code> · script notice <code>banner.html_script.reloading</code>, <code>action_loading</code>, <code>marker_blocked</code> only. Both <code>action_loading</code> keys read “Available when loading finishes”, true for a local document and a web page alike. The script notice's button on a web page is <code>action_web</code>, not <code>action</code> (“Allow for this document” would claim a lifetime it does not have).</Note>
+          <Note>Local documents keep their copy. “Applies to this document only, until Tasty restarts” stays true there: the allow survives a reload of the same content, and another document is not “this document”. The web copy says “this showing of the page” because a reload is exactly what ends it.</Note>
+          <Dont><b>Don't</b> show the script notice under the remote notice on a web page, and don't let one Allow open both. Remote allow is a choice about how the page looks; scripts are a second, separate choice, asked only once the page can load them.</Dont>
+        </Spec>
+        <Spec id="http-s-page-the-flow-step-by-step" title="http(s) page — the flow, step by step"
+          when={<>Each step only follows the previous one in time, so each is a fixed frame (remote blocked, script sandbox on unless marked). The remote notice first shows when the page's load <b>commits</b>, already blocked; no loading frame comes before step 1. After a reload commits, the next notice takes the slot the last one left, with no animation: the WebView rect is re-laid out once, as for any notice change. From load start until the load finishes the host hides the WebView and paints its <b>Loading tile</b> (Spinner + Loading…) in the page area; the address band, the notices and both markers stay above it. A user reload of the same address has <b>two branches</b>: before Allow, the notice that is up stays over the tile and turns loading until the reload commits (4a); after Allow, no notice shows during the load and both markers stay allowed until commit (4b). Either way the commit clears both allows and the remote notice is back, blocked (4). The frames marked “script sandbox off” draw that setting: one notice only, then nothing to ask.</>}>
+          <Views>
+            {RC_WEB_FLOW.map(([name, label, p]) => (
+              <View key={name} name={name} label={label}>
+                <div style={{ width: "var(--tasty-size-480)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}><HtmlRemoteSurfaceG web {...p} width="var(--tasty-size-480)" height={320} /></div>
+              </View>
+            ))}
+            <View name="web-flow-1-narrow" label="1 · narrow (360) — remote notice, action under the body">
+              <div style={{ width: "var(--tasty-size-360)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}><HtmlRemoteSurfaceG web narrow remote="blocked" width="var(--tasty-size-360)" height={400} /></div>
+            </View>
+            <View name="web-flow-2-narrow" label="2 · narrow (360) — script notice after the remote reload">
+              <div style={{ width: "var(--tasty-size-360)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}><HtmlRemoteSurfaceG web narrow script="blocked" remoteMarker="allowed" page="styled" width="var(--tasty-size-360)" height={360} /></div>
+            </View>
+            {RC_WEB_TIPS.map(([name, label, draw]) => (
+              <View key={name} name={name} label={label}>
+                <div style={{ width: "var(--tasty-size-480)", paddingTop: "var(--tasty-size-64)" }}>{draw()}</div>
+              </View>
+            ))}
+          </Views>
+          <Meta
+            specs={[["1", "remote notice blocked · no markers"], ["2", "remote reloading, remote marker allowed from the press → commit → script notice blocked"], ["3", "script reloading, tab marker allowed from the press → commit → no notice · both markers allowed"], ["markers on Allow", "read the allow record of the current document, so they turn allowed when Allow is pressed, not at the reload's commit · script marker: from the code, the same rule as in a local document · remote marker: read from the code, not measured"], ["4a", "user reload before Allow → notice stays over the Loading tile · loading until commit"], ["4b", "user reload after Allow → no notice · remote and tab markers allowed until commit · that load's scripts do not run"], ["4", "commit → both allows cleared · remote notice blocked, even after ×"], ["×", "marker blocked remains · click → that notice again"], ["loading", "Allow disabled until commit · Reload busy"], ["page area", "host Loading tile (Spinner + Loading…) from load start until the load finishes, for any load: the first load (from its commit the notice and the tile show together, 1), the reloads Allow starts (2, 3) and a user reload (4a, 4b) · band, notices, markers stay above it · 4a and 4b measured on Linux, the rest read from the code"]]} />
+          <Note>First load: the remote notice first shows when the page's load commits, already blocked, so step 1 has no loading frame before it. From that commit until the load finishes the notice and the Loading tile show together (frame “1 · first load”); how long depends on the page's subrequests, and it is short while they are blocked. A reload that Allow starts (2, 3) is a load too: the tile holds the page area until it finishes. Reload before Allow (4a): the notice stays, loading, and keeps one title for every phase: “Remote content on this page is blocked” (<code>title_web</code>, value changed; was “Page loaded; remote content blocked”). The page area shows the Loading tile, not the earlier showing, so a title that says the page has loaded would contradict the screen, here and at the first load's commit. The new title names no load state: it is true over the tile, over the finished page, and for the new load, which is blocked too. The disabled Allow and the busy Reload already say a load is in flight. Reload after Allow (4b): the allows and both markers hold until the reload commits, then clear, and the notice comes back.</Note>
         </Spec>
       </Section>
       <Section id="bodyink" title="Body ink — every banner, both themes">

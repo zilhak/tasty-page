@@ -39,7 +39,7 @@ export function HeightsSpec() {
       <Stage variant="solo column" style={{ gap: "var(--tasty-space-md)" }}>
         {HEIGHTS.map(([name, tok, label, width]) => (
           <div key={tok} style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "var(--tasty-space-sm) var(--tasty-space-md)" }}>
-            <div style={{ flex: "none", boxSizing: "border-box", display: "flex", alignItems: "center", height: `var(${tok})`, width: width || "auto", padding: "0 var(--tasty-space-md)", background: "var(--tasty-surface-raised)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-primary)" }}>{name}</div>
+            <div style={{ flex: "none", boxSizing: "border-box", display: "flex", alignItems: "center", height: `var(${tok})`, width: width || "auto", padding: "0 var(--tasty-space-md)", background: "var(--tasty-surface-raised)", border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-primary)" }}>{name}</div>
             <span style={{ fontFamily: MONO, fontSize: MICRO, color: "var(--tasty-text-muted)" }}>{label}</span>
           </div>
         ))}
@@ -61,10 +61,10 @@ export function MotionSpec() {
       when={<>Terminal content is 0ms. UI feedback is 90 to 120ms. Resting states are canonical. Transitions are decorative. Reveals are slower and answer a pause, not an input.</>}>
       <Stage variant="solo" style={{ gap: "var(--tasty-space-md)", alignItems: "stretch" }}>
         {MOTION.map(([key, ink, title, body]) => (
-          <div key={key} style={{ flex: "1 1 var(--tasty-size-200)", minWidth: 0, padding: "var(--tasty-space-md) var(--tasty-space-lg)", background: "var(--tasty-surface-raised)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
+          <div key={key} style={{ flex: "1 1 var(--tasty-size-200)", minWidth: 0, padding: "var(--tasty-space-md) var(--tasty-space-lg)", background: "var(--tasty-surface-raised)", border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)" }}>
             <div style={{ fontFamily: MONO, fontSize: "var(--tasty-font-size-max)", fontWeight: "var(--tasty-font-weight-bold)", color: `var(${ink})` }}>{key}</div>
-            <div style={{ marginTop: "var(--tasty-space-xs)", fontSize: "var(--tasty-font-size-caption)", fontWeight: "var(--tasty-font-weight-semibold)", color: "var(--tasty-text-primary)" }}>{title}</div>
-            <div style={{ marginTop: "var(--tasty-space-xs)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{body}</div>
+            <div className="g-cap" style={{ marginTop: "var(--tasty-space-xs)", fontSize: "var(--tasty-font-size-caption)", fontWeight: "var(--tasty-font-weight-semibold)", color: "var(--tasty-text-primary)" }}>{title}</div>
+            <div className="g-cap" style={{ marginTop: "var(--tasty-space-xs)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{body}</div>
           </div>
         ))}
       </Stage>

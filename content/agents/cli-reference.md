@@ -60,12 +60,14 @@ tasty session revoke --token <토큰>
 발급된 토큰을 자식이 `TASTY_SESSION_TOKEN`으로 사용하면 Tasty에 보내는 요청은 그 토큰의 권한으로 검사됩니다.
 세션 토큰은 요청이 어느 에이전트의 것인지 구분하고 에이전트의 실수를 막는 장치이며, 보안 경계가 아닙니다. 토큰 없이 부른 명령은 사용자의 명령으로 처리됩니다.
 
-원격 연결을 준비할 때 세션 토큰으로 `tasty remote attach --into-gui`와 `tasty remote refusals`를 별도 권한 없이 사용할 수 있습니다. 연결 결과를 목록으로 확인하는 `tasty list workspaces`에는 `surface.read` 권한이 필요합니다. 명령 형태와 JSON 결과는 [원격 작업 이어가기](../remote/attach.md)를 참고하세요.
+원격 연결을 준비할 때 세션 토큰으로 `tasty remote attach --into-gui`와 `tasty remote connect`·`tasty remote disconnect`·`tasty remote refusals`를 별도 권한 없이 사용할 수 있습니다. 연결 결과를 목록으로 확인하는 `tasty list workspaces`에는 `surface.read` 권한이 필요합니다. 명령 형태와 JSON 결과는 [원격 작업 이어가기](../remote/attach.md)를 참고하세요.
 
-플러그인이 더한 명령(`tasty markdown recent` · `tasty codex spawn` 등)도 권한이 필요합니다.
+세션 토큰을 쓰는 에이전트가 플러그인이 더한 명령(`tasty markdown recent` · `tasty codex spawn` 등)을 호출할 때도 권한이 필요합니다.
 `tasty <명령> …` 이면 `--permission ipc.invoke:<명령>` 을 적어 주세요 — `tasty markdown …` 은
 `ipc.invoke:markdown` 이고, 명령 이름에 `-` 가 있으면 `_` 로 바꿉니다. 적지 않은 채 부르면 거부되고 사람에게 권한 승인 요청이 갑니다.
 `tasty claude spawn` 으로 띄운 Claude 는 `tasty claude …` · `tasty codex …` 권한을 이미 받아 둡니다.
+
+<a id="claude-자식의-idle-체크"></a>
 
 ## 알림 보내기
 
@@ -102,6 +104,12 @@ tasty read queue --surface 42            # 쌓인 메시지를 전부 꺼냄
 tasty read queue --surface 42 --peek     # 꺼내지 않고 보기
 tasty read queue --surface 42 --clear    # 전부 비움
 ```
+
+`tasty send queue --to <서피스>`로 보내면 받는 서피스에서 무엇이 실행 중이든 완료 로그에 `[queue] `로 시작하는 도착 알림 한 줄이 기록됩니다. 문구는 앱 언어를 따르며, 대기 메시지 수·마지막 보낸 서피스·읽는 명령을 담습니다. 메시지 내용은 없으므로 `tasty read queue --surface <서피스>`를 `--peek` 없이 실행해 내용을 받고 큐를 비우세요. Claude Code의 자동 수신 설정은 [완료 알림 받기](claude-codex.md#4-완료-알림-받기)를 참고하세요.
+
+빈 큐에 메시지가 들어오면 바로 알립니다. 안 읽은 메시지가 남아 있으면 마지막 알림 뒤 60초가 지난 다음 메시지가 들어올 때만 다시 알립니다. `--peek` 없이 읽어 큐가 비거나, `--clear`로 비우거나, 서피스를 정리하면 알림 간격 기록이 초기화됩니다. `--peek`은 초기화하지 않습니다.
+
+없는 서피스 번호로 보내면 메시지는 저장되지만 알림 줄은 기록되지 않습니다. 원격 attach로 연결한 원격 워크스페이스(mirror)의 서피스로 보내면 큐와 알림 로그는 이 컴퓨터에 쌓이며, 원격의 Claude는 이 알림을 받지 않습니다.
 
 <a id="자식-터미널을-에이전트처럼-굴리기"></a>
 
@@ -235,7 +243,7 @@ tasty surface html-script-allow --surface 42 --url <url> --fingerprint <hex>  # 
 tasty surface html-remote-allow --surface 42 --url <url> --fingerprint <hex>  # 조회한 문서에만 원격 콘텐츠(네트워크의 스타일시트·이미지·글꼴·프레임·스크립트)를 허용하고 다시 불러옴. 스크립트 허용과 별개. 포커스는 그대로
 tasty surface html-nav --surface 42    # HTML 서피스가 보여 주는 문서 주소와 뒤로·앞으로 이동 가능 여부(조회만)
 tasty surface html-back --surface 42   # HTML 서피스를 뒤로 이동(html-forward: 앞으로, html-reload: 새로고침). 포커스는 그대로이고, 결과는 html-nav로 확인
-tasty hook-handler dispatch --id user/my-handler  # 훅 핸들러를 직접 실행하고 최종 결과까지 기다리기
+tasty hook-handler dispatch --id user/my-handler  # 훅 핸들러를 직접 실행하고 결과 기다리기
 tasty hook-handler result --run 7       # dispatch가 알려 준 run 번호로 결과 다시 보기
 tasty file-handler dispatch 파일경로     # 탐색기에서 더블클릭한 것과 같은 경로로 파일 열기(결과까지 기다림)
 tasty file-handler result --run 7       # dispatch가 알려 준 run 번호로 결과 다시 보기
@@ -245,9 +253,15 @@ tasty file-handler detectors            # 파일 형식 판별 규칙이 지금 
 
 `set cwd` 와 `set url` 은 대상이 각각 원격 서피스·웹뷰 서피스일 때만 동작합니다. 일반 터미널 서피스에 쓰면 지원하지 않는 대상이라는 오류를 반환합니다.
 
-`hook-handler dispatch` 는 두 줄을 출력합니다. 첫 줄은 요청을 받아들였다는 응답이고 `run` 번호가 들어 있습니다. 둘째 줄은 기다린 뒤의 최종 결과입니다. 결과의 `state` 가 `succeeded` 이면 종료 코드 0으로 끝나고, `partial`·`failed`·`unknown` 이거나 기다리는 동안 끝나지 않았으면(`running`) 종료 코드 1로 끝납니다. Tasty가 결과 조회에 답하지 않아도 기다리는 상한에서 멈추고, 이때 둘째 줄에는 `"timed_out": true` 가 붙습니다. 실패한 단계와 이유는 `result` 와 `steps` 에 나옵니다. 받아들이기 전에 거절된 요청(없는 핸들러, 꺼진 핸들러, 대기열이 가득 참 등)은 첫 줄 없이 오류와 종료 코드 1로 끝납니다. `--no-wait` 를 붙이면 첫 줄만 출력하고 종료 코드 0으로 끝나므로, 나중에 `hook-handler result --run <번호>` 로 결과를 봅니다. 결과를 기다릴 때는 요청을 여러 번 보내므로 루트 옵션 `--response-timeout-ms` 를 받지 않습니다. 붙이면 아무것도 보내지 않고 사용 오류(종료 코드 2)로 끝납니다. `--no-wait` 를 붙이면 요청이 하나뿐이라 이 옵션이 그 요청에 적용됩니다. 셸에 설정된 세션 토큰(`TASTY_SESSION_TOKEN`)과 에이전트 ID(`TASTY_AGENT_ID`)는 결과를 묻는 요청에도 그대로 실립니다.
+`hook-handler dispatch` 는 요청을 접수하면 `run` 번호를 첫 줄에 출력합니다. 기본으로 결과를 기다리며, 결과를 받으면 둘째 줄에 출력합니다. 동작 목록은 `result` 에 실행 요약을, `steps` 에 단계별 상태와 오류를 표시합니다. 셸 명령은 프로세스 시작을 확인하면 `succeeded` 를 반환합니다. 결과의 `state` 가 `succeeded` 면 종료 코드 0, `partial`·`failed`·`unknown` 이거나 대기 중인 상태(`running`)면 종료 코드 1로 끝납니다. Tasty가 결과 조회에 제때 답하지 않으면 둘째 줄에 `"timed_out": true` 가 붙습니다.
 
-`file-handler dispatch` 는 파일 경로만 받습니다. `https://…` 같은 웹 주소를 넘기면 오류를 반환합니다. 이 명령으로 연 파일은 새 탭으로 뒤에 붙기만 하고, 사용자가 보고 있던 탭은 바뀌지 않습니다. 이 형식을 열 핸들러가 없으면 사용자 화면에 **다음으로 열기…** <!-- en: Open file with… --> 를 띄우지 않고 파일을 열지 않습니다. 명령은 `hook-handler dispatch` 처럼 두 줄을 출력합니다. 첫 줄은 요청을 받아들였다는 응답(`run` 번호 포함)이고, 둘째 줄은 최종 결과입니다. 열었으면 `state` 가 `succeeded` 이고 새 탭은 `surface_id` 로 알려 주며 종료 코드 0으로 끝납니다. 열 핸들러가 없거나 핸들러가 실패하면 `state` 가 `failed` 이고 `result` 에 이유가 나오며 종료 코드 1로 끝납니다. 원격 워크스페이스의 탭을 기준으로 열면 원격 Tasty가 실제로 열었는지까지 기다립니다. 원격이 열지 못하면 `failed` 와 원격이 알린 이유가 나옵니다. 원격의 답을 받기 전에 연결이 끊기면 열렸는지 알 수 없으므로 `state` 가 `unknown` 이고 종료 코드 1입니다. 결과를 30초 안에 받지 못해도 종료 코드 1입니다. `--no-wait` 를 붙이면 첫 줄만 출력하고, 나중에 `file-handler result --run <번호>` 로 결과를 봅니다. 결과를 기다릴 때는 루트 옵션 `--response-timeout-ms` 를 받지 않습니다(종료 코드 2). GUI 없이 서버에서 실행하는 headless 빌드는 파일을 열 수 없으므로, 이 명령에 요청을 받아들였다고 답하지 않고 이 빌드에서는 지원하지 않는다는 오류를 반환합니다.
+수동 셸 명령은 서피스 훅·전역 훅과 대기열을 공유합니다. 대기열이 꽉 찼거나 핸들러가 없거나 꺼져 있어 접수 전에 거절되면 첫 줄 없이 오류를 출력하고 종료 코드 1로 끝납니다. `--no-wait` 를 붙이면 접수 응답만 출력하고 종료 코드 0으로 끝납니다. `hook-handler result --run <번호>` 로 결과를 조회할 수 있습니다.
+
+실행 기록이 밀려나면 명령이 아직 대기 중이어도 조회가 실패합니다. 이 경우 결과를 기다리던 `dispatch` 는 접수 줄만 남기고 표준 오류에 메시지를 출력한 뒤 종료 코드 1로 끝납니다. 시작을 제때 확인하지 못했거나 기록이 사라져도 대기 중인 셸 명령은 나중에 실행될 수 있습니다.
+
+결과를 기다릴 때는 요청을 여러 번 보내므로 루트 옵션 `--response-timeout-ms` 를 받지 않습니다. 붙이면 아무것도 보내지 않고 사용 오류(종료 코드 2)로 끝납니다. `--no-wait` 를 붙이면 요청이 하나뿐이라 이 옵션이 그 요청에 적용됩니다. 셸에 설정된 세션 토큰(`TASTY_SESSION_TOKEN`)과 에이전트 ID(`TASTY_AGENT_ID`)는 결과를 묻는 요청에도 그대로 실립니다.
+
+`file-handler dispatch` 는 파일 경로만 받습니다. `https://…` 같은 웹 주소를 넘기면 오류를 반환합니다. 이 명령으로 연 파일은 새 탭으로 뒤에 붙기만 하고, 사용자가 보고 있던 탭은 바뀌지 않습니다. 이 형식을 열 핸들러가 없으면 사용자 화면에 **다음으로 열기…** <!-- en: Open file with… --> 를 띄우지 않고 파일을 열지 않습니다. 결과까지 받으면 명령은 두 줄을 출력합니다. 첫 줄은 요청을 받아들였다는 응답(`run` 번호 포함)이고, 둘째 줄은 최종 결과입니다. 열었으면 `state` 가 `succeeded` 이고 새 탭은 `surface_id` 로 알려 주며 종료 코드 0으로 끝납니다. 열 핸들러가 없거나 핸들러가 실패하면 `state` 가 `failed` 이고 `result` 에 이유가 나오며 종료 코드 1로 끝납니다. 원격 워크스페이스의 탭을 기준으로 열면 원격 Tasty가 실제로 열었는지까지 기다립니다. 원격이 열지 못하면 `failed` 와 원격이 알린 이유가 나옵니다. 원격의 답을 받기 전에 연결이 끊기면 열렸는지 알 수 없으므로 `state` 가 `unknown` 이고 종료 코드 1입니다. 결과를 30초 안에 받지 못해도 종료 코드 1입니다. `--no-wait` 를 붙이면 첫 줄만 출력하고, 나중에 `file-handler result --run <번호>` 로 결과를 봅니다. 결과를 기다릴 때는 루트 옵션 `--response-timeout-ms` 를 받지 않습니다(종료 코드 2). GUI 없이 서버에서 실행하는 headless 빌드는 파일을 열 수 없으므로, 이 명령에 요청을 받아들였다고 답하지 않고 이 빌드에서는 지원하지 않는다는 오류를 반환합니다.
 
 `file-handler reload` 의 응답에는 `rejected` 목록이 있습니다. 설정 파일에서 지금 적용되지 않은 항목의 `id` 와 사유(`reason`)가 들어 있고, 모두 적용됐으면 빈 목록입니다. 사유는 셋입니다.
 

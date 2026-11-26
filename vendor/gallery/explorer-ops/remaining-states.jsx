@@ -1,12 +1,36 @@
 import React from "react";
 import { XCol, XThemes, XToolbar, XCell } from "./create-drag-search.jsx";
 import * as ZK from "../parts/explorer-kit.jsx";
-import { Section as ZSection, Spec as ZSpec, Stage as ZStage, Meta as ZMeta, Note as ZNote } from "../parts/specimen.jsx";
+import { Section as ZSection, Spec as ZSpec, Stage as ZStage, Meta as ZMeta, Note as ZNote, Views as ZViews, View as ZView } from "../parts/specimen.jsx";
 import { ZInput, ZKIND_ROWS, ZBody, ZName, ZIcon, ZMenuItem } from "./results-and-refusals.jsx";
+import { Tip as ZTip } from "./remote-writes.jsx";
 
-const zMenu = { width: "var(--tasty-size-240)", background: "var(--tasty-menu-bg)", border: "var(--tasty-border-width) solid var(--tasty-menu-border)", borderRadius: "var(--tasty-menu-radius)", padding: "var(--tasty-space-xs)", boxShadow: "var(--tasty-shadow-popover)" };
+// explorer.state.broken_link, reused as the tooltip of a broken link's disabled Show in enclosing folder.
+const ZBROKEN = "The link points to something that no longer exists: ~/archive/config.toml";
+// A broken link's menu from its top: Show in enclosing folder disabled, separator, the usual file rows. tip: Linux · macOS title.
+function ZBrokenMenu({ tip = false }) {
+  return (
+    <div style={zMenu}>
+      <ZMenuItem label="Show in enclosing folder" disabled title={tip ? ZBROKEN : undefined} />
+      <ZMenuItem separator />
+      <ZMenuItem label="Copy Path" />
+      <ZMenuItem label="Copy" shortcut="Ctrl+C" />
+      <ZMenuItem label="Cut" shortcut="Ctrl+X" />
+    </div>
+  );
+}
+
+// An explorer menu grows to its longest row from a 240 floor, so a label beside its shortcut does not elide in D2Coding.
+const zMenu = { minWidth: "var(--tasty-size-240)", width: "max-content", background: "var(--tasty-menu-bg)", border: "var(--tasty-border-width) solid var(--tasty-menu-border)", borderRadius: "var(--tasty-menu-radius)", padding: "var(--tasty-space-xs)", boxShadow: "var(--tasty-shadow-popover)" };
+// The keyboard ring is a layer after the row, as the app paints it after the list body: it sits on top of a
+// selected row's opaque fill instead of under it. Inset, so it never moves layout.
 function ZCursor({ children, on = true }) {
-  return <div style={{ boxShadow: on ? "inset 0 0 0 var(--tasty-explorer-cursor-ring-width) var(--tasty-explorer-cursor-ring)" : "none", borderRadius: "var(--tasty-radius-sm)" }}>{children}</div>;
+  return (
+    <div style={{ position: "relative" }}>
+      {children}
+      {on && <span aria-hidden="true" style={{ position: "absolute", inset: 0, pointerEvents: "none", boxShadow: "inset 0 0 0 var(--tasty-explorer-cursor-ring-width) var(--tasty-explorer-cursor-ring)", borderRadius: "var(--tasty-radius-sm)" }} />}
+    </div>
+  );
 }
 
 function ZMarquee() {
@@ -48,7 +72,7 @@ function RemainingSection() {
         when={<>Arrow keys, Home / End and PageUp / Down move a <b>current item</b> separate from the selection. It is a 1px <b>inset</b> ring in <span className="tok">--tasty-explorer-cursor-ring</span> (border-focus) and is drawn only after keyboard movement; a mouse click hides it until the next key. On a selected row it sits on top of the selection fill. <b>Drag-select</b> from empty space draws a rectangle with <span className="tok">--tasty-explorer-marquee-bg</span> and a 1px <span className="tok">--tasty-explorer-marquee-border</span> (the drop-target tint pair). Near the top or bottom edge, inside <span className="tok">--tasty-explorer-autoscroll-zone</span> 24, the list scrolls faster the closer the pointer gets; nothing extra is drawn.</>}>
         <ZStage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)" }}>
           <XThemes render={(l) => (
-            <XCell w={560} h={200} status={l === "Mocha" ? "2 of 5 selected" : "3 of 5 selected"}><ZBody>
+            <XCell w={560} h={240} status={l === "Mocha" ? "2 of 5 selected" : "3 of 5 selected"}><ZBody>
               {rows.slice(0, 5).map((r, i) => {
                 const sel = l === "Mocha" ? i === 2 || i === 3 : i >= 1 && i <= 3;
                 const row = <ZK.DetailRow {...r} state={sel ? "selected" : undefined} />;
@@ -59,12 +83,12 @@ function RemainingSection() {
           )} />
         </ZStage>
         <ZMeta
-          specs={[["current item", "1px inset ring · explorer-cursor-ring → border-focus · keyboard only · over selection"], ["marquee", "fill explorer-marquee-bg (tint-fill 0.12) · 1px explorer-marquee-border (tint-border 0.36) · no radius"], ["auto-scroll", "explorer-autoscroll-zone 24 at top / bottom · speed grows toward the edge · no indicator"], ["samples", "Mocha = keyboard ring on a selected row · Latte = drag-select"]]}
-          tokens={[{ tok: "--tasty-explorer-cursor-ring", use: "→ border-focus", color: "var(--tasty-explorer-cursor-ring)" }, { tok: "--tasty-explorer-cursor-ring-width", use: "→ border-width 1" }, { tok: "--tasty-explorer-marquee-bg", use: "fill", color: "var(--tasty-explorer-marquee-bg)" }, { tok: "--tasty-explorer-marquee-border", use: "edge", color: "var(--tasty-explorer-marquee-border)" }, { tok: "--tasty-explorer-autoscroll-zone", use: "→ size-24" }]} />
+          specs={[["current item", "1px inset ring · explorer-cursor-ring → accent-primary-raised · keyboard only · painted after the row, over the selection fill (3.17 · 3.84 on surface-active)"], ["marquee", "fill explorer-marquee-bg (tint-fill 0.12) · 1px explorer-marquee-border (tint-border 0.36) · no radius"], ["auto-scroll", "explorer-autoscroll-zone 24 at top / bottom · speed grows toward the edge · no indicator"], ["samples", "Mocha = keyboard ring on a selected row · Latte = drag-select"]]}
+          tokens={[{ tok: "--tasty-explorer-cursor-ring", use: "→ accent-primary-raised", color: "var(--tasty-explorer-cursor-ring)" }, { tok: "--tasty-explorer-cursor-ring-width", use: "→ border-width 1" }, { tok: "--tasty-explorer-marquee-bg", use: "fill", color: "var(--tasty-explorer-marquee-bg)" }, { tok: "--tasty-explorer-marquee-border", use: "edge", color: "var(--tasty-explorer-marquee-border)" }, { tok: "--tasty-explorer-autoscroll-zone", use: "→ size-24" }]} />
       </ZSpec>
 
       <ZSpec id="hidden-files-show-in-enclosing-folder-undo-redo" title="Hidden files · show in enclosing folder · undo / redo"
-        when={<><b>Hidden files</b> toggle from a <b>More</b> row that says the action (“Show hidden files” / “Hide hidden files”, no check mark) and the shortcut Ctrl+Shift+. (macOS ⌘⇧.). Off by default. When shown, hidden items use <span className="tok">--tasty-explorer-hidden-fg</span> for name and glyph — muted ink, not opacity, so they never look like cut items. While they are hidden the status line counts them: “5 items · 3 hidden”. <b>Show in enclosing folder</b> (search results and links) opens the folder that really holds the item, selects it, puts the current item on it and scrolls it into view; no flash. <b>Redo</b> lives beside Undo in the empty-area context menu and on Ctrl+Shift+Z / Ctrl+Y (macOS ⌘⇧Z). Each explorer keeps up to <b>10</b> steps; no history list is shown. A step that can no longer be undone leaves the row disabled with the reason in its tooltip.</>}>
+        when={<><b>Hidden files</b> toggle from a <b>More</b> row that says the action (“Show hidden files” / “Hide hidden files”, no check mark) and the shortcut Ctrl+Shift+. (macOS ⌘⇧.). Off by default. When shown, hidden items use <span className="tok">--tasty-explorer-hidden-fg</span> for name and glyph — muted ink, not opacity, so they never look like cut items. While they are hidden the status line counts them: “5 items · 3 hidden”. <b>Show in enclosing folder</b> (search results and links) opens the folder that really holds the item, selects it, puts the current item on it and scrolls it into view; no flash. On a <b>broken link</b> the row stays in its place, disabled, and its tooltip is the existing broken link sentence with the missing target, because the reason (the target is gone) is not in the menu; Windows shows the row without a tooltip. <b>Redo</b> lives beside Undo in the empty-area context menu and on Ctrl+Shift+Z / Ctrl+Y (macOS ⌘⇧Z). Each explorer keeps up to <b>10</b> steps; no history list is shown. A step that can no longer be undone leaves the row disabled with the reason in its tooltip.</>}>
         <ZStage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 16, flexWrap: "wrap", alignItems: "flex-start" }}>
           <XCol label="hidden shown" w={400}>
             <XCell w={400} h={180} toolbar={<XToolbar narrow />} status="8 items"><ZBody>
@@ -88,7 +112,7 @@ function RemainingSection() {
               <ZMenuItem label="Open" />
               <ZMenuItem icon={<ZIcon name="folderOpen" />} label="Show in enclosing folder" />
               <ZMenuItem separator />
-              <ZMenuItem label="Copy path" />
+              <ZMenuItem label="Copy Path" />
             </div>
           </XCol>
           <XCol label="search result — native menu (Linux · macOS, 2026-10-14)">
@@ -96,12 +120,24 @@ function RemainingSection() {
               <ZMenuItem label="Open" />
               <ZMenuItem label="Show in enclosing folder" />
               <ZMenuItem separator />
-              <ZMenuItem label="Copy path" />
+              <ZMenuItem label="Copy Path" />
               <ZMenuItem label="Copy" shortcut="Ctrl+C" />
               <ZMenuItem label="Cut" shortcut="Ctrl+X" />
               <ZMenuItem separator />
               <ZMenuItem label="Rename" shortcut="F2" />
               <ZMenuItem label="Move to Trash" shortcut="Del" />
+            </div>
+          </XCol>
+          <XCol label="broken link — Linux · macOS (tooltip)">
+            <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
+              <ZBrokenMenu tip />
+              <ZTip>{ZBROKEN}</ZTip>
+            </div>
+          </XCol>
+          <XCol label="broken link in search results — Linux · macOS (tooltip) · no Open">
+            <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
+              <ZBrokenMenu tip />
+              <ZTip>{ZBROKEN}</ZTip>
             </div>
           </XCol>
           <XCol label="empty area — undo / redo">
@@ -113,8 +149,16 @@ function RemainingSection() {
             </div>
           </XCol>
         </ZStage>
+        <ZViews>
+          <ZView name="broken-link-windows" label="broken link — Windows: the same row, disabled, no tooltip, label kept">
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-lg)", alignItems: "flex-start" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}><span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>listing</span><ZBrokenMenu /></div>
+              <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}><span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>search results · no Open</span><ZBrokenMenu /></div>
+            </div>
+          </ZView>
+        </ZViews>
         <ZMeta
-          specs={[["hidden toggle", "More row · action words · Ctrl+Shift+. / ⌘⇧. · default off · per explorer, remembered"], ["hidden shown", "name + glyph explorer-hidden-fg (→ text-muted) · no opacity"], ["hidden off", "status “{n} items · {h} hidden”"], ["show in folder", "opens the real parent · selects + current item · scrolls into view · no flash"], ["search result · native", "Open · Show in enclosing folder · separator · the item's usual file menu from Copy path on · no glyphs (OS menu) · Open = file → default handler, folder → navigate into it"], ["redo", "context menu beside Undo · Ctrl+Shift+Z · Ctrl+Y · ⌘⇧Z"], ["history", "10 steps per explorer · no list · stale step = disabled row + tooltip reason"], ["Undo card", "unchanged — one step, no Redo button"]]}
+          specs={[["hidden toggle", "More row · action words · Ctrl+Shift+. / ⌘⇧. · default off · per explorer, remembered"], ["hidden shown", "name + glyph explorer-hidden-fg (→ text-muted) · no opacity"], ["hidden off", "status “{n} items · {h} hidden”"], ["show in folder", "opens the real parent · selects + current item · scrolls into view · no flash"], ["broken link", "local cell, one item: Show in enclosing folder disabled, separator kept · tooltip explorer.state.broken_link with the target path (Linux · macOS) · Windows: no tooltip, label kept · search result: no Open, the same disabled row first · permission error, loop: no row (unchanged) · mirror: no row (unchanged here)"], ["search result · native", "Open · Show in enclosing folder · separator · the item's usual file menu from Copy Path on · no glyphs (OS menu) · Open = file → default handler, folder → navigate into it"], ["redo", "context menu beside Undo · Ctrl+Shift+Z · Ctrl+Y · ⌘⇧Z"], ["history", "10 steps per explorer · no list · stale step = disabled row + tooltip reason"], ["Undo card", "unchanged — one step, no Redo button"]]}
           tokens={[{ tok: "--tasty-explorer-hidden-fg", use: "→ text-muted", color: "var(--tasty-explorer-hidden-fg)" }]} />
         <ZNote>i18n: <code>explorer.more.hidden_show</code> “Show hidden files” / “숨김 파일 보기” / “隠しファイルを表示” · <code>.hidden_hide</code> “Hide hidden files” / “숨김 파일 숨기기” / “隠しファイルを非表示” · <code>explorer.status.hidden</code> “{"{n}"} hidden” / “숨김 {"{n}"}개” / “非表示 {"{n}"}” · <code>explorer.menu.show_in_folder</code> “Show in enclosing folder” / “들어 있는 폴더에서 보기” / “含まれているフォルダで表示” · <code>explorer.menu.redo</code> “Redo {"{op}"}” / “다시 실행: {"{op}"}” / “やり直す: {"{op}"}” · <code>explorer.menu.undo_stale</code> “Can't undo: {"{reason}"}” / “되돌릴 수 없음: {"{reason}"}” / “元に戻せません: {"{reason}"}”.</ZNote>
       </ZSpec>

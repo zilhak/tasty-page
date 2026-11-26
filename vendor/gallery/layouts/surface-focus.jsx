@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Icon } from "../../components/index.js";
-import { SurfaceFocusEdge, surfaceBed } from "../../ui_kits/terminal/surface_focus.jsx";
+import { SurfaceFocusEdge, SurfaceRing, surfaceBed } from "../../ui_kits/terminal/surface_focus.jsx";
 import { Spec, Stage, Meta, Note, Do, Dont, Views, View } from "../parts/specimen.jsx";
 
 // Tasty Gallery: Layouts, surface focus. Every surface kind, focused and unfocused, in Mocha and Latte.
@@ -15,7 +15,7 @@ const fill = (bg, color) => ({ flex: 1, minHeight: 0, padding: "var(--tasty-spac
 const mdStrip = (bg) => ({ height: "var(--tasty-size-4)", background: bg, marginTop: "var(--tasty-border-width)" });
 const KINDS = [
   { id: "terminal", label: "terminal", body: (f) => (
-    <div style={fill(surfaceBed(f), f ? "var(--tasty-surface-terminal-focused-fg)" : "var(--tasty-surface-terminal-unfocused-fg)")}>$ cargo test</div>
+    <div data-terminal-content="" style={fill(surfaceBed(f), f ? "var(--tasty-surface-terminal-focused-fg)" : "var(--tasty-surface-terminal-unfocused-fg)")}>$ cargo test</div>
   ) },
   { id: "markdown", label: "markdown", body: (f) => (
     <>
@@ -75,7 +75,7 @@ function Frame({ kind, focused }) {
 function ThemeRow({ theme, label, kind }) {
   return (
     <div data-theme={theme} style={{ background: "var(--tasty-bg-panel)", padding: "var(--tasty-space-xs)" }}>
-      <div style={{ ...caption, color: "var(--tasty-text-secondary)", marginBottom: "var(--tasty-space-xs)" }}>{label}: focused, unfocused</div>
+      <div className="g-cap" style={{ ...caption, color: "var(--tasty-text-secondary)", marginBottom: "var(--tasty-space-xs)" }}>{label}: focused, unfocused</div>
       <div style={{ display: "flex", gap: "var(--tasty-space-xs)" }}>
         <Frame kind={kind} focused />
         <Frame kind={kind} focused={false} />
@@ -100,15 +100,16 @@ function FocusDemo() {
   );
 }
 
-// A mark rings the leaf. The unfocused edge sits under it. The lit edge sits over it and takes only the lower row, so both show.
-const ring = (token, width) => ({ outline: `var(--tasty-${width}) solid var(--tasty-${token})`, outlineOffset: `calc(-1 * var(--tasty-${width}))` });
+// A mark rings the leaf. The unfocused edge sits under it, even on a focused leaf. The lit edge sits over it and takes
+// only the lower row, so both show (RULES.md section 4, Paint order).
 const LOWER_ROW = { position: "absolute", top: "var(--tasty-border-width)", left: 0, right: 0, height: "var(--tasty-border-width)" };
 
 function Marked({ kind = byId("plugin-mesh"), focused, bedFocused = focused, token, width, children }) {
   return (
-    <div style={{ position: "relative", ...frame, flex: "none", overflow: "hidden", display: "flex", flexDirection: "column", ...(token ? ring(token, width) : null) }}>
-      {kind.edge && <SurfaceFocusEdge focused={focused} />}
+    <div style={{ position: "relative", ...frame, flex: "none", overflow: "hidden", display: "flex", flexDirection: "column" }}>
+      {kind.edge && <SurfaceFocusEdge focused={focused && !token} />}
       {kind.body(bedFocused)}
+      {token && <SurfaceRing token={token} width={width} />}
       {kind.edge && focused && token && <SurfaceFocusEdge focused style={LOWER_ROW} />}
       {children}
     </div>
@@ -120,7 +121,7 @@ function WebviewMarked({ kind = byId("plugin-webview"), focused, token, width })
   return (
     <div style={{ ...frame, flex: "none", overflow: "hidden", display: "flex", flexDirection: "column" }}>
       <div style={{ position: "relative", flex: "none" }}>
-        <SurfaceFocusEdge focused={focused} />
+        <SurfaceFocusEdge focused={false} />
         <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: `var(--tasty-${width})`, background: `var(--tasty-${token})` }} />
         {focused && <SurfaceFocusEdge focused style={LOWER_ROW} />}
       </div>
@@ -133,7 +134,7 @@ const WEBVIEW_MARKS = [
   ["occupied-soft", "Occupied soft", "surface-occupied-soft-border", "surface-occupied-border-width", true],
   ["occupied-hard", "Occupied hard or mirror", "surface-occupied-hard-border", "surface-occupied-border-width", true],
   ["needs-input", "Needs input", "surface-highlight-input-border", "surface-highlight-input-width", true],
-  ["completion", "Completed", "surface-highlight-done-border", "surface-highlight-done-width", false],
+  ["completion", "Completed", "surface-highlight-done-border", "surface-highlight-done-width", true],
 ];
 
 export function GallerySurfaceFocus() {
@@ -153,7 +154,7 @@ export function GallerySurfaceFocus() {
           ))}
         </Views>
         <Meta
-          specs={[["focused bed", "Mocha #000000, Latte #ffffff"], ["unfocused bed", "Mocha base #1e1e2e, Latte crust #dce0e8"], ["edge position", "html and plugin surfaces: top of the leaf, full width, above any address band"], ["edge height", <><span className="tok">--tasty-surface-focus-edge-width</span>, 2px in both states, zoom-exempt</>], ["motion", "0ms"], ["unknown focus", "unfocused"]]}
+          specs={[["focused bed", "Mocha #000000, Latte #ffffff"], ["unfocused bed", "Mocha base #1e1e2e, Latte crust #dce0e8"], ["edge position", "html and plugin surfaces: top of the leaf, full width, above any address band"], ["edge height", <><span className="tok">--tasty-surface-focus-edge-width</span>, 2px in both states, zoom-exempt</>], ["unfocused edge", "mantle, the chrome tone, so it reads as no mark · on html it runs into the address band, which is mantle too"], ["motion", "0ms"], ["unknown focus", "unfocused"], ["focused means", "host key focus, not pane or tab selection · a popup that holds key focus leaves every surface unfocused (Overlays › Dialogs, popup focus)"]]}
           tokens={[{ tok: "--tasty-surface-bed-focused", use: "focused bed", color: "var(--tasty-surface-bed-focused)" }, { tok: "--tasty-surface-bed-unfocused", use: "unfocused bed", color: "var(--tasty-surface-bed-unfocused)" }, { tok: "--tasty-surface-focus-edge-focused", use: "edge, focused", color: "var(--tasty-surface-focus-edge-focused)" }, { tok: "--tasty-surface-focus-edge-unfocused", use: "edge, unfocused", color: "var(--tasty-surface-focus-edge-unfocused)" }]} />
         <Note>In the states grid, <b>rest</b> is an unfocused edge and <b>focus</b> a focused one. A plugin can follow the two beds itself, and the edge still shows, because the host cannot tell whether it did.</Note>
         <Do><b>Do</b> reserve the edge row on an html or plugin leaf at all times. A webview starts below it, so the host can always paint it.</Do>
@@ -168,10 +169,12 @@ export function GallerySurfaceFocus() {
           <View name="edge-occupied-hard-unfocused" label="Occupied hard or mirror, unfocused"><Marked focused={false} token="surface-occupied-hard-border" width="surface-occupied-border-width" /></View>
           <View name="edge-needs-input-focused" label="Needs input, focused"><Marked focused token="surface-highlight-input-border" width="surface-highlight-input-width" /></View>
           <View name="edge-needs-input-unfocused" label="Needs input, unfocused"><Marked focused={false} token="surface-highlight-input-border" width="surface-highlight-input-width" /></View>
+          <View name="edge-completion-focused" label="Completed, focused (inactive OS window)"><Marked focused token="surface-highlight-done-border" width="surface-highlight-done-width" /></View>
           <View name="edge-completion-unfocused" label="Completed, unfocused"><Marked focused={false} token="surface-highlight-done-border" width="surface-highlight-done-width" /></View>
           <View name="bed-needs-input-focused" label="Bed kind, needs input, focused"><Marked kind={byId("terminal")} focused token="surface-highlight-input-border" width="surface-highlight-input-width" /></View>
           <View name="bed-needs-input-unfocused" label="Bed kind, needs input, unfocused"><Marked kind={byId("terminal")} focused={false} token="surface-highlight-input-border" width="surface-highlight-input-width" /></View>
           <View name="bed-occupied-hard-focused" label="Bed kind, hard occupied, focused: unfocused values"><Marked kind={byId("terminal")} focused bedFocused={false} token="surface-occupied-hard-border" width="surface-occupied-border-width" /></View>
+          <View name="bed-completion-focused" label="Bed kind, completed, focused (inactive OS window)"><Marked kind={byId("terminal")} focused token="surface-highlight-done-border" width="surface-highlight-done-width" /></View>
           <View name="bed-completion-unfocused" label="Bed kind, completed, unfocused"><Marked kind={byId("terminal")} focused={false} token="surface-highlight-done-border" width="surface-highlight-done-width" /></View>
           <View name="bed-markdown-occupied-hard-focused" label="Markdown, hard occupied, focused: unfocused values, the webview covers the ring"><Marked kind={byId("markdown")} focused bedFocused={false} /></View>
           <View name="bed-field-focus" label="Bed kind, focused, with a focused field">
@@ -187,7 +190,7 @@ export function GallerySurfaceFocus() {
         <Meta
           specs={[["paint order", "unfocused edge, then ring, then lit edge"], ["lit edge with a ring", <>lower row only, <span className="tok">--tasty-border-width</span> tall; the ring keeps the upper row</>], ["webview leaf", "only the ring's top side shows, in the edge's row. Unmeasured in the app"], ["ring priority", "needs input, occupancy, completion, as before"], ["keyboard focus", <>unchanged, blue <span className="tok">--tasty-input-border-focus</span> ring on the field</>], ["hard occupied", "unfocused bed and ink, edge follows focus"], ["mirror", "edge from the focus of the client that draws it"]]}
           tokens={[{ tok: "--tasty-surface-occupied-soft-border", use: "soft ring", color: "var(--tasty-surface-occupied-soft-border)" }, { tok: "--tasty-surface-occupied-hard-border", use: "hard ring", color: "var(--tasty-surface-occupied-hard-border)" }, { tok: "--tasty-surface-highlight-input-border", use: "needs input ring", color: "var(--tasty-surface-highlight-input-border)" }, { tok: "--tasty-surface-highlight-done-border", use: "completion ring", color: "var(--tasty-surface-highlight-done-border)" }]} />
-        <Note>A completed highlight clears on focus, so there is no focused frame for it.</Note>
+        <Note>Completion clears when the leaf has key focus, the OS window is active, and the leaf is free of hard occupancy. A focused leaf keeps its completion highlight while the OS window is inactive, even when a soft occupancy ring hides it. On a hard-occupied leaf, the occupancy ring takes precedence over completion. On a focused leaf, needs input stays visible only while the OS window is inactive or the leaf is hard occupied. Otherwise it clears on the next frame. Hard occupancy uses the unfocused bed, so the focused bed with needs input shows an inactive OS window. Regardless of OS window activation, key focus clears soft occupancy whose parent surface is gone, with any hard occupancy keeping the hard ring visible and delaying the clear until the first frame after it ends. Soft occupancy with a live parent stays and can show its ring on a focused leaf.</Note>
       </Spec>
     </>
   );

@@ -1,4 +1,4 @@
-<!-- source-hash: 0dbca77a03e7 -->
+<!-- source-hash: 86c0448c5ab6 -->
 # Tasty ガイド
 
 Tasty は Windows、macOS、Linux 向けの GPU アクセラレーテッドターミナルで、ワークスペースでプロジェクトを分け、ペインとタブでターミナルとドキュメントを配置します。
@@ -15,3 +15,4 @@ Tasty は Windows、macOS、Linux 向けの GPU アクセラレーテッドタ�
 - [Claude・Codex の接続](agents/claude-codex.md)
 - [リモートの Tasty に接続](remote/attach.md)
 - [トラブルシューティング](help/troubleshooting.md)
+- [クラッシュ・フリーズのレポートとログ](help/error-reports.md)

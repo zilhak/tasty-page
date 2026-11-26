@@ -16,19 +16,22 @@ const THEMES = [["Mocha", "mocha"], ["Latte", "latte"]];
 const cap = { fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" };
 const mono = { fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" };
 const LINES = ["~ $ ls", "Cargo.toml  crates  docs  src", "~ $ cargo build", "   Compiling tasty v0.9.4", "~ $ ▌"];
-const ANNOT = { outline: "var(--tasty-border-width) dashed var(--tasty-accent-move)", outlineOffset: "var(--tasty-size-2)" };
+// drawn just inside the work column, on its tab strip and terminal: outside it, the mark would cross the sidebar's active row.
+// Its own box sits above the terminal (which is positioned and would cover it) and under the notice column, and takes no input.
+const ANNOT = { position: "absolute", inset: 0, zIndex: 1, pointerEvents: "none",
+  outline: "var(--tasty-border-width) dashed var(--tasty-specimen-annotation-border)", outlineOffset: "calc(-1 * var(--tasty-border-width))" };
 
 function Term({ lines = LINES, search }) {
   return (
     <div style={{ position: "relative", flex: 1, minWidth: 0, padding: "var(--tasty-space-sm)", background: "var(--tasty-surface-terminal-focused-bg, var(--tasty-bg-panel))", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-term-sm)", lineHeight: 1.5, color: "var(--tasty-text-secondary)", overflow: "hidden" }}>
-      {lines.map((l, i) => <div key={i} style={{ whiteSpace: "nowrap" }}>{l}</div>)}
+      {lines.map((l, i) => <div data-terminal-content="" key={i} style={{ whiteSpace: "nowrap" }}>{l}</div>)}
       {search && <div style={{ position: "absolute", top: "var(--tasty-space-sm)", right: "var(--tasty-space-sm)", width: "var(--tasty-size-240)", maxWidth: "calc(100% - var(--tasty-space-md))", height: "var(--tasty-size-32)", boxSizing: "border-box", display: "flex", alignItems: "center", gap: "var(--tasty-space-xs)", padding: "0 var(--tasty-space-sm)", background: "var(--tasty-surface-raised)", border: "var(--tasty-border-width) solid var(--tasty-search-bar-border)", borderRadius: "var(--tasty-radius)", color: "var(--tasty-text-muted)", fontSize: "var(--tasty-font-size-caption)", fontFamily: "var(--tasty-font-ui)" }}><Icon name="search" size="var(--tasty-icon-size-xs)" /><span style={{ color: "var(--tasty-text-primary)" }}>cargo</span><span style={{ marginLeft: "auto" }}>1/2</span></div>}
     </div>
   );
 }
 function Strip({ tabs = ["main"] }) {
   return (
-    <div style={{ flex: "none", height: "var(--tasty-tab-height)", display: "flex", background: "var(--tasty-surface-raised)", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
+    <div style={{ flex: "none", height: "var(--tasty-tab-height)", display: "flex", background: "var(--tasty-surface-raised)", borderBottom: "var(--tasty-border-width) solid var(--tasty-border-strong)" }}>
       {tabs.map((t, i) => <span key={t} style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-tab-gap)", padding: "0 var(--tasty-tab-padding-x)", fontSize: "var(--tasty-font-size-caption)", color: i === 0 ? "var(--tasty-tab-fg-active)" : "var(--tasty-tab-fg)", background: i === 0 ? "var(--tasty-tab-bg-active)" : "transparent", borderRight: "var(--tasty-border-width) solid var(--tasty-tab-separator)" }}><Icon name="terminal" size="var(--tasty-tab-icon-size)" />{t}</span>)}
     </div>
   );
@@ -53,7 +56,7 @@ function Win({ w = 640, h = 300, split, search, banner, notifErr, children, anno
         </div>
       </div>
       <div style={{ position: "relative", flex: 1, minWidth: 0, display: "flex" }}>
-        <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", ...(annotate ? ANNOT : {}) }}><Strip tabs={["main"]} /><Term /></div>
+        <div style={{ position: "relative", flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}><Strip tabs={["main"]} /><Term />{annotate && <div aria-hidden="true" style={ANNOT} />}</div>
         {split && <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", borderLeft: "var(--tasty-border-width) solid var(--tasty-separator)" }}><Strip tabs={["logs"]} /><Term lines={["$ tail -f app.log", "INFO listening on :8080", "INFO GET /health 200"]} search={search} /></div>}
         {banner && <Banner text={banner} />}
         {children && <NoticeColumn topOffset={colTop}>{children}</NoticeColumn>}
@@ -65,7 +68,7 @@ const Themed = ({ attr, children }) => (
   <div data-theme={attr || undefined} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-md)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", minWidth: 0 }}>{children}</div>
 );
 const RN = (p) => { const R = K().RestoreNotice; return R ? <R {...p} /> : null; };
-const LONG = "/Users/hyunjoon.kim/Library/Application Support/dev.zilhak.tasty/profiles/work-laptop-2026/session/layout.journal";
+const LONG = "/home/me/.local/share/dev.zilhak.tasty/profiles/work-laptop-2026/session/layout.journal";
 
 function GalleryNoticeColumn() {
   return (
@@ -75,7 +78,7 @@ function GalleryNoticeColumn() {
         <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
           {THEMES.map(([label, attr]) => (
             <Themed key={label} attr={attr}>
-              <span style={cap}>{label} · one flow</span>
+              <span className="g-cap" style={cap}>{label} · one flow</span>
               <span style={mono}>1 · boot, store unreadable → default workspace opens (nothing restored)</span>
               <Win />
               <span style={mono}>2 · notice shown — terminal keeps focus (dashed = input passes through)</span>
@@ -96,7 +99,7 @@ function GalleryNoticeColumn() {
         <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
           {THEMES.map(([label, attr]) => (
             <Themed key={label} attr={attr}>
-              <span style={cap}>{label}</span>
+              <span className="g-cap" style={cap}>{label}</span>
               <span style={mono}>narrow window (work area ≈ 260) · long path · corrupt</span>
               <Win w={380} h={420}><RN cause="corrupt" path={LONG} /></Win>
               <span style={mono}>split · search bar open in the top-right pane → column below it</span>
@@ -105,11 +108,11 @@ function GalleryNoticeColumn() {
               <Win w={640} h={330} split><RN variant="halt" cause="write" /></Win>
             </Themed>
           ))}
-          <Themed>
-            <span style={cap}>Mocha · ko / ja length</span>
+          <Themed attr="mocha">
+            <span className="g-cap" style={cap}>Mocha · ko / ja length</span>
             <RN lang="ko" cause="corrupt" path={LONG} />
             <RN lang="ja" variant="halt" cause="write" />
-            <span style={cap}>Notifications › the error record (existing NotificationItem)</span>
+            <span className="g-cap" style={cap}>Notifications › the error record (existing NotificationItem)</span>
             <div style={{ width: "var(--tasty-notifications-popup-width)", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
               {NotificationItem && <NotificationItem level="error" title="Couldn't restore your last session" body={"Tasty doesn't have permission to read the saved layout.\n" + LONG} source="Tasty" time="1m" unread expanded />}
             </div>
@@ -123,7 +126,7 @@ function GalleryNoticeColumn() {
         <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
           {THEMES.map(([label, attr]) => (
             <Themed key={label} attr={attr}>
-              <span style={cap}>{label}</span>
+              <span className="g-cap" style={cap}>{label}</span>
               <span style={mono}>notice + waiting chip</span>
               <Win w={640} h={360} notifErr><RN cause="denied" /><PendingIndicator count={1} elapsed={12} tooltip="Close tab · 12s" /></Win>
               <span style={mono}>window banner (resize failed) → column under it · 3 pending, oldest 1m 04s</span>
@@ -133,7 +136,7 @@ function GalleryNoticeColumn() {
             </Themed>
           ))}
         </Stage>
-        <Meta specs={[["column", "work area top-right · inset 8 · width 360 · gap 8 · items right-aligned"], ["order", "restore / halt notice › PendingIndicator"], ["moves below", "window-scope banner · top-right pane's open search bar"], ["never covers", "the tab strip: the column starts under the top-right pane's tab strip (tab-height + 8), so close / scroll arrows stay reachable"], ["input", "column itself pointer-events none; only the notice / chip boxes take the pointer"]]}
+        <Meta specs={[["column", "work area top-right · inset 8 · width 360 · gap 8 · items right-aligned"], ["order", "restore / halt notice › PendingIndicator"], ["moves below", "window-scope banner · top-right pane's open search bar"], ["never covers", "the tab strip: the column starts under the top-right pane's tab strip (tab-height + 8), so close / scroll arrows stay reachable"], ["input", "column itself pointer-events none; only the restore / halt notice box takes the pointer · the response-wait chip (any wait, clipboard copy included) is not a keyboard or pointer target: clicks, drags and the wheel over it reach the terminal underneath; hover only shows its detail lines"]]}
           tokens={[{ tok: "--tasty-notice-column-inset", use: "→ space-sm 8" }, { tok: "--tasty-notice-column-gap", use: "→ space-sm 8" }, { tok: "--tasty-notice-column-width", use: "→ size-360" }]} />
       </Spec>
     </>

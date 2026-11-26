@@ -1,4 +1,4 @@
-<!-- source-hash: fad4eb7f997a -->
+<!-- source-hash: 990188815a88 -->
 # Troubleshooting
 
 Causes and remedies for Tasty installation, input, display, restoration, and notification issues are organized by symptom. For CLI connection failures or slow responses, also see connection diagnostics. If the problem remains, report it with your environment details and logs.
@@ -7,19 +7,106 @@ Causes and remedies for Tasty installation, input, display, restoration, and not
 
 - **Windows: a "Windows protected your PC" warning appears** — the binary is not code-signed. Click **More info → Run anyway**.
 - **macOS: it will not open, saying "unidentified developer"** — that is Gatekeeper. Allow it in **System Settings > Privacy & Security**, or run `xattr -dr com.apple.quarantine /Applications/Tasty.app` in a terminal.
-- **Linux: the AppImage does not run** — it lacks the execute bit or FUSE is missing. Run `chmod +x Tasty-*.AppImage` first; if it still fails, start it with `./Tasty-*.AppImage --appimage-extract-and-run`.
-- **Linux: it does not start, with `GLIBC_2.39 not found`** — your distribution is older than the build baseline (Ubuntu 24.04), for example Ubuntu 20.04 · Debian 11. There is no build for older distributions.
+- **Linux: the AppImage shows an execute permission or FUSE error** — for a permission error, run `chmod +x Tasty-*.AppImage`. For a FUSE error, run `./Tasty-*.AppImage --appimage-extract-and-run`. If you see a `GLIBC_2.39` error, see the next item.
+- **Linux: the package manager reports an unmet glibc 2.39 requirement, or Tasty fails to start with `GLIBC_2.39 not found`** — your distribution uses a glibc version earlier than 2.39. Examples include Ubuntu 22.04, Debian 12, RHEL 9, and openSUSE Leap 15.6. Run `ldd --version` and check the first line for the glibc version. There is no build for older distributions.
 - **Linux `.tar.gz`: it exits saying a library is missing** — `tasty` lists the file names of the missing shared libraries and exits. Use the search command it prints for your distribution (`apt-file search` · `dnf provides` · `zypper what-provides` · `pacman -F`) to find the package that provides each library, then install it. To have the required libraries installed automatically, use the `.deb` / `.rpm` instead.
 - **It exits right away and the log says "No GPU adapter found"** — Tasty could not find a usable GPU adapter (Vulkan / DirectX 12 / Metal). This error is not shown on screen; it is written only to `~/.tasty/debug.log` and to the terminal output (when launched from a terminal). Install or update the driver. On Linux, Tasty uses Vulkan when `libvulkan1` / `vulkan-loader` is present, OpenGL when it is not, and software rendering if that fails too. To run on a server or VM without a graphical desktop, use a [headless build](../getting-started/install.md#headless-build).
 - **Windows: the Choose a shell screen appears at start, or new terminals cannot open** — Tasty runs only Git Bash on Windows. The shell setting is not Git Bash (including a folder path), there is no file at the configured path, or the setting is empty and Git Bash was not found in the default install locations. At start, the **Choose a shell** screen appears; while Tasty is running, the **Terminal** tab in **Settings** shows the cause and new terminals cannot open. Install Git for Windows, or enter its `bash.exe` path if it is elsewhere. On the **Choose a shell** screen, enter the path and press **Use this shell**. While Tasty is running, correct the path under **Settings** > **Terminal** > **Shell**. Git for Windows's `usr\bin\bash.exe` is also accepted, but if Git is not on the Windows `PATH`, that shell cannot find the `git` command; enter `bin\bash.exe` instead.
 - **A different shell opens instead of the one I configured** — On macOS and Linux, if there is no file at the configured shell path, Tasty opens terminals with another shell it finds (your login shell or `$SHELL`). Tasty does not change the shell value in your settings file, so once you fix the path or reinstall that shell, new terminals use it again. The substitute shell is recorded in `~/.tasty/debug.log`, and the **Terminal** tab in **Settings** shows a notice. On Windows, Tasty does not substitute another shell; see the Windows bullet above.
-- **macOS and Linux: the Choose a shell screen appears at start, or Settings shows a shell error** — The configured shell path is a folder or a file without permission to run. Tasty does not switch to another shell in this case; it shows the cause instead. On the first run, the check line of the **Choose a shell** screen says "This path is a folder, not a program" or "This file has no permission to run". While Tasty is running, the **Terminal** tab in **Settings** shows the same cause and new terminals cannot open. Set the path to a shell program, or make the file executable with `chmod +x`.
+- **macOS and Linux: the Choose a shell screen appears at start, or Settings shows a shell error** — The configured shell path is a folder or a file without permission to run. Tasty does not switch to another shell in this case; it shows the cause instead. At startup, the check line of the **Choose a shell** screen says "This path is a folder, not a program" or "This file has no permission to run". While Tasty is running, the **Terminal** tab in **Settings** shows the same cause and new terminals cannot open. Set the path to a shell program, or make the file executable with `chmod +x`.
 - **A "Could not start the terminal" screen appears right after starting** — Tasty could not open the first terminal. The "Details" part of the message gives the cause. Fix the cause and start Tasty again. If a new window fails for the same reason while Tasty is running, the **Could not open a new window** notice shows the cause, and the windows already open keep working.
 - **Notifications show "Recent files and tutorial progress are not being saved"** — Tasty could not open `~/.tasty/state.db`, which holds the recent-files list and tutorial progress. You can keep using Tasty, and terminals and layout restore are not affected, but the previously saved recent list and tutorial progress cannot be loaded, and changes made in this session are not saved. Folders you visit in Explorer during this session can still show up in that window's recent list while Tasty runs, but they are not kept for the next run. The notification body gives the cause. "The database is locked" means another Tasty is already running. "corrupted" / "schema version mismatch" means you can quit Tasty, back up `~/.tasty/state.db`, and delete it to start fresh from the next run. Saving resumes only after you fix the cause and start Tasty again.
 - **A "Tasty could not start" screen appears and no terminal opens** — an internal step failed while Tasty was preparing its first window. The "Details" part gives the cause. Press **Quit**, Esc or Enter to close it and Tasty exits. Start it again, and if it keeps happening, check that the data folder (`TASTY_HOME`, or `~/.tasty` by default) is usable and look at `~/.tasty/debug.log`. Where Tasty cannot show a window, the same message appears in a message box (on Linux without zenity, as a desktop notification).
 - **You typed `tasty` inside a Tasty terminal but no new window appeared** — run with no arguments inside Tasty, it shows the help instead of opening a new window. For a new window use `tasty new window` (it leaves the focus on the window you were looking at).
 
 The install procedure itself is in [Install](../getting-started/install.md).
+
+<a id="linux-native-wayland"></a>
+
+<a id="document-views-and-clipboard-exchange-with-other-apps-do-not-work-on-linux"></a>
+
+## Document viewing and clipboard limits on Linux native Wayland
+
+When Tasty runs on native Wayland, HTML and Markdown views, remote HTML files, and web addresses are unavailable. Explorer file copy, cut, and paste cannot use the OS file clipboard and use only the list kept in this Tasty. In vi copy mode, copying with `"*` does not reach other apps. Copy with `"+` or without specifying a target instead. Native right-click menus do not appear yet.
+
+If the compositor supports the clipboard, the terminal and text fields in settings, workspace renaming, and the address bar, for example, support copying and pasting text to and from other apps. If another app copied only an image without text, pasting into the terminal saves it as a PNG file and inserts its path.
+
+If the compositor supports the clipboard, plugins that have agreed to report editing results to Tasty wait while reading clipboard text from another app before pasting into a text field on native Wayland. This applies to text fields in local plugin views and popups, and to pasting into that local view from the command palette. Plugin views mirrored from a remote workspace are excluded. Built-in plugins do not report editing results yet, so this waiting behavior does not apply to them.
+
+The read can end in the following ways.
+
+- **No text or a failed read — views with format support**: Tasty requests a format paste from a local plugin view that both reports editing results and supports formats other than text, such as images. If the plugin reports that there is no format it can paste, the original key input is passed on.
+- **No text or a failed read — other views and popups**: The original key input is passed on.
+- **The read takes too long**: If the read does not finish within a time limit, the original key input is passed on regardless of support for formats other than text.
+- **The plugin does not respond**: After the read finishes and a paste is requested, if the plugin does not report an editing result within a time limit, processing ends without passing on the original key.
+
+The command palette also attempts a format paste under the same conditions. Since there is no key to pass on, a paste from the palette ends wherever the list above calls for passing on the original key.
+
+Format pasting is also supported on other platforms. Plugin views that do not report editing results receive paste actions if they support the format; the plugin reads the required format itself and attempts to paste it.
+
+While waiting for the read, closing the target view or popup, or changing which target receives keyboard input, cancels the paste. Clicking anywhere in the same window, the window losing focus, another clipboard read replacing the pending read, or the plugin stopping or restarting also cancels it. Text that arrives after cancellation is not pasted.
+
+Follow the steps for your cause below.
+
+- When `DISPLAY` is unset, there is no XWayland, so Tasty runs on native Wayland. Turn on XWayland outside Tasty, then restart Tasty.
+- When `DISPLAY` is set but Tasty cannot reach that X server and `WAYLAND_DISPLAY` is set, Tasty logs a warning and runs on native Wayland. Check the X server in `DISPLAY` or the XWayland connection outside Tasty, then restart Tasty.
+
+The page area of HTML, Markdown, and remote HTML file surfaces shows the cause as a heading and the remedy on the line below it. A remote HTML file shows the receiving status during transfer and this notice after transfer finishes. Explorer file copy, cut, and paste and copying with `"*` in vi copy mode show warning toasts with the cause and remedy. The `"*` notice also offers copying with `"+` as an alternative. If the compositor does not support the clipboard, neither the terminal nor text fields can exchange content with other apps through copy and paste. In this case, copying and pasting in the terminal and copying and cutting in text fields show warning toasts with the cause and a remedy using XWayland. Toast duration follows the global setting.
+
+<a id="linux-gdk-backend"></a>
+
+## Document views and the tray icon are unavailable on Linux
+
+Even when `DISPLAY` is set and Tasty's window runs on X11, GTK initialization fails if `GDK_BACKEND` in Tasty's launch environment does not allow x11. The tray icon, HTML and Markdown views, and remote HTML files and web addresses are then unavailable. Right-click menus do not appear yet. The window runs on X11, so the clipboard works normally.
+
+Remove `GDK_BACKEND` from Tasty's launch environment outside Tasty, then restart Tasty. Tasty does not remove or overwrite this value, and the shell inside the terminal receives the value you set unchanged.
+
+The page area shows the cause and remedy, with a heading that also says the tray icon is unavailable. There is no separate notice from the tray itself.
+
+### GTK initialization fails without `GDK_BACKEND` being the cause
+
+GTK initialization can fail even when `GDK_BACKEND` is unset or allows x11. The tray icon, HTML and Markdown views, and remote HTML files and web addresses are unavailable in this case too, and right-click menus do not appear yet. The window runs on X11, so the clipboard works normally.
+
+The app shows only a GTK initialization failure notice, without a remedy line. Tasty cannot identify the cause in this case. Check the warning log under [Log and settings file locations](#log-and-settings-file-locations) and include the information listed in [Reporting a problem](#reporting-a-problem).
+
+<a id="linux-tray-icon-missing"></a>
+
+## The tray icon is missing on Linux
+
+On Linux, the tray icon requires an AppIndicator library (`libayatana-appindicator3` or `libappindicator3`). Tasty loads it at runtime. If the library is missing, Tasty keeps running without a tray or an error window. If GTK initializes successfully and Tasty cannot load the library, the log contains one warning starting with `Failed to create tray icon: dlopen failed for every AppIndicator library name`. If Tasty is running on X11 (including XWayland) and the log says `GTK init failed`, see [Linux document view and tray troubleshooting](#linux-gdk-backend).
+
+If the AppIndicator library loads but lacks a function the tray needs, Tasty keeps running without a tray. The warning in the log takes the form `Failed to create tray icon: AppIndicator library <library name> has missing or null required symbols (...)`. Check the library name in the log and reinstall or update the package that provides it for your distribution. Then quit Tasty completely and start it again.
+
+On Linux, Windows, and macOS, if the **Choose a shell** screen opens when you start Tasty, pick a shell and click **Use this shell**. Tasty then tries to create the tray. For details on when the screen appears, see the shell troubleshooting items under [Install · first launch](#install--first-launch).
+
+With **Close behavior** set to **Ask**, choose **Minimize** in the confirmation dialog for closing the last main window. With **Close behavior** set to **Minimize to background**, click the close button on the last main window or press the **Quit** shortcut. You can also run **Minimize to background** from the command palette or press the shortcut assigned to that action.
+
+Minimizing to the background applies to all open windows. The **Minimize window** command in the command palette requests minimization of the current window only.
+
+On Linux, if Tasty could not create the tray, background minimization asks the system to minimize all open windows. This includes cases where AppIndicator lacks a required function. On X11, including XWayland, the window manager determines whether the windows minimize and whether you can restore them from the taskbar or dock.
+
+On native Wayland, Tasty asks the compositor to minimize the windows even when the tray icon is available. If the compositor does not act on the request, the windows stay as they are. You can restore minimized windows from the taskbar or dock if your compositor provides that option. **Show Window** in the tray menu cannot restore them. For how to reopen Tasty from a launcher, see [Running Tasty again](#running-tasty-again).
+
+### Install AppIndicator
+
+Install the package for your distribution. After installation, quit Tasty completely and start it again.
+
+- Ubuntu 24.04 and Debian 13 — `libayatana-appindicator3-1`
+- Fedora — `libayatana-appindicator-gtk3`
+- openSUSE Tumbleweed and Leap 16.0 — `libayatana-appindicator3-1`
+
+How AppIndicator is installed depends on the Tasty package format.
+
+- The `.rpm` recommends the 64-bit Ayatana AppIndicator library (`libayatana-appindicator3.so.1`). It is installed with Tasty if dnf or zypper is set to install recommended packages and an enabled repository has a package that provides this library.
+- The `.deb` does not install AppIndicator automatically. If the library is missing from your system, install the package listed above separately.
+- The `.tar.gz` uses the AppIndicator library installed on your system. AppIndicator is optional, so it does not appear in the startup message about missing required shared libraries.
+- If the tray icon is missing when you run the AppImage and AppIndicator is missing from your system, install the package listed above.
+
+### The icon is missing even with the library installed
+
+The tray can be created even when the desktop has nowhere to display its icon. An icon registered as a StatusNotifierItem (SNI) needs an SNI host to display it. If no desktop service accepts SNI registrations or registration fails, Ayatana AppIndicator falls back to XEmbed and needs an XEmbed tray to display the icon. On GNOME, install and enable an AppIndicator extension.
+
+On X11, including XWayland, if Tasty creates the tray, minimizing to the background hides the window even when the icon is missing from the desktop. To bring back the hidden window, see the app menu or launcher item under [Running Tasty again](#running-tasty-again).
 
 ## macOS permission prompts
 
@@ -101,8 +188,8 @@ Open **Listening ports…** from the **Tools** menu in the sidebar. It shows the
 
 ## The window freezes or crashes
 
-- **The window does not respond to clicks · key input · the CLI at all** — when it freezes for more than 5 seconds, `~/.tasty/crash-reports/hang-*.log` is written automatically. A `Render phase` of `acquire` / `submit` / `present` records where rendering was stalled. A GPU driver issue is one possibility, so check for driver updates. Tasty does not recover on its own, so force-quit it and start it again.
-- **It exited suddenly** — look at `~/.tasty/crash-reports/crash-*.log`. Attach this file when you report the problem.
+- **The window does not respond to clicks, key input or the CLI** — In Tasty with a graphical interface (GUI), a record is written when progress is detected to have stopped for more than roughly 5 seconds. Not every hang produces a record. Tasty does not recover on its own while frozen. Follow [Crash and hang reports and logs](error-reports.md) to copy the logs and collect any stack sample you need, then force-quit Tasty and start it again. If you suspect a GPU-related hang, also check for GPU driver updates.
+- **It exited suddenly** — look for `crash-reports/crash-*.log` in the data folder and keep it with the logs. **Copy `debug.log` before starting Tasty again.**
 
 ### A notice says saving stopped while Tasty was running
 
@@ -118,7 +205,7 @@ If your layout does not return, first check **Restore layout on startup** and th
 
 - **The settings went back to their defaults** — if `~/.tasty/config.toml` cannot be parsed as TOML, Tasty starts from the defaults. Your original file is not deleted. It is left where it is, and moved next to it as `config.toml.bak` the moment settings are saved over it. Fix that file and rename it back to `config.toml` and your settings come back as they were. Which line failed is written to `~/.tasty/debug.log`.
 - **A notice says the saved workspace could not be recovered** — Accumulated journal size alone does not block terminal startup. If restore cannot continue, Tasty preserves the original and opens an empty workspace for this run. Terminal input and new tabs remain available, but this temporary layout is not kept for the next run. Check free disk space and data folder permissions, then restart. Actual disk write failures are reported as failures; the notification gives the cause.
-- **A saved window layout was not restored** — first check that **Restore layout on startup** under **Settings** > **General** is turned on. The Workspace · Pane · Tab arrangement is stored in `~/.tasty/structure/journal.db`. Files such as `01.json` under `~/.tasty/layouts/`, written by earlier versions, are read only once, when they are first carried over into the new store; after that, editing or deleting them does not change the restored layout. If Tasty cannot open the store, it starts with a new default workspace and shows an error notification together with a **Couldn't restore your last session** notice in the top-right corner of the window. The notice gives the cause and the location of the store, the notification holds the full error, and the same text is written to `~/.tasty/debug.log`. The store file is not changed, moved or deleted. This run's layout records (workspaces, tabs and what Tasty needs to restore them) are lost when Tasty quits (files changed in your terminals are not affected), and the next start reads the store again; once read permission is back, your original layout is restored. Close the notice with **Continue** or ×; the terminal keeps taking input while it is shown. If another Tasty is using the same data folder, Tasty does not start and shows the cause instead. Include the log when you report the problem. <!-- TODO verify: whether there is a user procedure to recover the layout from a damaged journal.db -->
+- **A saved window layout was not restored** — first check that **Restore layout on startup** under **Settings** > **General** is turned on. The Workspace · Pane · Tab arrangement is stored in `~/.tasty/structure/journal.db`. Files such as `01.json` under `~/.tasty/layouts/`, written by earlier versions, are read only once, when they are first carried over into the new store; after that, editing or deleting them does not change the restored layout. If Tasty cannot open the store, it starts with a new default workspace and shows an error notification together with a **Couldn't restore your last session** notice in the notice column at the top right of the window. Notices stack one card at a time and appear over HTML and Markdown views without hiding them. The notice leaves keyboard focus where it is when it appears. The notice gives the cause and the location of the store, the notification holds the full error, and the same text is written to `~/.tasty/debug.log`. The store file is not changed, moved or deleted. This run's layout records (workspaces, tabs and what Tasty needs to restore them) are lost when Tasty quits (files changed in your terminals are not affected), and the next start reads the store again; once read permission is back, your original layout is restored. Close the notice with **Continue** or ×. It receives keystrokes only while a control inside the card has focus. You can also press `Esc` to close it while a control has focus. Include the log when you report the problem. <!-- TODO verify: whether there is a user procedure to recover the layout from a damaged journal.db -->
 - **"An old layout file could not be imported"** — a file written by an earlier version, such as `~/.tasty/layouts/01.json`, could not be read as a layout. That window starts with a new default workspace and the file is kept. If Tasty has no permission to read the file, an error notification and a notice in the top-right corner of the window appear. Once the window has started with a new layout, the file is not imported again even if you fix it.
 - **"Some terminal contents were not restored"** — while importing a file from an earlier version, the saved contents file of some terminals was missing or unreadable. The layout is restored, and only those terminals start without their earlier output.
 - **"Selected tabs could not be restored"** — the workspace and tab arrangement was restored, but the record of the last selected workspace and tabs could not be read. Tasty starts with the first workspace and tab selected. The unreadable record is kept at the location named in the notification (usually `~/.tasty/structure/damaged/`) and is never deleted automatically.
@@ -136,10 +223,31 @@ If your layout does not return, first check **Restore layout on startup** and th
 
 ## Running Tasty again
 
-- **Launching from the app menu or a launcher brings the open window forward instead of a new window** — only one Tasty runs per data folder (`~/.tasty/`, or the folder set with `TASTY_HOME`). A new launch does not start a second process; it is handed to the running Tasty. Windows hidden to the tray or minimized come back, and the window you used last comes forward. Whether it actually comes to the front is up to the OS, so in some environments the taskbar entry only flashes. On Wayland, if the desktop does not support window activation requests, a new window opens instead of the open one.
-- **Running `tasty` in a terminal opens just one new window** — running it with no arguments from a terminal, script, or agent outside Tasty is the same as `tasty new window`. Inside a terminal that Tasty opened, it shows the help instead of a new window. The focused window and hidden windows stay as they are. On Windows, launching from the terminal you are using (the one in front) passes on the permission to come forward, so the open window may come forward as it does from the app menu.
-- **A "Tasty is already running." box appears** — the launch could not be handed to the running Tasty and the running Tasty does not respond. When the request did arrive but is handled late, no box appears and a window opens a moment later. Usually the box means the running Tasty was still starting up, or on Linux the session bus could not be reached. The cause is written to `launch.log` in the data folder (`~/.tasty/launch.log`). Each launch adds several lines, one per step. On Linux without `zenity`, a desktop notification appears instead of the box.
-- **Starting Tasty right after force-quitting it takes a moment** — it waits up to two seconds for the leftover lock to be released before starting.
+- **Launching from the app menu or a launcher brings back an existing window or opens a new one** — If reopening the released GUI build with the same data folder (`~/.tasty/` or the folder set with `TASTY_HOME`) starts a second process, it tries to forward the request to the running GUI instance. On Linux and Windows, if the request gets through and only dialogs remain, Tasty opens a new window.
+
+  On Linux with X11 or XWayland, Tasty shows all hidden or minimized windows again if you relaunch with the same data folder, the launcher passes window activation information, and there is an existing main window (such as a Tasty window with a terminal). Tasty requests activation of the last focused window. It requests activation of the first main window if no focus was recorded or that window has closed. A new window opens if there is no activation information or no existing main window. The window manager or compositor decides whether a window comes to the front.
+
+  On native Wayland, if the launcher passes Wayland activation information and there is an existing main window, Tasty asks the compositor to activate the target window. The compositor decides whether to show the window and whether to bring it to the front. A new window opens if there is no activation information or no existing main window, or if the compositor does not support activation requests.
+
+  On Windows, when you relaunch from the Start menu, taskbar, or File Explorer, the new process can give the running app permission to bring windows to the front. If it passes that permission and there is an existing main window, Tasty shows hidden or minimized windows again and asks to bring the last focused window forward (or the first main window if no focus was recorded or that window has closed). The OS can refuse the request and just flash the taskbar icon. A new window opens if permission was not passed or there is no existing main window.
+
+  When you reopen Tasty from Finder or the Dock, for example, macOS sends a reopen request to the running app. Tasty opens one new window only if none are visible. Minimizing Tasty to the background closes its windows and keeps their layouts and terminal state in the running app. If any window states were kept, Tasty restores one in the new window.
+
+- **Running `tasty` in a terminal opens a new window or brings back an existing one** — running the released GUI build without arguments from a terminal, script, or agent outside Tasty behaves differently depending on the OS. Inside a terminal that Tasty opened, it shows the help instead of a new window.
+
+  On Linux, running without window activation information opens one new window and leaves hidden windows as they are.
+
+  On Windows, launching from the terminal in front can bring back an existing window, just as launching from the Start menu can, if the new process passes permission to the running app and a main window already exists. If the process cannot pass permission or there is no existing main window, one new window opens. Hidden windows stay hidden if permission cannot be passed, as may happen when launching from a background terminal or script.
+
+  On macOS, running the executable directly opens one new window. The new window restores one of the window states kept by the running app, if available.
+
+- **A "Tasty is already running." box appears** — The released GUI build shows this box and exits if it cannot forward the request to the running Tasty or acquire the data folder lock. This can happen if the running Tasty does not finish starting in time, or if the Linux session bus cannot be reached. If the second process sent the request but could not confirm delivery, it skips the notice if the first instance is still running. On Linux without `zenity`, it uses a desktop notification.
+
+  When a second process of the released GUI build begins trying to forward the request, it records its progress and result in `launch.log` in the same data folder. The default is `~/.tasty/launch.log`. If you set `TASTY_HOME`, look in that folder. The log records any wait before sending the request. If the process acquires the lock, it records that startup will proceed normally.
+
+- **The development GUI build shows a “Data folder already in use” error screen** — if the lock on the same data folder is still held, the screen gives the path to that folder. Closing the error screen ends the process with exit code 1. If Tasty cannot create a window or initialize the GPU, it tries to show the same message through an OS message box or desktop notification.
+- **The headless build prints “Data folder already in use” and exits** — it retried the data folder lock for up to two seconds, but another Tasty still holds it. The second launch writes the message to standard error (stderr) and exits with code 1 without forwarding a request. Keep using the running Tasty. See [Completion logs and standard error output](../agents/claude-codex.md#4-receiving-completion-notifications) for the full message and when files are preserved.
+- **Starting Tasty right after force-quitting it takes a moment** — On the first lock check at startup, Tasty retries the data folder lock for up to two seconds. Startup continues if it acquires the lock in that time. If the lock is still held and the existing instance is not ready to receive a request, the released GUI build can wait longer. It starts a new instance if it acquires the lock during that wait.
 - **You need two separate Tastys** — start one with a different `TASTY_HOME`.
 
   ```sh
@@ -179,8 +287,12 @@ The name contains a character that is not allowed, such as an uppercase letter o
 
 ## A plugin has stopped
 
-- **`tasty plugin list` shows enabled but not running** — a plugin that fails to run 3 times within 10 seconds is stopped automatically. Check the cause with `tasty plugin logs <id>`, then start it again with `tasty plugin enable <id>`.
-- **Right after `plugin enable` it shows running, then a moment later it does not** — `plugin enable` returns without waiting for the plugin to connect to Tasty. A plugin you just turned on therefore shows as running before it connects, and requests sent in the meantime are delivered once it connects. If it does not connect within 10 seconds, that counts as a failed run and it is no longer running. Check the cause with `tasty plugin logs <id>`.
+- **`tasty plugin list` shows enabled but not running** — the plugin may be waiting for an automatic retry. If a plugin cannot start or connect when the app launches, Tasty retries after 10 seconds, then after another 20 seconds if it fails again. The same applies if an automatic restart fails after a running plugin stops responding or exits. After three consecutive failures, Tasty turns that plugin off automatically. A separate rule also stops a plugin if the process itself fails to launch three times within 10 seconds.
+
+  A successful connection resets the consecutive failure count. Turning a plugin off or on yourself clears its retry history, and disabled or removed plugins are not retried. The reason for an automatic disable appears in a notification, and the plugin appears as **Runtime error** under **Plugins › Attention**. Notifications for failures during app startup are left after the first workspace is created. Check notifications and **Attention**, review the cause with `tasty plugin logs <id>`, then turn the plugin on again with `tasty plugin enable <id>`.
+- **A plugin does not start when I turn it on myself** — if `tasty plugin enable <id>` or the switch in **Plugins** fails to turn a plugin on, the error is shown immediately without an automatic retry. By default, `enable` waits for the connection result. If you used `--no-wait` to return immediately, check the result with `tasty plugin show <id>`.
+
+  A plugin enabled with `--no-wait` or at an agent’s request shows as running even before it connects. Requests sent in the meantime are delivered once it connects. If it does not connect within 10 seconds, that counts as a failed run and it is no longer running.
 - **A bundled plugin is broken** — copy it again from the bundle with `tasty plugin upgrade-builtins --force`. Plugin data (bookmarks · profiles and so on) is kept.
 - **macOS: built-in plugins do not run** — the Gatekeeper quarantine flag left on the app may have been carried over to the plugin copies and blocked them. Tasty does not remove this flag by itself. Check the cause with `tasty plugin logs <id>`; to remove it yourself, run `xattr -dr com.apple.quarantine /Applications/Tasty.app ~/.tasty/plugins` in a terminal and restart Tasty.
 
@@ -188,31 +300,22 @@ The name contains a character that is not allowed, such as an uppercase letter o
 
 ## Log and settings file locations
 
-All of them live under `~/.tasty/` (on Windows, `%USERPROFILE%\.tasty\`).
+The default folder is `~/.tasty/` (on Windows, `%USERPROFILE%\.tasty\`). If you set `TASTY_HOME`, the files are in that folder instead.
 
 | File | Contents |
 |---|---|
 | `config.toml` | Settings. Values saved from the settings window end up here |
 | `tasty.port` | The IPC port number of the running Tasty. Created when Tasty starts |
-| `debug.log` | Warning-and-above log of the previous run. Cleared when Tasty starts again |
+| `debug.log` | Warnings and above from the running Tasty instance. Copy before restarting |
 | `crash-reports/crash-*.log` | Crash reports — version · OS · location · message · backtrace |
-| `crash-reports/hang-*.log` | Written automatically when the window freezes for more than 5 seconds |
-| `launch.log` | Records and results of launching Tasty again while one is already running |
+| `crash-reports/hang-*.log` | In Tasty with a graphical interface (GUI), a record is written when progress is detected to have stopped for more than roughly 5 seconds. Not every hang produces a record. System load, CPU and scheduling information is collected on Linux. |
+| `launch.log` | Progress and results of a second released GUI process trying to forward a request, including waits before sending and the transition to normal startup if the process acquires the lock. |
 | `hook-failures.log` | Records of Claude / Codex hooks that failed to reach Tasty |
-| `plugins-logs/<plugin id>.log` | Per-plugin logs. Also viewable with `tasty plugin logs <id>` |
+| `plugins-logs/<plugin id>.log` | Per-plugin logs. Copy before restarting the plugin. Also viewable with `tasty plugin logs <id>` |
 | `state.db` | Data the app manages on its own, such as recent files |
 
-If you need more detailed logs, run Tasty from a terminal with the log level raised. The variable is `TASTY_LOG`, not `RUST_LOG`.
-
-```sh
-TASTY_LOG=debug tasty 2> tasty.log
-```
+See [Crash and hang reports and logs](error-reports.md) for when to copy logs, how to collect more detailed output, and how to keep `tasty.pdb` with Tasty on Windows.
 
 ## Reporting a problem
 
-Include the steps to reproduce, Tasty version, OS and architecture, and relevant error messages in a [GitHub issue](https://github.com/zilhak/tasty/issues). Before attaching logs, check paths and output for personal information.
-
-- The output of `tasty --version`, plus your OS · version
-- Steps to reproduce
-- The matching `crash-*.log` / `hang-*.log` from `~/.tasty/crash-reports/`
-- `~/.tasty/debug.log` from right after the symptom (it is cleared on the next start, so copy it first)
+Include reproduction steps, Tasty version, OS and architecture, and relevant error messages in a [GitHub issue](https://github.com/zilhak/tasty/issues). Follow [Crash and hang reports and logs](error-reports.md) to choose attachments and redact tokens and personal information.

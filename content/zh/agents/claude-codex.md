@@ -1,4 +1,4 @@
-<!-- source-hash: 5dae801cb067 -->
+<!-- source-hash: 96db2435314c -->
 # 配合 Claude 和 Codex 使用
 
 在 Tasty 终端中运行 Claude Code 和 Codex CLI 并查看状态。两个 CLI 需要单独安装。要将任务分配给多个智能体，请同时配置钩子和父智能体的结果接收路径。
@@ -103,7 +103,7 @@ tasty codex spawn --workspace workers --cwd ~/proj --sandbox read-only \
 | `--prompt <文本>` | 启动后立即发送的第一条指令 |
 | `--surface <ID>` | 父 Surface（默认：自身） |
 
-`spawn` **立即返回**。没有单独的等待命令。完成子智能体的钩子和[接收配置](#4-接收完成通知)后，会将子智能体报告的空闲状态传递给父智能体。空闲不表示任务成功。Claude 子智能体的子智能体结束，或响应结束但仍有后台任务时，不视为空闲。后台任务完成且接续的响应也结束后才会通知。[Stop Gate](#8-claude-会话配置档和-stop-gate) 发送检查清单让响应继续时，也不视为空闲，通过 Gate 并结束响应后才会通知。如果留下永不结束的后台命令（如开发服务器），就不会进入空闲状态。等待后台任务期间没有输出时，会向父智能体通知一次。默认阈值为 10 分钟，具体取决于是否找到输出文件及是否仅剩 Monitor（[第 4 节的无输出通知](#4-接收完成通知)）。
+`spawn` **立即返回**。没有单独的等待命令。完成子智能体的钩子和[接收配置](#4-接收完成通知)后，会将子智能体报告的空闲状态传递给父智能体。空闲不表示任务成功。Claude 子智能体的子智能体结束，或响应结束但仍有后台任务时，不视为空闲。后台任务完成且接续的响应也结束后才会通知。[Stop Gate](#8-claude-会话配置档和-stop-gate) 发送检查清单让响应继续时，也不视为空闲，通过 Gate 并结束响应后才会通知。如果留下永不结束的后台命令（如开发服务器），就不会进入空闲状态。等待后台任务期间没有输出时，会向父智能体通知一次。默认阈值为 10 分钟，具体取决于是否找到输出文件（[第 4 节的无输出通知](#4-接收完成通知)）。
 
 父智能体将子智能体放在自身工作区以外的**其他工作区**中更安全。在已附加的远程工作区中运行子智能体的方法及结果接收条件，见下方“[在已附加的远程工作区中创建子智能体](#在已附加的远程工作区中创建子智能体)”一节。子智能体使用远程计算机的工具和设置运行。
 
@@ -125,7 +125,7 @@ tasty claude parent --surface 57                            # 此子智能体的
 
 `tasty claude children` 和 `tasty codex children` 默认输出父 ID 表。两个命令都接受 `--format table|json`，默认值为 `table`。其他值会报错。要在脚本中按 JSON 读取输出，添加 `--format json`。在旧版本中将默认输出解析为 JSON 的脚本也必须添加此选项。
 
-子智能体过多时，spawn 响应会附带警告。可在**设置** <!-- en: Settings --> › **插件** <!-- en: Plugins --> › **Claude Code** / **Codex** 的 **Spawn 子实例警告阈值** <!-- en: Spawn child warning threshold --> 中更改阈值（Claude Code、Codex 均默认为 6）。
+子智能体过多时，spawn 响应会附带警告。可在**设置** <!-- en: Settings --> › **插件** <!-- en: Plugins --> 中通过 **Claude Code** › **子数量警告阈值** <!-- en: Child count warning threshold --> 或 **Codex** › **Spawn 子实例警告阈值** <!-- en: Spawn child warning threshold --> 更改阈值。两项默认值均为 6。
 
 ### 子 Claude 的模型和 effort
 
@@ -142,25 +142,42 @@ tasty claude spawn --workspace workers --cwd ~/proj --model opus --effort high \
 
 命令返回不表示模型已响应。如果提供方拒绝该模型，Tasty 不会换用其他模型重试。请在 Claude 画面中查看实际模型和 effort。
 
+<a id="claude-子智能体的-idle-检查"></a>
+
 ## 4. 接收完成通知
 
 无论子智能体是 Claude 还是 Codex，父 Claude Code 或普通终端的状态通知都会逐行写入父智能体的完成日志。父 Codex 对话使用下方单独的结果返回路径。
 即使向同一子智能体多次发送 tell，每次状态变化也只留下一个记录行。其他父智能体向同一子智能体发送 tell 的通知，会单独写入该父智能体的日志。
 输入请求、中断、错误和进程退出也属于状态通知，不要将通知直接视为任务成功。
-如果 Claude 子智能体因 API 错误结束回合，完成通知行末会附上该情况和错误种类（如 `overloaded`）。如果仍有后台任务且子智能体继续等待，则不会写入完成行，而是仅写入一行说明该情况。
+
+无论应用使用哪种语言，子智能体的通知行都以固定标记和一个半角空格开头。
+
+| 子智能体 | `[info]` | `[warning]` | `[error]` |
+|----------|----------|-------------|-----------|
+| Claude | 轮次正常结束（`idle`）、远程结果已保存 | 等待输入（`needs_input`）、未等待后台任务时长时间无输出（通知前未在终端画面中找到错误文本）、等待后台任务时屏幕或任务文件无输出、汇总暂缓发送的无输出通知 | 轮次因 API 错误结束、后台任务仍在运行时发生 API 错误、未等待后台任务时长时间无输出（通知前在终端画面中找到错误文本）、进程退出（`exited`） |
+| Codex | 普通状态变化、远程结果已保存 | 等待工具审批（`needs_input`） | 进程退出（`exited`）、带有沙盒初始化失败提示的完成行 |
+
+原先在行首查找 `surface <N>: ` 的脚本需先跳过标记和后面的空格。只筛选无输出警告时，先匹配 `^\[warning\] `，再按正文排除等待输入和审批的行。
+
+如果 Claude 子智能体因 API 错误结束回合，完成通知行末会附上该情况和错误种类（如 `overloaded`）。如果仍有后台任务且子智能体继续等待，则不会写入完成行，而是仅写入一行说明该情况。例如，英文日志可能出现 `[error] surface 12: the turn ended on an API error (overloaded), but background work (shell) is still running, so the child keeps waiting`。
+
 Claude 子智能体的无输出通知默认以 10 分钟（600 秒）为阈值。可在[设置 > 插件 > Claude Code](../plugins/index.md#插件添加的设置) 中改为 60～86400 秒，无需重启即可生效。没有关闭通知的取值。
 
-等待后台 Shell 或子智能体的子智能体，在找到的所有任务输出文件持续配置时长未变化时，每次等待仅写入一行带任务名称的记录。英文为 `background work <名称> has written no output for <分钟> min`。如果找不到任务输出，则在画面输出持续未变化的时间达到 10 分钟与配置值中的较大值时，每次等待仅写入一行。此时英文为 `waiting on background work (<种类>) for <分钟> min, with no output meanwhile`。实际通知遵循应用语言。
+等待后台 Shell 或子智能体的子智能体，在找到的所有任务输出文件持续配置时长未变化时，每次等待仅写入一行带任务名称的记录。英文为 `[warning] surface 12: background work <名称> has written no output for <分钟> min`。如果找不到任务输出，则在画面输出持续未变化的时间达到 10 分钟与配置值中的较大值时，每次等待仅写入一行。此时英文为 `[warning] surface 12: waiting on background work (<种类>) for <分钟> min, with no output meanwhile`。实际通知遵循应用语言。
 
-Monitor 仅在有事件时输出，因此无输出是正常情况。已结束响应且仅剩 Monitor 任务的子智能体不会触发无输出通知。此类子智能体在 Monitor 结束前保持 `active`，也不会发送完成信号。如果 Monitor 与其他任务并存，则仅根据其他任务判定。
+Monitor 仅在有事件时输出。子智能体结束响应时，如果 Monitor 仍在后台运行，就会像等待其他后台任务一样保持 `active`。此时不会发送 `claude-idle` 钩子事件或正常完成通知，DAG 中等待 `spawn` 或 `tell` 完成的节点也会继续等待。
 
-此通知会写入完成日志，并唤醒已完成下方 mod 或 Monitor 接收配置的父 Claude Code，启动新回合。此通知路径不适用于从父 Codex 对话中创建的子智能体。父 Codex 通过下方的结果返回路径接收回合结果。
+Tasty 在判定无输出通知时会排除识别为 Monitor 的任务。如果 Monitor 与后台 Bash 任务或子智能体同时运行，则只检查其他任务的输出。
 
-在非等待后台任务的回合中，如果最后的输出包含错误文本，阈值固定为 30 秒。错误后的 30 秒和重复通知的最小间隔 5 分钟不可配置。同一段无输出期间仅通知一次。此设置与 `tasty claude children` 中 `stale` 标记的 120 秒阈值相互独立，因此可能在通知前先看到 `stale`。不能仅凭通知断定任务已停止。
+无输出通知会写入完成日志，并唤醒已完成下方 mod 或 Monitor 接收配置的父 Claude Code，启动新回合。此通知路径不适用于从父 Codex 对话中创建的子智能体。父 Codex 通过下方的结果返回路径接收回合结果。
 
-要获取能区分 Monitor 的新钩子，请重新执行 `tasty claude install`，然后启动新的 Claude Code 进程。此前会将 Monitor 也视为 Shell 任务并发送通知。
+未等待后台任务时，如果近期输出包含错误文本，无输出通知的阈值固定为 30 秒。通知标记由发出通知前的终端画面决定。找到错误文本时使用 `[error]`，否则使用 `[warning]`。30 秒的阈值和重复通知的最小间隔 5 分钟均为固定值。同一段无输出期间仅通知一次。此设置与 `tasty claude children` 中 `stale` 标记的 120 秒阈值相互独立，因此可能在通知前先看到 `stale`。不能仅凭通知断定任务已停止。
+
+如果仍在使用旧版钩子，重新执行 `tasty claude install`，然后启动新的 Claude Code 进程。如果钩子将 Monitor 报告为 Shell 任务，可能会发送无输出通知。
 
 受支持的父 Codex 对话会收到结果引用，表示子智能体已结束响应。用引用中的事件 ID 执行 `tasty codex result` 读取回答。连接条件和支持的路径见下方[自动传递给父 Codex](#自动传递给父-codex) 一节。
+
+同一完成日志也会收到以 `[queue] ` 开头的[队列到达通知](cli-reference.md#在-surface-之间收发消息队列)。启用完成通知 mod 的 Claude Code 也会将这些行作为提示接收并被唤醒，因此无需为了等待队列消息而保持 Monitor 或反复查询。
 
 ### 在 Claude Code 中自动接收
 
@@ -174,21 +191,37 @@ mod 启用后，从会话开始就读取自己的完成日志；如果 Claude �
 
 仅在父 Claude Code 不支持 mod 或未能启用 mod 时使用 Monitor。在首次 spawn/tell 前订阅，并在订阅后立即查看子智能体列表。
 
+使用 Monitor 直接读取日志并等待完成时，应将以 `[queue] ` 开头的行识别为队列到达通知，不要视为完成。
+
 ```text
 Monitor({ command: "tail -n0 -F \"$TASTY_PARENT_HOME/notify/$TASTY_SURFACE_ID.log\"", timeout_ms: 1800000 })
 ```
 
 Monitor 最多 30 分钟后到期。收到到期通知时，用相同命令重新订阅，并立即用 `tasty claude children` 查看一次子智能体状态。此列表也包含 Codex 子智能体（`tasty codex children` 也显示相同的子智能体）。这样不会漏掉订阅中断期间结束的子智能体。
 
-日志文本遵循应用语言。Claude 和 Codex 子智能体在同一文件中逐行记录通知。**重启 Tasty 会删除上次运行的完成日志。**仅直接读取文件而不使用 Monitor，不能自动继续，也不能永久保存日志。
+日志文本遵循应用语言。Claude 和 Codex 子智能体在同一文件中逐行记录通知。启动时何时清理日志，见下文。仅直接读取文件而不使用 Monitor，不能自动继续，也不能永久保存日志。
 
-写入新行前，如果文件大小已达到 **256 KiB**，会先清空整个文件再写入。不会仅保留末尾部分，因此未读通知也会一并消失。添加一行或多个子智能体同时写入期间，可能超过此大小。清空时，通常会将下方的 `retention_start` 累计值增加所清空的字节数。如果其他子智能体正在同时写入，导致未能及时轮到清理，则会在不增加累计值的情况下清空，因此也无法通过累计值获知此时丢失的通知。没有保留期限或文件数量限制，已关闭标签页的日志也会保留至下次重启。
+写入新行前，如果文件大小已达到 **256 KiB**，会先清空整个文件再写入。不会仅保留末尾部分，因此未读通知也会一并消失。添加一行或多个子智能体同时写入期间，可能超过此大小。清空时，通常会将下方的 `retention_start` 累计值增加所清空的字节数。如果其他子智能体正在同时写入，导致未能及时轮到清理，则会在不增加累计值的情况下清空，因此也无法通过累计值获知此时丢失的通知。没有保留期限或文件数量限制。关闭标签页后，日志仍会保留，并适用下文的启动清理规则。
 
-如果直接接续读取完成日志，也请检查旁边 `<编号>.log.meta` 文件中的 `retention_start`。该值是至今已清空的字节总数。可与保存的读取位置比较，检查中间是否丢失记录。但如果日志清理或元数据写入失败，可能产生未计入累计值的丢失，因此此方法不能发现所有遗漏。Monitor 订阅无需直接读取此文件。
+如果直接接续读取完成日志，也请检查旁边 `<编号>.log.meta` 文件中的 `retention_start`。该值累计记录因大小限制清空文件时丢弃的字节数。可与保存的读取位置比较，检查中间是否丢失记录。清空文件或写入元数据时出错，丢失的字节可能未计入累计值。Monitor 订阅无需直接读取此文件。
 
-**不要使用同一数据文件夹启动两次 tasty。**后启动的实例在启动时会删除整个完成日志
-文件夹，此时先启动的实例正在写入的完成日志也会消失。要同时使用两个实例，
-请通过 `TASTY_HOME` 分别指定数据文件夹。
+Tasty 启动新实例时，会在写入端口文件前删除数据文件夹中 `notify/` 里的完成日志和元数据文件。清理失败时，文件可能仍会保留。
+如果 `--port-file` 指定的文件所在的文件夹与数据文件夹不同，会跳过清理。
+使用同一数据文件夹再次启动 GUI 时，如果在启动新实例前退出，完成日志会保留。例如，发布版 GUI 转交请求后退出，或转交失败后显示提示并退出。开发版 GUI 显示锁占用错误界面后退出也属于这种情况。
+
+如果用运行中的 Tasty 所用的数据文件夹启动无界面构建，第二个进程会在启动时重试获取文件夹锁，最多等待 2 秒。如果锁仍被占用，进程会在打开宿主日志、清理完成日志、写入端口文件、启动 Webhook 或插件、保存设置之前退出。它会按 Tasty 的语言设置向标准错误（stderr）写入以下三行，并返回退出码 1。第二行会显示实际的数据文件夹路径。
+
+```text
+数据文件夹已被占用
+另一个 Tasty 已在使用此数据文件夹：<数据文件夹路径>
+请使用已在运行的 Tasty，或使用不同的 TASTY_HOME 启动此实例。
+```
+
+此时，第二次启动会保留 `notify/` 中的完成日志和 `.log.meta` 文件，以及端口文件和宿主日志。已设置的 CLI 连接目标和完成通知路径也会保留。即使先运行的是 GUI 构建，行为也相同。再次启动无界面构建时，不会把请求转交给运行中的 Tasty。
+
+如果无法确定数据文件夹，或因无法打开或锁定锁文件而无法确认锁的状态，启动会继续。其间可能改动数据文件夹中的文件，之后也可能因错误退出。
+
+要同时运行两个 Tasty 实例，请通过 `TASTY_HOME` 为它们指定不同的数据文件夹。
 
 ### 自动传递给父 Codex
 
@@ -263,7 +296,7 @@ tasty claude codex-returns --retry   # 将所有待发送结果重新排为立�
 
 如果尚未附加，用 `tasty remote attach --into-gui --workspace <远程 ID> --profile <名称>` 向正在运行的 Tasty 添加镜像。要新建远程工作区并附加，请用 `--new-workspace` 替换 `--workspace <远程 ID>`，可通过 `--name`、`--cwd` 指定名称和远程工作目录。也可使用 `--ssh <目标>` 代替配置档。Tasty 会自行打开 SSH 隧道，不移动焦点。附加现有工作区会输出受理和结果两行 JSON，并等待结果最多 90 秒；失败或未在时限内收到结果时，退出码为 1。新建工作区形式输出一行创建结果 JSON。
 
-在 `tasty list workspaces` 中查看 `[mirror]` 行的本地工作区 ID，并将该 ID 传给下方 spawn 的 `--workspace`。不要直接使用 attach 时指定的远程 ID。使用会话令牌调用 `tasty remote attach --into-gui` 和 `tasty remote refusals` 无需额外权限，但 `tasty list workspaces` 需要 `surface.read` 权限。CLI 没有仅断开附加连接的命令，关闭镜像的最后一个 Surface 会同时关闭远程工作区。连接方式及在 GUI 中仅分离的方法，见[继续远程工作](../remote/attach.md)。
+在 `tasty list workspaces` 中查看 `[mirror]` 行的本地工作区 ID，并将该 ID 传给下方 spawn 的 `--workspace`。不要直接使用 attach 时指定的远程 ID。仅查询列表不会连接已保存的行。向未连接的已保存行请求 spawn 时，会开始连接并等待最多 35 秒，连接成功后执行请求，否则返回说明原因的错误。手动断开的行不会自动连接，先用 `tasty remote connect --workspace <本地 ID>` 连接。使用会话令牌调用 `tasty remote attach --into-gui`、`tasty remote connect`、`tasty remote disconnect` 和 `tasty remote refusals` 无需额外权限，但 `tasty list workspaces` 需要 `surface.read` 权限。要保留远程工作并仅断开连接，使用 `tasty remote disconnect --workspace <本地 ID>`。关闭镜像的最后一个 Surface 也会关闭远程工作区。连接和关闭操作的详情见[继续远程工作](../remote/attach.md)。
 
 如果已附加其他计算机的 Tasty 工作区，可将该工作区编号传给 `--workspace`，执行 `tasty claude spawn`、`tasty codex spawn`。子智能体在远程计算机上，使用该计算机的 Claude Code、Codex 安装、设置和登录状态运行，在本地显示为已附加工作区中的子智能体。`tell`、`children`、`kill` 的用法与本地子智能体相同。
 
@@ -280,7 +313,7 @@ tasty claude spawn --workspace 7 --prompt "运行测试"    # 7 是已附加的�
   tasty claude remote-results                         # 已保存的结果列表（不含正文）
   ```
 
-  结果行的文本会根据 Tasty 的语言设置翻译。例如，英文为 `surface 12: turn result 0123456789abcdef (turn_ended) is stored. Read it with: tasty claude remote-results --id 0123456789abcdef`，韩文为 `surface 12: 턴 결과 0123456789abcdef (turn_ended)을(를) 저장했습니다. 읽기: tasty claude remote-results --id 0123456789abcdef`。用脚本查找结果行时，请从行末的 `tasty claude remote-results --id <ID>`、`tasty codex remote-results --id <ID>` 命令部分同时提取 claude/codex 和 ID（16 位小写十六进制数），不要匹配 `turn result` 等文本或行内任意十六进制数。例如：`grep -E '(^| )tasty (claude|codex) remote-results --id ([0-9a-f]{16})$'`
+  结果行的文本会根据 Tasty 的语言设置翻译。例如，英文为 `[info] surface 12: turn result 0123456789abcdef (turn_ended) is stored. Read it with: tasty claude remote-results --id 0123456789abcdef`，韩文为 `[info] surface 12: 턴 결과 0123456789abcdef (turn_ended)을(를) 저장했습니다. 읽기: tasty claude remote-results --id 0123456789abcdef`。用脚本查找结果行时，请从行末的 `tasty claude remote-results --id <ID>`、`tasty codex remote-results --id <ID>` 命令部分同时提取 claude/codex 和 ID（16 位小写十六进制数），不要匹配 `turn result` 等文本或行内任意十六进制数。例如：`grep -E '(^| )tasty (claude|codex) remote-results --id ([0-9a-f]{16})$'`
 
   子智能体关闭后，结果仍保留 7 天。如果下达指令后父会话已更换或父智能体已关闭，则仅保存结果而不通知，请在列表中查找。连接故障期间，同一结果行可能再到达一次，但 ID 相同，可以再次读取。
 - 只有创建远程子智能体的父智能体才能向其发送 `tell`。其他父智能体（包括在同一画面中新启动的 Claude 对话）发送时会被拒绝，以免响应传递给错误的父智能体。请为该父智能体新建子智能体。对于无法确定创建者的子智能体（如在此规则出现前创建的远程子智能体），任何父智能体都无法发送 `tell`，请重新创建。
@@ -373,7 +406,7 @@ tasty claude spawn --workspace w --profile continue-checklist
 `checklist-enable`、`checklist-disable`、`checklist-status` 可通过 `--gate <名称>` 指定其他已注册的 Gate（默认为 `continue-checklist`）。用 `tasty claude gate-list` 一次查看所有 Gate 的启用状态。
 
 - 智能体在响应末尾加入 `[[TASTY-CHECKLIST-DONE]]` 则通过，否则会再次收到检查清单。达到轮次上限（默认为 3）后自动通过。
-- 上限位于**设置** › **插件** › **Claude Code** 的 **Gate 默认轮次上限** <!-- en: Default gate round limit -->。
+- 上限位于**设置** › **插件** › **Claude Code** 的 **Gate 默认轮数上限（Gate 未设置时使用）** <!-- en: Default gate round limit (used when a gate sets none) -->。
 - 要创建自己的 Gate，使用 `tasty claude gate-register <名称> --body-file <文件> [--sentinel <字符串>] [--rounds N]`。正文必须包含哨兵字符串。用 `gate-list` / `gate-show` 查看。
 
 ## 故障排除

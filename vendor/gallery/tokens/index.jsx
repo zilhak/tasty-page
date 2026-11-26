@@ -36,7 +36,7 @@ const isColor = (name) => INDEX[name].$type === "color";
 const short = (v) => (v.length > 22 && v.includes(",") ? `${v.split(",")[0]} …` : v);
 
 function Chip({ name, theme, size = "var(--tasty-icon-size-xs)" }) {
-  return <span data-theme={theme} style={{ display: "inline-block", flex: "none", width: size, height: size, background: `var(--tasty-${name})`, border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius-sm)" }} />;
+  return <span data-theme={theme} style={{ display: "inline-block", flex: "none", width: size, height: size, background: `var(--tasty-${name})`, border: "var(--tasty-border-width) solid var(--tasty-swatch-border)", borderRadius: "var(--tasty-radius-sm)" }} />;
 }
 
 function Name({ children }) {
@@ -153,14 +153,14 @@ const TYPE = [
 ];
 
 const TIERS = [
-  { n: 1, tier: "Primitive", title: "The only literals", good: false,
+  { n: 1, tier: "Primitive", title: "Raw values", good: false,
     body: "Context-free raw values on numeric scales. No roles, no opinions. Theme lives here (Mocha / Latte re-point the same names).",
-    examples: [["color-blue", "value"], ["size-4", "value"], ["font-size-13", "value"]], rule: "never referenced by components or app code" },
+    examples: [["color-blue", "value"], ["size-4", "value"], ["font-size-13", "value"]], rule: "App code and UI read only semantic or component tokens. Semantic roles read primitives. Component tokens read them directly only for a part-only size, radius or duration." },
   { n: 2, tier: "Semantic", title: "Roles & intent", good: true,
-    body: "Every value points at a primitive — never a literal. This is what app code and the component layer read.",
+    body: "Semantic roles read primitives or other semantic roles, with literal values only for shadows, attention ranks, the count display cap (99+), the italic font style for notes that stand in for absent content, and Latte's node dim opacity. This is what app code and the component layer read.",
     examples: [["accent-primary", "ref"], ["space-md", "ref"]], rule: "read these in app code" },
   { n: 3, tier: "Component", title: "Per-component knobs", good: true,
-    body: "One token per styled part of one component, pointing at a semantic role. The contract an implementer copies.",
+    body: "One token per styled part of one component, usually pointing at a semantic role. The contract an implementer copies. A token for a part-only size, radius or duration can read the primitive scale directly if no semantic role names its meaning. A part can read tokens from its own component or from another component it is drawn as, whose family it belongs to (tab and badge dots use the StatusDot size), or whose slot it fills (a tab loading overlay uses the icon slot size). When unrelated parts need the same value for the same reason, give them a shared semantic role. Counts, coefficients, dash patterns, keywords and the window frame shadow can be literals.",
     examples: [["button-primary-bg", "ref"]], rule: "re-theme a component by overriding only its tokens" },
 ];
 
@@ -268,7 +268,7 @@ export const page = {
   ],
   head: {
     title: "Design tokens",
-    intro: "Tasty’s design tokens connect primitive values to semantic roles and component parts. References run in one direction: semantic tokens reference primitives, and component tokens reference semantic tokens. Specimen rows show names, references and values for colours, spacing, sizing, radius, typography and motion, with Mocha and Latte shown together.",
+    intro: "Tasty’s design tokens connect primitive values to semantic roles and component parts. References run in one direction from component tokens through semantic roles to primitives. Within a tier, semantic roles can read other roles, and component tokens can read other component tokens in the cases below. A part-only measure with no semantic role can read a primitive directly. Colour, alpha, type, opacity, easing and UI scale always go through semantic roles. Specimen rows show names, references and values for colours, spacing, sizing, radius, typography and motion, with Mocha and Latte shown together.",
   },
   content: <TokenSystem />,
 };

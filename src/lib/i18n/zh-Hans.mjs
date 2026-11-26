@@ -189,6 +189,7 @@ export default {
   },
   diagrams: {
     windowAnatomy: {
+      name: "窗口结构图",
       titlebar: "标题栏",
       sidebar: "侧边栏",
       tabstrip: "标签栏",
@@ -196,6 +197,7 @@ export default {
       statusbar: "状态栏",
       workspaces: "工作区",
     },
+    settingsWindow: { name: "设置窗口结构图" },
     workflow: {
       caption: "使用设计组件构成的布局示例。请按以下步骤创建实际终端。",
       labels: ["实现区域", "测试区域"],

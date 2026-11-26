@@ -21,7 +21,7 @@ export function SemanticElevationSpec() {
       <Stage variant="tight" style={{ gap: 0, flexWrap: "wrap" }}>
         {GROUNDS.map(([tok, name]) => (
           <div key={tok} style={{ background: `var(--tasty-${tok})`, flex: "1 1 var(--tasty-size-120)", minWidth: 0, padding: "var(--tasty-space-lg) var(--tasty-space-md)" }}>
-            <div style={{ fontSize: "var(--tasty-font-size-body)", fontWeight: "var(--tasty-font-weight-semibold)", color: "var(--tasty-text-primary)" }}>{name}</div>
+            <div className="g-cap" style={{ fontSize: "var(--tasty-font-size-body)", fontWeight: "var(--tasty-font-weight-semibold)", color: "var(--tasty-text-primary)" }}>{name}</div>
             <div style={{ fontFamily: MONO, fontSize: MICRO, color: "var(--tasty-text-muted)", overflowWrap: "anywhere" }}>--tasty-{tok}</div>
           </div>
         ))}
@@ -34,7 +34,7 @@ export function SemanticElevationSpec() {
 function OverlayCell({ wash, name, label }) {
   return (
     <div style={{ flex: "1 1 var(--tasty-size-88)", minWidth: 0 }}>
-      <div style={{ background: "var(--tasty-surface-raised)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
+      <div style={{ background: "var(--tasty-surface-raised)", border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
         <div style={{ background: wash ? `var(${wash})` : "transparent", height: "var(--tasty-size-56)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: SMALL, color: "var(--tasty-text-secondary)" }}>{name}</div>
       </div>
       <div style={{ marginTop: "var(--tasty-space-xs)", fontFamily: MONO, fontSize: MICRO, color: "var(--tasty-text-muted)", textAlign: "center", overflowWrap: "anywhere" }}>{label}</div>
@@ -78,7 +78,7 @@ export function AccentMapSpec() {
           <div key={tok} style={{ minWidth: 0, background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
             <div style={{ height: "var(--tasty-size-8)", background: `var(${tok})` }} />
             <div style={{ padding: "var(--tasty-space-sm)" }}>
-              <div style={{ fontSize: SMALL, fontWeight: "var(--tasty-font-weight-semibold)", color: "var(--tasty-text-primary)" }}>{role}</div>
+              <div className="g-cap" style={{ fontSize: SMALL, fontWeight: "var(--tasty-font-weight-semibold)", color: "var(--tasty-text-primary)" }}>{role}</div>
               <div style={{ fontFamily: MONO, fontSize: MICRO, color: "var(--tasty-text-muted)" }}>{hue}</div>
             </div>
           </div>

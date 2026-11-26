@@ -32,6 +32,13 @@ body {
 :lang(en), :lang(ko) { --tasty-font-label: var(--tasty-font-mono); }
 :lang(ja), :lang(zh) { --tasty-font-label: var(--tasty-font-ui); }
 
+/* The UI family by language, RULES section 8. It is declared only where a language starts
+   (the root, an element with its own lang, a [data-theme] wrapper) and inherited from there,
+   so a page that sets font-ui on a container keeps that value for the container's content. */
+:root:lang(ja), [lang]:lang(ja), [data-theme]:lang(ja) { --tasty-font-ui: var(--tasty-font-family-ui-ja); }
+:root:lang(zh), [lang]:lang(zh), [data-theme]:lang(zh) { --tasty-font-ui: var(--tasty-font-family-ui-zh-hans); }
+[lang]:lang(en), [lang]:lang(ko) { --tasty-font-ui: var(--tasty-font-family-ui); }
+
 /* monospace / terminal contexts */
 .tasty-mono,
 code,
@@ -51,7 +58,7 @@ samp {
 /* a thin, on-brand focus ring used across components */
 :where(button, a, input, select, textarea, [tabindex]):focus-visible {
   outline: var(--tasty-focus-ring-width) solid var(--tasty-border-focus);
-  outline-offset: 1px;
+  outline-offset: var(--tasty-focus-ring-offset);
 }
 
 /* scrollbars — subtle, surface-tinted */

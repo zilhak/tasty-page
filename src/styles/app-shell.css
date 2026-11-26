@@ -41,12 +41,16 @@
 }
 .window .shell__tabs > div > div:first-child::-webkit-scrollbar { display: none; }
 /* The scrolling row would clip a ring drawn outside the tab, so the ring sits inside it, and
-   the tab keeps its square corners. The close button's ring stays inside the tab's 24px. */
+   the tab keeps its square corners. The close button takes the control ring, 1px outside, which
+   still fits inside the tab's 24px. */
 .shell__tabs .tasty-tab:focus-visible {
   outline-offset: -2px; /* the ring's own width: the site's focus ring is 2px */
   border-radius: var(--tasty-radius-none);
 }
-.shell__tabs .tasty-tab__close:focus-visible { outline-offset: 0; }
+.shell__tabs .tasty-tab__close:focus-visible {
+  outline-offset: var(--tasty-focus-ring-offset);
+  border-radius: var(--tasty-radius-sm);
+}
 .shell__pane { flex: 1; min-width: 0; display: flex; }
 .shell__side { display: flex; flex: none; }
 .shell__status { flex: none; }
@@ -64,7 +68,8 @@
   outline: 1px dashed color-mix(in srgb, var(--brand) 55%, transparent);
   outline-offset: -1px;
 }
-.anat > * { flex: 1; min-height: 0; }
+.anat > *, .anat__kit > * { flex: 1; min-height: 0; }
+.anat__kit { display: contents; }
 .anat::after {
   content: attr(data-label);
   position: absolute;
@@ -94,11 +99,16 @@
   container-type: inline-size;
 }
 .anat-window { overflow-x: auto; overflow-y: hidden; }
+/* The window anatomy holds a status bar per theme. Show the one for the page theme. */
+:root:not([data-theme="latte"]) .anat-window [data-anat-theme="latte"],
+:root[data-theme="latte"] .anat-window [data-anat-theme="mocha"] { display: none; }
 .anat-settings { overflow-x: auto; overflow-y: hidden; }
 .anat-window .shell { height: 420px; }
 
-/* Scale the fixed-size settings window in steps. Stop at 0.5 to keep text
-   readable, then allow horizontal scrolling. */
+/* Scale the fixed-size settings window in steps of the frame's content width:
+   0.7 above 700px, 0.6 above 560px, 0.5 at 560px and below. It goes no
+   smaller than 0.5 to keep text readable. At any step, the frame scrolls
+   sideways when the scaled window is wider than it. */
 .anat-settings__stage {
   position: relative;
   /* The kit's Settings window size, the same tokens settings_window.jsx reads. */

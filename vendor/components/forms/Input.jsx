@@ -4,6 +4,10 @@ import React from "react";
  * Tasty Input — single-line text field. 28px tall, 1px border,
  * focus ring in accent-primary. Optional leading icon + addon.
  *
+ * focus — the field focus shape every text field shares (README, States via overlays; 2026-11-25): the 1px
+ *   border turns border-focus and a 1px ring sits flush outside it (box-shadow spread border-width), no gap
+ *   and no halo, so the edge reads as one solid 2px line reaching 1px past the box.
+ *
  * disabled — the control is unavailable: neutral box + disabled ink, no pointer.
  * readOnly — not editable NOW, but the value is information (2026-09-29, e.g. an
  *   Appearance colour row at Default showing the base hex). Same neutral box as
@@ -16,6 +20,10 @@ import React from "react";
  * invalid — red edge in every state; focused adds the red ring (2026-10-27: focus no longer
  *   repaints the edge blue over an invalid field).
  * focused — paints the focused box without DOM focus. Static specimens only (gallery).
+ *
+ * style and className go on the box, so a width given to the field is the whole box (border and padding
+ *   included), as the app's field takes its width (2026-11-25). inputStyle goes on the inner <input> for
+ *   what belongs to the text (text-align, font-family). Every other prop goes on the inner <input>.
  */
 
 const CSS = `
@@ -87,6 +95,8 @@ export function Input({
   ground = "panel",
   focused = false,
   className = "",
+  style,
+  inputStyle,
   ...rest
 }) {
   ensureCss();
@@ -99,9 +109,9 @@ export function Input({
     className,
   ].filter(Boolean).join(" ");
   return (
-    <div className={cls} data-disabled={disabled} data-readonly={!disabled && readOnly} data-focus={(!disabled && focused) || undefined}>
+    <div className={cls} style={style} data-disabled={disabled} data-readonly={!disabled && readOnly} data-focus={(!disabled && focused) || undefined}>
       {icon && <span className="tasty-input__icon">{icon}</span>}
-      <input disabled={disabled} readOnly={readOnly} {...rest} />
+      <input disabled={disabled} readOnly={readOnly} style={inputStyle} {...rest} />
       {addon && <span className="tasty-input__addon">{addon}</span>}
     </div>
   );

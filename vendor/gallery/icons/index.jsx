@@ -27,6 +27,10 @@ const GROUPS = [
     icons: [
       { name: "plus", role: "create / add" },
       { name: "close", role: "dismiss overlay (header X)" },
+      { name: "windowMinimize", role: "Linux window button and Windows caption button: minimize" },
+      { name: "windowMaximize", role: "Linux window button: maximize" },
+      { name: "captionMaximize", role: "Windows caption button: maximize" },
+      { name: "captionRestore", role: "Windows caption button: restore, on a maximized window" },
       { name: "refresh", role: "re-scan / reload (ports, re-detect)" },
       { name: "edit", role: "edit a row / value" },
       { name: "trash", role: "delete / remove" },
@@ -54,7 +58,8 @@ const GROUPS = [
       { name: "chevronsLeft", role: "collapse sidebar" },
       { name: "chevronsRight", role: "expand sidebar rail" },
       { name: "move", role: "move / reposition (4-way)" },
-      { name: "fit", role: "fullscreen stage (popup title bar)" },
+      { name: "fit", role: "fullscreen stage (popup title bar) · show a collapsed surface popup" },
+      { name: "shrink", role: "collapse an expanded popup back to its show button (popup title bar)" },
     ],
   },
   {
@@ -190,7 +195,7 @@ function Icons() {
               <div className="row">
                 <IconButton aria-label="Refresh"><Icon name="refresh" /></IconButton>
                 <IconButton aria-label="Close"><Icon name="close" /></IconButton>
-                <Input icon={<Icon name="search" />} placeholder="Filter…" style={{ width: 170 }} />
+                <Input icon={<Icon name="search" />} placeholder="Filter…" style={{ width: "var(--tasty-field-width-md)" }} />
               </div>
             </div>
           </Stage>
@@ -237,15 +242,15 @@ function Icons() {
                     <div key={glyph} style={{ display: "flex", alignItems: "center", gap: 12, minHeight: "var(--tasty-settings-row-min-height)" }}>
                       <span style={{ width: 128, flex: "none", fontSize: 13, color: "var(--tasty-text-secondary)" }}>{label}</span>
                       <span style={{ display: "inline-flex", alignItems: "center", gap: 8, height: "var(--tasty-control-height)", padding: "0 var(--tasty-space-sm)",
-                        border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)",
-                        background: "var(--tasty-surface-raised)", color: "var(--tasty-text-primary)" }}>
+                        border: "var(--tasty-border-width) solid var(--tasty-select-border)", borderRadius: "var(--tasty-radius)",
+                        background: "var(--tasty-select-bg)", color: "var(--tasty-text-primary)" }}>
                         <Icon name={glyph} size={16} />
                         <Icon name="chevronDown" size={14} />
                       </span>
                     </div>
                   ))}
                 </div>
-                <div style={{ width: 168, padding: "var(--tasty-space-xs)", border: "var(--tasty-border-width) solid var(--tasty-border-default)",
+                <div style={{ width: 168, padding: "var(--tasty-space-xs)", border: "var(--tasty-border-width) solid var(--tasty-menu-border)",
                   borderRadius: "var(--tasty-radius)", background: "var(--tasty-menu-bg, var(--tasty-surface-raised))", boxShadow: "var(--tasty-shadow-popover)",
                   display: "flex", flexDirection: "column", gap: 1 }}>
                   {[["Text — \u201cOption\u201d", null, false], ["Symbol", "optionKey", true]].map(([label, glyph, active]) => (
@@ -273,7 +278,9 @@ function Icons() {
             ]}
             tokens={[
               { tok: "--tasty-text-secondary", use: "keycap glyph", color: "var(--tasty-text-secondary)" },
-              { tok: "--tasty-surface-raised", use: "cap / trigger fill", color: "var(--tasty-surface-raised)" },
+              { tok: "--tasty-surface-raised", use: "cap fill", color: "var(--tasty-surface-raised)" },
+              { tok: "--tasty-select-bg", use: "trigger fill", color: "var(--tasty-select-bg)" },
+              { tok: "--tasty-select-border", use: "trigger border", color: "var(--tasty-select-border)" },
               { tok: "--tasty-border-strong", use: "cap border", color: "var(--tasty-border-strong)" },
               { tok: "--tasty-overlay-hover", use: "active option row", color: "var(--tasty-overlay-hover)" },
             ]} />

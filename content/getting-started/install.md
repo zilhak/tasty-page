@@ -8,11 +8,13 @@ Tasty의 Windows·macOS·Linux용 설치 파일은 GitHub 릴리스 페이지에
 
 `{ver}` 자리에는 버전(예 `0.10.3`)이 들어갑니다.
 
+**Linux용 Tasty는 파일 형식에 관계없이 glibc 2.39 이상이 필요합니다.** 아래 표의 형식별 조건은 ARM64에도 적용됩니다. 버전 뒤의 `+`는 해당 버전 이상을 뜻합니다.
+
 | OS | 아키텍처 | 파일 | 설명 |
 |----|---------|------|------|
-| Linux | x86_64 | `tasty_{ver}-1_amd64.deb` | Debian / Ubuntu / Mint |
-| Linux | x86_64 | `tasty-{ver}-1.x86_64.rpm` | Fedora / RHEL / openSUSE |
-| Linux | x86_64 | `Tasty-{ver}-x86_64.AppImage` | 배포판 무관 단일 파일 |
+| Linux | x86_64 | `tasty_{ver}-1_amd64.deb` | Ubuntu 24.04+ / Linux Mint 22+ / Debian 13+ |
+| Linux | x86_64 | `tasty-{ver}-1.x86_64.rpm` | Fedora 40+ / openSUSE Leap 16.0+ / Tumbleweed |
+| Linux | x86_64 | `Tasty-{ver}-x86_64.AppImage` | 단일 파일 · glibc 2.39+ 필요 |
 | Linux | x86_64 | `tasty-{ver}-linux-x64.tar.gz` | 수동 설치용 압축 파일 |
 | Linux | aarch64 | `_arm64.deb` / `.aarch64.rpm` / `-aarch64.AppImage` / `-linux-arm64.tar.gz` | ARM64 |
 | Linux | x86_64 | `tasty-headless-{ver}-linux-x64.tar.gz` | [headless 빌드](#headless-빌드) (윈도우 없이 서버에서 실행) |
@@ -32,12 +34,21 @@ Tasty의 Windows·macOS·Linux용 설치 파일은 GitHub 릴리스 페이지에
 
 ## Linux
 
+표에 없는 배포판에도 같은 glibc 조건이 적용됩니다. `.deb`와 `.rpm`을 설치하려면 배포판 저장소에서 필요한 라이브러리를 제공해야 합니다.
+
+RHEL 10은 glibc 2.39를 제공해 최소 조건을 충족합니다. 기본 RHEL 저장소만으로는 `.rpm`이 요구하는 WebKitGTK 의존성을 충족할 수 없습니다.
+
+Ubuntu 22.04, Debian 12, RHEL 9, openSUSE Leap 15.6에서는 glibc 버전이 낮아 패키지 설치 중 glibc 의존성 오류가 나거나 실행할 때 `GLIBC_2.39 not found`가 표시됩니다. `ldd --version`을 실행해 출력의 첫 줄에서 glibc 버전을 확인하세요. 구배포판용 빌드는 따로 제공하지 않습니다.
+
 ```sh
-# .deb (Debian / Ubuntu / Mint)
+# .deb (Ubuntu 24.04+ / Linux Mint 22+ / Debian 13+)
 sudo apt install ./tasty_{ver}-1_amd64.deb
 
-# .rpm (Fedora / RHEL / openSUSE)
+# .rpm (Fedora 40+)
 sudo dnf install ./tasty-{ver}-1.x86_64.rpm
+
+# .rpm (openSUSE Leap 16.0+ / Tumbleweed)
+sudo zypper install ./tasty-{ver}-1.x86_64.rpm
 
 # .AppImage — 설치 없이 실행
 chmod +x Tasty-{ver}-x86_64.AppImage && ./Tasty-{ver}-x86_64.AppImage
@@ -51,11 +62,10 @@ tar -xzf tasty-{ver}-linux-x64.tar.gz && ./tasty-linux-x64/tasty
 - `.deb` / `.rpm` 은 `tasty` 명령을 PATH 에 등록하고 앱 메뉴에 아이콘을 넣습니다. 패키지 매니저가 필요한 라이브러리를 함께 설치합니다.
 - GPU 가속(Vulkan)은 `libvulkan1` / `vulkan-loader` 가 있을 때 씁니다. 없어도 설치·실행은 되고 OpenGL 로, 그것도 안 되면 소프트웨어 렌더링으로 동작합니다.
 - `zenity` 는 권장 패키지입니다. 이미 실행 중인 Tasty에 다시 실행 요청을 넘기지 못했을 때 안내 상자를 띄우는 데 씁니다. 없으면 데스크톱 알림으로 대신 알립니다.
-- `.AppImage`는 실행에 쓰는 라이브러리를 함께 묶어 배포합니다. 앱 메뉴 등록은 직접 합니다(`appimaged` 사용 또는 `.desktop` 파일을 `~/.local/share/applications/` 에 두기).
+- `.AppImage`는 실행에 쓰는 라이브러리를 일부 포함하며, glibc는 시스템에 설치된 버전을 사용합니다. 앱 메뉴 등록은 직접 합니다(`appimaged` 사용 또는 `.desktop` 파일을 `~/.local/share/applications/` 에 두기).
 - `.tar.gz` 는 PATH 등록과 메뉴 등록을 직접 해야 합니다. 필요한 시스템 라이브러리가 없으면 `tasty` 실행 시 무엇이 빠졌는지 안내하고 종료합니다.
 - 라이선스 고지(Tasty 의 MIT 본문 · 함께 번들하는 폰트와 markdown 렌더링 엔진의 라이선스 본문 · 제3자 고지 문서)는 산출물 안에 함께 들어 있습니다. `.deb` 은 `/usr/share/doc/tasty/`, `.rpm` 과 `.AppImage` 는 `usr/share/licenses/tasty/`, `.tar.gz` 는 압축을 푼 디렉토리 최상단입니다.
-- 빌드 기준이 Ubuntu 24.04(glibc 2.39)라서 그보다 오래된 배포판(Ubuntu 20.04, Debian 11 등)에서는 `GLIBC_2.39 not found` 오류로 실행되지 않을 수 있습니다. 구배포판용 빌드는 따로 제공하지 않습니다.
-- HTML · 마크다운 뷰어는 WebKitGTK 2.40 이상이 필요합니다. 빌드 기준인 Ubuntu 24.04 의 `libwebkit2gtk-4.1` 은 이 조건을 만족합니다.
+- HTML · 마크다운 뷰어는 WebKitGTK 2.40 이상이 필요합니다. Ubuntu 24.04에서는 `libwebkit2gtk-4.1-0` 패키지가 이 라이브러리를 제공합니다.
 
 ## macOS
 
@@ -133,6 +143,8 @@ macOS 에서 브라우저로 받은 파일은 실행할 때 "확인되지 않은
 
 headless 빌드의 `tasty` 는 옵션 없이 실행해도 윈도우 없이 뜨고, 터미널은 `tasty` CLI 로만 만들고 다룹니다. 다른 컴퓨터에서 [원격 attach](../remote/attach.md) 로 그 워크스페이스를 가져와 볼 수 있습니다. GUI 빌드에 `--headless` 를 붙여 실행해도 윈도우 없이 뜨지 않고 평소처럼 GUI 로 실행됩니다.
 
+Tasty 두 벌을 동시에 실행하려면 `TASTY_HOME`으로 각 인스턴스에 다른 데이터 폴더를 지정하세요. 실행 중인 Tasty가 같은 데이터 폴더의 잠금을 계속 쥐고 있으면 헤드리스 빌드는 표준 오류에 메시지를 쓰고 종료 코드 1로 끝납니다. 자세한 동작은 [Tasty 를 다시 실행했을 때](../help/troubleshooting.md#tasty-를-다시-실행했을-때)를 보세요.
+
 배포 파일이 없는 환경(예: Intel Mac)에서는 Rust 가 설치된 환경에서 소스로 직접 만듭니다.
 
 ```sh
@@ -160,9 +172,13 @@ cargo build --release --no-default-features
 | Linux `.rpm` | `sudo dnf remove tasty` | 위와 같습니다 |
 | Linux AppImage / tar.gz | 파일 · 폴더를 지웁니다 | 위와 같습니다 |
 | macOS | `Tasty.app` 을 휴지통으로 | 위와 같습니다 |
-| Windows `.msi` | **설정 > 앱** 에서 Tasty 제거 | **`~/.tasty/` 까지 함께 삭제됩니다** — 설정 · 세션 · 테마를 남기려면 제거 전에 백업합니다 |
+| Windows `.msi` | **설정 > 앱**에서 Tasty를 제거합니다 | `~/.tasty`는 기본으로 남습니다 |
 | Windows `.zip` | 압축 푼 폴더를 지웁니다 | `~/.tasty/` 는 남습니다. 직접 지웁니다 |
 | headless 압축 파일 (모든 OS) | 압축 푼 폴더를 지웁니다 | `~/.tasty/` 는 남습니다. 직접 지웁니다 |
+
+사용자 데이터도 지우려면 Windows 설정 앱의 앱 목록에서 Tasty의 **수정** <!-- en: Modify --> → **Remove**를 선택하거나 `.msi`를 다시 실행해 **Remove**를 선택하세요. 제거 화면에서 **Permanently delete settings, history, saved logins and profiles in .tasty**를 선택하면 앱 제거가 정상적으로 끝난 뒤 설치 프로그램이 `~/.tasty` 삭제를 시도합니다. 파일을 지우지 못해 데이터가 남으면 설치 프로그램이 **Tasty data deletion incomplete** 메시지 상자를 표시합니다.
+
+앱 목록에서 **제거** <!-- en: Uninstall -->를 바로 선택하거나 `msiexec /qn` 또는 `msiexec /qb`로 제거하면 데이터가 남습니다. 업그레이드와 복구도 데이터를 보존합니다.
 
 Windows 에서 `~` 는 `%USERPROFILE%`(보통 `C:\Users\<이름>`)입니다.
 

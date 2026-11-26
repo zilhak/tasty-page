@@ -88,12 +88,44 @@ fn core_commands(src: &str) -> Vec<(String, bool)> {
     out
 }
 
-/// contributes.cli의 첫 비어 있지 않은 비주석 줄이 name인 경우만 읽는다.
+/// 2026-11-22 실측 6(agent-stream·claude·codex·html·image·markdown, 본체 develop·release·v0.14.0 모두 같다).
+/// 하나라도 수집에서 빠지면 실패한다. 본체에서 공식 플러그인 명령을 실제로 없앴을 때만 실제 목록과 대조해 낮춘다.
+const MIN_PLUGIN_COMMANDS: usize = 6;
+
+/// 공식 플러그인 매니페스트의 새 위치. 본체가 플러그인 크레이트 사본을 지운 뒤로는 시험용 픽스처로만 남는다.
+/// 이 폴더가 없는 본체(사본이 crates/ 바로 아래에 있던 판)는 첫 원천만 읽는다.
+const OFFICIAL_PLUGIN_FIXTURES: &str = "crates/tasty-test-support/fixtures/official-plugins";
+
+/// 두 원천에서 플러그인 명령을 읽는다: crates/*/tasty-plugin.toml, 그다음 공식 플러그인 픽스처.
+/// 이미 나온 명령 이름은 버리므로 먼저 읽은 소유자가 남는다. 각 원천 안에서는 폴더 이름순이다.
 fn plugin_commands(root: &Path) -> Vec<(String, String)> {
     let mut out = Vec::new();
-    let Ok(entries) = std::fs::read_dir(root.join("crates")) else {
-        return out;
-    };
+    let mut seen = BTreeSet::new();
+    if let Ok(entries) = std::fs::read_dir(root.join("crates")) {
+        read_manifests(entries, &mut seen, &mut out);
+    }
+    let fixtures = root.join(OFFICIAL_PLUGIN_FIXTURES);
+    match std::fs::read_dir(&fixtures) {
+        Ok(entries) => read_manifests(entries, &mut seen, &mut out),
+        // 끊어진 링크도 NotFound를 낸다. 그 자리에 아무 엔트리도 없을 때만 옛 배치로 본다.
+        Err(e)
+            if e.kind() == std::io::ErrorKind::NotFound
+                && std::fs::symlink_metadata(&fixtures)
+                    .is_err_and(|m| m.kind() == std::io::ErrorKind::NotFound) => {}
+        Err(e) => panic!(
+            "공식 플러그인 픽스처 폴더 {}를 열지 못했다: {e}",
+            fixtures.display()
+        ),
+    }
+    out
+}
+
+/// contributes.cli의 첫 비어 있지 않은 비주석 줄이 name인 경우만 읽는다.
+fn read_manifests(
+    entries: std::fs::ReadDir,
+    seen: &mut BTreeSet<String>,
+    out: &mut Vec<(String, String)>,
+) {
     let mut dirs: Vec<PathBuf> = entries.flatten().map(|e| e.path()).collect();
     dirs.sort();
     for dir in dirs {
@@ -117,6 +149,7 @@ fn plugin_commands(root: &Path) -> Vec<(String, String)> {
                 }
                 if let Some(rest) = t.strip_prefix("name")
                     && let Some(v) = rest.split('"').nth(1)
+                    && seen.insert(v.to_string())
                 {
                     out.push((v.to_string(), owner.clone()));
                 }
@@ -124,7 +157,6 @@ fn plugin_commands(root: &Path) -> Vec<(String, String)> {
             }
         }
     }
-    out
 }
 
 /// 한국어 가이드의 최상위 분류. 순회에서 빠진 분류를 찾도록 수집 결과와 독립된 목록으로 둔다.
@@ -245,6 +277,12 @@ fn every_cli_command_is_either_in_the_guide_or_registered_with_a_reason() {
         total >= MIN_COMMANDS,
         "CLI 명령을 {total}개만 읽었다(하한 {MIN_COMMANDS}). 실제 명령 목록과 enum·매니페스트 판독을 대조한다."
     );
+    assert!(
+        plugins.len() >= MIN_PLUGIN_COMMANDS,
+        "플러그인 명령을 {}개만 읽었다(하한 {MIN_PLUGIN_COMMANDS}): {:?}. 본체의 crates/*/tasty-plugin.toml과 {OFFICIAL_PLUGIN_FIXTURES}/*/tasty-plugin.toml을 대조한다. 공식 플러그인 명령을 실제로 없앴다면 하한을 실제 목록에 맞춰 낮춘다.",
+        plugins.len(),
+        plugins.iter().map(|(c, _)| c.as_str()).collect::<Vec<_>>()
+    );
 
     let registered: BTreeSet<&str> = NOT_IN_THE_GUIDE.iter().map(|(c, _)| *c).collect();
     let mut undocumented = Vec::new();
@@ -347,6 +385,7 @@ fn the_kebab_conversion_matches_clap() {
 
 /// 플러그인 명령 누락과 번역·비 Markdown 문서의 혼입은 서로 다른 오류이므로 각각 검증한다.
 /// 명령 총수 하한은 core 명령만으로 채워질 수 있어 플러그인 수집 누락을 보장하지 못한다.
+/// 실제 본체에서의 플러그인 수집 누락은 MIN_PLUGIN_COMMANDS가 맡고, 이 시험은 두 원천의 판독 규칙을 고정한다.
 #[test]
 fn the_plugin_and_guide_readers_answer_on_a_substituted_tree() {
     let probe = Scratch::new("cli-guide-reader");
@@ -370,6 +409,24 @@ fn the_plugin_and_guide_readers_answer_on_a_substituted_tree() {
     std::fs::create_dir_all(dir.join("crates/no-manifest/src"))
         .expect("합성 무매니페스트 디렉토리 실패");
 
+    // 픽스처 폴더는 이름순과 만든 순서가 반대가 되게 둔다.
+    let fixture = |name: &str, body: &str| {
+        let d = dir.join(OFFICIAL_PLUGIN_FIXTURES).join(name);
+        std::fs::create_dir_all(&d).expect("합성 픽스처 디렉토리를 만들지 못했다");
+        std::fs::write(d.join("tasty-plugin.toml"), body).expect("합성 픽스처 매니페스트 실패");
+    };
+    fixture(
+        "com.b.second",
+        "[[contributes.cli]]\nname = \"zeta-cmd\"\n\n\
+         [[contributes.cli]]\nname = \"beta-cmd\"\n\n\
+         [[contributes.cli]]\nname = \"dup-cmd\"\n",
+    );
+    fixture(
+        "com.a.first",
+        "[[contributes.cli]]\nname = \"kappa-cmd\"\n\n\
+         [[contributes.cli]]\nname = \"dup-cmd\"\n",
+    );
+
     let got = plugin_commands(dir);
     assert_eq!(
         got,
@@ -377,8 +434,11 @@ fn the_plugin_and_guide_readers_answer_on_a_substituted_tree() {
             ("omega-one".to_string(), "omega-plugin".to_string()),
             ("omega-two".to_string(), "omega-plugin".to_string()),
             ("zeta-cmd".to_string(), "zeta-plugin".to_string()),
+            ("kappa-cmd".to_string(), "com.a.first".to_string()),
+            ("dup-cmd".to_string(), "com.a.first".to_string()),
+            ("beta-cmd".to_string(), "com.b.second".to_string()),
         ],
-        "plugin 명령 판독이 합성 트리에서 다른 답을 냈다"
+        "plugin 명령 판독이 합성 트리에서 다른 답을 냈다(두 원천의 순서, 이름 중복 제거, 소유자)"
     );
     assert!(
         got.iter().all(|(_, owner)| !owner.is_empty()),
@@ -438,5 +498,71 @@ fn a_command_whose_name_is_not_the_first_field_is_currently_invisible() {
     assert!(
         got.is_empty(),
         "name이 첫 필드가 아닌 명령도 읽도록 판독 범위가 달라졌다: {got:?}. 의도한 개선이라면 이 한계 검사와 설명을 함께 갱신한다."
+    );
+}
+
+/// 픽스처 폴더가 없으면 건너뛰지만, 그 자리를 열 수 없으면 경로와 오류를 보여 주고 멈춘다.
+/// 옛 원천의 명령 6개가 픽스처 판독 실패를 가리지 않게 하기 위해서다.
+#[test]
+fn a_fixture_root_that_cannot_be_opened_names_its_path() {
+    let probe = Scratch::new("cli-fixture-root");
+    let dir = probe.path().to_path_buf();
+    let root = dir.join(OFFICIAL_PLUGIN_FIXTURES);
+    std::fs::create_dir_all(root.parent().expect("픽스처 루트의 부모가 없다"))
+        .expect("합성 픽스처 부모 디렉토리를 만들지 못했다");
+    std::fs::write(&root, "폴더가 아니다\n").expect("합성 일반 파일 실패");
+    // 옛 원천만으로 플러그인 하한을 채워도 픽스처 오류가 가려지지 않는지 본다.
+    for name in ["c1", "c2", "c3", "c4", "c5", "c6"] {
+        let d = dir.join("crates").join(format!("{name}-plugin"));
+        std::fs::create_dir_all(&d).expect("합성 크레이트 디렉토리를 만들지 못했다");
+        std::fs::write(
+            d.join("tasty-plugin.toml"),
+            format!("[[contributes.cli]]\nname = \"{name}\"\n"),
+        )
+        .expect("합성 매니페스트 실패");
+    }
+    let expected = std::fs::read_dir(&root)
+        .expect_err("일반 파일을 폴더로 열었는데 오류가 없다")
+        .to_string();
+
+    let r = std::panic::catch_unwind(|| plugin_commands(&dir));
+    let payload = r.expect_err("열 수 없는 픽스처 루트를 건너뛰었다");
+    let msg = payload
+        .downcast_ref::<String>()
+        .cloned()
+        .or_else(|| payload.downcast_ref::<&str>().map(|s| s.to_string()))
+        .unwrap_or_default();
+    assert!(
+        msg.contains(&root.display().to_string()),
+        "실패문에 픽스처 루트 경로가 없다: {msg}"
+    );
+    assert!(
+        msg.contains(&expected),
+        "실패문에 열기 오류({expected})가 없다: {msg}"
+    );
+}
+
+/// 픽스처 루트가 끊어진 링크이면 폴더 부재가 아니라 열기 실패로 보고한다.
+#[cfg(unix)]
+#[test]
+fn a_dangling_fixture_root_link_is_not_treated_as_absent() {
+    let probe = Scratch::new("cli-fixture-link");
+    let dir = probe.path().to_path_buf();
+    let root = dir.join(OFFICIAL_PLUGIN_FIXTURES);
+    std::fs::create_dir_all(root.parent().expect("픽스처 루트의 부모가 없다"))
+        .expect("합성 픽스처 부모 디렉토리를 만들지 못했다");
+    std::os::unix::fs::symlink(dir.join("does-not-exist"), &root)
+        .expect("합성 끊어진 링크를 만들지 못했다");
+
+    let r = std::panic::catch_unwind(|| plugin_commands(&dir));
+    let payload = r.expect_err("끊어진 픽스처 루트 링크를 폴더 부재로 건너뛰었다");
+    let msg = payload
+        .downcast_ref::<String>()
+        .cloned()
+        .or_else(|| payload.downcast_ref::<&str>().map(|s| s.to_string()))
+        .unwrap_or_default();
+    assert!(
+        msg.contains(&root.display().to_string()),
+        "실패문에 픽스처 루트 경로가 없다: {msg}"
     );
 }

@@ -1,9 +1,10 @@
 import React from "react";
 import * as DSA from "../../../components/index.js";
+import { useDraft } from "./settings_draft.jsx";
 
 // Tasty UI kit — Settings › Misc › Anomaly detection (2026-10-27).
 // Mirrors zilhak/tasty → crates/tasty-settings/src/anomaly_detection.rs ([anomaly_detection], 9 fields).
-// L2 order under Misc: Scripts → Task pipeline → Anomaly detection → Tastyrc (Windows only).
+// L2 order under Misc: Scripts → Task pipeline → Anomaly detection → Child graph.
 // One page = info notice + three sections (Memory growth · Repeated calls · Call bursts); each section =
 // mono micro heading · notify Switch row (+ caption naming the detector) · two number rows (+ caption).
 // Notify off hides notifications only: number rows keep the normal look and stay editable.
@@ -52,7 +53,7 @@ const ANOMALY_COPY = {
   ko: {
     notice: "이 탐지기들은 문제일 가능성이 큰 패턴을 살피지만, 정상적인 작업에서도 걸릴 수 있습니다. 탐지기의 알림을 끄면 알림만 숨겨집니다. 탐지와 기록은 계속되고 아래 값도 그대로 적용됩니다. 저장한 변경은 다음 판정부터 적용됩니다.",
     show: "알림 표시:", detector: "탐지기",
-    range: (a, b, v) => a + "~" + b + " 사이의 값입니다. " + v + "(으)로 확정됩니다.",
+    range: (a, b, v) => a + "~" + b + " 사이의 값입니다. " + v + " 값으로 확정됩니다.",
     sec: {
       rss_surge: { h: "메모리 증가", c: "연속된 샘플에서 메모리(RSS)가 계속 늘면서 최소 크기를 넘은 프로세스를 알립니다." },
       slow_loop: { h: "반복 호출", c: "에이전트가 판정 창 안에서 같은 호출(같은 메서드, 같은 인자)을 여러 번 반복하면 알립니다. 응답이 느린지가 아니라 반복 횟수를 셉니다." },
@@ -111,7 +112,7 @@ function AnNumField({ text, unit, invalid, note, focused, onChange, onCommit }) 
         <span style={{ display: "inline-flex", flex: "none", maxWidth: "100%", width: "max(var(--tasty-number-field-min-width), calc(" + n + "ch + 2 * var(--tasty-input-padding-x) + 2 * var(--tasty-border-width)))" }}>
           <Input block mono value={text} invalid={invalid} focused={focused} inputMode="numeric"
             onChange={(e) => onChange && onChange(e.target.value)} onBlur={() => onCommit && onCommit()}
-            onKeyDown={(e) => { if (e.key === "Enter" && onCommit) onCommit(); }} style={{ textAlign: "right" }} />
+            onKeyDown={(e) => { if (e.key === "Enter" && onCommit) onCommit(); }} inputStyle={{ textAlign: "right" }} />
         </span>
         <span style={{ fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-number-field-unit-fg)", whiteSpace: "nowrap" }}>{unit}</span>
       </span>
@@ -125,7 +126,7 @@ function AnNumField({ text, unit, invalid, note, focused, onChange, onCommit }) 
 function AnomalySubtab({ lang = "en", values, texts, focusKey, stacked = false, labelCol = "var(--tasty-settings-label-width)", width, onDraft }) {
   const { Switch, Icon } = DSA;
   const L = ANOMALY_COPY[lang] || ANOMALY_COPY.en;
-  const [vals, setVals] = React.useState(() => Object.assign({}, ANOMALY_DEFAULTS, values));
+  const [vals, setVals] = useDraft("misc.anomaly", () => Object.assign({}, ANOMALY_DEFAULTS, values));
   const [txt, setTxt] = React.useState(() => Object.assign({}, texts));
   const setVal = (k, v) => setVals((s) => { const n = Object.assign({}, s, { [k]: v }); onDraft && onDraft(n); return n; });
   const textOf = (k) => (txt[k] !== undefined ? txt[k] : String(vals[k]));

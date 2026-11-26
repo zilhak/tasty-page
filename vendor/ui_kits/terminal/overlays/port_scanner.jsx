@@ -105,7 +105,7 @@ function FavoritesSection({ favs, onToggle }) {
       borderBottom: "var(--tasty-border-width) solid var(--tasty-port-favorites-border)" }}>
       {/* caption — persists at zero favorites so the feature stays discoverable */}
       <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)",
-        height: "var(--tasty-control-height-tree)", padding: "0 var(--tasty-size-14)" }}>
+        height: "var(--tasty-control-height-tree)", padding: "0 var(--tasty-ports-pad-x)" }}>
         <span style={{ fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-micro)",
           textTransform: "uppercase", letterSpacing: "var(--tasty-letter-spacing-caps)", color: "var(--tasty-text-muted)" }}>
           Favorites{favs.length > 0 && ` · ${favs.length}`}
@@ -117,18 +117,17 @@ function FavoritesSection({ favs, onToggle }) {
       </div>
       {rows.length === 0 ? (
         <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-xs)",
-          height: "var(--tasty-control-height-tree)", padding: "0 var(--tasty-size-14)", color: "var(--tasty-text-muted)" }}>
-          <span style={{ display: "inline-flex", flex: "none", opacity: 0.55 }}><Icon name="star" size="var(--tasty-icon-size-xs)" /></span>
-          <span style={{ fontSize: "var(--tasty-font-size-caption)" }}>No favorites yet</span>
-          <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-placeholder)" }}>
-            — click a star in the list below to pin a port.
-          </span>
+          height: "var(--tasty-control-height-tree)", padding: "0 var(--tasty-ports-pad-x)", color: "var(--tasty-text-muted)" }}>
+          {/* the empty line's star recedes as glyph-dim ink, an opaque role, with no opacity on top */}
+          <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-glyph-dim)" }}><Icon name="star" size="var(--tasty-icon-size-sm)" /></span>
+          {/* one muted italic label on one line, as the app draws [port_scanner] favorites_empty; a narrow window ends it in an ellipsis */}
+          <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontSize: "var(--tasty-font-size-caption)", fontStyle: "var(--tasty-font-style-absent)" }}>No favorites yet — click a star in the list below to pin a port.</span>
         </div>
       ) : (
         <div className="tasty-scroll" style={{ maxHeight: "var(--tasty-port-favorites-max-height)", overflowY: "auto" }}>
           {rows.map((r) => (
             <div key={r.key} style={{ display: "flex", alignItems: "center", height: "var(--tasty-port-favorites-row-height)",
-              padding: "0 var(--tasty-size-14) 0 0" }}>
+              padding: "0 var(--tasty-ports-pad-x) 0 0" }}>
               {/* star column — same 28px width as the table's, so stars line up */}
               <span style={{ width: "var(--tasty-port-star-col-width)", display: "inline-flex", justifyContent: "center", flex: "none" }}>
                 <PortStar on onToggle={() => onToggle(r.key)} label={`Remove ${r.key} from favorites`} />
@@ -141,7 +140,7 @@ function FavoritesSection({ favs, onToggle }) {
                 textOverflow: "ellipsis", whiteSpace: "nowrap", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>
                 {r.hit ? `${r.hit.proc} · ${r.hit.pid}${r.hit.ws ? ` · ${r.hit.ws}` : ""}` : "not running"}
               </span>
-              <span style={{ flex: "none", display: "inline-flex", justifyContent: "flex-end", minWidth: "var(--tasty-size-112)" }}>
+              <span style={{ flex: "none", display: "inline-flex", justifyContent: "flex-end", minWidth: "var(--tasty-port-favorites-state-min-width)" }}>
                 {r.hit
                   ? <StatusDot status={r.hit.state === "LISTEN" ? "running" : "waiting"} pulse={r.hit.state === "LISTEN"} label={r.hit.state} />
                   : <StatusDot status="idle" label="NONE" />}
@@ -206,21 +205,22 @@ function PortsWindow({ onClose, onFlash, favorites = FAVS_DEFAULT }) {
         return <PortStar on={on} onToggle={() => toggleFav(k)}
           label={`${on ? "Remove" : "Add"} ${k} ${on ? "from" : "to"} favorites`} />;
       } },
-    { key: "port", header: "Port", align: "right", mono: true, sortable: true, width: 84 },
-    { key: "proto", header: "Proto", mono: true, width: 76 },
+    { key: "port", header: "Port", align: "right", mono: true, sortable: true, width: "var(--tasty-port-port-col-width)" },
+    { key: "proto", header: "Proto", mono: true, width: "var(--tasty-port-proto-col-width)" },
     { key: "addr", header: "Address", mono: true, sortable: true, width: "var(--tasty-port-addr-col-min-width)" }, // 2026-10-08 (batch 8) — pinned at 140
     { key: "proc", header: "Process", strong: true, sortable: true, width: "100%", minWidth: "var(--tasty-port-process-col-min-width)", // all spare width
       render: (v, row) => (
-        <span style={{ display: "inline-flex", alignItems: "center", gap: 8, minWidth: 0 }}>
-          <span style={{ overflow: "hidden", textOverflow: "ellipsis" }}>{v}</span>
-          <Tag mono>{row.pid}</Tag>
+        // As the app's ports_process_cell: the PID Tag keeps its width and only the name ellipsises, so the row is bound to the cell.
+        <span style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", minWidth: 0, maxWidth: "100%" }}>
+          <span style={{ flex: "0 1 auto", minWidth: 0, overflow: "hidden", textOverflow: "ellipsis" }}>{v}</span>
+          <span style={{ flex: "none", display: "inline-flex" }}><Tag mono>{row.pid}</Tag></span>
         </span>
       ) },
-    { key: "ws", header: "Workspace", sortable: true, width: 120,
+    { key: "ws", header: "Workspace", sortable: true, width: "var(--tasty-port-workspace-col-width)",
       render: (v) => v || <Dash /> },
-    { key: "tab", header: "Tab", sortable: true,
+    { key: "tab", header: "Tab", sortable: true, width: "var(--tasty-port-tab-col-width)",
       render: (v) => v || <Dash /> },
-    { key: "state", header: "State", width: 140,
+    { key: "state", header: "State", width: "var(--tasty-port-state-col-width)",
       render: (v) => <StatusDot status={v === "LISTEN" ? "running" : "waiting"} pulse={v === "LISTEN"} label={v} /> },
   ];
 
@@ -231,16 +231,16 @@ function PortsWindow({ onClose, onFlash, favorites = FAVS_DEFAULT }) {
 
   return (
     <Scrim onClose={onClose}>
-      <div style={{ width: 660, maxHeight: 520, display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)",
-        border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)", overflow: "hidden",
+      <div style={{ width: "var(--tasty-ports-window-width)", maxHeight: "var(--tasty-ports-window-height)", display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)",
+        border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden",
         boxShadow: "var(--tasty-shadow-modal)" }}>
         {/* header */}
-        <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-size-14)", flex: "none",
+        <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-ports-pad-x)", flex: "none",
           borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
           <span style={{ display: "inline-flex", color: "var(--tasty-text-muted)" }}>
             <Icon name="port" />
           </span>
-          <span style={{ fontSize: 14, fontWeight: 600 }}>Listening ports</span>
+          <span style={{ fontSize: "var(--tasty-font-size-max)", fontWeight: "var(--tasty-font-weight-semibold)" }}>Listening ports</span>
           <Tag variant="accent">{loading ? "scanning…" : `${listening} listening`}</Tag>
           <div style={{ flex: 1 }} />
           <Input icon={ic.search} placeholder="Filter…" value={q} onChange={(e) => setQ(e.target.value)} style={{ width: "var(--tasty-field-width-lg)" }} />
@@ -252,7 +252,7 @@ function PortsWindow({ onClose, onFlash, favorites = FAVS_DEFAULT }) {
           </IconButton>
         </div>
         {/* filters */}
-        <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-sm) var(--tasty-size-14)", flex: "none",
+        <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-sm) var(--tasty-ports-pad-x)", flex: "none",
           borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
           <Checkbox checked={showAll} onChange={(e) => setShowAll(e.target.checked)}
             label="Show all (system-wide)" />
@@ -263,9 +263,9 @@ function PortsWindow({ onClose, onFlash, favorites = FAVS_DEFAULT }) {
         <div className="tasty-scroll" style={{ overflow: "auto", flex: 1, minHeight: 0 }}>
           {loading ? (
             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "var(--tasty-space-sm)",
-              padding: "calc(var(--tasty-space-xl) * 2) var(--tasty-size-14)", color: "var(--tasty-text-muted)" }}>
-              <Spinner size={16} />
-              <span style={{ fontSize: 13 }}>Collecting…</span>
+              padding: "calc(var(--tasty-space-xl) * 2) var(--tasty-ports-pad-x)", color: "var(--tasty-text-muted)" }}>
+              <Spinner size="var(--tasty-icon-size-md)" />
+              <span style={{ fontSize: "var(--tasty-font-size-body)" }}>Collecting…</span>
             </div>
           ) : (
             <Table columns={columns} rows={rows} rowKey="port" sort={sort} onSort={onSort}
@@ -274,9 +274,9 @@ function PortsWindow({ onClose, onFlash, favorites = FAVS_DEFAULT }) {
           )}
         </div>
         {/* footer */}
-        <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "var(--tasty-space-sm) var(--tasty-size-14)", flex: "none",
+        <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-md)", padding: "var(--tasty-space-sm) var(--tasty-ports-pad-x)", flex: "none",
           borderTop: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
-          <span style={{ fontFamily: "var(--tasty-font-label)", fontSize: 11, color: "var(--tasty-text-muted)" }}>
+          <span style={{ fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>
             {loading ? "—" : `${rows.length} of ${scoped.length} ports`}
           </span>
           <div style={{ flex: 1 }} />

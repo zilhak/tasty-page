@@ -1,6 +1,7 @@
 // Where a contract's part lives inside a frozen cell, for the rendered check. Default: [data-part="<part>"].
 // sel: the element; ":cell" is the cell. prop: the computed property to read, when it is not implied by the role.
-//   "svg" the first shape's stroke or fill, "shadow" the first color of box-shadow.
+//   "svg" every stroke and fill the part draws (rowInks and judgeInks in scripts/contrast-page.mjs); paint: "stroke" or
+//   "fill" keeps only that property. "shadow" the first color of box-shadow.
 const button = { label: { sel: ".tasty-btn > span" }, icon: { sel: ".tasty-btn" , prop: "svg" }, edge: { sel: ".tasty-btn", prop: "borderTopColor" }, ring: { sel: ".tasty-btn" } };
 const count = { count: { sel: ".tasty-badge" } };
 const input = {

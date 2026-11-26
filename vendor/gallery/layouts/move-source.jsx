@@ -53,12 +53,12 @@ const EDGE = {
 };
 function Surface({ focused, ring, edge, cmd = "cargo test", id }) {
   return (
-    <div style={{ position: "relative", flex: 1, minWidth: 0, padding: "8px 10px", fontFamily: "var(--tasty-font-mono)", fontSize: 12, lineHeight: 1.5,
+    <div data-terminal-content="" style={{ position: "relative", flex: 1, minWidth: 0, padding: "8px 10px", fontFamily: "var(--tasty-font-mono)", fontSize: 12, lineHeight: 1.5,
       background: focused ? "var(--tasty-surface-terminal-focused-bg)" : "var(--tasty-surface-terminal-unfocused-bg)",
       color: focused ? "var(--tasty-text-primary)" : "var(--tasty-surface-terminal-unfocused-fg)" }}>
-      <div><span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-color-green)" }}>~/tasty</span> <span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-color-blue)" }}>main</span></div>
-      <div><span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-color-mauve)" }}>❯ </span>{cmd}</div>
-      {id && <div style={{ marginTop: 4, fontSize: 10, color: "var(--tasty-text-muted)" }}>{id}</div>}
+      <div><span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-ansi-green)" }}>~/tasty</span> <span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-ansi-blue)" }}>main</span></div>
+      <div><span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-ansi-magenta)" }}>❯ </span>{cmd}</div>
+      {id && <div data-terminal-ui="" style={{ marginTop: 4, fontSize: 10, color: "var(--tasty-text-muted)" }}>{id}</div>}
       {edge && <span aria-hidden style={{ position: "absolute", inset: 0, pointerEvents: "none", zIndex: 2, border: `${EDGE[edge][1]} solid ${EDGE[edge][0]}` }} />}
       {ring && <MoveRing />}
     </div>
@@ -200,7 +200,7 @@ function GalleryMoveSource() {
         )}
         <Meta
           specs={[["row", "trailing, before the badge group"], ["tab cell", "after the title (title truncates)"], ["rail", "12px chip bottom-left — top-right = attention dot, bottom-right = mirror chip"], ["text", "none — glyph only, no i18n length"]]}
-          tokens={[{ tok: "--tasty-move-source-glyph", use: "glyph (→ accent-move)", color: "var(--tasty-move-source-glyph)" }, { tok: "--tasty-move-source-glyph-size", use: "12 — row · tab" }, { tok: "--tasty-move-source-chip-size", use: "12 — rail chip" }, { tok: "--tasty-move-source-chip-glyph-size", use: "8 — glyph in chip" }]} />
+          tokens={[{ tok: "--tasty-move-source-glyph", use: "glyph (→ accent-move)", color: "var(--tasty-move-source-glyph)" }, { tok: "--tasty-move-source-glyph-size", use: "12 — row · tab" }, { tok: "--tasty-move-source-chip-size", use: "→ avatar-chip-size 12 — rail chip" }, { tok: "--tasty-move-source-chip-glyph-size", use: "→ avatar-chip-glyph-size 8 — glyph in chip" }]} />
         <Dont><b>Don't</b> ring a container. A ringed tab means "this tab moves"; a ringed workspace row would read as "this workspace moves", which is not an action.</Dont>
       </Spec>
 

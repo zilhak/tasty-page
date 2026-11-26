@@ -1,4 +1,4 @@
-<!-- source-hash: f0f513d4a0fb -->
+<!-- source-hash: c6f1762ab16c -->
 # Workspaces
 
 Tasty’s workspaces group terminals and layouts by project or task, organized by name and category and switched from the sidebar.
@@ -12,7 +12,7 @@ Tasty’s workspaces group terminals and layouts by project or task, organized b
 | Right-click the **New Workspace** button > **Create workspace from preset...** | Creates one from a saved layout preset ([Saving layouts](panes-tabs-splits.md#saving-layouts--presets)) |
 | Right-click an empty area of the sidebar > **Add remote workspace** | Mirrors tasty on another machine ([Working remotely](../remote/attach.md)) |
 
-The terminal in a new Workspace starts in the working directory of the current terminal (**Settings** > **Terminal** > **Inherit working directory**, on by default).
+When **Settings** > **Terminal** > **Inherit working directory** is on (the default), a new local workspace inherits its working directory from the Surface selected when you enter the command. Tasty reads the directory when it creates the workspace. If the selected Surface is in a mirror or has since closed, the new terminal starts in your home directory.
 
 To start with a non-terminal Surface or to set the name at creation, use the CLI.
 
@@ -28,6 +28,8 @@ The default name is a sequence number such as `Workspace 1`. Right-click the sid
 
 - **Rename** — shortcut `F3`.
 - **Change Subtitle** — the small text under the card. Shortcut `F4`.
+
+Renaming a workspace or changing its subtitle while you are viewing another workspace opens an input popup immediately in the center of the current window without switching workspaces. The popup stays visible when you switch to another workspace.
 
 ```sh
 tasty set workspace --id 3 --name api --subtitle "port 8080"
@@ -58,10 +60,10 @@ Each Workspace remembers its own focused Pane. Switch away and back and the curs
 |------|----|
 | Dot left of the name | A program is running inside that Workspace (the count is shown alongside, as in `● 3`) |
 | Number badge right of the name | Number of Surfaces that need attention. Yellow means waiting for input, blue means a job finished. Click that Surface and it disappears |
-| **REMOTE** pill | A Workspace mirroring a remote tasty |
+| **Remote** pill | A Workspace mirroring a remote tasty |
 | Lavender border around the dot left of the name | Occupied remotely by another user |
 
-When the sidebar is collapsed (**Collapse**, `Ctrl+B`) the cards become square icons and the marks shrink with them. The dot at the top right shows only the most urgent one, without a count — yellow is waiting for input, blue is a finished job, green is running. The **REMOTE** pill turns into a sky-blue chip at the bottom right. When another user holds the Workspace remotely, the lavender border wraps **the whole square icon** instead of the dot.
+When the sidebar is collapsed (**Collapse**, `Ctrl+B`) the cards become square icons and the marks shrink with them. The dot at the top right shows only the most urgent one, without a count — yellow is waiting for input, blue is a finished job, green is running. The **Remote** pill turns into a sky-blue chip at the bottom right. When another user holds the Workspace remotely, the lavender border wraps **the whole square icon** instead of the dot.
 
 ## Closing and restoring
 
@@ -72,11 +74,11 @@ When the sidebar is collapsed (**Collapse**, `Ctrl+B`) the cards become square i
 A workspace holding a terminal someone is using over a remote attach will not close; you
 get a notice instead. Someone is working in that terminal right now, and closing it would
 end their session without warning. To take it back, press **Force detach** on the occupancy
-badge, then close again. If you would rather not switch to that Workspace, right-click its
-sidebar card instead — a **Force detach** item appears only while it is occupied, and it
-goes through a confirmation first.
+badge, then close again. When you right-click a local Workspace card in the sidebar, **Force detach** is always visible. It is enabled only while another client occupies the Workspace. Selecting it opens a confirmation popup immediately in the center of the current window without switching to that Workspace. The popup stays visible when you switch to another workspace. Requesting force detach for another workspace while the popup is open closes the existing popup and reopens it for the new target.
 
 Press `Ctrl+Shift+T` to restore workspaces, panes, tabs, and surfaces you closed, starting with the most recent item. Tasty keeps up to 10 records and retains them when the same layout slot is resumed normally. Terminal history is restored according to the content restoration setting. Shells start again, and saved session resume commands run when present. Items closed through the CLI are not added to this list.
+
+Restoring with a shortcut, the command palette, or a modifier double-tap uses the pane selected when you enter the command. It uses that pane even if you move focus after pressing `Enter` in the palette or the selected Surface closes. If the pane closes before the command runs, nothing is restored.
 
 Terminal history for items being closed is kept within a 64 MiB pending-request budget, minus the space used by other pending requests and the close record itself. Even scrollback smaller than 64 MiB can therefore be omitted if it does not fit the remaining budget. The terminal is still added to the restore list without its scrollback, and closing continues. A warning is left in the notification panel; for a workspace opened over remote attach, a warning notice appears once in the window that requested the close. Restoring a terminal whose history was omitted opens it in the same directory with empty scrollback. History retained for the other terminals is restored according to the content restoration setting. This warning does not mean that all ongoing saving of layouts and contents has stopped.
 
@@ -84,12 +86,12 @@ Terminal history for items being closed is kept within a 64 MiB pending-request 
 
 When you have many Workspaces, turn on **Settings** > **General** > **Workspace categories (folders)**. The sidebar changes into collapsible sections.
 
-- The default section **Workspaces** is always at the top and cannot be renamed or deleted.
+- The default section **WORKSPACES** is always at the top and cannot be renamed or deleted.
 - Click a section header — collapse / expand. The **Collapse/expand all categories** shortcut is empty by default, so assign it yourself.
 - Right-click a header — **Add workspace** · **Create workspace from preset...** · **Add remote workspace** · **Rename category** · **Delete category** · **New category**.
 - Right-click an empty area — **New category** · **Add remote workspace**.
 - Right-click a Workspace card — **Move to category**. Dragging it to another section also works.
-- Deleting a category does not delete the Workspaces in it; they return to the **Workspaces** section.
+- Deleting a category does not delete the Workspaces in it; they return to the **WORKSPACES** section.
 
 With categories on, the **New Workspace** button under the sidebar disappears and you create Workspaces from the header menu. `Alt+N` creates one in the category the current Workspace belongs to.
 
@@ -102,7 +104,7 @@ Switching shortcuts also gain a category level.
 | `Alt+1` to `Alt+9` | The nth Workspace **within** the current category |
 | `Alt+J` / `Alt+K` | Next / previous within the current category. To cross the boundary into the next category, turn on **Settings** > **General** > **Next/prev workspace crosses categories** |
 
-Turning categories off again merges all Workspaces into the single **Workspaces** section.
+Turning categories off again merges all Workspaces into the single **WORKSPACES** section.
 
 ```sh
 tasty workspace-category list
@@ -123,6 +125,6 @@ Only one window appears on restart; the remaining slots are restored when you op
 
 A [headless build](../getting-started/install.md#headless-build) of Tasty, which runs without a window, neither saves nor restores the arrangement, whatever this setting says — its workspaces last only for that run. If the setting is on, it logs a one-line warning about this at startup.
 
-Running Tasty again while it is already running does not start a second Tasty. Launched from the app menu or a launcher, the open window comes forward; running `tasty` in a terminal opens one new window that takes over the next empty slot (on Windows, launching from the terminal in front may bring the open window forward instead). See [Running Tasty again](../help/troubleshooting.md#running-tasty-again) for details.
+When you run the released GUI build again with the same data folder, it tries to forward the request to the running GUI instance. If the request gets through and a new window opens, it restores one of the window states kept by the running app, if available. Otherwise it takes the next empty slot. For example, Tasty keeps window state if you close the last window by closing its last workspace, or if you minimize Tasty to the background on macOS. For differences by OS and launch method, see [Running Tasty again](../help/troubleshooting.md#running-tasty-again).
 
 To reuse a layout that is not a restore target, save it as a preset — [Saving layouts](panes-tabs-splits.md#saving-layouts--presets).

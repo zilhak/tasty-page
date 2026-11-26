@@ -15,8 +15,9 @@
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join, relative, resolve, sep } from "node:path";
 import { parseArgs } from "node:util";
+import { markdownToHast } from "satteri";
 import { ORDER, canBeTranslationDir, contentHash, readStamp } from "../src/lib/guide.ts";
-import { TRANSLATION_DIRS } from "../src/lib/langs.mjs";
+import { LANGS, TRANSLATION_DIRS } from "../src/lib/langs.mjs";
 
 /** Korean a translation keeps: the app's language name, and examples of what the app
  * shows or reads in Korean. Longer strings come first, because they are removed in order. */
@@ -129,7 +130,23 @@ function describeBag(expected, actual) {
   return [missing.length && `missing ${missing.join(", ")}`, extra.length && `extra ${extra.join(", ")}`].filter(Boolean).join("; ");
 }
 
-function comparePage(page, source, translated, report) {
+/** Read rendered text without comments or raw tags, keeping inline code literal. */
+function plainText(node) {
+  if (node.type === "text") return node.value;
+  return (node.children ?? []).map(plainText).join("");
+}
+
+/** English pages show the labels themselves, without the translation comments. */
+function missingEnglishLabels(labels, translated) {
+  const prose = parse(translated).prose.replace(/<!--[\s\S]*?-->/g, "");
+  const plain = plainText(markdownToHast(prose, { position: false })).replace(/\s+/g, " ");
+  return labels.filter((label) => {
+    const pattern = label.split(/\{[^{}]+\}/).map((part) => part.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join(".+?");
+    return !new RegExp(pattern).test(plain);
+  });
+}
+
+function comparePage(page, source, translated, report, english) {
   const want = shapeOf(source);
   const got = shapeOf(translated);
   if (!sameList(want.headings, got.headings)) report("headings", page, describeOrdered(want.headings, got.headings));
@@ -141,7 +158,10 @@ function comparePage(page, source, translated, report) {
   }
   if (!sameList(want.links, got.links)) report("links", page, describeBag(want.links, got.links));
   if (!sameList(want.diagrams, got.diagrams)) report("diagrams", page, describeOrdered(want.diagrams, got.diagrams));
-  if (!sameList(want.labels, got.labels)) report("labels", page, describeBag(want.labels, got.labels));
+  if (english) {
+    const missing = missingEnglishLabels(want.labels, translated);
+    if (missing.length > 0) report("labels", page, `missing ${missing.join(", ")}`);
+  } else if (!sameList(want.labels, got.labels)) report("labels", page, describeBag(want.labels, got.labels));
 
   const stamp = readStamp(translated);
   const hash = contentHash(source);
@@ -178,11 +198,12 @@ function checkTree(tree, report, review) {
   for (const page of present) if (!listed.has(page)) report("files", page, "not in ORDER, so it is never published");
 
   const candidates = new Set();
+  const english = LANGS.some((row) => row.contentDir === tree && row.code === "en");
   const simplified = tree === SIMPLIFIED_CHINESE_DIR ? gb2312Han() : null;
   for (const page of listed) {
     if (!present.has(page)) continue;
     const translated = readFileSync(join(root, page), "utf8");
-    comparePage(page, readFileSync(join(CONTENT, page), "utf8"), translated, report);
+    comparePage(page, readFileSync(join(CONTENT, page), "utf8"), translated, report, english);
     if (simplified) checkSimplifiedChinese(page, translated, report, candidates, simplified);
   }
   review(candidates);

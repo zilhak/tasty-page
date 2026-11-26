@@ -47,7 +47,7 @@ function NotificationsPopup({ items = NOTIFICATION_SAMPLES, fullscreen = false, 
     <div role="dialog" aria-label="Notifications" style={{ width: fullscreen ? "100%" : (width || "var(--tasty-notifications-popup-width)"),
       height: fullscreen ? "100%" : (height || "var(--tasty-notifications-popup-height)"), boxSizing: "border-box",
       display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)",
-      borderRadius: "var(--tasty-radius)", boxShadow: fullscreen ? "none" : "var(--tasty-shadow-modal)", overflow: "hidden", ...style }}>
+      borderRadius: "var(--tasty-radius)", boxShadow: fullscreen ? "none" : "var(--tasty-shadow-popover)", overflow: "hidden", ...style }}>
       {TitleBar && <TitleBar title="Notifications" fullscreen />}
       <div style={{ flex: "none", height: "var(--tasty-notifications-toolbar-height)", display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)",
         padding: "0 var(--tasty-space-xs) 0 var(--tasty-notification-item-pad-x)", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" }}>

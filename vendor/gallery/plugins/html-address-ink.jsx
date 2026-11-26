@@ -9,14 +9,14 @@ const HcPair = ({ children }) => (
   <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-lg)", alignItems: "flex-start" }}>
     {[["Mocha", "mocha"], ["Latte", "latte"]].map(([label, t]) => (
       <div key={label} {...(t ? { "data-theme": t } : {})} style={{ flex: "1 1 var(--tasty-size-440)", minWidth: 0, maxWidth: "100%", display: "flex", flexDirection: "column", gap: "var(--tasty-space-md)", padding: "var(--tasty-space-md)", background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)" }}>
-        <span style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label}</span>{children}
+        <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label}</span>{children}
       </div>
     ))}
   </div>
 );
 const HcCase = ({ label, children }) => (
   <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", minWidth: 0 }}>
-    <span style={{ fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" }}>{label}</span>
+    <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" }}>{label}</span>
     <div style={{ border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>{children}</div>
   </div>
 );
@@ -24,7 +24,7 @@ const HcCase = ({ label, children }) => (
 function HcInk({ tok, label }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", minWidth: 0, flex: "1 1 var(--tasty-size-200)" }}>
-      <span style={{ fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" }}>{label}</span>
+      <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" }}>{label}</span>
       <span style={{ display: "flex", alignItems: "center", height: "var(--tasty-input-height)", padding: "0 var(--tasty-space-sm)", background: "var(--tasty-input-bg)", border: "var(--tasty-border-width) solid var(--tasty-input-border)", borderRadius: "var(--tasty-input-radius)",
         fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-input-font-size)", color: "var(" + tok + ")", overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis" }}>~/work/tasty/target/report.html</span>
     </div>
@@ -47,11 +47,11 @@ function HtmlAddressContrastSpec() {
           <HcCase label="local · idle"><Bar kind="local" address="~/work/tasty/target/report.html" /></HcCase>
           <HcCase label="local · editing (unchanged: input-fg)"><Bar kind="local" address="~/work/tasty/target/report.html" state="editing" /></HcCase>
           <HcCase label="web · idle"><Bar kind="web" address="https://docs.example.com/guide/getting-started#install" canForward /></HcCase>
-          <HcCase label="mirror · read-only, selectable (input-readonly-fg)"><Bar kind="remote" address="build-eu:~/work/site/index.html" /></HcCase>
+          <HcCase label="mirror · read-only, selectable (input-readonly-fg)"><Bar kind="remote" address="/home/me/work/site/index.html" /></HcCase>
           <HcCase label="empty · placeholder (unchanged)"><Bar kind="empty" canBack={false} /></HcCase>
           <HcCase label="loading (unchanged)"><Bar kind="web" address="https://docs.example.com/guide/getting-started#install" state="loading" /></HcCase>
           <HcCase label="input error (unchanged)"><Bar kind="local" address="/tmp/x/missing.html" state="error" error="File not found: /tmp/x/missing.html" /></HcCase>
-          <HcCase label="mirror · disconnected (Reload disabled; value stays read-only ink)"><Bar kind="remote" address="build-eu:~/work/site/index.html" disconnected /></HcCase>
+          <HcCase label="mirror · disconnected (Reload disabled; value stays read-only ink)"><Bar kind="remote" address="/home/me/work/site/index.html" disconnected /></HcCase>
         </HcPair>
       </Stage>
       <Meta

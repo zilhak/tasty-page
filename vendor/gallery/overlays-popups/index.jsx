@@ -4,8 +4,11 @@ import { STATES } from "./states.jsx";
 import { Kbd, MenuItem } from "../../components/index.js";
 import { GalleryNoticeColumn } from "./notice-column.jsx";
 import { GalleryWebviewOpaque } from "./opaque-over-page.jsx";
+import { GalleryToastOverPage } from "./toast-over-page.jsx";
 import { GroundThemes as PGroundThemes, GroundCap as PGroundCap, ToolsMenuFrame, SearchBarFrame, HeldLabel, TabStripMock, SidebarMock, RailMock, CatSwitchSidebarMock, CatSwitchRailMock, ic, CatMenu, RailCategoryFrame, catIc, ModifierHintPanelG, MH_CAT_SECTIONS, MH_MIXED_SECTIONS, MH_EMPTY_SECTIONS } from "../parts/overlay-frames.jsx";
-import { Section, Spec, Stage, Meta, Note, Do, Dont } from "../parts/specimen.jsx";
+import { Section, Spec, Stage, Meta, Note, Do, Dont, Views, View } from "../parts/specimen.jsx";
+import { RemoteRowMenuItems } from "../../ui_kits/terminal/overlays/remote_row.jsx";
+import { FallbackMenuSection } from "./fallback-menu.jsx";
 
 // Tasty Gallery — Overlays · Popups & menus (anchored, no scrim)
 // One of the five Overlays sub-pages (dialogs · windows · popups · banners · tutorial). Frame components are shared from
@@ -18,6 +21,7 @@ import { Section, Spec, Stage, Meta, Note, Do, Dont } from "../parts/specimen.js
 
 const NAV = [
   { id: "tools", label: "Tools menu" },
+  { id: "fallback", label: "Fallback context menu" },
   { id: "search", label: "Search bar" },
   { id: "switch", label: "Switch-number overlay" },
   { id: "modhint", label: "Modifier hints" },
@@ -51,7 +55,7 @@ function ModHintHoldDemo() {
   }, [phase, reduce]);
   const status = phase === "idle" ? "press & hold" : phase === "pending" ? "holding… (500ms)" : "showing";
   return (
-    <div style={{ position: "relative", width: "100%", maxWidth: 560, height: 460, borderRadius: "var(--tasty-radius)",
+    <div style={{ position: "relative", width: "var(--tasty-mod-hint-specimen-width)", flex: "none", height: 460, borderRadius: "var(--tasty-radius)",
       overflow: "hidden", border: "var(--tasty-border-width) solid var(--tasty-border-default)", background: "var(--tasty-bg-app)" }}>
       {/* faux app: sidebar + terminal surface */}
       <div style={{ position: "absolute", inset: 0, display: "flex" }}>
@@ -88,14 +92,16 @@ function Page() {
     <>
 <Section id="tools" title="Tools menu">
         <Spec id="tools-menu-anchored-no-scrim" title="Tools menu — anchored, no scrim"
-          when={<>A popup anchored <b>above</b> the sidebar Tools button (left-aligned to it). Unlike the modal layer this is a lightweight menu — <b>no scrim</b>, dismisses on outside click or <Kbd keys="Esc" />. Built-in entries first, in this fixed order — <b>Command palette… · Listening ports… · Remote connections… · Presets · Tutorial… · Task DAGs · Open File…</b> — then a separator, then <b>plugin-contributed</b> tools in manifest <code>order</code> (Clipboard Viewer 100 · Git 130). Every label that opens a further window ends in the single ellipsis character <code>…</code>, never three periods. <b>Width (2026-10-07)</b>: the menu is as wide as its longest row (label + <span className="tok">--tasty-menu-item-padding-x</span> both sides + the 4 ring + border), never narrower than <b>160</b> and never wider than <b>240</b>; a label past 240 ellipsizes at its <b>end</b>. This covers translated labels without a per-locale width.</>}>
+          when={<>A popup anchored <b>above</b> the sidebar Tools button (left-aligned to it). Unlike the modal layer this is a lightweight menu — <b>no scrim</b>, dismisses on outside click or <Kbd keys="Esc" />. Built-in entries first, in this fixed order — <b>Command palette… · Listening ports… · Remote connections… · Presets · Tutorial… · Task DAGs · Open child graph · Open File…</b> — then a separator, then <b>plugin-contributed</b> tools in manifest <code>order</code> (Clipboard Viewer 100 · Git 130). Every label that opens a further window ends in the single ellipsis character <code>…</code>, never three periods. <b>Width (2026-10-07)</b>: the menu is as wide as its longest row (label + <span className="tok">--tasty-menu-item-padding-x</span> both sides + the 4 ring + border), never narrower than <b>160</b> and never wider than <b>240</b>; a label past 240 ellipsizes at its <b>end</b>. This covers translated labels without a per-locale width.</>}>
           <Stage variant="solo center"><ToolsMenuFrame /></Stage>
           <Meta
-            specs={[["width", <>fit content · min 160 <span className="tok">--tasty-tools-menu-min-width</span> · max 240 <span className="tok">--tasty-tools-menu-max-width</span></>], ["overflow", "end ellipsis past max"], ["anchor", "above button, left-aligned"], ["rows", "28px MenuItem, no icons"], ["built-in", "7 — fixed order"], ["inner ring", <>4 · <span className="tok">--tasty-popup-content-margin</span></>], ["scrim", "none"], ["dismiss", <>outside click · <span className="ic">Esc</span></>]]}
+            specs={[["width", <>fit content · min 160 <span className="tok">--tasty-tools-menu-min-width</span> · max 240 <span className="tok">--tasty-tools-menu-max-width</span></>], ["overflow", "end ellipsis past max"], ["anchor", "above button, left-aligned"], ["rows", "28px MenuItem, no icons"], ["built-in", "8 — fixed order"], ["inner ring", <>4 · <span className="tok">--tasty-popup-content-margin</span></>], ["scrim", "none"], ["dismiss", <>outside click · <span className="ic">Esc</span></>]]}
             tokens={[{ tok: "--tasty-menu-bg", use: "menu fill", color: "var(--tasty-menu-bg)" }, { tok: "--tasty-menu-border", use: "edge → border-strong", color: "var(--tasty-menu-border)" }, { tok: "--tasty-popup-content-margin", use: "→ space-xs 4" }, { tok: "--tasty-tools-menu-min-width", use: "→ size-160" }, { tok: "--tasty-tools-menu-max-width", use: "→ size-240" }, { tok: "--tasty-shadow-popover", use: "lift" }]} />
           <Note>Plugins extend the list <b>below</b> the separator only — built-in order is fixed. This is a popover, not a dialog: it never dims the app.</Note>
         </Spec>
       </Section>
+
+<FallbackMenuSection />
 
 <Section id="search" title="Search bar">
         <Spec id="search-bar-ctrl-f-headless" title="Search bar — Ctrl/⌘F, headless"
@@ -103,11 +109,11 @@ function Page() {
           <Stage variant="solo center"><SearchBarFrame /></Stage>
           <Meta
             specs={[["frame", "360 × 28 row"], ["anchor", "top-right of focused surface"], ["counter", "cur/total · red on 0"], ["toggles", "Aa · .* · ab"], ["dismiss", <span className="ic">Esc</span>]]}
-            tokens={[{ tok: "--tasty-surface-raised", use: "bar fill", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-search-bar-border", use: "edge → menu-border", color: "var(--tasty-search-bar-border)" }, { tok: "--tasty-accent-danger", use: "no-match counter", color: "var(--tasty-accent-danger-raised)" }, { tok: "--tasty-shadow-popover", use: "lift" }]} />
+            tokens={[{ tok: "--tasty-surface-raised", use: "bar fill", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-search-bar-border", use: "edge → border-strong", color: "var(--tasty-search-bar-border)" }, { tok: "--tasty-border-strong", use: "divider between option toggles and close button", color: "var(--tasty-border-strong)" }, { tok: "--tasty-accent-danger", use: "no-match counter", color: "var(--tasty-accent-danger-raised)" }, { tok: "--tasty-shadow-popover", use: "lift" }]} />
           <Note>Sticky-focus popover: the input keeps focus and the bar persists through clicks in the terminal — it closes only on <span className="ic">Esc</span> or its × button.</Note>
         </Spec>
         <Spec id="query-field-ground-normal-focused-invalid" title="Query field ground — normal · focused · invalid"
-          when={<>The bar is <span className="tok">--tasty-surface-raised</span>, so the query field is an <b>Input ground="raised"</b> (the 10-14 rule, no exception): <code>bg-panel</code> fill, <code>border-strong</code> edge. <b>normal</b> is the box after a shortcut hands focus back to the terminal; the bar stays open. <b>invalid</b> is a regex error with <code>.*</code> on: the edge is <code>accent-danger</code> in both focus states, and focused adds the danger ring. Behaviour (Enter, Shift+Enter, Esc, filtering) and copy are unchanged.</>}>
+          when={<>The bar is <span className="tok">--tasty-surface-raised</span>, so the query field is an <b>Input ground="raised"</b> (the 10-14 rule, no exception): <code>bg-panel</code> fill, <code>border-control-raised</code> edge. <b>normal</b> is the box after a shortcut hands focus back to the terminal; the bar stays open. <b>invalid</b> is a regex error with <code>.*</code> on: the edge is <code>accent-danger</code> in both focus states, and focused adds the danger ring. Behaviour (Enter, Shift+Enter, Esc, filtering) and copy are unchanged.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)" }}>
             <PGroundThemes render={() => (
               <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", width: 400, maxWidth: "100%" }}>
@@ -119,7 +125,7 @@ function Page() {
             )} />
           </Stage>
           <Meta
-            specs={[["field ground", <>ground="raised" · no exception</>], ["normal", <>input-raised-bg → bg-panel · input-raised-border → border-strong</>], ["focused", <>border-focus edge + 1px border-focus ring</>], ["invalid", <>accent-danger edge · focused adds 1px accent-danger ring · counter 0/0 accent-danger</>], ["Mocha / Latte", "bg-panel = base · border-strong = surface1 · bar surface-raised = surface0"]]}
+            specs={[["field ground", <>ground="raised" · no exception</>], ["normal", <>input-raised-bg → bg-panel · input-raised-border → border-control-raised</>], ["focused", <>border-focus edge + 1px border-focus ring</>], ["invalid", <>accent-danger edge · focused adds 1px accent-danger ring · counter 0/0 accent-danger</>], ["Mocha / Latte", "bg-panel = base · border-control-raised = overlay1 in Mocha, subtext0 in Latte · bar surface-raised = surface0"]]}
             tokens={[{ tok: "--tasty-input-raised-bg", use: "field fill", color: "var(--tasty-input-raised-bg)" }, { tok: "--tasty-input-raised-border", use: "field edge", color: "var(--tasty-input-raised-border)" }, { tok: "--tasty-border-focus", use: "focused", color: "var(--tasty-border-focus)" }, { tok: "--tasty-accent-danger", use: "invalid", color: "var(--tasty-accent-danger-raised)" }]} />
         </Spec>
       </Section>
@@ -129,7 +135,7 @@ function Page() {
           when={<>Holding the <b>tab switch modifier</b> (<Kbd keys="Ctrl" /> by default — rebindable) paints a number keycap over <b>every tab</b>, previewing the <Kbd keys="Ctrl+1" />…<Kbd keys="Ctrl+9" /> / <Kbd keys="Ctrl+0" /> switch shortcuts. The keycap <b>replaces the tab's leading icon in place</b> — no width change, no scrim; the icon returns on release. The <b>active</b> tab's keycap is <b>accent-filled</b> so "where am I" stays legible. Workspaces show nothing — only the modifier bound to tabs triggers this.</>}>
           <Stage variant="solo center" style={{ flexDirection: "column", gap: 16, padding: 20, background: "var(--tasty-bg-app)" }}>
             <div>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>released — each tab shows its surface icon</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>released — each tab shows its surface icon</div>
               <TabStripMock held={false} />
             </div>
             <div>
@@ -146,7 +152,7 @@ function Page() {
           when={<>Holding the <b>workspace switch modifier</b> (<Kbd keys="Alt" /> by default — rebindable) paints a keycap over <b>each sidebar workspace</b>, previewing <Kbd keys="Alt+1" />…<Kbd keys="Alt+9" />. In the <b>full</b> sidebar the keycap replaces the leading <b>status dot</b>; in the <b>collapsed</b> rail it replaces the <b>letter avatar</b>. Same in-place, no-scrim rule as tabs; tabs show nothing here. Releasing dismisses instantly.</>}>
           <Stage variant="solo center" style={{ alignItems: "flex-start", gap: 24, padding: 20, background: "var(--tasty-bg-app)", flexWrap: "wrap" }}>
             <div>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>released — full sidebar</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>released — full sidebar</div>
               <SidebarMock held={false} />
             </div>
             <div>
@@ -168,7 +174,7 @@ function Page() {
           when={<>A third switch axis, present only when <b>Workspace categories (folders)</b> is on. Holding the <b>category switch modifier</b> (<Kbd keys="Ctrl+Shift" /> by default — rebindable) paints a keycap over <b>each category</b>, previewing <Kbd keys="Ctrl+Shift+1" />…<Kbd keys="Ctrl+Shift+9" /> / <Kbd keys="Ctrl+Shift+0" />. In the <b>full</b> sidebar the keycap is <b>right-aligned on the category header</b> — it does <b>not</b> replace the chevron, which stays to carry collapse state (and its auto-expand rotation). In the <b>rail</b> it sits <b>centered on the <code>---</code> boundary</b>. The reserved <b>normal</b> category (“Workspaces”) is <b>1</b>. This overlay and the workspace overlay are <b>modifier-exclusive</b> — <Kbd keys="Alt" /> paints workspaces, <Kbd keys="Ctrl+Shift" /> paints categories, never both at once, so workspace rows keep their status dots here. The chord is the product default <code>category_switch_modifier = ctrl+shift</code> (every preset) — the gallery and the app read it from there.</>}>
           <Stage variant="solo center" style={{ alignItems: "flex-start", gap: 24, padding: 20, background: "var(--tasty-bg-app)", flexWrap: "wrap" }}>
             <div>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>released — full sidebar with categories</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>released — full sidebar with categories</div>
               <CatSwitchSidebarMock held={false} />
             </div>
             <div>
@@ -203,15 +209,15 @@ function Page() {
           when={<>Sections are the shortcut <b>chords that contain the held modifier</b>, ordered by <b>chord size</b> (1→2→3→4) then by modifier priority <b>Ctrl → Cmd/Alt → Option → Shift</b>. Each section header is the chord as <span className="ic">Kbd</span> keycaps; under it sit the bound <b>keycap rows</b> (action + <span className="ic">Kbd</span>), an optional <b>special-role row</b> (what the chord itself does — e.g. Ctrl = tab-switch numbers, Shift = TUI mouse-capture bypass), and <b>plugin</b> rows carrying the agent dot. A chord with <b>no</b> bindings and no role is <b>omitted</b> entirely.</>}>
           <Stage variant="solo center" style={{ padding: 24, background: "var(--tasty-bg-app)", gap: 40, alignItems: "flex-start", flexWrap: "wrap" }}>
             <div>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>default — Ctrl held</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>default — Ctrl held</div>
               <ModifierHintPanelG />
             </div>
             <div>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>resized taller (drag any edge) — 480</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>resized taller (drag any edge) — 480</div>
               <ModifierHintPanelG style={{ height: 480 }} />
             </div>
             <div>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>Ctrl+Shift held — categories on</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>Ctrl+Shift held — categories on</div>
               <ModifierHintPanelG held="Ctrl+Shift" sections={MH_CAT_SECTIONS} style={{ height: 300 }} />
             </div>
           </Stage>
@@ -227,11 +233,11 @@ function Page() {
           when={<>A chord that <b>exists but carries no binding and no role</b> is <b>not</b> omitted — its <span className="ic">ChordHead</span> shows with a single muted <b>placeholder row</b> beneath it. This <b>reverses</b> the original decision (“empty chord → omitted entirely, never ‘none’”): holding an all-empty combo like <Kbd keys="Ctrl+Alt+Shift" /> now surfaces the panel with a <b>“No shortcuts bound”</b> line instead of showing nothing. The placeholder is the <b>quietest</b> row in the panel — <span className="ic">text-muted</span>, <b>no keycap</b>, <b>no wash</b>, <b>no leading glyph</b> — an <i>absence</i> signal, deliberately not a role-row. It is fully static and non-interactive.</>}>
           <Stage variant="solo center" style={{ padding: 24, background: "var(--tasty-bg-app)", gap: 40, alignItems: "flex-start", flexWrap: "wrap" }}>
             <div>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>all-empty — Ctrl+Alt+Shift held</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>all-empty — Ctrl+Alt+Shift held</div>
               <ModifierHintPanelG held="Ctrl+Alt+Shift" sections={MH_EMPTY_SECTIONS} />
             </div>
             <div>
-              <div style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>mixed — Ctrl held, filled + empty sections</div>
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>mixed — Ctrl held, filled + empty sections</div>
               <ModifierHintPanelG held="Ctrl" sections={MH_MIXED_SECTIONS} />
             </div>
           </Stage>
@@ -246,7 +252,7 @@ function Page() {
 
       <Section id="categories" title="Workspace categories">
         <Spec id="sidebar-context-menu-target-resolves-under-the-cursor" title="Sidebar context menu — target resolves under the cursor"
-          when={<>Right-clicking anywhere in the sidebar workspace area opens this menu (no dedicated buttons) — only when <b>Settings › General › Workspace categories (folders)</b> is on. Items resolve to the <b>target under the cursor</b>: empty <b>background</b>, a <b>category header</b>, or a <b>workspace row</b>. The reserved <b>normal</b> category (“Workspaces”) is additive-only — no rename/delete. Same <span className="ic">MenuItem</span> + anchored-popup language as the Tools menu.</>}>
+          when={<>Right-clicking anywhere in the sidebar workspace area opens this menu (no dedicated buttons) — only when <b>Settings › General › Workspace categories (folders)</b> is on. Items resolve to the <b>target under the cursor</b>: empty <b>background</b>, a <b>category header</b>, or a <b>workspace row</b>. The reserved <b>normal</b> category (“Workspaces”) is additive-only — Rename category and Delete category are <b>left out</b>, not disabled: that category can never be renamed or deleted, so a disabled row would only promise a state that never comes. Same <span className="ic">MenuItem</span> + anchored-popup language as the Tools menu.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)", gap: 22, flexWrap: "wrap", alignItems: "flex-start" }}>
             <CatMenu caption="target: background (cwd)">
               <MenuItem label="New category" icon={catIc.plus} />
@@ -262,21 +268,29 @@ function Page() {
             <CatMenu caption="target: reserved (normal)">
               <MenuItem label="Add workspace" icon={catIc.plus} />
               <MenuItem separator />
-              <MenuItem label="Rename category" icon={catIc.edit} disabled />
-              <MenuItem label="Delete category" icon={catIc.trash} disabled />
-              <MenuItem separator />
               <MenuItem label="New category" icon={catIc.plus} />
             </CatMenu>
-            <CatMenu caption="target: workspace row">
+            <CatMenu caption="target: local workspace row">
               <MenuItem label="Move to category" icon={catIc.move} disabled />
               <MenuItem label="Workspaces" />
               <MenuItem label="Services" />
               <MenuItem separator />
               <MenuItem label="New category" icon={catIc.plus} />
+              <MenuItem separator />
+              <MenuItem label="Force detach" disabled />
+            </CatMenu>
+            <CatMenu caption="target: local workspace row · served to another client">
+              <MenuItem label="Move to category" icon={catIc.move} disabled />
+              <MenuItem label="Workspaces" />
+              <MenuItem label="Services" />
+              <MenuItem separator />
+              <MenuItem label="New category" icon={catIc.plus} />
+              <MenuItem separator />
+              <MenuItem label="Force detach" />
             </CatMenu>
           </Stage>
           <Meta
-            specs={[["trigger", "right-click, no dedicated button"], ["width", "176px min"], ["background", "New category"], ["category", "Add ws · Rename · Delete · New"], ["reserved", "Add ws · New (additive-only)"], ["workspace", "Move to category (inert header) · targets · New"], ["targets", "every category except the current one · normal = “Workspaces”"]]}
+            specs={[["trigger", "right-click, no dedicated button"], ["width", "176px min"], ["background", "New category"], ["category", "Add ws · Rename · Delete · New"], ["reserved", "Add ws · New (additive-only) · Rename / Delete left out, not disabled"], ["workspace", "Move to category (inert header) · targets · New | Force detach (enabled only while this Tasty serves the workspace to another client, otherwise disabled, no reason)"], ["Force detach", "local workspace menus only · not on a mirror (a saved remote row or an agent mirror): no other client can hold one, so the item and its separator are left out, not disabled"], ["targets", "every category except the current one · normal = “Workspaces”"]]}
             tokens={[{ tok: "--tasty-surface-raised", use: "menu fill", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-border-strong", use: "edge", color: "var(--tasty-border-strong)" }, { tok: "--tasty-accent-danger", use: "delete row", color: "var(--tasty-accent-danger-raised)" }, { tok: "--tasty-shadow-popover", use: "lift" }]} />
           <Note>“Move to category” is an <b>inert header</b> with the target categories listed <b>flat</b> beneath it (current category omitted) — no submenu, because the product draws this menu with the OS-native context menu (2026-10-07). Drag-and-drop reorder stays the primary path; this is the menu fallback. New strings: <code>workspace_category.add_workspace</code> · <code>collapse</code> · <code>expand</code>. Existing: <code>new_category</code> · <code>rename_category</code> · <code>delete_category</code> · <code>move_to_category</code>.</Note>
         </Spec>
@@ -290,12 +304,41 @@ function Page() {
             tokens={[{ tok: "--tasty-separator", use: <><code>---</code> line (idle)</>, color: "var(--tasty-separator)" }, { tok: "--tasty-text-muted", use: <><code>---</code> line (hover)</>, color: "var(--tasty-text-muted)" }, { tok: "--tasty-surface-raised", use: "popup fill", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-menu-border", use: "edge", color: "var(--tasty-menu-border)" }, { tok: "--tasty-popup-content-margin", use: "inner ring 4 (all sides)" }, { tok: "--tasty-accent-danger", use: "delete row", color: "var(--tasty-accent-danger-raised)" }]} />
           <Note>Collapse state is per-category and <b>shared</b> with the full sidebar (both seed from the persisted <code>collapsed</code> flag in <code>layout.json</code>). Toggling here or in the full header updates the same state.</Note>
         </Spec>
+        <Spec id="remote-row-context-menu-by-connection-state" title="Saved remote workspace — the row menu by connection state"
+          when={<>A saved remote row's right-click menu is the workspace menu (the OS menu in the app: order, wording, separators and disabled items only) with one <b>connection group</b> and one <b>close group</b> at the end. The connection group is <b>Connect</b> (or <b>Reconnect</b> for a row that had a screen in this run, the popup's word) and <b>Disconnect</b>; each is <b>disabled, not hidden</b>, where it cannot act. When the remote workspace is <b>gone</b> (closed elsewhere in this run, or a connect found it missing: the popup's Remote workspace closed), Connect or Reconnect stays in its place, <b>disabled</b>, as on the popup: the workspace is gone, so it could only fail, and the row's tooltip and popup already give the reason, so the menu adds nothing. That is not kept across a restart: the row comes back not connected with Connect enabled, and a connect that finds the workspace still missing disables it again. The close group names <b>where</b> the closing happens: <b>Close locally</b> takes the row out of this Tasty and leaves the workspace running on the remote; <b>Close remote workspace…</b> ends it there and opens a confirmation, so it is last and carries the ellipsis. Nothing can reach the remote while the row is not connected, so that item is enabled only when connected. The menu opens with or without categories; the category block appears only with categories on. An agent mirror made from the CLI or IPC keeps today's menu.</>}>
+          <Stage variant="solo center" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-xl)", flexWrap: "wrap", alignItems: "flex-start" }}>
+            <CatMenu caption="connected · categories on"><RemoteRowMenuItems state="connected" categories={["Workspaces", "Services"]} /></CatMenu>
+            <CatMenu caption="connecting"><RemoteRowMenuItems state="connecting" /></CatMenu>
+            <CatMenu caption="reconnecting"><RemoteRowMenuItems state="reconnecting" /></CatMenu>
+            <CatMenu caption="disconnected (last screen kept)"><RemoteRowMenuItems state="disconnected" /></CatMenu>
+            <CatMenu caption="not connected (after a restart)"><RemoteRowMenuItems state="not_connected" /></CatMenu>
+            <CatMenu caption="remote workspace closed (this run) · Reconnect disabled"><RemoteRowMenuItems state="disconnected" closed /></CatMenu>
+            <CatMenu caption="remote workspace missing, no screen in this run (not connected) · Connect disabled"><RemoteRowMenuItems state="not_connected" closed /></CatMenu>
+          </Stage>
+          <Views>
+            <View name="remote-row-menu-languages" label="ko, ja, zh-Hans — connected, disconnected and closed elsewhere">
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-xl)", alignItems: "flex-start" }}>
+                {["ko", "ja", "zh-Hans"].flatMap((lang) => [
+                  <CatMenu key={lang + "c"} caption={lang + " · connected"}><RemoteRowMenuItems state="connected" lang={lang} /></CatMenu>,
+                  <CatMenu key={lang + "d"} caption={lang + " · disconnected"}><RemoteRowMenuItems state="disconnected" lang={lang} /></CatMenu>,
+                  <CatMenu key={lang + "x"} caption={lang + " · closed elsewhere"}><RemoteRowMenuItems state="disconnected" closed lang={lang} /></CatMenu>,
+                ])}
+              </div>
+            </View>
+          </Views>
+          <Meta
+            specs={[["order", "Rename · Change Subtitle | Move Up · Move Down | Save as workspace preset | (categories) | Connect or Reconnect · Disconnect | Close locally · Close remote workspace…"], ["Connect / Reconnect", "enabled: disconnected, not connected · disabled: connected, connecting, reconnecting, and when the remote workspace is gone in this run (closed elsewhere, or a connect or Reconnect found it missing: the popup's Remote workspace closed) · Reconnect when the row had a screen in this run (row word disconnected), Connect when it had none (row word not connected, after a restart too) · disabled keeps its place and its label, no reason line · not kept across a restart: the row is not connected and Connect is enabled, and a connect that finds the workspace still missing is Remote workspace closed again with Connect disabled · every other refused connect is Connection failed with Connect still enabled"], ["remote workspace closed", "two forms · the row had a screen in this run: disconnected, Reconnect disabled — the same as disconnected but for Reconnect · no screen in this run (after a restart too): not connected, Connect disabled — the same as not connected but for Connect · both: Disconnect disabled (not connected to anything) · Close locally enabled, removes the row · Close remote workspace… disabled"], ["Disconnect", "enabled: connected, connecting, reconnecting · disabled: disconnected, not connected · while connecting or reconnecting it cancels the attempt in progress and leaves the row disconnected by the user, the popup's user-disconnected form (decided, R-58 Q2; looked at again if L1 = b) · no automatic reconnect after it"], ["Close locally", "always · the remote workspace keeps running · no confirmation"], ["Close remote workspace…", "connected only · opens the confirmation (Dialogs › Close remote workspace)"], ["replaces", "Disconnect Workspace and Close Workspace on a saved remote row"], ["Force detach", "not on this menu · a saved remote row is a mirror and no other client can hold one, so the item and its separator are left out, not disabled (local workspace menus only)"], ["agent mirror", "today's menu, unchanged · no Force detach either"]]}
+            tokens={[]} />
+          <Note>Copy: <code>remote.row.popup.connect</code> · <code>child_graph.reconnect</code> · <code>remote.row.menu.disconnect</code> · <code>remote.row.menu.close_local</code> · <code>remote.row.menu.close_remote</code>. The other items keep their current keys and English, shown here as the app has them.</Note>
+          <Dont><b>Don't</b> label the local one plain “Close”. On a remote row the word alone reads as closing the remote workspace, which is the other item.</Dont>
+        </Spec>
       </Section>
       <Section id="notices" title="Notice column — restore failure · save halt · response wait">
         {GalleryNoticeColumn ? <GalleryNoticeColumn /> : null}
       </Section>
       <Section id="webview" title="Over a web page — opaque mode">
         {GalleryWebviewOpaque ? <GalleryWebviewOpaque /> : null}
+        <GalleryToastOverPage />
       </Section>
     </>
   );

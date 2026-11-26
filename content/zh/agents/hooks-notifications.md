@@ -1,4 +1,4 @@
-<!-- source-hash: 92f6a783624e -->
+<!-- source-hash: 21fd371b7d22 -->
 # 钩子、通知和 Webhook
 
 钩子按 Tasty 事件执行操作，通知在应用内显示待查看事项。Webhook 接收外部服务的 HTTP 请求。按需选择并配置。
@@ -34,11 +34,13 @@ tasty unset hook --hook <HOOK_ID>
 | `claude-idle` / `needs-input` / `codex-idle` | Claude Code / Codex 插件发送的事件（[Claude · Codex](claude-codex.md)） |
 | `claude-stop-failure` | Claude Code 的轮次因 API 错误（服务器过载、请求限制、认证失败等）结束时。通常与 `claude-idle` 一同到达；若仍有后台任务，则只发送此事件 |
 | `claude-error` | Claude Code 屏幕输出出现已知错误文本时 |
-| `claude-error-stalled` | Claude Code 输出默认 10 分钟（可配置）未变化时。轮次中最后一次输出有错误时，固定为 30 秒；排除仅剩 Monitor 的等待（[各类等待的阈值和接收条件](claude-codex.md#4-接收完成通知)） |
+| `claude-error-stalled` | Claude Code 输出默认 10 分钟（可配置）未变化时。未等待后台任务且近期输出包含错误时，阈值固定为 30 秒。Tasty 仅从无输出判定中排除识别为 Monitor 的任务。如果旧版钩子将 Monitor 报告为 Shell 任务，该任务仍在通知判定范围内（[各类等待的阈值和接收条件](claude-codex.md#4-接收完成通知)） |
 
-- 加上 `--once` 后，执行一次即自动删除。默认持续保留。
-- 钩子命令在后台执行，不阻塞终端输入。
+- 加上 `--once` 后，首次匹配事件时会删除钩子，即使命令未能执行。默认保留注册。
+- 钩子命令在后台执行，不阻塞终端输入。标准输入、标准输出和标准错误均连接到空设备。要保留输出，可将输出重定向到文件，或用 `tasty notify` 发送消息。Shell 退出后，钩子执行结束。Shell 启动的后台任务仍可继续运行。
 - 没有 Shell 集成时，`command-completed` 绝不会触发。缺少 Shell 集成的本地 Surface 会显示一次提示横幅，10 秒后自动关闭。
+
+Surface 钩子的 Shell 命令（`tasty set hook --command` 或 Shell 命令处理器）、通过 `tasty hook-handler dispatch` 直接运行的 Shell 命令和全局钩子（`tasty set global-hook`）共用同一个执行器。并发执行和排队等待的命令数各有上限。执行名额和等待队列都满时，该命令不会执行，也不会自动重试。Tasty 退出时仍在排队的命令会被丢弃，不会执行或发送通知。
 
 事件信息通过环境变量传入命令。
 
@@ -56,7 +58,7 @@ tasty unset hook --hook <HOOK_ID>
 
 ## 全局钩子
 
-按时间条件执行，与 Surface 无关。
+全局钩子按时间或文件变更条件执行，无需绑定到特定 Surface。全局钩子命令继承 Tasty 的标准输入、标准输出和标准错误。
 
 ```sh
 tasty set global-hook --condition interval:60 --command "df -h > ~/disk.log" --label "磁盘记录"
@@ -67,8 +69,14 @@ tasty unset global-hook --hook <HOOK_ID>
 
 | 条件 | 含义 |
 |---|---|
-| `interval:<秒>` | 每 N 秒重复执行 |
-| `once:<秒>` | N 秒后执行一次并删除 |
+| `interval:<秒>` | 每 N 秒尝试执行 |
+| `once:<秒>` | N 秒后删除钩子并尝试执行一次 |
+| `file:<路径>` | 文件修改时间变化时尝试执行 |
+
+如果同一钩子的上一次命令仍在排队或运行，则跳过本轮。跳过记录只写入调试日志。
+
+- `interval` 钩子从跳过时起等待下一个完整周期。
+- `file` 钩子的上一次命令排队或运行期间，即使文件多次变化，也会在该命令结束后的下一次检查中检测到变化时只尝试执行一次。如果请求因 Shell 命令队列已满而被拒绝，钩子要等到文件修改时间再次变化才会尝试执行。
 
 ## 钩子处理器（可复用的操作）
 
@@ -82,7 +90,13 @@ tasty hook-handler dispatch --id user/my-handler            # 直接执行以测
 tasty hook-handler reload                                   # 重新读取 ~/.tasty/hook-handlers.toml
 ```
 
-`dispatch` 先输出表示已接收的一行（含 `run` 编号），然后等待执行结束并输出结果行。结果中的 `state` 在全部成功时为 `succeeded`，部分成功时为 `partial`，全部失败时为 `failed`，未收到响应、无法确定结果时为 `unknown`；`result` 和 `steps` 会说明哪个步骤因何失败。Shell 命令处理器在进程启动后即视为成功，结束时的退出码仅供参考。结果不是 `succeeded` 时，命令以退出码 1 结束。不想等待时，加上 `--no-wait`，之后通过 `tasty hook-handler result --run <编号>` 查看结果。
+`dispatch` 接收请求后，输出包含 `run` 编号的一行并等待结果。操作列表的最终 `state` 为 `succeeded`、`partial`、`failed` 或 `unknown`。在 `result` 中查看执行摘要，在 `steps` 中查看各步骤的状态和错误。状态为 `succeeded` 时退出码为 0，其他状态的退出码为 1。
+
+Shell 命令处理器排队期间显示 `running`。确认进程启动后，`dispatch` 返回 `succeeded` 并以退出码 0 结束。如果未能及时确认启动，则以退出码 1 结束，排队中的命令之后仍可能执行。确认进程退出码后，查询结果的 `exit_code` 会显示该值。在此之前，`exit_code` 为 `null`。如果无法确认进程是否退出，查询结果可能变为 `failed`。
+
+请求在接收前被拒绝时，`dispatch` 输出错误，不返回 `run` 编号，并以退出码 1 结束。加上 `--no-wait` 后，仅输出接收响应。可以用 `tasty hook-handler result --run <编号>` 查询结果。
+
+运行记录被淘汰后，即使命令仍在排队，查询也会失败。此时，正在等待结果的 `dispatch` 在标准输出中只保留接收行，向标准错误流输出消息，并以退出码 1 结束。排队中的命令之后仍可能执行。
 
 也可通过命令**修改或新建**处理器。未填写的项保持原样，因此，
 可保留名称，仅更改执行的操作（引用该处理器的钩子会随之更新）。
@@ -117,7 +131,13 @@ args = ["notify", "命令失败", "--title", "hook"]
 
 设为 `kind = "ipc_sequence"` 时，执行 Tasty 内部操作列表（`calls = [{ method = "...", params = {} }]`），代替 Shell。TOML 没有 null，因此，params 中需要 null 值时，使用 JSON 字符串代替 `params`，例如 `params_json = '{"a":null}'`。通过 `tasty hook-handler upsert` 保存时，会自动写为此格式。
 
-钩子自动执行失败时，会在通知列表中留下记录。因处理器已删除或无法启动命令而完全未执行时，记为**错误**；操作列表仅部分步骤失败，或未及时收到响应、无法确定结果时，记为**警告**。Surface 钩子的通知附属于该钩子所在的 Surface。Shell 命令以非 0 退出码结束不视为失败。相同失败在短时间内反复发生时，每 10 秒仅记录一次。
+Surface 钩子的通知附属于该钩子所在的 Surface。如果 Surface 在通知到达前已关闭，或通知来自全局钩子，通知会显示在当前活动的工作区。
+
+Surface 钩子或全局钩子的 Shell 命令无法进入队列或无法启动时，会在通知列表中留下**错误**。Surface 钩子的通知标题为 `钩子失败`，全局钩子的通知标题为 `全局钩子失败`。Shell 命令队列已满时，通知正文如下。
+
+> `“echo hello”未运行，因为已有 256 条钩子命令在等待启动。`
+
+Surface 钩子的处理器不存在或操作列表执行失败时，会记录**错误**。操作列表部分失败或结果未知时，会记录**警告**。操作列表被拒绝时，**错误**通知会显示处理器名称和原因。Shell 命令以非 0 退出码结束不视为失败。相同失败在短时间内反复发生时，每 10 秒仅记录一次。直接运行 `dispatch` 时，通过命令响应获取失败信息。
 
 ## 通知
 
@@ -153,7 +173,9 @@ tasty notification read --all --workspace 12
 - **通知面板**——点击摘要或按 `Ctrl+Shift+I` 打开。按从新到旧的顺序显示级别、标题、正文、来源和经过时间，仅打开或关闭面板不会标为已读。点击行或**展开** <!-- en: More --> 会展开全文，并将该通知标为已读。可用勾选按钮处理单条通知，或用**全部标为已读** <!-- en: Mark all read --> 处理所属窗口的通知。**跳转** <!-- en: Jump --> 会前往发送通知的 Surface 或工作区。来源关闭后仍保留记录，跳转按钮禁用。可在标题栏切换全屏。新通知到达时，不会自动打开面板，也不会将正在查看的列表滚动到顶部。现有通知合并内容、正文变长时，也会保留阅读位置。
 - **Surface 边框**——发生通知的 Surface 显示蓝色边框。Tasty 窗口处于活动状态时，将焦点移至该 Surface 即会消失。使用其他应用期间会保留，返回窗口后消失。
 - **侧边栏徽章**——包含需注意 Surface 的工作区行会显示数量徽章。
-- **声音**——在设置中启用后，每条通知播放一次系统提示音。
+- **声音**——在设置中启用后，每条新通知播放一次系统提示音。合并到现有通知时不播放声音。
+
+远程附加时，边框和徽章的显示取决于服务器。详见[附加期间的通知](#remote-attach-notifications)。
 
 不会发送到 OS 通知中心（系统通知）。若要在使用其他应用期间也能察觉，请启用声音。
 
@@ -168,8 +190,18 @@ sound = false         # 声音
 coalesce_ms = 500     # 通知合并间隔 (ms) — 将同一来源的连续通知合并为一条
 
 [general]
-bell_notification = true   # 显示响铃通知（关闭时仅抑制响铃短暂提示，bell 钩子仍会触发）
+bell_notification = true   # 显示响铃通知（在 GUI 中关闭此选项后，已注册的 bell 钩子仍会运行）
 ```
+
+<a id="remote-attach-notifications"></a>
+
+### 附加期间的通知
+
+通过 GUI 附加且两端的 Tasty 均支持此功能时，已附加工作区的通知声音在本机播放。是否播放由本地的 `notification.sound` 设置决定。
+
+- 连接 **GUI 服务器**时，服务器创建的新通知会在本机播放一次声音。因连接问题或画面恢复漏播声音时，服务器仍会保留通知记录。重新连接后不会补播。要让 OSC 通知或终端响铃发出声音，服务器需要创建对应的通知。服务器会保留待关注提示，并运行已注册的钩子。本地通知设置也决定本机界面是否显示 OSC 通知和响铃通知。
+- 连接**无界面服务器**时，由本地 Tasty 创建 OSC 通知和响铃通知。要接收这些通知，请开启本地的 `notification.enabled`。响铃通知还需要开启 `general.bell_notification`。这些通知会显示在本地通知面板中。这些通知不会为镜像中的 Surface 添加边框，也不会在侧边栏的工作区行上添加徽章。OSC 通知和响铃不会在服务器上生成通知或待关注提示，也不会触发服务器上的钩子。服务器通过 `tasty notify` 等单独请求创建的通知会保存在服务器上，声音可以在本机播放。
+- 通过 **CLI 或旧版 GUI** 附加时，GUI 服务器会按自身设置播放声音。无界面服务器本身不会播放声音。
 
 ### 等待人工决定（批准）
 
@@ -185,6 +217,7 @@ tasty approval await --id "$ID"            # 等待响应，以 JSON 输出结�
 - 弹窗不会获取键盘焦点。原本在终端或文档中输入的文字仍会输入到原处。若要用数字键选择，先点击弹窗标题或空白处。按钮可直接点击。正在 Markdown、HTML 文档中输入时，该文档可能遮住与弹窗重叠的部分。也可通过同时发送的通知查看请求。
 - 在评论框中输入时，数字会作为评论文字输入，不会选择选项。写完评论后若要用数字键选择，按 Tab 离开评论框，或点击弹窗空白处。
 - `--severity info` 仅发送通知，不显示弹窗；`warn`/`danger` 显示弹窗并发送通知。`danger` 必须由用户直接响应。
+- 批准弹窗关闭期间处理完毕的请求会从待处理列表中移除，不会再次出现在弹窗中。
 - 弹窗不能用 Esc 关闭（防止绕过）。通过 `tasty approval list` / `get` / `history` 查询。
 - `approval await` 仅供用户使用。通过会话令牌（`TASTY_SESSION_TOKEN`）连接的智能体无法调用，请通过 `tasty approval get --id "$ID"` 查看状态（需要 `approval` 权限）。
 - `--metadata` 的 `kind` 不能使用 `capability_elevation`。该值专用于智能体权限请求，使用时会拒绝请求。请通过 `tasty plugin request-permission` 请求智能体权限。
@@ -211,7 +244,7 @@ tasty --webhook-port 28500          # 仅本次运行使用此端口启动
 - **已指定端口时**（`--webhook-port` 或 `tasty webhook port <N>`，同时指定时优先使用 `--webhook-port`），仅使用该端口。若被其他程序占用，不会切换到其他端口，而是**在不启用 Webhook 的情况下启动**。终端可正常使用，通知列表会留下一条包含端口、原因和解决方法的警告。此时 Webhook 地址（包括已保存的 `--persistent` Webhook）不会响应，但注册仍会保留，修正端口并重新启动后，可继续使用相同注册接收请求。地址中的端口会变为本次运行开放的端口，因此请通过 `tasty webhook list` 查看实际地址。`tasty webhook port` 会显示 `bound: false`，并在 `unavailable` 中显示无法开放的端口和原因。请使用其他端口启动；若为已保存的端口，执行 `tasty webhook port --unset`（删除）或 `tasty webhook port <空闲端口>`（更改）后重新启动。即使 Tasty 未运行，这两条命令也会直接修改 `~/.tasty/webhooks.toml`，并告知已如此处理。Tasty 正在运行时，从下次启动起生效。
 - `tasty webhook config --port <N>` 为旧名称，已不再推荐使用（deprecated）。目前仍与 `tasty webhook port <N>` 完全相同。
 - 端口因占用而不再使用 `28429`，且存在通过 `--persistent` 保存的 Webhook 时，会在通知列表留下警告。已保存 Webhook 的地址端口也会改变，请通过 `tasty webhook list` 查看新 URL。地址不能改变时，请指定端口。
-- Tasty 已运行时，若使用不同的 `--webhook-port` 再次启动，不会转交给正在运行的 Tasty，而是显示提示后结束。端口相同时，会照常在正在运行的 Tasty 中打开新窗口。
+- 使用同一数据文件夹重新启动发布版 GUI 并指定 `--webhook-port` 时，只有在请求转交过程中确认了运行中的 GUI 实例的连接信息，才会查询其 Webhook 端口。如果确认端口不同，或没有端口在监听 Webhook，会显示提示并以退出码 1 结束，不会转交请求。端口相同时，会照常尝试转交请求。查询失败时，会记录警告，再尝试转交请求。 无界面构建不会转交请求或比较端口。启动时如果数据文件夹的锁仍被占用，会在启动 Webhook 前退出。详情见[重新运行 Tasty 时](../help/troubleshooting.md#重新运行-tasty-时)。
 - 旧版本自动写入的 `port = 28429` 会在首次运行时删除，改为自动选择。手动指定的其他端口保持不变。
 - **默认情况下，Webhook 服务器仅接收来自本机（`127.0.0.1`）的调用。**若其他计算机或 CI 需要直接调用，启用**设置 → 常规 → 接收其他计算机的 Webhook 调用**，或执行 `tasty webhook allow-external on` 后重新启动 Tasty。在 `~/.tasty/config.toml` 的 `[webhook]` 下写入 `allow_external = true` 效果相同。启用后，会在所有 IPv4 网络接口（`0.0.0.0`）上接收，因此主机防火墙允许时，同一网络（公司内网、公共 Wi-Fi 等）无需路由器转发即可访问。请检查防火墙和认证设置。HTTPS 由前置反向代理处理。
 

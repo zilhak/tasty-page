@@ -7,6 +7,8 @@ import { Input } from "../../../components/forms/Input.jsx";
 import { Select } from "../../../components/forms/Select.jsx";
 import { DrillDown } from "../../../components/navigation/DrillDown.jsx";
 import { Icon } from "../chrome.jsx";
+import { useDraft } from "./settings_draft.jsx";
+import { useKbpDrafts, kbpLabel, KBP_PLUGINS } from "./kb_plugins_subtab.jsx";
 
 // Tasty UI kit — Settings › Keybindings › Import / Export.
 // Borrows the Preset
@@ -17,8 +19,15 @@ import { Icon } from "../chrome.jsx";
 //   • A per-row SELECT column (partial apply — user decision §6-2).
 //   (The OPTION MIGRATION card was removed 2026-10-10 b12: Win / Super now record as `option`, so an
 //    option binding matches on every OS and nothing needs migrating.)
-// Apply writes the draft; the window footer's Save commits it (same 2-stage
-// contract as Preset). Rendered full-bleed — it owns its own scroll.
+// Apply writes the selected rows into the settings window's draft (settings_draft.jsx), the same draft the
+// other Keybindings subtabs read: a general, quick-switch or script row under "keybindings.bindings" (action ->
+// combo, read by KeyRow), a plugin row as its imported override under "keybindings.plugins.drafts" (pluginId/cmdId,
+// read by the Plugins subtab). A plugin row's Current shows the override in effect, Inherit as @source. It is
+// changed when its override value differs from the imported one: no override and an explicit override with the
+// same keys or source are different values. The window footer's Save commits it and Cancel drops it (same 2-stage contract as
+// Preset). The preview stays after Apply and the draft outlives a tab switch, so Current shows
+// the drafted combo and an applied row leaves the default Changed only view. Apply is disabled only when no row is
+// selected; a file that cannot be read shows no Apply. Rendered full-bleed — it owns its own scroll.
 
 
 
@@ -45,13 +54,29 @@ const IE_GROUPS = [
     { action: "rotate-logs.lua", cur: "None", next: "Ctrl+Alt+2" },
   ] },
   { id: "plugins", label: "Plugin overrides", rows: [
-    { action: "open panel", plugin: "git-helper", cur: "Ctrl+Alt+G", next: "Ctrl+Alt+G" },
-    { action: "review staged", plugin: "ai-review", cur: "Ctrl+Alt+R", next: "Ctrl+Shift+R" },
+    // Commands of the Plugins subtab's kit plugins (kb_plugins_subtab.jsx), so an applied row shows there. ov is the
+    // imported override; next is its line (kbpLabel), and cur the line of the command's manifest default.
+    { action: "Stage hunk", plugin: "git-helper", cmd: "stage", ov: { mode: "custom", keys: "ctrl+alt+g" } },
+    { action: "Open clipboard viewer", plugin: "clipboard-viewer", cmd: "open", ov: { mode: "custom", keys: "ctrl+shift+y" } },
+    { action: "Paste last entry as plain text", plugin: "clipboard-viewer", cmd: "paste-plain", ov: { mode: "inherit", source: "clipboard.paste" } },
   ] },
 ];
 
 // Quick-switch modifier combos (non-macOS now includes option = Win / Super: 15 combos).
 const MODIFIER_COMBOS = ["Ctrl", "Alt", "Shift", "Ctrl+Alt", "Ctrl+Shift", "Alt+Shift", "Ctrl+Alt+Shift"];
+
+// Two plugin overrides as values: absent equals only absent; otherwise the same mode and the same keys or source.
+const ieKeys = (k) => (k || "").split(",").map((c) => c.replace(/\s+/g, "").toLowerCase()).filter(Boolean).join(",");
+const ieSameOverride = (a, b) => {
+  if (!a || !b) return !a && !b;
+  if (a.mode !== b.mode) return false;
+  if (a.mode === "custom") return ieKeys(a.keys) === ieKeys(b.keys);
+  if (a.mode === "inherit") return a.source === b.source;
+  return true;
+};
+// A plugin row's command in the Plugins subtab's list, and its manifest default (what applies with no override).
+const ieManifest = (r) => KBP_PLUGINS.find((p) => p.id === r.plugin).commands.find((c) => c.id === r.cmd).manifest;
+IE_GROUPS.forEach((g) => g.rows.forEach((r) => { if (r.plugin) { r.next = kbpLabel(r.ov); r.cur = kbpLabel(ieManifest(r)); } }));
 
 const IE_DISCARDED = ["k8s-lens", "s3-browser"];
 
@@ -60,7 +85,7 @@ const microCaps = { fontFamily: "var(--tasty-font-label)", fontSize: 10, textTra
   letterSpacing: "var(--tasty-letter-spacing-caps)" };
 
 // ── Diff grid — 4 columns (select · action · current · imported) ─────────
-function IeDiffTable({ groups, changedOnly, collapsed, onToggleGroup, sel, onSel }) {
+function IeDiffTable({ groups, changedOnly, collapsed, onToggleGroup, sel, onSel, cur = (g, r) => r.cur, isChanged = (g, r) => cur(g, r) !== r.next }) {
   const head = { ...microCaps, color: "var(--tasty-text-muted)",
     padding: "0 var(--tasty-space-md) var(--tasty-space-sm)", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" };
   const cell = { padding: "var(--tasty-space-sm) var(--tasty-space-md)", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)",
@@ -72,7 +97,7 @@ function IeDiffTable({ groups, changedOnly, collapsed, onToggleGroup, sel, onSel
       <div style={{ ...head }}>Current</div>
       <div style={{ ...head }}>Imported</div>
       {groups.map((g) => {
-        const rows = changedOnly ? g.rows.filter((r) => r.cur !== r.next) : g.rows;
+        const rows = changedOnly ? g.rows.filter((r) => isChanged(g, r)) : g.rows;
         const isOpen = !collapsed[g.id];
         const on = rows.length > 0 && rows.every((r) => sel[g.id + r.action] !== false);
         return (
@@ -82,7 +107,7 @@ function IeDiffTable({ groups, changedOnly, collapsed, onToggleGroup, sel, onSel
                 It does NOT repeat the column headers. */}
             <div style={{ gridColumn: "1 / -1", display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)",
               padding: "var(--tasty-space-sm) var(--tasty-space-md)", background: "var(--tasty-surface-raised)",
-              borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
+              borderBottom: "var(--tasty-border-width) solid var(--tasty-border-strong)" }}>
               <Checkbox checked={on} onChange={() => onSel(g, !on)} aria-label={"Select all in " + g.label} />
               <button type="button" onClick={() => onToggleGroup(g.id)} style={{ border: 0, background: "transparent", cursor: "pointer",
                 display: "flex", alignItems: "center", gap: 6, padding: 0 }}>
@@ -92,11 +117,11 @@ function IeDiffTable({ groups, changedOnly, collapsed, onToggleGroup, sel, onSel
                 <span style={{ ...microCaps, color: "var(--tasty-text-secondary)" }}>{g.label}</span>
               </button>
               <span style={{ ...mono, fontSize: 11, color: "var(--tasty-text-muted)" }}>
-                {g.rows.filter((r) => r.cur !== r.next).length} changed · {g.rows.length} total
+                {g.rows.filter((r) => isChanged(g, r)).length} changed · {g.rows.length} total
               </span>
             </div>
             {isOpen && rows.map((r) => {
-              const changed = r.cur !== r.next;
+              const changed = isChanged(g, r);
               const key = g.id + r.action;
               return (
                 <React.Fragment key={key}>
@@ -114,9 +139,9 @@ function IeDiffTable({ groups, changedOnly, collapsed, onToggleGroup, sel, onSel
                     )}
                     {r.note && <span style={{ fontSize: 10, color: "var(--tasty-text-muted)" }}>{r.note}</span>}
                   </div>
-                  <div style={{ ...cell, ...mono, color: "var(--tasty-text-muted)" }}>{r.cur}</div>
+                  <div style={{ ...cell, ...mono, color: "var(--tasty-text-muted)" }}>{cur(g, r)}</div>
                   <div style={{ ...cell, ...mono,
-                    color: r.blocked ? "var(--tasty-accent-warning-raised)" : changed ? "var(--tasty-accent-primary)" : "var(--tasty-text-muted)" }}>{r.next}</div>
+                    color: r.blocked ? "var(--tasty-accent-warning-raised)" : changed ? "var(--tasty-accent-primary-raised)" : "var(--tasty-text-muted)" }}>{r.next}</div>
                 </React.Fragment>
               );
             })}
@@ -134,7 +159,7 @@ function IeActionRow({ glyph, title, desc, action, notice }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)",
       padding: "var(--tasty-kb-ie-notice-inset)", borderRadius: "var(--tasty-radius)",
-      background: "var(--tasty-surface-raised)", border: "var(--tasty-border-width) solid var(--tasty-border-default)" }}>
+      background: "var(--tasty-surface-raised)", border: "var(--tasty-border-width) solid var(--tasty-border-strong)" }}>
       <div style={{ display: "flex", alignItems: "flex-start", gap: "var(--tasty-space-md)" }}>
       <span style={{ display: "inline-flex", flex: "none", marginTop: 2, color: "var(--tasty-text-muted)" }}><Icon name={glyph} size={16} /></span>
       <div style={{ flex: 1, minWidth: 0 }}>
@@ -158,7 +183,7 @@ function IePickerPopup({ mode, onClose, onPick }) {
     <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center",
       background: "var(--tasty-scrim-bg)", zIndex: 3 }}>
       <div style={{ width: 420, background: "var(--tasty-bg-panel)", borderRadius: "var(--tasty-radius)",
-        border: "var(--tasty-border-width) solid var(--tasty-border-strong)", boxShadow: "var(--tasty-shadow-modal)", overflow: "hidden" }}>
+        border: "var(--tasty-border-width) solid var(--tasty-border-frame)", boxShadow: "var(--tasty-shadow-modal)", overflow: "hidden" }}>
         <div style={{ display: "flex", alignItems: "center", height: "var(--tasty-titlebar-height)", padding: "0 var(--tasty-space-sm) 0 var(--tasty-space-md)",
           background: "var(--tasty-bg-app)", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
           <span style={{ fontSize: 12, color: "var(--tasty-titlebar-fg)" }}>{mode === "export" ? "Export to…" : "Open keybinding file"}</span>
@@ -179,15 +204,29 @@ function IePickerPopup({ mode, onClose, onPick }) {
   );
 }
 
-// `variant` drives the specimen states: "ready" (entry), "detail", "failed", "exportfailed".
-function KbImportExportSubtab({ variant = "ready", onFlash, failLine = 1, failCause = "readonly", osError = "os error 28: No space left on device" }) {
+// `variant` drives the specimen states: "ready" (entry), "detail", "failed", "exportfailed". Gallery frames outside a
+// SettingsWindow seed the rest: seedBindings (keybindings.bindings already applied), seedSel (row selection by
+// group id + action, false = unselected) and changedOnly (the filter's first value).
+function KbImportExportSubtab({ variant = "ready", onFlash, failLine = 1, failCause = "readonly", osError = "os error 28: No space left on device",
+                                seedBindings = null, seedSel = null, changedOnly: changedOnly0 = true }) {
   const [view, setView] = React.useState(variant === "ready" || variant === "exportfailed" ? "list" : "detail");
   const [picker, setPicker] = React.useState(null);
-  const [changedOnly, setChangedOnly] = React.useState(true);
+  const [changedOnly, setChangedOnly] = React.useState(changedOnly0);
   const [collapsed, setCollapsed] = React.useState({});
-  const [sel, setSel] = React.useState({});
+  const [sel, setSel] = React.useState(seedSel || {});
   const [failed, setFailed] = React.useState(variant === "failed");
   const [exportError, setExportError] = React.useState(variant === "exportfailed" ? "~/tasty/" + IE_FILE : null);
+  // The window's keybinding draft, shared with the other Keybindings subtabs. Outside a SettingsWindow (a gallery
+  // specimen on its own) it is the subtab's own state.
+  const [bindings, setBindings] = useDraft("keybindings.bindings", seedBindings || {});
+  // The Plugins subtab's draft, with its Save step, so Save keeps an applied plugin row without that subtab opened.
+  const [, pluginDrafts, setPluginDrafts] = useKbpDrafts();
+  const pluginKey = (r) => r.plugin + "/" + r.cmd;
+  const cur = (g, r) => {
+    if (!r.plugin) return bindings[r.action] ?? r.cur;
+    // The override in effect: the draft's (which starts from the saved one), else the manifest default.
+    return kbpLabel(pluginDrafts[pluginKey(r)] ?? ieManifest(r));
+  };
   const onSel = (g, next, row) => setSel((s) => {
     const c = { ...s };
     (row ? [row] : g.rows).forEach((r) => { c[g.id + r.action] = next; });
@@ -195,16 +234,27 @@ function KbImportExportSubtab({ variant = "ready", onFlash, failLine = 1, failCa
   });
 
   const total = IE_GROUPS.reduce((n, g) => n + g.rows.length, 0);
-  const changed = IE_GROUPS.reduce((n, g) => n + g.rows.filter((r) => r.cur !== r.next).length, 0);
+  // A plugin row compares override values, not lines: the draft's override (none when absent) against the imported one.
+  const isChanged = (g, r) => (r.plugin ? !ieSameOverride(pluginDrafts[pluginKey(r)], r.ov) : cur(g, r) !== r.next);
+  const changed = IE_GROUPS.reduce((n, g) => n + g.rows.filter((r) => isChanged(g, r)).length, 0);
   const picked = IE_GROUPS.reduce((n, g) => n + g.rows.filter((r) => sel[g.id + r.action] !== false).length, 0);
+  // Apply writes every selected row: a general row's imported combo, a plugin row's imported override as it is, so a
+  // plugin row with no override gains one even when its keys are the manifest's.
+  const toApply = IE_GROUPS.flatMap((g) => g.rows.filter((r) => sel[g.id + r.action] !== false));
+  const apply = () => {
+    setBindings((b) => ({ ...b, ...Object.fromEntries(toApply.filter((r) => !r.plugin).map((r) => [r.action, r.next])) }));
+    setPluginDrafts((d) => ({ ...d, ...Object.fromEntries(toApply.filter((r) => r.plugin)
+      .map((r) => [pluginKey(r), r.ov])) }));
+    onFlash && onFlash("Applied to draft — press Save to commit");
+  };
 
   const detail = failed ? (
     // §6-6 — a broken file is a fact about the thing you were looking at, so it
     // is told INLINE in the detail area, not as a toast or a popup.
     <div style={{ padding: "var(--tasty-space-lg)" }}>
       <div style={{ borderRadius: "var(--tasty-radius)", padding: "var(--tasty-kb-ie-notice-inset)",
-        background: "color-mix(in srgb, var(--tasty-accent-danger) 12%, transparent)",
-        border: "var(--tasty-border-width) solid color-mix(in srgb, var(--tasty-accent-danger) 35%, transparent)" }}>
+        background: "var(--tasty-tint-danger-bg)",
+        border: "var(--tasty-border-width) solid var(--tasty-tint-danger-border)" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", color: "var(--tasty-accent-danger-raised)", fontSize: 13, fontWeight: 600 }}>
           <Icon name="alertCircle" size={16} /><span>This file can't be read as keybindings</span>
         </div>
@@ -236,7 +286,7 @@ function KbImportExportSubtab({ variant = "ready", onFlash, failLine = 1, failCa
           (<span style={mono}>{IE_DISCARDED.join(", ")}</span>).</span>
       </div>
       <IeDiffTable groups={IE_GROUPS} changedOnly={changedOnly} collapsed={collapsed}
-        onToggleGroup={(id) => setCollapsed((c) => ({ ...c, [id]: !c[id] }))} sel={sel} onSel={onSel} />
+        onToggleGroup={(id) => setCollapsed((c) => ({ ...c, [id]: !c[id] }))} sel={sel} onSel={onSel} cur={cur} isChanged={isChanged} />
     </div>
   );
 
@@ -252,8 +302,7 @@ function KbImportExportSubtab({ variant = "ready", onFlash, failLine = 1, failCa
               {changedOnly ? "Show all " + total : "Changed only"}
             </Button>
 
-            <Button variant="primary" size="sm" disabled={picked === 0}
-              onClick={() => onFlash && onFlash("Applied to draft — press Save to commit")}>Apply</Button>
+            <Button variant="primary" size="sm" disabled={picked === 0} onClick={apply}>Apply</Button>
           </div>
         )}
         detail={detail}
@@ -266,14 +315,14 @@ function KbImportExportSubtab({ variant = "ready", onFlash, failLine = 1, failCa
           <IeActionRow glyph="download" title="Export"
             desc="Writes every binding — general, quick switch, script bindings and plugin overrides — to one file."
             action={<Button variant="secondary" size="sm" disabled={!!exportError} onClick={() => setPicker("export")}>Export…</Button>}
-            notice={exportError && (
+            notice={exportError && (<>
               <div style={{ borderRadius: "var(--tasty-radius)", padding: "var(--tasty-kb-ie-notice-inset)",
-                background: "color-mix(in srgb, var(--tasty-accent-danger) 12%, transparent)",
-                border: "var(--tasty-border-width) solid color-mix(in srgb, var(--tasty-accent-danger) 35%, transparent)" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", color: "var(--tasty-accent-danger-raised)", fontSize: 13, fontWeight: 600 }}>
-                  <Icon name="alertCircle" size={16} /><span>The export wasn't written</span>
+                background: "var(--tasty-tint-danger-bg)",
+                border: "var(--tasty-border-width) solid var(--tasty-tint-danger-border)" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", color: "var(--tasty-accent-danger-strong)", fontSize: 13, fontWeight: 600 }}>
+                  <span style={{ display: "inline-flex", color: "var(--tasty-accent-danger-raised)" }}><Icon name="alertCircle" size={16} /></span><span>The export wasn't written</span>
                 </div>
-                <p style={{ margin: "4px 0 0", fontSize: 12, color: "var(--tasty-text-secondary)", maxWidth: "var(--tasty-measure-md)", lineHeight: "var(--tasty-line-height-ui)" }}>
+                <p style={{ margin: "4px 0 0", fontSize: 12, color: "var(--tasty-text-on-active)", maxWidth: "var(--tasty-measure-md)", lineHeight: "var(--tasty-line-height-ui)" }}>
                   {/* The middle clause comes from a FIXED set; an unknown cause falls
                       back to "the write didn't finish." and the OS string goes on its
                       own muted line below — never spliced into the sentence. */}
@@ -283,15 +332,17 @@ function KbImportExportSubtab({ variant = "ready", onFlash, failLine = 1, failCa
                         : "the write didn't finish."} Nothing was written.
                 </p>
                 {failCause === "other" && osError && (
-                  <div style={{ ...mono, marginTop: "var(--tasty-space-xs)", fontSize: 11, color: "var(--tasty-text-muted)",
+                  <div style={{ ...mono, marginTop: "var(--tasty-space-xs)", fontSize: 11, color: "var(--tasty-text-on-active)",
                     overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "var(--tasty-measure-md)" }} title={osError}>{osError}</div>
                 )}
-                <div style={{ marginTop: "var(--tasty-space-sm)", display: "flex", gap: "var(--tasty-space-sm)" }}>
-                  <Button variant="secondary" size="sm" onClick={() => setExportError(null)}>Try again</Button>
-                  <Button variant="ghost" size="sm" onClick={() => { setExportError(null); setPicker("export"); }}>Choose another location…</Button>
-                </div>
               </div>
-            )} />
+              {/* The actions sit under the tint, on the card's own raised ground: Button has
+                  contracts for raised (ground="raised"), none for a tint host. */}
+              <div style={{ display: "flex", gap: "var(--tasty-space-sm)" }}>
+                <Button variant="secondary" ground="raised" size="sm" onClick={() => setExportError(null)}>Try again</Button>
+                <Button variant="ghost" ground="raised" size="sm" onClick={() => { setExportError(null); setPicker("export"); }}>Choose another location…</Button>
+              </div>
+            </>)} />
           <IeActionRow glyph="file" title="Import"
             desc="Reads a keybinding file and shows the changes against your current bindings before anything is written."
             action={<Button variant="primary" size="sm" onClick={() => setPicker("import")}>Import…</Button>} />

@@ -52,7 +52,7 @@ function GBadge({ tone, dot, width, title, children }) {
   if (!c) return <span title={title} style={{ ...base, color: "var(--tasty-tag-fg)",
     borderColor: "var(--tasty-border-default)", background: "var(--tasty-tag-bg)" }}>{children}</span>;
   return (
-    <span title={title} style={{ ...base, color: GV_TONE_FG[tone], borderColor: `color-mix(in srgb, ${c} 40%, transparent)`,
+    <span title={title} style={{ ...base, color: GV_TONE_FG[tone], borderColor: `var(--tasty-tint-${tone}-border)`,
       background: "var(--tasty-tag-bg)" }}>
       {dot && <span style={{ width: 5, height: 5, borderRadius: "var(--tasty-radius-pill)", background: "currentColor", flex: "none" }} />}
       {children}
@@ -72,7 +72,7 @@ function PaneHead({ children, right }) {
 }
 function EmptyLine({ children }) {
   return <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "var(--tasty-space-lg)",
-    fontSize: "var(--tasty-font-size-term-sm)", fontStyle: "italic", color: "var(--tasty-text-muted)" }}>{children}</div>;
+    fontSize: "var(--tasty-font-size-term-sm)", fontStyle: "var(--tasty-font-style-absent)", color: "var(--tasty-text-muted)" }}>{children}</div>;
 }
 
 // ── worktree rail row — 2 lines so name + oid + badges never overflow 232px ──
@@ -142,21 +142,23 @@ function DiffLine({ d }) {
   const add = d.kind === "+";
   const del = d.kind === "-";
   const fg = hunk ? "var(--tasty-accent-info-raised)" : add ? "var(--tasty-accent-success-raised)" : del ? "var(--tasty-accent-danger-raised)" : "var(--tasty-text-primary)";
-  const bg = hunk ? "color-mix(in srgb, var(--tasty-accent-info) 9%, transparent)"
-    : add ? "color-mix(in srgb, var(--tasty-accent-success) 10%, transparent)"
-    : del ? "color-mix(in srgb, var(--tasty-accent-danger) 10%, transparent)" : "transparent";
+  const bg = hunk ? "var(--tasty-git-diff-hunk-bg)"
+    : add ? "var(--tasty-git-diff-add-bg)"
+    : del ? "var(--tasty-git-diff-del-bg)" : "transparent";
+  // line numbers take the text-muted cell of the row: crust on a context row, tint-<hue>@crust on a filled row
+  const num = add || del ? "var(--tasty-text-muted-raised)" : "var(--tasty-text-muted)";
   return (
     <div style={{ display: "flex", fontFamily: "var(--tasty-font-mono)", fontSize: 11, lineHeight: 1.65, background: bg, color: fg }}>
-      <span style={{ width: 34, textAlign: "right", flex: "none", color: "var(--tasty-text-disabled)", paddingRight: 6, userSelect: "none" }}>{hunk ? "" : d.old}</span>
-      <span style={{ width: 34, textAlign: "right", flex: "none", color: "var(--tasty-text-disabled)", paddingRight: 8, userSelect: "none" }}>{hunk ? "" : d.new}</span>
-      <span style={{ width: 14, flex: "none", textAlign: "center", userSelect: "none", opacity: 0.8 }}>{hunk ? "" : d.kind === " " ? "" : d.kind}</span>
+      <span style={{ width: 34, textAlign: "right", flex: "none", color: num, paddingRight: 6, userSelect: "none" }}>{hunk ? "" : d.old}</span>
+      <span style={{ width: 34, textAlign: "right", flex: "none", color: num, paddingRight: 8, userSelect: "none" }}>{hunk ? "" : d.new}</span>
+      <span style={{ width: 14, flex: "none", textAlign: "center", userSelect: "none" }}>{hunk ? "" : d.kind === " " ? "" : d.kind}</span>
       <span style={{ whiteSpace: "pre", paddingRight: 12 }}>{d.text}</span>
     </div>
   );
 }
 
 const gvFrame = { width: 960, height: 640, display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)",
-  border: "var(--tasty-border-width) solid var(--tasty-border-strong)", borderRadius: "var(--tasty-radius)",
+  border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)",
   overflow: "hidden", boxShadow: "var(--tasty-shadow-modal)" };
 
 function GitViewer({ onClose, onFlash, repo }) {
@@ -280,7 +282,7 @@ function GitViewer({ onClose, onFlash, repo }) {
         {Header}
         {r.error && (
           <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-sm) var(--tasty-size-14)", flex: "none",
-            background: "color-mix(in srgb, var(--tasty-accent-danger) 10%, transparent)",
+            background: "var(--tasty-tint-danger-bg)",
             borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)", fontSize: 12, color: "var(--tasty-accent-danger-raised)" }}>
             <Icon name={GV.warn} size={14} />{r.error}
           </div>

@@ -189,6 +189,7 @@ export default {
   },
   diagrams: {
     windowAnatomy: {
+      name: "윈도우 구성도",
       titlebar: "타이틀바",
       sidebar: "사이드바",
       tabstrip: "탭 스트립",
@@ -196,6 +197,7 @@ export default {
       statusbar: "상태바",
       workspaces: "워크스페이스",
     },
+    settingsWindow: { name: "설정 윈도우 구성도" },
     workflow: {
       caption: "디자인 컴포넌트로 구성한 배치 예시입니다. 실제 터미널은 아래 순서로 만들어 보세요.",
       labels: ["구현하는 곳", "테스트하는 곳"],
