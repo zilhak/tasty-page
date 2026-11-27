@@ -27,6 +27,9 @@ import { Scrim } from "./shared.jsx";
 // fallback glyph for any command without a specific icon (the ~41 other fields)
 const icCommand = <Icon name="command" />;
 
+// The layout effect runs only in the browser; a server render (the gallery's static frames) takes the plain effect.
+const useBeforePaint = typeof window === "undefined" ? React.useEffect : React.useLayoutEffect;
+
 const PALETTE_COMMANDS = [
   { label: "New Workspace", sc: "Ctrl+Shift+N", icon: ic.plus, bound: true },
   { label: "New Terminal", sc: "Ctrl+T", icon: ic.term, bound: true },
@@ -48,10 +51,26 @@ const PALETTE_COMMANDS = [
 // an empty query the arrows move a selection that is not drawn and Enter runs it. The pointer tints the row under it
 // and a click runs that row; neither moves the selection. commands: the rows ({ label, sc, icon }), the kit's
 // illustrative list unless a host passes its own (the gallery's short-screen frame passes the app's first rows).
-function PaletteCard({ query = "", onQuery, onRun, autoFocus = false, commands = PALETTE_COMMANDS }) {
+// The list keeps the selected row in view: each time the selection moves, the list scrolls the least that shows the
+// whole row, so Enter never runs a row the list hides, and each query change shows the list from its top, where the
+// first match is. This holds with an empty query too, where the row is not drawn but Enter runs it.
+// initialSelected: the row selected at open (a gallery frame freezes a moved selection with it; the app opens on 0).
+function PaletteCard({ query = "", onQuery, onRun, autoFocus = false, commands = PALETTE_COMMANDS, initialSelected = 0 }) {
   const items = commands.filter((i) => i.label.toLowerCase().includes(query.toLowerCase()));
-  const [sel, setSel] = React.useState(0);
+  const [sel, setSel] = React.useState(initialSelected);
   const selected = Math.min(sel, Math.max(items.length - 1, 0));
+  const listRef = React.useRef(null);
+  useBeforePaint(() => {
+    const list = listRef.current;
+    const row = list && list.querySelector(`[data-palette-row="${selected}"]`);
+    if (!row) return;
+    // The list's own padding is part of what is shown around the first and last rows.
+    const pad = parseFloat(getComputedStyle(list).paddingTop) || 0;
+    const top = row.offsetTop - pad;
+    const bottom = row.offsetTop + row.offsetHeight + pad;
+    if (top < list.scrollTop) list.scrollTop = top;
+    else if (bottom > list.scrollTop + list.clientHeight) list.scrollTop = bottom - list.clientHeight;
+  }, [selected, query]);
   const onKeyDown = (e) => {
     if (e.key === "ArrowDown" || e.key === "ArrowUp") {
       e.preventDefault();
@@ -71,13 +90,13 @@ function PaletteCard({ query = "", onQuery, onRun, autoFocus = false, commands =
         <Input block ground="raised" autoFocus={autoFocus} icon={ic.search} placeholder="Type to search commands…"
           value={query} onKeyDown={onKeyDown} onChange={(e) => { setSel(0); onQuery && onQuery(e.target.value); }} />
       </div>
-      <div className="tasty-scroll" style={{ flex: "0 1 auto", padding: "var(--tasty-space-sm)", maxHeight: "calc(1 * var(--tasty-palette-list-max-height) + 2 * var(--tasty-space-sm))",
+      <div ref={listRef} className="tasty-scroll" style={{ flex: "0 1 auto", position: "relative", padding: "var(--tasty-space-sm)", maxHeight: "calc(1 * var(--tasty-palette-list-max-height) + 2 * var(--tasty-space-sm))",
         minHeight: "calc(1 * var(--tasty-menu-item-height) + 2 * var(--tasty-space-sm))", overflow: "auto" }}>
         {/* as the app's empty list (command_palette.rs): one label inside the list's space-sm padding with none of its own,
             text-muted-raised on the raised card and slanted as a note for absent content */}
         {items.length === 0 && <div style={{ fontSize: "var(--tasty-font-size-body)", fontStyle: "var(--tasty-font-style-absent)", color: "var(--tasty-text-muted-raised)" }}>No matching commands</div>}
         {items.map((i, n) => (
-          <MenuItem key={i.label} label={i.label} icon={i.icon}
+          <MenuItem key={i.label} data-palette-row={n} label={i.label} icon={i.icon}
             shortcut={i.sc ? <Kbd keys={i.sc} /> : null} active={n === selected && query !== ""}
             onClick={() => onRun && onRun(i.label)} />
         ))}
