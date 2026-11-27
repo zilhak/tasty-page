@@ -50,8 +50,11 @@ const TRIGGER = `#${SPEC} [data-banner-card] [aria-label="More options"]:not([in
 test("two independent activations of the banner more trigger in one task toggle the menu twice", async () => {
   assert.ok(existsSync(join(dist, PAGE, "index.html")), `No built ${PAGE}index.html. Run npm run build first.`);
   const server = await serve();
-  const browser = await chromium.launch({ executablePath: browserPath() });
+  // The server closes whatever happens after it opened, a browser that fails to start included,
+  // so the test always returns its result instead of leaving the process waiting on an open socket.
+  let browser = null;
   try {
+    browser = await chromium.launch({ executablePath: browserPath() });
     const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
     page.setDefaultTimeout(LIMIT_MS);
     const url = `http://127.0.0.1:${server.address().port}${prefix}${PAGE}#${SPEC}`;
@@ -75,7 +78,10 @@ test("two independent activations of the banner more trigger in one task toggle 
     assert.equal(await expanded(), "false", "two click() calls in one task left the menu open");
     assert.equal(await page.locator(`#${SPEC} [data-banner-card] [role="menu"][aria-label="Banner options"]:not([inert] *)`).count(), 0);
   } finally {
-    await browser.close();
-    await new Promise((r) => server.close(r));
+    try {
+      if (browser) await browser.close();
+    } finally {
+      await new Promise((r) => server.close(r));
+    }
   }
 });
