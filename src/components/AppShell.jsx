@@ -100,6 +100,7 @@ function usePageTheme() {
    uses viewport coordinates. Wait for mount to match the server markup. */
 function OverlayLayer({ open, lock, scale, children }) {
   const [host, setHost] = React.useState(null);
+  const layer = React.useRef(null);
   React.useEffect(() => { setHost(document.body); }, []);
   React.useEffect(() => {
     if (!lock) return;
@@ -107,9 +108,25 @@ function OverlayLayer({ open, lock, scale, children }) {
     document.body.style.overflow = "hidden";
     return () => { document.body.style.overflow = prev; };
   }, [lock]);
+  // Content under the scrim is inactive (vendor/RULES.md): make the page behind the layer inert so Tab stays in
+  // the overlay, and hand focus back to the control that opened it once the last overlay closes.
+  React.useEffect(() => {
+    if (!lock || !host) return;
+    const opener = document.activeElement;
+    const made = [];
+    for (const el of host.children) {
+      if (el === layer.current || el.inert) continue;
+      el.inert = true;
+      made.push(el);
+    }
+    return () => {
+      for (const el of made) el.inert = false;
+      if (opener instanceof HTMLElement && opener !== document.body && opener.isConnected) opener.focus();
+    };
+  }, [lock, host]);
   if (!host || !open) return null;
   return createPortal(
-    <div className="shell-overlays" style={scale}>{children}</div>,
+    <div className="shell-overlays" ref={layer} style={scale}>{children}</div>,
     host,
   );
 }
