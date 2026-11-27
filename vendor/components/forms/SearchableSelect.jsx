@@ -210,7 +210,7 @@ export function SearchableSelect({
     <MenuItem key={"r" + i + o.value} label={<span title={o.label}>{o.label}</span>}
       selected={o.value === current} active={i === active} disabled={o.disabled}
       role="option" aria-selected={o.value === current}
-      style={i === hoverIndex ? { background: "var(--tasty-menu-item-bg-hover)", color: "var(--tasty-menu-item-fg-hover)" } : undefined}
+      style={i === hoverIndex && i !== active ? { background: "var(--tasty-menu-item-bg-hover)", color: "var(--tasty-menu-item-fg-hover)" } : undefined}
       onMouseDown={(e) => e.preventDefault()}
       onMouseEnter={() => !isOpenControlled && setActiveS(i)}
       onClick={() => commit(o)} />
