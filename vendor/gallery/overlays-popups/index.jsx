@@ -154,7 +154,7 @@ function ToolsMenuLiveDemo() {
         </div>
         {anchor && <ToolsMenu anchor={anchor} bounds={room} onClose={close} onAction={close} />}
       </div>
-      <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>click Tools · ↓ ↑ Tab Shift+Tab mark rows · try Shift+Tab to mark the last row · make the browser window shorter → menu scrolls as needed to keep the marked row in view · Enter or Space runs the marked row · Esc closes</span>
+      <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>scroll the page until the demo is near the top of the screen · click Tools · ↓ ↑ Tab Shift+Tab mark rows · try Shift+Tab to mark the last row · make the browser window about 300px tall → menu scrolls as needed to keep the marked row in view · Enter or Space runs the marked row · Esc closes</span>
     </div>
   );
 }
