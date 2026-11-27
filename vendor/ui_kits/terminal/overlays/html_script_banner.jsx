@@ -125,13 +125,13 @@ function HtmlScriptMarker({ kind = "blocked", hover = false, web = false, open =
 
 function HsTab({ label, icon, active, marker, markerWeb = false, markerOpen = false }) {
   return (
-    <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-tab-gap)", height: "var(--tasty-control-height-tab)",
+    <span style={{ display: "inline-flex", alignItems: "center", height: "var(--tasty-control-height-tab)",
       padding: "0 var(--tasty-space-xs) 0 var(--tasty-tab-padding-x)", width: "var(--tasty-tab-width)", fontSize: "var(--tasty-font-size-caption)", borderRight: "var(--tasty-border-width) solid var(--tasty-separator)",
       background: active ? "var(--tasty-bg-panel)" : "transparent", color: active ? "var(--tasty-text-primary)" : "var(--tasty-text-muted)",
       boxShadow: active ? "inset 0 calc(-1 * var(--tasty-tab-indicator-width)) 0 var(--tasty-accent-primary)" : "none" }}>
-      <span style={{ display: "inline-flex", flex: "none" }}><HsIcon name={icon} size="var(--tasty-tab-icon-size)" /></span>
+      <span style={{ display: "inline-flex", flex: "none", marginRight: "var(--tasty-tab-icon-gap)" }}><HsIcon name={icon} size="var(--tasty-tab-icon-size)" /></span>
       <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{label}</span>
-      <span style={{ flex: "none", display: "inline-flex", alignItems: "center", gap: "var(--tasty-tab-status-gap)" }}>
+      <span style={{ flex: "none", display: "inline-flex", alignItems: "center", gap: "var(--tasty-tab-status-gap)", marginLeft: "var(--tasty-tab-gap)" }}>
         {marker && <HtmlScriptMarker kind={marker} web={markerWeb} open={markerOpen} />}
         <span style={{ width: "var(--tasty-tab-close-size)", height: "var(--tasty-tab-close-size)", display: "inline-flex", alignItems: "center", justifyContent: "center",
           color: "var(--tasty-text-muted)", visibility: active ? "visible" : "hidden" }}><HsIcon name="close" size="var(--tasty-icon-size-xs)" /></span>

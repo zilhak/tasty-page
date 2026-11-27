@@ -49,8 +49,9 @@ import React from "react";
  * ring and `notif` label were removed — the product tab draws neither; attach
  * lives on the workspace row.) The dot is static (no pulse).
  *
- * Right cluster: busy dot · close, tab-status-gap (4) apart; label → cluster
- * is tab-gap (8). The tab pads tab-padding-x (8) before the icon and space-xs
+ * Right cluster: busy dot · close, tab-status-gap (4) apart; icon → label is
+ * tab-icon-gap (6), label → cluster tab-gap (8), as the app's text_x and
+ * label_right (tab_bar/tab.rs). The tab pads tab-padding-x (8) before the icon and space-xs
  * (4) after the close slot, as the app places the icon h_padding in and the
  * cluster from the tab's right edge less spacing_xs (tab_bar/tab.rs).
  *
@@ -72,7 +73,6 @@ const CSS = `
   position: relative;
   display: inline-flex;
   align-items: center;
-  gap: var(--tasty-tab-gap);
   height: var(--tasty-control-height-tab);
   width: var(--tasty-tab-width);
   padding: 0 var(--tasty-space-xs) 0 var(--tasty-tab-padding-x);
@@ -92,7 +92,7 @@ const CSS = `
 /* only when a host makes the tab a Tab stop: the ring sits inside the box (see the note above) */
 .tasty-tab:focus-visible { outline-offset: calc(-1 * var(--tasty-focus-ring-width)); }
 .tasty-tab__label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.tasty-tab__icon { flex: none; display: inline-flex; color: var(--tasty-text-secondary); }
+.tasty-tab__icon { flex: none; display: inline-flex; margin-right: var(--tasty-tab-icon-gap); color: var(--tasty-text-secondary); }
 .tasty-tab__icon svg { width: var(--tasty-tab-icon-size); height: var(--tasty-tab-icon-size); display: block; }
 .tasty-tab__close {
   flex: none; display: inline-flex; align-items: center; justify-content: center;
@@ -104,7 +104,7 @@ const CSS = `
 .tasty-tab__close:hover { background: var(--tasty-overlay-active); color: var(--tasty-text-primary); }
 .tasty-tab__close svg { width: var(--tasty-icon-size-xs); height: var(--tasty-icon-size-xs); }
 /* live-activity dot — mirrors the product busy bool (busy = green, idle = none) */
-.tasty-tab__cluster { flex: none; display: inline-flex; align-items: center; gap: var(--tasty-tab-status-gap); }
+.tasty-tab__cluster { flex: none; display: inline-flex; align-items: center; gap: var(--tasty-tab-status-gap); margin-left: var(--tasty-tab-gap); }
 .tasty-tab__dot { position: relative; width: var(--tasty-tab-dot-size); height: var(--tasty-tab-dot-size); border-radius: var(--tasty-radius-pill); background: var(--tasty-status-dot-idle); flex: none; }
 .tasty-tab__dot--busy { background: var(--tasty-status-dot-success); }
 `;

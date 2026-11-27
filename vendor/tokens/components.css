@@ -278,6 +278,7 @@
   --tasty-tab-strip-width:         var(--tasty-tab-width);
   --tasty-tab-padding-x:           var(--tasty-space-sm);
   --tasty-tab-gap:                 var(--tasty-space-sm);
+  --tasty-tab-icon-gap:            var(--tasty-size-6); /* 2026-11-27 kind icon to label. The app's text_x = icon_rect.max.x + 6 (tab_bar/tab.rs), off the 4px grid by the app's own value. Label to the right cluster stays tab-gap */
   --tasty-tab-bg:                  var(--tasty-bg-sidebar);
   --tasty-tab-bg-active:           var(--tasty-bg-panel);
   --tasty-tab-fg:                  var(--tasty-text-muted);

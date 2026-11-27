@@ -36,14 +36,14 @@ function TabCellS({ label = "report.html", active, hover, marker, markerHover, m
   const showX = active || hover;
   const look = tabLook({ active, hover, ground });
   return (
-    <div style={{ position: "relative", width, height: "var(--tasty-tab-height)", flex: "none", display: "flex", alignItems: "center", gap: "var(--tasty-tab-gap)",
+    <div style={{ position: "relative", width, height: "var(--tasty-tab-height)", flex: "none", display: "flex", alignItems: "center",
       padding: "0 var(--tasty-space-xs) 0 var(--tasty-tab-padding-x)", color: look.ink, background: look.fill,
       borderRight: "var(--tasty-border-width) solid var(--tasty-tab-separator)" }}>
       <TabMark mark={look.mark} />
-      <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-text-secondary)" }}><Icon name="html" size="var(--tasty-tab-icon-size)" /></span>
+      <span style={{ display: "inline-flex", flex: "none", marginRight: "var(--tasty-tab-icon-gap)", color: "var(--tasty-text-secondary)" }}><Icon name="html" size="var(--tasty-tab-icon-size)" /></span>
       <span style={{ flex: 1, minWidth: 0, fontSize: "var(--tasty-font-size-caption)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{label}</span>
       {/* right cluster — fixed slots, never shrink; the label gives way first */}
-      <span style={{ flex: "none", display: "inline-flex", alignItems: "center", gap: "var(--tasty-tab-status-gap)" }}>
+      <span style={{ flex: "none", display: "inline-flex", alignItems: "center", gap: "var(--tasty-tab-status-gap)", marginLeft: "var(--tasty-tab-gap)" }}>
         {marker && (markerTip
           ? <Tooltip open placement="top" content={marker === "blocked" ? "Scripts blocked. Click to show the notice again." : "Scripts allowed for this document until Tasty restarts"}><Marker kind={marker} hover={markerHover} /></Tooltip>
           : <Marker kind={marker} hover={markerHover} />)}
@@ -98,7 +98,7 @@ function GalleryTabStrip() {
           ))}
         </Stage>
         <Meta
-          specs={[["order", "label … | marker · move · busy · close"], ["cluster gap", "4 · tab-status-gap"], ["label → cluster", "8 · tab-gap"], ["squeeze", "label ellipsises; cluster fixed"], ["lock hit", "16 × 16, hover = overlay-hover"], ["lock click", "re-shows the banner only (no tab switch, no focus change) · mouse only"], ["scriptFile", "tooltip only"], ["tooltip placement", "top → bottom → inside the strip (1px border-width tolerance) · none clears → inside the strip (see next spec)"]]}
+          specs={[["order", "label … | marker · move · busy · close"], ["cluster gap", "4 · tab-status-gap"], ["icon → label", "6 · tab-icon-gap"], ["label → cluster", "8 · tab-gap"], ["squeeze", "label ellipsises; cluster fixed"], ["lock hit", "16 × 16, hover = overlay-hover"], ["lock click", "re-shows the banner only (no tab switch, no focus change) · mouse only"], ["scriptFile", "tooltip only"], ["tooltip placement", "top → bottom → inside the strip (1px border-width tolerance) · none clears → inside the strip (see next spec)"]]}
           tokens={[{ tok: "--tasty-tab-status-gap", use: "→ space-xs 4" }, { tok: "--tasty-html-script-marker-hit", use: "→ size-16" }, { tok: "--tasty-html-script-marker-hover-bg", use: "→ overlay-hover" }, { tok: "--tasty-html-script-marker-fg", use: "lock", color: "var(--tasty-html-script-marker-fg)" }]} />
       </Spec>
 

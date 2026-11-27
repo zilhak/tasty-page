@@ -46,16 +46,16 @@ function LTab({ label = "build-server", kind = "terminal", active, hover, att, b
   const look = tabLook({ active, hover, ground, attention: att });
   const fill = look.fill;
   return (
-    <div style={{ position: "relative", width, height: "var(--tasty-tab-height)", flex: "none", display: "flex", alignItems: "center", gap: "var(--tasty-tab-gap)", boxSizing: "border-box",
+    <div style={{ position: "relative", width, height: "var(--tasty-tab-height)", flex: "none", display: "flex", alignItems: "center", boxSizing: "border-box",
       padding: "0 var(--tasty-space-xs) 0 var(--tasty-tab-padding-x)", color: look.ink, background: fill, borderRight: "var(--tasty-border-width) solid var(--tasty-tab-separator)" }}>
       <TabMark mark={look.mark} />
-      <span style={{ position: "relative", flex: "none", display: "inline-flex", width: "var(--tasty-tab-icon-size)", height: "var(--tasty-tab-icon-size)", color: "var(--tasty-text-secondary)" }}>
+      <span style={{ position: "relative", flex: "none", display: "inline-flex", width: "var(--tasty-tab-icon-size)", height: "var(--tasty-tab-icon-size)", marginRight: "var(--tasty-tab-icon-gap)", color: "var(--tasty-text-secondary)" }}>
         <Icon name={kind} size="var(--tasty-tab-icon-size)" />
         <LoadingOverlay kind="tab" visible={!!loading} bed={fill} reducedMotion={rm} label="Loading" style={boxes ? BOX : undefined} />
         {keycap && <SwitchCap n={keycap} active={active} />}
       </span>
       <span style={{ flex: 1, minWidth: 0, fontSize: "var(--tasty-font-size-caption)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{label}</span>
-      <span style={{ flex: "none", display: "inline-flex", alignItems: "center", gap: "var(--tasty-tab-status-gap)" }}>
+      <span style={{ flex: "none", display: "inline-flex", alignItems: "center", gap: "var(--tasty-tab-status-gap)", marginLeft: "var(--tasty-tab-gap)" }}>
         {marker && <span style={{ width: "var(--tasty-html-script-marker-hit)", height: "var(--tasty-html-script-marker-hit)", display: "inline-flex", alignItems: "center", justifyContent: "center", color: "var(--tasty-html-script-marker-fg)" }}><Icon name="lock" size="var(--tasty-html-script-marker-size)" /></span>}
         {move && <span style={{ display: "inline-flex", color: "var(--tasty-move-source-glyph)" }}><Icon name="move" size="var(--tasty-move-source-glyph-size)" /></span>}
         {busy && <span style={{ display: "inline-flex", ["--tasty-status-dot-size"]: "var(--tasty-tab-dot-size)" }}><StatusDot status="running" /></span>}

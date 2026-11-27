@@ -510,19 +510,20 @@ function AttentionRail() {
 // The ladder's strip is an unfocused pane's (bg-sidebar): the cell keeps mantle, and its fill, title ink and active mark
 // come from the Tab's tabLook. The kind icon reads text-secondary whatever the title reads, as the app paints it
 // (tab_bar/tab.rs): the attention tint is the title's alone. The cell pads tab-padding-x before the icon and space-xs
-// at its right end, as the app's tab slot does.
+// at its right end, and keeps tab-icon-gap from icon to title and tab-gap from title to the state word in the cluster's
+// place, as the app's tab slot does.
 function AttTab({ label, kind, active }) {
   const look = tabLook({ active, attention: kind });
   const fg = look.ink;
   return (
     <div style={{ position: "relative", width: "var(--tasty-tab-width)", height: "var(--tasty-tab-height)", flex: "none",
-      display: "flex", alignItems: "center", gap: 6, padding: "0 var(--tasty-space-xs) 0 var(--tasty-tab-padding-x)",
+      display: "flex", alignItems: "center", padding: "0 var(--tasty-space-xs) 0 var(--tasty-tab-padding-x)",
       background: look.fill,
       borderRight: "1px solid var(--tasty-tab-separator)" }}>
       <TabMark mark={look.mark} />
-      <span style={{ display: "inline-flex", width: 13, height: 13, color: "var(--tasty-text-secondary)" }}>{ic.term}</span>
+      <span style={{ display: "inline-flex", flex: "none", marginRight: "var(--tasty-tab-icon-gap)", color: "var(--tasty-text-secondary)" }}><Icon name="terminal" size="var(--tasty-tab-icon-size)" /></span>
       <span style={{ flex: 1, minWidth: 0, fontSize: 12, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: fg }}>{label}</span>
-      <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" }}>
+      <span style={{ flex: "none", marginLeft: "var(--tasty-tab-gap)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" }}>
         {kind === "needs-input" ? "blocked" : kind === "completion" ? "done" : active ? "active" : "rest"}
       </span>
     </div>
