@@ -72,16 +72,14 @@ function Surface({ focused, ring, edge, cmd = "cargo test", id }) {
   );
 }
 // The pane that holds the focused surface holds key focus, and the app paints its strip raised (tab_bar/view.rs,
-// is_focused): surface-raised with raised cells. Every other strip is bg-sidebar with mantle cells. The line under each
-// strip (border-strong under the raised one, separator under the rest) is the gallery's, not the app's: the app draws
-// none. It follows the gallery's pane-strip frames, as 7ad9b96 set them in layouts/loading-prelayout.jsx, until the
-// gallery decides those lines as a whole.
+// is_focused): surface-raised with raised cells. Every other strip is bg-sidebar with mantle cells. As the app's, no
+// strip draws a line under it: the strip's fill meets the pane body.
 function Pane({ tabs, ring, children }) {
   const focused = React.Children.toArray(children).some((c) => c.props && c.props.focused);
   return (
     <div style={{ position: "relative", flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}>
       <div style={{ display: "flex", flex: "none", background: focused ? "var(--tasty-surface-raised)" : "var(--tasty-bg-sidebar)",
-        borderBottom: `var(--tasty-border-width) solid var(--tasty-${focused ? "border-strong" : "separator"})`, overflow: "hidden" }}>
+        overflow: "hidden" }}>
         {tabs.map((t) => <TabCell key={t.label} ground={focused ? "raised" : "mantle"} {...t} />)}
       </div>
       <div style={{ flex: 1, minHeight: 0, display: "flex", gap: "var(--tasty-border-width)", background: "var(--tasty-separator)" }}>{children}</div>

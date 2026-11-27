@@ -689,7 +689,7 @@ function Layouts() {
         <Spec id="tab-strip-fixed-24px-row" title="Tab strip — fixed 24px row"
           when={<>Sits at the top of a pane group on <b>--tasty-bg-sidebar</b>. A focused pane's strip uses <b>--tasty-surface-raised</b>. Tabs are <b>24px × 150px</b>. With the default Underline, the active tab keeps the strip fill and draws a 2px top bar in <code>tab-indicator</code>. A <code>+</code> IconButton follows the tabs, and pane actions (split, search) pin to the right.</>}>
           <Stage variant="tight" grid>
-            <div className="anno" style={{ display: "flex", alignItems: "stretch", background: "var(--tasty-bg-sidebar)", borderBottom: "1px solid var(--tasty-separator)" }}>
+            <div className="anno" style={{ display: "flex", alignItems: "stretch", background: "var(--tasty-bg-sidebar)" }}>
               <Dim style={{ top: 28, left: 0 }}>24px tall</Dim>
               <div style={{ display: "flex" }}>
                 <Tab label="build.sh" icon={ic.term} active />
@@ -831,7 +831,7 @@ function Layouts() {
                 <span style={{ marginLeft: 4 }}><IconButton size="sm" aria-label="New workspace">{ic.plus}</IconButton></span>
               </div>
               {/* tier 2 — pane tab strip */}
-              <div style={{ display: "flex", alignItems: "stretch", flex: "none", background: "var(--tasty-bg-sidebar)", borderBottom: "1px solid var(--tasty-separator)" }}>
+              <div style={{ display: "flex", alignItems: "stretch", flex: "none", background: "var(--tasty-bg-sidebar)" }}>
                 <Tab label="build.sh" icon={ic.term} active />
                 <Tab label="README.md" icon={ic.md} status="busy" />
                 <Tab label="server.log" icon={ic.term} />
@@ -965,7 +965,7 @@ function Layouts() {
         <Spec id="tab-title-surface-border-the-priority-ladder" title="Tab title & surface border — the priority ladder"
           when={<>The pane tab strip tints the <b>title color</b> and the surface tints its <b>border</b>. Both are single channels shared with non-attention states, so both resolve by rank. Tab title: <b>NeedsInput → Completion → active → rest</b>. Surface border: <b>NeedsInput (2px yellow) → occupancy (1px green/peach) → Completion (2px blue)</b> — NeedsInput steps <i>above</i> occupancy, the one change to the earlier occupancy-over-completion order.</>}>
           <Stage variant="tight" grid>
-            <div style={{ display: "flex", background: "var(--tasty-bg-sidebar)", borderBottom: "1px solid var(--tasty-separator)" }}>
+            <div style={{ display: "flex", background: "var(--tasty-bg-sidebar)" }}>
               <AttTab label="build.log" kind="needs-input" />
               <AttTab label="deploy.sh" kind="completion" />
               <AttTab label="zsh" active />

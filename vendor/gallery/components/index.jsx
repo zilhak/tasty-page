@@ -591,7 +591,7 @@ function Components() {
         <Spec id="tab" title="Tab"
           when={<>One tab in the pane tab strip. <b>24px tall × 150px wide</b>, exactly one of three indicators on the active tab (Underline is the default and draws a top bar), hover-revealed close, and a <b>busy dot</b> mirroring the product surface model (busy=green, idle=no dot). The title carries <b>attention</b>: <code>needs-input</code> (yellow) outranks <code>completion</code> (blue). Both outrank the active color, which outranks the rest color. An active tab keeps its attention color until attention clears, which can happen on redraw if the tab is selected in the current workspace's focused pane, the OS window is focused, no fullscreen stage is showing, and the surface is free of hard occupancy. States are exactly the product's (2026-10-07): busy · needs-input · completion — no attached ring and no separate notif tint on a tab. The 5-color owner×activity vocabulary lives on the workspace StatusDot, not on tabs — Tasty has no "unsaved" state.</>}>
           <Stage variant="tight">
-            <div style={{ display: "flex", background: "var(--tasty-bg-sidebar)", borderBottom: "1px solid var(--tasty-separator)" }}>
+            <div style={{ display: "flex", background: "var(--tasty-bg-sidebar)" }}>
               <Tab label="build.sh" icon={ic.term} active status="busy" />
               <Tab label="deploy.sh" icon={ic.term} attention="needs-input" />
               <Tab label="README.md" icon={ic.md} attention="completion" />
@@ -611,7 +611,7 @@ function Components() {
                   {[["mantle", "var(--tasty-tab-bg)", "unfocused pane · mantle"], ["raised", "var(--tasty-tab-bg-raised)", "focused pane · raised"]].map(([ground, fill, where]) => (
                     <div key={ground} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
                       <div className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{where}</div>
-                      <div style={{ display: "flex", background: fill, borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
+                      <div style={{ display: "flex", background: fill }}>
                         <Tab label="build.sh" icon={ic.term} active indicator={ind} ground={ground} status="busy" />
                         <Tab label="server.log" icon={ic.term} ground={ground} />
                       </div>
@@ -626,7 +626,7 @@ function Components() {
             {[["needs-input", "deploy.sh", "active · needs-input · OS window inactive"], ["completion", "README.md", "active · completion · surface hard occupied"]].map(([att, label, cap]) => (
               <div key={att} style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
                 <div className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{cap}</div>
-                <div style={{ display: "flex", background: "var(--tasty-bg-sidebar)", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
+                <div style={{ display: "flex", background: "var(--tasty-bg-sidebar)" }}>
                   <Tab label={label} icon={att === "completion" ? ic.md : ic.term} active attention={att} />
                   <Tab label="server.log" icon={ic.term} />
                 </div>

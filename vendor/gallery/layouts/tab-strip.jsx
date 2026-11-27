@@ -70,7 +70,7 @@ function Arrow({ dir, disabled, hover, move }) {
 function Strip({ focused = true, at = "start", hoverSide, moveSide, tabs }) {
   return (
     <div style={{ display: "flex", alignItems: "stretch", width: "var(--tasty-size-560)", maxWidth: "100%", overflow: "hidden",
-      background: focused ? "var(--tasty-surface-raised)" : "var(--tasty-bg-sidebar)", borderBottom: `var(--tasty-border-width) solid var(--tasty-${focused ? "border-strong" : "separator"})` }}>
+      background: focused ? "var(--tasty-surface-raised)" : "var(--tasty-bg-sidebar)" }}>
       <Arrow dir="left" disabled={at === "start"} hover={hoverSide === "left"} move={moveSide === "left"} />
       <div style={{ flex: 1, minWidth: 0, display: "flex", overflow: "hidden" }}>
         {(tabs || ["server", "dev", "vim", "logs", "tests"]).map((t, i) => <TabCellS key={t} label={t} active={i === 1} ground={focused ? "raised" : "mantle"} />)}
@@ -110,7 +110,7 @@ function GalleryTabStrip() {
               <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{label} · html tab active, lock hovered</span>
               <div style={{ width: "var(--tasty-size-320)", display: "flex", flexDirection: "column", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)" }}>
                 <div style={{ height: "var(--tasty-titlebar-height)", flex: "none", display: "flex", alignItems: "center", padding: "0 var(--tasty-space-sm)", background: "var(--tasty-bg-app)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" }}>title area</div>
-                <div style={{ display: "flex", background: "var(--tasty-surface-raised)", borderBottom: "var(--tasty-border-width) solid var(--tasty-border-strong)" }}>
+                <div style={{ display: "flex", background: "var(--tasty-surface-raised)" }}>
                   <TabCellS marker="blocked" active markerHover markerTip ground="raised" />
                   <TabCellS label="shell" ground="raised" />
                 </div>
