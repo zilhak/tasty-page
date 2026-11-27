@@ -1,7 +1,9 @@
-// Browser test for the banner more menu trigger in the vendor kit (vendor/ui_kits/terminal/overlays/banner.jsx,
-// useBannerMoreMenu). Two independent activations of the trigger in one JS task (click() twice, detail 0) must toggle
-// the menu twice, so a closed menu ends closed. The test drives the gallery's live specimen on Overlays > Banners, which
-// calls the same hook. It needs the build (npm run build) and Chromium (playwright-core's, or CHROMIUM_PATH).
+// Browser tests for the banner more menu trigger in the vendor kit (vendor/ui_kits/terminal/overlays/banner.jsx,
+// useBannerMoreMenu, on the shared fresh-press contract in vendor/components/core/fresh-press.js). Independent
+// activations of the trigger (click(), detail 0) must each toggle the menu: two in one JS task, and the ones a script
+// makes while a Space that began on another control is released on the trigger. That release itself still runs nothing.
+// The tests drive the gallery's live specimen on Overlays > Banners, which calls the same hook. They need the build
+// (npm run build) and Chromium (playwright-core's, or CHROMIUM_PATH).
 import assert from "node:assert/strict";
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { createServer } from "node:http";
@@ -47,11 +49,12 @@ function browserPath() {
 // The live trigger: the spec's "More options" button outside its inert Views.
 const TRIGGER = `#${SPEC} [data-banner-card] [aria-label="More options"]:not([inert] *)`;
 
-test("two independent activations of the banner more trigger in one task toggle the menu twice", async () => {
+// Opens the live specimen and hands its page and trigger to run. The server closes whatever happens after it opened,
+// a browser that fails to start included, so the test always returns its result instead of leaving the process waiting
+// on an open socket.
+async function withTrigger(run) {
   assert.ok(existsSync(join(dist, PAGE, "index.html")), `No built ${PAGE}index.html. Run npm run build first.`);
   const server = await serve();
-  // The server closes whatever happens after it opened, a browser that fails to start included,
-  // so the test always returns its result instead of leaving the process waiting on an open socket.
   let browser = null;
   try {
     browser = await chromium.launch({ executablePath: browserPath() });
@@ -62,21 +65,8 @@ test("two independent activations of the banner more trigger in one task toggle 
     const trigger = page.locator(TRIGGER);
     await trigger.waitFor({ state: "attached" });
     assert.equal(await trigger.count(), 1, "expected exactly one live trigger");
-    const expanded = () => trigger.getAttribute("aria-expanded");
-    assert.equal(await expanded(), "false");
-
-    // Control: one independent activation opens the menu, so the test is not passing on a trigger that does nothing.
-    await trigger.evaluate((t) => t.click());
-    await page.waitForFunction((sel) => document.querySelector(sel)?.getAttribute("aria-expanded") === "true", TRIGGER);
-    await trigger.evaluate((t) => t.click());
-    await page.waitForFunction((sel) => document.querySelector(sel)?.getAttribute("aria-expanded") === "false", TRIGGER);
-
-    // Two in one task, from closed: open then closed again.
-    await trigger.evaluate((t) => { t.click(); t.click(); });
-    // Let React commit both updates and any effect they schedule.
-    await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
-    assert.equal(await expanded(), "false", "two click() calls in one task left the menu open");
-    assert.equal(await page.locator(`#${SPEC} [data-banner-card] [role="menu"][aria-label="Banner options"]:not([inert] *)`).count(), 0);
+    assert.equal(await trigger.getAttribute("aria-expanded"), "false");
+    await run(page, trigger);
   } finally {
     try {
       if (browser) await browser.close();
@@ -84,4 +74,69 @@ test("two independent activations of the banner more trigger in one task toggle 
       await new Promise((r) => server.close(r));
     }
   }
+}
+
+// Let React commit the updates and any effect they schedule.
+const settle = (page) => page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
+const waitExpanded = (page, value) =>
+  page.waitForFunction(([sel, v]) => document.querySelector(sel)?.getAttribute("aria-expanded") === v, [TRIGGER, value]);
+
+test("two independent activations of the banner more trigger in one task toggle the menu twice", async () => {
+  await withTrigger(async (page, trigger) => {
+    // Control: one independent activation opens the menu, so the test is not passing on a trigger that does nothing.
+    await trigger.evaluate((t) => t.click());
+    await waitExpanded(page, "true");
+    await trigger.evaluate((t) => t.click());
+    await waitExpanded(page, "false");
+
+    // Two in one task, from closed: open then closed again.
+    await trigger.evaluate((t) => { t.click(); t.click(); });
+    await settle(page);
+    assert.equal(await trigger.getAttribute("aria-expanded"), "false", "two click() calls in one task left the menu open");
+    assert.equal(await page.locator(`#${SPEC} [data-banner-card] [role="menu"][aria-label="Banner options"]:not([inert] *)`).count(), 0);
+  });
+});
+
+test("click() calls made while a Space from another control is released on the trigger each toggle the menu", async () => {
+  await withTrigger(async (page, trigger) => {
+    // A plain button next to the live card stands for the other control the Space began on.
+    await trigger.evaluate((t) => {
+      const b = document.createElement("button");
+      b.id = "banner-more-probe";
+      b.textContent = "probe";
+      t.closest("[data-banner-card]").after(b);
+    });
+
+    // Control: a Space pressed and released on the trigger opens the menu, so the release cases below are not passing
+    // on a trigger that ignores Space.
+    await trigger.focus();
+    await page.keyboard.down(" ");
+    await page.keyboard.up(" ");
+    await waitExpanded(page, "true");
+    await trigger.evaluate((t) => t.click());
+    await waitExpanded(page, "false");
+
+    // From closed: Space down on the probe, focus moved to the trigger, and on the keyup a listener on document calls
+    // the trigger's click() n times. The release itself runs nothing, so the menu ends open only for an odd n.
+    for (const [n, want] of [[0, "false"], [1, "true"], [2, "false"]]) {
+      await page.locator("#banner-more-probe").focus();
+      await page.keyboard.down(" ");
+      await trigger.evaluate((t, count) => {
+        t.focus();
+        const onUp = (e) => {
+          if (e.key !== " ") return;
+          document.removeEventListener("keyup", onUp);
+          for (let i = 0; i < count; i++) t.click();
+        };
+        document.addEventListener("keyup", onUp);
+      }, n);
+      await page.keyboard.up(" ");
+      await settle(page);
+      assert.equal(await trigger.getAttribute("aria-expanded"), want, `${n} click() call(s) during the Space release`);
+      if (want === "true") {
+        await trigger.evaluate((t) => t.click());
+        await waitExpanded(page, "false");
+      }
+    }
+  });
 });
