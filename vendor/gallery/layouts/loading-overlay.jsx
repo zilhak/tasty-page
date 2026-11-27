@@ -39,8 +39,8 @@ const SwitchCap = ({ n, active }) => (
 
 // ── tab cell: [kind icon ← overlay][label…] · [marker][move][busy][close] ──
 // ground: the strip's fill, which the cell keeps (Tab's ground); the fill, ink and active mark come from the Tab's tabLook,
-// and the spinner's bed is that same fill. The kind icon reads text-secondary whatever the label reads, as the app paints
-// it (tab_bar/tab.rs).
+// and the spinner's bed is that same fill. The kind icon and the close glyph read text-secondary whatever the label
+// reads, as the app paints them (tab_bar/tab.rs).
 function LTab({ label = "build-server", kind = "terminal", active, hover, att, busy, move, marker, ground = "mantle", width = "var(--tasty-tab-width)", loading, keycap, boxes, rm }) {
   const showX = active || hover;
   const look = tabLook({ active, hover, ground, attention: att });
@@ -59,7 +59,7 @@ function LTab({ label = "build-server", kind = "terminal", active, hover, att, b
         {marker && <span style={{ width: "var(--tasty-html-script-marker-hit)", height: "var(--tasty-html-script-marker-hit)", display: "inline-flex", alignItems: "center", justifyContent: "center", color: "var(--tasty-html-script-marker-fg)" }}><Icon name="lock" size="var(--tasty-html-script-marker-size)" /></span>}
         {move && <span style={{ display: "inline-flex", color: "var(--tasty-move-source-glyph)" }}><Icon name="move" size="var(--tasty-move-source-glyph-size)" /></span>}
         {busy && <span style={{ display: "inline-flex", ["--tasty-status-dot-size"]: "var(--tasty-tab-dot-size)" }}><StatusDot status="running" /></span>}
-        <span style={{ width: "var(--tasty-tab-close-size)", height: "var(--tasty-tab-close-size)", display: "inline-flex", alignItems: "center", justifyContent: "center", color: "var(--tasty-text-muted)", visibility: showX ? "visible" : "hidden" }}><Icon name="close" size="var(--tasty-icon-size-xs)" /></span>
+        <span style={{ width: "var(--tasty-tab-close-size)", height: "var(--tasty-tab-close-size)", display: "inline-flex", alignItems: "center", justifyContent: "center", color: "var(--tasty-text-secondary)", visibility: showX ? "visible" : "hidden" }}><Icon name="close" size="var(--tasty-icon-size-xs)" /></span>
       </span>
     </div>
   );

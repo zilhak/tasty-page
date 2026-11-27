@@ -31,7 +31,7 @@ function Marker({ kind, hover }) {
   );
 }
 // ground: the strip's fill, which the cell keeps (Tab's ground); the fill, ink and active mark come from the Tab's tabLook.
-// The kind icon reads text-secondary whatever the label reads, as the app paints it (tab_bar/tab.rs).
+// The kind icon and the close glyph read text-secondary whatever the label reads, as the app paints them (tab_bar/tab.rs).
 function TabCellS({ label = "report.html", active, hover, marker, markerHover, markerTip, move, busy, ground = "mantle", width = "var(--tasty-tab-width)" }) {
   const showX = active || hover;
   const look = tabLook({ active, hover, ground });
@@ -50,7 +50,7 @@ function TabCellS({ label = "report.html", active, hover, marker, markerHover, m
         {move && <span style={{ display: "inline-flex", color: "var(--tasty-move-source-glyph)" }}><Icon name="move" size="var(--tasty-move-source-glyph-size)" /></span>}
         {busy && <span style={{ display: "inline-flex", ["--tasty-status-dot-size"]: "var(--tasty-tab-dot-size)" }}><StatusDot status="running" /></span>}
         <span style={{ width: "var(--tasty-tab-close-size)", height: "var(--tasty-tab-close-size)", display: "inline-flex", alignItems: "center", justifyContent: "center",
-          borderRadius: "var(--tasty-tab-close-radius)", color: "var(--tasty-text-muted)", visibility: showX ? "visible" : "hidden" }}><Icon name="close" size="var(--tasty-icon-size-xs)" /></span>
+          borderRadius: "var(--tasty-tab-close-radius)", color: "var(--tasty-text-secondary)", visibility: showX ? "visible" : "hidden" }}><Icon name="close" size="var(--tasty-icon-size-xs)" /></span>
       </span>
     </div>
   );
