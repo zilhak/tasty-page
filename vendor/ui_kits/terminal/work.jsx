@@ -40,14 +40,18 @@ function resolveStatus(owner, activity) {
 const tabBusy = (activity) => activity === "running" || activity === "waiting" || activity === "error";
 const shouldPulse = (status) => status === "running" || status === "agent" || status === "waiting";
 
-function TabStrip({ tabs, active, onSelect, onClose, onNew, onSearch }) {
+// focused: the pane holds key focus, and the app paints its strip raised (tab_bar/view.rs), mantle otherwise. The kit
+// window has one pane and it is focused, so true is the default; a picture of an unfocused pane passes false. Each tab
+// takes the same ground (Tab's ground), and the + and pane action IconButtons sit on it (IconButton on raised).
+function TabStrip({ tabs, active, onSelect, onClose, onNew, onSearch, focused = true }) {
+  const ground = focused ? "raised" : "mantle";
   return (
-    <div style={{ display: "flex", alignItems: "stretch", background: "var(--tasty-bg-sidebar)",
+    <div style={{ display: "flex", alignItems: "stretch", background: focused ? "var(--tasty-tab-bg-raised)" : "var(--tasty-tab-bg)",
       borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)", flex: "none" }}>
       <div style={{ display: "flex", overflow: "hidden" }}>
         {tabs.map((t) => (
           <Tab key={t.id} label={t.title} icon={t.kind === "markdown" ? ic.md : ic.term}
-            active={t.id === active} status={tabBusy(t.activity) ? "busy" : "idle"} attached={t.attached} notif={t.notif}
+            active={t.id === active} ground={ground} status={tabBusy(t.activity) ? "busy" : "idle"} attached={t.attached} notif={t.notif}
             onClick={() => onSelect(t.id)} onClose={() => onClose(t.id)} />
         ))}
       </div>
