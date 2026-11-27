@@ -16,7 +16,8 @@ import { Kbd } from "../../../components/core/Kbd.jsx";
 // popup-content-margin ring, shadow-popover, no scrim, 28px MenuItem rows.
 //
 // items: [{ label, shortcut?, icon?, enabled = true, tooltip? } | { separator: true }]
-// active: index of the keyboard-active row · scrollTo: a row kept in view (the active row in the app)
+// active: index of the keyboard-active row · scrollTo: a row kept in view (the active row in the app), shown each time it
+// changes; between changes the list keeps the scroll the user gave it
 // tip: index of a disabled row whose reason is showing (gallery freezes it; the app shows it on pointer hover)
 // onPointerRow(i): the pointer moved onto enabled row i; the caller makes it the active row.
 // One highlight: the active row. pointerHeld (set by the caller after an arrow key) holds it until the pointer really
@@ -56,6 +57,7 @@ function FallbackMenu({ items, click, active = -1, tip = -1, scrollTo = -1, onPo
   const panelRef = React.useRef(null);
   const listRef = React.useRef(null);
   const rowRefs = React.useRef([]);
+  const shownRow = React.useRef(-1);
   const [pos, setPos] = React.useState(null);
   const [tipAt, setTipAt] = React.useState(null);
   const hasIcon = items.some((it) => it.icon);
@@ -78,8 +80,18 @@ function FallbackMenu({ items, click, active = -1, tip = -1, scrollTo = -1, onPo
     const r = panel.getBoundingClientRect();
     const next = placeFallbackMenu(click, { w: r.width, h: r.height }, { w: win.width, h: win.height }, margin);
     if (!pos || pos.left !== next.left || pos.top !== next.top) setPos(next);
+    // The row kept in view is shown when it changes (and when the menu opens), by scrolling the list the least that
+    // shows it; the page does not move, and a list the user has scrolled stays where it is until that row changes.
     const row = rowRefs.current[scrollTo];
-    if (row) row.scrollIntoView({ block: "nearest" });
+    const list0 = listRef.current;
+    if (row && list0 && shownRow.current !== scrollTo) {
+      shownRow.current = scrollTo;
+      const top = row.offsetTop;
+      const bottom = row.offsetTop + row.offsetHeight;
+      if (top < list0.scrollTop) list0.scrollTop = top;
+      else if (bottom > list0.scrollTop + list0.clientHeight) list0.scrollTop = bottom - list0.clientHeight;
+    }
+    if (!row) shownRow.current = -1;
     const t = rowRefs.current[tip];
     const list = listRef.current;
     if (t && list) {
