@@ -757,11 +757,12 @@ function Page() {
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)" }}><PortsFrame /></Stage>
           {/* The kit's own window on a narrow screen, cut below its filter row: the right cluster keeps its size at the
               right edge and the left group is cut at its end. It opens on the scanned table (scanMs 0), so the frame
-              does not change after the scan. */}
+              does not change after the scan. In a column narrower than the window, the box keeps the window's right
+              end, where the right cluster is, and cuts its left, as the Columns chooser frame below does. */}
           <Views>
-            <View name="ports-narrow-window" wide label="Listening ports — the header in a narrow window (icon, title and count clipped at the end)">
-              <div inert="" style={{ overflow: "hidden", width: "var(--tasty-narrow-window-specimen-width)", height: "var(--tasty-size-120)", pointerEvents: "none" }}>
-                <div style={{ position: "relative", height: "var(--tasty-ports-window-height)" }}>
+            <View name="ports-narrow-window" wide label="Listening ports — the header in a narrow window (icon, title and count clipped at the end, right end kept in a narrow frame)">
+              <div inert="" style={{ overflow: "hidden", display: "flex", justifyContent: "flex-end", width: "100%", maxWidth: "var(--tasty-narrow-window-specimen-width)", height: "var(--tasty-size-120)", pointerEvents: "none" }}>
+                <div style={{ position: "relative", flex: "none", width: "var(--tasty-narrow-window-specimen-width)", height: "var(--tasty-ports-window-height)" }}>
                   <Kit_PortsWindow scanMs={0} onClose={() => {}} />
                 </div>
               </div>
