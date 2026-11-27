@@ -109,6 +109,9 @@ function ToolsMenuInRoomFrame({ band = TM_ROOM.band, btnTop = TM_ROOM.btnTop, ho
         background: "var(--tasty-bg-sidebar)", borderBottom: "var(--tasty-border-width) solid var(--tasty-border-default)" }}>
         <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>host chrome · fixed · outside bounds</span>
       </div>}
+      {/* the part of the box past the room's right edge, drawn as the band above is, so the room's width shows */}
+      {roomRight < TM_ROOM.w && <div style={{ position: "absolute", left: roomRight, right: 0, top: band, bottom: 0,
+        background: "var(--tasty-bg-sidebar)", borderLeft: "var(--tasty-border-width) solid var(--tasty-border-default)" }} />}
       <div style={{ position: "absolute", left: 8, top: btnTop, width: 160 }}>
         <Button variant="ghost" size="sm" block leadingIcon={ic.tools} style={{ justifyContent: "flex-start" }}>Tools</Button>
       </div>
