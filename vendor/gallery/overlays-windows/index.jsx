@@ -762,9 +762,11 @@ function PaletteFromToolsDemo() {
           <Button variant="ghost" size="sm" block leadingIcon={<WIcon name="tools" />} style={{ justifyContent: "flex-start" }} onClick={open}>Tools</Button>
         </div>
         {anchor && <Kit_ToolsMenu anchor={anchor} bounds={room} hostRuns={["palette"]} onClose={closeMenu} onAction={run} />}
+        {/* The card sits in a room of the box's height, as the short-screen View does with ScrimRoom: the search and the
+            footer keep their height and the list scrolls in what is left. */}
         {palette && (
-          <div style={{ position: "absolute", top: 8, left: 0, right: 0, display: "flex", justifyContent: "center" }}>
-            <Kit_PaletteCard autoFocus commands={PALETTE_APP_COMMANDS_KIT} query={query} onQuery={setQuery} onRun={closePalette} />
+          <div style={{ position: "absolute", top: 8, left: 0, right: 0, bottom: "var(--tasty-space-sm)", display: "flex" }}>
+            <Kit_ScrimRoom align="top"><Kit_PaletteCard autoFocus commands={PALETTE_APP_COMMANDS_KIT} query={query} onQuery={setQuery} onRun={closePalette} /></Kit_ScrimRoom>
           </div>
         )}
       </div>
