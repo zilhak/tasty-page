@@ -166,7 +166,8 @@ function ToolsMenuLiveDemo() {
 // The kit search bar, live, over a terminal with five matches of "tasty". It mounts on Open search, so its field's
 // autofocus does not take the page's focus while the reader scrolls past. Previous and Next keep the focus and step
 // once per click, and they take keyRepeat (fresh-press.js): holding Enter on one keeps stepping, one match per
-// repeat, as holding Enter in the field does; Space steps once on release. Esc or close puts the button back.
+// repeat, as holding Enter in the field does; Space steps once on release. Esc in the field, or close, puts the button
+// back; the kit bar takes Esc in its field only, so Esc on an arrow does nothing.
 const SEARCH_LIVE_LINES = ["~/work/tasty", "$ tasty list surfaces", "tasty: 3 surfaces", "$ tasty read since-mark", "tasty-agent ok"];
 function SearchBarLiveDemo() {
   const [open, setOpen] = React.useState(false);
@@ -186,7 +187,7 @@ function SearchBarLiveDemo() {
       <div ref={btnRef} style={{ display: "flex" }}>
         {!open && <Button variant="secondary" size="sm" onClick={() => setOpen(true)}>Open search</Button>}
       </div>
-      <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>click Open search · type tasty → 1/5 · Tab to ▲ or ▼ · press Enter → one step · hold Enter → one more step per repeat, wrapping 5/5 → 1/5 · release and press Space → one step on release · Esc closes</span>
+      <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>click Open search · type tasty → 1/5 · Tab to ▲ or ▼ · press Enter → one step · hold Enter → one more step per repeat, wrapping 5/5 → 1/5 · release and press Space → one step on release · click the field and press Esc → closes, and the focus returns to Open search</span>
     </div>
   );
 }
