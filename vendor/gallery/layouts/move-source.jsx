@@ -163,7 +163,7 @@ function GalleryMoveSource() {
       </Spec>
 
       <Spec id="tab-cell-ring-over-every-tab-state" title="Tab cell — ring over every tab state"
-        when={<>The tab ring sits on top of the cell whatever its state. The <b>active</b> tab keeps the mantle strip fill and uses the active title colour. Pink dashes cross the 2px top bar in <code>tab-indicator</code>, and the blue shows through the gaps. A hovered inactive tab uses <code>tab-bg-hover</code>.</>}>
+        when={<>The tab ring sits on top of the cell whatever its state. The <b>active</b> tab keeps the mantle strip fill and uses the active title colour. The app draws the tab first, then draws the <code>move-source-ring</code> over it, with dashes crossing the active tab's 2px <code>tab-indicator</code> top bar and the indicator showing between the dashes. A hovered inactive tab uses <code>tab-bg-hover</code>.</>}>
         {stage(
           <div style={{ display: "grid", gridTemplateColumns: "80px auto auto", gap: 8, alignItems: "center" }}>
             <span />{cap("rest")}{cap("move source")}
