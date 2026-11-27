@@ -93,14 +93,13 @@ function PaletteCard({ query = "", onQuery, onRun, autoFocus = false, commands =
   // The physical keys (e.code) the search field saw pressed, each until its release or until the field loses the focus.
   // A character key whose repeats reach the field without its press, such as the Space that ran Tools › Command
   // palette… and is still held, is taken until it is released, so it types nothing; a new press of it types as usual.
-  // A key pressed here repeats whatever it types, so Shift+A and then A held after Shift is released types Aaaa.
+  // A key pressed here repeats whatever it types, so Shift+A and then A held after Shift is released types Aaaa. Every
+  // press the field sees counts, with a modifier or without, so Ctrl+A and then A held after Ctrl is released types aaa.
   const pressed = React.useRef(new Set());
   const keyId = (e) => e.code || e.key;
   const onKeyDown = (e) => {
-    if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
-      if (!e.repeat) pressed.current.add(keyId(e));
-      else if (!pressed.current.has(keyId(e))) { e.preventDefault(); return; }
-    }
+    if (!e.repeat) pressed.current.add(keyId(e));
+    else if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey && !pressed.current.has(keyId(e))) { e.preventDefault(); return; }
     if (e.key === "ArrowDown" || e.key === "ArrowUp") {
       e.preventDefault();
       if (items.length) setSel(e.key === "ArrowDown" ? Math.min(selected + 1, items.length - 1) : Math.max(selected - 1, 0));
