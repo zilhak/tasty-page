@@ -161,16 +161,18 @@ function OverlayLayer({ open, lock, trap, windowKey, restoreTo, scale, children 
     const root = layer();
     if (root && !root.contains(document.activeElement)) tabStops(root)[0]?.focus();
   }, [trap, windowKey, host]);
-  // When the last menu or window closes and focus went with it, hand focus to the first of restoreTo() that can
-  // take it. Focus the reader moved to a page control while a menu was open stays there. This runs after the
-  // inert cleanup above, so the page can take focus again.
+  // When the last menu or window closes, restoreTo() hands over (and clears) the opener record. If focus went
+  // with the overlay, the first of its controls that can take focus gets it; focus the reader moved to a page
+  // control while a menu was open stays there. This runs after the inert cleanup above, so the page can take
+  // focus again.
   React.useEffect(() => {
     if (!lock || !host) return;
     return () => {
+      const targets = restoreTo();
       const at = document.activeElement;
       const kept = at instanceof HTMLElement && at !== document.body && at.isConnected && !at.closest(`.${LAYER_CLASS}`);
       if (kept) return;
-      for (const el of restoreTo()) if (focusIf(el)) break;
+      for (const el of targets) if (focusIf(el)) break;
     };
   }, [lock, host]);
   if (!host || !open) return null;
@@ -202,15 +204,21 @@ export function AppShell({ heading = "Workspaces", task = "run tests", doc }) {
   const scale = { "--tasty-ui-scale": `var(--tasty-ui-scale-${uiScale})` };
 
   const anyOverlay = overlay !== null || toolsAnchor !== null;
-  // The page control that opened the current menu or window. A step from one overlay to the next (Tools to a
-  // window, palette to settings) keeps it; a page control that opens a window while the Tools menu is open
-  // takes over, and that window replaces the menu.
+  // The page control that opened the current menu or window, taken from the click or key event itself, since a
+  // button a click does not focus (Safari) leaves document.activeElement on the body. A step from one overlay to
+  // the next (Tools to a window, palette to settings) keeps it; a page control that opens a window while the
+  // Tools menu is open takes over, and that window replaces the menu. An open with no page control to name
+  // starts with no record, so an older one is never reused.
   const trigger = React.useRef(null);
-  const noteTrigger = () => {
-    const at = document.activeElement;
+  const noteTrigger = (el) => {
+    const at = el instanceof HTMLElement ? el : document.activeElement;
     if (at instanceof HTMLElement && at !== document.body && !at.closest(`.${LAYER_CLASS}`)) trigger.current = at;
+    else if (!anyOverlay) trigger.current = null;
   };
-  const openWindow = (kind) => { noteTrigger(); setToolsAnchor(null); setOverlay(kind); };
+  const openWindow = (kind, e) => { noteTrigger(e?.currentTarget); setToolsAnchor(null); setOverlay(kind); };
+  // The kit's Tools button reports only its rectangle; the button is the one drawn at that rectangle's centre.
+  const buttonAt = (rect) =>
+    document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2)?.closest("button");
   // The opener first, then the demo's active tab, then its New tab button when every tab is closed: the
   // opener can sit in a region a narrow page hides.
   const restoreTo = () => {
@@ -343,9 +351,9 @@ export function AppShell({ heading = "Workspaces", task = "run tests", doc }) {
           <Sidebar workspaces={workspaces} activeWs={activeWs} workspacesHeading={heading}
             collapsed={collapsed} onToggle={() => setCollapsed((v) => !v)}
             pluginAlert={pluginAttentionCount || 0}
-            onWs={setActiveWs} onSettings={() => openWindow("settings")}
-            onPlugins={() => openWindow("plugins")}
-            onTools={(rect) => { noteTrigger(); setToolsAnchor((a) => (a ? null : rect)); }} />
+            onWs={setActiveWs} onSettings={(e) => openWindow("settings", e)}
+            onPlugins={(e) => openWindow("plugins", e)}
+            onTools={(rect) => { noteTrigger(buttonAt(rect)); setToolsAnchor((a) => (a ? null : rect)); }} />
         </div>
         <div className="shell__work">
           {/* Wrapped so the page can reach the kit's tab row, which it styles inline. */}
@@ -394,7 +402,7 @@ export function AppShell({ heading = "Workspaces", task = "run tests", doc }) {
           <div className="shell__status">
             <StatusBar surfaceId={tab?.kind === "markdown" ? "3" : tab?.kind === "split" ? "4" : "2"} theme={theme}
               onTheme={() => setTheme(theme === "latte" ? "mocha" : "latte")}
-              onPalette={() => openWindow("palette")} />
+              onPalette={(e) => openWindow("palette", e)} />
           </div>
         </div>
       </div>
