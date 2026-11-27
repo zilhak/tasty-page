@@ -97,13 +97,16 @@ function Backdrop({ height = 360, blur = false, scrim = true, children }) {
 
 // opaque: popup over an opaque-mode WebView page (2026-10-21) — square corner, no shadow, border kept
 // ground: the search field is ground="raised" (2026-10-27). focused/value drive static state specimens.
+// value: the query. As the app (command_palette.rs row_highlighted), no row is highlighted while it is empty; with
+// text the list keeps the commands that match and the selection, back on the first match after each change, is
+// highlighted. When nothing matches, the list holds the no-results line the kit card draws.
 function PaletteFrame({ opaque = false, focused = false, value = "", rows = 4 } = {}) {
   const items = [
-    { label: "New Terminal", sc: "Ctrl+T", icon: ic.term, active: true },
+    { label: "New Terminal", sc: "Ctrl+T", icon: ic.term },
     { label: "Split Pane Vertical", sc: "Ctrl+D", icon: ic.split },
     { label: "Toggle Theme (Mocha / Latte)", sc: "", icon: <Icon name="theme" /> },
     { label: "Settings", sc: "Ctrl+,", icon: ic.settings },
-  ];
+  ].filter((i) => i.label.toLowerCase().includes(value.toLowerCase()));
   return (
     <div align="top" style={{ width: "var(--tasty-palette-width)", background: "var(--tasty-surface-raised)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)",
       borderRadius: opaque ? "var(--tasty-webview-opaque-radius)" : "var(--tasty-radius)", overflow: "hidden", boxShadow: opaque ? "var(--tasty-webview-opaque-shadow)" : "var(--tasty-shadow-modal)" }}>
@@ -113,8 +116,9 @@ function PaletteFrame({ opaque = false, focused = false, value = "", rows = 4 } 
         <Input block ground="raised" focused={focused} icon={ic.search} placeholder="Type to search commands…" defaultValue={value} />
       </div>
       <div style={{ padding: "var(--tasty-space-sm)" }}>
-        {items.slice(0, rows).map((i) => (
-          <MenuItem key={i.label} label={i.label} icon={i.icon} active={i.active}
+        {items.length === 0 && <div style={{ fontSize: "var(--tasty-font-size-body)", fontStyle: "var(--tasty-font-style-absent)", color: "var(--tasty-text-muted-raised)" }}>No matching commands</div>}
+        {items.slice(0, rows).map((i, n) => (
+          <MenuItem key={i.label} label={i.label} icon={i.icon} active={n === 0 && value !== ""}
             shortcut={i.sc ? <Kbd keys={i.sc} /> : null} />
         ))}
       </div>

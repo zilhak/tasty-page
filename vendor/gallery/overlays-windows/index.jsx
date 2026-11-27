@@ -711,13 +711,20 @@ function Page() {
     <>
 <Section id="palette" title="Command palette">
         <Spec id="command-palette-k" title="Command palette — ⌘K"
-          when={<>Top-anchored launcher. A search Input header with <code>space-md</code> padding, a scrollable MenuItem list with <code>space-sm</code> padding on all sides and the first row pre-highlighted, and a hint footer in the label face. The fastest path to any command — every action should be reachable here.</>}>
+          when={<>Top-anchored launcher. A search Input header with <code>space-md</code> padding, a scrollable MenuItem list with <code>space-sm</code> padding on all sides, and a hint footer in the label face. An empty query leaves rows unhighlighted, with hover tint under the pointer. With query text, the selected row is highlighted. Each query edit resets selection to the first match, and ↑ and ↓ move it. The fastest path to any command — every action should be reachable here.</>}>
           <Stage variant="solo center"><Backdrop height={400}><PaletteFrame /></Backdrop></Stage>
           {/* The kit's own card in a room as short as a small screen leaves it: the same column the landing palette lays
               out, so the list gives up its height first and scrolls, and the search and the footer stay whole. A frame is a
               picture, so the card is inert, as in the ports and plugins frames: the search takes no focus and the list
-              stays at its top, which is the frame's state. */}
+              stays at its top, which is the frame's state. The query and no-results frames are pictures too, inert the
+              same way, and hold the query PaletteFrame filters by. */}
           <Views>
+            <View name="palette-query" label="Command palette — the query “in” (first match highlighted)">
+              <div inert="" style={{ pointerEvents: "none" }}><PaletteFrame value="in" /></div>
+            </View>
+            <View name="palette-no-results" label="Command palette — a query with no matches">
+              <div inert="" style={{ pointerEvents: "none" }}><PaletteFrame value="zzz" /></div>
+            </View>
             <View name="palette-short-screen" label="Command palette — a short-screen layout (scrolling list)">
               <div inert="" style={{ display: "flex", width: "var(--tasty-palette-width)", height: "var(--tasty-short-screen-specimen-height)", pointerEvents: "none" }}>
                 <Kit_ScrimRoom align="top"><Kit_PaletteCard /></Kit_ScrimRoom>
@@ -725,7 +732,7 @@ function Page() {
             </View>
           </Views>
           <Meta
-            specs={[["width", "--tasty-palette-width"], ["anchor", "top, ~40–90px"], ["header", <>Input + <span className="tok">--tasty-border-strong</span> line below</>], ["rows", <>28px MenuItem · first active</>], ["footer", <>↑↓ navigate, ↵ run, esc close · font-label (mono in English and Korean, UI face in Japanese and Simplified Chinese), caption (11px), text-muted-raised · palette-hint-gap (14px) · space-sm (8px) vertical and space-md (12px) horizontal padding · <span className="tok">--tasty-border-strong</span> line above</>], ["short screen", "palette clamped to screen \u00b7 search and footer keep height \u00b7 list scrolls in remaining space, min 1 row"], ["frame edge", <>1px <span className="tok">--tasty-border-frame</span> — the popup frame, on the raised shell as on a base one</>]]}
+            specs={[["width", "--tasty-palette-width"], ["anchor", "top, ~40–90px"], ["header", <>Input + <span className="tok">--tasty-border-strong</span> line below</>], ["rows", <>28px MenuItem · empty query leaves rows unhighlighted, with hover tint under the pointer · query text highlights the selected row · each edit resets selection to the first match · ↑ and ↓ move selection</>], ["no results", "“No matching commands” · text-muted-raised · italic · inside the list’s space-sm padding · no padding of its own"], ["footer", <>↑↓ navigate, ↵ run, esc close · font-label (mono in English and Korean, UI face in Japanese and Simplified Chinese), caption (11px), text-muted-raised · palette-hint-gap (14px) · space-sm (8px) vertical and space-md (12px) horizontal padding · <span className="tok">--tasty-border-strong</span> line above</>], ["short screen", "palette clamped to screen \u00b7 search and footer keep height \u00b7 list scrolls in remaining space, min 1 row"], ["frame edge", <>1px <span className="tok">--tasty-border-frame</span> — the popup frame, on the raised shell as on a base one</>]]}
             tokens={[{ tok: "--tasty-surface-raised", use: "frame", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-border-frame", use: "frame edge", color: "var(--tasty-border-frame)" }, { tok: "--tasty-border-strong", use: "header and footer lines — a divider on raised", color: "var(--tasty-border-strong)" }, { tok: "--tasty-surface-active", use: "highlight", color: "var(--tasty-surface-active)" }, { tok: "--tasty-font-label", use: "hints" }, { tok: "--tasty-palette-hint-gap", use: "spacing between footer hints" }]} />
         </Spec>
         <Spec id="search-field-ground-normal-focused" title="Search field ground — normal · focused"
