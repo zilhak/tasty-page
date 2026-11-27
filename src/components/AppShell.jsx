@@ -114,41 +114,27 @@ function focusIf(el) {
   return document.activeElement === el;
 }
 
-function OverlayLayer({ open, lock, trap, fallback, scale, children }) {
+function OverlayLayer({ open, lock, trap, windowKey, restoreTo, scale, children }) {
   const [host, setHost] = React.useState(null);
-  // The last page control that held focus. A window's own autofocus runs before this layer's effects, so the
-  // opener is taken from here rather than from document.activeElement when the window mounts.
-  const lastOutside = React.useRef(null);
-  React.useEffect(() => {
-    setHost(document.body);
-    const note = (e) => {
-      if (e.target instanceof HTMLElement && !e.target.closest(`.${LAYER_CLASS}`)) lastOutside.current = e.target;
-    };
-    document.addEventListener("focusin", note, true);
-    return () => document.removeEventListener("focusin", note, true);
-  }, []);
+  React.useEffect(() => { setHost(document.body); }, []);
   React.useEffect(() => {
     if (!lock) return;
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => { document.body.style.overflow = prev; };
   }, [lock]);
+  const layer = () => host?.querySelector(`:scope > .${LAYER_CLASS}`);
   // Content under a window's scrim is inactive (vendor/RULES.md). While a window is open the page behind the
-  // layer is inert, focus moves into the window, and Tab and Shift+Tab wrap at its ends. A handler inside the
-  // window that already took the key (the ports Columns chooser) keeps it. When the window closes, focus goes
-  // back to the control that opened it, or to the demo's active tab when that control is no longer shown.
+  // layer is inert and Tab and Shift+Tab wrap at the window's ends. A handler inside the window that already
+  // took the key (the ports Columns chooser) keeps it.
   React.useEffect(() => {
     if (!trap || !host) return;
-    const opener = lastOutside.current;
-    const layer = () => host.querySelector(`:scope > .${LAYER_CLASS}`);
     const made = [];
     for (const el of host.children) {
       if (el.classList.contains(LAYER_CLASS) || el.inert) continue;
       el.inert = true;
       made.push(el);
     }
-    const root = layer();
-    if (root && !root.contains(document.activeElement)) tabStops(root)[0]?.focus();
     const wrap = (e) => {
       if (e.key !== "Tab" || e.defaultPrevented) return;
       const box = layer();
@@ -166,9 +152,27 @@ function OverlayLayer({ open, lock, trap, fallback, scale, children }) {
     return () => {
       window.removeEventListener("keydown", wrap);
       for (const el of made) el.inert = false;
-      if (!focusIf(opener)) focusIf(fallback?.());
     };
   }, [trap, host]);
+  // Each window that opens, including one opened from another (palette to settings), takes focus unless its
+  // own autofocus already did.
+  React.useEffect(() => {
+    if (!trap || !host) return;
+    const root = layer();
+    if (root && !root.contains(document.activeElement)) tabStops(root)[0]?.focus();
+  }, [trap, windowKey, host]);
+  // When the last menu or window closes and focus went with it, hand focus to the first of restoreTo() that can
+  // take it. Focus the reader moved to a page control while a menu was open stays there. This runs after the
+  // inert cleanup above, so the page can take focus again.
+  React.useEffect(() => {
+    if (!lock || !host) return;
+    return () => {
+      const at = document.activeElement;
+      const kept = at instanceof HTMLElement && at !== document.body && at.isConnected && !at.closest(`.${LAYER_CLASS}`);
+      if (kept) return;
+      for (const el of restoreTo()) if (focusIf(el)) break;
+    };
+  }, [lock, host]);
   if (!host || !open) return null;
   return createPortal(
     <div className={LAYER_CLASS} style={scale}>{children}</div>,
@@ -198,6 +202,23 @@ export function AppShell({ heading = "Workspaces", task = "run tests", doc }) {
   const scale = { "--tasty-ui-scale": `var(--tasty-ui-scale-${uiScale})` };
 
   const anyOverlay = overlay !== null || toolsAnchor !== null;
+  // The page control that opened the current menu or window. A step from one overlay to the next (Tools to a
+  // window, palette to settings) keeps it; a page control that opens a window while the Tools menu is open
+  // takes over, and that window replaces the menu.
+  const trigger = React.useRef(null);
+  const noteTrigger = () => {
+    const at = document.activeElement;
+    if (at instanceof HTMLElement && at !== document.body && !at.closest(`.${LAYER_CLASS}`)) trigger.current = at;
+  };
+  const openWindow = (kind) => { noteTrigger(); setToolsAnchor(null); setOverlay(kind); };
+  // The opener first, then the demo's active tab, then its New tab button when every tab is closed: the
+  // opener can sit in a region a narrow page hides.
+  const restoreTo = () => {
+    const opener = trigger.current;
+    trigger.current = null;
+    const strip = tabsRef.current;
+    return [opener, strip?.querySelector('[role="tab"][aria-selected="true"]'), strip?.querySelector('[aria-label="New tab"]')];
+  };
   React.useEffect(() => {
     if (!anyOverlay) return;
     const h = (e) => { if (e.key === "Escape") { setOverlay(null); setToolsAnchor(null); } };
@@ -322,9 +343,9 @@ export function AppShell({ heading = "Workspaces", task = "run tests", doc }) {
           <Sidebar workspaces={workspaces} activeWs={activeWs} workspacesHeading={heading}
             collapsed={collapsed} onToggle={() => setCollapsed((v) => !v)}
             pluginAlert={pluginAttentionCount || 0}
-            onWs={setActiveWs} onSettings={() => setOverlay("settings")}
-            onPlugins={() => setOverlay("plugins")}
-            onTools={(rect) => setToolsAnchor((a) => (a ? null : rect))} />
+            onWs={setActiveWs} onSettings={() => openWindow("settings")}
+            onPlugins={() => openWindow("plugins")}
+            onTools={(rect) => { noteTrigger(); setToolsAnchor((a) => (a ? null : rect)); }} />
         </div>
         <div className="shell__work">
           {/* Wrapped so the page can reach the kit's tab row, which it styles inline. */}
@@ -373,13 +394,13 @@ export function AppShell({ heading = "Workspaces", task = "run tests", doc }) {
           <div className="shell__status">
             <StatusBar surfaceId={tab?.kind === "markdown" ? "3" : tab?.kind === "split" ? "4" : "2"} theme={theme}
               onTheme={() => setTheme(theme === "latte" ? "mocha" : "latte")}
-              onPalette={() => setOverlay("palette")} />
+              onPalette={() => openWindow("palette")} />
           </div>
         </div>
       </div>
 
-      <OverlayLayer open={anyOverlay || toast !== null} lock={anyOverlay} trap={overlay !== null} scale={scale}
-        fallback={() => tabsRef.current?.querySelector('[role="tab"][aria-selected="true"]')}>
+      <OverlayLayer open={anyOverlay || toast !== null} lock={anyOverlay} trap={overlay !== null}
+        windowKey={overlay} restoreTo={restoreTo} scale={scale}>
         {toolsAnchor && <ToolsMenu anchor={toolsAnchor} onClose={() => setToolsAnchor(null)} onAction={runTool} />}
         {overlay === "palette" && <CommandPalette onClose={() => setOverlay(null)} onRun={runCmd} />}
         {overlay === "settings" && <SettingsWindow theme={theme} onTheme={setTheme}
