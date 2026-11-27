@@ -32,11 +32,13 @@ function Surf({ s, rm }) {
   if (s.type === "empty") return <Empty loading={s.loading} rm={rm} />;
   return <div style={{ flex: 1, minWidth: 0, minHeight: 0, display: "flex", outline: s.selected ? "var(--tasty-border-width) solid var(--tasty-border-focus)" : "none", outlineOffset: "calc(-1 * var(--tasty-border-width))" }}><TermSurface w="100%" h="100%" loading={s.loading} rm={rm} /></div>;
 }
-function Pane({ pane, rm, first }) {
+// One pane holds the focus in a frame, and that one value picks its strip and its cells' ground, as the app's tab bar
+// does (tab_bar/view.rs: the focused pane's strip is raised, the rest bg-sidebar). focused: the strip is raised.
+function Pane({ pane, rm, first, focused }) {
   return (
     <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", borderLeft: first ? "none" : "var(--tasty-border-width) solid var(--tasty-separator)" }}>
-      <div style={{ display: "flex", background: "var(--tasty-surface-raised)", borderBottom: "var(--tasty-border-width) solid var(--tasty-border-strong)", overflow: "hidden", flex: "none" }}>
-        {pane.tabs.map((t, i) => <LTab key={i} label={t.label} kind={t.kind || "terminal"} active={t.active} loading={t.loading} rm={rm} ground="raised" width={t.w || "var(--tasty-size-120)"} />)}
+      <div style={{ display: "flex", background: focused ? "var(--tasty-surface-raised)" : "var(--tasty-bg-sidebar)", borderBottom: `var(--tasty-border-width) solid var(--tasty-${focused ? "border-strong" : "separator"})`, overflow: "hidden", flex: "none" }}>
+        {pane.tabs.map((t, i) => <LTab key={i} label={t.label} kind={t.kind || "terminal"} active={t.active} loading={t.loading} rm={rm} ground={focused ? "raised" : "mantle"} width={t.w || "var(--tasty-size-120)"} />)}
       </div>
       <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: pane.dir === "column" ? "column" : "row", gap: "var(--tasty-border-width)", background: "var(--tasty-separator)" }}>
         {pane.surfaces.map((s, i) => <Surf key={i} s={s} rm={rm} />)}
@@ -45,7 +47,8 @@ function Pane({ pane, rm, first }) {
   );
 }
 // lnb: [{ name, active, loading, status }] · panes: [{ tabs, surfaces, dir }] · pending: { count, elapsed } | null
-function Frame({ lnb, panes, pending, rm, w = 600, h = 200, lnbW = true }) {
+// focus: the index of the pane that holds the focus (one per frame).
+function Frame({ lnb, panes, pending, rm, w = 600, h = 200, lnbW = true, focus = 0 }) {
   const NoticeColumn = (Kit_NoticeColumn) || null;
   return (
     <div style={{ width: w, maxWidth: "100%", height: h, display: "flex", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden", background: "var(--tasty-bg-app)", flex: "none" }}>
@@ -53,7 +56,7 @@ function Frame({ lnb, panes, pending, rm, w = 600, h = 200, lnbW = true }) {
         {lnb.map((r, i) => <LRow key={i} name={r.name} active={r.active} loading={r.loading} status={r.status || (r.active ? "running" : "idle")} mirror={r.mirror} rm={rm} />)}
       </div>}
       <div style={{ position: "relative", flex: 1, minWidth: 0, display: "flex" }}>
-        {panes.map((p, i) => <Pane key={i} pane={p} rm={rm} first={i === 0} />)}
+        {panes.map((p, i) => <Pane key={i} pane={p} rm={rm} first={i === 0} focused={i === focus} />)}
         {pending && (NoticeColumn
           ? <NoticeColumn topOffset="var(--tasty-tab-height)"><PendingIndicator {...pending} reducedMotion={rm} /></NoticeColumn>
           : <div style={{ position: "absolute", top: "calc(var(--tasty-tab-height) + var(--tasty-space-sm))", right: "var(--tasty-space-sm)" }}><PendingIndicator {...pending} reducedMotion={rm} /></div>)}
@@ -98,10 +101,14 @@ function GalleryLoadingPrelayout() {
               <Arrow />
               <Cell label="confirmed"><Frame w={W} h={H} lnb={WS(false)} panes={[{ tabs: [T("server", { active: true }), T("logs")], surfaces: [TERM(), TERM()] }]} /></Cell>
             </Row>
+            {/* Pane split: the request selects the new draft pane, which then takes the keys (app attach_pending begin and
+                command_target), so its strip is the raised one; the response moves the focus to the real pane in its
+                place (attach_pending applied). The app also paints the first pane's strip raised while the draft is
+                selected, because it compares that strip with the navigation's pane: app handoff. */}
             <Row>
-              <Cell label="pane split · a new pane with its OWN tab strip (one tab, loading) and new content"><Frame w={W} h={H} lnb={WS(true)} panes={[{ tabs: [T("server", { active: true }), T("logs")], surfaces: [TERM()] }, { tabs: [T("New tab", { active: true, loading: true, w: "var(--tasty-size-120)" })], surfaces: [EMPTY()] }]} /></Cell>
+              <Cell label="pane split · a new pane with its OWN tab strip (one tab, loading) and new content"><Frame w={W} h={H} focus={1} lnb={WS(true)} panes={[{ tabs: [T("server", { active: true }), T("logs")], surfaces: [TERM()] }, { tabs: [T("New tab", { active: true, loading: true, w: "var(--tasty-size-120)" })], surfaces: [EMPTY()] }]} /></Cell>
               <Arrow />
-              <Cell label="confirmed"><Frame w={W} h={H} lnb={WS(false)} panes={[{ tabs: [T("server", { active: true }), T("logs")], surfaces: [TERM()] }, { tabs: [T("htop", { active: true })], surfaces: [TERM()] }]} /></Cell>
+              <Cell label="confirmed"><Frame w={W} h={H} focus={1} lnb={WS(false)} panes={[{ tabs: [T("server", { active: true }), T("logs")], surfaces: [TERM()] }, { tabs: [T("htop", { active: true })], surfaces: [TERM()] }]} /></Cell>
             </Row>
           </Themed>
         </Stage>
