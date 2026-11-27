@@ -245,6 +245,37 @@ const msSummary = (n, total) => (n === 0 ? null : n === total ? "All" : n + " se
 // data-force="hover", which mirrorPseudoStates maps to MenuItem's own :hover rules. The frame is a MenuItem cell in the
 // keyboard-active state on the raised ground: the check holds every part to the keyboard-active inks, so a hover rule
 // that outranked the active state would show here as a mismatch.
+// The MenuItem demo takes the keys: with the menu focused, Up and Down move the keyboard-active row and stop at the
+// ends, so a row the keyboard leaves under a still pointer can be watched drawing the hover tint in the same frame.
+function MenuItemKeyDemo() {
+  const rows = [
+    { label: "New tab", icon: ic.term, shortcut: <Kbd keys="Ctrl+T" /> },
+    { label: "Split pane", icon: ic.split, shortcut: <Kbd keys="Ctrl+D" /> },
+    { label: "Copy path", icon: ic.copy },
+    { label: "Move to Trash", icon: ic.trash, danger: true },
+  ];
+  const [at, setAt] = React.useState(0);
+  const onKeyDown = (e) => {
+    if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
+    e.preventDefault();
+    setAt((v) => Math.max(0, Math.min(rows.length - 1, v + (e.key === "ArrowDown" ? 1 : -1))));
+  };
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
+      <div role="menu" aria-label="MenuItem demo" tabIndex={0} onKeyDown={onKeyDown}
+        style={{ background: "var(--tasty-menu-bg)", border: "var(--tasty-border-width) solid var(--tasty-menu-border)", borderRadius: "var(--tasty-radius)", padding: 6, width: 280 }}>
+        {rows.map((r, i) => (
+          <React.Fragment key={r.label}>
+            {r.danger && <MenuItem separator />}
+            <MenuItem label={r.label} icon={r.icon} shortcut={r.shortcut || null} danger={!!r.danger} active={i === at} />
+          </React.Fragment>
+        ))}
+      </div>
+      <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>Focus menu · hover active row · ↑ ↓ step, stop at ends · tint returns at once</span>
+    </div>
+  );
+}
+
 function MenuItemActiveUnderPointer() {
   React.useEffect(() => { mirrorPseudoStates(); }, []);
   return (
@@ -673,15 +704,7 @@ function Components() {
 
         <Spec id="menuitem" title="MenuItem"
           when={<>A <b>28px</b> row for context menus, the command palette, and tools menus — icon + label + trailing shortcut. <b>active</b> = keyboard-highlighted; <b>danger</b> for destructive; <code>separator</code> draws a thin rule.</>}>
-          <Stage variant="tight">
-            <div style={{ background: "var(--tasty-menu-bg)", border: "var(--tasty-border-width) solid var(--tasty-menu-border)", borderRadius: "var(--tasty-radius)", padding: 6, width: 280 }}>
-              <MenuItem label="New tab" icon={ic.term} shortcut={<Kbd keys="Ctrl+T" />} active />
-              <MenuItem label="Split pane" icon={ic.split} shortcut={<Kbd keys="Ctrl+D" />} />
-              <MenuItem label="Copy path" icon={ic.copy} />
-              <MenuItem separator />
-              <MenuItem label="Move to Trash" icon={ic.trash} danger />
-            </div>
-          </Stage>
+          <Stage variant="tight"><MenuItemKeyDemo /></Stage>
           <Meta
             specs={[["height", <>28px <span className="tok">--tasty-control-height</span></>], ["label · rest", <span className="tok">--tasty-menu-item-fg</span>], ["label · hover/active", <span className="tok">--tasty-menu-item-fg-hover</span>], ["row pitch", "28 — rows flush, no gap (every menu incl. the … menu)"], ["active", <span className="tok">--tasty-surface-active</span>], ["danger", <span className="tok">--tasty-accent-danger</span>]]}
             tokens={[{ tok: "--tasty-menu-item-fg", use: "resting label → text-secondary-raised", color: "var(--tasty-menu-item-fg)" }, { tok: "--tasty-menu-item-fg-hover", use: "hover / active label → text-on-active", color: "var(--tasty-menu-item-fg-hover)" }, { tok: "--tasty-surface-active", use: "highlighted", color: "var(--tasty-surface-active)" }, { tok: "--tasty-accent-danger", use: "destructive", color: "var(--tasty-accent-danger-raised)" }, { tok: "--tasty-text-muted", use: "shortcut", color: "var(--tasty-text-muted)" }]} />

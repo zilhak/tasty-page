@@ -24,12 +24,15 @@ const CSS = `
 }
 /* The fill eases in only on pointer hover. A transition runs by the style a row changes to, so the rest row has
    none: a row the keyboard leaves drops its active fill at once, with its ink, and a row the pointer leaves drops
-   its tint at once (the app draws no fade either way). */
+   its tint at once (the app draws no fade either way). A row the keyboard leaves while the pointer is still on it
+   changes to the hover style, which would ease from the active fill; MenuItem marks that one change data-snap so
+   the row draws the hover tint in the same frame (see the component below). */
 .tasty-menuitem:hover { background: var(--tasty-menu-item-bg-hover); color: var(--tasty-menu-item-fg-hover); transition: background var(--tasty-motion-ui-fast) var(--tasty-ease-ui); }
 .tasty-menuitem--active { background: var(--tasty-surface-active); color: var(--tasty-menu-item-fg-hover); }
 /* keyboard-active outranks hover, as the app's menu_item picks active before hover: the pointer over the active row
    leaves its fill and inks as they are, and the active fill comes and goes at once, pointer or not */
 .tasty-menuitem--active:hover { background: var(--tasty-surface-active); color: var(--tasty-menu-item-fg-hover); transition: none; }
+.tasty-menuitem[data-snap], .tasty-menuitem[data-snap]:hover { transition: none; }
 .tasty-menuitem--danger:hover { color: var(--tasty-accent-danger-strong); }
 .tasty-menuitem--danger { color: var(--tasty-accent-danger-raised); }
 .tasty-menuitem--active .tasty-kbd__plus { color: var(--tasty-kbd-plus-fg-active); }
@@ -56,6 +59,9 @@ const CSS = `
 .tasty-menu-sep { height: var(--tasty-border-width); margin: var(--tasty-space-xs) 0; background: var(--tasty-menu-separator); }
 `;
 
+// The layout effect runs only in the browser; a server render (the site's static pages) takes the plain effect.
+const useBeforePaint = typeof window === "undefined" ? React.useEffect : React.useLayoutEffect;
+
 let injected = false;
 function ensureCss() {
   if (injected || typeof document === "undefined") return;
@@ -80,6 +86,19 @@ export function MenuItem({
   ...rest
 }) {
   ensureCss();
+  // Leaving keyboard-active is drawn at once, pointer or not: the change that drops the class also sets data-snap
+  // before the browser paints, so no transition starts from the active fill, and two frames later the mark goes,
+  // which leaves the hover tint's ease for the pointer's next entry. It changes no value, so it starts nothing.
+  const rowRef = React.useRef(null);
+  const wasActive = React.useRef(active);
+  useBeforePaint(() => {
+    const el = rowRef.current;
+    if (wasActive.current && !active && el) {
+      el.setAttribute("data-snap", "");
+      requestAnimationFrame(() => requestAnimationFrame(() => el.removeAttribute("data-snap")));
+    }
+    wasActive.current = active;
+  }, [active]);
   if (separator) return <div className="tasty-menu-sep" role="separator" />;
   const cls = [
     "tasty-menuitem",
@@ -90,7 +109,7 @@ export function MenuItem({
     className,
   ].filter(Boolean).join(" ");
   return (
-    <div className={cls} data-disabled={disabled} aria-disabled={disabled || undefined} role={selected ? "menuitemradio" : "menuitem"} aria-checked={selected || undefined} {...rest}>
+    <div ref={rowRef} className={cls} data-disabled={disabled} aria-disabled={disabled || undefined} role={selected ? "menuitemradio" : "menuitem"} aria-checked={selected || undefined} {...rest}>
       {icon && <span className="tasty-menuitem__icon">{icon}</span>}
       <span className="tasty-menuitem__label">{label}</span>
       {shortcut != null && <span className="tasty-menuitem__shortcut">{shortcut}</span>}
