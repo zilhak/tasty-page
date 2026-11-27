@@ -168,7 +168,7 @@ function HtmlAddressSurfaceG({ width, height = 300, label = "report.html", bar =
   
   return (
     <div style={{ width, height, flex: width ? "none" : 1, minWidth: 0, display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)", overflow: "hidden" }}>
-      <div style={{ display: "flex", flex: "none", background: "var(--tasty-bg-sidebar)", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
+      <div style={{ display: "flex", flex: "none", background: "var(--tasty-bg-sidebar)" }}>
         <HsTab label={label} icon="html" active />
       </div>
       {!noBand && <HtmlAddressBar narrow={narrow} {...bar} />}

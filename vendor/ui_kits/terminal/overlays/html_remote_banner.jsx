@@ -166,7 +166,7 @@ function HtmlRemoteSurfaceG({ width, height = 300, narrow = false, remote = null
   const address = web ? RC_WEB.address : mirror ? "/home/me/reports/q3/report.html" : "~/reports/q3/report.html";
   return (
     <div style={{ width, height, flex: width ? "none" : 1, minWidth: 0, display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)", overflow: "hidden" }}>
-      <div style={{ display: "flex", flex: "none", background: "var(--tasty-bg-sidebar)", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
+      <div style={{ display: "flex", flex: "none", background: "var(--tasty-bg-sidebar)" }}>
         <HsTab label={web ? RC_WEB.label : "report.html"} icon="html" active marker={scriptMarker} markerWeb={web} />
       </div>
       <HtmlAddressBar kind={kind} address={address} narrow={narrow} state={loading ? "loading" : "idle"}

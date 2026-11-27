@@ -4,6 +4,7 @@ import { Icon as HsIcon } from "../../../components/core/Icon.jsx";
 import { IconButton } from "../../../components/core/IconButton.jsx";
 import { Spinner } from "../../../components/feedback/Spinner.jsx";
 import { Tooltip } from "../../../components/feedback/Tooltip.jsx";
+import { tabLook, TabMark } from "../../../components/navigation/Tab.jsx";
 import { HtmlPageState } from "./html_page_state.jsx";
 
 // HTML surface — script-blocked notice (INSET banner) + tab-strip marker.
@@ -123,12 +124,16 @@ function HtmlScriptMarker({ kind = "blocked", hover = false, web = false, open =
   );
 }
 
+// The tab cell of an HTML pane strip. The strip is bg-sidebar with no line under it, and the cell takes its fill, ink
+// and active mark from tabLook and TabMark (components/navigation/Tab.jsx), as the shared Tab does: the default
+// Underline keeps the strip's fill and draws a tab-indicator bar across the top (app tab_bar/view.rs, tab.rs).
 function HsTab({ label, icon, active, marker, markerWeb = false, markerOpen = false }) {
+  const look = tabLook({ active });
   return (
-    <span style={{ display: "inline-flex", alignItems: "center", height: "var(--tasty-control-height-tab)",
+    <span style={{ position: "relative", display: "inline-flex", alignItems: "center", height: "var(--tasty-control-height-tab)",
       padding: "0 var(--tasty-space-xs) 0 var(--tasty-tab-padding-x)", width: "var(--tasty-tab-width)", fontSize: "var(--tasty-font-size-caption)", borderRight: "var(--tasty-border-width) solid var(--tasty-separator)",
-      background: active ? "var(--tasty-bg-panel)" : "transparent", color: active ? "var(--tasty-text-primary)" : "var(--tasty-text-muted)",
-      boxShadow: active ? "inset 0 calc(-1 * var(--tasty-tab-indicator-width)) 0 var(--tasty-accent-primary)" : "none" }}>
+      background: look.fill, color: look.ink }}>
+      <TabMark mark={look.mark} />
       <span style={{ display: "inline-flex", flex: "none", marginRight: "var(--tasty-tab-icon-gap)" }}><HsIcon name={icon} size="var(--tasty-tab-icon-size)" /></span>
       <span style={{ flex: 1, minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{label}</span>
       <span style={{ flex: "none", display: "inline-flex", alignItems: "center", gap: "var(--tasty-tab-status-gap)", marginLeft: "var(--tasty-tab-gap)" }}>
@@ -164,7 +169,7 @@ function HsFailed({ url = "file:///Users/me/report.html" }) {
 function HtmlSurfaceG({ banner = "blocked", marker = null, remote = false, hover = false, narrow = false, width, height = 260, label = "report.html", failed = false }) {
   return (
     <div style={{ width, height, flex: width ? "none" : 1, minWidth: 0, display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)", overflow: "hidden" }}>
-      <div style={{ display: "flex", flex: "none", background: "var(--tasty-bg-sidebar)", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
+      <div style={{ display: "flex", flex: "none", background: "var(--tasty-bg-sidebar)" }}>
         <HsTab label={label} icon="html" active marker={marker} />
       </div>
       {banner && (
@@ -181,7 +186,7 @@ function HtmlSurfaceG({ banner = "blocked", marker = null, remote = false, hover
 function TermSurfaceG({ height = 260 }) {
   return (
     <div style={{ flex: 1, minWidth: 0, height, display: "flex", flexDirection: "column", background: "var(--tasty-surface-terminal-unfocused-bg)" }}>
-      <div style={{ display: "flex", flex: "none", background: "var(--tasty-bg-sidebar)", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
+      <div style={{ display: "flex", flex: "none", background: "var(--tasty-bg-sidebar)" }}>
         <HsTab label="zsh" icon="terminal" />
       </div>
       <div data-terminal-content="" style={{ padding: "var(--tasty-space-md)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-term-sm)", color: "var(--tasty-surface-terminal-unfocused-fg)" }}>~/tasty $ open report.html</div>
