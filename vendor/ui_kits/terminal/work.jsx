@@ -44,16 +44,18 @@ const shouldPulse = (status) => status === "running" || status === "agent" || st
 // window has one pane and it is focused, so true is the default; a picture of an unfocused pane passes false. Each tab
 // takes the same ground (Tab's ground), and the + and pane action IconButtons sit on it (IconButton on raised). The app
 // draws no line under the strip (tab_bar/view.rs fills the strip and draws only the separators between and after tabs),
-// so the strip ends at its own fill.
+// so the strip ends at its own fill. A tab keeps its full width, as the app's (tab_bar/view.rs lays every tab at
+// tab_width and clips the row to its viewport, which scrolls): when the tabs pass the room, the row clips them and a host
+// scrolls it (scrollLeft) to show the active tab; no tab shrinks.
 function TabStrip({ tabs, active, onSelect, onClose, onNew, onSearch, focused = true }) {
   const ground = focused ? "raised" : "mantle";
   return (
     <div style={{ display: "flex", alignItems: "stretch", background: focused ? "var(--tasty-tab-bg-raised)" : "var(--tasty-tab-bg)", flex: "none" }}>
-      <div style={{ display: "flex", overflow: "hidden" }}>
+      <div style={{ display: "flex", minWidth: 0, overflow: "hidden" }}>
         {tabs.map((t) => (
           <Tab key={t.id} label={t.title} icon={t.kind === "markdown" ? ic.md : ic.term}
             active={t.id === active} ground={ground} status={tabBusy(t.activity) ? "busy" : "idle"} attached={t.attached} notif={t.notif}
-            onClick={() => onSelect(t.id)} onClose={() => onClose(t.id)} />
+            style={{ flex: "none" }} onClick={() => onSelect(t.id)} onClose={() => onClose(t.id)} />
         ))}
       </div>
       <div style={{ display: "flex", alignItems: "center", padding: "0 var(--tasty-space-sm)" }}>
