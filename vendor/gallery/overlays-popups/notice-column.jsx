@@ -34,9 +34,10 @@ function Term({ lines = LINES, search }) {
 // tall with no line under it, as the app's (tab_bar/view.rs), so the 24px Tab fills it and the column's top offset of
 // one tab height starts right below it. As the app's strip, each tab keeps its full width and the strip clips it at the
 // pane's edge (tab_bar/view.rs clips the tabs to the strip's viewport), so a narrow pane cuts the tab, not the pane.
+// The strip is a picture: inert, so its close buttons take neither the pointer nor focus.
 function Strip({ tabs = ["main"] }) {
   return (
-    <div style={{ flex: "none", minWidth: 0, height: "var(--tasty-tab-height)", display: "flex", overflow: "hidden", background: "var(--tasty-surface-raised)" }}>
+    <div inert="" style={{ flex: "none", pointerEvents: "none", minWidth: 0, height: "var(--tasty-tab-height)", display: "flex", overflow: "hidden", background: "var(--tasty-surface-raised)" }}>
       {tabs.map((t, i) => <Tab key={t} label={t} icon={<Icon name="terminal" />} active={i === 0} ground="raised" style={{ flex: "none" }} />)}
     </div>
   );
