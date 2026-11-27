@@ -45,11 +45,15 @@ const TOOLS_PLUGIN = [
 // Tools button, left-aligned with it, at its own size; then it is cut down to the room it may take and moved inside
 // it, each axis on its own (top in [room.top, room.bottom - height], left in [room.left, room.right - width]). A menu
 // taller than the room takes the room's height and its rows scroll, and one wider than the room takes the room's width
-// (its labels ellipsize): the cut size is the size it is drawn at, as clamp_to_screen sets the popup's size. The place
-// is fixed when the menu opens.
+// (its labels ellipsize): the cut size is the size it is drawn at, as clamp_to_screen sets the popup's size.
+// The anchor is the one the menu opened at. The menu keeps its own size (measured when it opens) apart from the size
+// it is cut to, and fits that own size into the current room again whenever the window is resized, as the app clamps
+// the popup to the current scope bounds every frame: a menu cut by a smaller window grows back when it grows.
 // anchor: the button's client rect (Sidebar's onTools(rect, button)). bounds: the room, a client rect
-// { top, right, bottom, left }; a host that covers part of the window with its own fixed chrome (the site's header)
-// passes the part left over. Without bounds the room is the window.
+// { top, right, bottom, left }, or a function that returns one; a host that covers part of the window with its own
+// fixed chrome (the site's header) passes the part left over. A function is read when the menu opens and on every
+// window resize, so a room that follows the window (or the chrome's current edge) stays current; a rect is fixed.
+// Without bounds the room is the window, read the same way.
 function placeToolsMenu(anchor, size, room) {
   const h = Math.min(size.h, room.bottom - room.top);
   const w = Math.min(size.w, room.right - room.left);
@@ -79,14 +83,34 @@ function ToolsMenu({ anchor, bounds = null, hostRuns = null, onClose, onAction }
   const [place, setPlace] = React.useState(null);
   // The menu takes the keys once it is placed: until then it is hidden, and a hidden element takes no focus.
   React.useEffect(() => { if (place && menuRef.current) menuRef.current.focus({ preventScroll: true }); }, [!!place]);
+  // The menu's own size, measured once while it is drawn uncut and hidden, before the first place.
+  const need = React.useRef(null);
   useBeforePaint(() => {
     const el = menuRef.current;
     if (!el) return;
-    const room = bounds || { top: 0, left: 0, right: window.innerWidth, bottom: window.innerHeight };
+    const roomOf = () => (typeof bounds === "function" ? bounds()
+      : bounds || { top: 0, left: 0, right: window.innerWidth, bottom: window.innerHeight });
     const r = el.getBoundingClientRect();
-    setPlace(placeToolsMenu(anchor, { w: r.width, h: r.height }, room));
+    need.current = { w: r.width, h: r.height };
+    const fit = () => setPlace(placeToolsMenu(anchor, need.current, roomOf()));
+    fit();
+    window.addEventListener("resize", fit);
+    return () => window.removeEventListener("resize", fit);
   }, []);
-  const go = (i) => { setKb(i); const el = menuRef.current && menuRef.current.querySelector(`[data-row="${i}"]`); if (el) el.focus({ preventScroll: true }); };
+  // A row a key marks is shown inside the menu: the menu scrolls the least that shows the whole row with the menu's
+  // padding, and the page does not move (the focus takes no scroll of its own), as the palette shows its selection.
+  const go = (i) => {
+    setKb(i);
+    const menu = menuRef.current;
+    const el = menu && menu.querySelector(`[data-row="${i}"]`);
+    if (!el) return;
+    el.focus({ preventScroll: true });
+    const pad = parseFloat(getComputedStyle(menu).paddingTop) || 0;
+    const top = el.offsetTop - pad;
+    const bottom = el.offsetTop + el.offsetHeight + pad;
+    if (top < menu.scrollTop) menu.scrollTop = top;
+    else if (bottom > menu.scrollTop + menu.clientHeight) menu.scrollTop = bottom - menu.clientHeight;
+  };
   const runnable = rows.map((r, i) => (r.disabled ? -1 : i)).filter((i) => i >= 0);
   const onKeyDown = (e) => {
     const down = e.key === "ArrowDown" || (e.key === "Tab" && !e.shiftKey);

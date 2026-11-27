@@ -117,6 +117,43 @@ function ToolsMenuInRoomFrame({ band = TM_ROOM.band, btnTop = TM_ROOM.btnTop, ho
   );
 }
 
+// The kit's Tools menu, live, in a room shorter than the menu: the Tools button opens it as a host does, with the
+// button's rect as the anchor and the box as the room (both in the box's coordinates, as the menu is placed inside
+// the box), so the menu is cut to the box and scrolls. It takes the keys once it is placed; a key that marks a row out
+// of view scrolls the menu to it, and the page stays where it is. Running a row or Esc closes it and hands the focus
+// back to the button. The frozen views below are for the contrast check; this one is for the pointer and the keys.
+function ToolsMenuLiveDemo() {
+  const boxRef = React.useRef(null);
+  const btnRef = React.useRef(null);
+  const [anchor, setAnchor] = React.useState(null);
+  const room = React.useCallback(() => {
+    const box = boxRef.current;
+    return { top: 0, left: 0, right: box ? box.clientWidth : 0, bottom: box ? box.clientHeight : 0 };
+  }, []);
+  const close = React.useCallback(() => {
+    setAnchor(null);
+    const b = btnRef.current && btnRef.current.querySelector("button");
+    if (b) b.focus({ preventScroll: true });
+  }, []);
+  const open = (e) => {
+    const box = boxRef.current.getBoundingClientRect();
+    const r = e.currentTarget.getBoundingClientRect();
+    setAnchor((a) => (a ? null : { top: r.top - box.top, bottom: r.bottom - box.top, left: r.left - box.left, right: r.right - box.left, width: r.width, height: r.height }));
+  };
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", width: TM_ROOM.w, maxWidth: "100%" }}>
+      <div ref={boxRef} data-tools-live="" style={{ position: "relative", height: 240, overflow: "hidden",
+        background: "var(--tasty-bg-app)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
+        <div ref={btnRef} style={{ position: "absolute", left: 8, bottom: 8, width: 160 }}>
+          <Button variant="ghost" size="sm" block leadingIcon={ic.tools} style={{ justifyContent: "flex-start" }} onClick={open}>Tools</Button>
+        </div>
+        {anchor && <ToolsMenu anchor={anchor} bounds={room} onClose={close} onAction={close} />}
+      </div>
+      <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>click Tools · ↓ ↑ Tab Shift+Tab mark rows · short room → menu scrolls as needed · Enter or Space runs the marked row · Esc closes</span>
+    </div>
+  );
+}
+
 function Page() {
   return (
     <>
@@ -124,8 +161,9 @@ function Page() {
         <Spec id="tools-menu-anchored-no-scrim" title="Tools menu — anchored, no scrim"
           when={<>A popup anchored <b>above</b> the sidebar Tools button (left-aligned to it). Unlike the modal layer this is a lightweight menu — <b>no scrim</b>, dismisses on outside click or <Kbd keys="Esc" />. Built-in entries first, in this fixed order — <b>Command palette… · Listening ports… · Remote connections… · Presets · Tutorial… · Task DAGs · Open child graph · Open File…</b> — then a separator, then <b>plugin-contributed</b> tools in manifest <code>order</code> (Clipboard Viewer 100 · Git 130). Every label that opens a further window ends in the single ellipsis character <code>…</code>, never three periods. <b>Width (2026-10-07)</b>: the menu is as wide as its longest row (label + <span className="tok">--tasty-menu-item-padding-x</span> both sides + the 4 ring + border), never narrower than <b>160</b> and never wider than <b>240</b>; a label past 240 ellipsizes at its <b>end</b>. This covers translated labels without a per-locale width.</>}>
           <Stage variant="solo center"><ToolsMenuFrame /></Stage>
+          <Stage variant="solo center"><ToolsMenuLiveDemo /></Stage>
           <Meta
-            specs={[["width", <>fit content · min 160 <span className="tok">--tasty-tools-menu-min-width</span> · max 240 <span className="tok">--tasty-tools-menu-max-width</span></>], ["overflow", "end ellipsis past max"], ["anchor", "above button, left-aligned"], ["kept in room", "as the app's clamp_to_screen · top in [room top, room bottom − height] · left in [room left, room right − width] · room narrower than the menu → room width, labels end in … · menu taller than the room → room height, rows scroll · room = window, or what host passes as bounds (the part its fixed chrome leaves)"], ["rows", "28px MenuItem, no icons"], ["built-in", "8 — fixed order"], ["inner ring", <>4 · <span className="tok">--tasty-popup-content-margin</span></>], ["scrim", "none"], ["dismiss", <>outside click · <span className="ic">Esc</span></>], ["open", "Menu takes keyboard input · no row marked"], ["Down · Tab", "Unmarked → first runnable row · then next runnable row · stop at last"], ["Up · Shift+Tab", "Unmarked → last runnable row · then previous runnable row · stop at first"], ["runnable rows", "Disabled plugin tools are never marked · a host (kit demo, landing) passes the rows it can run; the others draw disabled, as in the host-rows view"], ["keys", "Enter or Space → run marked row, if any · Esc → close menu"], ["marked row", "MenuItem keyboard-active fill and inks · no focus ring · pointer tints others"]]}
+            specs={[["width", <>fit content · min 160 <span className="tok">--tasty-tools-menu-min-width</span> · max 240 <span className="tok">--tasty-tools-menu-max-width</span></>], ["overflow", "end ellipsis past max"], ["anchor", "above button, left-aligned"], ["kept in room", "as the app's clamp_to_screen · top in [room top, room bottom − height] · left in [room left, room right − width] · room narrower than the menu → room width, labels end in … · menu taller than the room → room height, rows scroll · room = window, or what host passes as bounds (the part its fixed chrome leaves)"], ["anchor and size", "anchor stays at the button's position when the menu opened · window resize or host bounds change → fit the menu's own size into the current room again · menu grows back as the room grows"], ["key scrolling", "key marks a row → menu scrolls just enough to show the whole row · page stays put"], ["rows", "28px MenuItem, no icons"], ["built-in", "8 — fixed order"], ["inner ring", <>4 · <span className="tok">--tasty-popup-content-margin</span></>], ["scrim", "none"], ["dismiss", <>outside click · <span className="ic">Esc</span></>], ["open", "Menu takes keyboard input · no row marked"], ["Down · Tab", "Unmarked → first runnable row · then next runnable row · stop at last"], ["Up · Shift+Tab", "Unmarked → last runnable row · then previous runnable row · stop at first"], ["runnable rows", "Disabled plugin tools are never marked · a host (kit demo, landing) passes the rows it can run; the others draw disabled, as in the host-rows view"], ["keys", "Enter or Space → run marked row, if any · Esc → close menu"], ["marked row", "MenuItem keyboard-active fill and inks · no focus ring · pointer tints others"]]}
             tokens={[{ tok: "--tasty-menu-bg", use: "menu fill", color: "var(--tasty-menu-bg)" }, { tok: "--tasty-menu-border", use: "edge → border-strong", color: "var(--tasty-menu-border)" }, { tok: "--tasty-popup-content-margin", use: "→ space-xs 4" }, { tok: "--tasty-tools-menu-min-width", use: "→ size-160" }, { tok: "--tasty-tools-menu-max-width", use: "→ size-240" }, { tok: "--tasty-shadow-popover", use: "lift" }]} />
           <Views>
             <View name="tools-menu-keyboard-row" label="Down twice from open → Listening ports… · keyboard-active">
