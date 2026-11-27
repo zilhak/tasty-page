@@ -714,10 +714,12 @@ function Page() {
           when={<>Top-anchored launcher. A search Input header, a scrollable MenuItem list with the first row pre-highlighted, and a monospace hint footer. The fastest path to any command — every action should be reachable here.</>}>
           <Stage variant="solo center"><Backdrop height={400}><PaletteFrame /></Backdrop></Stage>
           {/* The kit's own card in a room as short as a small screen leaves it: the same column the landing palette lays
-              out, so the list gives up its height first and scrolls, and the search and the footer stay whole. */}
+              out, so the list gives up its height first and scrolls, and the search and the footer stay whole. A frame is a
+              picture, so the card is inert, as in the ports and plugins frames: the search takes no focus and the list
+              stays at its top, which is the frame's state. */}
           <Views>
             <View name="palette-short-screen" label="Command palette — a short-screen layout (scrolling list)">
-              <div style={{ display: "flex", width: "var(--tasty-palette-width)", height: "var(--tasty-short-screen-specimen-height)" }}>
+              <div inert="" style={{ display: "flex", width: "var(--tasty-palette-width)", height: "var(--tasty-short-screen-specimen-height)", pointerEvents: "none" }}>
                 <Kit_ScrimRoom align="top"><Kit_PaletteCard /></Kit_ScrimRoom>
               </div>
             </View>
