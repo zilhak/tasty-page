@@ -19,8 +19,11 @@ import { Kbd } from "../../../components/core/Kbd.jsx";
 // active: index of the keyboard-active row · scrollTo: a row kept in view (the active row in the app)
 // tip: index of a disabled row whose reason is showing (gallery freezes it; the app shows it on pointer hover)
 // onPointerRow(i): the pointer moved onto enabled row i; the caller makes it the active row.
-// One highlight: the active row. pointerHeld (set by the caller after an arrow key) turns the rows' pointer hover
-// off until the pointer moves again (onPointerMove), so a row left under a still pointer is not lit as well.
+// One highlight: the active row. pointerHeld (set by the caller after an arrow key) holds it until the pointer really
+// moves: every row draws MenuItem held, so a row under a still pointer shows no tint beside the active row, and a row
+// the pointer is over takes no entry (a list scrolling under a still pointer does not move the active row). The first
+// real move (one with a movement, not the browser's own re-check after a scroll or a layout change) gives the active
+// row to the enabled row under the pointer, if any, and calls onPointerMove so the caller ends the hold.
 
 // A menu where any row has an icon gives every row the icon slot, so the labels share one left edge.
 function IconSlot() {
@@ -54,6 +57,19 @@ function FallbackMenu({ items, click, active = -1, tip = -1, scrollTo = -1, onPo
   const [pos, setPos] = React.useState(null);
   const [tipAt, setTipAt] = React.useState(null);
   const hasIcon = items.some((it) => it.icon);
+  const onMove = (e) => {
+    if (!pointerHeld) return;
+    if (!e.movementX && !e.movementY) return;
+    if (onPointerRow) {
+      const at = rowRefs.current.findIndex((el, i) => {
+        if (!el || items[i].separator || items[i].enabled === false) return false;
+        const r = el.getBoundingClientRect();
+        return e.clientX >= r.left && e.clientX < r.right && e.clientY >= r.top && e.clientY < r.bottom;
+      });
+      if (at >= 0) onPointerRow(at);
+    }
+    if (onPointerMove) onPointerMove(e);
+  };
   React.useLayoutEffect(() => {
     const panel = panelRef.current;
     if (!panel || !panel.parentElement) return;
@@ -79,7 +95,7 @@ function FallbackMenu({ items, click, active = -1, tip = -1, scrollTo = -1, onPo
     }
   });
   return (
-    <div ref={panelRef} role="menu" data-fallback-menu="" onMouseMove={onPointerMove || undefined} style={{
+    <div ref={panelRef} role="menu" data-fallback-menu="" onMouseMove={onMove} style={{
       position: "absolute", left: pos ? pos.left : click.x, top: pos ? pos.top : click.y, visibility: pos ? "visible" : "hidden",
       width: "max-content",
       minWidth: "min(var(--tasty-fallback-menu-min-width), calc(100% - 2 * var(--tasty-fallback-menu-edge-margin)))",
@@ -87,12 +103,12 @@ function FallbackMenu({ items, click, active = -1, tip = -1, scrollTo = -1, onPo
       maxHeight: "calc(100% - 2 * var(--tasty-fallback-menu-edge-margin))", boxSizing: "border-box", display: "flex", flexDirection: "column",
       background: "var(--tasty-menu-bg)", border: "var(--tasty-border-width) solid var(--tasty-menu-border)",
       borderRadius: "var(--tasty-menu-radius)", padding: "var(--tasty-popup-content-margin)", boxShadow: "var(--tasty-shadow-popover)" }}>
-      <div ref={listRef} className="tasty-scroll" style={{ overflowY: "auto", minHeight: 0, position: "relative", pointerEvents: pointerHeld ? "none" : undefined }}>
+      <div ref={listRef} className="tasty-scroll" style={{ overflowY: "auto", minHeight: 0, position: "relative" }}>
         {items.map((it, i) => it.separator
           ? <MenuItem key={i} separator />
           : <div key={i} ref={(el) => { rowRefs.current[i] = el; }}
-              onMouseEnter={onPointerRow && it.enabled !== false ? () => onPointerRow(i) : undefined}>
-              <MenuItem wrap label={it.label} disabled={it.enabled === false} active={i === active}
+              onMouseEnter={onPointerRow && it.enabled !== false ? () => { if (!pointerHeld) onPointerRow(i); } : undefined}>
+              <MenuItem wrap label={it.label} disabled={it.enabled === false} active={i === active} held={pointerHeld}
                 icon={it.icon || (hasIcon ? <IconSlot /> : null)}
                 shortcut={it.shortcut ? <Kbd keys={it.shortcut} /> : null} />
             </div>)}

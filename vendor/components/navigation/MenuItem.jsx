@@ -54,6 +54,14 @@ const CSS = `
 .tasty-menuitem--active .tasty-menuitem__icon, .tasty-menuitem--active .tasty-menuitem__shortcut, .tasty-menuitem--danger.tasty-menuitem--active, .tasty-menuitem--danger.tasty-menuitem--active .tasty-menuitem__icon { color: var(--tasty-menu-item-part-fg-active); }
 .tasty-menuitem--active:hover .tasty-menuitem__shortcut, .tasty-menuitem--danger.tasty-menuitem--active:hover { color: var(--tasty-menu-item-part-fg-active); }
 .tasty-menuitem--active:hover .tasty-menuitem__check { color: var(--tasty-menu-item-check-fg); }
+/* held — a menu's keys hold the highlight (a fallback menu after an arrow key, until the pointer moves): the pointer's
+   tint is off, so a row under a still pointer draws as at rest and only the keyboard-active row is lit. The browser keeps
+   :hover on that row until the pointer moves, so the hold is drawn here and not by taking the pointer away. */
+.tasty-menuitem--held:not(.tasty-menuitem--active):hover { background: none; color: var(--tasty-menu-item-fg); transition: none; }
+.tasty-menuitem--held.tasty-menuitem--selected:not(.tasty-menuitem--active):hover { color: var(--tasty-menu-item-selected-fg); }
+.tasty-menuitem--held.tasty-menuitem--danger:not(.tasty-menuitem--active):hover { color: var(--tasty-accent-danger-raised); }
+.tasty-menuitem--held:not(.tasty-menuitem--active):hover .tasty-menuitem__shortcut { color: var(--tasty-text-muted-raised); }
+.tasty-menuitem--held:not(.tasty-menuitem--active):hover .tasty-menuitem__check { color: var(--tasty-menu-item-check-fg); }
 .tasty-menuitem[data-disabled="true"] { pointer-events: none; }
 .tasty-menuitem[data-disabled="true"], .tasty-menuitem[data-disabled="true"] * { color: var(--tasty-state-disabled-fg); }
 .tasty-menu-sep { height: var(--tasty-border-width); margin: var(--tasty-space-xs) 0; background: var(--tasty-menu-separator); }
@@ -80,6 +88,7 @@ export function MenuItem({
   active = false,
   selected = false,
   wrap = false,
+  held = false,
   disabled = false,
   separator = false,
   className = "",
@@ -109,6 +118,7 @@ export function MenuItem({
     active ? "tasty-menuitem--active" : "",
     selected ? "tasty-menuitem--selected" : "",
     wrap ? "tasty-menuitem--wrap" : "",
+    held ? "tasty-menuitem--held" : "",
     className,
   ].filter(Boolean).join(" ");
   return (

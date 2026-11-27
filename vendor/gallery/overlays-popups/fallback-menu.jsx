@@ -2,6 +2,7 @@ import React from "react";
 import { Icon, Kbd } from "../../components/index.js";
 import { Section, Spec, Stage, Meta, Note, Dont, Views, View } from "../parts/specimen.jsx";
 import { FallbackMenu } from "../../ui_kits/terminal/overlays/fallback_menu.jsx";
+import { mirrorPseudoStates } from "../parts/state-grid.jsx";
 
 // Tasty Gallery — Popups and menus › Fallback context menu (2026-11-11).
 // Labels are the app's en strings (lang/en.toml [explorer.context_menu], [explorer.menu]). FILE_MENU is the app's
@@ -32,6 +33,19 @@ const MORE_MENU = [
 ];
 const at = (items, label) => items.findIndex((it) => it.label === label);
 
+// A still pointer over one row while the keys hold the highlight. The check does not move the pointer, so the row
+// under it takes data-force="hover", which mirrorPseudoStates maps to MenuItem's own :hover rules, as the MenuItem
+// frames on the components page do. The frame shows the held row drawing as at rest beside the keyboard-active row.
+function HeldUnderPointer({ items, click, active, hover }) {
+  const ref = React.useRef(null);
+  React.useEffect(() => {
+    mirrorPseudoStates();
+    const row = ref.current && ref.current.querySelectorAll("[data-fallback-menu] .tasty-menuitem")[items.filter((it, i) => i < hover && !it.separator).length];
+    if (row) row.setAttribute("data-force", "hover");
+  }, []);
+  return <div ref={ref} inert="" style={{ pointerEvents: "none" }}><FallbackMenu items={items} click={click} active={active} pointerHeld /></div>;
+}
+
 // A faux window: the menu is placed inside this rect, kept var(--tasty-fallback-menu-edge-margin) from each edge.
 // The dot marks the click point; it is a gallery annotation, not part of the menu.
 function FallbackWindow({ w, h, click, caption, children }) {
@@ -49,8 +63,9 @@ function FallbackWindow({ w, h, click, caption, children }) {
 }
 
 // Live demo: right-click inside the window. Arrow keys move the active row and skip disabled rows and separators,
-// wrapping at the ends; the pointer moving onto a row makes it the active row, and after an arrow key the pointer
-// hover stays off until the pointer moves, so one row is lit. Enter runs it, Esc or a click outside closes.
+// wrapping at the ends; the pointer moving onto a row makes it the active row. After an arrow key the menu holds the
+// highlight: a row under a still pointer shows no tint, and the pointer's first real move makes the row under it the
+// active row, so one row is lit. Enter runs it, Esc or a click outside closes.
 function FallbackMenuDemo() {
   const [click, setClick] = React.useState(null);
   const [active, setActive] = React.useState(-1);
@@ -99,6 +114,11 @@ export function FallbackMenuSection() {
           <View name="fallback-menu-keyboard-active" label="Keyboard-active row (↑ ↓), shortcut and icon rows">
             <FallbackWindow w={300} h={300} click={{ x: 16, y: 16 }} caption="active: Show in File Manager">
               <FallbackMenu items={FILE_MENU} click={{ x: 16, y: 16 }} active={at(FILE_MENU, "Show in File Manager")} />
+            </FallbackWindow>
+          </View>
+          <View name="fallback-menu-pointer-held" label="Pointer still on Copy Path, then ↓ → Copy active, Copy Path at rest">
+            <FallbackWindow w={300} h={300} click={{ x: 16, y: 16 }} caption="held: one row lit">
+              <HeldUnderPointer items={FILE_MENU} click={{ x: 16, y: 16 }} active={at(FILE_MENU, "Copy")} hover={at(FILE_MENU, "Copy Path")} />
             </FallbackWindow>
           </View>
           <View name="fallback-menu-disabled-reason" label="Disabled row with its reason, tooltip right of the menu">
@@ -153,7 +173,7 @@ export function FallbackMenuSection() {
             ["disabled", "MenuItem disabled · no hover fill · skipped by the arrow keys · its reason shows as the shared Tooltip on pointer hover, after the tooltip delay"],
             ["reason", "Tooltip centred on the row, tooltip-offset gap from the menu edge · right if tooltip-max-width + tooltip-offset <= the room between the menu and the edge margin on the right, else left if that fits on the left, else the side with more room · a disabled row with no reason shows none"],
             ["keyboard", "no active row on open · ↓ first enabled row, ↑ last · skips disabled rows and separators · wraps at the ends · Enter runs · Esc closes · active = MenuItem active (surface-active)"],
-            ["pointer", "one highlight, the active row: the pointer moving onto an enabled row makes it active · after an arrow key the pointer hover is off until the pointer moves again, so a row under a still pointer is not lit beside the active row"],
+            ["pointer", "one highlight, the active row: the pointer moving onto an enabled row makes it active · after an arrow key the keys hold it: a row under a still pointer draws at rest (MenuItem held), and the pointer's first real move makes the enabled row under it active"],
             ["anchor", "top-left corner at the click point (logical) · no offset"],
             ["flip", "each axis alone: right of / below the point; if that side does not fit within the edge margin, left of / above; the result is always clamped to [margin, window - margin - menu]; both sizes are capped at window - 2 x margin first, so the range is never empty and a click inside the margin (even at 0) keeps the 8 gap on every side"],
             ["tall", "max height = window height - 2 x edge margin (8), as the width is capped at window width - 2 x margin · the rows scroll inside the ring with the standard scrollbar (tasty-scroll) · the active row scrolls into view"],
