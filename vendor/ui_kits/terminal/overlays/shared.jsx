@@ -27,14 +27,16 @@ const Spinner = _TDS.Spinner || (() => {
   };
 })();
 
-// ── Popup focus border — the color of the 1px border a popup narrower than the window draws (vendor/RULES.md "Popup
-// focus"). focused: the popup holds key focus, so the shell keeps its own border, the token passed as own (border-frame on
-// a dialog shell, search-bar-border on the search bar). Unfocused: popup-border-unfocused. Only the color changes, so
-// nothing in the popup moves. A window-scope popup, or one shown over the window, passes focused={true} in every state.
-function popupBorderColor(focused, own = "var(--tasty-border-frame)") {
-  return focused ? own : "var(--tasty-popup-border-unfocused)";
+// ── Popup focus border (vendor/RULES.md "Popup focus"). Only for a shell whose border shows focus: a popup scoped
+// narrower than the window, shown in its scope, that takes key focus, and whose border is not its own mark.
+// focused: the popup holds key focus → popup-border-focused; otherwise popup-border-unfocused. Only the color changes,
+// so nothing in the popup moves. A shell whose border does not show focus (window scope, a popup shown over the window
+// and its child, a passive menu or list, the file picker's remote border mode) draws its own token and calls neither.
+function popupBorderColor(focused) {
+  return focused ? "var(--tasty-popup-border-focused)" : "var(--tasty-popup-border-unfocused)";
 }
-// The data attribute a popup shell carries, so a specimen's state can be read from the page.
+// The data attribute a focus-showing shell carries, so a specimen's state can be read from the page. At most one
+// shell in a window mock carries "focused" (RULES.md "One focus").
 function popupFocusAttr(focused) {
   return { "data-popup-focus": focused ? "focused" : "unfocused" };
 }

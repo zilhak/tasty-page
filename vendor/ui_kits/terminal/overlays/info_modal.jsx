@@ -142,11 +142,12 @@ function NotificationsPopupHead({ title = "Notifications", w = "var(--tasty-noti
 // kinds: [icon, label, key | null]
 const CONVERT_KINDS = [["markdown", "Markdown", "M"], ["image", "Image", "I"], ["gitTree", "DAG", "D"], ["html", "HTML", "H"], ["folder", "Explorer", "E"]];
 // opaque (2026-10-21): shell over an opaque-mode WebView page — square corner, no shadow, border-frame kept
-// focused: the popup holds key focus, so its frame keeps border-frame; unfocused, popup-border-unfocused (it is scoped to
-// its surface). Shown over the window, it keeps border-frame in every state, so it passes focused.
-function ConvertSurfacePopup({ title = "Surface Type", kinds = CONVERT_KINDS, active = 0, hover = -1, opaque = false, focused = true, collapse = null }) {
+// focused: the popup holds key focus, so its frame draws popup-border-focused; unfocused, popup-border-unfocused (it is
+// scoped to its surface). showsFocus false: shown over the window, where its border does not show focus: border-frame in
+// every state and no data-popup-focus.
+function ConvertSurfacePopup({ title = "Surface Type", kinds = CONVERT_KINDS, active = 0, hover = -1, opaque = false, focused = true, showsFocus = true, collapse = null }) {
   return (
-    <div {...popupFocusAttr(focused)} style={{ position: "relative", width: "var(--tasty-convert-popup-width)", display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)", border: `var(--tasty-border-width) solid ${popupBorderColor(focused)}`,
+    <div {...(showsFocus ? popupFocusAttr(focused) : {})} style={{ position: "relative", width: "var(--tasty-convert-popup-width)", display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)", border: `var(--tasty-border-width) solid ${showsFocus ? popupBorderColor(focused) : "var(--tasty-border-frame)"}`,
       borderRadius: opaque ? "var(--tasty-webview-opaque-radius)" : "var(--tasty-radius)", boxShadow: opaque ? "var(--tasty-webview-opaque-shadow)" : "var(--tasty-shadow-modal)", overflow: "hidden" }}>
       <PopupTitleBar title={title} collapse={collapse} />
       <div style={{ display: "flex", flexDirection: "column", padding: "var(--tasty-space-xs)" }}>

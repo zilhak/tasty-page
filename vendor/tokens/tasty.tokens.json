@@ -4268,6 +4268,10 @@
       "$type": "color",
       "$value": "{semantic.border-default}"
     },
+    "popup-border-focused": {
+      "$type": "color",
+      "$value": "{semantic.border-frame}"
+    },
     "table-cell-height": {
       "$type": "dimension",
       "$value": "{semantic.control-height}"

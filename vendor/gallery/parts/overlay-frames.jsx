@@ -936,10 +936,10 @@ function LocalSshSection({ state = "hosts" }) {
 //   304.5, so its bounds (− 2 × 8) are 288.5 and the popup fits unshrunk.
 //   size: [W, H] override; pin: a window-scope popup bigger than the window: left/top on the window's edge, width
 //     fitted to the window so its title bar and buttons stay whole, the rest cut at the bottom.
-//   focus: "popup" (default) — the popup holds key focus, its frame keeps border-frame and the left surface paints
-//     unfocused under the scrim; "other" — the user clicked the right surface and types there: the right surface paints
-//     focused, the popup stays open with popup-border-unfocused, the collapsed button has no ring. Window-scope popups
-//     keep border-frame in every state.
+//   focus: "popup" (default) — the popup holds key focus, its frame draws popup-border-focused and the left surface
+//     paints unfocused under the scrim; "other" — the user clicked the right surface and types there: the right surface
+//     paints focused, the popup stays open with popup-border-unfocused, the collapsed button has no ring. Window-scope
+//     popups keep border-frame in every state and carry no data-popup-focus.
 //   expanded: a collapsed popup the user pressed, drawn over the window (use with scope "window"). The popup here is
 //     headless, so the host adds its title bar with no title and only the shrink button that collapses it back.
 //   agent: the popup was opened by an agent (passive): no focus anywhere in it, so no ring and popup-border-unfocused.
@@ -963,9 +963,12 @@ function ShellMock({ scope = "none", split = "v", child = false, narrow = false,
     const b = e.currentTarget.querySelector("[data-collapsed-popup] button");
     if (b) b.focus();
   };
-  // Popup focus border (RULES.md "Popup focus"): a surface popup keeps border-frame while it holds key focus and takes
-  // popup-border-unfocused while it does not. A window-scope popup, and one shown over the window, keep border-frame.
-  const frameFocused = scope !== "surface" || popupFocused;
+  // Popup focus border (RULES.md "Popup focus"): a surface popup's border shows focus, popup-border-focused while it
+  // holds key focus and popup-border-unfocused while it does not. A window-scope popup, one shown over the window and
+  // its child do not show focus on the border: they keep border-frame and carry no data-popup-focus.
+  const showsFocus = scope === "surface";
+  const shellBorder = (f) => (showsFocus ? popupBorderColor(f) : "var(--tasty-border-frame)");
+  const shellAttr = (f) => (showsFocus ? popupFocusAttr(f) : {});
   // Key focus is in one place (RULES.md "Surface focus"): while the popup holds it, no surface paints focused. A passive
   // popup leaves the surface under it focused, and focus "other" lights the other surface.
   // under: the caller draws a popup over this window that holds key focus, so no surface here is focused.
@@ -987,8 +990,8 @@ function ShellMock({ scope = "none", split = "v", child = false, narrow = false,
     </div>
   );
   const popup = (
-    <div {...popupFocusAttr(frameFocused && !(child && scope === "surface"))} style={{ position: "relative", flex: "none", width: pin ? Math.min(clamp ? 220 : 280, W - 2) : (clamp ? 220 : 280), background: "var(--tasty-bg-panel)",
-      border: `1px solid ${popupBorderColor(frameFocused && !(child && scope === "surface"))}`,
+    <div {...shellAttr(popupFocused && !child)} style={{ position: "relative", flex: "none", width: pin ? Math.min(clamp ? 220 : 280, W - 2) : (clamp ? 220 : 280), background: "var(--tasty-bg-panel)",
+      border: `1px solid ${shellBorder(popupFocused && !child)}`,
       borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", overflow: child ? "visible" : "hidden" }}>
       {/* the child picker holds focus, so a surface parent takes popup-border-unfocused */}
       {expanded && <PopupTitleBar title={null} closable={false} collapse="Collapse popup" />}
@@ -1003,8 +1006,8 @@ function ShellMock({ scope = "none", split = "v", child = false, narrow = false,
         <Button variant="primary" size="sm">Open</Button>
       </div>
       {child && (
-        <div {...popupFocusAttr(frameFocused)} style={{ position: "absolute", left: "50%", top: "50%", transform: "translate(-50%,-50%)", zIndex: 3,
-          width: clamp ? 200 : 260, background: "var(--tasty-bg-panel)", border: `1px solid ${popupBorderColor(frameFocused)}`,
+        <div {...shellAttr(popupFocused)} style={{ position: "absolute", left: "50%", top: "50%", transform: "translate(-50%,-50%)", zIndex: 3,
+          width: clamp ? 200 : 260, background: "var(--tasty-bg-panel)", border: `1px solid ${shellBorder(popupFocused)}`,
           borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", overflow: "hidden" }}>
           <div style={{ padding: "8px 10px", fontSize: 12, fontWeight: 600, borderBottom: "1px solid var(--tasty-separator)" }}>Open file</div>
           <div style={{ padding: "8px 10px", display: "flex", flexDirection: "column", gap: 4 }}>
@@ -1020,7 +1023,7 @@ function ShellMock({ scope = "none", split = "v", child = false, narrow = false,
     </div>
   );
   const collapsedFrame = collapsed && (
-    <CollapsedPopupButton kind={collapsed === "label" ? "label" : "icon"} ring={ring && popupFocused} focused={frameFocused} scrim={surfaceScrim} label={label} onShow={onShow} onFocusChange={onFocusChange} />
+    <CollapsedPopupButton kind={collapsed === "label" ? "label" : "icon"} ring={ring && popupFocused} focused={popupFocused} scrim={surfaceScrim} label={label} onShow={onShow} onFocusChange={onFocusChange} />
   );
   return (
     <div style={{ width: W, height: H, display: "flex", flexDirection: "column", overflow: "hidden",
@@ -1099,8 +1102,8 @@ function ShellMock({ scope = "none", split = "v", child = false, narrow = false,
 // kind: "label" (Button.secondary, fit glyph + label) | "icon" (IconButton solid, same glyph).
 // scrim: the popup's own scrim entry — shadow-modal on a scrim, shadow-popover without one.
 // ring: the button holds key focus (the base.css :focus-visible pair, drawn static).
-// focused: the popup holds key focus, so its frame keeps border-frame; otherwise popup-border-unfocused (a surface popup;
-//   follows ring).
+// focused: the popup holds key focus, so its frame draws popup-border-focused; otherwise popup-border-unfocused (the
+//   frame of a surface popup always shows focus). The button's own ring is separate: it follows ring.
 // onShow: live — the button is in Tab order and draws the ring whenever it holds key focus.
 // onFocusChange: live — told when the button gains or loses DOM focus, so the shell can set the border and the beds from it.
 function CollapsedPopupButton({ kind = "label", ring = false, focused = ring, scrim = true, label = "Show popup", onShow, onFocusChange }) {
@@ -1132,8 +1135,11 @@ function CollapsedPopupButton({ kind = "label", ring = false, focused = ring, sc
 
 // ── Search bar — 360px headless popup floating top-right of the focused surface ──
 // ground: the query field is ground="raised" (2026-10-27). Props drive the state specimens:
-//   focused (static focus paint) · invalid (regex error, counter 0/0 red, .* on) · height of the faux terminal.
-function SearchBarFrame({ value = "tasty", focused = false, invalid = false, height = 240 } = {}) {
+//   focused (the bar holds key focus: popup-border-focused, else popup-border-unfocused) · keyAt: which control holds
+//   widget focus while the bar holds key focus, "field" (default: the field's focus edge) or "button" (Tab moved on: the
+//   Next button draws the keyboard focus ring and the field draws no edge; the border still shows the bar's focus) ·
+//   invalid (regex error, counter 0/0 red, .* on) · height of the faux terminal.
+function SearchBarFrame({ value = "tasty", focused = false, keyAt = "field", invalid = false, height = 240 } = {}) {
   const Toggle = ({ label, active }) => (
     <IconButton size="sm" active={active} aria-label={label}>
       <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 11, fontWeight: 600,
@@ -1156,11 +1162,11 @@ function SearchBarFrame({ value = "tasty", focused = false, invalid = false, hei
       {/* the search bar */}
       <div role="search" {...popupFocusAttr(focused)} style={{ position: "absolute", top: "var(--tasty-space-sm)", right: "var(--tasty-space-sm)", left: "var(--tasty-space-sm)", marginLeft: "auto", maxWidth: 360,
         display: "flex", alignItems: "center", gap: 4, padding: 4, background: "var(--tasty-surface-raised)",
-        border: `var(--tasty-border-width) solid ${popupBorderColor(focused, "var(--tasty-search-bar-border)")}`, borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-popover)", overflow: "hidden" }}>
-        <span style={{ flex: 1, minWidth: 60, display: "flex" }}><Input block ground="raised" focused={focused} invalid={invalid} defaultValue={value} /></span>
+        border: `var(--tasty-border-width) solid ${popupBorderColor(focused)}`, borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-popover)", overflow: "hidden" }}>
+        <span style={{ flex: 1, minWidth: 60, display: "flex" }}><Input block ground="raised" focused={focused && keyAt === "field"} invalid={invalid} defaultValue={value} /></span>
         <span style={{ flex: "none", width: 40, textAlign: "center", fontSize: 12, color: invalid ? "var(--tasty-accent-danger-raised)" : "var(--tasty-text-muted-raised)", fontVariantNumeric: "tabular-nums" }}>{invalid ? "0/0" : "2/3"}</span>
         <IconButton size="sm" aria-label="Previous"><Icon name="chevronUp" size={14} /></IconButton>
-        <IconButton size="sm" aria-label="Next"><Icon name="chevronDown" size={14} /></IconButton>
+        <IconButton size="sm" aria-label="Next" style={focused && keyAt === "button" ? { outline: "var(--tasty-focus-ring-width) solid var(--tasty-border-focus)", outlineOffset: "var(--tasty-border-width)" } : undefined}><Icon name="chevronDown" size={14} /></IconButton>
         <Toggle label="Aa" /><Toggle label=".*" active={invalid} /><Toggle label="ab" active={!invalid} />
         {/* The divider sits on the raised bar, so it reads border-strong, the raised cell of the separator role. */}
         <span style={{ width: 1, alignSelf: "stretch", margin: "0 2px", background: "var(--tasty-border-strong)" }} />
@@ -1817,12 +1823,14 @@ const MORE_COPY_UNKNOWN = {
   ja: { reason: "実行中のプログラムを特定できないため、保存できません。", rows: ["このプログラムでは今後表示しない", "このプログラムではクリックを Tasty で処理"] },
   "zh-Hans": { reason: "无法识别正在运行的程序，因此无法保存。", rows: ["不再为此程序显示横幅", "让 Tasty 处理此程序中的点击"] },
 };
+// The open banner more menu is a surface-scoped popup that holds key focus, so its border shows focus:
+// popup-border-focused here (RULES.md "Popup focus"). banner-more-menu-border is no longer read for its shell.
 function BannerMoreMenuUnknownG({ lang = "en", style }) {
   const c = MORE_COPY_UNKNOWN[lang];
   return (
-    <div role="menu" aria-label="Banner options" style={{
+    <div role="menu" aria-label="Banner options" {...popupFocusAttr(true)} style={{
       width: "var(--tasty-banner-more-menu-max-width)", boxSizing: "border-box",
-      background: "var(--tasty-banner-more-menu-bg)", border: "1px solid var(--tasty-banner-more-menu-border)",
+      background: "var(--tasty-banner-more-menu-bg)", border: `1px solid ${popupBorderColor(true)}`,
       borderRadius: "var(--tasty-banner-more-menu-radius)", padding: "var(--tasty-banner-more-menu-padding)",
       boxShadow: "var(--tasty-banner-more-menu-shadow)", ...style }}>
       <div role="note" style={{ display: "flex", alignItems: "flex-start", gap: "var(--tasty-space-sm)",
@@ -1845,9 +1853,9 @@ function BannerMoreMenuG({ app = "vim", hovered = -1, danger = false, lang = "en
     { icon: <Icon name="mouse" />, danger },
   ].map((r, i) => ({ ...r, text: copy[i][0], after: copy[i][1] }));
   return (
-    <div role="menu" aria-label="Banner options" style={{
+    <div role="menu" aria-label="Banner options" {...popupFocusAttr(true)} style={{
       minWidth: "var(--tasty-banner-more-menu-min-width)", maxWidth: "var(--tasty-banner-more-menu-max-width)",
-      background: "var(--tasty-banner-more-menu-bg)", border: "1px solid var(--tasty-banner-more-menu-border)",
+      background: "var(--tasty-banner-more-menu-bg)", border: `1px solid ${popupBorderColor(true)}`,
       borderRadius: "var(--tasty-banner-more-menu-radius)", padding: "var(--tasty-banner-more-menu-padding)",
       boxShadow: "var(--tasty-banner-more-menu-shadow)", ...style }}>
       {rows.map((r, i) => (
@@ -1937,9 +1945,9 @@ function BannerMoreDemoG({ defaultOpen = false }) {
                       onClick={() => setOpen((o) => !o)}><Icon name="more" /></IconButton>
                     {open && (
                       <div style={{ position: "absolute", top: "100%", marginTop: "var(--tasty-banner-more-menu-offset)", right: 0, zIndex: 2 }}>
-                        <div role="menu" aria-label="Banner options" style={{
+                        <div role="menu" aria-label="Banner options" {...popupFocusAttr(true)} style={{
                           minWidth: "var(--tasty-banner-more-menu-min-width)", maxWidth: "var(--tasty-banner-more-menu-max-width)",
-                          background: "var(--tasty-banner-more-menu-bg)", border: "1px solid var(--tasty-banner-more-menu-border)",
+                          background: "var(--tasty-banner-more-menu-bg)", border: `1px solid ${popupBorderColor(true)}`,
                           borderRadius: "var(--tasty-banner-more-menu-radius)", padding: "var(--tasty-banner-more-menu-padding)",
                           boxShadow: "var(--tasty-banner-more-menu-shadow)" }}>
                           <MenuItem icon={<Icon name="bell" />} onClick={() => act("notice")}

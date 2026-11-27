@@ -33,7 +33,7 @@ const FLOW = [
 const FRAMES = [
   ["wide surface — popup expanded in its surface", { scope: "surface" }],
   ["narrow surface — collapsed, opened by the user (key focus)", { scope: "surface", narrow: true, collapsed: "label", ring: true }],
-  ["narrow surface — collapsed, the user typing in the other surface (no ring, no edge)", { scope: "surface", narrow: true, collapsed: "label", ring: true, focus: "other" }],
+  ["The popup stays collapsed in the narrow surface while the user types in the other surface. The frame draws its unfocused border and the button draws no ring.", { scope: "surface", narrow: true, collapsed: "label", ring: true, focus: "other" }],
   ["narrow surface — collapsed, opened by an agent (no focus)", { scope: "surface", narrow: true, collapsed: "label", agent: true }],
   ["very narrow — label frame does not fit, icon only", { scope: "surface", narrow: true, collapsed: "icon", ring: true, leftWidth: 64 }],
   ["narrower than the icon frame — cut at the surface rect", { scope: "surface", narrow: true, collapsed: "clipped", ring: true, leftWidth: 24 }],
@@ -75,7 +75,7 @@ function CollapsedPopupSpec() {
               <PopupTitleBar title={null} closable={false} collapse={COLLAPSE_COPY.en[0]} collapseTip={COLLAPSE_COPY.en[1]} />
               <div style={{ padding: "var(--tasty-space-sm) var(--tasty-space-md)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-secondary)" }}>plugin content</div>
             </div>
-            <ConvertSurfacePopup collapse={COLLAPSE_COPY.en[0]} />
+            <ConvertSurfacePopup showsFocus={false} collapse={COLLAPSE_COPY.en[0]} />
           </div>
         </View>
         <View name="collapse-tooltip" label="shrink tooltip — pointer hover or key focus">
@@ -101,7 +101,7 @@ function CollapsedPopupSpec() {
           ["collapses when", "applies to every popup scoped narrower than the window except one made to shrink to its scope (the search bar, O1) · the popup's needed size is larger than the surface bounds (scope_bounds: the surface rect less the inset) on either axis — width alone or height alone is enough · expanded only when both fit · no shrink range · judged every frame · fits again → expanded again"],
           ["needed size", "host popup: that frame's sizer result (the size the user resized it to, if they did) · no sizer: default_size × ui_zoom · plugin popup: its size_hint, 360 × 200 without one"],
           ["inset", "max(0, min(spacing_sm, width / 2, height / 2)) of the surface rect, the same on all four sides · spacing_sm is 8 at scale 1 · host and plugin popups use the same rule · on a low, wide surface the height term is the one that reduces it"],
-          ["frame", <>the popup's own frame: <span className="tok">--tasty-bg-panel</span> · 1px <span className="tok">--tasty-border-frame</span> · 4 radius · padding <span className="tok">--tasty-popup-content-margin</span> 4 · the button only</>],
+          ["frame", <>The frame uses <span className="tok">--tasty-bg-panel</span>, a 1px border, a radius of 4 and <span className="tok">--tasty-popup-content-margin</span> padding of 4. It contains only the button. The border draws <span className="tok">--tasty-popup-border-focused</span> while the frame holds key focus and <span className="tok">--tasty-popup-border-unfocused</span> while it does not.</>],
           ["shadow", "shadow-modal on a scrim · shadow-popover when the popup has no scrim (the two floating shadows)"],
           ["button", <>Button.secondary md 28 · leading glyph <code>fit</code> 14 · label <code>popup.collapsed_button.label</code></>],
           ["frame size", "button + 2 × 4 + 2 × 1 → 38 tall · label frame as rendered here: en 134 · ko 109 · ja 175 · zh-Hans 110 wide · icon frame 38 × 38"],
@@ -110,7 +110,7 @@ function CollapsedPopupSpec() {
           ["too small for the icon", "on each axis the icon frame does not fit, its start edge sits on the bounds' start edge (the inset row: reduced on a small surface) and the surface rect cuts its end; an axis that fits keeps its anchor alignment · never omitted — the popup is open and holds focus"],
           ["title", "not shown — headless popups have none; the tooltip explains what the button stands for"],
           ["scrim", "--tasty-scrim-bg, the one scrim value, on the surface while collapsed and on the whole window once pressed · follows the popup's own scrim entry, the same in both forms — no scrim blink when a divider drag crosses the fit line · the button sits on the frame, never straight on the scrim (only a modal or popup frame sits on scrim@*)"],
-          ["focus", "border-focus · focus-ring-width 2 · 1px offset on the button (the :focus-visible pair) · opened by the user: shown from the first frame · passive (agent-opened): no ring · the frame lights the popup focus edge while it holds key focus (Focus, below)"],
+          ["focus", <>The button draws its own keyboard focus ring while it holds key focus. The <code>:focus-visible</code> pair uses <span className="tok">--tasty-border-focus</span> and <span className="tok">--tasty-focus-ring-width</span> of 2px, with a 1px offset. When the user opens the popup, the ring appears in the first frame. When an agent opens it, the button draws no ring until it gets key focus. The frame shows key focus with its own border. While the user types in another surface, the frame draws <span className="tok">--tasty-popup-border-unfocused</span> and the button draws no ring.</>],
           ["tooltip", <><code>popup.collapsed_button.tooltip</code> · Tooltip on pointer hover and key focus · 150ms delay</>],
           ["collapse back", <>over-the-window form only · the shrink button or Esc · IconButton sm, glyph <code>shrink</code>, first in the title bar's button cluster (before fullscreen and close), popup-title-btn-size 24, gap 4, edge inset 4 · accessible name <code>popup.collapse_button.label</code>, Tooltip <code>popup.collapse_button.tooltip</code> · a headless popup (no title bar of its own, plugin popups) gets the host title bar with no title and only this button: control-height 28, bg-sidebar, the title edge below — the expanded frame grows by it · keeps the popup's state: input, selection, scroll · back in the collapsed form the show button takes key focus</>],
           ["close", "no close mark on the collapsed form · the way out is the popup's own controls after pressing · collapsed: Esc and outside clicks follow the popup's own rule · over the window: Esc collapses, never closes (Note below)"],
@@ -120,7 +120,8 @@ function CollapsedPopupSpec() {
         ]}
         tokens={[
           { tok: "--tasty-bg-panel", use: "collapsed frame", color: "var(--tasty-bg-panel)" },
-          { tok: "--tasty-border-frame", use: "frame edge", color: "var(--tasty-border-frame)" },
+          { tok: "--tasty-popup-border-focused", use: "The collapsed frame border while it holds key focus.", color: "var(--tasty-popup-border-focused)" },
+          { tok: "--tasty-popup-border-unfocused", use: "The collapsed frame border while it has no key focus.", color: "var(--tasty-popup-border-unfocused)" },
           { tok: "--tasty-popup-content-margin", use: "4 around the button" },
           { tok: "--tasty-border-focus", use: "button key focus", color: "var(--tasty-border-focus)" },
           { tok: "--tasty-focus-ring-width", use: "2" },
@@ -149,7 +150,7 @@ function CollapseFlowSpec() {
       <Meta
         specs={[
           ["collapsed → expanded", "the show button (click, Enter, Space) · key focus goes into the popup"],
-          ["expanded", "window scope for the picture and for presses: scrim-bg over the whole window, shadow-modal, centred · no popup focus edge · logical scope unchanged"],
+          ["expanded", <>Pressing the show button centers the popup over the window with <span className="tok">--tasty-shadow-modal</span> and <span className="tok">--tasty-scrim-bg</span> over the whole window. The display and presses use window scope. The border keeps <span className="tok">--tasty-border-frame</span> in every state and shows no focus. The logical scope stays the same.</>],
           ["expanded → collapsed", "the shrink button (click, Enter, Space) or Esc · the show button takes key focus · state kept"],
           ["collapsed", "the popup itself, drawn small · keeps its scope, its scrim if it covers the scope, its outside-click and Esc rules and its key focus"],
           ["child popup", "a picker the popup opens takes its parent's scope and form: over the window when the parent is, collapsed with it, never starting as its own show button · one scrim"],

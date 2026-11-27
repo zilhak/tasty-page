@@ -786,22 +786,29 @@
   --tasty-surface-focus-edge-unfocused: var(--tasty-bg-sidebar);
   --tasty-surface-focus-edge-width:     var(--tasty-selection-edge-width); /* 2 — hairline, zoom-exempt */
 
-  /* Popup focus edge. Not used: the top bar was dropped when popup focus moved
-     to the shell border (the commit that added popup-border-unfocused). Kept
-     because tokens are only added. No UI, specimen or app reads these two. */
+  /* Popup focus edge. The top bar was dropped when popup focus moved to the
+     shell border. Kept because tokens are only added. Nothing in this repo
+     reads these two. The app read both as of the drop; it is to stop drawing
+     the bar and read popup-border-focused and popup-border-unfocused instead. */
   --tasty-popup-focus-edge-focused:     var(--tasty-text-secondary);
   --tasty-popup-focus-edge-width:       var(--tasty-selection-edge-width); /* 2 — hairline, zoom-exempt */
 
-  /* Popup focus border. A popup whose scope is narrower than the window (surface,
-     tab, pane, workspace) can stay open while key focus sits on another surface.
-     The popup shell, host or plugin alike, keeps its own 1px border while it
-     holds key focus (border-frame on a dialog shell, search-bar-border on the
-     search bar) and swaps it for this value while it does not. One step toward
-     the shell's fill in both themes, so the frame recedes: darker in Mocha,
-     lighter in Latte. The width, fill, shadow, scrim and content do not change,
-     so nothing moves. Window-scope popups, and a popup shown over the window,
-     keep their own border in every state. */
+  /* Popup focus border. A popup scoped narrower than the window (surface, tab,
+     pane, workspace) can stay open while key focus sits on another surface.
+     Its shell border shows whether keys go to it: popup-border-focused while it
+     holds key focus, popup-border-unfocused while it does not. One pair for
+     every shell whose border shows focus, host or plugin alike: dialog,
+     plugin shell, search bar, banner more menu, collapsed show-button frame.
+     It replaces the shell's own border token (border-frame, search-bar-border,
+     banner-more-menu-border) there. Unfocused moves closer to the fill: two
+     ramp steps from surface2 to surface0, darker in Mocha and lighter in Latte.
+     Only the color changes; width, fill, shadow, scrim and content stay.
+     A shell whose border does not show focus keeps its own token in every
+     state: window scope, a popup shown over the window and its child, a
+     passive menu or list (context menu, Select, autocomplete), and the file
+     picker's remote border mode. */
   --tasty-popup-border-unfocused:       var(--tasty-border-default);
+  --tasty-popup-border-focused:         var(--tasty-border-frame);
 
   /* ─────────────────  DATA  ───────────────── */
 

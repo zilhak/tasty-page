@@ -5,6 +5,7 @@ import { Kbd } from "../../../components/core/Kbd.jsx";
 import { Tag } from "../../../components/core/Tag.jsx";
 import { MenuItem } from "../../../components/navigation/MenuItem.jsx";
 import { Icon } from "../chrome.jsx";
+import { popupBorderColor, popupFocusAttr } from "./shared.jsx";
 
 // Tasty UI kit — Banner: the 4th overlay family (Modal / Popup / Toast / Banner).
 // A floating, top-anchored notice pinned to the top of a scope's content area
@@ -105,12 +106,13 @@ function BannerMore({ app, open, setOpen, onAction }) {
       <IconButton size="sm" aria-label="More options" aria-expanded={open} active={open}
         onClick={() => setOpen(!open)}>{bic.more}</IconButton>
       {open && (
-        <div role="menu" aria-label="Banner options" style={{ position: "absolute",
+        // The open menu holds key focus (surface scope), so its border shows focus (RULES.md "Popup focus").
+        <div role="menu" aria-label="Banner options" {...popupFocusAttr(true)} style={{ position: "absolute",
           top: "calc(100% + var(--tasty-banner-more-menu-offset))", right: 0, zIndex: 3,
           minWidth: "var(--tasty-banner-more-menu-min-width)", maxWidth: "var(--tasty-banner-more-menu-max-width)",
           width: known ? "max-content" : "var(--tasty-banner-more-menu-max-width)", boxSizing: "border-box",
           background: "var(--tasty-banner-more-menu-bg)",
-          border: "var(--tasty-border-width) solid var(--tasty-banner-more-menu-border)",
+          border: `var(--tasty-border-width) solid ${popupBorderColor(true)}`,
           borderRadius: "var(--tasty-banner-more-menu-radius)", padding: "var(--tasty-banner-more-menu-padding)",
           boxShadow: "var(--tasty-banner-more-menu-shadow)" }}>
           {known ? (<>
