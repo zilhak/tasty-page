@@ -31,6 +31,7 @@ function Marker({ kind, hover }) {
   );
 }
 // ground: the strip's fill, which the cell keeps (Tab's ground); the fill, ink and active mark come from the Tab's tabLook.
+// The kind icon reads text-secondary whatever the label reads, as the app paints it (tab_bar/tab.rs).
 function TabCellS({ label = "report.html", active, hover, marker, markerHover, markerTip, move, busy, ground = "mantle", width = "var(--tasty-tab-width)" }) {
   const showX = active || hover;
   const look = tabLook({ active, hover, ground });
@@ -39,7 +40,7 @@ function TabCellS({ label = "report.html", active, hover, marker, markerHover, m
       padding: "0 var(--tasty-space-xs) 0 var(--tasty-tab-padding-x)", color: look.ink, background: look.fill,
       borderRight: "var(--tasty-border-width) solid var(--tasty-tab-separator)" }}>
       <TabMark mark={look.mark} />
-      <Icon name="html" size="var(--tasty-tab-icon-size)" />
+      <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-text-secondary)" }}><Icon name="html" size="var(--tasty-tab-icon-size)" /></span>
       <span style={{ flex: 1, minWidth: 0, fontSize: "var(--tasty-font-size-caption)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{label}</span>
       {/* right cluster — fixed slots, never shrink; the label gives way first */}
       <span style={{ flex: "none", display: "inline-flex", alignItems: "center", gap: "var(--tasty-tab-status-gap)" }}>

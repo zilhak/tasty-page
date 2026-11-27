@@ -29,6 +29,7 @@ const MoveGlyph = () => (
 const cap = (t) => <div style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 10, color: "var(--tasty-text-muted)", marginBottom: 6 }}>{t}</div>;
 
 // ground: the strip's fill, which the cell keeps (Tab's ground); the fill, ink and active mark come from the Tab's tabLook.
+// The kind icon reads text-secondary whatever the label reads, as the app paints it (tab_bar/tab.rs).
 function TabCell({ label, active, hover, ring, cue, ground = "mantle" }) {
   const look = tabLook({ active, hover, ground });
   return (
@@ -36,7 +37,7 @@ function TabCell({ label, active, hover, ring, cue, ground = "mantle" }) {
       alignItems: "center", gap: "var(--tasty-tab-gap)", padding: "0 var(--tasty-tab-padding-x)", color: look.ink, background: look.fill,
       borderRight: "var(--tasty-border-width) solid var(--tasty-tab-separator)" }}>
       <TabMark mark={look.mark} />
-      <Icon name="terminal" size="var(--tasty-tab-icon-size)" />
+      <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-text-secondary)" }}><Icon name="terminal" size="var(--tasty-tab-icon-size)" /></span>
       <span style={{ flex: 1, minWidth: 0, fontSize: 12, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{label}</span>
       {cue && <MoveGlyph />}
       {ring && <MoveRing />}

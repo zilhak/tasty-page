@@ -39,7 +39,8 @@ const SwitchCap = ({ n, active }) => (
 
 // ── tab cell: [kind icon ← overlay][label…] · [marker][move][busy][close] ──
 // ground: the strip's fill, which the cell keeps (Tab's ground); the fill, ink and active mark come from the Tab's tabLook,
-// and the spinner's bed is that same fill.
+// and the spinner's bed is that same fill. The kind icon reads text-secondary whatever the label reads, as the app paints
+// it (tab_bar/tab.rs).
 function LTab({ label = "build-server", kind = "terminal", active, hover, att, busy, move, marker, ground = "mantle", width = "var(--tasty-tab-width)", loading, keycap, boxes, rm }) {
   const showX = active || hover;
   const look = tabLook({ active, hover, ground, attention: att });
@@ -48,7 +49,7 @@ function LTab({ label = "build-server", kind = "terminal", active, hover, att, b
     <div style={{ position: "relative", width, height: "var(--tasty-tab-height)", flex: "none", display: "flex", alignItems: "center", gap: "var(--tasty-tab-gap)", boxSizing: "border-box",
       padding: "0 var(--tasty-space-xs) 0 var(--tasty-tab-padding-x)", color: look.ink, background: fill, borderRight: "var(--tasty-border-width) solid var(--tasty-tab-separator)" }}>
       <TabMark mark={look.mark} />
-      <span style={{ position: "relative", flex: "none", display: "inline-flex", width: "var(--tasty-tab-icon-size)", height: "var(--tasty-tab-icon-size)" }}>
+      <span style={{ position: "relative", flex: "none", display: "inline-flex", width: "var(--tasty-tab-icon-size)", height: "var(--tasty-tab-icon-size)", color: "var(--tasty-text-secondary)" }}>
         <Icon name={kind} size="var(--tasty-tab-icon-size)" />
         <LoadingOverlay kind="tab" visible={!!loading} bed={fill} reducedMotion={rm} label="Loading" style={boxes ? BOX : undefined} />
         {keycap && <SwitchCap n={keycap} active={active} />}

@@ -508,7 +508,8 @@ function AttentionRail() {
 }
 
 // The ladder's strip is an unfocused pane's (bg-sidebar): the cell keeps mantle, and its fill, title ink and active mark
-// come from the Tab's tabLook.
+// come from the Tab's tabLook. The kind icon reads text-secondary whatever the title reads, as the app paints it
+// (tab_bar/tab.rs): the attention tint is the title's alone.
 function AttTab({ label, kind, active }) {
   const look = tabLook({ active, attention: kind });
   const fg = look.ink;
@@ -518,7 +519,7 @@ function AttTab({ label, kind, active }) {
       background: look.fill,
       borderRight: "1px solid var(--tasty-tab-separator)" }}>
       <TabMark mark={look.mark} />
-      <span style={{ display: "inline-flex", width: 13, height: 13, color: fg }}>{ic.term}</span>
+      <span style={{ display: "inline-flex", width: 13, height: 13, color: "var(--tasty-text-secondary)" }}>{ic.term}</span>
       <span style={{ flex: 1, minWidth: 0, fontSize: 12, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: fg }}>{label}</span>
       <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" }}>
         {kind === "needs-input" ? "blocked" : kind === "completion" ? "done" : active ? "active" : "rest"}
