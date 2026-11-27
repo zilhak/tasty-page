@@ -6,7 +6,7 @@ import { Icon as WIcon, Checkbox as WCheckbox, Select as WSelect, Tag as WTag, T
 import { KbPluginsSubtab as Kit_KbPluginsSubtab, KbPluginsSubtab } from "../../ui_kits/terminal/overlays/kb_plugins_subtab.jsx";
 import { MacPermissionsPane } from "../../ui_kits/terminal/overlays/macos_permissions.jsx";
 import { Popup as GalleryNotifications_Popup } from "../parts/notifications.jsx";
-import { GroundThemes as WGroundThemes, GroundCap as WGroundCap, Backdrop, PaletteFrame, LocalSshSection, PortsFrame, PORTS_COLUMNS, PortsFavoritesG, PortStarG, RemoteFrame, RemoteFilterButtonG, RemoteFilterMenuG, SettingsFrame, SettingsGeneralOverlayFrame, SettingsRemoteTransferFrame, SettingsRemoteAttachFrame, ToastDragValue, GitViewerFrame, ClipboardFrame, RemoteFormFrame, RemoteAttachFrame, RaNewRow, RaWsPeek, FilePickerFrame, FpHostBadge, FpRow, ScriptManagerFrame, ic } from "../parts/overlay-frames.jsx";
+import { GroundThemes as WGroundThemes, GroundCap as WGroundCap, Backdrop, PaletteFrame, PALETTE_APP_COMMANDS, LocalSshSection, PortsFrame, PORTS_COLUMNS, PortsFavoritesG, PortStarG, RemoteFrame, RemoteFilterButtonG, RemoteFilterMenuG, SettingsFrame, SettingsGeneralOverlayFrame, SettingsRemoteTransferFrame, SettingsRemoteAttachFrame, ToastDragValue, GitViewerFrame, ClipboardFrame, RemoteFormFrame, RemoteAttachFrame, RaNewRow, RaWsPeek, FilePickerFrame, FpHostBadge, FpRow, ScriptManagerFrame, ic } from "../parts/overlay-frames.jsx";
 import { AnomalySection as OverlaysWindowsAnomaly_AnomalySection } from "./settings-anomaly.jsx";
 import { KbPluginsRecordSpec as OverlaysWindowsB12_KbPluginsRecordSpec } from "./kb-plugin-records.jsx";
 import { SettingsNarrowSection as OverlaysWindowsB12_SettingsNarrowSection } from "./settings-narrow.jsx";
@@ -50,6 +50,8 @@ import { KbImportExportSubtab as Kit_KbImportExportSubtab, IE_GROUPS as KIT_IE_G
 // Row focus states, both themes. Each state draws a folder row and a file row in boxes of their own, because a list has
 // one row focus. Rows are FpRow itself on the picker's bg-panel, so the ring and hover inks are the frame's own;
 // captions sit outside the rows on bg-app.
+// The app's first palette rows in the kit card's row shape, an icon element in place of the icon's name.
+const PALETTE_APP_COMMANDS_KIT = PALETTE_APP_COMMANDS.map((c) => ({ ...c, icon: <WIcon name={c.icon} /> }));
 const FP_STATE_ROWS = [["rest", {}], ["hover", { hover: true }], ["focus", { focus: true }], ["hover + focus", { hover: true, focus: true }],
   ["selected", { selected: true }], ["selected + focus", { selected: true, focus: true }], ["selected + hover", { selected: true, hover: true }], ["selected + hover + focus", { selected: true, hover: true, focus: true }]];
 function FpRowStatesG({ caps }) {
@@ -716,7 +718,8 @@ function Page() {
           {/* The kit's own card in a room as short as a small screen leaves it: the same column the landing palette lays
               out, so the list gives up its height first and scrolls, and the search and the footer stay whole. A frame is a
               picture, so the card is inert, as in the ports and plugins frames: the search takes no focus and the list
-              stays at its top, which is the frame's state. The query and no-results frames are pictures too, inert the
+              stays at its top, which is the frame's state. Its rows are the app's first ten with an empty query
+              (PALETTE_APP_COMMANDS), more than the room shows, so the list scrolls. The query and no-results frames are pictures too, inert the
               same way, and hold the query PaletteFrame filters by. */}
           <Views>
             <View name="palette-query" label="Command palette — the query “split” (first match highlighted)">
@@ -727,7 +730,7 @@ function Page() {
             </View>
             <View name="palette-short-screen" label="Command palette — a short-screen layout (scrolling list)">
               <div inert="" style={{ display: "flex", width: "var(--tasty-palette-width)", height: "var(--tasty-short-screen-specimen-height)", pointerEvents: "none" }}>
-                <Kit_ScrimRoom align="top"><Kit_PaletteCard /></Kit_ScrimRoom>
+                <Kit_ScrimRoom align="top"><Kit_PaletteCard commands={PALETTE_APP_COMMANDS_KIT} /></Kit_ScrimRoom>
               </div>
             </View>
           </Views>

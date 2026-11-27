@@ -46,9 +46,10 @@ const PALETTE_COMMANDS = [
 // selection one row, stopping at the ends, and Enter runs the selected row. Each query change puts the selection back
 // on the first match, and it never runs past the last one. A row is highlighted only while the query has text, so with
 // an empty query the arrows move a selection that is not drawn and Enter runs it. The pointer tints the row under it
-// and a click runs that row; neither moves the selection.
-function PaletteCard({ query = "", onQuery, onRun, autoFocus = false }) {
-  const items = PALETTE_COMMANDS.filter((i) => i.label.toLowerCase().includes(query.toLowerCase()));
+// and a click runs that row; neither moves the selection. commands: the rows ({ label, sc, icon }), the kit's
+// illustrative list unless a host passes its own (the gallery's short-screen frame passes the app's first rows).
+function PaletteCard({ query = "", onQuery, onRun, autoFocus = false, commands = PALETTE_COMMANDS }) {
+  const items = commands.filter((i) => i.label.toLowerCase().includes(query.toLowerCase()));
   const [sel, setSel] = React.useState(0);
   const selected = Math.min(sel, Math.max(items.length - 1, 0));
   const onKeyDown = (e) => {

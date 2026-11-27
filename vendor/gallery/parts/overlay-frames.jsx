@@ -98,10 +98,10 @@ function Backdrop({ height = 360, blur = false, scrim = true, children }) {
 // opaque: popup over an opaque-mode WebView page (2026-10-21) — square corner, no shadow, border kept
 // ground: the search field is ground="raised" (2026-10-27). focused/value drive static state specimens.
 // The app's commands, in the app's order (tasty-settings keybindings crud.rs GENERAL_BINDING_FIELDS), with their
-// en labels less the trailing colon, their icons (command_palette.rs icon_for) and their default keys (preset_tasty).
-// Only the first six are carried. The empty query lists every host command in the app (74), so its frames show the
-// first rows only; "split" (4 matches) and "zzz" (none) are the only queries the gallery draws whose whole result
-// lies among these six.
+// en labels less the trailing colon, their icons (command_palette.rs icon_for) and their default keys (preset_tasty;
+// open_port_scanner has none). Only the first ten are carried. The empty query lists every host command in the app
+// (74), so its frames show the first rows only; "split" (4 matches) and "zzz" (none) are the only queries the gallery
+// draws whose whole result lies among these ten.
 const PALETTE_APP_COMMANDS = [
   { label: "New workspace", sc: "Alt+N", icon: "plus" },
   { label: "New tab", sc: "Alt+T", icon: "terminal" },
@@ -109,6 +109,10 @@ const PALETTE_APP_COMMANDS = [
   { label: "Pane split horizontal", sc: "Alt+Shift+E", icon: "command" },
   { label: "Surface split vertical", sc: "Alt+D", icon: "command" },
   { label: "Surface split horizontal", sc: "Alt+Shift+D", icon: "command" },
+  { label: "Toggle settings", sc: "Ctrl+,", icon: "settings" },
+  { label: "Toggle notifications", sc: "Ctrl+Shift+I", icon: "command" },
+  { label: "Toggle DAG list", sc: "Ctrl+Shift+G", icon: "command" },
+  { label: "Open port scanner", sc: "", icon: "command" },
 ];
 // The app's score (state/command_palette.rs match_score): a substring scores 1000 less its index, plus 500 at a word
 // start; otherwise a subsequence scores 100 less the gaps between its letters; no match is null. Higher first, ties
@@ -3452,4 +3456,4 @@ function FilePickerFrame({ state = "loaded", remote = false, indicator = "badge"
   );
 }
 
-export { FpRow, PopupFocusEdge, TOOLS_MENU_BUILTIN, ic, Backdrop, GroundThemes, GroundCap, PaletteFrame, ApprovalFrame, RenameFrame, SettingsFrame, SettingsGeneralOverlayFrame, SettingsRemoteTransferFrame, SettingsRemoteAttachFrame, TransferProgressFrame, TransferErrorFrame, DownloadRunFrame, DownloadRunLargeFrame, ToastDragValue, ToolsMenuFrame, PortsFrame, PORTS_COLUMNS, PortsFavoritesG, PortStarG, RemoteFrame, RemoteFilterButtonG, RemoteFilterMenuG, LocalSshSection, SearchBarFrame, FileHandlerFrame, FhFooter, PresetFrame, MarkdownOpenFrame, HeldLabel, TabStripMock, SidebarMock, RailMock, CatSwitchSidebarMock, CatSwitchRailMock, BannerShellG, BannerScope, MouseCaptureBannerG, MouseCaptureHitZone, BlacklistEditorG, TtlBannerG, StackDemoG, BannerMoreMenuG, BannerMoreDemoG, GitViewerFrame, ClipboardFrame, RemoteFormFrame, ScriptManagerFrame, ShellMock, CollapsedPopupButton, RemoteAttachFrame, RaNewRow, RaWsPeek, FilePickerFrame, FpCrumbMenu, FpHostBadge, ModifierHintPanelG, MH_CAT_SECTIONS, MH_MIXED_SECTIONS, MH_EMPTY_SECTIONS, catIc, CatMenu, RailCategoryFrame, CategoryEditFrame, CategoryDeleteFrame };
+export { FpRow, PopupFocusEdge, TOOLS_MENU_BUILTIN, ic, Backdrop, GroundThemes, GroundCap, PaletteFrame, PALETTE_APP_COMMANDS, ApprovalFrame, RenameFrame, SettingsFrame, SettingsGeneralOverlayFrame, SettingsRemoteTransferFrame, SettingsRemoteAttachFrame, TransferProgressFrame, TransferErrorFrame, DownloadRunFrame, DownloadRunLargeFrame, ToastDragValue, ToolsMenuFrame, PortsFrame, PORTS_COLUMNS, PortsFavoritesG, PortStarG, RemoteFrame, RemoteFilterButtonG, RemoteFilterMenuG, LocalSshSection, SearchBarFrame, FileHandlerFrame, FhFooter, PresetFrame, MarkdownOpenFrame, HeldLabel, TabStripMock, SidebarMock, RailMock, CatSwitchSidebarMock, CatSwitchRailMock, BannerShellG, BannerScope, MouseCaptureBannerG, MouseCaptureHitZone, BlacklistEditorG, TtlBannerG, StackDemoG, BannerMoreMenuG, BannerMoreDemoG, GitViewerFrame, ClipboardFrame, RemoteFormFrame, ScriptManagerFrame, ShellMock, CollapsedPopupButton, RemoteAttachFrame, RaNewRow, RaWsPeek, FilePickerFrame, FpCrumbMenu, FpHostBadge, ModifierHintPanelG, MH_CAT_SECTIONS, MH_MIXED_SECTIONS, MH_EMPTY_SECTIONS, catIc, CatMenu, RailCategoryFrame, CategoryEditFrame, CategoryDeleteFrame };
