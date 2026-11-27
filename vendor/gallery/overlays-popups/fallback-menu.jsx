@@ -86,11 +86,14 @@ function FallbackWindow({ w, h, click, caption, children }) {
 // Live demo: right-click inside the window. Arrow keys move the active row and skip disabled rows and separators,
 // wrapping at the ends; the pointer moving onto a row makes it the active row. After an arrow key the menu holds the
 // highlight: a row under a still pointer shows no tint, and the pointer's first real move makes the row under it the
-// active row, so one row is lit. Enter runs it, Esc or a click outside closes. The hold lasts one opened menu: opening,
+// active row, so one row is lit. Enter or Space runs it, as the Tools menu and the palette do (tools_menu.jsx): the
+// menu holds both keys, so neither does the browser's own thing, and with no active row they do nothing. On an active
+// row with no part in view they run nothing and scroll the list the least that shows the row, and the next press runs
+// it. Only a new press acts: a held key's repeats are taken and do nothing. Esc or a click outside closes. The hold lasts one opened menu: opening,
 // running a row and closing each drop it with the active row. h sets the window's height: a short one makes the rows
 // scroll, so the demo shows when the list moves (only when the active row changes to one not wholly shown, and then
 // the least that shows it) and when it stays (a list scrolled by hand stays put while the active row does not change).
-function FallbackMenuDemo({ h = 320, caption = "right-click anywhere · ↑ ↓ · Enter · Esc" }) {
+function FallbackMenuDemo({ h = 320, caption = "right-click anywhere · ↑ ↓ · Enter or Space · Esc" }) {
   const [click, setClick] = React.useState(null);
   const [active, setActive] = React.useState(-1);
   const [held, setHeld] = React.useState(false);
@@ -99,7 +102,21 @@ function FallbackMenuDemo({ h = 320, caption = "right-click anywhere · ↑ ↓ 
   const enabled = items.map((it, i) => (!it.separator && it.enabled !== false ? i : -1)).filter((i) => i >= 0);
   const onKey = (e) => {
     if (!click) return;
-    if (e.key === "Escape" || e.key === "Enter") { setClick(null); setActive(-1); setHeld(false); e.preventDefault(); return; }
+    if (e.key === "Escape") { setClick(null); setActive(-1); setHeld(false); e.preventDefault(); return; }
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      if (e.repeat || active < 0) return;
+      const row = ref.current.querySelector(`[data-fallback-row="${active}"]`);
+      const list = row && row.parentElement;
+      if (row && list && !(row.offsetTop < list.scrollTop + list.clientHeight && row.offsetTop + row.offsetHeight > list.scrollTop)) {
+        // no part of the active row is in view: show it the least, as a key move does, and run nothing
+        if (row.offsetTop < list.scrollTop) list.scrollTop = row.offsetTop;
+        else list.scrollTop = row.offsetTop + row.offsetHeight - list.clientHeight;
+        return;
+      }
+      setClick(null); setActive(-1); setHeld(false);
+      return;
+    }
     if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
     e.preventDefault();
     const k = enabled.indexOf(active);
@@ -197,7 +214,7 @@ export function FallbackMenuSection() {
             ["width", "fit to the longest row · min 160 · max min(320, window width - 2 x edge margin) · in a window narrower than 160 + 2 margins the window cap wins over the 160 floor · labels wrap, never ellipsize"],
             ["disabled", "MenuItem disabled · no hover fill · skipped by the arrow keys · its reason shows as the shared Tooltip on pointer hover, after the tooltip delay"],
             ["reason", "Tooltip centred on the row, tooltip-offset gap from the menu edge · right if tooltip-max-width + tooltip-offset <= the room between the menu and the edge margin on the right, else left if that fits on the left, else the side with more room · a disabled row with no reason shows none"],
-            ["keyboard", "no active row on open · ↓ first enabled row, ↑ last · skips disabled rows and separators · wraps at the ends · Enter runs · Esc closes · active = MenuItem active (surface-active)"],
+            ["keyboard", "no active row on open · ↓ first enabled row, ↑ last · skips disabled rows and separators · wraps at the ends · Enter or Space runs the active row, after first showing one with no part in view · held-key repeats do nothing · Esc closes · active = MenuItem active (surface-active)"],
             ["pointer", "one highlight on the active row · moving the pointer onto an enabled row makes it active · after an arrow key, keys hold the highlight and the row under a still pointer draws at rest (MenuItem held) · first real move changes the active row only if it hits a visible part of an enabled row · over panel padding, a separator, the scrollbar, a disabled row, or a scrolled-out part of a row → active row stays"],
             ["anchor", "top-left corner at the click point (logical) · no offset"],
             ["flip", "each axis alone: right of / below the point; if that side does not fit within the edge margin, left of / above; the result is always clamped to [margin, window - margin - menu]; both sizes are capped at window - 2 x margin first, so the range is never empty and a click inside the margin (even at 0) keeps the 8 gap on every side"],
