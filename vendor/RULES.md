@@ -1581,7 +1581,8 @@ Sits on: `raised`
 | label.danger | `menu-item-part-fg-active` | keyboard-active | `active` | 4.62 · 5.40 |
 | icon.danger | `menu-item-part-fg-active` | keyboard-active | `active` | 4.62 · 5.40 |
 | label.chosen | `menu-item-selected-fg` | rest | `raised` | 8.69 · 7.57 |
-| label.chosen | `menu-item-fg-hover` | hover, press, keyboard-active | `raised+hover`, `raised+press`, `active` | 4.62 · 5.40 |
+| label.chosen | `menu-item-fg-hover` | hover, press | `raised+hover` | 6.82 · 6.36 |
+| label.chosen | `menu-item-fg-hover` | keyboard-active | `active` | 4.62 · 5.40 |
 | fill, fill.danger, fill.chosen | `surface-active` (state ground `active`, no role) | keyboard-active | `raised` | ΔE 0.153 · 0.099 ([section 7](#7-meaning)) |
 | label | `text-disabled` | disabled | `raised` | no target |
 | icon | `text-disabled` | disabled | `raised` | no target |
