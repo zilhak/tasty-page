@@ -63,8 +63,9 @@ function PaletteCard({ query = "", onQuery, onRun, autoFocus = false }) {
             onClick={() => onRun && onRun(i.label)} />
         ))}
       </div>
-      <div style={{ flex: "none", display: "flex", gap: 14, padding: "var(--tasty-space-sm) var(--tasty-space-md)", borderTop: "var(--tasty-border-width) solid var(--tasty-border-strong)",
-        fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted-raised)" }}>
+      {/* the app's footer: padding space-sm × space-md, hints in label_font at font_size_caption, PALETTE_HINT_GAP_X apart */}
+      <div style={{ flex: "none", display: "flex", gap: "var(--tasty-palette-hint-gap)", padding: "var(--tasty-space-sm) var(--tasty-space-md)", borderTop: "var(--tasty-border-width) solid var(--tasty-border-strong)",
+        fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted-raised)" }}>
         <span>↑↓ navigate</span><span>↵ run</span><span>esc close</span>
       </div>
     </div>

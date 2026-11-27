@@ -1547,6 +1547,7 @@
 
   /* 2026-10-06 (batch 2) — palette width · settings window · toast offset · brand lockup · font preview · CodeArea */
   --tasty-palette-width:               var(--tasty-size-540);  /* command palette card; ON-SCALE (× UI zoom) */
+  --tasty-palette-hint-gap:            var(--tasty-size-14);   /* 2026-11-27 between the footer hints, the app's PALETTE_HINT_GAP_X, off the 4px grid by the app's own value */
   --tasty-settings-window-width:       var(--tasty-size-1100); /* settings window inner + min size — OFF-SCALE (2026-10-07) */
   --tasty-settings-window-height:      var(--tasty-size-700);
   --tasty-settings-l1-height:          var(--tasty-size-44);   /* L1 band (Settings label, divider, L1 tabs), 1px bottom line included. OFF-SCALE like the window */

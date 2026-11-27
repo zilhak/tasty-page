@@ -107,17 +107,19 @@ function PaletteFrame({ opaque = false, focused = false, value = "", rows = 4 } 
   return (
     <div align="top" style={{ width: "var(--tasty-palette-width)", background: "var(--tasty-surface-raised)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)",
       borderRadius: opaque ? "var(--tasty-webview-opaque-radius)" : "var(--tasty-radius)", overflow: "hidden", boxShadow: opaque ? "var(--tasty-webview-opaque-shadow)" : "var(--tasty-shadow-modal)" }}>
-      <div style={{ padding: 10, borderBottom: "var(--tasty-border-width) solid var(--tasty-border-strong)" }}>
+      {/* the kit card's and the app's measures (command_palette.rs): search space-md, list space-sm on all four sides,
+          footer space-sm × space-md with label_font hints at font_size_caption */}
+      <div style={{ padding: "var(--tasty-space-md)", borderBottom: "var(--tasty-border-width) solid var(--tasty-border-strong)" }}>
         <Input block ground="raised" focused={focused} icon={ic.search} placeholder="Type to search commands…" defaultValue={value} />
       </div>
-      <div style={{ padding: 6 }}>
+      <div style={{ padding: "var(--tasty-space-sm)" }}>
         {items.slice(0, rows).map((i) => (
           <MenuItem key={i.label} label={i.label} icon={i.icon} active={i.active}
             shortcut={i.sc ? <Kbd keys={i.sc} /> : null} />
         ))}
       </div>
-      <div style={{ display: "flex", gap: 14, padding: "8px 12px", borderTop: "var(--tasty-border-width) solid var(--tasty-border-strong)",
-        fontFamily: "var(--tasty-font-mono)", fontSize: 10.5, color: "var(--tasty-text-muted-raised)" }}>
+      <div style={{ display: "flex", gap: "var(--tasty-palette-hint-gap)", padding: "var(--tasty-space-sm) var(--tasty-space-md)", borderTop: "var(--tasty-border-width) solid var(--tasty-border-strong)",
+        fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted-raised)" }}>
         <span>↑↓ navigate</span><span>↵ run</span><span>esc close</span>
       </div>
     </div>

@@ -6103,6 +6103,10 @@
       "$type": "dimension",
       "$value": "{primitive.size-540}"
     },
+    "palette-hint-gap": {
+      "$type": "dimension",
+      "$value": "{primitive.size-14}"
+    },
     "settings-window-width": {
       "$type": "dimension",
       "$value": "{primitive.size-1100}"
