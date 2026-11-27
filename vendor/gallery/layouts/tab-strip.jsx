@@ -98,7 +98,7 @@ function GalleryTabStrip() {
           ))}
         </Stage>
         <Meta
-          specs={[["order", "label … | marker · move · busy · close"], ["cluster gap", "4 · tab-status-gap"], ["icon → label", "6 · tab-icon-gap"], ["label → cluster", "8 · tab-gap"], ["squeeze", "label ellipsises; cluster fixed"], ["lock hit", "16 × 16, hover = overlay-hover"], ["lock click", "re-shows the banner only (no tab switch, no focus change) · mouse only"], ["scriptFile", "tooltip only"], ["tooltip placement", "top → bottom → inside the strip (1px border-width tolerance) · none clears → inside the strip (see next spec)"]]}
+          specs={[["order", "label … | marker · move · busy · close"], ["cluster gap", "4 · tab-status-gap"], ["icon → label", <span className="tok">--tasty-tab-icon-gap</span>], ["label → cluster", "8 · tab-gap"], ["squeeze", "label ellipsises; cluster fixed"], ["lock hit", "16 × 16, hover = overlay-hover"], ["lock click", "re-shows the banner only (no tab switch, no focus change) · mouse only"], ["scriptFile", "tooltip only"], ["tooltip placement", "top → bottom → inside the strip (1px border-width tolerance) · none clears → inside the strip (see next spec)"]]}
           tokens={[{ tok: "--tasty-tab-status-gap", use: "→ space-xs 4" }, { tok: "--tasty-html-script-marker-hit", use: "→ size-16" }, { tok: "--tasty-html-script-marker-hover-bg", use: "→ overlay-hover" }, { tok: "--tasty-html-script-marker-fg", use: "lock", color: "var(--tasty-html-script-marker-fg)" }]} />
       </Spec>
 
