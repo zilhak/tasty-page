@@ -99,6 +99,15 @@ function usePageTheme() {
 /* Use a body portal because windows exceed the demo frame and ToolsMenu
    uses viewport coordinates. Wait for mount to match the server markup. */
 const LAYER_CLASS = "shell-overlays";
+
+// The Tools rows runTool answers. The others draw disabled (the kit ToolsMenu hostRuns).
+const TOOLS_RUNS = ["palette", "ports", "remote", "presets", "clipboard", "git"];
+// The room the Tools menu may take: the window below the site header, which is fixed over the page (ToolsMenu bounds).
+function toolsRoom() {
+  const header = document.querySelector(".site-header");
+  const top = header ? Math.max(0, header.getBoundingClientRect().bottom) : 0;
+  return { top, left: 0, right: window.innerWidth, bottom: window.innerHeight };
+}
 const TABBABLE = "a[href], button, input, select, textarea, [tabindex]";
 
 // The layer's controls that Tab reaches, in document order: enabled, in the Tab order, and drawn.
@@ -406,7 +415,7 @@ export function AppShell({ heading = "Workspaces", task = "run tests", doc }) {
 
       <OverlayLayer open={anyOverlay || toast !== null} lock={anyOverlay} trap={overlay !== null}
         windowKey={overlay} restoreTo={restoreTo} scale={scale}>
-        {toolsAnchor && <ToolsMenu anchor={toolsAnchor} onClose={() => setToolsAnchor(null)} onAction={runTool} />}
+        {toolsAnchor && <ToolsMenu anchor={toolsAnchor} bounds={toolsRoom()} hostRuns={TOOLS_RUNS} onClose={() => setToolsAnchor(null)} onAction={runTool} />}
         {overlay === "palette" && <CommandPalette onClose={() => setOverlay(null)} onRun={runCmd} />}
         {overlay === "settings" && <SettingsWindow theme={theme} onTheme={setTheme}
           uiScale={uiScale} onUiScale={setUiScale} onClose={() => setOverlay(null)}
