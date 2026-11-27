@@ -181,7 +181,8 @@ function SearchBarLiveDemo() {
       <div data-search-live="" style={{ position: "relative", height: 120, boxSizing: "border-box", padding: "var(--tasty-space-sm)",
         background: "var(--tasty-bg-app)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)",
         fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-secondary)" }}>
-        {SEARCH_LIVE_LINES.map((l) => <div key={l}>{l}</div>)}
+        {/* the terminal's lines are terminal content; the kit bar drawn over them is UI, so it is the wrapper's sibling */}
+        <div data-terminal-content="">{SEARCH_LIVE_LINES.map((l) => <div key={l}>{l}</div>)}</div>
         {open && <SearchBar lines={SEARCH_LIVE_LINES} onClose={close} />}
       </div>
       <div ref={btnRef} style={{ display: "flex" }}>
