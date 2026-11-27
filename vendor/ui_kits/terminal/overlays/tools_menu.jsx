@@ -30,13 +30,13 @@ const TOOLS_PLUGIN = [
   { id: "git", label: "Git" },
 ];
 
-// Keys, as the app's tools_menu popup: it opens with the keys (focus_on_open) but no row focused, and its rows are
-// egui click widgets, which Tab and Shift+Tab, Up and Down move focus between and Enter or Space press (egui
-// memory and context). So the menu takes focus when it opens and no row is marked; Down or Tab then goes to the first
-// row and Up or Shift+Tab to the last, each next press moves one row and stops at the ends, Enter or Space runs the
-// row, and Esc closes the menu. The row the keys are on draws MenuItem's keyboard-active state (surface-active, the
-// contract's keyboard-active row) and no ring; the pointer only tints, as before. The keys stay in the menu until it
-// closes.
+// Keys (the canon; the app does not follow it yet). The menu takes the keys when it opens, with no row marked. Down
+// or Tab marks the first row and Up or Shift+Tab the last; each next press moves one row and stops at the ends. Enter
+// or Space runs the marked row and does nothing while no row is marked. Esc closes the menu, and the keys stay in it
+// until it closes. The marked row draws MenuItem's keyboard-active state and no ring; the pointer only tints.
+// The app's tools_menu popup takes the keys on open (focus_on_open) but its rows are plain egui click widgets: egui
+// moves between them only from a focused one, so the first Down, Up, Enter and Space do nothing and Tab must reach a
+// row first, and Shift+Tab lands on egui's last candidate, not surely the last row. The app is to take this contract.
 function ToolsMenu({ anchor, onClose, onAction }) {
   React.useEffect(() => {
     const h = (e) => { if (e.key === "Escape") onClose(); };
