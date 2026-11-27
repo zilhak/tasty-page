@@ -44,7 +44,9 @@ const TOOLS_PLUGIN = [
 // Placement, as the app's (sidebar/tools.rs open_tools_menu, then popup clamp_to_screen): the menu opens above the
 // Tools button, left-aligned with it, at its own size; then it is cut down to the room it may take and moved inside
 // it, each axis on its own (top in [room.top, room.bottom - height], left in [room.left, room.right - width]). A menu
-// taller than the room takes the room's height and its rows scroll. The place is fixed when the menu opens.
+// taller than the room takes the room's height and its rows scroll, and one wider than the room takes the room's width
+// (its labels ellipsize): the cut size is the size it is drawn at, as clamp_to_screen sets the popup's size. The place
+// is fixed when the menu opens.
 // anchor: the button's client rect (Sidebar's onTools(rect, button)). bounds: the room, a client rect
 // { top, right, bottom, left }; a host that covers part of the window with its own fixed chrome (the site's header)
 // passes the part left over. Without bounds the room is the window.
@@ -53,7 +55,7 @@ function placeToolsMenu(anchor, size, room) {
   const w = Math.min(size.w, room.right - room.left);
   const top = Math.max(room.top, Math.min(anchor.top - TOOLS_MENU_GAP - h, room.bottom - h));
   const left = Math.max(room.left, Math.min(anchor.left, room.right - w));
-  return { top, left, maxHeight: h };
+  return { top, left, width: w, maxHeight: h };
 }
 // The kit's gap between the menu and the button it opens from (kept from the menu's first drawing).
 const TOOLS_MENU_GAP = 2;
@@ -109,7 +111,7 @@ function ToolsMenu({ anchor, bounds = null, hostRuns = null, onClose, onAction }
       <div ref={menuRef} tabIndex={-1} className="tasty-toolsmenu tasty-scroll" onKeyDown={onKeyDown} onClick={(e) => e.stopPropagation()} role="menu" aria-label="Tools"
         style={{ position: "absolute", left: place ? place.left : anchor.left, top: place ? place.top : 0,
           visibility: place ? "visible" : "hidden", maxHeight: place ? place.maxHeight : undefined,
-          overflowY: place ? "auto" : undefined, boxSizing: "border-box", width: 160,
+          overflowY: place ? "auto" : undefined, boxSizing: "border-box", width: place ? place.width : 160,
           background: "var(--tasty-menu-bg)", border: "var(--tasty-border-width) solid var(--tasty-menu-border)",
           borderRadius: "var(--tasty-menu-radius)", padding: "var(--tasty-popup-content-margin)",
           boxShadow: "var(--tasty-shadow-popover)" }}>
