@@ -1114,11 +1114,14 @@ function CollapsedPopupButton({ kind = "label", ring = false, focused = ring, sc
   const press = live ? {
     onFocus: () => { setHasFocus(true); if (onFocusChange) onFocusChange(true); },
     onBlur: () => { setHasFocus(false); if (onFocusChange) onFocusChange(false); },
-    // a pointer press (detail > 0) and a bare Enter or Space show the popup; with a modifier they do nothing
+    // a pointer press (detail > 0) and a bare Enter or Space show the popup; with a modifier they do nothing. Only a new
+    // press shows it: the repeats of a held key are taken, so the Enter or Space that folded the popup and handed the
+    // focus here does not show it again while it is still down (the rule Button keeps, fresh-press.js).
     onClick: (e) => { if (e.detail > 0) onShow(); },
     onKeyDown: (e) => {
       if (e.key !== "Enter" && e.key !== " ") return;
       e.preventDefault();
+      if (e.repeat) return;
       if (!e.shiftKey && !e.ctrlKey && !e.altKey && !e.metaKey) onShow();
     },
     onKeyUp: (e) => { if (e.key === " ") e.preventDefault(); },
