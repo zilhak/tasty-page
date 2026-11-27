@@ -58,13 +58,17 @@ function placeToolsMenu(anchor, size, room) {
 // The kit's gap between the menu and the button it opens from (kept from the menu's first drawing).
 const TOOLS_MENU_GAP = 2;
 
-function ToolsMenu({ anchor, bounds = null, onClose, onAction }) {
+// Rows the host can run: hostRuns lists the ids its onAction runs. A row not in it draws as a disabled row and so
+// takes no key and no click, the same way the app draws a plugin tool it cannot run. Without hostRuns every row runs,
+// as in the app. The kit demos and the landing pass their own lists, since they have no window for some tools.
+function ToolsMenu({ anchor, bounds = null, hostRuns = null, onClose, onAction }) {
   React.useEffect(() => {
     const h = (e) => { if (e.key === "Escape") onClose(); };
     window.addEventListener("keydown", h);
     return () => window.removeEventListener("keydown", h);
   }, [onClose]);
-  const items = [...TOOLS_BUILTIN, null, ...TOOLS_PLUGIN];
+  const can = (r) => !r.disabled && (!hostRuns || hostRuns.includes(r.id));
+  const items = [...TOOLS_BUILTIN, null, ...TOOLS_PLUGIN].map((r) => (r && !can(r) ? { ...r, disabled: true } : r));
   const rows = items.filter(Boolean);
   const menuRef = React.useRef(null);
   const [kb, setKb] = React.useState(-1);

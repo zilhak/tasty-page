@@ -12,6 +12,9 @@ import { TabStrip, TerminalPane, MarkdownSurface, StatusBar, Prompt, C } from ".
 
 // Tasty UI kit — interactive app shell.
 
+// The Tools rows this shell can run (runTool below).
+const TOOLS_RUNNABLE = ["palette", "ports", "remote", "presets", "clipboard", "git"];
+
 const agentSession = {
   id: "s_01HX", label: "build · cargo", owner: "agent", activity: "idle",
   lines: [
@@ -160,6 +163,8 @@ function App() {
 
   // Tools menu dispatch — mirrors tools_menu.rs: built-ins open their popup
   // (CenteredFocused); Presets opens a separate window; plugin tools fire events.
+  // TOOLS_RUNNABLE names the rows runTool answers; the kit has no Tutorial, Task DAGs, child graph or file picker
+  // window here, so those rows draw disabled (ToolsMenu hostRuns).
   const runTool = (id) => {
     setToolsAnchor(null);
     if (id === "palette") setOverlay("palette");
@@ -231,7 +236,7 @@ function App() {
             onJump={(n) => { setNotifAnchor(null); flash("Jump → " + n.source); }} />
         </div>
       )}
-      {toolsAnchor && <ToolsMenu anchor={toolsAnchor} onClose={() => setToolsAnchor(null)} onAction={runTool} />}
+      {toolsAnchor && <ToolsMenu anchor={toolsAnchor} hostRuns={TOOLS_RUNNABLE} onClose={() => setToolsAnchor(null)} onAction={runTool} />}
       {overlay === "palette" && <CommandPalette onClose={() => setOverlay(null)} onRun={runCmd} />}
       {overlay === "settings" && <SettingsWindow theme={theme} onTheme={setTheme}
         uiScale={uiScale} onUiScale={setUiScale} onClose={() => setOverlay(null)}
