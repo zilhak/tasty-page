@@ -86,14 +86,18 @@ function MoreLabel({ text, app, after }) {
 }
 
 // ── keys and focus for the open ⋯ menu, matched to the app (RULES.md "Popup focus") ──
-// The menu opens holding the popup key focus and takes DOM focus. Popup key ownership and widget focus are separate,
-// as in the app: Tab and Shift+Tab move widget focus as usual, to the trigger or Dismiss too, and the menu stays open
-// and keeps the key focus (focused border, terminal unfocused); the control with widget focus draws its own ring.
-// ↑↓ and ↵ act only while the menu itself has DOM focus. Esc closes it wherever widget focus is in the banner card,
-// and Esc or a row run gives focus back to the trigger while the banner is still there. A press outside the menu box
-// closes it, the trigger included (that press does not reopen it), and the focus the press gives stays. Focus that
-// leaves the banner card closes it too, with or without a target; an inactive OS window changes nothing.
-// The card is the nearest [data-banner-card] around the trigger.
+// The menu opens holding the popup key focus and takes DOM focus, with no row active. Popup key ownership and widget
+// focus are separate, as in the app: Tab and Shift+Tab move widget focus as usual, through the enabled rows and to
+// the trigger or Dismiss, and the menu stays open and keeps the key focus (focused border, terminal unfocused).
+// The keyboard-active row is the row with widget focus, whether ↑↓ or Tab moved it there; focus on the trigger,
+// Dismiss or the menu box leaves no row active. ↑↓ move focus over the enabled rows and ↵ runs the focused row.
+// Disabled rows take no focus. The trigger and Dismiss draw their own rings. Esc closes the menu wherever widget
+// focus is in the banner card, and Esc or a row run gives focus back to the trigger while the banner is still there.
+// A press outside the menu box closes it, the trigger included: the click that press ends in does not reopen it,
+// and a press that ends without a click leaves the next activation alone. The focus a press gives stays. Focus that
+// leaves the banner card closes it too, with or without a target. An inactive OS window changes nothing while it is
+// inactive; when the window comes back without focus in the card, the menu closes.
+// The card is the nearest [data-banner-card] around the trigger. Hosts spread rowProps(i) on each enabled row.
 function useBannerMoreMenu({ open, setOpen, rowCount, onRun }) {
   const anchor = React.useRef(null);
   const menu = React.useRef(null);
@@ -101,6 +105,7 @@ function useBannerMoreMenu({ open, setOpen, rowCount, onRun }) {
   const pressOpen = React.useRef(false);
   const [kb, setKb] = React.useState(-1);
   const trigger = () => (anchor.current ? anchor.current.querySelector('[aria-label="More options"]') : null);
+  const rows = () => (menu.current ? [...menu.current.querySelectorAll("[data-more-row]")] : []);
   const close = (toTrigger) => { if (toTrigger) back.current = true; setOpen(false); };
   React.useEffect(() => {
     if (open) { if (menu.current) menu.current.focus(); return; }
@@ -113,42 +118,53 @@ function useBannerMoreMenu({ open, setOpen, rowCount, onRun }) {
     const inCard = (el) => !!(card && el && card.contains(el));
     const onDown = (e) => { if (menu.current && !menu.current.contains(e.target)) setOpen(false); };
     const onKey = (e) => { if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); close(true); } };
+    const onIn = (e) => setKb(rows().indexOf(e.target));
     let timer = 0;
+    const recheck = () => { clearTimeout(timer); timer = setTimeout(() => { if (document.hasFocus() && !inCard(document.activeElement)) setOpen(false); }, 0); };
     const onOut = (e) => {
       if (e.relatedTarget) { if (!inCard(e.relatedTarget)) setOpen(false); return; }
-      clearTimeout(timer);
-      timer = setTimeout(() => { if (document.hasFocus() && !inCard(document.activeElement)) setOpen(false); }, 0);
+      recheck();
     };
     document.addEventListener("mousedown", onDown);
-    if (card) { card.addEventListener("keydown", onKey); card.addEventListener("focusout", onOut); }
+    window.addEventListener("focus", recheck);
+    if (card) { card.addEventListener("keydown", onKey); card.addEventListener("focusin", onIn); card.addEventListener("focusout", onOut); }
     return () => {
       clearTimeout(timer);
       document.removeEventListener("mousedown", onDown);
-      if (card) { card.removeEventListener("keydown", onKey); card.removeEventListener("focusout", onOut); }
+      window.removeEventListener("focus", recheck);
+      if (card) { card.removeEventListener("keydown", onKey); card.removeEventListener("focusin", onIn); card.removeEventListener("focusout", onOut); }
     };
   }, [open]);
   const run = (i) => { close(onRun(i) !== false); };
   const triggerProps = {
-    onMouseDown: () => { pressOpen.current = open; },
-    onKeyDown: () => { pressOpen.current = false; },
+    // remember whether this press found the menu open; forget it once the press's own click has run
+    onMouseDown: () => {
+      pressOpen.current = open;
+      const done = () => { document.removeEventListener("mouseup", done, true); setTimeout(() => { pressOpen.current = false; }, 0); };
+      document.addEventListener("mouseup", done, true);
+    },
     onClick: () => { if (pressOpen.current) { pressOpen.current = false; return; } setOpen(!open); },
   };
   const menuProps = {
     ref: menu, tabIndex: -1,
     onKeyDown: (e) => {
-      if (!rowCount) return;
-      if (e.key === "ArrowDown") { e.preventDefault(); setKb((i) => (i + 1) % rowCount); }
-      else if (e.key === "ArrowUp") { e.preventDefault(); setKb((i) => (i <= 0 ? rowCount - 1 : i - 1)); }
-      else if (e.key === "Enter" && kb >= 0) { e.preventDefault(); run(kb); }
+      const list = rows();
+      if (!list.length) return;
+      const at = list.indexOf(document.activeElement);
+      if (e.key === "ArrowDown") { e.preventDefault(); list[(at + 1) % list.length].focus(); }
+      else if (e.key === "ArrowUp") { e.preventDefault(); list[at <= 0 ? list.length - 1 : at - 1].focus(); }
+      else if (e.key === "Enter" && at >= 0) { e.preventDefault(); run(at); }
     },
   };
-  return { anchor, kb, run, triggerProps, menuProps };
+  // an enabled row takes widget focus; its keyboard-active fill is the mark, so the row draws no outline of its own
+  const rowProps = (i) => ({ tabIndex: 0, "data-more-row": i, style: { outline: "none" } });
+  return { anchor, kb, run, close, triggerProps, menuProps, rowProps };
 }
 
 function BannerMore({ app, open, setOpen, onAction }) {
   const rowCount = app ? 2 : 0;
   // a row run returns focus to the trigger unless it closes the banner ("notice")
-  const { anchor: wrap, kb, run, triggerProps, menuProps } = useBannerMoreMenu({ open, setOpen, rowCount,
+  const { anchor: wrap, kb, run, triggerProps, menuProps, rowProps } = useBannerMoreMenu({ open, setOpen, rowCount,
     onRun: (i) => { const which = i === 0 ? "notice" : "capture"; onAction && onAction(which); return which !== "notice"; } });
   const act = (which) => run(which === "notice" ? 0 : 1);
   // 2026-11-03 — name unknown (remote mirror, before first poll, lookup failed): the actions exist but can't run.
@@ -170,9 +186,9 @@ function BannerMore({ app, open, setOpen, onAction }) {
           borderRadius: "var(--tasty-banner-more-menu-radius)", padding: "var(--tasty-banner-more-menu-padding)",
           boxShadow: "var(--tasty-banner-more-menu-shadow)" }}>
           {known ? (<>
-            <MenuItem icon={bic.bell} active={kb === 0} onClick={() => act("notice")}
+            <MenuItem icon={bic.bell} active={kb === 0} {...rowProps(0)} onClick={() => act("notice")}
               label={<MoreLabel text="Don't show again for " app={app} />} />
-            <MenuItem icon={<Icon name="mouse" />} active={kb === 1} onClick={() => act("capture")}
+            <MenuItem icon={<Icon name="mouse" />} active={kb === 1} {...rowProps(1)} onClick={() => act("capture")}
               label={<MoreLabel text="Let Tasty handle clicks in " app={app} />} />
           </>) : (<>
             <div role="note" style={{ display: "flex", alignItems: "flex-start", gap: "var(--tasty-space-sm)",

@@ -1919,7 +1919,7 @@ function MouseCaptureBannerG({ glyph = true, body, lines, app = "vim", lang = "e
 function BannerMoreDemoG() {
   const [open, setOpen] = React.useState(false);
   const [log, setLog] = React.useState(null);
-  const { anchor, kb, run, triggerProps, menuProps } = useBannerMoreMenu({ open, setOpen, rowCount: 2,
+  const { anchor, kb, run, triggerProps, menuProps, rowProps } = useBannerMoreMenu({ open, setOpen, rowCount: 2,
     onRun: (i) => { const which = i === 0 ? "notice" : "capture"; setLog(which); return which !== "notice"; } });
   const act = (which) => run(which === "notice" ? 0 : 1);
   return (
@@ -1948,15 +1948,15 @@ function BannerMoreDemoG() {
                           background: "var(--tasty-banner-more-menu-bg)", border: `1px solid ${popupBorderColor(true)}`,
                           borderRadius: "var(--tasty-banner-more-menu-radius)", padding: "var(--tasty-banner-more-menu-padding)",
                           boxShadow: "var(--tasty-banner-more-menu-shadow)" }}>
-                          <MenuItem icon={<Icon name="bell" />} active={kb === 0} onClick={() => act("notice")}
+                          <MenuItem icon={<Icon name="bell" />} active={kb === 0} {...rowProps(0)} onClick={() => act("notice")}
                             label={<MoreLabel text="Don't show again for " app="vim" />} />
-                          <MenuItem icon={<Icon name="mouse" />} active={kb === 1} onClick={() => act("capture")}
+                          <MenuItem icon={<Icon name="mouse" />} active={kb === 1} {...rowProps(1)} onClick={() => act("capture")}
                             label={<MoreLabel text="Let Tasty handle clicks in " app="vim" />} />
                         </div>
                       </div>
                     )}
                   </span>
-                  <IconButton size="sm" aria-label="Dismiss" onClick={() => setLog("dismissed")}>{ic.x}</IconButton>
+                  <IconButton size="sm" aria-label="Dismiss" onClick={() => { setOpen(false); setLog("dismissed"); }}>{ic.x}</IconButton>
                 </span>
               </div>
             </BannerShellG>
