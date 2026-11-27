@@ -198,6 +198,36 @@ function ColumnsMenu({ anchor, hidden, onToggle, onClose }) {
     document.addEventListener("mousedown", down);
     return () => document.removeEventListener("mousedown", down);
   }, [anchor, onClose]);
+  React.useEffect(() => {
+    // Keys, as the app's popup over the scanner: the chooser's checkboxes come right after its button in the Tab order
+    // (the app builds them after the button), Port's disabled one is skipped, and the last one hands on to the button's
+    // next neighbour. The first Esc closes only the chooser and gives the focus back to the button; it never reaches the
+    // window's own Esc, so the next Esc closes the window (app port_scanner.rs escape_closes_only_the_open_column_chooser).
+    const button = () => anchor.current?.querySelector("button");
+    const boxes = () => Array.from(ref.current?.querySelectorAll("input:not(:disabled)") || []);
+    const key = (e) => {
+      // A gallery frame draws the chooser open inside an inert box: it takes no keys there.
+      if (ref.current?.closest("[inert]")) return;
+      if (e.key === "Escape") {
+        e.preventDefault(); e.stopImmediatePropagation();
+        onClose(); button()?.focus();
+        return;
+      }
+      if (e.key !== "Tab") return;
+      const list = boxes(), at = document.activeElement, btn = button();
+      if (!list.length || !btn) return;
+      const order = Array.from(btn.closest("[data-ports-window]")?.querySelectorAll("button:not(:disabled), input:not(:disabled), [tabindex]:not([tabindex='-1'])") || []);
+      const after = order[order.indexOf(btn) + 1] || null;
+      let to = null;
+      if (at === btn && !e.shiftKey) to = list[0];
+      else if (at === list[0] && e.shiftKey) to = btn;
+      else if (at === list[list.length - 1] && !e.shiftKey) to = after;
+      else if (at === after && e.shiftKey) to = list[list.length - 1];
+      if (to) { e.preventDefault(); to.focus(); }
+    };
+    window.addEventListener("keydown", key, true);
+    return () => window.removeEventListener("keydown", key, true);
+  }, [anchor, onClose]);
   return (
     <div ref={ref} role="dialog" aria-label="Show columns" onClick={(e) => e.stopPropagation()}
       style={{ position: "absolute", left: pos ? pos.left : 0, top: pos ? pos.top : 0, visibility: pos ? "visible" : "hidden", zIndex: 1,
