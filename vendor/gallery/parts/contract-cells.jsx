@@ -112,7 +112,7 @@ const CELLS = {
     return (
       <>
         <MenuItem data-part="item" label="Item" icon={plus} shortcut="Ctrl+K" active={active} disabled={disabled} />
-        <MenuItem data-part="danger" label="Delete" danger active={active} disabled={disabled} />
+        <MenuItem data-part="danger" label="Delete" icon={plus} danger active={active} disabled={disabled} />
         <MenuItem data-part="chosen" label="Chosen" selected active={active} disabled={disabled} />
       </>
     );

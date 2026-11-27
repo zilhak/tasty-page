@@ -50,6 +50,12 @@ export const PART_MAP = {
     icon: { sel: '[data-part="item"] .tasty-menuitem__icon', prop: "svg" },
     shortcut: { sel: '[data-part="item"] .tasty-menuitem__shortcut' },
     check: { sel: ".tasty-menuitem__check", prop: "svg" },
+    "icon.danger": { sel: '[data-part="danger"] .tasty-menuitem__icon', prop: "svg" },
+    "label.chosen": { sel: '[data-part="chosen"] .tasty-menuitem__label' },
+    // the row's own fill, so a keyboard-active row whose fill gave way to the hover tint reads as a mismatch
+    fill: { sel: '[data-part="item"]', prop: "backgroundColor" },
+    "fill.danger": { sel: '[data-part="danger"]', prop: "backgroundColor" },
+    "fill.chosen": { sel: '[data-part="chosen"]', prop: "backgroundColor" },
   },
   "AutoComplete row": { label: { sel: ".tasty-ac__row-label" }, match: { sel: ".tasty-ac__mark" }, icon: { sel: ".tasty-ac__row-icon", prop: "svg" } },
   "MultiSelect row": { label: { sel: ".tasty-mselect__row .tasty-check__label" }, bulk: { sel: ".tasty-mselect__all" } },

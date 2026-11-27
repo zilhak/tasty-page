@@ -1549,10 +1549,16 @@ Sits on: `raised`
 | shortcut | `text-on-active` | hover, press, keyboard-active | `raised+hover`, `raised+press`, `active` | 4.62 · 5.40 |
 | check | `accent-primary-raised` | hover, press | `raised+hover`, `raised+press` | 4.08 · 4.14 |
 | icon | `menu-item-part-fg-active` | keyboard-active | `active` | 4.62 · 5.40 |
+| label.danger | `menu-item-part-fg-active` | keyboard-active | `active` | 4.62 · 5.40 |
+| icon.danger | `menu-item-part-fg-active` | keyboard-active | `active` | 4.62 · 5.40 |
+| label.chosen | `menu-item-fg-hover` | keyboard-active | `active` | 4.62 · 5.40 |
+| fill, fill.danger, fill.chosen | `surface-active` | keyboard-active | `raised` | no target |
 | label | `text-disabled` | disabled | `raised` | no target |
 | icon | `text-disabled` | disabled | `raised` | no target |
 | shortcut | `text-disabled` | disabled | `raised` | no target |
 | check | `text-disabled` | disabled | `raised` | no target |
+
+The `fill`, `fill.danger` and `fill.chosen` checks expect `surface-active` on the keyboard-active plain row, danger row and selected option, respectively, and have no contrast target, so replacing that fill with the hover tint fails as a wrong fill. A keyboard-active danger row uses the row ink `menu-item-part-fg-active` for its label and icon because no danger hue reaches 4.5:1 on `surface-active`.
 
 ### AutoComplete row
 
