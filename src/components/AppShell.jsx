@@ -245,16 +245,28 @@ export function AppShell({ heading = "Workspaces", task = "run tests", doc }) {
     return [opener, strip?.querySelector('[role="tab"][aria-selected="true"]'), strip?.querySelector('[aria-label="New tab"]')];
   };
   // The palette shortcut, as the kit shell binds it: it opens the palette from anywhere on the page and replaces an
-  // open Tools menu or window. The opener record is whatever page control had the focus. The page script in
-  // Landing.astro listens from the start and calls this once the demo has mounted; a press it kept before then opens
-  // the palette now.
+  // open Tools menu or window. The page script in Landing.astro listens from the start and calls this with the element
+  // that had the focus at the press, kept with a press made before the demo mounted. That element is the opener. One
+  // that has left the page, or a press made with nothing focused, leaves no record, so closing takes the stand-in
+  // path (the active tab, without scrolling); one that cannot take the focus back on close falls to the same path.
   const openPalette = React.useRef(null);
-  openPalette.current = () => openWindow("palette");
+  openPalette.current = (at) => {
+    const opener = at instanceof HTMLElement && at !== document.body && at.isConnected && !at.closest(`.${LAYER_CLASS}`) ? at : null;
+    if (opener) trigger.current = opener;
+    else if (!anyOverlay) trigger.current = null;
+    setToolsAnchor(null);
+    setOverlay("palette");
+  };
   React.useEffect(() => {
     const api = window.tastyPalette;
     if (!api) return;
-    api.open = () => openPalette.current();
-    if (api.pending) { api.pending = false; api.open(); }
+    api.open = (at) => openPalette.current(at);
+    if (api.pending) {
+      const at = api.opener;
+      api.pending = false;
+      api.opener = null;
+      api.open(at);
+    }
     return () => { api.open = null; };
   }, []);
   React.useEffect(() => {

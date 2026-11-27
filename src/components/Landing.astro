@@ -53,7 +53,7 @@ const dataAttrs = Object.fromEntries(
         var plat = (uad && uad.platform) || navigator.platform || "";
         var mac = /Mac|iPhone|iPad|iPod/i.test(plat);
         document.documentElement.setAttribute("data-palette-mod", mac ? "cmd" : "ctrl");
-        var api = (window.tastyPalette = { mac: mac, pending: false, open: null });
+        var api = (window.tastyPalette = { mac: mac, pending: false, opener: null, open: null });
         window.addEventListener("keydown", function (e) {
           if (mac ? !e.metaKey || e.ctrlKey : !e.ctrlKey || e.metaKey) return;
           if (e.altKey || e.shiftKey) return;
@@ -61,8 +61,11 @@ const dataAttrs = Object.fromEntries(
           if (!k) return;
           e.preventDefault();
           if (e.repeat) return;
-          if (api.open) api.open();
-          else api.pending = true;
+          /* The opener is what had the focus at the press, kept with a press made before the demo mounted, so the
+             palette closes back to it even if the focus moved on while the demo loaded. */
+          var at = document.activeElement;
+          if (api.open) api.open(at);
+          else { api.pending = true; api.opener = at; }
         });
       })();
     </script>
