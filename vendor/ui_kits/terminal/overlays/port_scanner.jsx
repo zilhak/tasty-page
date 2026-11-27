@@ -158,6 +158,7 @@ function FavoritesSection({ favs, onToggle }) {
 // so it may run past the window's right edge onto the scrim, as the app's popup area does. The kit draws it in the
 // scrim, outside the window's clip, at the button's place. The title, then one checkbox per column in table order.
 // Port is the identity and default sort column, so it stays shown and its checkbox is disabled.
+// The 180 floor is the content's, as the app sets it inside the popup frame: the box adds its margin and edge.
 const PORT_COLUMNS = [["port", "Port"], ["proto", "Proto"], ["addr", "Address"], ["proc", "Process"], ["ws", "Workspace"], ["tab", "Tab"], ["state", "State"]];
 function ColumnsMenu({ anchor, hidden, onToggle, onClose }) {
   const ref = React.useRef(null);
@@ -177,7 +178,7 @@ function ColumnsMenu({ anchor, hidden, onToggle, onClose }) {
   return (
     <div ref={ref} role="dialog" aria-label="Show columns" onClick={(e) => e.stopPropagation()}
       style={{ position: "absolute", left: pos ? pos.left : 0, top: pos ? pos.top : 0, visibility: pos ? "visible" : "hidden", zIndex: 1,
-        minWidth: "var(--tasty-port-columns-menu-min-width)", display: "flex", flexDirection: "column", padding: "var(--tasty-popup-content-margin)",
+        minWidth: "calc(1 * var(--tasty-port-columns-menu-min-width) + 2 * var(--tasty-popup-content-margin) + 2 * var(--tasty-border-width))", display: "flex", flexDirection: "column", padding: "var(--tasty-popup-content-margin)",
         background: "var(--tasty-menu-bg)", border: "var(--tasty-border-width) solid var(--tasty-menu-border)", borderRadius: "var(--tasty-menu-radius)",
         boxShadow: "var(--tasty-shadow-popover)" }}>
       {/* the menu is raised, so the title reads text-muted-raised (the app draws text_muted: app handoff) */}
