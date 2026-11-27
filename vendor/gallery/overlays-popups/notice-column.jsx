@@ -21,24 +21,27 @@ const LINES = ["~ $ ls", "Cargo.toml  crates  docs  src", "~ $ cargo build", "  
 const ANNOT = { position: "absolute", inset: 0, zIndex: 1, pointerEvents: "none",
   outline: "var(--tasty-border-width) dashed var(--tasty-specimen-annotation-border)", outlineOffset: "calc(-1 * var(--tasty-border-width))" };
 
-function Term({ lines = LINES, search }) {
+function Term({ lines = LINES, search, focused = true }) {
   return (
-    <div style={{ position: "relative", flex: 1, minWidth: 0, padding: "var(--tasty-space-sm)", background: "var(--tasty-surface-terminal-focused-bg, var(--tasty-bg-panel))", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-term-sm)", lineHeight: 1.5, color: "var(--tasty-text-secondary)", overflow: "hidden" }}>
+    <div style={{ position: "relative", flex: 1, minWidth: 0, padding: "var(--tasty-space-sm)", background: focused ? "var(--tasty-surface-terminal-focused-bg, var(--tasty-bg-panel))" : "var(--tasty-surface-terminal-unfocused-bg)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-term-sm)", lineHeight: 1.5, color: focused ? "var(--tasty-text-secondary)" : "var(--tasty-surface-terminal-unfocused-fg)", overflow: "hidden" }}>
       {lines.map((l, i) => <div data-terminal-content="" key={i} style={{ whiteSpace: "nowrap" }}>{l}</div>)}
       {search && <div style={{ position: "absolute", top: "var(--tasty-space-sm)", right: "var(--tasty-space-sm)", width: "var(--tasty-size-240)", maxWidth: "calc(100% - var(--tasty-space-md))", height: "var(--tasty-size-32)", boxSizing: "border-box", display: "flex", alignItems: "center", gap: "var(--tasty-space-xs)", padding: "0 var(--tasty-space-sm)", background: "var(--tasty-surface-raised)", border: "var(--tasty-border-width) solid var(--tasty-search-bar-border)", borderRadius: "var(--tasty-radius)", color: "var(--tasty-text-muted)", fontSize: "var(--tasty-font-size-caption)", fontFamily: "var(--tasty-font-ui)" }}><Icon name="search" size="var(--tasty-icon-size-xs)" /><span style={{ color: "var(--tasty-text-primary)" }}>cargo</span><span style={{ marginLeft: "auto" }}>1/2</span></div>}
     </div>
   );
 }
-// The strip's tabs are the Tab component on the raised ground this strip paints, so the fill, ink and active mark follow
-// tabLook as everywhere else (an active tab keeps the strip's fill and draws the tab-indicator bar). The strip is one tab
+// One pane holds key focus in a frame (Win's focus, the pane index, 0 by default), and that one value picks its strip
+// and its terminal bed, as the app does (tab_bar/view.rs is_focused; RULES.md section 4, Key focus): the focused pane's
+// strip is surface-raised over a focused bed, the other strip bg-sidebar over an unfocused bed. The notice takes no
+// keys, so it changes neither. The strip's tabs are the Tab component on the ground this strip paints, so the fill, ink
+// and active mark follow tabLook as everywhere else (an active tab keeps the strip's fill and draws the tab-indicator bar). The strip is one tab
 // tall with no line under it, as the app's (tab_bar/view.rs), so the 24px Tab fills it and the column's top offset of
 // one tab height starts right below it. As the app's strip, each tab keeps its full width and the strip clips it at the
 // pane's edge (tab_bar/view.rs clips the tabs to the strip's viewport), so a narrow pane cuts the tab, not the pane.
 // The strip is a picture: inert, so its close buttons take neither the pointer nor focus.
-function Strip({ tabs = ["main"] }) {
+function Strip({ tabs = ["main"], focused = true }) {
   return (
-    <div inert="" style={{ flex: "none", pointerEvents: "none", minWidth: 0, height: "var(--tasty-tab-height)", display: "flex", overflow: "hidden", background: "var(--tasty-surface-raised)" }}>
-      {tabs.map((t, i) => <Tab key={t} label={t} icon={<Icon name="terminal" />} active={i === 0} ground="raised" style={{ flex: "none" }} />)}
+    <div inert="" style={{ flex: "none", pointerEvents: "none", minWidth: 0, height: "var(--tasty-tab-height)", display: "flex", overflow: "hidden", background: focused ? "var(--tasty-surface-raised)" : "var(--tasty-bg-sidebar)" }}>
+      {tabs.map((t, i) => <Tab key={t} label={t} icon={<Icon name="terminal" />} active={i === 0} ground={focused ? "raised" : "mantle"} style={{ flex: "none" }} />)}
     </div>
   );
 }
@@ -50,7 +53,7 @@ function Banner({ text }) {
   );
 }
 // Window: LNB strip (summary dot) · work area with panes. The notice column is relative to the WORK AREA.
-function Win({ w = 640, h = 300, split, search, banner, notifErr, children, annotate, colTop = "var(--tasty-tab-height)" }) {
+function Win({ w = 640, h = 300, split, search, banner, notifErr, children, annotate, focus = 0, colTop = "var(--tasty-tab-height)" }) {
   const NoticeColumn = K().NoticeColumn || (({ children }) => <div>{children}</div>);
   return (
     <div style={{ width: w, maxWidth: "100%", height: h, display: "flex", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden", background: "var(--tasty-bg-app)" }}>
@@ -62,8 +65,8 @@ function Win({ w = 640, h = 300, split, search, banner, notifErr, children, anno
         </div>
       </div>
       <div style={{ position: "relative", flex: 1, minWidth: 0, display: "flex" }}>
-        <div style={{ position: "relative", flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}><Strip tabs={["main"]} /><Term />{annotate && <div aria-hidden="true" style={ANNOT} />}</div>
-        {split && <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", borderLeft: "var(--tasty-border-width) solid var(--tasty-separator)" }}><Strip tabs={["logs"]} /><Term lines={["$ tail -f app.log", "INFO listening on :8080", "INFO GET /health 200"]} search={search} /></div>}
+        <div style={{ position: "relative", flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}><Strip tabs={["main"]} focused={focus === 0} /><Term focused={focus === 0} />{annotate && <div aria-hidden="true" style={ANNOT} />}</div>
+        {split && <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", borderLeft: "var(--tasty-border-width) solid var(--tasty-separator)" }}><Strip tabs={["logs"]} focused={focus === 1} /><Term lines={["$ tail -f app.log", "INFO listening on :8080", "INFO GET /health 200"]} search={search} focused={focus === 1} /></div>}
         {banner && <Banner text={banner} />}
         {children && <NoticeColumn topOffset={colTop}>{children}</NoticeColumn>}
       </div>
@@ -109,7 +112,7 @@ function GalleryNoticeColumn() {
               <span style={mono}>narrow window (work area ≈ 260) · long path · corrupt</span>
               <Win w={380} h={420}><RN cause="corrupt" path={LONG} /></Win>
               <span style={mono}>split · search bar open in the top-right pane → column below it</span>
-              <Win w={720} h={340} split search colTop="calc(var(--tasty-tab-height) + var(--tasty-space-sm) + var(--tasty-size-32))"><RN cause="denied" /></Win>
+              <Win w={720} h={340} split search focus={1} colTop="calc(var(--tasty-tab-height) + var(--tasty-space-sm) + var(--tasty-size-32))"><RN cause="denied" /></Win>
               <span style={mono}>running · save halt variant</span>
               <Win w={640} h={330} split><RN variant="halt" cause="write" /></Win>
             </Themed>
