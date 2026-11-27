@@ -719,8 +719,8 @@ function Page() {
               stays at its top, which is the frame's state. The query and no-results frames are pictures too, inert the
               same way, and hold the query PaletteFrame filters by. */}
           <Views>
-            <View name="palette-query" label="Command palette — the query “in” (first match highlighted)">
-              <div inert="" style={{ pointerEvents: "none" }}><PaletteFrame value="in" /></div>
+            <View name="palette-query" label="Command palette — the query “split” (first match highlighted)">
+              <div inert="" style={{ pointerEvents: "none" }}><PaletteFrame value="split" /></div>
             </View>
             <View name="palette-no-results" label="Command palette — a query with no matches">
               <div inert="" style={{ pointerEvents: "none" }}><PaletteFrame value="zzz" /></div>
@@ -736,12 +736,12 @@ function Page() {
             tokens={[{ tok: "--tasty-surface-raised", use: "frame", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-border-frame", use: "frame edge", color: "var(--tasty-border-frame)" }, { tok: "--tasty-border-strong", use: "header and footer lines — a divider on raised", color: "var(--tasty-border-strong)" }, { tok: "--tasty-surface-active", use: "highlight", color: "var(--tasty-surface-active)" }, { tok: "--tasty-font-label", use: "hints" }, { tok: "--tasty-palette-hint-gap", use: "spacing between footer hints" }]} />
         </Spec>
         <Spec id="search-field-ground-normal-focused" title="Search field ground — normal · focused"
-          when={<>The palette shell is <span className="tok">--tasty-surface-raised</span>, so its search field is an <b>Input ground="raised"</b> (the 10-14 rule, no exception). The box steps down to <code>bg-panel</code> with a <code>border-control-raised</code> edge, so it reads against the shell before it takes focus. The field opens focused (autoFocus); <b>normal</b> is the box after focus moves away. Width, icon, placeholder, list and footer are unchanged; no copy changes.</>}>
+          when={<>The palette shell is <span className="tok">--tasty-surface-raised</span>, so its search field is an <b>Input ground="raised"</b> (the 10-14 rule, no exception). The box steps down to <code>bg-panel</code> with a <code>border-control-raised</code> edge, so it reads against the shell before it takes focus. The field opens focused (autoFocus); <b>normal</b> is the box after focus moves away. Both frames show the query “split” with Pane split vertical highlighted and Pane split horizontal below it. Only the search field’s focus state differs, and the query hides the placeholder in both frames.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)" }}>
             <WGroundThemes render={() => (
               <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-md)" }}>
-                <WGroundCap>normal — focus elsewhere</WGroundCap><PaletteFrame rows={2} />
-                <WGroundCap>focused</WGroundCap><PaletteFrame rows={2} focused value="term" />
+                <WGroundCap>normal — focus elsewhere</WGroundCap><PaletteFrame rows={2} value="split" />
+                <WGroundCap>focused</WGroundCap><PaletteFrame rows={2} focused value="split" />
               </div>
             )} />
           </Stage>

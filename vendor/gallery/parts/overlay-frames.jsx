@@ -97,16 +97,36 @@ function Backdrop({ height = 360, blur = false, scrim = true, children }) {
 
 // opaque: popup over an opaque-mode WebView page (2026-10-21) — square corner, no shadow, border kept
 // ground: the search field is ground="raised" (2026-10-27). focused/value drive static state specimens.
+// The app's commands, in the app's order (tasty-settings keybindings crud.rs GENERAL_BINDING_FIELDS), with their
+// en labels less the trailing colon, their icons (command_palette.rs icon_for) and their default keys (preset_tasty).
+// Only the first six are carried: every query the gallery draws ("", "split", "zzz") finds all its matches among them.
+const PALETTE_APP_COMMANDS = [
+  { label: "New workspace", sc: "Alt+N", icon: "plus" },
+  { label: "New tab", sc: "Alt+T", icon: "terminal" },
+  { label: "Pane split vertical", sc: "Alt+E", icon: "split" },
+  { label: "Pane split horizontal", sc: "Alt+Shift+E", icon: "command" },
+  { label: "Surface split vertical", sc: "Alt+D", icon: "command" },
+  { label: "Surface split horizontal", sc: "Alt+Shift+D", icon: "command" },
+];
+// The app's score (state/command_palette.rs match_score): a substring scores 1000 less its index, plus 500 at a word
+// start; otherwise a subsequence scores 100 less the gaps between its letters; no match is null. Higher first, ties
+// in command order.
+function paletteScore(q, text) {
+  const i = text.indexOf(q);
+  if (i >= 0) return 1000 - i + (i === 0 || !/[a-z0-9]/i.test(text[i - 1]) ? 500 : 0);
+  let k = 0, last = -1, gap = 0;
+  for (let j = 0; j < text.length && k < q.length; j++) {
+    if (text[j] === q[k]) { if (last >= 0) gap += j - last; last = j; k++; }
+  }
+  return k === q.length ? 100 - gap : null;
+}
 // value: the query. As the app (command_palette.rs row_highlighted), no row is highlighted while it is empty; with
-// text the list keeps the commands that match and the selection, back on the first match after each change, is
-// highlighted. When nothing matches, the list holds the no-results line the kit card draws.
+// text the list keeps the commands that match, best score first, and the selection, back on the first match after
+// each change, is highlighted. When nothing matches, the list holds the no-results line the kit card draws.
 function PaletteFrame({ opaque = false, focused = false, value = "", rows = 4 } = {}) {
-  const items = [
-    { label: "New Terminal", sc: "Ctrl+T", icon: ic.term },
-    { label: "Split Pane Vertical", sc: "Ctrl+D", icon: ic.split },
-    { label: "Toggle Theme (Mocha / Latte)", sc: "", icon: <Icon name="theme" /> },
-    { label: "Settings", sc: "Ctrl+,", icon: ic.settings },
-  ].filter((i) => i.label.toLowerCase().includes(value.toLowerCase()));
+  const q = value.trim().toLowerCase();
+  const items = PALETTE_APP_COMMANDS.map((c, n) => ({ ...c, n, score: q ? paletteScore(q, c.label.toLowerCase()) : 0 }))
+    .filter((c) => c.score !== null).sort((x, y) => y.score - x.score || x.n - y.n);
   return (
     <div align="top" style={{ width: "var(--tasty-palette-width)", background: "var(--tasty-surface-raised)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)",
       borderRadius: opaque ? "var(--tasty-webview-opaque-radius)" : "var(--tasty-radius)", overflow: "hidden", boxShadow: opaque ? "var(--tasty-webview-opaque-shadow)" : "var(--tasty-shadow-modal)" }}>
@@ -118,7 +138,7 @@ function PaletteFrame({ opaque = false, focused = false, value = "", rows = 4 } 
       <div style={{ padding: "var(--tasty-space-sm)" }}>
         {items.length === 0 && <div style={{ fontSize: "var(--tasty-font-size-body)", fontStyle: "var(--tasty-font-style-absent)", color: "var(--tasty-text-muted-raised)" }}>No matching commands</div>}
         {items.slice(0, rows).map((i, n) => (
-          <MenuItem key={i.label} label={i.label} icon={i.icon} active={n === 0 && value !== ""}
+          <MenuItem key={i.label} label={i.label} icon={<Icon name={i.icon} />} active={n === 0 && q !== ""}
             shortcut={i.sc ? <Kbd keys={i.sc} /> : null} />
         ))}
       </div>
