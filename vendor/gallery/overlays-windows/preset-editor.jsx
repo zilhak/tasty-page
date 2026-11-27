@@ -706,8 +706,7 @@ import { Section, Spec, Stage, Meta, Note, Do, Dont } from "../parts/specimen.js
             {/* toolbar */}
             <div style={{ display: "flex", alignItems: "center", gap: 8, height: 44, flex: "none", padding: "0 12px", borderBottom: "1px solid var(--tasty-separator)" }}>
               {edit ? (
-                <input defaultValue={cur.name} aria-label="Preset name"
-                  style={{ width: 150, height: 26, border: "var(--tasty-border-width) solid var(--tasty-input-border)", borderRadius: "var(--tasty-radius)", background: "var(--tasty-input-bg)", color: "var(--tasty-input-fg)", font: "inherit", fontSize: 13, padding: "0 8px" }} />
+                <Input defaultValue={cur.name} aria-label="Preset name" style={{ width: "calc(1 * var(--tasty-preset-rename-text-width) + 2 * var(--tasty-input-padding-x))" }} />
               ) : (
                 <>
                   <span style={{ fontSize: 14, fontWeight: 600 }}>{cur.name}</span>

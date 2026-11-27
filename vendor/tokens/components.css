@@ -1579,6 +1579,7 @@
   --tasty-remote-picker-height:        var(--tasty-size-460);
   --tasty-preset-window-width:         var(--tasty-size-960);  /* layout presets window, inner size when it opens */
   --tasty-preset-window-height:        var(--tasty-size-640);
+  --tasty-preset-rename-text-width:    var(--tasty-size-150);  /* 2026-11-27 preset name field (edit toolbar name, view toolbar inline rename): the text width, the app's RENAME_W (egui desired_width is the inner width); the box adds the shared Input's padding on both sides */
   --tasty-toast-stack-offset-bottom:   var(--tasty-size-36);   /* MAIN window-scope stack: status bar 24 + 12. OFF-SCALE — the status bar and the toast structural dims are outside the UI zoom (2026-10-07) */
   --tasty-loading-lockup-tracking:     var(--tasty-letter-spacing-brand-lockup); /* "tasty." 38px loading lockup */
   --tasty-loading-lockup-font-size:    var(--tasty-font-size-brand-lockup); /* 38 — "tasty." loading lockup; BRANDING exception to the 14px UI cap */

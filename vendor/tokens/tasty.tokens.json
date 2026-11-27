@@ -6227,6 +6227,10 @@
       "$type": "dimension",
       "$value": "{primitive.size-640}"
     },
+    "preset-rename-text-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-150}"
+    },
     "toast-stack-offset-bottom": {
       "$type": "dimension",
       "$value": "{primitive.size-36}"
