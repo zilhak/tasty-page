@@ -8,7 +8,7 @@ import { Spec, Stage, Meta, Note } from "../parts/specimen.jsx";
 
 
 
-const { Icon, NotificationItem, NotificationBadgeGroup } = DS;
+const { Icon, NotificationItem, NotificationBadgeGroup, Tab } = DS;
 const PendingIndicator = DS.PendingIndicator || (() => null); // until the bundle recompiles
 const K = () => ({ NoticeColumn: Kit_NoticeColumn, RestoreNotice: Kit_RestoreNotice });
 
@@ -29,10 +29,14 @@ function Term({ lines = LINES, search }) {
     </div>
   );
 }
+// The strip's tabs are the Tab component on the raised ground this strip paints, so the fill, ink and active mark follow
+// tabLook as everywhere else (an active tab keeps the strip's fill and draws the tab-indicator bar). The strip is one tab
+// tall with no line under it, as the app's (tab_bar/view.rs), so the 24px Tab fills it and the column's top offset of
+// one tab height starts right below it.
 function Strip({ tabs = ["main"] }) {
   return (
-    <div style={{ flex: "none", height: "var(--tasty-tab-height)", display: "flex", background: "var(--tasty-surface-raised)", borderBottom: "var(--tasty-border-width) solid var(--tasty-border-strong)" }}>
-      {tabs.map((t, i) => <span key={t} style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-tab-gap)", padding: "0 var(--tasty-tab-padding-x)", fontSize: "var(--tasty-font-size-caption)", color: i === 0 ? "var(--tasty-tab-fg-active)" : "var(--tasty-tab-fg)", background: i === 0 ? "var(--tasty-tab-bg-active)" : "transparent", borderRight: "var(--tasty-border-width) solid var(--tasty-tab-separator)" }}><Icon name="terminal" size="var(--tasty-tab-icon-size)" />{t}</span>)}
+    <div style={{ flex: "none", height: "var(--tasty-tab-height)", display: "flex", background: "var(--tasty-surface-raised)" }}>
+      {tabs.map((t, i) => <Tab key={t} label={t} icon={<Icon name="terminal" />} active={i === 0} ground="raised" />)}
     </div>
   );
 }
