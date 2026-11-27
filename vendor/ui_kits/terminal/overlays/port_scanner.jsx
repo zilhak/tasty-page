@@ -201,7 +201,9 @@ function ColumnsMenu({ anchor, hidden, onToggle, onClose }) {
   React.useEffect(() => {
     // Keys, as the app's popup over the scanner: the chooser's checkboxes come right after its button in the Tab order
     // (the app builds them after the button), Port's disabled one is skipped, and the last one hands on to the button's
-    // next neighbour. The first Esc closes only the chooser and gives the focus back to the button; it never reaches the
+    // next neighbour. The chooser sits after the window in the page, so its checkboxes leave the page's own Tab order
+    // (tabIndex -1) and this handler alone steps through them: they come once, between Columns and Refresh, and the
+    // window's last control (the footer's Close) leads on out of the window, never back into the chooser. The first Esc closes only the chooser and gives the focus back to the button; it never reaches the
     // window's own Esc, so the next Esc closes the window (app port_scanner.rs escape_closes_only_the_open_column_chooser).
     const button = () => anchor.current?.querySelector("button");
     const boxes = () => Array.from(ref.current?.querySelectorAll("input:not(:disabled)") || []);
@@ -218,11 +220,11 @@ function ColumnsMenu({ anchor, hidden, onToggle, onClose }) {
       if (!list.length || !btn) return;
       const order = Array.from(btn.closest("[data-ports-window]")?.querySelectorAll("button:not(:disabled), input:not(:disabled), [tabindex]:not([tabindex='-1'])") || []);
       const after = order[order.indexOf(btn) + 1] || null;
+      const i = list.indexOf(at);
       let to = null;
       if (at === btn && !e.shiftKey) to = list[0];
-      else if (at === list[0] && e.shiftKey) to = btn;
-      else if (at === list[list.length - 1] && !e.shiftKey) to = after;
       else if (at === after && e.shiftKey) to = list[list.length - 1];
+      else if (i >= 0) to = e.shiftKey ? (list[i - 1] || btn) : (list[i + 1] || after);
       if (to) { e.preventDefault(); to.focus(); }
     };
     window.addEventListener("keydown", key, true);
@@ -240,7 +242,7 @@ function ColumnsMenu({ anchor, hidden, onToggle, onClose }) {
       <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", marginTop: "var(--tasty-space-sm)" }}>
         {PORT_COLUMNS.map(([key, label]) => (
           <Checkbox key={key} ground="raised" label={label} checked={!hidden.includes(key)} disabled={key === "port"}
-            onChange={() => onToggle(key)} />
+            tabIndex={-1} onChange={() => onToggle(key)} />
         ))}
       </div>
     </div>
