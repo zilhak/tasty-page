@@ -23,6 +23,18 @@ import { Input } from "../../../components/forms/Input.jsx";
 // fixed-width counter (40px) and always-visible buttons are laid out. The Rust
 // search_bar.rs:24-32 desired_width(200.0) is a fixed-width approximation to
 // reconcile toward the flexible design, not a design constraint.
+// An option toggle (Aa, .*, ab). It is a component of its own, defined once: a component made inside SearchBar would be
+// a new type on every render, so React would replace its button whenever the options or the focus changed, and the
+// button that took the press (and with it the key focus) would leave the page without a blur the bar could see.
+function SearchToggle({ label, active, title, onClick }) {
+  return (
+    <IconButton size="sm" active={active} aria-label={title} title={title} onClick={onClick}>
+      <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 11, fontWeight: 600, lineHeight: 1,
+        color: active ? "var(--tasty-text-on-active)" : "var(--tasty-text-muted-raised)" }}>{label}</span>
+    </IconButton>
+  );
+}
+
 function SearchBar({ lines = [], onClose }) {
   const [q, setQ] = React.useState("");
   const [matchCase, setMatchCase] = React.useState(false);   // "Aa" — default off (case-insensitive)
@@ -74,13 +86,6 @@ function SearchBar({ lines = [], onClose }) {
   const counterColor = hasQuery && (error || count === 0)
     ? "var(--tasty-accent-danger-raised)" : "var(--tasty-text-muted-raised)";
 
-  const Toggle = ({ label, active, title, onClick }) => (
-    <IconButton size="sm" active={active} aria-label={title} title={title} onClick={onClick}>
-      <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 11, fontWeight: 600, lineHeight: 1,
-        color: active ? "var(--tasty-text-on-active)" : "var(--tasty-text-muted-raised)" }}>{label}</span>
-    </IconButton>
-  );
-
   return (
     <div role="search" data-popup-focus={focusIn ? "focused" : "unfocused"} onFocus={onBarFocus} onBlur={onBarBlur} onMouseDown={onBarPress}
       style={{ position: "absolute", top: "var(--tasty-space-sm)", right: "var(--tasty-space-sm)", zIndex: 20,
@@ -104,9 +109,9 @@ function SearchBar({ lines = [], onClose }) {
         disabled={count === 0} onClick={next}>
         <Icon name="chevronDown" size={14} />
       </IconButton>
-      <Toggle label="Aa" active={matchCase} title="Match case" onClick={() => setMatchCase((v) => !v)} />
-      <Toggle label=".*" active={regex} title="Regular expression" onClick={() => setRegex((v) => !v)} />
-      <Toggle label="ab" active={wholeWord} title="Match whole word" onClick={() => setWholeWord((v) => !v)} />
+      <SearchToggle label="Aa" active={matchCase} title="Match case" onClick={() => setMatchCase((v) => !v)} />
+      <SearchToggle label=".*" active={regex} title="Regular expression" onClick={() => setRegex((v) => !v)} />
+      <SearchToggle label="ab" active={wholeWord} title="Match whole word" onClick={() => setWholeWord((v) => !v)} />
       {/* A divider on the raised bar reads the raised cell of the separator role (RULES.md section 6). */}
       <span style={{ flex: "none", width: 1, alignSelf: "stretch", margin: "0 var(--tasty-size-2)",
         background: "var(--tasty-border-strong)" }}></span>
