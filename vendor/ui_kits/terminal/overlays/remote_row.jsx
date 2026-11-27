@@ -200,8 +200,10 @@ export function RemoteConnectionPopup({ lang = "en", name = "tasty-core", profil
 // shape = true: the last tab bar and panes as they were under the workspace-clipped scrim, the popup on it.
 // The scrim takes the pointer (user decision, R-58 Q1), so they are inert like anything under a scrim:
 // no selection, copy or scroll, no link is caught and no picker opens there.
-// The strip under the scrim is the Tab component's, on the unfocused pane's mantle ground: the popup holds key focus, so
-// no pane under it does. It takes no line under it, as the app's strip (tab_bar/view.rs).
+// The strip under the scrim is the Tab component's, on the raised ground of the focused pane: the remote row popup opens
+// without taking focus (remote_row.rs focus_on_open false), so the pane that held it keeps its raised strip
+// (tab_bar/view.rs is_focused), as its terminal keeps the focused bed. The scrim only takes the pointer. The strip takes
+// no line under it, as the app's.
 export function RemoteWorkspaceContent({ shape = false, width = "var(--tasty-remote-row-specimen-width)", height = "var(--tasty-remote-row-specimen-height)", children }) {
   const line = (t, c) => <div style={{ whiteSpace: "pre", color: c || "var(--tasty-surface-terminal-focused-fg)" }}>{t}</div>;
   return (
@@ -209,8 +211,8 @@ export function RemoteWorkspaceContent({ shape = false, width = "var(--tasty-rem
       border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", background: "var(--tasty-bg-app)" }}>
       {shape && (
         <div data-audit-exempt="under-scrim" aria-hidden style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column" }}>
-          <div style={{ height: "var(--tasty-tab-height)", flex: "none", display: "flex", alignItems: "stretch", background: "var(--tasty-tab-bg)" }}>
-            {["build", "logs"].map((t, i) => <Tab key={t} label={t} icon={<Icon name="terminal" />} active={i === 0} ground="mantle" />)}
+          <div style={{ height: "var(--tasty-tab-height)", flex: "none", display: "flex", alignItems: "stretch", background: "var(--tasty-tab-bg-raised)" }}>
+            {["build", "logs"].map((t, i) => <Tab key={t} label={t} icon={<Icon name="terminal" />} active={i === 0} ground="raised" />)}
           </div>
           <div style={{ flex: 1, minHeight: 0, display: "flex", gap: "var(--tasty-border-width)", background: "var(--tasty-separator)" }}>
             <div data-terminal-content="" style={{ flex: 1, padding: "var(--tasty-space-sm)", background: "var(--tasty-surface-terminal-focused-bg)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", lineHeight: "var(--tasty-line-height-ui)" }}>
