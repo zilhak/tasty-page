@@ -786,16 +786,22 @@
   --tasty-surface-focus-edge-unfocused: var(--tasty-bg-sidebar);
   --tasty-surface-focus-edge-width:     var(--tasty-selection-edge-width); /* 2 — hairline, zoom-exempt */
 
-  /* Popup focus edge. A popup whose scope is narrower than the window (surface,
-     tab, pane, workspace) can stay open while key focus sits on another surface.
-     The popup shell, host or plugin alike, lights a bar across the top of its
-     frame while it holds key focus: the same neutral signal as the surface focus
-     edge, so "keys go here" reads one way on a leaf and on a popup. Unfocused,
-     the frame is what it was: no bar, no second value. The bar sits inside the
-     1px border over the content margin, clipped by the radius, so nothing moves.
-     Window-scope popups draw none. The scrim does not change with focus. */
+  /* Popup focus edge. Not used: the top bar was dropped when popup focus moved
+     to the shell border (the commit that added popup-border-unfocused). Kept
+     because tokens are only added. No UI, specimen or app reads these two. */
   --tasty-popup-focus-edge-focused:     var(--tasty-text-secondary);
   --tasty-popup-focus-edge-width:       var(--tasty-selection-edge-width); /* 2 — hairline, zoom-exempt */
+
+  /* Popup focus border. A popup whose scope is narrower than the window (surface,
+     tab, pane, workspace) can stay open while key focus sits on another surface.
+     The popup shell, host or plugin alike, keeps its own 1px border while it
+     holds key focus (border-frame on a dialog shell, search-bar-border on the
+     search bar) and swaps it for this value while it does not. One step toward
+     the shell's fill in both themes, so the frame recedes: darker in Mocha,
+     lighter in Latte. The width, fill, shadow, scrim and content do not change,
+     so nothing moves. Window-scope popups, and a popup shown over the window,
+     keep their own border in every state. */
+  --tasty-popup-border-unfocused:       var(--tasty-border-default);
 
   /* ─────────────────  DATA  ───────────────── */
 

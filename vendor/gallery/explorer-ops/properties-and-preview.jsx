@@ -1,5 +1,4 @@
 import React from "react";
-import { PopupFocusEdge } from "../../ui_kits/terminal/overlays/shared.jsx";
 import { XCol, XThemes, XCell } from "./create-drag-search.jsx";
 import * as QK from "../parts/explorer-kit.jsx";
 import { Section as QSection, Spec as QSpec, Stage as QStage, Meta as QMeta, Note as QNote } from "../parts/specimen.jsx";
@@ -9,7 +8,6 @@ import { QIconButton, QIcon, QBody, QROWS } from "./address-and-toolbar.jsx";
 function QProps({ glyph = QK.ic.file, glyphColor, name, children }) {
   return (
     <div style={{ position: "relative", width: "var(--tasty-explorer-props-width)", maxWidth: "100%", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", overflow: "hidden" }}>
-      <PopupFocusEdge />
       <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "var(--tasty-space-md) var(--tasty-explorer-props-padding-x) var(--tasty-space-sm)" }}>
         <span style={{ display: "inline-flex", flex: "none", color: glyphColor || "var(--tasty-text-muted)" }}>{glyph}</span>
         <span style={{ flex: 1, minWidth: 0, fontSize: "var(--tasty-font-size-max)", fontWeight: "var(--tasty-font-weight-semibold)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{name}</span>

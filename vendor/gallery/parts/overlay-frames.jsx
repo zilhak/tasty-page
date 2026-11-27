@@ -4,7 +4,7 @@ import { Stage } from "./specimen.jsx";
 import { WorkspaceRunningCount } from "../../ui_kits/terminal/chrome.jsx";
 import { AttachConnectionsSection } from "./settings-attach-section.jsx";
 import { rt } from "../../ui_kits/terminal/overlays/remote_row_copy.js";
-import { PopupFocusEdge } from "../../ui_kits/terminal/overlays/shared.jsx";
+import { popupBorderColor, popupFocusAttr } from "../../ui_kits/terminal/overlays/shared.jsx";
 import { PopupTitleBar } from "../../ui_kits/terminal/overlays/info_modal.jsx";
 import { WarnBadge, LocalSshSection as KitLocalSshSection } from "../../ui_kits/terminal/overlays/remote_tool.jsx";
 
@@ -936,12 +936,13 @@ function LocalSshSection({ state = "hosts" }) {
 //   304.5, so its bounds (− 2 × 8) are 288.5 and the popup fits unshrunk.
 //   size: [W, H] override; pin: a window-scope popup bigger than the window: left/top on the window's edge, width
 //     fitted to the window so its title bar and buttons stay whole, the rest cut at the bottom.
-//   focus: "popup" (default) — the popup holds key focus, its edge is lit and the left surface paints focused under the
-//     scrim; "other" — the user clicked the right surface and types there: the right surface paints focused, the popup
-//     stays open and unlit, the collapsed button has no ring. Window-scope popups draw no edge.
+//   focus: "popup" (default) — the popup holds key focus, its frame keeps border-frame and the left surface paints
+//     unfocused under the scrim; "other" — the user clicked the right surface and types there: the right surface paints
+//     focused, the popup stays open with popup-border-unfocused, the collapsed button has no ring. Window-scope popups
+//     keep border-frame in every state.
 //   expanded: a collapsed popup the user pressed, drawn over the window (use with scope "window"). The popup here is
 //     headless, so the host adds its title bar with no title and only the shrink button that collapses it back.
-//   agent: the popup was opened by an agent (passive): no focus anywhere in it, so no ring and no edge.
+//   agent: the popup was opened by an agent (passive): no focus anywhere in it, so no ring and popup-border-unfocused.
 //   onShow: a live frame — the collapsed show button takes part in Tab order and presses call onShow.
 function ShellMock({ scope = "none", split = "v", child = false, narrow = false, clamp = false,
   collapsed = null, ring = false, leftWidth = null, size = null, pin = false, label = "Show popup",
@@ -962,7 +963,9 @@ function ShellMock({ scope = "none", split = "v", child = false, narrow = false,
     const b = e.currentTarget.querySelector("[data-collapsed-popup] button");
     if (b) b.focus();
   };
-  const edgeLit = scope === "surface" && popupFocused;
+  // Popup focus border (RULES.md "Popup focus"): a surface popup keeps border-frame while it holds key focus and takes
+  // popup-border-unfocused while it does not. A window-scope popup, and one shown over the window, keep border-frame.
+  const frameFocused = scope !== "surface" || popupFocused;
   // Key focus is in one place (RULES.md "Surface focus"): while the popup holds it, no surface paints focused. A passive
   // popup leaves the surface under it focused, and focus "other" lights the other surface.
   // under: the caller draws a popup over this window that holds key focus, so no surface here is focused.
@@ -984,11 +987,10 @@ function ShellMock({ scope = "none", split = "v", child = false, narrow = false,
     </div>
   );
   const popup = (
-    <div style={{ position: "relative", flex: "none", width: pin ? Math.min(clamp ? 220 : 280, W - 2) : (clamp ? 220 : 280), background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-frame)",
+    <div {...popupFocusAttr(frameFocused && !(child && scope === "surface"))} style={{ position: "relative", flex: "none", width: pin ? Math.min(clamp ? 220 : 280, W - 2) : (clamp ? 220 : 280), background: "var(--tasty-bg-panel)",
+      border: `1px solid ${popupBorderColor(frameFocused && !(child && scope === "surface"))}`,
       borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", overflow: child ? "visible" : "hidden" }}>
-      {/* the child picker holds focus, so the parent is unlit; the parent clips nothing when it has a child, so the bar is
-          not drawn there either way */}
-      <PopupFocusEdge lit={edgeLit && !child} />
+      {/* the child picker holds focus, so a surface parent takes popup-border-unfocused */}
       {expanded && <PopupTitleBar title={null} closable={false} collapse="Collapse popup" />}
       <div style={{ padding: "10px 12px 8px", display: "flex", flexDirection: "column", gap: 6 }}>
         <div style={{ fontSize: 13, fontWeight: 600 }}>Open markdown file</div>
@@ -1001,10 +1003,9 @@ function ShellMock({ scope = "none", split = "v", child = false, narrow = false,
         <Button variant="primary" size="sm">Open</Button>
       </div>
       {child && (
-        <div style={{ position: "absolute", left: "50%", top: "50%", transform: "translate(-50%,-50%)", zIndex: 3,
-          width: clamp ? 200 : 260, background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-frame)",
+        <div {...popupFocusAttr(frameFocused)} style={{ position: "absolute", left: "50%", top: "50%", transform: "translate(-50%,-50%)", zIndex: 3,
+          width: clamp ? 200 : 260, background: "var(--tasty-bg-panel)", border: `1px solid ${popupBorderColor(frameFocused)}`,
           borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", overflow: "hidden" }}>
-          <PopupFocusEdge lit={edgeLit} />
           <div style={{ padding: "8px 10px", fontSize: 12, fontWeight: 600, borderBottom: "1px solid var(--tasty-separator)" }}>Open file</div>
           <div style={{ padding: "8px 10px", display: "flex", flexDirection: "column", gap: 4 }}>
             {["configs", "docs", "README.md"].map((n, i) => (
@@ -1019,7 +1020,7 @@ function ShellMock({ scope = "none", split = "v", child = false, narrow = false,
     </div>
   );
   const collapsedFrame = collapsed && (
-    <CollapsedPopupButton kind={collapsed === "label" ? "label" : "icon"} ring={ring && popupFocused} edge={edgeLit} scrim={surfaceScrim} label={label} onShow={onShow} onFocusChange={onFocusChange} />
+    <CollapsedPopupButton kind={collapsed === "label" ? "label" : "icon"} ring={ring && popupFocused} focused={frameFocused} scrim={surfaceScrim} label={label} onShow={onShow} onFocusChange={onFocusChange} />
   );
   return (
     <div style={{ width: W, height: H, display: "flex", flexDirection: "column", overflow: "hidden",
@@ -1098,10 +1099,11 @@ function ShellMock({ scope = "none", split = "v", child = false, narrow = false,
 // kind: "label" (Button.secondary, fit glyph + label) | "icon" (IconButton solid, same glyph).
 // scrim: the popup's own scrim entry — shadow-modal on a scrim, shadow-popover without one.
 // ring: the button holds key focus (the base.css :focus-visible pair, drawn static).
-// edge: the popup holds key focus, so its frame lights the popup focus edge (a surface popup; follows ring).
+// focused: the popup holds key focus, so its frame keeps border-frame; otherwise popup-border-unfocused (a surface popup;
+//   follows ring).
 // onShow: live — the button is in Tab order and draws the ring whenever it holds key focus.
-// onFocusChange: live — told when the button gains or loses DOM focus, so the shell can light the bar and the beds from it.
-function CollapsedPopupButton({ kind = "label", ring = false, edge = ring, scrim = true, label = "Show popup", onShow, onFocusChange }) {
+// onFocusChange: live — told when the button gains or loses DOM focus, so the shell can set the border and the beds from it.
+function CollapsedPopupButton({ kind = "label", ring = false, focused = ring, scrim = true, label = "Show popup", onShow, onFocusChange }) {
   const live = !!onShow;
   const [hasFocus, setHasFocus] = React.useState(false);
   const ringStyle = (live ? hasFocus : ring) ? { outline: "var(--tasty-focus-ring-width) solid var(--tasty-border-focus)", outlineOffset: "var(--tasty-border-width)" } : undefined;
@@ -1118,10 +1120,9 @@ function CollapsedPopupButton({ kind = "label", ring = false, edge = ring, scrim
     onKeyUp: (e) => { if (e.key === " ") e.preventDefault(); },
   } : { tabIndex: -1 };
   return (
-    <div data-collapsed-popup={kind} style={{ position: "relative", overflow: "hidden", flex: "none", display: "flex", padding: "var(--tasty-popup-content-margin)",
-      background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)",
+    <div data-collapsed-popup={kind} {...popupFocusAttr(focused)} style={{ position: "relative", overflow: "hidden", flex: "none", display: "flex", padding: "var(--tasty-popup-content-margin)",
+      background: "var(--tasty-bg-panel)", border: `var(--tasty-border-width) solid ${popupBorderColor(focused)}`, borderRadius: "var(--tasty-radius)",
       boxShadow: scrim ? "var(--tasty-shadow-modal)" : "var(--tasty-shadow-popover)" }}>
-      <PopupFocusEdge lit={edge} />
       {kind === "label"
         ? <Button variant="secondary" leadingIcon={<Icon name="fit" size={14} />} style={ringStyle} {...press}>{label}</Button>
         : <IconButton variant="solid" aria-label={label} style={ringStyle} {...press}><Icon name="fit" size={14} /></IconButton>}
@@ -1153,10 +1154,9 @@ function SearchBarFrame({ value = "tasty", focused = false, invalid = false, hei
         <div>    Finished release [optimized] target(s)</div>
       </div>
       {/* the search bar */}
-      <div role="search" style={{ position: "absolute", top: "var(--tasty-space-sm)", right: "var(--tasty-space-sm)", left: "var(--tasty-space-sm)", marginLeft: "auto", maxWidth: 360,
+      <div role="search" {...popupFocusAttr(focused)} style={{ position: "absolute", top: "var(--tasty-space-sm)", right: "var(--tasty-space-sm)", left: "var(--tasty-space-sm)", marginLeft: "auto", maxWidth: 360,
         display: "flex", alignItems: "center", gap: 4, padding: 4, background: "var(--tasty-surface-raised)",
-        border: "var(--tasty-border-width) solid var(--tasty-search-bar-border)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-popover)", overflow: "hidden" }}>
-        <PopupFocusEdge lit={focused} />
+        border: `var(--tasty-border-width) solid ${popupBorderColor(focused, "var(--tasty-search-bar-border)")}`, borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-popover)", overflow: "hidden" }}>
         <span style={{ flex: 1, minWidth: 60, display: "flex" }}><Input block ground="raised" focused={focused} invalid={invalid} defaultValue={value} /></span>
         <span style={{ flex: "none", width: 40, textAlign: "center", fontSize: 12, color: invalid ? "var(--tasty-accent-danger-raised)" : "var(--tasty-text-muted-raised)", fontVariantNumeric: "tabular-nums" }}>{invalid ? "0/0" : "2/3"}</span>
         <IconButton size="sm" aria-label="Previous"><Icon name="chevronUp" size={14} /></IconButton>
@@ -1532,7 +1532,6 @@ function MarkdownOpenFrame() {
   return (
     <div style={{ position: "relative", width: 420, background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)",
       borderRadius: "var(--tasty-radius)", overflow: "hidden", boxShadow: "var(--tasty-shadow-modal)" }}>
-      <PopupFocusEdge />
       <div style={{ padding: "14px 14px 0" }}>
         <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 2 }}>Open markdown file</div>
         <div style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 12 }}>README.md</div>
@@ -3331,8 +3330,8 @@ function FilePickerFrame({ state = "loaded", remote = false, indicator = "badge"
       border: borderMode ? "var(--tasty-border-width) solid var(--tasty-accent-info)" : "var(--tasty-border-width) solid var(--tasty-border-frame)",
       borderRadius: opaque ? "var(--tasty-webview-opaque-radius)" : "var(--tasty-radius)", overflow: "hidden", boxShadow: opaque ? "var(--tasty-webview-opaque-shadow)" : "var(--tasty-shadow-modal)" }}>
       {borderMode && <div style={{ height: "var(--tasty-fp-remote-strip-height)", flex: "none", background: "var(--tasty-accent-info)" }} />}
-      {/* the picker is scoped to its surface, so it lights the focus edge; in border mode the info row keeps the top and the edge sits under it */}
-      <PopupFocusEdge top={borderMode ? "var(--tasty-fp-remote-strip-height)" : 0} />
+      {/* the picker is scoped to its surface and drawn holding key focus, so it keeps its own border: border-frame, or the
+          info border in remote border mode */}
       {/* header */}
       {/* section insets (2026-09-29): every section starts on fp-inset-start (12) — header glyph, first crumb, Name, row icon and footer label share one column */}
       <div style={{ display: "flex", alignItems: "center", gap: "var(--tasty-fp-section-gap)", padding: "var(--tasty-fp-header-pad-y) var(--tasty-fp-inset-end) var(--tasty-fp-header-pad-y) var(--tasty-fp-inset-start)", flex: "none", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
@@ -3456,4 +3455,4 @@ function FilePickerFrame({ state = "loaded", remote = false, indicator = "badge"
   );
 }
 
-export { FpRow, PopupFocusEdge, TOOLS_MENU_BUILTIN, ic, Backdrop, GroundThemes, GroundCap, PaletteFrame, PALETTE_APP_COMMANDS, ApprovalFrame, RenameFrame, SettingsFrame, SettingsGeneralOverlayFrame, SettingsRemoteTransferFrame, SettingsRemoteAttachFrame, TransferProgressFrame, TransferErrorFrame, DownloadRunFrame, DownloadRunLargeFrame, ToastDragValue, ToolsMenuFrame, PortsFrame, PORTS_COLUMNS, PortsFavoritesG, PortStarG, RemoteFrame, RemoteFilterButtonG, RemoteFilterMenuG, LocalSshSection, SearchBarFrame, FileHandlerFrame, FhFooter, PresetFrame, MarkdownOpenFrame, HeldLabel, TabStripMock, SidebarMock, RailMock, CatSwitchSidebarMock, CatSwitchRailMock, BannerShellG, BannerScope, MouseCaptureBannerG, MouseCaptureHitZone, BlacklistEditorG, TtlBannerG, StackDemoG, BannerMoreMenuG, BannerMoreDemoG, GitViewerFrame, ClipboardFrame, RemoteFormFrame, ScriptManagerFrame, ShellMock, CollapsedPopupButton, RemoteAttachFrame, RaNewRow, RaWsPeek, FilePickerFrame, FpCrumbMenu, FpHostBadge, ModifierHintPanelG, MH_CAT_SECTIONS, MH_MIXED_SECTIONS, MH_EMPTY_SECTIONS, catIc, CatMenu, RailCategoryFrame, CategoryEditFrame, CategoryDeleteFrame };
+export { FpRow, TOOLS_MENU_BUILTIN, ic, Backdrop, GroundThemes, GroundCap, PaletteFrame, PALETTE_APP_COMMANDS, ApprovalFrame, RenameFrame, SettingsFrame, SettingsGeneralOverlayFrame, SettingsRemoteTransferFrame, SettingsRemoteAttachFrame, TransferProgressFrame, TransferErrorFrame, DownloadRunFrame, DownloadRunLargeFrame, ToastDragValue, ToolsMenuFrame, PortsFrame, PORTS_COLUMNS, PortsFavoritesG, PortStarG, RemoteFrame, RemoteFilterButtonG, RemoteFilterMenuG, LocalSshSection, SearchBarFrame, FileHandlerFrame, FhFooter, PresetFrame, MarkdownOpenFrame, HeldLabel, TabStripMock, SidebarMock, RailMock, CatSwitchSidebarMock, CatSwitchRailMock, BannerShellG, BannerScope, MouseCaptureBannerG, MouseCaptureHitZone, BlacklistEditorG, TtlBannerG, StackDemoG, BannerMoreMenuG, BannerMoreDemoG, GitViewerFrame, ClipboardFrame, RemoteFormFrame, ScriptManagerFrame, ShellMock, CollapsedPopupButton, RemoteAttachFrame, RaNewRow, RaWsPeek, FilePickerFrame, FpCrumbMenu, FpHostBadge, ModifierHintPanelG, MH_CAT_SECTIONS, MH_MIXED_SECTIONS, MH_EMPTY_SECTIONS, catIc, CatMenu, RailCategoryFrame, CategoryEditFrame, CategoryDeleteFrame };

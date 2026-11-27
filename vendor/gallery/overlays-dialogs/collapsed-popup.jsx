@@ -75,7 +75,7 @@ function CollapsedPopupSpec() {
               <PopupTitleBar title={null} closable={false} collapse={COLLAPSE_COPY.en[0]} collapseTip={COLLAPSE_COPY.en[1]} />
               <div style={{ padding: "var(--tasty-space-sm) var(--tasty-space-md)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-secondary)" }}>plugin content</div>
             </div>
-            <ConvertSurfacePopup focused={false} collapse={COLLAPSE_COPY.en[0]} />
+            <ConvertSurfacePopup collapse={COLLAPSE_COPY.en[0]} />
           </div>
         </View>
         <View name="collapse-tooltip" label="shrink tooltip — pointer hover or key focus">

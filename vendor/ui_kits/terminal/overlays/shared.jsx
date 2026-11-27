@@ -27,14 +27,16 @@ const Spinner = _TDS.Spinner || (() => {
   };
 })();
 
-// ── Popup focus edge — the bar a popup narrower than the window lights across the top of its frame while it
-// holds key focus (vendor/RULES.md "Popup focus"). Inside the 1px border, over the content margin, clipped by the frame's
-// radius (the frame clips its overflow), so nothing in the popup moves. Unfocused: not drawn. top: an offset for a frame
-// whose top row is already taken (the file picker's remote border mode draws its own 2px info row there).
-function PopupFocusEdge({ lit = true, top = 0 }) {
-  if (!lit) return null;
-  return <div data-popup-focus-edge="lit" aria-hidden="true" style={{ position: "absolute", left: 0, right: 0, top, zIndex: 1,
-    height: "var(--tasty-popup-focus-edge-width)", background: "var(--tasty-popup-focus-edge-focused)", pointerEvents: "none" }} />;
+// ── Popup focus border — the color of the 1px border a popup narrower than the window draws (vendor/RULES.md "Popup
+// focus"). focused: the popup holds key focus, so the shell keeps its own border, the token passed as own (border-frame on
+// a dialog shell, search-bar-border on the search bar). Unfocused: popup-border-unfocused. Only the color changes, so
+// nothing in the popup moves. A window-scope popup, or one shown over the window, passes focused={true} in every state.
+function popupBorderColor(focused, own = "var(--tasty-border-frame)") {
+  return focused ? own : "var(--tasty-popup-border-unfocused)";
+}
+// The data attribute a popup shell carries, so a specimen's state can be read from the page.
+function popupFocusAttr(focused) {
+  return { "data-popup-focus": focused ? "focused" : "unfocused" };
 }
 
 // As the app's popup clamp_to_screen: a window is drawn at its own size, cut down to the room the scrim leaves, and
@@ -75,4 +77,4 @@ function ScrimRoom({ align = "center", style, children, ...rest }) {
   return <div className="tasty-kit-scrim__room" {...rest} style={{ justifyContent: align === "top" ? "flex-start" : "center", ...style }}>{children}</div>;
 }
 
-export { Scrim, ScrimRoom, Spinner, PopupFocusEdge };
+export { Scrim, ScrimRoom, Spinner, popupBorderColor, popupFocusAttr };

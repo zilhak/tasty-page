@@ -4264,6 +4264,10 @@
       "$type": "dimension",
       "$value": "{semantic.selection-edge-width}"
     },
+    "popup-border-unfocused": {
+      "$type": "color",
+      "$value": "{semantic.border-default}"
+    },
     "table-cell-height": {
       "$type": "dimension",
       "$value": "{semantic.control-height}"
