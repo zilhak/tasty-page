@@ -28,10 +28,9 @@ const MoveGlyph = () => (
 );
 const cap = (t) => <div style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 10, color: "var(--tasty-text-muted)", marginBottom: 6 }}>{t}</div>;
 
-// Every strip here is an unfocused pane's (bg-sidebar), so the cell keeps the mantle ground; the fill, ink and active
-// mark come from the Tab's tabLook.
-function TabCell({ label, active, hover, ring, cue }) {
-  const look = tabLook({ active, hover });
+// ground: the strip's fill, which the cell keeps (Tab's ground); the fill, ink and active mark come from the Tab's tabLook.
+function TabCell({ label, active, hover, ring, cue, ground = "mantle" }) {
+  const look = tabLook({ active, hover, ground });
   return (
     <div style={{ position: "relative", width: "var(--tasty-tab-width)", height: "var(--tasty-tab-height)", flex: "none", display: "flex",
       alignItems: "center", gap: "var(--tasty-tab-gap)", padding: "0 var(--tasty-tab-padding-x)", color: look.ink, background: look.fill,
@@ -65,11 +64,16 @@ function Surface({ focused, ring, edge, cmd = "cargo test", id }) {
     </div>
   );
 }
+// The pane that holds the focused surface holds key focus, and the app paints its strip raised (tab_bar/view.rs,
+// is_focused): surface-raised over a border-strong line, with raised cells. Every other strip is bg-sidebar over a
+// separator line, with mantle cells, as the loading pre-layout frames draw them.
 function Pane({ tabs, ring, children }) {
+  const focused = React.Children.toArray(children).some((c) => c.props && c.props.focused);
   return (
     <div style={{ position: "relative", flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}>
-      <div style={{ display: "flex", flex: "none", background: "var(--tasty-bg-sidebar)", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)", overflow: "hidden" }}>
-        {tabs.map((t) => <TabCell key={t.label} {...t} />)}
+      <div style={{ display: "flex", flex: "none", background: focused ? "var(--tasty-surface-raised)" : "var(--tasty-bg-sidebar)",
+        borderBottom: `var(--tasty-border-width) solid var(--tasty-${focused ? "border-strong" : "separator"})`, overflow: "hidden" }}>
+        {tabs.map((t) => <TabCell key={t.label} ground={focused ? "raised" : "mantle"} {...t} />)}
       </div>
       <div style={{ flex: 1, minHeight: 0, display: "flex", gap: "var(--tasty-border-width)", background: "var(--tasty-separator)" }}>{children}</div>
       {ring && <MoveRing />}
