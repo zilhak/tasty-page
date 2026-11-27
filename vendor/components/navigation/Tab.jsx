@@ -75,32 +75,20 @@ const CSS = `
   width: var(--tasty-tab-width);
   padding: 0 var(--tasty-space-sm) 0 var(--tasty-space-md);
   border-right: var(--tasty-border-width) solid var(--tasty-separator);
-  background: var(--tasty-tab-bg);
-  color: var(--tasty-tab-fg);
+  background: var(--tab-fill);
+  color: var(--tab-ink);
   font-family: var(--tasty-font-ui);
   font-size: var(--tasty-font-size-body);
   cursor: pointer;
   user-select: none;
   transition: background var(--tasty-motion-ui-fast) var(--tasty-ease-ui), color var(--tasty-motion-ui-fast) var(--tasty-ease-ui);
 }
-/* the focused pane's strip; before the hover, active and fill rules so each of those still wins */
-.tasty-tab--raised { background: var(--tasty-tab-bg-raised); color: var(--tasty-tab-fg-raised); }
-/* the app reads hover only off the active tab (tab.rs tab_fill_and_ink), so an active tab keeps its fill under the pointer */
-.tasty-tab:not(.tasty-tab--active):hover { background: var(--tasty-tab-bg-hover); color: var(--tasty-tab-fg-hover); }
-.tasty-tab--active { color: var(--tasty-tab-fg-active); }
+/* Fill and ink are tabLook's, at rest and under the pointer: Tab passes both looks in --tab-fill, --tab-ink,
+   --tab-fill-hover and --tab-ink-hover, so this sheet holds no order of its own. tabLook leaves an active tab's look
+   unchanged under the pointer, as the app reads hover only off the active tab (tab.rs tab_fill_and_ink). */
+.tasty-tab:hover { background: var(--tab-fill-hover); color: var(--tab-ink-hover); }
 /* only when a host makes the tab a Tab stop: the ring sits inside the box (see the note above) */
 .tasty-tab:focus-visible { outline-offset: calc(-1 * var(--tasty-focus-ring-width)); }
-/* the active tab indicator, one of three (Appearance › active tab indicator). Underline and Dot keep the strip's fill
-   and add a mark in tab-indicator; Fill takes tab-bg-active and draws no mark. */
-.tasty-tab--underline::before {
-  content: ""; position: absolute; left: 0; right: 0; top: 0; height: var(--tasty-tab-indicator-width); background: var(--tasty-tab-indicator);
-}
-.tasty-tab--dot::before {
-  content: ""; position: absolute; left: 50%; top: calc(0.5 * var(--tasty-tab-indicator-dot-size));
-  width: var(--tasty-tab-indicator-dot-size); height: var(--tasty-tab-indicator-dot-size); margin-left: calc(-0.5 * var(--tasty-tab-indicator-dot-size));
-  border-radius: var(--tasty-radius-pill); background: var(--tasty-tab-indicator);
-}
-.tasty-tab--fill { background: var(--tasty-tab-bg-active); }
 .tasty-tab__label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .tasty-tab__icon { flex: none; display: inline-flex; color: var(--tasty-text-secondary); }
 .tasty-tab__icon svg { width: var(--tasty-tab-icon-size); height: var(--tasty-tab-icon-size); display: block; }
@@ -117,9 +105,6 @@ const CSS = `
 .tasty-tab__cluster { flex: none; display: inline-flex; align-items: center; gap: var(--tasty-tab-status-gap); }
 .tasty-tab__dot { position: relative; width: var(--tasty-tab-dot-size); height: var(--tasty-tab-dot-size); border-radius: var(--tasty-radius-pill); background: var(--tasty-status-dot-idle); flex: none; }
 .tasty-tab__dot--busy { background: var(--tasty-status-dot-success); }
-/* attention — title tint (needs-input outranks completion); clears on focus */
-.tasty-tab--needs-input .tasty-tab__label { color: var(--tasty-tab-fg-needs-input); }
-.tasty-tab--completion .tasty-tab__label { color: var(--tasty-tab-fg-completion); }
 `;
 
 
@@ -135,8 +120,8 @@ function ensureCss() {
 }
 
 /**
- * The same fill, label ink and active mark as the CSS above, for a specimen that draws its own tab cell (a cell with
- * a loading overlay, a move ring or a status cluster the Tab does not carry). Keep the two in step: this follows
+ * The one place that ranks a tab's states: the Tab below draws from it, and so does a specimen that draws its own tab
+ * cell (a cell with a loading overlay, a move ring or a status cluster the Tab does not carry). It follows
  * tab_fill_and_ink and the indicator match in the app's tab_bar/tab.rs.
  *   fill — tab-bg-active for an active Fill tab; tab-bg-hover for a hovered inactive tab; else the strip's fill
  *   ink  — attention (needs-input › completion) › active › hover › the strip's rest ink
@@ -157,27 +142,32 @@ export function tabLook({ active = false, hover = false, indicator = "underline"
   return { fill, ink, mark };
 }
 
-/** The active mark tabLook names, placed as .tasty-tab--underline::before and .tasty-tab--dot::before place it.
- *  The host cell is position: relative. */
+/** The active mark tabLook names: Underline is a tab-indicator bar tab-indicator-width tall across the top, Dot a
+ *  tab-indicator dot tab-indicator-dot-size wide, centred, its centre one dot below the top edge. The Tab and every
+ *  specimen cell draw it here. The host cell is position: relative. */
 export function TabMark({ mark }) {
   if (mark === "underline") {
-    return <span aria-hidden style={{ position: "absolute", left: 0, right: 0, top: 0, height: "var(--tasty-tab-indicator-width)", background: "var(--tasty-tab-indicator)" }} />;
+    return <span aria-hidden className="tasty-tab__mark" style={{ position: "absolute", left: 0, right: 0, top: 0, height: "var(--tasty-tab-indicator-width)", background: "var(--tasty-tab-indicator)" }} />;
   }
   if (mark === "dot") {
-    return <span aria-hidden style={{ position: "absolute", left: "50%", top: "calc(0.5 * var(--tasty-tab-indicator-dot-size))",
+    return <span aria-hidden className="tasty-tab__mark" style={{ position: "absolute", left: "50%", top: "calc(0.5 * var(--tasty-tab-indicator-dot-size))",
       width: "var(--tasty-tab-indicator-dot-size)", height: "var(--tasty-tab-indicator-dot-size)", marginLeft: "calc(-0.5 * var(--tasty-tab-indicator-dot-size))",
       borderRadius: "var(--tasty-radius-pill)", background: "var(--tasty-tab-indicator)" }} />;
   }
   return null;
 }
 
-export function Tab({ label, icon = null, active = false, indicator = "underline", ground = "mantle", status = "idle", attention = null, onClose, className = "", ...rest }) {
+export function Tab({ label, icon = null, active = false, indicator = "underline", ground = "mantle", status = "idle", attention = null, onClose, className = "", style, ...rest }) {
   ensureCss();
   const busy = status === "busy";
-  // As the app's tab_title_color: attention outranks active, so an active tab keeps its attention tint.
+  const look = tabLook({ active, indicator, ground, attention });
+  const hoverLook = tabLook({ active, hover: true, indicator, ground, attention });
+  // The classes name the state for hosts and the rendered check; the look itself comes from tabLook alone.
   const cls = ["tasty-tab", ground === "raised" ? "tasty-tab--raised" : "", active ? "tasty-tab--active tasty-tab--" + indicator : "", attention ? "tasty-tab--" + attention : "", className].filter(Boolean).join(" ");
+  const lookVars = { "--tab-fill": look.fill, "--tab-ink": look.ink, "--tab-fill-hover": hoverLook.fill, "--tab-ink-hover": hoverLook.ink };
   return (
-    <div className={cls} {...rest}>
+    <div className={cls} style={{ ...lookVars, ...style }} {...rest}>
+      <TabMark mark={look.mark} />
       {icon && <span className="tasty-tab__icon">{icon}</span>}
       <span className="tasty-tab__label">{label}</span>
       <span className="tasty-tab__cluster">

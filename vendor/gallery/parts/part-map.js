@@ -30,7 +30,7 @@ const tab = {
   close: { sel: '[data-part="tab"] .tasty-tab__close', prop: "svg" },
   dot: { sel: ".tasty-tab__dot--busy", prop: "backgroundColor" },
   separator: { sel: '[data-part="tab"]', prop: "borderRightColor" },
-  indicator: { sel: ".tasty-tab--active", pseudo: "::before", prop: "backgroundColor" },
+  indicator: { sel: ".tasty-tab--active .tasty-tab__mark", prop: "backgroundColor" },
 };
 const row = (cell, border) => ({ cell: { sel: cell }, border: { sel: border, prop: "borderBottomColor" } });
 export const PART_MAP = {

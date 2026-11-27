@@ -54,8 +54,8 @@ export interface TabLookInput {
 }
 
 /**
- * The Tab's fill, label ink and active mark as CSS values, for a specimen that
- * draws its own tab cell. Follows the same rules as the Tab's CSS.
+ * A tab's fill, label ink and active mark as CSS values. The Tab draws from it,
+ * and so does a specimen that draws its own tab cell.
  */
 export function tabLook(input?: TabLookInput): { fill: string; ink: string; mark: "underline" | "dot" | null };
 
