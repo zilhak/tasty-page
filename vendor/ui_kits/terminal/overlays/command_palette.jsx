@@ -90,7 +90,15 @@ function PaletteCard({ query = "", onQuery, onRun, autoFocus = false, commands =
     const row = selectedRow();
     if (row) reveal(row);
   }, [selected, query]);
+  // The character keys this palette saw pressed. A key whose repeats reach the search field without its press, such as
+  // the Space that ran Tools › Command palette… and is still held, is taken until it is released, so it types nothing;
+  // a new press of it types as usual.
+  const pressed = React.useRef(new Set());
   const onKeyDown = (e) => {
+    if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      if (!e.repeat) pressed.current.add(e.key);
+      else if (!pressed.current.has(e.key)) { e.preventDefault(); return; }
+    }
     if (e.key === "ArrowDown" || e.key === "ArrowUp") {
       e.preventDefault();
       if (items.length) setSel(e.key === "ArrowDown" ? Math.min(selected + 1, items.length - 1) : Math.max(selected - 1, 0));
