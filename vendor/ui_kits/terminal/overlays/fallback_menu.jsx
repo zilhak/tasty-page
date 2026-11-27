@@ -23,7 +23,9 @@ import { Kbd } from "../../../components/core/Kbd.jsx";
 // moves: every row draws MenuItem held, so a row under a still pointer shows no tint beside the active row, and a row
 // the pointer is over takes no entry (a list scrolling under a still pointer does not move the active row). The first
 // real move (one with a movement, not the browser's own re-check after a scroll or a layout change) gives the active
-// row to the enabled row under the pointer, if any, and calls onPointerMove so the caller ends the hold.
+// row to the enabled row the move actually hits, if any, and calls onPointerMove so the caller ends the hold. The row
+// is the one the event's own target sits in, so a row the list has scrolled out of view, the panel's padding, a
+// separator, the scrollbar and a disabled row (its MenuItem takes no pointer) hit no row, and the active row stays.
 
 // A menu where any row has an icon gives every row the icon slot, so the labels share one left edge.
 function IconSlot() {
@@ -61,12 +63,9 @@ function FallbackMenu({ items, click, active = -1, tip = -1, scrollTo = -1, onPo
     if (!pointerHeld) return;
     if (!e.movementX && !e.movementY) return;
     if (onPointerRow) {
-      const at = rowRefs.current.findIndex((el, i) => {
-        if (!el || items[i].separator || items[i].enabled === false) return false;
-        const r = el.getBoundingClientRect();
-        return e.clientX >= r.left && e.clientX < r.right && e.clientY >= r.top && e.clientY < r.bottom;
-      });
-      if (at >= 0) onPointerRow(at);
+      const row = e.target instanceof Element ? e.target.closest("[data-fallback-row]") : null;
+      const at = row && listRef.current && listRef.current.contains(row) ? Number(row.getAttribute("data-fallback-row")) : -1;
+      if (at >= 0 && items[at] && !items[at].separator && items[at].enabled !== false) onPointerRow(at);
     }
     if (onPointerMove) onPointerMove(e);
   };
@@ -106,7 +105,7 @@ function FallbackMenu({ items, click, active = -1, tip = -1, scrollTo = -1, onPo
       <div ref={listRef} className="tasty-scroll" style={{ overflowY: "auto", minHeight: 0, position: "relative" }}>
         {items.map((it, i) => it.separator
           ? <MenuItem key={i} separator />
-          : <div key={i} ref={(el) => { rowRefs.current[i] = el; }}
+          : <div key={i} ref={(el) => { rowRefs.current[i] = el; }} data-fallback-row={i}
               onMouseEnter={onPointerRow && it.enabled !== false ? () => { if (!pointerHeld) onPointerRow(i); } : undefined}>
               <MenuItem wrap label={it.label} disabled={it.enabled === false} active={i === active} held={pointerHeld}
                 icon={it.icon || (hasIcon ? <IconSlot /> : null)}
