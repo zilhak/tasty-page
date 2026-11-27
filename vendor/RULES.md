@@ -509,6 +509,7 @@ Grades:
 
 - **4.5** for all text that stays on screen, placeholder included. A placeholder is the only hint of what goes in a field.
 - **3** for anything non-text that carries meaning or state.
+- **State grounds** are grounds for grading their inks. Grade 3 applies to marks drawn on a ground. Against its parent, a state ground is held to the state ground pass mark in [section 7](#7-meaning), with no required contrast ratio.
 - **None** for disabled ink, ornaments and partitions. A partition is not the only thing that identifies its region: the fill and the content do that too.
 - A control is identified by its edge only when nothing else does. A field, Select, Checkbox and Switch track can be empty, so they take `border-control`. A Button has a label, a Tag has a word, a Kbd has a key. They take `border-partition`.
 
@@ -1223,6 +1224,10 @@ Forbidden:
 | surface focus edge | latte | `surface-focus-edge-focused`, `surface-focus-edge-unfocused` | 0.442 | not needed |
 | surface focus edge and rings | mocha | `surface-focus-edge-focused`, `surface-highlight-done-border` | 0.088 | not needed |
 | surface focus edge and rings | latte | `surface-focus-edge-focused`, `surface-highlight-input-border` | 0.135 | not needed |
+| state ground on its parent | mocha | `surface-active`, `surface-raised` | 0.153 | not needed |
+| state ground on its parent | latte | `surface-active`, `surface-raised` | 0.099 | not needed |
+| keyboard-active and hover rows | mocha | `surface-active`, `raised+hover` | 0.092 | not needed |
+| keyboard-active and hover rows | latte | `surface-active`, `raised+hover` | 0.047 | The hover row is the row under the pointer. |
 
 **Surface focus pass mark.** Binds the built-in themes only, Mocha and Latte.
 
@@ -1233,6 +1238,13 @@ Forbidden:
 - The two default inks are not a pair that must be told apart. The beds carry focus. The inks only keep to the same direction: Latte 7.99 focused against 4.73 unfocused, ΔE 0.057 between the inks. Mocha 14.52 against 7.37, ΔE 0.128.
 
 **Rings among themselves.** The group `surface focus edge and rings` compares the lit edge with each ring and holds no ring pair. The closest ring pair is `surface-occupied-hard-border`, `surface-highlight-input-border` in Latte at ΔE 0.062. Width separates them, 1px against 2px, except on a focused `html` or plugin webview leaf, where the top side of either one is a single 1px row. Only hue is left there. That case is unmeasured, and it goes back to design if it does not read in the app.
+
+**State ground pass mark.** Binds the built-in themes only, Mocha and Latte.
+
+- As for the surface bed, the pass mark is OKLab ΔE alone, at 0.08 or more between `surface-active` and each parent it sits on in the location map. The lowest values are on `raised`, 0.153 in Mocha and 0.099 in Latte.
+- The lowest OKLab ΔE values between `active` and `<parent>+hover` on the same parent are on `raised`, 0.092 in Mocha and 0.047 in Latte. Latte falls below 0.08.
+- Position under the pointer is the second channel that identifies the hover row in this pair. Keyboard-active outranks hover on the same row.
+- A translucent state ground composites over its parent first, in 8 bits.
 
 **Tint rule.** A tint holds its own hue and neutrals. A second hue on it reads as a conflict, so it is forbidden.
 
@@ -1552,13 +1564,13 @@ Sits on: `raised`
 | label.danger | `menu-item-part-fg-active` | keyboard-active | `active` | 4.62 · 5.40 |
 | icon.danger | `menu-item-part-fg-active` | keyboard-active | `active` | 4.62 · 5.40 |
 | label.chosen | `menu-item-fg-hover` | keyboard-active | `active` | 4.62 · 5.40 |
-| fill, fill.danger, fill.chosen | `surface-active` (state ground `active`, no role) | keyboard-active | `raised` | no grade, token only |
+| fill, fill.danger, fill.chosen | `surface-active` (state ground `active`, no role) | keyboard-active | `raised` | ΔE 0.153 · 0.099 ([section 7](#7-meaning)) |
 | label | `text-disabled` | disabled | `raised` | no target |
 | icon | `text-disabled` | disabled | `raised` | no target |
 | shortcut | `text-disabled` | disabled | `raised` | no target |
 | check | `text-disabled` | disabled | `raised` | no target |
 
-The roleless state-ground checks `fill`, `fill.danger` and `fill.chosen` match only the `surface-active` token for the `active` state ground (section 3, State grounds) on the keyboard-active plain row, danger row and selected option, respectively, so substituting the hover tint fails as a wrong fill. Section 5's grade 3 applies to a non-text mark that carries a state on its ground, and these fills serve as the ground for grading the row's inks without adding to the inks that may go without a grade. The rows claim no grade against `raised`, against which the fill measures 1.88 in Mocha and 1.40 in Latte. A keyboard-active danger row uses the row ink `menu-item-part-fg-active` for its label and icon because no danger hue reaches 4.5:1 on `surface-active`.
+The roleless state-ground checks `fill`, `fill.danger` and `fill.chosen` match only the `surface-active` token for the `active` state ground (section 3, State grounds) on the keyboard-active plain row, danger row and selected option, respectively, so substituting the hover tint fails as a wrong fill. These fills are state grounds held to the state ground pass mark in [section 7](#7-meaning), and the contrast grades in [section 5](#5-roles-and-grades) apply only to the inks drawn on them. Against `raised`, the fills measure 1.88 / 1.40 in contrast and 0.153 / 0.099 in OKLab ΔE, Mocha then Latte. A keyboard-active danger row uses the row ink `menu-item-part-fg-active` for its label and icon because no danger hue reaches 4.5:1 on `surface-active`.
 
 ### AutoComplete row
 
