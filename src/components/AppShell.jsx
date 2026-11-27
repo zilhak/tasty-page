@@ -216,9 +216,6 @@ export function AppShell({ heading = "Workspaces", task = "run tests", doc }) {
     else if (!anyOverlay) trigger.current = null;
   };
   const openWindow = (kind, e) => { noteTrigger(e?.currentTarget); setToolsAnchor(null); setOverlay(kind); };
-  // The kit's Tools button reports only its rectangle; the button is the one drawn at that rectangle's centre.
-  const buttonAt = (rect) =>
-    document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2)?.closest("button");
   // The opener first, then the demo's active tab, then its New tab button when every tab is closed: the
   // opener can sit in a region a narrow page hides.
   const restoreTo = () => {
@@ -353,7 +350,7 @@ export function AppShell({ heading = "Workspaces", task = "run tests", doc }) {
             pluginAlert={pluginAttentionCount || 0}
             onWs={setActiveWs} onSettings={(e) => openWindow("settings", e)}
             onPlugins={(e) => openWindow("plugins", e)}
-            onTools={(rect) => { noteTrigger(buttonAt(rect)); setToolsAnchor((a) => (a ? null : rect)); }} />
+            onTools={(rect, button) => { noteTrigger(button); setToolsAnchor((a) => (a ? null : rect)); }} />
         </div>
         <div className="shell__work">
           {/* Wrapped so the page can reach the kit's tab row, which it styles inline. */}
