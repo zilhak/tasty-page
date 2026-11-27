@@ -721,7 +721,11 @@ function PaletteSelectedCell({ children }) {
     box.setAttribute("data-contract", "MenuItem");
     box.setAttribute("data-state", "keyboard-active");
     box.setAttribute("data-host", "raised");
-    box.setAttribute("data-parts", JSON.stringify(["fill", "label", "icon", "shortcut"]));
+    // only the parts the marked row draws: a command without a shortcut has no shortcut part to check
+    const parts = ["fill", "label"];
+    if (row.querySelector(".tasty-menuitem__icon")) parts.push("icon");
+    if (row.querySelector(".tasty-menuitem__shortcut")) parts.push("shortcut");
+    box.setAttribute("data-parts", JSON.stringify(parts));
   }, []);
   return <div ref={ref} style={{ display: "contents" }}>{children}</div>;
 }
