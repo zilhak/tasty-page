@@ -5,7 +5,8 @@ import { Input } from "../../../components/forms/Input.jsx";
 
 // Tasty UI kit — terminal search bar (Ctrl+F / ⌘F, top-right of the focused surface).
 // Mirrors zilhak/tasty → src/adapters/ui/search_bar.rs
-//   PopupDef: id "search_bar", 360×28, headless, sticky_focus, stays open on outside click.
+//   PopupDef: id "search_bar", 360×28, headless, sticky_focus false, outside_click Unfocus: stays open on a press
+//   outside it, and a press in the surface outside the bar hands key focus to the terminal.
 
 
 // ── Search bar — mirrors src/adapters/ui/search_bar.rs (popup id "search_bar") ──
@@ -14,7 +15,10 @@ import { Input } from "../../../components/forms/Input.jsx";
 // CANONICAL, see search_bar.rs note below) · status text
 // (error > no-matches > {current}/{total}) · ▲▼ (only when matches exist) ·
 // Aa / .* / ab option toggles · │ divider · ✕ close (Esc). Enter next, Shift+Enter prev, ↑↓ navigate,
-// Esc closes. Does NOT close on outside click; input keeps focus.
+// Esc closes. Does NOT close on outside click; the press takes key focus out of the bar, which stays open.
+// Its border shows popup focus (RULES.md "Popup focus"): popup-border-focused while focus is inside the bar,
+// popup-border-unfocused once it is elsewhere. A press on the bar's own frame (padding, counter, divider) keeps or
+// takes back the focus for the field, as a press inside a popup's frame gives it key focus.
 // INPUT WIDTH (canonical): flex:1 — the input grows to fill the bar after the
 // fixed-width counter (40px) and always-visible buttons are laid out. The Rust
 // search_bar.rs:24-32 desired_width(200.0) is a fixed-width approximation to
@@ -40,6 +44,17 @@ function SearchBar({ lines = [], onClose }) {
   }, [q, matchCase, regex, wholeWord, lines]);
 
   React.useEffect(() => { setCur(0); }, [q, matchCase, regex, wholeWord]);
+
+  // Key focus: inside the bar (the field or one of its buttons) or elsewhere. The field takes it on open (autoFocus).
+  const [focusIn, setFocusIn] = React.useState(false);
+  const onBarFocus = () => setFocusIn(true);
+  const onBarBlur = (e) => { if (!e.currentTarget.contains(e.relatedTarget)) setFocusIn(false); };
+  const onBarPress = (e) => {
+    if (e.button !== 0 || e.target.closest("button:not(:disabled), input")) return;
+    e.preventDefault();
+    const field = e.currentTarget.querySelector("input");
+    if (!e.currentTarget.contains(document.activeElement) && field) field.focus({ preventScroll: true });
+  };
 
   // Previous and Next keep the focus and step once per click, so they take keyRepeat: holding Enter on one keeps
   // stepping, as holding Enter in the field does (fresh-press.js).
@@ -67,10 +82,12 @@ function SearchBar({ lines = [], onClose }) {
   );
 
   return (
-    <div role="search" style={{ position: "absolute", top: "var(--tasty-space-sm)", right: "var(--tasty-space-sm)", zIndex: 20,
+    <div role="search" data-popup-focus={focusIn ? "focused" : "unfocused"} onFocus={onBarFocus} onBlur={onBarBlur} onMouseDown={onBarPress}
+      style={{ position: "absolute", top: "var(--tasty-space-sm)", right: "var(--tasty-space-sm)", zIndex: 20,
       width: 360, maxWidth: "calc(100% - var(--tasty-space-md))",
       display: "flex", alignItems: "center", gap: 4, padding: 4,
-      background: "var(--tasty-surface-raised)", border: "var(--tasty-border-width) solid var(--tasty-border-strong)",
+      background: "var(--tasty-surface-raised)",
+      border: `var(--tasty-border-width) solid ${focusIn ? "var(--tasty-popup-border-focused)" : "var(--tasty-popup-border-unfocused)"}`,
       borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-popover)",
       fontFamily: "var(--tasty-font-ui)" }}>
       <span style={{ flex: 1, minWidth: 60, display: "flex" }}>
