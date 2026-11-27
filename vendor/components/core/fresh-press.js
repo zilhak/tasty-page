@@ -20,7 +20,9 @@ export function useFreshPress({ onKeyDown, onKeyUp, onClick, onBlur } = {}, { ke
   const space = React.useRef(false);
   // An Enter press began on this control and is not released yet.
   const enter = React.useRef(false);
-  // The Space release just seen began elsewhere: drop the click the browser makes from it.
+  // The Space release just seen began elsewhere: drop the click the browser makes from it. That click is the browser's
+  // own (isTrusted, detail 0). A click() a script calls while the release is handled is not the release's and goes
+  // through, so two of them still toggle twice.
   const drop = React.useRef(false);
   return {
     onKeyDown(e) {
@@ -45,7 +47,7 @@ export function useFreshPress({ onKeyDown, onKeyUp, onClick, onBlur } = {}, { ke
       if (onKeyUp) onKeyUp(e);
     },
     onClick(e) {
-      if (drop.current && e.detail === 0) {
+      if (drop.current && e.detail === 0 && e.isTrusted) {
         drop.current = false;
         e.preventDefault();
         return;
