@@ -746,7 +746,7 @@ function Page() {
 
 <Section id="ports" title="Listening ports">
         <Spec id="listening-ports-the-table-popup" title="Listening ports — the Table popup"
-          when={<>Tools › Listening ports. A <b>660×520</b> modal built directly on the <b>Table</b> component — the canonical example of a data-table surface. Header carries a live filter + refresh; a <b>Show all</b> checkbox toggles between Tasty-owned and system-wide ports; the scan state shows a <b>Spinner</b>. Rows are sortable; the State column renders a StatusDot.</>}>
+          when={<>Tools › Listening ports. A <b>660×520</b> modal built directly on the <b>Table</b> component — the canonical example of a data-table surface. The header carries a live filter, a <b>Columns</b> IconButton that opens the column chooser, refresh and close. A <b>Show all</b> checkbox toggles between Tasty-owned and system-wide ports, and the scan state shows a <b>Spinner</b>. Rows are sortable, and the State column renders a StatusDot.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)" }}><PortsFrame /></Stage>
           {/* The kit's own window on a narrow screen, cut below its filter row: the right cluster keeps its size at the
               right edge and the left group is cut at its end. It opens on the scanned table (scanMs 0), so the frame
@@ -759,10 +759,21 @@ function Page() {
                 </div>
               </div>
             </View>
+            {/* The kit's window with its Columns chooser open, cut below the chooser. The chooser hangs from the button's
+                bottom-left and runs past the window's right edge, so the room leaves space for it on both sides. In a
+                column narrower than the room, the box keeps the room's right end, where the right cluster and the
+                chooser are, and cuts its left. */}
+            <View name="ports-columns-menu" wide label="Listening ports — the Columns chooser open (cropped below the chooser, right end kept in a narrow frame)">
+              <div inert="" style={{ overflow: "hidden", display: "flex", justifyContent: "flex-end", width: "100%", maxWidth: "calc(1 * var(--tasty-ports-window-width) + 2 * var(--tasty-size-80))", height: "var(--tasty-size-300)", pointerEvents: "none" }}>
+                <div style={{ position: "relative", flex: "none", width: "calc(1 * var(--tasty-ports-window-width) + 2 * var(--tasty-size-80))", height: "var(--tasty-ports-window-height)" }}>
+                  <Kit_PortsWindow scanMs={0} columnsOpen onClose={() => {}} />
+                </div>
+              </div>
+            </View>
           </Views>
           <Meta
-            specs={[["frame width", "--tasty-ports-window-width"], ["frame height", "--tasty-ports-window-height"], ["built on", <span className="ic">Table</span>], ["header", "filter Input + refresh"], ["narrow window", "filter, refresh and close keep their size at the right in the kit and app · the design clips the icon, title and listening count at the end of the remaining width · the app still draws the filter over the title and count"], ["scan", <>Spinner \u2192 \u201cCollecting\u2026\u201d</>], ["footer", "count · Copy address · Close"]]}
-            tokens={[{ tok: "--tasty-bg-panel", use: "frame", color: "var(--tasty-bg-panel)" }, { tok: "--tasty-surface-active", use: "selected row", color: "var(--tasty-surface-active)" }, { tok: "--tasty-accent-success", use: "LISTEN dot", color: "var(--tasty-accent-success-raised)" }, { tok: "--tasty-font-mono", use: "port/addr/pid" }]} />
+            specs={[["frame width", "--tasty-ports-window-width"], ["frame height", "--tasty-ports-window-height"], ["built on", <span className="ic">Table</span>], ["header", "filter Input (200px, field-width-lg) + Columns IconButton + refresh + close"], ["columns chooser", "popover flush with the button's bottom-left, extending past the window's right edge · menu-bg (raised), 1px menu-border, popover shadow, 4px content margin, 180px minimum content width · \u201cShow columns\u201d in caption size and text-muted-raised · checkboxes in table order (Port, Proto, Address, Process, Workspace, Tab, State) · uncheck to hide a column · Port is the identity and default sort column, always shown with its checkbox checked and disabled"], ["narrow window", "filter, Columns, refresh and close keep their size at the right in the kit and app · the design clips the icon, title and listening count at the end of the remaining width · the app still draws the filter over the title and count"], ["scan", <>Spinner \u2192 \u201cCollecting\u2026\u201d</>], ["footer", "count · Copy address · Close"]]}
+            tokens={[{ tok: "--tasty-bg-panel", use: "frame", color: "var(--tasty-bg-panel)" }, { tok: "--tasty-surface-active", use: "selected row", color: "var(--tasty-surface-active)" }, { tok: "--tasty-accent-success", use: "LISTEN dot", color: "var(--tasty-accent-success-raised)" }, { tok: "--tasty-font-mono", use: "port/addr/pid" }, { tok: "--tasty-port-columns-menu-min-width", use: "column chooser minimum content width" }]} />
           <Note>The 660px width is <b>design-canonical</b> — the 7-column table (Port · Proto · Address · Process · Workspace · Tab · State) needs it, plus a <b>tight 28px leading star column</b>. Don't narrow the frame; let columns truncate instead.</Note>
         </Spec>
         <Spec id="favorites-star-toggle-pinned-section-none-badge" title="Favorites — star toggle, pinned section, NONE badge"

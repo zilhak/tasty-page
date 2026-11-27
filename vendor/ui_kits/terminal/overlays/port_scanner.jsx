@@ -153,8 +153,56 @@ function FavoritesSection({ favs, onToggle }) {
   );
 }
 
+// ── Columns chooser — the app's draw_column_chooser (port_scanner.rs) ──
+// The Columns IconButton opens a popover under it, at the button's bottom-left with no gap (egui popup_below_widget),
+// so it may run past the window's right edge onto the scrim, as the app's popup area does. The kit draws it in the
+// scrim, outside the window's clip, at the button's place. The title, then one checkbox per column in table order.
+// Port is the identity and default sort column, so it stays shown and its checkbox is disabled.
+const PORT_COLUMNS = [["port", "Port"], ["proto", "Proto"], ["addr", "Address"], ["proc", "Process"], ["ws", "Workspace"], ["tab", "Tab"], ["state", "State"]];
+function ColumnsMenu({ anchor, hidden, onToggle, onClose }) {
+  const ref = React.useRef(null);
+  const [pos, setPos] = React.useState(null);
+  React.useLayoutEffect(() => {
+    const el = ref.current, btn = anchor.current;
+    if (!el || !btn || !el.offsetParent) return;
+    const a = btn.getBoundingClientRect(), o = el.offsetParent.getBoundingClientRect();
+    setPos({ left: a.left - o.left, top: a.bottom - o.top });
+  }, [anchor]);
+  React.useEffect(() => {
+    // Closes on a press outside the menu and its button, as the app's CloseOnClickOutside.
+    const down = (e) => { if (!ref.current?.contains(e.target) && !anchor.current?.contains(e.target)) onClose(); };
+    document.addEventListener("mousedown", down);
+    return () => document.removeEventListener("mousedown", down);
+  }, [anchor, onClose]);
+  return (
+    <div ref={ref} role="dialog" aria-label="Show columns" onClick={(e) => e.stopPropagation()}
+      style={{ position: "absolute", left: pos ? pos.left : 0, top: pos ? pos.top : 0, visibility: pos ? "visible" : "hidden", zIndex: 1,
+        minWidth: "var(--tasty-port-columns-menu-min-width)", display: "flex", flexDirection: "column", padding: "var(--tasty-popup-content-margin)",
+        background: "var(--tasty-menu-bg)", border: "var(--tasty-border-width) solid var(--tasty-menu-border)", borderRadius: "var(--tasty-menu-radius)",
+        boxShadow: "var(--tasty-shadow-popover)" }}>
+      {/* the menu is raised, so the title reads text-muted-raised (the app draws text_muted: app handoff) */}
+      <span style={{ fontFamily: "var(--tasty-font-ui)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted-raised)" }}>Show columns</span>
+      {/* the title's item spacing (space-xs) plus the app's add_space(space-xs), then item spacing between rows */}
+      <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", marginTop: "var(--tasty-space-sm)" }}>
+        {PORT_COLUMNS.map(([key, label]) => (
+          <Checkbox key={key} ground="raised" label={label} checked={!hidden.includes(key)} disabled={key === "port"}
+            onChange={() => onToggle(key)} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // scanMs: how long the mock scan shows "scanning…". 0 opens on the scanned table, for a gallery frame that must not change.
-function PortsWindow({ onClose, onFlash, favorites = FAVS_DEFAULT, scanMs = 750 }) {
+// columnsOpen: open with the Columns chooser shown, for a gallery frame.
+function PortsWindow({ onClose, onFlash, favorites = FAVS_DEFAULT, scanMs = 750, columnsOpen = false }) {
+  const [colsOpen, setColsOpen] = React.useState(columnsOpen);
+  const [hidden, setHidden] = React.useState([]);
+  const colsBtn = React.useRef(null);
+  const closeCols = React.useCallback(() => setColsOpen(false), []);
+  const toggleCol = React.useCallback((key) => {
+    setHidden((list) => (list.includes(key) ? list.filter((k) => k !== key) : [...list, key]));
+  }, []);
   const [q, setQ] = React.useState("");
   const [sort, setSort] = React.useState({ key: "port", dir: "asc" });
   const [sel, setSel] = React.useState(null);
@@ -199,7 +247,7 @@ function PortsWindow({ onClose, onFlash, favorites = FAVS_DEFAULT, scanMs = 750 
     });
   }, [q, sort, scoped]);
 
-  const columns = [
+  const allColumns = [
     { key: "fav", header: "", tight: true, width: "var(--tasty-port-star-col-width)",
       render: (_v, row) => {
         const k = favKey(row);
@@ -225,6 +273,7 @@ function PortsWindow({ onClose, onFlash, favorites = FAVS_DEFAULT, scanMs = 750 
     { key: "state", header: "State", width: "var(--tasty-port-state-col-width)",
       render: (v) => <StatusDot status={v === "LISTEN" ? "running" : "waiting"} pulse={v === "LISTEN"} label={v} /> },
   ];
+  const columns = allColumns.filter((c) => !hidden.includes(c.key));
 
   const listening = scoped.filter((p) => p.state === "LISTEN").length;
   const emptyMsg = q ? `No ports match “${q}”`
@@ -236,8 +285,9 @@ function PortsWindow({ onClose, onFlash, favorites = FAVS_DEFAULT, scanMs = 750 
       <div style={{ width: "var(--tasty-ports-window-width)", maxHeight: "var(--tasty-ports-window-height)", display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)",
         border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden",
         boxShadow: "var(--tasty-shadow-modal)" }}>
-        {/* header — the right cluster (close, refresh, filter) sits at the right edge and keeps its size, as in the app's
-            draw_header_row (port_scanner.rs), which lays it out right to left after the heading. When the window is
+        {/* header — the right cluster (filter, columns, refresh, close) sits at the right edge and keeps its size, as in the app's
+            draw_header_row (port_scanner.rs), which lays it out right to left after the heading: close, refresh, the
+            Columns chooser, then the 200 wide filter. When the window is
             narrower than both, the left group (icon, heading, count) takes what is left and is cut at its end. That cut
             is the canon: the app has no clip on the left group yet, so there the filter is drawn over the heading and
             the count (app handoff). */}
@@ -252,6 +302,11 @@ function PortsWindow({ onClose, onFlash, favorites = FAVS_DEFAULT, scanMs = 750 
           </div>
           <div style={{ flex: "none", display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)" }}>
             <Input icon={ic.search} placeholder="Filter…" value={q} onChange={(e) => setQ(e.target.value)} style={{ width: "var(--tasty-field-width-lg)" }} />
+            <span ref={colsBtn} style={{ display: "inline-flex", flex: "none" }}>
+              <IconButton aria-label="Columns" aria-expanded={colsOpen} onClick={() => setColsOpen((v) => !v)}>
+                <Icon name="columns" />
+              </IconButton>
+            </span>
             <IconButton aria-label="Refresh" onClick={() => { scan(); onFlash && onFlash("Ports refreshed"); }}>
               <Icon name="refresh" />
             </IconButton>
@@ -296,6 +351,7 @@ function PortsWindow({ onClose, onFlash, favorites = FAVS_DEFAULT, scanMs = 750 
           <Button variant="secondary" onClick={onClose}>Close</Button>
         </div>
       </div>
+      {colsOpen && <ColumnsMenu anchor={colsBtn} hidden={hidden} onToggle={toggleCol} onClose={closeCols} />}
     </Scrim>
   );
 }

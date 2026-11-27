@@ -915,6 +915,7 @@
   --tasty-port-proto-col-width:      var(--tasty-size-76);             /* Proto column, fixed */
   --tasty-port-workspace-col-width:  var(--tasty-size-120);            /* Workspace column, fixed */
   --tasty-port-tab-col-width:        var(--tasty-size-80);             /* Tab column, fixed */
+  --tasty-port-columns-menu-min-width: var(--tasty-size-180);          /* 2026-11-27 the Columns chooser popover's content floor, the app's port_columns_menu_min_width */
   --tasty-port-state-col-width:      var(--tasty-size-140);            /* State column, fixed; past the popup width the table scrolls sideways to reach it */
   --tasty-port-process-specimen-width: var(--tasty-size-960);         /* Overlays › Windows Process column specimen: the frame wider than the column budget */
   --tasty-port-star-on:              var(--tasty-accent-warning-glyph); /* 2026-11-05 ground-ink rules */

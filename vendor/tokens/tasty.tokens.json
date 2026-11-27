@@ -4552,6 +4552,10 @@
       "$type": "dimension",
       "$value": "{primitive.size-80}"
     },
+    "port-columns-menu-min-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-180}"
+    },
     "port-state-col-width": {
       "$type": "dimension",
       "$value": "{primitive.size-140}"

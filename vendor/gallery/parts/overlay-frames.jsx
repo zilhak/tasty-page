@@ -659,7 +659,9 @@ function PortsFrame({ favorites = "mixed" }) {
         <span style={{ fontSize: "var(--tasty-font-size-max)", fontWeight: "var(--tasty-font-weight-semibold)" }}>Listening ports</span>
         <Tag variant="accent">5 listening</Tag>
         <div style={{ flex: 1 }} />
-        <Input icon={ic.search} placeholder="Filter…" style={{ width: "var(--tasty-field-width-md)" }} />
+        {/* the app's right cluster, left to right: the 200 wide filter, Columns, refresh, close (port_scanner.rs) */}
+        <Input icon={ic.search} placeholder="Filter…" style={{ width: "var(--tasty-field-width-lg)" }} />
+        <IconButton aria-label="Columns"><Icon name="columns" /></IconButton>
         <IconButton aria-label="Refresh">{ic.refresh}</IconButton>
         <IconButton aria-label="Close">{ic.x}</IconButton>
       </div>
