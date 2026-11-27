@@ -32,11 +32,12 @@ function Term({ lines = LINES, search }) {
 // The strip's tabs are the Tab component on the raised ground this strip paints, so the fill, ink and active mark follow
 // tabLook as everywhere else (an active tab keeps the strip's fill and draws the tab-indicator bar). The strip is one tab
 // tall with no line under it, as the app's (tab_bar/view.rs), so the 24px Tab fills it and the column's top offset of
-// one tab height starts right below it.
+// one tab height starts right below it. As the app's strip, each tab keeps its full width and the strip clips it at the
+// pane's edge (tab_bar/view.rs clips the tabs to the strip's viewport), so a narrow pane cuts the tab, not the pane.
 function Strip({ tabs = ["main"] }) {
   return (
-    <div style={{ flex: "none", height: "var(--tasty-tab-height)", display: "flex", background: "var(--tasty-surface-raised)" }}>
-      {tabs.map((t, i) => <Tab key={t} label={t} icon={<Icon name="terminal" />} active={i === 0} ground="raised" />)}
+    <div style={{ flex: "none", minWidth: 0, height: "var(--tasty-tab-height)", display: "flex", overflow: "hidden", background: "var(--tasty-surface-raised)" }}>
+      {tabs.map((t, i) => <Tab key={t} label={t} icon={<Icon name="terminal" />} active={i === 0} ground="raised" style={{ flex: "none" }} />)}
     </div>
   );
 }
