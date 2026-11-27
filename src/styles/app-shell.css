@@ -171,3 +171,9 @@
   .window .shell__panes--mixed { flex-direction: column; }
   .window .shell__panes--mixed .shell__pane { min-height: 0; }
 }
+
+/* The palette chip's modifier. The page script in Landing.astro names the platform on <html> while the page parses
+   (AppShell PALETTE_KEYS): Cmd unless it says ctrl. */
+.shell-mod [data-mod="ctrl"] { display: none; }
+html[data-palette-mod="ctrl"] .shell-mod [data-mod="cmd"] { display: none; }
+html[data-palette-mod="ctrl"] .shell-mod [data-mod="ctrl"] { display: inline; }

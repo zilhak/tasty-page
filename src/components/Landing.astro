@@ -42,7 +42,31 @@ const dataAttrs = Object.fromEntries(
       <a class="btn btn--ghost" href={REPO}><Fragment set:html={icon.GITHUB} />GitHub</a>
     </div>
     <p class="hero__note">{c.installNote}</p>
-    <div class="window"><AppShell heading={c.shellHeading} task={c.shellTask} doc={c.shellDoc} client:visible /></div>
+    <script is:inline>
+      /* The demo's palette shortcut, Cmd+K on macOS (and iPadOS, which reports a Mac) and Ctrl+K elsewhere. Set while the
+         page parses, before the demo paints or hydrates: the platform attribute picks the chip's modifier on first paint,
+         and this one listener takes the chord from the start, wherever the page is scrolled. Until the demo has mounted
+         it keeps the press, and the demo opens the palette when it mounts (AppShell). The K is matched by key, or by
+         code KeyK when the layout or input method types another character there. */
+      (function () {
+        var uad = navigator.userAgentData;
+        var plat = (uad && uad.platform) || navigator.platform || "";
+        var mac = /Mac|iPhone|iPad|iPod/i.test(plat);
+        document.documentElement.setAttribute("data-palette-mod", mac ? "cmd" : "ctrl");
+        var api = (window.tastyPalette = { mac: mac, pending: false, open: null });
+        window.addEventListener("keydown", function (e) {
+          if (mac ? !e.metaKey || e.ctrlKey : !e.ctrlKey || e.metaKey) return;
+          if (e.altKey || e.shiftKey) return;
+          var k = /^[a-z]$/i.test(e.key) ? e.key.toLowerCase() === "k" : e.code === "KeyK";
+          if (!k) return;
+          e.preventDefault();
+          if (e.repeat) return;
+          if (api.open) api.open();
+          else api.pending = true;
+        });
+      })();
+    </script>
+    <div class="window"><AppShell heading={c.shellHeading} task={c.shellTask} doc={c.shellDoc} client:load /></div>
     <p class="caption">{c.shellCaption}</p>
   </section>
 

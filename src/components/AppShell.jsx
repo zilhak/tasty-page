@@ -110,21 +110,13 @@ function toolsRoom() {
 }
 const TABBABLE = "a[href], button, input, select, textarea, [tabindex]";
 
-// The palette shortcut the demo binds and its status bar chip shows: Cmd+K on macOS (and iPadOS, which reports a Mac),
-// Ctrl+K elsewhere. The server markup draws the macOS label; the client corrects it after hydration.
-const MAC_PALETTE = "Cmd+K";
-function paletteKeysHere() {
-  const uad = navigator.userAgentData;
-  const plat = (uad && uad.platform) || navigator.platform || "";
-  return /Mac|iPhone|iPad|iPod/i.test(plat) ? MAC_PALETTE : "Ctrl+K";
-}
-// The K of the chord. A layout or input method that types another character on that key still sends code KeyK.
-function isPaletteChord(e, keys) {
-  const mac = keys === MAC_PALETTE;
-  if (mac ? !e.metaKey || e.ctrlKey : !e.ctrlKey || e.metaKey) return false;
-  if (e.altKey || e.shiftKey) return false;
-  return /^[a-z]$/i.test(e.key) ? e.key.toLowerCase() === "k" : e.code === "KeyK";
-}
+// The palette chip's chord. The page script in Landing.astro sets data-palette-mod on <html> while the page parses, and
+// the CSS shows the matching modifier, so the server markup and the first paint carry both and the page shows the one
+// its shortcut takes (Cmd on macOS, Ctrl elsewhere). Without the script the chip reads Cmd+K, the kit default.
+const PALETTE_KEYS = [
+  <span className="shell-mod"><span data-mod="cmd">Cmd</span><span data-mod="ctrl">Ctrl</span></span>,
+  "K",
+];
 
 // The layer's controls that Tab reaches, in document order: enabled, in the Tab order, and drawn.
 function tabStops(root) {
@@ -133,9 +125,10 @@ function tabStops(root) {
 }
 
 // Focus el and report whether it took focus. A control in a hidden region stays connected but cannot take it.
-function focusIf(el) {
+// keepScroll: focus without scrolling the page to el.
+function focusIf(el, keepScroll = false) {
   if (!(el instanceof HTMLElement) || el === document.body || !el.isConnected) return false;
-  el.focus();
+  el.focus(keepScroll ? { preventScroll: true } : undefined);
   return document.activeElement === el;
 }
 
@@ -197,7 +190,9 @@ function OverlayLayer({ open, lock, trap, windowKey, restoreTo, scale, children 
       const at = document.activeElement;
       const kept = at instanceof HTMLElement && at !== document.body && at.isConnected && !at.closest(`.${LAYER_CLASS}`);
       if (kept) return;
-      for (const el of targets) if (focusIf(el)) break;
+      // The opener first, as it was. A stand-in (the active tab, the New tab button) takes the focus where the page is,
+      // so closing a palette the shortcut opened far below the demo leaves the page there.
+      for (let i = 0; i < targets.length; i++) if (focusIf(targets[i], i > 0)) break;
     };
   }, [lock, host]);
   if (!host || !open) return null;
@@ -250,20 +245,18 @@ export function AppShell({ heading = "Workspaces", task = "run tests", doc }) {
     return [opener, strip?.querySelector('[role="tab"][aria-selected="true"]'), strip?.querySelector('[aria-label="New tab"]')];
   };
   // The palette shortcut, as the kit shell binds it: it opens the palette from anywhere on the page and replaces an
-  // open Tools menu or window. The opener record is whatever page control had the focus.
-  const [paletteKeys, setPaletteKeys] = React.useState(MAC_PALETTE);
-  React.useEffect(() => { setPaletteKeys(paletteKeysHere()); }, []);
+  // open Tools menu or window. The opener record is whatever page control had the focus. The page script in
+  // Landing.astro listens from the start and calls this once the demo has mounted; a press it kept before then opens
+  // the palette now.
   const openPalette = React.useRef(null);
   openPalette.current = () => openWindow("palette");
   React.useEffect(() => {
-    const h = (e) => {
-      if (!isPaletteChord(e, paletteKeys)) return;
-      e.preventDefault();
-      if (!e.repeat) openPalette.current();
-    };
-    window.addEventListener("keydown", h);
-    return () => window.removeEventListener("keydown", h);
-  }, [paletteKeys]);
+    const api = window.tastyPalette;
+    if (!api) return;
+    api.open = () => openPalette.current();
+    if (api.pending) { api.pending = false; api.open(); }
+    return () => { api.open = null; };
+  }, []);
   React.useEffect(() => {
     if (!anyOverlay) return;
     const h = (e) => { if (e.key === "Escape") { setOverlay(null); setToolsAnchor(null); } };
@@ -439,7 +432,7 @@ export function AppShell({ heading = "Workspaces", task = "run tests", doc }) {
           <div className="shell__status">
             <StatusBar surfaceId={tab?.kind === "markdown" ? "3" : tab?.kind === "split" ? "4" : "2"} theme={theme}
               onTheme={() => setTheme(theme === "latte" ? "mocha" : "latte")}
-              onPalette={(e) => openWindow("palette", e)} paletteKeys={paletteKeys} />
+              onPalette={(e) => openWindow("palette", e)} paletteKeys={PALETTE_KEYS} />
           </div>
         </div>
       </div>
