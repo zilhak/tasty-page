@@ -69,9 +69,12 @@ function CollapsedPopupSpec() {
             </div>
           </View>
         ))}
-        <View name="expanded-title-bar" label="expanded — the shrink button: headless popup (host bar, no title) and a popup with its own title bar">
+        <View name="expanded-title-bar" label="expanded over the window — shrink buttons on a headless plugin popup (host bar, no title) and a dialog with its own title bar">
+          <div className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)", marginBottom: "var(--tasty-space-sm)" }}>Both popups are shown over the window, so each keeps its own border token (--tasty-border-default for the plugin shell and --tasty-border-frame for the dialog). The border shows no focus, whether or not the popup holds key focus.</div>
           <div style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)", display: "flex", gap: "var(--tasty-space-lg)", alignItems: "flex-start", flexWrap: "wrap" }}>
-            <div style={{ width: "var(--tasty-collapsed-popup-specimen-frame-width)", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", overflow: "hidden" }}>
+            {/* shown over the window: the plugin popup shell keeps its own border token, border-default, in every focus
+                state and draws no popup focus pair (RULES.md "Popup focus", Shells that keep their own borders) */}
+            <div style={{ width: "var(--tasty-collapsed-popup-specimen-frame-width)", background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", boxShadow: "var(--tasty-shadow-modal)", overflow: "hidden" }}>
               <PopupTitleBar title={null} closable={false} collapse={COLLAPSE_COPY.en[0]} collapseTip={COLLAPSE_COPY.en[1]} />
               <div style={{ padding: "var(--tasty-space-sm) var(--tasty-space-md)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-secondary)" }}>plugin content</div>
             </div>
@@ -81,7 +84,7 @@ function CollapsedPopupSpec() {
         <View name="collapse-tooltip" label="shrink tooltip — pointer hover or key focus">
           <div style={{ padding: "var(--tasty-collapsed-popup-specimen-tooltip-room) var(--tasty-space-lg) var(--tasty-space-lg)", background: "var(--tasty-bg-app)", borderRadius: "var(--tasty-radius)", display: "flex", justifyContent: "center", width: "var(--tasty-collapsed-popup-specimen-width)" }}>
             <Tooltip open placement="top" content={COLLAPSE_COPY.en[1]}>
-              <span style={{ display: "inline-flex", width: "var(--tasty-collapsed-popup-specimen-frame-width)" }}><span style={{ flex: 1, background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
+              <span style={{ display: "inline-flex", width: "var(--tasty-collapsed-popup-specimen-frame-width)" }}><span style={{ flex: 1, background: "var(--tasty-bg-panel)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
                 <PopupTitleBar title={null} closable={false} collapse={COLLAPSE_COPY.en[0]} />
               </span></span>
             </Tooltip>
@@ -150,7 +153,7 @@ function CollapseFlowSpec() {
       <Meta
         specs={[
           ["collapsed → expanded", "the show button (click, Enter, Space) · key focus goes into the popup"],
-          ["expanded", <>Pressing the show button centers the popup over the window with <span className="tok">--tasty-shadow-modal</span> and <span className="tok">--tasty-scrim-bg</span> over the whole window. The display and presses use window scope. The border keeps <span className="tok">--tasty-border-frame</span> in every state and shows no focus. The logical scope stays the same.</>],
+          ["expanded", "Pressing the show button centers the popup over the window with --tasty-shadow-modal and --tasty-scrim-bg over the whole window. The display and presses use window scope. The popup keeps its own border token in every state (--tasty-border-frame for a dialog and --tasty-border-default for the plugin popup shell), and its border shows no focus. The logical scope stays the same."],
           ["expanded → collapsed", "the shrink button (click, Enter, Space) or Esc · the show button takes key focus · state kept"],
           ["collapsed", "the popup itself, drawn small · keeps its scope, its scrim if it covers the scope, its outside-click and Esc rules and its key focus"],
           ["child popup", "a picker the popup opens takes its parent's scope and form: over the window when the parent is, collapsed with it, never starting as its own show button · one scrim"],
