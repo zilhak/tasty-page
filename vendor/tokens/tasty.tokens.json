@@ -4820,6 +4820,10 @@
       "$type": "dimension",
       "$value": "{primitive.size-400}"
     },
+    "ports-narrow-window-specimen-height": {
+      "$type": "dimension",
+      "$value": "{primitive.size-120}"
+    },
     "ports-columns-menu-specimen-side": {
       "$type": "dimension",
       "$value": "{primitive.size-80}"

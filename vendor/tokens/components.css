@@ -999,6 +999,7 @@
   --tasty-explorer-full-specimen-width: var(--tasty-size-760); /* Plugin surfaces: the Explorer full layout and its focus views (internal tabs, toolbar, sidebar, Detail) */
   --tasty-short-screen-specimen-height: var(--tasty-size-240); /* 2026-11-27 Command palette: the room a short screen leaves the card, so the list shrinks and scrolls while search and footer stay whole */
   --tasty-narrow-window-specimen-width: var(--tasty-size-400); /* 2026-11-27 Listening ports and Plugins: a window cut to a narrow screen, so the header shows how its two groups share the width. 400 leaves the Plugins tabs' scrolling group room for its widest tab with the ring */
+  --tasty-ports-narrow-window-specimen-height: var(--tasty-size-120); /* 2026-11-27 Listening ports: where the narrow window frame cuts the window, just below its filter row */
   --tasty-ports-columns-menu-specimen-side: var(--tasty-size-80); /* 2026-11-27 Listening ports: the room the Columns chooser frame leaves on each side of the window, so the chooser that runs past the window's right edge is drawn whole */
   --tasty-ports-columns-menu-specimen-height: var(--tasty-size-300); /* 2026-11-27 Listening ports: where the Columns chooser frame cuts the window, just below the open chooser */
   /* Gallery annotation (specimen layout, not app chrome) — a dashed outline that marks an implementer's box or a scope

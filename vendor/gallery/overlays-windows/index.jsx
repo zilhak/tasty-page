@@ -764,7 +764,7 @@ function Page() {
               end, where the right cluster is, and cuts its left, as the Columns chooser frame below does. */}
           <Views>
             <View name="ports-narrow-window" wide label="Listening ports — the header in a narrow window (icon, title and count clipped at the end, right end kept in a narrow frame)">
-              <div inert="" style={{ overflow: "hidden", display: "flex", justifyContent: "flex-end", width: "100%", maxWidth: "var(--tasty-narrow-window-specimen-width)", height: "var(--tasty-size-120)", pointerEvents: "none" }}>
+              <div inert="" style={{ overflow: "hidden", display: "flex", justifyContent: "flex-end", width: "100%", maxWidth: "var(--tasty-narrow-window-specimen-width)", height: "var(--tasty-ports-narrow-window-specimen-height)", pointerEvents: "none" }}>
                 <div style={{ position: "relative", flex: "none", width: "var(--tasty-narrow-window-specimen-width)", height: "var(--tasty-ports-window-height)" }}>
                   <Kit_PortsWindow scanMs={0} onClose={() => {}} />
                 </div>
