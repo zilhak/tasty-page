@@ -38,6 +38,11 @@ const TOOLS_PLUGIN = [
 // Only rows that can run take part: a row with disabled set (the app draws a plugin tool it cannot run as a disabled
 // row) is never marked, the first and last rows and each move count runnable rows only, and Enter or Space run a row
 // only when it can run, the same test a click passes. The keys are read only while the menu holds them.
+// Enter and Space belong to the menu: neither does the browser's own thing (Space scrolling the list), whether or not
+// a row is marked. The wheel scrolls the rows and never moves the mark, so the marked row can end up scrolled out of
+// view. Enter or Space on a marked row with no part in view runs nothing: the menu scrolls the least that shows the
+// whole row, as a key move does, and the next Enter or Space runs it. A marked row with some part in view runs at once.
+// So a key runs only a row the user can see marked, and a press is never lost: it either runs or shows what it would run.
 // The app's tools_menu popup takes the keys on open (focus_on_open) but its rows are plain egui click widgets: egui
 // moves between them only from a focused one, so the first Down, Up, Enter and Space do nothing and Tab must reach a
 // row first, and Shift+Tab lands on egui's last candidate, not surely the last row. The app is to take this contract.
@@ -109,6 +114,11 @@ function ToolsMenu({ anchor, bounds = null, hostRuns = null, onClose, onAction }
     if (top < menu.scrollTop) menu.scrollTop = top;
     else if (bottom > menu.scrollTop + menu.clientHeight) menu.scrollTop = bottom - menu.clientHeight;
   };
+  // Some part of the row lies inside the menu's scrolled view, so its fill can be seen.
+  const shown = (el) => {
+    const menu = menuRef.current;
+    return el.offsetTop < menu.scrollTop + menu.clientHeight && el.offsetTop + el.offsetHeight > menu.scrollTop;
+  };
   const go = (i) => {
     setKb(i);
     const el = rowEl(i);
@@ -133,8 +143,12 @@ function ToolsMenu({ anchor, bounds = null, hostRuns = null, onClose, onAction }
       const at = runnable.indexOf(kb);
       const pos = at < 0 ? (down ? 0 : runnable.length - 1) : Math.max(0, Math.min(runnable.length - 1, at + (down ? 1 : -1)));
       go(runnable[pos]);
-    } else if ((e.key === "Enter" || e.key === " ") && kb >= 0 && !rows[kb].disabled) {
+    } else if (e.key === "Enter" || e.key === " ") {
+      // The menu holds these keys, so neither scrolls it the browser's way, marked row or not.
       e.preventDefault();
+      if (kb < 0 || rows[kb].disabled) return;
+      const el = rowEl(kb);
+      if (el && !shown(el)) { reveal(el); return; }
       onAction(rows[kb].id);
     }
   };
