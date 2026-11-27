@@ -25,8 +25,8 @@ const CSS = `
 /* The fill eases in only on pointer hover. A transition runs by the style a row changes to, so the rest row has
    none: a row the keyboard leaves drops its active fill at once, with its ink, and a row the pointer leaves drops
    its tint at once (the app draws no fade either way). A row the keyboard leaves while the pointer is still on it
-   changes to the hover style, which would ease from the active fill; MenuItem marks that one change data-snap so
-   the row draws the hover tint in the same frame (see the component below). */
+   changes to the hover style, which would ease from the active fill; MenuItem settles that one change under
+   data-snap so the row draws the hover tint in the same frame (see the component below). */
 .tasty-menuitem:hover { background: var(--tasty-menu-item-bg-hover); color: var(--tasty-menu-item-fg-hover); transition: background var(--tasty-motion-ui-fast) var(--tasty-ease-ui); }
 .tasty-menuitem--active { background: var(--tasty-surface-active); color: var(--tasty-menu-item-fg-hover); }
 /* keyboard-active outranks hover, as the app's menu_item picks active before hover: the pointer over the active row
@@ -86,16 +86,19 @@ export function MenuItem({
   ...rest
 }) {
   ensureCss();
-  // Leaving keyboard-active is drawn at once, pointer or not: the change that drops the class also sets data-snap
-  // before the browser paints, so no transition starts from the active fill, and two frames later the mark goes,
-  // which leaves the hover tint's ease for the pointer's next entry. It changes no value, so it starts nothing.
+  // Leaving keyboard-active is drawn at once, pointer or not. In the commit that drops the class, before the browser
+  // paints, the row takes data-snap, its style is resolved once (reading a computed value makes the browser settle
+  // the change now, under transition: none), and the mark goes again. So only that one change runs with no
+  // transition: nothing is scheduled, nothing outlives the commit or the row, and the hover tint's ease stays for
+  // every later pointer entry. Dropping the mark changes no value, so it starts nothing.
   const rowRef = React.useRef(null);
   const wasActive = React.useRef(active);
   useBeforePaint(() => {
     const el = rowRef.current;
     if (wasActive.current && !active && el) {
       el.setAttribute("data-snap", "");
-      requestAnimationFrame(() => requestAnimationFrame(() => el.removeAttribute("data-snap")));
+      void getComputedStyle(el).backgroundColor;
+      el.removeAttribute("data-snap");
     }
     wasActive.current = active;
   }, [active]);

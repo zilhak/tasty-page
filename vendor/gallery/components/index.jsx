@@ -255,6 +255,8 @@ function MenuItemKeyDemo() {
     { label: "Move to Trash", icon: ic.trash, danger: true },
   ];
   const [at, setAt] = React.useState(0);
+  const uid = React.useId();
+  const rowId = (i) => `${uid}-row-${i}`;
   const onKeyDown = (e) => {
     if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
     e.preventDefault();
@@ -263,15 +265,16 @@ function MenuItemKeyDemo() {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)" }}>
       <div role="menu" aria-label="MenuItem demo" tabIndex={0} onKeyDown={onKeyDown}
+        aria-activedescendant={rowId(at)} aria-describedby={`${uid}-keys`}
         style={{ background: "var(--tasty-menu-bg)", border: "var(--tasty-border-width) solid var(--tasty-menu-border)", borderRadius: "var(--tasty-radius)", padding: 6, width: 280 }}>
         {rows.map((r, i) => (
           <React.Fragment key={r.label}>
             {r.danger && <MenuItem separator />}
-            <MenuItem label={r.label} icon={r.icon} shortcut={r.shortcut || null} danger={!!r.danger} active={i === at} />
+            <MenuItem id={rowId(i)} label={r.label} icon={r.icon} shortcut={r.shortcut || null} danger={!!r.danger} active={i === at} />
           </React.Fragment>
         ))}
       </div>
-      <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>Focus menu · hover active row · ↑ ↓ step, stop at ends · tint returns at once</span>
+      <span id={`${uid}-keys`} className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>Focus menu · hover active row · ↑ ↓ step, stop at ends · tint returns at once</span>
     </div>
   );
 }
