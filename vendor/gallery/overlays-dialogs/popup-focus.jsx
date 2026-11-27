@@ -93,7 +93,7 @@ function PopupFocusSpec() {
             </div>
           )} />
         </View>
-        <View name="popup-focus-search-bar" label="Search bar focus">
+        <View name="popup-focus-search-bar" label="Search bar focus" wide>
           <GroundThemes render={() => (
             <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-sm)", width: "var(--tasty-size-400)", maxWidth: "100%" }}>
               <GroundCap>The search bar holds key focus and draws its focused border. The field has widget focus and draws its focus edge.</GroundCap><SearchBarFrame height={48} focused />
