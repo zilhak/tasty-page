@@ -99,7 +99,9 @@ function Backdrop({ height = 360, blur = false, scrim = true, children }) {
 // ground: the search field is ground="raised" (2026-10-27). focused/value drive static state specimens.
 // The app's commands, in the app's order (tasty-settings keybindings crud.rs GENERAL_BINDING_FIELDS), with their
 // en labels less the trailing colon, their icons (command_palette.rs icon_for) and their default keys (preset_tasty).
-// Only the first six are carried: every query the gallery draws ("", "split", "zzz") finds all its matches among them.
+// Only the first six are carried. The empty query lists every host command in the app (74), so its frames show the
+// first rows only; "split" (4 matches) and "zzz" (none) are the only queries the gallery draws whose whole result
+// lies among these six.
 const PALETTE_APP_COMMANDS = [
   { label: "New workspace", sc: "Alt+N", icon: "plus" },
   { label: "New tab", sc: "Alt+T", icon: "terminal" },
@@ -120,7 +122,8 @@ function paletteScore(q, text) {
   }
   return k === q.length ? 100 - gap : null;
 }
-// value: the query. As the app (command_palette.rs row_highlighted), no row is highlighted while it is empty; with
+// value: the query. As the app (command_palette.rs row_highlighted), no row is highlighted while it is empty (the
+// frame then draws the first `rows` of the app's full list, cut to the six above); with
 // text the list keeps the commands that match, best score first, and the selection, back on the first match after
 // each change, is highlighted. When nothing matches, the list holds the no-results line the kit card draws. The list
 // keeps one row's height even then, as the app reserves it (command_palette.rs palette_row_height) and the kit card does.
