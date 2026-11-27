@@ -126,7 +126,8 @@ function ToolsMenuInRoomFrame({ band = TM_ROOM.band, btnTop = TM_ROOM.btnTop, ho
 // of view scrolls the menu to it, and the page stays where it is. The wheel scrolls the rows and leaves the mark, and
 // Enter or Space on a marked row scrolled wholly out of view scrolls the menu to show it and runs nothing, and holding
 // the key does not run it; Space never scrolls the list the browser's way. Running a row or Esc closes it and hands
-// the focus back to the button. The box is 240 high, and less in a window shorter than 420 (never less than 120): shortening the
+// the focus back to the button, and the key that ran the row, still held, does not reopen it: the button clicks only
+// on a new press that began on it (Button, fresh-press.js). The box is 240 high, and less in a window shorter than 420 (never less than 120): shortening the
 // window with a row marked shortens the room, and the menu, refitted, still shows the marked row. The frozen views
 // below are for the contrast check; this one is for the pointer and the keys.
 function ToolsMenuLiveDemo() {
@@ -156,7 +157,7 @@ function ToolsMenuLiveDemo() {
         </div>
         {anchor && <ToolsMenu anchor={anchor} bounds={room} onClose={close} onAction={close} />}
       </div>
-      <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>case 1 · scroll the page until the demo is near the top of the screen · click Tools · ↓ ↑ Tab Shift+Tab mark rows · press Shift+Tab to mark the last row · make the browser window about 300px tall → menu scrolls as needed to keep the marked row in view · Enter or Space runs the marked row · case 2 · click Tools · press Shift+Tab to mark Git · wheel-scroll the menu until Git is fully out of view · press and hold Enter or Space → menu scrolls to show Git and nothing runs · keep holding the key → menu stays open and nothing runs · release the key and press Enter or Space again → menu closes and focus returns to the Tools button · case 3 · click Tools · press Space before marking a row → list stays put · Esc closes</span>
+      <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>case 1 · scroll the page until the demo is near the top of the screen · click Tools · ↓ ↑ Tab Shift+Tab mark rows · press Shift+Tab to mark the last row · make the browser window about 300px tall → menu scrolls as needed to keep the marked row in view · Enter or Space runs the marked row · case 2 · click Tools · press Shift+Tab to mark Git · wheel-scroll the menu until Git is fully out of view · press and hold Enter or Space → menu scrolls to show Git and nothing runs · keep holding the key → menu stays open and nothing runs · release the key and press Enter or Space again → menu closes and focus returns to the Tools button · keep holding the key, then release it → menu stays closed · case 3 · click Tools · press Space before marking a row → list stays put · Esc closes</span>
     </div>
   );
 }

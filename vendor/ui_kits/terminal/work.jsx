@@ -2,6 +2,7 @@ import React from "react";
 import { Icon as MdI } from "../../components/core/Icon.jsx";
 import { IconButton } from "../../components/core/IconButton.jsx";
 import { Kbd } from "../../components/core/Kbd.jsx";
+import { useFreshPress } from "../../components/core/fresh-press.js";
 import { Tag } from "../../components/core/Tag.jsx";
 import { StatusDot } from "../../components/feedback/StatusDot.jsx";
 import { Input } from "../../components/forms/Input.jsx";
@@ -149,6 +150,8 @@ function StatusBar({ surfaceId, theme = "Mocha", onTheme, onPalette }) {
   const cell = { display: "flex", alignItems: "center", gap: "var(--tasty-space-xs)", padding: "0 var(--tasty-space-sm)", height: "100%",
     fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" };
   const btn = { ...cell, border: 0, background: "transparent", cursor: "pointer" };
+  // The palette chip opens a popup that hands the focus back to it, so it clicks only on a new press (fresh-press.js).
+  const palettePress = useFreshPress({ onClick: onPalette });
   return (
     <div style={{ display: "flex", alignItems: "center", height: "var(--tasty-control-height-tab)", flex: "none",
       background: "var(--tasty-bg-app)", borderTop: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
@@ -158,7 +161,7 @@ function StatusBar({ surfaceId, theme = "Mocha", onTheme, onPalette }) {
       <div style={cell}>bash · 80×24</div>
       <div style={{ flex: 1 }} />
       {/* right cluster (B8-J4 canonical: screenshot shows palette chip + theme toggle) */}
-      <button type="button" style={btn} onClick={onPalette} aria-label="Command palette"
+      <button type="button" style={btn} {...palettePress} aria-label="Command palette"
         onMouseEnter={(e) => (e.currentTarget.style.color = "var(--tasty-text-secondary)")}
         onMouseLeave={(e) => (e.currentTarget.style.color = "var(--tasty-text-muted)")}>
         <Kbd keys="Cmd+K" /> palette

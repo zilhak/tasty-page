@@ -1,4 +1,5 @@
 import React from "react";
+import { useFreshPress } from "./fresh-press.js";
 
 /**
  * Tasty IconButton — a square, icon-only control (toolbar, tab close,
@@ -55,6 +56,8 @@ export function IconButton({
   ...rest
 }) {
   ensureCss();
+  // Enter and Space click only on a new press that began here (fresh-press.js).
+  const press = useFreshPress(rest);
   const cls = [
     "tasty-iconbtn",
     size === "sm" ? "tasty-iconbtn--sm" : "",
@@ -64,7 +67,7 @@ export function IconButton({
     className,
   ].filter(Boolean).join(" ");
   return (
-    <button className={cls} {...rest}>
+    <button className={cls} {...rest} {...press}>
       {children}
     </button>
   );

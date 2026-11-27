@@ -1,4 +1,5 @@
 import React from "react";
+import { useFreshPress } from "./fresh-press.js";
 
 /**
  * Tasty Button — the primary interactive control.
@@ -107,6 +108,8 @@ export function Button({
   ...rest
 }) {
   ensureCss();
+  // Enter and Space click only on a new press that began here (fresh-press.js).
+  const press = useFreshPress(rest);
   const cls = [
     "tasty-btn",
     `tasty-btn--${variant}`,
@@ -117,7 +120,7 @@ export function Button({
     className,
   ].filter(Boolean).join(" ");
   return (
-    <button className={cls} {...rest}>
+    <button className={cls} {...rest} {...press}>
       {leadingIcon}
       {children != null && <span>{children}</span>}
       {trailingIcon}
