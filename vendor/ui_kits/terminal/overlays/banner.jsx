@@ -156,11 +156,13 @@ function useBannerMoreMenu({ open, setOpen, rowCount, onRun }) {
       const done = (u) => { document.removeEventListener("mouseup", done, true); if (!btn.contains(u.target)) pressOpen.current = false; };
       document.addEventListener("mouseup", done, true);
     },
+    // Each toggle reads the pending value (v => !v), so two independent activations in one JS task toggle twice rather
+    // than both reading this render's open.
     onClick: (e) => {
-      if (e.detail === 0) { setOpen(!open); return; }
+      if (e.detail === 0) { setOpen((v) => !v); return; }
       const held = pressOpen.current;
       pressOpen.current = false;
-      if (!held) setOpen(!open);
+      if (!held) setOpen((v) => !v);
     },
   };
   const menuProps = {
