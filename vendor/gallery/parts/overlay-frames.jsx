@@ -122,7 +122,8 @@ function paletteScore(q, text) {
 }
 // value: the query. As the app (command_palette.rs row_highlighted), no row is highlighted while it is empty; with
 // text the list keeps the commands that match, best score first, and the selection, back on the first match after
-// each change, is highlighted. When nothing matches, the list holds the no-results line the kit card draws.
+// each change, is highlighted. When nothing matches, the list holds the no-results line the kit card draws. The list
+// keeps one row's height even then, as the app reserves it (command_palette.rs palette_row_height) and the kit card does.
 function PaletteFrame({ opaque = false, focused = false, value = "", rows = 4 } = {}) {
   const q = value.trim().toLowerCase();
   const items = PALETTE_APP_COMMANDS.map((c, n) => ({ ...c, n, score: q ? paletteScore(q, c.label.toLowerCase()) : 0 }))
@@ -135,7 +136,7 @@ function PaletteFrame({ opaque = false, focused = false, value = "", rows = 4 } 
       <div style={{ padding: "var(--tasty-space-md)", borderBottom: "var(--tasty-border-width) solid var(--tasty-border-strong)" }}>
         <Input block ground="raised" focused={focused} icon={ic.search} placeholder="Type to search commands…" defaultValue={value} />
       </div>
-      <div style={{ padding: "var(--tasty-space-sm)" }}>
+      <div style={{ padding: "var(--tasty-space-sm)", minHeight: "calc(1 * var(--tasty-menu-item-height) + 2 * var(--tasty-space-sm))" }}>
         {items.length === 0 && <div style={{ fontSize: "var(--tasty-font-size-body)", fontStyle: "var(--tasty-font-style-absent)", color: "var(--tasty-text-muted-raised)" }}>No matching commands</div>}
         {items.slice(0, rows).map((i, n) => (
           <MenuItem key={i.label} label={i.label} icon={<Icon name={i.icon} />} active={n === 0 && q !== ""}
