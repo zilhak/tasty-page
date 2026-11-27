@@ -92,16 +92,36 @@ function ToolsMenu({ anchor, bounds = null, hostRuns = null, onClose, onAction }
   // The menu takes the keys once it is placed: until then it is hidden, and a hidden element takes no focus.
   React.useEffect(() => { if (place && menuRef.current) menuRef.current.focus({ preventScroll: true }); }, [!!place]);
   // The menu's own size, measured once while it is drawn uncut and hidden, before the first place: as wide as its
-  // longest row, clamped to the min and max width tokens (a label past the max ends in …).
+  // longest row, clamped to the min and max width tokens (a label past the max ends in …). A menu cut to a room
+  // shorter than it scrolls, and a scrollbar that takes room inside the box (classic scrollbars; an overlay one takes
+  // none) would narrow the rows under the width they were measured at. So the menu also measures its own scrollbar
+  // and, whenever a fit cuts its height, adds that width to the fitted row width before the clamp: the longest row
+  // stays whole up to the max width, and the room's width still cuts the result.
   const need = React.useRef(null);
   useBeforePaint(() => {
     const el = menuRef.current;
     if (!el) return;
     const roomOf = () => (typeof bounds === "function" ? bounds()
       : bounds || { top: 0, left: 0, right: window.innerWidth, bottom: window.innerHeight });
+    const cs = getComputedStyle(el);
+    const min = parseFloat(cs.minWidth) || 0;
+    const max = parseFloat(cs.maxWidth) || Infinity;
+    const border = (parseFloat(cs.borderLeftWidth) || 0) + (parseFloat(cs.borderRightWidth) || 0);
+    const prev = { minWidth: el.style.minWidth, maxWidth: el.style.maxWidth, overflowY: el.style.overflowY };
+    el.style.minWidth = "0px";
+    el.style.maxWidth = "none";
     const r = el.getBoundingClientRect();
-    need.current = { w: r.width, h: r.height };
-    const fit = () => setPlace(placeToolsMenu(anchor, need.current, roomOf()));
+    el.style.overflowY = "scroll";
+    const bar = Math.max(0, el.offsetWidth - el.clientWidth - border);
+    Object.assign(el.style, prev);
+    need.current = { w: r.width, h: r.height, bar, min, max };
+    const fit = () => {
+      const n = need.current;
+      const room = roomOf();
+      const scrolls = n.h > room.bottom - room.top;
+      const w = Math.min(n.max, Math.max(n.min, n.w + (scrolls ? n.bar : 0)));
+      setPlace(placeToolsMenu(anchor, { w, h: n.h }, room));
+    };
     fit();
     window.addEventListener("resize", fit);
     return () => window.removeEventListener("resize", fit);
