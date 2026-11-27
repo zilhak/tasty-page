@@ -48,9 +48,10 @@ const PALETTE_COMMANDS = [
 // Keys, as the app's (command_palette.rs draw_command_palette_view): the search field holds them; Down and Up move the
 // selection one row, stopping at the ends, and Enter runs the selected row. Each query change puts the selection back
 // on the first match, and it never runs past the last one. A row is highlighted only while the query has text, so with
-// an empty query the arrows move a selection that is not drawn and Enter runs it. The pointer tints the row under it
-// and a click runs that row; neither moves the selection. commands: the rows ({ label, sc, icon }), the kit's
-// illustrative list unless a host passes its own (the gallery's short-screen frame passes the app's first rows).
+// an empty query every row is drawn, the selected one with no highlight, the arrows move that selection and Enter runs
+// it. The pointer tints the row under it and a click runs that row; neither moves the selection. commands: the rows
+// ({ label, sc, icon }), the kit's illustrative list unless a host passes its own (the gallery's short-screen frame
+// passes the app's first rows).
 // The list keeps the selected row in view: each time the selection moves, the list scrolls the least that shows the
 // whole row, and each query change shows the list from its top, where the first match is. The wheel scrolls the rows
 // and never moves the selection, so the selected row can end up scrolled out of view. Enter on a selected row with no
@@ -58,7 +59,8 @@ const PALETTE_COMMANDS = [
 // next Enter runs it. A selected row with some part in view runs at once. So Enter never runs a row the list hides,
 // and a press is never lost. Only a new press of Enter acts: the repeats of a held Enter are taken and do nothing, so
 // holding the Enter that revealed a row does not run it, and the next press looks at the selection and the view again.
-// The arrows repeat as before. All of this holds with an empty query too, where the row is not drawn but Enter runs it.
+// The arrows repeat as before. All of this holds with an empty query too, where the selected row has no highlight but
+// Enter runs it.
 // initialSelected: the row selected at open (a gallery frame freezes a moved selection with it; the app opens on 0).
 function PaletteCard({ query = "", onQuery, onRun, autoFocus = false, commands = PALETTE_COMMANDS, initialSelected = 0 }) {
   const items = commands.filter((i) => i.label.toLowerCase().includes(query.toLowerCase()));
