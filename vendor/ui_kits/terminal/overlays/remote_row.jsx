@@ -205,7 +205,8 @@ export function RemoteConnectionPopup({ lang = "en", name = "tasty-core", profil
 // (tab_bar/view.rs is_focused), as its terminal keeps the focused bed. The scrim only takes the pointer. The strip takes
 // no line under it, as the app's.
 export function RemoteWorkspaceContent({ shape = false, width = "var(--tasty-remote-row-specimen-width)", height = "var(--tasty-remote-row-specimen-height)", children }) {
-  const line = (t, c) => <div style={{ whiteSpace: "pre", color: c || "var(--tasty-surface-terminal-focused-fg)" }}>{t}</div>;
+  // Default cell ink follows each pane's key focus (RULES.md section 4): the left pane holds it, the right one does not.
+  const line = (t, focused = true) => <div style={{ whiteSpace: "pre", color: focused ? "var(--tasty-surface-terminal-focused-fg)" : "var(--tasty-surface-terminal-unfocused-fg)" }}>{t}</div>;
   return (
     <div style={{ position: "relative", width, maxWidth: "100%", height, overflow: "hidden", boxSizing: "border-box",
       border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", background: "var(--tasty-bg-app)" }}>
@@ -219,7 +220,7 @@ export function RemoteWorkspaceContent({ shape = false, width = "var(--tasty-rem
               {line("$ cargo build --release")}{line("   Compiling tasty-core v0.9.0")}{line("   Compiling tasty-remote v0.9.0")}{line("error: mismatched types at src/main.rs:42")}
             </div>
             <div data-terminal-content="" style={{ flex: 1, padding: "var(--tasty-space-sm)", background: "var(--tasty-surface-bed-unfocused)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", lineHeight: "var(--tasty-line-height-ui)" }}>
-              {line("$ tail -f deploy.log")}{line("12:04:31 rollout 3/5")}{line("12:04:40 rollout 4/5")}
+              {line("$ tail -f deploy.log", false)}{line("12:04:31 rollout 3/5", false)}{line("12:04:40 rollout 4/5", false)}
             </div>
           </div>
         </div>
