@@ -159,7 +159,8 @@ function FavoritesSection({ favs, onToggle }) {
 // scrim, outside the window's clip, at the button's place. The title, then one checkbox per column in table order.
 // Like every egui area, the popover is then kept on the screen at its drawn size (egui constrain_window_rect_to_area):
 // it moves left until its right edge meets the screen's, then right until its left edge does, and the same down the
-// y axis. The kit's screen is the scrim, cut to the page's viewport. It places again while open whenever the scrim,
+// y axis. The kit's screen is the scrim, cut at the sides to the page's viewport; the page scrolls down, so its height
+// does not cut it (a gallery frame far down the page keeps the chooser under its button). It places again while open whenever the scrim,
 // the window or the popover changes size, the page scrolls, or the viewport resizes, so it stays with its button.
 // Port is the identity and default sort column, so it stays shown and its checkbox is disabled.
 // The 180 floor is the content's, as the app sets it inside the popup frame: the box adds its margin and edge.
@@ -180,8 +181,7 @@ function ColumnsMenu({ anchor, hidden, onToggle, onClose }) {
       const a = btn.getBoundingClientRect(), o = host.getBoundingClientRect();
       const root = document.documentElement;
       const left = Math.max(o.left, 0), right = Math.min(o.right, root.clientWidth);
-      const top = Math.max(o.top, 0), bottom = Math.min(o.bottom, root.clientHeight);
-      const x = fit(a.left, el.offsetWidth, left, right), y = fit(a.bottom, el.offsetHeight, top, bottom);
+      const x = fit(a.left, el.offsetWidth, left, right), y = fit(a.bottom, el.offsetHeight, o.top, o.bottom);
       const next = { left: x - o.left, top: y - o.top };
       setPos((p) => (p && p.left === next.left && p.top === next.top ? p : next));
     };
