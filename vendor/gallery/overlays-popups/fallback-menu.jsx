@@ -125,7 +125,7 @@ function FallbackMenuDemo({ h = 320, caption = "right-click anywhere · ↑ ↓ 
     setHeld(true);
   };
   return (
-    <div ref={ref} tabIndex={0} onKeyDown={onKey} style={{ outline: "none" }}
+    <div ref={ref} tabIndex={0} onKeyDown={onKey} style={{ outline: "none", maxWidth: "100%", minWidth: 0 }}
       onContextMenu={(e) => { e.preventDefault(); const r = ref.current.querySelector("[data-fallback-window]").getBoundingClientRect(); setClick({ x: Math.round(e.clientX - r.left), y: Math.round(e.clientY - r.top) }); setActive(-1); setHeld(false); ref.current.focus(); }}
       onClick={() => { setClick(null); setActive(-1); setHeld(false); }}>
       <FallbackWindow w={520} h={h} click={click} caption={caption}>
