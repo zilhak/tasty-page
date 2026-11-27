@@ -85,17 +85,23 @@ function MoreLabel({ text, app, after }) {
   );
 }
 
-function BannerMore({ app, open, setOpen, onAction }) {
-  const wrap = React.useRef(null);
+// ── keys and focus for the open ⋯ menu, matched to the app (RULES.md "Popup focus") ──
+// The menu opens holding the popup key focus and takes DOM focus. Popup key ownership and widget focus are separate,
+// as in the app: Tab and Shift+Tab move widget focus as usual, to the trigger or Dismiss too, and the menu stays open
+// and keeps the key focus (focused border, terminal unfocused); the control with widget focus draws its own ring.
+// ↑↓ and ↵ act only while the menu itself has DOM focus. Esc closes it wherever widget focus is in the banner card,
+// and Esc or a row run gives focus back to the trigger while the banner is still there. A press outside the menu box
+// closes it, the trigger included (that press does not reopen it), and the focus the press gives stays. Focus that
+// leaves the banner card closes it too, with or without a target; an inactive OS window changes nothing.
+// The card is the nearest [data-banner-card] around the trigger.
+function useBannerMoreMenu({ open, setOpen, rowCount, onRun }) {
+  const anchor = React.useRef(null);
   const menu = React.useRef(null);
   const back = React.useRef(false);
-  // keyboard-active row: the kit starts with none, then ↑↓ move over the enabled rows (none when the name is unknown)
+  const pressOpen = React.useRef(false);
   const [kb, setKb] = React.useState(-1);
-  const rowCount = app ? 2 : 0;
-  const trigger = () => (wrap.current ? wrap.current.querySelector('[aria-label="More options"]') : null);
-  // The open menu takes key focus from the trigger, as the app gives it to this surface-scoped menu, and reads keys
-  // only while it has them (RULES.md "Popup focus"). Esc or a row run gives key focus back to the trigger while the
-  // banner is still there; a press elsewhere keeps the focus it gives.
+  const trigger = () => (anchor.current ? anchor.current.querySelector('[aria-label="More options"]') : null);
+  const close = (toTrigger) => { if (toTrigger) back.current = true; setOpen(false); };
   React.useEffect(() => {
     if (open) { if (menu.current) menu.current.focus(); return; }
     setKb(-1);
@@ -103,22 +109,48 @@ function BannerMore({ app, open, setOpen, onAction }) {
   }, [open]);
   React.useEffect(() => {
     if (!open) return undefined;
-    const onDown = (e) => { if (wrap.current && !wrap.current.contains(e.target)) setOpen(false); };
+    const card = anchor.current ? anchor.current.closest("[data-banner-card]") : null;
+    const inCard = (el) => !!(card && el && card.contains(el));
+    const onDown = (e) => { if (menu.current && !menu.current.contains(e.target)) setOpen(false); };
+    const onKey = (e) => { if (e.key === "Escape") { e.preventDefault(); e.stopPropagation(); close(true); } };
+    let timer = 0;
+    const onOut = (e) => {
+      if (e.relatedTarget) { if (!inCard(e.relatedTarget)) setOpen(false); return; }
+      clearTimeout(timer);
+      timer = setTimeout(() => { if (document.hasFocus() && !inCard(document.activeElement)) setOpen(false); }, 0);
+    };
     document.addEventListener("mousedown", onDown);
-    return () => document.removeEventListener("mousedown", onDown);
+    if (card) { card.addEventListener("keydown", onKey); card.addEventListener("focusout", onOut); }
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener("mousedown", onDown);
+      if (card) { card.removeEventListener("keydown", onKey); card.removeEventListener("focusout", onOut); }
+    };
   }, [open]);
-  const close = (toTrigger) => { if (toTrigger) back.current = true; setOpen(false); };
-  function act(which) { close(which !== "notice"); onAction && onAction(which); }
-  const onMenuKey = (e) => {
-    if (e.key === "Escape") { e.preventDefault(); close(true); return; }
-    if (e.key === "Tab") { e.preventDefault(); return; }
-    if (!rowCount) return;
-    if (e.key === "ArrowDown") { e.preventDefault(); setKb((i) => (i + 1) % rowCount); }
-    if (e.key === "ArrowUp") { e.preventDefault(); setKb((i) => (i <= 0 ? rowCount - 1 : i - 1)); }
-    if (e.key === "Enter" && kb >= 0) { e.preventDefault(); act(kb === 0 ? "notice" : "capture"); }
+  const run = (i) => { close(onRun(i) !== false); };
+  const triggerProps = {
+    onMouseDown: () => { pressOpen.current = open; },
+    onKeyDown: () => { pressOpen.current = false; },
+    onClick: () => { if (pressOpen.current) { pressOpen.current = false; return; } setOpen(!open); },
   };
-  // focus that leaves for anything but the trigger closes the menu and stays where it went
-  const onMenuBlur = (e) => { const to = e.relatedTarget; if (to && (menu.current?.contains(to) || to === trigger())) return; if (to) close(false); };
+  const menuProps = {
+    ref: menu, tabIndex: -1,
+    onKeyDown: (e) => {
+      if (!rowCount) return;
+      if (e.key === "ArrowDown") { e.preventDefault(); setKb((i) => (i + 1) % rowCount); }
+      else if (e.key === "ArrowUp") { e.preventDefault(); setKb((i) => (i <= 0 ? rowCount - 1 : i - 1)); }
+      else if (e.key === "Enter" && kb >= 0) { e.preventDefault(); run(kb); }
+    },
+  };
+  return { anchor, kb, run, triggerProps, menuProps };
+}
+
+function BannerMore({ app, open, setOpen, onAction }) {
+  const rowCount = app ? 2 : 0;
+  // a row run returns focus to the trigger unless it closes the banner ("notice")
+  const { anchor: wrap, kb, run, triggerProps, menuProps } = useBannerMoreMenu({ open, setOpen, rowCount,
+    onRun: (i) => { const which = i === 0 ? "notice" : "capture"; onAction && onAction(which); return which !== "notice"; } });
+  const act = (which) => run(which === "notice" ? 0 : 1);
   // 2026-11-03 — name unknown (remote mirror, before first poll, lookup failed): the actions exist but can't run.
   // Same two rows, disabled (no hover, no click, menu stays open, nothing saved, keyboard skips them),
   // worded without a name, under a non-interactive reason line. Not updated live if the name arrives while open.
@@ -126,11 +158,10 @@ function BannerMore({ app, open, setOpen, onAction }) {
   return (
     <span ref={wrap} style={{ position: "relative", width: "var(--tasty-size-24)", height: "var(--tasty-size-24)", flex: "none",
       display: "inline-flex", alignItems: "center", justifyContent: "center" }}>
-      <IconButton size="sm" aria-label="More options" aria-expanded={open} active={open}
-        onClick={() => setOpen(!open)}>{bic.more}</IconButton>
+      <IconButton size="sm" aria-label="More options" aria-expanded={open} active={open} {...triggerProps}>{bic.more}</IconButton>
       {open && (
         // The open menu holds key focus (surface scope), so its border shows focus (RULES.md "Popup focus").
-        <div ref={menu} tabIndex={-1} role="menu" aria-label="Banner options" {...popupFocusAttr(true)} onKeyDown={onMenuKey} onBlur={onMenuBlur} style={{ position: "absolute", outline: "none",
+        <div {...menuProps} role="menu" aria-label="Banner options" {...popupFocusAttr(true)} style={{ position: "absolute", outline: "none",
           top: "calc(100% + var(--tasty-banner-more-menu-offset))", right: 0, zIndex: 3,
           minWidth: "var(--tasty-banner-more-menu-min-width)", maxWidth: "var(--tasty-banner-more-menu-max-width)",
           width: known ? "max-content" : "var(--tasty-banner-more-menu-max-width)", boxSizing: "border-box",
@@ -171,7 +202,7 @@ function Banner({ data, recessed, zIndex, backgrounded, onClose, onMenuOpen }) {
   const onAction = (which) => { if (which === "notice") onClose && onClose(); };
   return (
     <BannerShell recessed={recessed} zIndex={zIndex}>
-      <div onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
+      <div data-banner-card="" onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
         style={{ display: "flex", alignItems: "flex-start", gap: "var(--tasty-banner-gap)",
           padding: "var(--tasty-banner-padding-y) var(--tasty-banner-padding-x)" }}>
         <span style={{ display: "inline-flex", flex: "none", marginTop: "var(--tasty-size-1)",
@@ -309,4 +340,4 @@ function BannerHost() {
   );
 }
 
-export { Banner, BannerShell, BannerHost };
+export { Banner, BannerShell, BannerHost, useBannerMoreMenu };

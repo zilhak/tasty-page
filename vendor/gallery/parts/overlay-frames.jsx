@@ -5,6 +5,7 @@ import { WorkspaceRunningCount } from "../../ui_kits/terminal/chrome.jsx";
 import { AttachConnectionsSection } from "./settings-attach-section.jsx";
 import { rt } from "../../ui_kits/terminal/overlays/remote_row_copy.js";
 import { popupBorderColor, popupFocusAttr } from "../../ui_kits/terminal/overlays/shared.jsx";
+import { useBannerMoreMenu } from "../../ui_kits/terminal/overlays/banner.jsx";
 import { PopupTitleBar } from "../../ui_kits/terminal/overlays/info_modal.jsx";
 import { WarnBadge, LocalSshSection as KitLocalSshSection } from "../../ui_kits/terminal/overlays/remote_tool.jsx";
 
@@ -1911,49 +1912,23 @@ function MouseCaptureBannerG({ glyph = true, body, lines, app = "vim", lang = "e
   );
 }
 
-// interactive: click ⋯ to open, a press outside the menu and trigger (the terminal included) or Esc closes, row click acts.
-// The open menu holds key focus, as the app gives it to this surface-scoped menu (RULES.md "Popup focus"): it takes
-// DOM focus from the trigger (no ring on the trigger), the terminal under it paints unfocused, and it reads keys only
-// while it has them. ↑↓ set the keyboard-active row (the specimen starts with none), ↵ runs it, Tab stays in the menu.
-// Esc or a row run gives key focus back to the trigger while the banner is still there. A press elsewhere keeps the
-// focus it gives. This demo has one surface; the menu left open while another surface takes key focus is a View.
+// interactive: click ⋯ to open, a press outside the menu box (the terminal and the trigger included) or Esc closes,
+// row click acts. Keys and focus follow the kit's useBannerMoreMenu, matched to the app (RULES.md "Popup focus"):
+// the open menu keeps the popup key focus while Tab moves widget focus to the trigger or Dismiss, and the terminal
+// under it paints unfocused. This demo has one surface; the menu left open while another surface takes key focus is a View.
 function BannerMoreDemoG() {
   const [open, setOpen] = React.useState(false);
   const [log, setLog] = React.useState(null);
-  const [kb, setKb] = React.useState(-1);
-  const anchor = React.useRef(null);
-  const menu = React.useRef(null);
-  const back = React.useRef(false);
-  const trigger = () => (anchor.current ? anchor.current.querySelector('[aria-label="More options"]') : null);
-  React.useEffect(() => {
-    if (open) { if (menu.current) menu.current.focus(); return; }
-    setKb(-1);
-    if (back.current) { back.current = false; const t = trigger(); if (t) t.focus(); }
-  }, [open]);
-  React.useEffect(() => {
-    if (!open) return undefined;
-    const onDown = (e) => { if (anchor.current && !anchor.current.contains(e.target)) setOpen(false); };
-    document.addEventListener("mousedown", onDown);
-    return () => document.removeEventListener("mousedown", onDown);
-  }, [open]);
-  const close = (toTrigger) => { if (toTrigger) back.current = true; setOpen(false); };
-  function act(which) { close(which !== "notice"); setLog(which); }
-  const onMenuKey = (e) => {
-    if (e.key === "Escape") { e.preventDefault(); close(true); }
-    else if (e.key === "Tab") e.preventDefault();
-    else if (e.key === "ArrowDown") { e.preventDefault(); setKb((i) => (i + 1) % 2); }
-    else if (e.key === "ArrowUp") { e.preventDefault(); setKb((i) => (i <= 0 ? 1 : i - 1)); }
-    else if (e.key === "Enter" && kb >= 0) { e.preventDefault(); act(kb === 0 ? "notice" : "capture"); }
-  };
-  // focus that leaves for anything but the trigger closes the menu and stays where it went
-  const onMenuBlur = (e) => { const to = e.relatedTarget; if (to && (menu.current?.contains(to) || to === trigger())) return; if (to) close(false); };
+  const { anchor, kb, run, triggerProps, menuProps } = useBannerMoreMenu({ open, setOpen, rowCount: 2,
+    onRun: (i) => { const which = i === 0 ? "notice" : "capture"; setLog(which); return which !== "notice"; } });
+  const act = (which) => run(which === "notice" ? 0 : 1);
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 8, width: "100%", maxWidth: 600 }}>
       <div>
         <BannerScope height={230} bed={open ? "unfocused" : "focused"}>
           {log !== "notice" ? (
             <BannerShellG>
-              <div style={{ display: "flex", alignItems: "flex-start", gap: "var(--tasty-banner-gap)",
+              <div data-banner-card="" style={{ display: "flex", alignItems: "flex-start", gap: "var(--tasty-banner-gap)",
                 padding: "var(--tasty-banner-padding-y) var(--tasty-banner-padding-x)" }}>
                 <span style={{ display: "inline-flex", flex: "none", marginTop: 1, color: "var(--tasty-banner-icon-fg)" }}>{ic.mouse}</span>
                 <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 2, paddingRight: "var(--tasty-banner-more-reserve)" }}>
@@ -1965,11 +1940,10 @@ function BannerMoreDemoG() {
                 <span style={{ position: "absolute", top: "var(--tasty-banner-padding-y)", right: "var(--tasty-space-sm)",
                   display: "flex", alignItems: "center", gap: "var(--tasty-banner-more-column-gap)" }}>
                   <span ref={anchor} style={{ position: "relative", display: "inline-flex" }}>
-                    <IconButton size="sm" aria-label="More options" aria-expanded={open} active={open}
-                      onClick={() => setOpen((o) => !o)}><Icon name="more" /></IconButton>
+                    <IconButton size="sm" aria-label="More options" aria-expanded={open} active={open} {...triggerProps}><Icon name="more" /></IconButton>
                     {open && (
                       <div style={{ position: "absolute", top: "100%", marginTop: "var(--tasty-banner-more-menu-offset)", right: 0, zIndex: 2 }}>
-                        <div ref={menu} tabIndex={-1} role="menu" aria-label="Banner options" {...popupFocusAttr(true)} onKeyDown={onMenuKey} onBlur={onMenuBlur} style={{ outline: "none",
+                        <div {...menuProps} role="menu" aria-label="Banner options" {...popupFocusAttr(true)} style={{ outline: "none",
                           minWidth: "var(--tasty-banner-more-menu-min-width)", maxWidth: "var(--tasty-banner-more-menu-max-width)",
                           background: "var(--tasty-banner-more-menu-bg)", border: `1px solid ${popupBorderColor(true)}`,
                           borderRadius: "var(--tasty-banner-more-menu-radius)", padding: "var(--tasty-banner-more-menu-padding)",
