@@ -147,8 +147,9 @@ function useBannerMoreMenu({ open, setOpen, rowCount, onRun }) {
   const run = (i) => { close(onRun(i) !== false); };
   const triggerProps = {
     // A press on the trigger that finds the menu open closes it (outside the menu box). Only the pointer click that
-    // press ends in is held back: the flag is dropped at once when the press is released off the trigger, and a click
-    // with no press behind it (detail 0: keyboard, click()) always toggles.
+    // press ends in is held back. The press alone ends the flag: its pointer click (detail above 0) consumes it, and a
+    // release off the trigger drops it at once. A click with no press behind it (detail 0: keyboard, click()) always
+    // toggles and leaves the flag of a press still in progress alone, so that press's click cannot toggle again.
     onMouseDown: (e) => {
       const btn = e.currentTarget;
       pressOpen.current = open;
@@ -156,7 +157,8 @@ function useBannerMoreMenu({ open, setOpen, rowCount, onRun }) {
       document.addEventListener("mouseup", done, true);
     },
     onClick: (e) => {
-      const held = pressOpen.current && e.detail > 0;
+      if (e.detail === 0) { setOpen(!open); return; }
+      const held = pressOpen.current;
       pressOpen.current = false;
       if (!held) setOpen(!open);
     },
