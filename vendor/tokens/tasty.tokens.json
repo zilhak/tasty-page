@@ -2990,6 +2990,10 @@
       "$type": "dimension",
       "$value": "{semantic.space-sm}"
     },
+    "tab-icon-gap": {
+      "$type": "dimension",
+      "$value": "{primitive.size-6}"
+    },
     "tab-bg": {
       "$type": "color",
       "$value": "{semantic.bg-sidebar}"
