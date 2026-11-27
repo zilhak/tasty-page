@@ -52,24 +52,39 @@ const PALETTE_COMMANDS = [
 // and a click runs that row; neither moves the selection. commands: the rows ({ label, sc, icon }), the kit's
 // illustrative list unless a host passes its own (the gallery's short-screen frame passes the app's first rows).
 // The list keeps the selected row in view: each time the selection moves, the list scrolls the least that shows the
-// whole row, so Enter never runs a row the list hides, and each query change shows the list from its top, where the
-// first match is. This holds with an empty query too, where the row is not drawn but Enter runs it.
+// whole row, and each query change shows the list from its top, where the first match is. The wheel scrolls the rows
+// and never moves the selection, so the selected row can end up scrolled out of view. Enter on a selected row with no
+// part in view runs nothing: the list scrolls the least that shows the whole row, as a selection move does, and the
+// next Enter runs it. A selected row with some part in view runs at once. So Enter never runs a row the list hides,
+// and a press is never lost. All of this holds with an empty query too, where the row is not drawn but Enter runs it.
 // initialSelected: the row selected at open (a gallery frame freezes a moved selection with it; the app opens on 0).
 function PaletteCard({ query = "", onQuery, onRun, autoFocus = false, commands = PALETTE_COMMANDS, initialSelected = 0 }) {
   const items = commands.filter((i) => i.label.toLowerCase().includes(query.toLowerCase()));
   const [sel, setSel] = React.useState(initialSelected);
   const selected = Math.min(sel, Math.max(items.length - 1, 0));
   const listRef = React.useRef(null);
-  useBeforePaint(() => {
+  const selectedRow = () => {
     const list = listRef.current;
-    const row = list && list.querySelector(`[data-palette-row="${selected}"]`);
-    if (!row) return;
-    // The list's own padding is part of what is shown around the first and last rows.
+    return list && list.querySelector(`[data-palette-row="${selected}"]`);
+  };
+  // Scroll the list the least that shows the whole row. The list's own padding is part of what is shown around the
+  // first and last rows.
+  const reveal = (row) => {
+    const list = listRef.current;
     const pad = parseFloat(getComputedStyle(list).paddingTop) || 0;
     const top = row.offsetTop - pad;
     const bottom = row.offsetTop + row.offsetHeight + pad;
     if (top < list.scrollTop) list.scrollTop = top;
     else if (bottom > list.scrollTop + list.clientHeight) list.scrollTop = bottom - list.clientHeight;
+  };
+  // Some part of the row lies inside the list's scrolled view.
+  const shown = (row) => {
+    const list = listRef.current;
+    return row.offsetTop < list.scrollTop + list.clientHeight && row.offsetTop + row.offsetHeight > list.scrollTop;
+  };
+  useBeforePaint(() => {
+    const row = selectedRow();
+    if (row) reveal(row);
   }, [selected, query]);
   const onKeyDown = (e) => {
     if (e.key === "ArrowDown" || e.key === "ArrowUp") {
@@ -77,7 +92,10 @@ function PaletteCard({ query = "", onQuery, onRun, autoFocus = false, commands =
       if (items.length) setSel(e.key === "ArrowDown" ? Math.min(selected + 1, items.length - 1) : Math.max(selected - 1, 0));
     } else if (e.key === "Enter" && !e.nativeEvent.isComposing) {
       e.preventDefault();
-      if (items[selected] && onRun) onRun(items[selected].label);
+      if (!items[selected]) return;
+      const row = selectedRow();
+      if (row && !shown(row)) { reveal(row); return; }
+      if (onRun) onRun(items[selected].label);
     }
   };
   return (
