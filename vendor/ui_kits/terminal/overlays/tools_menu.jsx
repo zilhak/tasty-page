@@ -74,8 +74,9 @@ function ToolsMenu({ anchor, bounds = null, hostRuns = null, onClose, onAction }
   const rows = items.filter(Boolean);
   const menuRef = React.useRef(null);
   const [kb, setKb] = React.useState(-1);
-  React.useEffect(() => { if (menuRef.current) menuRef.current.focus({ preventScroll: true }); }, []);
   const [place, setPlace] = React.useState(null);
+  // The menu takes the keys once it is placed: until then it is hidden, and a hidden element takes no focus.
+  React.useEffect(() => { if (place && menuRef.current) menuRef.current.focus({ preventScroll: true }); }, [!!place]);
   useBeforePaint(() => {
     const el = menuRef.current;
     if (!el) return;
