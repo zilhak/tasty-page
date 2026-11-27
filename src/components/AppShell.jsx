@@ -110,6 +110,22 @@ function toolsRoom() {
 }
 const TABBABLE = "a[href], button, input, select, textarea, [tabindex]";
 
+// The palette shortcut the demo binds and its status bar chip shows: Cmd+K on macOS (and iPadOS, which reports a Mac),
+// Ctrl+K elsewhere. The server markup draws the macOS label; the client corrects it after hydration.
+const MAC_PALETTE = "Cmd+K";
+function paletteKeysHere() {
+  const uad = navigator.userAgentData;
+  const plat = (uad && uad.platform) || navigator.platform || "";
+  return /Mac|iPhone|iPad|iPod/i.test(plat) ? MAC_PALETTE : "Ctrl+K";
+}
+// The K of the chord. A layout or input method that types another character on that key still sends code KeyK.
+function isPaletteChord(e, keys) {
+  const mac = keys === MAC_PALETTE;
+  if (mac ? !e.metaKey || e.ctrlKey : !e.ctrlKey || e.metaKey) return false;
+  if (e.altKey || e.shiftKey) return false;
+  return /^[a-z]$/i.test(e.key) ? e.key.toLowerCase() === "k" : e.code === "KeyK";
+}
+
 // The layer's controls that Tab reaches, in document order: enabled, in the Tab order, and drawn.
 function tabStops(root) {
   return Array.from(root.querySelectorAll(TABBABLE)).filter((el) =>
@@ -233,6 +249,21 @@ export function AppShell({ heading = "Workspaces", task = "run tests", doc }) {
     const strip = tabsRef.current;
     return [opener, strip?.querySelector('[role="tab"][aria-selected="true"]'), strip?.querySelector('[aria-label="New tab"]')];
   };
+  // The palette shortcut, as the kit shell binds it: it opens the palette from anywhere on the page and replaces an
+  // open Tools menu or window. The opener record is whatever page control had the focus.
+  const [paletteKeys, setPaletteKeys] = React.useState(MAC_PALETTE);
+  React.useEffect(() => { setPaletteKeys(paletteKeysHere()); }, []);
+  const openPalette = React.useRef(null);
+  openPalette.current = () => openWindow("palette");
+  React.useEffect(() => {
+    const h = (e) => {
+      if (!isPaletteChord(e, paletteKeys)) return;
+      e.preventDefault();
+      if (!e.repeat) openPalette.current();
+    };
+    window.addEventListener("keydown", h);
+    return () => window.removeEventListener("keydown", h);
+  }, [paletteKeys]);
   React.useEffect(() => {
     if (!anyOverlay) return;
     const h = (e) => { if (e.key === "Escape") { setOverlay(null); setToolsAnchor(null); } };
@@ -408,7 +439,7 @@ export function AppShell({ heading = "Workspaces", task = "run tests", doc }) {
           <div className="shell__status">
             <StatusBar surfaceId={tab?.kind === "markdown" ? "3" : tab?.kind === "split" ? "4" : "2"} theme={theme}
               onTheme={() => setTheme(theme === "latte" ? "mocha" : "latte")}
-              onPalette={(e) => openWindow("palette", e)} />
+              onPalette={(e) => openWindow("palette", e)} paletteKeys={paletteKeys} />
           </div>
         </div>
       </div>
