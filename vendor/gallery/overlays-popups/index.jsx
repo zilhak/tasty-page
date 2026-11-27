@@ -1,7 +1,8 @@
 import React from "react";
 import { PageStates } from "../parts/specimen.jsx";
 import { STATES } from "./states.jsx";
-import { Kbd, MenuItem } from "../../components/index.js";
+import { Button, Kbd, MenuItem } from "../../components/index.js";
+import { ToolsMenu } from "../../ui_kits/terminal/overlays/tools_menu.jsx";
 import { GalleryNoticeColumn } from "./notice-column.jsx";
 import { GalleryWebviewOpaque } from "./opaque-over-page.jsx";
 import { GalleryToastOverPage } from "./toast-over-page.jsx";
@@ -87,6 +88,30 @@ function ModHintHoldDemo() {
   );
 }
 
+// The kit's own Tools menu in a room with fixed host chrome across its top, as the landing's site header: the button
+// sits just under the band, so the menu, opened above it at its own height, would start above the room. It is moved
+// down to the room's top edge (and over the button), as the app's clamp_to_screen moves it inside the window. The
+// band and the room are in this box's coordinates, which the menu takes as its anchor and bounds. A frame is a
+// picture, so it is inert: the menu takes no focus and no keys.
+const TM_ROOM = { w: 360, h: 420, band: 56, btnTop: 60, btnH: 24 };
+function ToolsMenuInRoomFrame() {
+  const anchor = { top: TM_ROOM.btnTop, bottom: TM_ROOM.btnTop + TM_ROOM.btnH, left: 8, right: 168, width: 160, height: TM_ROOM.btnH };
+  const bounds = { top: TM_ROOM.band, left: 0, right: TM_ROOM.w, bottom: TM_ROOM.h };
+  return (
+    <div inert="" style={{ position: "relative", width: TM_ROOM.w, maxWidth: "100%", height: TM_ROOM.h, overflow: "hidden", pointerEvents: "none",
+      background: "var(--tasty-bg-app)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
+      <div style={{ position: "absolute", left: 0, right: 0, top: 0, height: TM_ROOM.band, display: "flex", alignItems: "center", padding: "0 var(--tasty-space-md)",
+        background: "var(--tasty-bg-sidebar)", borderBottom: "var(--tasty-border-width) solid var(--tasty-border-default)" }}>
+        <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>host chrome · fixed · outside bounds</span>
+      </div>
+      <div style={{ position: "absolute", left: 8, top: TM_ROOM.btnTop, width: 160 }}>
+        <Button variant="ghost" size="sm" block leadingIcon={ic.tools} style={{ justifyContent: "flex-start" }}>Tools</Button>
+      </div>
+      <ToolsMenu anchor={anchor} bounds={bounds} onClose={() => {}} onAction={() => {}} />
+    </div>
+  );
+}
+
 function Page() {
   return (
     <>
@@ -95,11 +120,14 @@ function Page() {
           when={<>A popup anchored <b>above</b> the sidebar Tools button (left-aligned to it). Unlike the modal layer this is a lightweight menu — <b>no scrim</b>, dismisses on outside click or <Kbd keys="Esc" />. Built-in entries first, in this fixed order — <b>Command palette… · Listening ports… · Remote connections… · Presets · Tutorial… · Task DAGs · Open child graph · Open File…</b> — then a separator, then <b>plugin-contributed</b> tools in manifest <code>order</code> (Clipboard Viewer 100 · Git 130). Every label that opens a further window ends in the single ellipsis character <code>…</code>, never three periods. <b>Width (2026-10-07)</b>: the menu is as wide as its longest row (label + <span className="tok">--tasty-menu-item-padding-x</span> both sides + the 4 ring + border), never narrower than <b>160</b> and never wider than <b>240</b>; a label past 240 ellipsizes at its <b>end</b>. This covers translated labels without a per-locale width.</>}>
           <Stage variant="solo center"><ToolsMenuFrame /></Stage>
           <Meta
-            specs={[["width", <>fit content · min 160 <span className="tok">--tasty-tools-menu-min-width</span> · max 240 <span className="tok">--tasty-tools-menu-max-width</span></>], ["overflow", "end ellipsis past max"], ["anchor", "above button, left-aligned"], ["rows", "28px MenuItem, no icons"], ["built-in", "8 — fixed order"], ["inner ring", <>4 · <span className="tok">--tasty-popup-content-margin</span></>], ["scrim", "none"], ["dismiss", <>outside click · <span className="ic">Esc</span></>], ["open", "Menu takes keyboard input · no row marked"], ["Down · Tab", "Unmarked → first runnable row · then next runnable row · stop at last"], ["Up · Shift+Tab", "Unmarked → last runnable row · then previous runnable row · stop at first"], ["runnable rows", "Disabled plugin tools are never marked"], ["keys", "Enter or Space → run marked row, if any · Esc → close menu"], ["marked row", "MenuItem keyboard-active fill and inks · no focus ring · pointer tints others"]]}
+            specs={[["width", <>fit content · min 160 <span className="tok">--tasty-tools-menu-min-width</span> · max 240 <span className="tok">--tasty-tools-menu-max-width</span></>], ["overflow", "end ellipsis past max"], ["anchor", "above button, left-aligned"], ["kept in room", "as the app's clamp_to_screen · top in [room top, room bottom − height] · left in [room left, room right − width] · taller than the room → room height, rows scroll · room = window, or what host passes as bounds (the part its fixed chrome leaves)"], ["rows", "28px MenuItem, no icons"], ["built-in", "8 — fixed order"], ["inner ring", <>4 · <span className="tok">--tasty-popup-content-margin</span></>], ["scrim", "none"], ["dismiss", <>outside click · <span className="ic">Esc</span></>], ["open", "Menu takes keyboard input · no row marked"], ["Down · Tab", "Unmarked → first runnable row · then next runnable row · stop at last"], ["Up · Shift+Tab", "Unmarked → last runnable row · then previous runnable row · stop at first"], ["runnable rows", "Disabled plugin tools are never marked"], ["keys", "Enter or Space → run marked row, if any · Esc → close menu"], ["marked row", "MenuItem keyboard-active fill and inks · no focus ring · pointer tints others"]]}
             tokens={[{ tok: "--tasty-menu-bg", use: "menu fill", color: "var(--tasty-menu-bg)" }, { tok: "--tasty-menu-border", use: "edge → border-strong", color: "var(--tasty-menu-border)" }, { tok: "--tasty-popup-content-margin", use: "→ space-xs 4" }, { tok: "--tasty-tools-menu-min-width", use: "→ size-160" }, { tok: "--tasty-tools-menu-max-width", use: "→ size-240" }, { tok: "--tasty-shadow-popover", use: "lift" }]} />
           <Views>
             <View name="tools-menu-keyboard-row" label="Down twice from open → Listening ports… · keyboard-active">
               <ToolsMenuFrame active="Listening ports…" />
+            </View>
+            <View name="tools-menu-kept-in-room" label="Button just under fixed host chrome → menu moved down to the room's top edge">
+              <ToolsMenuInRoomFrame />
             </View>
           </Views>
           <Note>Plugins extend the list <b>below</b> the separator only — built-in order is fixed. This is a popover, not a dialog: it never dims the app.</Note>

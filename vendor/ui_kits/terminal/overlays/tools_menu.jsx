@@ -9,7 +9,8 @@ import { gt } from "./graph_copy.js";
 
 // ── Tools menu — mirrors src/adapters/ui/tools_menu.rs ──────────────────
 // 160px popup anchored ABOVE the sidebar Tools button, left-aligned with it
-// (pos = btn.min.x, btn.min.y - menu_height). 28px rows, no icons, no scrim.
+// (pos = btn.min.x, btn.min.y - menu_height), then kept inside the room it may take (placeToolsMenu below).
+// 28px rows, no icons, no scrim.
 // Built-in entries first, then a separator, then plugin-contributed tools
 // (clipboard-viewer contributes "Clipboard Viewer"; git-viewer contributes "Git").
 // Built-in order mirrors src/adapters/ui/tools_menu.rs:48-69 — Remote connections…
@@ -40,7 +41,24 @@ const TOOLS_PLUGIN = [
 // The app's tools_menu popup takes the keys on open (focus_on_open) but its rows are plain egui click widgets: egui
 // moves between them only from a focused one, so the first Down, Up, Enter and Space do nothing and Tab must reach a
 // row first, and Shift+Tab lands on egui's last candidate, not surely the last row. The app is to take this contract.
-function ToolsMenu({ anchor, onClose, onAction }) {
+// Placement, as the app's (sidebar/tools.rs open_tools_menu, then popup clamp_to_screen): the menu opens above the
+// Tools button, left-aligned with it, at its own size; then it is cut down to the room it may take and moved inside
+// it, each axis on its own (top in [room.top, room.bottom - height], left in [room.left, room.right - width]). A menu
+// taller than the room takes the room's height and its rows scroll. The place is fixed when the menu opens.
+// anchor: the button's client rect (Sidebar's onTools(rect, button)). bounds: the room, a client rect
+// { top, right, bottom, left }; a host that covers part of the window with its own fixed chrome (the site's header)
+// passes the part left over. Without bounds the room is the window.
+function placeToolsMenu(anchor, size, room) {
+  const h = Math.min(size.h, room.bottom - room.top);
+  const w = Math.min(size.w, room.right - room.left);
+  const top = Math.max(room.top, Math.min(anchor.top - TOOLS_MENU_GAP - h, room.bottom - h));
+  const left = Math.max(room.left, Math.min(anchor.left, room.right - w));
+  return { top, left, maxHeight: h };
+}
+// The kit's gap between the menu and the button it opens from (kept from the menu's first drawing).
+const TOOLS_MENU_GAP = 2;
+
+function ToolsMenu({ anchor, bounds = null, onClose, onAction }) {
   React.useEffect(() => {
     const h = (e) => { if (e.key === "Escape") onClose(); };
     window.addEventListener("keydown", h);
@@ -51,6 +69,14 @@ function ToolsMenu({ anchor, onClose, onAction }) {
   const menuRef = React.useRef(null);
   const [kb, setKb] = React.useState(-1);
   React.useEffect(() => { if (menuRef.current) menuRef.current.focus({ preventScroll: true }); }, []);
+  const [place, setPlace] = React.useState(null);
+  React.useLayoutEffect(() => {
+    const el = menuRef.current;
+    if (!el) return;
+    const room = bounds || { top: 0, left: 0, right: window.innerWidth, bottom: window.innerHeight };
+    const r = el.getBoundingClientRect();
+    setPlace(placeToolsMenu(anchor, { w: r.width, h: r.height }, room));
+  }, []);
   const go = (i) => { setKb(i); const el = menuRef.current && menuRef.current.querySelector(`[data-row="${i}"]`); if (el) el.focus({ preventScroll: true }); };
   const runnable = rows.map((r, i) => (r.disabled ? -1 : i)).filter((i) => i >= 0);
   const onKeyDown = (e) => {
@@ -73,9 +99,10 @@ function ToolsMenu({ anchor, onClose, onAction }) {
       style={{ position: "absolute", inset: 0, zIndex: 55 }}>
       {/* MenuItem draws every row state, keyboard-active included; the menu only drops the focus ring the fill replaces */}
       <style>{`.tasty-toolsmenu-item:focus-visible,.tasty-toolsmenu:focus-visible{outline:none}`}</style>
-      <div ref={menuRef} tabIndex={-1} className="tasty-toolsmenu" onKeyDown={onKeyDown} onClick={(e) => e.stopPropagation()} role="menu" aria-label="Tools"
-        style={{ position: "absolute", left: anchor.left,
-          bottom: window.innerHeight - anchor.top + 2, width: 160,
+      <div ref={menuRef} tabIndex={-1} className="tasty-toolsmenu tasty-scroll" onKeyDown={onKeyDown} onClick={(e) => e.stopPropagation()} role="menu" aria-label="Tools"
+        style={{ position: "absolute", left: place ? place.left : anchor.left, top: place ? place.top : 0,
+          visibility: place ? "visible" : "hidden", maxHeight: place ? place.maxHeight : undefined,
+          overflowY: place ? "auto" : undefined, boxSizing: "border-box", width: 160,
           background: "var(--tasty-menu-bg)", border: "var(--tasty-border-width) solid var(--tasty-menu-border)",
           borderRadius: "var(--tasty-menu-radius)", padding: "var(--tasty-popup-content-margin)",
           boxShadow: "var(--tasty-shadow-popover)" }}>
@@ -93,4 +120,4 @@ function ToolsMenu({ anchor, onClose, onAction }) {
   );
 }
 
-export { ToolsMenu };
+export { ToolsMenu, placeToolsMenu };
