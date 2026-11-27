@@ -315,7 +315,7 @@ function CollapsedSidebar({ workspaces, activeWs, onWs, onSettings, onPlugins, o
       {!categories && <RailBtn title="New Workspace" onClick={() => {}}>{ic.plus}</RailBtn>}
       <div style={{ marginTop: "auto", display: "flex", flexDirection: "column", gap: 2, alignItems: "center" }}>
         {RailNotif && <RailNotif counts={notifications.counts} open={notifications.open} onOpen={onNotifications} />}
-        <RailBtn title="Tools" onClick={(e) => onTools(e.currentTarget.getBoundingClientRect())}>{ic.tools}</RailBtn>
+        <RailBtn title="Tools" onClick={(e) => onTools(e.currentTarget.getBoundingClientRect(), e.currentTarget)}>{ic.tools}</RailBtn>
         <div style={{ position: "relative", display: "flex", justifyContent: "center" }}>
           <RailBtn title={pluginAlert > 0 ? `Plugins — ${pluginAlert} need attention` : "Plugins"} onClick={onPlugins}>{ic.plug}</RailBtn>
           {pluginAlert > 0 && (
@@ -337,6 +337,8 @@ function CollapsedSidebar({ workspaces, activeWs, onWs, onSettings, onPlugins, o
   );
 }
 
+// onTools(rect, button): the Tools button's client rect, where the menu anchors, and the button element that was
+// clicked, so a host can return focus to that button when the menu closes. Both sidebar forms pass both.
 function Sidebar({ workspaces, activeWs, onWs, onSettings, onPlugins, onTools, collapsed, onToggle, pluginAlert = 0, categories = null, workspacesHeading = "Workspaces", notifications = NO_NOTIFS, onNotifications }) {
   const NotifSummary = NotificationSummary;
   const Heading = ({ children }) => (
@@ -407,7 +409,7 @@ function Sidebar({ workspaces, activeWs, onWs, onSettings, onPlugins, onTools, c
       <div style={{ padding: "var(--tasty-space-sm)", borderTop: "var(--tasty-border-width) solid var(--tasty-separator)",
         display: "flex", flexDirection: "column", gap: "var(--tasty-size-2)" }}>
         <Button variant="ghost" size="sm" block leadingIcon={ic.tools}
-          onClick={(e) => onTools(e.currentTarget.getBoundingClientRect())}
+          onClick={(e) => onTools(e.currentTarget.getBoundingClientRect(), e.currentTarget)}
           style={{ justifyContent: "flex-start" }}>Tools</Button>
         <Button variant="ghost" size="sm" block leadingIcon={ic.plug} onClick={onPlugins}
           trailingIcon={pluginAlert > 0 ? <Badge variant="danger"
