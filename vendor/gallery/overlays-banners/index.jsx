@@ -462,13 +462,24 @@ function Page() {
               {/* a frame is a picture: inert, so its trigger and rows take neither the pointer, focus nor keys */}
               <div inert="" style={{ pointerEvents: "none" }}><BannerScope height={230} bed="unfocused"><MouseCaptureBannerG open /></BannerScope></div>
             </View>
-            <View name="more-menu-unfocused" label="more menu left open while the user types in another surface">
-              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>A press in another surface leaves the menu open with its unfocused border. This terminal is unfocused too.</div>
-              <div inert="" style={{ pointerEvents: "none" }}><BannerScope height={230} bed="unfocused"><MouseCaptureBannerG open menuFocused={false} /></BannerScope></div>
+            <View name="more-menu-unfocused" label="more menu open in an unfocused pane">
+              <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>Pressing pane B’s terminal moves key focus there and leaves pane A’s banner menu open.</div>
+              {/* two panes of one split: the banner's pane keeps the open menu, the other pane holds key focus. The panes
+                  wrap to a column when the page is narrow. Frames are pictures: inert, no pointer, focus or keys. */}
+              <div inert="" style={{ pointerEvents: "none", display: "flex", flexWrap: "wrap", gap: "var(--tasty-space-sm)" }}>
+                <div style={{ flex: "2 1 300px", minWidth: 0, display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
+                  <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>Pane A is unfocused. The menu stays open and ⋯ stays lit with no focus ring.</div>
+                  <BannerScope height={230} bed="unfocused"><MouseCaptureBannerG open menuFocused={false} /></BannerScope>
+                </div>
+                <div style={{ flex: "1 1 200px", minWidth: 0, display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
+                  <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)" }}>Pane B paints focused and its terminal receives keys.</div>
+                  <BannerScope height={230} tab="zsh" others={["logs"]} bed="focused" lines={["$ cargo test", "test result: ok. 42 passed"]} />
+                </div>
+              </div>
             </View>
           </Views>
           <Meta
-            specs={[["rows", "2 × 28px MenuItem, leading icon"], ["anchor", "4px below ⋯, right-aligned"], ["overflow", "flip above the trigger"], ["width", "min 200 · max 288 (elastic)"], ["scrim", "none"], ["dismiss", <>outside click · <span className="ic">Esc</span> · row select</>], ["keyboard", "↑↓ · ↵ · Esc"]]}
+            specs={[["rows", "2 × 28px MenuItem, leading icon"], ["anchor", "4px below ⋯, right-aligned"], ["overflow", "flip above the trigger"], ["width", "min 200 · max 288 (elastic)"], ["scrim", "none"], ["dismiss", <>outside click · <span className="ic">Esc</span> · row select</>], ["keyboard", "↑↓ · ↵ · Esc"], ["open in unfocused pane", <>popup-border-unfocused · ⋯ active, no focus ring · pane A terminal unfocused · pane B terminal focused</>], ["presses and keys", <>↑↓, Enter, Esc → pane B terminal · press menu row → runs row and closes menu (Don't show again also closes banner) · press menu outside rows → menu takes key focus, popup-border-focused, pane B unfocused · press elsewhere in pane A → menu closes, pane A takes key focus · press pane B again → menu stays open, focus unchanged</>]]}
             tokens={[{ tok: "--tasty-banner-more-menu-bg", use: "menu fill", color: "var(--tasty-banner-more-menu-bg)" }, { tok: "--tasty-popup-border-focused", use: "menu edge while the open menu holds key focus", color: "var(--tasty-popup-border-focused)" }, { tok: "--tasty-popup-border-unfocused", use: "open menu edge while the user types in another surface", color: "var(--tasty-popup-border-unfocused)" }, { tok: "--tasty-banner-more-menu-shadow", use: "popover lift" }, { tok: "--tasty-banner-more-menu-offset", use: "4px below trigger" }, { tok: "--tasty-banner-more-menu-min-width", use: "200px floor" }, { tok: "--tasty-banner-more-menu-max-width", use: "288px ceiling" }]} />
           <Note>Both rows write a <b>permanent</b>, per-program Settings entry (copy: see <i>Row copy</i> below): <code>Don't show again for {"{app}"}</code> → <code>mouse_capture_banner_blacklist</code> (capture stays delegated, only the notice is suppressed) · <code>Let Tasty handle clicks in {"{app}"}</code> → <code>mouse_capture_blacklist</code> (tasty takes clicks and drags back; the wheel still goes to the program). “Don't show again” also <b>closes the banner it was opened from</b> — suppressing the notice and leaving it on screen would contradict itself. “Let Tasty handle clicks” leaves the banner up (capture is already released; the user dismisses when done reading). Icons: <span className="ic">bell</span> for the notice row, <span className="ic">mouse</span> for the capture row.</Note>
           <Note>While the menu is open the banner is treated as <b>hover-equivalent</b> — a TTL banner would keep its countdown paused, and the affordance column stays drawn even if the pointer has left the card.</Note>

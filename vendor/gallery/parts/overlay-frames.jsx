@@ -1766,20 +1766,22 @@ function BannerShellG({ recessed, zIndex, children }) {
 
 // a faux scope: tab strip on top (must stay clear) + content; banner floats at content top
 // bed: "unfocused" while a popup in the scope (the open ⋯ menu) holds key focus (RULES.md "Surface focus")
-function BannerScope({ height = 240, tab = "vim", bed = "focused", children }) {
+// lines: the terminal's lines; without them the scope shows vim, the program that captures the mouse. others: the
+// inactive tabs before the active one.
+const BANNER_SCOPE_LINES = [<><span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-ansi-green)" }}>~/tasty</span> $ vim src/main.rs</>, "-- VISUAL --   1,1   Top"];
+function BannerScope({ height = 240, tab = "vim", others = ["server", "dev"], bed = "focused", lines = BANNER_SCOPE_LINES, children }) {
   return (
     <div style={{ position: "relative", width: "100%", maxWidth: 600, height, borderRadius: "var(--tasty-radius)", overflow: "hidden",
       border: "1px solid var(--tasty-border-default)", background: `var(--tasty-surface-terminal-${bed}-bg)` }}>
       <div style={{ display: "flex", alignItems: "stretch", height: "var(--tasty-control-height)", background: "var(--tasty-bg-sidebar)", borderBottom: "1px solid var(--tasty-separator)" }}>
-        {["server", "dev", tab].map((t, i) => (
+        {[...others, tab].map((t, i, all) => (
           <div key={t} style={{ display: "flex", alignItems: "center", padding: "0 12px", fontSize: 13, borderRight: "1px solid var(--tasty-separator)",
-            background: i === 2 ? "var(--tasty-bg-panel)" : "transparent", color: i === 2 ? "var(--tasty-text-primary)" : "var(--tasty-text-muted)",
-            boxShadow: i === 2 ? "inset 0 -2px 0 var(--tasty-accent-primary)" : "none" }}>{t}</div>
+            background: i === all.length - 1 ? "var(--tasty-bg-panel)" : "transparent", color: i === all.length - 1 ? "var(--tasty-text-primary)" : "var(--tasty-text-muted)",
+            boxShadow: i === all.length - 1 ? "inset 0 -2px 0 var(--tasty-accent-primary)" : "none" }}>{t}</div>
         ))}
       </div>
       <div data-terminal-content="" style={{ padding: "12px 14px", fontFamily: "var(--tasty-font-mono)", fontSize: 12, lineHeight: 1.7, color: `var(--tasty-surface-terminal-${bed}-fg)` }}>
-        <div><span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-ansi-green)" }}>~/tasty</span> $ vim src/main.rs</div>
-        <div>-- VISUAL --   1,1   Top</div>
+        {lines.map((l, i) => <div key={i}>{l}</div>)}
       </div>
       <div style={{ position: "absolute", top: "calc(1 * var(--tasty-control-height) + 1 * var(--tasty-banner-margin))",
         left: "var(--tasty-banner-margin)", right: "var(--tasty-banner-margin)" }}>{children}</div>
