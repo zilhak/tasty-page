@@ -13,7 +13,7 @@ The 2026-11-27 column shows current counts from the rules file, and the three 20
 | Measure | Current count (2026-11-27) | Survey count (2026-11-05) | Missing before (2026-11-05) | Missing after (2026-11-05) |
 |---|---|---|---|---|
 | Contracts | 86 | 85 | 4 | 0 |
-| Locations | 43 | 41 | 5 | 0 |
+| Locations | 44 | 41 | 5 | 0 |
 | Frozen cells (component, state, host) with `data-contract` | 433 | 428 | 414 | 0 |
 
 On 2026-11-05, 4 contracts and 5 locations lacked a gallery specimen, and each gained one in that change. Each page's `states.jsx` names the contracts it owns, and `parts/contract-cells.jsx` draws their cells.
@@ -118,6 +118,7 @@ On 2026-11-05, 4 contracts and 5 locations lacked a gallery specimen, and each g
 | Sidebar | `mantle` | `layouts#sidebar` | exists |
 | Workspace status bar | `crust` | `layouts#statusbar` | exists |
 | Tab bar | `mantle` | `layouts#tabbar` | exists |
+| Focused tab bar | `raised` | `components#tab` | demo and states |
 | Pane body | `base` | `layouts#multitab` | exists |
 | Surface head and split line | `mantle` | `layouts#surfaces` | exists |
 | Terminal surface, focused | `term` | `layouts#surfaces` | exists; overlay layers only in foundations#terminal |
