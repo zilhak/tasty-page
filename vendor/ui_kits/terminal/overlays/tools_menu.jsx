@@ -51,7 +51,7 @@ const TOOLS_PLUGIN = [
 // moves between them only from a focused one, so the first Down, Up, Enter and Space do nothing and Tab must reach a
 // row first, and Shift+Tab lands on egui's last candidate, not surely the last row. The app is to take this contract.
 // Placement, as the app's (sidebar/tools.rs open_tools_menu, then popup clamp_to_screen): the menu opens above the
-// Tools button, left-aligned with it, at its own size; then it is cut down to the room it may take and moved inside
+// Tools button with no gap (its bottom edge on the button's top edge), left-aligned with it, at its own size; then it is cut down to the room it may take and moved inside
 // it, each axis on its own (top in [room.top, room.bottom - height], left in [room.left, room.right - width]). A menu
 // taller than the room takes the room's height and its rows scroll, and one wider than the room takes the room's width
 // (its labels ellipsize): the cut size is the size it is drawn at, as clamp_to_screen sets the popup's size.
@@ -67,12 +67,10 @@ const TOOLS_PLUGIN = [
 function placeToolsMenu(anchor, size, room) {
   const h = Math.min(size.h, room.bottom - room.top);
   const w = Math.min(size.w, room.right - room.left);
-  const top = Math.max(room.top, Math.min(anchor.top - TOOLS_MENU_GAP - h, room.bottom - h));
+  const top = Math.max(room.top, Math.min(anchor.top - h, room.bottom - h));
   const left = Math.max(room.left, Math.min(anchor.left, room.right - w));
   return { top, left, width: w, maxHeight: h };
 }
-// The kit's gap between the menu and the button it opens from (kept from the menu's first drawing).
-const TOOLS_MENU_GAP = 2;
 // The layout effect runs only in the browser; a server render (the gallery's static frames) takes the plain effect.
 const useBeforePaint = typeof window === "undefined" ? React.useEffect : React.useLayoutEffect;
 
