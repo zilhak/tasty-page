@@ -34,6 +34,9 @@ const TOOLS_PLUGIN = [
 // or Tab marks the first row and Up or Shift+Tab the last; each next press moves one row and stops at the ends. Enter
 // or Space runs the marked row and does nothing while no row is marked. Esc closes the menu, and the keys stay in it
 // until it closes. The marked row draws MenuItem's keyboard-active state and no ring; the pointer only tints.
+// Only rows that can run take part: a row with disabled set (the app draws a plugin tool it cannot run as a disabled
+// row) is never marked, the first and last rows and each move count runnable rows only, and Enter or Space run a row
+// only when it can run, the same test a click passes. The keys are read only while the menu holds them.
 // The app's tools_menu popup takes the keys on open (focus_on_open) but its rows are plain egui click widgets: egui
 // moves between them only from a focused one, so the first Down, Up, Enter and Space do nothing and Tab must reach a
 // row first, and Shift+Tab lands on egui's last candidate, not surely the last row. The app is to take this contract.
@@ -49,14 +52,17 @@ function ToolsMenu({ anchor, onClose, onAction }) {
   const [kb, setKb] = React.useState(-1);
   React.useEffect(() => { if (menuRef.current) menuRef.current.focus({ preventScroll: true }); }, []);
   const go = (i) => { setKb(i); const el = menuRef.current && menuRef.current.querySelector(`[data-row="${i}"]`); if (el) el.focus({ preventScroll: true }); };
+  const runnable = rows.map((r, i) => (r.disabled ? -1 : i)).filter((i) => i >= 0);
   const onKeyDown = (e) => {
-    const last = rows.length - 1;
     const down = e.key === "ArrowDown" || (e.key === "Tab" && !e.shiftKey);
     const up = e.key === "ArrowUp" || (e.key === "Tab" && e.shiftKey);
     if (down || up) {
       e.preventDefault();
-      go(kb < 0 ? (down ? 0 : last) : Math.max(0, Math.min(last, kb + (down ? 1 : -1))));
-    } else if ((e.key === "Enter" || e.key === " ") && kb >= 0) {
+      if (runnable.length === 0) return;
+      const at = runnable.indexOf(kb);
+      const pos = at < 0 ? (down ? 0 : runnable.length - 1) : Math.max(0, Math.min(runnable.length - 1, at + (down ? 1 : -1)));
+      go(runnable[pos]);
+    } else if ((e.key === "Enter" || e.key === " ") && kb >= 0 && !rows[kb].disabled) {
       e.preventDefault();
       onAction(rows[kb].id);
     }
@@ -77,8 +83,8 @@ function ToolsMenu({ anchor, onClose, onAction }) {
           if (!item) return <MenuItem key={"sep" + k} separator />;
           const i = ++n;
           return (
-            <MenuItem key={item.id} label={item.label} active={i === kb} tabIndex={-1}
-              onClick={() => onAction(item.id)} onBlur={() => setKb((v) => (v === i ? -1 : v))}
+            <MenuItem key={item.id} label={item.label} active={i === kb} disabled={!!item.disabled} tabIndex={-1}
+              onClick={() => { if (!item.disabled) onAction(item.id); }} onBlur={() => setKb((v) => (v === i ? -1 : v))}
               data-row={i} className="tasty-toolsmenu-item" />
           );
         })}
