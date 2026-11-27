@@ -1109,7 +1109,7 @@ function ShellMock({ scope = "none", split = "v", child = false, narrow = false,
 function CollapsedPopupButton({ kind = "label", ring = false, focused = ring, scrim = true, label = "Show popup", onShow, onFocusChange }) {
   const live = !!onShow;
   const [hasFocus, setHasFocus] = React.useState(false);
-  const ringStyle = (live ? hasFocus : ring) ? { outline: "var(--tasty-focus-ring-width) solid var(--tasty-border-focus)", outlineOffset: "var(--tasty-border-width)" } : undefined;
+  const ringStyle = (live ? hasFocus : ring) ? { outline: "var(--tasty-focus-ring-width) solid var(--tasty-border-focus)", outlineOffset: "var(--tasty-focus-ring-offset)" } : undefined;
   const press = live ? {
     onFocus: () => { setHasFocus(true); if (onFocusChange) onFocusChange(true); },
     onBlur: () => { setHasFocus(false); if (onFocusChange) onFocusChange(false); },
@@ -1166,7 +1166,7 @@ function SearchBarFrame({ value = "tasty", focused = false, keyAt = "field", inv
         <span style={{ flex: 1, minWidth: 60, display: "flex" }}><Input block ground="raised" focused={focused && keyAt === "field"} invalid={invalid} defaultValue={value} /></span>
         <span style={{ flex: "none", width: 40, textAlign: "center", fontSize: 12, color: invalid ? "var(--tasty-accent-danger-raised)" : "var(--tasty-text-muted-raised)", fontVariantNumeric: "tabular-nums" }}>{invalid ? "0/0" : "2/3"}</span>
         <IconButton size="sm" aria-label="Previous"><Icon name="chevronUp" size={14} /></IconButton>
-        <IconButton size="sm" aria-label="Next" style={focused && keyAt === "button" ? { outline: "var(--tasty-focus-ring-width) solid var(--tasty-border-focus)", outlineOffset: "var(--tasty-border-width)" } : undefined}><Icon name="chevronDown" size={14} /></IconButton>
+        <IconButton size="sm" aria-label="Next" style={focused && keyAt === "button" ? { outline: "var(--tasty-focus-ring-width) solid var(--tasty-border-focus)", outlineOffset: "var(--tasty-focus-ring-offset)" } : undefined}><Icon name="chevronDown" size={14} /></IconButton>
         <Toggle label="Aa" /><Toggle label=".*" active={invalid} /><Toggle label="ab" active={!invalid} />
         {/* The divider sits on the raised bar, so it reads border-strong, the raised cell of the separator role. */}
         <span style={{ width: 1, alignSelf: "stretch", margin: "0 2px", background: "var(--tasty-border-strong)" }} />
@@ -1760,10 +1760,11 @@ function BannerShellG({ recessed, zIndex, children }) {
 }
 
 // a faux scope: tab strip on top (must stay clear) + content; banner floats at content top
-function BannerScope({ height = 240, tab = "vim", children }) {
+// bed: "unfocused" while a popup in the scope (the open ⋯ menu) holds key focus (RULES.md "Surface focus")
+function BannerScope({ height = 240, tab = "vim", bed = "focused", children }) {
   return (
     <div style={{ position: "relative", width: "100%", maxWidth: 600, height, borderRadius: "var(--tasty-radius)", overflow: "hidden",
-      border: "1px solid var(--tasty-border-default)", background: "var(--tasty-surface-terminal-focused-bg)" }}>
+      border: "1px solid var(--tasty-border-default)", background: `var(--tasty-surface-terminal-${bed}-bg)` }}>
       <div style={{ display: "flex", alignItems: "stretch", height: "var(--tasty-control-height)", background: "var(--tasty-bg-sidebar)", borderBottom: "1px solid var(--tasty-separator)" }}>
         {["server", "dev", tab].map((t, i) => (
           <div key={t} style={{ display: "flex", alignItems: "center", padding: "0 12px", fontSize: 13, borderRight: "1px solid var(--tasty-separator)",
@@ -1771,7 +1772,7 @@ function BannerScope({ height = 240, tab = "vim", children }) {
             boxShadow: i === 2 ? "inset 0 -2px 0 var(--tasty-accent-primary)" : "none" }}>{t}</div>
         ))}
       </div>
-      <div data-terminal-content="" style={{ padding: "12px 14px", fontFamily: "var(--tasty-font-mono)", fontSize: 12, lineHeight: 1.7, color: "var(--tasty-surface-terminal-focused-fg)" }}>
+      <div data-terminal-content="" style={{ padding: "12px 14px", fontFamily: "var(--tasty-font-mono)", fontSize: 12, lineHeight: 1.7, color: `var(--tasty-surface-terminal-${bed}-fg)` }}>
         <div><span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-ansi-green)" }}>~/tasty</span> $ vim src/main.rs</div>
         <div>-- VISUAL --   1,1   Top</div>
       </div>
@@ -1823,14 +1824,15 @@ const MORE_COPY_UNKNOWN = {
   ja: { reason: "実行中のプログラムを特定できないため、保存できません。", rows: ["このプログラムでは今後表示しない", "このプログラムではクリックを Tasty で処理"] },
   "zh-Hans": { reason: "无法识别正在运行的程序，因此无法保存。", rows: ["不再为此程序显示横幅", "让 Tasty 处理此程序中的点击"] },
 };
-// The open banner more menu is a surface-scoped popup that holds key focus, so its border shows focus:
-// popup-border-focused here (RULES.md "Popup focus"). banner-more-menu-border is no longer read for its shell.
-function BannerMoreMenuUnknownG({ lang = "en", style }) {
+// The open banner more menu is a surface-scoped popup that takes key focus, so its border shows focus:
+// popup-border-focused while it holds key focus, popup-border-unfocused once a press in another surface takes it
+// (RULES.md "Popup focus"). banner-more-menu-border is no longer read for its shell.
+function BannerMoreMenuUnknownG({ lang = "en", focused = true, style }) {
   const c = MORE_COPY_UNKNOWN[lang];
   return (
-    <div role="menu" aria-label="Banner options" {...popupFocusAttr(true)} style={{
+    <div role="menu" aria-label="Banner options" {...popupFocusAttr(focused)} style={{
       width: "var(--tasty-banner-more-menu-max-width)", boxSizing: "border-box",
-      background: "var(--tasty-banner-more-menu-bg)", border: `1px solid ${popupBorderColor(true)}`,
+      background: "var(--tasty-banner-more-menu-bg)", border: `1px solid ${popupBorderColor(focused)}`,
       borderRadius: "var(--tasty-banner-more-menu-radius)", padding: "var(--tasty-banner-more-menu-padding)",
       boxShadow: "var(--tasty-banner-more-menu-shadow)", ...style }}>
       <div role="note" style={{ display: "flex", alignItems: "flex-start", gap: "var(--tasty-space-sm)",
@@ -1845,17 +1847,17 @@ function BannerMoreMenuUnknownG({ lang = "en", style }) {
     </div>
   );
 }
-function BannerMoreMenuG({ app = "vim", hovered = -1, danger = false, lang = "en", texts = null, wrapRows = [], style }) {
-  if (!app) return <BannerMoreMenuUnknownG lang={lang} style={style} />;
+function BannerMoreMenuG({ app = "vim", hovered = -1, danger = false, lang = "en", texts = null, wrapRows = [], focused = true, style }) {
+  if (!app) return <BannerMoreMenuUnknownG lang={lang} focused={focused} style={style} />;
   const copy = texts || MORE_COPY[lang];
   const rows = [
     { icon: <Icon name="bell" />, danger: false },
     { icon: <Icon name="mouse" />, danger },
   ].map((r, i) => ({ ...r, text: copy[i][0], after: copy[i][1] }));
   return (
-    <div role="menu" aria-label="Banner options" {...popupFocusAttr(true)} style={{
+    <div role="menu" aria-label="Banner options" {...popupFocusAttr(focused)} style={{
       minWidth: "var(--tasty-banner-more-menu-min-width)", maxWidth: "var(--tasty-banner-more-menu-max-width)",
-      background: "var(--tasty-banner-more-menu-bg)", border: `1px solid ${popupBorderColor(true)}`,
+      background: "var(--tasty-banner-more-menu-bg)", border: `1px solid ${popupBorderColor(focused)}`,
       borderRadius: "var(--tasty-banner-more-menu-radius)", padding: "var(--tasty-banner-more-menu-padding)",
       boxShadow: "var(--tasty-banner-more-menu-shadow)", ...style }}>
       {rows.map((r, i) => (
@@ -1871,7 +1873,7 @@ function BannerMoreMenuG({ app = "vim", hovered = -1, danger = false, lang = "en
 // mouse. Content = title + shift-bypass hint; the two per-app opt-outs live
 // behind the ⋯ trigger, so the card body is never crowded by action buttons.
 // 2026-11-03 — ⋯ is ALWAYS drawn (also when app is null = name unknown → disabled menu form).
-function MouseCaptureBannerG({ glyph = true, body, lines, app = "vim", lang = "en", open = false, hovered = -1, danger = false, forceHover = false }) {
+function MouseCaptureBannerG({ glyph = true, body, lines, app = "vim", lang = "en", open = false, menuFocused = true, hovered = -1, danger = false, forceHover = false }) {
   const more = true;
   const [hover, setHover] = React.useState(false);
   const shown = hover || forceHover || open;
@@ -1897,7 +1899,7 @@ function MouseCaptureBannerG({ glyph = true, body, lines, app = "vim", lang = "e
               <IconButton size="sm" aria-label="More options" aria-expanded={open} active={open}><Icon name="more" /></IconButton>
               {open && (
                 <div style={{ position: "absolute", top: "100%", marginTop: "var(--tasty-banner-more-menu-offset)", right: 0, zIndex: 2 }}>
-                  <BannerMoreMenuG app={app} hovered={hovered} danger={danger} lang={lang} />
+                  <BannerMoreMenuG app={app} hovered={hovered} danger={danger} lang={lang} focused={menuFocused} />
                 </div>
               )}
             </span>
@@ -1910,23 +1912,38 @@ function MouseCaptureBannerG({ glyph = true, body, lines, app = "vim", lang = "e
 }
 
 // interactive: click ⋯ to open, outside-click / Esc to close, row click acts.
+// The open menu holds key focus, as the app gives it to this surface-scoped menu: it takes DOM focus from the
+// trigger (no ring on the trigger), the terminal under it paints unfocused, and ↑↓ set the keyboard-active row
+// (the specimen starts with none; RULES.md "Popup focus"). defaultOpen draws that state without moving the page's focus.
 function BannerMoreDemoG({ defaultOpen = false }) {
   const [open, setOpen] = React.useState(defaultOpen);
   const [log, setLog] = React.useState(null);
+  const [kb, setKb] = React.useState(-1);
   const wrap = React.useRef(null);
+  const menu = React.useRef(null);
+  const userOpened = React.useRef(false);
+  React.useEffect(() => {
+    if (open && userOpened.current && menu.current) menu.current.focus();
+    if (!open) setKb(-1);
+  }, [open]);
   React.useEffect(() => {
     if (!open) return undefined;
     const onDown = (e) => { if (wrap.current && !wrap.current.contains(e.target)) setOpen(false); };
-    const onKey = (e) => { if (e.key === "Escape") setOpen(false); };
+    const onKey = (e) => {
+      if (e.key === "Escape") { setOpen(false); return; }
+      if (e.key === "ArrowDown") { e.preventDefault(); setKb((i) => (i + 1) % 2); }
+      if (e.key === "ArrowUp") { e.preventDefault(); setKb((i) => (i <= 0 ? 1 : i - 1)); }
+      if (e.key === "Enter" && kb >= 0) { e.preventDefault(); act(kb === 0 ? "notice" : "capture"); }
+    };
     document.addEventListener("mousedown", onDown);
     document.addEventListener("keydown", onKey);
     return () => { document.removeEventListener("mousedown", onDown); document.removeEventListener("keydown", onKey); };
-  }, [open]);
-  const act = (which) => { setOpen(false); setLog(which); };
+  }, [open, kb]);
+  function act(which) { setOpen(false); setLog(which); }
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 8, width: "100%", maxWidth: 600 }}>
       <div ref={wrap}>
-        <BannerScope height={230}>
+        <BannerScope height={230} bed={open ? "unfocused" : "focused"}>
           {log !== "notice" ? (
             <BannerShellG>
               <div style={{ display: "flex", alignItems: "flex-start", gap: "var(--tasty-banner-gap)",
@@ -1942,17 +1959,17 @@ function BannerMoreDemoG({ defaultOpen = false }) {
                   display: "flex", alignItems: "center", gap: "var(--tasty-banner-more-column-gap)" }}>
                   <span style={{ position: "relative", display: "inline-flex" }}>
                     <IconButton size="sm" aria-label="More options" aria-expanded={open} active={open}
-                      onClick={() => setOpen((o) => !o)}><Icon name="more" /></IconButton>
+                      onClick={() => { userOpened.current = true; setOpen((o) => !o); }}><Icon name="more" /></IconButton>
                     {open && (
                       <div style={{ position: "absolute", top: "100%", marginTop: "var(--tasty-banner-more-menu-offset)", right: 0, zIndex: 2 }}>
-                        <div role="menu" aria-label="Banner options" {...popupFocusAttr(true)} style={{
+                        <div ref={menu} tabIndex={-1} role="menu" aria-label="Banner options" {...popupFocusAttr(true)} style={{ outline: "none",
                           minWidth: "var(--tasty-banner-more-menu-min-width)", maxWidth: "var(--tasty-banner-more-menu-max-width)",
                           background: "var(--tasty-banner-more-menu-bg)", border: `1px solid ${popupBorderColor(true)}`,
                           borderRadius: "var(--tasty-banner-more-menu-radius)", padding: "var(--tasty-banner-more-menu-padding)",
                           boxShadow: "var(--tasty-banner-more-menu-shadow)" }}>
-                          <MenuItem icon={<Icon name="bell" />} onClick={() => act("notice")}
+                          <MenuItem icon={<Icon name="bell" />} active={kb === 0} onClick={() => act("notice")}
                             label={<MoreLabel text="Don't show again for " app="vim" />} />
-                          <MenuItem icon={<Icon name="mouse" />} onClick={() => act("capture")}
+                          <MenuItem icon={<Icon name="mouse" />} active={kb === 1} onClick={() => act("capture")}
                             label={<MoreLabel text="Let Tasty handle clicks in " app="vim" />} />
                         </div>
                       </div>

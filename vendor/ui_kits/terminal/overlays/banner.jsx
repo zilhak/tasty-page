@@ -87,15 +87,27 @@ function MoreLabel({ text, app, after }) {
 
 function BannerMore({ app, open, setOpen, onAction }) {
   const wrap = React.useRef(null);
+  const menu = React.useRef(null);
+  // keyboard-active row: the kit starts with none, then ↑↓ move over the enabled rows (none when the name is unknown)
+  const [kb, setKb] = React.useState(-1);
+  const rowCount = app ? 2 : 0;
+  // The open menu takes key focus from the trigger, as the app gives it to this surface-scoped menu (RULES.md "Popup focus")
+  React.useEffect(() => { if (open && menu.current) menu.current.focus(); if (!open) setKb(-1); }, [open]);
   React.useEffect(() => {
     if (!open) return undefined;
     const onDown = (e) => { if (wrap.current && !wrap.current.contains(e.target)) setOpen(false); };
-    const onKey = (e) => { if (e.key === "Escape") setOpen(false); };
+    const onKey = (e) => {
+      if (e.key === "Escape") { setOpen(false); return; }
+      if (!rowCount) return;
+      if (e.key === "ArrowDown") { e.preventDefault(); setKb((i) => (i + 1) % rowCount); }
+      if (e.key === "ArrowUp") { e.preventDefault(); setKb((i) => (i <= 0 ? rowCount - 1 : i - 1)); }
+      if (e.key === "Enter" && kb >= 0) { e.preventDefault(); act(kb === 0 ? "notice" : "capture"); }
+    };
     document.addEventListener("mousedown", onDown);
     document.addEventListener("keydown", onKey);
     return () => { document.removeEventListener("mousedown", onDown); document.removeEventListener("keydown", onKey); };
-  }, [open]);
-  const act = (which) => { setOpen(false); onAction && onAction(which); };
+  }, [open, kb, rowCount]);
+  function act(which) { setOpen(false); onAction && onAction(which); }
   // 2026-11-03 — name unknown (remote mirror, before first poll, lookup failed): the actions exist but can't run.
   // Same two rows, disabled (no hover, no click, menu stays open, nothing saved, keyboard skips them),
   // worded without a name, under a non-interactive reason line. Not updated live if the name arrives while open.
@@ -107,7 +119,7 @@ function BannerMore({ app, open, setOpen, onAction }) {
         onClick={() => setOpen(!open)}>{bic.more}</IconButton>
       {open && (
         // The open menu holds key focus (surface scope), so its border shows focus (RULES.md "Popup focus").
-        <div role="menu" aria-label="Banner options" {...popupFocusAttr(true)} style={{ position: "absolute",
+        <div ref={menu} tabIndex={-1} role="menu" aria-label="Banner options" {...popupFocusAttr(true)} style={{ position: "absolute", outline: "none",
           top: "calc(100% + var(--tasty-banner-more-menu-offset))", right: 0, zIndex: 3,
           minWidth: "var(--tasty-banner-more-menu-min-width)", maxWidth: "var(--tasty-banner-more-menu-max-width)",
           width: known ? "max-content" : "var(--tasty-banner-more-menu-max-width)", boxSizing: "border-box",
@@ -116,9 +128,9 @@ function BannerMore({ app, open, setOpen, onAction }) {
           borderRadius: "var(--tasty-banner-more-menu-radius)", padding: "var(--tasty-banner-more-menu-padding)",
           boxShadow: "var(--tasty-banner-more-menu-shadow)" }}>
           {known ? (<>
-            <MenuItem icon={bic.bell} onClick={() => act("notice")}
+            <MenuItem icon={bic.bell} active={kb === 0} onClick={() => act("notice")}
               label={<MoreLabel text="Don't show again for " app={app} />} />
-            <MenuItem icon={<Icon name="mouse" />} onClick={() => act("capture")}
+            <MenuItem icon={<Icon name="mouse" />} active={kb === 1} onClick={() => act("capture")}
               label={<MoreLabel text="Let Tasty handle clicks in " app={app} />} />
           </>) : (<>
             <div role="note" style={{ display: "flex", alignItems: "flex-start", gap: "var(--tasty-space-sm)",
@@ -137,11 +149,14 @@ function BannerMore({ app, open, setOpen, onAction }) {
   );
 }
 
-function Banner({ data, recessed, zIndex, backgrounded, onClose }) {
+function Banner({ data, recessed, zIndex, backgrounded, onClose, onMenuOpen }) {
   const { glyph, glyphColor, title, body, actions, ttl, app } = data;
   const more = !!data.more; // 2026-11-03 — drawn whether or not the program name is known (unknown → disabled menu form)
   const [hover, setHover] = React.useState(false);
   const [menuOpen, setMenuOpen] = React.useState(false);
+  // the host paints the surface under the open menu unfocused, as key focus is in the menu
+  React.useEffect(() => { onMenuOpen && onMenuOpen(menuOpen); }, [menuOpen]);
+  React.useEffect(() => () => { onMenuOpen && onMenuOpen(false); }, []);
   const onAction = (which) => { if (which === "notice") onClose && onClose(); };
   return (
     <BannerShell recessed={recessed} zIndex={zIndex}>
@@ -212,6 +227,8 @@ function BannerHost() {
   const SAMPLES = React.useMemo(makeSamples, []);
   const [stack, setStack] = React.useState(() => [SAMPLES.mouse]); // [0] = shown
   const [bg, setBg] = React.useState(false);                 // scope backgrounded → TTL pauses
+  const [menuOpen, setMenuOpen] = React.useState(false);     // an open ⋯ menu holds key focus → the terminal paints unfocused
+  const bed = menuOpen ? "unfocused" : "focused";
 
   const spawn = (key) => setStack((s) => {
     const sample = { ...SAMPLES[key] };
@@ -249,7 +266,7 @@ function BannerHost() {
 
       {/* faux scope: tab bar (must stay clear) + terminal content + the banner zone */}
       <div style={{ position: "relative", width: "100%", height: 320, borderRadius: "var(--tasty-radius)", overflow: "hidden",
-        border: "var(--tasty-border-width) solid var(--tasty-border-default)", background: "var(--tasty-surface-terminal-focused-bg)",
+        border: "var(--tasty-border-width) solid var(--tasty-border-default)", background: `var(--tasty-surface-terminal-${bed}-bg)`,
         opacity: bg ? 0.55 : 1, transition: "opacity var(--tasty-banner-fade) var(--tasty-ease-ui)" }}>
         <div style={{ display: "flex", alignItems: "stretch", height: 28, flex: "none",
           background: "var(--tasty-bg-sidebar)", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" }}>
@@ -262,14 +279,14 @@ function BannerHost() {
           ))}
         </div>
         <div data-terminal-content="" style={{ padding: "var(--tasty-space-md) var(--tasty-size-14)", fontFamily: "var(--tasty-font-mono)",
-          fontSize: "var(--tasty-font-size-term-sm)", lineHeight: 1.6, color: "var(--tasty-surface-terminal-focused-fg)", opacity: 0.4 }}>
+          fontSize: "var(--tasty-font-size-term-sm)", lineHeight: 1.6, color: `var(--tasty-surface-terminal-${bed}-fg)`, opacity: 0.4 }}>
           <div><span data-audit-exempt="ansi-content" style={{ color: "var(--tasty-ansi-green)" }}>~/tasty</span> $ vim src/main.rs</div>
           <div>-- VISUAL --   1,1   Top</div>
         </div>
         {/* banner zone — 8px below the tab bar, 8px side margins, no bottom margin */}
         <div style={{ position: "absolute", top: "calc(28px + var(--tasty-banner-margin))",
           left: "var(--tasty-banner-margin)", right: "var(--tasty-banner-margin)" }}>
-          {shown && <Banner key={shown.id + (shown._k || "")} data={shown} backgrounded={bg} onClose={close} />}
+          {shown && <Banner key={shown.id + (shown._k || "")} data={shown} backgrounded={bg} onClose={close} onMenuOpen={setMenuOpen} />}
           {!shown && (
             <div style={{ textAlign: "center", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)", paddingTop: "var(--tasty-space-md)" }}>
               No banner — spawn one above.
