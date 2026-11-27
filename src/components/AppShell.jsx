@@ -415,7 +415,7 @@ export function AppShell({ heading = "Workspaces", task = "run tests", doc }) {
 
       <OverlayLayer open={anyOverlay || toast !== null} lock={anyOverlay} trap={overlay !== null}
         windowKey={overlay} restoreTo={restoreTo} scale={scale}>
-        {toolsAnchor && <ToolsMenu anchor={toolsAnchor} bounds={toolsRoom()} hostRuns={TOOLS_RUNS} onClose={() => setToolsAnchor(null)} onAction={runTool} />}
+        {toolsAnchor && <ToolsMenu anchor={toolsAnchor} bounds={toolsRoom} hostRuns={TOOLS_RUNS} onClose={() => setToolsAnchor(null)} onAction={runTool} />}
         {overlay === "palette" && <CommandPalette onClose={() => setOverlay(null)} onRun={runCmd} />}
         {overlay === "settings" && <SettingsWindow theme={theme} onTheme={setTheme}
           uiScale={uiScale} onUiScale={setUiScale} onClose={() => setOverlay(null)}
