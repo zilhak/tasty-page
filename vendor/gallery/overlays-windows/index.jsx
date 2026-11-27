@@ -752,7 +752,7 @@ function Page() {
               right edge and the left group is cut at its end. It opens on the scanned table (scanMs 0), so the frame
               does not change after the scan. */}
           <Views>
-            <View name="ports-narrow-window" label="Listening ports — the header in a narrow window (icon, title and count clipped at the end)">
+            <View name="ports-narrow-window" wide label="Listening ports — the header in a narrow window (icon, title and count clipped at the end)">
               <div inert="" style={{ overflow: "hidden", width: "var(--tasty-narrow-window-specimen-width)", height: "var(--tasty-size-120)", pointerEvents: "none" }}>
                 <div style={{ position: "relative", height: "var(--tasty-ports-window-height)" }}>
                   <Kit_PortsWindow scanMs={0} onClose={() => {}} />
