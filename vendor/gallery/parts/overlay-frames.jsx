@@ -563,7 +563,8 @@ function DownloadRunLargeFrame({ name = "build-artifacts.tar.gz", size = "3.2 Mi
   );
 }
 
-// ── Tools menu — 160px, anchored above the sidebar Tools button, no scrim ──
+// ── Tools menu — as wide as its longest row (160 to 240), on the top edge of the sidebar Tools button, no scrim ──
+// The menu's bottom sits on the button's top edge (gap 0) and its left on the button's left edge, as the kit places it.
 // builtin / active (2026-11-10): the graph page reuses this frame for the child graph entry.
 const TOOLS_MENU_BUILTIN = ["Command palette…", "Listening ports…", "Remote connections…", "Presets", "Tutorial…", "Task DAGs", "Open child graph", "Open File…"];
 function ToolsMenuFrame({ builtin = TOOLS_MENU_BUILTIN, active, height = 400 }) {
@@ -573,11 +574,11 @@ function ToolsMenuFrame({ builtin = TOOLS_MENU_BUILTIN, active, height = 400 }) 
       border: "1px solid var(--tasty-border-default)", background: "var(--tasty-bg-app)" }}>
       {/* faux sidebar with a Tools button at the bottom */}
       <div style={{ position: "absolute", top: 0, bottom: 0, left: 0, width: 150, background: "var(--tasty-bg-sidebar)",
-        borderRight: "1px solid var(--tasty-separator)", display: "flex", flexDirection: "column", justifyContent: "flex-end", padding: 8 }}>
+        borderRight: "1px solid var(--tasty-separator)", display: "flex", flexDirection: "column", justifyContent: "flex-end", padding: "var(--tasty-space-sm)" }}>
         <Button variant="ghost" size="sm" block ground="active" leadingIcon={ic.tools} style={{ justifyContent: "flex-start", background: "var(--tasty-surface-active)" }}>Tools</Button>
       </div>
       {/* the menu, anchored above the button */}
-      <div role="menu" aria-label="Tools" style={{ position: "absolute", left: 12, bottom: 52, width: "max-content", minWidth: "var(--tasty-tools-menu-min-width)", maxWidth: "var(--tasty-tools-menu-max-width)", boxSizing: "border-box", whiteSpace: "nowrap",
+      <div role="menu" aria-label="Tools" style={{ position: "absolute", left: "var(--tasty-space-sm)", bottom: "calc(var(--tasty-space-sm) + var(--tasty-button-height-sm))", width: "max-content", minWidth: "var(--tasty-tools-menu-min-width)", maxWidth: "var(--tasty-tools-menu-max-width)", boxSizing: "border-box", whiteSpace: "nowrap",
         background: "var(--tasty-menu-bg)", border: "var(--tasty-border-width) solid var(--tasty-menu-border)",
         borderRadius: "var(--tasty-menu-radius)", padding: "var(--tasty-popup-content-margin)", boxShadow: "var(--tasty-shadow-popover)" }}>
         {builtin.map((l) => <MenuItem key={l} label={l} active={l === active} />)}
