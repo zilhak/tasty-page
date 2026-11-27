@@ -93,8 +93,8 @@ function MoreLabel({ text, app, after }) {
 // Dismiss or the menu box leaves no row active. ↑↓ move focus over the enabled rows and ↵ runs the focused row.
 // Disabled rows take no focus. The trigger and Dismiss draw their own rings. Esc closes the menu wherever widget
 // focus is in the banner card, and Esc or a row run gives focus back to the trigger while the banner is still there.
-// A press outside the menu box closes it, the trigger included: the click that press ends in does not reopen it,
-// and a press that ends without a click leaves the next activation alone. The focus a press gives stays. Focus that
+// A press outside the menu box closes it, the trigger included: the pointer click that press ends in does not reopen
+// it, and any other activation of the trigger toggles at once. The focus a press gives stays. Focus that
 // leaves the banner card closes it too, with or without a target. An inactive OS window changes nothing while it is
 // inactive; when the window comes back without focus in the card, the menu closes.
 // The card is the nearest [data-banner-card] around the trigger. Hosts spread rowProps(i) on each enabled row.
@@ -137,13 +137,20 @@ function useBannerMoreMenu({ open, setOpen, rowCount, onRun }) {
   }, [open]);
   const run = (i) => { close(onRun(i) !== false); };
   const triggerProps = {
-    // remember whether this press found the menu open; forget it once the press's own click has run
-    onMouseDown: () => {
+    // A press on the trigger that finds the menu open closes it (outside the menu box). Only the pointer click that
+    // press ends in is held back: the flag is dropped at once when the press is released off the trigger, and a click
+    // with no press behind it (detail 0: keyboard, click()) always toggles.
+    onMouseDown: (e) => {
+      const btn = e.currentTarget;
       pressOpen.current = open;
-      const done = () => { document.removeEventListener("mouseup", done, true); setTimeout(() => { pressOpen.current = false; }, 0); };
+      const done = (u) => { document.removeEventListener("mouseup", done, true); if (!btn.contains(u.target)) pressOpen.current = false; };
       document.addEventListener("mouseup", done, true);
     },
-    onClick: () => { if (pressOpen.current) { pressOpen.current = false; return; } setOpen(!open); },
+    onClick: (e) => {
+      const held = pressOpen.current && e.detail > 0;
+      pressOpen.current = false;
+      if (!held) setOpen(!open);
+    },
   };
   const menuProps = {
     ref: menu, tabIndex: -1,
