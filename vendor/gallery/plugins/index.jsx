@@ -593,10 +593,11 @@ function HtmlSettings() {
   );
 }
 
-function ImgBtn({ glyph, label, disabled }) {
+// keyRepeat: a stepper (Previous, Next, Zoom in) keeps stepping while Enter is held on it (fresh-press.js).
+function ImgBtn({ glyph, label, disabled, keyRepeat = false }) {
   return (
     <span style={{ display: "inline-flex" }}>
-      <IconButton size="sm" aria-label={label} disabled={disabled}>{glyph}</IconButton>
+      <IconButton size="sm" aria-label={label} disabled={disabled} keyRepeat={keyRepeat}>{glyph}</IconButton>
     </span>
   );
 }
@@ -604,9 +605,9 @@ function ZoomGroup({ pct = "100%" }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 2, flex: "none" }}>
       <Button variant="secondary" size="sm">Fit</Button>
-      <ImgBtn glyph={ic.plus} label="Zoom in" />
+      <ImgBtn glyph={ic.plus} label="Zoom in" keyRepeat />
       <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-image-zoom-font-size)", color: "var(--tasty-text-muted)", minWidth: "var(--tasty-image-zoom-min-width)", textAlign: "center" }}>{pct}</span>
-      <IconButton size="sm" aria-label="Zoom out"><GIcon d={<path d="M5 12h14" />} /></IconButton>
+      <IconButton size="sm" aria-label="Zoom out" keyRepeat><GIcon d={<path d="M5 12h14" />} /></IconButton>
     </div>
   );
 }
@@ -659,7 +660,7 @@ function ImgSurface({ mode, panned, floating, focused = true }) {
       background: "var(--tasty-bg-panel)", border: "1px solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "hidden" }}>
       {mode === "viewer" ? (
         <ImgBar>
-          <div style={{ display: "flex", gap: 1 }}><ImgBtn glyph={ic.back} label="Previous" /><ImgBtn glyph={ic.fwd} label="Next" /><ImgBtn glyph={ic.refresh} label="Refresh" /><ImgBtn glyph={ic.rename} label="Edit" /><ImgBtn glyph={ic.plus} label="New image" /></div>
+          <div style={{ display: "flex", gap: 1 }}><ImgBtn glyph={ic.back} label="Previous" keyRepeat /><ImgBtn glyph={ic.fwd} label="Next" keyRepeat /><ImgBtn glyph={ic.refresh} label="Refresh" /><ImgBtn glyph={ic.rename} label="Edit" /><ImgBtn glyph={ic.plus} label="New image" /></div>
           <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: "var(--tasty-text-muted)" }}>diagram.png (2/5)</span>
           <span style={{ flex: 1 }} />
           <ZoomGroup pct={panned ? "250%" : "100%"} />

@@ -9,21 +9,31 @@ import React from "react";
  *
  * Button and IconButton use it. A plain <button> that opens a popup or a window spreads its result:
  * `const press = useFreshPress({ onClick }); <button {...press}>`. Pass the handlers the button had; the result calls them.
+ *
+ * keyRepeat: a stepper (search Previous and Next, image Previous and Next, Zoom in and out) keeps the focus and steps
+ * once per click, so holding Enter on it should keep stepping. With keyRepeat the repeats of an Enter press that began
+ * on the button click again, through the browser's own click, one per repeat. An Enter that began elsewhere still does
+ * nothing until a new press, and Space still clicks once on release.
  */
-export function useFreshPress({ onKeyDown, onKeyUp, onClick, onBlur } = {}) {
+export function useFreshPress({ onKeyDown, onKeyUp, onClick, onBlur } = {}, { keyRepeat = false } = {}) {
   // A Space press began on this control and is not released yet.
   const space = React.useRef(false);
+  // An Enter press began on this control and is not released yet.
+  const enter = React.useRef(false);
   // The Space release just seen began elsewhere: drop the click the browser makes from it.
   const drop = React.useRef(false);
   return {
     onKeyDown(e) {
       if (e.key === "Enter" || e.key === " ") {
-        if (e.repeat) e.preventDefault();
-        else if (e.key === " ") space.current = true;
+        if (e.repeat) {
+          if (!(keyRepeat && e.key === "Enter" && enter.current)) e.preventDefault();
+        } else if (e.key === " ") space.current = true;
+        else enter.current = true;
       }
       if (onKeyDown) onKeyDown(e);
     },
     onKeyUp(e) {
+      if (e.key === "Enter") enter.current = false;
       if (e.key === " ") {
         if (!space.current) {
           e.preventDefault();
@@ -44,6 +54,7 @@ export function useFreshPress({ onKeyDown, onKeyUp, onClick, onBlur } = {}) {
     },
     onBlur(e) {
       space.current = false;
+      enter.current = false;
       if (onBlur) onBlur(e);
     },
   };

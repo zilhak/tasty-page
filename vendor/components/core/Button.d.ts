@@ -18,6 +18,10 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
    *  --tasty-button-ghost-raised-fg so it keeps 4.5:1 in Latte. Other variants are unchanged.
    *  2026-11-05 — "active" (a selected row's surface-active fill) reads text-on-active the same way. */
   ground?: "panel" | "raised" | "active";
+  /** Enter and Space click only on a new press that began on the button; repeats of a held key do nothing.
+   *  keyRepeat: a stepper (Previous and Next, Zoom in and out) lets the repeats of an Enter press that began on it click
+   *  again, one per repeat. Space still clicks once on release. */
+  keyRepeat?: boolean;
   children?: React.ReactNode;
 }
 

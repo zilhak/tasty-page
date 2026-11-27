@@ -52,12 +52,13 @@ export function IconButton({
   active = false,
   ground = "panel",
   className = "",
+  keyRepeat = false,
   children,
   ...rest
 }) {
   ensureCss();
   // Enter and Space click only on a new press that began here (fresh-press.js).
-  const press = useFreshPress(rest);
+  const press = useFreshPress(rest, { keyRepeat });
   const cls = [
     "tasty-iconbtn",
     size === "sm" ? "tasty-iconbtn--sm" : "",

@@ -41,6 +41,8 @@ function SearchBar({ lines = [], onClose }) {
 
   React.useEffect(() => { setCur(0); }, [q, matchCase, regex, wholeWord]);
 
+  // Previous and Next keep the focus and step once per click, so they take keyRepeat: holding Enter on one keeps
+  // stepping, as holding Enter in the field does (fresh-press.js).
   const next = () => { if (count) setCur((c) => (c + 1) % count); };
   const prev = () => { if (count) setCur((c) => (c - 1 + count) % count); };
   const onKey = (e) => {
@@ -77,11 +79,11 @@ function SearchBar({ lines = [], onClose }) {
       </span>
       <span style={{ flex: "none", width: 40, textAlign: "center", fontSize: 12,
         color: counterColor, whiteSpace: "nowrap", fontVariantNumeric: "tabular-nums" }}>{counterText}</span>
-      <IconButton size="sm" aria-label="Previous match" title="Previous match (Shift+Enter)"
+      <IconButton size="sm" keyRepeat aria-label="Previous match" title="Previous match (Shift+Enter)"
         disabled={count === 0} onClick={prev}>
         <Icon name="chevronUp" size={14} />
       </IconButton>
-      <IconButton size="sm" aria-label="Next match" title="Next match (Enter)"
+      <IconButton size="sm" keyRepeat aria-label="Next match" title="Next match (Enter)"
         disabled={count === 0} onClick={next}>
         <Icon name="chevronDown" size={14} />
       </IconButton>

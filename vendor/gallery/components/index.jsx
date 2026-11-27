@@ -327,7 +327,7 @@ function Components() {
             </Cluster>
           </Stage>
           <Meta
-            specs={[["height", "28 / 24 / 32px"], ["padding", <>0 <span className="tok">--tasty-space-md</span></>], ["radius", <>4px <span className="tok">--tasty-radius</span></>], ["hover / active", "8% / 12% overlay"], ["focus", "2px accent ring"], ["keys", "Enter clicks on press, Space on release, only for a new press that began on the button · repeats of a held key do nothing · a Space released here after a press that began elsewhere does nothing · so a held key never reopens a menu or window from the button the focus returns to · pointer unchanged"]]}
+            specs={[["height", "28 / 24 / 32px"], ["padding", <>0 <span className="tok">--tasty-space-md</span></>], ["radius", <>4px <span className="tok">--tasty-radius</span></>], ["hover / active", "8% / 12% overlay"], ["focus", "2px accent ring"], ["keys", "Enter clicks on press, Space on release, only for a new press that began on the button · repeats of a held key do nothing · a Space released here after a press that began elsewhere does nothing · so a held key never reopens a menu or window from the button the focus returns to · pointer unchanged"], ["keyRepeat", "steppers only (search Previous and Next, image Previous and Next, Zoom in and out) · repeats of an Enter press that began on the button click again, one per repeat · Space still once on release · an Enter from elsewhere still does nothing"]]}
             tokens={[
               { tok: "--tasty-accent-primary", use: "primary fill", color: "var(--tasty-accent-primary-raised)" },
               { tok: "--tasty-accent-danger", use: "danger fill", color: "var(--tasty-accent-danger-raised)" },
@@ -375,7 +375,7 @@ function Components() {
             </Cluster>
           </Stage>
           <Meta
-            specs={[["size", "28px (sm 24)"], ["shape", "square, 4px radius"], ["active", <span className="tok">--tasty-accent-primary</span>], ["keys", "as Button · only a new press that began on the button clicks"]]}
+            specs={[["size", "28px (sm 24)"], ["shape", "square, 4px radius"], ["active", <span className="tok">--tasty-accent-primary</span>], ["keys", "as Button · only a new press that began on the button clicks · keyRepeat as Button"]]}
             tokens={[{ tok: "--tasty-overlay-hover", use: "hover tint" }, { tok: "--tasty-accent-primary", use: "active", color: "var(--tasty-accent-primary-raised)" }, { tok: "--tasty-text-muted", use: "rest icon", color: "var(--tasty-text-muted)" }]} />
         </Spec>
       </Section>
