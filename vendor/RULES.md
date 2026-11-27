@@ -1552,13 +1552,13 @@ Sits on: `raised`
 | label.danger | `menu-item-part-fg-active` | keyboard-active | `active` | 4.62 · 5.40 |
 | icon.danger | `menu-item-part-fg-active` | keyboard-active | `active` | 4.62 · 5.40 |
 | label.chosen | `menu-item-fg-hover` | keyboard-active | `active` | 4.62 · 5.40 |
-| fill, fill.danger, fill.chosen | `surface-active` | keyboard-active | `raised` | no target |
+| fill, fill.danger, fill.chosen | `surface-active` (state ground `active`, no role) | keyboard-active | `raised` | no grade, token only |
 | label | `text-disabled` | disabled | `raised` | no target |
 | icon | `text-disabled` | disabled | `raised` | no target |
 | shortcut | `text-disabled` | disabled | `raised` | no target |
 | check | `text-disabled` | disabled | `raised` | no target |
 
-The `fill`, `fill.danger` and `fill.chosen` checks expect `surface-active` on the keyboard-active plain row, danger row and selected option, respectively, and have no contrast target, so replacing that fill with the hover tint fails as a wrong fill. A keyboard-active danger row uses the row ink `menu-item-part-fg-active` for its label and icon because no danger hue reaches 4.5:1 on `surface-active`.
+The roleless state-ground checks `fill`, `fill.danger` and `fill.chosen` match only the `surface-active` token for the `active` state ground (section 3, State grounds) on the keyboard-active plain row, danger row and selected option, respectively, so substituting the hover tint fails as a wrong fill. Section 5's grade 3 applies to a non-text mark that carries a state on its ground, and these fills serve as the ground for grading the row's inks without adding to the inks that may go without a grade. The rows claim no grade against `raised`, against which the fill measures 1.88 in Mocha and 1.40 in Latte. A keyboard-active danger row uses the row ink `menu-item-part-fg-active` for its label and icon because no danger hue reaches 4.5:1 on `surface-active`.
 
 ### AutoComplete row
 
