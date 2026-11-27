@@ -1,5 +1,5 @@
 import React from "react";
-import { Icon, StatusDot } from "../../components/index.js";
+import { Icon, StatusDot, tabLook, TabMark } from "../../components/index.js";
 import { WorkspaceRunningCount } from "../../ui_kits/terminal/chrome.jsx";
 import { Spec, Stage, Meta, Note, Dont } from "../parts/specimen.jsx";
 
@@ -28,14 +28,15 @@ const MoveGlyph = () => (
 );
 const cap = (t) => <div style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 10, color: "var(--tasty-text-muted)", marginBottom: 6 }}>{t}</div>;
 
+// Every strip here is an unfocused pane's (bg-sidebar), so the cell keeps the mantle ground; the fill, ink and active
+// mark come from the Tab's tabLook.
 function TabCell({ label, active, hover, ring, cue }) {
-  const fg = active ? "var(--tasty-tab-fg-active)" : hover ? "var(--tasty-tab-fg-hover)" : "var(--tasty-tab-fg)";
+  const look = tabLook({ active, hover });
   return (
     <div style={{ position: "relative", width: "var(--tasty-tab-width)", height: "var(--tasty-tab-height)", flex: "none", display: "flex",
-      alignItems: "center", gap: "var(--tasty-tab-gap)", padding: "0 var(--tasty-tab-padding-x)", color: fg,
-      background: active ? "var(--tasty-tab-bg-active)" : hover ? "var(--tasty-surface-hover)" : "var(--tasty-tab-bg)",
+      alignItems: "center", gap: "var(--tasty-tab-gap)", padding: "0 var(--tasty-tab-padding-x)", color: look.ink, background: look.fill,
       borderRight: "var(--tasty-border-width) solid var(--tasty-tab-separator)" }}>
-      {active && <span style={{ position: "absolute", top: 0, left: 0, right: 0, height: "var(--tasty-tab-indicator-width)", background: "var(--tasty-tab-indicator)" }} />}
+      <TabMark mark={look.mark} />
       <Icon name="terminal" size="var(--tasty-tab-icon-size)" />
       <span style={{ flex: 1, minWidth: 0, fontSize: 12, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{label}</span>
       {cue && <MoveGlyph />}
@@ -162,7 +163,7 @@ function GalleryMoveSource() {
       </Spec>
 
       <Spec id="tab-cell-ring-over-every-tab-state" title="Tab cell — ring over every tab state"
-        when={<>The tab ring sits on top of the cell whatever its state. On the <b>active</b> tab the top edge crosses the 2px active indicator: pink dashes cover it, the blue shows through the gaps, so "active" stays readable from the panel fill and title color.</>}>
+        when={<>The tab ring sits on top of the cell whatever its state. The <b>active</b> tab keeps the mantle strip fill and uses the active title colour. Pink dashes cross the 2px top bar in <code>tab-indicator</code>, and the blue shows through the gaps. A hovered inactive tab uses <code>tab-bg-hover</code>.</>}>
         {stage(
           <div style={{ display: "grid", gridTemplateColumns: "80px auto auto", gap: 8, alignItems: "center" }}>
             <span />{cap("rest")}{cap("move source")}

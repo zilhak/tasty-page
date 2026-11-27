@@ -1,7 +1,7 @@
 import React from "react";
 import { PageStates, AnnoTag, Views, View } from "../parts/specimen.jsx";
 import { STATES } from "./states.jsx";
-import { Kbd, Icon, IconButton, Button, Tab, TreeRow, StatusDot, Tag, Badge, BadgeGroup, Input, Switch, ListCtrl, DrillDown } from "../../components/index.js";
+import { Kbd, Icon, IconButton, Button, Tab, tabLook, TabMark, TreeRow, StatusDot, Tag, Badge, BadgeGroup, Input, Switch, ListCtrl, DrillDown } from "../../components/index.js";
 import { GalleryLoadingPrelayout } from "./loading-prelayout.jsx";
 import { GalleryLoadingOverlay } from "./loading-overlay.jsx";
 import { GalleryMoveSource } from "./move-source.jsx";
@@ -507,16 +507,17 @@ function AttentionRail() {
   );
 }
 
+// The ladder's strip is an unfocused pane's (bg-sidebar): the cell keeps mantle, and its fill, title ink and active mark
+// come from the Tab's tabLook.
 function AttTab({ label, kind, active }) {
-  const fg = kind === "needs-input" ? "var(--tasty-tab-fg-needs-input)"
-    : kind === "completion" ? "var(--tasty-tab-fg-completion)"
-    : active ? "var(--tasty-tab-fg-active)" : "var(--tasty-tab-fg)";
+  const look = tabLook({ active, attention: kind });
+  const fg = look.ink;
   return (
     <div style={{ position: "relative", width: "var(--tasty-tab-width)", height: "var(--tasty-tab-height)", flex: "none",
       display: "flex", alignItems: "center", gap: 6, padding: "0 var(--tasty-space-sm)",
-      background: active ? "var(--tasty-tab-bg-active)" : "var(--tasty-tab-bg)",
+      background: look.fill,
       borderRight: "1px solid var(--tasty-tab-separator)" }}>
-      {active && <span style={{ position: "absolute", top: 0, left: 0, right: 0, height: "var(--tasty-tab-indicator-width)", background: "var(--tasty-tab-indicator)" }} />}
+      <TabMark mark={look.mark} />
       <span style={{ display: "inline-flex", width: 13, height: 13, color: fg }}>{ic.term}</span>
       <span style={{ flex: 1, minWidth: 0, fontSize: 12, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: fg }}>{label}</span>
       <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" }}>

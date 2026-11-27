@@ -36,7 +36,7 @@ function Pane({ pane, rm, first }) {
   return (
     <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", borderLeft: first ? "none" : "var(--tasty-border-width) solid var(--tasty-separator)" }}>
       <div style={{ display: "flex", background: "var(--tasty-surface-raised)", borderBottom: "var(--tasty-border-width) solid var(--tasty-border-strong)", overflow: "hidden", flex: "none" }}>
-        {pane.tabs.map((t, i) => <LTab key={i} label={t.label} kind={t.kind || "terminal"} active={t.active} loading={t.loading} rm={rm} width={t.w || "var(--tasty-size-120)"} />)}
+        {pane.tabs.map((t, i) => <LTab key={i} label={t.label} kind={t.kind || "terminal"} active={t.active} loading={t.loading} rm={rm} ground="raised" width={t.w || "var(--tasty-size-120)"} />)}
       </div>
       <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: pane.dir === "column" ? "column" : "row", gap: "var(--tasty-border-width)", background: "var(--tasty-separator)" }}>
         {pane.surfaces.map((s, i) => <Surf key={i} s={s} rm={rm} />)}

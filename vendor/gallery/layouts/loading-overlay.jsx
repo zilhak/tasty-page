@@ -1,5 +1,5 @@
 import React from "react";
-import { Icon, StatusDot, Badge, Tag, LoadingOverlay as TastyDesignSystem_41fd3f_LoadingOverlay } from "../../components/index.js";
+import { Icon, StatusDot, Badge, Tag, LoadingOverlay as TastyDesignSystem_41fd3f_LoadingOverlay, tabLook, TabMark } from "../../components/index.js";
 import { WorkspaceRunningCount } from "../../ui_kits/terminal/chrome.jsx";
 import { Spec, Stage, Meta, Dont } from "../parts/specimen.jsx";
 
@@ -38,15 +38,16 @@ const SwitchCap = ({ n, active }) => (
 );
 
 // ── tab cell: [kind icon ← overlay][label…] · [marker][move][busy][close] ──
-function LTab({ label = "build-server", kind = "terminal", active, hover, att, busy, move, marker, width = "var(--tasty-tab-width)", loading, keycap, boxes, rm }) {
+// ground: the strip's fill, which the cell keeps (Tab's ground); the fill, ink and active mark come from the Tab's tabLook,
+// and the spinner's bed is that same fill.
+function LTab({ label = "build-server", kind = "terminal", active, hover, att, busy, move, marker, ground = "mantle", width = "var(--tasty-tab-width)", loading, keycap, boxes, rm }) {
   const showX = active || hover;
-  const fg = att === "needs-input" ? "var(--tasty-tab-fg-needs-input)" : att === "completion" ? "var(--tasty-tab-fg-completion)"
-    : active ? "var(--tasty-tab-fg-active)" : hover ? "var(--tasty-tab-fg-hover)" : "var(--tasty-tab-fg)";
-  const fill = active ? "var(--tasty-tab-bg-active)" : hover ? "var(--tasty-surface-hover)" : "var(--tasty-tab-bg)";
+  const look = tabLook({ active, hover, ground, attention: att });
+  const fill = look.fill;
   return (
     <div style={{ position: "relative", width, height: "var(--tasty-tab-height)", flex: "none", display: "flex", alignItems: "center", gap: "var(--tasty-tab-gap)", boxSizing: "border-box",
-      padding: "0 var(--tasty-space-xs) 0 var(--tasty-tab-padding-x)", color: fg, background: fill, borderRight: "var(--tasty-border-width) solid var(--tasty-tab-separator)" }}>
-      {active && <span style={{ position: "absolute", top: 0, left: 0, right: 0, height: "var(--tasty-tab-indicator-width)", background: "var(--tasty-tab-indicator)" }} />}
+      padding: "0 var(--tasty-space-xs) 0 var(--tasty-tab-padding-x)", color: look.ink, background: fill, borderRight: "var(--tasty-border-width) solid var(--tasty-tab-separator)" }}>
+      <TabMark mark={look.mark} />
       <span style={{ position: "relative", flex: "none", display: "inline-flex", width: "var(--tasty-tab-icon-size)", height: "var(--tasty-tab-icon-size)" }}>
         <Icon name={kind} size="var(--tasty-tab-icon-size)" />
         <LoadingOverlay kind="tab" visible={!!loading} bed={fill} reducedMotion={rm} label="Loading" style={boxes ? BOX : undefined} />
@@ -75,7 +76,7 @@ function OverflowStrip({ loadingIdx = [], focused = true }) {
     <div style={{ display: "flex", width: "var(--tasty-size-460)", maxWidth: "100%", overflow: "hidden", background: focused ? "var(--tasty-surface-raised)" : "var(--tasty-bg-sidebar)", borderBottom: `var(--tasty-border-width) solid var(--tasty-${focused ? "border-strong" : "separator"})` }}>
       <Arrow dir="left" disabled />
       <div style={{ flex: 1, minWidth: 0, display: "flex", overflow: "hidden" }}>
-        {tabs.map((t, i) => <LTab key={t} label={t} active={i === 1} loading={loadingIdx.includes(i)} />)}
+        {tabs.map((t, i) => <LTab key={t} label={t} active={i === 1} loading={loadingIdx.includes(i)} ground={focused ? "raised" : "mantle"} />)}
       </div>
       <Arrow dir="right" />
     </div>
@@ -180,7 +181,7 @@ function MiniWindow({ loading, rm }) {
       </div>
       <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}>
         <div style={{ display: "flex", background: "var(--tasty-surface-raised)", borderBottom: "var(--tasty-border-width) solid var(--tasty-border-strong)", overflow: "hidden" }}>
-          <LTab label="build-server" active loading={loading} rm={rm} /><LTab label="logs" busy />
+          <LTab label="build-server" active loading={loading} rm={rm} ground="raised" /><LTab label="logs" busy ground="raised" />
         </div>
         <div style={{ flex: 1, minHeight: 0, display: "flex" }}><TermSurface loading={loading} rm={rm} w="100%" h="100%" /></div>
       </div>
@@ -226,7 +227,7 @@ function GalleryLoadingOverlay() {
           ))}
         </Stage>
         <Meta
-          specs={[["covers", "kind icon only"], ["bed", "the cell's resolved fill (tab-bg / surface-hover / tab-bg-active)"], ["kept", "label · attention colour · indicator · marker · move · busy · close"], ["busy + loading", "both visible — arc left, green dot right"], ["Ctrl keycap", "above the spinner (same slot)"], ["off-screen tab", "not drawn · no repaint"]]}
+          specs={[["covers", "kind icon only"], ["bed", "the cell's resolved fill (tab-bg or tab-bg-raised by pane focus, tab-bg-hover for hovered inactive tabs, tab-bg-active only for active tabs with Fill)"], ["kept", "label · attention colour · indicator · marker · move · busy · close"], ["busy + loading", "both visible — arc left, green dot right"], ["Ctrl keycap", "above the spinner (same slot)"], ["off-screen tab", "not drawn · no repaint"]]}
           tokens={[{ tok: "--tasty-loading-overlay-tab-size", use: "→ tab-icon-size 14" }]} />
       </Spec>
 

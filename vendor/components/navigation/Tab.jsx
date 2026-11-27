@@ -134,6 +134,43 @@ function ensureCss() {
   injected = true;
 }
 
+/**
+ * The same fill, label ink and active mark as the CSS above, for a specimen that draws its own tab cell (a cell with
+ * a loading overlay, a move ring or a status cluster the Tab does not carry). Keep the two in step: this follows
+ * tab_fill_and_ink and the indicator match in the app's tab_bar/tab.rs.
+ *   fill — tab-bg-active for an active Fill tab; tab-bg-hover for a hovered inactive tab; else the strip's fill
+ *   ink  — attention (needs-input › completion) › active › hover › the strip's rest ink
+ *   mark — "underline" or "dot" on an active tab that is not Fill, else null; draw it with <TabMark>
+ */
+export function tabLook({ active = false, hover = false, indicator = "underline", ground = "mantle", attention = null } = {}) {
+  const raised = ground === "raised";
+  const hovered = hover && !active;
+  const fill = active && indicator === "fill" ? "var(--tasty-tab-bg-active)"
+    : hovered ? "var(--tasty-tab-bg-hover)"
+    : raised ? "var(--tasty-tab-bg-raised)" : "var(--tasty-tab-bg)";
+  const ink = attention === "needs-input" ? "var(--tasty-tab-fg-needs-input)"
+    : attention === "completion" ? "var(--tasty-tab-fg-completion)"
+    : active ? "var(--tasty-tab-fg-active)"
+    : hovered ? "var(--tasty-tab-fg-hover)"
+    : raised ? "var(--tasty-tab-fg-raised)" : "var(--tasty-tab-fg)";
+  const mark = active && indicator !== "fill" ? indicator : null;
+  return { fill, ink, mark };
+}
+
+/** The active mark tabLook names, placed as .tasty-tab--underline::before and .tasty-tab--dot::before place it.
+ *  The host cell is position: relative. */
+export function TabMark({ mark }) {
+  if (mark === "underline") {
+    return <span aria-hidden style={{ position: "absolute", left: 0, right: 0, top: 0, height: "var(--tasty-tab-indicator-width)", background: "var(--tasty-tab-indicator)" }} />;
+  }
+  if (mark === "dot") {
+    return <span aria-hidden style={{ position: "absolute", left: "50%", top: "calc(0.5 * var(--tasty-tab-indicator-dot-size))",
+      width: "var(--tasty-tab-indicator-dot-size)", height: "var(--tasty-tab-indicator-dot-size)", marginLeft: "calc(-0.5 * var(--tasty-tab-indicator-dot-size))",
+      borderRadius: "var(--tasty-radius-pill)", background: "var(--tasty-tab-indicator)" }} />;
+  }
+  return null;
+}
+
 export function Tab({ label, icon = null, active = false, indicator = "underline", ground = "mantle", status = "idle", attention = null, onClose, className = "", ...rest }) {
   ensureCss();
   const busy = status === "busy";

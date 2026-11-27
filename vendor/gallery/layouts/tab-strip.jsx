@@ -1,5 +1,5 @@
 import React from "react";
-import { Icon, StatusDot, Tooltip } from "../../components/index.js";
+import { Icon, StatusDot, Tooltip, tabLook, TabMark } from "../../components/index.js";
 import { Spec, Stage, Meta, Note, Dont } from "../parts/specimen.jsx";
 
 // Tasty Gallery — Layouts › Pane tab strip: tab-cell status cluster, scroll arrows,
@@ -30,15 +30,15 @@ function Marker({ kind, hover }) {
     </span>
   );
 }
-function TabCellS({ label = "report.html", active, hover, marker, markerHover, markerTip, move, busy, width = "var(--tasty-tab-width)" }) {
+// ground: the strip's fill, which the cell keeps (Tab's ground); the fill, ink and active mark come from the Tab's tabLook.
+function TabCellS({ label = "report.html", active, hover, marker, markerHover, markerTip, move, busy, ground = "mantle", width = "var(--tasty-tab-width)" }) {
   const showX = active || hover;
-  const fg = active ? "var(--tasty-tab-fg-active)" : hover ? "var(--tasty-tab-fg-hover)" : "var(--tasty-tab-fg)";
+  const look = tabLook({ active, hover, ground });
   return (
     <div style={{ position: "relative", width, height: "var(--tasty-tab-height)", flex: "none", display: "flex", alignItems: "center", gap: "var(--tasty-tab-gap)",
-      padding: "0 var(--tasty-space-xs) 0 var(--tasty-tab-padding-x)", color: fg,
-      background: active ? "var(--tasty-tab-bg-active)" : hover ? "var(--tasty-surface-hover)" : "var(--tasty-tab-bg)",
+      padding: "0 var(--tasty-space-xs) 0 var(--tasty-tab-padding-x)", color: look.ink, background: look.fill,
       borderRight: "var(--tasty-border-width) solid var(--tasty-tab-separator)" }}>
-      {active && <span style={{ position: "absolute", top: 0, left: 0, right: 0, height: "var(--tasty-tab-indicator-width)", background: "var(--tasty-tab-indicator)" }} />}
+      <TabMark mark={look.mark} />
       <Icon name="html" size="var(--tasty-tab-icon-size)" />
       <span style={{ flex: 1, minWidth: 0, fontSize: "var(--tasty-font-size-caption)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{label}</span>
       {/* right cluster — fixed slots, never shrink; the label gives way first */}
@@ -72,7 +72,7 @@ function Strip({ focused = true, at = "start", hoverSide, moveSide, tabs }) {
       background: focused ? "var(--tasty-surface-raised)" : "var(--tasty-bg-sidebar)", borderBottom: `var(--tasty-border-width) solid var(--tasty-${focused ? "border-strong" : "separator"})` }}>
       <Arrow dir="left" disabled={at === "start"} hover={hoverSide === "left"} move={moveSide === "left"} />
       <div style={{ flex: 1, minWidth: 0, display: "flex", overflow: "hidden" }}>
-        {(tabs || ["server", "dev", "vim", "logs", "tests"]).map((t, i) => <TabCellS key={t} label={t} active={i === 1} />)}
+        {(tabs || ["server", "dev", "vim", "logs", "tests"]).map((t, i) => <TabCellS key={t} label={t} active={i === 1} ground={focused ? "raised" : "mantle"} />)}
       </div>
       <Arrow dir="right" disabled={at === "end"} hover={hoverSide === "right"} move={moveSide === "right"} />
     </div>
@@ -110,8 +110,8 @@ function GalleryTabStrip() {
               <div style={{ width: "var(--tasty-size-320)", display: "flex", flexDirection: "column", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)" }}>
                 <div style={{ height: "var(--tasty-titlebar-height)", flex: "none", display: "flex", alignItems: "center", padding: "0 var(--tasty-space-sm)", background: "var(--tasty-bg-app)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" }}>title area</div>
                 <div style={{ display: "flex", background: "var(--tasty-surface-raised)", borderBottom: "var(--tasty-border-width) solid var(--tasty-border-strong)" }}>
-                  <TabCellS marker="blocked" active markerHover markerTip />
-                  <TabCellS label="shell" />
+                  <TabCellS marker="blocked" active markerHover markerTip ground="raised" />
+                  <TabCellS label="shell" ground="raised" />
                 </div>
                 <div style={{ height: "var(--tasty-size-96)", display: "flex", alignItems: "center", justifyContent: "center", background: "var(--tasty-bg-panel)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" }}>WebView — native, drawn above Tasty</div>
               </div>
@@ -119,8 +119,8 @@ function GalleryTabStrip() {
               <div style={{ width: "var(--tasty-size-320)", display: "flex", flexDirection: "column", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)" }}>
                 <div style={{ height: "var(--tasty-size-64)", display: "flex", alignItems: "center", justifyContent: "center", background: "var(--tasty-bg-panel)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)", borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)" }}>upper pane WebView</div>
                 <div style={{ position: "relative", display: "flex", background: "var(--tasty-surface-raised)" /* app geometry: own WebView starts flush under the strip, gap 0 */ }}>
-                  <TabCellS marker="blocked" active markerHover />
-                  <TabCellS label="shell" />
+                  <TabCellS marker="blocked" active markerHover ground="raised" />
+                  <TabCellS label="shell" ground="raised" />
                   <span role="tooltip" style={{ position: "absolute", top: "50%", left: "calc(var(--tasty-tab-width) + var(--tasty-tooltip-offset))", transform: "translateY(-50%)", whiteSpace: "nowrap",
                     padding: "var(--tasty-space-xs) var(--tasty-space-sm)", background: "var(--tasty-tooltip-bg)", color: "var(--tasty-tooltip-fg)", border: "var(--tasty-border-width) solid var(--tasty-tooltip-border)", borderRadius: "var(--tasty-tooltip-radius)", fontSize: "var(--tasty-font-size-caption)", boxShadow: "var(--tasty-shadow-popover)" }}>Scripts blocked. Click to show the notice again.</span>
                 </div>

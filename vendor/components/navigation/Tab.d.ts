@@ -43,3 +43,21 @@ export interface TabProps extends React.HTMLAttributes<HTMLDivElement> {
  * close button and the active indicator on the active tab.
  */
 export function Tab(props: TabProps): JSX.Element;
+
+export interface TabLookInput {
+  active?: boolean;
+  /** A frozen hover, as a specimen cell draws it. Ignored on the active tab. */
+  hover?: boolean;
+  indicator?: "underline" | "fill" | "dot";
+  ground?: "mantle" | "raised";
+  attention?: "needs-input" | "completion" | null;
+}
+
+/**
+ * The Tab's fill, label ink and active mark as CSS values, for a specimen that
+ * draws its own tab cell. Follows the same rules as the Tab's CSS.
+ */
+export function tabLook(input?: TabLookInput): { fill: string; ink: string; mark: "underline" | "dot" | null };
+
+/** Draws the mark `tabLook` returns inside a position: relative cell. */
+export function TabMark(props: { mark: "underline" | "dot" | null }): JSX.Element | null;
