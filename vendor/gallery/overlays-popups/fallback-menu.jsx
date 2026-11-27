@@ -82,8 +82,10 @@ function FallbackWindow({ w, h, click, caption, children }) {
 // wrapping at the ends; the pointer moving onto a row makes it the active row. After an arrow key the menu holds the
 // highlight: a row under a still pointer shows no tint, and the pointer's first real move makes the row under it the
 // active row, so one row is lit. Enter runs it, Esc or a click outside closes. The hold lasts one opened menu: opening,
-// running a row and closing each drop it with the active row.
-function FallbackMenuDemo() {
+// running a row and closing each drop it with the active row. h sets the window's height: a short one makes the rows
+// scroll, so the demo shows when the list moves (only when the active row changes to one not wholly shown, and then
+// the least that shows it) and when it stays (a list scrolled by hand stays put while the active row does not change).
+function FallbackMenuDemo({ h = 320, caption = "right-click anywhere · ↑ ↓ · Enter · Esc" }) {
   const [click, setClick] = React.useState(null);
   const [active, setActive] = React.useState(-1);
   const [held, setHeld] = React.useState(false);
@@ -104,7 +106,7 @@ function FallbackMenuDemo() {
     <div ref={ref} tabIndex={0} onKeyDown={onKey} style={{ outline: "none" }}
       onContextMenu={(e) => { e.preventDefault(); const r = ref.current.firstChild.lastChild.getBoundingClientRect(); setClick({ x: Math.round(e.clientX - r.left), y: Math.round(e.clientY - r.top) }); setActive(-1); setHeld(false); ref.current.focus(); }}
       onClick={() => { setClick(null); setActive(-1); setHeld(false); }}>
-      <FallbackWindow w={520} h={320} click={click} caption="right-click anywhere · ↑ ↓ · Enter · Esc">
+      <FallbackWindow w={520} h={h} click={click} caption={caption}>
         {click && <FallbackMenu key={`${click.x},${click.y}`} items={items} click={click} active={active} scrollTo={active} onPointerRow={setActive} pointerHeld={held} onPointerMove={() => held && setHeld(false)} />}
       </FallbackWindow>
     </div>
@@ -118,6 +120,7 @@ export function FallbackMenuSection() {
         when={<>Every context menu is the <b>OS menu</b>. Tasty draws this menu <b>only where the native menu cannot be opened</b>, whatever the reason. On Linux that is the display backend causes 1 (native Wayland, no XWayland), 1b (the X server in <code>DISPLAY</code> unreachable) and 2 (a <code>GDK_BACKEND</code> value that does not allow x11), and any other GTK init failure (an X11 window whose GTK did not start). It is never a setting and never shown beside an OS menu, so wherever the OS menu opens (X11 with GTK, macOS, Windows) nothing changes. It draws the <b>same item model, row for row</b> (label, enabled, reason, shortcut, icon, separator) at all 13 places that open a context menu, and adds nothing: no title, no fallback marker, no extra row, no toast. No submenu, no check mark. It is an anchored popup in the visual language of the Tools menu: no scrim, it closes on a click outside, <Kbd keys="Esc" />, focus loss or running a row.</>}>
         <Stage variant="solo" style={{ padding: "var(--tasty-space-lg)", background: "var(--tasty-bg-app)", gap: "var(--tasty-space-lg)", flexWrap: "wrap", alignItems: "flex-start" }}>
           <FallbackMenuDemo />
+          <FallbackMenuDemo h={180} caption="right-click near the top of the window · press ↓ to activate a row · scroll the list with the wheel, then move the pointer → list keeps its scroll position · press ↓ until you reach a row cut off at the list edge → list scrolls just enough to show it" />
           <FallbackWindow w={480} h={200} click={{ x: 24, y: 24 }} caption="Explorer more menu · disabled rows · reason on hover">
             <FallbackMenu items={MORE_MENU} click={{ x: 24, y: 24 }} tip={0} />
           </FallbackWindow>
@@ -193,7 +196,7 @@ export function FallbackMenuSection() {
             ["pointer", "one highlight on the active row · moving the pointer onto an enabled row makes it active · after an arrow key, keys hold the highlight and the row under a still pointer draws at rest (MenuItem held) · first real move changes the active row only if it hits a visible part of an enabled row · over panel padding, a separator, the scrollbar, a disabled row, or a scrolled-out part of a row → active row stays"],
             ["anchor", "top-left corner at the click point (logical) · no offset"],
             ["flip", "each axis alone: right of / below the point; if that side does not fit within the edge margin, left of / above; the result is always clamped to [margin, window - margin - menu]; both sizes are capped at window - 2 x margin first, so the range is never empty and a click inside the margin (even at 0) keeps the 8 gap on every side"],
-            ["tall", "max height = window height - 2 x edge margin (8), as the width is capped at window width - 2 x margin · the rows scroll inside the ring with the standard scrollbar (tasty-scroll) · the active row scrolls into view"],
+            ["tall", "max height = window height − 2 x edge margin (8) · max width = window width − 2 x margin · rows scroll inside the ring with the standard scrollbar (tasty-scroll) · list scrolls only when the active row changes to a row that is partly or fully out of view, and just enough to show it · same active row → list keeps the user's scroll position"],
             ["dismiss", "click outside · Esc · focus loss · running a row"],
           ]}
           tokens={[
