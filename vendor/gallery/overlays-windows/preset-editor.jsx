@@ -1,6 +1,6 @@
 import React from "react";
 import { Button, IconButton, Select, Input, Icon } from "../../components/index.js";
-import { Section, Spec, Stage, Meta, Note, Do, Dont } from "../parts/specimen.jsx";
+import { Section, Spec, Stage, Meta, Note, Do, Dont, Views, View } from "../parts/specimen.jsx";
 
 // Tasty Gallery — Preset editor (the PresetView window).
 // Lives in its own file because the demo-layout PREVIEW is a real
@@ -627,6 +627,40 @@ import { Section, Spec, Stage, Meta, Note, Do, Dont } from "../parts/specimen.js
   };
   const SCOPES = [["workspace", "Workspace"], ["tab", "Tab"], ["pane", "Pane"]];
 
+  // The detail toolbar: the preset's name and subtitle with rename · duplicate · delete · Edit, or while editing, the
+  // name field, the autosave note and Done. The window draws it live, and the Views frame draws the edit form fixed.
+  function PresetToolbar({ edit, cur, onEdit, onDone }) {
+    return (
+      <div style={{ display: "flex", alignItems: "center", gap: 8, height: 44, flex: "none", padding: "0 12px", borderBottom: "1px solid var(--tasty-separator)" }}>
+        {edit ? (
+          <Input defaultValue={cur.name} aria-label="Preset name" style={{ width: "calc(1 * var(--tasty-preset-rename-text-width) + 2 * var(--tasty-input-padding-x))" }} />
+        ) : (
+          <>
+            <span style={{ fontSize: 14, fontWeight: 600 }}>{cur.name}</span>
+            <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: "var(--tasty-text-muted)" }}>{cur.subtitle}</span>
+          </>
+        )}
+        <div style={{ flex: 1 }} />
+        {edit ? (
+          <>
+            <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-xs)", fontSize: 11, color: "var(--tasty-text-muted)", marginRight: 4 }}>
+              <span style={{ display: "inline-flex", color: "var(--tasty-accent-success-raised)", transform: "scale(.8)" }}>{I.check}</span> saved automatically
+            </span>
+            <Button size="sm" variant="primary" leadingIcon={I.check} onClick={onDone}>Done</Button>
+          </>
+        ) : (
+          <>
+            <IconButton size="sm" aria-label="Rename">{I.pencil}</IconButton>
+            <IconButton size="sm" aria-label="Duplicate">{I.copy}</IconButton>
+            <IconButton size="sm" aria-label="Delete">{I.trash}</IconButton>
+            <span style={{ width: 1, height: 18, background: "var(--tasty-separator)", margin: "0 4px" }} />
+            <Button size="sm" variant="secondary" leadingIcon={I.pencil} onClick={onEdit}>Edit</Button>
+          </>
+        )}
+      </div>
+    );
+  }
+
   function PresetWindow() {
     const [scope, setScope] = useState("workspace");
     const [pick, setPick] = useState(0);
@@ -704,33 +738,7 @@ import { Section, Spec, Stage, Meta, Note, Do, Dont } from "../parts/specimen.js
           ) : (
           <div style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)" }}>
             {/* toolbar */}
-            <div style={{ display: "flex", alignItems: "center", gap: 8, height: 44, flex: "none", padding: "0 12px", borderBottom: "1px solid var(--tasty-separator)" }}>
-              {edit ? (
-                <Input defaultValue={cur.name} aria-label="Preset name" style={{ width: "calc(1 * var(--tasty-preset-rename-text-width) + 2 * var(--tasty-input-padding-x))" }} />
-              ) : (
-                <>
-                  <span style={{ fontSize: 14, fontWeight: 600 }}>{cur.name}</span>
-                  <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 11, color: "var(--tasty-text-muted)" }}>{cur.subtitle}</span>
-                </>
-              )}
-              <div style={{ flex: 1 }} />
-              {edit ? (
-                <>
-                  <span style={{ display: "inline-flex", alignItems: "center", gap: "var(--tasty-space-xs)", fontSize: 11, color: "var(--tasty-text-muted)", marginRight: 4 }}>
-                    <span style={{ display: "inline-flex", color: "var(--tasty-accent-success-raised)", transform: "scale(.8)" }}>{I.check}</span> saved automatically
-                  </span>
-                  <Button size="sm" variant="primary" leadingIcon={I.check} onClick={() => { setEdit(false); setSel(null); }}>Done</Button>
-                </>
-              ) : (
-                <>
-                  <IconButton size="sm" aria-label="Rename">{I.pencil}</IconButton>
-                  <IconButton size="sm" aria-label="Duplicate">{I.copy}</IconButton>
-                  <IconButton size="sm" aria-label="Delete">{I.trash}</IconButton>
-                  <span style={{ width: 1, height: 18, background: "var(--tasty-separator)", margin: "0 4px" }} />
-                  <Button size="sm" variant="secondary" leadingIcon={I.pencil} onClick={() => setEdit(true)}>Edit</Button>
-                </>
-              )}
-            </div>
+            <PresetToolbar edit={edit} cur={cur} onEdit={() => setEdit(true)} onDone={() => { setEdit(false); setSel(null); }} />
             {/* preview region */}
             <div onClick={edit ? () => setSel(null) : undefined} style={{ flex: 1, minHeight: 0, display: "flex", padding: 12, background: "var(--tasty-bg-app)" }}>
               <PreviewBody scope={scope} root={root} edit={edit} sel={sel} dispatch={dispatch} setSel={setSel} />
@@ -767,6 +775,13 @@ import { Section, Spec, Stage, Meta, Note, Do, Dont } from "../parts/specimen.js
         <Spec id="presetview-list-toolbar-live-preview" title="PresetView — list → toolbar + live preview"
           when={<>The modeless window behind <b>Tools › Presets</b>. <b>L1 tabs</b> pick the scope (Workspace / Tab / Pane); a <b>left list</b> of saved presets for that scope feeds a <b>right detail</b> = a toolbar (rename · duplicate · delete · <b>Edit</b>) over a <b>live demo-layout preview</b>. The selected row uses the surface-fill + 2px accent left-bar (the file-handler / sidebar idiom). Click a preset, switch its mini tabs, then hit <b>Edit</b> — structure edits happen on the preview, a leaf's gear opens its settings screen in this same column.</>}>
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)" }}><PresetWindow /></Stage>
+          <Views>
+            <View name="preset-edit-toolbar" label="Detail toolbar after Edit: the name field, the autosave note and Done" wide>
+              <div style={{ background: "var(--tasty-bg-panel)" }}>
+                <PresetToolbar edit cur={PRESETS.workspace[0]} onEdit={() => {}} onDone={() => {}} />
+              </div>
+            </View>
+          </Views>
           <Meta
             specs={[["frame width", "--tasty-preset-window-width"], ["frame height", "--tasty-preset-window-height"], ["L1 tabs", "40px, accent underline"], ["list", "196px, fill + 2px bar"], ["toolbar", "44px, Edit on the right"], ["preview", "flex, on --tasty-bg-app"]]}
             tokens={[{ tok: "--tasty-bg-sidebar", use: "L1 + list", color: "var(--tasty-bg-sidebar)" }, { tok: "--tasty-bg-panel", use: "detail", color: "var(--tasty-bg-panel)" }, { tok: "--tasty-surface-active", use: "selected preset", color: "var(--tasty-surface-active)" }, { tok: "--tasty-accent-primary", use: "active tab / select bar", color: "var(--tasty-accent-primary-raised)" }]} />
