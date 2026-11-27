@@ -43,6 +43,9 @@ const TOOLS_PLUGIN = [
 // view. Enter or Space on a marked row with no part in view runs nothing: the menu scrolls the least that shows the
 // whole row, as a key move does, and the next Enter or Space runs it. A marked row with some part in view runs at once.
 // So a key runs only a row the user can see marked, and a press is never lost: it either runs or shows what it would run.
+// Only a new press of Enter or Space acts: the repeats of a held key are taken and do nothing, wherever the marked row
+// is, so holding the key that revealed a row does not run it; the next press looks at the mark and the view again.
+// The arrow and Tab keys repeat as before.
 // The app's tools_menu popup takes the keys on open (focus_on_open) but its rows are plain egui click widgets: egui
 // moves between them only from a focused one, so the first Down, Up, Enter and Space do nothing and Tab must reach a
 // row first, and Shift+Tab lands on egui's last candidate, not surely the last row. The app is to take this contract.
@@ -144,9 +147,10 @@ function ToolsMenu({ anchor, bounds = null, hostRuns = null, onClose, onAction }
       const pos = at < 0 ? (down ? 0 : runnable.length - 1) : Math.max(0, Math.min(runnable.length - 1, at + (down ? 1 : -1)));
       go(runnable[pos]);
     } else if (e.key === "Enter" || e.key === " ") {
-      // The menu holds these keys, so neither scrolls it the browser's way, marked row or not.
+      // The menu holds these keys, so neither scrolls it the browser's way, marked row or not. A held key's repeats
+      // are taken and do nothing: only a new press runs or reveals, so the press that revealed a row cannot run it.
       e.preventDefault();
-      if (kb < 0 || rows[kb].disabled) return;
+      if (e.repeat || kb < 0 || rows[kb].disabled) return;
       const el = rowEl(kb);
       if (el && !shown(el)) { reveal(el); return; }
       onAction(rows[kb].id);

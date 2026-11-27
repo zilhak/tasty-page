@@ -56,7 +56,9 @@ const PALETTE_COMMANDS = [
 // and never moves the selection, so the selected row can end up scrolled out of view. Enter on a selected row with no
 // part in view runs nothing: the list scrolls the least that shows the whole row, as a selection move does, and the
 // next Enter runs it. A selected row with some part in view runs at once. So Enter never runs a row the list hides,
-// and a press is never lost. All of this holds with an empty query too, where the row is not drawn but Enter runs it.
+// and a press is never lost. Only a new press of Enter acts: the repeats of a held Enter are taken and do nothing, so
+// holding the Enter that revealed a row does not run it, and the next press looks at the selection and the view again.
+// The arrows repeat as before. All of this holds with an empty query too, where the row is not drawn but Enter runs it.
 // initialSelected: the row selected at open (a gallery frame freezes a moved selection with it; the app opens on 0).
 function PaletteCard({ query = "", onQuery, onRun, autoFocus = false, commands = PALETTE_COMMANDS, initialSelected = 0 }) {
   const items = commands.filter((i) => i.label.toLowerCase().includes(query.toLowerCase()));
@@ -92,7 +94,8 @@ function PaletteCard({ query = "", onQuery, onRun, autoFocus = false, commands =
       if (items.length) setSel(e.key === "ArrowDown" ? Math.min(selected + 1, items.length - 1) : Math.max(selected - 1, 0));
     } else if (e.key === "Enter" && !e.nativeEvent.isComposing) {
       e.preventDefault();
-      if (!items[selected]) return;
+      // A held Enter's repeats are taken and do nothing: only a new press runs or reveals.
+      if (e.repeat || !items[selected]) return;
       const row = selectedRow();
       if (row && !shown(row)) { reveal(row); return; }
       if (onRun) onRun(items[selected].label);
