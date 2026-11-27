@@ -777,7 +777,8 @@ import { Section, Spec, Stage, Meta, Note, Do, Dont, Views, View } from "../part
           <Stage variant="solo center" style={{ padding: 20, background: "var(--tasty-bg-app)" }}><PresetWindow /></Stage>
           <Views>
             <View name="preset-edit-toolbar" label="Detail toolbar after Edit: the name field, the autosave note and Done" wide>
-              <div style={{ background: "var(--tasty-bg-panel)" }}>
+              {/* a frame is a picture: inert, so its name field and buttons take neither the pointer, focus nor keys */}
+              <div inert="" style={{ pointerEvents: "none", background: "var(--tasty-bg-panel)" }}>
                 <PresetToolbar edit cur={PRESETS.workspace[0]} onEdit={() => {}} onDone={() => {}} />
               </div>
             </View>
