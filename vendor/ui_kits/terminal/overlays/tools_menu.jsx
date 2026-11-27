@@ -57,6 +57,8 @@ function placeToolsMenu(anchor, size, room) {
 }
 // The kit's gap between the menu and the button it opens from (kept from the menu's first drawing).
 const TOOLS_MENU_GAP = 2;
+// The layout effect runs only in the browser; a server render (the gallery's static frames) takes the plain effect.
+const useBeforePaint = typeof window === "undefined" ? React.useEffect : React.useLayoutEffect;
 
 // Rows the host can run: hostRuns lists the ids its onAction runs. A row not in it draws as a disabled row and so
 // takes no key and no click, the same way the app draws a plugin tool it cannot run. Without hostRuns every row runs,
@@ -74,7 +76,7 @@ function ToolsMenu({ anchor, bounds = null, hostRuns = null, onClose, onAction }
   const [kb, setKb] = React.useState(-1);
   React.useEffect(() => { if (menuRef.current) menuRef.current.focus({ preventScroll: true }); }, []);
   const [place, setPlace] = React.useState(null);
-  React.useLayoutEffect(() => {
+  useBeforePaint(() => {
     const el = menuRef.current;
     if (!el) return;
     const room = bounds || { top: 0, left: 0, right: window.innerWidth, bottom: window.innerHeight };
