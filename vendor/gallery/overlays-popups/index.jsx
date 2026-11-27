@@ -1,4 +1,5 @@
 import React from "react";
+import { SearchBar } from "../../ui_kits/terminal/overlays/search_bar.jsx";
 import { PageStates } from "../parts/specimen.jsx";
 import { STATES } from "./states.jsx";
 import { Button, Kbd, MenuItem } from "../../components/index.js";
@@ -162,6 +163,34 @@ function ToolsMenuLiveDemo() {
   );
 }
 
+// The kit search bar, live, over a terminal with five matches of "tasty". It mounts on Open search, so its field's
+// autofocus does not take the page's focus while the reader scrolls past. Previous and Next keep the focus and step
+// once per click, and they take keyRepeat (fresh-press.js): holding Enter on one keeps stepping, one match per
+// repeat, as holding Enter in the field does; Space steps once on release. Esc or close puts the button back.
+const SEARCH_LIVE_LINES = ["~/work/tasty", "$ tasty list surfaces", "tasty: 3 surfaces", "$ tasty read since-mark", "tasty-agent ok"];
+function SearchBarLiveDemo() {
+  const [open, setOpen] = React.useState(false);
+  const btnRef = React.useRef(null);
+  const close = () => {
+    setOpen(false);
+    requestAnimationFrame(() => { const b = btnRef.current && btnRef.current.querySelector("button"); if (b) b.focus({ preventScroll: true }); });
+  };
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", width: 420, maxWidth: "100%" }}>
+      <div data-search-live="" style={{ position: "relative", height: 120, boxSizing: "border-box", padding: "var(--tasty-space-sm)",
+        background: "var(--tasty-bg-app)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)",
+        fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-secondary)" }}>
+        {SEARCH_LIVE_LINES.map((l) => <div key={l}>{l}</div>)}
+        {open && <SearchBar lines={SEARCH_LIVE_LINES} onClose={close} />}
+      </div>
+      <div ref={btnRef} style={{ display: "flex" }}>
+        {!open && <Button variant="secondary" size="sm" onClick={() => setOpen(true)}>Open search</Button>}
+      </div>
+      <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>click Open search · type tasty → 1/5 · Tab to ▲ or ▼ · press Enter → one step · hold Enter → one more step per repeat, wrapping 5/5 → 1/5 · release and press Space → one step on release · Esc closes</span>
+    </div>
+  );
+}
+
 function Page() {
   return (
     <>
@@ -197,8 +226,9 @@ function Page() {
         <Spec id="search-bar-ctrl-f-headless" title="Search bar — Ctrl/⌘F, headless"
           when={<>A <b>360px</b> headless popup floating at the <b>top-right of the focused surface</b> — not on a scrim, and it <b>stays open</b> on outside click. One row: a flex Input, a <code>cur/total</code> counter (red on zero matches), ▲▼ steppers, <code>Aa</code> / <code>.*</code> / <code>ab</code> option toggles, a divider, and close. <Kbd keys="↵" /> next, <Kbd keys="Esc" /> closes.</>}>
           <Stage variant="solo center"><SearchBarFrame /></Stage>
+          <Stage variant="solo center"><SearchBarLiveDemo /></Stage>
           <Meta
-            specs={[["frame", "360 × 28 row"], ["anchor", "top-right of focused surface"], ["counter", "cur/total · red on 0"], ["toggles", "Aa · .* · ab"], ["dismiss", <span className="ic">Esc</span>]]}
+            specs={[["frame", "360 × 28 row"], ["anchor", "top-right of focused surface"], ["counter", "cur/total · red on 0"], ["toggles", "Aa · .* · ab"], ["▲ ▼ keys", "keep the focus · one step per click · Enter steps on press and again on each repeat of that press (keyRepeat) · Space one step on release · an Enter that began elsewhere does nothing until a new press"], ["dismiss", <span className="ic">Esc</span>]]}
             tokens={[{ tok: "--tasty-surface-raised", use: "bar fill", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-popup-border-focused", use: "bar edge while the bar holds key focus", color: "var(--tasty-popup-border-focused)" }, { tok: "--tasty-popup-border-unfocused", use: "bar edge while key focus is elsewhere", color: "var(--tasty-popup-border-unfocused)" }, { tok: "--tasty-border-strong", use: "divider between option toggles and close button", color: "var(--tasty-border-strong)" }, { tok: "--tasty-accent-danger", use: "no-match counter", color: "var(--tasty-accent-danger-raised)" }, { tok: "--tasty-shadow-popover", use: "lift" }]} />
           <Note>Sticky-focus popover: the input keeps focus and the bar persists through clicks in the terminal — it closes only on <span className="ic">Esc</span> or its × button.</Note>
         </Spec>
