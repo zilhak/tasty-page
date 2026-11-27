@@ -685,7 +685,7 @@ function Layouts() {
       {/* TAB BAR */}
       <Section id="tabbar" title="Pane tab strip">
         <Spec id="tab-strip-fixed-24px-row" title="Tab strip — fixed 24px row"
-          when={<>Sits at the top of a pane group on <b>--tasty-bg-sidebar</b>. Tabs are <b>24px × 150px</b>; the active tab adopts the panel color with an accent top bar. A <code>+</code> IconButton follows the tabs; pane actions (split, search) pin to the right.</>}>
+          when={<>Sits at the top of a pane group on <b>--tasty-bg-sidebar</b>. A focused pane's strip uses <b>--tasty-surface-raised</b>. Tabs are <b>24px × 150px</b>. With the default Underline, the active tab keeps the strip fill and draws a 2px top bar in <code>tab-indicator</code>. A <code>+</code> IconButton follows the tabs, and pane actions (split, search) pin to the right.</>}>
           <Stage variant="tight" grid>
             <div className="anno" style={{ display: "flex", alignItems: "stretch", background: "var(--tasty-bg-sidebar)", borderBottom: "1px solid var(--tasty-separator)" }}>
               <Dim style={{ top: 28, left: 0 }}>24px tall</Dim>
@@ -703,8 +703,8 @@ function Layouts() {
             </div>
           </Stage>
           <Meta
-            specs={[["tab height", <>24px <span className="tok">--tasty-control-height-tab</span></>], ["tab width", <>150px <span className="tok">--tasty-tab-width</span></>], ["strip fill", <span className="tok">--tasty-bg-sidebar</span>], ["active", "panel fill + accent top bar"]]}
-            tokens={[{ tok: "--tasty-bg-sidebar", use: "strip", color: "var(--tasty-bg-sidebar)" }, { tok: "--tasty-bg-panel", use: "active tab", color: "var(--tasty-bg-panel)" }, { tok: "--tasty-accent-primary", use: "active bar", color: "var(--tasty-accent-primary-raised)" }]} />
+            specs={[["tab height", <>24px <span className="tok">--tasty-control-height-tab</span></>], ["tab width", <>150px <span className="tok">--tasty-tab-width</span></>], ["strip fill", <span className="tok">--tasty-bg-sidebar</span>], ["active", "strip fill + 2px tab-indicator top bar + active title colour (default Underline)"]]}
+            tokens={[{ tok: "--tasty-bg-sidebar", use: "strip", color: "var(--tasty-bg-sidebar)" }, { tok: "--tasty-bg-panel", use: "active tab with Fill only", color: "var(--tasty-bg-panel)" }, { tok: "--tasty-accent-primary", use: "active bar", color: "var(--tasty-accent-primary-raised)" }]} />
         </Spec>
         {GalleryTabStrip ? <GalleryTabStrip /> : null}
       </Section>
