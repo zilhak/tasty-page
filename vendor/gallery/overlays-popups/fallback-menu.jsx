@@ -64,15 +64,20 @@ function HeldUnderPointer({ items, click, active, hover }) {
 
 // A faux window: the menu is placed inside this rect, kept var(--tasty-fallback-menu-edge-margin) from each edge.
 // The dot marks the click point; it is a gallery annotation, not part of the menu.
+// The caption is the writing about the specimen (g-cap, font-prose). The column is the window's width at most and no
+// wider than the stage, so the caption wraps to what the reader can see, and a window wider than the stage scrolls
+// inside its own box.
 function FallbackWindow({ w, h, click, caption, children }) {
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)" }}>
-      <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" }}>{caption}</span>
+    <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", width: w, maxWidth: "100%", minWidth: 0 }}>
+      <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>{caption}</span>
+      <div style={{ maxWidth: "100%", overflowX: "auto" }}>
       <div data-fallback-window="" style={{ position: "relative", width: w, height: h, overflow: "hidden", borderRadius: "var(--tasty-radius)",
         border: "var(--tasty-border-width) solid var(--tasty-border-default)", background: "var(--tasty-bg-panel)" }}>
         {click && <span aria-hidden="true" style={{ position: "absolute", left: click.x - 2, top: click.y - 2, width: "var(--tasty-space-xs)", height: "var(--tasty-space-xs)",
           borderRadius: "var(--tasty-radius-pill)", background: "var(--tasty-border-focus)" }} />}
         {children}
+      </div>
       </div>
     </div>
   );
@@ -104,7 +109,7 @@ function FallbackMenuDemo({ h = 320, caption = "right-click anywhere · ↑ ↓ 
   };
   return (
     <div ref={ref} tabIndex={0} onKeyDown={onKey} style={{ outline: "none" }}
-      onContextMenu={(e) => { e.preventDefault(); const r = ref.current.firstChild.lastChild.getBoundingClientRect(); setClick({ x: Math.round(e.clientX - r.left), y: Math.round(e.clientY - r.top) }); setActive(-1); setHeld(false); ref.current.focus(); }}
+      onContextMenu={(e) => { e.preventDefault(); const r = ref.current.querySelector("[data-fallback-window]").getBoundingClientRect(); setClick({ x: Math.round(e.clientX - r.left), y: Math.round(e.clientY - r.top) }); setActive(-1); setHeld(false); ref.current.focus(); }}
       onClick={() => { setClick(null); setActive(-1); setHeld(false); }}>
       <FallbackWindow w={520} h={h} click={click} caption={caption}>
         {click && <FallbackMenu key={`${click.x},${click.y}`} items={items} click={click} active={active} scrollTo={active} onPointerRow={setActive} pointerHeld={held} onPointerMove={() => held && setHeld(false)} />}
