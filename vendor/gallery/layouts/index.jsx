@@ -707,7 +707,7 @@ function Layouts() {
           </Stage>
           <Meta
             specs={[["tab height", <>24px <span className="tok">--tasty-control-height-tab</span></>], ["tab width", <>150px <span className="tok">--tasty-tab-width</span></>], ["strip fill", <span className="tok">--tasty-bg-sidebar</span>], ["active", "strip fill + 2px tab-indicator top bar + active title colour (default Underline)"]]}
-            tokens={[{ tok: "--tasty-bg-sidebar", use: "strip", color: "var(--tasty-bg-sidebar)" }, { tok: "--tasty-bg-panel", use: "active tab with Fill only", color: "var(--tasty-bg-panel)" }, { tok: "--tasty-tab-indicator", use: "active bar", color: "var(--tasty-tab-indicator)" }]} />
+            tokens={[{ tok: "--tasty-bg-sidebar", use: "strip", color: "var(--tasty-bg-sidebar)" }, { tok: "--tasty-tab-bg-active", use: "active tab with Fill only", color: "var(--tasty-tab-bg-active)" }, { tok: "--tasty-tab-indicator", use: "active bar", color: "var(--tasty-tab-indicator)" }]} />
         </Spec>
         {GalleryTabStrip ? <GalleryTabStrip /> : null}
       </Section>
