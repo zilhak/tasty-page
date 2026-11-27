@@ -56,7 +56,9 @@ function PaletteCard({ query = "", onQuery, onRun, autoFocus = false }) {
       </div>
       <div className="tasty-scroll" style={{ flex: "0 1 auto", padding: "var(--tasty-space-sm)", maxHeight: "calc(1 * var(--tasty-palette-list-max-height) + 2 * var(--tasty-space-sm))",
         minHeight: "calc(1 * var(--tasty-menu-item-height) + 2 * var(--tasty-space-sm))", overflow: "auto" }}>
-        {items.length === 0 && <div style={{ padding: 14, fontSize: 13, color: "var(--tasty-text-muted)" }}>No matching commands</div>}
+        {/* as the app's empty list (command_palette.rs): one label inside the list's space-sm padding with none of its own,
+            text-muted-raised on the raised card and slanted as a note for absent content */}
+        {items.length === 0 && <div style={{ fontSize: "var(--tasty-font-size-body)", fontStyle: "var(--tasty-font-style-absent)", color: "var(--tasty-text-muted-raised)" }}>No matching commands</div>}
         {items.map((i, n) => (
           <MenuItem key={i.label} label={i.label} icon={i.icon}
             shortcut={i.sc ? <Kbd keys={i.sc} /> : null} active={n === 0 && query !== ""}
