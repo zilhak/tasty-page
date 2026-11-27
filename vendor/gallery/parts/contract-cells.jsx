@@ -112,7 +112,8 @@ const CELLS = {
     return (
       <>
         <MenuItem data-part="item" label="Item" icon={plus} shortcut="Ctrl+K" active={active} disabled={disabled} />
-        <MenuItem data-part="danger" label="Delete" icon={plus} danger active={active} disabled={disabled} />
+        {/* the danger icon is read only in keyboard-active (icon.danger), so only that cell draws it */}
+        <MenuItem data-part="danger" label="Delete" icon={active ? plus : null} danger active={active} disabled={disabled} />
         <MenuItem data-part="chosen" label="Chosen" selected active={active} disabled={disabled} />
       </>
     );
