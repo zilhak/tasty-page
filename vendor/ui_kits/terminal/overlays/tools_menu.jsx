@@ -48,7 +48,8 @@ const TOOLS_PLUGIN = [
 // (its labels ellipsize): the cut size is the size it is drawn at, as clamp_to_screen sets the popup's size.
 // The anchor is the one the menu opened at. The menu keeps its own size (measured when it opens) apart from the size
 // it is cut to, and fits that own size into the current room again whenever the window is resized, as the app clamps
-// the popup to the current scope bounds every frame: a menu cut by a smaller window grows back when it grows.
+// the popup to the current scope bounds every frame: a menu cut by a smaller window grows back when it grows. A row a
+// key marked stays shown through a refit: the menu scrolls the least that shows it in the new height.
 // anchor: the button's client rect (Sidebar's onTools(rect, button)). bounds: the room, a client rect
 // { top, right, bottom, left }, or a function that returns one; a host that covers part of the window with its own
 // fixed chrome (the site's header) passes the part left over. A function is read when the menu opens and on every
@@ -99,18 +100,29 @@ function ToolsMenu({ anchor, bounds = null, hostRuns = null, onClose, onAction }
   }, []);
   // A row a key marks is shown inside the menu: the menu scrolls the least that shows the whole row with the menu's
   // padding, and the page does not move (the focus takes no scroll of its own), as the palette shows its selection.
-  const go = (i) => {
-    setKb(i);
+  const rowEl = (i) => menuRef.current && menuRef.current.querySelector(`[data-row="${i}"]`);
+  const reveal = (el) => {
     const menu = menuRef.current;
-    const el = menu && menu.querySelector(`[data-row="${i}"]`);
-    if (!el) return;
-    el.focus({ preventScroll: true });
     const pad = parseFloat(getComputedStyle(menu).paddingTop) || 0;
     const top = el.offsetTop - pad;
     const bottom = el.offsetTop + el.offsetHeight + pad;
     if (top < menu.scrollTop) menu.scrollTop = top;
     else if (bottom > menu.scrollTop + menu.clientHeight) menu.scrollTop = bottom - menu.clientHeight;
   };
+  const go = (i) => {
+    setKb(i);
+    const el = rowEl(i);
+    if (!el) return;
+    el.focus({ preventScroll: true });
+    reveal(el);
+  };
+  // A refit changes the menu's height: the marked row, if any, is shown again in the new height the same way, before
+  // the frame is drawn, and keeps the mark and the focus. A menu with no marked row is left where it is scrolled.
+  useBeforePaint(() => {
+    if (!place || kb < 0) return;
+    const el = rowEl(kb);
+    if (el) reveal(el);
+  }, [place]);
   const runnable = rows.map((r, i) => (r.disabled ? -1 : i)).filter((i) => i >= 0);
   const onKeyDown = (e) => {
     const down = e.key === "ArrowDown" || (e.key === "Tab" && !e.shiftKey);
