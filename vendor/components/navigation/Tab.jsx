@@ -50,7 +50,9 @@ import React from "react";
  * lives on the workspace row.) The dot is static (no pulse).
  *
  * Right cluster: busy dot · close, tab-status-gap (4) apart; label → cluster
- * is tab-gap (8).
+ * is tab-gap (8). The tab pads tab-padding-x (8) before the icon and space-xs
+ * (4) after the close slot, as the app places the icon h_padding in and the
+ * cluster from the tab's right edge less spacing_xs (tab_bar/tab.rs).
  *
  * Keyboard focus: the canon is that the pane tab strip is no keyboard stop and
  * draws no ring. Tabs move by shortcut (next/prev tab, quick switch, switch
@@ -73,7 +75,7 @@ const CSS = `
   gap: var(--tasty-tab-gap);
   height: var(--tasty-control-height-tab);
   width: var(--tasty-tab-width);
-  padding: 0 var(--tasty-space-sm) 0 var(--tasty-space-md);
+  padding: 0 var(--tasty-space-xs) 0 var(--tasty-tab-padding-x);
   border-right: var(--tasty-border-width) solid var(--tasty-separator);
   background: var(--tab-fill);
   color: var(--tab-ink);
