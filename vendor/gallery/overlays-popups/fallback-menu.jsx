@@ -65,7 +65,8 @@ function FallbackWindow({ w, h, click, caption, children }) {
 // Live demo: right-click inside the window. Arrow keys move the active row and skip disabled rows and separators,
 // wrapping at the ends; the pointer moving onto a row makes it the active row. After an arrow key the menu holds the
 // highlight: a row under a still pointer shows no tint, and the pointer's first real move makes the row under it the
-// active row, so one row is lit. Enter runs it, Esc or a click outside closes.
+// active row, so one row is lit. Enter runs it, Esc or a click outside closes. The hold lasts one opened menu: opening,
+// running a row and closing each drop it with the active row.
 function FallbackMenuDemo() {
   const [click, setClick] = React.useState(null);
   const [active, setActive] = React.useState(-1);
@@ -75,7 +76,7 @@ function FallbackMenuDemo() {
   const enabled = items.map((it, i) => (!it.separator && it.enabled !== false ? i : -1)).filter((i) => i >= 0);
   const onKey = (e) => {
     if (!click) return;
-    if (e.key === "Escape" || e.key === "Enter") { setClick(null); setActive(-1); e.preventDefault(); return; }
+    if (e.key === "Escape" || e.key === "Enter") { setClick(null); setActive(-1); setHeld(false); e.preventDefault(); return; }
     if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
     e.preventDefault();
     const k = enabled.indexOf(active);
@@ -85,8 +86,8 @@ function FallbackMenuDemo() {
   };
   return (
     <div ref={ref} tabIndex={0} onKeyDown={onKey} style={{ outline: "none" }}
-      onContextMenu={(e) => { e.preventDefault(); const r = ref.current.firstChild.lastChild.getBoundingClientRect(); setClick({ x: Math.round(e.clientX - r.left), y: Math.round(e.clientY - r.top) }); setActive(-1); ref.current.focus(); }}
-      onClick={() => { setClick(null); setActive(-1); }}>
+      onContextMenu={(e) => { e.preventDefault(); const r = ref.current.firstChild.lastChild.getBoundingClientRect(); setClick({ x: Math.round(e.clientX - r.left), y: Math.round(e.clientY - r.top) }); setActive(-1); setHeld(false); ref.current.focus(); }}
+      onClick={() => { setClick(null); setActive(-1); setHeld(false); }}>
       <FallbackWindow w={520} h={320} click={click} caption="right-click anywhere · ↑ ↓ · Enter · Esc">
         {click && <FallbackMenu key={`${click.x},${click.y}`} items={items} click={click} active={active} scrollTo={active} onPointerRow={setActive} pointerHeld={held} onPointerMove={() => held && setHeld(false)} />}
       </FallbackWindow>
