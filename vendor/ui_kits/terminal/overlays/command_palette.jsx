@@ -42,8 +42,24 @@ const PALETTE_COMMANDS = [
 ];
 
 // The card alone, so the gallery can set it in a room of a chosen height (ScrimRoom) and show the same layout.
+// Keys, as the app's (command_palette.rs draw_command_palette_view): the search field holds them; Down and Up move the
+// selection one row, stopping at the ends, and Enter runs the selected row. Each query change puts the selection back
+// on the first match, and it never runs past the last one. A row is highlighted only while the query has text, so with
+// an empty query the arrows move a selection that is not drawn and Enter runs it. The pointer tints the row under it
+// and a click runs that row; neither moves the selection.
 function PaletteCard({ query = "", onQuery, onRun, autoFocus = false }) {
   const items = PALETTE_COMMANDS.filter((i) => i.label.toLowerCase().includes(query.toLowerCase()));
+  const [sel, setSel] = React.useState(0);
+  const selected = Math.min(sel, Math.max(items.length - 1, 0));
+  const onKeyDown = (e) => {
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+      e.preventDefault();
+      if (items.length) setSel(e.key === "ArrowDown" ? Math.min(selected + 1, items.length - 1) : Math.max(selected - 1, 0));
+    } else if (e.key === "Enter" && !e.nativeEvent.isComposing) {
+      e.preventDefault();
+      if (items[selected] && onRun) onRun(items[selected].label);
+    }
+  };
   return (
     /* A column, as the app lays the card out (command_palette.rs): search, then the footer's height reserved at the
        bottom, then the list takes what is left, at least one row, and scrolls inside. When the screen cuts the card
@@ -52,7 +68,7 @@ function PaletteCard({ query = "", onQuery, onRun, autoFocus = false }) {
       borderRadius: "var(--tasty-radius)", overflow: "hidden", boxShadow: "var(--tasty-shadow-modal)" }}>
       <div style={{ flex: "none", padding: "var(--tasty-space-md)", borderBottom: "var(--tasty-border-width) solid var(--tasty-border-strong)" }}>
         <Input block ground="raised" autoFocus={autoFocus} icon={ic.search} placeholder="Type to search commands…"
-          value={query} onChange={(e) => onQuery && onQuery(e.target.value)} />
+          value={query} onKeyDown={onKeyDown} onChange={(e) => { setSel(0); onQuery && onQuery(e.target.value); }} />
       </div>
       <div className="tasty-scroll" style={{ flex: "0 1 auto", padding: "var(--tasty-space-sm)", maxHeight: "calc(1 * var(--tasty-palette-list-max-height) + 2 * var(--tasty-space-sm))",
         minHeight: "calc(1 * var(--tasty-menu-item-height) + 2 * var(--tasty-space-sm))", overflow: "auto" }}>
@@ -61,7 +77,7 @@ function PaletteCard({ query = "", onQuery, onRun, autoFocus = false }) {
         {items.length === 0 && <div style={{ fontSize: "var(--tasty-font-size-body)", fontStyle: "var(--tasty-font-style-absent)", color: "var(--tasty-text-muted-raised)" }}>No matching commands</div>}
         {items.map((i, n) => (
           <MenuItem key={i.label} label={i.label} icon={i.icon}
-            shortcut={i.sc ? <Kbd keys={i.sc} /> : null} active={n === 0 && query !== ""}
+            shortcut={i.sc ? <Kbd keys={i.sc} /> : null} active={n === selected && query !== ""}
             onClick={() => onRun && onRun(i.label)} />
         ))}
       </div>
