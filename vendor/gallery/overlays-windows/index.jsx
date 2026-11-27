@@ -23,6 +23,7 @@ import { SettingsTitleBarLinuxSpec } from "./settings-titlebar-linux.jsx";
 import { WindowTabFocusSpec, PluginsTabHoverSpec } from "./window-tab-focus.jsx";
 import { Section, Spec, Stage, Meta, Note, Do, Dont, Views, View } from "../parts/specimen.jsx";
 import { PaletteCard as Kit_PaletteCard } from "../../ui_kits/terminal/overlays/command_palette.jsx";
+import { ToolsMenu as Kit_ToolsMenu } from "../../ui_kits/terminal/overlays/tools_menu.jsx";
 import { PortsWindow as Kit_PortsWindow } from "../../ui_kits/terminal/overlays/port_scanner.jsx";
 import { ScrimRoom as Kit_ScrimRoom } from "../../ui_kits/terminal/overlays/shared.jsx";
 import { KbImportExportSubtab as Kit_KbImportExportSubtab, IE_GROUPS as KIT_IE_GROUPS } from "../../ui_kits/terminal/overlays/kb_import_export.jsx";
@@ -730,6 +731,48 @@ function PaletteSelectedCell({ children }) {
   return <div ref={ref} style={{ display: "contents" }}>{children}</div>;
 }
 
+// Tools to the palette, live: the kit Tools menu and the kit palette card in one box, as a host runs them. Running
+// Command palette… with Space opens the card with its field focused while that Space is still down. The field takes
+// the repeats of a key whose press it did not see, so the held Space types nothing; released and pressed again, Space
+// types. Esc closes the card and returns the focus to the Tools button.
+function PaletteFromToolsDemo() {
+  const boxRef = React.useRef(null);
+  const btnRef = React.useRef(null);
+  const [anchor, setAnchor] = React.useState(null);
+  const [palette, setPalette] = React.useState(false);
+  const [query, setQuery] = React.useState("");
+  const room = React.useCallback(() => {
+    const box = boxRef.current;
+    return { top: 0, left: 0, right: box ? box.clientWidth : 0, bottom: box ? box.clientHeight : 0 };
+  }, []);
+  const focusTools = () => { const b = btnRef.current && btnRef.current.querySelector("button"); if (b) b.focus({ preventScroll: true }); };
+  const open = (e) => {
+    const box = boxRef.current.getBoundingClientRect();
+    const r = e.currentTarget.getBoundingClientRect();
+    setAnchor((a) => (a ? null : { top: r.top - box.top, bottom: r.bottom - box.top, left: r.left - box.left, right: r.right - box.left, width: r.width, height: r.height }));
+  };
+  const closeMenu = () => { setAnchor(null); focusTools(); };
+  const run = (id) => { setAnchor(null); if (id === "palette") { setQuery(""); setPalette(true); } else focusTools(); };
+  const closePalette = () => { setPalette(false); requestAnimationFrame(focusTools); };
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", width: 560, maxWidth: "100%" }}>
+      <div ref={boxRef} data-palette-from-tools="" onKeyDown={(e) => { if (e.key === "Escape" && palette) { e.stopPropagation(); closePalette(); } }}
+        style={{ position: "relative", height: 360, overflow: "hidden", background: "var(--tasty-bg-app)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)" }}>
+        <div ref={btnRef} style={{ position: "absolute", left: 8, bottom: 8, width: 160 }}>
+          <Button variant="ghost" size="sm" block leadingIcon={<WIcon name="tools" />} style={{ justifyContent: "flex-start" }} onClick={open}>Tools</Button>
+        </div>
+        {anchor && <Kit_ToolsMenu anchor={anchor} bounds={room} hostRuns={["palette"]} onClose={closeMenu} onAction={run} />}
+        {palette && (
+          <div style={{ position: "absolute", top: 8, left: 0, right: 0, display: "flex", justifyContent: "center" }}>
+            <Kit_PaletteCard autoFocus commands={PALETTE_APP_COMMANDS_KIT} query={query} onQuery={setQuery} onRun={closePalette} />
+          </div>
+        )}
+      </div>
+      <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>click Tools · ↓ marks Command palette… · press and hold Space → the palette opens with its search focused and the field stays empty while Space is held · release Space and press it again → one space typed · type Shift+A, then hold A after releasing Shift → Aaaa · Esc closes and returns the focus to Tools</span>
+    </div>
+  );
+}
+
 function Page() {
   return (
     <>
@@ -737,6 +780,7 @@ function Page() {
         <Spec id="command-palette-k" title="Command palette — ⌘K"
           when={<>Top-anchored launcher. A search Input header with <code>space-md</code> padding, a scrollable MenuItem list with <code>space-sm</code> padding on all sides, and a hint footer in the label face. An empty query leaves rows unhighlighted, with hover tint under the pointer. With query text, the selected row is highlighted. Each query edit resets selection to the first match, and ↑ and ↓ move it. The fastest path to any command — every action should be reachable here.</>}>
           <Stage variant="solo center"><Backdrop height={400}><PaletteFrame /></Backdrop></Stage>
+          <Stage variant="solo center"><PaletteFromToolsDemo /></Stage>
           {/* The kit's own card in a room as short as a small screen leaves it: the same column the landing palette lays
               out, so the list gives up its height first and scrolls, and the search and the footer stay whole. A frame is a
               picture, so the card is inert, as in the ports and plugins frames: the search takes no focus and the list
@@ -762,7 +806,7 @@ function Page() {
             </View>
           </Views>
           <Meta
-            specs={[["width", "--tasty-palette-width"], ["anchor", "top, ~40–90px"], ["header", <>Input + <span className="tok">--tasty-border-strong</span> line below</>], ["rows", <>28px MenuItem · empty query leaves rows unhighlighted, with hover tint under the pointer · query text highlights the selected row · each edit resets selection to the first match · ↑ and ↓ move selection</>], ["no results", "“No matching commands” · text-muted-raised · italic · inside the list’s space-sm padding · no padding of its own"], ["footer", <>↑↓ navigate, ↵ run, esc close · font-label (mono in English and Korean, UI face in Japanese and Simplified Chinese), caption (11px), text-muted-raised · palette-hint-gap (14px) · space-sm (8px) vertical and space-md (12px) horizontal padding · <span className="tok">--tasty-border-strong</span> line above</>], ["short screen", "palette clamped to screen \u00b7 search and footer keep height \u00b7 list scrolls in remaining space, min 1 row"], ["selected row in view", "each selection move scrolls the list just enough to show the whole selected row, empty query included · each query edit shows the list from its top"], ["wheel scrolling", "wheel scrolls rows and leaves the selection in place · selected row fully out of view → first Enter scrolls just enough to show the whole row and runs nothing · any part of the selected row in view → a new press of Enter runs it · repeats while holding Enter do nothing"], ["frame edge", <>1px <span className="tok">--tasty-border-frame</span> — the popup frame, on the raised shell as on a base one</>]]}
+            specs={[["width", "--tasty-palette-width"], ["anchor", "top, ~40–90px"], ["header", <>Input + <span className="tok">--tasty-border-strong</span> line below</>], ["rows", <>28px MenuItem · empty query leaves rows unhighlighted, with hover tint under the pointer · query text highlights the selected row · each edit resets selection to the first match · ↑ and ↓ move selection</>], ["no results", "“No matching commands” · text-muted-raised · italic · inside the list’s space-sm padding · no padding of its own"], ["footer", <>↑↓ navigate, ↵ run, esc close · font-label (mono in English and Korean, UI face in Japanese and Simplified Chinese), caption (11px), text-muted-raised · palette-hint-gap (14px) · space-sm (8px) vertical and space-md (12px) horizontal padding · <span className="tok">--tasty-border-strong</span> line above</>], ["short screen", "palette clamped to screen \u00b7 search and footer keep height \u00b7 list scrolls in remaining space, min 1 row"], ["selected row in view", "each selection move scrolls the list just enough to show the whole selected row, empty query included · each query edit shows the list from its top"], ["wheel scrolling", "wheel scrolls rows and leaves the selection in place · selected row fully out of view → first Enter scrolls just enough to show the whole row and runs nothing · any part of the selected row in view → a new press of Enter runs it · repeats while holding Enter do nothing"], ["held keys", "the search field types only keys whose press it saw, by physical key, until release or blur · a key held across the opening (the Space that ran Tools › Command palette…) types nothing until it is released · a key pressed in the field repeats as usual"], ["frame edge", <>1px <span className="tok">--tasty-border-frame</span> — the popup frame, on the raised shell as on a base one</>]]}
             tokens={[{ tok: "--tasty-surface-raised", use: "frame", color: "var(--tasty-surface-raised)" }, { tok: "--tasty-border-frame", use: "frame edge", color: "var(--tasty-border-frame)" }, { tok: "--tasty-border-strong", use: "header and footer lines — a divider on raised", color: "var(--tasty-border-strong)" }, { tok: "--tasty-surface-active", use: "highlight", color: "var(--tasty-surface-active)" }, { tok: "--tasty-font-label", use: "hints" }, { tok: "--tasty-palette-hint-gap", use: "spacing between footer hints" }]} />
         </Spec>
         <Spec id="search-field-ground-normal-focused" title="Search field ground — normal · focused"
