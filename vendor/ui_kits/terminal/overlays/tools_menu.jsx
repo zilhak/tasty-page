@@ -65,9 +65,8 @@ function ToolsMenu({ anchor, onClose, onAction }) {
   return (
     <div onClick={onClose} onContextMenu={(e) => { e.preventDefault(); onClose(); }}
       style={{ position: "absolute", inset: 0, zIndex: 55 }}>
-      <style>{`.tasty-toolsmenu-item{color:var(--tasty-menu-item-fg)}
-.tasty-toolsmenu-item:hover{color:var(--tasty-menu-item-fg-hover)}
-.tasty-toolsmenu-item:focus-visible,.tasty-toolsmenu:focus-visible{outline:none}`}</style>
+      {/* MenuItem draws every row state, keyboard-active included; the menu only drops the focus ring the fill replaces */}
+      <style>{`.tasty-toolsmenu-item:focus-visible,.tasty-toolsmenu:focus-visible{outline:none}`}</style>
       <div ref={menuRef} tabIndex={-1} className="tasty-toolsmenu" onKeyDown={onKeyDown} onClick={(e) => e.stopPropagation()} role="menu" aria-label="Tools"
         style={{ position: "absolute", left: anchor.left,
           bottom: window.innerHeight - anchor.top + 2, width: 160,
@@ -80,7 +79,7 @@ function ToolsMenu({ anchor, onClose, onAction }) {
           return (
             <MenuItem key={item.id} label={item.label} active={i === kb} tabIndex={-1}
               onClick={() => onAction(item.id)} onBlur={() => setKb((v) => (v === i ? -1 : v))}
-              data-row={i} style={{ color: undefined }} className="tasty-toolsmenu-item" />
+              data-row={i} className="tasty-toolsmenu-item" />
           );
         })}
       </div>

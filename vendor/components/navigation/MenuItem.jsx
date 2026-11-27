@@ -25,6 +25,9 @@ const CSS = `
 }
 .tasty-menuitem:hover { background: var(--tasty-menu-item-bg-hover); color: var(--tasty-menu-item-fg-hover); }
 .tasty-menuitem--active { background: var(--tasty-surface-active); color: var(--tasty-menu-item-fg-hover); }
+/* keyboard-active outranks hover, as the app's menu_item picks active before hover: the pointer over the active row
+   leaves its fill and inks as they are */
+.tasty-menuitem--active:hover { background: var(--tasty-surface-active); color: var(--tasty-menu-item-fg-hover); }
 .tasty-menuitem--danger:hover { color: var(--tasty-accent-danger-strong); }
 .tasty-menuitem--danger { color: var(--tasty-accent-danger-raised); }
 .tasty-menuitem--active .tasty-kbd__plus { color: var(--tasty-kbd-plus-fg-active); }
@@ -44,6 +47,8 @@ const CSS = `
 .tasty-menuitem:hover .tasty-menuitem__check { color: var(--tasty-accent-primary-raised); }
 /* 2026-11-05 — a keyboard-active row: one ink for every part, danger included (the row's fill is surface-active) */
 .tasty-menuitem--active .tasty-menuitem__icon, .tasty-menuitem--active .tasty-menuitem__shortcut, .tasty-menuitem--danger.tasty-menuitem--active, .tasty-menuitem--danger.tasty-menuitem--active .tasty-menuitem__icon { color: var(--tasty-menu-item-part-fg-active); }
+.tasty-menuitem--active:hover .tasty-menuitem__shortcut, .tasty-menuitem--danger.tasty-menuitem--active:hover { color: var(--tasty-menu-item-part-fg-active); }
+.tasty-menuitem--active:hover .tasty-menuitem__check { color: var(--tasty-menu-item-check-fg); }
 .tasty-menuitem[data-disabled="true"] { pointer-events: none; }
 .tasty-menuitem[data-disabled="true"], .tasty-menuitem[data-disabled="true"] * { color: var(--tasty-state-disabled-fg); }
 .tasty-menu-sep { height: var(--tasty-border-width); margin: var(--tasty-space-xs) 0; background: var(--tasty-menu-separator); }
