@@ -30,30 +30,59 @@ const TOOLS_PLUGIN = [
   { id: "git", label: "Git" },
 ];
 
+// Keys, as the app's tools_menu popup: it opens with the keys (focus_on_open) but no row focused, and its rows are
+// egui click widgets, which Tab and Shift+Tab, Up and Down move focus between and Enter or Space press (egui
+// memory and context). So the menu takes focus when it opens and no row is marked; Down or Tab then goes to the first
+// row and Up or Shift+Tab to the last, each next press moves one row and stops at the ends, Enter or Space runs the
+// row, and Esc closes the menu. The row the keys are on draws MenuItem's keyboard-active state (surface-active, the
+// contract's keyboard-active row) and no ring; the pointer only tints, as before. The keys stay in the menu until it
+// closes.
 function ToolsMenu({ anchor, onClose, onAction }) {
   React.useEffect(() => {
     const h = (e) => { if (e.key === "Escape") onClose(); };
     window.addEventListener("keydown", h);
     return () => window.removeEventListener("keydown", h);
   }, [onClose]);
-  const Row = ({ item }) => (
-    <MenuItem label={item.label} onClick={() => onAction(item.id)}
-      style={{ color: undefined }} className="tasty-toolsmenu-item" />
-  );
+  const items = [...TOOLS_BUILTIN, null, ...TOOLS_PLUGIN];
+  const rows = items.filter(Boolean);
+  const menuRef = React.useRef(null);
+  const [kb, setKb] = React.useState(-1);
+  React.useEffect(() => { if (menuRef.current) menuRef.current.focus({ preventScroll: true }); }, []);
+  const go = (i) => { setKb(i); const el = menuRef.current && menuRef.current.querySelector(`[data-row="${i}"]`); if (el) el.focus({ preventScroll: true }); };
+  const onKeyDown = (e) => {
+    const last = rows.length - 1;
+    const down = e.key === "ArrowDown" || (e.key === "Tab" && !e.shiftKey);
+    const up = e.key === "ArrowUp" || (e.key === "Tab" && e.shiftKey);
+    if (down || up) {
+      e.preventDefault();
+      go(kb < 0 ? (down ? 0 : last) : Math.max(0, Math.min(last, kb + (down ? 1 : -1))));
+    } else if ((e.key === "Enter" || e.key === " ") && kb >= 0) {
+      e.preventDefault();
+      onAction(rows[kb].id);
+    }
+  };
+  let n = -1;
   return (
     <div onClick={onClose} onContextMenu={(e) => { e.preventDefault(); onClose(); }}
       style={{ position: "absolute", inset: 0, zIndex: 55 }}>
       <style>{`.tasty-toolsmenu-item{color:var(--tasty-menu-item-fg)}
-.tasty-toolsmenu-item:hover{color:var(--tasty-menu-item-fg-hover)}`}</style>
-      <div onClick={(e) => e.stopPropagation()} role="menu" aria-label="Tools"
+.tasty-toolsmenu-item:hover{color:var(--tasty-menu-item-fg-hover)}
+.tasty-toolsmenu-item:focus-visible,.tasty-toolsmenu:focus-visible{outline:none}`}</style>
+      <div ref={menuRef} tabIndex={-1} className="tasty-toolsmenu" onKeyDown={onKeyDown} onClick={(e) => e.stopPropagation()} role="menu" aria-label="Tools"
         style={{ position: "absolute", left: anchor.left,
           bottom: window.innerHeight - anchor.top + 2, width: 160,
           background: "var(--tasty-menu-bg)", border: "var(--tasty-border-width) solid var(--tasty-menu-border)",
           borderRadius: "var(--tasty-menu-radius)", padding: "var(--tasty-popup-content-margin)",
           boxShadow: "var(--tasty-shadow-popover)" }}>
-        {TOOLS_BUILTIN.map((item) => <Row key={item.id} item={item} />)}
-        <MenuItem separator />
-        {TOOLS_PLUGIN.map((item) => <Row key={item.id} item={item} />)}
+        {items.map((item, k) => {
+          if (!item) return <MenuItem key={"sep" + k} separator />;
+          const i = ++n;
+          return (
+            <MenuItem key={item.id} label={item.label} active={i === kb} tabIndex={-1}
+              onClick={() => onAction(item.id)} onBlur={() => setKb((v) => (v === i ? -1 : v))}
+              data-row={i} style={{ color: undefined }} className="tasty-toolsmenu-item" />
+          );
+        })}
       </div>
     </div>
   );
