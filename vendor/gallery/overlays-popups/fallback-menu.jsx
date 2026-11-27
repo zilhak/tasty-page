@@ -36,12 +36,28 @@ const at = (items, label) => items.findIndex((it) => it.label === label);
 // A still pointer over one row while the keys hold the highlight. The check does not move the pointer, so the row
 // under it takes data-force="hover", which mirrorPseudoStates maps to MenuItem's own :hover rules, as the MenuItem
 // frames on the components page do. The frame shows the held row drawing as at rest beside the keyboard-active row.
+// Both rows are MenuItem contract cells (gallery/README.md, fixed views): the row box the menu wraps each row in is the
+// cell and the MenuItem is its item part. The held row is checked against the rest row's inks (label, shortcut) and the
+// active row against keyboard-active's fill and inks, so a hold that let the hover tint or its inks through, or an
+// active fill that gave way, reads as a mismatch.
 function HeldUnderPointer({ items, click, active, hover }) {
   const ref = React.useRef(null);
   React.useEffect(() => {
     mirrorPseudoStates();
-    const row = ref.current && ref.current.querySelectorAll("[data-fallback-menu] .tasty-menuitem")[items.filter((it, i) => i < hover && !it.separator).length];
-    if (row) row.setAttribute("data-force", "hover");
+    const rowAt = (i) => ref.current && ref.current.querySelector(`[data-fallback-menu] [data-fallback-row="${i}"] .tasty-menuitem`);
+    const cell = (row, state, parts) => {
+      if (!row) return;
+      row.setAttribute("data-part", "item");
+      const box = row.parentElement;
+      box.setAttribute("data-contract", "MenuItem");
+      box.setAttribute("data-state", state);
+      box.setAttribute("data-host", "raised");
+      box.setAttribute("data-parts", JSON.stringify(parts));
+    };
+    const held = rowAt(hover);
+    if (held) held.setAttribute("data-force", "hover");
+    cell(held, "rest", ["label", "shortcut"]);
+    cell(rowAt(active), "keyboard-active", ["fill", "label", "shortcut"]);
   }, []);
   return <div ref={ref} inert="" style={{ pointerEvents: "none" }}><FallbackMenu items={items} click={click} active={active} pointerHeld /></div>;
 }

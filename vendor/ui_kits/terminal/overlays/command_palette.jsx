@@ -95,10 +95,13 @@ function PaletteCard({ query = "", onQuery, onRun, autoFocus = false, commands =
         {/* as the app's empty list (command_palette.rs): one label inside the list's space-sm padding with none of its own,
             text-muted-raised on the raised card and slanted as a note for absent content */}
         {items.length === 0 && <div style={{ fontSize: "var(--tasty-font-size-body)", fontStyle: "var(--tasty-font-style-absent)", color: "var(--tasty-text-muted-raised)" }}>No matching commands</div>}
+        {/* each row sits in its own box, the unit the selection scrolls into view (and a gallery contract cell holds) */}
         {items.map((i, n) => (
-          <MenuItem key={i.label} data-palette-row={n} label={i.label} icon={i.icon}
-            shortcut={i.sc ? <Kbd keys={i.sc} /> : null} active={n === selected && query !== ""}
-            onClick={() => onRun && onRun(i.label)} />
+          <div key={i.label} data-palette-row={n}>
+            <MenuItem label={i.label} icon={i.icon}
+              shortcut={i.sc ? <Kbd keys={i.sc} /> : null} active={n === selected && query !== ""}
+              onClick={() => onRun && onRun(i.label)} />
+          </div>
         ))}
       </div>
       {/* the app's footer: padding space-sm × space-md, hints in label_font at font_size_caption, PALETTE_HINT_GAP_X apart */}

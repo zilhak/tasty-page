@@ -708,6 +708,24 @@ function ZOrderDemo() {
   );
 }
 
+// The selected row of a palette frame as a MenuItem contract cell (gallery/README.md, fixed views): the box the card
+// wraps each row in is the cell and the MenuItem its item part, checked against keyboard-active's fill and inks, so a
+// selected row scrolled into view that lost its fill or inks reads as a mismatch.
+function PaletteSelectedCell({ children }) {
+  const ref = React.useRef(null);
+  React.useEffect(() => {
+    const row = ref.current && ref.current.querySelector("[data-palette-row] > .tasty-menuitem--active");
+    if (!row) return;
+    row.setAttribute("data-part", "item");
+    const box = row.parentElement;
+    box.setAttribute("data-contract", "MenuItem");
+    box.setAttribute("data-state", "keyboard-active");
+    box.setAttribute("data-host", "raised");
+    box.setAttribute("data-parts", JSON.stringify(["fill", "label", "icon", "shortcut"]));
+  }, []);
+  return <div ref={ref} style={{ display: "contents" }}>{children}</div>;
+}
+
 function Page() {
   return (
     <>
@@ -735,7 +753,7 @@ function Page() {
             </View>
             <View name="palette-short-screen-keyboard" label="Command palette — short screen, query “e”, ↓ to the last match (list scrolled to the selected row)">
               <div inert="" style={{ display: "flex", width: "var(--tasty-palette-width)", height: "var(--tasty-short-screen-specimen-height)", pointerEvents: "none" }}>
-                <Kit_ScrimRoom align="top"><Kit_PaletteCard commands={PALETTE_APP_COMMANDS_KIT} query="e" initialSelected={PALETTE_APP_COMMANDS_KIT.length - 1} /></Kit_ScrimRoom>
+                <PaletteSelectedCell><Kit_ScrimRoom align="top"><Kit_PaletteCard commands={PALETTE_APP_COMMANDS_KIT} query="e" initialSelected={PALETTE_APP_COMMANDS_KIT.length - 1} /></Kit_ScrimRoom></PaletteSelectedCell>
               </div>
             </View>
           </Views>
