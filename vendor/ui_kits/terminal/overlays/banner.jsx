@@ -74,12 +74,21 @@ function BannerDismiss({ ttl, bannerHover, backgrounded, onClose }) {
 // interpolated program name (mono) shrinks and ellipsises, so the menu stays
 // between --tasty-banner-more-menu-min-width and -max-width in every locale.
 // 2026-11-02 — prefix / {app} / suffix (en: prefix only; ko/ja: suffix only).
+// The program name reads its own token pair, as the app does: banner-more-app-fg on a resting row, and
+// banner-more-app-fg-hover on a hovered or keyboard-active row, the same ink as the fixed copy beside it (a row whose
+// hover is held back by the menu's keys keeps the resting name too).
+// The gallery's menu specimens use the same class, so the contrast check measures these tokens.
+export const MORE_APP_CLASS = "tasty-banner-more-app";
+const MORE_APP_CSS = `.${MORE_APP_CLASS} { color: var(--tasty-banner-more-app-fg); }
+.tasty-menuitem:not(.tasty-menuitem--held):hover .${MORE_APP_CLASS}, .tasty-menuitem--active .${MORE_APP_CLASS} { color: var(--tasty-banner-more-app-fg-hover); }`;
+export function MoreAppCss() { return <style>{MORE_APP_CSS}</style>; }
 function MoreLabel({ text, app, after }) {
   return (
     <span style={{ display: "flex", minWidth: 0, whiteSpace: "nowrap" }}>
+      <MoreAppCss />
       {text && <span style={{ flex: "none" }}>{text}</span>}
-      <span title={app} style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis",
-        fontFamily: "var(--tasty-banner-more-app-font)", color: "var(--tasty-banner-more-app-fg)" }}>{app}</span>
+      <span title={app} className={MORE_APP_CLASS} style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis",
+        fontFamily: "var(--tasty-banner-more-app-font)" }}>{app}</span>
       {after && <span style={{ flex: "none" }}>{after}</span>}
     </span>
   );

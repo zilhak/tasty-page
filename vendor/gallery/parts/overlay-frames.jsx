@@ -5,7 +5,7 @@ import { WorkspaceRunningCount } from "../../ui_kits/terminal/chrome.jsx";
 import { AttachConnectionsSection } from "./settings-attach-section.jsx";
 import { rt } from "../../ui_kits/terminal/overlays/remote_row_copy.js";
 import { popupBorderColor, popupFocusAttr } from "../../ui_kits/terminal/overlays/shared.jsx";
-import { useBannerMoreMenu } from "../../ui_kits/terminal/overlays/banner.jsx";
+import { useBannerMoreMenu, MORE_APP_CLASS, MoreAppCss } from "../../ui_kits/terminal/overlays/banner.jsx";
 import { PopupTitleBar } from "../../ui_kits/terminal/overlays/info_modal.jsx";
 import { WarnBadge, LocalSshSection as KitLocalSshSection } from "../../ui_kits/terminal/overlays/remote_tool.jsx";
 
@@ -1791,18 +1791,23 @@ function BannerScope({ height = 240, tab = "vim", bed = "focused", children }) {
 // i.e. it inherits; only the mono face sets it apart. wrap: the fixed copy alone is wider than the menu's
 // max width (ja) → the whole label wraps as text, the menu stays at 288; the name never breaks mid-word and
 // ellipsises only if it alone exceeds a full line.
-function MoreLabel({ text, app, after, wrap = false }) {
+// The program name reads the kit's token pair (MORE_APP_CLASS): banner-more-app-fg at rest, -hover on a hovered or
+// keyboard-active row. Only the rejected danger variant keeps the row's danger ink.
+function MoreLabel({ text, app, after, wrap = false, danger = false }) {
+  const ink = danger ? { className: undefined, color: "inherit" } : { className: MORE_APP_CLASS };
   if (wrap) return (
     <span style={{ display: "block", whiteSpace: "normal" }}>
-      {text}<span style={{ display: "inline-block", maxWidth: "100%", verticalAlign: "bottom", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-        fontFamily: "var(--tasty-banner-more-app-font)", color: "inherit" }} title={app}>{app}</span>{after}
+      <MoreAppCss />
+      {text}<span className={ink.className} style={{ display: "inline-block", maxWidth: "100%", verticalAlign: "bottom", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+        fontFamily: "var(--tasty-banner-more-app-font)", color: ink.color }} title={app}>{app}</span>{after}
     </span>
   );
   return (
     <span style={{ display: "flex", minWidth: 0, whiteSpace: "nowrap" }}>
+      <MoreAppCss />
       <span style={{ flex: "none" }}>{text}</span>
-      <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis",
-        fontFamily: "var(--tasty-banner-more-app-font)", color: "inherit" }} title={app}>{app}</span>
+      <span className={ink.className} style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis",
+        fontFamily: "var(--tasty-banner-more-app-font)", color: ink.color }} title={app}>{app}</span>
       {after && <span style={{ flex: "none" }}>{after}</span>}
     </span>
   );
@@ -1863,7 +1868,7 @@ function BannerMoreMenuG({ app = "vim", hovered = -1, danger = false, lang = "en
       boxShadow: "var(--tasty-banner-more-menu-shadow)", ...style }}>
       {rows.map((r, i) => (
         <MenuItem key={i} icon={r.icon} danger={r.danger} active={hovered === i} wrap={wrapRows.includes(i)}
-          label={<MoreLabel text={r.text} app={app} after={r.after} wrap={wrapRows.includes(i)} />} />
+          label={<MoreLabel text={r.text} app={app} after={r.after} wrap={wrapRows.includes(i)} danger={r.danger} />} />
       ))}
     </div>
   );
