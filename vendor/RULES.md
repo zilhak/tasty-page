@@ -1580,12 +1580,14 @@ Sits on: `raised`
 | icon | `menu-item-part-fg-active` | keyboard-active | `active` | 4.62 · 5.40 |
 | label.danger | `menu-item-part-fg-active` | keyboard-active | `active` | 4.62 · 5.40 |
 | icon.danger | `menu-item-part-fg-active` | keyboard-active | `active` | 4.62 · 5.40 |
-| label.chosen | `menu-item-fg-hover` | keyboard-active | `active` | 4.62 · 5.40 |
+| label.chosen | `menu-item-selected-fg` | rest | `raised` | 8.69 · 7.57 |
+| label.chosen | `menu-item-fg-hover` | hover, press, keyboard-active | `raised+hover`, `raised+press`, `active` | 4.62 · 5.40 |
 | fill, fill.danger, fill.chosen | `surface-active` (state ground `active`, no role) | keyboard-active | `raised` | ΔE 0.153 · 0.099 ([section 7](#7-meaning)) |
 | label | `text-disabled` | disabled | `raised` | no target |
 | icon | `text-disabled` | disabled | `raised` | no target |
 | shortcut | `text-disabled` | disabled | `raised` | no target |
 | check | `text-disabled` | disabled | `raised` | no target |
+| label.chosen | `text-disabled` | disabled | `raised` | no target |
 
 The roleless state-ground checks `fill`, `fill.danger` and `fill.chosen` match only the `surface-active` token for the `active` state ground (section 3, State grounds) on the keyboard-active plain row, danger row and selected option, respectively, so substituting the hover tint fails as a wrong fill. These fills are state grounds held to the state ground pass mark in [section 7](#7-meaning), and the contrast grades in [section 5](#5-roles-and-grades) apply only to the inks drawn on them. Against `raised`, the fills measure 1.88 / 1.40 in contrast and 0.153 / 0.099 in OKLab ΔE, Mocha then Latte. A keyboard-active danger row uses the row ink `menu-item-part-fg-active` for its label and icon because no danger hue reaches 4.5:1 on `surface-active`.
 
