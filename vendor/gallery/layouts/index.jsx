@@ -509,13 +509,14 @@ function AttentionRail() {
 
 // The ladder's strip is an unfocused pane's (bg-sidebar): the cell keeps mantle, and its fill, title ink and active mark
 // come from the Tab's tabLook. The kind icon reads text-secondary whatever the title reads, as the app paints it
-// (tab_bar/tab.rs): the attention tint is the title's alone.
+// (tab_bar/tab.rs): the attention tint is the title's alone. The cell pads tab-padding-x before the icon and space-xs
+// at its right end, as the app's tab slot does.
 function AttTab({ label, kind, active }) {
   const look = tabLook({ active, attention: kind });
   const fg = look.ink;
   return (
     <div style={{ position: "relative", width: "var(--tasty-tab-width)", height: "var(--tasty-tab-height)", flex: "none",
-      display: "flex", alignItems: "center", gap: 6, padding: "0 var(--tasty-space-sm)",
+      display: "flex", alignItems: "center", gap: 6, padding: "0 var(--tasty-space-xs) 0 var(--tasty-tab-padding-x)",
       background: look.fill,
       borderRight: "1px solid var(--tasty-tab-separator)" }}>
       <TabMark mark={look.mark} />
