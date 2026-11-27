@@ -98,35 +98,80 @@ function usePageTheme() {
 
 /* Use a body portal because windows exceed the demo frame and ToolsMenu
    uses viewport coordinates. Wait for mount to match the server markup. */
-function OverlayLayer({ open, lock, scale, children }) {
+const LAYER_CLASS = "shell-overlays";
+const TABBABLE = "a[href], button, input, select, textarea, [tabindex]";
+
+// The layer's controls that Tab reaches, in document order: enabled, in the Tab order, and drawn.
+function tabStops(root) {
+  return Array.from(root.querySelectorAll(TABBABLE)).filter((el) =>
+    el.tabIndex >= 0 && !el.disabled && !el.closest("[inert]") && el.getClientRects().length > 0);
+}
+
+// Focus el and report whether it took focus. A control in a hidden region stays connected but cannot take it.
+function focusIf(el) {
+  if (!(el instanceof HTMLElement) || el === document.body || !el.isConnected) return false;
+  el.focus();
+  return document.activeElement === el;
+}
+
+function OverlayLayer({ open, lock, trap, fallback, scale, children }) {
   const [host, setHost] = React.useState(null);
-  const layer = React.useRef(null);
-  React.useEffect(() => { setHost(document.body); }, []);
+  // The last page control that held focus. A window's own autofocus runs before this layer's effects, so the
+  // opener is taken from here rather than from document.activeElement when the window mounts.
+  const lastOutside = React.useRef(null);
+  React.useEffect(() => {
+    setHost(document.body);
+    const note = (e) => {
+      if (e.target instanceof HTMLElement && !e.target.closest(`.${LAYER_CLASS}`)) lastOutside.current = e.target;
+    };
+    document.addEventListener("focusin", note, true);
+    return () => document.removeEventListener("focusin", note, true);
+  }, []);
   React.useEffect(() => {
     if (!lock) return;
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => { document.body.style.overflow = prev; };
   }, [lock]);
-  // Content under the scrim is inactive (vendor/RULES.md): make the page behind the layer inert so Tab stays in
-  // the overlay, and hand focus back to the control that opened it once the last overlay closes.
+  // Content under a window's scrim is inactive (vendor/RULES.md). While a window is open the page behind the
+  // layer is inert, focus moves into the window, and Tab and Shift+Tab wrap at its ends. A handler inside the
+  // window that already took the key (the ports Columns chooser) keeps it. When the window closes, focus goes
+  // back to the control that opened it, or to the demo's active tab when that control is no longer shown.
   React.useEffect(() => {
-    if (!lock || !host) return;
-    const opener = document.activeElement;
+    if (!trap || !host) return;
+    const opener = lastOutside.current;
+    const layer = () => host.querySelector(`:scope > .${LAYER_CLASS}`);
     const made = [];
     for (const el of host.children) {
-      if (el === layer.current || el.inert) continue;
+      if (el.classList.contains(LAYER_CLASS) || el.inert) continue;
       el.inert = true;
       made.push(el);
     }
-    return () => {
-      for (const el of made) el.inert = false;
-      if (opener instanceof HTMLElement && opener !== document.body && opener.isConnected) opener.focus();
+    const root = layer();
+    if (root && !root.contains(document.activeElement)) tabStops(root)[0]?.focus();
+    const wrap = (e) => {
+      if (e.key !== "Tab" || e.defaultPrevented) return;
+      const box = layer();
+      if (!box) return;
+      const stops = tabStops(box);
+      if (stops.length === 0) { e.preventDefault(); return; }
+      const first = stops[0];
+      const last = stops[stops.length - 1];
+      const at = document.activeElement;
+      const inside = box.contains(at);
+      if (e.shiftKey && (at === first || !inside)) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && (at === last || !inside)) { e.preventDefault(); first.focus(); }
     };
-  }, [lock, host]);
+    window.addEventListener("keydown", wrap);
+    return () => {
+      window.removeEventListener("keydown", wrap);
+      for (const el of made) el.inert = false;
+      if (!focusIf(opener)) focusIf(fallback?.());
+    };
+  }, [trap, host]);
   if (!host || !open) return null;
   return createPortal(
-    <div className="shell-overlays" ref={layer} style={scale}>{children}</div>,
+    <div className={LAYER_CLASS} style={scale}>{children}</div>,
     host,
   );
 }
@@ -333,7 +378,8 @@ export function AppShell({ heading = "Workspaces", task = "run tests", doc }) {
         </div>
       </div>
 
-      <OverlayLayer open={anyOverlay || toast !== null} lock={anyOverlay} scale={scale}>
+      <OverlayLayer open={anyOverlay || toast !== null} lock={anyOverlay} trap={overlay !== null} scale={scale}
+        fallback={() => tabsRef.current?.querySelector('[role="tab"][aria-selected="true"]')}>
         {toolsAnchor && <ToolsMenu anchor={toolsAnchor} onClose={() => setToolsAnchor(null)} onAction={runTool} />}
         {overlay === "palette" && <CommandPalette onClose={() => setOverlay(null)} onRun={runCmd} />}
         {overlay === "settings" && <SettingsWindow theme={theme} onTheme={setTheme}
