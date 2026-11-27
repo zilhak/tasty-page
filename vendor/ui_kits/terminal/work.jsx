@@ -42,12 +42,13 @@ const shouldPulse = (status) => status === "running" || status === "agent" || st
 
 // focused: the pane holds key focus, and the app paints its strip raised (tab_bar/view.rs), mantle otherwise. The kit
 // window has one pane and it is focused, so true is the default; a picture of an unfocused pane passes false. Each tab
-// takes the same ground (Tab's ground), and the + and pane action IconButtons sit on it (IconButton on raised).
+// takes the same ground (Tab's ground), and the + and pane action IconButtons sit on it (IconButton on raised). The app
+// draws no line under the strip (tab_bar/view.rs fills the strip and draws only the separators between and after tabs),
+// so the strip ends at its own fill.
 function TabStrip({ tabs, active, onSelect, onClose, onNew, onSearch, focused = true }) {
   const ground = focused ? "raised" : "mantle";
   return (
-    <div style={{ display: "flex", alignItems: "stretch", background: focused ? "var(--tasty-tab-bg-raised)" : "var(--tasty-tab-bg)",
-      borderBottom: "var(--tasty-border-width) solid var(--tasty-separator)", flex: "none" }}>
+    <div style={{ display: "flex", alignItems: "stretch", background: focused ? "var(--tasty-tab-bg-raised)" : "var(--tasty-tab-bg)", flex: "none" }}>
       <div style={{ display: "flex", overflow: "hidden" }}>
         {tabs.map((t) => (
           <Tab key={t.id} label={t.title} icon={t.kind === "markdown" ? ic.md : ic.term}
