@@ -72,8 +72,10 @@ function Surface({ focused, ring, edge, cmd = "cargo test", id }) {
   );
 }
 // The pane that holds the focused surface holds key focus, and the app paints its strip raised (tab_bar/view.rs,
-// is_focused): surface-raised over a border-strong line, with raised cells. Every other strip is bg-sidebar over a
-// separator line, with mantle cells, as the loading pre-layout frames draw them.
+// is_focused): surface-raised with raised cells. Every other strip is bg-sidebar with mantle cells. The line under each
+// strip (border-strong under the raised one, separator under the rest) is the gallery's, not the app's: the app draws
+// none. It follows the gallery's pane-strip frames, as 7ad9b96 set them in layouts/loading-prelayout.jsx, until the
+// gallery decides those lines as a whole.
 function Pane({ tabs, ring, children }) {
   const focused = React.Children.toArray(children).some((c) => c.props && c.props.focused);
   return (
