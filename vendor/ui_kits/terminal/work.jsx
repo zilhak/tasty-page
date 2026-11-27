@@ -146,7 +146,9 @@ function MarkdownSurface({ focused, path = "~/work/tasty/README.md", remote = fa
   );
 }
 
-function StatusBar({ surfaceId, theme = "Mocha", onTheme, onPalette }) {
+// paletteKeys: the palette shortcut the chip shows. A host that binds the shortcut per platform passes what it binds
+// ("Cmd+K" on macOS, "Ctrl+K" elsewhere), so the chip never names a key that does not open the palette.
+function StatusBar({ surfaceId, theme = "Mocha", onTheme, onPalette, paletteKeys = "Cmd+K" }) {
   const cell = { display: "flex", alignItems: "center", gap: "var(--tasty-space-xs)", padding: "0 var(--tasty-space-sm)", height: "100%",
     fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" };
   const btn = { ...cell, border: 0, background: "transparent", cursor: "pointer" };
@@ -164,7 +166,7 @@ function StatusBar({ surfaceId, theme = "Mocha", onTheme, onPalette }) {
       <button type="button" style={btn} {...palettePress} aria-label="Command palette"
         onMouseEnter={(e) => (e.currentTarget.style.color = "var(--tasty-text-secondary)")}
         onMouseLeave={(e) => (e.currentTarget.style.color = "var(--tasty-text-muted)")}>
-        <Kbd keys="Cmd+K" /> palette
+        <Kbd keys={paletteKeys} /> palette
       </button>
       <button type="button" style={btn} onClick={onTheme} aria-label="Toggle theme"
         onMouseEnter={(e) => (e.currentTarget.style.color = "var(--tasty-text-secondary)")}
