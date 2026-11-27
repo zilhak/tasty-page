@@ -1911,38 +1911,45 @@ function MouseCaptureBannerG({ glyph = true, body, lines, app = "vim", lang = "e
   );
 }
 
-// interactive: click ⋯ to open, outside-click / Esc to close, row click acts.
-// The open menu holds key focus, as the app gives it to this surface-scoped menu: it takes DOM focus from the
-// trigger (no ring on the trigger), the terminal under it paints unfocused, and ↑↓ set the keyboard-active row
-// (the specimen starts with none; RULES.md "Popup focus"). defaultOpen draws that state without moving the page's focus.
-function BannerMoreDemoG({ defaultOpen = false }) {
-  const [open, setOpen] = React.useState(defaultOpen);
+// interactive: click ⋯ to open, a press outside the menu and trigger (the terminal included) or Esc closes, row click acts.
+// The open menu holds key focus, as the app gives it to this surface-scoped menu (RULES.md "Popup focus"): it takes
+// DOM focus from the trigger (no ring on the trigger), the terminal under it paints unfocused, and it reads keys only
+// while it has them. ↑↓ set the keyboard-active row (the specimen starts with none), ↵ runs it, Tab stays in the menu.
+// Esc or a row run gives key focus back to the trigger while the banner is still there. A press elsewhere keeps the
+// focus it gives. This demo has one surface; the menu left open while another surface takes key focus is a View.
+function BannerMoreDemoG() {
+  const [open, setOpen] = React.useState(false);
   const [log, setLog] = React.useState(null);
   const [kb, setKb] = React.useState(-1);
-  const wrap = React.useRef(null);
+  const anchor = React.useRef(null);
   const menu = React.useRef(null);
-  const userOpened = React.useRef(false);
+  const back = React.useRef(false);
+  const trigger = () => (anchor.current ? anchor.current.querySelector('[aria-label="More options"]') : null);
   React.useEffect(() => {
-    if (open && userOpened.current && menu.current) menu.current.focus();
-    if (!open) setKb(-1);
+    if (open) { if (menu.current) menu.current.focus(); return; }
+    setKb(-1);
+    if (back.current) { back.current = false; const t = trigger(); if (t) t.focus(); }
   }, [open]);
   React.useEffect(() => {
     if (!open) return undefined;
-    const onDown = (e) => { if (wrap.current && !wrap.current.contains(e.target)) setOpen(false); };
-    const onKey = (e) => {
-      if (e.key === "Escape") { setOpen(false); return; }
-      if (e.key === "ArrowDown") { e.preventDefault(); setKb((i) => (i + 1) % 2); }
-      if (e.key === "ArrowUp") { e.preventDefault(); setKb((i) => (i <= 0 ? 1 : i - 1)); }
-      if (e.key === "Enter" && kb >= 0) { e.preventDefault(); act(kb === 0 ? "notice" : "capture"); }
-    };
+    const onDown = (e) => { if (anchor.current && !anchor.current.contains(e.target)) setOpen(false); };
     document.addEventListener("mousedown", onDown);
-    document.addEventListener("keydown", onKey);
-    return () => { document.removeEventListener("mousedown", onDown); document.removeEventListener("keydown", onKey); };
-  }, [open, kb]);
-  function act(which) { setOpen(false); setLog(which); }
+    return () => document.removeEventListener("mousedown", onDown);
+  }, [open]);
+  const close = (toTrigger) => { if (toTrigger) back.current = true; setOpen(false); };
+  function act(which) { close(which !== "notice"); setLog(which); }
+  const onMenuKey = (e) => {
+    if (e.key === "Escape") { e.preventDefault(); close(true); }
+    else if (e.key === "Tab") e.preventDefault();
+    else if (e.key === "ArrowDown") { e.preventDefault(); setKb((i) => (i + 1) % 2); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); setKb((i) => (i <= 0 ? 1 : i - 1)); }
+    else if (e.key === "Enter" && kb >= 0) { e.preventDefault(); act(kb === 0 ? "notice" : "capture"); }
+  };
+  // focus that leaves for anything but the trigger closes the menu and stays where it went
+  const onMenuBlur = (e) => { const to = e.relatedTarget; if (to && (menu.current?.contains(to) || to === trigger())) return; if (to) close(false); };
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 8, width: "100%", maxWidth: 600 }}>
-      <div ref={wrap}>
+      <div>
         <BannerScope height={230} bed={open ? "unfocused" : "focused"}>
           {log !== "notice" ? (
             <BannerShellG>
@@ -1957,12 +1964,12 @@ function BannerMoreDemoG({ defaultOpen = false }) {
                 </div>
                 <span style={{ position: "absolute", top: "var(--tasty-banner-padding-y)", right: "var(--tasty-space-sm)",
                   display: "flex", alignItems: "center", gap: "var(--tasty-banner-more-column-gap)" }}>
-                  <span style={{ position: "relative", display: "inline-flex" }}>
+                  <span ref={anchor} style={{ position: "relative", display: "inline-flex" }}>
                     <IconButton size="sm" aria-label="More options" aria-expanded={open} active={open}
-                      onClick={() => { userOpened.current = true; setOpen((o) => !o); }}><Icon name="more" /></IconButton>
+                      onClick={() => setOpen((o) => !o)}><Icon name="more" /></IconButton>
                     {open && (
                       <div style={{ position: "absolute", top: "100%", marginTop: "var(--tasty-banner-more-menu-offset)", right: 0, zIndex: 2 }}>
-                        <div ref={menu} tabIndex={-1} role="menu" aria-label="Banner options" {...popupFocusAttr(true)} style={{ outline: "none",
+                        <div ref={menu} tabIndex={-1} role="menu" aria-label="Banner options" {...popupFocusAttr(true)} onKeyDown={onMenuKey} onBlur={onMenuBlur} style={{ outline: "none",
                           minWidth: "var(--tasty-banner-more-menu-min-width)", maxWidth: "var(--tasty-banner-more-menu-max-width)",
                           background: "var(--tasty-banner-more-menu-bg)", border: `1px solid ${popupBorderColor(true)}`,
                           borderRadius: "var(--tasty-banner-more-menu-radius)", padding: "var(--tasty-banner-more-menu-padding)",

@@ -458,10 +458,13 @@ function Page() {
             <BannerMoreDemoG />
           </Stage>
           <Views>
-            <View name="more-menu" label="more menu"><BannerMoreDemoG defaultOpen /></View>
+            <View name="more-menu" label="more menu">
+              {/* a frame is a picture: inert, so its trigger and rows take neither the pointer, focus nor keys */}
+              <div inert="" style={{ pointerEvents: "none" }}><BannerScope height={230} bed="unfocused"><MouseCaptureBannerG open /></BannerScope></div>
+            </View>
             <View name="more-menu-unfocused" label="more menu left open while the user types in another surface">
               <div className="g-cap" style={{ fontSize: 11, color: "var(--tasty-text-muted)", marginBottom: 8 }}>A press in another surface leaves the menu open with its unfocused border. This terminal is unfocused too.</div>
-              <BannerScope height={230} bed="unfocused"><MouseCaptureBannerG open menuFocused={false} /></BannerScope>
+              <div inert="" style={{ pointerEvents: "none" }}><BannerScope height={230} bed="unfocused"><MouseCaptureBannerG open menuFocused={false} /></BannerScope></div>
             </View>
           </Views>
           <Meta

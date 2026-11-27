@@ -88,26 +88,37 @@ function MoreLabel({ text, app, after }) {
 function BannerMore({ app, open, setOpen, onAction }) {
   const wrap = React.useRef(null);
   const menu = React.useRef(null);
+  const back = React.useRef(false);
   // keyboard-active row: the kit starts with none, then ↑↓ move over the enabled rows (none when the name is unknown)
   const [kb, setKb] = React.useState(-1);
   const rowCount = app ? 2 : 0;
-  // The open menu takes key focus from the trigger, as the app gives it to this surface-scoped menu (RULES.md "Popup focus")
-  React.useEffect(() => { if (open && menu.current) menu.current.focus(); if (!open) setKb(-1); }, [open]);
+  const trigger = () => (wrap.current ? wrap.current.querySelector('[aria-label="More options"]') : null);
+  // The open menu takes key focus from the trigger, as the app gives it to this surface-scoped menu, and reads keys
+  // only while it has them (RULES.md "Popup focus"). Esc or a row run gives key focus back to the trigger while the
+  // banner is still there; a press elsewhere keeps the focus it gives.
+  React.useEffect(() => {
+    if (open) { if (menu.current) menu.current.focus(); return; }
+    setKb(-1);
+    if (back.current) { back.current = false; const t = trigger(); if (t) t.focus(); }
+  }, [open]);
   React.useEffect(() => {
     if (!open) return undefined;
     const onDown = (e) => { if (wrap.current && !wrap.current.contains(e.target)) setOpen(false); };
-    const onKey = (e) => {
-      if (e.key === "Escape") { setOpen(false); return; }
-      if (!rowCount) return;
-      if (e.key === "ArrowDown") { e.preventDefault(); setKb((i) => (i + 1) % rowCount); }
-      if (e.key === "ArrowUp") { e.preventDefault(); setKb((i) => (i <= 0 ? rowCount - 1 : i - 1)); }
-      if (e.key === "Enter" && kb >= 0) { e.preventDefault(); act(kb === 0 ? "notice" : "capture"); }
-    };
     document.addEventListener("mousedown", onDown);
-    document.addEventListener("keydown", onKey);
-    return () => { document.removeEventListener("mousedown", onDown); document.removeEventListener("keydown", onKey); };
-  }, [open, kb, rowCount]);
-  function act(which) { setOpen(false); onAction && onAction(which); }
+    return () => document.removeEventListener("mousedown", onDown);
+  }, [open]);
+  const close = (toTrigger) => { if (toTrigger) back.current = true; setOpen(false); };
+  function act(which) { close(which !== "notice"); onAction && onAction(which); }
+  const onMenuKey = (e) => {
+    if (e.key === "Escape") { e.preventDefault(); close(true); return; }
+    if (e.key === "Tab") { e.preventDefault(); return; }
+    if (!rowCount) return;
+    if (e.key === "ArrowDown") { e.preventDefault(); setKb((i) => (i + 1) % rowCount); }
+    if (e.key === "ArrowUp") { e.preventDefault(); setKb((i) => (i <= 0 ? rowCount - 1 : i - 1)); }
+    if (e.key === "Enter" && kb >= 0) { e.preventDefault(); act(kb === 0 ? "notice" : "capture"); }
+  };
+  // focus that leaves for anything but the trigger closes the menu and stays where it went
+  const onMenuBlur = (e) => { const to = e.relatedTarget; if (to && (menu.current?.contains(to) || to === trigger())) return; if (to) close(false); };
   // 2026-11-03 — name unknown (remote mirror, before first poll, lookup failed): the actions exist but can't run.
   // Same two rows, disabled (no hover, no click, menu stays open, nothing saved, keyboard skips them),
   // worded without a name, under a non-interactive reason line. Not updated live if the name arrives while open.
@@ -119,7 +130,7 @@ function BannerMore({ app, open, setOpen, onAction }) {
         onClick={() => setOpen(!open)}>{bic.more}</IconButton>
       {open && (
         // The open menu holds key focus (surface scope), so its border shows focus (RULES.md "Popup focus").
-        <div ref={menu} tabIndex={-1} role="menu" aria-label="Banner options" {...popupFocusAttr(true)} style={{ position: "absolute", outline: "none",
+        <div ref={menu} tabIndex={-1} role="menu" aria-label="Banner options" {...popupFocusAttr(true)} onKeyDown={onMenuKey} onBlur={onMenuBlur} style={{ position: "absolute", outline: "none",
           top: "calc(100% + var(--tasty-banner-more-menu-offset))", right: 0, zIndex: 3,
           minWidth: "var(--tasty-banner-more-menu-min-width)", maxWidth: "var(--tasty-banner-more-menu-max-width)",
           width: known ? "max-content" : "var(--tasty-banner-more-menu-max-width)", boxSizing: "border-box",
