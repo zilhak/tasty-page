@@ -519,10 +519,10 @@ function AttTab({ label, kind, active }) {
     <div style={{ position: "relative", width: "var(--tasty-tab-width)", height: "var(--tasty-tab-height)", flex: "none",
       display: "flex", alignItems: "center", padding: "0 var(--tasty-space-xs) 0 var(--tasty-tab-padding-x)",
       background: look.fill,
-      borderRight: "1px solid var(--tasty-tab-separator)" }}>
+      borderRight: "var(--tasty-border-width) solid var(--tasty-tab-separator)" }}>
       <TabMark mark={look.mark} />
       <span style={{ display: "inline-flex", flex: "none", marginRight: "var(--tasty-tab-icon-gap)", color: "var(--tasty-text-secondary)" }}><Icon name="terminal" size="var(--tasty-tab-icon-size)" /></span>
-      <span style={{ flex: 1, minWidth: 0, fontSize: 12, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: fg }}>{label}</span>
+      <span style={{ flex: 1, minWidth: 0, fontSize: "var(--tasty-font-size-body)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: fg }}>{label}</span>
       <span style={{ flex: "none", marginLeft: "var(--tasty-tab-gap)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-micro)", color: "var(--tasty-text-muted)" }}>
         {kind === "needs-input" ? "blocked" : kind === "completion" ? "done" : active ? "active" : "rest"}
       </span>
@@ -697,9 +697,9 @@ function Layouts() {
                 <Tab label="README.md" icon={ic.md} status="busy" />
                 <Tab label="server.log" icon={ic.term} />
               </div>
-              <div style={{ display: "flex", alignItems: "center", padding: "0 6px" }}><IconButton size="sm" aria-label="New tab">{ic.plus}</IconButton></div>
+              <div style={{ display: "flex", alignItems: "center", padding: "0 var(--tasty-space-sm)" }}><IconButton size="sm" aria-label="New tab">{ic.plus}</IconButton></div>
               <div style={{ flex: 1 }} />
-              <div style={{ display: "flex", alignItems: "center", padding: "0 8px", gap: 2 }}>
+              <div style={{ display: "flex", alignItems: "center", padding: "0 var(--tasty-space-sm)", gap: "var(--tasty-tab-strip-action-gap)" }}>
                 <IconButton size="sm" aria-label="Split">{ic.split}</IconButton>
                 <IconButton size="sm" aria-label="Search">{ic.search}</IconButton>
               </div>
@@ -836,7 +836,7 @@ function Layouts() {
                 <Tab label="build.sh" icon={ic.term} active />
                 <Tab label="README.md" icon={ic.md} status="busy" />
                 <Tab label="server.log" icon={ic.term} />
-                <div style={{ display: "flex", alignItems: "center", padding: "0 6px" }}><IconButton size="sm" aria-label="New tab">{ic.plus}</IconButton></div>
+                <div style={{ display: "flex", alignItems: "center", padding: "0 var(--tasty-space-sm)" }}><IconButton size="sm" aria-label="New tab">{ic.plus}</IconButton></div>
               </div>
               {/* content */}
               <div style={{ flex: 1, background: "var(--tasty-surface-terminal-focused-bg)", margin: 8, borderRadius: "var(--tasty-radius)" }} />

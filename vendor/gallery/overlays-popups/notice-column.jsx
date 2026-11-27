@@ -25,7 +25,7 @@ function Term({ lines = LINES, search, focused = true }) {
   return (
     <div style={{ position: "relative", flex: 1, minWidth: 0, padding: "var(--tasty-space-sm)", background: focused ? "var(--tasty-surface-terminal-focused-bg, var(--tasty-bg-panel))" : "var(--tasty-surface-terminal-unfocused-bg)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-term-sm)", lineHeight: 1.5, color: focused ? "var(--tasty-surface-terminal-focused-fg)" : "var(--tasty-surface-terminal-unfocused-fg)", overflow: "hidden" }}>
       {lines.map((l, i) => <div data-terminal-content="" key={i} style={{ whiteSpace: "nowrap" }}>{l}</div>)}
-      {search && <div style={{ position: "absolute", top: "var(--tasty-space-sm)", right: "var(--tasty-space-sm)", width: "var(--tasty-size-240)", maxWidth: "calc(100% - var(--tasty-space-md))", height: "var(--tasty-size-32)", boxSizing: "border-box", display: "flex", alignItems: "center", gap: "var(--tasty-space-xs)", padding: "0 var(--tasty-space-sm)", background: "var(--tasty-surface-raised)", border: "var(--tasty-border-width) solid var(--tasty-search-bar-border)", borderRadius: "var(--tasty-radius)", color: "var(--tasty-text-muted)", fontSize: "var(--tasty-font-size-caption)", fontFamily: "var(--tasty-font-ui)" }}><Icon name="search" size="var(--tasty-icon-size-xs)" /><span style={{ color: "var(--tasty-text-primary)" }}>cargo</span><span style={{ marginLeft: "auto" }}>1/2</span></div>}
+      {search && <div style={{ position: "absolute", top: "var(--tasty-space-sm)", right: "var(--tasty-space-sm)", width: "var(--tasty-notice-search-specimen-width)", maxWidth: "calc(100% - var(--tasty-space-md))", height: "var(--tasty-notice-search-specimen-height)", boxSizing: "border-box", display: "flex", alignItems: "center", gap: "var(--tasty-space-xs)", padding: "0 var(--tasty-space-sm)", background: "var(--tasty-surface-raised)", border: "var(--tasty-border-width) solid var(--tasty-search-bar-border)", borderRadius: "var(--tasty-radius)", color: "var(--tasty-text-muted)", fontSize: "var(--tasty-font-size-caption)", fontFamily: "var(--tasty-font-ui)" }}><Icon name="search" size="var(--tasty-icon-size-xs)" /><span style={{ color: "var(--tasty-text-primary)" }}>cargo</span><span style={{ marginLeft: "auto" }}>1/2</span></div>}
     </div>
   );
 }
@@ -112,7 +112,7 @@ function GalleryNoticeColumn() {
               <span style={mono}>narrow window (work area ≈ 260) · long path · corrupt</span>
               <Win w={380} h={420}><RN cause="corrupt" path={LONG} /></Win>
               <span style={mono}>split · search bar open in the top-right pane → column below it</span>
-              <Win w={720} h={340} split search focus={1} colTop="calc(var(--tasty-tab-height) + var(--tasty-space-sm) + var(--tasty-size-32))"><RN cause="denied" /></Win>
+              <Win w={720} h={340} split search focus={1} colTop="calc(1 * var(--tasty-tab-height) + 1 * var(--tasty-space-sm) + 1 * var(--tasty-notice-search-specimen-height))"><RN cause="denied" /></Win>
               <span style={mono}>running · save halt variant</span>
               <Win w={640} h={330} split><RN variant="halt" cause="write" /></Win>
             </Themed>

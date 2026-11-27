@@ -298,6 +298,7 @@
   --tasty-tab-close-radius:        var(--tasty-radius-sm);
   --tasty-tab-indicator-width:     var(--tasty-selection-edge-width); /* 2 — hairline, zoom-exempt */
   --tasty-tab-indicator-dot-size:  var(--tasty-size-4); /* 4 — the Dot active tab indicator's diameter (app tab.rs TAB_ACTIVE_DOT_SIZE) */
+  --tasty-tab-strip-action-gap:    var(--tasty-size-2); /* 2026-11-28 between the pane action IconButtons pinned to the strip's right (split, search) */
   --tasty-tab-dot-size:            var(--tasty-status-dot-size-compact); /* 6 — dense chrome (24px strip), not the generic 8 */
   --tasty-tab-icon-size:           var(--tasty-icon-size-sm);
   --tasty-tab-status-gap:          var(--tasty-space-xs); /* 4 — between right-cluster items: html marker · move glyph · busy dot · close (2026-09-29) */
@@ -1790,6 +1791,8 @@
   --tasty-restore-notice-label-fg: var(--tasty-text-muted); /* “Saved layout” mono caption over the path */
   --tasty-restore-notice-path-bg: var(--tasty-bg-sidebar); /* path box fill (selectable, wraps anywhere) */
   --tasty-restore-notice-path-border: var(--tasty-border-default); /* path box 1px edge */
+  --tasty-notice-search-specimen-width: var(--tasty-size-240); /* 2026-11-28 gallery specimen layout: the search bar stand-in in the notice column frames */
+  --tasty-notice-search-specimen-height: var(--tasty-size-32); /* 2026-11-28 the same stand-in's height, which the column's top offset adds below it */
   --tasty-restore-notice-path-fg: var(--tasty-text-primary); /* path text */
   --tasty-pending-indicator-height: var(--tasty-size-24); /* response-wait chip height */
   --tasty-pending-indicator-padding-x: var(--tasty-space-sm); /* chip side padding */

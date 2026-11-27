@@ -3054,6 +3054,10 @@
       "$type": "dimension",
       "$value": "{primitive.size-4}"
     },
+    "tab-strip-action-gap": {
+      "$type": "dimension",
+      "$value": "{primitive.size-2}"
+    },
     "tab-dot-size": {
       "$type": "dimension",
       "$value": "{component.status-dot-size-compact}"
@@ -7070,6 +7074,14 @@
       "$type": "color",
       "$value": "{semantic.border-default}",
       "$description": "path box 1px edge"
+    },
+    "notice-search-specimen-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-240}"
+    },
+    "notice-search-specimen-height": {
+      "$type": "dimension",
+      "$value": "{primitive.size-32}"
     },
     "restore-notice-path-fg": {
       "$type": "color",

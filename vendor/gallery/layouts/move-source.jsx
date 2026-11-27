@@ -40,7 +40,7 @@ function TabCell({ label, active, hover, ring, cue, ground = "mantle" }) {
       borderRight: "var(--tasty-border-width) solid var(--tasty-tab-separator)" }}>
       <TabMark mark={look.mark} />
       <span style={{ display: "inline-flex", flex: "none", marginRight: "var(--tasty-tab-icon-gap)", color: "var(--tasty-text-secondary)" }}><Icon name="terminal" size="var(--tasty-tab-icon-size)" /></span>
-      <span style={{ flex: 1, minWidth: 0, fontSize: 12, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{label}</span>
+      <span style={{ flex: 1, minWidth: 0, fontSize: "var(--tasty-font-size-body)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{label}</span>
       <span style={{ flex: "none", display: "inline-flex", alignItems: "center", gap: "var(--tasty-tab-status-gap)", marginLeft: "var(--tasty-tab-gap)" }}>
         {cue && <MoveGlyph />}
         <span style={{ width: "var(--tasty-tab-close-size)", height: "var(--tasty-tab-close-size)", display: "inline-flex", alignItems: "center", justifyContent: "center",
