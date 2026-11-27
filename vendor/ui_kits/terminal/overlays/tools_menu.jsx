@@ -4,11 +4,12 @@ import { gt } from "./graph_copy.js";
 
 // Tasty UI kit — tools menu popup (sidebar "Tools" button).
 // Mirrors zilhak/tasty → src/adapters/ui/tools_menu.rs (+ sidebar/tools.rs anchor math).
-//   PopupDef: id "tools_menu", 160px wide, headless, close_on_outside_click.
+//   PopupDef: id "tools_menu", as wide as its longest row (160 to 240), headless, close_on_outside_click.
 
 
 // ── Tools menu — mirrors src/adapters/ui/tools_menu.rs ──────────────────
-// 160px popup anchored ABOVE the sidebar Tools button, left-aligned with it
+// A popup as wide as its longest row (never under --tasty-tools-menu-min-width 160 or over
+// --tasty-tools-menu-max-width 240, where a label ends in …), anchored ABOVE the sidebar Tools button, left-aligned with it
 // (pos = btn.min.x, btn.min.y - menu_height), then kept inside the room it may take (placeToolsMenu below).
 // 28px rows, no icons, no scrim.
 // Built-in entries first, then a separator, then plugin-contributed tools
@@ -92,7 +93,8 @@ function ToolsMenu({ anchor, bounds = null, hostRuns = null, onClose, onAction }
   const [place, setPlace] = React.useState(null);
   // The menu takes the keys once it is placed: until then it is hidden, and a hidden element takes no focus.
   React.useEffect(() => { if (place && menuRef.current) menuRef.current.focus({ preventScroll: true }); }, [!!place]);
-  // The menu's own size, measured once while it is drawn uncut and hidden, before the first place.
+  // The menu's own size, measured once while it is drawn uncut and hidden, before the first place: as wide as its
+  // longest row, clamped to the min and max width tokens (a label past the max ends in …).
   const need = React.useRef(null);
   useBeforePaint(() => {
     const el = menuRef.current;
@@ -165,7 +167,10 @@ function ToolsMenu({ anchor, bounds = null, hostRuns = null, onClose, onAction }
       <div ref={menuRef} tabIndex={-1} className="tasty-toolsmenu tasty-scroll" onKeyDown={onKeyDown} onClick={(e) => e.stopPropagation()} role="menu" aria-label="Tools"
         style={{ position: "absolute", left: place ? place.left : anchor.left, top: place ? place.top : 0,
           visibility: place ? "visible" : "hidden", maxHeight: place ? place.maxHeight : undefined,
-          overflowY: place ? "auto" : undefined, boxSizing: "border-box", width: place ? place.width : 160,
+          overflowY: place ? "auto" : undefined, boxSizing: "border-box", width: place ? place.width : "max-content",
+          // the clamp applies to the own size only: placed, the menu takes the width it was cut to, which a room
+          // narrower than the min width brings under 160
+          minWidth: place ? undefined : "var(--tasty-tools-menu-min-width)", maxWidth: place ? undefined : "var(--tasty-tools-menu-max-width)",
           background: "var(--tasty-menu-bg)", border: "var(--tasty-border-width) solid var(--tasty-menu-border)",
           borderRadius: "var(--tasty-menu-radius)", padding: "var(--tasty-popup-content-margin)",
           boxShadow: "var(--tasty-shadow-popover)" }}>
