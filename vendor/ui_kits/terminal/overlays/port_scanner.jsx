@@ -157,6 +157,10 @@ function FavoritesSection({ favs, onToggle }) {
 // The Columns IconButton opens a popover under it, at the button's bottom-left with no gap (egui popup_below_widget),
 // so it may run past the window's right edge onto the scrim, as the app's popup area does. The kit draws it in the
 // scrim, outside the window's clip, at the button's place. The title, then one checkbox per column in table order.
+// Like every egui area, the popover is then kept on the screen at its drawn size (egui constrain_window_rect_to_area):
+// it moves left until its right edge meets the screen's, then right until its left edge does, and the same down the
+// y axis. The kit's screen is the scrim, cut to the page's viewport. It places again while open whenever the scrim,
+// the window or the popover changes size, the page scrolls, or the viewport resizes, so it stays with its button.
 // Port is the identity and default sort column, so it stays shown and its checkbox is disabled.
 // The 180 floor is the content's, as the app sets it inside the popup frame: the box adds its margin and edge.
 const PORT_COLUMNS = [["port", "Port"], ["proto", "Proto"], ["addr", "Address"], ["proc", "Process"], ["ws", "Workspace"], ["tab", "Tab"], ["state", "State"]];
@@ -165,9 +169,28 @@ function ColumnsMenu({ anchor, hidden, onToggle, onClose }) {
   const [pos, setPos] = React.useState(null);
   React.useLayoutEffect(() => {
     const el = ref.current, btn = anchor.current;
-    if (!el || !btn || !el.offsetParent) return;
-    const a = btn.getBoundingClientRect(), o = el.offsetParent.getBoundingClientRect();
-    setPos({ left: a.left - o.left, top: a.bottom - o.top });
+    if (!el || !btn || !el.offsetParent) return undefined;
+    const host = el.offsetParent;
+    // One axis of egui's constrain: a box larger than the screen covers it, a smaller one is moved inside it.
+    const fit = (at, size, lo, hi) => {
+      const spare = Math.max(0, size - (hi - lo));
+      return Math.max(Math.min(at, hi + spare - size), lo - spare);
+    };
+    const place = () => {
+      const a = btn.getBoundingClientRect(), o = host.getBoundingClientRect();
+      const root = document.documentElement;
+      const left = Math.max(o.left, 0), right = Math.min(o.right, root.clientWidth);
+      const top = Math.max(o.top, 0), bottom = Math.min(o.bottom, root.clientHeight);
+      const x = fit(a.left, el.offsetWidth, left, right), y = fit(a.bottom, el.offsetHeight, top, bottom);
+      const next = { left: x - o.left, top: y - o.top };
+      setPos((p) => (p && p.left === next.left && p.top === next.top ? p : next));
+    };
+    place();
+    const ro = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(place);
+    if (ro) [host, el, btn.closest("[data-ports-window]") || btn].forEach((n) => ro.observe(n));
+    window.addEventListener("resize", place);
+    window.addEventListener("scroll", place, true);
+    return () => { if (ro) ro.disconnect(); window.removeEventListener("resize", place); window.removeEventListener("scroll", place, true); };
   }, [anchor]);
   React.useEffect(() => {
     // Closes on a press outside the menu and its button, as the app's CloseOnClickOutside.
@@ -283,7 +306,7 @@ function PortsWindow({ onClose, onFlash, favorites = FAVS_DEFAULT, scanMs = 750,
 
   return (
     <Scrim onClose={onClose}>
-      <div style={{ width: "var(--tasty-ports-window-width)", maxHeight: "var(--tasty-ports-window-height)", display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)",
+      <div data-ports-window="" style={{ width: "var(--tasty-ports-window-width)", maxHeight: "var(--tasty-ports-window-height)", display: "flex", flexDirection: "column", background: "var(--tasty-bg-panel)",
         border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius)", overflow: "hidden",
         boxShadow: "var(--tasty-shadow-modal)" }}>
         {/* header — the right cluster (filter, columns, refresh, close) sits at the right edge and keeps its size, as in the app's
