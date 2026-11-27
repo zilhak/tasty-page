@@ -13,7 +13,7 @@ export function WorkflowLayout({ copy, background = false, caption: captionOverr
     <div className="workflow-diagram__grid" aria-hidden="true" inert="">
       {labels.map((label, i) => <div className="workflow-diagram__pane" key={label}>
         <TabStrip tabs={[{ id: "terminal", title: label, kind: "terminal", owner: "user", activity: "idle" }]}
-          active="terminal" onSelect={noop} onClose={noop} onNew={noop} onSearch={noop} />
+          active="terminal" onSelect={noop} onClose={noop} onNew={noop} onSearch={noop} focused={false} />
         <TerminalPane session={{ id: String(i + 1), lines: lines[i] }} focused={false} />
       </div>)}
     </div>
