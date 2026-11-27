@@ -148,6 +148,8 @@ function MarkdownSurface({ focused, path = "~/work/tasty/README.md", remote = fa
 
 // paletteKeys: the palette shortcut the chip shows. A host that binds the shortcut per platform passes what it binds
 // ("Cmd+K" on macOS, "Ctrl+K" elsewhere), so the chip never names a key that does not open the palette.
+// It is a Kbd keys value: a chord string, or an array of keys when the host draws a key itself (the landing page draws
+// the modifier for both platforms and lets the page's platform pick one, so its first paint already names the right key).
 function StatusBar({ surfaceId, theme = "Mocha", onTheme, onPalette, paletteKeys = "Cmd+K" }) {
   const cell = { display: "flex", alignItems: "center", gap: "var(--tasty-space-xs)", padding: "0 var(--tasty-space-sm)", height: "100%",
     fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" };

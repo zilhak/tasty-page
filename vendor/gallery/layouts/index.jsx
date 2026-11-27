@@ -8,6 +8,7 @@ import { GalleryMoveSource } from "./move-source.jsx";
 import { GalleryTabStrip } from "./tab-strip.jsx";
 import { GalleryTitleBar, GalleryTitleBarLinux, GalleryTitleBarWindows } from "./title-bar.jsx";
 import { RemoteStatusBarSpec, RemoteLinkSpec } from "./remote-location.jsx";
+import { StatusBarKitSpec } from "./status-bar-kit.jsx";
 import { RemoteRowEmptySpec, RemoteRowLastScreenSpec, RemoteRowMarksSpec } from "./remote-row.jsx";
 import { RunningCountSpec } from "./running-count.jsx";
 import { WorkspaceRunningCount } from "../../ui_kits/terminal/chrome.jsx";
@@ -1073,6 +1074,7 @@ function Layouts() {
           <Note>The two glyphs sit side by side here <b>only to compare them</b>. In the product the cell carries exactly one: <code>sun</code> in Latte, <code>theme</code> in Mocha, with the theme name beside it.</Note>
           <Dont><b>Don't</b> give <code>sun</code> its own size token to cancel the overshoot. A size that changes with theme state turns a dimension into a state, and the same overshoot would follow <code>sun</code> into every other place it is drawn. Optical parity belongs in the glyph.</Dont>
         </Spec>
+        <StatusBarKitSpec />
         <RemoteStatusBarSpec />
       </Section>
 
