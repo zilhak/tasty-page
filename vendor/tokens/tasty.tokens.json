@@ -4816,6 +4816,14 @@
       "$type": "dimension",
       "$value": "{primitive.size-400}"
     },
+    "ports-columns-menu-specimen-side": {
+      "$type": "dimension",
+      "$value": "{primitive.size-80}"
+    },
+    "ports-columns-menu-specimen-height": {
+      "$type": "dimension",
+      "$value": "{primitive.size-300}"
+    },
     "specimen-annotation-border": {
       "$type": "color",
       "$value": "{semantic.border-control-raised}"

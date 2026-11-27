@@ -764,8 +764,8 @@ function Page() {
                 column narrower than the room, the box keeps the room's right end, where the right cluster and the
                 chooser are, and cuts its left. */}
             <View name="ports-columns-menu" wide label="Listening ports — the Columns chooser open (cropped below the chooser, right end kept in a narrow frame)">
-              <div inert="" style={{ overflow: "hidden", display: "flex", justifyContent: "flex-end", width: "100%", maxWidth: "calc(1 * var(--tasty-ports-window-width) + 2 * var(--tasty-size-80))", height: "var(--tasty-size-300)", pointerEvents: "none" }}>
-                <div style={{ position: "relative", flex: "none", width: "calc(1 * var(--tasty-ports-window-width) + 2 * var(--tasty-size-80))", height: "var(--tasty-ports-window-height)" }}>
+              <div inert="" style={{ overflow: "hidden", display: "flex", justifyContent: "flex-end", width: "100%", maxWidth: "calc(1 * var(--tasty-ports-window-width) + 2 * var(--tasty-ports-columns-menu-specimen-side))", height: "var(--tasty-ports-columns-menu-specimen-height)", pointerEvents: "none" }}>
+                <div style={{ position: "relative", flex: "none", width: "calc(1 * var(--tasty-ports-window-width) + 2 * var(--tasty-ports-columns-menu-specimen-side))", height: "var(--tasty-ports-window-height)" }}>
                   <Kit_PortsWindow scanMs={0} columnsOpen onClose={() => {}} />
                 </div>
               </div>
