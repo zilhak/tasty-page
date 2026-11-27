@@ -181,11 +181,12 @@
   합성 값의 재료와 토큰의 의미는 리뷰에서 판단한다.
   변수 함수 표기와 토큰 이름 문법은 별개의 규칙이며, 세부 기준은 [`vendor/TOKENS.md`의 Adding a token](../../vendor/TOKENS.md#adding-a-token)과 검사기 docstring에 있다.
 - `scripts/design-tokens/gen_tokens_json.py`로 `vendor/tokens/tasty.tokens.json`을 다시 만들고 `git diff --exit-code`로 커밋된 파일과 차이가 없는지 확인한다. 이어 `scripts/design-tokens/verify_tokens_json.py`로 이름, 값, 별칭, Latte 값과 CSS에서 추론한 `$type`을 대조한다. 최상위 `$description` 한 필드를 제외하면 JSON은 손으로 고치지 않는다.
-- `test_verify_ground_ink_tokens.py`로 바탕·잉크 토큰 목록 대조 스크립트를 시험한 뒤 렌더링 대비 검사 스크립트의 단위 시험을 실행한다. 로컬에서도 [Design 워크플로](../../.github/workflows/design.yml#L56-L57)와 같은 파일 목록을 `node --test`에 명시한다. 인자 없는 `node --test`는 종료 경로 시험 파일도 자동으로 찾아 실행하므로, 빌드 결과(`dist`)가 없으면 실패한다.
+- `test_verify_ground_ink_tokens.py`로 바탕·잉크 토큰 목록 대조 스크립트를 시험한 뒤 렌더링 대비 검사 스크립트의 단위 시험을 실행한다. 로컬에서도 [Design 워크플로](../../.github/workflows/design.yml#L56-L57)와 같은 파일 목록을 `node --test`에 명시한다. 인자 없는 `node --test`는 종료 경로 시험(Linux 전용)과 배너 더보기 메뉴 시험도 자동으로 찾아 실행하므로 빌드 결과(`dist`)와 Chromium이 필요하다.
 - `npm ci`와 `npm run build`를 실행한다. 빌드 직후 `node --test scripts/contrast-cli.test.mjs`를 별도 단계로 실행한다. 이 시험은 Linux 전용이며 `/proc`를 읽고 `mkfifo`로 FIFO를 만든다. 이어 Chromium을 설치하고 `npm run check-contrast`를 실행한다(위 "렌더링 대비 검사").
 - `scripts/design-tokens/verify_ground_ink_tokens.py`로 `vendor/tokens/ground-ink-rules.json`의 토큰 목록을 토큰 CSS와 대조한다.
 - `npm run check-tokens-copy`로 `vendor/tokens.css`가 되풀이하는 1단계 값이 `vendor/tokens/primitives.css`와 같은지 확인한다.
 - `npm run check-icons`로 `vendor/icons/*.svg`와 `vendor/components/core/Icon.jsx`가 같은 글리프를 그리는지 원문을 비교한다.
+- Chromium 설치에 성공하면 앞 검사가 실패해도 Design 워크플로의 마지막 단계에서 [`scripts/banner-more.test.mjs`](../../scripts/banner-more.test.mjs)를 실행한다. 이 시험은 빌드된 갤러리에서 트리거를 눌러 배너 더보기 메뉴를 열고 닫을 수 있는지 Chromium으로 확인한다.
 
 ## 빌드
 
