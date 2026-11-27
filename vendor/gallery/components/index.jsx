@@ -8,6 +8,7 @@ import { CLIPBOARD_TOAST_LANGS, ctt } from "../../ui_kits/terminal/overlays/clip
 import { GalleryScrollbar } from "./scrollbar.jsx";
 import { GallerySearchableSelect } from "./searchable-select.jsx";
 import { Section, Spec, Stage, Cluster, Meta, Note, Do, Dont, GIcon, Views, View } from "../parts/specimen.jsx";
+import { mirrorPseudoStates } from "../parts/state-grid.jsx";
 
 // Text caret specimen: the shared Input, focused, with the steady caret drawn over it. A native <input> draws its own
 // caret only under real focus, blinking, at the font's height, so the field hides it and the specimen paints a
@@ -239,6 +240,22 @@ const MS_MANY = Array.from({ length: 20 }, (_, i) => ({
 }));
 // The injected i18n hook: 0 → null (falls back to placeholder) · N · all.
 const msSummary = (n, total) => (n === 0 ? null : n === total ? "All" : n + " selected");
+
+// Keyboard-active rows with the pointer over them. The check does not move the pointer, so each row takes
+// data-force="hover", which mirrorPseudoStates maps to MenuItem's own :hover rules. The frame is a MenuItem cell in the
+// keyboard-active state on the raised ground: the check holds every part to the keyboard-active inks, so a hover rule
+// that outranked the active state would show here as a mismatch.
+function MenuItemActiveUnderPointer() {
+  React.useEffect(() => { mirrorPseudoStates(); }, []);
+  return (
+    <div data-contract="MenuItem" data-state="keyboard-active" data-host="raised" inert=""
+      style={{ width: "max-content", background: "var(--tasty-menu-bg)", border: "var(--tasty-border-width) solid var(--tasty-menu-border)", borderRadius: "var(--tasty-radius)", padding: "var(--tasty-popup-content-margin)" }}>
+      <MenuItem data-part="item" data-force="hover" label="New tab" icon={ic.term} shortcut="Ctrl+T" active />
+      <MenuItem data-part="danger" data-force="hover" label="Move to Trash" icon={ic.trash} danger active />
+      <MenuItem data-part="chosen" data-force="hover" label="JetBrains Mono" selected active />
+    </div>
+  );
+}
 
 function Components() {
   return (
@@ -668,6 +685,11 @@ function Components() {
           <Meta
             specs={[["height", <>28px <span className="tok">--tasty-control-height</span></>], ["label · rest", <span className="tok">--tasty-menu-item-fg</span>], ["label · hover/active", <span className="tok">--tasty-menu-item-fg-hover</span>], ["row pitch", "28 — rows flush, no gap (every menu incl. the … menu)"], ["active", <span className="tok">--tasty-surface-active</span>], ["danger", <span className="tok">--tasty-accent-danger</span>]]}
             tokens={[{ tok: "--tasty-menu-item-fg", use: "resting label → text-secondary-raised", color: "var(--tasty-menu-item-fg)" }, { tok: "--tasty-menu-item-fg-hover", use: "hover / active label → text-on-active", color: "var(--tasty-menu-item-fg-hover)" }, { tok: "--tasty-surface-active", use: "highlighted", color: "var(--tasty-surface-active)" }, { tok: "--tasty-accent-danger", use: "destructive", color: "var(--tasty-accent-danger-raised)" }, { tok: "--tasty-text-muted", use: "shortcut", color: "var(--tasty-text-muted)" }]} />
+          <Views>
+            <View name="menuitem-keyboard-active-under-pointer" label="Pointer over plain, danger and selected rows · keyboard-active fill and inks stay">
+              <MenuItemActiveUnderPointer />
+            </View>
+          </Views>
           <Note><b>Label colour (2026-10-07).</b> The token is canonical: a resting row reads <code>--tasty-menu-item-fg</code> (text-secondary), hover and keyboard-active lift to <code>--tasty-menu-item-fg-hover</code> (text-primary) on top of the background change. The command palette is a list, not a menu, and keeps its own row colours.</Note>
           <Note><b>Latte contrast (2026-10-08).</b> <code>--tasty-menu-item-fg</code> now reads the semantic role <code>--tasty-text-secondary-raised</code>: Mocha = neutral-1000 (7.1:1 on surface-raised), Latte = neutral-1100 (5.17:1; neutral-1000 was 4.05:1). Hover and keyboard-active read <code>--tasty-menu-item-fg-hover</code> → <code>--tasty-text-on-active</code> since 2026-11-05 (Latte 6.36 on the hover fill, 5.39 on surface-active), because a menu row is read while it is hovered.</Note>
         </Spec>
