@@ -21,13 +21,15 @@ const CSS = `
   cursor: pointer;
   user-select: none;
   white-space: nowrap;
-  transition: background var(--tasty-motion-ui-fast) var(--tasty-ease-ui);
 }
-.tasty-menuitem:hover { background: var(--tasty-menu-item-bg-hover); color: var(--tasty-menu-item-fg-hover); }
+/* The fill eases in only on pointer hover. A transition runs by the style a row changes to, so the rest row has
+   none: a row the keyboard leaves drops its active fill at once, with its ink, and a row the pointer leaves drops
+   its tint at once (the app draws no fade either way). */
+.tasty-menuitem:hover { background: var(--tasty-menu-item-bg-hover); color: var(--tasty-menu-item-fg-hover); transition: background var(--tasty-motion-ui-fast) var(--tasty-ease-ui); }
 .tasty-menuitem--active { background: var(--tasty-surface-active); color: var(--tasty-menu-item-fg-hover); }
 /* keyboard-active outranks hover, as the app's menu_item picks active before hover: the pointer over the active row
-   leaves its fill and inks as they are */
-.tasty-menuitem--active:hover { background: var(--tasty-surface-active); color: var(--tasty-menu-item-fg-hover); }
+   leaves its fill and inks as they are, and the active fill comes and goes at once, pointer or not */
+.tasty-menuitem--active:hover { background: var(--tasty-surface-active); color: var(--tasty-menu-item-fg-hover); transition: none; }
 .tasty-menuitem--danger:hover { color: var(--tasty-accent-danger-strong); }
 .tasty-menuitem--danger { color: var(--tasty-accent-danger-raised); }
 .tasty-menuitem--active .tasty-kbd__plus { color: var(--tasty-kbd-plus-fg-active); }
