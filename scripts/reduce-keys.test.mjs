@@ -12,11 +12,13 @@ import { test } from "node:test";
 import { chromium } from "playwright-core";
 import { browserPath, dist, serve, urlFor } from "./lib/browser-test.mjs";
 
-// Each test has a node:test timeout of PAGE_MS, so a stuck page fails by name instead of holding the run. A timeout
-// fails the test but does not stop its page: its steps may run on until the file's process ends, which closes the
-// browser Playwright launched. The CI step's own three minute limit is the hard bound on the whole file.
+// Each test has a node:test timeout of PAGE_MS, so a stuck page fails by name and the runner goes on to the next test.
+// A timeout neither stops the page nor ends the file's process: its steps may run on until the process ends, and when
+// Node's exit hook runs, Playwright tries to kill the browsers it launched, without waiting for them to go. The CI
+// step's own three minute limit is the hard bound on the whole file.
 const PAGE_MS = 20000;
-// How long closing the browser and the server may take each, side by side, before the test goes on without them.
+// How long the test waits, side by side, for the browser's and the server's close to answer before it goes on; a
+// close still running then is not stopped.
 const CLOSE_MS = 2000;
 const REFIT_MS = 2000;
 // How long an open menu gets to take the focus, or the room its target height; well under PAGE_MS, so a wait that
@@ -52,8 +54,10 @@ function closeServer(server) {
 }
 
 // Opens path in a fresh context with the given motion setting and hands run the page and the path the browser was
-// sent to (with the deployment prefix). The browser and the server close whatever happens after they opened, side by
-// side and each within CLOSE_MS, so a close that hangs does not hold the test; a close past that is reported.
+// sent to (with the deployment prefix). The browser and the server start to close whatever happens after they opened,
+// side by side, and the test waits up to CLOSE_MS for each, so a close that hangs does not hold it. A wait that runs
+// out fails a test whose body passed (the browser's first if both do); a rejected browser close or a server close
+// error is not reported.
 async function withPage(path, reducedMotion, run) {
   assert.ok(existsSync(join(dist, path, "index.html")), `No built ${path}index.html. Run npm run build first.`);
   const server = await serve();
