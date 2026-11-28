@@ -2,6 +2,8 @@
 // useBannerMoreMenu, on the shared fresh-press contract in vendor/components/core/fresh-press.js). Independent
 // activations of the trigger (click(), detail 0) must each toggle the menu: two in one JS task, and the ones a script
 // makes while a Space that began on another control is released on the trigger. That release itself still runs nothing.
+// A pointer press on the trigger of the open menu closes it, and its release on the trigger opens it again with the
+// focus in the menu, as the app does; released off the trigger, the menu stays closed.
 // The tests drive the gallery's live specimen on Overlays > Banners, which calls the same hook. They need the build
 // (npm run build) and Chromium (playwright-core's, or CHROMIUM_PATH).
 import assert from "node:assert/strict";
@@ -138,5 +140,55 @@ test("click() calls made while a Space from another control is released on the t
         await waitExpanded(page, "false");
       }
     }
+  });
+});
+
+test("a pointer press on the open menu's trigger closes it and its release there opens it again", async () => {
+  await withTrigger(async (page, trigger) => {
+    // The menu's focus() can scroll the page, so the trigger's centre is measured again before every pointer step.
+    const centre = async () => {
+      const b = await trigger.boundingBox();
+      assert.ok(b, "the live trigger has no box");
+      return { x: b.x + b.width / 2, y: b.y + b.height / 2 };
+    };
+    const state = () =>
+      trigger.evaluate((t) => ({
+        expanded: t.getAttribute("aria-expanded"),
+        focus: document.activeElement === t ? "trigger" : document.activeElement?.getAttribute("role") || document.activeElement?.tagName,
+      }));
+
+    // Control: a click from closed opens the menu with the focus in it.
+    let c = await centre();
+    await page.mouse.move(c.x, c.y);
+    await page.mouse.down();
+    await page.mouse.up();
+    await waitExpanded(page, "true");
+    assert.deepEqual(await state(), { expanded: "true", focus: "menu" });
+
+    // Press on the open menu's trigger: the menu closes and the trigger keeps the focus.
+    c = await centre();
+    await page.mouse.move(c.x, c.y);
+    await page.mouse.down();
+    await settle(page);
+    assert.deepEqual(await state(), { expanded: "false", focus: "trigger" }, "press on the open trigger");
+
+    // Release on the trigger: the menu opens again with the focus in it.
+    await page.mouse.up();
+    await settle(page);
+    assert.deepEqual(await state(), { expanded: "true", focus: "menu" }, "release on the trigger after closing the menu");
+
+    // Press on the open trigger again and release off it, on the terminal body under the card: the menu stays closed.
+    c = await centre();
+    await page.mouse.move(c.x, c.y);
+    await page.mouse.down();
+    await settle(page);
+    const card = await trigger.evaluate((t) => {
+      const r = t.closest("[data-banner-card]").getBoundingClientRect();
+      return { x: r.left, y: r.bottom };
+    });
+    await page.mouse.move(card.x + 20, card.y + 120);
+    await page.mouse.up();
+    await settle(page);
+    assert.deepEqual(await state(), { expanded: "false", focus: "trigger" }, "release off the trigger");
   });
 });
