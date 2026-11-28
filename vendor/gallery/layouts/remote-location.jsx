@@ -54,12 +54,28 @@ function RemoteItem({ host, state = "connected", dropHost = false, lang = "en" }
   );
 }
 
+// The page theme, read after mount (the server markup draws Mocha) and kept in step with the site's theme switch.
+function usePageTheme() {
+  const [theme, setTheme] = React.useState("mocha");
+  React.useEffect(() => {
+    const read = () => setTheme(document.documentElement.getAttribute("data-theme") === "latte" ? "latte" : "mocha");
+    read();
+    const o = new MutationObserver(read);
+    o.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+    return () => o.disconnect();
+  }, []);
+  return theme;
+}
+
 // One 24px bar, the same drawing as the "What the 24px bar carries" specimen, with the
 // remote item leading the left cluster. drop = how many collapse steps have run:
 // 1 grid → 2 shell → 3 surface id → 4 palette cap → 5 branch text → 6 host text.
 // The stage states keep their width (the collapse order places each item at it). fluid: the language view below fills
 // its grid cell up to w, as it did before, so it adds no scroll at 1440.
-function Bar({ w, remote, drop = 0, branch = null, shell = null, lang = "en", fluid = false }) {
+// theme: the frame's theme (ThemePair); without it, the page's. The theme cell draws sun in Latte, theme in Mocha.
+function Bar({ w, remote, drop = 0, branch = null, shell = null, lang = "en", fluid = false, theme }) {
+  const pageTheme = usePageTheme();
+  const glyph = (theme || pageTheme) === "latte" ? "sun" : "theme";
   return (
     <div style={{ width: w, ...(fluid ? { maxWidth: "100%" } : { flex: "none" }), height: "var(--tasty-status-bar-height)", display: "flex", alignItems: "center", gap: "var(--tasty-statusbar-gap)", padding: "0 var(--tasty-statusbar-pad-x)", boxSizing: "border-box",
       background: "var(--tasty-bg-sidebar)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius-sm)",
@@ -76,7 +92,7 @@ function Bar({ w, remote, drop = 0, branch = null, shell = null, lang = "en", fl
       {drop < 1 && <span style={{ fontFamily: "var(--tasty-font-mono)", flex: "none" }}>120×32</span>}
       <div style={{ flex: 1 }} />
       {drop < 4 && <span style={{ flex: "none" }}><Kbd keys="Ctrl+K" /></span>}
-      <span style={{ display: "inline-flex", flex: "none", color: "var(--tasty-statusbar-theme-glyph)" }}><Icon name="theme" size="var(--tasty-statusbar-glyph-size)" /></span>
+      <span data-statusbar-theme-glyph={glyph} style={{ display: "inline-flex", flex: "none", color: "var(--tasty-statusbar-theme-glyph)" }}><Icon name={glyph} size="var(--tasty-statusbar-glyph-size)" /></span>
     </div>
   );
 }
@@ -152,9 +168,9 @@ export function RemoteStatusBarSpec() {
     <Spec id="statusbar-remote-item" title="Remote item — a mirror surface has focus"
       when={<>When the focused surface belongs to a <b>mirror</b> workspace, the bar says so where your eyes already are, whether or not the sidebar is open. The item <b>leads the left cluster</b>: the location frames everything after it, and on a mirror the branch item is absent anyway. It is the explorer host mark — <b>remote glyph + host</b>, both in <span className="tok">--tasty-statusbar-remote-fg</span> — because the bar holds glyphs and text only, never a Tag fill. Focus a local surface and the item is gone. <b>Reconnecting</b> must not look live: glyph and host drop to the bar's own neutral ink and the status word <b>reconnecting</b> follows. The host is capped at 160 and elides its end; it is the <b>last text to drop</b>, after the branch text, and the glyph never drops. Hover shows the full host in the bar's tooltip; the item is not a button. The host text follows the <b>host text rule</b> (Dialogs › File handler › Remote path): the attach profile name (R-57), and for an attach with no profile name (<code>--ssh</code> or <code>--target-port</code> from the CLI or IPC, a profile saved with an empty name) the word <b>Remote</b> in the label font and the same ink, never <code>127.0.0.1:&lt;port&gt;</code>. The word drops at the same step as a host; the bar's tooltip then has no host line.</>}>
       <Stage variant="solo" style={{ padding: 20, background: "var(--tasty-bg-app)" }}>
-        <ThemePair render={() => (
+        <ThemePair render={(theme) => (
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            {BAR_ROWS.map(([label, o]) => <Labeled key={label} label={label}><Bar {...o} /></Labeled>)}
+            {BAR_ROWS.map(([label, o]) => <Labeled key={label} label={label}><Bar {...o} theme={theme} /></Labeled>)}
           </div>
         )} />
       </Stage>
