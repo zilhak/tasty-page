@@ -87,3 +87,10 @@ jobs:
         if: ${{ !cancelled() && steps.chromium.outcome == 'success' }}
         timeout-minutes: 3
         run: node --test scripts/banner-more.test.mjs
+
+      # Drives kit popups that take the keys once placed under reduced motion, and the Tools menu refit, in Chromium
+      # (scripts/reduce-keys.test.mjs). It runs once the build and Chromium are in place, even after an earlier check failed.
+      - name: Test kit popup keys under reduced motion
+        if: ${{ !cancelled() && steps.chromium.outcome == 'success' }}
+        timeout-minutes: 3
+        run: node --test scripts/reduce-keys.test.mjs
