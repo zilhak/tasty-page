@@ -15,7 +15,7 @@ import { Input } from "../../../components/forms/Input.jsx";
 // CANONICAL, see search_bar.rs note below) · status text
 // (error > no-matches > {current}/{total}) · ▲▼ (only when matches exist) ·
 // Aa / .* / ab option toggles · │ divider · ✕ close (Esc). Enter next, Shift+Enter prev, ↑↓ navigate,
-// Esc closes. Does NOT close on outside click; the press takes key focus out of the bar, which stays open.
+// Esc closes while key focus is anywhere in the bar. Does NOT close on outside click; the press takes key focus out of the bar, which stays open.
 // Its border shows popup focus (RULES.md "Popup focus"): popup-border-focused while focus is inside the bar,
 // popup-border-unfocused once it is elsewhere. A press on the bar's own frame (padding, counter, divider) keeps or
 // takes back the focus for the field, as a press inside a popup's frame gives it key focus.
@@ -76,7 +76,15 @@ function SearchBar({ lines = [], onClose }) {
     if (e.key === "Enter") { e.preventDefault(); if (e.shiftKey) prev(); else next(); }
     else if (e.key === "ArrowUp") { e.preventDefault(); prev(); }
     else if (e.key === "ArrowDown") { e.preventDefault(); next(); }
-    else if (e.key === "Escape") { e.stopPropagation(); onClose(); }
+  };
+  // Esc closes the bar wherever its key focus is (the field, an arrow, an option or close), as the app's focused popup
+  // takes Esc in its own step. The bar reads it only while it holds the focus, so an Esc pressed elsewhere (the
+  // terminal) never reaches it. The caller puts the focus back where the bar was opened from.
+  const onBarKey = (e) => {
+    if (e.key !== "Escape") return;
+    e.preventDefault();
+    e.stopPropagation();
+    onClose();
   };
 
   // status counter — always visible (fixed layout): "0/0" when empty/no
@@ -87,7 +95,7 @@ function SearchBar({ lines = [], onClose }) {
     ? "var(--tasty-accent-danger-raised)" : "var(--tasty-text-muted-raised)";
 
   return (
-    <div role="search" data-popup-focus={focusIn ? "focused" : "unfocused"} onFocus={onBarFocus} onBlur={onBarBlur} onMouseDown={onBarPress}
+    <div role="search" data-popup-focus={focusIn ? "focused" : "unfocused"} onFocus={onBarFocus} onBlur={onBarBlur} onMouseDown={onBarPress} onKeyDown={onBarKey}
       style={{ position: "absolute", top: "var(--tasty-space-sm)", right: "var(--tasty-space-sm)", zIndex: 20,
       width: 360, maxWidth: "calc(100% - var(--tasty-space-md))",
       display: "flex", alignItems: "center", gap: 4, padding: 4,

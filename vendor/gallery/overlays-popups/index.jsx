@@ -166,8 +166,8 @@ function ToolsMenuLiveDemo() {
 // The kit search bar, live, over a terminal with five matches of "tasty". It mounts on Open search, so its field's
 // autofocus does not take the page's focus while the reader scrolls past. Previous and Next keep the focus and step
 // once per click, and they take keyRepeat (fresh-press.js): holding Enter on one keeps stepping, one match per
-// repeat, as holding Enter in the field does; Space steps once on release. Esc in the field, or close, puts the button
-// back; the kit bar takes Esc in its field only, so Esc on an arrow does nothing.
+// repeat, as holding Enter in the field does; Space steps once on release. Esc anywhere in the bar (the field, an arrow,
+// an option), or close, puts the button back; Esc while the terminal holds the focus does not reach the bar.
 const SEARCH_LIVE_LINES = ["~/work/tasty", "$ tasty list surfaces", "tasty: 3 surfaces", "$ tasty read since-mark", "tasty-agent ok"];
 function SearchBarLiveDemo() {
   const [open, setOpen] = React.useState(false);
