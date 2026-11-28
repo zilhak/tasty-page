@@ -3818,6 +3818,10 @@
       "$type": "dimension",
       "$value": "{primitive.size-10}"
     },
+    "statusbar-branch-max-width": {
+      "$type": "dimension",
+      "$value": "{primitive.size-160}"
+    },
     "statusbar-remote-fg": {
       "$type": "color",
       "$value": "{semantic.accent-remote-raised}"

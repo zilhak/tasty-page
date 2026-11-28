@@ -601,6 +601,7 @@
      4px grid because the app draws it there. */
   --tasty-statusbar-gap:           var(--tasty-size-10); /* 10 — between items */
   --tasty-statusbar-pad-x:         var(--tasty-size-10); /* 10 — left and right inset inside the border */
+  --tasty-statusbar-branch-max-width: var(--tasty-size-160); /* branch item cap — glyph + space-xs + name, the name elides inside it (the app's BRANCH_MAX_W) */
   /* Remote item — shown only while a mirror surface has focus. It leads the left
      cluster: remote glyph + host label, both in the remote hue (the explorer host
      mark form; the bar holds glyphs and text only, so no tag fill). Reconnecting
