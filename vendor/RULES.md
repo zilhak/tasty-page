@@ -2464,6 +2464,13 @@ Keep `v` if all its constraints pass or it has none. Otherwise move its lightnes
 
 **Limits.** One fitted ink value serves all its allowed grounds. The hardest ground can move the ink further than the others need. This is over-fitting. If `text-on-accent` has no value that passes on all its user fills, R1 keeps its canonical value. Tints made with opacity at the place of use and outside composite surfaces are outside R1.
 
+**Open boundaries.** These user theme cases have no settled ruling.
+
+- When a theme file sets only some fields of a plugin-registered surface kind, step 3 can fill an unset field that has neither a token nor a derivation with the general surface default or the plugin's default for that kind. Until a ruling, Tasty keeps the default it uses today.
+- When `search-match-active-bg`, `base` or `text` is unset, **Unset active match ink** leaves open whether the derivation runs before or after step 3 fills those inputs. Until a ruling, Tasty fills the unset inputs first and the derivation reads their step 3 values.
+
+Implementers ask for a ruling here before implementing any user theme case this page leaves open.
+
 **Built-in record and checks.** R1 uses the existing numeric grades. R1 must preserve every value in Mocha and Latte. An app test must prove this. The recorded tables and the gallery and site checks stay on Mocha and Latte. In section 4, the selection, vi cursor and link rows hold on both beds for Mocha and Latte. The selected ordinary match and selected active match cells also hold on both beds in those themes. Section 4 describes `term-selection` and `term-cursor` as opaque in those themes. A user theme follows **Terminal layers**. The no-exception failure for below-grade ink in [section 2](#2-how-strong-the-rules-are), the grades in [section 5](#5-roles-and-grades) and the below-grade failure in [section 8](#8-hierarchy) apply to Mocha and Latte. They give no guarantee for every color in a user theme. Given fields and their pure aliases are outside the guarantee. Derived inks follow R1, including its fallback to `v`.
 
 In [section 7](#7-meaning), the surface focus, popup focus and state ground pass marks and **Colors told apart** (OKLab ΔE 0.08 or a second channel) belong to the built-in record and checks. R1 covers only contrast between a graded derived ink, such as text or a glyph, and its ground. Telling colors apart is outside R1.
