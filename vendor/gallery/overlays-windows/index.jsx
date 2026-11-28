@@ -867,10 +867,10 @@ function Page() {
             <View name="palette-unavailable-no-runnable" label="Command palette — query “file history”, no runnable match (no highlight, Enter does nothing)">
               <div inert="" style={{ pointerEvents: "none" }}><PaletteFrame value="file history" focused commands={PALETTE_UNAVAILABLE_COMMANDS} rows={1} /></div>
             </View>
-            <View name="palette-unavailable-reason" label="Command palette — pointer on the unavailable row (reason tooltip, no hover fill, existing highlight stays)">
+            <View name="palette-unavailable-reason" wide label="Command palette — pointer on the unavailable row (reason tooltip, no hover fill, existing highlight stays)">
               <div inert="" style={{ pointerEvents: "none", paddingRight: "calc(var(--tasty-tooltip-max-width) + var(--tasty-tooltip-offset))" }}><PaletteFrame value="git" focused commands={PALETTE_UNAVAILABLE_COMMANDS} rows={3} tip={0} /></div>
             </View>
-            <View name="palette-unavailable-reason-no-side-room" label="Command palette — pointer on the unavailable row, no room beside the palette (reason centered over the palette, below the row)">
+            <View name="palette-unavailable-reason-no-side-room" wide label="Command palette — pointer on the unavailable row, no room beside the palette (reason centered over the palette, below the row)">
               <div inert="" style={{ pointerEvents: "none" }}><PaletteFrame value="git" focused commands={PALETTE_UNAVAILABLE_COMMANDS} rows={3} tip={0} tipSide="bottom" /></div>
             </View>
           </Views>
