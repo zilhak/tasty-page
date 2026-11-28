@@ -2427,7 +2427,7 @@ Inside the fixed limits: 4px grid, UI type 14px or less, borders 1px, radius 4px
 | `accent` | `blue`, `green`, `red`, `yellow`, `peach`, `mauve`, `teal`, `sky`, `lavender`, `flamingo`, `pink`, `maroon`, `rosewater` |
 | `terminal` | `selection_bg`, `vi_cursor_bg`, `search_match_bg`, `search_match_active_bg`, `search_match_active_fg` |
 | `ansi` | The terminal colors. |
-| `surfaces` | A color per surface kind. The surface focus edge has no key here: it follows `subtext1` and `mantle`, and no manifest color reaches it. |
+| `surfaces` | Each surface kind has four keys. `focused_bg` and `unfocused_bg` set the background color with and without focus, respectively. `focused_fg` and `unfocused_fg` set the text color with and without focus, respectively. The surface focus edge has no key here: it follows `subtext1` and `mantle`, and no manifest color reaches it. |
 
 The keys in the table are the color fields a theme file can set. `label` and `is_light` are theme file keys outside the table. Each field supplies its corresponding token. The names can differ. `search_match_active_fg` supplies `search-match-active-fg`. `text` supplies `text-primary`. `crust` supplies `bg-app`. Each cell names the same token in every theme. Tasty applies a user theme without a limit, warning, block or separate contrast check. A theme with every color set to white applies like any other.
 
