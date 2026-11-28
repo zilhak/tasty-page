@@ -59,47 +59,12 @@ function RemoteItem({ host, state = "connected", dropHost = false, lang = "en" }
 // 1 grid → 2 shell → 3 surface id → 4 palette cap → 5 branch text → 6 host text.
 // The stage states keep their width (the collapse order places each item at it). fluid: the language view below fills
 // its grid cell up to w, as it did before, so it adds no scroll at 1440.
-// The live hover. Like the app, the bubble opens top and is clamped horizontally to the edges of what shows it,
-// here the stage, keeping the tooltip offset from the edge. Leaving the item drops the clamp.
-function LiveTip({ content, children }) {
-  const ref = React.useRef(null);
-  const bubble = () => ref.current && ref.current.querySelector(".tasty-tooltip__bubble");
-  const clamp = () => {
-    const b = bubble();
-    if (!b) return;
-    let frames = 0;
-    const step = () => {
-      const r = b.getBoundingClientRect();
-      if (r.width === 0) { if (++frames < 120) requestAnimationFrame(step); return; }
-      const s = ref.current.closest(".stage") || document.documentElement;
-      const sr = s.getBoundingClientRect();
-      const off = parseFloat(getComputedStyle(b).marginBottom) || 0;
-      const lo = sr.left + s.clientLeft + off;
-      const hi = sr.left + s.clientLeft + s.clientWidth - off;
-      const shift = r.left < lo ? lo - r.left : r.right > hi ? hi - r.right : 0;
-      b.style.translate = shift ? `${Math.round(shift)}px 0` : "";
-    };
-    requestAnimationFrame(step);
-  };
-  const reset = () => { const b = bubble(); if (b) b.style.translate = ""; };
-  return (
-    <span ref={ref} style={{ display: "inline-flex", flex: "none" }} onPointerEnter={clamp} onPointerLeave={reset} onFocus={clamp} onBlur={reset}>
-      <Tooltip placement="top" content={content}>{children}</Tooltip>
-    </span>
-  );
-}
-
-// tip: the live stage. Hover on the remote item opens the same BarTip the hover views hold open.
-// The bar then stops clipping, so the bubble can rise above it; the collapse order keeps its content inside w.
-function Bar({ w, remote, drop = 0, branch = null, shell = null, lang = "en", fluid = false, tip = false }) {
-  const item = remote && <RemoteItem {...remote} dropHost={drop >= 6} lang={lang} />;
+function Bar({ w, remote, drop = 0, branch = null, shell = null, lang = "en", fluid = false }) {
   return (
     <div style={{ width: w, ...(fluid ? { maxWidth: "100%" } : { flex: "none" }), height: "var(--tasty-status-bar-height)", display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "0 var(--tasty-space-sm)", boxSizing: "border-box",
       background: "var(--tasty-bg-sidebar)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius-sm)",
-      fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)", overflow: tip ? "visible" : "hidden" }}>
-      {item && (tip
-        ? <LiveTip content={<BarTip state={remote.state} host={remote.host} lang={lang} />}>{item}</LiveTip>
-        : item)}
+      fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)", overflow: "hidden" }}>
+      {remote && <RemoteItem {...remote} dropHost={drop >= 6} lang={lang} />}
       {branch && (
         <span style={{ display: "inline-flex", alignItems: "center", gap: 4, flex: "none", maxWidth: 160, overflow: "hidden" }}>
           <span style={{ display: "inline-flex", color: "var(--tasty-statusbar-glyph)" }}><Icon name="gitBranch" size="var(--tasty-statusbar-glyph-size)" /></span>
@@ -187,7 +152,7 @@ export function RemoteStatusBarSpec() {
       <Stage variant="solo" style={{ padding: 20, background: "var(--tasty-bg-app)" }}>
         <ThemePair render={() => (
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            {BAR_ROWS.map(([label, o]) => <Labeled key={label} label={label}><Bar {...o} tip /></Labeled>)}
+            {BAR_ROWS.map(([label, o]) => <Labeled key={label} label={label}><Bar {...o} /></Labeled>)}
           </div>
         )} />
       </Stage>
