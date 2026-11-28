@@ -2464,9 +2464,10 @@ Keep `v` if all its constraints pass or it has none. Otherwise move its lightnes
 
 **Limits.** One fitted ink value serves all its allowed grounds. The hardest ground can move the ink further than the others need. This is over-fitting. If `text-on-accent` has no value that passes on all its user fills, R1 keeps its canonical value. Tints made with opacity at the place of use and outside composite surfaces are outside R1.
 
-**Open boundaries.** This user theme case has no settled ruling.
+**Open boundaries.** These user theme cases have no settled ruling.
 
 - A plugin's registration of a kind is withdrawn, for example when the plugin is turned off. Tasty applies a theme again while surfaces of that kind remain and a field for that kind is unset. One reading keeps the withdrawn manifest's defaults for those surfaces, and the other moves to the next source in step 3 because no live registration supplies a manifest value. Until a ruling, those surfaces continue to read the manifest defaults Tasty keeps from before the withdrawal. Live registrations follow the priority in step 3 field by field.
+- Two plugins successfully register the same surface kind. The second registration replaces the kind's current definition. Tasty then applies a theme with a field for that kind unset. One reading uses the earlier owner's manifest default for the field. The other checks only the current owner's manifest and moves to the next source in step 3 if that manifest has no value for the field. Until a ruling, Tasty continues to read the default stored under the kind's name, whichever plugin stored it.
 
 Implementers ask for a ruling here before implementing any user theme case this page leaves open.
 
