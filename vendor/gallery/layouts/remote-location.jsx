@@ -141,6 +141,7 @@ const PATH_FORMAT_ROWS = [
   ["guessed Windows — the last line", { host: MID, guessed: "Windows" }],
   ["guessed POSIX — the last line", { host: MID, guessed: "POSIX" }],
   ["guessed · reconnecting — line stays below the first if the saved row keeps its prior guess", { host: MID, state: "reconnecting", guessed: "POSIX" }],
+  ["guessed · disconnected — bar says disconnected · connected first line · line if saved row keeps prior guess", { host: MID, state: "disconnected", guessed: "POSIX" }],
   ["guessed · no profile name — the line follows the first line", { host: "", guessed: "Windows" }],
 ];
 
