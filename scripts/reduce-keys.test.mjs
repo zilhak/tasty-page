@@ -12,11 +12,14 @@ import { test } from "node:test";
 import { chromium } from "playwright-core";
 import { browserPath, dist, serve, urlFor } from "./lib/browser-test.mjs";
 
-// Each of the eight pages gets PAGE_MS from before its server starts to the end of its steps, and CLOSE_MS more to
-// close the browser and the server, so all eight end inside the CI step's three minutes (8 x 20 s) and a stuck page
-// says which page it was. Every wait inside a page is cut to what is left of its budget.
-const PAGE_MS = 18000;
-const CLOSE_MS = 2000;
+// Each of the eight pages gets PAGE_MS from before its server starts to the end of its steps. Past it the page stops:
+// no further step starts, and a server or browser that arrives late is shut as it arrives. Closing then gets CLOSE_MS
+// for the browser and the server side by side, after which a browser that has not closed is killed (KILL_MS more at
+// most). So each page ends within 20 s and the eight inside the CI step's three minutes, and a stuck page says which
+// page it was. The page's own waits keep their own limits; the budget bounds the page as a whole.
+const PAGE_MS = 17000;
+const CLOSE_MS = 1500;
+const KILL_MS = 1500;
 const REFIT_MS = 2000;
 // How long an open menu gets to take the focus; well under PAGE_MS, so a menu that never does is named as such.
 const FOCUS_MS = 5000;
@@ -36,44 +39,76 @@ async function ready(what, wait) {
   }
 }
 
-// Opens path in a fresh context with the given motion setting and hands run the page and the path the browser was
-// sent to (with the deployment prefix). The server and the browser close whatever happens after they opened, so the
-// test returns its result instead of leaving the process waiting.
+// Settles to a value, or to null once ms run out, whether or not the promise does, and clears its timer either way.
+function capped(promise, ms) {
+  let timer = null;
+  const out = new Promise((r) => { timer = setTimeout(() => r(null), Math.max(0, ms)); });
+  return Promise.race([promise, out]).finally(() => clearTimeout(timer));
+}
+
+// Closes the static server: drops its open connections first, so a client that holds one cannot keep it listening.
+function closeServer(server) {
+  server.closeAllConnections();
+  return new Promise((r) => server.close(() => r()));
+}
+
+// Closes the browser server within CLOSE_MS, and kills its process if it has not closed by then. Resolves to an error
+// message when it had to kill or the kill did not end in KILL_MS, or to null.
+async function shutBrowser(browserServer) {
+  const closed = await capped(browserServer.close().then(() => true, () => false), CLOSE_MS);
+  if (closed) return null;
+  const killed = await capped(browserServer.kill().then(() => true, () => false), KILL_MS);
+  return killed ? `the browser did not close in ${CLOSE_MS}ms and was killed` : `the browser did not close or die in ${CLOSE_MS + KILL_MS}ms`;
+}
+
+// Opens path in a fresh context with the given motion setting and hands run the page, the path the browser was sent
+// to (with the deployment prefix) and a function that gives the time left in the page's budget. The server and the
+// browser close whatever happens after they opened, within the limits above, so the test returns its result instead
+// of leaving the process waiting. A close that needed a kill fails a page that otherwise passed.
 async function withPage(path, reducedMotion, run) {
   assert.ok(existsSync(join(dist, path, "index.html")), `No built ${path}index.html. Run npm run build first.`);
   const end = Date.now() + PAGE_MS;
   const left = () => Math.max(1, end - Date.now());
+  const late = new Error(`${path} (${reducedMotion}) ran past ${PAGE_MS}ms`);
+  let over = false;
   let server = null;
-  let browser = null;
-  let timer = null;
+  let browserServer = null;
   const steps = (async () => {
-    server = await serve();
-    browser = await chromium.launch({ executablePath: browserPath(), timeout: left() });
+    const s = await serve();
+    if (over) { await closeServer(s); throw late; }
+    server = s;
+    const bs = await chromium.launchServer({ executablePath: browserPath(), timeout: left() });
+    if (over) { await shutBrowser(bs); throw late; }
+    browserServer = bs;
+    const browser = await chromium.connect(bs.wsEndpoint(), { timeout: left() });
+    if (over) throw late;
     const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion, locale: "en-US" });
     const page = await context.newPage();
     page.setDefaultTimeout(left());
     const url = urlFor(server, path);
     await page.goto(url, { waitUntil: "load", timeout: left() });
+    if (over) throw late;
     page.setDefaultTimeout(left());
     await run(page, new URL(url).pathname, left);
   })();
   steps.catch(() => {}); // a page past its budget still rejects once its browser closes; the budget's error is the result
-  const budget = new Promise((_, no) => {
-    timer = setTimeout(() => no(new Error(`${path} (${reducedMotion}) ran past ${PAGE_MS}ms`)), PAGE_MS);
-  });
+  let timer = null;
+  const budget = new Promise((_, no) => { timer = setTimeout(() => { over = true; no(late); }, PAGE_MS); });
+  let failure = null;
   try {
     await Promise.race([steps, budget]);
+  } catch (e) {
+    failure = e;
   } finally {
     clearTimeout(timer);
-    const closed = (async () => {
-      try {
-        if (browser) await browser.close();
-      } finally {
-        if (server) await new Promise((r) => server.close(r));
-      }
-    })();
-    await Promise.race([closed, new Promise((r) => setTimeout(r, CLOSE_MS).unref())]);
+    over = true;
   }
+  const [browserTrouble] = await Promise.all([
+    browserServer ? shutBrowser(browserServer) : null,
+    server ? capped(closeServer(server), CLOSE_MS) : null,
+  ]);
+  if (failure) throw failure;
+  assert.equal(browserTrouble, null, `closing ${path} (${reducedMotion}): ${browserTrouble}`);
 }
 
 // The landing's Tools button, once the app shell around it is hydrated (Astro drops the island's ssr mark), so a
@@ -188,20 +223,19 @@ const roomState = (page) =>
     };
   });
 
-// Settles to a value, or to null once ms run out, whether or not the page answers.
-const capped = (promise, ms) => Promise.race([promise, new Promise((r) => setTimeout(() => r(null), ms).unref())]);
-
 // Polls the page until check(state) holds or ms run out, on the test's own clock, so a page that stops answering or
 // stops drawing frames still ends the poll. Returns the last state it read, so the asserts that follow report what the
 // page ended with; other page errors propagate.
 async function settle(page, check, ms = REFIT_MS) {
-  const end = Date.now() + ms;
+  const end = performance.now() + ms;
   let state = null;
-  for (;;) {
-    const read = await capped(roomState(page), Math.max(1, end - Date.now()));
+  // No read starts once the deadline has passed, and the wait between reads stops at the deadline.
+  for (let rest = end - performance.now(); rest > 0; rest = end - performance.now()) {
+    const read = await capped(roomState(page), rest);
     if (read) state = read;
-    if ((read && check(read)) || Date.now() >= end) break;
-    await new Promise((r) => setTimeout(r, 16));
+    if (read && check(read)) break;
+    const pause = Math.min(16, end - performance.now());
+    if (pause > 0) await new Promise((r) => setTimeout(r, pause));
   }
   assert.ok(state, `the page gave no reading within ${ms}ms`);
   return state;
@@ -295,6 +329,7 @@ for (const motion of ["reduce", "no-preference"]) {
       assert.equal(low.room, target, `the room left its target (${note})`);
       assert.ok(Math.abs(low.menu - Math.min(full.menu, target)) < 0.5, `after the window resize the menu is ${low.menu} high (${note})`);
       await gitKept(page, low, `after the window resize (${note})`);
+      assert.equal(low.scrollY, full.scrollY, `the page scrolled with the window resize (${note})`);
     });
   });
 }
