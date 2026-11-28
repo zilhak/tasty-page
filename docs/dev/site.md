@@ -186,7 +186,7 @@
 - `scripts/design-tokens/verify_ground_ink_tokens.py`로 `vendor/tokens/ground-ink-rules.json`의 토큰 목록을 토큰 CSS와 대조한다.
 - `npm run check-tokens-copy`로 `vendor/tokens.css`가 되풀이하는 1단계 값이 `vendor/tokens/primitives.css`와 같은지 확인한다.
 - `npm run check-icons`로 `vendor/icons/*.svg`와 `vendor/components/core/Icon.jsx`가 같은 글리프를 그리는지 원문을 비교한다.
-- Chromium 설치에 성공하면 앞 검사가 실패해도 Design 워크플로의 마지막 단계에서 [`scripts/banner-more.test.mjs`](../../scripts/banner-more.test.mjs)를 실행한다. 빌드된 갤러리에서 한 JS 작업 안의 트리거 `click()`이 호출마다 메뉴를 토글하는지, 다른 컨트롤에서 누른 Space를 트리거에서 뗄 때 문서의 `keyup`에서 호출한 `click()`만 메뉴를 토글하는지 확인한다. 포인터 시험은 열린 메뉴의 트리거를 눌러 닫는 동작, 트리거와 터미널 본문에서 각각 뗄 때의 메뉴 상태, 다시 열릴 때의 포커스를 확인한다.
+- Chromium 설치에 성공하면 앞 검사가 실패해도 Design 워크플로의 마지막 단계에서 [`scripts/banner-more.test.mjs`](../../scripts/banner-more.test.mjs)를 실행한다. 빌드된 갤러리에서 한 JS 작업 안에 트리거의 `click()`을 두 번 호출하거나, 다른 컨트롤에서 누른 Space를 트리거에서 뗄 때 문서의 `keyup` 핸들러에서 트리거의 `click()`을 0·1·2회 호출해 메뉴 토글을 확인한다. 포인터 시험은 열린 메뉴의 트리거를 눌러 닫는 동작, 트리거와 터미널 본문에서 각각 뗄 때의 메뉴 상태, 다시 열릴 때의 포커스를 확인한다.
 
 ## 빌드
 
