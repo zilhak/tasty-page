@@ -177,16 +177,31 @@ test("a pointer press on the open menu's trigger closes it and its release there
     await settle(page);
     assert.deepEqual(await state(), { expanded: "true", focus: "menu" }, "release on the trigger after closing the menu");
 
-    // Press on the open trigger again and release off it, on the terminal body under the card: the menu stays closed.
+    // Press on the open trigger again and release off it, on the specimen's terminal body: the menu stays closed.
     c = await centre();
     await page.mouse.move(c.x, c.y);
     await page.mouse.down();
     await settle(page);
-    const card = await trigger.evaluate((t) => {
-      const r = t.closest("[data-banner-card]").getBoundingClientRect();
-      return { x: r.left, y: r.bottom };
+    assert.deepEqual(await state(), { expanded: "false", focus: "trigger" }, "second press on the open trigger");
+    // A point in the terminal body that the press has left uncovered, checked as the real hit target, so the release
+    // is known to land on the terminal and not on the card or the trigger.
+    const off = await trigger.evaluate((t) => {
+      // The nearest ancestor of the trigger that also holds a terminal body is the specimen's scope.
+      let scope = t.parentElement;
+      while (scope && !scope.querySelector("[data-terminal-content]")) scope = scope.parentElement;
+      const term = scope && scope.querySelector("[data-terminal-content]");
+      if (!term) return null;
+      const r = term.getBoundingClientRect();
+      for (let y = r.bottom - 4; y > r.top; y -= 8) {
+        for (const x of [r.left + 8, r.left + r.width / 2, r.right - 8]) {
+          const hit = document.elementFromPoint(x, y);
+          if (hit && term.contains(hit) && !hit.closest("[data-banner-card]")) return { x, y };
+        }
+      }
+      return null;
     });
-    await page.mouse.move(card.x + 20, card.y + 120);
+    assert.ok(off, "no uncovered point in the specimen's terminal body");
+    await page.mouse.move(off.x, off.y);
     await page.mouse.up();
     await settle(page);
     assert.deepEqual(await state(), { expanded: "false", focus: "trigger" }, "release off the trigger");
