@@ -61,8 +61,8 @@ function RemoteItem({ host, state = "connected", dropHost = false, lang = "en" }
 // its grid cell up to w, as it did before, so it adds no scroll at 1440.
 function Bar({ w, remote, drop = 0, branch = null, shell = null, lang = "en", fluid = false }) {
   return (
-    <div style={{ width: w, ...(fluid ? { maxWidth: "100%" } : { flex: "none" }), height: "var(--tasty-status-bar-height)", display: "flex", alignItems: "center", gap: 10, padding: "0 10px", boxSizing: "border-box",
-      background: "var(--tasty-bg-sidebar)", border: "1px solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius-sm)",
+    <div style={{ width: w, ...(fluid ? { maxWidth: "100%" } : { flex: "none" }), height: "var(--tasty-status-bar-height)", display: "flex", alignItems: "center", gap: "var(--tasty-space-sm)", padding: "0 var(--tasty-space-sm)", boxSizing: "border-box",
+      background: "var(--tasty-bg-sidebar)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius-sm)",
       fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)", overflow: "hidden" }}>
       {remote && <RemoteItem {...remote} dropHost={drop >= 6} lang={lang} />}
       {branch && (
@@ -168,16 +168,7 @@ export function RemoteStatusBarSpec() {
         <View wide name="statusbar-remote-no-profile" label="No profile name (--ssh or --target-port from the CLI or IPC) — the word Remote in the host slot, every language, then hover">
           <div style={{ display: "flex", flexDirection: "column", gap: 12, minWidth: 300 }}>
             {["en", "ko", "ja", "zh-Hans"].map((lang) => <Labeled key={lang} label={lang}><Bar w={470} lang={lang} remote={{ host: "" }} fluid /></Labeled>)}
-            <Labeled label="hover — no host line">
-              <div style={{ paddingTop: 56, display: "flex", justifyContent: "center", minWidth: 300 }}>
-                <Tooltip open placement="top" content={<BarTip host="" />}>
-                  <span style={{ display: "inline-flex", padding: "0 10px", height: "var(--tasty-status-bar-height)", alignItems: "center",
-                    background: "var(--tasty-bg-sidebar)", border: "1px solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius-sm)", fontSize: "var(--tasty-font-size-caption)" }}>
-                    <RemoteItem host="" />
-                  </span>
-                </Tooltip>
-              </div>
-            </Labeled>
+            <Labeled label="hover — no host line"><TipFrame pad={56} host="" /></Labeled>
           </div>
         </View>
         <View wide name="statusbar-remote-path-format" label="Hover — path format reported or guessed (the remote Tasty did not report it)">
@@ -193,16 +184,7 @@ export function RemoteStatusBarSpec() {
         <View wide name="statusbar-remote-tooltip" label="Hover — the bar's tooltip, full host">
           <div style={{ display: "flex", flexDirection: "column", gap: 16, minWidth: 300 }}>
             {[["connected", "connected", LONG], ["reconnecting", "reconnecting", MID]].map(([label, state, host]) => (
-              <Labeled key={label} label={label}>
-                <div style={{ paddingTop: 72, display: "flex", justifyContent: "center", minWidth: 300 }}>
-                  <Tooltip open placement="top" content={<BarTip state={state} host={host} />}>
-                    <span style={{ display: "inline-flex", padding: "0 10px", height: "var(--tasty-status-bar-height)", alignItems: "center",
-                      background: "var(--tasty-bg-sidebar)", border: "1px solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius-sm)", fontSize: "var(--tasty-font-size-caption)" }}>
-                      <RemoteItem host={host} state={state} />
-                    </span>
-                  </Tooltip>
-                </div>
-              </Labeled>
+              <Labeled key={label} label={label}><TipFrame host={host} state={state} /></Labeled>
             ))}
           </div>
         </View>
