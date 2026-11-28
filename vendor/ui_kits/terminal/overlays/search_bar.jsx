@@ -17,8 +17,9 @@ import { Input } from "../../../components/forms/Input.jsx";
 // Aa / .* / ab option toggles · │ divider · ✕ close (Esc). Enter next, Shift+Enter prev, ↑↓ navigate,
 // Esc closes while key focus is anywhere in the bar. Does NOT close on outside click; the press takes key focus out of the bar, which stays open.
 // Its border shows popup focus (RULES.md "Popup focus"): popup-border-focused while focus is inside the bar,
-// popup-border-unfocused once it is elsewhere. A press on the bar's own frame (padding, counter, divider) keeps or
-// takes back the focus for the field, as a press inside a popup's frame gives it key focus.
+// popup-border-unfocused once it is elsewhere. A press on the bar's own frame (padding, counter, divider, a disabled
+// arrow) takes the focus back for the field when the focus was outside the bar, and leaves it on the control that has
+// it when the bar already holds it, as a press inside a popup's frame gives it key focus.
 // INPUT WIDTH (canonical): flex:1 — the input grows to fill the bar after the
 // fixed-width counter (40px) and always-visible buttons are laid out. The Rust
 // search_bar.rs:24-32 desired_width(200.0) is a fixed-width approximation to
