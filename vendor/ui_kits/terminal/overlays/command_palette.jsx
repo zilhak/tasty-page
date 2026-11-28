@@ -140,15 +140,15 @@ function PaletteCard({ query = "", onQuery, onRun, autoFocus = false, commands =
     if (row) reveal(row);
   }, [selected, query]);
   // The reason of a row that cannot run, after the pointer has rested on it for the tooltip delay.
-  const readMs = (name, fallback) => {
+  // The delay, the bubble's max width and its offset are the computed values of the tokens the shared Tooltip's own
+  // CSS lays the bubble out with (--tasty-tooltip-delay, --tasty-tooltip-max-width, --tasty-tooltip-offset), read where
+  // the card sits, so the placement test and the drawn bubble share one source.
+  const readMs = (name) => {
     const v = getComputedStyle(wrapRef.current).getPropertyValue(name).trim();
     const n = parseFloat(v);
-    return Number.isFinite(n) ? (v.endsWith("ms") ? n : v.endsWith("s") ? n * 1000 : n) : fallback;
+    return v.endsWith("ms") ? n : v.endsWith("s") ? n * 1000 : n;
   };
-  const readPx = (name, fallback) => {
-    const n = parseFloat(getComputedStyle(wrapRef.current).getPropertyValue(name));
-    return Number.isFinite(n) ? n : fallback;
-  };
+  const readPx = (name) => parseFloat(getComputedStyle(wrapRef.current).getPropertyValue(name));
   React.useEffect(() => () => clearTimeout(tipTimer.current), []);
   // A resized window moves the room under the bubble: the reason closes, and the next rest of the pointer opens it.
   React.useEffect(() => {
@@ -176,7 +176,7 @@ function PaletteCard({ query = "", onQuery, onRun, autoFocus = false, commands =
       const top = list.offsetTop + row.offsetTop - list.scrollTop;
       const r = wrap.getBoundingClientRect();
       const roomBox = wrap.parentElement ? wrap.parentElement.getBoundingClientRect() : { left: 0, right: window.innerWidth };
-      const need = readPx("--tasty-tooltip-max-width", 240) + readPx("--tasty-tooltip-offset", 4);
+      const need = readPx("--tasty-tooltip-max-width") + readPx("--tasty-tooltip-offset");
       const roomRight = roomBox.right - r.right;
       const roomLeft = r.left - roomBox.left;
       // Beside the card when the bubble's max width fits on a side; otherwise (the card fills its room) over the card,
@@ -187,7 +187,7 @@ function PaletteCard({ query = "", onQuery, onRun, autoFocus = false, commands =
         const upper = row.offsetTop - list.scrollTop + row.offsetHeight / 2 <= list.clientHeight / 2;
         setTip({ label, reason, y: upper ? top + row.offsetHeight : top, side: upper ? "bottom" : "top" });
       }
-    }, readMs("--tasty-tooltip-delay", 150));
+    }, readMs("--tasty-tooltip-delay"));
   };
   // Once drawn, the bubble is kept whole inside the room (the box the card sits in, or the window): shifted the least
   // along each axis, its side and its direction kept.
@@ -201,7 +201,7 @@ function PaletteCard({ query = "", onQuery, onRun, autoFocus = false, commands =
     const room = wrap.parentElement ? wrap.parentElement.getBoundingClientRect() : { left: 0, top: 0, right: window.innerWidth, bottom: window.innerHeight };
     // A room narrower than the bubble's max width narrows the bubble to the room, and its text wraps.
     const roomW = Math.floor(room.right - room.left);
-    if (roomW < readPx("--tasty-tooltip-max-width", 240) && anchor.style.getPropertyValue("--tasty-tooltip-max-width") !== `${roomW}px`) {
+    if (roomW < readPx("--tasty-tooltip-max-width") && anchor.style.getPropertyValue("--tasty-tooltip-max-width") !== `${roomW}px`) {
       anchor.style.setProperty("--tasty-tooltip-max-width", `${roomW}px`);
     }
     const b = bubble.getBoundingClientRect();
@@ -271,8 +271,10 @@ function PaletteCard({ query = "", onQuery, onRun, autoFocus = false, commands =
         <span>↑↓ navigate</span><span>↵ run</span><span>esc close</span>
       </div>
     </div>
+    {/* The anchor is a zero-size flex box at the row's point, so the Tooltip inside it starts at that point: as an
+        inline box it sat on a line box's baseline, below the point, and the bubble came out lower than the row. */}
     {tip && (
-      <span ref={tipRef} style={{ position: "absolute", top: tip.y, transform: `translate(${fit.dx}px, ${fit.dy}px)`, ...(tip.side === "right" ? { left: "100%" } : tip.side === "left" ? { right: "100%" } : { left: "50%" }) }}>
+      <span ref={tipRef} style={{ position: "absolute", display: "flex", width: 0, height: 0, top: tip.y, transform: `translate(${fit.dx}px, ${fit.dy}px)`, ...(tip.side === "right" ? { left: "100%" } : tip.side === "left" ? { right: "100%" } : { left: "50%" }) }}>
         <Tooltip open placement={tip.side} content={tip.reason}><span style={{ display: "block", width: 0, height: 0 }} /></Tooltip>
       </span>
     )}
