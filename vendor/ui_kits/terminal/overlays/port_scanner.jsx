@@ -230,12 +230,20 @@ function ColumnsMenu({ anchor, hidden, onToggle, onClose }) {
     window.addEventListener("keydown", key, true);
     return () => window.removeEventListener("keydown", key, true);
   }, [anchor, onClose]);
+  // The chooser is hidden until it is placed, and Tab hands the focus to its first checkbox right after it opens; a
+  // hidden element takes no focus. Showing it is functional, so it is instant (vendor/README.md, State vs transition):
+  // the box and every element in it that declares no transition of its own transition no property. visibility is
+  // inherited, so without this a host rule that sets transition-duration without changing transition-property (a
+  // reduced-motion rule over every element) turns each one's inherited hidden to visible into a transition, and the
+  // checkbox the first Tab focuses still reads hidden and refuses it. The rule weighs nothing (:where), so a part
+  // that fades its own properties (the checkbox's box) keeps its fade, which never lists visibility.
   return (
-    <div ref={ref} role="dialog" aria-label="Show columns" onClick={(e) => e.stopPropagation()}
+    <div ref={ref} role="dialog" aria-label="Show columns" className="tasty-portcols" onClick={(e) => e.stopPropagation()}
       style={{ position: "absolute", left: pos ? pos.left : 0, top: pos ? pos.top : 0, visibility: pos ? "visible" : "hidden", zIndex: 1,
         minWidth: "calc(1 * var(--tasty-port-columns-menu-min-width) + 2 * var(--tasty-popup-content-margin) + 2 * var(--tasty-border-width))", display: "flex", flexDirection: "column", padding: "var(--tasty-popup-content-margin)",
         background: "var(--tasty-menu-bg)", border: "var(--tasty-border-width) solid var(--tasty-menu-border)", borderRadius: "var(--tasty-menu-radius)",
         boxShadow: "var(--tasty-shadow-popover)" }}>
+      <style>{`:where(.tasty-portcols, .tasty-portcols *){transition-property:none}`}</style>
       {/* the menu is raised, so the title reads text-muted-raised (the app draws text_muted: app handoff) */}
       <span style={{ fontFamily: "var(--tasty-font-ui)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted-raised)" }}>Show columns</span>
       {/* the title's item spacing (space-xs) plus the app's add_space(space-xs), then item spacing between rows */}
