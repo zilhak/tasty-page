@@ -7,46 +7,15 @@
 // The tests drive the gallery's live specimen on Overlays > Banners, which calls the same hook. They need the build
 // (npm run build) and Chromium (playwright-core's, or CHROMIUM_PATH).
 import assert from "node:assert/strict";
-import { existsSync, readFileSync, statSync } from "node:fs";
-import { createServer } from "node:http";
-import { dirname, extname, join } from "node:path";
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 import { test } from "node:test";
-import { fileURLToPath } from "node:url";
 import { chromium } from "playwright-core";
-import { BASE } from "../src/lib/base.mjs";
+import { browserPath, dist, serve, urlFor } from "./lib/browser-test.mjs";
 
-const root = join(dirname(fileURLToPath(import.meta.url)), "..");
-const dist = join(root, "dist");
-const prefix = BASE.replace(/\/$/, "");
 const PAGE = "/design/gallery/overlays-banners/";
 const SPEC = "the-menu-2-rows-anchored-under-the-trigger";
 const LIMIT_MS = 30000;
-
-const MIME = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".json": "application/json", ".svg": "image/svg+xml", ".png": "image/png", ".woff2": "font/woff2" };
-
-// Serves dist the way the site is served: the base prefix is taken off the request path.
-function serve() {
-  const server = createServer((req, res) => {
-    let path = decodeURIComponent(new URL(req.url, "http://x").pathname);
-    if (prefix && path.startsWith(prefix)) path = path.slice(prefix.length);
-    let file = join(dist, path);
-    if (existsSync(file) && statSync(file).isDirectory()) file = join(file, "index.html");
-    if (!existsSync(file)) { res.writeHead(404); res.end(); return; }
-    res.writeHead(200, { "Content-Type": MIME[extname(file)] || "application/octet-stream" });
-    res.end(readFileSync(file));
-  });
-  return new Promise((ok, no) => {
-    server.once("error", no);
-    server.listen(0, "127.0.0.1", () => ok(server));
-  });
-}
-
-function browserPath() {
-  const candidates = [process.env.CHROMIUM_PATH, chromium.executablePath(), "/snap/bin/chromium"].filter(Boolean);
-  const found = candidates.find((p) => existsSync(p));
-  assert.ok(found, `No browser. Tried: ${candidates.join(", ")}. Set CHROMIUM_PATH.`);
-  return found;
-}
 
 // The live trigger: the spec's "More options" button outside its inert Views.
 const TRIGGER = `#${SPEC} [data-banner-card] [aria-label="More options"]:not([inert] *)`;
@@ -62,7 +31,7 @@ async function withTrigger(run) {
     browser = await chromium.launch({ executablePath: browserPath() });
     const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
     page.setDefaultTimeout(LIMIT_MS);
-    const url = `http://127.0.0.1:${server.address().port}${prefix}${PAGE}#${SPEC}`;
+    const url = `${urlFor(server, PAGE)}#${SPEC}`;
     await page.goto(url, { waitUntil: "load", timeout: LIMIT_MS });
     const trigger = page.locator(TRIGGER);
     await trigger.waitFor({ state: "attached" });
