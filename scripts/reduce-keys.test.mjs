@@ -12,16 +12,15 @@ import { test } from "node:test";
 import { chromium } from "playwright-core";
 import { browserPath, dist, serve, urlFor } from "./lib/browser-test.mjs";
 
-// Each of the eight pages gets PAGE_MS from before its server starts to the end of its steps. Past it the page stops:
-// no further step starts, and a server or browser that arrives late is shut as it arrives. Closing then gets CLOSE_MS
-// for the browser and the server side by side, after which a browser that has not closed is killed (KILL_MS more at
-// most). So each page ends within 20 s and the eight inside the CI step's three minutes, and a stuck page says which
-// page it was. The page's own waits keep their own limits; the budget bounds the page as a whole.
-const PAGE_MS = 17000;
-const CLOSE_MS = 1500;
-const KILL_MS = 1500;
+// Each test has a node:test timeout of PAGE_MS, so a stuck page fails by name instead of holding the run. A timeout
+// fails the test but does not stop its page: its steps may run on until the file's process ends, which closes the
+// browser Playwright launched. The CI step's own three minute limit is the hard bound on the whole file.
+const PAGE_MS = 20000;
+// How long closing the browser and the server may take each, side by side, before the test goes on without them.
+const CLOSE_MS = 2000;
 const REFIT_MS = 2000;
-// How long an open menu gets to take the focus; well under PAGE_MS, so a menu that never does is named as such.
+// How long an open menu gets to take the focus, or the room its target height; well under PAGE_MS, so a wait that
+// never ends is named as such.
 const FOCUS_MS = 5000;
 const LIMIT_MS = 30000;
 const LANDING = "/";
@@ -52,63 +51,32 @@ function closeServer(server) {
   return new Promise((r) => server.close(() => r()));
 }
 
-// Closes the browser server within CLOSE_MS, and kills its process if it has not closed by then. Resolves to an error
-// message when it had to kill or the kill did not end in KILL_MS, or to null.
-async function shutBrowser(browserServer) {
-  const closed = await capped(browserServer.close().then(() => true, () => false), CLOSE_MS);
-  if (closed) return null;
-  const killed = await capped(browserServer.kill().then(() => true, () => false), KILL_MS);
-  return killed ? `the browser did not close in ${CLOSE_MS}ms and was killed` : `the browser did not close or die in ${CLOSE_MS + KILL_MS}ms`;
-}
-
-// Opens path in a fresh context with the given motion setting and hands run the page, the path the browser was sent
-// to (with the deployment prefix) and a function that gives the time left in the page's budget. The server and the
-// browser close whatever happens after they opened, within the limits above, so the test returns its result instead
-// of leaving the process waiting. A close that needed a kill fails a page that otherwise passed.
+// Opens path in a fresh context with the given motion setting and hands run the page and the path the browser was
+// sent to (with the deployment prefix). The browser and the server close whatever happens after they opened, side by
+// side and each within CLOSE_MS, so a close that hangs does not hold the test; a close past that is reported.
 async function withPage(path, reducedMotion, run) {
   assert.ok(existsSync(join(dist, path, "index.html")), `No built ${path}index.html. Run npm run build first.`);
-  const end = Date.now() + PAGE_MS;
-  const left = () => Math.max(1, end - Date.now());
-  const late = new Error(`${path} (${reducedMotion}) ran past ${PAGE_MS}ms`);
-  let over = false;
-  let server = null;
-  let browserServer = null;
-  const steps = (async () => {
-    const s = await serve();
-    if (over) { await closeServer(s); throw late; }
-    server = s;
-    const bs = await chromium.launchServer({ executablePath: browserPath(), timeout: left() });
-    if (over) { await shutBrowser(bs); throw late; }
-    browserServer = bs;
-    const browser = await chromium.connect(bs.wsEndpoint(), { timeout: left() });
-    if (over) throw late;
-    const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion, locale: "en-US" });
-    const page = await context.newPage();
-    page.setDefaultTimeout(left());
-    const url = urlFor(server, path);
-    await page.goto(url, { waitUntil: "load", timeout: left() });
-    if (over) throw late;
-    page.setDefaultTimeout(left());
-    await run(page, new URL(url).pathname, left);
-  })();
-  steps.catch(() => {}); // a page past its budget still rejects once its browser closes; the budget's error is the result
-  let timer = null;
-  const budget = new Promise((_, no) => { timer = setTimeout(() => { over = true; no(late); }, PAGE_MS); });
+  const server = await serve();
+  let browser = null;
   let failure = null;
   try {
-    await Promise.race([steps, budget]);
+    browser = await chromium.launch({ executablePath: browserPath() });
+    const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion, locale: "en-US" });
+    const page = await context.newPage();
+    page.setDefaultTimeout(LIMIT_MS);
+    const url = urlFor(server, path);
+    await page.goto(url, { waitUntil: "load", timeout: LIMIT_MS });
+    await run(page, new URL(url).pathname);
   } catch (e) {
     failure = e;
-  } finally {
-    clearTimeout(timer);
-    over = true;
   }
-  const [browserTrouble] = await Promise.all([
-    browserServer ? shutBrowser(browserServer) : null,
-    server ? capped(closeServer(server), CLOSE_MS) : null,
+  const [browserClosed, serverClosed] = await Promise.all([
+    browser ? capped(browser.close().then(() => true, () => true), CLOSE_MS) : true,
+    capped(closeServer(server).then(() => true), CLOSE_MS),
   ]);
   if (failure) throw failure;
-  assert.equal(browserTrouble, null, `closing ${path} (${reducedMotion}): ${browserTrouble}`);
+  assert.ok(browserClosed, `the browser for ${path} (${reducedMotion}) did not close in ${CLOSE_MS}ms`);
+  assert.ok(serverClosed, `the server for ${path} (${reducedMotion}) did not close in ${CLOSE_MS}ms`);
 }
 
 // The landing's Tools button, once the app shell around it is hydrated (Astro drops the island's ssr mark), so a
@@ -140,7 +108,7 @@ const focused = (page) =>
 const markedRows = async (page, menu) => (await page.locator(`${menu} .tasty-menuitem--active`).allTextContents()).map((t) => t.trim());
 
 for (const motion of ["reduce", "no-preference"]) {
-  test(`the Tools menu takes the keys on open and the first Down marks Command palette (${motion})`, async () => {
+  test(`the Tools menu takes the keys on open and the first Down marks Command palette (${motion})`, { timeout: PAGE_MS }, async () => {
     await withPage(LANDING, motion, async (page, sent) => {
       const tools = await landingTools(page, sent);
       await tools.click();
@@ -158,7 +126,7 @@ for (const motion of ["reduce", "no-preference"]) {
 
 // The first Down sent in the same task as the menu taking the focus, the earliest a key can reach the menu: the row it
 // focuses must already be visible, not still inheriting the menu's hidden through a transition.
-test("a Down right as the Tools menu takes the focus moves the focus to Command palette (reduce)", async () => {
+test("a Down right as the Tools menu takes the focus moves the focus to Command palette (reduce)", { timeout: PAGE_MS }, async () => {
   await withPage(LANDING, "reduce", async (page, sent) => {
     const tools = await landingTools(page, sent);
     await page.evaluate(() => {
@@ -177,7 +145,7 @@ test("a Down right as the Tools menu takes the focus moves the focus to Command 
   });
 });
 
-test("the first Tab from Columns reaches Proto and Esc returns to Columns (reduce)", async () => {
+test("the first Tab from Columns reaches Proto and Esc returns to Columns (reduce)", { timeout: PAGE_MS }, async () => {
   await withPage(LANDING, "reduce", async (page, sent) => {
     const tools = await landingTools(page, sent);
     await tools.click();
@@ -285,7 +253,7 @@ async function openOnGit(page) {
 }
 
 for (const motion of ["reduce", "no-preference"]) {
-  test(`the Tools menu refits when its room alone changes size, with Git kept in view (${motion})`, async () => {
+  test(`the Tools menu refits when its room alone changes size, with Git kept in view (${motion})`, { timeout: PAGE_MS }, async () => {
     await withPage(POPUPS, motion, async (page) => {
       const full = await openOnGit(page);
       const shrink = full.room - 60;
@@ -309,8 +277,8 @@ for (const motion of ["reduce", "no-preference"]) {
     });
   });
 
-  test(`the Tools menu refits to the room's final height after a window resize, with Git kept in view (${motion})`, async () => {
-    await withPage(POPUPS, motion, async (page, sent, left) => {
+  test(`the Tools menu refits to the room's final height after a window resize, with Git kept in view (${motion})`, { timeout: PAGE_MS }, async () => {
+    await withPage(POPUPS, motion, async (page, sent) => {
       const full = await openOnGit(page);
       // Record the room's height when the resize arrives: under reduced motion the room's own height change can still
       // be under way then, and the menu must follow the room's final height, not the one read at the resize.
@@ -322,7 +290,7 @@ for (const motion of ["reduce", "no-preference"]) {
       assert.ok(target < full.room, `the window resize gives the room ${target}, not less than ${full.room}`);
       // Wait, as a plain condition, until the room has reached that height and the resize has been seen.
       await ready(`the room never reached ${target} after the window resize`, page.waitForFunction((t) =>
-        document.querySelector("[data-tools-live]").clientHeight === t && window.__roomAtResize !== undefined, target, { timeout: Math.min(LIMIT_MS, left()) }));
+        document.querySelector("[data-tools-live]").clientHeight === t && window.__roomAtResize !== undefined, target, { timeout: FOCUS_MS }));
       const atResize = await page.evaluate(() => window.__roomAtResize);
       const low = await settle(page, (s) => s.room === target && Math.abs(s.menu - Math.min(full.menu, target)) < 0.5);
       const note = `room ${atResize} at the resize, ${low.room} at the end, ${target} the target`;
