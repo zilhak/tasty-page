@@ -92,10 +92,12 @@ function ToolsMenu({ anchor, bounds = null, hostRuns = null, onClose, onAction }
   const [kb, setKb] = React.useState(-1);
   const [place, setPlace] = React.useState(null);
   // The menu takes the keys once it is placed: until then it is hidden, and a hidden element takes no focus. Showing
-  // it is functional, so it is instant (vendor/README.md, State vs transition): the menu transitions no property, and
-  // a host rule that sets transition-duration without changing transition-property (a reduced-motion rule over every
-  // element) cannot turn the visibility change into a transition that leaves it hidden for a moment, which would
-  // refuse this focus and leave the keys with the button.
+  // it is functional, so it is instant (vendor/README.md, State vs transition): the menu and every element in it that
+  // declares no transition of its own transition no property (the rule over the menu below). visibility is inherited,
+  // so without this a host rule that sets transition-duration without changing transition-property (a reduced-motion
+  // rule over every element) turns each one's inherited hidden to visible into a transition: the menu would refuse
+  // this focus and leave the keys with the button, and the row the first Down focuses right after would still read
+  // hidden and refuse it, leaving the focus on the menu.
   React.useEffect(() => { if (place && menuRef.current) menuRef.current.focus({ preventScroll: true }); }, [!!place]);
   // The menu's own size, measured once while it is drawn uncut and hidden, before the first place: as wide as its
   // longest row, clamped to the min and max width tokens (a label past the max ends in …). A menu cut to a room
@@ -194,11 +196,13 @@ function ToolsMenu({ anchor, bounds = null, hostRuns = null, onClose, onAction }
   return (
     <div onClick={onClose} onContextMenu={(e) => { e.preventDefault(); onClose(); }}
       style={{ position: "absolute", inset: 0, zIndex: 55 }}>
-      {/* MenuItem draws every row state, keyboard-active included; the menu only drops the focus ring the fill replaces */}
-      <style>{`.tasty-toolsmenu-item:focus-visible,.tasty-toolsmenu:focus-visible{outline:none}`}</style>
+      {/* MenuItem draws every row state, keyboard-active included; the menu only drops the focus ring the fill replaces.
+          The transition rule weighs nothing (:where), so a row's own pointer hover fade (a MenuItem class rule, which
+          never lists visibility) stays. */}
+      <style>{`.tasty-toolsmenu-item:focus-visible,.tasty-toolsmenu:focus-visible{outline:none}:where(.tasty-toolsmenu, .tasty-toolsmenu *){transition-property:none}`}</style>
       <div ref={menuRef} tabIndex={-1} className="tasty-toolsmenu tasty-scroll" onKeyDown={onKeyDown} onClick={(e) => e.stopPropagation()} role="menu" aria-label="Tools"
         style={{ position: "absolute", left: place ? place.left : anchor.left, top: place ? place.top : 0,
-          visibility: place ? "visible" : "hidden", transitionProperty: "none", maxHeight: place ? place.maxHeight : undefined,
+          visibility: place ? "visible" : "hidden", maxHeight: place ? place.maxHeight : undefined,
           overflowY: place ? "auto" : undefined, boxSizing: "border-box", width: place ? place.width : "max-content",
           // the clamp applies to the own size only: placed, the menu takes the width it was cut to, which a room
           // narrower than the min width brings under 160
