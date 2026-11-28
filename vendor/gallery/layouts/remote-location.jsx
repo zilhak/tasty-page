@@ -186,7 +186,7 @@ export function RemoteStatusBarSpec() {
             {["en", "ko", "ja", "zh-Hans"].map((lang) => <Labeled key={lang} label={`${lang} · guessed Windows`}><TipFrame pad={104} host={MID} lang={lang} guessed="Windows" /></Labeled>)}
           </div>
         </View>
-        <View name="statusbar-remote-tooltip" label="Hover — the bar's tooltip, full host">
+        <View wide name="statusbar-remote-tooltip" label="Hover — the bar's tooltip, full host">
           <div style={{ display: "flex", flexDirection: "column", gap: 16, minWidth: 300 }}>
             {[["connected", "connected", LONG], ["reconnecting", "reconnecting", MID]].map(([label, state, host]) => (
               <Labeled key={label} label={label}>
