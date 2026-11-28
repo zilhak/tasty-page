@@ -91,8 +91,9 @@ function ToolsMenu({ anchor, bounds = null, hostRuns = null, onClose, onAction }
   const [place, setPlace] = React.useState(null);
   // The menu takes the keys once it is placed: until then it is hidden, and a hidden element takes no focus. Showing
   // it is functional, so it is instant (vendor/README.md, State vs transition): the menu transitions no property, and
-  // a host rule that only shortens transitions (a reduced-motion rule over every element) cannot leave it hidden for
-  // a moment, which would refuse this focus and leave the keys with the button.
+  // a host rule that sets transition-duration without changing transition-property (a reduced-motion rule over every
+  // element) cannot turn the visibility change into a transition that leaves it hidden for a moment, which would
+  // refuse this focus and leave the keys with the button.
   React.useEffect(() => { if (place && menuRef.current) menuRef.current.focus({ preventScroll: true }); }, [!!place]);
   // The menu's own size, measured once while it is drawn uncut and hidden, before the first place: as wide as its
   // longest row, clamped to the min and max width tokens (a label past the max ends in …). A menu cut to a room
