@@ -89,7 +89,10 @@ function ToolsMenu({ anchor, bounds = null, hostRuns = null, onClose, onAction }
   const menuRef = React.useRef(null);
   const [kb, setKb] = React.useState(-1);
   const [place, setPlace] = React.useState(null);
-  // The menu takes the keys once it is placed: until then it is hidden, and a hidden element takes no focus.
+  // The menu takes the keys once it is placed: until then it is hidden, and a hidden element takes no focus. Showing
+  // it is functional, so it is instant (vendor/README.md, State vs transition): the menu transitions no property, and
+  // a host rule that only shortens transitions (a reduced-motion rule over every element) cannot leave it hidden for
+  // a moment, which would refuse this focus and leave the keys with the button.
   React.useEffect(() => { if (place && menuRef.current) menuRef.current.focus({ preventScroll: true }); }, [!!place]);
   // The menu's own size, measured once while it is drawn uncut and hidden, before the first place: as wide as its
   // longest row, clamped to the min and max width tokens (a label past the max ends in …). A menu cut to a room
@@ -184,7 +187,7 @@ function ToolsMenu({ anchor, bounds = null, hostRuns = null, onClose, onAction }
       <style>{`.tasty-toolsmenu-item:focus-visible,.tasty-toolsmenu:focus-visible{outline:none}`}</style>
       <div ref={menuRef} tabIndex={-1} className="tasty-toolsmenu tasty-scroll" onKeyDown={onKeyDown} onClick={(e) => e.stopPropagation()} role="menu" aria-label="Tools"
         style={{ position: "absolute", left: place ? place.left : anchor.left, top: place ? place.top : 0,
-          visibility: place ? "visible" : "hidden", maxHeight: place ? place.maxHeight : undefined,
+          visibility: place ? "visible" : "hidden", transitionProperty: "none", maxHeight: place ? place.maxHeight : undefined,
           overflowY: place ? "auto" : undefined, boxSizing: "border-box", width: place ? place.width : "max-content",
           // the clamp applies to the own size only: placed, the menu takes the width it was cut to, which a room
           // narrower than the min width brings under 160
