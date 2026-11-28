@@ -66,7 +66,8 @@ const PALETTE_COMMANDS = [
 // first row that can run).
 // Rows that cannot run, as the app's (the Tools menu and the palette disable a plugin action that opens a
 // surface-scoped popup while it has no command target; a selected creation draft that is visible counts as one): a command with unavailable set, or, as the Tools menu's hostRuns, one whose label is
-// not in hostRuns (the labels the host's onRun runs; without hostRuns every row runs). Such a row stays in the list in
+// not in hostRuns (the labels the host's onRun runs; without hostRuns only this label check is skipped, and a row with
+// unavailable set still cannot run). Such a row stays in the list in
 // its place, drawn as a MenuItem disabled: disabled ink, no hover fill and no keyboard-active fill, since disabled
 // outranks every other state. It is never selected. The selection, the arrows and Enter count only the rows that can
 // run: the selection at open and after each query change is the first match that can run, the arrows stop at the first
