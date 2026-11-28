@@ -23,6 +23,7 @@ import { SettingsTitleBarLinuxSpec } from "./settings-titlebar-linux.jsx";
 import { WindowTabFocusSpec, PluginsTabHoverSpec } from "./window-tab-focus.jsx";
 import { Section, Spec, Stage, Meta, Note, Do, Dont, Views, View } from "../parts/specimen.jsx";
 import { PaletteCard as Kit_PaletteCard } from "../../ui_kits/terminal/overlays/command_palette.jsx";
+import { pt as paletteCopy, PALETTE_COPY } from "../../ui_kits/terminal/overlays/command_palette_copy.js";
 import { ToolsMenu as Kit_ToolsMenu } from "../../ui_kits/terminal/overlays/tools_menu.jsx";
 import { PortsWindow as Kit_PortsWindow } from "../../ui_kits/terminal/overlays/port_scanner.jsx";
 import { ScrimRoom as Kit_ScrimRoom } from "../../ui_kits/terminal/overlays/shared.jsx";
@@ -775,12 +776,40 @@ function PaletteFromToolsDemo() {
   );
 }
 
+// The palette with a row that cannot run, live: the kit card with the app's first rows and illustrative plugin
+// commands, one of which cannot run (it needs a target surface and has none). Its key is illustrative too: a plugin
+// command can carry a user binding, and the row shows how a keycap reads on a row that cannot run. The card sits at the left of its room so
+// the reason tooltip has the room on its right; in a column narrower than the card it fills the room and the reason
+// opens over it.
+const PALETTE_NO_SURFACE = paletteCopy("command_palette.unavailable_no_surface");
+const PALETTE_PLUGIN_ROWS = [
+  { label: "Git: Open file history", sc: "Alt+Shift+H", icon: "command", unavailable: true, reason: PALETTE_NO_SURFACE },
+  { label: "Git: Copy branch name", sc: "", icon: "command" },
+  { label: "Git: Show viewer", sc: "", icon: "command" },
+];
+const PALETTE_UNAVAILABLE_COMMANDS = [...PALETTE_APP_COMMANDS.slice(0, 2), ...PALETTE_PLUGIN_ROWS, ...PALETTE_APP_COMMANDS.slice(2)];
+const PALETTE_UNAVAILABLE_KIT = PALETTE_UNAVAILABLE_COMMANDS.map((c) => ({ ...c, icon: <WIcon name={c.icon} /> }));
+function PaletteUnavailableDemo() {
+  const [query, setQuery] = React.useState("");
+  const [ran, setRan] = React.useState("");
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", width: 820, maxWidth: "100%" }}>
+      <div style={{ display: "flex", height: 300, padding: "var(--tasty-space-sm)", background: "var(--tasty-bg-app)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "auto" }}>
+        <Kit_ScrimRoom align="top" style={{ alignItems: "flex-start" }}>
+          <Kit_PaletteCard commands={PALETTE_UNAVAILABLE_KIT} query={query} onQuery={setQuery} onRun={setRan} />
+        </Kit_ScrimRoom>
+      </div>
+      <span className="g-cap" style={{ fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted)" }}>Click the search field · type “s” → New workspace is highlighted · ↓ skips Git: Open file history and stops on Git: Show viewer · type “git” → Git: Copy branch name is highlighted · type “file history” → no highlight, Enter does nothing · rest the pointer on the unavailable row → reason opens on the right, no hover fill · click it → nothing runs · last run: {ran || "none"}</span>
+    </div>
+  );
+}
+
 function Page() {
   return (
     <>
 <Section id="palette" title="Command palette">
         <Spec id="command-palette-k" title="Command palette — ⌘K"
-          when={<>Top-anchored launcher. A search Input header with <code>space-md</code> padding, a scrollable MenuItem list with <code>space-sm</code> padding on all sides, and a hint footer in the label face. An empty query leaves rows unhighlighted, with hover tint under the pointer. With query text, the selected row is highlighted. Each query edit resets selection to the first match, and ↑ and ↓ move it. The fastest path to any command — every action should be reachable here.</>}>
+          when={<>Top-anchored launcher. A search Input header with <code>space-md</code> padding, a scrollable MenuItem list with <code>space-sm</code> padding on all sides, and a hint footer in the label face. An empty query leaves rows unhighlighted, with hover tint under the pointer. With query text, the selected row is highlighted. Each query edit resets selection to the first match, and ↑ and ↓ move it. The fastest path to any command — every action should be reachable here. Every row in these frames can run. The Unavailable row specimen below shows how a disabled row stays in place and arrow navigation skips it.</>}>
           <Stage variant="solo center"><Backdrop height={400}><PaletteFrame /></Backdrop></Stage>
           <Stage variant="solo center"><PaletteFromToolsDemo /></Stage>
           {/* The kit's own card in a room as short as a small screen leaves it: the same column the landing palette lays
@@ -824,6 +853,32 @@ function Page() {
           <Meta
             specs={[["field ground", <>ground="raised" · no exception</>], ["normal", <>input-raised-bg → bg-panel · input-raised-border → border-control-raised</>], ["focused", <>bg unchanged · border-focus edge + 1px border-focus ring</>], ["Mocha", "bg-panel = base · border-control-raised = overlay1 · shell surface-raised = surface0"], ["Latte", "bg-panel = base · border-control-raised = subtext0 · shell surface-raised = surface0"], ["ink", "text-primary · placeholder text-placeholder · icon text-muted (unchanged)"]]}
             tokens={[{ tok: "--tasty-input-raised-bg", use: "field fill", color: "var(--tasty-input-raised-bg)" }, { tok: "--tasty-input-raised-border", use: "field edge", color: "var(--tasty-input-raised-border)" }, { tok: "--tasty-border-focus", use: "focused edge + ring", color: "var(--tasty-border-focus)" }, { tok: "--tasty-surface-raised", use: "shell", color: "var(--tasty-surface-raised)" }]} />
+        </Spec>
+        <Spec id="command-palette-unavailable-row" title="Unavailable row — shown, greyed, skipped"
+          when={<>A command is unavailable when it needs a target surface and has none, the same test the Tools menu uses. It stays in place as a <b>MenuItem disabled</b>. The icon, label, keycap glyph, and plus use <span className="tok">--tasty-state-disabled-fg</span> with no opacity reduction. The keycap keeps its fill and edge. The row has <b>no hover fill and no keyboard-active fill</b> and is never selected. The arrow keys skip it. Opening the palette or editing the query selects the first runnable match. With no runnable match, nothing is selected or highlighted and Enter does nothing. With an empty query, Enter runs the selected row without a highlight. The shared Tooltip shows the reason after the pointer rests on the row for --tasty-tooltip-delay. Clicking the row runs nothing, keeps focus in the search field, and leaves the palette open. The Git rows illustrate plugin commands, and Alt+Shift+H is an example binding.</>}>
+          <Stage variant="solo center"><PaletteUnavailableDemo /></Stage>
+          <Views>
+            <View name="palette-unavailable-empty-query" label="Command palette — empty query (no highlight, unavailable row stays in place with disabled styling)">
+              <div inert="" style={{ pointerEvents: "none" }}><PaletteFrame commands={PALETTE_UNAVAILABLE_COMMANDS} rows={5} /></div>
+            </View>
+            <View name="palette-unavailable-first-match" label="Command palette — query “git”, first match unavailable (first runnable match highlighted)">
+              <div inert="" style={{ pointerEvents: "none" }}><PaletteFrame value="git" focused commands={PALETTE_UNAVAILABLE_COMMANDS} rows={3} /></div>
+            </View>
+            <View name="palette-unavailable-no-runnable" label="Command palette — query “file history”, no runnable match (no highlight, Enter does nothing)">
+              <div inert="" style={{ pointerEvents: "none" }}><PaletteFrame value="file history" focused commands={PALETTE_UNAVAILABLE_COMMANDS} rows={1} /></div>
+            </View>
+            <View name="palette-unavailable-reason" label="Command palette — pointer on the unavailable row (reason tooltip, no hover fill, existing highlight stays)">
+              <div inert="" style={{ pointerEvents: "none", paddingRight: "calc(var(--tasty-tooltip-max-width) + var(--tasty-tooltip-offset))" }}><PaletteFrame value="git" focused commands={PALETTE_UNAVAILABLE_COMMANDS} rows={3} tip={0} /></div>
+            </View>
+            <View name="palette-unavailable-reason-no-side-room" label="Command palette — pointer on the unavailable row, no room beside the palette (reason centered over the palette, below the row)">
+              <div inert="" style={{ pointerEvents: "none" }}><PaletteFrame value="git" focused commands={PALETTE_UNAVAILABLE_COMMANDS} rows={3} tip={0} tipSide="bottom" /></div>
+            </View>
+          </Views>
+          <Meta
+            specs={[["row", "MenuItem disabled · standard height, padding, and icon slot"], ["ink", <>Icon, label, and keycap glyph use <span className="tok">--tasty-state-disabled-fg</span> · no opacity reduction</>], ["keycap", "Kbd keeps its fill and edge · glyph and plus use state-disabled-fg · plugin commands show a keycap only for a user-bound shortcut"], ["fill", "No hover or keyboard-active fill"], ["selection", "Runnable rows only · opening or editing the query selects the first runnable match · no runnable match means no selection"], ["↑ ↓", "Skip unavailable rows · stop at the first or last runnable row · no wrap"], ["highlight", "Highlight the selected row only while the query has text"], ["Enter", "Runs the selected row even with an empty query · no selection means no action · if the wheel hid the selected row, the first Enter only scrolls it into view · held repeats do nothing"], ["query edit", "Start at the top of the list, then scroll just enough to show the selected row"], ["pointer", "No hover fill · shared Tooltip after --tasty-tooltip-delay · level with the row, right if the bubble’s max width fits, else left if it fits · if neither fits, center over the palette, below the row in the list’s upper half and above otherwise · shift to fit, narrow if needed · closes on pointer leave, list scroll, query edit, window resize, or row change"], ["click", "Nothing runs · focus stays in the search field · palette stays open"], ["host", <>Like the Tools menu, the kit card takes <code>unavailable</code> and <code>reason</code> on a command, plus <code>hostRuns</code> (labels the host runs)</>], ["copy", <>[command_palette] <code>unavailable_no_surface</code></>]]}
+            tokens={[{ tok: "--tasty-state-disabled-fg", use: "row ink", color: "var(--tasty-state-disabled-fg)" }, { tok: "--tasty-surface-active", use: "highlighted row that can run", color: "var(--tasty-surface-active)" }, { tok: "--tasty-tooltip-bg", use: "reason bubble", color: "var(--tasty-tooltip-bg)" }, { tok: "--tasty-tooltip-delay", use: "reason show delay" }]} />
+          <Note><b>Copy</b> — <code>[command_palette] unavailable_no_surface</code>: {["en", "ko", "ja", "zh-Hans"].map((l, i) => <React.Fragment key={l}>{i ? " · " : ""}{l} “{PALETTE_COPY["command_palette.unavailable_no_surface"][l]}”</React.Fragment>)}. No trailing period, like the other menu reasons.</Note>
+          <Dont><b>Don't</b> hide the row, dim it with opacity, highlight it, or let arrow navigation stop on it.</Dont>
         </Spec>
       </Section>
 

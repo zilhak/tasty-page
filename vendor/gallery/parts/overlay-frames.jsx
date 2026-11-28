@@ -1,5 +1,5 @@
 import React from "react";
-import { MenuItem, Input, Select, Switch, Checkbox, Button, IconButton, Tag, Kbd, Table, StatusDot, Spinner, Icon, CenterState } from "../../components/index.js";
+import { MenuItem, Input, Select, Switch, Checkbox, Button, IconButton, Tag, Kbd, Table, StatusDot, Spinner, Icon, CenterState, Tooltip } from "../../components/index.js";
 import { Stage } from "./specimen.jsx";
 import { WorkspaceRunningCount } from "../../ui_kits/terminal/chrome.jsx";
 import { AttachConnectionsSection } from "./settings-attach-section.jsx";
@@ -132,11 +132,29 @@ function paletteScore(q, text) {
 // text the list keeps the commands that match, best score first, and the selection, back on the first match after
 // each change, is highlighted. When nothing matches, the list holds the no-results line the kit card draws. The list
 // keeps one row's height even then, as the app reserves it (command_palette.rs palette_row_height) and the kit card does.
-function PaletteFrame({ opaque = false, focused = false, value = "", rows = 4 } = {}) {
+// commands: the rows to filter, PALETTE_APP_COMMANDS unless a frame passes its own. A row with unavailable set cannot
+// run, as the kit card's: a MenuItem disabled, never highlighted, so the highlight is the first match that can run and
+// none when no match can. tip: the index of a drawn row that cannot run whose reason shows, frozen, as the shared
+// Tooltip. tipSide "right" puts it right of the frame, level with the row (the kit card opens it there on pointer hover
+// when the room has the bubble's width on the right); "bottom" puts it over the frame, centred, below the row (the kit
+// card's place when neither side has that width and the row is in the upper half of the list).
+function PaletteFrame({ opaque = false, focused = false, value = "", rows = 4, commands = PALETTE_APP_COMMANDS, tip = -1, tipSide = "right" } = {}) {
   const q = value.trim().toLowerCase();
-  const items = PALETTE_APP_COMMANDS.map((c, n) => ({ ...c, n, score: q ? paletteScore(q, c.label.toLowerCase()) : 0 }))
+  const items = commands.map((c, n) => ({ ...c, n, score: q ? paletteScore(q, c.label.toLowerCase()) : 0 }))
     .filter((c) => c.score !== null).sort((x, y) => y.score - x.score || x.n - y.n);
+  const lit = q !== "" ? items.slice(0, rows).findIndex((c) => !c.unavailable) : -1;
+  const outerRef = React.useRef(null);
+  const [tipY, setTipY] = React.useState(null);
+  React.useLayoutEffect(() => {
+    const outer = outerRef.current;
+    const row = outer && tip >= 0 ? outer.querySelector(`[data-palette-frame-row="${tip}"]`) : null;
+    if (!row) return;
+    const y = row.getBoundingClientRect().top - outer.getBoundingClientRect().top + (tipSide === "bottom" ? row.offsetHeight : row.offsetHeight / 2);
+    if (y !== tipY) setTipY(y);
+  });
+  const tipItem = tip >= 0 ? items[tip] : null;
   return (
+    <div ref={outerRef} style={{ position: "relative", width: "var(--tasty-palette-width)" }}>
     <div align="top" style={{ width: "var(--tasty-palette-width)", background: "var(--tasty-surface-raised)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)",
       borderRadius: opaque ? "var(--tasty-webview-opaque-radius)" : "var(--tasty-radius)", overflow: "hidden", boxShadow: opaque ? "var(--tasty-webview-opaque-shadow)" : "var(--tasty-shadow-modal)" }}>
       {/* the kit card's and the app's measures (command_palette.rs): search space-md, list space-sm on all four sides,
@@ -147,14 +165,20 @@ function PaletteFrame({ opaque = false, focused = false, value = "", rows = 4 } 
       <div style={{ padding: "var(--tasty-space-sm)", minHeight: "calc(1 * var(--tasty-menu-item-height) + 2 * var(--tasty-space-sm))" }}>
         {items.length === 0 && <div style={{ fontSize: "var(--tasty-font-size-body)", fontStyle: "var(--tasty-font-style-absent)", color: "var(--tasty-text-muted-raised)" }}>No matching commands</div>}
         {items.slice(0, rows).map((i, n) => (
-          <MenuItem key={i.label} label={i.label} icon={<Icon name={i.icon} />} active={n === 0 && q !== ""}
-            shortcut={i.sc ? <Kbd keys={i.sc} /> : null} />
+          <MenuItem key={i.label} label={i.label} icon={<Icon name={i.icon} />} active={n === lit} disabled={!!i.unavailable}
+            data-palette-frame-row={n} shortcut={i.sc ? <Kbd keys={i.sc} /> : null} />
         ))}
       </div>
       <div style={{ display: "flex", gap: "var(--tasty-palette-hint-gap)", padding: "var(--tasty-space-sm) var(--tasty-space-md)", borderTop: "var(--tasty-border-width) solid var(--tasty-border-strong)",
         fontFamily: "var(--tasty-font-label)", fontSize: "var(--tasty-font-size-caption)", color: "var(--tasty-text-muted-raised)" }}>
         <span>↑↓ navigate</span><span>↵ run</span><span>esc close</span>
       </div>
+    </div>
+    {tipItem && tipItem.unavailable && tipItem.reason && tipY != null && (
+      <span style={{ position: "absolute", top: tipY, left: tipSide === "bottom" ? "50%" : "100%" }}>
+        <Tooltip open placement={tipSide} content={tipItem.reason}><span style={{ display: "block", width: 0, height: 0 }} /></Tooltip>
+      </span>
+    )}
     </div>
   );
 }
