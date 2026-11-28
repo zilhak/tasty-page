@@ -157,7 +157,7 @@ export function RemoteStatusBarSpec() {
         )} />
       </Stage>
       <Views>
-        <View name="statusbar-remote-reconnecting-languages" label="Reconnecting — every language">
+        <View wide name="statusbar-remote-reconnecting-languages" label="Reconnecting — every language">
           <div style={{ display: "flex", flexDirection: "column", gap: 12, minWidth: 300 }}>
             {["en", "ko", "ja", "zh-Hans"].flatMap((lang) => [
               <Labeled key={lang} label={`${lang} · 260, step 3`}><Bar w={260} drop={3} lang={lang} remote={{ host: HOST, state: "reconnecting" }} /></Labeled>,
@@ -165,7 +165,7 @@ export function RemoteStatusBarSpec() {
             ])}
           </div>
         </View>
-        <View name="statusbar-remote-no-profile" label="No profile name (--ssh or --target-port from the CLI or IPC) — the word Remote in the host slot, every language, then hover">
+        <View wide name="statusbar-remote-no-profile" label="No profile name (--ssh or --target-port from the CLI or IPC) — the word Remote in the host slot, every language, then hover">
           <div style={{ display: "flex", flexDirection: "column", gap: 12, minWidth: 300 }}>
             {["en", "ko", "ja", "zh-Hans"].map((lang) => <Labeled key={lang} label={lang}><Bar w={470} lang={lang} remote={{ host: "" }} fluid /></Labeled>)}
             <Labeled label="hover — no host line">
