@@ -30,7 +30,7 @@ import { Input } from "../../../components/forms/Input.jsx";
 function SearchToggle({ label, active, title, onClick }) {
   return (
     <IconButton size="sm" active={active} aria-label={title} title={title} onClick={onClick}>
-      <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: 11, fontWeight: 600, lineHeight: 1,
+      <span style={{ fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-caption)", fontWeight: 600, lineHeight: 1,
         color: active ? "var(--tasty-text-on-active)" : "var(--tasty-text-muted-raised)" }}>{label}</span>
     </IconButton>
   );
