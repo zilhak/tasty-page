@@ -64,8 +64,8 @@ const PALETTE_COMMANDS = [
 // Enter runs it.
 // initialSelected: the row selected at open (a gallery frame freezes a moved selection with it; the app opens on the
 // first row that can run).
-// Rows that cannot run, as the app's (a plugin command that needs a target surface, while the command has none, the
-// same test as the Tools menu's): a command with unavailable set, or, as the Tools menu's hostRuns, one whose label is
+// Rows that cannot run, as the app's (the Tools menu and the palette disable a plugin action that opens a
+// surface-scoped popup while it has no command target; a selected creation draft that is visible counts as one): a command with unavailable set, or, as the Tools menu's hostRuns, one whose label is
 // not in hostRuns (the labels the host's onRun runs; without hostRuns every row runs). Such a row stays in the list in
 // its place, drawn as a MenuItem disabled: disabled ink, no hover fill and no keyboard-active fill, since disabled
 // outranks every other state. It is never selected. The selection, the arrows and Enter count only the rows that can
