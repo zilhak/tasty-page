@@ -80,6 +80,28 @@ for (const motion of ["reduce", "no-preference"]) {
   });
 }
 
+// The first Down sent in the same task as the menu taking the focus, the earliest a key can reach the menu: the row it
+// focuses must already be visible, not still inheriting the menu's hidden through a transition.
+test("a Down right as the Tools menu takes the focus moves the focus to Command palette (reduce)", async () => {
+  await withPage(LANDING, "reduce", async (page) => {
+    const tools = await landingTools(page);
+    await page.evaluate(() => {
+      document.addEventListener("focusin", function down(e) {
+        if (e.target.getAttribute?.("role") !== "menu" || e.target.getAttribute("aria-label") !== "Tools") return;
+        document.removeEventListener("focusin", down, true);
+        e.target.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown", code: "ArrowDown", bubbles: true, cancelable: true }));
+        window.__toolsDownSent = true;
+      }, true);
+    });
+    await tools.click();
+    const menu = '[role="menu"][aria-label="Tools"]';
+    await page.waitForFunction(() => window.__toolsDownSent === true);
+    await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
+    assert.deepEqual((await markedRows(page, menu)).map((t) => t.trim()), ["Command palette…"], "the row the Down marked");
+    assert.equal(await focused(page), "row:Command palette…", "the focus after the Down sent as the menu took the focus");
+  });
+});
+
 test("the first Tab from Columns reaches Proto and Esc returns to Columns (reduce)", async () => {
   await withPage(LANDING, "reduce", async (page) => {
     const tools = await landingTools(page);
