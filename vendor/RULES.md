@@ -519,7 +519,7 @@ Grades:
 
 ## 6. Ground by role
 
-Read as: this role, on these grounds, is this token. The lowest ratio is across those grounds, Mocha · Latte. Every ground × role cell is in the file, 102 × 39 = 3978. Forbidden cells list their reason here.
+Read as: this role, on these grounds, is this token. The lowest ratio is across those grounds, Mocha · Latte. Every pair of a `grounds` entry and a `roles` entry has one `matrix` cell in the file. Forbidden cells list their reason here.
 
 ### `text-body`
 
