@@ -1016,6 +1016,7 @@
   --tasty-ports-narrow-window-specimen-height: var(--tasty-size-120); /* 2026-11-27 Listening ports: where the narrow window frame cuts the window, just below its filter row */
   --tasty-ports-columns-menu-specimen-side: var(--tasty-size-80); /* 2026-11-27 Listening ports: the room the Columns chooser frame leaves on each side of the window, so the chooser that runs past the window's right edge is drawn whole */
   --tasty-ports-columns-menu-specimen-height: var(--tasty-size-300); /* 2026-11-27 Listening ports: where the Columns chooser frame cuts the window, just below the open chooser */
+  --tasty-palette-unavailable-specimen-height: var(--tasty-size-300); /* 2026-11-28 Command palette › Unavailable row: the live demo's room height, short enough that the list scrolls and long enough to hold the reason below a row in the upper half */
   /* Gallery annotation (specimen layout, not app chrome) — a dashed outline that marks an implementer's box or a scope
      rectangle. It has no fill, so the edge alone shows it: border-control role (2026-11-24). One mark can cross several
      grounds, so it takes the raised cell, which holds 3:1 on raised and on every lower ground (2026-11-25, was

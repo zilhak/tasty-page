@@ -793,8 +793,9 @@ function PaletteUnavailableDemo() {
   const [query, setQuery] = React.useState("");
   const [ran, setRan] = React.useState("");
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", width: 820, maxWidth: "100%" }}>
-      <div style={{ display: "flex", height: 300, padding: "var(--tasty-space-sm)", background: "var(--tasty-bg-app)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "auto" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: "var(--tasty-space-xs)", maxWidth: "100%",
+      width: "calc(var(--tasty-palette-width) + var(--tasty-tooltip-offset) + var(--tasty-tooltip-max-width) + 2 * var(--tasty-space-sm) + 2 * var(--tasty-border-width))" }}>
+      <div style={{ display: "flex", height: "var(--tasty-palette-unavailable-specimen-height)", padding: "var(--tasty-space-sm)", background: "var(--tasty-bg-app)", border: "var(--tasty-border-width) solid var(--tasty-border-default)", borderRadius: "var(--tasty-radius)", overflow: "auto" }}>
         <Kit_ScrimRoom align="top" style={{ alignItems: "flex-start" }}>
           <Kit_PaletteCard commands={PALETTE_UNAVAILABLE_KIT} query={query} onQuery={setQuery} onRun={setRan} />
         </Kit_ScrimRoom>
@@ -858,20 +859,20 @@ function Page() {
           when={<>A command is unavailable when it needs a target surface and has none, the same test the Tools menu uses. It stays in place as a <b>MenuItem disabled</b>. The icon, label, keycap glyph, and plus use <span className="tok">--tasty-state-disabled-fg</span> with no opacity reduction. The keycap keeps its fill and edge. The row has <b>no hover fill and no keyboard-active fill</b> and is never selected. The arrow keys skip it. Opening the palette or editing the query selects the first runnable match. With no runnable match, nothing is selected or highlighted and Enter does nothing. With an empty query, Enter runs the selected row without a highlight. The shared Tooltip shows the reason after the pointer rests on the row for --tasty-tooltip-delay. Clicking the row runs nothing, keeps focus in the search field, and leaves the palette open. The Git rows illustrate plugin commands, and Alt+Shift+H is an example binding.</>}>
           <Stage variant="solo center"><PaletteUnavailableDemo /></Stage>
           <Views>
-            <View name="palette-unavailable-empty-query" label="Command palette — empty query (no highlight, unavailable row stays in place with disabled styling)">
+            <View name="palette-unavailable-empty-query" wide label="Command palette — empty query (no highlight, unavailable row stays in place with disabled styling) · scrolls sideways in a narrow column">
               <div inert="" style={{ pointerEvents: "none" }}><PaletteFrame commands={PALETTE_UNAVAILABLE_COMMANDS} rows={5} /></div>
             </View>
-            <View name="palette-unavailable-first-match" label="Command palette — query “git”, first match unavailable (first runnable match highlighted)">
+            <View name="palette-unavailable-first-match" wide label="Command palette — query “git”, first match unavailable (first runnable match highlighted) · scrolls sideways in a narrow column">
               <div inert="" style={{ pointerEvents: "none" }}><PaletteFrame value="git" focused commands={PALETTE_UNAVAILABLE_COMMANDS} rows={3} /></div>
             </View>
-            <View name="palette-unavailable-no-runnable" label="Command palette — query “file history”, no runnable match (no highlight, Enter does nothing)">
+            <View name="palette-unavailable-no-runnable" wide label="Command palette — query “file history”, no runnable match (no highlight, Enter does nothing) · scrolls sideways in a narrow column">
               <div inert="" style={{ pointerEvents: "none" }}><PaletteFrame value="file history" focused commands={PALETTE_UNAVAILABLE_COMMANDS} rows={1} /></div>
             </View>
-            <View name="palette-unavailable-reason" wide label="Command palette — pointer on the unavailable row (reason tooltip, no hover fill, existing highlight stays)">
+            <View name="palette-unavailable-reason" wide label="Command palette — pointer on the unavailable row (reason tooltip, no hover fill, existing highlight stays) · in a narrow column, scroll sideways to see the reason">
               <div inert="" style={{ pointerEvents: "none", paddingRight: "calc(var(--tasty-tooltip-max-width) + var(--tasty-tooltip-offset))" }}><PaletteFrame value="git" focused commands={PALETTE_UNAVAILABLE_COMMANDS} rows={3} tip={0} /></div>
             </View>
-            <View name="palette-unavailable-reason-no-side-room" wide label="Command palette — pointer on the unavailable row, no room beside the palette (reason centered over the palette, below the row)">
-              <div inert="" style={{ pointerEvents: "none" }}><PaletteFrame value="git" focused commands={PALETTE_UNAVAILABLE_COMMANDS} rows={3} tip={0} tipSide="bottom" /></div>
+            <View name="palette-unavailable-reason-no-side-room" wide label="Command palette — pointer on the unavailable row, no room beside the palette (reason centered over the palette, below the row) · palette fits narrower columns">
+              <div inert="" style={{ maxWidth: "var(--tasty-palette-width)", pointerEvents: "none" }}><PaletteFrame value="git" focused commands={PALETTE_UNAVAILABLE_COMMANDS} rows={3} tip={0} tipSide="bottom" fitRoom /></div>
             </View>
           </Views>
           <Meta

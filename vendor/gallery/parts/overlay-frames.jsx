@@ -137,8 +137,10 @@ function paletteScore(q, text) {
 // none when no match can. tip: the index of a drawn row that cannot run whose reason shows, frozen, as the shared
 // Tooltip. tipSide "right" puts it right of the frame, level with the row (the kit card opens it there on pointer hover
 // when the room has the bubble's width on the right); "bottom" puts it over the frame, centred, below the row (the kit
-// card's place when neither side has that width and the row is in the upper half of the list).
-function PaletteFrame({ opaque = false, focused = false, value = "", rows = 4, commands = PALETTE_APP_COMMANDS, tip = -1, tipSide = "right" } = {}) {
+// card's place when neither side has that width and the row is in the upper half of the list). fitRoom: the frame
+// takes at most its box's width, as the kit card takes at most its room's (the scrim room's max-width 100%), so in a
+// box narrower than the palette it narrows instead of running past the box.
+function PaletteFrame({ opaque = false, focused = false, value = "", rows = 4, commands = PALETTE_APP_COMMANDS, tip = -1, tipSide = "right", fitRoom = false } = {}) {
   const q = value.trim().toLowerCase();
   const items = commands.map((c, n) => ({ ...c, n, score: q ? paletteScore(q, c.label.toLowerCase()) : 0 }))
     .filter((c) => c.score !== null).sort((x, y) => y.score - x.score || x.n - y.n);
@@ -154,8 +156,8 @@ function PaletteFrame({ opaque = false, focused = false, value = "", rows = 4, c
   });
   const tipItem = tip >= 0 ? items[tip] : null;
   return (
-    <div ref={outerRef} style={{ position: "relative", width: "var(--tasty-palette-width)" }}>
-    <div align="top" style={{ width: "var(--tasty-palette-width)", background: "var(--tasty-surface-raised)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)",
+    <div ref={outerRef} style={{ position: "relative", width: "var(--tasty-palette-width)", ...(fitRoom ? { maxWidth: "100%" } : null) }}>
+    <div align="top" style={{ width: fitRoom ? "100%" : "var(--tasty-palette-width)", background: "var(--tasty-surface-raised)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)",
       borderRadius: opaque ? "var(--tasty-webview-opaque-radius)" : "var(--tasty-radius)", overflow: "hidden", boxShadow: opaque ? "var(--tasty-webview-opaque-shadow)" : "var(--tasty-shadow-modal)" }}>
       {/* the kit card's and the app's measures (command_palette.rs): search space-md, list space-sm on all four sides,
           footer space-sm × space-md with label_font hints at font_size_caption */}
@@ -175,7 +177,8 @@ function PaletteFrame({ opaque = false, focused = false, value = "", rows = 4, c
       </div>
     </div>
     {tipItem && tipItem.unavailable && tipItem.reason && tipY != null && (
-      <span style={{ position: "absolute", top: tipY, left: tipSide === "bottom" ? "50%" : "100%" }}>
+      /* a zero-size flex box at the row's point, so the Tooltip starts there (an inline box would sit it on a baseline) */
+      <span style={{ position: "absolute", display: "flex", width: 0, height: 0, top: tipY, left: tipSide === "bottom" ? "50%" : "100%" }}>
         <Tooltip open placement={tipSide} content={tipItem.reason}><span style={{ display: "block", width: 0, height: 0 }} /></Tooltip>
       </span>
     )}

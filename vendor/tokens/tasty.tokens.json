@@ -4844,6 +4844,10 @@
       "$type": "dimension",
       "$value": "{primitive.size-300}"
     },
+    "palette-unavailable-specimen-height": {
+      "$type": "dimension",
+      "$value": "{primitive.size-300}"
+    },
     "specimen-annotation-border": {
       "$type": "color",
       "$value": "{semantic.border-control-raised}"
