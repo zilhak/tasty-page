@@ -3810,6 +3810,14 @@
       "$type": "dimension",
       "$value": "{semantic.icon-size-xs}"
     },
+    "statusbar-gap": {
+      "$type": "dimension",
+      "$value": "{primitive.size-10}"
+    },
+    "statusbar-pad-x": {
+      "$type": "dimension",
+      "$value": "{primitive.size-10}"
+    },
     "statusbar-remote-fg": {
       "$type": "color",
       "$value": "{semantic.accent-remote-raised}"

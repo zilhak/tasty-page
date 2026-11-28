@@ -596,6 +596,10 @@
      which theme is active; sun/theme optical parity is corrected in the ASSET
      (icons/sun.svg ray extent), never by giving one glyph a different size. */
   --tasty-statusbar-glyph-size:    var(--tasty-icon-size-xs); /* 12 — smallest inline glyph step; scales with the UI scale like the rest */
+  /* Bar box: the app status bar's 10 logical px item gap and side inset, kept off
+     the 4px grid because the app draws it there. One value for every bar specimen. */
+  --tasty-statusbar-gap:           var(--tasty-size-10); /* 10 — between items */
+  --tasty-statusbar-pad-x:         var(--tasty-size-10); /* 10 — left and right inset inside the border */
   /* Remote item — shown only while a mirror surface has focus. It leads the left
      cluster: remote glyph + host label, both in the remote hue (the explorer host
      mark form; the bar holds glyphs and text only, so no tag fill). Reconnecting
