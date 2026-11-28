@@ -1923,8 +1923,8 @@ function MouseCaptureBannerG({ glyph = true, body, lines, app = "vim", lang = "e
   );
 }
 
-// interactive: click ⋯ to open, a press outside the menu box (the terminal and the trigger included) or Esc closes,
-// row click acts. Keys and focus follow the kit's useBannerMoreMenu, matched to the app (RULES.md "Popup focus"):
+// interactive: click ⋯ to open, a press outside the menu box (the terminal included) or Esc closes, row click acts.
+// Pressing ⋯ on the open menu closes it and releasing on ⋯ opens it again with focus, as in the app. Keys and focus follow the kit's useBannerMoreMenu, matched to the app (RULES.md "Popup focus"):
 // the open menu keeps the popup key focus while Tab moves widget focus to the trigger or Dismiss, and the terminal
 // under it paints unfocused. This demo has one surface; the menu left open while another surface takes key focus is a View.
 function BannerMoreDemoG() {

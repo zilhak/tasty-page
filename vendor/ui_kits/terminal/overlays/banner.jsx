@@ -102,8 +102,10 @@ function MoreLabel({ text, app, after }) {
 // Dismiss or the menu box leaves no row active. ↑↓ move focus over the enabled rows and ↵ runs the focused row.
 // Disabled rows take no focus. The trigger and Dismiss draw their own rings. Esc closes the menu wherever widget
 // focus is in the banner card, and Esc or a row run gives focus back to the trigger while the banner is still there.
-// A press outside the menu box closes it, the trigger included: the pointer click that press ends in does not reopen
-// it, and any other activation of the trigger toggles at once. The focus a press gives stays. Focus that
+// A press outside the menu box closes it, the trigger included. As in the app, where the popup layer closes the menu on
+// the press before the banner sees the click, the pointer click that press ends in on the trigger opens the menu again
+// and gives it focus; a release off the trigger leaves it closed. Any other activation of the trigger (keyboard,
+// click()) toggles at once. The focus a press gives stays. Focus that
 // leaves the banner card closes it too, with or without a target. An inactive OS window changes nothing while it is
 // inactive; when the window comes back without focus in the card, the menu closes.
 // The card is the nearest [data-banner-card] around the trigger. Hosts spread rowProps(i) on each enabled row.
@@ -111,7 +113,6 @@ function useBannerMoreMenu({ open, setOpen, rowCount, onRun }) {
   const anchor = React.useRef(null);
   const menu = React.useRef(null);
   const back = React.useRef(false);
-  const pressOpen = React.useRef(false);
   const [kb, setKb] = React.useState(-1);
   const trigger = () => (anchor.current ? anchor.current.querySelector('[aria-label="More options"]') : null);
   const rows = () => (menu.current ? [...menu.current.querySelectorAll("[data-more-row]")] : []);
@@ -146,24 +147,13 @@ function useBannerMoreMenu({ open, setOpen, rowCount, onRun }) {
   }, [open]);
   const run = (i) => { close(onRun(i) !== false); };
   const triggerProps = {
-    // A press on the trigger that finds the menu open closes it (outside the menu box). Only the pointer click that
-    // press ends in is held back. The press alone ends the flag: its pointer click (detail above 0) consumes it, and a
-    // release off the trigger drops it at once. A click with no press behind it (detail 0: keyboard, click()) always
-    // toggles and leaves the flag of a press still in progress alone, so that press's click cannot toggle again.
-    onMouseDown: (e) => {
-      const btn = e.currentTarget;
-      pressOpen.current = open;
-      const done = (u) => { document.removeEventListener("mouseup", done, true); if (!btn.contains(u.target)) pressOpen.current = false; };
-      document.addEventListener("mouseup", done, true);
-    },
-    // Each toggle reads the pending value (v => !v), so two independent activations in one JS task toggle twice rather
-    // than both reading this render's open.
-    onClick: (e) => {
-      if (e.detail === 0) { setOpen((v) => !v); return; }
-      const held = pressOpen.current;
-      pressOpen.current = false;
-      if (!held) setOpen((v) => !v);
-    },
+    // Every click toggles. A press on the trigger that finds the menu open has already closed it (the document
+    // mousedown above, outside the menu box), so the pointer click that press ends in on the trigger opens it again,
+    // and the open effect gives the menu focus. A release off the trigger makes no click on it, so the menu stays
+    // closed. Keyboard and click() activations (detail 0) toggle the same way; the fresh-press rule in IconButton keeps
+    // held or carried-over Enter and Space from making them. Each toggle reads the pending value (v => !v), so two
+    // independent activations in one JS task toggle twice rather than both reading this render's open.
+    onClick: () => { setOpen((v) => !v); },
   };
   const menuProps = {
     ref: menu, tabIndex: -1,
