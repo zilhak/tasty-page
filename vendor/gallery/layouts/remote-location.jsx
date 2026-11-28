@@ -72,10 +72,10 @@ function usePageTheme() {
 // 1 grid → 2 shell → 3 surface id → 4 palette cap → 5 branch text → 6 host text.
 // The stage states keep their width (the collapse order places each item at it). fluid: the language view below fills
 // its grid cell up to w, as it did before, so it adds no scroll at 1440.
-// theme: the frame's theme (ThemePair); without it, the page's. The theme cell draws sun in Latte, theme in Mocha.
-function Bar({ w, remote, drop = 0, branch = null, shell = null, lang = "en", fluid = false, theme }) {
-  const pageTheme = usePageTheme();
-  const glyph = (theme || pageTheme) === "latte" ? "sun" : "theme";
+// theme: the frame's theme (ThemePair) or, for a view, the page's, read once by the spec. The theme cell draws sun in
+// Latte, theme in Mocha.
+function Bar({ w, remote, drop = 0, branch = null, shell = null, lang = "en", fluid = false, theme = "mocha" }) {
+  const glyph = theme === "latte" ? "sun" : "theme";
   return (
     <div style={{ width: w, ...(fluid ? { maxWidth: "100%" } : { flex: "none" }), height: "var(--tasty-status-bar-height)", display: "flex", alignItems: "center", gap: "var(--tasty-statusbar-gap)", padding: "0 var(--tasty-statusbar-pad-x)", boxSizing: "border-box",
       background: "var(--tasty-bg-sidebar)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius-sm)",
@@ -164,6 +164,7 @@ const PATH_FORMAT_ROWS = [
 ];
 
 export function RemoteStatusBarSpec() {
+  const pageTheme = usePageTheme();
   return (
     <Spec id="statusbar-remote-item" title="Remote item — a mirror surface has focus"
       when={<>When the focused surface belongs to a <b>mirror</b> workspace, the bar says so where your eyes already are, whether or not the sidebar is open. The item <b>leads the left cluster</b>: the location frames everything after it, and on a mirror the branch item is absent anyway. It is the explorer host mark — <b>remote glyph + host</b>, both in <span className="tok">--tasty-statusbar-remote-fg</span> — because the bar holds glyphs and text only, never a Tag fill. Focus a local surface and the item is gone. <b>Reconnecting</b> must not look live: glyph and host drop to the bar's own neutral ink and the status word <b>reconnecting</b> follows. The host is capped at 160 and elides its end; it is the <b>last text to drop</b>, after the branch text, and the glyph never drops. Hover shows the full host in the bar's tooltip; the item is not a button. The host text follows the <b>host text rule</b> (Dialogs › File handler › Remote path): the attach profile name (R-57), and for an attach with no profile name (<code>--ssh</code> or <code>--target-port</code> from the CLI or IPC, a profile saved with an empty name) the word <b>Remote</b> in the label font and the same ink, never <code>127.0.0.1:&lt;port&gt;</code>. The word drops at the same step as a host; the bar's tooltip then has no host line.</>}>
@@ -178,14 +179,14 @@ export function RemoteStatusBarSpec() {
         <View wide name="statusbar-remote-reconnecting-languages" label="Reconnecting — every language">
           <div style={{ display: "flex", flexDirection: "column", gap: 12, minWidth: 300 }}>
             {["en", "ko", "ja", "zh-Hans"].flatMap((lang) => [
-              <Labeled key={lang} label={`${lang} · 260, step 3`}><Bar w={260} drop={3} lang={lang} remote={{ host: HOST, state: "reconnecting" }} /></Labeled>,
-              <Labeled key={`${lang}-floor`} label={`${lang} · floor`}><Bar w={200} drop={6} lang={lang} remote={{ host: HOST, state: "reconnecting" }} /></Labeled>,
+              <Labeled key={lang} label={`${lang} · 260, step 3`}><Bar w={260} drop={3} lang={lang} remote={{ host: HOST, state: "reconnecting" }} theme={pageTheme} /></Labeled>,
+              <Labeled key={`${lang}-floor`} label={`${lang} · floor`}><Bar w={200} drop={6} lang={lang} remote={{ host: HOST, state: "reconnecting" }} theme={pageTheme} /></Labeled>,
             ])}
           </div>
         </View>
         <View wide name="statusbar-remote-no-profile" label="No profile name (--ssh or --target-port from the CLI or IPC) — the word Remote in the host slot, every language, then hover">
           <div style={{ display: "flex", flexDirection: "column", gap: 12, minWidth: 300 }}>
-            {["en", "ko", "ja", "zh-Hans"].map((lang) => <Labeled key={lang} label={lang}><Bar w={470} lang={lang} remote={{ host: "" }} fluid /></Labeled>)}
+            {["en", "ko", "ja", "zh-Hans"].map((lang) => <Labeled key={lang} label={lang}><Bar w={470} lang={lang} remote={{ host: "" }} fluid theme={pageTheme} /></Labeled>)}
             <Labeled label="hover — no host line"><TipFrame pad={56} host="" /></Labeled>
           </div>
         </View>
