@@ -56,13 +56,15 @@ const TOOLS_PLUGIN = [
 // taller than the room takes the room's height and its rows scroll, and one wider than the room takes the room's width
 // (its labels ellipsize): the cut size is the size it is drawn at, as clamp_to_screen sets the popup's size.
 // The anchor is the one the menu opened at. The menu keeps its own size (measured when it opens) apart from the size
-// it is cut to, and fits that own size into the current room again whenever the window is resized, as the app clamps
-// the popup to the current scope bounds every frame: a menu cut by a smaller window grows back when it grows. A row a
-// key marked stays shown through a refit: the menu scrolls the least that shows it in the new height.
+// it is cut to, and fits that own size into the current room again whenever the window is resized or the layer it is
+// drawn in (the host's room box, which the layer fills) changes size, as the app clamps the popup to the current scope
+// bounds every frame: a menu cut by a smaller room grows back when it grows. A row a key marked stays shown through a
+// refit: the menu scrolls the least that shows it in the new height.
 // anchor: the button's client rect (Sidebar's onTools(rect, button)). bounds: the room, a client rect
 // { top, right, bottom, left }, or a function that returns one; a host that covers part of the window with its own
-// fixed chrome (the site's header) passes the part left over. A function is read when the menu opens and on every
-// window resize, so a room that follows the window (or the chrome's current edge) stays current; a rect is fixed.
+// fixed chrome (the site's header) passes the part left over. A function is read when the menu opens, on every
+// window resize and on every size change of the layer, so a room that follows the window, the chrome's current edge
+// or the host box stays current; a rect is fixed.
 // Without bounds the room is the window, read the same way.
 function placeToolsMenu(anchor, size, room) {
   const h = Math.min(size.h, room.bottom - room.top);
@@ -119,16 +121,24 @@ function ToolsMenu({ anchor, bounds = null, hostRuns = null, onClose, onAction }
     const bar = Math.max(0, el.offsetWidth - el.clientWidth - border);
     Object.assign(el.style, prev);
     need.current = { w: r.width, h: r.height, bar, min, max };
+    const same = (a, b) => a && a.top === b.top && a.left === b.left && a.width === b.width && a.maxHeight === b.maxHeight;
     const fit = () => {
       const n = need.current;
       const room = roomOf();
       const scrolls = n.h > room.bottom - room.top;
       const w = Math.min(n.max, Math.max(n.min, n.w + (scrolls ? n.bar : 0)));
-      setPlace(placeToolsMenu(anchor, { w, h: n.h }, room));
+      const next = placeToolsMenu(anchor, { w, h: n.h }, room);
+      setPlace((p) => (same(p, next) ? p : next));
     };
     fit();
     window.addEventListener("resize", fit);
-    return () => window.removeEventListener("resize", fit);
+    // The layer the menu is drawn in fills the host's room box, so its drawn size changes with the room's: a host box
+    // that changes height with no window resize, or reaches its new height after the resize event (a host rule that
+    // turns its height change into a transition), refits the menu once the box has its new size.
+    const layer = el.parentElement;
+    const ro = typeof ResizeObserver === "undefined" || !layer ? null : new ResizeObserver(fit);
+    if (ro) ro.observe(layer);
+    return () => { window.removeEventListener("resize", fit); if (ro) ro.disconnect(); };
   }, []);
   // A row a key marks is shown inside the menu: the menu scrolls the least that shows the whole row with the menu's
   // padding, and the page does not move (the focus takes no scroll of its own), as the palette shows its selection.
