@@ -243,10 +243,12 @@ function LinkTip({ host, state = "connected", lang = "en" }) {
     </span>
   );
 }
+// A focused terminal at the small terminal size and terminal reading line height. The bottom
+// padding is the room the open tooltip below the link run takes.
 function Term({ children }) {
   return (
-    <div style={{ background: "var(--tasty-surface-terminal-focused-bg)", color: "var(--tasty-surface-terminal-focused-fg)", fontFamily: "var(--tasty-font-mono)", fontSize: 12,
-      lineHeight: "18px", padding: "10px 12px 56px", borderRadius: "var(--tasty-radius-sm)", border: "1px solid var(--tasty-border-frame)", overflow: "visible", minWidth: 0 }}>
+    <div style={{ background: "var(--tasty-surface-terminal-focused-bg)", color: "var(--tasty-surface-terminal-focused-fg)", fontFamily: "var(--tasty-font-mono)", fontSize: "var(--tasty-font-size-term-sm)",
+      lineHeight: "var(--tasty-line-height-term)", padding: "var(--tasty-space-md) var(--tasty-space-md) var(--tasty-link-remote-specimen-tooltip-room)", borderRadius: "var(--tasty-radius-sm)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", overflow: "visible", minWidth: 0 }}>
       {children}
     </div>
   );

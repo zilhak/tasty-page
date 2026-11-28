@@ -4768,6 +4768,10 @@
       "$type": "dimension",
       "$value": "{primitive.size-560}"
     },
+    "link-remote-specimen-tooltip-room": {
+      "$type": "dimension",
+      "$value": "{primitive.size-56}"
+    },
     "remote-row-specimen-width": {
       "$type": "dimension",
       "$value": "{primitive.size-480}"
