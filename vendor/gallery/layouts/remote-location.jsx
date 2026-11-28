@@ -123,8 +123,8 @@ function TipFrame({ pad = 72, host, state = "connected", lang = "en", guessed = 
   return (
     <div style={{ paddingTop: pad, display: "flex", justifyContent: "center", minWidth: 300 }}>
       <Tooltip open placement="top" content={<BarTip state={state} host={host} lang={lang} guessed={guessed} />}>
-        <span style={{ display: "inline-flex", padding: "0 10px", height: "var(--tasty-status-bar-height)", alignItems: "center",
-          background: "var(--tasty-bg-sidebar)", border: "1px solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius-sm)", fontSize: "var(--tasty-font-size-caption)" }}>
+        <span style={{ display: "inline-flex", padding: "0 var(--tasty-space-sm)", height: "var(--tasty-status-bar-height)", alignItems: "center",
+          background: "var(--tasty-bg-sidebar)", border: "var(--tasty-border-width) solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius-sm)", fontSize: "var(--tasty-font-size-caption)" }}>
           <RemoteItem host={host} state={state} lang={lang} />
         </span>
       </Tooltip>
