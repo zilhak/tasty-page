@@ -140,15 +140,18 @@ function PaletteCard({ query = "", onQuery, onRun, autoFocus = false, commands =
     if (row) reveal(row);
   }, [selected, query]);
   // The reason of a row that cannot run, after the pointer has rested on it for the tooltip delay.
-  // The delay, the bubble's max width and its offset are the computed values of the tokens the shared Tooltip's own
-  // CSS lays the bubble out with (--tasty-tooltip-delay, --tasty-tooltip-max-width, --tasty-tooltip-offset), read where
-  // the card sits, so the placement test and the drawn bubble share one source.
-  const readMs = (name) => {
-    const v = getComputedStyle(wrapRef.current).getPropertyValue(name).trim();
-    const n = parseFloat(v);
-    return v.endsWith("ms") ? n : v.endsWith("s") ? n * 1000 : n;
+  // The delay, the bubble's max width and its offset come from the tokens the shared Tooltip's own CSS lays the bubble
+  // out with (--tasty-tooltip-delay, --tasty-tooltip-max-width, --tasty-tooltip-offset). A probe in the card's box sets
+  // them on a time and two length properties, and the values are read back as the browser resolved them, so a token
+  // written as calc() reads as its length or time. The side test and the narrow-room fit both take the max width from
+  // here, the one the bubble is drawn with.
+  const probeRef = React.useRef(null);
+  const tipMetrics = () => {
+    const s = getComputedStyle(probeRef.current);
+    const d = s.transitionDelay.trim();
+    const delay = parseFloat(d) * (d.endsWith("ms") ? 1 : 1000);
+    return { maxWidth: parseFloat(s.maxWidth), offset: parseFloat(s.marginLeft) || 0, delay: Number.isFinite(delay) ? delay : 0 };
   };
-  const readPx = (name) => parseFloat(getComputedStyle(wrapRef.current).getPropertyValue(name));
   React.useEffect(() => () => clearTimeout(tipTimer.current), []);
   // A resized window moves the room under the bubble: the reason closes, and the next rest of the pointer opens it.
   React.useEffect(() => {
@@ -176,7 +179,8 @@ function PaletteCard({ query = "", onQuery, onRun, autoFocus = false, commands =
       const top = list.offsetTop + row.offsetTop - list.scrollTop;
       const r = wrap.getBoundingClientRect();
       const roomBox = wrap.parentElement ? wrap.parentElement.getBoundingClientRect() : { left: 0, right: window.innerWidth };
-      const need = readPx("--tasty-tooltip-max-width") + readPx("--tasty-tooltip-offset");
+      const m = tipMetrics();
+      const need = m.maxWidth + m.offset;
       const roomRight = roomBox.right - r.right;
       const roomLeft = r.left - roomBox.left;
       // Beside the card when the bubble's max width fits on a side; otherwise (the card fills its room) over the card,
@@ -187,7 +191,7 @@ function PaletteCard({ query = "", onQuery, onRun, autoFocus = false, commands =
         const upper = row.offsetTop - list.scrollTop + row.offsetHeight / 2 <= list.clientHeight / 2;
         setTip({ label, reason, y: upper ? top + row.offsetHeight : top, side: upper ? "bottom" : "top" });
       }
-    }, readMs("--tasty-tooltip-delay"));
+    }, tipMetrics().delay);
   };
   // Once drawn, the bubble is kept whole inside the room (the box the card sits in, or the window): shifted the least
   // along each axis, its side and its direction kept.
@@ -201,7 +205,7 @@ function PaletteCard({ query = "", onQuery, onRun, autoFocus = false, commands =
     const room = wrap.parentElement ? wrap.parentElement.getBoundingClientRect() : { left: 0, top: 0, right: window.innerWidth, bottom: window.innerHeight };
     // A room narrower than the bubble's max width narrows the bubble to the room, and its text wraps.
     const roomW = Math.floor(room.right - room.left);
-    if (roomW < readPx("--tasty-tooltip-max-width") && anchor.style.getPropertyValue("--tasty-tooltip-max-width") !== `${roomW}px`) {
+    if (roomW < tipMetrics().maxWidth && anchor.style.getPropertyValue("--tasty-tooltip-max-width") !== `${roomW}px`) {
       anchor.style.setProperty("--tasty-tooltip-max-width", `${roomW}px`);
     }
     const b = bubble.getBoundingClientRect();
@@ -239,6 +243,9 @@ function PaletteCard({ query = "", onQuery, onRun, autoFocus = false, commands =
     /* The box the reason tooltip is placed in: the card's own size, a column like the card, so the room's max-height
        (as clamp_to_screen) reaches the card through it. */
     <div ref={wrapRef} style={{ position: "relative", width: "var(--tasty-palette-width)", display: "flex", flexDirection: "column" }}>
+    {/* The probe the reason's metrics are read from (tipMetrics): zero-size, unseen, outside the column's flow. */}
+    <span ref={probeRef} aria-hidden="true" style={{ position: "absolute", left: 0, top: 0, width: 0, height: 0, visibility: "hidden", pointerEvents: "none",
+      maxWidth: "var(--tasty-tooltip-max-width)", marginLeft: "var(--tasty-tooltip-offset)", transitionDelay: "var(--tasty-tooltip-delay)" }} />
     {/* A column, as the app lays the card out (command_palette.rs): search, then the footer's height reserved at the
        bottom, then the list takes what is left, at least one row, and scrolls inside. When the screen cuts the card
        (the scrim room's max-height, as clamp_to_screen) the list shrinks first and the footer stays whole. */}
