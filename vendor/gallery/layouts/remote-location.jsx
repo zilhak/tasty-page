@@ -104,15 +104,42 @@ const BAR_ROWS = [
 ];
 
 // Status bar tooltip: the item reads the bar's tooltip, text only. Full host, never elided.
-function BarTip({ state = "connected", host = HOST, lang = "en" }) {
+// guessed: the path format this Tasty guessed for the connection, because the remote Tasty did not report one
+// (POSIX or Windows). Then a last line, attach.path_format_guessed, in the same ink as the first.
+// null: the remote reported it, or nothing was guessed — no line.
+function BarTip({ state = "connected", host = HOST, lang = "en", guessed = null }) {
   const c = REMOTE_COPY[lang];
   return (
     <span lang={lang} style={{ display: "flex", flexDirection: "column" }}>
       <span>{state === "reconnecting" ? c.tipLost : c.tip}</span>
       {host && <span style={{ fontFamily: "var(--tasty-font-mono)", overflowWrap: "anywhere" }}>{host}</span>}
+      {guessed && <span data-path-format-guessed={guessed}>{rt("attach.path_format_guessed", lang, guessed)}</span>}
     </span>
   );
 }
+
+// The item under its open tooltip, as the hover views draw it.
+function TipFrame({ pad = 72, host, state = "connected", lang = "en", guessed = null }) {
+  return (
+    <div style={{ paddingTop: pad, display: "flex", justifyContent: "center", minWidth: 300 }}>
+      <Tooltip open placement="top" content={<BarTip state={state} host={host} lang={lang} guessed={guessed} />}>
+        <span style={{ display: "inline-flex", padding: "0 10px", height: "var(--tasty-status-bar-height)", alignItems: "center",
+          background: "var(--tasty-bg-sidebar)", border: "1px solid var(--tasty-border-frame)", borderRadius: "var(--tasty-radius-sm)", fontSize: "var(--tasty-font-size-caption)" }}>
+          <RemoteItem host={host} state={state} lang={lang} />
+        </span>
+      </Tooltip>
+    </div>
+  );
+}
+
+// Path format views: reported (no line) next to guessed, in each tooltip form, then every language.
+const PATH_FORMAT_ROWS = [
+  ["reported by the remote — no line", { host: MID }],
+  ["guessed Windows — the last line", { host: MID, guessed: "Windows" }],
+  ["guessed POSIX — the last line", { host: MID, guessed: "POSIX" }],
+  ["guessed · reconnecting — the line stays under the reconnecting first line", { host: MID, state: "reconnecting", guessed: "POSIX" }],
+  ["guessed · no profile name — the line follows the first line", { host: "", guessed: "Windows" }],
+];
 
 export function RemoteStatusBarSpec() {
   return (
@@ -149,6 +176,16 @@ export function RemoteStatusBarSpec() {
             </Labeled>
           </div>
         </View>
+        <View name="statusbar-remote-path-format" label="Hover — path format reported or guessed (the remote Tasty did not report it)">
+          <div style={{ display: "flex", flexDirection: "column", gap: 16, minWidth: 300 }}>
+            {PATH_FORMAT_ROWS.map(([label, o]) => <Labeled key={label} label={label}><TipFrame pad={88} {...o} /></Labeled>)}
+          </div>
+        </View>
+        <View name="statusbar-remote-path-format-languages" label="Hover — guessed path format, every language">
+          <div style={{ display: "flex", flexDirection: "column", gap: 16, minWidth: 300 }}>
+            {["en", "ko", "ja", "zh-Hans"].map((lang) => <Labeled key={lang} label={`${lang} · guessed Windows`}><TipFrame pad={104} host={MID} lang={lang} guessed="Windows" /></Labeled>)}
+          </div>
+        </View>
         <View name="statusbar-remote-tooltip" label="Hover — the bar's tooltip, full host">
           <div style={{ display: "flex", flexDirection: "column", gap: 16, minWidth: 300 }}>
             {[["connected", "connected", LONG], ["reconnecting", "reconnecting", MID]].map(([label, state, host]) => (
@@ -167,7 +204,7 @@ export function RemoteStatusBarSpec() {
         </View>
       </Views>
       <Meta
-        specs={[["shown", "focused surface is in a mirror workspace — local surface: absent"], ["position", "first in the left cluster, before branch"], ["connected", <>remote glyph 12 + host · both <span className="tok">--tasty-statusbar-remote-fg</span> (crust 12.06 · 5.67 · mantle 11.29 · 6.17)</>], ["reconnecting", <>glyph <span className="tok">--tasty-statusbar-glyph</span> · host <span className="tok">--tasty-text-muted</span> · then <i>reconnecting</i> in <span className="tok">--tasty-font-label</span>, text-muted</>], ["disconnected", <>a saved remote row that stopped retrying (R-58): the reconnecting form with the word <i>disconnected</i> (<code>status_bar.remote_disconnected</code>) · tooltip: the connected tooltip (what it is + host)</>], ["gap", <><span className="tok">--tasty-statusbar-remote-gap</span> 4 — glyph ↔ host ↔ word</>], ["host text", "the host text rule (Dialogs › File handler › Remote path): attach profile name, as it was at connect time (R-57) · no profile name (--ssh or --target-port from the CLI or IPC, a profile saved with an empty name) → the word Remote (attach.mirror_pill_label) in --tasty-font-label, same ink · never 127.0.0.1:<port>, the local end of the tunnel"], ["host font", "mono caption (a config name) · the word Remote, with no profile name: --tasty-font-label"], ["host cap", <><span className="tok">--tasty-statusbar-remote-max-width</span> 160 on the host text · end-elided with …</>], ["widths", "6px advance: 'host' 24 · 'work-laptop-attach' 108 · cap 160 = 26 chars (25 + …)"], ["drop order", "1 grid → 2 shell → 3 surface id → 4 palette cap → 5 branch text → 6 host text (remote glyph stays)"], ["reconnecting floor", "dim glyph + status word + theme glyph"], ["tooltip", <>bar tooltip, text only: <code>attach.mirror_workspace</code> or <code>attach.toast.mirror_reconnecting</code>, then the full host in mono · no profile name: no host line</>], ["click", "none — read-only, like every item but the palette chip and theme"], ["refresh", "follows the session state on the next 1Hz read"]]}
+        specs={[["shown", "focused surface is in a mirror workspace — local surface: absent"], ["position", "first in the left cluster, before branch"], ["connected", <>remote glyph 12 + host · both <span className="tok">--tasty-statusbar-remote-fg</span> (crust 12.06 · 5.67 · mantle 11.29 · 6.17)</>], ["reconnecting", <>glyph <span className="tok">--tasty-statusbar-glyph</span> · host <span className="tok">--tasty-text-muted</span> · then <i>reconnecting</i> in <span className="tok">--tasty-font-label</span>, text-muted</>], ["disconnected", <>a saved remote row that stopped retrying (R-58): the reconnecting form with the word <i>disconnected</i> (<code>status_bar.remote_disconnected</code>) · tooltip: the connected tooltip (what it is + host)</>], ["gap", <><span className="tok">--tasty-statusbar-remote-gap</span> 4 — glyph ↔ host ↔ word</>], ["host text", "the host text rule (Dialogs › File handler › Remote path): attach profile name, as it was at connect time (R-57) · no profile name (--ssh or --target-port from the CLI or IPC, a profile saved with an empty name) → the word Remote (attach.mirror_pill_label) in --tasty-font-label, same ink · never 127.0.0.1:<port>, the local end of the tunnel"], ["host font", "mono caption (a config name) · the word Remote, with no profile name: --tasty-font-label"], ["host cap", <><span className="tok">--tasty-statusbar-remote-max-width</span> 160 on the host text · end-elided with …</>], ["widths", "6px advance: 'host' 24 · 'work-laptop-attach' 108 · cap 160 = 26 chars (25 + …)"], ["drop order", "1 grid → 2 shell → 3 surface id → 4 palette cap → 5 branch text → 6 host text (remote glyph stays)"], ["reconnecting floor", "dim glyph + status word + theme glyph"], ["tooltip", <>bar tooltip, text only: <code>attach.mirror_workspace</code> or <code>attach.toast.mirror_reconnecting</code>, then the full host in mono · no profile name: no host line · then the path format line when it was guessed</>], ["path format", <>the remote Tasty did not report its path format, so this Tasty guessed it from the shape of the paths: a last tooltip line <code>attach.path_format_guessed</code>, its <code>{"{}"}</code> the guessed format, <i>POSIX</i> or <i>Windows</i>, untranslated · ui font, the tooltip's ink, as the first line · the bar item itself does not change · reported by the remote: no line · in every form of the tooltip (connected, reconnecting, disconnected), for the connection the item names</>], ["click", "none — read-only, like every item but the palette chip and theme"], ["refresh", "follows the session state on the next 1Hz read"]]}
         tokens={[{ tok: "--tasty-statusbar-remote-fg", use: "glyph + host, connected", color: "var(--tasty-statusbar-remote-fg)" }, { tok: "--tasty-statusbar-glyph", use: "glyph, reconnecting", color: "var(--tasty-statusbar-glyph)" }, { tok: "--tasty-text-muted", use: "host + word, reconnecting", color: "var(--tasty-text-muted)" }, { tok: "--tasty-statusbar-remote-gap", use: "4" }, { tok: "--tasty-statusbar-remote-max-width", use: "160 host cap" }]} />
       <Note>The remote hue is the only colour in the bar. That is deliberate: it is an <b>identity</b> (where this surface lives), not a status, so it is never a dot. Losing it on reconnect is the signal, and the word says why.</Note>
       <Dont><b>Don't</b> animate the reconnecting state (no spinner, no pulse). The bar reads once a second and carries nothing that changes faster.</Dont>

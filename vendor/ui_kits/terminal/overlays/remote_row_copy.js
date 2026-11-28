@@ -2,6 +2,7 @@
 // confirmation, the reconnect setting and the chain-disabled attach row. Values for tasty lang/*.toml.
 // Written by Codex in four languages and checked by script (placeholders, line breaks, script mixing,
 // glossary avoid terms). status_bar.remote_reconnecting and attach.mirror_workspace are reused as they are.
+// attach.path_format_guessed is the status bar remote tooltip's last line (Layouts › Remote item); {} is POSIX or Windows.
 // child_graph.reconnect and child_graph.reconnecting are reused from graph_copy.js.
 import { GRAPH_COPY } from "./graph_copy.js";
 
@@ -43,6 +44,7 @@ export const REMOTE_ROW_COPY = {
   "remote_attach.chain_badge": {"en": "mirror", "ko": "미러", "ja": "ミラー", "zh-Hans": "镜像"},
   "status_bar.remote_reconnecting": {"en": "reconnecting", "ko": "재연결 중", "ja": "再接続中", "zh-Hans": "重新连接中"},
   "attach.mirror_workspace": {"en": "Mirror of a remote workspace", "ko": "원격 워크스페이스의 미러 화면", "ja": "リモートワークスペースのミラー", "zh-Hans": "远程工作区的镜像"},
+  "attach.path_format_guessed": {"en": "Path format guessed as {} (remote Tasty didn't report it).", "ko": "원격 Tasty가 경로 형식을 알려 주지 않아 {}로 추정했습니다.", "ja": "リモートの Tasty がパス形式を通知しなかったため、{} と推定しました。", "zh-Hans": "远程 Tasty 未报告路径格式，因此推测为 {}。"},
   "child_graph.reconnect": GRAPH_COPY["child_graph.reconnect"],
   "child_graph.reconnecting": GRAPH_COPY["child_graph.reconnecting"],
 };
