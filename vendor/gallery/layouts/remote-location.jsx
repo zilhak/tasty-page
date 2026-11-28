@@ -176,12 +176,12 @@ export function RemoteStatusBarSpec() {
             </Labeled>
           </div>
         </View>
-        <View name="statusbar-remote-path-format" label="Hover — path format reported or guessed (the remote Tasty did not report it)">
+        <View wide name="statusbar-remote-path-format" label="Hover — path format reported or guessed (the remote Tasty did not report it)">
           <div style={{ display: "flex", flexDirection: "column", gap: 16, minWidth: 300 }}>
             {PATH_FORMAT_ROWS.map(([label, o]) => <Labeled key={label} label={label}><TipFrame pad={88} {...o} /></Labeled>)}
           </div>
         </View>
-        <View name="statusbar-remote-path-format-languages" label="Hover — guessed path format, every language">
+        <View wide name="statusbar-remote-path-format-languages" label="Hover — guessed path format, every language">
           <div style={{ display: "flex", flexDirection: "column", gap: 16, minWidth: 300 }}>
             {["en", "ko", "ja", "zh-Hans"].map((lang) => <Labeled key={lang} label={`${lang} · guessed Windows`}><TipFrame pad={104} host={MID} lang={lang} guessed="Windows" /></Labeled>)}
           </div>
